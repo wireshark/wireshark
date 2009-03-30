@@ -138,6 +138,57 @@ static int hf_dect_A_Tail_Qt_3_A28		= -1;
 static int hf_dect_A_Tail_Qt_3_A29		= -1;
 static int hf_dect_A_Tail_Qt_3_A30		= -1;
 static int hf_dect_A_Tail_Qt_3_A31		= -1;
+static int hf_dect_A_Tail_Qt_3_A32		= -1;
+static int hf_dect_A_Tail_Qt_3_A33		= -1;
+static int hf_dect_A_Tail_Qt_3_A34		= -1;
+static int hf_dect_A_Tail_Qt_3_A35		= -1;
+static int hf_dect_A_Tail_Qt_3_A36		= -1;
+static int hf_dect_A_Tail_Qt_3_A37		= -1;
+static int hf_dect_A_Tail_Qt_3_A38		= -1;
+static int hf_dect_A_Tail_Qt_3_A39		= -1;
+static int hf_dect_A_Tail_Qt_3_A40		= -1;
+static int hf_dect_A_Tail_Qt_3_A41		= -1;
+static int hf_dect_A_Tail_Qt_3_A42		= -1;
+static int hf_dect_A_Tail_Qt_3_A43		= -1;
+static int hf_dect_A_Tail_Qt_3_A44		= -1;
+static int hf_dect_A_Tail_Qt_3_A45		= -1;
+static int hf_dect_A_Tail_Qt_3_A46		= -1;
+static int hf_dect_A_Tail_Qt_3_A47		= -1;
+static int hf_dect_A_Tail_Qt_4_CRFPHops		= -1;
+static int hf_dect_A_Tail_Qt_4_CRFPEnc		= -1;
+static int hf_dect_A_Tail_Qt_4_REFHops		= -1;
+static int hf_dect_A_Tail_Qt_4_REPCap		= -1;
+static int hf_dect_A_Tail_Qt_4_Sync		= -1;
+static int hf_dect_A_Tail_Qt_4_A20		= -1;
+static int hf_dect_A_Tail_Qt_4_MACSusp		= -1;
+static int hf_dect_A_Tail_Qt_4_MACIpq		= -1;
+static int hf_dect_A_Tail_Qt_4_A23		= -1;
+static int hf_dect_A_Tail_Qt_4_A24		= -1;
+static int hf_dect_A_Tail_Qt_4_A25		= -1;
+static int hf_dect_A_Tail_Qt_4_A26		= -1;
+static int hf_dect_A_Tail_Qt_4_A27		= -1;
+static int hf_dect_A_Tail_Qt_4_A28		= -1;
+static int hf_dect_A_Tail_Qt_4_A29		= -1;
+static int hf_dect_A_Tail_Qt_4_A30		= -1;
+static int hf_dect_A_Tail_Qt_4_A31		= -1;
+static int hf_dect_A_Tail_Qt_4_A32		= -1;
+static int hf_dect_A_Tail_Qt_4_A33		= -1;
+static int hf_dect_A_Tail_Qt_4_A34		= -1;
+static int hf_dect_A_Tail_Qt_4_A35		= -1;
+static int hf_dect_A_Tail_Qt_4_A36		= -1;
+static int hf_dect_A_Tail_Qt_4_A37		= -1;
+static int hf_dect_A_Tail_Qt_4_A38		= -1;
+static int hf_dect_A_Tail_Qt_4_A39		= -1;
+static int hf_dect_A_Tail_Qt_4_A40		= -1;
+static int hf_dect_A_Tail_Qt_4_A41		= -1;
+static int hf_dect_A_Tail_Qt_4_A42		= -1;
+static int hf_dect_A_Tail_Qt_4_A43		= -1;
+static int hf_dect_A_Tail_Qt_4_A44		= -1;
+static int hf_dect_A_Tail_Qt_4_A45		= -1;
+static int hf_dect_A_Tail_Qt_4_A46		= -1;
+static int hf_dect_A_Tail_Qt_4_A47		= -1;
+static int hf_dect_A_Tail_Qt_6_Spare		= -1;
+static int hf_dect_A_Tail_Qt_6_Mfn		= -1;
 static int hf_dect_A_Tail_Mt_Mh			= -1;
 static int hf_dect_A_Tail_Mt_BasicConCtrl	= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd1		= -1;
@@ -430,143 +481,496 @@ static const value_string QTScanCarrierNum_vals[]=
 
 static const value_string Qt_A12_vals[]=
 {
-	{0, ""},
+	{0, "   Extended FP Info"},
 	{1, "Extended FP Info"},
 	{0, NULL}
 };
 
 static const value_string Qt_A13_vals[]=
 {
-	{0, ""},
+	{0, "   Double Duplex Bearer Connections"},
 	{1, "Double Duplex Bearer Connections"},
 	{0, NULL}
 };
 
 static const value_string Qt_A14_vals[]=
 {
-	{0, ""},
+	{0, "   Reserved"},
 	{1, "Reserved"},
 	{0, NULL}
 };
 
 static const value_string Qt_A15_vals[]=
 {
-	{0, ""},
+	{0, "   Double Slot"},
 	{1, "Double Slot"},
 	{0, NULL}
 };
 
 static const value_string Qt_A16_vals[]=
 {
-	{0, ""},
+	{0, "   Half Slot"},
 	{1, "Half Slot"},
 	{0, NULL}
 };
 
 static const value_string Qt_A17_vals[]=
 {
-	{0, ""},
+	{0, "   Full Slot"},
 	{1, "Full Slot"},
 	{0, NULL}
 };
 
 static const value_string Qt_A18_vals[]=
 {
-	{0, ""},
+	{0, "   Frequency Control"},
 	{1, "Frequency Control"},
 	{0, NULL}
 };
 
 static const value_string Qt_A19_vals[]=
 {
-	{0, ""},
+	{0, "   Page Repetition"},
 	{1, "Page Repetition"},
 	{0, NULL}
 };
 
 static const value_string Qt_A20_vals[]=
 {
-	{0, ""},
+	{0, "   C/O Setup on Dummy allowed"},
 	{1, "C/O Setup on Dummy allowed"},
 	{0, NULL}
 };
 
 static const value_string Qt_A21_vals[]=
 {
-	{0, ""},
+	{0, "   C/L Uplink"},
 	{1, "C/L Uplink"},
 	{0, NULL}
 };
 
 static const value_string Qt_A22_vals[]=
 {
-	{0, ""},
+	{0, "   C/L Downlink"},
 	{1, "C/L Downlink"},
 	{0, NULL}
 };
 
 static const value_string Qt_A23_vals[]=
 {
-	{0, ""},
+	{0, "   Basic A-Field Set-Up"},
 	{1, "Basic A-Field Set-Up"},
 	{0, NULL}
 };
 
 static const value_string Qt_A24_vals[]=
 {
-	{0, ""},
+	{0, "   Advanced A-Field Set-Up"},
 	{1, "Advanced A-Field Set-Up"},
 	{0, NULL}
 };
 
 static const value_string Qt_A25_vals[]=
 {
-	{0, ""},
+	{0, "   B-field Set-Up"},
 	{1, "B-field Set-Up"},
 	{0, NULL}
 };
 
 static const value_string Qt_A26_vals[]=
 {
-	{0, ""},
+	{0, "   Cf Messages"},
 	{1, "Cf Messages"},
 	{0, NULL}
 };
 
 static const value_string Qt_A27_vals[]=
 {
-	{0, ""},
+	{0, "   In Minimum Delay"},
 	{1, "In Minimum Delay"},
 	{0, NULL}
 };
 
 static const value_string Qt_A28_vals[]=
 {
-	{0, ""},
+	{0, "   In Normal Delay"},
 	{1, "In Normal Delay"},
 	{0, NULL}
 };
 
 static const value_string Qt_A29_vals[]=
 {
-	{0, ""},
+	{0, "   Ip Error Detection"},
 	{1, "Ip Error Detection"},
 	{0, NULL}
 };
 
 static const value_string Qt_A30_vals[]=
 {
-	{0, ""},
+	{0, "   Ip Error Correction"},
 	{1, "Ip Error Correction"},
 	{0, NULL}
 };
 
 static const value_string Qt_A31_vals[]=
 {
-	{0, ""},
+	{0, "   Multibearer Connections"},
 	{1, "Multibearer Connections"},
 	{0, NULL}
 };
+
+static const value_string Qt_A32_vals[]=
+{
+	{0, "   ADPCM/G.726 Voice service"},
+	{1, "ADPCM/G.726 Voice service"},
+	{0, NULL}
+};
+
+static const value_string Qt_A33_vals[]=
+{
+	{0, "   GAP basic speech"},
+	{1, "GAP basic speech"},
+	{0, NULL}
+};
+
+static const value_string Qt_A34_vals[]=
+{
+	{0, "   Non-voice circuit switched service"},
+	{1, "Non-voice circuit switched service"},
+	{0, NULL}
+};
+
+static const value_string Qt_A35_vals[]=
+{
+	{0, "   Non-voice packet switched service"},
+	{1, "Non-voice packet switched service"},
+	{0, NULL}
+};
+
+static const value_string Qt_A36_vals[]=
+{
+	{0, "   Standard authentication required"},
+	{1, "Standard authentication required"},
+	{0, NULL}
+};
+
+static const value_string Qt_A37_vals[]=
+{
+	{0, "   Standard ciphering supported"},
+	{1, "Standard ciphering supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_A38_vals[]=
+{
+	{0, "   Location registration supported"},
+	{1, "Location registration supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_A39_vals[]=
+{
+	{0, "   SIM services available"},
+	{1, "SIM services available"},
+	{0, NULL}
+};
+
+static const value_string Qt_A40_vals[]=
+{
+	{0, "   Non-static Fixed Part (FP)"},
+	{1, "Non-static Fixed Part (FP)"},
+	{0, NULL}
+};
+
+static const value_string Qt_A41_vals[]=
+{
+	{0, "   CISS services available"},
+	{1, "CISS services available"},
+	{0, NULL}
+};
+
+static const value_string Qt_A42_vals[]=
+{
+	{0, "   CLMS service available"},
+	{1, "CLMS service available"},
+	{0, NULL}
+};
+
+static const value_string Qt_A43_vals[]=
+{
+	{0, "   COMS service available"},
+	{1, "COMS service available"},
+	{0, NULL}
+};
+
+static const value_string Qt_A44_vals[]=
+{
+	{0, "   Access rights requests supported"},
+	{1, "Access rights requests supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_A45_vals[]=
+{
+	{0, "   External handover supported"},
+	{1, "External handover supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_A46_vals[]=
+{
+	{0, "   Connection handover supported"},
+	{1, "Connection handover supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_A47_vals[]=
+{
+	{0, "   Reserved"},
+	{1, "Reserved"},
+	{0, NULL}
+};
+
+
+static const value_string Qt_EA20_vals[]=
+{
+	{0, "   Reserved"},
+	{1, "Reserved"},
+	{0, NULL}
+};
+
+static const value_string Qt_CRFPHops_vals[]=
+{
+	{0, "1 CRFP is allowed"},
+	{1, "2 CRFP allowed in cascade"},
+	{2, "3 CRFP allowed in cascade"},
+	{3, "No CRFP allowed"},
+	{0, NULL}
+};
+
+static const value_string Qt_CRFPEnc_vals[]=
+{
+	{0, "CRFP encryption not supported"},
+	{1, "CRFP encryption supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_REPHops_vals[]=
+{
+	{0, "REP not supported"},
+	{1, "1 REP is allowed"},
+	{2, "2 REP are allowed in cascade"},
+	{3, "3 REP are allowed in cascade"},
+	{0, NULL}
+};
+
+static const value_string Qt_REPCap_vals[]=
+{
+	{0, "REP interlacing not supported"},
+	{1, "REP interlacing supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_Sync_vals[]=
+{
+	{0, "standard, see EN 300 175-2 [2], clauses 4.6 and 5.2"},
+	{1, "prolonged preamble, see EN 300 175-2 [2], annex C (see note)"},
+	{2, "reserved"},
+	{3, "reserved"},
+	{0, NULL}
+};
+
+static const value_string Qt_MACSusp_vals[]=
+{
+	{0, "Suspend and Resume not supported"},
+	{1, "Suspend and Resume supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_MACIpq_vals[]=
+{
+	{0, "Ipq not supported"},
+	{1, "Ipq supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA23_vals[]=
+{
+	{0, "   Extended Fixed Part Info 2"},
+	{1, "Extended Fixed Part Info 2"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA24_vals[]=
+{
+	{0, "   Unused"},
+	{1, "Unused"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA25_vals[]=
+{
+	{0, "   F-MMS Interworking profile supported"},
+	{1, "F-MMS Interworking profile supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA26_vals[]=
+{
+	{0, "   Basic ODAP supported"},
+	{1, "Basic ODAP supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA27_vals[]=
+{
+	{0, "   Generic Media Encapsulation transport (DPRS) supported"},
+	{1, "Generic Media Encapsulation transport (DPRS) supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA28_vals[]=
+{
+	{0, "   IP Roaming unrestricted supported"},
+	{1, "IP Roaming unrestricted supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA29_vals[]=
+{
+	{0, "   Ethernet"},
+	{1, "Ethernet"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA30_vals[]=
+{
+	{0, "   Token Ring"},
+	{1, "Token Ring"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA31_vals[]=
+{
+	{0, "   IP"},
+	{1, "IP"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA32_vals[]=
+{
+	{0, "   PPP"},
+	{1, "PPP"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA33_vals[]=
+{
+	{0, "   V.24"},
+	{1, "V.24"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA34_vals[]=
+{
+	{0, "   Reserved"},
+	{1, "Reserved"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA35_vals[]=
+{
+	{0, "   Reserved"},
+	{1, "Reserved"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA36_vals[]=
+{
+	{0, "   RAP Part 1 Profile"},
+	{1, "RAP Part 1 Profile"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA37_vals[]=
+{
+	{0, "   ISDN intermediate system"},
+	{1, "ISDN intermediate system"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA38_vals[]=
+{
+	{0, "   Synchronization to GPS achieved"},
+	{1, "Synchronization to GPS achieved"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA39_vals[]=
+{
+	{0, "   Location registration with TPUI allowed"},
+	{1, "Location registration with TPUI allowed"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA40_vals[]=
+{
+	{0, "   Emergency call supported"},
+	{1, "Emergency call supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA41_vals[]=
+{
+	{0, "   Asymmetric bearers supported"},
+	{1, "Asymmetric bearers supported"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA42_vals[]=
+{
+	{0, "   Reserved"},
+	{1, "Reserved"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA43_vals[]=
+{
+	{0, "   LRMS"},
+	{1, "LRMS"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA44_vals[]=
+{
+	{0, "   Data Service Profile D"},
+	{1, "Data Service Profile D"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA45_vals[]=
+{
+	{0, "   DPRS Stream"},
+	{1, "DPRS Stream"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA46_vals[]=
+{
+	{0, "   DPRS FREL"},
+	{1, "DPRS FREL"},
+	{0, NULL}
+};
+
+static const value_string Qt_EA47_vals[]=
+{
+	{0, "   ISDN Data Services"},
+	{1, "ISDN Data Services"},
+	{0, NULL}
+};
+
+
+
 
 static const value_string MTHead_vals[]=
 {
@@ -716,7 +1120,7 @@ calc_xcrc(guint8* data, guint8 length)
 {
 	guint8 bits[21];
 	guint8 gp=0x1;
-	guint8 div;
+	guint8 crc;
 	guint8 next;
 	int y, x;
 
@@ -725,7 +1129,7 @@ calc_xcrc(guint8* data, guint8 length)
 		setbit(bits, y, getbit(data, y+48*(1+(int)(y/16))));
 	}
 	length=10;
-	div=bits[0];
+	crc=bits[0];
 	y=0;
 	while(y<length)
 	{
@@ -737,10 +1141,10 @@ calc_xcrc(guint8* data, guint8 length)
 		x=0;
 		while(x<8)
 		{
-			while(!(div&0x80))
+			while(!(crc&0x80))
 			{
-				div<<=1;
-				div|=!!(next&0x80);
+				crc<<=1;
+				crc|=!!(next&0x80);
 				next<<=1;
 				x++;
 				if(x>7)
@@ -748,15 +1152,15 @@ calc_xcrc(guint8* data, guint8 length)
 			}
 			if(x>7)
 				break;
-			div<<=1;
-			div|=!!(next&0x80);
+			crc<<=1;
+			crc|=!!(next&0x80);
 			next<<=1;
 			x++;
-			div^=(gp<<4);
+			crc^=(gp<<4);
 		}
 	}
-/* 	div^=0x10; */
-	return div;
+/* 	crc^=0x10; */
+	return crc;
 }
 
 static guint16
@@ -764,11 +1168,11 @@ calc_rcrc(guint8* data)
 {
 	guint16 gp=0x0589;		/* 10000010110001001 without the leading 1 */
 
-	guint16 div;
+	guint16 crc;
 	guint8 next;
 	int y, x;
 
-	div=data[0]<<8|data[1];
+	crc=data[0]<<8|data[1];
 	y=0;
 	while(y<6)
 	{
@@ -777,10 +1181,10 @@ calc_rcrc(guint8* data)
 		x=0;
 		while(x<8)
 		{
-			while(!(div&0x8000))
+			while(!(crc&0x8000))
 			{
-				div<<=1;
-				div|=!!(next&0x80);
+				crc<<=1;
+				crc|=!!(next&0x80);
 				next<<=1;
 				x++;
 				if(x>7)
@@ -788,15 +1192,15 @@ calc_rcrc(guint8* data)
 			}
 			if(x>7)
 				break;
-			div<<=1;
-			div|=!!(next&0x80);
+			crc<<=1;
+			crc|=!!(next&0x80);
 			next<<=1;
 			x++;
-			div^=gp;
+			crc^=gp;
 		}
 	}
-	div^=1;
-	return div;
+	crc^=1;
+	return crc;
 }
 
 static gint
@@ -1027,7 +1431,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
 			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Qt]");
 
-		proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, (pkt_afield->Tail[0]));
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, FALSE);
 
 		switch(pkt_afield->Tail[0]>>4)
 		{
@@ -1036,14 +1440,14 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Static System Info");
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, (pkt_afield->Tail[0]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, (pkt_afield->Tail[0]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Sp, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Esc, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Txs, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Mc, tvb, offset, 1, (pkt_afield->Tail[1]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sp, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Esc, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Txs, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Mc, tvb, offset, 1, FALSE);
 			offset++;
 
 			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, " Carrier%s%s%s%s%s%s%s%s%s%s available",
@@ -1053,12 +1457,12 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 				(pkt_afield->Tail[2]&0x01)?" 9":"");
 			offset++;
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, (pkt_afield->Tail[3]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Cn, tvb, offset, 1, (pkt_afield->Tail[3]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Cn, tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_Spr2, tvb, offset, 1, (pkt_afield->Tail[4]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_0_PSCN, tvb, offset, 1, (pkt_afield->Tail[4]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr2, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_PSCN, tvb, offset, 1, FALSE);
 			offset++;
 			/* due to addition further down */
 			offset-=5;
@@ -1071,31 +1475,53 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Fixed Part Capabilities");
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, (pkt_afield->Tail[0]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, (pkt_afield->Tail[0]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A14, tvb, offset, 1, (pkt_afield->Tail[0]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A15, tvb, offset, 1, (pkt_afield->Tail[0]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A14, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A15, tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A16, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A17, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A18, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A19, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A20, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A21, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A22, tvb, offset, 1, (pkt_afield->Tail[1]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A23, tvb, offset, 1, (pkt_afield->Tail[1]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A16, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A17, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A18, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A19, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A20, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A21, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A22, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A23, tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A24, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A25, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A26, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A27, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A28, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A29, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A30, tvb, offset, 1, (pkt_afield->Tail[2]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Qt_3_A31, tvb, offset, 1, (pkt_afield->Tail[2]));
-			offset+=3;
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A24, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A25, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A26, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A27, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A28, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A29, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A30, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A31, tvb, offset, 1, FALSE);
+			offset++;
+
+
+			/* higher layer capabilities */
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A32, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A33, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A34, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A35, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A36, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A37, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A38, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A39, tvb, offset, 1, FALSE);
+			offset++;
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A40, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A41, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A42, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A43, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A44, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A45, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A46, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A47, tvb, offset, 1, FALSE);
+			offset++;
 
 			/* due to addition further down */
 			offset-=5;
@@ -1103,6 +1529,57 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 4:		/* Extended Fixed Part Capabilities */
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended Fixed Part Capabilities");
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REFHops, tvb, offset, 2,
+							((pkt_afield->Tail[0]&0x01)<<1)|((pkt_afield->Tail[1]&0x80)>>7));
+			offset++;
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REPCap, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_Sync, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A20, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACSusp, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACIpq, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A23, tvb, offset, 1, FALSE);
+			offset++;
+
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A24, tvb, offset, 1, FALSE);
+
+			/* higher layer capabilities */
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A25, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A26, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A27, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A28, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A29, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A30, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A31, tvb, offset, 1, FALSE);
+			offset++;
+
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A32, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A33, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A34, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A35, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A36, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A37, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A38, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A39, tvb, offset, 1, FALSE);
+			offset++;
+
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A40, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A41, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A42, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A43, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A44, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A45, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A46, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A47, tvb, offset, 1, FALSE);
+			offset++;
+
+			/* due to addition further down */
+			offset-=5;
 			break;
 		case 5:		/* SARI List Contents */
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
@@ -1111,6 +1588,17 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 6:		/* Multi-Frame No. */
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Multi-Frame No.");
+
+			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, 0x2323,"Spare Bits: %.1x%.2x",
+								(pkt_afield->Tail[0])&0x0f,(pkt_afield->Tail[1]));
+			offset+=2;
+
+			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 3, 0x2323,"Multiframe Number: %.2x%.2x%.2x",
+								(pkt_afield->Tail[2]),(pkt_afield->Tail[3]),(pkt_afield->Tail[4]));
+			offset+=3;
+
+			/* due to addition further down */
+			offset-=5;
 			break;
 		case 7:		/* Escape */
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
@@ -1132,7 +1620,10 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Transmit Information(?)");
 			break;
-		case 12:	/* Reserved */
+		case 12:	/* Extended Fixed Part Capabilities 2 */
+			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended Fixed Part Capabilities 2");
+			break;
 		case 13:
 		case 14:
 		case 15:
@@ -1156,7 +1647,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 0:		/* Basic Connection Control */
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Basic Connection Control");
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, (pkt_afield->Tail[0]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
 			offset++;
 
 			if(((pkt_afield->Tail[0]&&0x0f)==6)||((pkt_afield->Tail[0]&&0x0f)==7))
@@ -1195,8 +1686,8 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Encryption Control");
 
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, (pkt_afield->Tail[0]));
-			proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, (pkt_afield->Tail[0]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, FALSE);
 			offset++;
 
 			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, "FMID:%.3x", (pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
@@ -1240,8 +1731,8 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
 			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Pt]");
 
-		proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, (pkt_afield->Tail[0]));
-		proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, (pkt_afield->Tail[0]));
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, FALSE);
 		switch((pkt_afield->Tail[0]&0x70)>>4)
 		{
 		case 0:		/* Zero Length Page */
@@ -1253,7 +1744,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "RFPI:xxxxx%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
-				proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, (pkt_afield->Tail[3]));
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
 			}
 			else
 			{
@@ -1262,7 +1753,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "Bs Data:%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
-				proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, (pkt_afield->Tail[3]));
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
 			}
 			switch(pkt_afield->Tail[3]>>4)
 			{
@@ -1286,11 +1777,11 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			case 4: /* Good RFP Bearer */
 			case 5: /* Dummy or connectionless Bearer Position */
 			case 12: /* Connectionless Bearer Position */
-				proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_Bearer_Sn, tvb, offset, 1, (pkt_afield->Tail[3]));
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sn, tvb, offset, 1, FALSE);
 				offset++;
 
-				proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_Bearer_Sp, tvb, offset, 1, (pkt_afield->Tail[4]));
-				proto_tree_add_uint(ATail, hf_dect_A_Tail_Pt_Bearer_Cn, tvb, offset, 1, (pkt_afield->Tail[4]));
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sp, tvb, offset, 1, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Cn, tvb, offset, 1, FALSE);
 				offset++;
 				break;
 			case 6: /* Extended Modulation Types */
@@ -1676,6 +2167,220 @@ proto_register_dect(void)
 		{ &hf_dect_A_Tail_Qt_3_A31,
 		{"A31", "dect.afield.tail.Qt.Fp.A31", FT_UINT8, BASE_DEC, VALS(Qt_A31_vals),
 			0x01, NULL, HFILL}},
+
+
+		/* higher layer capabilities */
+		{ &hf_dect_A_Tail_Qt_3_A32,
+		{"A32", "dect.afield.tail.Qt.Fp.A32", FT_UINT8, BASE_DEC, VALS(Qt_A32_vals),
+			0x80, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A33,
+		{"A33", "dect.afield.tail.Qt.Fp.A33", FT_UINT8, BASE_DEC, VALS(Qt_A33_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A34,
+		{"A34", "dect.afield.tail.Qt.Fp.A34", FT_UINT8, BASE_DEC, VALS(Qt_A34_vals),
+			0x20, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A35,
+		{"A35", "dect.afield.tail.Qt.Fp.A35", FT_UINT8, BASE_DEC, VALS(Qt_A35_vals),
+			0x10, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A36,
+		{"A36", "dect.afield.tail.Qt.Fp.A36", FT_UINT8, BASE_DEC, VALS(Qt_A36_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A37,
+		{"A37", "dect.afield.tail.Qt.Fp.A37", FT_UINT8, BASE_DEC, VALS(Qt_A37_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A38,
+		{"A38", "dect.afield.tail.Qt.Fp.A38", FT_UINT8, BASE_DEC, VALS(Qt_A38_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A39,
+		{"A39", "dect.afield.tail.Qt.Fp.A39", FT_UINT8, BASE_DEC, VALS(Qt_A39_vals),
+			0x01, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A40,
+		{"A40", "dect.afield.tail.Qt.Fp.A40", FT_UINT8, BASE_DEC, VALS(Qt_A40_vals),
+			0x80, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A41,
+		{"A41", "dect.afield.tail.Qt.Fp.A41", FT_UINT8, BASE_DEC, VALS(Qt_A41_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A42,
+		{"A42", "dect.afield.tail.Qt.Fp.A42", FT_UINT8, BASE_DEC, VALS(Qt_A42_vals),
+			0x20, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A43,
+		{"A43", "dect.afield.tail.Qt.Fp.A43", FT_UINT8, BASE_DEC, VALS(Qt_A43_vals),
+			0x10, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A44,
+		{"A44", "dect.afield.tail.Qt.Fp.A44", FT_UINT8, BASE_DEC, VALS(Qt_A44_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A45,
+		{"A45", "dect.afield.tail.Qt.Fp.A45", FT_UINT8, BASE_DEC, VALS(Qt_A45_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A46,
+		{"A46", "dect.afield.tail.Qt.Fp.A46", FT_UINT8, BASE_DEC, VALS(Qt_A46_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A47,
+		{"A47", "dect.afield.tail.Qt.Fp.A47", FT_UINT8, BASE_DEC, VALS(Qt_A47_vals),
+			0x01, NULL, HFILL}},
+
+	/* Qt Extended Fixed Part Capabilities */
+
+		{ &hf_dect_A_Tail_Qt_4_CRFPHops,
+		{"CRFP Hops", "dect.afield.tail.Qt.Efp.CRFPHops", FT_UINT8, BASE_DEC, VALS(Qt_CRFPHops_vals),
+			0x0C, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_CRFPEnc,
+		{"CRFP Enc", "dect.afield.tail.Qt.Efp.CRFPEnc", FT_UINT8, BASE_DEC, VALS(Qt_CRFPEnc_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_REFHops,
+		{"REP Hops", "dect.afield.tail.Qt.Efp.REPHops", FT_UINT8, BASE_DEC, VALS(Qt_REPHops_vals),
+			0x03, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_REPCap,
+		{"REP Cap.", "dect.afield.tail.Qt.Efp.REPCap", FT_UINT8, BASE_DEC, VALS(Qt_REPCap_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_Sync,
+		{"Sync", "dect.afield.tail.Qt.Efp.Sync", FT_UINT8, BASE_DEC, VALS(Qt_Sync_vals),
+			0x30, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A20,
+		{"A20", "dect.afield.tail.Qt.Efp.A20", FT_UINT8, BASE_DEC, VALS(Qt_EA20_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_MACSusp,
+		{"MAC Suspend", "dect.afield.tail.Qt.Efp.MACSusp", FT_UINT8, BASE_DEC, VALS(Qt_MACSusp_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_MACIpq,
+		{"MAC Ipq", "dect.afield.tail.Qt.Efp.MACIpq", FT_UINT8, BASE_DEC, VALS(Qt_MACIpq_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A23,
+		{"A23", "dect.afield.tail.Qt.Efp.A23", FT_UINT8, BASE_DEC, VALS(Qt_EA23_vals),
+			0x01, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A24,
+		{"A24", "dect.afield.tail.Qt.Efp.A24", FT_UINT8, BASE_DEC, VALS(Qt_EA24_vals),
+			0x80, NULL, HFILL}},
+
+
+		/* Higher Layer Capabilities */
+
+		{ &hf_dect_A_Tail_Qt_4_A25,
+		{"A25", "dect.afield.tail.Qt.Efp.A25", FT_UINT8, BASE_DEC, VALS(Qt_EA25_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A26,
+		{"A26", "dect.afield.tail.Qt.Efp.A26", FT_UINT8, BASE_DEC, VALS(Qt_EA26_vals),
+			0x20, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A27,
+		{"A27", "dect.afield.tail.Qt.Efp.A27", FT_UINT8, BASE_DEC, VALS(Qt_EA27_vals),
+			0x10, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A28,
+		{"A28", "dect.afield.tail.Qt.Efp.A28", FT_UINT8, BASE_DEC, VALS(Qt_EA28_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A29,
+		{"A29", "dect.afield.tail.Qt.Efp.A29", FT_UINT8, BASE_DEC, VALS(Qt_EA29_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A30,
+		{"A30", "dect.afield.tail.Qt.Efp.A30", FT_UINT8, BASE_DEC, VALS(Qt_EA30_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A31,
+		{"A31", "dect.afield.tail.Qt.Efp.A31", FT_UINT8, BASE_DEC, VALS(Qt_EA31_vals),
+			0x01, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A32,
+		{"A32", "dect.afield.tail.Qt.Efp.A32", FT_UINT8, BASE_DEC, VALS(Qt_EA32_vals),
+			0x80, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A33,
+		{"A33", "dect.afield.tail.Qt.Efp.A33", FT_UINT8, BASE_DEC, VALS(Qt_EA33_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A34,
+		{"A34", "dect.afield.tail.Qt.Efp.A34", FT_UINT8, BASE_DEC, VALS(Qt_EA34_vals),
+			0x20, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A35,
+		{"A35", "dect.afield.tail.Qt.Efp.A35", FT_UINT8, BASE_DEC, VALS(Qt_EA35_vals),
+			0x10, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A36,
+		{"A36", "dect.afield.tail.Qt.Efp.A36", FT_UINT8, BASE_DEC, VALS(Qt_EA36_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A37,
+		{"A37", "dect.afield.tail.Qt.Efp.A37", FT_UINT8, BASE_DEC, VALS(Qt_EA37_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A38,
+		{"A38", "dect.afield.tail.Qt.Efp.A38", FT_UINT8, BASE_DEC, VALS(Qt_EA38_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A39,
+		{"A39", "dect.afield.tail.Qt.Efp.A39", FT_UINT8, BASE_DEC, VALS(Qt_EA39_vals),
+			0x01, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A40,
+		{"A40", "dect.afield.tail.Qt.Efp.A40", FT_UINT8, BASE_DEC, VALS(Qt_EA40_vals),
+			0x80, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A41,
+		{"A41", "dect.afield.tail.Qt.Efp.A41", FT_UINT8, BASE_DEC, VALS(Qt_EA41_vals),
+			0x40, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A42,
+		{"A42", "dect.afield.tail.Qt.Efp.A42", FT_UINT8, BASE_DEC, VALS(Qt_EA42_vals),
+			0x20, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A43,
+		{"A43", "dect.afield.tail.Qt.Efp.A43", FT_UINT8, BASE_DEC, VALS(Qt_EA43_vals),
+			0x10, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A44,
+		{"A44", "dect.afield.tail.Qt.Efp.A44", FT_UINT8, BASE_DEC, VALS(Qt_EA44_vals),
+			0x08, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A45,
+		{"A45", "dect.afield.tail.Qt.Efp.A45", FT_UINT8, BASE_DEC, VALS(Qt_EA45_vals),
+			0x04, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A46,
+		{"A46", "dect.afield.tail.Qt.Efp.A46", FT_UINT8, BASE_DEC, VALS(Qt_EA46_vals),
+			0x02, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_4_A47,
+		{"A47", "dect.afield.tail.Qt.Efp.A47", FT_UINT8, BASE_DEC, VALS(Qt_EA47_vals),
+			0x01, NULL, HFILL}},
+
+
+	/* Qt Multiframe  Number */
+		{ &hf_dect_A_Tail_Qt_6_Spare,
+		{"Spare Bits", "dect.afield.tail.Qt.Mfn.Spare", FT_UINT8, BASE_DEC, NULL,
+			0x0F, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_6_Mfn,
+		{"Multiframe Number", "dect.afield.tail.Qt.Mfn.Mfn", FT_UINT8, BASE_DEC, NULL,
+			0xFF, NULL, HFILL}},
+
 
 	/* Mt */
 		{ &hf_dect_A_Tail_Mt_Mh,
