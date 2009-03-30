@@ -54,7 +54,7 @@ guint8 val_to_strlen(guint32 val, const value_string *vs) {
   const gchar *ret;
   ret = match_strval(val, vs);
   if (ret != NULL)
-    return strlen(ret);
+    return (guint8) strlen(ret);
 
   return 100;
 }
@@ -434,15 +434,14 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint8 Bytex = 0;
 	guint8 Ind = 0;
 	struct asduheader * asduh;
-	char * res = NULL;
+	emem_strbuf_t * res;
 	proto_item * it104 = NULL;
 	proto_tree * trHead;
 
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
 	asduh = ep_alloc(sizeof(struct asduheader));
-	res = ep_alloc(MAXS);
-	res[0] = '\0';
+	res = ep_strbuf_new_label("");
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))  {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
@@ -464,32 +463,32 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		asduh->NumIx = Bytex & 0x7F;
 		asduh->SQ = Bytex & F_SQ;
 		/* Build common string for 'Packet List' and 'Packet Details' */
-		g_snprintf(res, MAXS, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "->" : "<-", asduh->OA);
-		g_strlcat(res, val_to_str(asduh->TypeId, asdu_types, "<TypeId=%u>"), MAXS);
-		g_strlcat(res, " ", MAXS);
-		g_strlcat(res, val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>"), MAXS);
-		if (asduh->TNCause & F_NEGA)   g_strlcat(res, "_NEGA", MAXS);
-		if (asduh->TNCause & F_TEST)   g_strlcat(res, "_TEST", MAXS);
+		ep_strbuf_printf(res, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "->" : "<-", asduh->OA);
+		ep_strbuf_append(res, val_to_str(asduh->TypeId, asdu_types, "<TypeId=%u>"));
+		ep_strbuf_append(res, " ");
+		ep_strbuf_append(res, val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>"));
+		if (asduh->TNCause & F_NEGA)   ep_strbuf_append(res, "_NEGA");
+		if (asduh->TNCause & F_TEST)   ep_strbuf_append(res, "_TEST");
 		if (asduh->TNCause & (F_TEST | F_NEGA))  {
 			Bytex = val_to_strlen(asduh->TNCause & F_CAUSE, causetx_types);
-			for (Ind=Bytex; Ind< 7; Ind++)   g_strlcat(res, " ", MAXS);
+			for (Ind=Bytex; Ind< 7; Ind++)   ep_strbuf_append(res, " ");
 		}
-		g_snprintf(res+strlen(res), MAXS-strlen(res), " IOA=%d", asduh->IOA);
+		ep_strbuf_append_printf(res, " IOA=%d", asduh->IOA);
 		if (asduh->NumIx > 1)   {
-			if (asduh->SQ == F_SQ)   g_snprintf(res+strlen(res), MAXS-strlen(res), "-%d", asduh->IOA+ asduh->NumIx- 1);
-			else      g_strlcat(res, ",...", MAXS);
-			g_snprintf(res+strlen(res), MAXS-strlen(res), " (%u)", asduh->NumIx);
+			if (asduh->SQ == F_SQ)   ep_strbuf_append_printf(res, "-%d", asduh->IOA + asduh->NumIx - 1);
+			else      ep_strbuf_append(res, ",...");
+			ep_strbuf_append_printf(res, " (%u)", asduh->NumIx);
 		}
 	}
 	else   {
-		g_snprintf(res, MAXS, "<ERR Short Asdu, Len=%u>", Len);
+		ep_strbuf_printf(res, "<ERR Short Asdu, Len=%u>", Len);
 	}
-	g_strlcat(res, " ", MAXS); /* We add an space to separate possible APCIs/ASDUs in the same packet */
+	ep_strbuf_append(res, " "); /* We add an space to separate possible APCIs/ASDUs in the same packet */
 	/*** *** END: Common to 'Packet List' and 'Packet Details' *** ***/
 
 	/*** *** DISSECT 'Packet List' *** ***/
 	if (check_col(pinfo->cinfo, COL_INFO))  {
-		col_add_str(pinfo->cinfo, COL_INFO, res);
+		col_add_str(pinfo->cinfo, COL_INFO, res->str);
 		col_set_fence(pinfo->cinfo, COL_INFO);
 	}
 
@@ -500,7 +499,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, FALSE);
 
 	/* 'Packet Details': ROOT ITEM */
-	proto_item_append_text(it104, ": %s'%s'", res, Len >= ASDU_HEAD_LEN ? val_to_str(asduh->TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
+	proto_item_append_text(it104, ": %s'%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str(asduh->TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
 
 	/* 'Packet Details': TREE */
 	if (Len < ASDU_HEAD_LEN)   return;
