@@ -51,6 +51,8 @@ int hf_nas_eps_emm_elem_id = -1;
 static int hf_nas_eps_bearer_id = -1;
 static int hf_nas_eps_spare_bits = -1;
 static int hf_nas_eps_security_header_type = -1;
+static int hf_nas_eps_msg_auth_code = -1;
+static int hf_nas_eps_seq_no = -1;
 static int hf_nas_eps_emm_eps_att_type = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_tsc = -1;
@@ -94,6 +96,7 @@ static int hf_nas_eps_emm_uea5 = -1;
 static int hf_nas_eps_emm_uea6 = -1;
 static int hf_nas_eps_emm_uea7 = -1;
 static int hf_nas_eps_emm_ucs2_supp = -1;
+static int hf_nas_eps_emm_uia0 = -1;
 static int hf_nas_eps_emm_uia1 = -1;
 static int hf_nas_eps_emm_uia2 = -1;
 static int hf_nas_eps_emm_uia3 = -1;
@@ -198,11 +201,11 @@ static const value_string nas_msg_esm_strings[] = {
 };
 
 static const value_string security_header_type_vals[] = {
-	{ 0,	"Not security protected, plain NAS message"},
-	{ 1,	"Security protected NAS message"},
-	{ 2,	"Reserved"},
-	{ 3,	"Reserved"},
-	{ 4,	"Reserved"},
+	{ 0,	"Plain NAS message, not security protected"},
+	{ 1,	"Integrity protected"},
+	{ 2,	"Integrity protected and ciphered"},
+	{ 3,	"Integrity protected with new EPS security context"},
+	{ 4,	"Integrity protected and ciphered with new EPS security context"},
 	{ 5,	"Reserved"},
 	{ 6,	"Reserved"},
 	{ 7,	"Reserved"},
@@ -211,9 +214,9 @@ static const value_string security_header_type_vals[] = {
 	{ 10,	"Reserved"},
 	{ 11,	"Reserved"},
 	{ 12,	"Security header for the SERVICE REQUEST message "},
-	{ 13,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
-	{ 14,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
-	{ 15,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
+	{ 13,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+	{ 14,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+	{ 15,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
 	{ 0,	NULL }
 };
 
@@ -1195,9 +1198,92 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	curr_offset = offset;
 
+	/* EPS encryption algorithm 128-EEA0 supported (octet 3, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea0, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
+	/* EPS integrity algorithms supported (octet 4)
+	* Bit 8 of octet 4 is spare and shall be coded as zero.
+	* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
+	*/
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA3 supported (octet 4, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+
+	/* UMTS encryption algorithms supported (octet 5)
+	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
+	 */
+	/* UMTS encryption algorithm UEA0 supported (octet 5, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA1 supported (octet 5, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA2 supported (octet 5, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA3 supported (octet 5, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm UEA4 supported (octet 5, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA5 supported (octet 5, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA6 supported (octet 5, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm UEA7 supported (octet 5, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* UMTS integrity algorithm UIA0 supported (octet 6, bit ) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia0, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 2) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
+
+	proto_tree_add_text(tree, tvb, curr_offset, curr_offset-offset , "Not decoded yet");
+	/* Bit 8 of octet 7 is spare and shall be coded as zero. */
+	/* GPRS encryption algorithm GEA1 supported (octet 7, bit 7) */
+	/* GPRS encryption algorithm GEA2 supported (octet 7, bit 6) */
+	/* GPRS encryption algorithm GEA3 supported (octet 7, bit 5) */
+	/* GPRS encryption algorithm GEA4 supported (octet 7, bit 4) */
+	/* GPRS encryption algorithm GEA5 supported (octet 7, bit 3) */
+	/* GPRS encryption algorithm GEA6 supported (octet 7, bit 2) */
+	/* GPRS encryption algorithm GEA7 supported (octet 7, bit 1) */
 	return(len);
 }
 /*
@@ -3107,12 +3193,23 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* 9.3.1	Security header type */
 	security_header_type = tvb_get_guint8(tvb,offset)>>4;
 	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
-	if (security_header_type !=0)
-		/* XXX Add further decoding here? */
-		return;
 	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
 	offset++;
-	/*messge type IE*/
+	if (security_header_type !=0){
+		/* Message authentication code */
+		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		offset+=4;
+		/* Sequence number */
+		proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+		offset++;
+		if ((security_header_type==2)||(security_header_type==4))
+			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+			return;
+		proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
+		offset++;
+	}
+	/* Messge type IE*/
 	oct = tvb_get_guint8(tvb,offset);
 	msg_fcn = NULL;
 	ett_tree = -1;
@@ -3223,6 +3320,16 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_security_header_type,
 		{ "Security header type","nas_eps.security_header_type",
 		FT_UINT8,BASE_DEC, VALS(security_header_type_vals), 0xf0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_msg_auth_code,
+		{ "Message authentication code","nas_eps.msg_auth_code",
+		FT_UINT32,BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_seq_no,
+		{ "Sequence number","nas_eps.seq_no",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_eps_att_type,
@@ -3440,6 +3547,11 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_ucs2_supp,
 		{ "UCS2 support (UCS2)","nas_eps.emm.emm_ucs2_supp",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ucs2_supp_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia0,
+		{ "UMTS integrity algorithm UIA0","nas_eps.emm.uia0",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_uia1,
