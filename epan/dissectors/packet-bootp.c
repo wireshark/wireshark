@@ -3854,12 +3854,12 @@ bootp_init_protocol(void)
         {
             /* do nothing */
         }
-        if (ii < 3) continue; /* not enought values.  Go again */
-        ii = atoi(optiondetail[0]); /* get the bootp option number */
-        if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue; /* not a number or out of range.  Go again */
-        if (bootp_opt[ii].ftype == special) continue; /* don't mess with specials.  Go again */
-        bootp_opt[ii].text = optiondetail[1];
-        type = optiondetail[2]; /* A string to be converted to an ftype enum */
+        if (ii < 3) continue;                            /* not enough values.  Go again              */
+        ii = atoi(optiondetail[0]);                      /* get the bootp option number               */
+        if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue;      /* not a number or out of range.  Go again   */
+        if (bootp_opt[ii].ftype == special) continue;    /* don't mess with specials.  Go again       */
+        bootp_opt[ii].text = se_strdup(optiondetail[1]); /* store a permanent ("seasonal") copy       */
+        type = optiondetail[2];                          /* A string to be converted to an ftype enum */
         /* XXX This if statement could be extended to allow for additinonal types */
         if (g_ascii_strcasecmp(type,"string") == 0)
         {
