@@ -60,6 +60,9 @@ static int hf_nas_eps_emm_mme_grp_id = -1;
 static int hf_nas_eps_emm_mme_code = -1;
 static int hf_nas_eps_emm_m_tmsi = -1;
 static int hf_nas_eps_esm_msg_cont = -1;
+static int hf_nas_eps_esm_imeisv_req = -1;
+static int hf_nas_eps_emm_toi = -1;
+static int hf_nas_eps_emm_toc = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
 static int hf_nas_eps_emm_res = -1;
@@ -774,6 +777,34 @@ static const value_string nas_eps_emm_id_type2_vals[] = {
  * 9.9.3.18	IMEISV request
  * See subclause 10.5.5.10 in 3GPP TS 24.008 [6].
  */
+/* IMEISV request value (octet 1) */
+static const value_string nas_eps_emm_imeisv_req_vals[] = {
+	{ 0,	"IMEISV not requested"},
+	{ 1,	"IMEISV requested"},
+	{ 2,	"IMEISV not requested"},
+	{ 3,	"IMEISV not requested"},
+	{ 4,	"IMEISV not requested"},
+	{ 5,	"IMEISV not requested"},
+	{ 6,	"IMEISV not requested"},
+	{ 7,	"IMEISV not requested"},
+	{ 0, NULL }
+};
+static guint16
+de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	int bit_offset;
+
+	curr_offset = offset;
+
+	bit_offset = curr_offset<<3;
+	bit_offset+=4;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_esm_imeisv_req, tvb, curr_offset, 1, FALSE);	
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
 /*
  * 9.9.3.19	KSI and sequence number
  */
@@ -875,42 +906,51 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * 9.9.3.23	NAS security algorithms
  */
-/*
-Type of integrity protection algorithm (octet 2, bit 1 to 3)
-Bits
-3	2	1		
-0	0	0		Reserved
-0	0	1		EPS integrity algorithm 128-EIA1
-0	1	0		EPS integrity algorithm 128-EIA2
-0	1	1		EPS integrity algorithm EIA3
-1	0	0		EPS integrity algorithm EIA4
-1	0	1		EPS integrity algorithm EIA5
-1	1	0		EPS integrity algorithm EIA6
-1	1	1		EPS integrity algorithm EIA7
+/* Type of integrity protection algorithm (octet 2, bit 1 to 3) */
+static const value_string nas_eps_emm_toi_vals[] = {
+	{ 0,	"Reserved"},
+	{ 1,	"EPS integrity algorithm 128-EIA1"},
+	{ 2,	"EPS integrity algorithm 128-EIA2"},
+	{ 3,	"EPS integrity algorithm EIA3"},
+	{ 4,	"EPS integrity algorithm EIA4"},
+	{ 5,	"EPS integrity algorithm EIA5"},
+	{ 6,	"EPS integrity algorithm EIA6"},
+	{ 7,	"EPS integrity algorithm EIA7"},
+	{ 0, NULL }
+};
 
-Type of ciphering algorithm (octet 2, bit 5 to 7)
-Bits
-7	6	5		
-0	0	0		EPS encryption algorithm 128-EEA0 (ciphering not used)
-0	0	1		EPS encryption algorithm 128-EEA1
-0	1	0		EPS encryption algorithm 128-EEA2
-0	1	1		EPS encryption algorithm EEA3
-1	0	0		EPS encryption algorithm EEA4
-1	0	1		EPS encryption algorithm EEA5
-1	1	0		EPS encryption algorithm EEA6
-1	1	1		EPS encryption algorithm EEA7
+/* Type of ciphering algorithm (octet 2, bit 5 to 7) */
 
-Bit 4 and 8 of octet 2 are spare and shall be coded as zero.
-*/
+static const value_string nas_eps_emm_toc_vals[] = {
+	{ 0,	"EPS encryption algorithm 128-EEA0 (ciphering not used)"},
+	{ 1,	"EPS encryption algorithm 128-EEA1"},
+	{ 2,	"EPS encryption algorithm 128-EEA2"},
+	{ 3,	"EPS encryption algorithm EEA3"},
+	{ 4,	"EPS encryption algorithm EEA4"},
+	{ 5,	"EPS encryption algorithm EEA5"},
+	{ 6,	"EPS encryption algorithm EEA6"},
+	{ 7,	"EPS encryption algorithm EEA7"},
+	{ 0, NULL }
+};
 static guint16
 de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	int bit_offset;
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
+	bit_offset = offset<<3;
+	/* Bit 4 and 8 of octet 2 are spare and shall be coded as zero. */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	/* Type of ciphering algorithm (octet 2, bit 5 to 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
+	bit_offset+=4;
+	/* Bit 4 and 8 of octet 2 are spare and shall be coded as zero. */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	/* Type of integrity protection algorithm (octet 2, bit 1 to 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1 , "Not decoded yet");
 	curr_offset++;
 
 	return(curr_offset-offset);
@@ -1509,7 +1549,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	de_emm_esm_msg_cont,		/* 9.9.3.15	ESM message conta */
 	NULL,						/* 9.9.3.16	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. (packet-gsm_a_gm.c)*/
 	NULL,						/* 9.9.3.17	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
-	NULL,						/* 9.9.3.18	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+	de_emm_nas_imeisv_req,		/* 9.9.3.18	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
 	NULL,						/* 9.9.3.19	KSI and sequence number */
 	NULL,						/* 9.9.3.20	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6].(packet-gsm_a_gm.c) */
 	de_emm_nas_key_set_id,		/* 9.9.3.21	NAS key set identifier (Coded Inline) */
@@ -2085,13 +2125,13 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* 	Selected NAS security algorithms	NAS security algorithms 9.9.3.23	M	V	1  */
 	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS);
-	/* 	NAS key set identifierASME	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	bit_offset = curr_offset<<3;
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
-	bit_offset+=4;
 
+	bit_offset = curr_offset<<3;
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	NAS key set identifierASME	NAS key set identifier 9.9.3.21	M	V	1/2 */
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
 	bit_offset+=4;
 
 	/* Fix up the lengths */
@@ -2101,11 +2141,11 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 	Replayed UE security capabilities	UE security capability 9.9.3.36	M	LV	3-6 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_SEC_CAP, " - Replayed UE security capabilities");
 	/* C-	IMEISV request	IMEISV request 9.9.3.18	O	TV	1 */
-	ELEM_OPT_TV_SHORT( 0xC0 , GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ , "" );
+	ELEM_OPT_TV_SHORT( 0xC0 , NAS_PDU_TYPE_EMM, DE_EMM_IMEISV_REQ , "" );
 	/* 55	Replayed NonceUE	Nonce 9.9.3.25	O	TV	5 */
 	ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - Replayed NonceUE");
 	/* 56	NonceMME	Nonce 9.9.3.25	O	TV	5 */
-	ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - NonceMME");
+	ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - NonceMME");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -2122,8 +2162,8 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
 	curr_len = len;
 
-	/* 23	IMEISV	Mobile identity 9.9.2.3	O	TLV	11 DE_EPS_CMN_MOB_ID*/
-	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EPS_CMN_MOB_ID, "IMEISV");
+	/* 23	IMEISV	Mobile identity 9.9.2.3	O	TLV	11 */
+	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "IMEISV");
  
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3192,7 +3232,7 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_tsc,
 		{ "Type of security context flag (TSC) ","nas_eps.emm.tsc",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_NAS_key_set_identifier_vals), 0x0,
+		FT_UINT8,BASE_DEC, VALS(nas_eps_tsc_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_nas_key_set_id,
@@ -3230,15 +3270,30 @@ void proto_register_nas_eps(void) {
 		FT_BYTES, BASE_NONE, NULL, 0x0,
 		"ESM message container contents", HFILL }
 	},
+	{ &hf_nas_eps_esm_imeisv_req,
+		{ "IMEISV request","nas_eps.emm.imeisv_req",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_imeisv_req_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_toi,
+		{ "Type of integrity protection algorithm","nas_eps.emm.toi",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_toi_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_toc,
+		{ "Type of ciphering algorithm","nas_eps.emm.toc",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_toc_vals), 0x70,
+		NULL, HFILL }
+	},
 	{ &hf_nas_eps_emm_EPS_attach_result,
 		{ "Type of identity","nas_eps.emm.EPS_attach_result",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_EPS_attach_result_values), 0x0,
-		"Type of identity", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_spare_half_octet,
 		{ "Spare half octet","nas_eps.emm.EPS_attach_result",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
-		"Spare half octet", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_res,
 		{ "RES","nas_eps.emm.res",
@@ -3253,7 +3308,7 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_cause,
 		{ "Cause","nas_eps.emm.cause",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
-		"Cause", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_id_type2,
 		{ "Identity type 2","nas_eps.emm.id_type2",
@@ -3263,7 +3318,7 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_short_mac,
 		{ "Short MAC value","nas_eps.emm.short_mac",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"Short MAC value", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_128eea0,
 		{ "128-EEA0","nas_eps.emm.128eea0",
@@ -3450,22 +3505,22 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_active_flg,
 		{ "Active flag", "nas_eps.emm.active_flg",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x0,
-		"Active flag", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_eps_update_result_value,
 		{ "EPS update result value","nas_eps.emm.eps_update_result_value",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_update_result_vals), 0x0,
-		"EPS update result value", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_eps_update_type_value,
 		{ "EPS update type value", "nas_eps.emm.update_type_value",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_update_type_vals), 0x0,
-		"EPS update type value", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_service_type,
 		{ "Service type", "nas_eps.emm.service_type",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_service_type_vals), 0x0,
-		"Service type", HFILL }
+		NULL, HFILL }
 	},
 	/* ESM hf cvariables */
 	{ &hf_nas_eps_msg_esm_type, 
