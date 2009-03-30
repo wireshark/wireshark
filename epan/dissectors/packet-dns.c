@@ -522,7 +522,7 @@ dns_type_description (guint type)
     "DNS public key",                   /* future RFC 2535bis */
     NULL,
     "Next secured hash",                /* RFC 5155 */
-    "NSEC3 parameters"                  /* RFC 5155 */       
+    "NSEC3 parameters"                  /* RFC 5155 */
   };
   const char *short_name;
   const char *long_name;
@@ -905,7 +905,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
       proto_tree_add_boolean(q_tree, hf_dns_qry_qu, tvb, offset, 2, qu);
     } else
       proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, class);
-    
+
     offset += 2;
   }
 
@@ -984,7 +984,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static int
 dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_len)
-{   
+{
   int mask, blockbase, blocksize;
   int i, initial_offset, rr_type;
   guint8 bits;
@@ -996,7 +996,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
     cur_offset += 2;
     rr_len -= 2;
     rr_type = blockbase * 256;
-    for( ; blocksize; blocksize-- ) {	    
+    for( ; blocksize; blocksize-- ) {
       bits = tvb_get_guint8(tvb, cur_offset);
       mask = 1<<7;
       for (i = 0; i < 8; i++) {
@@ -1064,13 +1064,13 @@ static const value_string cert_vals[] = {
  *   Compute the key id of a KEY RR depending of the algorithm used.
  */
 static guint16
-compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
+compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
 {
   guint32 ac;
   guint8 c1, c2;
 
   DISSECTOR_ASSERT(size >= 4);
-  
+
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
        return (guint16)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
@@ -1525,7 +1525,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-  case T_DNSKEY:  
+  case T_DNSKEY:
     {
       int rr_len = data_len;
       guint16 flags;
@@ -1545,14 +1545,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		  2*8, "This is the zone key for the specified zone",
 		       "This is not a zone key"));
 	proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-		decode_boolean_bitfield(flags, 0x0080, 
+		decode_boolean_bitfield(flags, 0x0080,
 		  2*8, "Key is revoked",
 		       "Key is not revoked"));
 	proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-		decode_boolean_bitfield(flags, 0x0001, 
+		decode_boolean_bitfield(flags, 0x0001,
 		  2*8, "Key is a Key Signing Key",
 		       "Key is a Zone Signing Key"));
-	
+
 	cur_offset += 2;
 	rr_len -= 2;
 
@@ -1667,10 +1667,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  { 2,     "RSA" },
 	  { 0,      NULL }
       };
-      
+
 
       if( dns_tree != NULL ) {
-	if(rr_len < 3) 
+	if(rr_len < 3)
 	  goto bad_rr;
 
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Gateway precedence: %u",
@@ -1701,7 +1701,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	     break;
 	   case 2:
 	     addr = tvb_get_ptr(tvb, cur_offset, 16);
-	     proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Gateway: %s", 
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Gateway: %s",
 				 ip6_to_str((const struct e_in6_addr *)addr));
 
 	     cur_offset += 16;
@@ -1714,14 +1714,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 				 "Gateway: %s", format_text(gw, strlen(gw)));
 
 	     cur_offset += gw_name_len;
-	     rr_len -= gw_name_len;	     
+	     rr_len -= gw_name_len;
 	     break;
 	   default:
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: Unknown gateway type(%u)", gw_type);
 	     break;
 	}
 	if (rr_len != 0)
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");	
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
       }
     }
     break;
@@ -1914,7 +1914,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += salt_len;
         hash_len = tvb_get_guint8(tvb, cur_offset);
         proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, FALSE);
-        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, FALSE);   
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, FALSE);
         cur_offset += hash_len;
         rr_len = data_len - (cur_offset - initial_offset);
         cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
@@ -2067,7 +2067,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  digest_data_size = 20; /* SHA1 key is always 20 bytes long */
 	  if (rr_len < digest_data_size)
 	    goto bad_rr;
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key"); 
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
 	}
       }
     }
@@ -2485,7 +2485,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       offset++;
       replacement = tvb_get_ephemeral_string(tvb, offset, replacement_len);
 
-      if (cinfo != NULL) 
+      if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
 
       if (dns_tree != NULL) {
@@ -2629,7 +2629,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s",
 		val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
 		(flags&F_RESPONSE)?" response":""));
-		
+
     if (flags & F_RESPONSE) {
       if ((flags & F_RCODE) != RCODE_NOERROR) {
 	bufpos+=MIN(MAX_BUF_SIZE-bufpos,
@@ -2666,13 +2666,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->fd->num, 
+  conversation = find_conversation(pinfo->fd->num,
 			&pinfo->src, &pinfo->dst,
-			pinfo->ptype, 
+			pinfo->ptype,
 			pinfo->srcport, pinfo->destport, 0);
   if (conversation == NULL) {
     /* We don't yet have a conversation, so create one. */
-    conversation = conversation_new(pinfo->fd->num, 
+    conversation = conversation_new(pinfo->fd->num,
 			&pinfo->src, &pinfo->dst,
 			pinfo->ptype,
 			pinfo->srcport, pinfo->destport, 0);
@@ -2736,7 +2736,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED(it);
     }
-  }              
+  }
 
   if (is_tcp) {
     /* Put the length indication into the tree. */
@@ -2868,7 +2868,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (auth > 0) {
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, auth,
 				      NULL, dns_tree,
-				      (isupdate ? "Updates" : 
+				      (isupdate ? "Updates" :
 				       "Authoritative nameservers"),
 				      pinfo, is_mdns);
   }
@@ -3046,7 +3046,7 @@ proto_register_dns(void)
     { &hf_dns_rr_name,
       { "Name",      	"dns.resp.name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"Response Name", HFILL }},  
+	"Response Name", HFILL }},
     { &hf_dns_rr_ttl,
       { "Time to live", "dns.resp.ttl",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
