@@ -162,7 +162,7 @@ get_token_len(const guchar *linep, const guchar *lineend,
  * characters as C-style escapes, and return a pointer to it.
  */
 gchar *
-format_text(const guchar *string, int len)
+format_text(const guchar *string, size_t len)
 {
   static gchar *fmtbuf[3];
   static int fmtbuf_len[3];
@@ -268,7 +268,7 @@ format_text(const guchar *string, int len)
  * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
-format_text_wsp(const guchar *string, int len)
+format_text_wsp(const guchar *string, size_t len)
 {
   static gchar *fmtbuf[3];
   static int fmtbuf_len[3];

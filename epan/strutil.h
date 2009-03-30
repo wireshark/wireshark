@@ -62,9 +62,9 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  *
  * @see tvb_format_text()
  */
-gchar*     format_text(const guchar *line, int len);
+gchar*     format_text(const guchar *line, size_t len);
 
-gchar*     format_text_wsp(const guchar *line, int len);
+gchar*     format_text_wsp(const guchar *line, size_t len);
 
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
