@@ -196,27 +196,27 @@ void ep_check_canary_integrity(const char* fmt, ...) {
 
     here[126] = '\0';
     here[127] = '\0';
-    
+
     va_start(ap,fmt);
     g_vsnprintf(here, 126,fmt, ap);
     va_end(ap);
-    
+
 	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
         static unsigned i_ctr;
 
         if (npc->c_count > 0x00ffffff) {
             g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
         }
-        
+
 		for (i_ctr = 0; i_ctr < npc->c_count; i_ctr++) {
 			if (memcmp(npc->canary[i_ctr], &ep_canary, npc->cmp_len[i_ctr]) != 0) {
 				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s",there, here);
             }
 		}
     }
-    
+
     strncpy(there,here,126);
-    
+
 }
 #endif
 
@@ -234,7 +234,7 @@ ep_init_chunk(void)
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
     intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_CANARY");
 #endif
-    
+
 #ifdef DEBUG_USE_CANARIES
 	emem_canary(ep_canary);
 #endif /* DEBUG_USE_CANARIES */
@@ -1670,15 +1670,15 @@ next_size(gsize cur_len, gsize wanted_len, gsize max_len) {
 	if (max_len < 1 || max_len > MAX_STRBUF_LEN) {
 		max_len = MAX_STRBUF_LEN;
 	}
-	
+
 	if (cur_len < 1) {
 		cur_len = DEFAULT_STRBUF_LEN;
 	}
-	
-	while (cur_len < wanted_len) { 
+
+	while (cur_len < wanted_len) {
 		cur_len *= 2;
 	}
-	
+
 	return cur_len < max_len ? cur_len : max_len;
 }
 
@@ -1686,15 +1686,15 @@ static void
 ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_len) {
 	gsize new_alloc_len;
 	gchar *new_str;
-        
+
 	if (!strbuf || strbuf->alloc_len >= strbuf->max_len) {
 		return;
 	}
-	
+
 	new_alloc_len = next_size(strbuf->len, wanted_len, strbuf->max_len);
         new_str = ep_alloc(new_alloc_len);
         g_strlcpy(new_str, strbuf->str, new_alloc_len);
-        
+
         strbuf->alloc_len = new_alloc_len;
         strbuf->str = new_str;
 }
@@ -1702,16 +1702,16 @@ ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_len) {
 emem_strbuf_t *
 ep_strbuf_sized_new(gsize len, gsize max_len) {
 	emem_strbuf_t *strbuf;
-	
+
 	strbuf = ep_alloc(sizeof(emem_strbuf_t));
-	
+
 	if (len > 0) {
 		strbuf->str = ep_alloc(len);
 		strbuf->str[0] = '\0';
 	} else {
 		strbuf->str = ep_strdup("");
 	}
-	
+
 	strbuf->len = len;
 	strbuf->alloc_len = len;
 	strbuf->max_len = max_len;
@@ -1721,10 +1721,10 @@ ep_strbuf_sized_new(gsize len, gsize max_len) {
 emem_strbuf_t *
 ep_strbuf_new(const gchar *init) {
 	emem_strbuf_t *strbuf;
-	
+
 	strbuf = ep_strbuf_sized_new(next_size(0, strlen(init), 0), 0);
 
-	g_strlcpy(strbuf->str, init, strbuf->alloc_len);	
+	g_strlcpy(strbuf->str, init, strbuf->alloc_len);
 	return strbuf;
 }
 
@@ -1732,11 +1732,11 @@ emem_strbuf_t *
 ep_strbuf_new_label(const gchar *init) {
 	emem_strbuf_t *strbuf;
 	gsize init_size;
-	
+
 	if (!init) {
 		init = "";
 	}
-	
+
 	init_size = strlen(init);
 	strbuf = ep_strbuf_sized_new(init_size > DEFAULT_STRBUF_LEN ? init_size : DEFAULT_STRBUF_LEN,
 				     ITEM_LABEL_LENGTH);
@@ -1748,24 +1748,12 @@ ep_strbuf_new_label(const gchar *init) {
 
 void
 ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
-	gsize add_len;
-	
-	if (!strbuf || !str) {
+
+	if (!strbuf || !str || str[0] == '\0') {
 		return;
 	}
-		
-	add_len = strlen(str);
-	
-	if (strbuf->len + add_len > strbuf->alloc_len) {
-		ep_strbuf_grow(strbuf, strbuf->len + add_len);
-	}
-	
-	if (strbuf->len + add_len > strbuf->alloc_len) {
-		add_len = strbuf->alloc_len - strbuf->len;
-	}
 
-	g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
-	strbuf->len += add_len;
+        ep_strbuf_append_printf(strbuf, "%s", str);
 }
 
 void
@@ -1794,7 +1782,7 @@ ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 void
 ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 	va_list ap;
-	
+
 	va_start(ap, format);
 	ep_strbuf_append_vprintf(strbuf, format, ap);
 	va_end(ap);
@@ -1806,9 +1794,9 @@ ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 	if (!strbuf) {
 		return;
 	}
-	
+
 	strbuf->len = 0;
-	
+
 	va_start(ap, format);
 	ep_strbuf_append_vprintf(strbuf, format, ap);
 	va_end(ap);
@@ -1819,9 +1807,9 @@ ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c) {
 	if (!strbuf) {
 		return;
 	}
-	
+
 	ep_strbuf_grow(strbuf, strbuf->len + 1);
-	
+
 	if (strbuf->alloc_len > strbuf->len + 1) {
 		strbuf->str[strbuf->len] = c;
 		strbuf->len++;
@@ -1835,6 +1823,6 @@ ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len) {
 		return;
 	}
 
-	strbuf->str[len] = '\0';	
+	strbuf->str[len] = '\0';
 	strbuf->len = len;
 }
