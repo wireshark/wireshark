@@ -811,6 +811,7 @@ DISSECTOR_SRC = \
 	packet-sua.c		\
 	packet-symantec.c	\
 	packet-synergy.c 	\
+	packet-synphasor.c      \
 	packet-syslog.c		\
 	packet-t30.c		\
 	packet-t38.c		\
