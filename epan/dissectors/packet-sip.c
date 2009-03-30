@@ -598,7 +598,7 @@ static dissector_table_t media_type_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 #define SIP2_HDR "SIP/2.0"
-#define SIP2_HDR_LEN (strlen (SIP2_HDR))
+#define SIP2_HDR_LEN ((gint)strlen (SIP2_HDR))
 
 /* Store the info needed by the SIP tap for one packet */
 static sip_info_value_t *stat_info;
@@ -699,7 +699,7 @@ static guint sip_hash_func(gconstpointer v)
 {
 	gint n;
 	const sip_hash_key *key = v;
-	guint value = strlen(key->call_id);
+	guint value = (guint)strlen(key->call_id);
 	gint chars_to_use = value / 4;
 
 	/* First few characters from the call-id should be enough... */
@@ -2071,7 +2071,7 @@ separator_found2:
 						}
 
 						/* Extract method name from value */
-						strlen_to_copy = strlen(value)-sub_value_offset;
+						strlen_to_copy = (int)strlen(value)-sub_value_offset;
 						if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
 							/* Note the error in the protocol tree */
 							if (hdr_tree) {
@@ -2171,7 +2171,7 @@ separator_found2:
 						{
 							proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
 							                    value_offset + sub_value_offset,
-							                    strlen(value)-sub_value_offset, FALSE);
+							                    (int)strlen(value)-sub_value_offset, FALSE);
 						}
 
 						break;
