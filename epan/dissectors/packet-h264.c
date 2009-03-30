@@ -1,6 +1,6 @@
 /* packet-h264.c
  * Routines for H.264 dissection
- * Copyright 2007, Anders Broman <anders.broman[at]ericsson.com>
+ * Copyright 2007 - 2009, Anders Broman <anders.broman[at]ericsson.com>
  *
  * $Id$
  *
@@ -1674,11 +1674,16 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	h264_nal_tree = proto_item_add_subtree(item, ett_h264_nal_unit);
 
 startover:
-	/* In decoder configuration start code may be pressent */
-	dword = tvb_get_bits32(tvb,0,32,FALSE);
+	/* In decoder configuration start code may be pressent 
+	 * B.1.1 Byte stream NAL unit syntax
+	 */
+	dword = tvb_get_bits32(tvb, offset<<3, 32, FALSE);
 	if(dword==1){
-		/* Start code */
+		/* zero_byte + start_code_prefix_one_3bytes */
 		offset+=4;
+	}else if((dword >> 8)== 1){
+		/* start_code_prefix_one_3bytes */
+		offset+= 3;
 	}
 	/* Ref: 7.3.1 NAL unit syntax */
 	nal_unit_type = tvb_get_guint8(tvb,offset) & 0x1f;
