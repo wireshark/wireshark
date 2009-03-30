@@ -1311,12 +1311,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int mask;
       int port_num;
       int i;
-      char *bitnames, *strptr;
-
-#define MAX_STR_LEN 128
-      bitnames=ep_alloc(MAX_STR_LEN);
-      bitnames[0]=0;
-      strptr=bitnames;
+      emem_strbuf_t *bitnames = ep_strbuf_new_label("");
 
       if (rr_len < 4) {
 	if (dns_tree != NULL)
@@ -1346,28 +1341,24 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  bits = tvb_get_guint8(tvb, cur_offset);
 	  if (bits != 0) {
 	    mask = 1<<7;
-            bitnames[0]=0;
-            strptr=bitnames;
+            ep_strbuf_truncate(bitnames, 0);
 	    for (i = 0; i < 8; i++) {
 	      if (bits & mask) {
-		if (strptr!=bitnames)
-		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), ", "));
+		if (bitnames->len > 0) {
+		  ep_strbuf_append(bitnames, ", ");
+		}
 		switch (protocol) {
 
 		case IP_PROTO_TCP:
-		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%s", get_tcp_port(port_num)));
+		  ep_strbuf_append(bitnames, get_tcp_port(port_num));
 		  break;
 
 		case IP_PROTO_UDP:
-		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%s", get_udp_port(port_num)));
+		  ep_strbuf_append(bitnames, get_udp_port(port_num));
 		  break;
 
 		default:
-		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%u", port_num));
+		  ep_strbuf_append_printf(bitnames, "%u", port_num);
 		  break;
 	        }
 	      }
@@ -1375,7 +1366,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	      port_num++;
 	    }
 	    proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-		"Bits: 0x%02x (%s)", bits, bitnames);
+		"Bits: 0x%02x (%s)", bits, bitnames->str);
 	  } else
 	    port_num += 8;
 	  cur_offset += 1;
