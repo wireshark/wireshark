@@ -1213,7 +1213,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
 	    FALSE);
-	offset += next_token - line;
+	offset += (int) (next_token - line);
 	line = next_token;
 
 	/* The next token is the URI. */
@@ -1228,11 +1228,11 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 			      request_uri);
-	offset += next_token - line;
+	offset += (int) (next_token - line);
 	line = next_token;
 
 	/* Everything to the end of the line is the version. */
-	tokenlen = lineend - line;
+	tokenlen = (int) (lineend - line);
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
@@ -1254,7 +1254,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
 	    FALSE);
-	offset += next_token - line;
+	offset += (int) (next_token - line);
 	line = next_token;
 
 	/* The next token is the status code. */
