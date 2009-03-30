@@ -349,7 +349,7 @@ static void
 detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		guint32 pid, gint32 cc_curr, conversation_t *conv)
 {
-	gint32 cc_prev;
+	gint32 cc_prev = -1;
 	pid_analysis_data_t   *pid_data   = NULL;
 	pid_analysis_data_t   *ts_data    = NULL;
 	mp2t_analysis_data_t  *mp2t_data  = NULL;
