@@ -186,22 +186,39 @@ static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, as
   }
   buf = ep_alloc(length);
 
-  /* get the 'odd' bits */
-  shift1 = offset & 0x07;
-  word = tvb_get_ntohs(tvb,boffset) & bit_mask16[offset & 0x07];
-  word = word >> (16-(shift1+remainder));
-  buf[0] = word & 0x00ff;
-
-  offset = offset + remainder;
-  boffset = offset >> 3;
-  if (length >1){
+  if (actx->aligned)
+  {
+    /* get the 'odd' bits */
     shift1 = offset & 0x07;
-    shift0 = 8 - shift1;
-    octet0 = tvb_get_guint8(tvb, boffset);
-    for (i=1; i<length; i++) {
-      octet1 = octet0;
-      octet0 = tvb_get_guint8(tvb, boffset + i);
-      buf[i] = (octet1 << shift1) | (octet0 >> shift0);
+    word = tvb_get_ntohs(tvb,boffset) & bit_mask16[offset & 0x07];
+    word = word >> (16-(shift1+remainder));
+    buf[0] = word & 0x00ff;
+
+    offset = offset + remainder;
+    boffset = offset >> 3;
+    if (length >1){
+      shift1 = offset & 0x07;
+      shift0 = 8 - shift1;
+      octet0 = tvb_get_guint8(tvb, boffset);
+      for (i=1; i<length; i++) {
+        octet1 = octet0;
+        octet0 = tvb_get_guint8(tvb, boffset + i);
+        buf[i] = (octet1 << shift1) | (octet0 >> shift0);
+      }
+    }
+  }
+  else
+  {
+    /* Do not preceed with zeros in case of PER unaligned */
+    if (length >1){
+      shift1 = offset & 0x07;
+      shift0 = 8 - shift1;
+
+      for (i=0; i<length-1; i++) {
+        octet1 = tvb_get_guint8(tvb, boffset + i);
+        octet0 = tvb_get_guint8(tvb, boffset + i+1);
+        buf[i] = (octet1 << shift1) | (octet0 >> shift0);
+      }
     }
   }
   sub_tvb = tvb_new_real_data(buf, length, length);
@@ -826,6 +843,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
 	if(has_extension){
+#if 0
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
@@ -835,6 +853,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 			 * TODO: Handle extension
 			 */
 		}
+#endif
 	}
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
@@ -1996,6 +2015,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			BYTE_ALIGN_OFFSET(offset);
 		}
 		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
+
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
 			proto_item_append_text(actx->created_item, " [bit length %u]", length);
