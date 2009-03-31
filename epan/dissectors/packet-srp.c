@@ -33,7 +33,7 @@
 #include <epan/circuit.h>
 #include <epan/packet.h>
 #include <epan/stream.h>
-#include <epan/reassemble.h>
+/* #include <epan/reassemble.h> */
 #include <epan/crc16.h>
 
 /* Wireshark ID of the protocols */

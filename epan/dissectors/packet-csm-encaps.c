@@ -42,7 +42,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/reassemble.h>
 #include <epan/tap.h>
 
 #include <epan/proto.h>

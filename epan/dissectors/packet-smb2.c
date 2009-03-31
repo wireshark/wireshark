@@ -33,7 +33,6 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 

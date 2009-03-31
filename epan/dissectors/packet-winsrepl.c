@@ -39,7 +39,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/reassemble.h>
 #include <epan/tap.h>
 
 #include "packet-windows-common.h"

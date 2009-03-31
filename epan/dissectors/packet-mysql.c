@@ -47,7 +47,6 @@
 #include <epan/emem.h>
 
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/reassemble.h>
 #include <epan/prefs.h>
 
 /* port for protocol registration */

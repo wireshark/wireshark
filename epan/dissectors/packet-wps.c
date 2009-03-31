@@ -40,7 +40,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/reassemble.h>
 #include <epan/expert.h>
 
 #include "packet-wps.h"

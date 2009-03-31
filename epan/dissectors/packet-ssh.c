@@ -45,7 +45,6 @@
 #include <epan/emem.h>
 
 #include "packet-tcp.h"
-#include <epan/reassemble.h>
 #include <epan/prefs.h>
 
 /* get from openssh ssh2.h */

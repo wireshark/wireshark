@@ -50,7 +50,6 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-tcp.h"
-#include <epan/reassemble.h>
 #include <epan/expert.h>
 
 static proto_item *expert_item = NULL;
