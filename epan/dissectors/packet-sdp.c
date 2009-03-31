@@ -1532,6 +1532,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 	  key=g_malloc( sizeof(gint) );
 	  *key=atol((char*)payload_type);
 	  pt = atoi((char*)payload_type);
+          if (pt >= SDP_NO_OF_PT) {
+              return;   /* Invalid */ 
+          }
 	  transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	
 
@@ -1601,6 +1604,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
 		  media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+		  if (media_format >= SDP_NO_OF_PT) {
+			  return;   /* Invalid */ 
+                  }
 
 		  /* Append encoding name to format if known */
 		  proto_item_append_text(media_format_item, " [%s]",
