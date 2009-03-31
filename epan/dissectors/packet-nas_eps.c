@@ -157,7 +157,7 @@ static const value_string nas_msg_emm_strings[] = {
 	{ 0x52,	"Authentication request"},
 	{ 0x53,	"Authentication response"},
 	{ 0x54,	"Authentication reject"},
-	{ 0x5a,	"Authentication failure"},
+	{ 0x5c,	"Authentication failure"},
 	{ 0x55,	"Identity request"},
 	{ 0x56,	"Identity response"},
 	{ 0x5d,	"Security mode command"},
