@@ -44,22 +44,6 @@
 
 static dissector_handle_t iec104asdu_handle;
 
-/******* Utility to add to 'value_string.c' *******/
-/* Tries to match val against each element in the value_string array vs.
-   Returns the associated string length on a match.
-   Returns 100, on failure. */
-guint8 val_to_strlen(guint32 val, const value_string *vs);
-
-guint8 val_to_strlen(guint32 val, const value_string *vs) {
-  const gchar *ret;
-  ret = match_strval(val, vs);
-  if (ret != NULL)
-    return (guint8) strlen(ret);
-
-  return 100;
-}
-
-
 /* the asdu header structure */
 struct asduheader {
 	guint8 AddrLow;
@@ -430,9 +414,10 @@ static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
 /* Is is called twice: For 'Packet List' and for 'Packet Details' */
 static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 Len = tvb_length(tvb);  /* Investigate also: 'reported Length' */
+	guint Len = tvb_reported_length(tvb);
 	guint8 Bytex = 0;
-	guint8 Ind = 0;
+	const char *cause_str;
+	size_t Ind = 0;
 	struct asduheader * asduh;
 	emem_strbuf_t * res;
 	proto_item * it104 = NULL;
@@ -440,15 +425,15 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
-	asduh = ep_alloc(sizeof(struct asduheader));
-	res = ep_strbuf_new_label("");
-
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))  {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
 	}
 	if (check_col(pinfo->cinfo, COL_INFO))  {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
+
+	asduh = ep_alloc(sizeof(struct asduheader));
+	res = ep_strbuf_new_label("");
 
 	/*** *** START: Common to 'Packet List' and 'Packet Details' *** ***/
 	if (Len >= ASDU_HEAD_LEN)  {
@@ -466,12 +451,12 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		ep_strbuf_printf(res, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "->" : "<-", asduh->OA);
 		ep_strbuf_append(res, val_to_str(asduh->TypeId, asdu_types, "<TypeId=%u>"));
 		ep_strbuf_append(res, " ");
-		ep_strbuf_append(res, val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>"));
+		cause_str = val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>");
+		ep_strbuf_append(res, cause_str);
 		if (asduh->TNCause & F_NEGA)   ep_strbuf_append(res, "_NEGA");
 		if (asduh->TNCause & F_TEST)   ep_strbuf_append(res, "_TEST");
 		if (asduh->TNCause & (F_TEST | F_NEGA))  {
-			Bytex = val_to_strlen(asduh->TNCause & F_CAUSE, causetx_types);
-			for (Ind=Bytex; Ind< 7; Ind++)   ep_strbuf_append(res, " ");
+			for (Ind=strlen(cause_str); Ind< 7; Ind++)   ep_strbuf_append(res, " ");
 		}
 		ep_strbuf_append_printf(res, " IOA=%d", asduh->IOA);
 		if (asduh->NumIx > 1)   {
@@ -529,15 +514,11 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint8 Off;
 	guint8 Byte1 = 0;
 	struct apciheader * apcih;
-	char * res = NULL;
+	emem_strbuf_t * res;
 	proto_item * it104 = NULL;
 	proto_tree * trHead;
 
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
-
-	apcih = ep_alloc(sizeof(struct apciheader));
-	res = ep_alloc(MAXS);
-	res[0] = '\0';
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))  {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
@@ -545,6 +526,8 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (check_col(pinfo->cinfo, COL_INFO))  {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
+
+	apcih = ep_alloc(sizeof(struct apciheader));
 
 	/*** *** START: Common to 'Packet List' and 'Packet Details' *** ***/
 	Start = 0;
@@ -582,36 +565,39 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		Brossa = TcpLen;
 	}
 	/* Construir string comu a List i Details */
-	if (Brossa > 0)   g_snprintf(res, MAXS, "<ERR %u bytes> ", Brossa);
+	res = ep_strbuf_new_label("");
+	if (Brossa > 0)
+		ep_strbuf_append_printf(res, "<ERR %u bytes> ", Brossa);
 	if (Brossa != TcpLen)  {
 		if (apcih->ApduLen <= APDU_MAX_LEN)  {
 			/* APCI in 'Paquet List' */
-			g_snprintf(res+strlen(res), MAXS-strlen(res), "%s%s(", pinfo->srcport == iec104port ? "->" : "<-", val_to_str(apcih->Type, apci_types, "<ERR>"));
+			ep_strbuf_append_printf(res, "%s%s(", pinfo->srcport == iec104port ? "->" : "<-", val_to_str(apcih->Type, apci_types, "<ERR>"));
 			switch(apcih->Type) {  /* APCI in 'Packet List' */
 			case I_TYPE:
-				g_snprintf(res+strlen(res), MAXS-strlen(res), "%d,", apcih->Tx);
+				ep_strbuf_append_printf(res, "%d,", apcih->Tx);
 			case S_TYPE:
-				g_snprintf(res+strlen(res), MAXS-strlen(res), "%d)", apcih->Rx);
+				ep_strbuf_append_printf(res, "%d)", apcih->Rx);
 				/* Align first packets */
-				if (apcih->Tx < 10)  g_strlcat(res, " ", MAXS);
-				if (apcih->Rx < 10)  g_strlcat(res, " ", MAXS);
+				if (apcih->Tx < 10)
+				if (apcih->Rx < 10)
+					ep_strbuf_append(res, " ");
 				break;
 			case U_TYPE:
-				g_snprintf(res+strlen(res), MAXS-strlen(res), "%s)", val_to_str(apcih->UType >> 2, u_types, "<ERR>"));
+				ep_strbuf_append_printf(res, "%s)", val_to_str(apcih->UType >> 2, u_types, "<ERR>"));
 				break;
 			}
-			if (apcih->Type != I_TYPE  &&  apcih->ApduLen > APDU_MIN_LEN)   g_snprintf(res+strlen(res), MAXS-strlen(res), "<ERR %u bytes> ", apcih->ApduLen- APDU_MIN_LEN);
+			if (apcih->Type != I_TYPE  &&  apcih->ApduLen > APDU_MIN_LEN)   ep_strbuf_append_printf(res, "<ERR %u bytes> ", apcih->ApduLen- APDU_MIN_LEN);
 		}
 		else  {
-			g_snprintf(res+strlen(res), MAXS-strlen(res), "<ERR ApduLen=%u bytes> ", apcih->ApduLen);
+			ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", apcih->ApduLen);
 		}
 	}
-	g_strlcat(res, " ", MAXS); /* We add an space to separate possible APCIs/ASDUs in the same packet */
+	ep_strbuf_append(res, " "); /* We add an space to separate possible APCIs/ASDUs in the same packet */
 	/*** *** END: Common to 'Packet List' and 'Packet Details' *** ***/
 
 	/*** *** Dissect 'Packet List' *** ***/
 	if (check_col(pinfo->cinfo, COL_INFO))  {
-		col_add_str(pinfo->cinfo, COL_INFO, res);
+		col_add_str(pinfo->cinfo, COL_INFO, res->str);
 		if(apcih->Type == I_TYPE  &&  Brossa != TcpLen)   {
 			call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_LEN), pinfo, tree);
 		} else {
@@ -626,7 +612,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, Off+ APCI_LEN, FALSE);
 
 	/* 'Packet Details': ROOT ITEM */
-	proto_item_append_text(it104, ": %s", res);
+	proto_item_append_text(it104, ": %s", res->str);
 
 	if(Brossa == TcpLen)   return;
 
