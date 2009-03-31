@@ -49,6 +49,10 @@ void proto_reg_handoff_synphasor(void);
 static int     proto_synphasor	 = -1;
 static GSList *config_frame_list = NULL;
 
+#if ! GLIB_CHECK_VERSION(2,10,0)
+static GMemChunk *frame_chunks   = NULL;
+#endif
+
 /* user preferences */
 static guint global_pref_tcp_port = 4712;
 static guint global_pref_udp_port = 4713;
@@ -315,7 +319,12 @@ static config_frame* config_frame_fast(tvbuff_t *tvb)
 	config_frame *frame;
 
 	/* get a new frame and initialize it */
+#if GLIB_CHECK_VERSION(2,10,0)
 	frame = g_slice_new(config_frame);
+#else
+        frame = g_mem_chunk_alloc(frame_chunks);
+#endif
+
 	frame->config_blocks = g_array_new(FALSE, TRUE, sizeof(config_block));
 
 	idcode = tvb_get_ntohs(tvb, 4);
@@ -428,7 +437,11 @@ static void config_frame_free(config_frame *frame)
 	g_array_free(frame->config_blocks, TRUE);
 
 	/* and the config_frame */
+#if GLIB_CHECK_VERSION(2,10,0)
 	g_slice_free1(sizeof(config_frame), frame);
+#else
+        g_mem_chunk_free(frame_chunks, frame);
+#endif
 }
 
 /* called every time the user loads a capture file or starts to capture */
@@ -442,6 +455,16 @@ static void synphasor_init(void)
 
 		config_frame_list = NULL;
 	}
+
+#if ! GLIB_CHECK_VERSION(2,10,0)
+        if (frame_chunks != NULL) {
+            g_mem_chunk_destroy(frame_chunks);
+        }
+        frame_chunks = g_mem_chunk_new("Frame_Chunks", 
+                                       sizeof(config_frame),
+                                       10*(sizeof(config_frame)),
+                                       G_ALLOC_AND_FREE);
+#endif
 }
 
 /* the main dissection routine */
@@ -697,7 +720,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 	gint	 offset = 0, j;
 	guint16	 num_pmu;
 
-		      proto_item_set_text   (config_item, "Configuration data");
+	proto_item_set_text   (config_item, "Configuration data");
 	config_tree = proto_item_add_subtree(config_item, ett_conf);
 
 	/* TIME_BASE and NUM_PMU */
