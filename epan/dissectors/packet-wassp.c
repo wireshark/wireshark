@@ -325,7 +325,7 @@ static const value_string wassp_setresult_vals[] = {
 
 static int
 dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
-	guint32 offset, guint32 length, const ext_value_string *value_array _U_)
+	volatile guint32 offset, guint32 length, const ext_value_string *value_array _U_)
 {
 	tvbuff_t *snmp_tvb;
 
