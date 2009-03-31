@@ -181,7 +181,7 @@ extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char
 
 /* Forward decls needed by wassp_tunnel_tlv_vals et al */
 static int dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
-	guint32 offset, guint32 length, const ext_value_string *value_array);
+	volatile guint32 offset, guint32 length, const ext_value_string *value_array);
 static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	guint32 offset, guint32 length, const ext_value_string *value_array);
 
