@@ -34,7 +34,6 @@
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
-#include <epan/reassemble.h>
 
 
 static int proto_pgsql = -1;
@@ -158,209 +157,6 @@ static const value_string format_vals[] = {
     { 1, "Binary" },
     { 0, NULL }
 };
-
-
-void
-proto_reg_handoff_pgsql(void)
-{
-    static gboolean initialized = FALSE;
-    static dissector_handle_t pgsql_handle;
-    static guint saved_pgsql_port;
-
-    if (!initialized) {
-        pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
-        initialized = TRUE;
-    } else {
-        dissector_delete("tcp.port", saved_pgsql_port, pgsql_handle);
-    }
-
-    dissector_add("tcp.port", pgsql_port, pgsql_handle);
-    saved_pgsql_port = pgsql_port;
-}
-
-
-void
-proto_register_pgsql(void)
-{
-    static hf_register_info hf[] = {
-        { &hf_frontend,
-          { "Frontend", "pgsql.frontend", FT_BOOLEAN, BASE_NONE, NULL, 0,
-            "True for messages from the frontend, false otherwise.",
-            HFILL }
-        },
-        { &hf_type,
-          { "Type", "pgsql.type", FT_STRING, BASE_NONE, NULL, 0,
-            "A one-byte message type identifier.", HFILL }
-        },
-        { &hf_length,
-          { "Length", "pgsql.length", FT_UINT32, BASE_DEC, NULL, 0,
-            "The length of the message (not including the type).",
-            HFILL }
-        },
-        { &hf_parameter_name,
-          { "Parameter name", "pgsql.parameter_name", FT_STRINGZ,
-            BASE_NONE, NULL, 0, "The name of a database parameter.",
-            HFILL }
-        },
-        { &hf_parameter_value,
-          { "Parameter value", "pgsql.parameter_value", FT_STRINGZ,
-            BASE_NONE, NULL, 0, "The value of a database parameter.",
-            HFILL }
-        },
-        { &hf_query,
-          { "Query", "pgsql.query", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "A query string.", HFILL }
-        },
-        { &hf_passwd,
-          { "Password", "pgsql.password", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "A password.", HFILL }
-        },
-        { &hf_authtype,
-          { "Authentication type", "pgsql.authtype", FT_INT32, BASE_DEC,
-            VALS(auth_types), 0,
-            "The type of authentication requested by the backend.", HFILL }
-        },
-        { &hf_salt,
-          { "Salt value", "pgsql.salt", FT_BYTES, BASE_HEX, NULL, 0,
-            "The salt to use while encrypting a password.", HFILL }
-        },
-        { &hf_statement,
-          { "Statement", "pgsql.statement", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The name of a prepared statement.", HFILL }
-        },
-        { &hf_portal,
-          { "Portal", "pgsql.portal", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The name of a portal.", HFILL }
-        },
-        { &hf_tag,
-          { "Tag", "pgsql.tag", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "A completion tag.", HFILL }
-        },
-        { &hf_status,
-          { "Status", "pgsql.status", FT_UINT8, BASE_DEC, VALS(status_vals),
-            0, "The transaction status of the backend.", HFILL }
-        },
-        { &hf_copydata,
-          { "Copy data", "pgsql.copydata", FT_BYTES, BASE_NONE, NULL, 0,
-            "Data sent following a Copy-in or Copy-out response.", HFILL }
-        },
-        { &hf_error,
-          { "Error", "pgsql.error", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "An error message.", HFILL }
-        },
-        { &hf_pid,
-          { "PID", "pgsql.pid", FT_UINT32, BASE_DEC, NULL, 0,
-            "The process ID of a backend.", HFILL }
-        },
-        { &hf_key,
-          { "Key", "pgsql.key", FT_UINT32, BASE_DEC, NULL, 0,
-            "The secret key used by a particular backend.", HFILL }
-        },
-        { &hf_condition,
-          { "Condition", "pgsql.condition", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The name of a NOTIFY condition.", HFILL }
-        },
-        { &hf_text,
-          { "Text", "pgsql.text", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "Text from the backend.", HFILL }
-        },
-        { &hf_tableoid,
-          { "Table OID", "pgsql.oid.table", FT_UINT32, BASE_DEC, NULL, 0,
-            "The object identifier of a table.", HFILL }
-        },
-        { &hf_typeoid,
-          { "Type OID", "pgsql.oid.type", FT_UINT32, BASE_DEC, NULL, 0,
-            "The object identifier of a type.", HFILL }
-        },
-        { &hf_oid,
-          { "OID", "pgsql.oid", FT_UINT32, BASE_DEC, NULL, 0,
-            "An object identifier.", HFILL }
-        },
-        { &hf_format,
-          { "Format", "pgsql.format", FT_UINT16, BASE_DEC, VALS(format_vals),
-            0, "A format specifier.", HFILL }
-        },
-        { &hf_val_name,
-          { "Column name", "pgsql.col.name", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The name of a column.", HFILL }
-        },
-        { &hf_val_idx,
-          { "Column index", "pgsql.col.index", FT_UINT32, BASE_DEC, NULL, 0,
-            "The position of a column within a row.", HFILL }
-        },
-        { &hf_val_length,
-          { "Column length", "pgsql.val.length", FT_INT32, BASE_DEC, NULL, 0,
-            "The length of a parameter value, in bytes. -1 means NULL.",
-            HFILL }
-        },
-        { &hf_val_data,
-          { "Data", "pgsql.val.data", FT_BYTES, BASE_NONE, NULL, 0,
-            "Parameter data.", HFILL }
-        },
-        { &hf_val_mod,
-          { "Type modifier", "pgsql.col.typemod", FT_INT32, BASE_DEC, NULL, 0,
-            "The type modifier for a column.", HFILL }
-        },
-        { &hf_severity,
-          { "Severity", "pgsql.severity", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "Message severity.", HFILL }
-        },
-        { &hf_code,
-          { "Code", "pgsql.code", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "SQLState code.", HFILL }
-        },
-        { &hf_message,
-          { "Message", "pgsql.message", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "Error message.", HFILL }
-        },
-        { &hf_detail,
-          { "Detail", "pgsql.detail", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "Detailed error message.", HFILL }
-        },
-        { &hf_hint,
-          { "Hint", "pgsql.hint", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "A suggestion to resolve an error.", HFILL }
-        },
-        { &hf_position,
-          { "Position", "pgsql.position", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The index of the error within the query string.", HFILL }
-        },
-        { &hf_where,
-          { "Context", "pgsql.where", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The context in which an error occurred.", HFILL }
-        },
-        { &hf_file,
-          { "File", "pgsql.file", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The source-code file where an error was reported.", HFILL }
-        },
-        { &hf_line,
-          { "Line", "pgsql.line", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The line number on which an error was reported.", HFILL }
-        },
-        { &hf_routine,
-          { "Routine", "pgsql.routine", FT_STRINGZ, BASE_NONE, NULL, 0,
-            "The routine that reported an error.", HFILL }
-        }
-    };
-
-    static gint *ett[] = {
-        &ett_pgsql,
-        &ett_values
-    };
-
-    module_t *mod_pgsql;
-
-    proto_pgsql = proto_register_protocol("PostgreSQL", "PGSQL", "pgsql");
-    proto_register_field_array(proto_pgsql, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-
-    mod_pgsql = prefs_register_protocol(proto_pgsql, proto_reg_handoff_pgsql);
-    prefs_register_uint_preference(
-        mod_pgsql, "tcp.port", "PGSQL TCP port", "Set the port for PGSQL "
-        "messages (if different from the default of 5432)", 10, &pgsql_port
-    );
-}
-
 
 /* This function is called once per TCP packet. It sets COL_PROTOCOL and
  * identifies FE/BE messages by adding a ">" or "<" to COL_INFO. Then it
@@ -869,3 +665,208 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         break;
     }
 }
+
+void
+proto_reg_handoff_pgsql(void);
+
+void
+proto_register_pgsql(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_frontend,
+          { "Frontend", "pgsql.frontend", FT_BOOLEAN, BASE_NONE, NULL, 0,
+            "True for messages from the frontend, false otherwise.",
+            HFILL }
+        },
+        { &hf_type,
+          { "Type", "pgsql.type", FT_STRING, BASE_NONE, NULL, 0,
+            "A one-byte message type identifier.", HFILL }
+        },
+        { &hf_length,
+          { "Length", "pgsql.length", FT_UINT32, BASE_DEC, NULL, 0,
+            "The length of the message (not including the type).",
+            HFILL }
+        },
+        { &hf_parameter_name,
+          { "Parameter name", "pgsql.parameter_name", FT_STRINGZ,
+            BASE_NONE, NULL, 0, "The name of a database parameter.",
+            HFILL }
+        },
+        { &hf_parameter_value,
+          { "Parameter value", "pgsql.parameter_value", FT_STRINGZ,
+            BASE_NONE, NULL, 0, "The value of a database parameter.",
+            HFILL }
+        },
+        { &hf_query,
+          { "Query", "pgsql.query", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "A query string.", HFILL }
+        },
+        { &hf_passwd,
+          { "Password", "pgsql.password", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "A password.", HFILL }
+        },
+        { &hf_authtype,
+          { "Authentication type", "pgsql.authtype", FT_INT32, BASE_DEC,
+            VALS(auth_types), 0,
+            "The type of authentication requested by the backend.", HFILL }
+        },
+        { &hf_salt,
+          { "Salt value", "pgsql.salt", FT_BYTES, BASE_HEX, NULL, 0,
+            "The salt to use while encrypting a password.", HFILL }
+        },
+        { &hf_statement,
+          { "Statement", "pgsql.statement", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The name of a prepared statement.", HFILL }
+        },
+        { &hf_portal,
+          { "Portal", "pgsql.portal", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The name of a portal.", HFILL }
+        },
+        { &hf_tag,
+          { "Tag", "pgsql.tag", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "A completion tag.", HFILL }
+        },
+        { &hf_status,
+          { "Status", "pgsql.status", FT_UINT8, BASE_DEC, VALS(status_vals),
+            0, "The transaction status of the backend.", HFILL }
+        },
+        { &hf_copydata,
+          { "Copy data", "pgsql.copydata", FT_BYTES, BASE_NONE, NULL, 0,
+            "Data sent following a Copy-in or Copy-out response.", HFILL }
+        },
+        { &hf_error,
+          { "Error", "pgsql.error", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "An error message.", HFILL }
+        },
+        { &hf_pid,
+          { "PID", "pgsql.pid", FT_UINT32, BASE_DEC, NULL, 0,
+            "The process ID of a backend.", HFILL }
+        },
+        { &hf_key,
+          { "Key", "pgsql.key", FT_UINT32, BASE_DEC, NULL, 0,
+            "The secret key used by a particular backend.", HFILL }
+        },
+        { &hf_condition,
+          { "Condition", "pgsql.condition", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The name of a NOTIFY condition.", HFILL }
+        },
+        { &hf_text,
+          { "Text", "pgsql.text", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "Text from the backend.", HFILL }
+        },
+        { &hf_tableoid,
+          { "Table OID", "pgsql.oid.table", FT_UINT32, BASE_DEC, NULL, 0,
+            "The object identifier of a table.", HFILL }
+        },
+        { &hf_typeoid,
+          { "Type OID", "pgsql.oid.type", FT_UINT32, BASE_DEC, NULL, 0,
+            "The object identifier of a type.", HFILL }
+        },
+        { &hf_oid,
+          { "OID", "pgsql.oid", FT_UINT32, BASE_DEC, NULL, 0,
+            "An object identifier.", HFILL }
+        },
+        { &hf_format,
+          { "Format", "pgsql.format", FT_UINT16, BASE_DEC, VALS(format_vals),
+            0, "A format specifier.", HFILL }
+        },
+        { &hf_val_name,
+          { "Column name", "pgsql.col.name", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The name of a column.", HFILL }
+        },
+        { &hf_val_idx,
+          { "Column index", "pgsql.col.index", FT_UINT32, BASE_DEC, NULL, 0,
+            "The position of a column within a row.", HFILL }
+        },
+        { &hf_val_length,
+          { "Column length", "pgsql.val.length", FT_INT32, BASE_DEC, NULL, 0,
+            "The length of a parameter value, in bytes. -1 means NULL.",
+            HFILL }
+        },
+        { &hf_val_data,
+          { "Data", "pgsql.val.data", FT_BYTES, BASE_NONE, NULL, 0,
+            "Parameter data.", HFILL }
+        },
+        { &hf_val_mod,
+          { "Type modifier", "pgsql.col.typemod", FT_INT32, BASE_DEC, NULL, 0,
+            "The type modifier for a column.", HFILL }
+        },
+        { &hf_severity,
+          { "Severity", "pgsql.severity", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "Message severity.", HFILL }
+        },
+        { &hf_code,
+          { "Code", "pgsql.code", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "SQLState code.", HFILL }
+        },
+        { &hf_message,
+          { "Message", "pgsql.message", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "Error message.", HFILL }
+        },
+        { &hf_detail,
+          { "Detail", "pgsql.detail", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "Detailed error message.", HFILL }
+        },
+        { &hf_hint,
+          { "Hint", "pgsql.hint", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "A suggestion to resolve an error.", HFILL }
+        },
+        { &hf_position,
+          { "Position", "pgsql.position", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The index of the error within the query string.", HFILL }
+        },
+        { &hf_where,
+          { "Context", "pgsql.where", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The context in which an error occurred.", HFILL }
+        },
+        { &hf_file,
+          { "File", "pgsql.file", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The source-code file where an error was reported.", HFILL }
+        },
+        { &hf_line,
+          { "Line", "pgsql.line", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The line number on which an error was reported.", HFILL }
+        },
+        { &hf_routine,
+          { "Routine", "pgsql.routine", FT_STRINGZ, BASE_NONE, NULL, 0,
+            "The routine that reported an error.", HFILL }
+        }
+    };
+
+    static gint *ett[] = {
+        &ett_pgsql,
+        &ett_values
+    };
+
+    module_t *mod_pgsql;
+
+    proto_pgsql = proto_register_protocol("PostgreSQL", "PGSQL", "pgsql");
+    proto_register_field_array(proto_pgsql, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    mod_pgsql = prefs_register_protocol(proto_pgsql, proto_reg_handoff_pgsql);
+    prefs_register_uint_preference(
+        mod_pgsql, "tcp.port", "PGSQL TCP port", "Set the port for PGSQL "
+        "messages (if different from the default of 5432)", 10, &pgsql_port
+    );
+}
+
+void
+proto_reg_handoff_pgsql(void)
+{
+    static gboolean initialized = FALSE;
+    static dissector_handle_t pgsql_handle;
+    static guint saved_pgsql_port;
+
+    if (!initialized) {
+        pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
+        initialized = TRUE;
+    } else {
+        dissector_delete("tcp.port", saved_pgsql_port, pgsql_handle);
+    }
+
+    dissector_add("tcp.port", pgsql_port, pgsql_handle);
+    saved_pgsql_port = pgsql_port;
+}
+
+
