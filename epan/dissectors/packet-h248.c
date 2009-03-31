@@ -771,6 +771,52 @@ static const value_string package_name_vals[] = {
   {   0x00ca, "Pull Mode Package" },									/* H.248.55 */
   {   0x00cb, "RTP Application Data Package" },							/* H.248.58 */
   {   0x00cc, "Event Timestamp Notification Package" },					/* H.248.59 */
+  {   0x00ce, "Resource Management Rules Package" },					/* H.248.63 */
+  {   0x00cd, "Resource Management Configuration" },					/* H.248.63 */
+  {   0x00cf, "Abstract Resource Management" },							/* H.248.63 */
+
+  {   0x00d0, "IP layer octets count statistics Package" },				/* H.248.61 */
+  {   0x00d1, "Content of Communication Identity Package" },			/* H.248.60 */
+  {   0x00d2, "RSVP extension package" },								/* H.248.65 */
+  {   0x00d3, "GCP Transport Mode Indication Package" },				/* H.248.67 */
+  {   0x00d4, "IP Router Package" },									/* H.248.64 */
+  {   0x00d5, "Media Resource Identification Package" },				/* H.248.66 */
+  {   0x00d6, "Range Format Support Package" },							/* H.248.66 */
+  {   0x00d7, "Media Resource Description Expiry Package" },			/* H.248.66 */
+  {   0x00d8, "Media Block Size Package" },								/* H.248.66 */
+  {   0x00d9, "RTSP Media Resource Syntax Package" },					/* H.248.66 */
+  {   0x00da, "RTSP Play Package" },									/* H.248.66 */
+  {   0x00db, "Signal Pause Package" },									/* H.248.66 */
+  {   0x00dc, "Data Delivery Speed Adjustme Package" },					/* H.248.66 */
+  {   0x00de, "RTP Information Package" },								/* H.248.66 */
+  {   0x00dd, "Playback Relative Scale Adjustment Package" },			/* H.248.66 */
+  {   0x00df, "RTP Interleaving Package" },								/* H.248.66 */
+  {   0x00e0, "IP Realm Availability Package" },						/* H.248.41 Amendment 1 */
+  {   0x00e1, "General IP Header QoS Octet Package" },					/* H.248.52  */
+  {   0x00e2, "Re-answer Package" },									/* H.248.62  */
+  {   0x00e3, "3G Interface Type package" },							/* 3GPP TS 29.232 v8.4.0 */
+  {   0x00e4, "Latch Statistics Package" },								/* H.248.37 */
+  {   0x00e5, "Floor Control Signalling Package" },						/* H.248.19 Amendment 2 */
+  {   0x00e6, "Include Participant in Mix Package" },					/* H.248.19 Amendment 2 */
+  {   0x00e7, "Speaker Reporting Package" },							/* H.248.19 Amendment 2 */
+  {   0x00e8, "IP Layer Packet Count Statistics Package" },				/* H.248.61 */
+  {   0x00e9, "Removal of Digits and Tones Package" },					/* H.248.68 */
+  {   0x00ea, "MSRP Statistics Package" },								/* H.248.69 */
+  {   0x00eb, "MSRP Connection Status Package" },						/* H.248.69 */
+  {   0x00ec, "Play Message Package" },									/* H.248.69 */
+  {   0x00ed, "Delete Stored Message Package" },						/* H.248.69 */
+  {   0x00ee, "Message Session Information Package" },					/* H.248.69 */
+  {   0x00ef, "Message Filtering Package" },							/* H.248.69 */
+  {   0x00f0, "Stored Message Information Package" },					/* H.248.69 */
+  {   0x00f1, "Record Message Package" },								/* H.248.69 */
+  {   0x00f2, "Digit Dialling Method Information Package" },			/* H.248.70 */
+  {   0x00f, "Digit Dialling Method Information for Extended Digitmap Detection Package" },		/* H.248.70 */
+  {   0x00f4, "Digit Dialling Method Information for Enhanced Digitmap Detection Package" },	/* H.248.70 */
+  {   0x00f5, "Received RTCP Package " },								/* H.248.71 */
+  {   0x00f6, "RTP Cumulative Loss Package" },							/* H.248.71 */
+  {   0x00f7, "H.245 Transport Package for SPC use" },					/* H.248.72 */
+  {   0x00f8, "MONA Preference Package" },								/* H.248.72 */
+  {   0x00f9, "TDM Gain Control Package" },								/* H.248.73 */
   {   0x8000, "Ericsson IU" },
   {   0x8001, "Ericsson UMTS and GSM Circuit" },
   {   0x8002, "Ericsson Tone Generator Package" },
@@ -786,6 +832,9 @@ static const value_string package_name_vals[] = {
   {   0x800c, "Nokia Extended Continuity Package" },
   {   0x800d, "Nokia IPnwR Package" },
   {   0x800e, "Ericsson Tracing Enhancements Package" },
+  {   0x800f, "Ericsson Partially Wildcarded TerminationID Package" },
+  {   0x8010, "SCTP Stream Handling Package" },
+
 	{0,     NULL}
 };
 /*
@@ -848,6 +897,8 @@ static const value_string event_name_vals[] = {
   {   0x00450001, "it/ito" },
   {   0x00450002, "it/ito" },
   {   0x00460001, "threegmlc/mod_link_supp (Bearer Modification Support Event)" },
+  {   0x00980000, "Hanging Termination Package" },
+  {   0x00980001, "Termination Heartbeat" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -907,7 +958,6 @@ static const value_string signal_name_vals[] = {
   {0,     NULL}
 };
 
-
 #if 0
 static const value_string context_id_type[] = {
 	{NULL_CONTEXT,"0 (Null Context)"},
@@ -916,6 +966,8 @@ static const value_string context_id_type[] = {
 	{0,NULL}
 };
 #endif
+
+
 
 static const value_string h248_reasons[] = {
     { 400, "Syntax error in message"},
@@ -926,6 +978,7 @@ static const value_string h248_reasons[] = {
     { 410, "Incorrect identifier"},
     { 411, "The transaction refers to an unknown ContextId"},
     { 412, "No ContextIDs available"},
+	{ 413, "Number of transactions in message exceeds maximum"},	/* [H.248.8 (08/07)] */
     { 421, "Unknown action or illegal combination of actions"},
     { 422, "Syntax Error in Action"},
     { 430, "Unknown TerminationID"},
@@ -955,7 +1008,19 @@ static const value_string h248_reasons[] = {
     { 458, "Unexpected Event/Request ID"},
     { 459, "Unsupported or Unknown Profile"},
     { 460, "Unable to set statistic on stream"},
+	{ 461, "Unsupported or Unknown Profile"},								/*[H.248.18] */
+
     { 471, "Implied Add for Multiplex failure"},
+    { 472, "Required Information Missing"},									/*[H.248.8 (08/07)] */
+    { 473, "Conflicting Property Values"},									/*[H.248.8 (08/07)] */
+    { 474, "Invalid SDP Syntax"},											/*[H.248.49] */
+    { 475, "Unable to pause the playout of the signal"},					/*[H.248.66] */
+    { 476, "Unable to adjust the data delivery speed of the Signal"},		/*[H.248.66] */
+              
+    { 477, "Unable to adjust the playback relative scale of the signal"},	/*[H.248.66] */
+              
+    { 478, "Behaviour Contradicts Resource Rule"},							/*[H.248.63] */
+
     { 500, "Internal software Failure in MG"},
     { 501, "Not Implemented"},
     { 502, "Not ready"},
@@ -964,6 +1029,7 @@ static const value_string h248_reasons[] = {
     { 505, "Transaction Request Received before a Service Change Reply has been received"},
     { 506, "Number of Transaction Pendings Exceeded"},
     { 510, "Insufficient resources"},
+    { 511, "Temporarily Busy"},												/* [H.248.8 (08/07)] */
     { 512, "Media Gateway unequipped to detect requested Event"},
     { 513, "Media Gateway unequipped to generate requested Signals"},
     { 514, "Media Gateway cannot send the specified announcement"},
@@ -982,7 +1048,9 @@ static const value_string h248_reasons[] = {
     { 533, "Response exceeds maximum transport PDU size"},
     { 534, "Illegal write or read only property"},
     { 540, "Unexpected initial hook state"},
+	{ 541, "Unexpected Spare Bit State"},									/* [H.248.33] */
     { 542, "Command is not allowed on this termination"},
+	{ 543, "MGC requested event detection timestamp not supported"},		/* [H.248.8 (08/07)] */
     { 581, "Does Not Exist"},
     { 600, "Illegal syntax within an announcement specification"},
     { 601, "Variable type not supported"},
@@ -1001,6 +1069,20 @@ static const value_string h248_reasons[] = {
     { 614, "No modems available"},
     { 615, "Calling number unacceptable"},
     { 616, "Called number unacceptable"},
+    { 617, "Reserved for H.248.9 return code"},		/* [H.248.9] */
+    { 618, "Reserved for H.248.9 return code"},		/* [H.248.9] */
+    { 622, "Reserved for H.248.9 return code"},		/* [H.248.9] */
+    { 623, "Reserved for H.248.9 return code"},		/* [H.248.9] */
+    { 624, "Reserved for H.248.9 return code"},		/* [H.248.9] */
+    { 625, "Reserved for H.248.9 return code"},		/* [H.248.9 Amendment 1] */
+    { 626, "Reserved for H.248.9 return code"},		/* [H.248.9 Amendment 1] */
+    { 627, "Reserved for H.248.9 return code"},		/* [H.248.9 Amendment 1] */
+    { 628, "Reserved for H.248.9 return code"},		/* [H.248.9 Amendment 1] */
+    { 629, "Reserved for H.248.9 return code"},		/* [H.248.9 Amendment 1] */
+    { 700, "Sieve Script Syntax Error"},			/* [H.248.69] */
+    { 701, "Unsupported Sieve Require Error"},		/* [H.248.69] */
+    { 702, "Sieve Actions Exceeded Error"},			/* [H.248.69] */
+
     { 900, "Service Restored"},
     { 901, "Cold Boot"},
     { 902, "Warm Boot"},
@@ -4987,7 +5069,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1210 "packet-h248-template.c"
+#line 1292 "packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6343,7 +6425,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1345 "packet-h248-template.c"
+#line 1427 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6505,7 +6587,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1363 "packet-h248-template.c"
+#line 1445 "packet-h248-template.c"
   };
 
   module_t *h248_module;
