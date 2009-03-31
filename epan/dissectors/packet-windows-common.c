@@ -1361,12 +1361,13 @@ get_well_known_rid_name(guint32 rid)
 	return match_strval(rid, well_known_rids);
 }
 
-/* Dissect a NT SID.  Label it with 'name' and return a string version of
-   the SID in the 'sid_str' parameter which must be freed by the caller.
-   hf_sid can be -1 if the caller doesnt care what name is used and then 
-   "nt.sid" will be the default instead. If the caller wants a more
-   appropriate hf field, it will just pass a FT_STRING hf field here
-*/
+/* Dissect a NT SID.  Label it with 'name' and return a string version
+ * of the SID in the 'sid_str' parameter which has a packet lifetime
+ * scope and should NOT be freed by the caller. hf_sid can be -1 if
+ * the caller doesnt care what name is used and then "nt.sid" will be
+ * the default instead. If the caller wants a more appropriate hf
+ * field, it will just pass a FT_STRING hf field here
+ */
 
 int
 dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
