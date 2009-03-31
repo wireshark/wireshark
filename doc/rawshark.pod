@@ -15,6 +15,7 @@ S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
 S<[ B<-o> E<lt>preference settingE<gt> ] ...>
 S<[ B<-r> E<lt>infile or pipeE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
+S<[ B<-s> ]>
 S<[ B<-S> E<lt>field formatE<gt> ]>
 S<[ B<-t> ad|a|r|d|e ]>
 S<[ B<-v> ]>
@@ -37,7 +38,8 @@ B<Rawshark> expects input records with the following format. Note that this
 matches the pcap_pkthdr struct and packet data used in libpcap.
 
     struct rawshark_rec_s {
-        struct timeval ts;    /* Time stamp */
+        uint32_t ts_sec;      /* Time stamp (seconds) */
+        uint32_t ts_usec;     /* Time stamp (microseconds) */
         uint32_t caplen;      /* Length of the packet buffer */
         uint32_t len;         /* "On the wire" length of the packet */
         uint8_t *data;        /* Packet data */
@@ -162,15 +164,12 @@ and must be have the record format specified above.
 =item -R  E<lt>read (display) filterE<gt>
 
 Cause the specified filter (which uses the syntax of read/display filters,
-rather than that of capture filters) to be applied before printing the output. Packets not
-matching the filter are discarded rather than being printed or written.
+rather than that of capture filters) to be applied before printing the output.
 
-=item -s  E<lt>capture snaplenE<gt>
+=item -s
 
-Set the default snapshot length to use when capturing live data. 
-No more than I<snaplen> bytes of each network packet will be read into
-memory, or saved to disk.  A value of 0 specifies a snapshot length of
-65535, so that the full packet is captured; this is the default.
+Allows standard pcap files to be used as input, by skipping over the 24
+byte pcap file header.
 
 =item -S
 

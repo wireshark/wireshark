@@ -208,6 +208,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "Processing:\n");
   fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
   fprintf(output, "  -F <field>               field to display\n");
+  fprintf(output, "  -s                       skip PCAP header on input\n");
   fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
   fprintf(output, "  -d <encap:dlt>|<proto:protoname>\n");
@@ -434,8 +435,9 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   GPtrArray           *disp_fields = g_ptr_array_new();
   guint                fc;
+  gboolean             skip_pcap_header = FALSE;
 
-  #define OPTSTRING_INIT "d:F:hlnN:o:r:R:S:t:v"
+  #define OPTSTRING_INIT "d:F:hlnN:o:r:R:sS:t:v"
 
   static const char    optstring[] = OPTSTRING_INIT;
 
@@ -655,6 +657,9 @@ main(int argc, char *argv[])
           exit(1);
         }
         break;
+      case 's':        /* Skip PCAP header */
+        skip_pcap_header = TRUE;
+        break;
       case 'S':        /* Print string representations */
         if (!parse_field_string_format(optarg)) {
           cmdarg_err("Invalid field string format");
@@ -703,6 +708,13 @@ main(int argc, char *argv[])
     }
   }
 
+  /* Notify all registered modules that have had any of their preferences
+     changed either from one of the preferences file or from the command
+     line that their preferences have changed.
+     Initialize preferences before display filters, otherwise modules
+     like MATE won't work. */
+  prefs_apply_all();
+
   /* Initialize our display fields */
   for (fc = 0; fc < disp_fields->len; fc++) {
 	protocolinfo_init(g_ptr_array_index(disp_fields, fc));
@@ -742,11 +754,6 @@ main(int argc, char *argv[])
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif /* _WIN32 */
-
-  /* Notify all registered modules that have had any of their preferences
-     changed either from one of the preferences file or from the command
-     line that their preferences have changed. */
-  prefs_apply_all();
 
   /* At this point MATE will have registered its field array so we can
      have a tap filter with one of MATE's late-registered fields as part
@@ -817,6 +824,20 @@ main(int argc, char *argv[])
       exit(2);
     }
 
+    /* Do we need to PCAP header and magic? */
+    if (skip_pcap_header) {
+      guint bytes_left = sizeof(struct pcap_hdr) + sizeof(guint32);
+      gchar buf[sizeof(struct pcap_hdr) + sizeof(guint32)];
+      while (bytes_left > 0) {
+          guint bytes = read(fd, buf, bytes_left);
+          if (bytes <= 0) {
+              cmdarg_err("Not enough bytes for pcap header.");
+              exit(2);
+          }
+          bytes_left -= bytes;
+      }
+    }
+
     /* Set timestamp precision; there should arguably be a command-line
        option to let the user set this. */
 #if 0
@@ -877,14 +898,15 @@ main(int argc, char *argv[])
  */
 static gboolean
 raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
-  struct pcap_pkthdr hdr;
+  struct pcaprec_hdr hdr;
   int bytes_read = 0;
-  int bytes_needed = sizeof(struct pcap_pkthdr);
+  int bytes_needed = sizeof(struct pcaprec_hdr);
+  guchar *ptr = (guchar*)&hdr;
   static gchar err_str[100];
 
   /* Copied from capture_loop.c */
   while (bytes_needed > 0) {
-    bytes_read = read(fd, &hdr, bytes_needed);
+    bytes_read = read(fd, ptr, bytes_needed);
     if (bytes_read == 0) {
       *err = 0;
       return FALSE;
@@ -895,13 +917,14 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     }
     bytes_needed -= bytes_read;
     *data_offset += bytes_read;
+    ptr += bytes_read;
   }
 
   bytes_read = 0;
-  phdr->ts.secs = hdr.ts.tv_sec;
-  phdr->ts.nsecs = hdr.ts.tv_usec * 1000;
-  phdr->caplen = bytes_needed = hdr.caplen;
-  phdr->len = hdr.len;
+  phdr->ts.secs = hdr.ts_sec;
+  phdr->ts.nsecs = hdr.ts_usec * 1000;
+  phdr->caplen = bytes_needed = hdr.incl_len;
+  phdr->len = hdr.orig_len;
   phdr->pkt_encap = encap;
 
 #if 0
@@ -917,8 +940,9 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     return FALSE;
   }
 
+  ptr = pd;
   while (bytes_needed > 0) {
-    bytes_read = read(fd, pd, bytes_needed);
+    bytes_read = read(fd, ptr, bytes_needed);
     if (bytes_read == 0) {
       *err = WTAP_ERR_SHORT_READ;
       *err_info = "Got zero bytes reading data from pipe";
@@ -930,6 +954,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     }
     bytes_needed -= bytes_read;
     *data_offset += bytes_read;
+    ptr += bytes_read;
   }
   return TRUE;
 }
