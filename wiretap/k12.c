@@ -25,7 +25,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* #define DEBUG_K12 */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -41,12 +40,12 @@
 
 #include <wsutil/str_util.h>
 
-/*#define DEBUG_K12*/
+/* #define DEBUG_K12 */
 #ifdef DEBUG_K12
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
-
+#include <wsutil/file_util.h>
 
 FILE* dbg_out = NULL;
 char* env_file = NULL;
@@ -91,7 +90,7 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
 
     if (debug_level < level) return;
 
-    fprintf(dbg_out,"%s(%.8llx,%.4x): ",label,offset,len);
+    fprintf(dbg_out,"%s(%.8" G_GINT64_MODIFIER "x,%.4x): ",label,offset,len);
 
     for (i=0 ; i<len ; i++) {
 
@@ -100,7 +99,7 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
         else if (!(i%4))
             fprintf(dbg_out," ");
 
-        fprintf(dbg_out,c2t[b[i]]);
+        fprintf(dbg_out, "%s", c2t[b[i]]);
     }
 
 	fprintf(dbg_out,"\n");
@@ -261,9 +260,14 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	actual_len = left = pntohl(buffer);
 	junky_offset -= 0x4;
 
-	K12_DBG(5,("get_record: GET length=%d",left));
+	K12_DBG(5,("get_record: GET length=%u",left));
 
-	g_assert(left >= 4);
+	/* XXX - Is WTAP_MAX_PACKET_SIZE */
+	if (left < 4 || left > WTAP_MAX_PACKET_SIZE) {
+		K12_DBG(1,("get_record: Invalid GET length=%u",left));
+		errno = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
 
 	while (left > buffer_len) *bufferp = buffer = g_realloc(buffer,buffer_len*=2);
 
