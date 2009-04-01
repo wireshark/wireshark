@@ -208,6 +208,9 @@ extern void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
  * the tvbuff routines knowledgable of this fact. */
 extern void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 
+extern tvbuff_t* tvb_new_child_real_data(tvbuff_t* parent, const guint8* data, guint length,
+    gint reported_length);
+
 /**Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
 extern void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length,
     gint reported_length);
@@ -634,6 +637,13 @@ extern gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
  * succeeded or NULL if uncompression failed.
  */
 extern tvbuff_t* tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen);
+
+/**
+ * Uncompresses a zlib compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+extern tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, int offset, int comprlen);
 
 /************** END OF ACCESSORS ****************/
 

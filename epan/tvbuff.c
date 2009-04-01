@@ -299,6 +299,17 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 	return tvb;
 }
 
+tvbuff_t*
+tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint reported_length)
+{
+	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
+	if (tvb) {
+		tvb_set_child_real_data_tvbuff (parent, tvb);
+	}
+	
+	return tvb;
+}
+
 /* Computes the absolute offset and length based on a possibly-negative offset
  * and a length that is possible -1 (which means "to the end of the data").
  * Returns TRUE/FALSE indicating whether the offset is in bounds or
@@ -3045,4 +3056,13 @@ tvb_uncompress(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_)
 	return NULL;
 }
 #endif
+
+tvbuff_t* tvb_child_uncompress(tvbuff_t *parent _U_, tvbuff_t *tvb, int offset, int comprlen)
+{
+	tvbuff_t *new_tvb = tvb_uncompress(tvb, offset, comprlen);
+	if (new_tvb)
+		tvb_set_child_real_data_tvbuff (parent, new_tvb);
+	return new_tvb;
+}
+
 
