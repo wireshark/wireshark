@@ -42,7 +42,7 @@ matches the pcap_pkthdr struct and packet data used in libpcap.
         uint32_t ts_usec;     /* Time stamp (microseconds) */
         uint32_t caplen;      /* Length of the packet buffer */
         uint32_t len;         /* "On the wire" length of the packet */
-        uint8_t *data;        /* Packet data */
+        uint8_t data[caplen]; /* Packet data */
     };
 
 =head1 OUTPUT
@@ -179,7 +179,9 @@ are supported:
 =over 4
 
 B<%D> Field name or description, e.g. "Type" for dns.qry.type
+
 B<%N> Base 10 numeric value of the field.
+
 B<%S> String value of the field.
 
 =back
