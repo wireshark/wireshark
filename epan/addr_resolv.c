@@ -115,7 +115,7 @@
 # ifdef HAVE_GNU_ADNS
 #  include <errno.h>
 #  include <adns.h>
-#  ifdef inet_aton
+#  if defined(inet_aton) && defined(_WIN32)
 #   undef inet_aton
 #  endif
 # endif	/* HAVE_GNU_ADNS */
