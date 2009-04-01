@@ -826,8 +826,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         }
 
                         ti = proto_tree_add_item(tree, hf_iap_list_entry, tvb, offset, 2 + 1 + attr_len, FALSE);
-                        g_snprintf(buf, sizeof(buf) - 1, "%d", n + 1);
-                        proto_item_append_text(ti, buf);
+                        proto_item_append_text(ti, "%d", n + 1);
                         entry_tree = proto_item_add_subtree(ti, ett_iap_entry[n]);
 
                         proto_tree_add_item(entry_tree, hf_iap_obj_id, tvb, offset, 2, FALSE);
@@ -1323,7 +1322,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " bps)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1341,7 +1340,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " ms)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1363,7 +1362,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " bytes)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1387,7 +1386,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " frame window)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1413,7 +1412,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " additional BOFs at 115200)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1439,7 +1438,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " ms)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1465,7 +1464,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
                     strncat(buf, " s)", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -1618,7 +1617,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 service_hints[0] = ' ';
                 service_hints[1] = '(';
 
-                proto_item_append_text(ti, service_hints);
+                proto_item_append_text(ti, "%s", service_hints);
             }
         }
         offset += hints_len;

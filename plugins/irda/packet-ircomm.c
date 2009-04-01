@@ -302,7 +302,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
 
                     strncat(buf, ")", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 
@@ -317,7 +317,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
 
                     strncat(buf, ")", 256 - strlen(buf));
 
-                    proto_item_append_text(ti, buf+2);
+                    proto_item_append_text(ti, "%s", buf+2);
 
                     break;
 

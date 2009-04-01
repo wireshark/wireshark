@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ros.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p ros -c ros.cnf -s packet-ros-template ros.asn Remote-Operations-Information-Objects.asn */
+/* ../../tools/asn2wrs.py -b -e -p ros -c ./ros.cnf -s ./packet-ros-template -D . ros.asn Remote-Operations-Information-Objects.asn */
 
 /* Input file: packet-ros-template.c */
 
@@ -249,7 +249,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_set_str(pinfo->cinfo, COL_INFO, opname);
 				if(suffix)
-					col_append_fstr(pinfo->cinfo, COL_INFO, suffix);
+					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
 			
 			offset = (*opdissector)(tvb, pinfo, ros_tree);

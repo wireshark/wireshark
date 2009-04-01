@@ -688,7 +688,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    else
 			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 				"00.. .... = Fast select not requested");
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
 			    decode_boolean_bitfield(byte1, 0x01, 1*8,
 				"Reverse charging requested",
 				"Reverse charging not requested"));
@@ -726,7 +726,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    default:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (Reserved)");
 		    }
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
 			    decode_numeric_bitfield(byte1, 0xF0, 1*8, tmpbuf));
 		    switch (byte1 & 0x0F)
 		    {
@@ -751,7 +751,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    default:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (Reserved)");
 		    }
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
 			    decode_numeric_bitfield(byte1, 0x0F, 1*8, tmpbuf));
 		}
 		break;
@@ -874,7 +874,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (Unknown)");
 			break;
 		    }
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
 			    decode_numeric_bitfield(byte1, 0x0F, 1*8, tmpbuf));
 
 		    byte2 = tvb_get_guint8(tvb, *offset + 1);
@@ -911,7 +911,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (Unknown)");
 			break;
 		    }
-		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1, "%s",
 			    decode_numeric_bitfield(byte2, 0x0F, 1*8, tmpbuf));
 		}
 		break;
@@ -920,10 +920,10 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Window size)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_window_size);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
 			    decode_numeric_bitfield(tvb_get_guint8(tvb, *offset+1),
 				0x7F, 1*8, "From the called DTE: %u"));
-		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1, "%s",
 			    decode_numeric_bitfield(tvb_get_guint8(tvb, *offset+2),
 				0x7F, 1*8, "From the calling DTE: %u"));
 		}
@@ -1236,12 +1236,12 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     len2 = (byte >> 4) & 0x0F;
 
     if (tree) {
-	proto_tree_add_text(tree, tvb, *offset, 1,
+	proto_tree_add_text(tree, tvb, *offset, 1, "%s",
 		decode_numeric_bitfield(byte, 0xF0, 1*8,
 			is_registration ?
 		          "DTE address length : %u" :
 		          "Calling address length : %u"));
-	proto_tree_add_text(tree, tvb, *offset, 1,
+	proto_tree_add_text(tree, tvb, *offset, 1, "%s",
 		decode_numeric_bitfield(byte, 0x0F, 1*8,
 			is_registration ?
 		          "DCE address length : %u" :
