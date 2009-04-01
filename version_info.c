@@ -301,7 +301,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	struct utsname name;
 #endif
 #if HAVE_OS_X_FRAMEWORKS
-	long macosx_ver, macosx_major_ver, macosx_minor_ver, macosx_bugfix_ver;
+	SInt32 macosx_ver, macosx_major_ver, macosx_minor_ver, macosx_bugfix_ver;
 #endif
 
 	g_string_append(str, "on ");
@@ -473,12 +473,12 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
 
 			g_string_append_printf(str, " (MacOS %ld.%ld.%ld)",
-					  macosx_major_ver,
-					  macosx_minor_ver,
-					  macosx_bugfix_ver);
+					  (long)macosx_major_ver,
+					  (long)macosx_minor_ver,
+					  (long)macosx_bugfix_ver);
 		} else {
 			g_string_append_printf(str, " (MacOS X < 10.4 [%lx])",
-					  macosx_ver);
+					  (long)macosx_ver);
 			/* See Apple's Gestalt Manager Reference for meanings
 			 * of the macosx_ver values. */
 		}
