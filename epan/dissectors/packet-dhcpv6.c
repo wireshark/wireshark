@@ -277,8 +277,6 @@ dhcpv6_enterprise_number(proto_tree * subtree, tvbuff_t *tvb, int offset)
 			      enterprise_number);
 }
 
-static guint pkt_ccc_option = 122;
-
 /* CableLabs Common Vendor Specific Options */
 #define CL_OPTION_ORO 0x0001  /* 1 */
 #define CL_OPTION_DEVICE_TYPE 0x0002 /* 2 */
@@ -1514,7 +1512,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
     }
     else {
       proto_tree_add_text(v_tree, tvb, off, len-off, 
-              "Bogus length: %s", len);
+              "Bogus length: %d", len);
     }
 }
 static int
@@ -1568,7 +1566,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
       }
       else {
           proto_tree_add_text(vti, tvb, suboptoff, subopt_len, 
-              "Bogus length: %s", subopt_len);
+              "Bogus length: %d", subopt_len);
 
       }
 
@@ -1593,7 +1591,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
                    subopt_len != 5 ? " [Invalid]" : "");
          }
          else {
-             proto_item_append_text(vti, "Bogus length: %s", subopt_len);
+             proto_item_append_text(vti, "Bogus length: %d", subopt_len);
          }
       }
       else {
@@ -1616,7 +1614,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
       }
       else {
-          proto_item_append_text(vti, "Bogus length: %s", subopt_len);
+          proto_item_append_text(vti, "Bogus length: %d", subopt_len);
       }
       suboptoff += subopt_len;
       break;
