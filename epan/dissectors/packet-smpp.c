@@ -1320,7 +1320,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
         sub_tree = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param,
                                               tvb, *offset, length+4,
                                               "Optional parameter: %s (0x%04x)",
-                                              val_to_str(tag, vals_tlv_tags, "%0x%04x"), tag);
+                                              val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
         proto_item_add_subtree(sub_tree, ett_opt_param);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
