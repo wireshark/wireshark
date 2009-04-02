@@ -1842,8 +1842,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	guint8 subopt, vs_opt, vs_len;
 	int subopt_len, datalen;
 	guint32 enterprise;
-    proto_item *vti;
-	int s_end = 0;
+	proto_item *vti;
 	proto_tree *subtree = 0;
 	guint8 tag, tag_len;
 	
@@ -1914,50 +1913,50 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			suboptoff += 4;
 
 			if ( enterprise == 4491 ) {
-					subtree = proto_item_add_subtree(vti, ett_bootp_option);
-					vs_opt = tvb_get_guint8(tvb, suboptoff);
-											suboptoff++;
-					vs_len = tvb_get_guint8(tvb, suboptoff);
-					suboptoff++;
+				subtree = proto_item_add_subtree(vti, ett_bootp_option);
+				vs_opt = tvb_get_guint8(tvb, suboptoff);
+				suboptoff++;
+				vs_len = tvb_get_guint8(tvb, suboptoff);
+				suboptoff++;
 
-					switch (vs_opt) {
-							case 1:
-									if (vs_len == 4) {
-											tag = tvb_get_guint8(tvb, suboptoff);
-											tag_len = tvb_get_guint8(tvb, suboptoff+1);
-											suboptoff+=2;
-											if (tag == 1) {
-													proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
-																	"DOCSIS Version Number %d.%d",
-																	tvb_get_guint8(tvb, suboptoff),
-																	tvb_get_guint8(tvb, suboptoff+1));
-																	suboptoff+=2;
-											} else {
-													proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
-																	"Unknown tag=%u %s (%d byte%s)", tag, 
-																	tvb_bytes_to_str(tvb, suboptoff, tag_len),
-																	tag_len, plurality(tag_len, "", "s"));
-													suboptoff += tag_len;
-											}
-									}
-									break;
+				switch (vs_opt) {
+				case 1:
+					if (vs_len == 4) {
+						tag = tvb_get_guint8(tvb, suboptoff);
+						tag_len = tvb_get_guint8(tvb, suboptoff+1);
+						suboptoff+=2;
+						if (tag == 1) {
+							proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+							    "DOCSIS Version Number %d.%d",
+							    tvb_get_guint8(tvb, suboptoff),
+							    tvb_get_guint8(tvb, suboptoff+1));
+							suboptoff+=2;
+						} else {
+							proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+							    "Unknown tag=%u %s (%d byte%s)", tag, 
+							    tvb_bytes_to_str(tvb, suboptoff, tag_len),
+							    tag_len, plurality(tag_len, "", "s"));
+							suboptoff += tag_len;
+						}
+					}
+					break;
 
-							default:
-									proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
-													"Invalid suboption %d (%d byte%s)",
-													vs_opt, vs_len, plurality(vs_len, "", "s"));
-									break;
-							}
-            } else {
-			     		datalen = tvb_get_guint8(tvb, suboptoff);
-			     		proto_tree_add_text(v_tree, tvb, suboptoff, 1,
-				     		         "Data Length: %u", datalen);
-			     		suboptoff++;
-
-			     		proto_tree_add_text(v_tree, tvb, suboptoff, datalen,
-				     		       "Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
-			     		suboptoff += datalen;
+				default:
+					proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+					    "Invalid suboption %d (%d byte%s)",
+					    vs_opt, vs_len, plurality(vs_len, "", "s"));
+					break;
 				}
+			} else {
+		     		datalen = tvb_get_guint8(tvb, suboptoff);
+		     		proto_tree_add_text(v_tree, tvb, suboptoff, 1,
+				    "Data Length: %u", datalen);
+		     		suboptoff++;
+
+		     		proto_tree_add_text(v_tree, tvb, suboptoff, datalen,
+				    "Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
+		     		suboptoff += datalen;
+			}
 		}
 		break;
 	case 10: /* 10   Relay Agent Flags                      [RFC5010] */
@@ -2734,7 +2733,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				subopt_len, plurality(subopt_len, "", "s"));
 			break;
 		
-    case ipv4_list: 
+		case ipv4_list: 
 			ti = proto_tree_add_text(v_tree, tvb, optoff, 2,
 					"Suboption %d %s", subopt, o125_cl_opt[subopt].text);
 
@@ -2742,16 +2741,16 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_item_append_text(ti, 
 					"Invalid length for suboption %d (%d byte%s)", subopt, subopt_len,
 					plurality(subopt_len, "", "s"));
-      } else {
+			} else {
 				subtree = proto_item_add_subtree(ti, ett_bootp_option);
 				for (i = 0; i < subopt_len; i+=4) {
 						proto_tree_add_text(subtree, tvb, suboptoff+i, 4, "IP Address: %s",
 							ip_to_str(tvb_get_ptr(tvb, (suboptoff+i), 4)));
-      	}
+				}
 			}
-     break;
+			break;
 
-    case special:
+		case special:
 			if (subopt == 4) {
 				val = tvb_get_guint8(tvb, suboptoff);
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
@@ -2778,7 +2777,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 		case val_u_byte:
 			val = tvb_get_guint8(tvb, suboptoff);
-      proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s%d", subopt,
 				o125_cl_opt[subopt].text, val);
 			break;
@@ -2872,8 +2871,8 @@ static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_VOICE_METRICS,	"Voice Metrics Support" },
 	{ PKT_MDC_MIBS,			"MIB Support" },
 	{ PKT_MDC_MGPI,			"Multiple Grants Per Interval Support" },
-    { PKT_MDC_V152,         "V.152 Support" },
-	{ 0,					NULL }
+	{ PKT_MDC_V152,			"V.152 Support" },
+	{ 0,				NULL }
 };
 
 static const value_string pkt_mdc_version_vals[] = {
@@ -2989,7 +2988,7 @@ static const value_string docs_cm_version_vals[] = {
 	{ 0x3030,	"DOCSIS 1.0" },
 	{ 0x3031,	"DOCSIS 1.1" },
 	{ 0x3032,	"DOCSIS 2.0" },
-    { 0x3033,	"DOCSIS 3.0" },
+	{ 0x3033,	"DOCSIS 3.0" },
 	{ 0,		NULL }
 };
 
