@@ -403,6 +403,8 @@ static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend, int revision);
+static int dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend);
 
 #define OPT53_DISCOVER "Discover"
 /* http://www.iana.org/assignments/bootp-dhcp-parameters */
@@ -1632,6 +1634,22 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		      optoff = dissect_vendor_tr111_suboption(e_tree,
 								 tvb, optoff, s_end);
 		    }
+		  } else if ( enterprise == 4491 ) {
+
+		    s_end = optoff + s_option_len;
+		    if ( s_end > optend ) {
+		      proto_tree_add_text(v_tree, tvb, optoff, 1,
+					  "no room left in option for enterprise %u data", enterprise);
+		      break;
+		    }
+
+
+		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		    while (optoff < s_end) {
+
+		      optoff = dissect_vendor_cl_suboption(e_tree,
+								 tvb, optoff, s_end);
+		    }
 		  } else {
 
 		    /* skip over the data and look for next enterprise number */
@@ -1821,10 +1839,14 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
     int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt;
+	guint8 subopt, vs_opt, vs_len;
 	int subopt_len, datalen;
 	guint32 enterprise;
-
+    proto_item *vti;
+	int s_end = 0;
+	proto_tree *subtree = 0;
+	guint8 tag, tag_len;
+	
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
@@ -1885,20 +1907,57 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	case 9:
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
-			proto_tree_add_text(v_tree, tvb, suboptoff, 4,
+			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4,
 					    "Enterprise-number: %s-%u",
 					    val_to_str( enterprise, sminmpec_values, "Unknown"),
 					    enterprise);
 			suboptoff += 4;
 
-			datalen = tvb_get_guint8(tvb, suboptoff);
-			proto_tree_add_text(v_tree, tvb, suboptoff, 1,
-				"Data Length: %u", datalen);
-			suboptoff++;
+			if ( enterprise == 4491 ) {
+					subtree = proto_item_add_subtree(vti, ett_bootp_option);
+					vs_opt = tvb_get_guint8(tvb, suboptoff);
+											suboptoff++;
+					vs_len = tvb_get_guint8(tvb, suboptoff);
+					suboptoff++;
 
-			proto_tree_add_text(v_tree, tvb, suboptoff, datalen,
-				"Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
-			suboptoff += datalen;
+					switch (vs_opt) {
+							case 1:
+									if (vs_len == 4) {
+											tag = tvb_get_guint8(tvb, suboptoff);
+											tag_len = tvb_get_guint8(tvb, suboptoff+1);
+											suboptoff+=2;
+											if (tag == 1) {
+													proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+																	"DOCSIS Version Number %d.%d",
+																	tvb_get_guint8(tvb, suboptoff),
+																	tvb_get_guint8(tvb, suboptoff+1));
+																	suboptoff+=2;
+											} else {
+													proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+																	"Unknown tag=%u %s (%d byte%s)", tag, 
+																	tvb_bytes_to_str(tvb, suboptoff, tag_len),
+																	tag_len, plurality(tag_len, "", "s"));
+													suboptoff += tag_len;
+											}
+									}
+									break;
+
+							default:
+									proto_tree_add_text(subtree, tvb, suboptoff, vs_len,
+													"Invalid suboption %d (%d byte%s)",
+													vs_opt, vs_len, plurality(vs_len, "", "s"));
+									break;
+							}
+            } else {
+			     		datalen = tvb_get_guint8(tvb, suboptoff);
+			     		proto_tree_add_text(v_tree, tvb, suboptoff, 1,
+				     		         "Data Length: %u", datalen);
+			     		suboptoff++;
+
+			     		proto_tree_add_text(v_tree, tvb, suboptoff, datalen,
+				     		       "Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
+			     		suboptoff += datalen;
+				}
 		}
 		break;
 	case 10: /* 10   Relay Agent Flags                      [RFC5010] */
@@ -2613,6 +2672,132 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	return optoff;
 }
 
+static int
+dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
+{
+	int suboptoff = optoff;
+	guint8 subopt, val;
+	guint8 subopt_len;
+	proto_item *ti;
+	proto_tree *subtree;
+	int i;
+
+	static struct opt_info o125_cl_opt[]= {
+		/* 0 */ {"nop", special, NULL},	/* dummy */
+		/* 1 */ {"Option Request = ", val_u_byte, NULL},
+		/* 2 */ {"TFTP Server Addresses : ", ipv4_list, NULL},
+		/* 3 */ {"eRouter Container Option : ", bytes, NULL},
+		/* 4 */ {"MIB Environment Indicator Option = ", special, NULL},
+		/* 5 */ {"Modem Capabilities : ", special, NULL},
+	};
+
+	static const value_string pkt_mib_env_ind_opt_vals[] = {
+		{ 0x00, "Reserved" },
+		{ 0x01, "CableLabs" },
+		{ 0x02, "IETF" },
+		{ 0x03, "EuroCableLabs" },
+		{ 0, NULL } 
+	};
+
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+	 		subopt);
+	 	return (optend);
+	}
+
+	if ((subopt < 1) || (subopt >= array_length(o125_cl_opt))) {
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
+			plurality(subopt_len, "", "s"));
+	} else {
+		switch (o125_cl_opt[subopt].ftype) {
+
+		case bytes:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s%s (%d byte%s)", subopt,
+				o125_cl_opt[subopt].text,
+				tvb_bytes_to_str(tvb, suboptoff, subopt_len),
+				subopt_len, plurality(subopt_len, "", "s"));
+			break;
+		
+    case ipv4_list: 
+			ti = proto_tree_add_text(v_tree, tvb, optoff, 2,
+					"Suboption %d %s", subopt, o125_cl_opt[subopt].text);
+
+			if ((subopt_len % 4) != 0) {
+				proto_item_append_text(ti, 
+					"Invalid length for suboption %d (%d byte%s)", subopt, subopt_len,
+					plurality(subopt_len, "", "s"));
+      } else {
+				subtree = proto_item_add_subtree(ti, ett_bootp_option);
+				for (i = 0; i < subopt_len; i+=4) {
+						proto_tree_add_text(subtree, tvb, suboptoff+i, 4, "IP Address: %s",
+							ip_to_str(tvb_get_ptr(tvb, (suboptoff+i), 4)));
+      	}
+			}
+     break;
+
+    case special:
+			if (subopt == 4) {
+				val = tvb_get_guint8(tvb, suboptoff);
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: %s%s", subopt,
+					o125_cl_opt[subopt].text,
+					val_to_str(tvb_get_guint8(tvb, suboptoff),
+					pkt_mib_env_ind_opt_vals, "unknown"));
+			}
+			else {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: %s%s (%d byte%s)",
+		 			subopt, o125_cl_opt[subopt].text,
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len), 
+					subopt_len, plurality(subopt_len, "", "s"));
+			}
+			break;
+
+		case string:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s\"%s\"", subopt,
+				o125_cl_opt[subopt].text,
+				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
+			break;
+
+		case val_u_byte:
+			val = tvb_get_guint8(tvb, suboptoff);
+      proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s%d", subopt,
+				o125_cl_opt[subopt].text, val);
+			break;
+
+		case val_u_short:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s%d", subopt,
+				o125_cl_opt[subopt].text,
+				tvb_get_ntohs(tvb, suboptoff));
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			break;
+		}
+	}
+	optoff += (subopt_len + 2);
+	return optoff;
+}
 
 /* PacketCable Multimedia Terminal Adapter device capabilities (option 60).
    Ref: PKT-SP-I05-021127 sections 8.2 and 10 */
@@ -2653,6 +2838,7 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 #define PKT_MDC_VOICE_METRICS		0x3136	/* "16" */
 #define	PKT_MDC_MIBS			0x3137	/* "17" */
 #define	PKT_MDC_MGPI			0x3138	/* "18" */
+#define	PKT_MDC_V152			0x3139	/* "19" */
 
 static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_VERSION,		"PacketCable Version" },
@@ -2686,6 +2872,7 @@ static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_VOICE_METRICS,	"Voice Metrics Support" },
 	{ PKT_MDC_MIBS,			"MIB Support" },
 	{ PKT_MDC_MGPI,			"Multiple Grants Per Interval Support" },
+    { PKT_MDC_V152,         "V.152 Support" },
 	{ 0,					NULL }
 };
 
@@ -2802,6 +2989,7 @@ static const value_string docs_cm_version_vals[] = {
 	{ 0x3030,	"DOCSIS 1.0" },
 	{ 0x3031,	"DOCSIS 1.1" },
 	{ 0x3032,	"DOCSIS 2.0" },
+    { 0x3033,	"DOCSIS 3.0" },
 	{ 0,		NULL }
 };
 
@@ -2920,6 +3108,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_FLOW_LOG:
 					case PKT_MDC_RFC2833_DTMF:
 					case PKT_MDC_VOICE_METRICS:
+					case PKT_MDC_MGPI:
+					case PKT_MDC_V152:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
 						proto_item_append_text(ti,
 						    "%s (%s)",
