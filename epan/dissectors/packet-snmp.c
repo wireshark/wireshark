@@ -3020,8 +3020,6 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	*err = NULL;
 
 	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
-	if (ue->user.authPassword.len < 8) g_string_sprintfa(es,"short authPassword (%d), ", ue->user.authPassword.len);
-	if (ue->user.privPassword.len < 8) g_string_sprintfa(es,"short privPassword (%d), ", ue->user.privPassword.len);
 
 	if (es->len) {
 		g_string_truncate(es,es->len-2);
@@ -3310,7 +3308,7 @@ void proto_register_snmp(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "snmp.NULL", HFILL }},
     { &hf_snmp_VarBindList_item,
-      { "Item", "snmp.VarBindList_item",
+      { "VarBindList", "snmp.VarBindList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "snmp.VarBind", HFILL }},
     { &hf_snmp_open,
@@ -3375,7 +3373,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1921 "packet-snmp-template.c"
+#line 1919 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3415,7 +3413,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1937 "packet-snmp-template.c"
+#line 1935 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {

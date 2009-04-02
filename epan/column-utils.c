@@ -64,8 +64,8 @@ col_setup(column_info *cinfo, gint num_cols)
   cinfo->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
   cinfo->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   cinfo->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
-  cinfo->col_expr.col_expr = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  cinfo->col_expr.col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_expr.col_expr = (gchar **) g_malloc(sizeof(gchar *) * (num_cols + 1));
+  cinfo->col_expr.col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * (num_cols + 1));
 
   for (i = 0; i < NUM_COL_FMTS; i++) {
     cinfo->col_first[i] = -1;

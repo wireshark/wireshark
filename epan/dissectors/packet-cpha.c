@@ -145,8 +145,12 @@ static const char *opcode_type_str_long[NUM_OPCODE_TYPES+1] = {
   "New Sync packet"
 };
 
+/* XXX: Array below found by Lint to be missing an initializer. */
+/*      So: "Unknown" added as the first initializer so that    */
+/*       this array is similar to opcode_type_str_long & etc    */
 #define NUM_STATES 5
 static const char *state_str[NUM_STATES+1] = {
+  "Unknown",
   "Down/Dead",
   "Initializing",
   "Standby",

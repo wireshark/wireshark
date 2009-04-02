@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.6">
+  <!ENTITY WiresharkCurrentVersion "1.0.7">
 
 ]>
 
@@ -31,7 +31,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-01.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-02.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -49,6 +49,20 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The Check Point High-Availability Protocol (CPHAP) dissector could crash.
+            <!-- Fixed in trunk: r27083 -->
+            <!-- Fixed in trunk-1.0: r27934 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3269">Bug
+            3269</ulink>)
+          </para>
+          <para>Versions affected: 0.9.6 to 1.0.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -59,13 +73,33 @@ Wireshark Info
 
       <itemizedlist>
 
-<!--
         <listitem><para>
-          Crash when loading capture file and Preferences: NO Info column
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2902">Bug
-          2902</ulink>)
+          Correct use of proto_tree_add_int_format()
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3048">Bug
+          3048</ulink>)
         </para></listitem>
--->
+
+        <listitem><para>
+          RTP dynamic payload clock rates incorrectly determined
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3067">Bug
+          3067</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ANSI MAP digits type decode and bitmask corrections
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3233">Bug
+          3233</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Two small patches for ipvs-syncd dissector
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3236">Bug
+          3236</ulink>)
+        </para></listitem>
+	
+	<listitem>
+	  "Copy as filter" from the packet list has been fixed.
+	</listitem>
 
       </itemizedlist>
 
@@ -91,7 +125,14 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-PROFINET
+ACN,
+CPHAP,
+GSM MAP,
+IPVS,
+PROFINET,
+RTP,
+SNMP,
+WSP,
 
     </para>
     </section>

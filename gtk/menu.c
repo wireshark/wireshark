@@ -2836,7 +2836,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy",
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy",
 	  TRUE);
@@ -2869,7 +2869,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);

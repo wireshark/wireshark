@@ -693,6 +693,9 @@ build_column_format_array(capture_file *cfile, gboolean reset_fences)
 								COL_MAX_LEN);
   }
 
+  cfile->cinfo.col_expr.col_expr[i] = NULL;
+  cfile->cinfo.col_expr.col_expr_val[i] = NULL;
+
   for (i = 0; i < cfile->cinfo.num_cols; i++) {
     for (j = 0; j < NUM_COL_FMTS; j++) {
       if (!cfile->cinfo.fmt_matx[i][j])
