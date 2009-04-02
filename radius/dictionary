@@ -21,6 +21,13 @@
 #	ipv6addr   - 16 octets in network byte order
 #	ipv6prefix - 18 octets in network byte order
 #	octets  - raw octets, printed as hex strings
+#	byte     - one-octet unsigned integer
+#	short    - two-octet unsigned integer in network byte order
+#	signed   - 4-octet signed integer in network byte order.
+#	combo-ip - if length 4, is the same as the "ipaddr" type.
+#                  if length 16, is the same as "ipv6addr" type.
+#	tlv      - encapsulated sub-attributes
+#		   i.e. Vendor-Specific -> WiMAX TLV -> WiMAX sub-tlv.
 #
 
 $INCLUDE dictionary.3com
@@ -86,8 +93,9 @@ $INCLUDE dictionary.xedia
 $INCLUDE dictionary.ascend
 
 # we do not support 16bit attribute codes yet
-# $INCLUDE dictionary.usr
-
+$INCLUDE dictionary.usr
+$INCLUDE dictionary.starent
+$INCLUDE dictionary.wimax
 
 #
 #	The following are the proper new names. Use these.

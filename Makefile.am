@@ -206,6 +206,7 @@ radius_DATA = \
 	radius/dictionary.shiva  \
 	radius/dictionary.sonicwall  \
 	radius/dictionary.springtide  \
+	radius/dictionary.starent  \
 	radius/dictionary.t_systems_nova  \
 	radius/dictionary.telebit  \
 	radius/dictionary.trapeze  \
@@ -215,6 +216,7 @@ radius_DATA = \
 	radius/dictionary.usr  \
 	radius/dictionary.valemount  \
 	radius/dictionary.versanet  \
+	radius/dictionary.wimax  \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia
 

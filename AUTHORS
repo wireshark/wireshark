@@ -1729,6 +1729,8 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	H264 dissection
 	AMR dissection
 	MP4V-ES dissection
+	NAS EPS dissection
+	GTPv2 dissection
 }
 
 Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {

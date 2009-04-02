@@ -58,6 +58,9 @@ typedef struct _radius_vendor_info_t {
 	guint code;
 	GHashTable* attrs_by_id;
     gint ett;
+	guint type_octets;
+	guint length_octets;
+	gboolean has_flags; 
 } radius_vendor_info_t;
 
 typedef struct _radius_attr_info_t radius_attr_info_t;
@@ -78,6 +81,7 @@ struct _radius_attr_info_t {
 	int hf64;
 	int hf_tag;
 	int hf_len;
+	GHashTable* tlvs_by_id;
 };
 
 typedef struct _radius_dictionary_t {
@@ -85,6 +89,7 @@ typedef struct _radius_dictionary_t {
 	GHashTable* attrs_by_name;
 	GHashTable* vendors_by_id;
 	GHashTable* vendors_by_name;
+	GHashTable* tlvs_by_name;
 } radius_dictionary_t;
 
 radius_attr_dissector_t radius_integer;
@@ -97,6 +102,11 @@ radius_attr_dissector_t radius_ipxnet;
 radius_attr_dissector_t radius_date;
 radius_attr_dissector_t radius_abinary;
 radius_attr_dissector_t radius_ifid;
+radius_attr_dissector_t radius_byte;
+radius_attr_dissector_t radius_short;
+radius_attr_dissector_t radius_signed;
+radius_attr_dissector_t radius_combo_ip;
+radius_attr_dissector_t radius_tlv;
 
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
 
