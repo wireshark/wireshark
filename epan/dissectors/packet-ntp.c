@@ -514,7 +514,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	ppoll = tvb_get_guint8(tvb, 2);
 	proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
 				   ppoll,
-				   (((ppoll >= 4) && (ppoll <= 16)) ?
+				   (((ppoll >= 4) && (ppoll <= 17)) ?
 				   "Peer Polling Interval: %u (%u sec)" :
 				   "Peer Polling Interval: invalid (%u)"),
 				   ppoll,
