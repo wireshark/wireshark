@@ -55,8 +55,11 @@ const value_string afn_vals[] = {
     { AFNUM_FC_WWPN, "Fibre Channel World-Wide Port Name" },
     { AFNUM_FC_WWNN, "Fibre Channel World-Wide Node Name" },
     { AFNUM_GWID, "GWID" },
-    { AFNUM_L2VPN_OLD, "Layer-2 VPN (old)" },
     { AFNUM_L2VPN, "Layer-2 VPN" },
+    { AFNUM_L2VPN_OLD, "Layer-2 VPN (old)" },
+    { AFNUM_EIGRP_COMMON, "EIGRP Common Service Family" },
+    { AFNUM_EIGRP_IPV4, "EIGRP IPv4 Service Family" },
+    { AFNUM_EIGRP_IPV6, "EIGRP IPv6 Service Family" },
     { 65535, "Reserved" },
     { 0, NULL },
 };

@@ -62,6 +62,9 @@ extern "C" {
 /* draft-kompella-ppvpn-l2vpn */
 #define AFNUM_L2VPN     25
 #define AFNUM_L2VPN_OLD 196
+#define AFNUM_EIGRP_COMMON	16384 /* EIGRP Common Service Family */
+#define AFNUM_EIGRP_IPV4	16385 /* EIGRP IPv4 Service Family */
+#define AFNUM_EIGRP_IPV6	16386 /* EIGRP IPv6 Service Family */
 extern const value_string afn_vals[];
 
 #ifdef __cplusplus

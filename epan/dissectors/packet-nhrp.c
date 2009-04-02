@@ -43,7 +43,7 @@
 #include <epan/ipproto.h>
 #include <epan/greproto.h>
 #include <epan/sminmpec.h>
-
+#include <epan/afn.h>
 #include <epan/in_cksum.h>
 #include "packet-nhrp.h"
 
@@ -63,7 +63,11 @@ static int hf_nhrp_hdr_extoff = -1;
 static int hf_nhrp_hdr_version = -1;
 static int hf_nhrp_hdr_op_type = -1;
 static int hf_nhrp_hdr_shtl = -1;
+static int hf_nhrp_hdr_shtl_type = -1;
+static int hf_nhrp_hdr_shtl_len = -1;
 static int hf_nhrp_hdr_sstl = -1;
+static int hf_nhrp_hdr_sstl_type = -1;
+static int hf_nhrp_hdr_sstl_len = -1;
 
 static int hf_nhrp_src_proto_len = -1;
 static int hf_nhrp_dst_proto_len = -1;
@@ -88,7 +92,11 @@ static int hf_nhrp_unused = -1;
 static int hf_nhrp_mtu = -1;
 static int hf_nhrp_holding_time = -1;
 static int hf_nhrp_cli_addr_tl = -1;
+static int hf_nhrp_cli_addr_tl_type = -1;
+static int hf_nhrp_cli_addr_tl_len = -1;
 static int hf_nhrp_cli_saddr_tl = -1;
+static int hf_nhrp_cli_saddr_tl_type = -1;
+static int hf_nhrp_cli_saddr_tl_len = -1;
 static int hf_nhrp_cli_prot_len = -1;
 static int hf_nhrp_pref = -1;
 static int hf_nhrp_client_nbma_addr = -1;
@@ -103,10 +111,14 @@ static int hf_nhrp_error_packet = -1;
 
 static gint ett_nhrp = -1;
 static gint ett_nhrp_hdr = -1;
+static gint ett_nhrp_hdr_shtl = -1;
+static gint ett_nhrp_hdr_sstl = -1;
 static gint ett_nhrp_mand = -1;
 static gint ett_nhrp_ext = -1;
 static gint ett_nhrp_mand_flag = -1;
 static gint ett_nhrp_cie = -1;
+static gint ett_nhrp_cie_cli_addr_tl = -1;
+static gint ett_nhrp_cie_cli_saddr_tl = -1;
 static gint ett_nhrp_indication = -1;
 
 /* NHRP Packet Types */
@@ -144,7 +156,23 @@ static gint ett_nhrp_indication = -1;
 #define NHRP_CODE_ADMIN_PROHIBITED       	0x04
 #define NHRP_CODE_INSUFFICIENT_RESOURCES	0x05
 #define NHRP_CODE_NO_BINDING_EXISTS 		0x0c
-#define NHRP_CODE_NON_UNIQUE_BINDING      	0x0e
+#define NHRP_CODE_NON_UNIQUE_BINDING      	0x0d
+#define NHRP_CODE_ALREADY_REGISTERED		0x0e
+
+/* NHRP Subnetwork layer address type/length */
+#define NHRP_SHTL_TYPE_MASK	0x40
+#define NHRP_SHTL_LEN_MASK	0x3F
+#define NHRP_SHTL_TYPE(val)	(((val) & (NHRP_SHTL_TYPE_MASK)) >> 6)
+#define NHRP_SHTL_LEN(val)	((val) & (NHRP_SHTL_LEN_MASK))
+
+#define NHRP_SHTL_TYPE_NSAP	0
+#define NHRP_SHTL_TYPE_E164	1
+
+static const value_string nhrp_shtl_type_vals[] = {
+	{ NHRP_SHTL_TYPE_NSAP, "NSAP format" },
+	{ NHRP_SHTL_TYPE_E164, "Native E.164 format" },
+	{ 0, NULL }
+};
 
 static const value_string nhrp_op_type_vals[] = {
 	{ NHRP_RESOLUTION_REQ, 		"NHRP Resolution Request" },
@@ -188,6 +216,7 @@ static const value_string nhrp_cie_code_vals[] = {
 	{ NHRP_CODE_INSUFFICIENT_RESOURCES, "Insufficient Resources" },
 	{ NHRP_CODE_NO_BINDING_EXISTS, 		"No Interworking Layer Address to NBMA Address Binding Exists" },
 	{ NHRP_CODE_NON_UNIQUE_BINDING, 	"Binding Exists But Is Not Unique" },
+	{ NHRP_CODE_ALREADY_REGISTERED, 	"Unique Internetworking Layer Address Already Registered" },
 	{ 0, 								NULL }
 };
 
@@ -214,6 +243,10 @@ void dissect_nhrp_hdr(tvbuff_t *tvb,
 	
 	proto_item *nhrp_tree_item = NULL;
 	proto_tree *nhrp_tree = NULL;
+	proto_item *shtl_tree_item = NULL;
+	proto_tree *shtl_tree = NULL;
+	proto_item *sstl_tree_item = NULL;
+	proto_tree *sstl_tree = NULL;
 
 	nhrp_tree_item = proto_tree_add_text(tree, tvb, offset, 20, "NHRP Fixed Header");
 	nhrp_tree = proto_item_add_subtree(nhrp_tree_item, ett_nhrp_hdr);
@@ -283,11 +316,23 @@ void dissect_nhrp_hdr(tvbuff_t *tvb,
 	offset += 1;
 
 	hdr->ar_shtl = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_shtl, tvb, offset, 1, FALSE);
+	shtl_tree_item = proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_shtl,
+		tvb, offset, 1, hdr->ar_shtl, "Source Address Type/Len: %s/%u",
+		val_to_str(NHRP_SHTL_TYPE(hdr->ar_shtl), nhrp_shtl_type_vals, "Unknown Type"),
+		NHRP_SHTL_LEN(hdr->ar_shtl));
+	shtl_tree = proto_item_add_subtree(shtl_tree_item, ett_nhrp_hdr_shtl);
+	proto_tree_add_item(shtl_tree, hf_nhrp_hdr_shtl_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(shtl_tree, hf_nhrp_hdr_shtl_len, tvb, offset, 1, FALSE);
 	offset += 1;
 	
 	hdr->ar_sstl = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_sstl, tvb, offset, 1, FALSE);
+	sstl_tree_item = proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_sstl,
+		tvb, offset, 1, hdr->ar_sstl, "Source SubAddress Type/Len: %s/%u",
+		val_to_str(NHRP_SHTL_TYPE(hdr->ar_sstl), nhrp_shtl_type_vals, "Unknown Type"),
+		NHRP_SHTL_LEN(hdr->ar_sstl));
+	sstl_tree = proto_item_add_subtree(sstl_tree_item, ett_nhrp_hdr_sstl);
+	proto_tree_add_item(sstl_tree, hf_nhrp_hdr_sstl_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(sstl_tree, hf_nhrp_hdr_sstl_len, tvb, offset, 1, FALSE);
 	offset += 1;
 	
 	*pOffset = offset;
@@ -308,13 +353,18 @@ void dissect_cie_list(tvbuff_t *tvb,
 					  gint isReq)
 {
 	guint32 addr;
+	proto_item *cli_addr_tree_item = NULL;
+	proto_tree *cli_addr_tree = NULL;
+	proto_item *cli_saddr_tree_item = NULL;
+	proto_tree *cli_saddr_tree = NULL;
+	guint8 val;
 
 	while ((offset + 12) <= cieEnd) {
 		gint cli_addr_len = tvb_get_guint8(tvb, offset + 8);
 		gint cli_saddr_len = tvb_get_guint8(tvb, offset + 9);
 		gint cli_prot_len = tvb_get_guint8(tvb, offset + 10);
 		gint cie_len = 12 + cli_addr_len + cli_saddr_len + cli_prot_len;
-		proto_item *cie_tree_item = proto_tree_add_text(tree, tvb, offset, cie_len, "Client Information Element");
+		proto_item *cie_tree_item = proto_tree_add_text(tree, tvb, offset, cie_len, "Client Information Entry");
 		proto_tree *cie_tree = proto_item_add_subtree(cie_tree_item, ett_nhrp_cie);
 
 		if (isReq) {
@@ -339,10 +389,26 @@ void dissect_cie_list(tvbuff_t *tvb,
 		proto_tree_add_item(cie_tree, hf_nhrp_holding_time, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(cie_tree, hf_nhrp_cli_addr_tl, tvb, offset, 1, FALSE);
+		val = tvb_get_guint8(tvb, offset);
+		cli_addr_tree_item = proto_tree_add_uint_format(cie_tree, 
+			hf_nhrp_cli_addr_tl, tvb, offset, 1, val, 
+			"Client Address Type/Len: %s/%u", 
+			val_to_str(NHRP_SHTL_TYPE(val), nhrp_shtl_type_vals, "Unknown Type"),
+			NHRP_SHTL_LEN(val));
+		cli_addr_tree = proto_item_add_subtree(cli_addr_tree_item, ett_nhrp_cie_cli_addr_tl);
+		proto_tree_add_item(cli_addr_tree, hf_nhrp_cli_addr_tl_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cli_addr_tree, hf_nhrp_cli_addr_tl_len, tvb, offset, 1, FALSE);
 		offset += 1;
 
-		proto_tree_add_item(cie_tree, hf_nhrp_cli_saddr_tl, tvb, offset, 1, FALSE);
+		val = tvb_get_guint8(tvb, offset);
+		cli_saddr_tree_item = proto_tree_add_uint_format(cie_tree, 
+			hf_nhrp_cli_saddr_tl, tvb, offset, 1, val, 
+			"Client Sub Address Type/Len: %s/%u", 
+			val_to_str(NHRP_SHTL_TYPE(val), nhrp_shtl_type_vals, "Unknown Type"),
+			NHRP_SHTL_LEN(val));
+		cli_saddr_tree = proto_item_add_subtree(cli_saddr_tree_item, ett_nhrp_cie_cli_saddr_tl);
+		proto_tree_add_item(cli_saddr_tree, hf_nhrp_cli_saddr_tl_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cli_saddr_tree, hf_nhrp_cli_saddr_tl_len, tvb, offset, 1, FALSE);
 		offset += 1;
 
 		proto_tree_add_item(cie_tree, hf_nhrp_cli_prot_len, tvb, offset, 1, FALSE);
@@ -487,7 +553,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	}
 
 	/* TBD : Check for hdr->afn */
-	shl = hdr->ar_shtl & 0x3f;
+	shl = hdr->ar_shtl & NHRP_SHTL_LEN_MASK;
 	if (shl) {
 		tvb_ensure_bytes_exist(tvb, offset, shl);
 		if (shl == 4) {
@@ -502,7 +568,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		offset += shl;
 	}
 	
-	ssl = hdr->ar_sstl & 0x3f;
+	ssl = hdr->ar_sstl & NHRP_SHTL_LEN_MASK;
 	if (ssl) {
 		tvb_ensure_bytes_exist(tvb, offset, ssl);
 		proto_tree_add_text(nhrp_tree, tvb, offset, ssl,
@@ -665,7 +731,7 @@ proto_register_nhrp(void)
 	static hf_register_info hf[] = {
 		
 		{ &hf_nhrp_hdr_afn,
-		  { "Address Family Number", 		"nhrp.hdr.afn", 	FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+		  { "Address Family Number", 		"nhrp.hdr.afn", 	FT_UINT16, BASE_HEX_DEC, VALS(afn_vals), 0x0, "", HFILL }},
 		{ &hf_nhrp_hdr_pro_type,
 		  { "Protocol Type (short form)",	"nhrp.hdr.pro.type",FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_nhrp_hdr_pro_snap,
@@ -684,8 +750,16 @@ proto_register_nhrp(void)
 		  { "NHRP Packet Type", 			"nhrp.hdr.op.type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_nhrp_hdr_shtl,
 		  { "Source Address Type/Len", 		"nhrp.hdr.shtl", 	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_nhrp_hdr_shtl_type,
+		  { "Type", 						"nhrp.hdr.shtl.type", FT_UINT8, BASE_DEC, VALS(nhrp_shtl_type_vals), NHRP_SHTL_TYPE_MASK, "", HFILL }},
+		{ &hf_nhrp_hdr_shtl_len,
+		  { "Length", 						"nhrp.hdr.shtl.len", FT_UINT8, BASE_DEC, NULL, NHRP_SHTL_LEN_MASK, "", HFILL }},
 		{ &hf_nhrp_hdr_sstl,
 		  { "Source SubAddress Type/Len", 	"nhrp.hdr.sstl", 	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_nhrp_hdr_sstl_type,
+		  { "Type", 						"nhrp.hdr.sstl.type", FT_UINT8, BASE_DEC, VALS(nhrp_shtl_type_vals), NHRP_SHTL_TYPE_MASK, "", HFILL }},
+		{ &hf_nhrp_hdr_sstl_len,
+		  { "Length", 						"nhrp.hdr.sstl.len", FT_UINT8, BASE_DEC, NULL, NHRP_SHTL_LEN_MASK, "", HFILL }},
 
 		{ &hf_nhrp_src_proto_len,
 		  { "Source Protocol Len", 			"nhrp.src.prot.len",FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -731,9 +805,17 @@ proto_register_nhrp(void)
 		{ &hf_nhrp_holding_time,
 		  { "Holding Time (s)",			"nhrp.htime", 			FT_UINT16,BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_nhrp_cli_addr_tl,
-		  { "Client Address Type/Len",	"nhrp.cli.addr.tl", 	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		  { "Client Address Type/Len",	"nhrp.cli.addr_tl",		FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_nhrp_cli_addr_tl_type,
+		  { "Type", 				   	"nhrp.cli.addr_tl.type",	FT_UINT8, BASE_DEC, VALS(nhrp_shtl_type_vals), NHRP_SHTL_TYPE_MASK, "", HFILL }},
+		{ &hf_nhrp_cli_addr_tl_len,
+		  { "Length", 				   	"nhrp.cli.addr_tl.len",	FT_UINT8, BASE_DEC, NULL, NHRP_SHTL_LEN_MASK, "", HFILL }},
 		{ &hf_nhrp_cli_saddr_tl,
-		  { "Client Sub Address Type/Len","nhrp.cli.saddr.tl", 	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		  { "Client Sub Address Type/Len","nhrp.cli.saddr_tl", 	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_nhrp_cli_saddr_tl_type,
+		  { "Type", 				   	"nhrp.cli.saddr_tl.type",	FT_UINT8, BASE_DEC, VALS(nhrp_shtl_type_vals), NHRP_SHTL_TYPE_MASK, "", HFILL }},
+		{ &hf_nhrp_cli_saddr_tl_len,
+		  { "Length", 				   	"nhrp.cli.saddr_tl.len",	FT_UINT8, BASE_DEC, NULL, NHRP_SHTL_LEN_MASK, "", HFILL }},
 		{ &hf_nhrp_cli_prot_len,
 		  { "Client Protocol Length", 	"nhrp.prot.len", 		FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_nhrp_pref,
@@ -763,10 +845,14 @@ proto_register_nhrp(void)
 	static gint *ett[] = {
 		&ett_nhrp,
 		&ett_nhrp_hdr,
+		&ett_nhrp_hdr_shtl,
+		&ett_nhrp_hdr_sstl,
 		&ett_nhrp_mand,
 		&ett_nhrp_ext,
 		&ett_nhrp_mand_flag,
 		&ett_nhrp_cie,
+		&ett_nhrp_cie_cli_addr_tl,
+		&ett_nhrp_cie_cli_saddr_tl,
 		&ett_nhrp_indication
 	};
 	
