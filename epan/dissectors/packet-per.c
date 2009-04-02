@@ -843,7 +843,6 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
 	if(has_extension){
-#if 0
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
@@ -852,8 +851,8 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 			 * followed by the component values
 			 * TODO: Handle extension
 			 */
+			proto_tree_add_text(parent_tree, tvb, (offset>>3), 1, "dissect_per_constrained_sequence_of with extension is not handled");
 		}
-#endif
 	}
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
