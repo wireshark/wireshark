@@ -2033,7 +2033,6 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti, *tipc_data_item, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
-	int previous_offset;
 	guint32 dword;
 	guint8  version;
 	guint32 msg_size;
@@ -2064,6 +2063,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		tipc_tvb = tvb_new_subset(tvb, offset, msg_size, msg_size);
 	}
+	/* user == 7 only works for v2, this will decode the legacy TIPC configuration protocol */
+	if (user == TIPCv2_LINK_PROTOCOL) version = TIPCv2;
 	/* Set User values in COL INFO different in V1 and V2 */
 	switch (version) {
 		case 0:
@@ -2288,6 +2289,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if (user < 4 && dissect_tipc_data) { /* DATA type user */
+			tvbuff_t *next_tvb;
+			guint32 *name_type_p = (guint32*)&msg_type;
 			switch (msg_type) {
 				case TIPC_CONNECTED_MSG:
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
@@ -2296,24 +2299,17 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					data_tvb = tvb_new_subset(tipc_tvb, offset+14, -1, -1);
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14, "TIPC_NAMED_MSG Hdr");
 					proto_tree_add_text(tipc_tree, data_tvb, 0, -1, "%u bytes Data", (msg_size - hdr_size*4));
-					return;
+					break;
 				case TIPC_DIRECT_MSG:
-					previous_offset = offset;
-					while (tvb_reported_length_remaining(tipc_tvb, offset) > 0) {
-						dword = tvb_get_ntohl(tipc_tvb, offset);
-						if ((dword & 0xff000000) == 0x45000000) { /* && ((dword & 0x0000ffff) == tvb_reported_length_remaining(tvb, offset+2)))*/
-							data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
-							call_dissector(ip_handle, data_tvb, pinfo, top_tree);
-							return;
-						}
-						offset = offset+4;
-					}
-					proto_tree_add_text(tipc_tree, tipc_tvb, previous_offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
-					return;
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
+					break;
 				default:
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
 					break;
 			}
+			/* tipc data type user doesn't change format, reuse v2 function */
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			call_tipc_v2_data_subdissectors(next_tvb, pinfo, name_type_p, user);				
 		}
 	} /*if (hdr_size <= 5) */
 }
