@@ -3093,7 +3093,7 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
 		 */
 		if(out_tvb) {
 			tvb_len = tvb_length(out_tvb);
-			if(tvb_len >= name_len) {
+			if((guint)tvb_len >= name_len) {
 				tvb_memcpy(out_tvb, (guint8*)name_string, 0, name_len-1);
 				name_string[name_len-1] = '\0';
 			} else {
