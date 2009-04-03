@@ -1011,7 +1011,18 @@ tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 
-	DISSECTOR_ASSERT(length >= -1);
+	/*
+	 * XXX - we should eliminate the "length = -1 means 'to the end
+	 * of the tvbuff'" convention, and use other means to achieve
+	 * that; this would let us eliminate a bunch of checks for
+	 * negative lengths in cases where the protocol has a 32-bit
+	 * length field.
+	 *
+	 * Allowing -1 but throwing an assertion on other negative
+	 * lengths is a bit more work with the length being a size_t;
+	 * instead, we check for a length <= 2^31-1.
+	 */
+	DISSECTOR_ASSERT(length <= 0x7FFFFFFF);
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
 	if (tvb->real_data) {
