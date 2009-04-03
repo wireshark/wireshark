@@ -82,20 +82,22 @@ format_flags_string(guchar value, const gchar *array[])
 {
 	int			i;
 	guint		bpos;
-	size_t		fpos = 0, returned_length = 0;
-	gchar		*buf;
+	emem_strbuf_t	*buf;
+	const char	*sep = "";
 
-   	buf = ep_alloc(MAX_FLAGS_LEN);
-   	buf[0] = 0;
+   	buf = ep_strbuf_sized_new(MAX_FLAGS_LEN, MAX_FLAGS_LEN);
 	for (i = 0; i < 8; i++) {
 		bpos = 1 << i;
 		if (value & bpos) {
-			if (array[i][0])								/* if there is a string to emit... */
-				returned_length = g_snprintf(&buf[fpos], MAX_FLAGS_LEN-fpos, "%s%s", fpos ? ", " : "", array[i]);
-			fpos += MIN(returned_length, MAX_FLAGS_LEN-fpos);
+			if (array[i][0]) {
+				/* there is a string to emit... */
+				ep_strbuf_append_printf(buf, "%s%s", sep,
+				    array[i]);
+				sep = ", ";
+			}
 		}
 	}
-	return buf;
+	return buf->str;
 }
 
 static void
