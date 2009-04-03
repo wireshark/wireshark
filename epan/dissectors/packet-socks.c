@@ -966,7 +966,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
        	        	while (data < dataend) {
 
               			lineend = find_line_end(data, dataend, &eol);
-                		linelen = lineend - data;
+                		linelen = (int)(lineend - data);
 
        		                proto_tree_add_text( tree, tvb, offset, linelen,
        		                	"%s", format_text(data, linelen));
