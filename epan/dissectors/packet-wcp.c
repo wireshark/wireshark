@@ -286,7 +286,7 @@ static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 		guint8 *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 		tvb_memcpy( tvb, buf_ptr->buf_cur, 2, buf_end - buf_ptr->buf_cur);
 		tvb_memcpy( tvb, buf_ptr->buffer, buf_end - buf_ptr->buf_cur-2,
-			len - (int)(buf_end - buf_ptr->buf_cur));
+			len - (buf_end - buf_ptr->buf_cur));
 		buf_ptr->buf_cur = buf_ptr->buf_cur + len - MAX_WIN_BUF_LEN;
 	}
 
