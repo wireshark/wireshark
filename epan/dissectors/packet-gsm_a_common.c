@@ -1990,11 +1990,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 		"%s :  Ciphering Information",
 		a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
-
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 4, FALSE);
 	curr_offset++;
 
 	/* no length check possible */
@@ -2025,10 +2021,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, FALSE);
 
 	switch ((oct & 0x30) >> 4)
 	{
@@ -2161,334 +2154,347 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_common_elem_id,
 		{ "Element ID",	"gsm_a_common.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_imsi,
 		{ "IMSI",	"gsm_a.imsi",
 		FT_STRING, BASE_DEC, 0, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tmsi,
 		{ "TMSI/P-TMSI",	"gsm_a.tmsi",
 		FT_UINT32, BASE_HEX, 0, 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_imei,
 		{ "IMEI",	"gsm_a.imei",
 		FT_STRING, BASE_DEC, 0, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_imeisv,
 		{ "IMEISV",	"gsm_a.imeisv",
 		FT_STRING, BASE_DEC, 0, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_MSC_rev,
 		{ "Revision Level","gsm_a.MSC2_rev",
 		FT_UINT8,BASE_DEC, VALS(gsm_a_msc_rev_vals), 0x60,
-		"Revision level", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_ES_IND,
 		{ "ES IND","gsm_a.MSC2_rev",
 		FT_UINT8,BASE_DEC, VALS(ES_IND_vals), 0x10,
-			"ES IND", HFILL }
+			NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_1_algorithm_sup,
 		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
 		FT_UINT8,BASE_DEC, VALS(A5_1_algorithm_sup_vals), 0x08,
-		"A5/1 algorithm supported ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_RF_power_capability,
 		{ "RF Power Capability","gsm_a.MSC2_rev",
 		FT_UINT8,BASE_DEC, VALS(RF_power_capability_vals), 0x07,
-		"RF Power Capability", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_ps_sup_cap,
 		{ "PS capability (pseudo-synchronization capability)","gsm_a.ps_sup_cap",
 		FT_UINT8,BASE_DEC, VALS(ps_sup_cap_vals), 0x40,
-		"PS capability (pseudo-synchronization capability)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_SS_screening_indicator,
 		{ "SS Screening Indicator","gsm_a.SS_screening_indicator",
 		FT_UINT8,BASE_DEC, VALS(SS_screening_indicator_vals), 0x30,
-		"SS Screening Indicator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_SM_capability,
 		{ "SM capability (MT SMS pt to pt capability)","gsm_a.SM_cap",
 		FT_UINT8,BASE_DEC, VALS(SM_capability_vals), 0x08,
-		"SM capability (MT SMS pt to pt capability)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VBS_notification_rec,
 		{ "VBS notification reception ","gsm_a.VBS_notification_rec",
 		FT_UINT8,BASE_DEC, VALS(VBS_notification_rec_vals), 0x04,
-		"VBS notification reception ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VGCS_notification_rec,
 		{ "VGCS notification reception ","gsm_a.VGCS_notification_rec",
 		FT_UINT8,BASE_DEC, VALS(VGCS_notification_rec_vals), 0x02,
-		"VGCS notification reception", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_FC_frequency_cap,
 		{ "FC Frequency Capability","gsm_a.FC_frequency_cap",
 		FT_UINT8,BASE_DEC, VALS(FC_frequency_cap_vals), 0x01,
-		"FC Frequency Capability", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_CM3,
 		{ "CM3","gsm_a.CM3",
 		FT_UINT8,BASE_DEC, VALS(CM3_vals), 0x80,
-		"CM3", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_LCS_VA_cap,
-		{ "LCS VA capability (LCS value added location request notification capability) ","gsm_a.LCS_VA_cap",
+		{ "LCS VA capability (LCS value added location request notification capability)","gsm_a.LCS_VA_cap",
 		FT_UINT8,BASE_DEC, VALS(LCS_VA_cap_vals), 0x20,
-		"LCS VA capability (LCS value added location request notification capability) ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_UCS2_treatment,
-		{ "UCS2 treatment ","gsm_a.UCS2_treatment",
+		{ "UCS2 treatment","gsm_a.UCS2_treatment",
 		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x10,
-		"UCS2 treatment ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_SoLSA,
 		{ "SoLSA","gsm_a.SoLSA",
 		FT_UINT8,BASE_DEC, VALS(SoLSA_vals), 0x08,
-		"SoLSA", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_CMSP,
 		{ "CMSP: CM Service Prompt","gsm_a.CMSP",
 		FT_UINT8,BASE_DEC, VALS(CMSP_vals), 0x04,
-		"CMSP: CM Service Prompt", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_7_algorithm_sup,
 		{ "A5/7 algorithm supported","gsm_a.A5_7_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_7_algorithm_sup_vals), 0x0,
-		"A5/7 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_6_algorithm_sup,
 		{ "A5/6 algorithm supported","gsm_a.A5_6_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_6_algorithm_sup_vals), 0x0,
-		"A5/6 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_5_algorithm_sup,
 		{ "A5/5 algorithm supported","gsm_a.A5_5_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_5_algorithm_sup_vals), 0x0,
-		"A5/5 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_4_algorithm_sup,
 		{ "A5/4 algorithm supported","gsm_a.A5_4_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_4_algorithm_sup_vals), 0x0,
-		"A5/4 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_3_algorithm_sup,
 		{ "A5/3 algorithm supported","gsm_a.A5_3_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_3_algorithm_sup_vals), 0x02,
-		"A5/3 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_A5_2_algorithm_sup,
 		{ "A5/2 algorithm supported","gsm_a.A5_2_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_2_algorithm_sup_vals), 0x01,
-		"A5/2 algorithm supported", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_mobile_identity_type,
 		{ "Mobile Identity Type","gsm_a.ie.mobileid.type",
 		FT_UINT8, BASE_DEC, VALS(mobile_identity_type_vals), 0x07,
-		"Mobile Identity Type", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_odd_even_ind,
 		{ "Odd/even indication","gsm_a.oddevenind",
 		FT_UINT8, BASE_DEC, oddevenind_vals, 0x08,
-		"Mobile Identity", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tmgi_mcc_mnc_ind,
 		{ "MCC/MNC indication", "gsm_a.tmgi_mcc_mnc_ind",
 		FT_BOOLEAN, 8, TFS(&gsm_a_present_vals), 0x10,
-		"MCC/MNC indication", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_mbs_ses_id_ind,
 		{ "MBMS Session Identity indication", "gsm_a.tmgi_mcc_mnc_ind",
 		FT_BOOLEAN, 8, TFS(&gsm_a_present_vals), 0x20,
-		"MBMS Session Identity indication", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_mbs_service_id,
 		{ "MBMS Service ID", "gsm_a.mbs_service_id",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"MBMS Service ID", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_L3_protocol_discriminator,
 		{ "Protocol discriminator","gsm_a.L3_protocol_discriminator",
 		FT_UINT8,BASE_DEC, VALS(protocol_discriminator_vals), 0x0f,
-		"Protocol discriminator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_call_prio,
 		{ "Call priority", "gsm_a.call_prio",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x00,
-		"Call priority", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_skip_ind,
 		{ "Skip Indicator", "gsm_a.skip.ind",
 		FT_UINT8, BASE_DEC, NULL, 0xf0,
-		"Skip Indicator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_b7spare,
 		{ "Spare","gsm_a.spareb7",
 		FT_UINT8,BASE_DEC, NULL, 0x40,
-		"Spare", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_b8spare,
 		{ "Spare","gsm_a.spareb8",
 		FT_UINT8,BASE_DEC, NULL, 0x80,
-		"Spare", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_spare_bits,
 		{ "Spare bit(s)","gsm_a.spare_bits",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
-		"Spare bit(s)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_multi_bnd_sup_fields,
 		{ "Multiband supported field","gsm_a.multi_bnd_sup_fields",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
-		"Multiband supported field", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_pgsm_supported,
 		{ "P-GSM Supported", "gsm_a.classmark3.pgsmSupported", 
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"P-GSM Supported", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_egsm_supported,
 		{ "E-GSM or R-GSM Supported", "gsm_a.classmark3.egsmSupported", 
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"E-GSM or R-GSM Supported", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_gsm1800_supported,
 		{ "GSM 1800 Supported", "gsm_a.classmark3.gsm1800Supported",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"GSM 1800 Supported", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ass_radio_cap1,
 		{ "Associated Radio Capability 1", "gsm_a.classmark3.ass_radio_cap1",
-		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ass_radio_cap2,
 		{ "Associated Radio Capability 2", "gsm_a.classmark3.ass_radio_cap2",
-		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_rsupport,
 		{ "R Support", "gsm_a.classmark3.rsupport",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"R Support", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_r_capabilities,
 		{ "R-GSM band Associated Radio Capability", "gsm_a.classmark3.r_capabilities",
-		FT_UINT8, BASE_DEC, NULL, 0x0,"R-GSM band Associated Radio Capability", HFILL}
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_multislot_capabilities,
 		{ "HSCSD Multi Slot Capability", "gsm_a.classmark3.multislot_capabilities",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"HSCSD Multi Slot Capability", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_multislot_class,
 		{ "HSCSD Multi Slot Class", "gsm_a.classmark3.multislot_cap",
-		FT_UINT8, BASE_DEC, NULL, 0x0,"HSCSD Multi Slot Class", HFILL}
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ucs2_treatment,
-		{ "UCS2 treatment ","gsm_a.UCS2_treatment",
+		{ "UCS2 treatment","gsm_a.UCS2_treatment",
 		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x0,
-		"UCS2 treatment ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_extended_measurement_cap,
 		{ "Extended Measurement Capability", "gsm_a.classmark3.ext_meas_cap",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"Extended Measurement Capability", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_measurement_capability,
 		{ "MS measurement capability", "gsm_a.classmark3.ms_measurement_capability",
-		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"MS measurement capability", HFILL}
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_sms_value,
 		{ "SMS_VALUE (Switch-Measure-Switch)", "gsm_a.classmark3.sms_value",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SMS_VALUE (Switch-Measure-Switch)", HFILL}
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_sm_value,
 		{ "SM_VALUE (Switch-Measure)", "gsm_a.classmark3.sm_value",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SM_VALUE (Switch-Measure)", HFILL}
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
 		{ "Location estimate","gsm_a.gad.location_estimate",
 		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,          
-		"Location estimate", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_sign_of_lat,
 		{ "Sign of latitude","gsm_a.gad.sign_of_latitude",
 		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
-		"Sign of latitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_deg_of_lat,
 		{ "Degrees of latitude","gsm_a.gad.sign_of_latitude",
 		FT_UINT24,BASE_DEC, NULL, 0x7fffff,          
-		"Degrees of latitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_deg_of_long,
 		{ "Degrees of longitude","gsm_a.gad.sign_of_longitude",
 		FT_UINT24,BASE_DEC, NULL, 0xffffff,          
-		"Degrees of longitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_code,
 		{ "Uncertainty code","gsm_a.gad.uncertainty_code",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty code", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_semi_major,
 		{ "Uncertainty semi-major","gsm_a.gad.uncertainty_semi_major",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty semi-major", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_semi_minor,
 		{ "Uncertainty semi-minor","gsm_a.gad.uncertainty_semi_minor",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty semi-minor", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_orientation_of_major_axis,
 		{ "Orientation of major axis","gsm_a.gad.orientation_of_major_axis",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
-		"Orientation of major axis", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_altitude,
 		{ "Uncertainty Altitude","gsm_a.gad.uncertainty_altitude",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty Altitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_confidence,
 		{ "Confidence(%)","gsm_a.gad.confidence",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Confidence(%)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_no_of_points,
 		{ "Number of points","gsm_a.gad.no_of_points",
 		FT_UINT8,BASE_DEC, NULL, 0x0f,          
-		"Number of points", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_D,
 		{ "D: Direction of Altitude","gsm_a.gad.D",
 		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
-		"D: Direction of Altitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_altitude,
 		{ "Altitude in meters","gsm_a.gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
-		"Altitude", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_inner_radius,
 		{ "Inner radius","gsm_a.gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x0,          
-		"Inner radius", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_radius,
 		{ "Uncertainty radius","gsm_a.gad.no_of_points",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
-		"Uncertainty radius", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_offset_angle,
 		{ "Offset angle","gsm_a.gad.offset_angle",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
-		"Offset angle", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_included_angle,
 		{ "Included angle","gsm_a.gad.included_angle",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
-		"Included angle", HFILL }
+		NULL, HFILL }
 	},
 	};
 

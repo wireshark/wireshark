@@ -348,7 +348,6 @@ static const value_string bssmap_location_information_vals[] = {
     { 0, NULL}
 };
 
-
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
 
@@ -639,12 +638,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Extension: %s",
-		a_bigbuf,
-		(oct & 0x80) ? "extended" : "not extended");
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
 	if (oct & 0x80)
 	{
@@ -874,11 +868,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-		proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
 
@@ -888,11 +878,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(tree,
@@ -987,11 +973,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	sdi = oct & 0x0f;
 	switch (sdi)
@@ -1053,12 +1035,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 		{
 			oct = tvb_get_guint8(tvb, curr_offset);
 
-			other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-			proto_tree_add_text(tree,
-				tvb, curr_offset, 1,
-				"%s :  Extension: %s",
-				a_bigbuf,
-				(oct & 0x80) ? "extended" : "not extended");
+			proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
 			switch (oct & 0x7f)
 			{
@@ -1148,12 +1125,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"%s :  Extension: %s",
-			a_bigbuf,
-			(oct & 0x80) ? "extended" : "not extended");
+		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(tree,
@@ -1252,18 +1224,9 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"%s :  Extension: %s",
-			a_bigbuf,
-			(oct & 0x80) ? "extended" : "not extended");
+		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"%s :  Spare",
-			a_bigbuf);
+		proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+1, 3, FALSE);
 
 		if (num_chan == 0)
 		{
@@ -1274,11 +1237,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 				a_bigbuf,
 				(oct & 0x08) ? "" : "not ");
 
-			other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-			proto_tree_add_text(tree,
-				tvb, curr_offset, 1,
-				"%s :  Spare",
-				a_bigbuf);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+6, 1, FALSE);
 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 			proto_tree_add_text(tree,
@@ -1303,11 +1262,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 				a_bigbuf,
 				(oct & 0x08) ? "" : "not ");
 
-			other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-			proto_tree_add_text(tree,
-				tvb, curr_offset, 1,
-				"%s :  Spare",
-				a_bigbuf);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+6, 1, FALSE);
 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 			proto_tree_add_text(tree,
@@ -1600,12 +1555,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
-
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
 	disc = oct&0x0f;
 	curr_offset++;
@@ -1826,12 +1776,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
-
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 7, FALSE);
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
@@ -1864,11 +1809,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	disc = oct & 0x0f;
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
@@ -2177,11 +2118,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 7, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
@@ -2272,11 +2209,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	switch (oct & 0x0f)
 	{
@@ -2430,11 +2363,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 6, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(tree,
@@ -2443,11 +2372,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 		a_bigbuf,
 		(oct & 0x02) ? "" : "not ");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
 
 	curr_offset++;
 
@@ -2473,6 +2398,10 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
+	/* The bits 7-1 of octet 2 are coded in the same way as the permitted speech version identifier
+	 * in the Channel type information element.
+	 */
+
 	switch (oct & 0x7f)
 	{
 	case 0x01: str = "GSM speech full rate version 1"; short_str = "FR1"; break;
@@ -2482,6 +2411,12 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	case 0x05: str = "GSM speech half rate version 1"; short_str = "HR1"; break;
 	case 0x15: str = "GSM speech half rate version 2"; short_str = "HR2"; break;
 	case 0x25: str = "GSM speech half rate version 3 (AMR)"; short_str = "HR3 (AMR)"; break;
+
+		case 0x41: str = "GSM speech full rate version 4";short_str = "OFR AMR-WB"; break;
+		case 0x42: str = "GSM speech full rate version 5";short_str = "FR AMR-WB"; break;
+		case 0x46: str = "GSM speech half rate version 4";short_str = "OHR AMR-WB"; break;
+		case 0x45: str = "GSM speech half rate version 6";short_str = "OHR AMR"; break;
+
 
 	default:
 		str = "Reserved";
@@ -5770,107 +5705,107 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_msg_type,
 		{ "BSSMAP Message Type",	"gsm_a.bssmap_msgtype",
 		FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_msg_strings), 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_elem_id,
 		{ "Element ID",	"gsm_a_bssmap.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_length,
 		{ "Length",		"gsm_a.len",
 		FT_UINT16, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_cell_ci,
 		{ "Cell CI",	"gsm_a.cell_ci",
 		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_cell_lac,
 		{ "Cell LAC",	"gsm_a.cell_lac",
 		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_dlci_cc,
 		{ "Control Channel", "bssap.dlci.cc",
 		FT_UINT8, BASE_HEX, VALS(bssap_cc_values), 0xc0,
-		"", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_bssmap_dlci_spare,
 		{ "Spare", "bssap.dlci.spare",
 		FT_UINT8, BASE_HEX, NULL, 0x38,
-		"", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_bssmap_dlci_sapi,
 		{ "SAPI", "bssap.dlci.sapi",
 		FT_UINT8, BASE_HEX, VALS(bssap_sapi_values), 0x07,
-		"", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_bssmap_cause,
 		{ "BSSMAP Cause",	"gsm_a_bssmap.cause",
 		FT_UINT8, BASE_HEX, 0, 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_be_cell_id_disc,
 		{ "Cell identification discriminator","gsm_a.be.cell_id_disc",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_be_cell_id_disc_vals), 0x0f,
-		"Cell identification discriminator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_lsa_only,
 		{ "LSA only","ggsm_a_bssmap.lsa_only",
 		FT_BOOLEAN,8, TFS(&bssmap_lsa_only_value), 0x01,
-		"LSA only", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_act,
 		{ "Active mode support","gsm_a_bssmap.act",
 		FT_BOOLEAN,8, NULL, 0x20,
-		"Active mode support", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pref,
 		{ "Preferential access","gsm_a_bssmap.pref",
 		FT_BOOLEAN,8, NULL, 0x10,
-		"Preferential access", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_lsa_inf_prio,
 		{ "Priority","gsm_a_bssmap.lsa_inf_prio",
 		FT_UINT8,BASE_DEC, NULL, 0x0f,
-		"Priority", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_seq_len,
 		{ "Sequence Length","gsm_a_bssmap.seq_len",
 		FT_UINT8,BASE_DEC, NULL, 0xf0,
-		"Sequence Length", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_seq_no,
 		{ "Sequence Number","gsm_a_bssmap.seq_no",
 		FT_UINT8,BASE_DEC, NULL, 0xf,
-		"Sequence Number", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc,
 		{ "Cell identification discriminator","gsm_a_bssmap.cell_id_list_seg_cell_id_disc",
 		FT_UINT8,BASE_DEC, VALS(gsm_a_bssap_cell_id_list_seg_cell_id_disc_vals), 0xf,
-		"Cell identification discriminator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssap_res_ind_method,
 		{ "Resource indication method","gsm_a_bssmap.res_ind_method",
 		FT_UINT8,BASE_DEC, VALS(gsm_a_bssap_resource_indication_vals), 0xf,
-		"Resource indication method", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_ch_mode,
 		{ "Channel mode","gsm_a_bssmap.cch_mode",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_ch_mode_vals), 0xf0,
-		"Channel mode", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_channel,
 		{ "Channel","gsm_a_bssmap.channel",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_channel_vals), 0x0f,
-		"Channel", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_be_rnc_id,
 		{ "RNC-ID","gsm_a.be.rnc_id",
 		FT_UINT16,BASE_DEC,  NULL, 0x0,
-		"RNC-ID", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_apdu_protocol_id,
 		{ "Protocol ID", "gsm_a.apdu_protocol_id",
@@ -5880,62 +5815,62 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_periodicity,
 		{ "Periodicity", "gsm_a_bssmap.periodicity",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Periodicity", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_sm,
 		{ "Subsequent Mode","gsm_a_bssmap.sm",
 		FT_BOOLEAN,8, NULL, 0x02,
-		"Subsequent Mode", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tarr,
 		{ "Total Accessible Resource Requested","gsm_a_bssmap.tarr",
 		FT_BOOLEAN,8, NULL, 0x01,
-		"Total Accessible Resource Requested", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tot_no_of_fullr_ch,
 		{ "Total number of accessible full rate channels", "gsm_a_bssmap.tot_no_of_fullr_ch",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Total number of accessible full rate channels", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tot_no_of_hr_ch,
 		{ "Total number of accessible half rate channels", "gsm_a_bssmap.tot_no_of_hr_ch",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Total number of accessible half rate channels", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_lsa_id,
 		{ "Identification of Localised Service Area", "gsm_a_bssmap.lsa_id",
 		FT_UINT24, BASE_HEX, NULL, 0x0,
-		"Identification of Localised Service Area", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_ep,
 		{ "EP", "gsm_a_bssmap.ep",
 		FT_UINT8, BASE_DEC, NULL, 0x01,
-		"EP", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_smi,
 		{ "Subsequent Modification Indication(SMI)", "gsm_a_bssmap.smi",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_bssmap_smi_vals), 0x0f,
-		"Subsequent Modification Indication", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_lcs_pri,
 		{ "Periodicity", "gsm_a_bssmap.lcs_pri",
 		FT_UINT8, BASE_DEC, VALS(lcs_priority_vals), 0x0,
-		"Periodicity", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_num_ms,
 		{ "Number of handover candidates", "gsm_a_bssmap.num_ms",
 		FT_UINT8, BASE_DEC,NULL, 0x0,
-		"Number of handover candidates", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_talker_pri,
 		{ "Priority", "gsm_a_bssmap.talker_pri",
 		FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_talker_pri_vals), 0x03,
-		"Priority ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_paging_cause,
 		{ "Paging Cause", "gsm_a_bssmap.paging_cause",
 		FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_paging_cause_vals), 0x06,
-		"Paging Cause ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_paging_inf_flg,
 		{ "VGCS/VBS flag","ggsm_a_bssmap.paging_inf_flg",
@@ -5945,138 +5880,138 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_serv_ho_inf,
 		{ "Service Handover information", "gsm_a_bssmap.serv_ho_inf",
 		FT_UINT8, BASE_HEX, NULL, 0x07,
-		"Service Handover information", HFILL }
+		NULL, HFILL }
 	},
 
 	{ &hf_gsm_a_bssmap_spare_bits,
 		{ "Spare bit(s)", "gsm_a_bssmap.spare_bits",
 		FT_UINT8, BASE_HEX, NULL, 0x0,
-		"Spare bit(s)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tpind,
 		{ "Talker priority indicator (TP Ind)","gsm_a_bssmap.tpind",
 		FT_BOOLEAN,8, TFS(&gsm_bssmap_tpind_vals), 0x01,
-		"Talker priority indicator (TP Ind)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_asind_b2,
 		{ "A-interface resource sharing indicator (AS Ind) bit 2","gsm_a_bssmap.asind_b2",
 		FT_BOOLEAN,8, TFS(&gsm_bssmap_asind_b2_vals), 0x02,
-		"A-interface resource sharing indicator (AS Ind) bit 2", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_asind_b3,
 		{ "A-interface resource sharing indicator (AS Ind) bit 3","gsm_a_bssmap.asind_b3",
 		FT_BOOLEAN,8, TFS(&gsm_bssmap_asind_b3_vals), 0x04,
-		"A-interface resource sharing indicator (AS Ind) bit 3", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_bss_res,
 		{ "Group or broadcast call re-establishment by the BSS indicator","gsm_a_bssmap.bss_res",
 		FT_BOOLEAN,8, TFS(&gsm_bssmap_bss_res_vals), 0x08,
-		"Group or broadcast call re-establishment by the BSS indicator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tcp,
-		{ "Talker Channel Parameter (TCP).","gsm_a_bssmap.tcp",
+		{ "Talker Channel Parameter (TCP)","gsm_a_bssmap.tcp",
 		FT_BOOLEAN,8, TFS(&gsm_bssmap_bss_tcp_vals), 0x10,
-		"Talker Channel Parameter (TCP).", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_filler_bits,
 		{ "Filler Bits","gsm_a_bssmap.filler_bits",
 		FT_UINT8, BASE_DEC,NULL, 0x07,
-		"Filler Bits", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_aoip_trans_ipv4,
 		{ "Transport Layer Address (IPv4)","gsm_a_bssmap.aoip_trans_ipv4",
 		FT_IPv4,BASE_NONE,  NULL, 0x0,
-		"Transport Layer Address (IPv4)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_aoip_trans_ipv6,
 		{ "Transport Layer Address (IPv6)","gsm_a_bssmap.aoip_trans_ipv6",
 		FT_IPv6,BASE_NONE,  NULL, 0x0,
-		"Transport Layer Address (IPv6)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_aoip_trans_port,
 		{ "UDP Port","gsm_a_bssmap.aoip_trans_port",
 		FT_UINT16, BASE_DEC,NULL, 0x0,
-		"UDP Port", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_fi,
 		{ "FI(Full IP)","gsm_a_bssmap.fi",
 		FT_BOOLEAN,8, TFS(&bssmap_fi_vals), 0x80,
-		"FI(Full IP)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pi,
 		{ "PI","gsm_a_bssmap.pi",
 		FT_BOOLEAN,8, TFS(&bssmap_pi_vals), 0x40,
-		"PI", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pt,
 		{ "PT","gsm_a_bssmap.pt",
 		FT_BOOLEAN,8, TFS(&bssmap_pt_vals), 0x20,
-		"PT", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tf,
 		{ "TF","gsm_a_bssmap.tf",
 		FT_BOOLEAN,8, TFS(&bssmap_tf_vals), 0x10,
-		"TF", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssap_speech_codec,
 		{ "Codec Type","gsm_a_bssmap.speech_codec",
 		FT_UINT8, BASE_DEC,VALS(bssap_speech_codec_values), 0x0f,
-		"Codec Type ", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_fi2,
 		{ "FI(Full IP)","gsm_a_bssmap.fi2",
 		FT_BOOLEAN,8, TFS(&bssmap_fi2_vals), 0x80,
-		"FI(Full IP)", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pi2,
 		{ "PI","gsm_a_bssmap.pi2",
 		FT_BOOLEAN,8, TFS(&bssmap_pi2_vals), 0x40,
-		"PI", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pt2,
 		{ "PT","gsm_a_bssmap.pt2",
 		FT_BOOLEAN,8, TFS(&bssmap_pt2_vals), 0x20,
-		"PT", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_tf2,
 		{ "TF","gsm_a_bssmap.tf2",
 		FT_BOOLEAN,8, TFS(&bssmap_tf2_vals), 0x10,
-		"TF", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_call_id,
 		{ "Call Identifier","gsm_a_bssmap.callid",
 		FT_UINT32, BASE_DEC,NULL, 0x0,
-		"Call Identifier", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_spare,
         { "Spare", "gsm_a_bssmap.spare", 
 		FT_UINT8, BASE_HEX, NULL, 0x0,
-		"Spare", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_bssmap_positioning_data_discriminator,
         { "Positioning Data Discriminator", "gsm_a_bssmap.posData.discriminator", 
 		FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"Positioning Data Discriminator", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_positioning_method,
         { "Positioning method", "gsm_a_bssmap.posData.method", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_methods), 0x0, 
-		"Positioning method", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_positioning_method_usage,
         { "Usage", "gsm_a_bssmap.posData.usage", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_methods_usage), 0x0, 
-		"Usage", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_location_type_location_information,
         { "Location Information", "gsm_a_bssmap.locationType.locationInformation", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_location_information_vals), 0x0, 
-		"Location Information", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_bssmap_location_type_positioning_method,
         { "Positioning Method", "gsm_a_bssmap.locationType.positioningMethod", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_method_vals), 0x0, 
-		"Positioning Method", HFILL}
+		NULL, HFILL}
 	},
 	};
 
