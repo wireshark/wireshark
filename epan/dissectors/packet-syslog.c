@@ -181,7 +181,7 @@ static tvbuff_t *
 mtp3_msu_present(gint fac, gint level, const char *msg_str, gint chars_truncated)
 {
   size_t nbytes;
-  gint len;
+  size_t len;
   gchar **split_string, *msu_hex_dump;
   tvbuff_t *mtp3_tvb = NULL;
   guint8 *byte_array;
@@ -212,8 +212,8 @@ mtp3_msu_present(gint fac, gint level, const char *msg_str, gint chars_truncated
     byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
 
     if (byte_array) {
-	mtp3_tvb = tvb_new_real_data(byte_array, nbytes,
-				     nbytes + chars_truncated / 2);
+	mtp3_tvb = tvb_new_real_data(byte_array, (guint)nbytes,
+				     (guint)nbytes + chars_truncated / 2);
 	tvb_set_free_cb(mtp3_tvb, g_free);
     }
   }
