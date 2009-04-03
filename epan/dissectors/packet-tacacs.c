@@ -1127,7 +1127,8 @@ proto_reg_handoff_tacplus(void)
 static void
 md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
 {
-	int i,j,md5_len;
+	int i,j;
+	size_t md5_len;
 	md5_byte_t *md5_buff;
 	md5_byte_t hash[MD5_LEN];       				/* the md5 hash */
 	md5_byte_t *mdp;
