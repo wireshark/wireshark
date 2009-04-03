@@ -949,7 +949,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 /************** ACCESSORS **************/
 
 static void*
-composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_length)
+composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_length)
 {
 	guint		i, num_members;
 	tvb_comp_t	*composite;
@@ -975,7 +975,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 	DISSECTOR_ASSERT(member_tvb);
 
 	if (check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
-				abs_length, &member_offset, &member_length, NULL)) {
+				(gint) abs_length, &member_offset, &member_length, NULL)) {
 
 		DISSECTOR_ASSERT(!tvb->real_data);
 		return tvb_memcpy(member_tvb, target, member_offset, member_length);
@@ -1007,12 +1007,12 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 }
 
 void*
-tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, gint length)
+tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 
 	DISSECTOR_ASSERT(length >= -1);
-	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
 	if (tvb->real_data) {
 		return memcpy(target, tvb->real_data + abs_offset, abs_length);
@@ -1047,12 +1047,12 @@ tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, gint length)
  * meaning "to the end of the buffer"?
  */
 void*
-tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
+tvb_memdup(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
 
-	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
 	duped = g_malloc(abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
@@ -1075,12 +1075,12 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
  * after the current packet has been dissected.
  */
 void*
-ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
+ep_tvb_memdup(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
 
-	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
 	duped = ep_alloc(abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
@@ -1743,7 +1743,7 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 needle)
 			return -1;
 		}
 		else {
-			return result - tvb->real_data;
+			return (gint) (result - tvb->real_data);
 		}
 	}
 
@@ -1806,7 +1806,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, gint maxlength, const guint8 *needle
 			return -1;
 		}
 		else {
-			return result - tvb->real_data;
+			return (gint) (result - tvb->real_data);
 		}
 	}
 
@@ -1946,11 +1946,11 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
+tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, size_t size)
 {
 	const guint8 *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
+	ptr = ensure_contiguous_no_exception(tvb, offset, (gint) size, NULL);
 
 	if (ptr) {
 		int cmp = memcmp(ptr, str, size);
@@ -2742,7 +2742,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 			needle_data, needle_len);
 
 	if (location) {
-		return location - haystack_data;
+		return (gint) (location - haystack_data);
 	}
 	else {
 		return -1;
@@ -2983,7 +2983,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				g_free(strmbuf);
 				return NULL;
 			}
-			comprlen -= (c - compr);
+			comprlen -= (int) (c - compr);
 
 			inflateEnd(strm);
 			err = inflateInit2(strm, wbits);
