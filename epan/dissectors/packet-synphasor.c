@@ -969,7 +969,7 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 {
 	proto_item *temp_item	= NULL;
 	proto_tree *phasor_tree = NULL;
-	size_t	    length;
+	guint	    length;
 	gint	    j,
 		    cnt = block->phasors->len; /* number of phasors to dissect */
 
@@ -1048,7 +1048,7 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 {
 	proto_tree *analog_tree = NULL;
 	proto_item *temp_item	= NULL;
-	size_t	    length;
+	guint	    length;
 	gint	    j,
 		    cnt = block->analogs->len; /* number of analog values to dissect */
 
