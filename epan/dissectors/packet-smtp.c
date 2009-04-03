@@ -443,7 +443,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             lineend = line + linelen;
             while (linep < lineend && (c = *linep) != ' ')
               linep++;
-            cmdlen = linep - line;
+            cmdlen = (int)(linep - line);
             if (line_is_smtp_command(line, cmdlen)) {
               if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
                 /*
