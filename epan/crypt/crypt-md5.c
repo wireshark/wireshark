@@ -91,7 +91,7 @@ void md5_init(md5_state_t *ctx)
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
+void md5_append( md5_state_t *ctx, unsigned char const *buf, size_t len)
 {
     guint32 t;
 
@@ -100,7 +100,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
     t = ctx->bits[0];
     if ((ctx->bits[0] = t + ((guint32) len << 3)) < t)
 	ctx->bits[1]++;		/* Carry from low to high */
-    ctx->bits[1] += len >> 29;
+    ctx->bits[1] += (guint32) len >> 29;
 
     t = (t >> 3) & 0x3f;	/* Bytes already in shsInfo->data */
 
@@ -292,7 +292,7 @@ static void MD5Transform(guint32 buf[4], guint32 const in[16])
  ** Function: hmac_md5
  */
 
-void md5_hmac(const guint8* text, gint text_len, const guint8* key, gint key_len, guint8 digest[16]) {
+void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16]) {
 	MD5_CTX context;
 	guint8 k_ipad[65];    /* inner padding -
 		* key XORd with ipad

@@ -53,7 +53,7 @@ void md5_init(md5_state_t *pms);
  *  @param nbytes	Length of data.
  */
 void md5_append( md5_state_t *pms, 
-			     const guint8 *data, guint nbytes);
+			     const guint8 *data, size_t nbytes);
 
 /** Finish the message and return the digest. 
  *  @param pms		MD5 context.
@@ -62,7 +62,7 @@ void md5_append( md5_state_t *pms,
 void md5_finish(md5_state_t *pms, guint8 digest[16]);
 
 
-void md5_hmac(const guint8* text, gint text_len, const guint8* key, gint key_len, guint8 digest[16]);
+void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16]);
 
 /**
  * @}
