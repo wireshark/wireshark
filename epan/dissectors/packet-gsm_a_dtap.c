@@ -387,7 +387,10 @@ static int hf_gsm_a_numbering_plan_id = -1;
 
 static int hf_gsm_a_lsa_id = -1;
 static int hf_gsm_a_speech_vers_ind = -1;
+static int hf_gsm_a_itc = -1;
 static int hf_gsm_a_dtap_spare_bits = -1;
+static int hf_gsm_a_sysid = -1;
+static int hf_gsm_a_length = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -970,8 +973,8 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  */
 /* Speech version indication (octet(s) 3a etc.) Bits 4 3 2 1 */
 
-const value_string gsm_a_speech_vers_ind_values[] = {
-	{ 0x00,	"GSM full rate speech version 1(GSM FR)" },
+static const value_string gsm_a_speech_vers_ind_values[] = {
+	{ 0x0,	"GSM full rate speech version 1(GSM FR)" },
 	{ 0x1,	"GSM half rate speech version 1(GSM HR)" },
 	{ 0x2,	"GSM full rate speech version 2(GSM EFR)" },
 	{ 0x3,	"Speech version tbd" },
@@ -992,6 +995,18 @@ const value_string gsm_a_speech_vers_ind_values[] = {
 /* All other values have the meaning "speech version tbd" and shall be ignored
  * when received.
  */
+/*
+ * Information transfer capability (octet 3) Bits 3 2 1
+ */
+static const value_string gsm_a_itc_values[] = {
+	{ 0x0,	"Speech" },
+	{ 0x1,	"Unrestricted digital information" },
+	{ 0x2,	"3.1 kHz audio, ex PLMN" },
+	{ 0x3,	"Facsimile group 3" },
+	{ 0x4,	"Other ITC (See Octet 5a)" },
+	{ 0x5,	"Reserved,(In Network alternate speech/facsimile group 3)" },
+	{ 0, NULL }
+};
 
 guint16
 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -1111,26 +1126,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		"%s :  Transfer mode: %s",
 		a_bigbuf,
 		(oct & 0x08) ? "packet" : "circuit");
-
-	switch (itc)
-	{
-		case DE_BC_ITC_SPEECH: str = "Speech"; break;
-		case DE_BC_ITC_UDI: str = "Unrestricted digital information"; break;
-		case DE_BC_ITC_EX_PLMN: str = "3.1 kHz audio, ex PLMN"; break;
-		case DE_BC_ITC_FASC_G3: str = "Facsimile group 3"; break;
-		case DE_BC_ITC_OTHER_ITC: str = "Other ITC (See Octet 5a)"; break;
-		case DE_BC_ITC_RSVD_NET: str = "Reserved, to be used in the network"; break;
-		default:
-			str = "Reserved";
-			break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(subtree,
-		tvb, curr_offset, 1,
-		"%s :  Information transfer capability: %s",
-		a_bigbuf,
-		str);
+	
+	proto_tree_add_item(subtree, hf_gsm_a_itc, tvb, curr_offset, 1, FALSE);
 
 	if (add_string)
 		g_snprintf(add_string, string_len, " - (%s)", str);
@@ -1169,7 +1166,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 				(oct & 0x40) ? "other extension of octet 3" :
 				"extension of information transfer capability");
 
-			proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+2, 2, FALSE);
+			proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+2, 2, FALSE);
 
 			proto_tree_add_item(subtree, hf_gsm_a_speech_vers_ind, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
@@ -3053,18 +3050,62 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 /*
  * 10.5.4.32 Supported codec list
  */
+/* 6.1 System Identifiers for GSM and UMTS
+ * The system identifiers for the radio access technologies 
+ * supported by this specification are:
+ * SysID for GSM: 0x0000.0000 (bit 8 .. bit 1)
+ * SysID for UMTS: 0x0000.0100 (bit 8 .. bit 1)
+ * These values are selected in accordance with [7] (3GPP TS 28.062).
+ */
+static const value_string gsm_a_sysid_values[] = {
+	{ 0x0,	"GSM" },
+	{ 0x4,	"GSM half rate speech version 1(GSM HR)" },
+	{ 0, NULL }
+};
 static guint16
 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 length;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
-	/*  System Identification 1 (SysID 1) octet 3 */
+	/*  System Identification 1 (SysID 1) octet 3 
+	 * SysID indicates the radio access technology for which the subsequent Codec
+	 * Bitmap indicates the supported codec types.
+	 * Coding of this Octet is defined in 3GPP TS 26.103
+	 */
+	while (len>(curr_offset-offset)){
+		proto_tree_add_item(tree, hf_gsm_a_sysid, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+		/* 	Length Of Bitmap for SysID */
+		proto_tree_add_item(tree, hf_gsm_a_length, tvb, curr_offset, 1, FALSE);
+		length = tvb_get_guint8(tvb,curr_offset);
+		curr_offset++;
+		proto_tree_add_text(tree, tvb, curr_offset, length, "Bitmap for SysID");
+		/* 6.2 Codec Bitmap
+		 * The Codec Types are coded in the first and second octet of the Codec List
+		 * Bitmap as follows:
+		 * 8		 7	       6		5		4		3		2		bit 1
+		 * TDMA		 UMTS	   UMTS		HR AMR	FR AMR	GSM EFR GSM HR	GSM FR Octet 1
+		 * EFR		 AMR 2	   AMR 
+		 * bit 16	 15		   14		13		12		11		10		bit 9
+		 *(reserved) (reserved)OHR		OFR		OHR		UMTS	FR		PDC EFR Octet 2
+		 *                     AMR-WB	AMR-WB	AMR		AMR-WB	AMR-WB
+		 * A Codec Type is supported, if the corresponding bit is set to "1". 
+		 * All reserved bits shall be set to "0".
+		 * 
+		 * NOTE: If the Codec Bitmap for a SysID is 1 octet, it is an indication that 
+		 * all codecs of the 2nd octet are not supported. 
+		 * If the Codec Bitmap for a SysID is more than 2 octets, the network shall 
+		 * ignore the additional octet(s) of the bitmap and process the rest of the 
+		 * information element.
+		 */
+		curr_offset = curr_offset + length;
+	}
 
 
-	return(len);
+	return(curr_offset-offset);
 }
 /*
  * 10.5.4.33 Service category
@@ -5770,9 +5811,24 @@ proto_register_gsm_a_dtap(void)
 		FT_UINT8, BASE_HEX, VALS(gsm_a_speech_vers_ind_values), 0x0f,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_itc,
+		{ "Information transfer capability", "gsm_a.itc",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_itc_values), 0x07,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_dtap_spare_bits,
 		{ "Spare bit(s)","gsm_a.spare_bits",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sysid,
+		{ "System Identification (SysID)", "gsm_a.sysid",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_sysid_values), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_length,
+		{ "Length", "gsm_a.length",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	};

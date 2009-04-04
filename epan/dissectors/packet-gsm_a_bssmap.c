@@ -2404,13 +2404,13 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	switch (oct & 0x7f)
 	{
-	case 0x01: str = "GSM speech full rate version 1"; short_str = "FR1"; break;
-	case 0x11: str = "GSM speech full rate version 2"; short_str = "FR2"; break;
-	case 0x21: str = "GSM speech full rate version 3 (AMR)"; short_str = "FR3 (AMR)"; break;
+		case 0x01: str = "GSM speech full rate version 1"; short_str = "FR1"; break;
+		case 0x11: str = "GSM speech full rate version 2"; short_str = "FR2"; break;
+		case 0x21: str = "GSM speech full rate version 3 (AMR)"; short_str = "FR3 (AMR)"; break;
 
-	case 0x05: str = "GSM speech half rate version 1"; short_str = "HR1"; break;
-	case 0x15: str = "GSM speech half rate version 2"; short_str = "HR2"; break;
-	case 0x25: str = "GSM speech half rate version 3 (AMR)"; short_str = "HR3 (AMR)"; break;
+		case 0x05: str = "GSM speech half rate version 1"; short_str = "HR1"; break;
+		case 0x15: str = "GSM speech half rate version 2"; short_str = "HR2"; break;
+		case 0x25: str = "GSM speech half rate version 3 (AMR)"; short_str = "HR3 (AMR)"; break;
 
 		case 0x41: str = "GSM speech full rate version 4";short_str = "OFR AMR-WB"; break;
 		case 0x42: str = "GSM speech full rate version 5";short_str = "FR AMR-WB"; break;
@@ -2418,10 +2418,10 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 		case 0x45: str = "GSM speech half rate version 6";short_str = "OHR AMR"; break;
 
 
-	default:
-		str = "Reserved";
-		short_str = str;
-	break;
+		default:
+			str = "Reserved";
+			short_str = str;
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
