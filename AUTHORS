@@ -2304,11 +2304,12 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	Linux Packet Generator support
 	rval_to_str() and alike
 	Export the capture file into C Arrays format
-	PW Associated Channel Header dissection as per RFC 4385
-	PW MPLS Control Word dissection as per RFC 4385
-	mpls subdissector table indexed by label value
-	enhanced "what's past last mpls label?" heuristic
-	Ethernet PW (w/o CW) support as per RFC 4448
+	PW Associated Channel Header dissection, RFC 4385
+	PW MPLS Control Word dissection, RFC 4385
+	MPLS subdissector table indexed by label value
+	enhanced "what's past last MPLS label?" heuristic
+	Ethernet PW (with/without CW) support, RFC 4448
+	ATM PW (with/without CW) support, RFC 4717
 }
 
 Bill Meier		<wmeier [AT] newsguy.com> {

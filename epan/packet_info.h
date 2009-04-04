@@ -182,6 +182,28 @@ typedef struct _packet_info {
   struct _sccp_msg_info_t* sccp_info;
   guint16 clnp_srcref;      /* clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;      /* clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
+  guint8 pw_atm_encap_type; /* FF: RFC 4717 is devilish, it describes many 
+                             * different types of ATM->PW encapsulation.
+                             * None of which can correctly be interpreted by
+                             * the packet-atm.c dissector.  Thus I have to
+                             * pass some info from packet-pw-atm.c to packet-
+                             * -atm.c, and augment/change packet-atm.c 
+                             * dissector.
+                             *
+                             * 0: RFC4717::Sec.  9, ATM One-to-One Cell Mode
+                             * 1: RFC4717::Sec.  8, ATM N-to-One Cell Mode
+                             * 2: RFC4717::Sec. 10, ATM AAL5 CPCS-SDU Mode
+                             * 3: RFC4717::Sec. 11, ATM AAL5 PDU Frame Mode
+                             */
+  guint16 pw_atm_flags;     /* FF: all flags defined in RFC4717 compacted in a
+                             * single guint16.
+                             *
+                             * T, E, C, U, M, V, PTI, C  flag name
+                             * 9  8  7  6  5  4  321  0  position
+                             */
+  guint16 pw_atm_ncells;    /* FF: number of cells fitted in a single
+                             * PW frame.
+                             */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */

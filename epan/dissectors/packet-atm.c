@@ -50,6 +50,7 @@ static int proto_ilmi = -1;
 static int proto_aal1 = -1;
 static int proto_aal3_4 = -1;
 static int proto_oamaal = -1;
+static int proto_atm_4717 = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
@@ -1523,14 +1524,15 @@ static const value_string ft_ad_vals[] = {
 
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *atm_tree, guint aal)
+                 proto_tree *atm_tree, guint aal, gboolean nni,
+                 gboolean crc_stripped)
 {
   int          offset;
   proto_tree   *aal_tree;
   proto_item   *ti;
   guint8       octet;
   int          err;
-  guint8       vpi;
+  guint16      vpi;
   guint16      vci;
   guint8       pt;
   guint16      aal3_4_hdr, aal3_4_trlr;
@@ -1539,12 +1541,55 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16      crc10;
   tvbuff_t     *next_tvb;
 
-  octet = tvb_get_guint8(tvb, 0);
-  proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
-  vpi = (octet & 0xF) << 4;
-  octet = tvb_get_guint8(tvb, 1);
-  vpi |= octet >> 4;
-  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  if (!nni) {
+          /* 
+           * FF: ITU-T I.361 (Section 2.2) defines the cell header format 
+           * and encoding at UNI reference point as:
+           * 
+           *  8 7 6 5 4 3 2 1
+           * +-+-+-+-+-+-+-+-+
+           * |  GFC  |  VPI  |
+           * +-+-+-+-+-+-+-+-+
+           * |  VPI  |  VCI  |
+           * +-+-+-+-+-+-+-+-+
+           * |      VCI      |
+           * +-+-+-+-+-+-+-+-+
+           * |  VCI  |  PT |C|
+           * +-+-+-+-+-+-+-+-+
+           * |   HEC (CRC)   |
+           * +-+-+-+-+-+-+-+-+
+           */
+          octet = tvb_get_guint8(tvb, 0);
+          proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
+          vpi = (octet & 0xF) << 4;
+          octet = tvb_get_guint8(tvb, 1);
+          vpi |= octet >> 4;
+          proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  } else {
+          /* 
+           * FF: ITU-T I.361 (Section 2.3) defines the cell header format 
+           * and encoding at NNI reference point as:
+           * 
+           *  8 7 6 5 4 3 2 1
+           * +-+-+-+-+-+-+-+-+
+           * |      VPI      |
+           * +-+-+-+-+-+-+-+-+
+           * |  VPI  |  VCI  |
+           * +-+-+-+-+-+-+-+-+
+           * |      VCI      |
+           * +-+-+-+-+-+-+-+-+
+           * |  VCI  |  PT |C|
+           * +-+-+-+-+-+-+-+-+
+           * |   HEC (CRC)   |
+           * +-+-+-+-+-+-+-+-+
+           */
+          octet = tvb_get_guint8(tvb, 0);
+          vpi = octet << 4;
+          octet = tvb_get_guint8(tvb, 1);
+          vpi |= (octet & 0xF0) >> 4;
+          proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
+  }
+
   vci = (octet & 0x0F) << 12;
   octet = tvb_get_guint8(tvb, 2);
   vci |= octet << 4;
@@ -1556,16 +1601,30 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         val_to_str(pt, pt_vals, "Unknown (%u)"));
   proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
 	(octet & 0x01) ? "Low priority" : "High priority");
-  ti = proto_tree_add_text(atm_tree, tvb, 4, 1, "Header Error Check: 0x%02x",
-	  tvb_get_guint8(tvb, 4));
-  err = get_header_err(tvb_get_ptr(tvb, 0, 5));
-  if (err == NO_ERROR_DETECTED)
-    proto_item_append_text(ti, " (correct)");
-  else if (err == UNCORRECTIBLE_ERROR)
-    proto_item_append_text(ti, " (uncorrectable error)");
-  else
-    proto_item_append_text(ti, " (error in bit %d)", err);
-  offset = 5;
+
+  if (!crc_stripped) {
+          /*
+           * FF: parse the Header Error Check (HEC).
+           */
+          ti = proto_tree_add_text(atm_tree, tvb, 4, 1, 
+                                   "Header Error Check: 0x%02x",
+                                   tvb_get_guint8(tvb, 4));
+          err = get_header_err(tvb_get_ptr(tvb, 0, 5));
+          if (err == NO_ERROR_DETECTED)
+                  proto_item_append_text(ti, " (correct)");
+          else if (err == UNCORRECTIBLE_ERROR)
+                  proto_item_append_text(ti, " (uncorrectable error)");
+          else
+                  proto_item_append_text(ti, " (error in bit %d)", err);
+          offset = 5;
+  } else {
+          /*
+           * FF: in some encapsulation modes (e.g. RFC 4717, ATM N-to-One
+           * Cell Mode) the Header Error Check (HEC) field is stripped.
+           * So we do nothing here.
+           */
+          offset = 4;
+  }
 
   /*
    * Check for OAM cells.
@@ -1781,7 +1840,8 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (pinfo->pseudo_header->atm.flags & ATM_RAW_CELL) {
     /* This is a single cell, with the cell header at the beginning. */
     proto_item_set_len(atm_ti, 5);
-    dissect_atm_cell(tvb, pinfo, tree, atm_tree, pinfo->pseudo_header->atm.aal);
+    dissect_atm_cell(tvb, pinfo, tree, atm_tree, 
+		     pinfo->pseudo_header->atm.aal, FALSE, FALSE);
   } else {
     /* This is a reassembled PDU. */
     dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated);
@@ -1814,7 +1874,49 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
   }
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
+}
+
+/*
+ * FF: this dissector is called directly from packet-pw-atm.c.
+ * it checks pinfo->pw_atm_encap_type, pinfo->pw_atm_flags
+ * in order to gather information about the used encapsulation
+ * format (defined in RFC 4717).  The result (i.e. protocol tree
+ * and cinfo) of this dissector should look like, as close as 
+ * possible, to the legacy one (i.e. dissect_atm_[untruncated|oam_cell]).
+ */
+static void
+dissect_atm_4717(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        proto_tree *atm_tree = NULL;
+        proto_item *atm_ti = NULL;
+        
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+        
+        if (tree) {
+                atm_ti = proto_tree_add_protocol_format(tree, 
+                                                        proto_atm, 
+                                                        tvb, 0, 0, "ATM");
+                atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
+        }
+
+        switch (pinfo->pw_atm_encap_type) {
+        case 1: /* ATM N-to-One Cell Mode */
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_add_str(pinfo->cinfo, COL_INFO, "Unknown AAL");
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                                        " (%u cell%s)",
+                                        pinfo->pw_atm_ncells,
+                                        pinfo->pw_atm_ncells == 1 ? "" : "s");
+                }
+                proto_item_set_len(atm_ti, 4);
+                dissect_atm_cell(tvb, pinfo, tree, atm_tree, 
+                                 AAL_UNKNOWN, TRUE, TRUE);
+                break;
+        default:
+                break;
+        }
 }
 
 void
@@ -1870,6 +1972,7 @@ proto_register_atm(void)
 	register_dissector("lane", dissect_lane, proto_atm_lane);
 	register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
 	register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
+	register_dissector("atm_4717", dissect_atm_4717, proto_atm_4717);
 	
 	atm_module = prefs_register_protocol ( proto_atm, NULL );
 	prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
@@ -1880,7 +1983,7 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
-	dissector_handle_t atm_handle, atm_untruncated_handle;
+	dissector_handle_t atm_handle, atm_untruncated_handle, atm_4717_handle;
 
 	/*
 	 * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
@@ -1906,4 +2009,6 @@ proto_reg_handoff_atm(void)
 	    proto_atm);
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
 	    atm_untruncated_handle);
+
+	atm_4717_handle = create_dissector_handle(dissect_atm_4717, proto_atm);
 }
