@@ -390,7 +390,7 @@ static int hf_gsm_a_speech_vers_ind = -1;
 static int hf_gsm_a_itc = -1;
 static int hf_gsm_a_dtap_spare_bits = -1;
 static int hf_gsm_a_sysid = -1;
-static int hf_gsm_a_length = -1;
+static int hf_gsm_a_bitmap_length = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -3079,7 +3079,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 		proto_tree_add_item(tree, hf_gsm_a_sysid, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
 		/* 	Length Of Bitmap for SysID */
-		proto_tree_add_item(tree, hf_gsm_a_length, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_bitmap_length, tvb, curr_offset, 1, FALSE);
 		length = tvb_get_guint8(tvb,curr_offset);
 		curr_offset++;
 		proto_tree_add_text(tree, tvb, curr_offset, length, "Bitmap for SysID");
@@ -5826,8 +5826,8 @@ proto_register_gsm_a_dtap(void)
 		FT_UINT8, BASE_HEX, VALS(gsm_a_sysid_values), 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_length,
-		{ "Length", "gsm_a.length",
+	{ &hf_gsm_a_bitmap_length,
+		{ "Length", "gsm_a.bitmap_length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
