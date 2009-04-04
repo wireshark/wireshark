@@ -208,16 +208,16 @@ extern void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
  * the tvbuff routines knowledgable of this fact. */
 extern void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 
-extern tvbuff_t* tvb_new_child_real_data(tvbuff_t* parent, const guint8* data, guint length,
-    gint reported_length);
+extern tvbuff_t* tvb_new_child_real_data(tvbuff_t* parent, const guint8* data, size_t length,
+    size_t reported_length);
 
 /**Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
-extern void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length,
-    gint reported_length);
+extern void tvb_set_real_data(tvbuff_t*, const guint8* data, size_t length,
+    size_t reported_length);
 
 /** Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
-extern tvbuff_t* tvb_new_real_data(const guint8* data, guint length,
-    gint reported_length);
+extern tvbuff_t* tvb_new_real_data(const guint8* data, size_t length,
+    size_t reported_length);
 
 
 /** Define the subset of the backing buffer to use.
@@ -234,12 +234,12 @@ extern tvbuff_t* tvb_new_real_data(const guint8* data, guint length,
  * is beyond the bounds of the backing tvbuff.
  * Can throw ReportedBoundsError. */
 extern void tvb_set_subset(tvbuff_t* tvb, tvbuff_t* backing,
-		gint backing_offset, gint backing_length, gint reported_length);
+		gint backing_offset, size_t backing_length, size_t reported_length);
 
 /** Combination of tvb_new() and tvb_set_subset()
  * Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_subset(tvbuff_t* backing,
-		gint backing_offset, gint backing_length, gint reported_length);
+		gint backing_offset, size_t backing_length, size_t reported_length);
 
 
 /** Both tvb_composite_append and tvb_composite_prepend can throw
@@ -274,11 +274,11 @@ extern guint tvb_ensure_length_remaining(tvbuff_t*, gint offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
-extern gboolean tvb_bytes_exist(tvbuff_t*, gint offset, gint length);
+extern gboolean tvb_bytes_exist(tvbuff_t*, gint offset, size_t length);
 
 /** Checks that the bytes referred to by 'offset'/'length' actually exist
  * in the buffer, and throws an exception if they aren't. */
-extern void tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length);
+extern void tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, size_t length);
 
 /* Checks (w/o throwing exception) that offset exists in buffer */
 extern gboolean tvb_offset_exists(tvbuff_t*, gint offset);
@@ -468,9 +468,9 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
  *                   instead it will automatically be freed when a new capture
  *                   or file is opened.
  */
-extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
-extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length);
-extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length);
+extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, size_t length);
+extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, size_t length);
+extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, size_t length);
 
 
 /**

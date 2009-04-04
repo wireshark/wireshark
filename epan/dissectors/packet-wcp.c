@@ -272,7 +272,7 @@ dissect_wcp_reset( tvbuff_t *tvb, int offset, proto_tree *tree){
 static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 
 	wcp_window_t *buf_ptr = 0;
-	int len;
+	size_t len;
 
 	/* discard first 2 bytes, header and last byte (check byte) */
 	len = tvb_reported_length( tvb)-3;
@@ -285,7 +285,7 @@ static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 	} else {
 		guint8 *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 		tvb_memcpy( tvb, buf_ptr->buf_cur, 2, buf_end - buf_ptr->buf_cur);
-		tvb_memcpy( tvb, buf_ptr->buffer, buf_end - buf_ptr->buf_cur-2,
+		tvb_memcpy( tvb, buf_ptr->buffer, (gint) (buf_end - buf_ptr->buf_cur-2),
 			len - (buf_end - buf_ptr->buf_cur));
 		buf_ptr->buf_cur = buf_ptr->buf_cur + len - MAX_WIN_BUF_LEN;
 	}

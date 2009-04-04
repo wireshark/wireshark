@@ -1339,43 +1339,31 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
       if (do_red_green_blue) {
 	    int sep = FALSE;
-	    char *buffer, *bp;
-
-	    buffer=ep_alloc(512);
-
-	    bp = buffer + MIN(512, g_snprintf(buffer, 512, "flags: "));
+	    emem_strbuf_t *buffer = ep_strbuf_new_label("flags: ");
 
 	    if (do_red_green_blue & 0x1) {
-		  bp += MIN(512-(bp-buffer),
-			    g_snprintf(bp, 512-(bp-buffer), "DoRed"));
+		  ep_strbuf_append(buffer, "DoRed");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x2) {
-		  if (sep) bp += MIN(512-(bp-buffer),
-				     g_snprintf(bp, 512-(bp-buffer), " | "));
-		  bp += MIN(512-(bp-buffer),
-			    g_snprintf(bp, 512-(bp-buffer), "DoGreen"));
+		  if (sep) ep_strbuf_append(buffer, " | ");
+		  ep_strbuf_append(buffer, "DoGreen");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x4) {
-		  if (sep) bp += MIN(512-(bp-buffer),
-				     g_snprintf(bp, 512-(bp-buffer), " | "));
-		  bp += MIN(512-(bp-buffer),
-			    g_snprintf(bp, 512-(bp-buffer), "DoBlue"));
+		  if (sep) ep_strbuf_append(buffer, " | ");
+		  ep_strbuf_append(buffer, "DoBlue");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0xf8) {
-		  if (sep) bp += MIN(512-(bp-buffer),
-				     g_snprintf(bp, 512-(bp-buffer), " + "));
-		  MIN(512-(bp-buffer),
-		      g_snprintf(bp, 512-(bp-buffer), "trash"));
+		  if (sep) ep_strbuf_append(buffer, " + trash");
 	    }
 
 	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
-					    "%s", buffer);
+					    "%s", buffer->str);
 	    tt = proto_item_add_subtree(ti, ett_x11_color_flags);
 	    if (do_red_green_blue & 0x1)
 		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, *offsetp, 1,
@@ -1480,33 +1468,28 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    proto_tree *ttt;
 	    unsigned do_red_green_blue;
 	    guint16 red, green, blue;
-	    char *buffer;
-	    char *bp;
+	    emem_strbuf_t *buffer;
 	    const char *sep;
 
-	    buffer=ep_alloc(1024);
+	    buffer=ep_strbuf_new_label("colorItem ");
 	    red = VALUE16(tvb, *offsetp + 4);
 	    green = VALUE16(tvb, *offsetp + 6);
 	    blue = VALUE16(tvb, *offsetp + 8);
 	    do_red_green_blue = VALUE8(tvb, *offsetp + 10);
 
-	    bp = buffer + MIN(1024, g_snprintf(buffer, 1024, "colorItem: "));
 	    sep = "";
 	    if (do_red_green_blue & 0x1) {
-		bp += MIN(1024-(bp-buffer),
-			  g_snprintf(bp, 1024-(bp-buffer), "red = %d", red));
+		ep_strbuf_append_printf(buffer, "red = %d", red);
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x2) {
-		bp += MIN(1024-(bp-buffer),
-			  g_snprintf(bp, 1024-(bp-buffer), "%sgreen = %d", sep, green));
+		ep_strbuf_append_printf(buffer, "%sgreen = %d", sep, green);
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x4)
-		bp += MIN(1024-(bp-buffer),
-			  g_snprintf(bp, 1024-(bp-buffer), "%sblue = %d", sep, blue));
+		ep_strbuf_append_printf(buffer, "%sblue = %d", sep, blue);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer);
+	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer->str);
 	    ttt = proto_item_add_subtree(tti, ett_x11_color_item);
 	    proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, *offsetp, 4, little_endian);
 	    *offsetp += 4;

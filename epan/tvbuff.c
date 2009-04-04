@@ -253,7 +253,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 }
 
 void
-tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
+tvb_set_real_data(tvbuff_t* tvb, const guint8* data, size_t length, size_t reported_length)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
@@ -264,13 +264,13 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 	}
 
 	tvb->real_data		= data;
-	tvb->length		= length;
-	tvb->reported_length	= reported_length;
+	tvb->length		= (guint) length;
+	tvb->reported_length	= (guint) reported_length;
 	tvb->initialized	= TRUE;
 }
 
 tvbuff_t*
-tvb_new_real_data(const guint8* data, guint length, gint reported_length)
+tvb_new_real_data(const guint8* data, size_t length, size_t reported_length)
 {
 	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
@@ -300,7 +300,7 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 }
 
 tvbuff_t*
-tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint reported_length)
+tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, size_t length, size_t reported_length)
 {
 	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
 	if (tvb) {
@@ -324,7 +324,7 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint
  * that gets an exception, so the error is reported as an error in that
  * protocol rather than the containing protocol.  */
 static gboolean
-compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
+compute_offset_length(tvbuff_t *tvb, gint offset, size_t length,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	DISSECTOR_ASSERT(offset_ptr);
@@ -380,7 +380,7 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 		*length_ptr = tvb->length - *offset_ptr;
 	}
 	else {
-		*length_ptr = length;
+		*length_ptr = (guint) length;
 	}
 
 	return TRUE;
@@ -388,7 +388,7 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 
 
 static gboolean
-check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
+check_offset_length_no_exception(tvbuff_t *tvb, gint offset, size_t length,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	guint	end_offset;
@@ -442,7 +442,7 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
  * either is out of bounds. Sets integer ptrs to the new offset
  * and length. */
 static void
-check_offset_length(tvbuff_t *tvb, gint offset, gint length,
+check_offset_length(tvbuff_t *tvb, gint offset, size_t length,
 		guint *offset_ptr, guint *length_ptr)
 {
 	int exception = 0;
@@ -457,7 +457,7 @@ check_offset_length(tvbuff_t *tvb, gint offset, gint length,
 
 void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
-		gint backing_offset, gint backing_length, gint reported_length)
+		gint backing_offset, size_t backing_length, size_t reported_length)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
@@ -478,7 +478,7 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 		tvb->reported_length	= backing->reported_length - tvb->tvbuffs.subset.offset;
 	}
 	else {
-		tvb->reported_length	= reported_length;
+		tvb->reported_length	= (guint) reported_length;
 	}
 	tvb->initialized		= TRUE;
 	add_to_used_in_list(backing, tvb);
@@ -492,7 +492,7 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 
 
 tvbuff_t*
-tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint reported_length)
+tvb_new_subset(tvbuff_t *backing, gint backing_offset, size_t backing_length, size_t reported_length)
 {
 	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
@@ -638,7 +638,7 @@ tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Does not throw an exception. */
 gboolean
-tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
+tvb_bytes_exist(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint		abs_offset, abs_length;
 
@@ -658,7 +658,7 @@ tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Throws an exception if they aren't. */
 void
-tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
+tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, size_t length)
 {
 	guint		abs_offset, abs_length;
 
@@ -2120,14 +2120,14 @@ tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size)
  * Throws an exception if the tvbuff ends before the string does.
  */
 guint8 *
-tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
+tvb_get_string(tvbuff_t *tvb, gint offset, size_t length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous(tvb, offset, (gint) length);
 	strbuf = g_malloc(length + 1);
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
@@ -2150,14 +2150,14 @@ tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
+tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, size_t length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous(tvb, offset, (gint) length);
 	strbuf = ep_alloc(length + 1);
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
@@ -2179,14 +2179,14 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
  * when wireshark starts or opens a new capture.
  */
 guint8 *
-tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length)
+tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, size_t length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous(tvb, offset, (gint) length);
 	strbuf = se_alloc(length + 1);
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
