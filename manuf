@@ -9670,6 +9670,20 @@
 00:25:B7	CostarElec             # Costar  electronics, inc.,
 00:25:B8	AgileCommu             # Agile Communications, Inc.
 00:25:B9	Agilink                # Agilink Systems Corp.
+00:25:BA	Alcatel-Lu             # Alcatel-Lucent IPD
+00:25:BB	Innerint               # INNERINT Co., Ltd.
+00:25:BC	Apple                  # Apple, Inc
+00:25:BD	ItaldataIn             # Italdata Ingegneria dell'Idea S.p.A.
+00:25:BE	Tektrap                # Tektrap Systems Inc.
+00:25:BF	WirelessCa             # Wireless Cables Inc.
+00:25:C0	Zilliontv              # ZillionTV Corporation
+00:25:C1	NawooKorea             # Nawoo Korea Corp.
+00:25:C2	Ringbell               # RingBell Co.,Ltd.
+00:25:C3	NortelNetw             # Nortel Networks
+00:25:C4	RuckusWire             # Ruckus Wireless
+00:25:C5	StarLinkCo             # Star Link Communication Pvt. Ltd.
+00:25:C6	Kasercorp              # kasercorp, ltd
+00:25:C7	Altek                  # altek Corporation
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13059,6 +13073,13 @@
 00:50:C2:A8:B0:00/36	NavicronOy             # Navicron Oy
 00:50:C2:A8:C0:00/36	RedwireLlc             # Redwire, LLC
 00:50:C2:A8:D0:00/36	FrontierEl             # Frontier Electronic Systems Corp.
+00:50:C2:A8:E0:00/36	BfiIndustr             # BFI Industrie-Elektronik GmbH & Co.KG
+00:50:C2:A8:F0:00/36	Quantum3d              # Quantum3D, Inc.
+00:50:C2:A9:00:00/36	STwo                   # S.two Corporation
+00:50:C2:A9:10:00/36	CeronTech              # Ceron Tech Co.,LTD
+00:50:C2:A9:20:00/36	SiconSRL               # Sicon s.r.l.
+00:50:C2:A9:30:00/36	SpxDehydra             # SPX Dehydration & Filtration
+00:50:C2:A9:40:00/36	Par-Tech               # Par-Tech, Inc.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -13942,7 +13963,7 @@
 00:A0:34	Axel
 00:A0:35	Cylink                 # CYLINK CORPORATION
 00:A0:36	AppliedNet             # APPLIED NETWORK TECHNOLOGY
-00:A0:37	Datascope              # Datascope Corporation
+00:A0:37	MindrayDsU             # Mindray DS USA, Inc.
 00:A0:38	EmailElect             # EMAIL ELECTRONICS
 00:A0:39	RossTechno             # ROSS TECHNOLOGY, INC.
 00:A0:3A	Kubotek                # KUBOTEK CORPORATION
@@ -14039,7 +14060,7 @@
 00:A0:95	AcaciaNetw             # ACACIA NETWORKS, INC.
 00:A0:96	MitumiElec             # MITUMI ELECTRIC CO., LTD.
 00:A0:97	JcInformat             # JC INFORMATION SYSTEMS
-00:A0:98	NetworkApp             # NETWORK APPLIANCE CORP.
+00:A0:98	Netapp
 00:A0:99	K-Net                  # K-NET LTD.
 00:A0:9A	NihonKohde             # NIHON KOHDEN AMERICA
 00:A0:9B	QpsxCommun             # QPSX COMMUNICATIONS, LTD.
