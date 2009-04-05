@@ -293,7 +293,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			sub_item = proto_tree_add_string(tree,
 				hf_key_value,
 				tvb,
-				offset + (keypos-infostring),
+				offset + (gint)(keypos-infostring),
 				keylength + 1 + valuelength, keypos);
 			if (sub_item)
 				sub_tree =
@@ -305,12 +305,12 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 				proto_tree_add_string(sub_tree,
 					hf_key,
 					tvb,
-					offset + (keypos-infostring),
+					offset + (gint)(keypos-infostring),
 					keylength, keypos);
 				proto_tree_add_string(sub_tree,
 					hf_value,
 					tvb,
-					offset + (valuepos-infostring),
+					offset + (gint)(valuepos-infostring),
 					valuelength, valuepos);
 			}
 		}
