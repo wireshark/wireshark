@@ -879,25 +879,14 @@ again:
  * Note that the packet format was changed several times in the past.
  */
 
-static const char *
-bitrange0(guint32 v, int s, char *buf, int buflen)
+static void
+bitrange0(guint32 v, int s, emem_strbuf_t *strbuf)
 {
 	guint32 v0;
-	char *p, *ep;
 	int off;
-	int i, l;
-
-	if (buflen < 1)
-		return NULL;
-	if (buflen == 1) {
-		buf[0] = '\0';
-		return NULL;
-	}
+	int i;
 
 	v0 = v;
-	p = buf;
-	ep = buf + buflen - 1;
-	memset(buf, 0, buflen);
 	off = 0;
 	while (off < 32) {
 		/* shift till we have 0x01 */
@@ -920,39 +909,26 @@ bitrange0(guint32 v, int s, char *buf, int buflen)
 				break;
 		}
 		if (i == 1)
-			l = g_snprintf(p, ep - p, ",%d", s + off);
+			ep_strbuf_append_printf(strbuf, ",%d", s + off);
 		else {
-			l = g_snprintf(p, ep - p, ",%d-%d", s + off,
+			ep_strbuf_append_printf(strbuf, ",%d-%d", s + off,
 			    s + off + i - 1);
-		}
-		if (l == -1 || l >= ep - p) {
-			return NULL;
 		}
 		v >>= i; off += i;
 	}
-
-	return buf;
 }
 
 static const char *
 bitrange(tvbuff_t *tvb, int offset, int l, int s)
 {
-    static char buf[1024];
-    char *q, *eq;
+    emem_strbuf_t *strbuf;
     int i;
 
-    memset(buf, 0, sizeof(buf));
-    q = buf;
-    eq = buf + sizeof(buf) - 1;
-    for (i = 0; i < l; i++) {
-	if (bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, q, eq - q) == NULL) {
-	    if (q != buf && q + 5 < buf + sizeof(buf))
-		g_strlcpy(q, ",...", 5);
-	    return buf;
-	}
-    }
+    strbuf = ep_strbuf_new_label("");
+    for (i = 0; i < l; i++)
+	bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, strbuf);
 
-    return buf + 1;
+    return strbuf->str + 1;	/* skip initial "," */
 }
 
 static void
