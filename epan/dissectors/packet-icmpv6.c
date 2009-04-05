@@ -931,6 +931,11 @@ bitrange(tvbuff_t *tvb, int offset, int l, int s)
     return strbuf->str + 1;	/* skip initial "," */
 }
 
+#define NI_SIZE 16
+#define NI_FLAGS_SIZE 2
+#define NI_FLAGS_OFFSET 6
+#define NI_NONCE_SIZE 8
+#define NI_NONCE_OFFSET 8
 static void
 dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -949,22 +954,22 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     /* flags */
     flags = pntohs(&ni->ni_flags);
     tf = proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	sizeof(ni->ni_flags), "Flags: 0x%04x", flags);
+	offset + NI_FLAGS_OFFSET,
+	NI_FLAGS_SIZE, "Flags: 0x%04x", flags);
     field_tree = proto_item_add_subtree(tf, ett_nodeinfo_flag);
     switch (pntohs(&ni->ni_qtype)) {
     case NI_QTYPE_SUPTYPES:
 	if (ni->ni_type == ICMP6_NI_QUERY) {
 	    proto_tree_add_text(field_tree, tvb,
-		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-		sizeof(ni->ni_flags), "%s",
+		offset + NI_FLAGS_OFFSET,
+		NI_FLAGS_SIZE, "%s",
 		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
 		    "Compressed reply supported",
 		    "No compressed reply support"));
 	} else {
 	    proto_tree_add_text(field_tree, tvb,
-		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-		sizeof(ni->ni_flags), "%s",
+		offset + NI_FLAGS_OFFSET,
+		NI_FLAGS_SIZE, "%s",
 		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
 		    "Compressed", "Not compressed"));
 	}
@@ -972,48 +977,48 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     case NI_QTYPE_DNSNAME:
 	if (ni->ni_type == ICMP6_NI_REPLY) {
 	    proto_tree_add_text(field_tree, tvb,
-		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-		sizeof(ni->ni_flags), "%s",
+		offset + NI_FLAGS_OFFSET,
+		NI_FLAGS_SIZE, "%s",
 		decode_boolean_bitfield(flags, NI_FQDN_FLAG_VALIDTTL, sizeof(flags) * 8,
 		    "Valid TTL field", "Meaningless TTL field"));
 	}
 	break;
     case NI_QTYPE_NODEADDR:
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_GLOBAL, sizeof(flags) * 8,
 		"Global address",
 		"Not global address"));
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_SITELOCAL, sizeof(flags) * 8,
 		"Site-local address",
 		"Not site-local address"));
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_LINKLOCAL, sizeof(flags) * 8,
 		"Link-local address",
 		"Not link-local address"));
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_COMPAT, sizeof(flags) * 8,
 		"IPv4 compatible/mapped address",
 		"Not IPv4 compatible/mapped address"));
 	/* fall through */
     case NI_QTYPE_IPV4ADDR:
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_ALL, sizeof(flags) * 8,
 		"All unicast address",
 		"Unicast addresses on the queried interface"));
 	proto_tree_add_text(field_tree, tvb,
-	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
-	    sizeof(ni->ni_flags), "%s",
+	    offset + NI_FLAGS_OFFSET,
+	    NI_FLAGS_SIZE, "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_TRUNCATE, sizeof(flags) * 8,
 		"Truncated", "Not truncated"));
 	break;
@@ -1021,12 +1026,12 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
     /* nonce */
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct icmp6_nodeinfo, icmp6_ni_nonce[0]),
-	sizeof(ni->icmp6_ni_nonce), "Nonce: 0x%08x%08x",
+	offset + NI_NONCE_OFFSET,
+	NI_NONCE_SIZE, "Nonce: 0x%08x%08x",
 	pntohl(&ni->icmp6_ni_nonce[0]), pntohl(&ni->icmp6_ni_nonce[4]));
 
     /* offset for "the rest of data" */
-    off = sizeof(*ni);
+    off = NI_SIZE;
 
     /* rest of data */
     if (!tvb_bytes_exist(tvb, offset, sizeof(*ni)))
@@ -1191,6 +1196,13 @@ nodata:;
     call_dissector(data_handle,tvb_new_subset(tvb, offset + off, -1, -1), pinfo, tree);
 }
 
+#define RR_SIZE 16
+#define RR_SEQNUM_SIZE 4
+#define RR_SEQNUM_OFFSET 4
+#define RR_SEGNUM_SIZE 1
+#define RR_SEGNUM_OFFSET 8
+#define RR_FLAGS_SIZE 1
+#define RR_FLAGS_OFFSET 9
 static void
 dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -1206,40 +1218,40 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     rr = &icmp6_router_renum;
     tvb_memcpy(tvb, (guint8 *)rr, offset, sizeof *rr);
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
+	offset + RR_SEQNUM_OFFSET, RR_SEQNUM_SIZE,
 	"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
+	offset + RR_SEGNUM_OFFSET, RR_SEGNUM_SIZE,
 	"Segment number: 0x%02x", rr->rr_segnum);
 
-    flagoff = offset + offsetof(struct icmp6_router_renum, rr_flags);
+    flagoff = offset + RR_FLAGS_OFFSET;
     flags = tvb_get_guint8(tvb, flagoff);
-    tf = proto_tree_add_text(tree, tvb, flagoff, 1,
+    tf = proto_tree_add_text(tree, tvb, flagoff, RR_FLAGS_SIZE,
 	"Flags: 0x%02x", flags);
     field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+    proto_tree_add_text(field_tree, tvb, flagoff, RR_FLAGS_SIZE, "%s",
 	decode_boolean_bitfield(flags, 0x80, 8,
 	    "Test command", "Not test command"));
-    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+    proto_tree_add_text(field_tree, tvb, flagoff, RR_FLAGS_SIZE, "%s",
 	decode_boolean_bitfield(flags, 0x40, 8,
 	    "Result requested", "Result not requested"));
-    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+    proto_tree_add_text(field_tree, tvb, flagoff, RR_FLAGS_SIZE, "%s",
 	decode_boolean_bitfield(flags, 0x20, 8,
 	    "All interfaces", "Not all interfaces"));
-    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+    proto_tree_add_text(field_tree, tvb, flagoff, RR_FLAGS_SIZE, "%s",
 	decode_boolean_bitfield(flags, 0x10, 8,
 	    "Site specific", "Not site specific"));
-    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+    proto_tree_add_text(field_tree, tvb, flagoff, RR_FLAGS_SIZE, "%s",
 	decode_boolean_bitfield(flags, 0x08, 8,
 	    "Processed previously", "Complete result"));
 
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
 	"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-    call_dissector(data_handle,tvb_new_subset(tvb, offset + sizeof(*rr), -1, -1), pinfo, tree);	/*XXX*/
+    call_dissector(data_handle,tvb_new_subset(tvb, offset + RR_SIZE, -1, -1), pinfo, tree);	/*XXX*/
 
     if (rr->rr_code == ICMP6_ROUTER_RENUMBERING_COMMAND) {
-	off = offset + sizeof(*rr);
+	off = offset + RR_SIZE;
 	match = &rr_pco_match;
 	tvb_memcpy(tvb, (guint8 *)match, off, sizeof *match);
 	tf = proto_tree_add_text(tree, tvb, off, sizeof(*match),
@@ -1749,6 +1761,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cksum);
 	}
 
+#define ICMP6_DATA_OFFSET 4
+#define ICMP6_SEQ_OFFSET 4
 	/* decode... */
 	switch (dp->icmp6_type) {
 	case ICMP6_DST_UNREACH:
@@ -1758,14 +1772,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case ICMP6_PACKET_TOO_BIG:
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_hdr, icmp6_mtu), 4,
+		offset + ICMP6_DATA_OFFSET, 4,
 		"MTU: %u", pntohl(&dp->icmp6_mtu));
 	    dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
 		icmp6_tree);
 	    break;
 	case ICMP6_PARAM_PROB:
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_hdr, icmp6_pptr), 4,
+		offset + ICMP6_DATA_OFFSET, 4,
 		"Problem pointer: 0x%04x", pntohl(&dp->icmp6_pptr));
 	    dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
 		icmp6_tree);
@@ -1773,10 +1787,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ICMP6_ECHO_REQUEST:
 	case ICMP6_ECHO_REPLY:
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_hdr, icmp6_id), 2,
+		offset + ICMP6_DATA_OFFSET, 2,
 		"ID: 0x%04x", (guint16)g_ntohs(dp->icmp6_id));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
+		offset + ICMP6_SEQ_OFFSET, 2,
 		"Sequence: 0x%04x", (guint16)g_ntohs(dp->icmp6_seq));
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	    call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
@@ -1802,7 +1816,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    	mrc = ((mrc & 0x0fff) | 0x1000) <<
 				(((mrc & 0x7000) >> 12) + 3);
 		    proto_tree_add_text(icmp6_tree, tvb,
-		        offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
+		        offset + ICMP6_DATA_OFFSET, 2,
 			"Maximum response delay[ms]: %u", mrc);
 
 		    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp),
@@ -1834,7 +1848,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #undef MLDV2_MINLEN
 #undef MLDV1_MINLEN
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
+		offset + ICMP6_DATA_OFFSET, 2,
 		"Maximum response delay: %u",
 		(guint16)g_ntohs(dp->icmp6_maxdelay));
 	    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp), 16,
@@ -1851,6 +1865,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
 	  break;
 	}
+#define ND_RA_CURHOPLIMIT_OFFSET 4
+#define ND_RA_FLAGS_RESERVED_OFFSET 4
+#define ND_RA_ROUTER_LIFETIME_OFFSET 5
 	case ND_ROUTER_ADVERT:
 	  {
 	    struct nd_router_advert nd_router_advert, *ra;
@@ -1862,11 +1879,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    /* Current hop limit */
 	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_cur_hop_limit, tvb,
-		offset + offsetof(struct nd_router_advert, nd_ra_curhoplimit),
+		offset + ND_RA_CURHOPLIMIT_OFFSET,
 		1, ra->nd_ra_curhoplimit);
 
 	    /* Flags */
-	    flagoff = offset + offsetof(struct nd_router_advert, nd_ra_flags_reserved);
+	    flagoff = offset + ND_RA_FLAGS_RESERVED_OFFSET;
 	    ra_flags = tvb_get_guint8(tvb, flagoff);
 	    tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", ra_flags);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
@@ -1887,7 +1904,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    /* Router lifetime */
 	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_router_lifetime, tvb,
-		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
+		offset + ND_RA_ROUTER_LIFETIME_OFFSET,
 		2, (guint16)g_ntohs(ra->nd_ra_router_lifetime));
 
 	    /* Reachable time */
@@ -1922,13 +1939,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dissect_icmpv6ndopt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
 	    break;
 	  }
+#define ND_NA_FLAGS_RESERVED_OFFSET 4
 	case ND_NEIGHBOR_ADVERT:
 	  {
 	    int flagoff, targetoff;
 	    guint32 na_flags;
 	    struct e_in6_addr na_target;
 
-	    flagoff = offset + offsetof(struct nd_neighbor_advert, nd_na_flags_reserved);
+	    flagoff = offset + ND_NA_FLAGS_RESERVED_OFFSET;
 	    na_flags = tvb_get_ntohl(tvb, flagoff);
 
 	    tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 4, "Flags: 0x%08x", na_flags);
@@ -1989,11 +2007,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ICMP6_ROUTER_RENUMBERING:
 	    dissect_rrenum(tvb, offset, pinfo, icmp6_tree);
 	    break;
+#define NI_QTYPE_OFFSET 4
 	case ICMP6_NI_QUERY:
 	case ICMP6_NI_REPLY:
 	    ni = (struct icmp6_nodeinfo *)dp;
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + offsetof(struct icmp6_nodeinfo, ni_qtype),
+		offset + NI_QTYPE_OFFSET,
 		sizeof(ni->ni_qtype),
 		"Query type: 0x%04x (%s)", pntohs(&ni->ni_qtype),
 		val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
@@ -2100,7 +2119,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							offset + 4, 1,
 							"Subtype: Handover Initiate");
 
-					flagoff = offset + offsetof(struct fmip6_hi, fmip6_hi_flags_reserved);
+					flagoff = offset + 5;
 					hi_flags = tvb_get_guint8(tvb, flagoff);
 					tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", hi_flags);
 					field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
