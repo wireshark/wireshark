@@ -65,22 +65,18 @@ static dissector_handle_t ipv6_handle;
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
-    static char buf[512];
     guint16 flags_masklen;
 
     flags_masklen = tvb_get_ntohs(tvb, offset);
     if (flags_masklen & 0x0180) {
-	g_snprintf(buf, sizeof(buf),
-	    "(%s%s%s) ",
+	return ep_strdup_printf("(%s%s%s) ",
 	    flags_masklen & 0x0100 ? "S" : "",
 	    flags_masklen & 0x0080 ? "W" : "",
 	    flags_masklen & 0x0040 ? "R" : "");
-    } else
-	buf[0] = '\0';
-	g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s/%u",
-	ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)), flags_masklen & 0x3f);
-
-    return buf;
+    } else {
+	return ep_strdup_printf("%s/%u",
+	    ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)), flags_masklen & 0x3f);
+    }
 }
 
 static const value_string type1vals[] = {
@@ -484,7 +480,7 @@ done:;
 static const char *
 dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	int *advance) {
-    static char buf[512];
+    emem_strbuf_t *strbuf;
     guint8 af;
     guint8 et;
     guint8 flags;
@@ -511,19 +507,18 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	return NULL;
     }
 
+    strbuf = ep_strbuf_new_label("");
     switch (at) {
     case pimv2_unicast:
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    g_snprintf(buf, sizeof(buf), "%s",
-	        ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
+	    ep_strbuf_printf(strbuf, "%s", ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    g_snprintf(buf, sizeof(buf), "%s",
-		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
+	    ep_strbuf_printf(strbuf, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 	}
 	if (advance)
@@ -535,13 +530,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    g_snprintf(buf, sizeof(buf), "%s/%u",
+	    ep_strbuf_printf(strbuf, "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    g_snprintf(buf, sizeof(buf), "%s/%u",
+	    ep_strbuf_printf(strbuf, "%s/%u",
 		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
@@ -555,18 +550,18 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    g_snprintf(buf, sizeof(buf), "%s/%u",
+	    ep_strbuf_printf(strbuf, "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    g_snprintf(buf, sizeof(buf), "%s/%u",
+	    ep_strbuf_printf(strbuf, "%s/%u",
 		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
 	if (flags) {
-	    g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf),
+	    ep_strbuf_append_printf(strbuf,
 		" (%s%s%s)",
 		flags & 0x04 ? "S" : "",
 		flags & 0x02 ? "W" : "",
@@ -579,7 +574,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	return NULL;
     }
 
-    return buf;
+    return strbuf->str;
 }
 
 static const value_string type2vals[] = {
