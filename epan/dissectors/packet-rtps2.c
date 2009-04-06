@@ -734,23 +734,23 @@ static guint64 rtps_util_add_seq_number(proto_tree *, tvbuff_t *,
 static void rtps_util_add_ntp_time(proto_tree *, tvbuff_t *,
                         gint, int, const char *, guint8 *, gint);
 static gint rtps_util_add_string(proto_tree *, tvbuff_t *,
-                        gint, int, int, const guint8 *, guint8 *, gint);
+                        gint, int, int, const guint8 *, guint8 *, size_t);
 static guint32 rtps_util_add_long(proto_tree *, tvbuff_t *,
                         gint, int, int, gboolean, gboolean, const char *,
-                        guint8 *, gint);
+                        guint8 *, size_t);
 static guint16 rtps_util_add_short(proto_tree *, tvbuff_t *,
                         gint, int, int, gboolean, gboolean, const char *,
                         guint8 *, gint);
 static void rtps_util_add_port(proto_tree *, tvbuff_t *,
                         gint, int, char *, guint8 *, gint);
 static void rtps_util_add_boolean(proto_tree *, tvbuff_t *,
-                        gint, char *, guint8 *, gint);
+                        gint, char *, guint8 *, size_t);
 static void rtps_util_add_durability_service_qos(proto_tree *, tvbuff_t *,
                         gint, int, guint8 *, gint);
 static void rtps_util_add_liveliness_qos(proto_tree *, tvbuff_t *,
                         gint, int, guint8 *, gint);
 static void rtps_util_add_kind_qos(proto_tree *, tvbuff_t *,
-                        gint, int, char *, const value_string *, guint8 *, gint);
+                        gint, int, char *, const value_string *, guint8 *, size_t);
 static gint rtps_util_add_seq_string(proto_tree *, tvbuff_t *,
                         gint, int, int, char *, guint8 *, gint);
 static void rtps_util_add_seq_octets(proto_tree *, tvbuff_t *,
@@ -834,7 +834,7 @@ static guint rtps_max_batch_samples_dissected = 16;
 /* Appends a submessage description to the info summary text
  */
 static void info_summary_append(char *summaryText, int submessageId, const char * extra_text) {
-  gint len = strlen(summaryText);
+  gint len = (gint) strlen(summaryText);
   if (extra_text == NULL) {
     extra_text="";
   }
@@ -1761,7 +1761,7 @@ static gint rtps_util_add_string(proto_tree *tree,
                         int        little_endian,
                         const guint8 * label,           /* Can be NULL (if hf_item!=-1) */
                         guint8 *   buffer,              /* Can be NULL */
-                        gint       buffer_size) {
+                        size_t     buffer_size) {
   guint8 * retVal = NULL;
   guint32 size = NEXT_guint32(tvb, offset, little_endian);
 
@@ -1792,7 +1792,7 @@ static gint rtps_util_add_string(proto_tree *tree,
     if (size == 0) {
         buffer[0] = '\0';
     } else {
-      g_snprintf(buffer, buffer_size, "%s", retVal);
+      g_snprintf(buffer, (gulong) buffer_size, "%s", retVal);
     }
   }
   g_free(retVal);
@@ -1822,7 +1822,7 @@ static guint32 rtps_util_add_long(proto_tree *tree,
                         gboolean   is_signed,           /* Signed/Unsigned */
                         const char *label,              /* Can be NULL */
                         guint8 *   buffer,
-                        gint       buffer_size) {
+                        size_t     buffer_size) {
 
   char temp_buff[16];
 
@@ -1849,7 +1849,7 @@ static guint32 rtps_util_add_long(proto_tree *tree,
     }
   }
   if (buffer != NULL) {
-    g_strlcpy(buffer, temp_buff, buffer_size);
+    g_strlcpy(buffer, temp_buff, (gulong) buffer_size);
   }
   return retVal;
 }
@@ -1944,14 +1944,14 @@ static void rtps_util_add_boolean(proto_tree *tree,
                         gint       offset,
                         char *     label,
                         guint8 *   buffer,              /* Can be NULL */
-                        gint       buffer_size) {
+                        size_t     buffer_size) {
   const char *str;
   guint8 value = tvb_get_guint8(tvb, offset);
 
   str = value ? "TRUE" : "FALSE";
 
   if (buffer) {
-    g_strlcpy(buffer, str, buffer_size);
+    g_strlcpy(buffer, str, (gulong) buffer_size);
   }
 
   if (tree) {
@@ -2094,12 +2094,12 @@ static void rtps_util_add_kind_qos(proto_tree *tree,
                         char *     label,
                         const value_string *vals,
                         guint8 *   buffer,              /* Can be NULL */
-                        gint       buffer_size) {
+                        size_t     buffer_size) {
   guint32 kind = NEXT_guint32(tvb, offset, little_endian);
 
   if (buffer) {
     g_strlcpy(buffer, val_to_str(kind, vals, "0x%08x"),
-                        buffer_size);
+                        (gulong) buffer_size);
   }
 
   if (tree) {
@@ -2894,13 +2894,10 @@ static gint rtps_util_add_typecode(proto_tree *tree,
   /* Array print */
   if (arr_dimension != NULL) {
     /* Printing an array */
-    char dim_str[40];
-    dim_str[0] = '\0';
+    emem_strbuf_t *dim_str = ep_strbuf_new_label("");
     for (i = 0; i < MAX_ARRAY_DIMENSION; ++i) {
       if (arr_dimension[i] != 0) {
-        g_snprintf(dim_str+strlen(dim_str),
-                   40-strlen(dim_str),
-                   "[%d]", arr_dimension[i]);
+        ep_strbuf_append_printf(dim_str, "[%d]", arr_dimension[i]);
       } else {
         break;
       }
@@ -2913,7 +2910,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                   indent_string,
                   type_name,
                   name ? name : "",
-                  dim_str,
+                  dim_str->str,
                   is_key ? KEY_COMMENT : "");
     return retVal;
   }
@@ -3082,7 +3079,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   temp_buff[idx] = '\0';
 
   /* removes all the ending '0' */
-  for (i = strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
+  for (i = (int) strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
       temp_buff[i] = '\0';
   }
 
@@ -3205,7 +3202,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
   temp_buff[idx] = '\0';
 
   /* removes all (but the last one) characters '0' */
-  for (i = strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
+  for (i = (int) strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
       temp_buff[i] = '\0';
   }
   if (tree) {
@@ -3701,7 +3698,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         memset(buffer, 0, MAX_PARAM_SIZE);
         for (i = 0; i < 16; ++i) {
           guidPart = tvb_get_guint8(tvb, offset+i);
-          g_snprintf(buffer+strlen(buffer), MAX_PARAM_SIZE-strlen(buffer), 
+          g_snprintf(buffer+strlen(buffer), MAX_PARAM_SIZE-(gulong)strlen(buffer), 
                         "%02x", guidPart);
           if (i == 3 || i == 7 || i == 11) g_strlcat(buffer, ":", MAX_PARAM_SIZE);
         }
@@ -3730,7 +3727,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         g_strlcat(buffer, "guid: ", MAX_PARAM_SIZE);
         for (i = 0; i < param_length; ++i) {
           guidPart = tvb_get_guint8(tvb, offset+i);
-          g_snprintf(buffer+strlen(buffer), MAX_PARAM_SIZE-strlen(buffer), 
+          g_snprintf(buffer+strlen(buffer), MAX_PARAM_SIZE-(gulong)strlen(buffer), 
                         "%02x", guidPart);
           if (( ((i+1) % 4) == 0 ) && (i != param_length-1) ) 
             g_strlcat(buffer, ":", MAX_PARAM_SIZE);
@@ -5116,7 +5113,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         while (param_length >= 4) {
           manager_key = NEXT_guint32(tvb, offset, little_endian);
           g_snprintf(buffer+strlen(buffer),
-                        MAX_PARAM_SIZE-strlen(buffer),
+                        MAX_PARAM_SIZE-(gulong)strlen(buffer),
                         "%c 0x%08x",
                         sep,
                         manager_key);
