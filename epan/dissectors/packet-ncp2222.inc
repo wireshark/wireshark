@@ -2570,7 +2570,7 @@ get_info_type(const gchar* check_string)
         guint i;
         char char_val;
 
-        length =  strlen(check_string);
+        length =  (guint) strlen(check_string);
 
         for (i = 0 ; i < length-1 ; i++ ) {
                 char_val = check_string[i+1];
@@ -2766,11 +2766,11 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
             {
             case 3:                /* uint8 */
             case 4:                /* uint16 */
-                g_snprintf(buffer, buffer_size, "%u", get_finfo_value_integer(tree_pointer->finfo));
+                g_snprintf(buffer, (gulong) buffer_size, "%u", get_finfo_value_integer(tree_pointer->finfo));
                 break;
 
             case 6:             /* uint32 */
-                g_snprintf(buffer, buffer_size, "%08x", get_finfo_value_integer(tree_pointer->finfo));
+                g_snprintf(buffer, (gulong) buffer_size, "%08x", get_finfo_value_integer(tree_pointer->finfo));
                 break;
             case 17:
             case 18:
@@ -2803,10 +2803,10 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
                 }
             case 21:
             case 22:             /* Bytes */
-                g_snprintf(buffer, buffer_size, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
+                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
                 break;
             default:             /* Dont currently handle. Only need string, integers, and bytes */
-                g_snprintf(buffer, buffer_size, "Unsupported Expert Type");
+                g_snprintf(buffer, (gulong) buffer_size, "Unsupported Expert Type");
                 return;
             }
             if (repeat_lookup ==0) {
@@ -2819,7 +2819,7 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
         }
     }
     if (strlen(buffer)==0) {
-        g_snprintf(buffer, buffer_size, "No Value");
+        g_snprintf(buffer, (gulong) buffer_size, "No Value");
     }
     return;
 }
@@ -7247,13 +7247,13 @@ dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 	case 4:   /* { 0x04,	"Time Value" },    */
 	case 6:   /* { 0x06,	"Trigger Value" }, */
 	case 7:   /* { 0x07,	"Numeric Value" }, */
-	    proto_tree_add_item(ncp_tree, hf_srvr_param_number, tvb, 37+strlen(param_string), 4, TRUE);
+	    proto_tree_add_item(ncp_tree, hf_srvr_param_number, tvb, 37+(gint)strlen(param_string), 4, TRUE);
 	    break;
 	case 1:   /* { 0x01,	"Boolean Value" }, */
-	    proto_tree_add_item(ncp_tree, hf_srvr_param_boolean, tvb, 37+strlen(param_string), 1, TRUE);
+	    proto_tree_add_item(ncp_tree, hf_srvr_param_boolean, tvb, 37+(gint)strlen(param_string), 1, TRUE);
 	    break;
 	case 5:   /* { 0x05,	"String Value" },  */
-	    proto_tree_add_item(ncp_tree, hf_srvr_param_string, tvb, 37+strlen(param_string), -1, TRUE);
+	    proto_tree_add_item(ncp_tree, hf_srvr_param_string, tvb, 37+(gint)strlen(param_string), -1, TRUE);
 	    break;
 	default:
 	    break;

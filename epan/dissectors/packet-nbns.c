@@ -346,11 +346,11 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	name_type = process_netbios_name(nbname, name_ret, name_ret_len);
 	pname_ret += MIN(strlen(name_ret), (size_t) name_ret_len);
 	pname_ret += MIN(name_ret_len-(pname_ret-name_ret),
-		g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "<%02x>", name_type));
+		g_snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "<%02x>", name_type));
 	if (cname == '.') {
 		/* We have a scope ID, starting at "pname"; append that to
 		 * the decoded host name. */
-		g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", pname);
+		g_snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "%s", pname);
 	}
 	if (name_type_ret != NULL)
 		*name_type_ret = name_type;
@@ -361,7 +361,7 @@ bad:
 		*name_type_ret = -1;
 	/* This is only valid because nbname is always assigned an error string
 	 * before jumping to bad: Otherwise nbname wouldn't be \0 terminated */
-	g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "%s", nbname);
+	g_snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "%s", nbname);
 	return name_len;
 }
 

@@ -627,7 +627,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 				formatted = format_text(string_buffer, strlen(string_buffer));
 				/* alloc maximum data area */
-#define STRING_BUFFER_PRINT_MAX_LEN (strlen(formatted)+12+1)
+#define STRING_BUFFER_PRINT_MAX_LEN ((guint) strlen(formatted)+12+1)
 				string_buffer_print = (char*)ep_alloc(STRING_BUFFER_PRINT_MAX_LEN);
 				/* copy over the data and append <TRUNCATED> */
 				g_snprintf(string_buffer_print, STRING_BUFFER_PRINT_MAX_LEN, "%s<TRUNCATED>", formatted);
