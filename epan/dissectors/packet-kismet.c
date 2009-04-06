@@ -182,48 +182,48 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					 * two fields left undocumented: {???} {?ExtendedVersion?}
 					 */
 					if (!strncmp(reqresp, "*KISMET", 7)) {
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Kismet version: %s",
 							format_text(line, tokenlen));
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Start time: %s",
 							format_text(line, tokenlen));
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Server name: %s",
 							format_text(line + 1, tokenlen - 2));
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Build revision: %s",
 							format_text(line, tokenlen));
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Unknown field: %s",
 							format_text(line, tokenlen));
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
@@ -238,8 +238,8 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						time_t t;
 						char *ptr;
 
-						offset += next_token - line;
-						linelen -= next_token - line;
+						offset += (gint) (next_token - line);
+						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 
@@ -262,8 +262,8 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					}
 				}
 
-				offset += next_token - line;
-				linelen -= next_token - line;
+				offset += (gint) (next_token - line);
+				linelen -= (int) (next_token - line);
 				line = next_token;
 			}
 		}

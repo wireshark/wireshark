@@ -217,7 +217,7 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
 		if (c == ':') {
 			lws = FALSE; /* Prevent leading LWS from showing up */
 			if (colon == -1) {/* First colon */
-				colon = q - ret;
+				colon = (gint) (q - ret);
 			}
 			*(q++) = sep_seen = c;
 			p++;
@@ -321,10 +321,11 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
 	int   keylen = 0;
 	int   len = 0;
 
-	if(!parameters || !*parameters || !key || !(keylen = strlen(key)))
+	if(!parameters || !*parameters || !key || strlen(key) == 0)
 		/* we won't be able to find anything */
 		return NULL;
 
+	keylen = (int) strlen(key);
 	p = parameters;
 
 	while (*p) {

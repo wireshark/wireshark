@@ -50,7 +50,7 @@
 #define TCP_PORT_MSRP 0
 
 #define MSRP_HDR "MSRP"
-#define MSRP_HDR_LEN (strlen (MSRP_HDR))
+#define MSRP_HDR_LEN ((gint) strlen (MSRP_HDR))
 
 /* Initialize the protocol and registered fields */
 static int proto_msrp		= -1;
