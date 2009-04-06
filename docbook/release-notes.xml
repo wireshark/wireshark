@@ -163,6 +163,10 @@ Wireshark Info
 	  "Copy as filter" from the packet list has been fixed.
 	</listitem>
 
+	<listitem>
+	  Wireshark could crash while reading a Tektronix .rf5 file.
+	</listitem>
+
       </itemizedlist>
 
     </para>
@@ -197,6 +201,7 @@ GSM MAP,
 IEEE 802.11,
 IPVS,
 LDAP,
+NetFlow/IPFIX,
 PROFINET,
 RTP,
 SNMP,

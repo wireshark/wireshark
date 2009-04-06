@@ -54,6 +54,7 @@
 #include "print.h"
 #include "simple_dialog.h"
 #include "util.h"
+#include "wiretap/file_util.h"
 #include "epan/unicode-utils.h"
 
 #include "file_dlg.h"
@@ -303,9 +304,11 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	/* Write out the packets (all, or only the ones from the current
 	   range) to the file with the specified name. */
 
-    /* GetSaveFileName() already asked the user if he wants to overwrite the old file, */
-    /* so if we are here, user already confirmed to overwrite - just delete the old file now */
-    unlink(file_name8->str);
+        /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
+        /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
+        ws_unlink(file_name8->str);  /* XX: Windows Wireshark is built with GLIB >= 2.6 these     */
+                                     /* days so ws_unlink will properly convert the               */
+                                     /* UTF8 filename to UTF16 & then do a _wunlink.              */
 
 	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
 	    /* The write failed.  Try again. */
@@ -605,8 +608,8 @@ win32_export_raw_file(HWND h_wnd) {
     OPENFILENAME *ofn;
     TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
-    const guint8 *data_p = NULL;
-    const char   *file = NULL;
+    const guint8 *data_p;
+    char         *file_name8;
     int           fd;
 	int           ofnsize;
 #if (_MSC_VER >= 1500)
@@ -665,25 +668,26 @@ win32_export_raw_file(HWND h_wnd) {
 
     if (GetSaveFileName(ofn)) {
 		g_free( (void *) ofn);
+        file_name8 = utf_16to8(file_name);
 	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
 		cfile.finfo_selected->start;
-        fd = open(utf_16to8(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        fd = ws_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
-	    open_failure_alert_box(file, errno, TRUE);
+            open_failure_alert_box(file_name8, errno, TRUE);
 	    return;
         }
         if (write(fd, data_p, cfile.finfo_selected->length) < 0) {
-	    write_failure_alert_box(file, errno);
+            write_failure_alert_box(file_name8, errno);
 	    close(fd);
 	    return;
         }
         if (close(fd) < 0) {
-	    write_failure_alert_box(file, errno);
+            write_failure_alert_box(file_name8, errno);
 	    return;
         }
 
 	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+        dirname = get_dirname(file_name8);  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
 	} else {
 		g_free( (void *) ofn);

@@ -287,20 +287,20 @@ int
 eth_stdio_unlink (const gchar *filename)
 {
 #ifdef _WIN32
-      gchar *cp_filename = g_locale_from_utf8 (filename, -1, NULL, NULL, NULL);
+      wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
 
-      if (cp_filename == NULL)
+      if (wfilename == NULL)
 	{
 	  errno = EINVAL;
 	  return -1;
 	}
 
-      retval = unlink (cp_filename);
+      retval = _wunlink (wfilename);
       save_errno = errno;
 
-      g_free (cp_filename);
+      g_free (wfilename);
 
       errno = save_errno;
       return retval;

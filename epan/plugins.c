@@ -219,7 +219,7 @@ plugins_scan_dir(const char *dirname)
 		continue;
 	    }
 	    version = gp;
-	    
+
 	    /*
 	     * Do we have a register routine?
 	     */
@@ -302,7 +302,7 @@ plugins_scan_dir(const char *dirname)
 			g_module_close(handle);
 			continue;
 	    }
-	    
+
 	    /*
 		 * Do we have a register_wtap_module routine?
 		 */
@@ -312,7 +312,7 @@ plugins_scan_dir(const char *dirname)
            } else {
                register_wtap_module = NULL;
            }
-           
+
 	    /*
 		 * Do we have a register_codec_module routine?
 		 */
@@ -327,7 +327,7 @@ plugins_scan_dir(const char *dirname)
 		* Does this dissector do anything useful?
 		*/
 	    if (register_protoinfo == NULL &&
-		    register_tap_listener == NULL && 
+		    register_tap_listener == NULL &&
 		    register_wtap_module == NULL &&
 		    register_codec_module == NULL )
 	    {
@@ -358,7 +358,7 @@ plugins_scan_dir(const char *dirname)
 		g_module_close(handle);
 		continue;
 	    }
-		
+
 	}
 	eth_dir_close(dir);
 	}
@@ -427,6 +427,7 @@ init_plugins(void)
 		    plugins_scan_dir(plugin_dir_path);
 		    g_free(plugin_dir_path);
 		}
+		eth_dir_close(dir);
 	    }
 	} else
 	    plugins_scan_dir(plugin_dir);
@@ -453,7 +454,7 @@ void
 register_all_plugin_registrations(void)
 {
     plugin *pt_plug;
-	
+
     /*
      * For all plugins with register-handoff routines, call the routines.
      * This is called from "proto_init()"; it must be called after
