@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/expert.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include "prefs.h"
@@ -548,6 +549,16 @@ static amr_capability_t amr_capability_tab[] = {
   { "GenericCapability/0.0.8.245.1.1.1/collapsing/3", "gsmEfrComfortNoise", NULL },
   { "GenericCapability/0.0.8.245.1.1.1/collapsing/4", "is-641ComfortNoise", NULL },
   { "GenericCapability/0.0.8.245.1.1.1/collapsing/5", "pdcEFRComfortNoise", NULL },
+  /* ITU-T Rec. G.722.2/Annex F (11/2002) */
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/0", "maxAl-sduFrames", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/1", "bitRate", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/2", "octetAlign", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/3", "modeSet", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/4", "modeChangePeriod", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/5", "modeChangeNeighbour", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/6", "crc", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/7", "robustSorting", NULL },
+  { "GenericCapability/0.0.7.7222.1.0/collapsing/8", "interleaving", NULL },
   { NULL, NULL, NULL },
 };      
 
@@ -801,6 +812,8 @@ proto_register_amr(void)
 	register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
 	register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
 	register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
+
+	oid_add_from_string("G.722.2 (AMR-WB) audio capability","0.0.7.7222.1.0");
 	
 
 }
