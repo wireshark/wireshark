@@ -1725,7 +1725,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		gint sub_value_offset;
 		gint comma_offset;
 		guchar c;
-		size_t value_len;
+		gint value_len;
 		char *value;
 		gboolean is_no_header_termination = FALSE;
 		proto_item *cause;
@@ -1778,7 +1778,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			/*
 			 * Fetch the value.
 			 */
-			value_len = line_end_offset - value_offset;
+			value_len = (gint) (line_end_offset - value_offset);
 			value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
 
 			if (hf_index == -1) {

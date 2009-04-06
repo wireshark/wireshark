@@ -1106,14 +1106,14 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 
 	/* Add a tree for this request */
 	ti = proto_tree_add_string(tree, hf_rtsp_request, tvb, offset,
-	                          next_line_offset - offset,
-	                          tvb_format_text(tvb, offset, next_line_offset - offset));
+	                          (gint) (next_line_offset - offset),
+	                          tvb_format_text(tvb, offset, (gint) (next_line_offset - offset)));
 	sub_tree = proto_item_add_subtree(ti, ett_rtsp_method);
 
 	
 	/* Add method name to tree */
 	proto_tree_add_string(sub_tree, hf_rtsp_method, tvb, offset,
-	                      strlen(rtsp_methods[ii]), rtsp_methods[ii]);
+	                      (gint) strlen(rtsp_methods[ii]), rtsp_methods[ii]);
 
 	/* URL */
 	url = data;
@@ -1135,7 +1135,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	
 	/* Add URL to tree */
 	proto_tree_add_string(sub_tree, hf_rtsp_url, tvb,
-	                      offset + (url_start - data), url - url_start, tmp_url);
+	                      offset + (gint) (url_start - data), (gint) (url - url_start), tmp_url);
 }
 
 /* Read first line of a reply message */
@@ -1152,8 +1152,8 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 
 	/* Add a tree for this request */
 	ti = proto_tree_add_string(tree, hf_rtsp_response, tvb, offset,
-	                           next_line_offset - offset,
-	                           tvb_format_text(tvb, offset, next_line_offset - offset));
+	                           (gint) (next_line_offset - offset),
+	                           tvb_format_text(tvb, offset, (gint) (next_line_offset - offset)));
 	sub_tree = proto_item_add_subtree(ti, ett_rtsp_method);
 
 
@@ -1174,8 +1174,8 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 	
 	/* Add field to tree */
 	proto_tree_add_uint(sub_tree, hf_rtsp_status, tvb,
-	                    offset + (status_start - data),
-	                    status - status_start, status_i);
+	                    offset + (gint) (status_start - data),
+	                    (gint) (status - status_start), status_i);
 }
 
 static void
