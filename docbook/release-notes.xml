@@ -51,6 +51,20 @@ Wireshark Info
 
         <listitem>
           <para>
+            The LDAP dissector could crash on Windows.
+            <!-- Fixed in trunk: r27478, 27482 -->
+            <!-- Fixed in trunk-1.0: r27973 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3262">Bug
+            3262</ulink>)
+          </para>
+          <para>Versions affected: 0.99.2 to 1.0.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             The Check Point High-Availability Protocol (CPHAP) dissector could crash.
             <!-- Fixed in trunk: r27083 -->
             <!-- Fixed in trunk-1.0: r27934 -->
@@ -86,6 +100,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          TShark fails to properly close capture files when opening new ones
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3172">Bug
+          3172</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           ANSI MAP digits type decode and bitmask corrections
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3233">Bug
           3233</ulink>)
@@ -96,7 +116,49 @@ Wireshark Info
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3236">Bug
           3236</ulink>)
         </para></listitem>
-	
+
+        <listitem><para>
+          BGP capability dissection failure
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3247">Bug
+          3247</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ANSI MAP fix for missing MEID/MSC ID number in RegNot
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3255">Bug
+          3255</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BACnet PrivateTransferError shows malformed packet
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3257">Bug
+          3257</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Windows silent installer is not that silent
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3260">Bug
+          3260</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash in ASN.1 dissector when using 'type table'
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3271">Bug
+          3271</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          802.11n SM Power save mode value 0x3 label is incorrect
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3276">Bug
+          3276</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          802.11 WME ie displayed incorrectly
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3284">Bug
+          3284</ulink>)
+        </para></listitem>
+
 	<listitem>
 	  "Copy as filter" from the packet list has been fixed.
 	</listitem>
@@ -126,13 +188,19 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 ACN,
+ANSI MAP,
+ASN.1
+BACnet,
+BGP,
 CPHAP,
 GSM MAP,
+IEEE 802.11,
 IPVS,
+LDAP,
 PROFINET,
 RTP,
 SNMP,
-WSP,
+WSP
 
     </para>
     </section>

@@ -240,4 +240,11 @@ gsize g_strlcpy(gchar *dest, const gchar *src, gsize dest_size);
 GByteArray *g_byte_array_sized_new(guint reserved_size);
 #endif
 
+/** Guarantee a non-null string.
+ *
+ * @param string The string to check
+ * @return A pointer 'string' if it's non-null, otherwise "[NULL]".
+ */
+const char * string_or_null(const char *string);
+
 #endif /* __STRUTIL_H__ */

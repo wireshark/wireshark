@@ -3110,7 +3110,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
         "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
          (byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
          (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
-         byte2 & 0x0f, byte2 & 0xf0 >> 4,
+         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
          tvb_get_letohs(tag_tvb, tag_off + 2));
       proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
         out_buff);
@@ -8597,7 +8597,7 @@ proto_register_ieee80211 (void)
     {0x00, "Static SM Power Save mode"},
     {0x01, "Dynamic SM Power Save mode"},
     {0x02, "Reserved"},
-    {0x03, "SM enabled"},
+    {0x03, "SM Power Save disabled"},
     {0x00, NULL}
   };
 

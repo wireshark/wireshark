@@ -2267,6 +2267,8 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	msid									MSID OPTIONAL,
 	-- M 6.5.2.bu
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	--
 	mscid									[21] IMPLICIT MSCID,
 	--(Serving MSC) M 6.5.2.82
 	qualificationInformationCode			[17] IMPLICIT QualificationInformationCode,
@@ -2289,6 +2291,8 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.77 d
 	msc-Address								[284] IMPLICIT MSC-Address OPTIONAL,
 	-- O 6.5.2.dnC l
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 2.152 t
 	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL, 
 	--(Serving MSC or VLR) O 6.5.2.93 e
 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
