@@ -1,7 +1,7 @@
 /******************************************************************************
 ** $Id$
 **
-** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
+** Copyright (C) 2006-2009 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
 ** 
 ** This program is free software; you can redistribute it and/or
@@ -35,67 +35,86 @@
 
 void dispatchService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int ServiceId);
 
-static int hf_opcua_transport_sig = -1;
-static int hf_opcua_transport_len = -1;
+static int hf_opcua_transport_type = -1;
+static int hf_opcua_transport_chunk = -1;
+static int hf_opcua_transport_size = -1;
 static int hf_opcua_transport_ver = -1;
-static int hf_opcua_transport_cid = -1;
+static int hf_opcua_transport_scid = -1;
 static int hf_opcua_transport_lifetime = -1;
-static int hf_opcua_transport_sbl = -1;
-static int hf_opcua_transport_rbl = -1;
+static int hf_opcua_transport_rbs = -1;
+static int hf_opcua_transport_sbs = -1;
+static int hf_opcua_transport_mms = -1;
+static int hf_opcua_transport_mcc = -1;
 static int hf_opcua_transport_endpoint = -1;
-static int hf_opcua_transport_rlifetime = -1;
-static int hf_opcua_transport_rsbl = -1;
-static int hf_opcua_transport_rrbl = -1;
-static int hf_opcua_transport_altendpoint = -1;
+static int hf_opcua_transport_error = -1;
+static int hf_opcua_transport_reason = -1;
+static int hf_opcua_transport_spu = -1;
+static int hf_opcua_transport_scert = -1;
+static int hf_opcua_transport_rcthumb = -1;
+static int hf_opcua_transport_seq = -1;
 static int hf_opcua_transport_rqid = -1;
-static int hf_opcua_transport_status = -1;
 extern gint ett_opcua_nodeid;
 
 static hf_register_info hf[] =
 {
-    { &hf_opcua_transport_sig,
+    { &hf_opcua_transport_type,
     /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
-    {  "Signature",           "transport.sig",      FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+    {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
     },
-    { &hf_opcua_transport_len,
-    {  "Message Length",      "transport.len",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_chunk,
+    {  "Chunk Type",          "transport.chunk",    FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+    },
+    { &hf_opcua_transport_size,
+    {  "Message Size",        "transport.size",     FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
     { &hf_opcua_transport_ver,
     {  "Version",             "transport.ver",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_cid,
-    {  "ConnectionId",        "transport.cid",      FT_GUID,   BASE_NONE, NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_scid,
+    {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    "",    HFILL }
     },
     { &hf_opcua_transport_lifetime,
     {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_sbl,
-    {  "SendBufferLength",    "transport.sbl",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_rbs,
+    {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_rbl,
-    {  "ReceiveBufferLength", "transport.rbl",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_sbs,
+    {  "SendBufferSize",      "transport.sbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    },
+    { &hf_opcua_transport_mms,
+    {  "MaxMessageSize",      "transport.mms",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    },
+    { &hf_opcua_transport_mcc,
+    {  "MaxChunkCount",       "transport.mcc",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
     { &hf_opcua_transport_endpoint,
-    {  "EndPoint",            "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
+    {  "EndPointUrl",         "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_rlifetime,
-    {  "Revised Lifetime",    "transport.rlifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_error,
+    {  "Error",               "transport.error",    FT_UINT32, BASE_HEX,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_rsbl,
-    {  "Revised SendBufferLength", "transport.rsbl", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_reason,
+    {  "Reason",              "transport.reason",   FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_rrbl,
-    {  "Revised ReceiveBufferLength", "transport.rrbl", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+/*    { &hf_opcua_transport_spul,
+    {  "SecurityPolicyUriLength", "transport.spul", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    },*/
+    { &hf_opcua_transport_spu,
+    {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_altendpoint,
-    {  "Alternate EndPoint",  "transport.altendpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
+    { &hf_opcua_transport_scert,
+    {  "SenderCertificate",   "security.scert",    FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+    },
+    { &hf_opcua_transport_rcthumb,
+    {  "ReceiverCertificateThumbprint", "security.rcthumb", FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+    },
+    { &hf_opcua_transport_seq,
+    {  "SequenceNumber", "security.seq",           FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
     { &hf_opcua_transport_rqid,
-    {  "RequestId",           "transport.rqid",     FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    {  "RequestId", "security.rqid",                FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_transport_status,
-    {  "StatusCode",          "transport.status",   FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    }
 };
 
 /** subtree types */
@@ -134,45 +153,49 @@ void addString(proto_tree *tree,
 /* Transport Layer: message parsers */
 void parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
-    proto_tree_add_item(tree, hf_opcua_transport_lifetime, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_sbl, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rbl, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_endpoint);
 }
 
 void parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
-    proto_tree_add_item(tree, hf_opcua_transport_rlifetime, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rsbl, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rrbl, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    parseString(tree, tvb, pOffset, hf_opcua_transport_altendpoint);
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
 }
 
-void parseDisconnect(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+void parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    parseString(tree, tvb, pOffset, hf_opcua_transport_reason);
 }
 
-void parseData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+void parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_item *ti;
     proto_tree *encobj_tree;
     proto_tree *nodeid_tree;
     int ServiceId = 0;
 
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
-    proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
 
     /* message data contains the security layer */
     parseSecurityLayer(tree, tvb, pOffset);
@@ -188,24 +211,45 @@ void parseData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     /* add nodeid subtree */
     ti = proto_tree_add_text(encobj_tree, tvb, 0, -1, "TypeId : ExpandedNodeId");
     nodeid_tree = proto_item_add_subtree(ti, ett_opcua_nodeid);
-    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId") - 1;
+    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
 
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
 }
 
-void parseAbort(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+void parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
+    proto_item *ti;
+    proto_tree *encobj_tree;
+    proto_tree *nodeid_tree;
+    int ServiceId = 0;
+    
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    parseString(tree, tvb, pOffset, hf_opcua_transport_spu);
+    parseByteString(tree, tvb, pOffset, hf_opcua_transport_scert);
+    parseByteString(tree, tvb, pOffset, hf_opcua_transport_rcthumb);
+    proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    
+    /* add encodeable object subtree */
+    ti = proto_tree_add_text(tree, tvb, 0, -1, "Message : Encodeable Object");
+    encobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
+
+    /* add nodeid subtree */
+    ti = proto_tree_add_text(encobj_tree, tvb, 0, -1, "TypeId : ExpandedNodeId");
+    nodeid_tree = proto_item_add_subtree(ti, ett_opcua_nodeid);
+    ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
+
+    dispatchService(encobj_tree, tvb, pOffset, ServiceId);
 }
 
-void parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+void parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    addString(tree, hf_opcua_transport_sig, tvb, *pOffset, 4, tvb->real_data); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_len, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_cid, tvb, *pOffset, 16, TRUE); *pOffset+=16;
-    proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_status, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    addString(tree, hf_opcua_transport_type, tvb, *pOffset, 3, tvb->real_data); *pOffset+=3;
+    addString(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, &tvb->real_data[*pOffset]); *pOffset+=1;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
 }
+

@@ -1,7 +1,7 @@
 /******************************************************************************
 ** $Id$
 **
-** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
+** Copyright (C) 2006-2009 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
 ** 
 ** This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@
 /* Transport Layer: message parsers */
 void parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseDisconnect(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseAbort(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+void parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+void parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+void parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void registerTransportLayerTypes(int proto);
 

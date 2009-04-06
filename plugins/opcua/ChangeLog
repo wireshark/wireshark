@@ -6,3 +6,16 @@ Version 0.0.1:
 
 * initial implementation without security
 
+Version 1.0.0:
+
+* released implementation that works for OPC UA V1.0.
+  - The protocol is not compatible to the previous version.
+    Transport-layer, security-layer as well as the application-layer
+	data types have changed.
+  - This implementation is compliant to
+    "OPC UA Part 6 - Mappings 1.00 Specification"
+  - The security-layer is always present, but this plugin can only
+    decode communication with security policy
+	http://opcfoundation.org/UA/SecurityPolicy#None, which means
+	that neither encryption nor signing is active.
+

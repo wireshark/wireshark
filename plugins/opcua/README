@@ -50,9 +50,6 @@ For more information see http://www.opcfoundation.org
 Known limitations:
 ==================
 
-* In this version the security layer contains only dummy data.
-  The plugin decodes the transport layer, skips the security dummy data
-  and decodes the application layer.
-  Security implementation will follow when it has been implemented in the
-  Opc Ua stack. 
+* Only the security policy http://opcfoundation.org/UA/SecurityPolicy#None is supported,
+  which means the encryption and signing is turned off.
   

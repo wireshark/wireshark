@@ -46,10 +46,13 @@
 #define LOCALIZEDTEXT_ENCODINGBYTE_LOCALE                     0x01
 #define LOCALIZEDTEXT_ENCODINGBYTE_TEXT                       0x02
 #define NODEID_URIMASK                                        0x80
+#define NODEID_SERVERINDEXFLAG                                0x40
 #define DATAVALUE_ENCODINGBYTE_VALUE                          0x01
 #define DATAVALUE_ENCODINGBYTE_STATUSCODE                     0x02
 #define DATAVALUE_ENCODINGBYTE_SOURCETIMESTAMP                0x04
 #define DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP                0x08
+#define DATAVALUE_ENCODINGBYTE_SOURCEPICOSECONDS              0x10
+#define DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS              0x20
 #define EXTOBJ_ENCODINGMASK_BINBODY_FLAG                      0x01
 #define EXTOBJ_ENCODINGMASK_XMLBODY_FLAG                      0x02
 
@@ -65,14 +68,20 @@ static int hf_opcua_datavalue_mask_valueflag = -1;
 static int hf_opcua_datavalue_mask_statuscodeflag = -1;
 static int hf_opcua_datavalue_mask_sourcetimestampflag = -1;
 static int hf_opcua_datavalue_mask_servertimestampflag = -1;
+static int hf_opcua_datavalue_mask_sourcepicoseconds = -1;
+static int hf_opcua_datavalue_mask_serverpicoseconds = -1;
 static int hf_opcua_nodeid_encodingmask = -1;
 static int hf_opcua_variant_encodingmask = -1;
 static int hf_opcua_nodeid_nsid = -1;
 static int hf_opcua_nodeid_numeric = -1;
-static int hf_opcua_Locale = -1;
-static int hf_opcua_Text = -1;
+static int hf_opcua_localizedtext_locale = -1;
+static int hf_opcua_localizedtext_text = -1;
+static int hf_opcua_qualifiedname_id = -1;
+static int hf_opcua_qualifiedname_name = -1;
 static int hf_opcua_SourceTimestamp = -1;
+static int hf_opcua_SourcePicoseconds = -1;
 static int hf_opcua_ServerTimestamp = -1;
+static int hf_opcua_ServerPicoseconds = -1;
 static int hf_opcua_diag_symbolicid = -1;
 static int hf_opcua_diag_namespace = -1;
 static int hf_opcua_diag_localizedtext = -1;
@@ -80,6 +89,9 @@ static int hf_opcua_diag_additionalinfo = -1;
 static int hf_opcua_diag_innerstatuscode = -1;
 static int hf_opcua_extobj_mask_binbodyflag = -1;
 static int hf_opcua_extobj_mask_xmlbodyflag = -1;
+static int hf_opcua_ArraySize = -1;
+static int hf_opcua_Uri = -1;
+static int hf_opcua_ServerIndex = -1;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
@@ -117,12 +129,12 @@ typedef enum _OpcUa_BuiltInType
     OpcUaType_NodeId = 17,
     OpcUaType_ExpandedNodeId = 18,
     OpcUaType_StatusCode = 19,
-    OpcUaType_DiagnosticInfo = 20,
-    OpcUaType_QualifiedName = 21,
-    OpcUaType_LocalizedText = 22,
-    OpcUaType_ExtensionObject = 23,
-    OpcUaType_DataValue = 24,
-    OpcUaType_Variant = 25  
+    OpcUaType_QualifiedName = 20,
+    OpcUaType_LocalizedText = 21,
+    OpcUaType_ExtensionObject = 22,
+    OpcUaType_DataValue = 23,
+    OpcUaType_Variant = 24,
+    OpcUaType_DiagnosticInfo = 25
 }
 OpcUa_BuiltInType;
 
@@ -182,6 +194,7 @@ static const value_string g_VariantTypes[] = {
     { 0x80+25, "Array of Variant" },
     { 0, NULL }
 };
+#define VARIANT_ARRAYDIMENSIONS 0x40
 #define VARIANT_ARRAYMASK 0x80
 
 /* trees */
@@ -241,27 +254,36 @@ static hf_register_info hf[] =
     {  "NodeId EncodingMask",        "application.nodeid.encodingmask", FT_UINT8,   BASE_HEX,  VALS(g_nodeidmasks), 0x0,    "",    HFILL }
     },
     { &hf_opcua_nodeid_nsid,
-    {  "NodeId Namespace Id",        "application.nodeid.nsid",         FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
+    {  "NodeId Namespace Id",        "application.nodeid.nsid",         FT_UINT16,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
     { &hf_opcua_nodeid_numeric,
     {  "NodeId Identifier Numeric",  "application.nodeid.numeric",      FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
     },
-    { &hf_opcua_Locale, { "Locale", "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
-    { &hf_opcua_Text,   { "Text",   "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_localizedtext_locale, { "Locale", "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_localizedtext_text,   { "Text",   "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_qualifiedname_id,     { "Id",     "", FT_UINT16, BASE_DEC,  NULL, 0x0, "", HFILL } },
+    { &hf_opcua_qualifiedname_name,   { "Name",   "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
     { &hf_opcua_datavalue_mask_valueflag,           {  "has value", "",            FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_VALUE, "", HFILL } },
     { &hf_opcua_datavalue_mask_statuscodeflag,      {  "has statuscode", "",       FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_STATUSCODE, "", HFILL } },
     { &hf_opcua_datavalue_mask_sourcetimestampflag, {  "has source timestamp", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCETIMESTAMP, "", HFILL } },
     { &hf_opcua_datavalue_mask_servertimestampflag, {  "has server timestamp", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP, "", HFILL } },
+    { &hf_opcua_datavalue_mask_sourcepicoseconds, {  "has source picoseconds", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SOURCEPICOSECONDS, "", HFILL } },
+    { &hf_opcua_datavalue_mask_serverpicoseconds, {  "has server picoseconds", "", FT_BOOLEAN, 8, NULL, DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS, "", HFILL } },
     { &hf_opcua_variant_encodingmask, { "Variant Type", "", FT_UINT8, BASE_HEX, VALS(g_VariantTypes), 0x0, "", HFILL } },
     { &hf_opcua_SourceTimestamp, { "SourceTimestamp", "", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_SourcePicoseconds, { "SourcePicoseconds", "", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_ServerTimestamp, { "ServerTimestamp", "", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_ServerPicoseconds, { "ServerPicoseconds", "", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_symbolicid,      { "SymbolicId", "",       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_namespace,       { "Namespace", "",       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_localizedtext,   { "LocaliezdText", "",   FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_additionalinfo,  { "AdditionalInfo", "",  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_innerstatuscode, { "InnerStatusCode", "", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
     { &hf_opcua_extobj_mask_binbodyflag, {  "has binary body", "", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_BINBODY_FLAG, "", HFILL } },
-    { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, "", HFILL } }
+    { &hf_opcua_extobj_mask_xmlbodyflag, {  "has xml body",    "", FT_BOOLEAN, 8, NULL, EXTOBJ_ENCODINGMASK_XMLBODY_FLAG, "", HFILL } },
+    { &hf_opcua_ArraySize, { "ArraySize", "", FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_Uri, { "Uri", "", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_ServerIndex, { "ServerIndex", "", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } }
 };
 
 void registerSimpleTypes(int proto)
@@ -375,12 +397,12 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
 
     if (EncodingMask & LOCALIZEDTEXT_ENCODINGBYTE_LOCALE)
     {
-        parseString(subtree, tvb, &iOffset, hf_opcua_Locale);
+        parseString(subtree, tvb, &iOffset, hf_opcua_localizedtext_locale);
     }
 
     if (EncodingMask & LOCALIZEDTEXT_ENCODINGBYTE_TEXT)
     {
-        parseString(subtree, tvb, &iOffset, hf_opcua_Text);
+        parseString(subtree, tvb, &iOffset, hf_opcua_localizedtext_text);
     }
 
     *pOffset = iOffset;
@@ -486,8 +508,8 @@ void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
     proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: QualifiedName", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_qualifiedname);
 
-    parseInt32(subtree, tvb, pOffset, hf_opcua_Id);
-    parseString(subtree, tvb, pOffset, hf_opcua_Name);
+    parseUInt16(subtree, tvb, pOffset, hf_opcua_qualifiedname_id);
+    parseString(subtree, tvb, pOffset, hf_opcua_qualifiedname_name);
 }
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
@@ -505,6 +527,8 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFiel
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, TRUE);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, TRUE);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_servertimestampflag, tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcepicoseconds,   tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_serverpicoseconds,   tvb, iOffset, 1, TRUE);
     iOffset++;
 
     if (EncodingMask & DATAVALUE_ENCODINGBYTE_VALUE)
@@ -519,9 +543,17 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFiel
     {
         parseDateTime(subtree, tvb, &iOffset, hf_opcua_SourceTimestamp);
     }
+    if (EncodingMask & DATAVALUE_ENCODINGBYTE_SOURCEPICOSECONDS)
+    {
+        parseUInt16(subtree, tvb, &iOffset, hf_opcua_SourcePicoseconds);
+    }
     if (EncodingMask & DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP)
     {
         parseDateTime(subtree, tvb, &iOffset, hf_opcua_ServerTimestamp);
+    }
+    if (EncodingMask & DATAVALUE_ENCODINGBYTE_SERVERPICOSECONDS)
+    {
+        parseUInt16(subtree, tvb, &iOffset, hf_opcua_ServerPicoseconds);
     }
 
     *pOffset = iOffset;
@@ -533,16 +565,17 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_variant);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
+    gint32  ArrayLength;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, TRUE);
     iOffset++;
+    ArrayLength = tvb_get_letohl(tvb, iOffset);
 
     if (EncodingMask & VARIANT_ARRAYMASK)
     {
-        EncodingMask &= ~VARIANT_ARRAYMASK;
-
-        switch(EncodingMask)
+        /* type is encoded in bits 0-5 */
+        switch(EncodingMask & 0x3f)
         {
         case OpcUaType_Null: break;
         case OpcUaType_Boolean: parseArraySimple(subtree, tvb, &iOffset, hf_opcua_Boolean, parseBoolean); break;
@@ -574,7 +607,8 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
     }
     else
     {
-        switch(EncodingMask)
+        /* type is encoded in bits 0-5 */
+        switch(EncodingMask & 0x3f)
         {
         case OpcUaType_Null: break;
         case OpcUaType_Boolean: parseBoolean(subtree, tvb, &iOffset, hf_opcua_Boolean); break;
@@ -602,6 +636,18 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
         case OpcUaType_ExtensionObject: parseExtensionObject(subtree, tvb, &iOffset, "Value"); break;
         case OpcUaType_DataValue: parseDataValue(subtree, tvb, &iOffset, "Value"); break;
         case OpcUaType_Variant: parseVariant(subtree, tvb, &iOffset, "Value"); break;
+        }
+    }
+    
+    if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
+    {
+        proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
+        proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
+        int i;
+
+        for (i=0; i<ArrayLength; i++)
+        {
+            parseInt32(subtree, tvb, pOffset, hf_opcua_Int32);
         }
     }
 
@@ -711,23 +757,22 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldNa
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
-        iOffset+=4;
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, TRUE);
         iOffset+=4;
         break;
     case 0x03: /* string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
-        iOffset+=4;
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         parseString(subtree, tvb, &iOffset, hf_opcua_String);
         break;
-    case 0x04: /* uri */
-        parseString(subtree, tvb, &iOffset, hf_opcua_Uri);
-        break;
-    case 0x05: /* guid */
+    case 0x04: /* guid */
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
         break;
-    case 0x06: /* byte string */
+    case 0x05: /* byte string */
         proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
         iOffset+=4;
         parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
@@ -792,25 +837,24 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
-        iOffset+=4;
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, TRUE);
         iOffset+=4;
         break;
     case 0x03: /* string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
-        iOffset+=4;
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         parseString(subtree, tvb, &iOffset, hf_opcua_String);
         break;
-    case 0x04: /* uri */
-        parseString(subtree, tvb, &iOffset, hf_opcua_Uri);
-        break;
-    case 0x05: /* guid */
+    case 0x04: /* guid */
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
         break;
-    case 0x06: /* byte string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
-        iOffset+=4;
+    case 0x05: /* byte string */
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        iOffset+=2;
         parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
         break;
     };
@@ -818,6 +862,10 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
     if (EncodingMask & NODEID_URIMASK)
     {
         parseString(subtree, tvb, &iOffset, hf_opcua_Uri);
+    }
+    if (EncodingMask & NODEID_SERVERINDEXFLAG)
+    {
+        parseUInt32(subtree, tvb, &iOffset, hf_opcua_ServerIndex);
     }
 
     *pOffset = iOffset;
