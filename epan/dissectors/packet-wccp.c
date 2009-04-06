@@ -64,6 +64,9 @@ static gint ett_capability_element = -1;
 static gint ett_capability_forwarding_method = -1;
 static gint ett_capability_assignment_method = -1;
 static gint ett_capability_return_method = -1;
+static gint ett_alt_assignment_info = -1;
+static gint ett_mv_set_element = -1;
+static gint ett_value_element = -1;
 static gint ett_unknown_info = -1;
 
 /*
@@ -137,6 +140,8 @@ static const value_string info_type_vals[] = {
 	{ WCCP2_REDIRECT_ASSIGNMENT, "Assignment Info" },
 	{ WCCP2_QUERY_INFO,          "Query Info" },
 	{ WCCP2_CAPABILITIES_INFO,   "Capabilities Info" },
+	{ WCCP2_ALT_ASSIGNMENT,      "Alternate Assignment" },
+	{ WCCP2_ASSIGN_MAP,          "Assignment Map" },
 	{ WCCP2_COMMAND_EXTENSION,   "Command Extension" },
 	{ 0,                         NULL }
 };
@@ -184,6 +189,8 @@ static gboolean dissect_wccp2_capability_info(tvbuff_t *tvb, int offset,
 static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
     guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree);
+static gboolean dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset,
+    int length, proto_tree *info_tree);
 
 static int
 dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -473,6 +480,13 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 			dissector = dissect_wccp2_capability_info;
 			break;
 
+		case WCCP2_ALT_ASSIGNMENT:
+			ett = ett_alt_assignment_info;
+			dissector = dissect_wccp2_alt_assignment_info;
+			break;
+
+		case WCCP2_ASSIGN_MAP:
+		case WCCP2_COMMAND_EXTENSION:
 		default:
 			ett = ett_unknown_info;
 			dissector = NULL;
@@ -1250,6 +1264,139 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	}
 }
 
+#define ALT_ASSIGNMENT_INFO_MIN_LEN    (4+4)
+
+#define WCCP2_HASH_ASSIGNMENT_TYPE     0x0000
+#define WCCP2_MASK_ASSIGNMENT_TYPE     0x0001
+
+static const value_string assignment_type_vals[] = {
+	{ WCCP2_HASH_ASSIGNMENT_TYPE, "Hash" },
+	{ WCCP2_MASK_ASSIGNMENT_TYPE, "Mask" },
+	{ 0,                          NULL }
+};
+
+static void
+dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int index, proto_tree *info_tree)
+{
+	proto_item *tl;
+	proto_tree *element_tree;
+
+	tl = proto_tree_add_text(info_tree, tvb, offset, 16, "Value Element(%u)", index);
+	element_tree = proto_item_add_subtree(tl, ett_value_element);
+
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address value: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address value: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port value: %u", tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port value: %u", tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Web Cache Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+}
+
+static guint
+dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int index, proto_tree *info_tree)
+{
+	proto_item *tl;
+	proto_tree *element_tree;
+	guint num_of_val_elements;
+	guint i;
+
+	tl = proto_tree_add_text(info_tree, tvb, offset, 0,
+	    "Mask/Value Set Element(%d)", index);
+	element_tree = proto_item_add_subtree(tl, ett_mv_set_element);
+
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address Mask: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address Mask: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	offset += 4;
+	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port Mask: %04x", tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	proto_tree_add_text(element_tree, tvb, offset, 2, "Destination Port Mask: %04x", tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Number of Value Elements: %u", tvb_get_ntohl(tvb, offset));
+	num_of_val_elements = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	for (i = 0; i < num_of_val_elements; i++)
+	{
+		dissect_wccp2_value_element(tvb, offset, i, element_tree);
+		offset += 16;
+	}
+
+	proto_item_set_len(tl, 16+i*16);
+
+	return 16+index*16;
+}
+
+static gboolean
+dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset, int length,
+    proto_tree *info_tree)
+{
+	guint16 assignment_type;
+	guint16 assignment_length;
+
+	if (length < ALT_ASSIGNMENT_INFO_MIN_LEN) {
+		proto_tree_add_text(info_tree, tvb, offset, 0,
+		    "Item length is %u, should be >= %u", length,
+		    ALT_ASSIGNMENT_INFO_MIN_LEN);
+		return TRUE;
+	}
+
+	assignment_type = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 2,
+	    "Assignment type: %s", val_to_str(assignment_type,
+	    assignment_type_vals, "Unknown assignment type (%u)"));
+	offset += 2;
+
+	assignment_length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(info_tree, tvb, offset, 2,
+	    "Assignment length: %u", assignment_length);
+	offset += 2;
+
+	switch (assignment_type) {
+	case WCCP2_HASH_ASSIGNMENT_TYPE:
+		dissect_wccp2_assignment_info(tvb, offset, assignment_length, info_tree);
+		break;
+
+	case WCCP2_MASK_ASSIGNMENT_TYPE:
+	{
+		guint num_of_rtr;
+		guint num_of_elem;
+		guint i;
+
+		dissect_wccp2_assignment_key(tvb, offset, info_tree);
+		offset += 8;
+
+		num_of_rtr = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_text(info_tree, tvb, offset, 4, "Number of routers: %u", num_of_rtr);
+		offset += 4;
+		for (i = 0; i < num_of_rtr; i++)
+		{
+			dissect_wccp2_router_assignment_element(tvb, offset, info_tree);
+			offset += 12;
+		}
+
+		num_of_elem = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_text(info_tree, tvb, offset, 4, "Number of elements: %u", num_of_elem);
+		offset += 4;
+		for (i = 0; i < num_of_elem; i++)
+		{
+			offset += dissect_wccp2_mask_value_set_element(tvb, offset, i, info_tree);
+		}
+		break;
+	}
+
+	default:
+		break;
+	}
+
+	return TRUE;
+}
+
 void
 proto_register_wccp(void)
 {
@@ -1302,6 +1449,9 @@ proto_register_wccp(void)
 		&ett_capability_forwarding_method,
 		&ett_capability_assignment_method,
 		&ett_capability_return_method,
+		&ett_mv_set_element,
+		&ett_value_element,
+		&ett_alt_assignment_info,
 		&ett_unknown_info,
 	};
 
