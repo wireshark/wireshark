@@ -1567,7 +1567,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_item *tree_item;
 
         jxta_msg_tree_item = proto_tree_add_protocol_format(tree, proto_message_jxta, tvb, tree_offset, -1,
-                                                            "JXTA Message, %s -> %s", src_addr, dst_addr);
+                                                            "JXTA Message, %s -> %s", src_addr->str, dst_addr->str);
 
         jxta_msg_tree = proto_item_add_subtree(jxta_msg_tree_item, ett_jxta_msg);
 
