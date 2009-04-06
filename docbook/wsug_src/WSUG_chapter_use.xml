@@ -1612,6 +1612,11 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
+		<entry><command>LTE MAC</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatLTEMACTraffic"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>MTP3</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>

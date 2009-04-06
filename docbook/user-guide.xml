@@ -250,6 +250,7 @@ FILE SECTION
   <!ENTITY WiresharkStatsConversations SYSTEM "./wsug_graphics/ws-stats-conversations.png" NDATA PNG>
   <!ENTITY WiresharkStatsIOGraphs SYSTEM "./wsug_graphics/ws-stats-iographs.png" NDATA PNG>
   <!ENTITY WiresharkStatsWLANTraffic SYSTEM "./wsug_graphics/ws-stats-wlan-traffic.png" NDATA PNG>
+  <!ENTITY WiresharkStatsLTEMACTraffic SYSTEM "./wsug_graphics/ws-stats-lte-mac-traffic.png" NDATA PNG>
   <!ENTITY WiresharkStatsSrtDcerpcFilter SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc-filter.png" NDATA PNG>
   <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 

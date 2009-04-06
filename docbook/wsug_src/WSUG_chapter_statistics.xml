@@ -524,6 +524,25 @@
     </tip>
   </section>
 
+  <section id="ChStatLTEMACTraffic">
+    <title>LTE MAC Traffic Statistics</title>
+    <para>
+      Statistics of the captured LTE MAC traffic.  This window will summarize the
+      LTE MAC traffic found in the capture.
+    </para>
+
+    <figure><title>The "LTE MAC Traffic Statistics" window</title>
+    <graphic entityref="WiresharkStatsLTEMACTraffic" format="PNG"/>
+    </figure>
+
+    <para>
+      The top pane shows statistics for common channels.
+      Each row in the middle pane shows statistical highlights for exactly one UE/C-RNTI.
+      In the lower pane, you can see the for the currently selected UE/C-RNTI
+      the traffic broken down by individual channel.
+    </para>
+  </section>
+
   <section id="ChStatSRT">
     <title>Service Response Time</title>
     <para>
@@ -545,6 +564,9 @@
 	</listitem>
 	<listitem>
 	<para><command>LDAP</command></para>
+	</listitem>
+	<listitem>
+	<para><command>LTE MAC</command></para>
 	</listitem>
 	<listitem>
 	<para><command>MGCP</command></para>
