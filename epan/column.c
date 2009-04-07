@@ -612,7 +612,7 @@ get_column_longest_string(gint format)
 gint
 get_column_char_width(gint format)
 {
-  return strlen(get_column_longest_string(format));
+  return (gint)strlen(get_column_longest_string(format));
 }
 
 gint

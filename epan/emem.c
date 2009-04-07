@@ -328,9 +328,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
 		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
-		npc->amount_free_init = prot2 - prot1 - pagesize;
+		npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
 		npc->amount_free = npc->amount_free_init;
-		npc->free_offset_init = (prot1 - npc->buf) + pagesize;
+		npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;
 		npc->free_offset = npc->free_offset_init;
 
 #elif defined(USE_GUARD_PAGES)
@@ -418,8 +418,8 @@ ep_alloc(size_t size)
 
 	buf = free_list->buf + free_list->free_offset;
 
-	free_list->amount_free -= size;
-	free_list->free_offset += size;
+	free_list->amount_free -= (unsigned int) size;
+	free_list->free_offset += (unsigned int) size;
 
 #ifdef DEBUG_USE_CANARIES
 	cptr = (char *)buf + size - pad;
@@ -492,8 +492,8 @@ se_alloc(size_t size)
 
 	buf = free_list->buf + free_list->free_offset;
 
-	free_list->amount_free -= size;
-	free_list->free_offset += size;
+	free_list->amount_free -= (unsigned int) size;
+	free_list->free_offset += (unsigned int) size;
 
 #ifdef DEBUG_USE_CANARIES
 	cptr = (char *)buf + size - pad;
@@ -524,7 +524,7 @@ void* ep_alloc0(size_t size) {
 }
 
 gchar* ep_strdup(const gchar* src) {
-	guint len = strlen(src);
+	guint len = (guint) strlen(src);
 	gchar* dst;
 
 	dst = strncpy(ep_alloc(len+1), src, len);
@@ -552,7 +552,7 @@ void* ep_memdup(const void* src, size_t len) {
 
 gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) {
 	va_list ap2;
-	guint len;
+	gsize len;
 	gchar* dst;
 
 	G_VA_COPY(ap2, ap);
@@ -560,7 +560,7 @@ gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) {
 	len = g_printf_string_upper_bound(fmt, ap);
 
 	dst = ep_alloc(len+1);
-	g_vsnprintf (dst, len, fmt, ap2);
+	g_vsnprintf (dst, (gulong) len, fmt, ap2);
 	va_end(ap2);
 
 	return dst;
@@ -593,8 +593,8 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 		return NULL;
 
 	s = splitted = ep_strdup(string);
-	str_len = strlen(splitted);
-	sep_len = strlen(sep);
+	str_len = (guint) strlen(splitted);
+	sep_len = (guint) strlen(sep);
 
 	if (max_tokens < 1) max_tokens = INT_MAX;
 
@@ -668,7 +668,7 @@ gchar* se_strdup(const gchar* src) {
 		return "<NULL>";
 	}
 
-	len = strlen(src);
+	len = (guint) strlen(src);
 	dst = strncpy(se_alloc(len+1), src, len);
 
 	dst[len] = '\0';
@@ -694,7 +694,7 @@ void* se_memdup(const void* src, size_t len) {
 
 gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) {
 	va_list ap2;
-	guint len;
+	gsize len;
 	gchar* dst;
 
 	G_VA_COPY(ap2, ap);
@@ -702,7 +702,7 @@ gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) {
 	len = g_printf_string_upper_bound(fmt, ap);
 
 	dst = se_alloc(len+1);
-	g_vsnprintf (dst, len, fmt, ap2);
+	g_vsnprintf (dst, (gulong) len, fmt, ap2);
 	va_end(ap2);
 
 	return dst;
@@ -1473,7 +1473,7 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 {
 	emem_tree_key_t key[2];
 	guint32 *aligned=NULL;
-	guint32 len = strlen(k);
+	guint32 len = (guint32) strlen(k);
 	guint32 div = (len+3)/4+1;
 	guint32 i;
 	guint32 tmp;
@@ -1525,7 +1525,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 {
 	emem_tree_key_t key[2];
 	guint32 *aligned=NULL;
-	guint32 len = strlen(k);
+	guint32 len = (guint) strlen(k);
 	guint32 div = (len+3)/4+1;
 	guint32 i;
 	guint32 tmp;
@@ -1773,7 +1773,7 @@ ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 		add_len = strbuf->alloc_len - strbuf->len;
 	}
 
-	full_len = g_vsnprintf(&strbuf->str[strbuf->len], add_len, format, ap2);
+	full_len = g_vsnprintf(&strbuf->str[strbuf->len], (gulong) add_len, format, ap2);
 	strbuf->len += MIN(add_len, full_len);
 	va_end(ap2);
 

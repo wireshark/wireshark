@@ -128,7 +128,7 @@ col_set_fence(column_info *cinfo, gint el)
 
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
+      cinfo->col_fence[i] = (int)strlen(cinfo->col_data[i]);
     }
   }
 }
@@ -241,7 +241,7 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_list ap;
   int     i;
   int     fence;
-  size_t  max_len;
+  int     max_len;
 
   if (!check_col(cinfo, el))
     return;
@@ -359,8 +359,8 @@ static void
 col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
 			  const gchar *format, va_list ap)
 {
-  int     i;
-  size_t  len, max_len, sep_len;
+  int  i;
+  int  len, max_len, sep_len;
 
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
@@ -370,7 +370,7 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
   if (separator == NULL)
     sep_len = 0;
   else
-    sep_len = strlen(separator);
+    sep_len = (int) strlen(separator);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
@@ -378,7 +378,7 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
        */
       COL_CHECK_APPEND(cinfo, i, max_len);
 
-      len = strlen(cinfo->col_buf[i]);
+      len = (int) strlen(cinfo->col_buf[i]);
 
       /*
        * If we have a separator, append it if the column isn't empty.
@@ -439,7 +439,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   int         i;
   char        orig_buf[COL_BUF_MAX_LEN];
   const char *orig;
-  size_t      max_len;
+  int         max_len;
 
   if (!check_col(cinfo, el))
     return;
@@ -466,7 +466,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
        * Move the fence, unless it's at the beginning of the string.
        */
       if (cinfo->col_fence[i] > 0)
-        cinfo->col_fence[i] += strlen(cinfo->col_buf[i]);
+        cinfo->col_fence[i] += (int) strlen(cinfo->col_buf[i]);
 
       g_strlcat(cinfo->col_buf[i], orig, max_len);
       cinfo->col_data[i] = cinfo->col_buf[i];
@@ -481,7 +481,7 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   int         i;
   char        orig_buf[COL_BUF_MAX_LEN];
   const char *orig;
-  size_t      max_len;
+  int         max_len;
 
   if (!check_col(cinfo, el))
     return;
@@ -509,9 +509,9 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
        * end of the prepended data.
        */
       if (cinfo->col_fence[i] > 0) {
-        cinfo->col_fence[i] += strlen(cinfo->col_buf[i]);
+        cinfo->col_fence[i] += (int) strlen(cinfo->col_buf[i]);
       } else {
-        cinfo->col_fence[i]  = strlen(cinfo->col_buf[i]);
+        cinfo->col_fence[i]  = (int) strlen(cinfo->col_buf[i]);
       }
       g_strlcat(cinfo->col_buf[i], orig, max_len);
       cinfo->col_data[i] = cinfo->col_buf[i];

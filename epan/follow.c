@@ -384,7 +384,7 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
        */
       dummy_str = g_strdup_printf("[%d bytes missing in capture file]",
                         (int)(lowest_seq - seq[index]) );
-      sc->dlen = strlen(dummy_str);
+      sc->dlen = (guint32) strlen(dummy_str);
       write_packet_data( index, sc, dummy_str );
       g_free(dummy_str);
       seq[index] = lowest_seq;
