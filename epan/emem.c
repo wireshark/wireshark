@@ -1723,8 +1723,10 @@ ep_strbuf_new(const gchar *init) {
 	emem_strbuf_t *strbuf;
 
 	strbuf = ep_strbuf_sized_new(next_size(0, init?strlen(init):0, 0), 0);
-
-	g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+	if (init)
+		g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+	else
+		g_strlcpy(strbuf->str, "", strbuf->alloc_len);
 	return strbuf;
 }
 
