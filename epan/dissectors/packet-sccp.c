@@ -131,44 +131,44 @@ const value_string sccp_message_type_acro_values[] = {
 #define PARAMETER_SEGMENTING_REASSEMBLING	0x06
 #define PARAMETER_RECEIVE_SEQUENCE_NUMBER	0x07
 #define PARAMETER_SEQUENCING_SEGMENTING		0x08
-#define PARAMETER_CREDIT					0x09
-#define PARAMETER_RELEASE_CAUSE				0x0a
-#define PARAMETER_RETURN_CAUSE				0x0b
-#define PARAMETER_RESET_CAUSE				0x0c
-#define PARAMETER_ERROR_CAUSE				0x0d
-#define PARAMETER_REFUSAL_CAUSE				0x0e
-#define PARAMETER_DATA						0x0f
-#define PARAMETER_SEGMENTATION				0x10
-#define PARAMETER_HOP_COUNTER				0x11
+#define PARAMETER_CREDIT			0x09
+#define PARAMETER_RELEASE_CAUSE			0x0a
+#define PARAMETER_RETURN_CAUSE			0x0b
+#define PARAMETER_RESET_CAUSE			0x0c
+#define PARAMETER_ERROR_CAUSE			0x0d
+#define PARAMETER_REFUSAL_CAUSE			0x0e
+#define PARAMETER_DATA				0x0f
+#define PARAMETER_SEGMENTATION			0x10
+#define PARAMETER_HOP_COUNTER			0x11
 /* The below 2 are ITU only */
-#define PARAMETER_IMPORTANCE				0x12
-#define PARAMETER_LONG_DATA					0x13
+#define PARAMETER_IMPORTANCE			0x12
+#define PARAMETER_LONG_DATA			0x13
 /* ISNI is ANSI only */
-#define PARAMETER_ISNI						0xfa
+#define PARAMETER_ISNI				0xfa
 
 static const value_string sccp_parameter_values[] = {
   { PARAMETER_END_OF_OPTIONAL_PARAMETERS,	"End of Optional Parameters" },
   { PARAMETER_DESTINATION_LOCAL_REFERENCE,	"Destination Local Reference" },
   { PARAMETER_SOURCE_LOCAL_REFERENCE,		"Source Local Reference" },
-  { PARAMETER_CALLED_PARTY_ADDRESS,			"Called Party Address" },
+  { PARAMETER_CALLED_PARTY_ADDRESS,		"Called Party Address" },
   { PARAMETER_CALLING_PARTY_ADDRESS,		"Calling Party Address" },
-  { PARAMETER_CLASS,						"Protocol Class" },
+  { PARAMETER_CLASS,				"Protocol Class" },
   { PARAMETER_SEGMENTING_REASSEMBLING,		"Segmenting/Reassembling" },
   { PARAMETER_RECEIVE_SEQUENCE_NUMBER,		"Receive Sequence Number" },
   { PARAMETER_SEQUENCING_SEGMENTING,		"Sequencing/Segmenting" },
-  { PARAMETER_CREDIT,						"Credit" },
-  { PARAMETER_RELEASE_CAUSE,				"Release Cause" },
-  { PARAMETER_RETURN_CAUSE,					"Return Cause" },
-  { PARAMETER_RESET_CAUSE,					"Reset Cause" },
-  { PARAMETER_ERROR_CAUSE,					"Error Cause" },
-  { PARAMETER_REFUSAL_CAUSE,				"Refusal Cause" },
-  { PARAMETER_DATA,							"Data" },
-  { PARAMETER_SEGMENTATION,					"Segmentation" },
-  { PARAMETER_HOP_COUNTER,					"Hop Counter" },
-  { PARAMETER_IMPORTANCE,					"Importance (ITU)" },
-  { PARAMETER_LONG_DATA,					"Long Data (ITU)" },
-  { PARAMETER_ISNI,							"Intermediate Signaling Network Identification (ANSI)" },
-  { 0,					  NULL } };
+  { PARAMETER_CREDIT,				"Credit" },
+  { PARAMETER_RELEASE_CAUSE,			"Release Cause" },
+  { PARAMETER_RETURN_CAUSE,			"Return Cause" },
+  { PARAMETER_RESET_CAUSE,			"Reset Cause" },
+  { PARAMETER_ERROR_CAUSE,			"Error Cause" },
+  { PARAMETER_REFUSAL_CAUSE,			"Refusal Cause" },
+  { PARAMETER_DATA,				"Data" },
+  { PARAMETER_SEGMENTATION,			"Segmentation" },
+  { PARAMETER_HOP_COUNTER,			"Hop Counter" },
+  { PARAMETER_IMPORTANCE,			"Importance (ITU)" },
+  { PARAMETER_LONG_DATA,			"Long Data (ITU)" },
+  { PARAMETER_ISNI,				"Intermediate Signaling Network Identification (ANSI)" },
+  { 0,						 NULL } };
 
 
 #define END_OF_OPTIONAL_PARAMETERS_LENGTH	1
@@ -437,7 +437,7 @@ static const value_string sccp_release_cause_values [] = {
   { 0x08,  "Subsystem failure" },
   { 0x09,  "Subsystem congestion" },
   { 0x0a,  "MTP failure" },
-  { 0x0b,  "Netowrk congestion" },
+  { 0x0b,  "Network congestion" },
   { 0x0c,  "Expiration of reset timer" },
   { 0x0d,  "Expiration of receive inactivity timer" },
   { 0x0e,  "Reserved" },
@@ -461,13 +461,16 @@ static const value_string sccp_return_cause_values [] = {
   { 0x0a,  "Destination cannot perform reassembly" },
   { 0x0b,  "SCCP failure" },
   { 0x0c,  "Hop counter violation" },
-  { 0x0d,  "Segmentation not supported (ITU only)" },
-  { 0x0e,  "Segmentation failure (ITU only)" },
+  { 0x0d,  "Segmentation not supported" },
+  { 0x0e,  "Segmentation failure" },
+  { 0xf7,  "Message change failure (ANSI only)" },
+  { 0xf8,  "Invalid INS routing request (ANSI only)" },
   { 0xf9,  "Invalid ISNI routing request (ANSI only)"},
   { 0xfa,  "Unauthorized message (ANSI only)" },
   { 0xfb,  "Message incompatibility (ANSI only)" },
   { 0xfc,  "Cannot perform ISNI constrained routing (ANSI only)" },
-  { 0xfd,  "Unable to perform ISNI identification (ANSI only)" },
+  { 0xfd,  "Redundant ISNI constrained routing (ANSI only)" },
+  { 0xfe,  "Unable to perform ISNI identification (ANSI only)" },
   { 0,     NULL } };
 
 
