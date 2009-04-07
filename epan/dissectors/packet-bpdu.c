@@ -978,11 +978,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static const true_false_string yesno = {
-	"Yes",
-	"No"
-};
-
 void
 proto_register_bpdu(void)
 {      
@@ -1006,19 +1001,19 @@ proto_register_bpdu(void)
       	"", HFILL }},
     { &hf_bpdu_flags_tcack,
       { "Topology Change Acknowledgment",  "stp.flags.tcack",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TCACK,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_TCACK,
       	"", HFILL }},
     { &hf_bpdu_flags_agreement,
       { "Agreement",			"stp.flags.agreement",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_AGREEMENT,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_AGREEMENT,
       	"", HFILL }},
     { &hf_bpdu_flags_forwarding,
       { "Forwarding",			"stp.flags.forwarding",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_FORWARDING,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_FORWARDING,
       	"", HFILL }},
     { &hf_bpdu_flags_learning,
       { "Learning",			"stp.flags.learning",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_LEARNING,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_LEARNING,
       	"", HFILL }},
     { &hf_bpdu_flags_port_role,
       { "Port Role",			"stp.flags.port_role",
@@ -1026,11 +1021,11 @@ proto_register_bpdu(void)
       	"", HFILL }},
     { &hf_bpdu_flags_proposal,
       { "Proposal",			"stp.flags.proposal",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_PROPOSAL,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_PROPOSAL,
       	"", HFILL }},
     { &hf_bpdu_flags_tc,
       { "Topology Change",		"stp.flags.tc",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TC,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_TC,
       	"", HFILL }},
     { &hf_bpdu_root_prio,
       { "Root Bridge Priority",		"stp.root.prio",

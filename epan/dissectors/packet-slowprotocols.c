@@ -594,16 +594,6 @@ static const value_string indication_vals[] = {
     { 0, NULL }
 };
 
-static const true_false_string yesno = {
-    "Yes",
-    "No"
-};
-
-static const true_false_string falsetrue = {
-    "True",
-    "False"
-};
-
 static const value_string status_vals[] _U_ = {
     { 0x00, "Unsatisfied, can't complete" },
     { 0x01, "Discovery in process" },
@@ -2421,42 +2411,42 @@ proto_register_slow_protocols(void)
 
     { &hf_lacpdu_flags_a_activity,
       { "LACP Activity",        "slow.lacp.actorState.activity",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_ACTIVITY,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
         "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_timeout,
       { "LACP Timeout",        "slow.lacp.actorState.timeout",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_TIMEOUT,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
         "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_aggregation,
       { "Aggregation",        "slow.lacp.actorState.aggregation",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_AGGREGATION,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
         "Aggregatable = 1, Individual = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_sync,
       { "Synchronization",        "slow.lacp.actorState.synchronization",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_SYNC,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
         "In Sync = 1, Out of Sync = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_collecting,
       { "Collecting",        "slow.lacp.actorState.collecting",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_COLLECTING,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
         "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_distrib,
       { "Distributing",        "slow.lacp.actorState.distributing",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_DISTRIB,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
         "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
 
     { &hf_lacpdu_flags_a_defaulted,
       { "Defaulted",        "slow.lacp.actorState.defaulted",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_DEFAULTED,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
         "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
     { &hf_lacpdu_flags_a_expired,
       { "Expired",        "slow.lacp.actorState.expired",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_EXPIRED,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
         "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
 
     { &hf_lacpdu_actor_reserved,
@@ -2506,42 +2496,42 @@ proto_register_slow_protocols(void)
 
     { &hf_lacpdu_flags_p_activity,
       { "LACP Activity",        "slow.lacp.partnerState.activity",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_ACTIVITY,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
         "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_timeout,
       { "LACP Timeout",        "slow.lacp.partnerState.timeout",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_TIMEOUT,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
         "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_aggregation,
       { "Aggregation",        "slow.lacp.partnerState.aggregation",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_AGGREGATION,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
         "Aggregatable = 1, Individual = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_sync,
       { "Synchronization",        "slow.lacp.partnerState.synchronization",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_SYNC,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
         "In Sync = 1, Out of Sync = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_collecting,
       { "Collecting",        "slow.lacp.partnerState.collecting",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_COLLECTING,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
         "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_distrib,
       { "Distributing",        "slow.lacp.partnerState.distributing",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_DISTRIB,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
         "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
 
     { &hf_lacpdu_flags_p_defaulted,
       { "Defaulted",        "slow.lacp.partnerState.defaulted",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_DEFAULTED,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
         "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
     { &hf_lacpdu_flags_p_expired,
       { "Expired",        "slow.lacp.partnerState.expired",
-        FT_BOOLEAN,    8,        TFS(&yesno),    LACPDU_FLAGS_EXPIRED,
+        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
         "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
 
     { &hf_lacpdu_partner_reserved,
@@ -2629,37 +2619,37 @@ proto_register_slow_protocols(void)
 
     { &hf_oampdu_flags_link_fault,
       { "Link Fault",        "slow.oam.flags.linkFault",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_LINK_FAULT,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
         "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_dying_gasp,
       { "Dying Gasp",        "slow.oam.flags.dyingGasp",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_DYING_GASP,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
         "An unrecoverable local failure occured. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_critical_event,
       { "Critical Event",        "slow.oam.flags.criticalEvent",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_CRITICAL_EVENT,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
         "A critical event has occurred. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_local_evaluating,
       { "Local Evaluating",        "slow.oam.flags.localEvaluating",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_LOCAL_EVAL,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
         "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_local_stable,
       { "Local Stable",        "slow.oam.flags.localStable",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_LOCAL_STABLE,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
         "Local DTE is Stable. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_remote_evaluating,
       { "Remote Evaluating",        "slow.oam.flags.remoteEvaluating",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_REMOTE_EVAL,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
         "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_flags_remote_stable,
       { "Remote Stable",        "slow.oam.flags.remoteStable",
-        FT_BOOLEAN,    8,        TFS(&falsetrue),    OAMPDU_FLAGS_REMOTE_STABLE,
+        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
         "Remote DTE is Stable. True = 1, False = 0", HFILL }},
 
     { &hf_oampdu_code,

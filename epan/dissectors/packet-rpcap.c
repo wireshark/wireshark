@@ -219,14 +219,6 @@ static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
 static guint32 linktype = WTAP_ENCAP_UNKNOWN;
 static gboolean info_added = FALSE;
 
-static const true_false_string yes_no = {
-  "Yes", "No"
-};
-
-static const true_false_string enabled_disabled = {
-  "Enabled", "Disabled"
-};
-
 static const true_false_string open_closed = {
   "Open", "Closed"
 };
@@ -1130,19 +1122,19 @@ proto_register_rpcap (void)
 	NULL, 0x0, "Capture flags", HFILL } },
     { &hf_flags_promisc,
       { "Promiscuous mode", "rpcap.flags.promisc", FT_BOOLEAN, 16,
-	TFS(&enabled_disabled), FLAG_PROMISC, "Promiscuous mode", HFILL } },
+	TFS(&tfs_enabled_disabled), FLAG_PROMISC, "Promiscuous mode", HFILL } },
     { &hf_flags_dgram,
       { "Use Datagram", "rpcap.flags.dgram", FT_BOOLEAN, 16,
-	TFS(&yes_no), FLAG_DGRAM, "", HFILL } },
+	TFS(&tfs_yes_no), FLAG_DGRAM, "", HFILL } },
     { &hf_flags_serveropen,
       { "Server open", "rpcap.flags.serveropen", FT_BOOLEAN, 16,
 	TFS(&open_closed), FLAG_SERVEROPEN, "Server open", HFILL } },
     { &hf_flags_inbound,
       { "Inbound", "rpcap.flags.inbound", FT_BOOLEAN, 16,
-	TFS(&yes_no), FLAG_INBOUND, "Inbound", HFILL } },
+	TFS(&tfs_yes_no), FLAG_INBOUND, "Inbound", HFILL } },
     { &hf_flags_outbound,
       { "Outbound", "rpcap.flags.outbound", FT_BOOLEAN, 16,
-	TFS(&yes_no), FLAG_OUTBOUND, "Outbound", HFILL } },
+	TFS(&tfs_yes_no), FLAG_OUTBOUND, "Outbound", HFILL } },
     { &hf_client_port,
       { "Client Port", "rpcap.client_port", FT_UINT16, BASE_DEC,
 	NULL, 0x0, "Client Port", HFILL } },

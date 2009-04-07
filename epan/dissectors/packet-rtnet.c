@@ -905,11 +905,6 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 void
 proto_register_rtmac(void) {
-  static const true_false_string rtnet_flags_set_truth = {
-    "Set",
-    "Not set"
-  };
-
   static hf_register_info hf_array_rtmac[] = {
 
     /* RTmac header */
@@ -934,7 +929,7 @@ proto_register_rtmac(void) {
     { &hf_rtmac_header_flags_tunnel,
       { "Tunnelling Flag",
         "rtmac.header.flags.tunnel",
-        FT_BOOLEAN, 8, TFS(&rtnet_flags_set_truth), RTMAC_FLAG_TUNNEL,
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTMAC_FLAG_TUNNEL,
         "RTmac Tunnelling Flag", HFILL }},
 
     { &hf_rtmac_header_flags_res,

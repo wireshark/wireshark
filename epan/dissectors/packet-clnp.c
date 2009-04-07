@@ -73,11 +73,6 @@ static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
 static int hf_clnp_reassembled_in = -1;
 
-static const true_false_string fragment_descriptions = {
-	"Yes",
-	"No"
-};
-
 static const fragment_items clnp_frag_items = {
 	&ett_clnp_segment,
 	&ett_clnp_segments,

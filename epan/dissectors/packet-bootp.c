@@ -454,16 +454,6 @@ static const value_string opt53_text[] = {
 #define FILE_NAME_LEN			128
 #define VENDOR_INFO_OFFSET		236
 
-static const true_false_string toggle_tfs = {
-	"Enabled",
-	"Disabled"
-};
-
-static const true_false_string yes_no_tfs = {
-	"Yes",
-	"No"
-};
-
 static const value_string bootp_nbnt_vals[] = {
     {0x1,   "B-node" },
     {0x2,   "P-node" },
@@ -508,27 +498,27 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  16 */ { "Swap Server",				ipv4, NULL },
 /*  17 */ { "Root Path",				string, NULL },
 /*  18 */ { "Extensions Path",				string, NULL },
-/*  19 */ { "IP Forwarding",				val_boolean, TFS(&toggle_tfs) },
-/*  20 */ { "Non-Local Source Routing",			val_boolean, TFS(&toggle_tfs) },
+/*  19 */ { "IP Forwarding",				val_boolean, TFS(&tfs_enabled_disabled) },
+/*  20 */ { "Non-Local Source Routing",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  21 */ { "Policy Filter",				special, NULL },
 /*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short, NULL },
 /*  23 */ { "Default IP Time-to-Live",			val_u_byte, NULL },
 /*  24 */ { "Path MTU Aging Timeout",			time_in_secs, NULL },
 /*  25 */ { "Path MTU Plateau Table",			val_u_short_list, NULL },
 /*  26 */ { "Interface MTU",				val_u_short, NULL },
-/*  27 */ { "All Subnets are Local",			val_boolean, TFS(&yes_no_tfs) },
+/*  27 */ { "All Subnets are Local",			val_boolean, TFS(&tfs_yes_no) },
 /*  28 */ { "Broadcast Address",			ipv4, NULL },
-/*  29 */ { "Perform Mask Discovery",			val_boolean, TFS(&toggle_tfs) },
-/*  30 */ { "Mask Supplier",				val_boolean, TFS(&yes_no_tfs) },
-/*  31 */ { "Perform Router Discover",			val_boolean, TFS(&toggle_tfs) },
+/*  29 */ { "Perform Mask Discovery",			val_boolean, TFS(&tfs_enabled_disabled) },
+/*  30 */ { "Mask Supplier",				val_boolean, TFS(&tfs_yes_no) },
+/*  31 */ { "Perform Router Discover",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  32 */ { "Router Solicitation Address",		ipv4, NULL },
 /*  33 */ { "Static Route",				special, NULL },
-/*  34 */ { "Trailer Encapsulation",			val_boolean, TFS(&toggle_tfs) },
+/*  34 */ { "Trailer Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  35 */ { "ARP Cache Timeout",			time_in_secs, NULL },
-/*  36 */ { "Ethernet Encapsulation",			val_boolean, TFS(&toggle_tfs) },
+/*  36 */ { "Ethernet Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  37 */ { "TCP Default TTL", 				val_u_byte, NULL },
 /*  38 */ { "TCP Keepalive Interval",			time_in_secs, NULL },
-/*  39 */ { "TCP Keepalive Garbage",			val_boolean, TFS(&toggle_tfs) },
+/*  39 */ { "TCP Keepalive Garbage",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  40 */ { "Network Information Service Domain",	string, NULL },
 /*  41 */ { "Network Information Service Servers",	ipv4_list, NULL },
 /*  42 */ { "Network Time Protocol Servers",		ipv4_list, NULL },
@@ -2464,12 +2454,12 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 2 */ {"NWIP exists in options area",presence,NULL},
 		/* 3 */ {"NWIP exists in sname/file",presence,NULL},
 		/* 4 */ {"NWIP exists, but too big",presence,NULL},
-		/* 5 */ {"Broadcast for nearest Netware server",val_boolean,TFS(&yes_no_tfs)},
+		/* 5 */ {"Broadcast for nearest Netware server",val_boolean,TFS(&tfs_yes_no)},
 		/* 6 */ {"Preferred DSS server",ipv4_list,NULL},
 		/* 7 */ {"Nearest NWIP server",ipv4_list,NULL},
 		/* 8 */ {"Autoretries",val_u_byte,NULL},
 		/* 9 */ {"Autoretry delay, secs",val_u_byte,NULL},
-		/* 10*/ {"Support NetWare/IP v1.1",val_boolean,TFS(&yes_no_tfs)},
+		/* 10*/ {"Support NetWare/IP v1.1",val_boolean,TFS(&tfs_yes_no)},
 		/* 11*/ {"Primary DSS",ipv4,NULL}
 	};
 

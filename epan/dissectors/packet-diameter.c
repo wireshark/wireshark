@@ -191,11 +191,6 @@ static struct _build_dict build_dict;
 static const value_string* vnd_short_vs;
 static dissector_handle_t data_handle;
 
-static const true_false_string reserved_set = {
-	"Set",
-	"Unset"
-};
-
 static const value_string diameter_avp_data_addrfamily_vals[]= {
 	{1,"IPv4"},
 	{2,"IPv6"},
@@ -1411,16 +1406,16 @@ proto_register_diameter(void)
 		  { "T(Potentially re-transmitted message)","diameter.flags.T", FT_BOOLEAN, 8, TFS(&flags_set_truth),DIAM_FLAGS_T,
 			  "", HFILL }},
 	{ &hf_diameter_flags_reserved4,
-		  { "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  DIAM_FLAGS_RESERVED4, "", HFILL }},
 	{ &hf_diameter_flags_reserved5,
-		  { "Reserved","diameter.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.flags.reserved5", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  DIAM_FLAGS_RESERVED5, "", HFILL }},
 	{ &hf_diameter_flags_reserved6,
-		  { "Reserved","diameter.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.flags.reserved6", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  DIAM_FLAGS_RESERVED6, "", HFILL }},
 	{ &hf_diameter_flags_reserved7,
-		  { "Reserved","diameter.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.flags.reserved7", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  DIAM_FLAGS_RESERVED7, "", HFILL }},
 	{ &hf_diameter_vendor_id,
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC, VALS(sminmpec_values),
@@ -1453,19 +1448,19 @@ proto_register_diameter(void)
 		  { "Protected","diameter.avp.flags.protected", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_P,
 			  "", HFILL }},
 	{ &hf_diameter_avp_flags_reserved3,
-		  { "Reserved","diameter.avp.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.avp.flags.reserved3", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED3,	"", HFILL }},
 	{ &hf_diameter_avp_flags_reserved4,
-		  { "Reserved","diameter.avp.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.avp.flags.reserved4", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED4,	"", HFILL }},
 	{ &hf_diameter_avp_flags_reserved5,
-		  { "Reserved","diameter.avp.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.avp.flags.reserved5", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED5,	"", HFILL }},
 	{ &hf_diameter_avp_flags_reserved6,
-		  { "Reserved","diameter.avp.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.avp.flags.reserved6", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED6,	"", HFILL }},
 	{ &hf_diameter_avp_flags_reserved7,
-		  { "Reserved","diameter.avp.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
+		  { "Reserved","diameter.avp.flags.reserved7", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED7,	"", HFILL }},
 	{ &hf_diameter_avp_vendor_id,
 		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC,

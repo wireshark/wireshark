@@ -112,11 +112,6 @@ static const value_string nlsp_router_type_vals[] = {
 	{ 0, NULL}
 };
 
-static const true_false_string supported_string = {
-	"Supported",
-	"Unsupported"
-};
-
 /*
  * Our sub-packet dismantle structure for CLV's
  */
@@ -1579,7 +1574,7 @@ proto_register_nlsp(void)
 
 	    { &hf_nlsp_hello_multicast,
 	      { "Multicast Routing", "nlsp.hello.multicast", FT_BOOLEAN, 8,
-	        TFS(&supported_string), NLSP_HELLO_MULTICAST_MASK,
+	        TFS(&tfs_supported_not_supported), NLSP_HELLO_MULTICAST_MASK,
 		"If set, this router supports multicast routing", HFILL }},
 
 	    { &hf_nlsp_hello_circuit_type,
@@ -1606,7 +1601,7 @@ proto_register_nlsp(void)
 
 	    { &hf_nlsp_lsp_p,
 	      { "Partition Repair", "nlsp.lsp.partition_repair", FT_BOOLEAN, 8,
-	        TFS(&supported_string), NLSP_LSP_PARTITION_MASK,
+	        TFS(&tfs_supported_not_supported), NLSP_LSP_PARTITION_MASK,
 		"If set, this router supports the optional Partition Repair function", HFILL }},
 
 	    { &hf_nlsp_lsp_attached_flag,

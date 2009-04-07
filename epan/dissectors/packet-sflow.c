@@ -67,11 +67,6 @@ static range_t *global_sflow_ports = NULL;
 static gboolean global_dissect_samp_headers = TRUE;
 static gboolean global_analyze_samp_ip_headers = FALSE;
 
-static const true_false_string yes_no_truth = {
-	"Yes",
-	"No"
-};
-
 #define ADDRESS_UNKNOWN 0
 #define ADDRESS_IPV4 1
 #define ADDRESS_IPV6 2
@@ -1606,7 +1601,7 @@ proto_register_sflow(void)
 		},
 		{ &hf_sflow_fs_multipleoutputs,
 		  { "Multiple outputs", "sflow.fs.multipleoutputs",
-			FT_BOOLEAN, 32, TFS(&yes_no_truth), 0x80000000,
+			FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80000000,
 			"Output to more than one interface", HFILL }
 		},
 		{ &hf_sflow_fs_numoutinterfaces,

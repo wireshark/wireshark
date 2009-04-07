@@ -130,10 +130,6 @@ static dissector_table_t osinl_subdissector_table;
 
 static gint fr_encap = FRF_3_2;
 
-static const true_false_string cmd_string = {
-                "Command",
-                "Response"
-        };
 static const true_false_string ctrl_string = {
                 "DLCI Address",
                 "Control"
@@ -825,7 +821,7 @@ void proto_register_fr(void)
            "Upper DLCI", "fr.upper_dlci", FT_UINT8, BASE_HEX,
             NULL, FRELAY_UPPER_DLCI, "Upper bits of DLCI", HFILL }},
         { &hf_fr_cr, {
-           "CR", "fr.cr", FT_BOOLEAN, 8, TFS(&cmd_string),
+           "CR", "fr.cr", FT_BOOLEAN, 8, TFS(&tfs_command_response),
             FRELAY_CR, "Command/Response", HFILL }},
         { &hf_fr_second_dlci, {
            "Second DLCI", "fr.second_dlci", FT_UINT8, BASE_HEX,

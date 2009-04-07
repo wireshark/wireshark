@@ -197,11 +197,6 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 }
 
-static const true_false_string yesno = {
-	"Yes",
-	"No"
-};
-
 void
 proto_register_dec_bpdu(void)
 {
@@ -225,15 +220,15 @@ proto_register_dec_bpdu(void)
       	"", HFILL }},
     { &hf_dec_bpdu_flags_short_timers,
       { "Use short timers",		"dec_stp.flags.short_timers",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_SHORT_TIMERS,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_SHORT_TIMERS,
       	"", HFILL }},
     { &hf_dec_bpdu_flags_tcack,
       { "Topology Change Acknowledgment",  "dec_stp.flags.tcack",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TCACK,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_TCACK,
       	"", HFILL }},
     { &hf_dec_bpdu_flags_tc,
       { "Topology Change",		"dec_stp.flags.tc",
-	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TC,
+	FT_BOOLEAN,	8,		TFS(&tfs_yes_no),	BPDU_FLAGS_TC,
       	"", HFILL }},
     { &hf_dec_bpdu_root_pri,
       { "Root Priority",		"dec_stp.root.pri",

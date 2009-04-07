@@ -231,17 +231,9 @@ static const value_string name_types[] = {
 	{ 0, NULL }
 };
 
-static const true_false_string flags_set = {
-	"Set",
-	"Not set"
-};
 static const true_false_string flags_allowed = {
 	"Allowed",
 	"Not allowed"
-};
-static const true_false_string flags_yes_no = {
-	"Yes",
-	"No"
 };
 
 static const true_false_string netb_version_str = {
@@ -1311,7 +1303,7 @@ void proto_register_netbios(void)
 			"", HFILL }},
 
 		{ &hf_netb_ack,
-		{ "Acknowledge", "netbios.ack", FT_BOOLEAN, 8, TFS( &flags_set), 0x08,
+		{ "Acknowledge", "netbios.ack", FT_BOOLEAN, 8, TFS( &tfs_set_notset), 0x08,
 			"", HFILL }},
 
 		{ &hf_netb_ack_with_data,
@@ -1320,15 +1312,15 @@ void proto_register_netbios(void)
 
 		{ &hf_netb_ack_expected,
 		{ "Acknowledge expected", "netbios.ack_expected", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x02, "", HFILL }},
+			TFS( &tfs_yes_no), 0x02, "", HFILL }},
 
 		{ &hf_netb_recv_cont_req,
 		{ "RECEIVE_CONTINUE requested", "netbios.recv_cont_req", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x01, "", HFILL }},
+			TFS( &tfs_yes_no), 0x01, "", HFILL }},
 
 		{ &hf_netb_send_no_ack,
 		{ "Handle SEND.NO.ACK", "netbios.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x80, "", HFILL }},
+			TFS( &tfs_yes_no), 0x80, "", HFILL }},
 
 		{ &hf_netb_version,
 		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,

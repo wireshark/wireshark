@@ -99,16 +99,6 @@ static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 2"},
 	{ 0, NULL } };
 
-static const true_false_string supported_string = {
-		"Supported",
-		"Unsupported"
-	};
-
-static const true_false_string hippity_string = {
-		"Set",
-		"Unset"
-	};
-
 
 /*
  * Predclare dissectors for use in clv dissection.
@@ -1978,7 +1968,7 @@ isis_register_lsp(int proto_isis) {
 
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
-			TFS(&supported_string), ISIS_LSP_PARTITION_MASK,
+			TFS(&tfs_supported_not_supported), ISIS_LSP_PARTITION_MASK,
 			"If set, this router supports the optional Partition Repair function", HFILL }},
 
 		{ &hf_isis_lsp_att,
@@ -1988,7 +1978,7 @@ isis_register_lsp(int proto_isis) {
 
 		{ &hf_isis_lsp_hippity,
 		{ "Overload bit",	"isis.lsp.overload", FT_BOOLEAN, 8,
-			TFS(&hippity_string), ISIS_LSP_HIPPITY_MASK,
+			TFS(&tfs_set_notset), ISIS_LSP_HIPPITY_MASK,
 			"If set, this router will not be used by any decision process to calculate routes", HFILL }},
 
 		{ &hf_isis_lsp_is_type,

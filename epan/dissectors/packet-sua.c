@@ -871,11 +871,6 @@ dissect_receive_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 #define D_BIT_MASK 0x01
 #define RESERVED_BITS_MASK 0xF0
 
-static const true_false_string sua_supported_bit_value = {
-  "Supported",
-  "Unsupported"
-};
-
 static const value_string interworking_values[] = {
   { 0x0,   "No Interworking with SS7 Networks" },
   { 0x1,   "IP-Signalling Endpoint interworking with with SS7 networks" },
@@ -2011,10 +2006,10 @@ proto_register_sua(void)
     { &hf_receive_sequence_number_spare_bit,     { "Spare Bit",                    "sua.receive_sequence_number_spare_bit",         FT_BOOLEAN, 8,         NULL,                               SPARE_BIT_MASK,           "", HFILL } },
     { &hf_asp_capabilities_reserved,             { "Reserved",                     "sua.asp_capabilities_reserved",                 FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_asp_capabilities_reserved_bits,        { "Reserved Bits",                "sua.asp_capabilities_reserved_bits",            FT_UINT8,   BASE_HEX,  NULL,                               RESERVED_BITS_MASK,       "", HFILL } },
-    { &hf_asp_capabilities_a_bit,                { "Protocol Class 3",             "sua.asp_capabilities_a_bit",                    FT_BOOLEAN, 8,         TFS(&sua_supported_bit_value),      A_BIT_MASK,               "", HFILL } },
-    { &hf_asp_capabilities_b_bit,                { "Protocol Class 2",             "sua.asp_capabilities_b_bit",                    FT_BOOLEAN, 8,         TFS(&sua_supported_bit_value),      B_BIT_MASK,               "", HFILL } },
-    { &hf_asp_capabilities_c_bit,                { "Protocol Class 1",             "sua.asp_capabilities_c_bit",                    FT_BOOLEAN, 8,         TFS(&sua_supported_bit_value),      C_BIT_MASK,               "", HFILL } },
-    { &hf_asp_capabilities_d_bit,                { "Protocol Class 0",             "sua.asp_capabilities_d_bit",                    FT_BOOLEAN, 8,         TFS(&sua_supported_bit_value),      D_BIT_MASK,               "", HFILL } },
+    { &hf_asp_capabilities_a_bit,                { "Protocol Class 3",             "sua.asp_capabilities_a_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      A_BIT_MASK,               "", HFILL } },
+    { &hf_asp_capabilities_b_bit,                { "Protocol Class 2",             "sua.asp_capabilities_b_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      B_BIT_MASK,               "", HFILL } },
+    { &hf_asp_capabilities_c_bit,                { "Protocol Class 1",             "sua.asp_capabilities_c_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      C_BIT_MASK,               "", HFILL } },
+    { &hf_asp_capabilities_d_bit,                { "Protocol Class 0",             "sua.asp_capabilities_d_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      D_BIT_MASK,               "", HFILL } },
     { &hf_asp_capabilities_interworking,         { "Interworking",                 "sua.asp_capabilities_interworking",             FT_UINT8,   BASE_HEX,  VALS(interworking_values),          0x0,                      "", HFILL } },
     { &hf_credit,                                { "Credit",                       "sua.credit",                                    FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_cause,                                 { "Cause",                        "sua.cause_user_cause",                          FT_UINT16,  BASE_DEC,  VALS(cause_values),                 0x0,                      "", HFILL } },

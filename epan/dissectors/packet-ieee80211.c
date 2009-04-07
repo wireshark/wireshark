@@ -8478,11 +8478,6 @@ proto_register_ieee80211 (void)
   /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
   /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
-  static const true_false_string ff_sm_pwr_save_enabled_flag = {
-      "Enabled",
-      "Disabled"
-  };
-
   static const true_false_string ff_sm_pwr_save_sm_mode_flag = {
       "Dynamic SM Power Save mode",
       "Static SM Power Save mode"
@@ -9458,11 +9453,6 @@ proto_register_ieee80211 (void)
     "Transmitter is not able to receive PPDUs with Green Field (GF) preamble"
   };
 
-  static const true_false_string ht_tf_flag = {
-    "Supported",
-    "Not Supported "
-  };
-
   static const value_string ht_rx_stbc_flag[] = {
     {0x00, "No Rx STBC support"},
     {0x01, "Rx support of one spatial stream"},
@@ -9741,12 +9731,6 @@ proto_register_ieee80211 (void)
     "One or more HT STAs in the BSS do not support L-SIG TXOP protection"
   };
 
-  /* XXX - We might want to use tfs_active_inactive here */
-  static const true_false_string ht_info_pco_active_flag = {
-    "Active",
-    "Not active"
-  };
-
   static const true_false_string ht_info_pco_phase_flag = {
     "Switch to or continue 40 MHz phase",
     "Switch to or continue 20 MHz phase"
@@ -9803,11 +9787,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const true_false_string hf_tag_measure_enable_flag = {
-    "Enabled",
-    "Disabled"
-  };
-
   static const true_false_string hf_tag_measure_acc_not_acc = {
     "Accepted",
     "Not Accepted"
@@ -9857,11 +9836,6 @@ proto_register_ieee80211 (void)
     "Not Detected"
   };
 
-  static const true_false_string hf_tag_measure_true_false = {
-    "True",
-    "False"
-  };
-
   static const value_string hf_tag_measure_request_measurement_mode_flags[] = {
     {0x00, "Passive"},
     {0x01, "Active"},
@@ -9903,11 +9877,6 @@ proto_register_ieee80211 (void)
     {0x0e, "STA Counters from dot11Protection Group"},
     {0x0f, "STBC Group"},
     {0x00, NULL}
-  };
-
-  static const true_false_string hf_tag_extended_capabilities_flag = {
-    "Supported",
-    "Not Supported"
   };
 
   /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
@@ -10113,7 +10082,7 @@ proto_register_ieee80211 (void)
 
     {&ff_sm_pwr_save_enabled,
      {"SM Power Save", "wlan_mgt.fixed.sm.powercontrol.enabled",
-      FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_enabled_flag), 0x01, "Spatial Multiplexing (SM) Power Save", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x01, "Spatial Multiplexing (SM) Power Save", HFILL }},
 
     {&ff_sm_pwr_save_sm_mode,
      {"SM Mode", "wlan_mgt.fixed.sm.powercontrol.mode",
@@ -10600,17 +10569,17 @@ proto_register_ieee80211 (void)
 
     {&ht_short20,
      {"HT Short GI for 20MHz", "wlan_mgt.ht.capabilities.short20",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0020,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0020,
       "HT Short GI for 20MHz", HFILL }},
 
     {&ht_short40,
      {"HT Short GI for 40MHz", "wlan_mgt.ht.capabilities.short40",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0040,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0040,
       "HT Short GI for 40MHz", HFILL }},
 
     {&ht_tx_stbc,
      {"HT Tx STBC", "wlan_mgt.ht.capabilities.txstbc",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0080,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0080,
       "HT Tx STBC", HFILL }},
 
     {&ht_rx_stbc,
@@ -10645,7 +10614,7 @@ proto_register_ieee80211 (void)
 
     {&ht_l_sig,
      {"HT L-SIG TXOP Protection support", "wlan_mgt.ht.capabilities.lsig",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x8000,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x8000,
       "HT L-SIG TXOP Protection support", HFILL }},
 
     {&ampduparam,
@@ -10732,7 +10701,7 @@ proto_register_ieee80211 (void)
 
     {&mcsset_tx_unequal_modulation,
      {"Unequal Modulation", "wlan_mgt.ht.mcsset.txunequalmod",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0010,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0010,
       "Unequal Modulation", HFILL }},
 
     {&htex_cap,
@@ -10745,7 +10714,7 @@ proto_register_ieee80211 (void)
 
     {&htex_pco,
      {"Transmitter supports PCO", "wlan_mgt.htex.capabilities.pco",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0001,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0001,
       "Transmitter supports PCO", HFILL }},
 
     {&htex_transtime,
@@ -10760,12 +10729,12 @@ proto_register_ieee80211 (void)
 
     {&htex_htc_support,
      {"High Throughput", "wlan_mgt.htex.capabilities.htc",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0400,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0400,
       "High Throughput", HFILL }},
 
     {&htex_rd_responder,
      {"Reverse Direction Responder", "wlan_mgt.htex.capabilities.rdresponder",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0800,
+      FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0800,
       "Reverse Direction Responder", HFILL }},
 
     {&txbf,
@@ -10778,32 +10747,32 @@ proto_register_ieee80211 (void)
 
     {&txbf_cap,
      {"Transmit Beamforming", "wlan_mgt.txbf.txbf",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000001,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000001,
       "Transmit Beamforming", HFILL }},
 
     {&txbf_rcv_ssc,
      {"Receive Staggered Sounding", "wlan_mgt.txbf.rxss",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000002,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000002,
       "Receive Staggered Sounding", HFILL }},
 
     {&txbf_tx_ssc,
      {"Transmit Staggered Sounding", "wlan_mgt.txbf.txss",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000004,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000004,
       "Transmit staggered sounding", HFILL }},
 
     {&txbf_rcv_ndp,
      {"Receive Null Data packet (NDP)", "wlan_mgt.txbf.rxndp",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000008,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000008,
       "Receive Null Data packet (NDP)", HFILL }},
 
     {&txbf_tx_ndp,
      {"Transmit Null Data packet (NDP)", "wlan_mgt.txbf.txndp",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000010,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000010,
       "Transmit Null Data packet (NDP)", HFILL }},
 
     {&txbf_impl_txbf,
      {"Implicit TxBF capable", "wlan_mgt.txbf.impltxbf",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000020,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000020,
       "Implicit Transmit Beamforming (TxBF) capable", HFILL }},
 
     {&txbf_calib,
@@ -10813,17 +10782,17 @@ proto_register_ieee80211 (void)
 
     {&txbf_expl_csi,
      {"STA can apply TxBF using CSI explicit feedback", "wlan_mgt.txbf.csi",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000100,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000100,
       "Station can apply TxBF using CSI explicit feedback", HFILL }},
 
     {&txbf_expl_uncomp_fm,
      {"STA can apply TxBF using uncompressed beamforming feedback matrix", "wlan_mgt.txbf.fm.uncompressed.tbf",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000200,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000200,
       "Station can apply TxBF using uncompressed beamforming feedback matrix", HFILL }},
 
     {&txbf_expl_comp_fm,
      {"STA can apply TxBF using compressed beamforming feedback matrix", "wlan_mgt.txbf.fm.compressed.tbf",
-      FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000400,
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000400,
       "Station can apply TxBF using compressed beamforming feedback matrix", HFILL }},
 
     {&txbf_expl_bf_csi,
@@ -10955,31 +10924,31 @@ proto_register_ieee80211 (void)
 
     {&antsel_b0,
      {"Antenna Selection Capable", "wlan_mgt.asel.capable",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x01, "Antenna Selection Capable", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x01, "Antenna Selection Capable", HFILL }},
 
     {&antsel_b1,
      {"Explicit CSI Feedback Based Tx ASEL", "wlan_mgt.asel.txcsi",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x02, "Explicit CSI Feedback Based Tx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x02, "Explicit CSI Feedback Based Tx ASEL", HFILL }},
 
     {&antsel_b2,
      {"Antenna Indices Feedback Based Tx ASEL", "wlan_mgt.asel.txif",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x04, "Antenna Indices Feedback Based Tx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x04, "Antenna Indices Feedback Based Tx ASEL", HFILL }},
 
     {&antsel_b3,
      {"Explicit CSI Feedback", "wlan_mgt.asel.csi",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x08, "Explicit CSI Feedback", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x08, "Explicit CSI Feedback", HFILL }},
 
     {&antsel_b4,
      {"Antenna Indices Feedback", "wlan_mgt.asel.if",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x10, "Antenna Indices Feedback", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x10, "Antenna Indices Feedback", HFILL }},
 
     {&antsel_b5,
      {"Rx ASEL", "wlan_mgt.asel.rx",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x20, "Rx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x20, "Rx ASEL", HFILL }},
 
     {&antsel_b6,
      {"Tx Sounding PPDUs", "wlan_mgt.asel.sppdu",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x40, "Tx Sounding PPDUs", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x40, "Tx Sounding PPDUs", HFILL }},
 
     {&antsel_b7,
      {"Reserved", "wlan_mgt.asel.reserved",
@@ -11063,7 +11032,7 @@ proto_register_ieee80211 (void)
 
     {&ht_info_pco_active,
      {"Phased Coexistence Operation (PCO)", "wlan_mgt.ht.info.pco.active",
-      FT_BOOLEAN, 16, TFS (&ht_info_pco_active_flag), 0x0400, "Phased Coexistence Operation (PCO)", HFILL }},
+      FT_BOOLEAN, 16, TFS (&tfs_active_inactive), 0x0400, "Phased Coexistence Operation (PCO)", HFILL }},
 
     {&ht_info_pco_phase,
      {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.ht.info.pco.phase",
@@ -11122,7 +11091,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_mode_enable,
      {"Measurement Request Mode Field", "wlan_mgt.measure.req.reqmode.enable",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x02, "Measurement Request Mode Field", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x02, "Measurement Request Mode Field", HFILL }},
 
     {&hf_tag_measure_request_mode_request,
      {"Measurement Reports", "wlan_mgt.measure.req.reqmode.request",
@@ -11200,7 +11169,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_mode_late,
      {"Measurement Report Mode Field", "wlan_mgt.measure.rep.repmode.late",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x01, "Measurement Report Mode Field", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x01, "Measurement Report Mode Field", HFILL }},
 
     {&hf_tag_measure_report_mode_incapable,
      {"Measurement Reports", "wlan_mgt.measure.rep.repmode.incapable",
@@ -11256,7 +11225,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_map_field_unmeasured,
      {"Unmeasured", "wlan_mgt.measure.rep.repmode.mapfield.unmeasured",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_true_false), 0x10, "Unmeasured", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_true_false), 0x10, "Unmeasured", HFILL }},
 
     {&hf_tag_measure_map_field_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.mapfield.reserved",
@@ -11348,20 +11317,20 @@ proto_register_ieee80211 (void)
     /* P802.11n/D6.0 */
     {&hf_tag_extended_capabilities_b0,
      {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
-      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0001, "HT Information Exchange Support", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001, "HT Information Exchange Support", HFILL }},
 
     /* P802.11p/D4.0 */
     {&hf_tag_extended_capabilities_b1,
      {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
-      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0002, "On-demand beacon", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0002, "On-demand beacon", HFILL }},
 
     {&hf_tag_extended_capabilities_b2,
      {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
-      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0004, "Extended Channel Switching", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0004, "Extended Channel Switching", HFILL }},
 
     {&hf_tag_extended_capabilities_b3,
      {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
-      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0008, "WAVE indication", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008, "WAVE indication", HFILL }},
     /*End: P802.11p/D4.0 */
 
     /*** End: Extended Capabilities Tag - Dustin Johnson ***/

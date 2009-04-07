@@ -179,11 +179,6 @@ static int hf_xtp_diag_code = -1;
 static int hf_xtp_diag_val = -1;
 static int hf_xtp_diag_msg = -1;
 
-static const true_false_string tfs_cmd_options = {
-	"Set",
-	"Not set"
-};
-
 /* Initialize the subtree pointers */
 static gint ett_xtp = -1;
 static gint ett_xtp_key = -1;
@@ -1046,77 +1041,77 @@ proto_register_xtp(void)
 		},
 		{ &hf_xtp_cmd_options_nocheck,
 			{ "NOCHECK", "xtp.cmd.options.nocheck",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_NOCHECK, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_edge,
 			{ "EDGE", "xtp.cmd.options.edge",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_EDGE, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_noerr,
 			{ "NOERR", "xtp.cmd.options.noerr",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_NOERR, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_multi,
 			{ "MULTI", "xtp.cmd.options.multi",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_MULTI, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_res,
 			{ "RES", "xtp.cmd.options.res",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_RES, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_sort,
 			{ "SORT", "xtp.cmd.options.sort",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_SORT, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_noflow,
 			{ "NOFLOW", "xtp.cmd.options.noflow",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_NOFLOW, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_fastnak,
 			{ "FASTNAK", "xtp.cmd.options.fastnak",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_FASTNAK, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_sreq,
 			{ "SREQ", "xtp.cmd.options.sreq",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_SREQ, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_dreq,
 			{ "DREQ", "xtp.cmd.options.dreq",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_DREQ, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_rclose,
 			{ "RCLOSE", "xtp.cmd.options.rclose",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_RCLOSE, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_wclose,
 			{ "WCLOSE", "xtp.cmd.options.wclose",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_WCLOSE, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_eom,
 			{ "EOM", "xtp.cmd.options.eom",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_EOM, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_end,
 			{ "END", "xtp.cmd.options.end",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_END, "", HFILL }
 		},
 		{ &hf_xtp_cmd_options_btag,
 			{ "BTAG", "xtp.cmd.options.btag",
-			FT_BOOLEAN, 24, TFS(&tfs_cmd_options), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
 			XTP_CMD_OPTIONS_BTAG, "", HFILL }
 		},
 		{ &hf_xtp_cmd_ptype,

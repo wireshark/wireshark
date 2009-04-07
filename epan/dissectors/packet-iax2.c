@@ -2090,12 +2090,6 @@ iax_init_protocol(void)
 void
 proto_register_iax2 (void)
 {
-  /* we use this for displaying which codecs are supported */
-  static const true_false_string supported_strings = {
-    "Supported",
-    "Not supported"
-  };
-
   /* A header field is something you can search/filter on.
    * 
    * We create a structure to register our fields. It consists of an
@@ -2477,77 +2471,77 @@ proto_register_iax2 (void)
     /* capablilites */
     {&hf_iax2_cap_g723_1,
      {"G.723.1 compression", "iax2.cap.g723_1", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_G723_1,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G723_1,
       "G.723.1 compression", HFILL }},
 
     {&hf_iax2_cap_gsm,
      {"GSM compression", "iax2.cap.gsm", FT_BOOLEAN, 32,
-       TFS(&supported_strings), AST_FORMAT_GSM, 
+       TFS(&tfs_supported_not_supported), AST_FORMAT_GSM, 
       "GSM compression", HFILL }},
 
     {&hf_iax2_cap_ulaw,
      {"Raw mu-law data (G.711)", "iax2.cap.ulaw",FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_ULAW,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_ULAW,
       "Raw mu-law data (G.711)", HFILL }},
 
      {&hf_iax2_cap_alaw,
       {"Raw A-law data (G.711)", "iax2.cap.alaw",FT_BOOLEAN, 32,
-       TFS(&supported_strings), AST_FORMAT_ALAW,
+       TFS(&tfs_supported_not_supported), AST_FORMAT_ALAW,
        "Raw A-law data (G.711)", HFILL }},
 
     {&hf_iax2_cap_g726,
      {"G.726 compression", "iax2.cap.g726",FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_G726,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G726,
       "G.726 compression", HFILL }},
 
     {&hf_iax2_cap_adpcm,
      {"ADPCM", "iax2.cap.adpcm", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_ADPCM,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_ADPCM,
       "ADPCM", HFILL }},
     
     {&hf_iax2_cap_slinear,
      {"Raw 16-bit Signed Linear (8000 Hz) PCM", "iax2.cap.slinear", 
-      FT_BOOLEAN, 32, TFS(&supported_strings), AST_FORMAT_SLINEAR, 
+      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR, 
       "Raw 16-bit Signed Linear (8000 Hz) PCM", HFILL }},
 
     {&hf_iax2_cap_lpc10,
      {"LPC10, 180 samples/frame", "iax2.cap.lpc10", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_LPC10,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_LPC10,
       "LPC10, 180 samples/frame", HFILL }},
 
     {&hf_iax2_cap_g729a,
      {"G.729a Audio", "iax2.cap.g729a", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_G729A,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G729A,
       "G.729a Audio", HFILL }},
 
     {&hf_iax2_cap_speex,
      {"SPEEX Audio", "iax2.cap.speex", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_SPEEX,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_SPEEX,
       "SPEEX Audio", HFILL }},
 
     {&hf_iax2_cap_ilbc,
      {"iLBC Free compressed Audio", "iax2.cap.ilbc", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_ILBC,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_ILBC,
       "iLBC Free compressed Audio", HFILL }},
 
     {&hf_iax2_cap_jpeg,
      {"JPEG images", "iax2.cap.jpeg", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_JPEG,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_JPEG,
       "JPEG images", HFILL }},
 
     {&hf_iax2_cap_png,
      {"PNG images", "iax2.cap.png", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_PNG,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_PNG,
       "PNG images", HFILL }},
 
     {&hf_iax2_cap_h261,
      {"H.261 video", "iax2.cap.h261", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_H261,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_H261,
       "H.261 video", HFILL }},
 
     {&hf_iax2_cap_h263,
      {"H.263 video", "iax2.cap.h263", FT_BOOLEAN, 32,
-      TFS(&supported_strings), AST_FORMAT_H263,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_H263,
       "H.263 video", HFILL }},
 
     /* reassembly stuff */

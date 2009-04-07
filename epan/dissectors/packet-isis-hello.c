@@ -90,11 +90,6 @@ static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_LEVEL_12,	"Level 1 and 2"},
 	{ 0,		NULL} };
 
-static const true_false_string truefalse = {
-    "True",
-    "False"
-};
-
 /*
  * Predclare dissectors for use in clv dissection.
  */
@@ -1003,17 +998,17 @@ isis_register_hello(int proto_isis) {
 
 		{ &hf_isis_hello_clv_restart_flags_rr,
 		{ "Restart Request", "isis.hello.clv_restart_flags.rr",
-			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_RR, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RR, 
 			"When set, the router is beginning a graceful restart", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags_ra,
 		{ "Restart Acknowledgment", "isis.hello.clv_restart_flags.ra",
-			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_RA, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RA, 
 			"When set, the router is willing to enter helper mode", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags_sa,
 		{ "Suppress Adjacency", "isis.hello.clv_restart_flags.sa",
-			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_SA, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_SA, 
 			"When set, the router is starting as opposed to restarting", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_remain_time,

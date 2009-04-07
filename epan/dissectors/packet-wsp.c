@@ -1162,7 +1162,7 @@ static const value_string vals_well_known_te[] = {
 /*
  * Redirect flags.
  */
-#define PERMANENT_REDIRECT		0x80
+#define PERMANENT_REDIRECT	0x80
 #define REUSE_SECURITY_SESSION	0x40
 
 /*
@@ -1170,12 +1170,7 @@ static const value_string vals_well_known_te[] = {
  */
 #define BEARER_TYPE_INCLUDED	0x80
 #define PORT_NUMBER_INCLUDED	0x40
-#define ADDRESS_LEN				0x3f
-
-static const true_false_string yes_no_truth = {
-	"Yes" ,
-	"No"
-};
+#define ADDRESS_LEN		0x3f
 
 static const value_string vals_false_true[] = {
 	{ 0, "False" },
@@ -6391,14 +6386,14 @@ proto_register_wsp(void)
 		{ &hf_wsp_redirect_permanent,
 			{ 	"Permanent Redirect",
 				"wsp.redirect.flags.permanent",
-				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PERMANENT_REDIRECT,
+				 FT_BOOLEAN, 8, TFS(&tfs_yes_no), PERMANENT_REDIRECT,
 				"Permanent Redirect", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_reuse_security_session,
 			{ 	"Reuse Security Session",
 				"wsp.redirect.flags.reuse_security_session",
-				 FT_BOOLEAN, 8, TFS(&yes_no_truth), REUSE_SECURITY_SESSION,
+				 FT_BOOLEAN, 8, TFS(&tfs_yes_no), REUSE_SECURITY_SESSION,
 				"If set, the existing Security Session may be reused", HFILL
 			}
 		},
@@ -6430,14 +6425,14 @@ proto_register_wsp(void)
 		{ &hf_address_flags_length_bearer_type_included,
 			{ 	"Bearer Type Included",
 				"wsp.address.flags.bearer_type_included",
-				 FT_BOOLEAN, 8, TFS(&yes_no_truth), BEARER_TYPE_INCLUDED,
+				 FT_BOOLEAN, 8, TFS(&tfs_yes_no), BEARER_TYPE_INCLUDED,
 				"Address bearer type included", HFILL
 			}
 		},
 		{ &hf_address_flags_length_port_number_included,
 			{ 	"Port Number Included",
 				"wsp.address.flags.port_number_included",
-				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PORT_NUMBER_INCLUDED,
+				 FT_BOOLEAN, 8, TFS(&tfs_yes_no), PORT_NUMBER_INCLUDED,
 				"Address port number included", HFILL
 			}
 		},

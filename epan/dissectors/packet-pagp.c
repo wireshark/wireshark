@@ -148,11 +148,6 @@ static const value_string tlv_types[] = {
 	{ 0, NULL }
 };
 
-static const true_false_string yesno = {
-	"Yes",
-	"No"
-};
-
 static const true_false_string automode = {
 	"Yes",
 	"Desirable Mode"
@@ -437,7 +432,7 @@ proto_register_pagp(void)
 
     { &hf_pagp_flags_slow_hello,
       { "Slow Hello",		"pagp.flags.slowhello",
-	FT_BOOLEAN,	8,	TFS(&yesno),	PAGP_FLAGS_SLOW_HELLO,
+	FT_BOOLEAN,	8,	TFS(&tfs_yes_no), PAGP_FLAGS_SLOW_HELLO,
       	"1 = using Slow Hello, 0 = Slow Hello disabled", HFILL }},
 
     { &hf_pagp_flags_auto_mode,

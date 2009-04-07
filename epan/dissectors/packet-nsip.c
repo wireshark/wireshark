@@ -253,11 +253,6 @@ typedef struct {
 static nsip_ip_element_info_t ipv4_element = { NSIP_IP_VERSION_4, 4, 8 };
 static nsip_ip_element_info_t ipv6_element = { NSIP_IP_VERSION_6, 16, 20 };
 
-static true_false_string set_unset = {
-  "Set",
-  "Not set"
-};
-
 static void 
 get_value_length(nsip_ie_t *ie, build_info_t *bi) {
   /* length indicator in bit 8, 0 => two bytes, 1 => one byte */
@@ -1028,7 +1023,7 @@ proto_register_nsip(void)
     },
     { &hf_nsip_reset_flag,
       { "Reset flag", "nsip.reset_flag",
-	FT_BOOLEAN, 8, TFS(&set_unset), NSIP_MASK_RESET_FLAG,          
+	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_RESET_FLAG,          
 	"", HFILL }
     },
     { &hf_nsip_ip_address_type,
@@ -1048,17 +1043,17 @@ proto_register_nsip(void)
     },
     { &hf_nsip_end_flag,
       { "End flag", "nsip.end_flag",
-	FT_BOOLEAN, 8, TFS(&set_unset), NSIP_MASK_END_FLAG,          
+	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_END_FLAG,          
 	"", HFILL }
     },
     { &hf_nsip_control_bits_r,
       { "Request change flow", "nsip.control_bits.r",
-	FT_BOOLEAN, 8, TFS(&set_unset), NSIP_MASK_CONTROL_BITS_R,          
+	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_CONTROL_BITS_R,          
 	"", HFILL }
     },
     { &hf_nsip_control_bits_c,
       { "Confirm change flow", "nsip.control_bits.c",
-	FT_BOOLEAN, 8, TFS(&set_unset), NSIP_MASK_CONTROL_BITS_C,          
+	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_CONTROL_BITS_C,          
 	"", HFILL }
     },
     { &hf_nsip_transaction_id,

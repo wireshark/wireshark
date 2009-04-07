@@ -1178,11 +1178,6 @@ static const value_string nbds_msgtype_vals[] = {
 	{ 0,                       NULL }
 };
 
-static const true_false_string yesno = {
-	"Yes",
-	"No"
-};
-
 static const value_string node_type_vals[] = {
 	{ 0, "B node" },
 	{ 1, "P node" },
@@ -1899,11 +1894,11 @@ proto_register_nbt(void)
 	"NBDGM message type", HFILL }},
     { &hf_nbdgm_fragment,
       { "More fragments follow",	"nbdgm.next",
-	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
+	FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
 	"TRUE if more fragments follow", HFILL }},
     { &hf_nbdgm_first,
       { "This is first fragment",	"nbdgm.first",
-	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
+	FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
 	"TRUE if first fragment", HFILL }},
     { &hf_nbdgm_node_type,
       { "Node Type",		"nbdgm.node_type",

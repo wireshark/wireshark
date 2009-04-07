@@ -145,24 +145,9 @@ static dissector_handle_t cigi_handle;
 /* Initialize the protocol and registered fields */
 static int proto_cigi = -1;
 
-static const true_false_string cigi_boolean_tfs = {
-    "True",
-    "False"
-};
-
 static const true_false_string cigi_enable_tfs = {
     "Enable",
     "Disable"
-};
-
-static const true_false_string cigi_active_tfs = {
-    "Active",
-    "Inactive"
-};
-
-static const true_false_string cigi_on_tfs = {
-    "On",
-    "Off"
 };
 
 static const true_false_string cigi_valid_tfs = {
@@ -5616,7 +5601,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_ig_control_boresight,
             { "Tracking Device Boresight", "cigi.ig_control.boresight",
-                FT_BOOLEAN, 8, TFS(&cigi_boolean_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
                 "Used by the host to enable boresight mode", HFILL }
         },
         { &hf_cigi2_ig_control_frame_ctr,
@@ -6054,7 +6039,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_articulated_parts_control_part_state,
             { "Articulated Part State", "cigi.art_part_control.part_state",
-                FT_BOOLEAN, 8, TFS(&cigi_active_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x80,
                 "Indicates whether an articulated part is to be shown in the display", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_xoff_enable,
@@ -6317,7 +6302,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_rate_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.rate_control.apply_to_part",
-                FT_BOOLEAN, 8, TFS(&cigi_boolean_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
                 "Determines whether the rate is applied to the articulated part specified by the Articulated Part ID parameter", HFILL }
         },
         { &hf_cigi3_rate_control_x_rate,
@@ -6369,7 +6354,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_rate_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.rate_control.apply_to_part",
-                FT_BOOLEAN, 8, TFS(&cigi_boolean_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
                 "Determines whether the rate is applied to the articulated part specified by the Articulated Part ID parameter", HFILL }
         },
         { &hf_cigi3_2_rate_control_coordinate_system,
@@ -6535,7 +6520,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_environment_control_modtran_enable,
             { "MODTRAN", "cigi.env_control.modtran_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80,
                 "Identifies whether atmospherics will be included in the calculations", HFILL }
         },
         { &hf_cigi2_environment_control_date,
@@ -7163,7 +7148,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_sensor_enable,
             { "Sensor On/Off", "cigi.sensor_control.sensor_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x04,
                 "Indicates whether the sensor is turned on or off", HFILL }
         },
         { &hf_cigi2_sensor_control_polarity,
@@ -7173,7 +7158,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_line_dropout,
             { "Line-by-Line Dropout", "cigi.sensor_control.line_dropout",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
                 "Indicates whether the line-by-line dropout feature is enabled", HFILL }
         },
         { &hf_cigi2_sensor_control_sensor_id,
@@ -7188,7 +7173,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_auto_gain,
             { "Automatic Gain", "cigi.sensor_control.auto_gain",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x08,
                 "When set to \"on,\" cause the weapons sensor to automatically adjust the gain value to optimize the brightness and contrast of the sensor display", HFILL }
         },
         { &hf_cigi2_sensor_control_track_polarity,
@@ -7240,7 +7225,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_control_sensor_on_off,
             { "Sensor On/Off", "cigi.sensor_control.sensor_on_off",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
                 "Specifies whether the sensor is turned on or off", HFILL }
         },
         { &hf_cigi3_sensor_control_polarity,
@@ -7455,7 +7440,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_special_effect_definition_color_enable,
             { "Color Enable", "cigi.special_effect_def.color_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_on_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x40,
                 "Indicates whether the red, green, and blue color values will be applied to the special effect", HFILL }
         },
         { &hf_cigi2_special_effect_definition_red,
@@ -7547,7 +7532,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_definition_tracker_assign,
             { "Tracker Assign", "cigi.view_def.tracker_assign",
-                FT_BOOLEAN, 8, TFS(&cigi_boolean_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
                 "Specifies whether the view should be controlled by an external tracking device", HFILL }
         },
         { &hf_cigi2_view_definition_near_enable,
