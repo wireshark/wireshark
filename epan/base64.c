@@ -42,7 +42,7 @@ size_t epan_base64_decode(char *s)
 	int  cr_idx;
 
 	/* we will allow CR and LF - but ignore them */
-	cr_idx = strchr(b64, '\r') - b64;
+	cr_idx = (int) (strchr(b64, '\r') - b64);
 
 	i=0;
 
@@ -75,9 +75,9 @@ base64_to_tvb(const char *base64)
 {
   tvbuff_t *tvb;
   char *data = g_strdup(base64);
-  size_t len;
+  gint len;
 
-  len = epan_base64_decode(data);
+  len = (gint) epan_base64_decode(data);
   tvb = tvb_new_real_data((const guint8 *)data, len, len);
 
   tvb_set_free_cb(tvb, g_free);
