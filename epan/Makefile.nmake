@@ -65,7 +65,7 @@ EXTRA_OBJECTS = \
 	inet_ntop.obj	\
 	mkstemp.obj	\
 	strptime.obj	\
-!IFDEF NASM
+!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	asm_utils_win32_x86.obj
 !ELSE
 	asm_utils.obj
@@ -272,7 +272,7 @@ reassemble_test_install:
 #
 !IFDEF NASM
 asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
-	$(NASM) -f win32 -o $@ $?
+	$(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
 !ENDIF
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.

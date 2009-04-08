@@ -419,6 +419,12 @@ printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keyleng
 }
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
+#if defined(_WIN32) && !defined(HAVE_HEIMDAL_KERBEROS) && !defined(HAVE_MIT_KERBEROS) && !defined(HAVE_LIBNETTLE)
+void
+read_keytab_file(const char *filename _U_)
+{
+}
+#endif
 
 #ifdef HAVE_MIT_KERBEROS
 
