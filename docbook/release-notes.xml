@@ -77,6 +77,20 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark could crash while loading a Tektronix .rf5 file.
+            <!-- Fixed in trunk: r27918 -->
+            <!-- Fixed in trunk-1.0: r27975 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3366">Bug
+            3366</ulink>)
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -161,10 +175,6 @@ Wireshark Info
 
 	<listitem>
 	  "Copy as filter" from the packet list has been fixed.
-	</listitem>
-
-	<listitem>
-	  Wireshark could crash while reading a Tektronix .rf5 file.
 	</listitem>
 
       </itemizedlist>
