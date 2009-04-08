@@ -1204,7 +1204,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     if (out_fd == -1)
       open_err = errno;
   } else {
-    out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    out_fd = create_tempfile(tmpname, sizeof tmpname, "wireshark");
     if (out_fd == -1)
       open_err = errno;
     out_filename = g_strdup(tmpname);
