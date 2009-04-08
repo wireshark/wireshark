@@ -361,15 +361,14 @@ usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
  */
 static void
 time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
-			   gchar *buf, int buf_len)
+			   emem_strbuf_t *buf)
 {
-  static gchar *p;
   int hours, mins, secs;
   const gchar *msign = "";
   gboolean do_comma = FALSE;
 
   if(time == G_MININT32) {	/* That Which Shall Not Be Negated */
-    g_snprintf(buf, buf_len, "Unable to cope with time value %d", time);
+    ep_strbuf_append_printf(buf, "Unable to cope with time value %d", time);
     return;
   }
 
@@ -385,61 +384,59 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   hours = time % 24;
   time /= 24;
 
-  /* This would probably be cleaner if we used GStrings instead. */
-  p = buf;
   if (time != 0) {
-    p += g_snprintf(p, buf_len, "%s%u day%s", msign, time, PLURALIZE(time));
+    ep_strbuf_append_printf(buf, "%s%u day%s", msign, time, PLURALIZE(time));
     do_comma = TRUE;
     msign="";
   }
   if (hours != 0) {
-    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
+    ep_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
     do_comma = TRUE;
     msign="";
   }
   if (mins != 0) {
-    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
+    ep_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
     do_comma = TRUE;
     msign="";
   }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
       if (is_nsecs)
-        p += g_snprintf(p, buf_len-(p-buf), "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
+        ep_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
       else
-        p += g_snprintf(p, buf_len-(p-buf), "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
+        ep_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
     } else
-      p += g_snprintf(p, buf_len-(p-buf), "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
+      ep_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
   }
 }
 
 gchar *
 time_secs_to_str(gint32 time)
 {
-  gchar *buf;
+  emem_strbuf_t *buf;
 
-  buf=ep_alloc(TIME_SECS_LEN+1);
+  buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
   if (time == 0) {
-    g_snprintf(buf, TIME_SECS_LEN+1, "0 time");
-    return buf;
+    ep_strbuf_append(buf, "0 time");
+    return buf->str;
   }
 
-  time_secs_to_str_buf(time, 0, FALSE, buf, TIME_SECS_LEN+1);
-  return buf;
+  time_secs_to_str_buf(time, 0, FALSE, buf);
+  return buf->str;
 }
 
 gchar *
 time_msecs_to_str(gint32 time)
 {
-  gchar *buf;
+  emem_strbuf_t *buf;
   int msecs;
 
-  buf=ep_alloc(TIME_SECS_LEN+1+3+1);
+  buf=ep_strbuf_sized_new(TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
 
   if (time == 0) {
-    g_snprintf(buf, TIME_SECS_LEN+1+3+1, "0 time");
-    return buf;
+    ep_strbuf_append(buf, "0 time");
+    return buf->str;
   }
 
   if(time<0){
@@ -453,8 +450,8 @@ time_msecs_to_str(gint32 time)
     time /= 1000;
   }
 
-  time_secs_to_str_buf(time, msecs, FALSE, buf, TIME_SECS_LEN+1+3+1);
-  return buf;
+  time_secs_to_str_buf(time, msecs, FALSE, buf);
+  return buf->str;
 }
 
 static const char *mon_names[12] = {
@@ -628,14 +625,13 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 gchar *
 rel_time_to_str(nstime_t *rel_time)
 {
-	gchar *buf;
+	emem_strbuf_t *buf;
 	char *p;
 	const char *sign;
 	gint32 time;
 	gint32 nsec;
 
-	buf=ep_alloc(1+TIME_SECS_LEN+1+6+1);
-	p = buf;
+	buf=ep_strbuf_sized_new(1+TIME_SECS_LEN+1+6+1, 1+TIME_SECS_LEN+1+6+1);
 
 	/* If the nanoseconds part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -645,8 +641,8 @@ rel_time_to_str(nstime_t *rel_time)
 	time = (gint) rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time == 0 && nsec == 0) {
-		g_snprintf(buf, 1+TIME_SECS_LEN+1+6+1, "0.000000000 seconds");
-		return buf;
+		ep_strbuf_append(buf, "0.000000000 seconds");
+		return buf->str;
 	}
 	if (nsec < 0) {
 		nsec = -nsec;
@@ -660,8 +656,8 @@ rel_time_to_str(nstime_t *rel_time)
 		time = (gint) -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time, nsec, TRUE, p, 1+TIME_SECS_LEN+1+6+1);
-	return buf;
+	time_secs_to_str_buf(time, nsec, TRUE, buf);
+	return buf->str;
 }
 
 #define REL_TIME_SECS_LEN	(1+10+1+9+1)
@@ -828,7 +824,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
     shift++;
 
   p = decode_bitfield_value(buf, val, mask, width);
-  g_snprintf(p, 1025-(p-buf), fmt, (val & mask) >> shift);
+  g_snprintf(p, (gulong) (1025-(p-buf)), fmt, (val & mask) >> shift);
   return buf;
 }
 

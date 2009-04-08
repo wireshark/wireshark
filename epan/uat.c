@@ -92,7 +92,7 @@ uat_t* uat_new(const char* name,
 	uat->update_cb = update_cb;
 	uat->free_cb = free_cb;
 	uat->fields = flds_array;
-	uat->user_data = g_array_new(FALSE,FALSE,uat->record_size);
+	uat->user_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
 	uat->changed = FALSE;
 	uat->loaded = FALSE;
 	uat->rep = NULL;
@@ -126,7 +126,7 @@ void* uat_add_record(uat_t* uat, const void* data) {
 	rec = uat->user_data->data + (uat->record_size * (uat->user_data->len-1));
 
 	if (uat->copy_cb) {
-		uat->copy_cb(rec, data, uat->record_size);
+		uat->copy_cb(rec, data, (unsigned int) uat->record_size);
 	}
 
 	UAT_UPDATE(uat);
@@ -135,7 +135,7 @@ void* uat_add_record(uat_t* uat, const void* data) {
 }
 
 void uat_swap(uat_t* uat, guint a, guint b) {
-	guint s = uat->record_size;
+	size_t s = uat->record_size;
 	void* tmp = ep_alloc(s);
 
 	g_assert( a < uat->user_data->len && b < uat->user_data->len );
@@ -326,14 +326,14 @@ void uat_clear(uat_t* uat) {
 }
 
 void* uat_dup(uat_t* uat, guint* len_p) {
-	guint size = (uat->record_size * uat->user_data->len);
+	guint size = (guint) (uat->record_size * uat->user_data->len);
 	*len_p = size;
 	return size ? g_memdup(uat->user_data->data,size) : NULL ;
 }
 
 void* uat_se_dup(uat_t* uat, guint* len_p) {
-	guint size = (uat->record_size * uat->user_data->len);
-	*len_p = size;
+	guint size = (guint) (uat->record_size * uat->user_data->len);
+	*len_p = (guint) size;
 	return size ? se_memdup(uat->user_data->data,size) : NULL ;
 }
 

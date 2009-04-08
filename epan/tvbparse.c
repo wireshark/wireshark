@@ -384,7 +384,7 @@ tvbparse_wanted_t* tvbparse_string(int id,
     w->condition = cond_string;
     w->id = id;
 	w->control.str = str;
-	w->len = strlen(str);
+	w->len = (int) strlen(str);
 	w->data = data;
 	w->before = before_cb;
 	w->after = after_cb;
@@ -423,7 +423,7 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
     w->condition = cond_casestring;
     w->id = id;
 	w->control.str = str;
-	w->len = strlen(str);
+	w->len = (int) strlen(str);
 	w->data = data;
 	w->before = before_cb;
 	w->after = after_cb;
