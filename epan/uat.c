@@ -261,7 +261,7 @@ gboolean uat_save(uat_t* uat, char** error) {
             g_free (pf_dir_path);
             return FALSE;
         }
-        fp = ws_fopen(fname,"w");
+        fp = eth_fopen(fname,"w");
     }
 
 	if (!fp) {

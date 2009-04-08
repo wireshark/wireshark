@@ -5347,7 +5347,7 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fContextTaggedError(tvb, subtree, offset);
 			break;
 		case 1:	/* vendorID */
-			offset = fVendorIdentifier (tvb, subtree, offset);
+			offset = fUnsignedTag (tvb,tree,offset,"vendor ID: ");
 			break;
 		case 2:	/* serviceNumber */
 			offset = fUnsignedTag (tvb, subtree, offset, "service Number: ");
