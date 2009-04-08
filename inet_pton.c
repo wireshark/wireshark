@@ -251,7 +251,7 @@ inet_pton6(src, dst)
 		 * overlapping regions, we'll do the shift by hand.
 		 */
 		const size_t n = tp - colonp;
-		int i;
+		size_t i;
 
 		if (tp == endp)
 			return (0);
