@@ -306,8 +306,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 
         /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
         /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
-        ws_unlink(file_name8->str);  /* XX: Windows Wireshark is built with GLIB >= 2.6 these     */
-                                     /* days so ws_unlink will properly convert the               */
+        eth_unlink(file_name8->str);  /* XX: Windows Wireshark is built with GLIB >= 2.6 these     */
+                                     /* days so eth_unlink will properly convert the               */
                                      /* UTF8 filename to UTF16 & then do a _wunlink.              */
 
 	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
@@ -671,7 +671,7 @@ win32_export_raw_file(HWND h_wnd) {
         file_name8 = utf_16to8(file_name);
 	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
 		cfile.finfo_selected->start;
-        fd = ws_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        fd = eth_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
             open_failure_alert_box(file_name8, errno, TRUE);
 	    return;
