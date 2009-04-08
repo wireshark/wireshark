@@ -626,7 +626,6 @@ gchar *
 rel_time_to_str(nstime_t *rel_time)
 {
 	emem_strbuf_t *buf;
-	char *p;
 	const char *sign;
 	gint32 time;
 	gint32 nsec;
@@ -646,7 +645,7 @@ rel_time_to_str(nstime_t *rel_time)
 	}
 	if (nsec < 0) {
 		nsec = -nsec;
-		*p++ = '-';
+		ep_strbuf_append_c(buf, '-');
 
 		/*
 		 * We assume here that "rel_time->secs" is negative
