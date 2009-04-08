@@ -100,7 +100,7 @@ static const char *E_tmpdir;
 #define P_tmpdir "/var/tmp"
 #endif
 
-/* create a tempfile with the given prefix (e.g. "ether")
+/* create a tempfile with the given prefix (e.g. "wireshark")
  * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
  * returns the file descriptor of the new tempfile and
  * the name of the new file in namebuf 

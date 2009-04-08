@@ -1747,7 +1747,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     is_tempfile = FALSE;
   } else {
     /* Choose a random name for the temporary capture buffer */
-    *save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    *save_file_fd = create_tempfile(tmpname, sizeof tmpname, "wireshark");
     capfile_name = g_strdup(tmpname);
     is_tempfile = TRUE;
   }
