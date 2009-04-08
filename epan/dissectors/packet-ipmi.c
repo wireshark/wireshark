@@ -63,7 +63,7 @@ struct ipmi_netfn_root {
 
 /* We need more than a conversation. Over the same RMCP session 
    (or IPMB), there may be several addresses/SWIDs. Thus, in a single
-   Ethereal-maintained conversation we might need to find our own... */
+   Wireshark-maintained conversation we might need to find our own... */
 struct ipmi_saved_data {
 	guint32 set_data;
 	guint32 saved_data[NSAVED_DATA];

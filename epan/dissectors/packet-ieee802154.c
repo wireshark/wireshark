@@ -337,7 +337,7 @@ print_eui64_oui(guint64 addr)
  *      ieee802154_packet   *packet - Packet info structure.
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree  *tree   - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree wireshark uses to display packet.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
  *      guint       offset  - offset into the tvb to find the FCF.
  *  RETURNS
@@ -400,7 +400,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -469,7 +469,7 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -490,7 +490,7 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -524,7 +524,7 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -540,7 +540,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  NAME
  *      dissect_ieee802154_common
  *  DESCRIPTION
- *      IEEE 802.15.4 packet dissection routine for Ethereal.
+ *      IEEE 802.15.4 packet dissection routine for Wireshark.
  *      This function extracts all the information first before displaying.
  *      If payload exists, that portion will be passed into another dissector
  *      for further processing.
@@ -554,7 +554,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      guint options       - bitwise or of dissector options (see DISSECT_IEEE802154_OPTION_xxx).
  *  RETURNS
  *      void
@@ -929,7 +929,7 @@ dissect_ieee802154_fcs:
  *  PARAMETERS
  *      tvbuff_t *tvb               - pointer to buffer containing raw packet.
  *      packet_info *pinfo          - pointer to packet information fields
- *      proto_tree *tree            - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree            - pointer to data tree wireshark uses to display packet.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
  *  RETURNS
  *      void
@@ -1092,7 +1092,7 @@ dissect_ieee802154_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  *  PARAMETERS
  *      tvbuff_t *tvb               - pointer to buffer containing raw packet.
  *      packet_info *pinfo          - pointer to packet information fields
- *      proto_tree *tree            - pointer to data tree Ethereal uses to display packet.
+ *      proto_tree *tree            - pointer to data tree Wireshark uses to display packet.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
  *  RETURNS
  *      void
@@ -1787,7 +1787,7 @@ void proto_register_ieee802154(void)
     /* Register the subdissector list */
     register_heur_dissector_list("wpan", &ieee802154_heur_subdissector_list);
 
-    /*  Register dissectors with Ethereal. */
+    /*  Register dissectors with Wireshark. */
     register_dissector("wpan", dissect_ieee802154, proto_ieee802154);
     register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
