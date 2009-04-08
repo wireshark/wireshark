@@ -11,10 +11,12 @@ include Makefile.common
 
 LINK= link
 
-CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) \
 	$(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX $(GENERATED_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -301,15 +303,19 @@ RUNLEX=..\tools\runlex.sh
  
 diam_dict_lex.h: diam_dict.c
 diam_dict.obj : diam_dict.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 dtd_parse_lex.h: dtd_parse.c
 dtd_parse.obj : dtd_parse.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
-dtd_preparse.obj : dtd_preparse.c
 dtd_preparse_lex.h: dtd_preparse.c
+dtd_preparse.obj : dtd_preparse.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 radius_dict_lex.h: radius_dict.c
 radius_dict.obj : radius_dict.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 uat_load_lex.h: uat_load.c
 uat_load.obj : uat_load.c

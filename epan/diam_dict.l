@@ -607,7 +607,7 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	FILE* fh;
 	char* fname;
 	if (system_directory) {
-		int len =  strlen(system_directory) + strlen(filename) + strlen(DDICT_DIRSEP) + 1;
+		int len = (int) (strlen(system_directory) + strlen(filename) + strlen(DDICT_DIRSEP) + 1);
 		fname = g_malloc(len);
 		g_snprintf(fname, len, "%s%s%s",system_directory,DDICT_DIRSEP,filename);
 	} else {

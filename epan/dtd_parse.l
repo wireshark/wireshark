@@ -326,7 +326,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	input_string = s;
 	offset = 0;
-	len = input_string->len;
+	len = (guint) input_string->len;
 	
 	pParser = DtdParseAlloc(g_malloc);
 
