@@ -217,7 +217,7 @@ inet_ntop6(src, dst, size)
 			tp += strlen(tp);
 			break;
 		}
-		tp += g_snprintf(tp, sizeof tmp - (tp - tmp), "%x", words[i]);
+		tp += g_snprintf(tp, (gulong) (sizeof tmp - (tp - tmp)), "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) ==

@@ -69,7 +69,8 @@ inet_aton(cp_arg, addr)
 {
 	register const u_char *cp = cp_arg;
 	register u_long val;
-	register int base, n;
+	register int base;
+	register size_t n;
 	register u_char c;
 	u_int parts[4];
 	register u_int *pp = parts;

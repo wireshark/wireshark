@@ -139,11 +139,11 @@ inet_pton4(src, dst)
 		const char *pch;
 
 		if ((pch = strchr(digits, ch)) != NULL) {
-			u_int new = *tp * 10 + (pch - digits);
+			size_t new = *tp * 10 + (pch - digits);
 
 			if (new > 255)
 				return (0);
-			*tp = new;
+			*tp = (u_char) new;
 			if (! saw_digit) {
 				if (++octets > 4)
 					return (0);
@@ -250,7 +250,7 @@ inet_pton6(src, dst)
 		 * Since some memmove()'s erroneously fail to handle
 		 * overlapping regions, we'll do the shift by hand.
 		 */
-		const int n = tp - colonp;
+		const size_t n = tp - colonp;
 		int i;
 
 		if (tp == endp)
