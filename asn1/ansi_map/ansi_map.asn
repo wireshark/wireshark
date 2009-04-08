@@ -2685,6 +2685,22 @@ SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
 	systemCapabilities						[49] IMPLICIT SystemCapabilities OPTIONAL
 	-- O 6.5.2.146 g
 	}
+-- 2.65 SMSDeliveryPointToPointAck X.S0004-540-E v2.0
+SMSDeliveryPointToPointAck ::= [PRIVATE 18] SET {
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 2.129
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 2.127 d
+	msid									MSID OPTIONAL,
+	-- MobileIdentificationNumber O 2.140 d ( exchanged for msid RAB).
+	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
+	-- O 2.233 a
+	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL,
+	-- O 2.234 b
+	sms-TransactionID						[302] IMPLICIT SMS-TransactionID OPTIONAL
+	-- O 2.248 c
+}
+
 
 -- 6.4.2.44 SMSNotification
 SMSNotification ::= [PRIVATE 18] SET {
@@ -4683,7 +4699,7 @@ RoamerDatabaseVerificationRequest ::= [PRIVATE 18] SET {
 
 -- RoamerDatabaseVerificationRequest RETURN RESULT Parameters
 RoamerDatabaseVerificationRequestRes ::= [PRIVATE 18] SET {
-	transactionCapability					[123] IMPLICIT TransactionCapability
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
 	-- O 6.5.2.160
 	}
 
@@ -4882,6 +4898,216 @@ StatusRequest ::= [PRIVATE 18] SET {
 StatusRequestRes ::= [PRIVATE 18] SET {
 	information-Record						[389] IMPLICIT Information-Record OPTIONAL
 	-- O 3.3.2.2
+}
+
+-- 2.35 InterSystemSMSDeliveryPointToPoint
+InterSystemSMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
+	sms-BearerData							[105] IMPLICIT SMS-BearerData,
+	-- M 2.233
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier,
+	-- M 2.246
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 2.127 a
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 2.140 a
+	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
+	-- O 2.228 b
+	sms-MessageCount						[108] IMPLICIT SMS-MessageCount OPTIONAL,
+	-- O 2.237 c
+	sms-OriginalOriginatingAddress			[112] IMPLICIT SMS-OriginalOriginatingAddress OPTIONAL,
+	-- O 2.242 d
+	sms-OriginalOriginatingSubaddress		[113] IMPLICIT SMS-OriginalOriginatingSubaddress OPTIONAL
+	-- O 2.243 e
+}
+InterSystemSMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
+	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
+	-- O 2.233 a
+	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL
+	-- O 2.234 b
+}
+-- 2.36 InterSystemSMSPage X.S0004-540-E v2.0
+InterSystemSMSPage ::= [PRIVATE 18] SET {
+	sms-BearerData							[105] IMPLICIT SMS-BearerData,
+	-- M 2.236
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier,
+	-- M 2.249
+	cdma2000MobileSupportedCapabilities		[321] IMPLICIT CDMA2000MobileSupportedCapabilities OPTIONAL,
+	-- O 2.42 a
+	cdmaSlotCycleIndex						[166] IMPLICIT CDMASlotCycleIndex OPTIONAL,
+	-- O 2.71 b
+	cdmaStationClassMark2					[177] IMPLICIT CDMAStationClassMark2 OPTIONAL,
+	-- O 2.73 c, d
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 2.113 e
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 2.130 f
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 2.138 g
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 2.143 f
+	networkTMSI								[233] IMPLICIT NetworkTMSI OPTIONAL,
+	-- O 2.161 f
+	pageIndicator							[71] IMPLICIT PageIndicator OPTIONAL,
+	-- O 2.173 h
+	pageResponseTime						[301] IMPLICIT PageResponseTime OPTIONAL,
+	-- O 2.174 i
+	sms-ChargeIndicator						[106] IMPLICIT SMS-ChargeIndicator OPTIONAL,
+	-- O 2.238 j
+	sms-DestinationAddress					[107] IMPLICIT SMS-DestinationAddress OPTIONAL,
+	-- O 2.239 k
+	sms-OriginalDestinationAddress			[110] IMPLICIT SMS-OriginalDestinationAddress OPTIONAL,
+	-- O 2.243 l
+	sms-OriginalDestinationSubaddress		[111] IMPLICIT SMS-OriginalDestinationSubaddress OPTIONAL,
+	-- O 2.244 m
+	sms-OriginalOriginatingAddress			[112] IMPLICIT SMS-OriginalOriginatingAddress OPTIONAL,
+	-- O 2.245 n
+	sms-OriginalOriginatingSubaddress		[113] IMPLICIT SMS-OriginalOriginatingSubaddress OPTIONAL,
+	-- O 2.246 m
+	sms-OriginatingAddress					[114] IMPLICIT SMS-OriginatingAddress OPTIONAL
+	-- O 2.247 o
+	}
+-- 2.48 QualificationRequest2 X.S0004-540-E v2.0
+QualificationRequest2 ::= [PRIVATE 18] SET {
+	mscid									[21] IMPLICIT MSCID,
+	-- (Serving MSC or Originating MSC) M 2.154
+	qualificationInformationCode			[17] IMPLICIT QualificationInformationCode,
+	-- M 2.190
+	systemAccessType						[34] IMPLICIT SystemAccessType,
+	-- M 2.261
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- (MSC or VLR) M 2.263
+	transactionCapability					[123] IMPLICIT TransactionCapability,
+	-- M 2.288 a
+	cdmaNetworkIdentification				[232] IMPLICIT CDMANetworkIdentification OPTIONAL,
+	-- (Serving) O 2.58 b
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 2.88 c
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 2.113 d
+	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
+	-- O 2.138 e
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 2.142 f
+	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	-- O 2.155 g
+--	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- O 2.156 d, h
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 2.169
+	serviceRedirectionCause					[237] IMPLICIT ServiceRedirectionCause OPTIONAL,
+	-- O 2.225 i
+	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	--  O 2.218 j
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
+	-- O 2.281 k
+	userGroup								[208] IMPLICIT UserGroup OPTIONAL,
+	-- O 2.297 l
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
+	-- O 2.298 m
+	winCapability							[280] IMPLICIT WINCapability OPTIONAL
+	-- O 2.303 n
+}
+QualificationRequest2Res ::= [PRIVATE 18] SET {
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	-- (VLR or HLR) M 2.263
+	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
+	-- O 2.8 a
+	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
+	-- O 2.19 b
+	authorizationPeriod						[14] IMPLICIT AuthorizationPeriod OPTIONAL,
+	-- O 2.20 c
+	cdmaRedirectRecord						[229] IMPLICIT CDMARedirectRecord OPTIONAL,
+	-- O 2.63 d
+	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
+	-- O 2.88 e
+	deniedAuthorizationPeriod				[167] IMPLICIT DeniedAuthorizationPeriod OPTIONAL,
+	-- O 2.100 f
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Carrier) O 2.106 g
+--	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Destination) O 2.106 h, i
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 2.113 j
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 2.130 k
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 2.143 k
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (HLR) O 2.154 l
+--	Profile **Macro** O 2.185 m, n
+	authenticationCapability				[78] IMPLICIT AuthenticationCapability OPTIONAL,
+	-- O 6.5.2.8 a
+	callingFeaturesIndicator				[25] IMPLICIT CallingFeaturesIndicator OPTIONAL,
+	-- O 6.5.2.20 b
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 c
+	cdmaServiceOptionList					[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
+	-- O 6.5.2.g d
+	controlNetworkID						[307] IMPLICIT ControlNetworkID OPTIONAL,
+	-- O 6.5.2.ek u
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 d
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 d
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 d
+	geographicAuthorization					[143] IMPLICIT GeographicAuthorization OPTIONAL,
+	-- O 6.5.2.68 e
+	meidValidated							[401] IMPLICIT MEIDValidated OPTIONAL,
+	-- O 3.2.2.98
+	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
+	-- O 6.5.2.78 f
+	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	-- O 6.5.2.79 g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	--  O 6.5.2.80 d
+	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
+	-- O 6.5.2.89 h
+	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
+	-- O 6.5.2.90 i
+	pACAIndicator							[146] IMPLICIT PACAIndicator OPTIONAL,
+	-- O 6.5.2.91 j
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 k
+	qosPriority								[348] IMPLICIT QoSPriority OPTIONAL,
+	--6.5.2.ge z
+	restrictionDigits						[227] IMPLICIT RestrictionDigits OPTIONAL,
+	-- O 6.5.2.113 l
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 m
+	pSID-RSIDList							[203] IMPLICIT PSID-RSIDList OPTIONAL,
+	-- O 6 .5.2.ag u , w
+	sms-OriginationRestrictions				[115] IMPLICIT SMS-OriginationRestrictions OPTIONAL,
+	-- O 6.5.2.136 n
+	sms-TerminationRestrictions				[117] IMPLICIT SMS-TerminationRestrictions OPTIONAL,
+	-- O 6.5.2.138 o
+	spinipin								[154] IMPLICIT SPINIPIN OPTIONAL,
+	-- O 6.5.2.139 p
+	spiniTriggers							[155] IMPLICIT SPINITriggers OPTIONAL,
+	-- O 6.5.2.140 q
+	tdmaDataFeaturesIndicator				[221] IMPLICIT TDMADataFeaturesIndicator OPTIONAL,
+	-- O 6.5.2.az s
+	terminationRestrictionCode				[24] IMPLICIT TerminationRestrictionCode OPTIONAL,
+	-- O 6.5.2.157 r
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 s
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL,
+	-- O 6.5.2.de t
+	userGroup								[208] IMPLICIT UserGroup OPTIONAL,
+	-- O 6 .5.2.al p
+	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
+	-- O 6 .5.2.ad v
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
+	-- O 6 .5.2.am v , w
+	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
+	-- O 6.5.2.gl z
+	lirMode									[369] IMPLICIT LIRMode OPTIONAL,
+	-- O 6.5.2.gz z
+-- END MACRO
+	roamingIndication						[239] IMPLICIT RoamingIndication OPTIONAL,
+	-- O 2.211 o
+	serviceRedirectionInfo					[238] IMPLICIT ServiceRedirectionInfo OPTIONAL
+	-- O 2.226 a, d
 }
 -- Parameters
 -- 6.5.2.1
@@ -7150,19 +7376,11 @@ PageCount ::= OCTET STRING
 -- PageResponseTime
 PageResponseTime ::= OCTET STRING
 
--- 6.5.2.ef
--- (IS-737 modification)
+-- 2.258 X.S0004-550-E v2.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 1 0 1 1 1 0 (0x2e)(302)
--- (302)
--- Mod from 6.5.2.aj ?
--- 1 0 1 1 1 1 1 1
--- 1 0 0 0 0 0 0 1
--- 0 1 0 1 1 0 0 1
--- 
-
--- SMS-TransactionID
+SMS-TransactionID ::= OCTET STRING
 
 -- 6.5.2.eg 
 -- 1 0 1 1 1 1 1 1 (0x9f)
@@ -8039,6 +8257,7 @@ InvokeData ::= SEQUENCE {
 	sRFDirective SRFDirective,
 	tBusy TBusy,
 	tNoAnswer TNoAnswer,
+	smsDeliveryPointToPointAck SMSDeliveryPointToPointAck,
 	messageDirective MessageDirective,
 	bulkDisconnection BulkDisconnection,
 	callControlDirective CallControlDirective,
@@ -8063,8 +8282,9 @@ InvokeData ::= SEQUENCE {
 	lcsParameterRequest LCSParameterRequest,
 	checkMEID	CheckMEID,
 	positionEventNotification PositionEventNotification,
-	statusRequest StatusRequest
-
+	statusRequest StatusRequest,
+	interSystemSMSDeliveryPointToPoint InterSystemSMSDeliveryPointToPoint,
+	qualificationRequest2 QualificationRequest2
 }
 
 ReturnData ::= SEQUENCE {
@@ -8133,9 +8353,12 @@ ReturnData ::= SEQUENCE {
 	roamerDatabaseVerificationRequestRes RoamerDatabaseVerificationRequestRes,
 	addServiceRes AddServiceRes,
 	dropServiceRes DropServiceRes,
+	interSystemSMSPage InterSystemSMSPage,
 	lcsParameterRequestRes LCSParameterRequestRes,
 	checkMEIDRes	CheckMEIDRes,
-	statusRequestRes StatusRequestRes
+	statusRequestRes StatusRequestRes,
+	interSystemSMSDeliveryPointToPointRes InterSystemSMSDeliveryPointToPointRes,
+	qualificationRequest2Res QualificationRequest2Res
 }
 
 END

@@ -5,7 +5,7 @@
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Copyright 2005 - 2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2009, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -553,8 +553,11 @@ const value_string ansi_map_opr_code_strings[] = {
     {  98, "Roamer Database Verification Request" },
     {  99, "Add Service" },
     { 100, "Drop Service" },
+    { 101, "InterSystemSMSPage" },
     { 102, "LCSParameterRequest" },
     { 106, "PositionEventNotification" },
+    { 111, "InterSystemSMSDelivery-PointToPoint" },
+    { 112, "QualificationRequest2" },
     {   0, NULL },
 };
 
@@ -3918,7 +3921,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = offset;
         break;
     case  78: /*SMS Delivery Point to Point Ack*/
-        offset = offset;
+        offset = dissect_ansi_map_SMSDeliveryPointToPointAck(TRUE, tvb, offset, actx, tree, hf_ansi_map_smsDeliveryPointToPointAck);
         break;
         /* N.S0024*/
     case  79: /*Message Directive*/
@@ -3998,6 +4001,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /*End N.S0029 X.S0001-A v1.0*/
         /* X.S0002-0 v1.0 */
         /* LCSParameterRequest */
+	case 101:	/* InterSystemSMSPage 101 */
+		offset = dissect_ansi_map_InterSystemSMSPage(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSPage);
+		break;
     case 102:
         offset = dissect_ansi_map_LCSParameterRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequest);
         break;
@@ -4013,6 +4019,15 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* StatusRequest X.S0008-0 v1.0*/
         offset = dissect_ansi_map_StatusRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequest);
         break;
+		/* InterSystemSMSDelivery-PointToPoint 111 X.S0004-540-E v2.0*/
+	case 111:
+		/* InterSystemSMSDeliveryPointToPoint X.S0004-540-E v2.0 */
+		offset = dissect_ansi_map_InterSystemSMSDeliveryPointToPoint(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSDeliveryPointToPoint);
+		break;
+	case 112:
+		/* QualificationRequest2 112 X.S0004-540-E v2.0*/
+		offset = dissect_ansi_map_QualificationRequest2(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2);
+		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
         break;
@@ -4246,7 +4261,14 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* StatusRequest X.S0008-0 v1.0*/
         offset = dissect_ansi_map_StatusRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequestRes);
         break;
-
+	case 111:
+		/* InterSystemSMSDeliveryPointToPointRes X.S0004-540-E v2.0 */
+		offset = dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSDeliveryPointToPointRes);
+		break;
+	case 112:
+		/* QualificationRequest2Res 112 X.S0004-540-E v2.0*/
+		offset = dissect_ansi_map_QualificationRequest2Res(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2Res);
+		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
         break;

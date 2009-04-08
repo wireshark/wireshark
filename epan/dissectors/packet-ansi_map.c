@@ -13,7 +13,7 @@
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Copyright 2005 - 2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2009, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -573,6 +573,7 @@ static int hf_ansi_map_sms_NotificationIndicator = -1;  /* SMS_NotificationIndic
 static int hf_ansi_map_teleservice_Priority = -1;  /* Teleservice_Priority */
 static int hf_ansi_map_temporaryReferenceNumber = -1;  /* TemporaryReferenceNumber */
 static int hf_ansi_map_mobileStationMSID = -1;    /* MobileStationMSID */
+static int hf_ansi_map_sms_TransactionID = -1;    /* SMS_TransactionID */
 static int hf_ansi_map_sms_AccessDeniedReason = -1;  /* SMS_AccessDeniedReason */
 static int hf_ansi_map_seizureType = -1;          /* SeizureType */
 static int hf_ansi_map_requiredParametersMask = -1;  /* RequiredParametersMask */
@@ -642,6 +643,7 @@ static int hf_ansi_map_otasp_ResultCode = -1;     /* OTASP_ResultCode */
 static int hf_ansi_map_primitiveValue = -1;       /* PrimitiveValue */
 static int hf_ansi_map_record_Type = -1;          /* Record_Type */
 static int hf_ansi_map_information_Record = -1;   /* Information_Record */
+static int hf_ansi_map_cdma2000MobileSupportedCapabilities = -1;  /* CDMA2000MobileSupportedCapabilities */
 static int hf_ansi_map_announcementCode1 = -1;    /* AnnouncementCode */
 static int hf_ansi_map_announcementCode2 = -1;    /* AnnouncementCode */
 static int hf_ansi_map_cdmaPilotPN = -1;          /* CDMAPilotPN */
@@ -775,6 +777,7 @@ static int hf_ansi_map_seizeResource = -1;        /* SeizeResource */
 static int hf_ansi_map_sRFDirective = -1;         /* SRFDirective */
 static int hf_ansi_map_tBusy = -1;                /* TBusy */
 static int hf_ansi_map_tNoAnswer = -1;            /* TNoAnswer */
+static int hf_ansi_map_smsDeliveryPointToPointAck = -1;  /* SMSDeliveryPointToPointAck */
 static int hf_ansi_map_messageDirective = -1;     /* MessageDirective */
 static int hf_ansi_map_bulkDisconnection = -1;    /* BulkDisconnection */
 static int hf_ansi_map_callControlDirective = -1;  /* CallControlDirective */
@@ -800,6 +803,8 @@ static int hf_ansi_map_lcsParameterRequest = -1;  /* LCSParameterRequest */
 static int hf_ansi_map_checkMEID = -1;            /* CheckMEID */
 static int hf_ansi_map_positionEventNotification = -1;  /* PositionEventNotification */
 static int hf_ansi_map_statusRequest = -1;        /* StatusRequest */
+static int hf_ansi_map_interSystemSMSDeliveryPointToPoint = -1;  /* InterSystemSMSDeliveryPointToPoint */
+static int hf_ansi_map_qualificationRequest2 = -1;  /* QualificationRequest2 */
 static int hf_ansi_map_handoffMeasurementRequestRes = -1;  /* HandoffMeasurementRequestRes */
 static int hf_ansi_map_facilitiesDirectiveRes = -1;  /* FacilitiesDirectiveRes */
 static int hf_ansi_map_handoffBackRes = -1;       /* HandoffBackRes */
@@ -865,9 +870,12 @@ static int hf_ansi_map_interSystemPositionRequestForwardRes = -1;  /* InterSyste
 static int hf_ansi_map_roamerDatabaseVerificationRequestRes = -1;  /* RoamerDatabaseVerificationRequestRes */
 static int hf_ansi_map_addServiceRes = -1;        /* AddServiceRes */
 static int hf_ansi_map_dropServiceRes = -1;       /* DropServiceRes */
+static int hf_ansi_map_interSystemSMSPage = -1;   /* InterSystemSMSPage */
 static int hf_ansi_map_lcsParameterRequestRes = -1;  /* LCSParameterRequestRes */
 static int hf_ansi_map_checkMEIDRes = -1;         /* CheckMEIDRes */
 static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
+static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSystemSMSDeliveryPointToPointRes */
+static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
 #line 323 "packet-ansi_map-template.c"
@@ -982,6 +990,7 @@ static gint ett_ansi_map_SMSDeliveryForward_U = -1;
 static gint ett_ansi_map_SMSDeliveryForwardRes_U = -1;
 static gint ett_ansi_map_SMSDeliveryPointToPoint_U = -1;
 static gint ett_ansi_map_SMSDeliveryPointToPointRes_U = -1;
+static gint ett_ansi_map_SMSDeliveryPointToPointAck_U = -1;
 static gint ett_ansi_map_SMSNotification_U = -1;
 static gint ett_ansi_map_SMSNotificationRes_U = -1;
 static gint ett_ansi_map_SMSRequest_U = -1;
@@ -1065,6 +1074,11 @@ static gint ett_ansi_map_OTASPRequest_U = -1;
 static gint ett_ansi_map_OTASPRequestRes_U = -1;
 static gint ett_ansi_map_StatusRequest_U = -1;
 static gint ett_ansi_map_StatusRequestRes_U = -1;
+static gint ett_ansi_map_InterSystemSMSDeliveryPointToPoint_U = -1;
+static gint ett_ansi_map_InterSystemSMSDeliveryPointToPointRes_U = -1;
+static gint ett_ansi_map_InterSystemSMSPage_U = -1;
+static gint ett_ansi_map_QualificationRequest2_U = -1;
+static gint ett_ansi_map_QualificationRequest2Res_U = -1;
 static gint ett_ansi_map_AnnouncementList = -1;
 static gint ett_ansi_map_CDMACodeChannelInformation = -1;
 static gint ett_ansi_map_CDMACodeChannelList = -1;
@@ -1325,8 +1339,11 @@ const value_string ansi_map_opr_code_strings[] = {
     {  98, "Roamer Database Verification Request" },
     {  99, "Add Service" },
     { 100, "Drop Service" },
+    { 101, "InterSystemSMSPage" },
     { 102, "LCSParameterRequest" },
     { 106, "PositionEventNotification" },
+    { 111, "InterSystemSMSDelivery-PointToPoint" },
+    { 112, "QualificationRequest2" },
     {   0, NULL },
 };
 
@@ -11055,6 +11072,45 @@ dissect_ansi_map_SMSDeliveryPointToPointRes(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static int
+dissect_ansi_map_SMS_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SMSDeliveryPointToPointAck_U_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { &hf_ansi_map_sms_TransactionID, BER_CLASS_CON, 302, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TransactionID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_SMSDeliveryPointToPointAck_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryPointToPointAck_U_set, hf_index, ett_ansi_map_SMSDeliveryPointToPointAck_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_SMSDeliveryPointToPointAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_SMSDeliveryPointToPointAck_U);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ansi_map_SMS_AccessDeniedReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -14439,7 +14495,7 @@ dissect_ansi_map_RoamerDatabaseVerificationRequest(gboolean implicit_tag _U_, tv
 
 
 static const ber_sequence_t RoamerDatabaseVerificationRequestRes_U_set[] = {
-  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -14945,6 +15001,226 @@ dissect_ansi_map_StatusRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+static const ber_sequence_t InterSystemSMSDeliveryPointToPoint_U_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_sms_MessageCount, BER_CLASS_CON, 108, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageCount },
+  { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
+  { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemSMSDeliveryPointToPoint_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemSMSDeliveryPointToPoint_U_set, hf_index, ett_ansi_map_InterSystemSMSDeliveryPointToPoint_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_InterSystemSMSDeliveryPointToPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_InterSystemSMSDeliveryPointToPoint_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemSMSDeliveryPointToPointRes_U_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemSMSDeliveryPointToPointRes_U_set, hf_index, ett_ansi_map_InterSystemSMSDeliveryPointToPointRes_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_CDMA2000MobileSupportedCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemSMSPage_U_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { &hf_ansi_map_cdma2000MobileSupportedCapabilities, BER_CLASS_CON, 321, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000MobileSupportedCapabilities },
+  { &hf_ansi_map_cdmaSlotCycleIndex, BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASlotCycleIndex },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_pageIndicator, BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageIndicator },
+  { &hf_ansi_map_pageResponseTime, BER_CLASS_CON, 301, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageResponseTime },
+  { &hf_ansi_map_sms_ChargeIndicator, BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_ChargeIndicator },
+  { &hf_ansi_map_sms_DestinationAddress, BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_DestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationAddress, BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationSubaddress, BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationSubaddress },
+  { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
+  { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
+  { &hf_ansi_map_sms_OriginatingAddress, BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginatingAddress },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemSMSPage_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemSMSPage_U_set, hf_index, ett_ansi_map_InterSystemSMSPage_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_InterSystemSMSPage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_InterSystemSMSPage_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t QualificationRequest2_U_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_serviceRedirectionCause, BER_CLASS_CON, 237, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionCause },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_QualificationRequest2_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationRequest2_U_set, hf_index, ett_ansi_map_QualificationRequest2_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_QualificationRequest2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_QualificationRequest2_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t QualificationRequest2Res_U_set[] = {
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
+  { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
+  { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_deniedAuthorizationPeriod, BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DeniedAuthorizationPeriod },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
+  { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_pSID_RSIDList, BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDList },
+  { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
+  { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
+  { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
+  { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
+  { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { &hf_ansi_map_lirMode    , BER_CLASS_CON, 369, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRMode },
+  { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
+  { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_QualificationRequest2Res_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationRequest2Res_U_set, hf_index, ett_ansi_map_QualificationRequest2Res_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_QualificationRequest2Res_U);
+
+  return offset;
+}
+
+
 static const value_string ansi_map_DetectionPointType_vals[] = {
   {   1, "tDP-R" },
   {   2, "tDP-N" },
@@ -14958,16 +15234,6 @@ static int
 dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_CDMA2000MobileSupportedCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -15061,6 +15327,7 @@ static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_sRFDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SRFDirective },
   { &hf_ansi_map_tBusy      , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TBusy },
   { &hf_ansi_map_tNoAnswer  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TNoAnswer },
+  { &hf_ansi_map_smsDeliveryPointToPointAck, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryPointToPointAck },
   { &hf_ansi_map_messageDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_MessageDirective },
   { &hf_ansi_map_bulkDisconnection, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_BulkDisconnection },
   { &hf_ansi_map_callControlDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CallControlDirective },
@@ -15086,6 +15353,8 @@ static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_checkMEID  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CheckMEID },
   { &hf_ansi_map_positionEventNotification, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionEventNotification },
   { &hf_ansi_map_statusRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_StatusRequest },
+  { &hf_ansi_map_interSystemSMSDeliveryPointToPoint, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSMSDeliveryPointToPoint },
+  { &hf_ansi_map_qualificationRequest2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationRequest2 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -15164,9 +15433,12 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_roamerDatabaseVerificationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequestRes },
   { &hf_ansi_map_addServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddServiceRes },
   { &hf_ansi_map_dropServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DropServiceRes },
+  { &hf_ansi_map_interSystemSMSPage, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSMSPage },
   { &hf_ansi_map_lcsParameterRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_LCSParameterRequestRes },
   { &hf_ansi_map_checkMEIDRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CheckMEIDRes },
   { &hf_ansi_map_statusRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_StatusRequestRes },
+  { &hf_ansi_map_interSystemSMSDeliveryPointToPointRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes },
+  { &hf_ansi_map_qualificationRequest2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationRequest2Res },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -15180,7 +15452,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3631 "packet-ansi_map-template.c"
+#line 3634 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -15471,7 +15743,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = offset;
         break;
     case  78: /*SMS Delivery Point to Point Ack*/
-        offset = offset;
+        offset = dissect_ansi_map_SMSDeliveryPointToPointAck(TRUE, tvb, offset, actx, tree, hf_ansi_map_smsDeliveryPointToPointAck);
         break;
         /* N.S0024*/
     case  79: /*Message Directive*/
@@ -15551,6 +15823,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /*End N.S0029 X.S0001-A v1.0*/
         /* X.S0002-0 v1.0 */
         /* LCSParameterRequest */
+	case 101:	/* InterSystemSMSPage 101 */
+		offset = dissect_ansi_map_InterSystemSMSPage(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSPage);
+		break;
     case 102:
         offset = dissect_ansi_map_LCSParameterRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequest);
         break;
@@ -15566,6 +15841,15 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* StatusRequest X.S0008-0 v1.0*/
         offset = dissect_ansi_map_StatusRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequest);
         break;
+		/* InterSystemSMSDelivery-PointToPoint 111 X.S0004-540-E v2.0*/
+	case 111:
+		/* InterSystemSMSDeliveryPointToPoint X.S0004-540-E v2.0 */
+		offset = dissect_ansi_map_InterSystemSMSDeliveryPointToPoint(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSDeliveryPointToPoint);
+		break;
+	case 112:
+		/* QualificationRequest2 112 X.S0004-540-E v2.0*/
+		offset = dissect_ansi_map_QualificationRequest2(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2);
+		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
         break;
@@ -15799,7 +16083,14 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* StatusRequest X.S0008-0 v1.0*/
         offset = dissect_ansi_map_StatusRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequestRes);
         break;
-
+	case 111:
+		/* InterSystemSMSDeliveryPointToPointRes X.S0004-540-E v2.0 */
+		offset = dissect_ansi_map_InterSystemSMSDeliveryPointToPointRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemSMSDeliveryPointToPointRes);
+		break;
+	case 112:
+		/* QualificationRequest2Res 112 X.S0004-540-E v2.0*/
+		offset = dissect_ansi_map_QualificationRequest2Res(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest2Res);
+		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
         break;
@@ -17749,6 +18040,10 @@ void proto_register_ansi_map(void) {
       { "mobileStationMSID", "ansi_map.mobileStationMSID",
         FT_UINT32, BASE_DEC, VALS(ansi_map_MobileStationMSID_vals), 0,
         "ansi_map.MobileStationMSID", HFILL }},
+    { &hf_ansi_map_sms_TransactionID,
+      { "sms-TransactionID", "ansi_map.sms_TransactionID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.SMS_TransactionID", HFILL }},
     { &hf_ansi_map_sms_AccessDeniedReason,
       { "sms-AccessDeniedReason", "ansi_map.sms_AccessDeniedReason",
         FT_UINT8, BASE_DEC, VALS(ansi_map_SMS_AccessDeniedReason_vals), 0,
@@ -18025,6 +18320,10 @@ void proto_register_ansi_map(void) {
       { "information-Record", "ansi_map.information_Record",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.Information_Record", HFILL }},
+    { &hf_ansi_map_cdma2000MobileSupportedCapabilities,
+      { "cdma2000MobileSupportedCapabilities", "ansi_map.cdma2000MobileSupportedCapabilities",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CDMA2000MobileSupportedCapabilities", HFILL }},
     { &hf_ansi_map_announcementCode1,
       { "announcementCode1", "ansi_map.announcementCode1",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -18557,6 +18856,10 @@ void proto_register_ansi_map(void) {
       { "tNoAnswer", "ansi_map.tNoAnswer",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.TNoAnswer", HFILL }},
+    { &hf_ansi_map_smsDeliveryPointToPointAck,
+      { "smsDeliveryPointToPointAck", "ansi_map.smsDeliveryPointToPointAck",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryPointToPointAck", HFILL }},
     { &hf_ansi_map_messageDirective,
       { "messageDirective", "ansi_map.messageDirective",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18657,6 +18960,14 @@ void proto_register_ansi_map(void) {
       { "statusRequest", "ansi_map.statusRequest",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.StatusRequest", HFILL }},
+    { &hf_ansi_map_interSystemSMSDeliveryPointToPoint,
+      { "interSystemSMSDeliveryPointToPoint", "ansi_map.interSystemSMSDeliveryPointToPoint",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemSMSDeliveryPointToPoint", HFILL }},
+    { &hf_ansi_map_qualificationRequest2,
+      { "qualificationRequest2", "ansi_map.qualificationRequest2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationRequest2", HFILL }},
     { &hf_ansi_map_handoffMeasurementRequestRes,
       { "handoffMeasurementRequestRes", "ansi_map.handoffMeasurementRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18917,6 +19228,10 @@ void proto_register_ansi_map(void) {
       { "dropServiceRes", "ansi_map.dropServiceRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.DropServiceRes", HFILL }},
+    { &hf_ansi_map_interSystemSMSPage,
+      { "interSystemSMSPage", "ansi_map.interSystemSMSPage",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemSMSPage", HFILL }},
     { &hf_ansi_map_lcsParameterRequestRes,
       { "lcsParameterRequestRes", "ansi_map.lcsParameterRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18929,9 +19244,17 @@ void proto_register_ansi_map(void) {
       { "statusRequestRes", "ansi_map.statusRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.StatusRequestRes", HFILL }},
+    { &hf_ansi_map_interSystemSMSDeliveryPointToPointRes,
+      { "interSystemSMSDeliveryPointToPointRes", "ansi_map.interSystemSMSDeliveryPointToPointRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemSMSDeliveryPointToPointRes", HFILL }},
+    { &hf_ansi_map_qualificationRequest2Res,
+      { "qualificationRequest2Res", "ansi_map.qualificationRequest2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationRequest2Res", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5225 "packet-ansi_map-template.c"
+#line 5247 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19044,6 +19367,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_SMSDeliveryForwardRes_U,
     &ett_ansi_map_SMSDeliveryPointToPoint_U,
     &ett_ansi_map_SMSDeliveryPointToPointRes_U,
+    &ett_ansi_map_SMSDeliveryPointToPointAck_U,
     &ett_ansi_map_SMSNotification_U,
     &ett_ansi_map_SMSNotificationRes_U,
     &ett_ansi_map_SMSRequest_U,
@@ -19127,6 +19451,11 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_OTASPRequestRes_U,
     &ett_ansi_map_StatusRequest_U,
     &ett_ansi_map_StatusRequestRes_U,
+    &ett_ansi_map_InterSystemSMSDeliveryPointToPoint_U,
+    &ett_ansi_map_InterSystemSMSDeliveryPointToPointRes_U,
+    &ett_ansi_map_InterSystemSMSPage_U,
+    &ett_ansi_map_QualificationRequest2_U,
+    &ett_ansi_map_QualificationRequest2Res_U,
     &ett_ansi_map_AnnouncementList,
     &ett_ansi_map_CDMACodeChannelInformation,
     &ett_ansi_map_CDMACodeChannelList,
@@ -19185,7 +19514,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5258 "packet-ansi_map-template.c"
+#line 5280 "packet-ansi_map-template.c"
     };
 
 
