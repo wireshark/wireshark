@@ -126,7 +126,7 @@ get_token_len(const guchar *linep, const guchar *lineend,
    */
   while (linep < lineend && *linep != ' ' && *linep != '\r' && *linep != '\n')
       linep++;
-  token_len = linep - tokenp;
+  token_len = (int) (linep - tokenp);
 
   /*
    * Skip trailing blanks.

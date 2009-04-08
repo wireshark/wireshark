@@ -190,7 +190,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					header_val = tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 18, linelen - 18);
 					p = header_val;
-					len = strlen(header_val);
+					len = (guint) strlen(header_val);
 					/* Skip white space */
 					while (p < header_val + len &&
 					    (*p == ' ' || *p == '\t'))

@@ -98,7 +98,7 @@ stats_tree_branch_max_namelen(const stat_node *node, guint indent)
 		}
 	}
 	
-	len = strlen(node->name) + indent;
+	len = (guint) strlen(node->name) + indent;
 	maxlen = len > maxlen ? len : maxlen;
 	
 	return maxlen;

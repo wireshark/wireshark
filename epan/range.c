@@ -295,21 +295,20 @@ range_convert_range(range_t *range)
 {
    guint32 i;
    gboolean prepend_comma = FALSE;
-   char *string, *str;
+   emem_strbuf_t *strbuf;
 
-   string=ep_alloc(128);
-   string[0]=0;
-   str=string;
+   strbuf=ep_strbuf_new("");
 
    for (i=0; i < range->nranges; i++) {
-      if (range->ranges[i].low == range->ranges[i].high)
-	 str += g_snprintf(str, 128-(str-string), "%s%u", prepend_comma?",":"", range->ranges[i].low);
-      else
-	 str += g_snprintf(str, 128-(str-string), "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
+      if (range->ranges[i].low == range->ranges[i].high) {
+	 ep_strbuf_append_printf(strbuf, "%s%u", prepend_comma?",":"", range->ranges[i].low);
+      } else {
+	 ep_strbuf_append_printf(strbuf, "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
+      }
       prepend_comma = TRUE;
    }
 
-   return string;
+   return strbuf->str;
 }
 
 /* Create a copy of a range. */

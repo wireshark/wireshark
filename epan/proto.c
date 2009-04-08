@@ -3176,7 +3176,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
 			g_vsnprintf(fi->rep->representation + curlen,
-			    ITEM_LABEL_LENGTH - curlen, format, ap);
+			    ITEM_LABEL_LENGTH - (gulong) curlen, format, ap);
 		}
 		va_end(ap);
 	}
@@ -4190,7 +4190,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 
 		/* Create the bitfield first */
 		p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
-		bitfield_byte_length = p - label_str;
+		bitfield_byte_length = (int) (p - label_str);
 	}
 
 	/* Fill in the textual info */
@@ -4223,7 +4223,7 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 
 	/* Create the bitfield first */
 	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
-	bitfield_byte_length = p - label_str;
+	bitfield_byte_length = (int) (p - label_str);
 
 	/* Fill in the textual info using stored (shifted) value */
 	if (hfinfo->display == BASE_CUSTOM) {
@@ -5491,7 +5491,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 
 	hfinfo = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
-	abbrev_len = strlen(hfinfo->abbrev);
+	abbrev_len = (int) strlen(hfinfo->abbrev);
 
 	if (hfinfo->strings && (hfinfo->display & BASE_STRUCTURE_RESET) == BASE_NONE) {
 		const gchar *str = NULL;
@@ -5648,16 +5648,16 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				*filter = ep_alloc0(buf_len);
 				ptr = *filter;
 
-				ptr += g_snprintf(ptr, buf_len-(ptr-*filter),
+				ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
 				    "frame[%d:%d] == ", finfo->start, length);
 				for (i=0;i<length; i++) {
 					c = tvb_get_guint8(finfo->ds_tvb, start);
 					start++;
 					if (i == 0 ) {
-						ptr += g_snprintf(ptr, buf_len-(ptr-*filter), "%02x", c);
+						ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), "%02x", c);
 					}
 					else {
-						ptr += g_snprintf(ptr, buf_len-(ptr-*filter), ":%02x", c);
+						ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), ":%02x", c);
 					}
 				}
 			}
