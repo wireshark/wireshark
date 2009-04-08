@@ -419,23 +419,23 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
                                               GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
-    prefs.gui_ask_unsaved = 
-        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
+	prefs.gui_ask_unsaved = 
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
 
-    prefs.gui_find_wrap = 
-        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
+	prefs.gui_find_wrap = 
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
 
-    prefs.gui_use_pref_save = 
-        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
+	prefs.gui_use_pref_save = 
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
 	prefs.gui_version_in_start_page  = 
-        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
 
-    if (browser_needs_pref()) {
+	if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
-	    prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
-                                                GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WEBBROWSER_KEY))));
-    }
+		prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
+							GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WEBBROWSER_KEY))));
+	}
 	/*
 	 * XXX - we need to have a way to fetch the preferences into
 	 * local storage and only set the permanent preferences if there
@@ -458,10 +458,10 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 {
 
 #ifdef _WIN32
-    /* user immediately wants to see a console */
-    if (prefs.gui_console_open == console_open_always) {
-        create_console();
-    }
+	/* user immediately wants to see a console */
+	if (prefs.gui_console_open == console_open_always) {
+		create_console();
+	}
 #endif
 
 	if (font_changed) {
@@ -521,110 +521,110 @@ static gint
 recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 			      GdkEvent *event _U_, gpointer parent_w)
 {
-    GtkWidget	*recent_df_entries_count_te;
-    guint newval;
+	GtkWidget	*recent_df_entries_count_te;
+	guint newval;
 
-    recent_df_entries_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_DF_ENTRIES_KEY);
+	recent_df_entries_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_DF_ENTRIES_KEY);
 
-    /*
-     * Now, just convert the string to a number and store it in the prefs
-     * filed ...
-     */
+	/*
+	 * Now, just convert the string to a number and store it in the prefs
+	 * filed ...
+	 */
 
-    newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_df_entries_count_te)), NULL, 10);
+	newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_df_entries_count_te)), NULL, 10);
 
-    if (newval > 0) {
-      prefs.gui_recent_df_entries_max = newval;
-    }
+	if (newval > 0) {
+		prefs.gui_recent_df_entries_max = newval;
+	}
 
-    /* We really should pop up a nasty dialog box if newval <= 0 */
+	/* We really should pop up a nasty dialog box if newval <= 0 */
 
-    return FALSE;
+	return FALSE;
 }
 
 static gint
 recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
 			      GdkEvent *event _U_, gpointer parent_w)
 {
-    GtkWidget	*recent_files_count_te;
-    guint newval;
+	GtkWidget	*recent_files_count_te;
+	guint newval;
     
-    recent_files_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_FILES_COUNT_KEY);
+	recent_files_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_FILES_COUNT_KEY);
 
-    /*
-     * Now, just convert the string to a number and store it in the prefs
-     * filed ...
-     */
+	/*
+	 * Now, just convert the string to a number and store it in the prefs
+	 * filed ...
+	 */
 
-    newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_files_count_te)), NULL, 10);
+	newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_files_count_te)), NULL, 10);
 
-    if (newval > 0) {
-      prefs.gui_recent_files_count_max = newval;
-    }
+	if (newval > 0) {
+		prefs.gui_recent_files_count_max = newval;
+	}
 
-    /* We really should pop up a nasty dialog box if newval <= 0 */
+	/* We really should pop up a nasty dialog box if newval <= 0 */
 
-    return FALSE;
+	return FALSE;
 }
 
 static gint
 fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_, 
 			      GdkEvent *event _U_, gpointer parent_w)
 {
-    GtkWidget	*fileopen_preview_te;
-    guint newval;
+	GtkWidget	*fileopen_preview_te;
+	guint newval;
     
-    fileopen_preview_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_PREVIEW_KEY);
+	fileopen_preview_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_PREVIEW_KEY);
 
-    /*
-     * Now, just convert the string to a number and store it in the prefs
-     * filed ...
-     */
+	/*
+	 * Now, just convert the string to a number and store it in the prefs
+	 * filed ...
+	 */
 
-    newval = strtol(gtk_entry_get_text (GTK_ENTRY(fileopen_preview_te)), NULL, 10);
+	newval = strtol(gtk_entry_get_text (GTK_ENTRY(fileopen_preview_te)), NULL, 10);
 
-    if (newval > 0) {
-      prefs.gui_fileopen_preview = newval;
-    }
+	if (newval > 0) {
+		prefs.gui_fileopen_preview = newval;
+	}
 
-    /* We really should pop up a nasty dialog box if newval <= 0 */
+	/* We really should pop up a nasty dialog box if newval <= 0 */
 
-    return FALSE;
+	return FALSE;
 }
 
 static gint
 fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpointer parent_w)
 {
-    GtkWidget	*fileopen_dir_te;
-    char *lastchar;
-    gint fileopen_dir_te_length;
+	GtkWidget	*fileopen_dir_te;
+	char *lastchar;
+	gint fileopen_dir_te_length;
     
-    fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
-    fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
-    if (fileopen_dir_te_length == 0)
-    	return FALSE;
-    lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
-    if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
-	gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
-    return FALSE;
+	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
+	fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
+	if (fileopen_dir_te_length == 0)
+		return FALSE;
+	lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
+	if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
+		gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
+	return FALSE;
 }
 
 static void
 fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
 {
-    GtkWidget	*fileopen_rb, *fileopen_dir_te;
+	GtkWidget	*fileopen_rb, *fileopen_dir_te;
     
-    fileopen_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_KEY);
-    fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
+	fileopen_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_KEY);
+	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
     
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
-    {
-	gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);
-    }
-    else
-    {
-	gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), FALSE);
-    }
-    return;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
+	{
+		gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);
+	}
+	else
+	{
+		gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), FALSE);
+	}
+	return;
 }
 
