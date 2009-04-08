@@ -1,4 +1,4 @@
-Wireshark 1.0.6 Release Notes
+Wireshark 1.0.7 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,60 +15,68 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o On non-Windows systems, Wireshark could crash if the HOME
-       environment variable contained sprintf-style string formatting
-       characters. Discovered by babi. (Bug 3150)
+     o The PROFINET dissector was vulnerable to a format string
+       overflow. (Bug 3382)
 
-       Versions affected: 0.99.8 to 1.0.5
+       Versions affected: 0.99.6 to 1.0.6
 
-     o Wireshark could crash while reading a malformed NetScreen
-       snoop file. Discovered by babi. (Bug 3151)
+       CVE-2009-1210
 
-       Versions affected: 0.99.7 to 1.0.5
+     o The LDAP dissector could crash on Windows. (Bug 3262)
 
-     o Wireshark could crash while reading a Tektronix K12 text
-       capture file. (Bug 1937)
+       Versions affected: 0.99.2 to 1.0.6
 
-       Versions affected: 0.99.6 to 1.0.5
+       CVE-2009-1267
+
+     o The Check Point High-Availability Protocol (CPHAP) dissector
+       could crash. (Bug 3269)
+
+       Versions affected: 0.9.6 to 1.0.6
+
+       CVE-2009-1268
+
+     o Wireshark could crash while loading a Tektronix .rf5 file.
+       (Bug 3366)
+
+       Versions affected: 0.99.6 to 1.0.6
+
+       CVE-2009-1269
 
    The following bugs have been fixed:
 
-     o Crash when loading capture file and Preferences: NO Info
-       column (Bug 2902)
+     o Correct use of proto_tree_add_int_format() (Bug 3048)
 
-     o Some Lua scripts may lead to corruption via out of bounds
-       stack (Bug 3062)
+     o RTP dynamic payload clock rates incorrectly determined (Bug
+       3067)
 
-     o Build with GLib 1.2 fails with error: 'G_MININT32' undeclared
-       (Bug 3109)
+     o TShark fails to properly close capture files when opening new
+       ones (Bug 3172)
 
-     o Wrong decoding IMSI with GSM MAP protocol (Bug 3116)
+     o ANSI MAP digits type decode and bitmask corrections (Bug 3233)
 
-     o Segmentation fault for "Follow TCP stream" (Bug 3119)
+     o Two small patches for ipvs-syncd dissector (Bug 3236)
 
-     o SMPP optional parameter 'network_error_code' incorrectly
-       decoded (Bug 3128)
+     o BGP capability dissection failure (Bug 3247)
 
-     o DHCPv6 dissector doesn't handle malformed FQDN (Bug 3134)
+     o ANSI MAP fix for missing MEID/MSC ID number in RegNot (Bug
+       3255)
 
-     o WCCP overrides CFLOW as decoded protocol (Bug 3175)
+     o BACnet PrivateTransferError shows malformed packet (Bug 3257)
 
-     o Improper decoding of MPLS echo reply IPv4 Interface and Label
-       Stack Object (Bug 3179)
+     o Windows silent installer is not that silent (Bug 3260)
 
-     o ANSI MAP fix for TRN digits/SMS and OTA subdissection (Bug
-       3214)
+     o Crash in ASN.1 dissector when using 'type table' (Bug 3271)
 
-     o The 1.0 branch can now be built with Visual Studio 2008.
+     o 802.11n SM Power save mode value 0x3 label is incorrect (Bug
+       3276)
+
+     o 802.11 WME ie displayed incorrectly (Bug 3284)
+
+     o "Copy as filter" from the packet list has been fixed.
 
   New and Updated Features
 
-   <listitem>
-
-   The version of GNUTLS included with the Windows packages has been
-   updated from 2.3.8 to 2.6.3.
-
-   </listitem>
+   There are no new or updated features in this release.
 
   New Protocol Support
 
@@ -76,11 +84,12 @@ What's New
 
   Updated Protocol Support
 
-   AFS, ATM, DHCPv6, DIS, E.212, RTP, UDP, USB, WCCP, WPS
+   ACN, ANSI MAP, ASN.1 BACnet, BGP, CPHAP, GSM MAP, IEEE 802.11,
+   IPVS, LDAP, NetFlow/IPFIX, PROFINET, RTP, SNMP, WSP
 
   New and Updated Capture File Support
 
-   NetScreen snoop
+   (TBD)
 
 Getting Wireshark
 
