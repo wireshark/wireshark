@@ -86,7 +86,7 @@ static gint pref_lapd_rtp_payload_type = 0;
 static dissector_table_t lapd_sapi_dissector_table;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
 
-/* Wether to use GSM SAPI vals or not */
+/* Whether to use GSM SAPI vals or not */
 static gboolean global_lapd_gsm_sapis = FALSE;
 
 static dissector_handle_t data_handle;

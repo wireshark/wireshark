@@ -127,7 +127,7 @@ static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
  *
  *   This is just a copy of isis.c and isis.h, so I keep the stuff also
  *   and adapt the names to cover possible protocol errors! Ive really no
- *   idea wether I need this or not.
+ *   idea whether I need this or not.
  *
  * Input
  *   tvbuff_t *      : tvbuff with packet data.

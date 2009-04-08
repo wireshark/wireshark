@@ -204,7 +204,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	tmp_strinfo.info_payload_type_str = rtpinfo->info_payload_type_str;
 
 	if (tapinfo->mode == TAP_ANALYSE) {
-		/* check wether we already have a stream with these parameters in the list */
+		/* check whether we already have a stream with these parameters in the list */
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{

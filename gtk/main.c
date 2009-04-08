@@ -1227,7 +1227,7 @@ main_cf_cb_file_closing(capture_file *cf)
 {
 
     /* if we have more than 10000 packets, show a splash screen while closing */
-    /* XXX - don't know a better way to decide wether to show or not,
+    /* XXX - don't know a better way to decide whether to show or not,
      * as most of the time is spend in a single eth_clist_clear function,
      * so we can't use a progress bar here! */
     if(cf->count > 10000) {

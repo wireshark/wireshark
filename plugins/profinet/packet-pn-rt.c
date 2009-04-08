@@ -247,7 +247,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* The PN-RT protocol uses status values at the end of the Ethernet frame.
    * Unfortunately it doesn't contain a length field in the PN-RT protocol itself,
    * so we must depend on the tvb length. This is sometimes is a bit confusing
-   * wether the length of the tvb contains the optional FCS at the end or not
+   * whether the length of the tvb contains the optional FCS at the end or not
    * therefore the following heuristic ... */
 
   if(pinfo->fd->lnk_t == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {

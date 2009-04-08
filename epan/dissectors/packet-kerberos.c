@@ -2237,7 +2237,7 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
 	 * guint32 unknown
 	 * guint32 unknown
 	 * decode everything as this blob for now until we see if anyone
-	 * else ever uses it   or we learn how to tell wether this
+	 * else ever uses it   or we learn how to tell whether this
 	 * is such an MS blob or not.
 	 */
 	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,

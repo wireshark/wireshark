@@ -2844,7 +2844,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	offset += 4;
 
 	options = tvb_get_guint8(tvb, offset);
-	if (options & 0x80) { /* check wether or not E bit is set */
+	if (options & 0x80) { /* check whether or not E bit is set */
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
 		    "External Type: Type 2 (metric is larger than any other link state path)");
 	} else {
@@ -2867,7 +2867,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* TOS-specific information, if any */
 	while (offset < end_offset) {
 	    options = tvb_get_guint8(tvb, offset);
-	    if (options & 0x80) { /* check wether or not E bit is set */
+	    if (options & 0x80) { /* check whether or not E bit is set */
 		proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
 			"External Type: Type 2 (metric is larger than any other link state path)");
 	    } else {

@@ -498,7 +498,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 	add_rtp_packet(pi, pinfo);
 #endif
 
-	/* check wether we already have a RTP stream with this setup frame and ssrc in the list */
+	/* check whether we already have a RTP stream with this setup frame and ssrc in the list */
 	list = g_list_first(tapinfo->list);
 	while (list)
 	{

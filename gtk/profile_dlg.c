@@ -204,7 +204,7 @@ fill_list(GtkWidget *main_w)
     ws_dir_close (dir);
   }
 
-  /* Make the current list an the edited list equal */
+  /* Make the current list and the edited list equal */
   copy_profile_list ();
 
   return l_select;
