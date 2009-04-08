@@ -265,7 +265,7 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 {
   const char *rp_backup;
   int cnt;
-  size_t val;
+  int val;
   int have_I, is_pm;
   int century, want_century;
   int want_era;
