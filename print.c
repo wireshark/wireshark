@@ -82,7 +82,7 @@ struct _output_fields {
 };
 
 static const gchar* get_field_hex_value(GSList* src_list, field_info *fi);
-static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
+const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
@@ -1486,7 +1486,7 @@ void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
 }
 
 /* Returns an ep_alloced string or a static constant*/
-static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
+const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
 {
     if (fi->hfinfo->id == hf_text_only) {
         /* Text label.

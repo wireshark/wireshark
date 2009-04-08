@@ -471,6 +471,10 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_QUIT,},
     {"/_Edit", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Edit/Copy", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Edit/Copy/Description", "<shift><control>D", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_DESCRIPTION, NULL, NULL,},
+    {"/Edit/Copy/Fieldname", "<shift><control>F", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_FIELDNAME, NULL, NULL,},
+    {"/Edit/Copy/Value", "<shift><control>V", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_VALUE, NULL, NULL,},
+    {"/Edit/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Copy/As Filter", "<shift><control>C", GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
 #if 0
@@ -1001,7 +1005,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Copy/Description", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), 0, NULL, NULL,},
+    {"/Copy/Description", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_DESCRIPTION, NULL, NULL,},
+    {"/Copy/Fieldname", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_FIELDNAME, NULL, NULL,},
+    {"/Copy/Value", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_VALUE, NULL, NULL,},
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Copy/As Filter", NULL, GTK_MENU_FUNC(match_selected_ptree_cb), MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
@@ -3076,6 +3082,12 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy",
@@ -3119,6 +3131,9 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);

@@ -145,4 +145,6 @@ extern void write_fields_preamble(output_fields_t* fields, FILE *fh);
 extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh);
 extern void write_fields_finale(output_fields_t* fields, FILE *fh);
 
+extern const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
+
 #endif /* print.h */

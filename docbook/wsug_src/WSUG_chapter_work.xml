@@ -360,11 +360,29 @@
 	      </row>
 	      <row>
 		<entry><command>Copy/ Description</command></entry>
-		<entry>-</entry>
+		<entry>Edit</entry>
 		<entry>
 	    <para>
 	      Copy the displayed text of the selected field to the system 
 		  clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ Fieldname</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Copy the name of the selected field to the system clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ Value</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Copy the value of the selected field to the system clipboard. 
 	    </para>
 		</entry>
 	      </row>

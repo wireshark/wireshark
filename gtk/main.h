@@ -124,13 +124,6 @@ typedef enum {
 /** "bitwise or" this with MATCH_SELECTED_E value for copy to clipboard instead of prepare only */
 #define MATCH_SELECTED_COPY_ONLY    0x200
 
-/** User highlited item in details window and then right clicked and selected the copy option
- *
- * @param widget parent widget
- * @param data parent widget
- */
-extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data);
-
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by menu or context menu of protocol tree.
  *
@@ -139,6 +132,21 @@ extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data);
  * @param action the function to use
  */
 extern void match_selected_ptree_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+
+/** "Copy ..." action type. */
+typedef enum {
+    COPY_SELECTED_DESCRIPTION,  /**< "Copy Description" */
+    COPY_SELECTED_FIELDNAME,    /**< "Copy Fieldname" */
+    COPY_SELECTED_VALUE         /**< "Copy Value" */
+} COPY_SELECTED_E;
+
+/** User highlited item in details window and then right clicked and selected the copy option
+ *
+ * @param widget parent widget
+ * @param data parent widget
+ * @param action the function to use
+ */
+extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data, COPY_SELECTED_E action);
 
 /** User requested the colorize function
  *  by menu or context menu of protocol tree.

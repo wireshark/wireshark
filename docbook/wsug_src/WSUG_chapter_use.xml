@@ -632,6 +632,30 @@
 	    </thead>
 	    <tbody>
 	      <row>
+		<entry><command>Copy > Description</command></entry>
+		<entry>Shift+Ctrl+D</entry>
+		<entry><para>
+			This menu item will copy the description of the selected item
+                        in the detail view to the clipboard.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Copy > Fieldname</command></entry>
+		<entry>Shift+Ctrl+F</entry>
+		<entry><para>
+			This menu item will copy the fieldname of the selected item
+                        in the detail view to the clipboard.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Copy > Value</command></entry>
+		<entry>Shift+Ctrl+V</entry>
+		<entry><para>
+			This menu item will copy the value of the selected item
+                        in the detail view to the clipboard.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Copy > As Filter</command></entry>
 		<entry>Shift+Ctrl+C</entry>
 		<entry><para>

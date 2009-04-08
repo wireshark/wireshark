@@ -524,25 +524,46 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
  * fails we display a message to the user to indicate the copy could not be completed.
  */
 void
-copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_)
+copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E action)
 {
     GString *gtk_text_str = g_string_new("");
     char labelstring[256];
     char *stringpointer = labelstring;
 
-    if (cfile.finfo_selected->rep->representation != 0) {
-        g_string_append(gtk_text_str, cfile.finfo_selected->rep->representation);   /* Get the represented data */
+    switch(action)
+    {
+    case COPY_SELECTED_DESCRIPTION:
+        if (cfile.finfo_selected->rep->representation != 0) {
+            g_string_append(gtk_text_str, cfile.finfo_selected->rep->representation);
+        }
+        break;
+    case COPY_SELECTED_FIELDNAME:
+        if (cfile.finfo_selected->hfinfo->abbrev != 0) {
+            g_string_append(gtk_text_str, cfile.finfo_selected->hfinfo->abbrev);
+        }
+        break;
+    case COPY_SELECTED_VALUE:
+        if (cfile.edt !=0 ) {
+            g_string_append(gtk_text_str, 
+                    get_node_field_value(cfile.finfo_selected, cfile.edt));
+        }
+        break;
+    default:
+        break;
     }
-    if (gtk_text_str->len == 0) {                                                   /* If no representation then... */
-        proto_item_fill_label(cfile.finfo_selected, stringpointer);                 /* Try to read the value */
+
+    if (gtk_text_str->len == 0) {
+        /* If no representation then... Try to read the value */
+        proto_item_fill_label(cfile.finfo_selected, stringpointer);
         g_string_append(gtk_text_str, stringpointer);
     }
-    if (gtk_text_str->len == 0) {                                                   /* Could not get item so display error msg */
+
+    if (gtk_text_str->len == 0) {
+        /* Could not get item so display error msg */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to copy, try expanding or choosing another item");
-    }
-    else
-    {
-        copy_to_clipboard(gtk_text_str);                     /* Copy string to clipboard */
+    } else {
+        /* Copy string to clipboard */
+        copy_to_clipboard(gtk_text_str);
     }
     g_string_free(gtk_text_str, TRUE);                       /* Free the memory */
 }

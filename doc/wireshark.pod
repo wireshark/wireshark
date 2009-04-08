@@ -803,6 +803,21 @@ dialog box popped up by this menu item.
 
 Exit the application.
 
+=item Edit:Copy:Decription
+
+Copies the description of the selected field in the protocol tree to 
+the clipboard.
+
+=item Edit:Copy:Fieldname
+
+Copies the fieldname of the selected field in the protocol tree to 
+the clipboard.
+
+=item Edit:Copy:Value
+
+Copies the value of the selected field in the protocol tree to 
+the clipboard.
+
 =item Edit:Copy:As Filter
 
 Create a display filter based on the data currently highlighted in the
