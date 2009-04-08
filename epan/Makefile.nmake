@@ -319,6 +319,7 @@ radius_dict.obj : radius_dict.c
 
 uat_load_lex.h: uat_load.c
 uat_load.obj : uat_load.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 LEMON=..\tools\lemon
 
