@@ -455,7 +455,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	saved_can_desegment = pinfo->can_desegment;
 
 	if (pinfo->layer_names != NULL)
-		saved_layer_names_len = pinfo->layer_names->len;
+		saved_layer_names_len = (gint) pinfo->layer_names->len;
 
 	/*
 	 * can_desegment is set to 2 by anyone which offers the
@@ -1571,7 +1571,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	saved_proto = pinfo->current_proto;
 
 	if (pinfo->layer_names != NULL)
-		saved_layer_names_len = pinfo->layer_names->len;
+		saved_layer_names_len = (gint) pinfo->layer_names->len;
 
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		/* XXX - why set this now and above? */

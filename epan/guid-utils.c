@@ -71,7 +71,7 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)reg_uuid_name, &uuid_max_size) == ERROR_SUCCESS && uuid_max_size <= MAX_PATH) {
 			g_snprintf(uuid_name, uuid_name_max_len, "%s", utf_16to8(reg_uuid_name));
 			RegCloseKey(hKey);
-			return strlen(uuid_name);
+			return (int) strlen(uuid_name);
 		}
 		RegCloseKey(hKey);
 	}

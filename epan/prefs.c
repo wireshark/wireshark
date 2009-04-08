@@ -901,11 +901,11 @@ put_string_list(GList *sl)
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(sl);
   gchar        *str;
-  int           cur_pos = 0, cur_len = 0;
+  size_t        cur_pos = 0, cur_len = 0;
   gchar        *quoted_str;
-  int           str_len;
+  size_t        str_len;
   gchar        *strp, *quoted_strp, c;
-  int           fmt_len;
+  size_t        fmt_len;
 
   while (clp) {
     str = clp->data;
@@ -936,7 +936,7 @@ put_string_list(GList *sl)
         pref_str[cur_len] = '\n'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
       }
-      g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - cur_len, "\"%s\", ", quoted_str);
+      g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - (gulong) cur_len, "\"%s\", ", quoted_str);
       cur_pos += fmt_len;
       cur_len += fmt_len;
     }
@@ -1757,7 +1757,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   pref_t   *pref;
   gboolean had_a_dot;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
-  int cust_format_len = strlen(cust_format);
+  size_t cust_format_len = strlen(cust_format);
 
   if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
