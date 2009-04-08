@@ -72,12 +72,6 @@ typedef struct entity_t {
 
 #define D(args) ddict_debug args
 
-#ifdef _WIN32
-#define DDICT_DIRSEP "\\"
-#else
-#define DDICT_DIRSEP "/"
-#endif
-
 #define MAX_INCLUDE_DEPTH 10
 #define YY_INPUT(buf,result,max_size) { result = current_yyinput(buf,max_size); }
 #define ECHO
@@ -607,9 +601,8 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	FILE* fh;
 	char* fname;
 	if (system_directory) {
-		int len = (int) (strlen(system_directory) + strlen(filename) + strlen(DDICT_DIRSEP) + 1);
-		fname = g_malloc(len);
-		g_snprintf(fname, len, "%s%s%s",system_directory,DDICT_DIRSEP,filename);
+		fname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+		    system_directory,filename);
 	} else {
 		fname = strdup(filename);
 	}
