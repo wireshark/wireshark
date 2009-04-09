@@ -355,10 +355,10 @@ static const value_string h264_slice_type_vals[] = {
 	{ 0,	NULL }
 };
 /* byte_aligned( ) is specified as follows.
- * – If the current position in the bitstream is on a byte boundary, i.e.,
+ * - If the current position in the bitstream is on a byte boundary, i.e.,
  *	 the next bit in the bitstream is the first bit in a byte,
  *	 the return value of byte_aligned( ) is equal to TRUE.
- * – Otherwise, the return value of byte_aligned( ) is equal to FALSE.
+ * - Otherwise, the return value of byte_aligned( ) is equal to FALSE.
  */
 static gboolean
 h264_byte_aligned(int bit_offset)
