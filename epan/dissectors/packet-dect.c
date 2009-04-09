@@ -190,6 +190,8 @@ static int hf_dect_A_Tail_Qt_4_A47		= -1;
 static int hf_dect_A_Tail_Qt_6_Spare		= -1;
 static int hf_dect_A_Tail_Qt_6_Mfn		= -1;
 static int hf_dect_A_Tail_Mt_Mh			= -1;
+static int hf_dect_A_Tail_Mt_Mh_fmid		= -1;
+static int hf_dect_A_Tail_Mt_Mh_pmid		= -1;
 static int hf_dect_A_Tail_Mt_BasicConCtrl	= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd1		= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd2		= -1;
@@ -203,6 +205,7 @@ static int hf_dect_A_Tail_Pt_Bearer_Sp		= -1;
 static int hf_dect_A_RCRC			= -1;
 static int hf_dect_B				= -1;
 static int hf_dect_B_Data			= -1;
+static int hf_dect_B_fn				= -1;
 static int hf_dect_B_XCRC			= -1;
 
 static const value_string tranceiver_mode[]=
@@ -1204,7 +1207,7 @@ calc_rcrc(guint8* data)
 }
 
 static gint
-dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
+dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr _U_,
 	tvbuff_t *tvb, proto_item *ti _U_, proto_tree *DectTree, gint offset)
 {
@@ -1218,7 +1221,7 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 	proto_tree *BField	=NULL;
 
 	/* B-Feld */
-	switch((pkt_afield->Header&0x0E)>>1)
+	switch((a_header&0x0E)>>1)
 	{
 	case 0:
 	case 1:
@@ -1228,27 +1231,27 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 		blen=40;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_DEF_NET_DST))
+		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
 		{
-			col_append_str(pinfo->cinfo, COL_DEF_NET_DST, "Full Slot");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Full Slot");
 		}
 		break;
 	case 2:
 		blen=100;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_DEF_NET_DST))
+		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
 		{
-			col_append_str(pinfo->cinfo, COL_DEF_NET_DST, "Double Slot");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Double Slot");
 		}
 		break;
 	case 4:
 		blen=10;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_DEF_NET_DST))
+		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
 		{
-			col_append_str(pinfo->cinfo, COL_DEF_NET_DST, "Half Slot");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Half Slot");
 		}
 		break;
 	case 7:
@@ -1256,16 +1259,16 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 		blen=0;
 		xcrclen=0;
 
-		if(check_col(pinfo->cinfo, COL_DEF_NET_DST))
+		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
 		{
-			col_append_str(pinfo->cinfo, COL_DEF_NET_DST, "No B-Field");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "No B-Field");
 		}
 		break;
 
 	}
 	if(blen)
 	{
-		bfieldti	= proto_tree_add_uint_format(DectTree, hf_dect_B, tvb, offset, 40, 0/*0x2323*/, "B-Field");
+		bfieldti	= proto_tree_add_item(DectTree, hf_dect_B, tvb, offset, 40, FALSE);
 		BField		= proto_item_add_subtree(bfieldti, ett_bfield);
 	}
 
@@ -1273,7 +1276,7 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 
 	if((blen+(xcrclen/8)+1)<=pkt_bfield->Length)
 	{
-		guint16 x, y=0;
+		guint16 x, y;
 		for(x=0;x<blen;x+=16)
 		{
 			/*
@@ -1281,29 +1284,25 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 			 * and possibly just displayed as "Data: N bytes"
 			 * rather than giving all the bytes of data?
 			 */
-			emem_strbuf_t *string;
-			string = ep_strbuf_new(NULL);
 			for(y=0;y<16;y++)
 			{
 				if((x+y)>=blen)
 					break;
-
-				ep_strbuf_append_printf(string,"%.2x ", pkt_bfield->Data[x+y]);
 			}
-			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string->str);
+			proto_tree_add_item(BField, hf_dect_B_Data, tvb, offset, y, FALSE);
 			if(y==16)
 				offset+=16;
 			else
+				/* XXX: Why 16-y and not y??? */
 				offset+=16-y;
 		}
 		for(fn=0;fn<8;fn++)
 		{
 			guint16 bytecount=0;
 
-			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "\n");
 			offset=oldoffset;
 
-			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Framenumber %u/%u", fn, fn+8);
+			proto_tree_add_none_format(BField, hf_dect_B_fn, tvb, offset, 0, "\nFramenumber %u/%u", fn, fn+8);
 			for(x=0;x<blen;x+=16)
 			{
 				/*
@@ -1332,8 +1331,10 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 		xcrc=calc_xcrc(pkt_bfield->Data, 83);
 
 		if(xcrc!=(pkt_bfield->Data[40]&0xf0))
+			/* XXX: pkt_bfield->Data[40]&0xf0 isn't really the Recv value?? */
 			proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 0, "X-CRC Error (Calc:%.2x, Recv:%.2x)", xcrc, pkt_bfield->Data[40]&0xf0);
 		else
+			/* XXX: pkt_bfield->Data[40]&0xf0 isn't really the Recv value?? */
 			proto_tree_add_uint_format(bfieldti, hf_dect_B_XCRC, tvb, offset, 1, 1, "X-CRC Match (Calc:%.2x, Recv:%.2x)", xcrc, pkt_bfield->Data[40]&0xf0);
 	}
 	else
@@ -1346,7 +1347,6 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr,
 	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
-	gchar *str_p;
 	guint16 rcrc;
 	guint8 rcrcdat[8];
 	gint offset		=11;
@@ -1361,6 +1361,8 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	proto_tree *AField	=NULL;
 	proto_tree *AHead	=NULL;
 	proto_tree *ATail	=NULL;
+
+	guint8	header, tail_0, tail_1, tail_2, tail_3, tail_4;
 #if 0
 	proto_tree *AQT		=NULL;
 #endif
@@ -1368,77 +1370,70 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	/************************** A-Field ***********************************/
 
 	/* A-Feld */
-	afieldti	= proto_tree_add_uint_format(DectTree, hf_dect_A, tvb, offset, 8, 0/*0x2323*/, "A-Field");
+	header=tvb_get_guint8(tvb, offset+0);
+	tail_0=tvb_get_guint8(tvb, offset+1);
+	tail_1=tvb_get_guint8(tvb, offset+2);
+	tail_2=tvb_get_guint8(tvb, offset+3);
+	tail_3=tvb_get_guint8(tvb, offset+4);
+	tail_4=tvb_get_guint8(tvb, offset+5);
+	tailtype	= header >> 5;
+	afieldti	= proto_tree_add_item(DectTree, hf_dect_A, tvb, offset, 8, FALSE);
 	AField		= proto_item_add_subtree(afieldti, ett_afield);
 
 	/* Header */
-	aheadti		= proto_tree_add_uint_format(afieldti, hf_dect_A_Head, tvb, offset, 1, 0x2323, "Header");
+	aheadti		= proto_tree_add_item(afieldti, hf_dect_A_Head, tvb, offset, 1, FALSE);
 	AHead		= proto_item_add_subtree(aheadti, ett_ahead);
 
 	if(dect_packet_type==DECT_PACKET_FP)
-		proto_tree_add_uint(AHead, hf_dect_A_Head_TA_FP, tvb, offset, 1, pkt_afield->Header);
+		proto_tree_add_item(AHead, hf_dect_A_Head_TA_FP, tvb, offset, 1, FALSE);
 	else
-		proto_tree_add_uint(AHead, hf_dect_A_Head_TA_PP, tvb, offset, 1, pkt_afield->Header);
+		proto_tree_add_item(AHead, hf_dect_A_Head_TA_PP, tvb, offset, 1, FALSE);
 
-	proto_tree_add_uint(AHead, hf_dect_A_Head_Q1, tvb, offset, 1, pkt_afield->Header);
-	proto_tree_add_uint(AHead, hf_dect_A_Head_BA, tvb, offset, 1, pkt_afield->Header);
-	proto_tree_add_uint(AHead, hf_dect_A_Head_Q2, tvb, offset, 1, pkt_afield->Header);
+	proto_tree_add_item(AHead, hf_dect_A_Head_Q1, tvb, offset, 1, FALSE);
+	proto_tree_add_item(AHead, hf_dect_A_Head_BA, tvb, offset, 1, FALSE);
+	proto_tree_add_item(AHead, hf_dect_A_Head_Q2, tvb, offset, 1, FALSE);
 	offset++;
 
 	/* Tail */
 	if(dect_packet_type==DECT_PACKET_FP)
 	{
-		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "Tail: %s", TA_vals_FP[(pkt_afield->Header&0xE0)>>5].strptr);
+		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "FP-Tail: %s", val_to_str(tailtype, TA_vals_FP, "Error, please report: %d"));
 	}
 	else
 	{
-		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "Tail: %s", TA_vals_PP[(pkt_afield->Header&0xE0)>>5].strptr);
+		atailti	= proto_tree_add_uint_format(afieldti, hf_dect_A_Tail, tvb, offset, 5, 0x2323, "PP-Tail: %s", val_to_str(tailtype, TA_vals_PP, "Error, please report: %d"));
 	}
 
-
-	ATail		= proto_item_add_subtree(atailti, ett_atail);
-
-	tailtype = (pkt_afield->Header&0xE0)>>5;
+	ATail = proto_item_add_subtree(atailti, ett_atail);
 
 	if((tailtype==0)||(tailtype==1))		/* Ct */
 	{
-		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Ct]");
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Ct]");
 	}
 	else if((tailtype==2)||(tailtype==3))		/* Nt, Nt connectionless bearer */
 	{
-		if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-		{
-			str_p = ep_strdup_printf("RFPI:%.2x%.2x%.2x%.2x%.2x"
-					, pkt_afield->Tail[0], pkt_afield->Tail[1], pkt_afield->Tail[2]
-					, pkt_afield->Tail[3], pkt_afield->Tail[4]);
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Nt]");
+		if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+			col_append_fstr(pinfo->cinfo, COL_INFO /*Type2*/, "RFPI: %s",
+				tvb_bytes_to_str(tvb, offset, 5));
 
-			col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, str_p);
-			offset+=5;
-
-			/* due to addition further down */
-			offset-=5;
-		}
-		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Nt]");
-
-		proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, 0x2323, "RFPI:%.2x%.2x%.2x%.2x%.2x"
-			, pkt_afield->Tail[0], pkt_afield->Tail[1], pkt_afield->Tail[2], pkt_afield->Tail[3]
-			, pkt_afield->Tail[4]);
+		proto_tree_add_item(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, FALSE);
 	}
 	else if(tailtype==4)				/* Qt */
 	{
-		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Qt]");
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Qt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, FALSE);
 
-		switch(pkt_afield->Tail[0]>>4)
+		switch(tail_0>>4)
 		{
 		case 0:		/* Static System Info */
 		case 1:
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Static System Info");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Static System Info");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, FALSE);
@@ -1451,10 +1446,10 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset++;
 
 			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, " Carrier%s%s%s%s%s%s%s%s%s%s available",
-				(pkt_afield->Tail[1]&0x02)?" 0":"", (pkt_afield->Tail[1]&0x01)?" 1":"", (pkt_afield->Tail[2]&0x80)?" 2":"",
-				(pkt_afield->Tail[2]&0x40)?" 3":"", (pkt_afield->Tail[2]&0x20)?" 4":"", (pkt_afield->Tail[2]&0x10)?" 5":"",
-				(pkt_afield->Tail[2]&0x08)?" 6":"", (pkt_afield->Tail[2]&0x04)?" 7":"", (pkt_afield->Tail[2]&0x02)?" 8":"",
-				(pkt_afield->Tail[2]&0x01)?" 9":"");
+				(tail_1&0x02)?" 0":"", (tail_1&0x01)?" 1":"", (tail_2&0x80)?" 2":"",
+				(tail_2&0x40)?" 3":"", (tail_2&0x20)?" 4":"", (tail_2&0x10)?" 5":"",
+				(tail_2&0x08)?" 6":"", (tail_2&0x04)?" 7":"", (tail_2&0x02)?" 8":"",
+				(tail_2&0x01)?" 9":"");
 			offset++;
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, FALSE);
@@ -1468,12 +1463,12 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 2:		/* Extended RF Carriers Part 1 */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended RF Carriers Part 1");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 1");
 			break;
 		case 3:		/* Fixed Part Capabilities */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Fixed Part Capabilities");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Fixed Part Capabilities");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, FALSE);
@@ -1527,13 +1522,12 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 4:		/* Extended Fixed Part Capabilities */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended Fixed Part Capabilities");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REFHops, tvb, offset, 2,
-							((pkt_afield->Tail[0]&0x01)<<1)|((pkt_afield->Tail[1]&0x80)>>7));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REFHops, tvb, offset, 2, FALSE);
 			offset++;
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REPCap, tvb, offset, 1, FALSE);
@@ -1582,53 +1576,51 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 5:		/* SARI List Contents */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "SARI List Contents");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "SARI List Contents");
 			break;
 		case 6:		/* Multi-Frame No. */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Multi-Frame No.");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Multi-Frame No.");
 
-			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, 0x2323,"Spare Bits: %.1x%.2x",
-								(pkt_afield->Tail[0])&0x0f,(pkt_afield->Tail[1]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, FALSE);
 			offset+=2;
 
-			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 3, 0x2323,"Multiframe Number: %.2x%.2x%.2x",
-								(pkt_afield->Tail[2]),(pkt_afield->Tail[3]),(pkt_afield->Tail[4]));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Mfn, tvb, offset, 3, FALSE);
 			offset+=3;
 
 			/* due to addition further down */
 			offset-=5;
 			break;
 		case 7:		/* Escape */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Escape");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
 			break;
 		case 8:		/* Obsolete */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Obsolete");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Obsolete");
 			break;
 		case 9:		/* Extended RF Carriers Part 2 */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended RF Carriers Part 2");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 2");
 			break;
 		case 10:	/* Reserved(?) */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Reserved(?)");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved(?)");
 			break;
 		case 11:	/* Transmit Information(?) */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Transmit Information(?)");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Transmit Information(?)");
 			break;
 		case 12:	/* Extended Fixed Part Capabilities 2 */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Extended Fixed Part Capabilities 2");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities 2");
 			break;
 		case 13:
 		case 14:
 		case 15:
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Reserved");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
 			break;
 		}
 	}
@@ -1637,29 +1629,30 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	}
 	else if((tailtype==6)||((tailtype==7)&&(dect_packet_type==DECT_PACKET_PP)))	/* Mt */
 	{
-		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Mt]");
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Mt]");
 
-		proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 1, (pkt_afield->Tail[0]));
+		proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 1, tail_0);
 
-		switch(pkt_afield->Tail[0]>>4)
+		switch(tail_0>>4)
 		{
 		case 0:		/* Basic Connection Control */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Basic Connection Control");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Basic Connection Control");
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
 			offset++;
 
-			if(((pkt_afield->Tail[0]&&0x0f)==6)||((pkt_afield->Tail[0]&&0x0f)==7))
+			if(((tail_0 && 0x0f)==6)||((tail_0 && 0x0f)==7))
 			{
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 5, 0x2323, "here should be attributes...");
+				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 4, 0x2323, "here should be attributes...");
+				offset +=4;
 			}
 			else
 			{
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, "FMID:%.3x", (pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, FALSE);
 				offset++;
 
-				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 3, 0x2323, "PMID:%.5x", ((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, FALSE);
 				offset+=3;
 			}
 
@@ -1667,53 +1660,53 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 1:		/* Advanced Connection Control */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Advanced Connection Control");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Advanced Connection Control");
 			break;
 		case 2:		/* MAC Layer Test Messages */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "MAC Layer Test Messages");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Layer Test Messages");
 			break;
 		case 3:		/* Quality Control */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Quality Control");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Quality Control");
 			break;
 		case 4:		/* Broadcast and Connectionless Services */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Broadcast and Connectionless Services");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Broadcast and Connectionless Services");
 			break;
 		case 5:		/* Encryption Control */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Encryption Control");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Encryption Control");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 2, 0x2323, "FMID:%.3x", (pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, FALSE);
 			offset++;
 
-			proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 3, 0x2323, "PMID:%.5x", ((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, FALSE);
 			offset+=3;
 
 			/* wegen addition weiter unten */
 			offset-=5;
 			break;
 		case 6:		/* Tail for use with the first Transmission of a B-Field \"bearer request\" Message */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
 			break;
 		case 7:		/* Escape */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Escape");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
 			break;
 		case 8:		/* TARI Message */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "TARI Message");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "TARI Message");
 			break;
 		case 9:		/* REP Connection Control */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "REP Connection Control");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "REP Connection Control");
 			break;
 		case 10:	/* Reserved */
 		case 11:
@@ -1721,26 +1714,29 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 13:
 		case 14:
 		case 15:
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Reserved");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
 			break;
 		}
 	}
 	else if((tailtype==7)&&(dect_packet_type==DECT_PACKET_FP))	/* Pt */
 	{
-		if(check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-			col_set_str(pinfo->cinfo, COL_HPUX_SUBSYS, "[Pt]");
+		if(check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Pt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, FALSE);
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, FALSE);
-		switch((pkt_afield->Tail[0]&0x70)>>4)
+		switch((tail_0&0x70)>>4)
 		{
 		case 0:		/* Zero Length Page */
 		case 1:		/* Short Page */
-			if(((pkt_afield->Tail[0]&0x70)>>4)==0)
+			if(((tail_0&0x70)>>4)==0)
+#if 0
+XXX: Hier weitermachen
+#endif
 			{
-				if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-					col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Zero Length Page: ");
+				if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+					col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Zero Length Page: ");
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "RFPI:xxxxx%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
@@ -1748,8 +1744,8 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			}
 			else
 			{
-				if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-					col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Short Page: ");
+				if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+					col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Short Page: ");
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "Bs Data:%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
@@ -1811,28 +1807,28 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 2:		/* Full Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Full Page: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Full Page: ");
 			break;
 		case 3:		/* MAC Resume Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "MAC Resume Page: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Resume Page: ");
 			break;
 		case 4:		/* Not the Last 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "Not the Last 36 Bits: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Not the Last 36 Bits: ");
 			break;
 		case 5:		/* The First 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "The First 36 Bits: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The First 36 Bits: ");
 			break;
 		case 6:		/* The Last 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "The Last 36 Bits: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The Last 36 Bits: ");
 			break;
 		case 7:		/* All of a Long Page */
-			if(check_col(pinfo->cinfo, COL_DEF_NET_SRC))
-				col_append_str(pinfo->cinfo, COL_DEF_NET_SRC, "All of a Long Page: ");
+			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "All of a Long Page: ");
 			break;
 		}
 	}
@@ -1853,7 +1849,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	offset+=2;
 
 	/* **************** B-Field ************************************/
-	offset=dissect_bfield(dect_packet_type, pkt_afield, pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree, offset);
+	offset=dissect_bfield(dect_packet_type, header, pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree, offset);
 }
 
 static void
@@ -2000,11 +1996,11 @@ proto_register_dect(void)
 	/* **************** A-Field ******************************/
 	/* ***** Header ***** */
 		{ &hf_dect_A,
-		{"A-Field", "dect.afield", FT_UINT8, BASE_DEC, NULL,
+		{"A-Field", "dect.afield", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Head,
-		{"A-Field Header", "dect.afield.head", FT_UINT8, BASE_DEC, NULL,
+		{"A-Field Header", "dect.afield.head", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Head_TA_FP,
@@ -2030,12 +2026,12 @@ proto_register_dect(void)
 	/* ***** Tail ***** */
 		{ &hf_dect_A_Tail,
 		{"A-Field Tail", "dect.afield.tail", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL}},
+			0xE0, NULL, HFILL}},
 
 	/* Nt */
 		{ &hf_dect_A_Tail_Nt,
-		{"A-Field Header", "dect.afield.tail.Nt", FT_UINT8, BASE_DEC, NULL,
-			0x0, NULL, HFILL}},
+		{"Nt/RFPI", "dect.afield.tail.Nt", FT_BYTES, BASE_NONE, NULL,
+			0x0, "A-Field Tail: Nt/RFPI", HFILL}},
 
 	/* Qt */
 		{ &hf_dect_A_Tail_Qt_Qh,
@@ -2245,8 +2241,8 @@ proto_register_dect(void)
 			0x02, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_4_REFHops,
-		{"REP Hops", "dect.afield.tail.Qt.Efp.REPHops", FT_UINT8, BASE_DEC, VALS(Qt_REPHops_vals),
-			0x03, NULL, HFILL}},
+		{"REP Hops", "dect.afield.tail.Qt.Efp.REPHops", FT_UINT16, BASE_DEC, VALS(Qt_REPHops_vals),
+			0x0180, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_4_REPCap,
 		{"REP Cap.", "dect.afield.tail.Qt.Efp.REPCap", FT_UINT8, BASE_DEC, VALS(Qt_REPCap_vals),
@@ -2374,18 +2370,26 @@ proto_register_dect(void)
 
 	/* Qt Multiframe  Number */
 		{ &hf_dect_A_Tail_Qt_6_Spare,
-		{"Spare Bits", "dect.afield.tail.Qt.Mfn.Spare", FT_UINT8, BASE_DEC, NULL,
-			0x0F, NULL, HFILL}},
+		{"Spare Bits", "dect.afield.tail.Qt.Mfn.Spare", FT_UINT16, BASE_HEX, NULL,
+			0x0FFF, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_6_Mfn,
-		{"Multiframe Number", "dect.afield.tail.Qt.Mfn.Mfn", FT_UINT8, BASE_DEC, NULL,
-			0xFF, NULL, HFILL}},
+		{"Multiframe Number", "dect.afield.tail.Qt.Mfn.Mfn", FT_BYTES, BASE_NONE, NULL,
+			0, NULL, HFILL}},
 
 
 	/* Mt */
 		{ &hf_dect_A_Tail_Mt_Mh,
 		{"Mh", "dect.afield.tail.Mt.Mh", FT_UINT8, BASE_DEC, VALS(MTHead_vals),
 			0xF0, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Mt_Mh_fmid,
+		{"Mh/FMID", "dect.afield.tail.Mt.Mh.fmid", FT_UINT16, BASE_HEX, BASE_NONE,
+			0x0FF0, NULL, HFILL}},
+
+		{ &hf_dect_A_Tail_Mt_Mh_pmid,
+		{"Mh/PMID", "dect.afield.tail.Mt.Mh.pmid", FT_UINT24, BASE_HEX, BASE_NONE,
+			0x0FFFFF, NULL, HFILL}},
 
 	/* Mt Basic Connection Control */
 		{ &hf_dect_A_Tail_Mt_BasicConCtrl,
@@ -2437,11 +2441,15 @@ proto_register_dect(void)
 
 	/* ***************** B-Field *************************** */
 		{ &hf_dect_B,
-		{"B-Field", "dect.bfield", FT_UINT8, BASE_DEC,
+		{"B-Field", "dect.bfield", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_dect_B_Data,
-		{"B-Field", "dect.bfield.data", FT_UINT8, BASE_DEC, NULL,
+		{"B-Field", "dect.bfield.data", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL}},
+
+		{ &hf_dect_B_fn,
+		{"B-Field", "dect.bfield.framenumber", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
 
 	/* ***** X-CRC ***** */
