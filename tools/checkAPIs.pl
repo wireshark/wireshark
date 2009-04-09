@@ -771,7 +771,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_widget_set_default_visual',               'E',
                 'gtk_widget_set_rc_style',                     'E',
                 'gtk_widget_set_uposition',                    'W', # ?? (see GTK documentation)
-                'gtk_widget_set_usize',                        'W', # >>? gtk_widget_set_size_request()
+                'gtk_widget_set_usize',                        'E', # >>? gtk_widget_set_size_request()
                 'gtk_widget_set_visual',                       'E',
                 'gtk_widget_unref',                            'E',
                 'gtk_window_position',                         'E',
@@ -876,6 +876,9 @@ my $result = GetOptions(
                        );
 if (!$result) {
 	print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] [-s group1] [-s group2] [--nocheck-value-string-array-null-termination] file1 file2 ..\n";
+
+	print STDERR "   Groups:             ", join (", ", sort keys %APIs), "\n";
+	print STDERR "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
 	exit(1);
 }
 
