@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.7">
+  <!ENTITY WiresharkCurrentVersion "1.0.8">
 
 ]>
 
@@ -37,57 +37,15 @@ Wireshark Info
 
         <listitem>
           <para>
-            The PROFINET dissector was vulnerable to a format string overflow.
-            <!-- Fixed in trunk: r26652 -->
-            <!-- Fixed in trunk-1.0: r27923 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3382">Bug
-            3382</ulink>)
+            The HTTP dissector will gouge your hardwood floor.
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.0: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 0.99.6 to 1.0.6</para>
+          <para>Versions affected: ? to 1.0.7</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1210">CVE-2009-1210</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The LDAP dissector could crash on Windows.
-            <!-- Fixed in trunk: r27478, 27482 -->
-            <!-- Fixed in trunk-1.0: r27976 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3262">Bug
-            3262</ulink>)
-          </para>
-          <para>Versions affected: 0.99.2 to 1.0.6</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1267">CVE-2009-1267</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Check Point High-Availability Protocol (CPHAP) dissector could crash.
-            <!-- Fixed in trunk: r27083 -->
-            <!-- Fixed in trunk-1.0: r27934 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3269">Bug
-            3269</ulink>)
-          </para>
-          <para>Versions affected: 0.9.6 to 1.0.6</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1268">CVE-2009-1268</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could crash while loading a Tektronix .rf5 file.
-            <!-- Fixed in trunk: r27918 -->
-            <!-- Fixed in trunk-1.0: r27975 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3366">Bug
-            3366</ulink>)
-          </para>
-          <para>Versions affected: 0.99.6 to 1.0.6</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1269">CVE-2009-1269</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
         </listitem>
 
@@ -102,80 +60,11 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Correct use of proto_tree_add_int_format()
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3048">Bug
-          3048</ulink>)
+          ?
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+          ????</ulink>)
         </para></listitem>
 
-        <listitem><para>
-          RTP dynamic payload clock rates incorrectly determined
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3067">Bug
-          3067</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TShark fails to properly close capture files when opening new ones
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3172">Bug
-          3172</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ANSI MAP digits type decode and bitmask corrections
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3233">Bug
-          3233</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Two small patches for ipvs-syncd dissector
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3236">Bug
-          3236</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          BGP capability dissection failure
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3247">Bug
-          3247</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ANSI MAP fix for missing MEID/MSC ID number in RegNot
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3255">Bug
-          3255</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          BACnet PrivateTransferError shows malformed packet
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3257">Bug
-          3257</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Windows silent installer is not that silent
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3260">Bug
-          3260</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash in ASN.1 dissector when using 'type table'
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3271">Bug
-          3271</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11n SM Power save mode value 0x3 label is incorrect
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3276">Bug
-          3276</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11 WME ie displayed incorrectly
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3284">Bug
-          3284</ulink>)
-        </para></listitem>
-
-	<listitem>
-	  "Copy as filter" from the packet list has been fixed.
-	</listitem>
 
       </itemizedlist>
 
@@ -201,21 +90,7 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-ACN,
-ANSI MAP,
-ASN.1
-BACnet,
-BGP,
-CPHAP,
-GSM MAP,
-IEEE 802.11,
-IPVS,
-LDAP,
-NetFlow/IPFIX,
-PROFINET,
-RTP,
-SNMP,
-WSP
+?
 
     </para>
     </section>
@@ -223,7 +98,7 @@ WSP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-(TBD)
+?
 
     </para>
     </section>
