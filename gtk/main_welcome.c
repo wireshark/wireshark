@@ -133,13 +133,13 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
         /* XXX - there's no way to get rid of the shadow frame - except for creating an own widget :-( */
         scrollw = scrolled_window_new(NULL, NULL);
         scrollw_y_size = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW_Y_SIZE));
-	    gtk_widget_set_usize(scrollw, -1, scrollw_y_size);
+	    gtk_widget_set_size_request(scrollw, -1, scrollw_y_size);
 
         g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW, scrollw);
         gtk_box_pack_start(GTK_BOX(parent_box), scrollw, TRUE, TRUE, 0);
 
         /* move child_box from parent_box into scrolled window */
-        gtk_widget_ref(child_box);
+        g_object_ref(child_box);
         gtk_container_remove(GTK_CONTAINER(parent_box), child_box);
         gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollw),
                                               child_box);
@@ -160,7 +160,7 @@ scroll_box_dynamic_reset(GtkWidget *parent_box)
 
     if(scrollw != NULL) {
         /* move the child_box back from scrolled window into the parent_box */
-        gtk_widget_ref(child_box);
+        g_object_ref(child_box);
         gtk_container_remove(GTK_CONTAINER(parent_box), scrollw);
         g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW, NULL);
         gtk_box_pack_start(GTK_BOX(parent_box), child_box, TRUE, TRUE, 0);
@@ -735,7 +735,7 @@ welcome_new(void)
         "Interface List",
 		"Live list of the capture interfaces (counts incoming packets)",
         "Same as Capture/Interfaces menu or toolbar item",
-        GTK_SIGNAL_FUNC(capture_if_cb), NULL);
+        G_CALLBACK(capture_if_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     label_text =  g_strdup("<span foreground=\"black\">Start capture on interface:</span>");
@@ -756,7 +756,7 @@ welcome_new(void)
         "Capture Options",
 		"Start a capture with detailed options",
         "Same as Capture/Options menu or toolbar item",
-        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+        G_CALLBACK(capture_prep_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* capture help topic */
@@ -767,14 +767,14 @@ welcome_new(void)
 		"How to Capture",
 		"Step by step to a successful capture setup",
         topic_online_url(ONLINEPAGE_CAPTURE_SETUP),
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"Network Media",
         "Specific information for capturing on: Ethernet, WLAN, ...",
         topic_online_url(ONLINEPAGE_NETWORK_MEDIA),
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
     label_text =  g_strdup("<span foreground=\"black\">Capturing is not compiled into this version of Wireshark!</span>");
@@ -798,7 +798,7 @@ welcome_new(void)
         "Open",
 		"Open a previously captured file",
         "Same as File/Open menu or toolbar item",
-        GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
+        G_CALLBACK(file_open_cmd_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* prepare list of recent files (will be filled in later) */
@@ -819,7 +819,7 @@ welcome_new(void)
         "Sample Captures",
 		"A rich assortment of example capture files on the wiki",
         topic_online_url(ONLINEPAGE_SAMPLE_CAPTURES),
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* fill bottom space */
@@ -839,21 +839,21 @@ welcome_new(void)
         "Website",
 		"Visit the project's website",
         topic_online_url(ONLINEPAGE_HOME),
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(GTK_STOCK_HELP,
         "User's Guide",
 		"The User's Guide (local version, if installed)",
         "Locally installed (if installed) otherwise online version",
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Security",
 		"Work with Wireshark as securely as possible",
         topic_online_url(ONLINEPAGE_SECURITY),
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
+        G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
 #if 0

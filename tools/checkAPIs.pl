@@ -633,7 +633,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_signal_emit_stop_by_name',                'E',
                 'gtk_signal_emitv',                            'E',
                 'gtk_signal_emitv_by_name',                    'E',
-                'GTK_SIGNAL_FUNC',                             'W',
+                'GTK_SIGNAL_FUNC',                             'E',
                 'gtk_signal_handler_block',                    'E',
                 'gtk_signal_handler_block_by_data',            'E',
                 'gtk_signal_handler_block_by_func',            'E',
