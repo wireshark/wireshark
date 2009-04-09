@@ -1408,32 +1408,32 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static const true_false_string tfs_ndmp_tape_invalid_file_num = {
-	"File num is valid",
-	"File num is INVALID"
+	"File num is INVALID",
+	"File num is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_soft_errors = {
-	"Soft errors is valid",
-	"Soft errors is INVALID"
+	"Soft errors is INVALID",
+	"Soft errors is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_block_size = {
-	"Block size is valid",
-	"Block size is INVALID"
+	"Block size is INVALID",
+	"Block size is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_block_no = {
-	"Block no is valid",
-	"Block no is INVALID"
+	"Block no is INVALID",
+	"Block no is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_total_space = {
-	"Total space is valid",
-	"Total space is INVALID"
+	"Total space is INVALID",
+	"Total space is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_space_remain = {
 	"Space remaining is INVALID",
-	"Space remaining is valid"
+	"Space remaining is VALID"
 };
 static const true_false_string tfs_ndmp_tape_invalid_partition = {
 	"Partition is INVALID",
-	"Partition is valid"
+	"Partition is VALID"
 };
 static int
 dissect_tape_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -1550,6 +1550,10 @@ dissect_tape_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* space_remain */
 	offset = dissect_rpc_uint64(tvb, tree,hf_ndmp_tape_space_remain,
 			offset);
+
+	/* NDMP Version 4 does not have a partition field here, so just return now. */
+	if (get_ndmp_protocol_version(ndmp_conv_data) == NDMP_PROTOCOL_V4)
+		return offset;
 
 	/* partition */
 	proto_tree_add_item(tree, hf_ndmp_tape_partition, tvb, offset, 4, FALSE);
