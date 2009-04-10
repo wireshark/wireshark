@@ -566,7 +566,6 @@ gtk_sctpstat_dlg(void)
 	gtk_container_set_border_width(GTK_CONTAINER(hbuttonbox2), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (hbuttonbox2), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing(GTK_BOX (hbuttonbox2), 0);
-	gtk_button_box_set_child_ipadding(GTK_BUTTON_BOX (hbuttonbox2), 4, 0);
 	gtk_widget_show(hbuttonbox2);
 
 	bt_unselect = gtk_button_new_with_label ("Unselect");

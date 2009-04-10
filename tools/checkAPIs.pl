@@ -186,8 +186,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_button_box_get_child_ipadding',           'E',
                 'gtk_button_box_get_child_size',               'E',
                 'gtk_button_box_get_spacing',                  'E',
-                'gtk_button_box_set_child_ipadding',           'W', # >> style properties child-internal-pad-x/-y
-                'gtk_button_box_set_child_size',               'W', # >> style properties child-min-width/-height
+                'gtk_button_box_set_child_ipadding',           'E', # style properties child-internal-pad-x/-y
+                'gtk_button_box_set_child_size',               'E', # style properties child-min-width/-height
                 'gtk_button_box_set_spacing',                  'E', # gtk_box_set_spacing [==]
                 'gtk_calendar_display_options',                'E',
                 'gtk_calendar_freeze',                         'E',
@@ -403,7 +403,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_draw_tab',                                'E',
                 'gtk_draw_vline',                              'E',
                 'gtk_drawing_area_size',                       'W', # >> g_object_set() [==] ? 
-                                                                    #    gtk_widget_set_size_request() (==?]
+                                                                    #    gtk_widget_set_size_request() [==?]
                 'gtk_entry_append_text',                       'W', # >> gtk_editable_insert_text() [==?]
                 'gtk_entry_new_with_max_length',               'E', # gtk_entry_new(); gtk_entry_set_max_length()
                 'gtk_entry_prepend_text',                      'E',

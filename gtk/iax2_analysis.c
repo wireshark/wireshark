@@ -3194,7 +3194,6 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_container_set_border_width(GTK_CONTAINER(box4), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (box4), GTK_BUTTONBOX_EDGE);
 	gtk_box_set_spacing(GTK_BOX (box4), 0);
-	gtk_button_box_set_child_ipadding(GTK_BUTTON_BOX (box4), 4, 0);
 	gtk_widget_show(box4);
 
 	voice_bt = gtk_button_new_with_label("Save payload...");
