@@ -167,7 +167,7 @@ my %APIs = (
 );
 
 # Deprecated GTK functions with (E)rror or (W)arning flag:
-# (The list is based upon the GTK 2.14.7 documentation).
+# (The list is based upon the GTK 2.16.0 documentation).
 # E: There should be no current Wireshark usage so Error if seen;
 # W: Not all usages yet fixed so Warn if seen; (Change to E as fixed)
 my %deprecatedGtkFunctions = (
@@ -175,6 +175,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_about_dialog_set_name',                   'E',
                 'gtk_accel_group_ref',                         'E',
                 'gtk_accel_group_unref',                       'E',
+		'gtk_action_block_activate_from',              'E',
+		'gtk_action_unblock_activate_from',            'E',
                 'gtk_binding_entry_add',                       'E',
                 'gtk_binding_entry_add_signall',               'E',
                 'gtk_binding_entry_clear',                     'E',
@@ -421,6 +423,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_file_selection_set_filename',             'E',
                 'gtk_file_selection_set_select_multiple',      'E',
                 'gtk_file_selection_show_fileop_buttons',      'E',
+		'gtk_font_selection_dialog_get_apply_button',  'E',
                 'gtk_font_selection_dialog_get_font',          'E',
                 'gtk_font_selection_get_font',                 'E', # gtk_font_selection_get_font_name [!=]
                 'GTK_FUNDAMENTAL_TYPE',                        'E',
@@ -463,7 +466,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_item_factory_set_translate_func',         'E',
                 'gtk_label_get',                               'W', # >>> gtk_label_get_text() [!=]
                 'gtk_label_parse_uline',                       'E',
-                'gtk_label_set',                               'E', # >>> gtk_label_set_text() [==]
+                'gtk_label_set',                               'E', # gtk_label_set_text() [==]
                 'gtk_layout_freeze',                           'E',
                 'gtk_layout_thaw',                             'E',
                 'gtk_list_append_items',                       'E',
@@ -765,28 +768,38 @@ my %deprecatedGtkFunctions = (
                 'gtk_widget_push_visual',                      'E',
                 'gtk_widget_queue_clear',                      'E',
                 'gtk_widget_queue_clear_area',                 'E',
-                'gtk_widget_ref',                              'W', # >>> g_object_ref() [==]
+                'gtk_widget_ref',                              'E', # g_object_ref() [==]
                 'gtk_widget_restore_default_style',            'E',
                 'gtk_widget_set',                              'E', # g_object_set() [==]
                 'gtk_widget_set_default_visual',               'E',
                 'gtk_widget_set_rc_style',                     'E',
                 'gtk_widget_set_uposition',                    'W', # ?? (see GTK documentation)
-                'gtk_widget_set_usize',                        'E', # >>? gtk_widget_set_size_request()
+                'gtk_widget_set_usize',                        'E', # gtk_widget_set_size_request()
                 'gtk_widget_set_visual',                       'E',
                 'gtk_widget_unref',                            'E',
                 'gtk_window_position',                         'E',
                 'gtk_window_set_policy',                       'W', # >>? gtk_window_set_resizable()
 ##
-## Deprecated but to be replaced only when Wireshark requires GTK+ 2.12 or later
-## 2.12		'gtk_tooltips_data_get',                       '?', # new API: GtkToolTip (avail since 2.12) ...
-##		'gtk_tooltips_disable',                        '?',
-##		'gtk_tooltips_enable',                         '?',
-##		'gtk_tooltips_force_window',                   '?',
-##		'gtk_tooltips_get_info_from_tip_window',       '?',
-##		'gtk_tooltips_new',                            '?',
-##		'gtk_tooltips_set_delay',                      '?',
-##		'gtk_tooltips_set_tip',                        '?',
-## 2.12		'gtk_tool_item_set_tooltip',                   '?', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+## Deprecated as of GTK+ 2.12 but to be replaced only when Wireshark requires GTK+ 2.12 or later
+## 2.12		'gtk_tooltips_data_get',                       'E', # new API: GtkToolTip (avail since 2.12) ...
+##		'gtk_tooltips_disable',                        'E',
+##		'gtk_tooltips_enable',                         'E',
+##		'gtk_tooltips_force_window',                   'E',
+##		'gtk_tooltips_get_info_from_tip_window',       'E',
+##		'gtk_tooltips_new',                            'W',
+##		'gtk_tooltips_set_delay',                      'E',
+##		'gtk_tooltips_set_tip',                        'W',
+## 2.12		'gtk_tool_item_set_tooltip',                   'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+##
+## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
+##		'gtk_action_connect_proxy',                    'E', # gtk_activatable_set_related_action() (avail since 2.16)
+##		'gtk_action_disconnect_proxy',                 'E', # gtk_activatable_set_related_action() (avail since 2.16)
+##		'gtk_scale_button_get_orientation',            'E', # gtk_orientable_get_orientation()     (avail since 2.16)
+##		'gtk_scale_button_set_orientation',            'E', # gtk_orientable_set_orientation()     (avail since 2.16)
+##		'gtk_toolbar_get_orientation',                 'E', # gtk_orientable_get_orientation()     (avail since 2.16)
+##		'gtk_toolbar_set_orientation',                 'W', # gtk_orientable_set_orientation()     (avail since 2.16)
+##		'gtk_status_icon_set_tooltip',                 'E', # gtk_status_icon_set_tooltip_text()   (avail since 2.16)
+##		'gtk_widget_get_action',                       'E', # gtk_activatable_get_related_action() (avail since 2.16)
 );
 
 @{$APIs{'deprecated-gtk'}->{'functions'}}      = grep {$deprecatedGtkFunctions{$_} eq 'E'} keys %deprecatedGtkFunctions;
