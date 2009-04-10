@@ -80,8 +80,8 @@ static void color_export_cb(GtkButton *button, gpointer user_data );
 
 
 static GtkWidget *colorize_win;
-gint	  num_of_filters;  /* number of filters being displayed */
-gint	  row_selected;	   /* row in color_filters that is selected */
+gint      num_of_filters;  /* number of filters being displayed */
+gint      row_selected;    /* row in color_filters that is selected */
 gboolean  row_is_moving = FALSE;
 
 /* This is a list of all current color filters in the dialog
@@ -89,8 +89,8 @@ gboolean  row_is_moving = FALSE;
  * The color filter items are not identical to the ones used for the
  * packet list display, so they can be safely edited.
  *
- * Keep the temporary filters in a seperate list so that they are
- * not showed in the edit-dialog
+ * Keep the temporary filters in a separate list so that they are
+ * not shown in the edit-dialog
  *
  * XXX - use the existing GTK list for this purpose and build temporary copies
  * e.g. for the save/export functions.
@@ -100,13 +100,13 @@ static GSList *color_filter_edit_list = NULL;
 static GSList *color_filter_tmp_list = NULL;
 
 
-#define COLOR_UP_LB				"color_up_lb"
-#define COLOR_DOWN_LB			"color_down_lb"
-#define COLOR_EDIT_LB			"color_edit_lb"
-#define COLOR_ENABLE_LB			"color_enable_lb"
-#define COLOR_DISABLE_LB		"color_disable_lb"
-#define COLOR_DELETE_LB			"color_delete_lb"
-#define COLOR_FILTERS_CL		"color_filters_cl"
+#define COLOR_UP_LB             "color_up_lb"
+#define COLOR_DOWN_LB           "color_down_lb"
+#define COLOR_EDIT_LB           "color_edit_lb"
+#define COLOR_ENABLE_LB         "color_enable_lb"
+#define COLOR_DISABLE_LB        "color_disable_lb"
+#define COLOR_DELETE_LB         "color_delete_lb"
+#define COLOR_FILTERS_CL        "color_filters_cl"
 #define COLOR_FILTER_LIST       "color_filter_list"
 
 
@@ -233,8 +233,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (ctrl_vbox), edit_fr, TRUE, TRUE, 0);
 
   /* edit_vbox is first button column (containing: new, edit and such) */
-  edit_vbox = gtk_vbutton_box_new();
-  gtk_button_box_set_child_size(GTK_BUTTON_BOX(edit_vbox), BUTTON_SIZE_X, BUTTON_SIZE_Y);
+  edit_vbox = gtk_vbox_new(TRUE, 0);
   gtk_container_set_border_width  (GTK_CONTAINER (edit_vbox), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vbox);
 
@@ -267,9 +266,9 @@ colorize_dialog_new (char *filter)
 
   /* manage buttons frame */
   manage_fr = gtk_frame_new("Manage");
-  gtk_box_pack_start (GTK_BOX (ctrl_vbox), manage_fr, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (ctrl_vbox), manage_fr, TRUE, TRUE, 0);
 
-  manage_vbox = gtk_vbox_new (FALSE, 0);
+  manage_vbox = gtk_vbox_new (TRUE, 0);
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
@@ -306,12 +305,12 @@ colorize_dialog_new (char *filter)
   /* the list store contains : filter name, filter string, foreground
    * color, background color, pointer to color filter */
   store = gtk_list_store_new(6, 
-	                         G_TYPE_STRING, 
-	                         G_TYPE_STRING,
+                                 G_TYPE_STRING, 
+                                 G_TYPE_STRING,
                              G_TYPE_STRING, 
-	                         G_TYPE_STRING, 
-	                         G_TYPE_BOOLEAN, 
-	                         G_TYPE_POINTER);
+                                 G_TYPE_STRING, 
+                                 G_TYPE_BOOLEAN, 
+                                 G_TYPE_POINTER);
   color_filters = tree_view_new(GTK_TREE_MODEL(store));
   g_object_unref(store);
   renderer = gtk_cell_renderer_text_new();
@@ -475,12 +474,12 @@ static void move_this_row (GtkWidget   *color_filters,
     gtk_list_store_insert_after(GTK_LIST_STORE(model), &iter1, &iter2);
 
   gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 
-	  0, name, 
-	  1, string,
-	  2, fg_str, 
-	  3, bg_str, 
-	  4, disabled, 
-	  5, colorf, -1);
+          0, name, 
+          1, string,
+          2, fg_str, 
+          3, bg_str, 
+          4, disabled, 
+          5, colorf, -1);
 
   g_free(name);
   g_free(string);
@@ -734,12 +733,12 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
     g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
             colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
     gtk_list_store_set(store, &iter, 
-		0, colorf->filter_name,
+                0, colorf->filter_name,
         1, colorf->filter_text, 
-		2, fg_str, 
-		3, bg_str,
-		4, colorf->disabled, 
-		5, colorf, -1);
+                2, fg_str, 
+                3, bg_str,
+                4, colorf->disabled, 
+                5, colorf, -1);
     color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
     num_of_filters++;
   } else {
@@ -852,7 +851,7 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
     if (gtk_tree_selection_iter_is_selected(sel, &iter)) {
       colorf->disabled = action_disable;
       gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
-		  4, action_disable, -1);
+                  4, action_disable, -1);
     }
   }
   button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
@@ -865,32 +864,32 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
 void
 color_delete(gint row, GtkWidget *color_filters)
 {
-    color_filter_t *colorf;
+  color_filter_t *colorf;
 
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
 
 
-    model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
-    gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
-    gtk_tree_model_get(model, &iter, 5, &colorf, -1);
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
+  gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
+  gtk_tree_model_get(model, &iter, 5, &colorf, -1);
 
-    /* Remove this color filter from the CList displaying the
-    color filters. */
-    gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-    num_of_filters--;
+  /* Remove this color filter from the CList displaying the
+     color filters. */
+  gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+  num_of_filters--;
 
-    /* Destroy any "Edit color filter" dialog boxes editing it. */
-    if (colorf->edit_dialog != NULL)
+  /* Destroy any "Edit color filter" dialog boxes editing it. */
+  if (colorf->edit_dialog != NULL)
     window_destroy(colorf->edit_dialog);
 
-    /* Delete the color filter from the list of color filters. */
-    color_filter_edit_list = g_slist_remove(color_filter_edit_list, colorf);
-    color_filter_delete(colorf);
+  /* Delete the color filter from the list of color filters. */
+  color_filter_edit_list = g_slist_remove(color_filter_edit_list, colorf);
+  color_filter_delete(colorf);
 
-    /* If we grab the focus after updating the selection, the first
-    * row is always selected, so we do it before */
-    gtk_widget_grab_focus(color_filters);
+  /* If we grab the focus after updating the selection, the first
+   * row is always selected, so we do it before */
+  gtk_widget_grab_focus(color_filters);
 }
 
 /* User pressed the "Delete" button: Delete the selected filters from the list.*/
@@ -950,46 +949,46 @@ color_export_cb(GtkButton *button, gpointer data _U_)
 static void
 color_clear_cmd(GtkWidget *widget)
 {
-    GtkWidget * color_filters;
+  GtkWidget * color_filters;
 
-    color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
-    while (num_of_filters > 0)
-    {
-        color_delete (num_of_filters-1, color_filters);
-    }
+  while (num_of_filters > 0)
+  {
+    color_delete (num_of_filters-1, color_filters);
+  }
 
-    /* try to read the global filters */
-    color_filters_read_globals(color_filters);
+  /* try to read the global filters */
+  color_filters_read_globals(color_filters);
 }
 
 /* Clear button: user responded to question */
 static void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
-    switch(btn) {
-    case(ESD_BTN_CLEAR):
-        color_clear_cmd(data);
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
+  switch(btn) {
+  case(ESD_BTN_CLEAR):
+    color_clear_cmd(data);
+    break;
+  case(ESD_BTN_CANCEL):
+    break;
+  default:
+    g_assert_not_reached();
+  }
 }
 
 /* User pressed "clear" button: ask user before really doing it */
 void
 color_clear_cb(GtkWidget *widget, gpointer data _U_) {
-    gpointer  dialog;
+  gpointer  dialog;
 
-    /* ask user, if he/she is really sure */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_CLEAR | ESD_BTN_CANCEL,
-                "%sRemove all your personal color settings?%s\n\n"
-                "This will revert the color settings to global defaults.\n\n"
-                "Are you really sure?",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
+  /* ask user, if he/she is really sure */
+  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_CLEAR | ESD_BTN_CANCEL,
+                         "%sRemove all your personal color settings?%s\n\n"
+                         "This will revert the color settings to global defaults.\n\n"
+                         "Are you really sure?",
+                         simple_dialog_primary_start(), simple_dialog_primary_end());
 
-    simple_dialog_set_cb(dialog, color_clear_answered_cb, widget);
+  simple_dialog_set_cb(dialog, color_clear_answered_cb, widget);
 }
 
 
@@ -1014,8 +1013,8 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
       if (!color_filters_write(color_filter_edit_list))
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	        "Could not open filter file: %s", strerror(errno));
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Could not open filter file: %s", strerror(errno));
   }
 
   /* Apply the coloring rules, both the temporary ones in
@@ -1034,8 +1033,8 @@ color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
 
   if (!color_filters_write(color_filter_edit_list))
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	    "Could not open filter file: %s", strerror(errno));
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Could not open filter file: %s", strerror(errno));
 }
 
 /* User pressed "Cancel" button (or "ESC" or the 'X'):
