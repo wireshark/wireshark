@@ -245,17 +245,17 @@ foreach_remove_a_child(GtkWidget *widget, gpointer data) {
 void
 statusbar_widgets_emptying(GtkWidget *statusbar)
 {
-    gtk_widget_ref(info_bar);
-    gtk_widget_ref(packets_bar);
-    gtk_widget_ref(profile_bar);
-    gtk_widget_ref(profile_bar_event);
-    gtk_widget_ref(status_pane_left);
-    gtk_widget_ref(status_pane_right);
-    gtk_widget_ref(expert_info_error);
-    gtk_widget_ref(expert_info_warn);
-    gtk_widget_ref(expert_info_note);
-    gtk_widget_ref(expert_info_chat);
-    gtk_widget_ref(expert_info_none);
+    g_object_ref(G_OBJECT(info_bar));
+    g_object_ref(G_OBJECT(packets_bar));
+    g_object_ref(G_OBJECT(profile_bar));
+    g_object_ref(G_OBJECT(profile_bar_event));
+    g_object_ref(G_OBJECT(status_pane_left));
+    g_object_ref(G_OBJECT(status_pane_right));
+    g_object_ref(G_OBJECT(expert_info_error));
+    g_object_ref(G_OBJECT(expert_info_warn));
+    g_object_ref(G_OBJECT(expert_info_note));
+    g_object_ref(G_OBJECT(expert_info_chat));
+    g_object_ref(G_OBJECT(expert_info_none));
 
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(statusbar),     foreach_remove_a_child, statusbar);

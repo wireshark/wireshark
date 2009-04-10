@@ -2924,21 +2924,21 @@ void main_widgets_rearrange(void) {
     gtk_widget_hide(main_vbox);
 
     /* be sure we don't lose a widget while rearranging */
-    gtk_widget_ref(menubar);
-    gtk_widget_ref(main_tb);
-    gtk_widget_ref(filter_tb);
+    g_object_ref(G_OBJECT(menubar));
+    g_object_ref(G_OBJECT(main_tb));
+    g_object_ref(G_OBJECT(filter_tb));
 #ifdef HAVE_AIRPCAP
-    gtk_widget_ref(airpcap_tb);
+    g_object_ref(G_OBJECT(airpcap_tb));
 #endif
-    gtk_widget_ref(pkt_scrollw);
-    gtk_widget_ref(tv_scrollw);
-    gtk_widget_ref(byte_nb_ptr);
-    gtk_widget_ref(statusbar);
-    gtk_widget_ref(main_pane_v1);
-    gtk_widget_ref(main_pane_v2);
-    gtk_widget_ref(main_pane_h1);
-    gtk_widget_ref(main_pane_h2);
-    gtk_widget_ref(welcome_pane);
+    g_object_ref(G_OBJECT(pkt_scrollw));
+    g_object_ref(G_OBJECT(tv_scrollw));
+    g_object_ref(G_OBJECT(byte_nb_ptr));
+    g_object_ref(G_OBJECT(statusbar));
+    g_object_ref(G_OBJECT(main_pane_v1));
+    g_object_ref(G_OBJECT(main_pane_v2));
+    g_object_ref(G_OBJECT(main_pane_h1));
+    g_object_ref(G_OBJECT(main_pane_h2));
+    g_object_ref(G_OBJECT(welcome_pane));
 
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);

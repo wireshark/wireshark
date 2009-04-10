@@ -382,7 +382,7 @@ fileset_file_closed(void)
 {
   if(fs_w) {
     /* reinit the table, title and alike */
-    gtk_widget_ref(fs_tb_vb);
+    g_object_ref(G_OBJECT(fs_tb_vb));
     gtk_widget_destroy(fs_tb);
     fileset_delete();
     fileset_init_table(fs_tb_vb);
@@ -393,6 +393,7 @@ fileset_file_closed(void)
 
   /* update the menu */
   set_menus_for_file_set(FALSE /* file_set */, 
-      fileset_get_previous() != NULL, fileset_get_next() != NULL );
+                         fileset_get_previous() != NULL,
+                         fileset_get_next() != NULL );
 }
 
