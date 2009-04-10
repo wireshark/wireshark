@@ -75,6 +75,7 @@ static int hf_per_encoding = -1;                  /* External_encoding */
 static int hf_per_single_ASN1_type = -1;          /* T_single_ASN1_type */
 static int hf_per_octet_aligned = -1;             /* T_octet_aligned */
 static int hf_per_arbitrary = -1;                 /* T_arbitrary */
+static int hf_per_integer_length = -1;			  /* Show integer length if "show internal per fields" */
 
 static gint ett_per_open_type = -1;
 static gint ett_per_containing = -1;
@@ -1029,10 +1030,10 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	header_field_info *hfi;
 
 	/* 12.2.6 b */
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree,hf_per_integer_length, &length);
 	/* gassert here? */
 	if(length>4){
-PER_NOT_DECODED_YET("too long integer");
+PER_NOT_DECODED_YET("too long integer(per_integer)");
 		length=4;
 	}
 
@@ -1085,7 +1086,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
 	/* gassert here? */
 	if(length>8){
-PER_NOT_DECODED_YET("too long integer");
+PER_NOT_DECODED_YET("too long integer (64b)");
 		length=4;
 	}
 
@@ -1342,7 +1343,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 guint32
 dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension)
 {
-	proto_item *it=NULL;
+	proto_item *it=NULL, *int_item=NULL;
 	guint64 range, val;
 	gint val_start, val_length;
 	nstime_t timeval;
@@ -1369,9 +1370,12 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
 	if(((max-min)>65536)&&(actx->aligned)){
-		/* just set range really big so it will fall through
-		   to the bottom of the encoding */
-		range=1000000;
+               /* just set range really big so it will fall through
+                  to the bottom of the encoding */
+               /* range=1000000; */		
+			   range = max-min;
+			   if (range==65536)
+				   range++; /* make it fall trough? */
 	} else {
 		/* Copied from the 32 bit version, asuming the same problem occures
 		 * at 64 bit boundary.
@@ -1495,20 +1499,23 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		val_start = (offset>>3)-2; val_length = 2;
 		val+=min;
 	} else {
-		int i,num_bytes;
-		gboolean bit;
+		int i,num_bytes,num_bits;
 
 		/* 10.5.7.4 */
 		/* 12.2.6 */
-		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-		num_bytes=bit;
-		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-		num_bytes=(num_bytes<<1)|bit;
-
+		/* calculate the number of bits to hold the length */
+		if ((range & G_GINT64_CONSTANT(0xffffffff0000000)) != 0){
+			num_bits=3;
+		}else{
+			num_bits=2;
+		}
+		num_bytes =tvb_get_bits8(tvb, offset, num_bits);
 		num_bytes++;  /* lower bound for length determinant is 1 */
-		if (display_internal_per_fields)
-			proto_tree_add_uint(tree, hf_per_const_int_len, tvb, (offset>>3), 1, num_bytes);
-
+		if (display_internal_per_fields){
+			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,num_bits, FALSE);
+			proto_item_append_text(int_item,"+1=%u bytes, Range = (%" G_GINT64_MODIFIER "u)",num_bytes, range);
+		}
+		offset = offset+num_bits;
 		/* byte aligned */
 		BYTE_ALIGN_OFFSET(offset);
 		val=0;
@@ -2460,6 +2467,10 @@ proto_register_per(void)
       { "arbitrary", "per.arbitrary",
         FT_BYTES, BASE_HEX, NULL, 0,
         "per.T_arbitrary", HFILL }},
+    { &hf_per_integer_length,
+      { "integer length", "per.integer_length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 	};
 	static gint *ett[] =
 	{
