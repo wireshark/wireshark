@@ -722,14 +722,14 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 static gint
 label_to_enum_val(GtkWidget *label, const enum_val_t *enumvals)
 {
-	char *label_string;
+	const gchar *label_string;
 	int i;
 
 	/* Get the label's text, and translate it to a value.
 	   We match only the descriptions, as those are what appear in
 	   the option menu items or as labels for radio buttons.
 	   We fail if we don't find a match, as that "can't happen". */
-	gtk_label_get(GTK_LABEL(label), &label_string);
+        label_string = gtk_label_get_text(GTK_LABEL(label));
 
 	for (i = 0; enumvals[i].name != NULL; i++) {
 		if (g_ascii_strcasecmp(label_string, enumvals[i].description) == 0) {
