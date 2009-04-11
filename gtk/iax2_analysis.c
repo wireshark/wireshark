@@ -2100,13 +2100,15 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 
-	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Wireshark: Save Data As CSV");
+	user_data->dlg.save_csv_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
+                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->action_area),
-		vertb, FALSE, FALSE, 0);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), vertb);
 	gtk_widget_show (vertb);
 
 	table1 = gtk_table_new (2, 4, FALSE);
@@ -2480,7 +2482,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	user_data_t *user_data;
 	gint channels , format;
 
-	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
@@ -2662,13 +2664,15 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 
 	/* XXX - use file_selection from dlg_utils instead! */
-	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Wireshark: Save Payload As ...");
+	user_data->dlg.save_voice_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Payload As ...", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
+                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->action_area),
-			   vertb, FALSE, FALSE, 0);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), vertb);
 	gtk_widget_show (vertb);
 
 	table1 = gtk_table_new (2, 4, FALSE);

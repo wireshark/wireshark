@@ -415,11 +415,11 @@ my %deprecatedGtkFunctions = (
                 'gtk_file_chooser_dialog_new_with_backend',    'E',
                 'gtk_file_chooser_widget_new_with_backend',    'E',
                 'gtk_file_selection_complete',                 'E',
-                'gtk_file_selection_get_filename',             'W', # GtkFileChooser ...
+                'gtk_file_selection_get_filename',             'E', # GtkFileChooser ...
                 'gtk_file_selection_get_select_multiple',      'E',
                 'gtk_file_selection_get_selections',           'E',
                 'gtk_file_selection_hide_fileop_buttons',      'E',
-                'gtk_file_selection_new',                      'W',
+                'gtk_file_selection_new',                      'E',
                 'gtk_file_selection_set_filename',             'E',
                 'gtk_file_selection_set_select_multiple',      'E',
                 'gtk_file_selection_show_fileop_buttons',      'E',
