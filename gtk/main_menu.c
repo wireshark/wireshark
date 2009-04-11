@@ -147,7 +147,7 @@ static void colorize_cb(GtkWidget *w, gpointer d);
                "<Title>"          -> create a title item
                "<Item>"           -> create a simple item
                "<ImageItem>"      -> create an item holding an image (gtk2)
-               "<StockItem>"	  -> create an item holding a stock image (gtk2)
+               "<StockItem>"      -> create an item holding a stock image (gtk2)
                "<CheckItem>"      -> create a check item
                "<ToggleItem>"     -> create a toggle item
                "<RadioItem>"      -> create a radio item
@@ -358,7 +358,7 @@ void
 conversation_cb(GtkWidget * w, gpointer data _U_, int action)
 {
     gchar       *filter;
-    GtkWidget	*filter_te;
+    GtkWidget   *filter_te;
 
     if (cfile.current_frame) {
         /* create a filter-string based on the selected packet and action */
@@ -1064,31 +1064,30 @@ main_menu_new(GtkAccelGroup ** table) {
 #ifdef HAVE_IGE_MAC_INTEGRATION
     if(prefs.gui_macosx_style) {
         ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
-	ige_mac_menu_set_global_key_handler_enabled(TRUE);
+        ige_mac_menu_set_global_key_handler_enabled(TRUE);
 
-	/* Create menu items to populate the application menu with.  We have to
-	 * do this because we are still using the old GtkItemFactory API for
-	 * the main menu. */
-	group = ige_mac_menu_add_app_menu_group();
-	about_item = gtk_menu_item_new_with_label("About");
-	g_signal_connect(about_item, "activate", G_CALLBACK(about_wireshark_cb),
-			 NULL);
-	ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(about_item), NULL);
+        /* Create menu items to populate the application menu with.  We have to
+         * do this because we are still using the old GtkItemFactory API for
+         * the main menu. */
+        group = ige_mac_menu_add_app_menu_group();
+        about_item = gtk_menu_item_new_with_label("About");
+        g_signal_connect(about_item, "activate", G_CALLBACK(about_wireshark_cb),
+                         NULL);
+        ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(about_item), NULL);
 
-	group = ige_mac_menu_add_app_menu_group();
-	preferences_item = gtk_menu_item_new_with_label("Preferences");
-	g_signal_connect(preferences_item, "activate", G_CALLBACK(prefs_cb),
-			 NULL);
-	ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(preferences_item),
-				       NULL);
+        group = ige_mac_menu_add_app_menu_group();
+        preferences_item = gtk_menu_item_new_with_label("Preferences");
+        g_signal_connect(preferences_item, "activate", G_CALLBACK(prefs_cb),
+                         NULL);
+        ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(preferences_item),
+                                       NULL);
     }
 
     /* The quit item in the application menu shows up whenever ige mac
      * integration is enabled, even if the OS X UI style in Wireshark isn't
      * turned on. */
     quit_item = gtk_menu_item_new_with_label("Quit");
-    g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb),
-		     NULL);
+    g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);
     ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
 #endif
 
@@ -1104,7 +1103,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
                                 guint callback_action _U_)
 {
     dissector_filter_t      *filter_entry = callback_data;
-    GtkWidget		        *filter_te;
+    GtkWidget               *filter_te;
     const char              *buf;    
 
 
@@ -1115,11 +1114,11 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
     /* e.g. "Update list of packets in real time" won't work correct */
     buf = filter_entry->build_filter_string(&cfile.edt->pi);
 
-	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
 
-	/* Run the display filter so it goes in effect - even if it's the
-	   same as the previous display filter. */
-	main_filter_packets(&cfile, buf, TRUE);
+    /* Run the display filter so it goes in effect - even if it's the
+       same as the previous display filter. */
+    main_filter_packets(&cfile, buf, TRUE);
 
     g_free( (void *) buf);
 }
@@ -1153,8 +1152,8 @@ void menu_dissector_filter(void) {
 
 static void
 menus_init(void) {
-  if (initialize) {
-    initialize = FALSE;
+    if (initialize) {
+        initialize = FALSE;
 
     /* popup */
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
@@ -1200,7 +1199,7 @@ menus_init(void) {
     /* init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
 
-  }
+    }
 }
 
 
@@ -1457,7 +1456,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
-	    g_free(entry);
+            g_free(entry);
         }
     } else {
         /*
@@ -1478,7 +1477,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             set_menu_sensitivity(main_menu_factory, node_data->name,
                 FALSE);    /* no children yet */
             added++;
-	    g_free(entry);
+            g_free(entry);
         }
 
         for (child = node_data->children; child != NULL; child =
@@ -1541,79 +1540,79 @@ void merge_all_tap_menus(GList *node) {
 static void
 set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
 {
-  GSList *menu_list;
-  GtkWidget *menu_item;
-  gchar *dup;
-  gchar *dest;
+    GSList *menu_list;
+    GtkWidget *menu_item;
+    gchar *dup;
+    gchar *dest;
 
 
-  /* the underscore character regularly confuses things, as it will prevent finding
-   * the menu_item, so it has to be removed first */
-  dup = g_strdup(path);
-  dest = dup;
-  while(*path) {
-      if (*path != '_') {
-        *dest = *path;
-        dest++;
-      }
-      path++;
-  }
-  *dest = '\0';
-
-  if (ifactory == NULL) {
-    /*
-     * Do it for all pop-up menus.
-     */
-    for (menu_list = popup_menu_list; menu_list != NULL;
-         menu_list = g_slist_next(menu_list))
-      set_menu_sensitivity(menu_list->data, dup, val);
-  } else {
-    /*
-     * Do it for that particular menu.
-     */
-    if ((menu_item = gtk_item_factory_get_widget(ifactory, dup)) != NULL) {
-      if (GTK_IS_MENU(menu_item)) {
-        /*
-         * "dup" refers to a submenu; "gtk_item_factory_get_widget()"
-         * gets the menu, not the item that, when selected, pops up
-         * the submenu.
-         *
-         * We have to change the latter item's sensitivity, so that
-         * it shows up normally if sensitive and grayed-out if
-         * insensitive.
-         */
-        menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
-      }
-      gtk_widget_set_sensitive(menu_item, val);
-    } else{
-      /* be sure this menu item *is* existing */
-      g_assert_not_reached();
+    /* the underscore character regularly confuses things, as it will prevent finding
+     * the menu_item, so it has to be removed first */
+    dup = g_strdup(path);
+    dest = dup;
+    while(*path) {
+        if (*path != '_') {
+            *dest = *path;
+            dest++;
+        }
+        path++;
     }
-  }
+    *dest = '\0';
 
-  g_free(dup);
+    if (ifactory == NULL) {
+        /*
+         * Do it for all pop-up menus.
+         */
+        for (menu_list = popup_menu_list; menu_list != NULL;
+             menu_list = g_slist_next(menu_list))
+            set_menu_sensitivity(menu_list->data, dup, val);
+    } else {
+        /*
+         * Do it for that particular menu.
+         */
+        if ((menu_item = gtk_item_factory_get_widget(ifactory, dup)) != NULL) {
+            if (GTK_IS_MENU(menu_item)) {
+                /*
+                 * "dup" refers to a submenu; "gtk_item_factory_get_widget()"
+                 * gets the menu, not the item that, when selected, pops up
+                 * the submenu.
+                 *
+                 * We have to change the latter item's sensitivity, so that
+                 * it shows up normally if sensitive and grayed-out if
+                 * insensitive.
+                 */
+                menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
+            }
+            gtk_widget_set_sensitive(menu_item, val);
+        } else{
+            /* be sure this menu item *is* existing */
+            g_assert_not_reached();
+        }
+    }
+
+    g_free(dup);
 }
 
 static void
 set_menu_object_data_meat(GtkItemFactory *ifactory, const gchar *path, const gchar *key, gpointer data)
 {
-	GtkWidget *menu = NULL;
+    GtkWidget *menu = NULL;
 
-	if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
-                g_object_set_data(G_OBJECT(menu), key, data);
+    if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
+        g_object_set_data(G_OBJECT(menu), key, data);
 }
 
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
-  GSList *menu_list = popup_menu_list;
-  gchar *shortpath = strrchr(path, '/');
+    GSList *menu_list = popup_menu_list;
+    gchar *shortpath = strrchr(path, '/');
 
-  set_menu_object_data_meat(main_menu_factory, path, key, data);
-  while (menu_list != NULL) {
-    set_menu_object_data_meat(menu_list->data, shortpath, key, data);
-    set_menu_object_data_meat(menu_list->data, path, key, data);
-    menu_list = g_slist_next(menu_list);
-  }
+    set_menu_object_data_meat(main_menu_factory, path, key, data);
+    while (menu_list != NULL) {
+        set_menu_object_data_meat(menu_list->data, shortpath, key, data);
+        set_menu_object_data_meat(menu_list->data, path, key, data);
+        menu_list = g_slist_next(menu_list);
+    }
 }
 
 
@@ -1652,7 +1651,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     main_welcome_reset_recent_capture_files();
 
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
-		update_menu_recent_capture_file1, &cnt);
+                          update_menu_recent_capture_file1, &cnt);
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
     set_menu_sensitivity(main_menu_factory, MENU_RECENT_FILES_PATH, cnt);
@@ -1666,8 +1665,8 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
     GtkWidget *submenu_recent_files;
     GList* child_list;
     GList* child_list_item;
-	GtkWidget *menu_item_child;
-	gchar     *menu_item_cf_name;
+    GtkWidget    *menu_item_child;
+    const gchar *menu_item_cf_name;
     
 
     /* get the submenu container item */
@@ -1677,13 +1676,20 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
     child_list_item = child_list;
     while(child_list_item) {
-	    menu_item_child = (GTK_BIN(child_list_item->data))->child;
-	    gtk_label_get(GTK_LABEL(menu_item_child), &menu_item_cf_name);
-        if(strcmp(menu_item_cf_name, cf_name) == 0) {
-            /* XXX: is this all we need to do, to free the menu item and its label?
-               The reference count of widget will go to 0, so it'll be freed;
-               will that free the label? */
-            gtk_container_remove(GTK_CONTAINER(submenu_recent_files), child_list_item->data);
+        menu_item_child = (GTK_BIN(child_list_item->data))->child;
+        if (menu_item_child != NULL) { /* Note: there are two "extra" items on the end of the child_list: */
+                                       /*  - a separator (with no menu_item_child and thus no text label) */
+                                       /*  - a 2nd item with a menu_child with text label "Clear"         */
+                                       /*       [See add_menu_recent_capture_file_absolute() ]            */
+                                       /* 'if (menu_item_child != NULL)' skips the separator item;        */
+                                       /* An absolute filename in cf_name will never match  "Clear".      */
+            menu_item_cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
+            if(strcmp(menu_item_cf_name, cf_name) == 0) {
+                /* XXX: is this all we need to do, to free the menu item and its label?
+                   The reference count of widget will go to 0, so it'll be freed;
+                   will that free the label? */
+                gtk_container_remove(GTK_CONTAINER(submenu_recent_files), child_list_item->data);
+            }
         }
         child_list_item = g_list_next(child_list_item);
     }
@@ -1722,7 +1728,7 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
-		remove_menu_recent_capture_file, NULL);
+                          remove_menu_recent_capture_file, NULL);
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
@@ -1733,21 +1739,21 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
 void
 menu_open_filename(gchar *cf_name)
 {
-	GtkWidget *submenu_recent_files;
-	int       err;
+    GtkWidget *submenu_recent_files;
+    int       err;
 
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	/* open and read the capture file (this will close an existing file) */
-	if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
-		cf_read(&cfile);
-	} else {
-		/* the capture file isn't existing any longer, remove menu item */
-		/* XXX: ask user to remove item, it's maybe only a temporary problem */
-		remove_menu_recent_capture_filename(cf_name);
-	}
+    /* open and read the capture file (this will close an existing file) */
+    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+        cf_read(&cfile);
+    } else {
+        /* the capture file apparently no longer exists; remove menu item    */
+        /* XXX: ask user to remove item, it's maybe only a temporary problem */
+        remove_menu_recent_capture_filename(cf_name);
+    }
 
-	update_menu_recent_capture_file(submenu_recent_files);
+    update_menu_recent_capture_file(submenu_recent_files);
 }
 
 
@@ -1755,27 +1761,27 @@ menu_open_filename(gchar *cf_name)
 void
 menu_open_recent_file_cmd(GtkWidget *w)
 {
-	GtkWidget *submenu_recent_files;
-	GtkWidget *menu_item_child;
-	gchar     *cf_name;
-	int       err;
+    GtkWidget   *submenu_recent_files;
+    GtkWidget   *menu_item_child;
+    const gchar *cf_name;
+    int         err;
 
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	/* get capture filename from the menu item label */
-	menu_item_child = (GTK_BIN(w))->child;
-	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
+    /* get capture filename from the menu item label */
+    menu_item_child = (GTK_BIN(w))->child;
+    cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
 
-	/* open and read the capture file (this will close an existing file) */
-	if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
-		cf_read(&cfile);
-	} else {
-		/* the capture file isn't existing any longer, remove menu item */
-		/* XXX: ask user to remove item, it's maybe only a temporary problem */
-		remove_menu_recent_capture_file(w, NULL);
-	}
+    /* open and read the capture file (this will close an existing file) */
+    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+        cf_read(&cfile);
+    } else {
+        /* the capture file apparently no longer exists; remove menu item    */
+        /* XXX: ask user to remove item, it's maybe only a temporary problem */
+        remove_menu_recent_capture_file(w, NULL);
+    }
 
-	update_menu_recent_capture_file(submenu_recent_files);
+    update_menu_recent_capture_file(submenu_recent_files);
 }
 
 static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
@@ -1798,95 +1804,95 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
 
 static void
 menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
-  gpointer  dialog;
+    gpointer  dialog;
 
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-    /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
-                "%sSave capture file before opening a new one?%s\n\n"
-                "If you open a new capture file without saving, your current capture data will be discarded.",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
-    simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, widget);
-  } else {
-    /* unchanged file */
-    menu_open_recent_file_cmd(widget);
-  }
+    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+        /* user didn't saved his current file, ask him */
+        dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
+                               "%sSave capture file before opening a new one?%s\n\n"
+                               "If you open a new capture file without saving, your current capture data will be discarded.",
+                               simple_dialog_primary_start(), simple_dialog_primary_end());
+        simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, widget);
+    } else {
+        /* unchanged file */
+        menu_open_recent_file_cmd(widget);
+    }
 }
 
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
 static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
-	GtkWidget *submenu_recent_files;
-	GList *menu_item_list;
-	GList *li;
-	gchar *widget_cf_name;
-	gchar *normalized_cf_name;
-	GtkWidget *menu_item;
-	guint cnt;
+    GtkWidget *submenu_recent_files;
+    GList *menu_item_list;
+    GList *li;
+    gchar *widget_cf_name;
+    gchar *normalized_cf_name;
+    GtkWidget *menu_item;
+    guint cnt;
 
 
 
-	normalized_cf_name = g_strdup(cf_name);
+    normalized_cf_name = g_strdup(cf_name);
 #ifdef _WIN32
-	/* replace all slashes by backslashes */
-	g_strdelimit(normalized_cf_name, "/", '\\');
+    /* replace all slashes by backslashes */
+    g_strdelimit(normalized_cf_name, "/", '\\');
 #endif
 
-	/* get the submenu container item */
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    /* get the submenu container item */
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	/* convert container to a GList */
-	menu_item_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
+    /* convert container to a GList */
+    menu_item_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
 
-	/* iterate through list items of menu_item_list,
-	 * removing special items, a maybe duplicate entry and every item above count_max */
-	cnt = 1;
-	for (li = g_list_first(menu_item_list); li; li = li->next, cnt++) {
-		/* get capture filename */
-		menu_item = GTK_WIDGET(li->data);
-		widget_cf_name = g_object_get_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY);
+    /* iterate through list items of menu_item_list,
+     * removing special items, a maybe duplicate entry and every item above count_max */
+    cnt = 1;
+    for (li = g_list_first(menu_item_list); li; li = li->next, cnt++) {
+        /* get capture filename */
+        menu_item = GTK_WIDGET(li->data);
+        widget_cf_name = g_object_get_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY);
 
-		/* if this element string is one of our special items (seperator, ...) or
-		 * already in the list or
-		 * this element is above maximum count (too old), remove it */
-		if (!widget_cf_name ||
+        /* if this element string is one of our special items (seperator, ...) or
+         * already in the list or
+         * this element is above maximum count (too old), remove it */
+        if (!widget_cf_name ||
 #ifdef _WIN32
-		    /* do a case insensitive compare on win32 */
-		    g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+            /* do a case insensitive compare on win32 */
+            g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #else   /* _WIN32 */
-		    /* do a case sensitive compare on unix */
-		    strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+            /* do a case sensitive compare on unix */
+            strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
 #endif
-		    cnt >= prefs.gui_recent_files_count_max) {
-			remove_menu_recent_capture_file(li->data, NULL);
-			cnt--;
-		}
-	}
+            cnt >= prefs.gui_recent_files_count_max) {
+            remove_menu_recent_capture_file(li->data, NULL);
+            cnt--;
+        }
+    }
 
-	g_list_free(menu_item_list);
+    g_list_free(menu_item_list);
 
-	/* add new item at latest position */
-	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
-	g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
-	gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
-	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-		G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
-	gtk_widget_show (menu_item);
+    /* add new item at latest position */
+    menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
+    g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
+    gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+    g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+                             G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
+    gtk_widget_show (menu_item);
 
-	/* add seperator at last position */
-	menu_item = gtk_menu_item_new();
-	gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
-	gtk_widget_show (menu_item);
+    /* add seperator at last position */
+    menu_item = gtk_menu_item_new();
+    gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+    gtk_widget_show (menu_item);
 
-	/* add new "clear list" item at last position */
-        menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
-	gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
-	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-		G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GtkObject *) menu_item);
-	gtk_widget_show (menu_item);
+    /* add new "clear list" item at last position */
+    menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
+    gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+    g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+                             G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GtkObject *) menu_item);
+    gtk_widget_show (menu_item);
 
-	update_menu_recent_capture_file(submenu_recent_files);
+    update_menu_recent_capture_file(submenu_recent_files);
 }
 
 
@@ -1898,22 +1904,22 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
  */
 void
 add_menu_recent_capture_file(gchar *cf_name) {
-	gchar *curr;
-	gchar *absolute;
+    gchar *curr;
+    gchar *absolute;
 
 
-	/* if this filename is an absolute path, we can use it directly */
-	if (g_path_is_absolute(cf_name)) {
-		add_menu_recent_capture_file_absolute(cf_name);
-		return;
-	}
+    /* if this filename is an absolute path, we can use it directly */
+    if (g_path_is_absolute(cf_name)) {
+        add_menu_recent_capture_file_absolute(cf_name);
+        return;
+    }
 
-	/* this filename is not an absolute path, prepend the current dir */
-	curr = g_get_current_dir();
-	absolute = g_strdup_printf("%s%s%s", curr, G_DIR_SEPARATOR_S, cf_name);
-	add_menu_recent_capture_file_absolute(absolute);
-	g_free(curr);
-	g_free(absolute);
+    /* this filename is not an absolute path, prepend the current dir */
+    curr = g_get_current_dir();
+    absolute = g_strdup_printf("%s%s%s", curr, G_DIR_SEPARATOR_S, cf_name);
+    add_menu_recent_capture_file_absolute(absolute);
+    g_free(curr);
+    g_free(absolute);
 }
 
 
@@ -2259,7 +2265,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
      */
     /* Check if we are on packet_list object */
     if (widget == g_object_get_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY) &&
-	((GdkEventButton *)event)->button != 1) {
+        ((GdkEventButton *)event)->button != 1) {
         if (packet_list_get_event_row_column(widget, (GdkEventButton *)event,
                                              &row, &column)) {
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
@@ -2324,33 +2330,33 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 void
 set_menus_for_capture_file(capture_file *cf)
 {
-  if (cf == NULL) {
-    /* We have no capture file */
-    set_menu_sensitivity(main_menu_factory, "/File/Merge...", FALSE);
-    set_menu_sensitivity(main_menu_factory, "/File/Close", FALSE);
-    set_menu_sensitivity(main_menu_factory, "/File/Save", FALSE);
-    set_menu_sensitivity(main_menu_factory, "/File/Save As...", FALSE);
-    set_menu_sensitivity(main_menu_factory, "/File/Export", FALSE);
-    set_menu_sensitivity(main_menu_factory, "/View/Reload", FALSE);
-    set_toolbar_for_capture_file(FALSE);
-    set_toolbar_for_unsaved_capture_file(FALSE);
-  } else {
-    set_menu_sensitivity(main_menu_factory, "/File/Merge...", TRUE);
-    set_menu_sensitivity(main_menu_factory, "/File/Close", TRUE);
-    set_menu_sensitivity(main_menu_factory, "/File/Save", !cf->user_saved);
-    /*
-     * "Save As..." works only if we can write the file out in at least
-     * one format (so we can save the whole file or just a subset) or
-     * if we have an unsaved capture (so writing the whole file out
-     * with a raw data copy makes sense).
-     */
-    set_menu_sensitivity(main_menu_factory, "/File/Save As...",
-        cf_can_save_as(cf) || !cf->user_saved);
-    set_menu_sensitivity(main_menu_factory, "/File/Export", TRUE);
-    set_menu_sensitivity(main_menu_factory, "/View/Reload", TRUE);
-    set_toolbar_for_unsaved_capture_file(!cf->user_saved);
-    set_toolbar_for_capture_file(TRUE);
-  }
+    if (cf == NULL) {
+        /* We have no capture file */
+        set_menu_sensitivity(main_menu_factory, "/File/Merge...", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/File/Close", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/File/Save", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/File/Save As...", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/File/Export", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/View/Reload", FALSE);
+        set_toolbar_for_capture_file(FALSE);
+        set_toolbar_for_unsaved_capture_file(FALSE);
+    } else {
+        set_menu_sensitivity(main_menu_factory, "/File/Merge...", TRUE);
+        set_menu_sensitivity(main_menu_factory, "/File/Close", TRUE);
+        set_menu_sensitivity(main_menu_factory, "/File/Save", !cf->user_saved);
+        /*
+         * "Save As..." works only if we can write the file out in at least
+         * one format (so we can save the whole file or just a subset) or
+         * if we have an unsaved capture (so writing the whole file out
+         * with a raw data copy makes sense).
+         */
+        set_menu_sensitivity(main_menu_factory, "/File/Save As...",
+                             cf_can_save_as(cf) || !cf->user_saved);
+        set_menu_sensitivity(main_menu_factory, "/File/Export", TRUE);
+        set_menu_sensitivity(main_menu_factory, "/View/Reload", TRUE);
+        set_toolbar_for_unsaved_capture_file(!cf->user_saved);
+        set_toolbar_for_capture_file(TRUE);
+    }
 }
 
 /* Enable or disable menu items based on whether there's a capture in
@@ -2358,24 +2364,24 @@ set_menus_for_capture_file(capture_file *cf)
 void
 set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
-  set_menu_sensitivity(main_menu_factory, "/File/Open...",
-      !capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/File/Open Recent",
-      !capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/File/Export",
-       capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/File/Open...",
+                         !capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/File/Open Recent",
+                         !capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/File/Export",
+                         capture_in_progress);
 #ifdef HAVE_LIBPCAP
-  set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
-      !capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/Capture/Start",
-      !capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
-      capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/Capture/Restart",
-      capture_in_progress);
-  set_toolbar_for_capture_in_progress(capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
+                         !capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/Capture/Start",
+                         !capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
+                         capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/Capture/Restart",
+                         capture_in_progress);
+    set_toolbar_for_capture_in_progress(capture_in_progress);
 
-  set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
+    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif /* HAVE_LIBPCAP */
 }
 
@@ -2385,109 +2391,109 @@ static gboolean
 walk_menu_tree_for_captured_packets(GList *node,
     gboolean have_captured_packets)
 {
-	gboolean    is_enabled;
-	GList       *child;
-	menu_item_t *node_data = node->data;
+    gboolean    is_enabled;
+    GList       *child;
+    menu_item_t *node_data = node->data;
 
-	/*
-	 * Is this a leaf node or an interior node?
-	 */
-	if (node_data->children == NULL) {
-		/*
-		 * It's a leaf node.
-		 *
-		 * If it has no "selected_packet_enabled()" or
-		 * "selected_tree_row_enabled()" routines, we enable
-		 * it.  This allows tap windows to be popped up even
-		 * if you have no capture file; this is done to let
-		 * the user pop up multiple tap windows before reading
-		 * in a capture file, so that they can be processed in
-		 * parallel while the capture file is being read rather
-		 * than one at at time as you pop up the windows, and to
-		 * let the user pop up tap windows before starting an
-		 * "Update list of packets in real time" capture, so that
-		 * the statistics can be displayed while the capture is
-		 * in progress.
-		 *
-		 * If it has either of those routines, we disable it for
-		 * now - as long as, when a capture is first available,
-		 * we don't get called after a packet or tree row is
-		 * selected, that's OK.
-		 * XXX - that should be done better.
-		 */
-		if (node_data->selected_packet_enabled == NULL &&
-		    node_data->selected_tree_row_enabled == NULL)
-			node_data->enabled = TRUE;
-		else
-			node_data->enabled = FALSE;
-	} else {
-		/*
-		 * It's an interior node; call
-		 * "walk_menu_tree_for_captured_packets()" on all its
-		 * children and, if any of them are enabled, enable
-		 * this node, otherwise disable it.
-		 *
-		 * XXX - should we just leave all interior nodes enabled?
-		 * Which is a better UI choice?
-		 */
-		is_enabled = FALSE;
-		for (child = node_data->children; child != NULL; child =
-		    child->next) {
-			if (walk_menu_tree_for_captured_packets(child,
-			    have_captured_packets))
-				is_enabled = TRUE;
-		}
-		node_data->enabled = is_enabled;
-	}
+    /*
+     * Is this a leaf node or an interior node?
+     */
+    if (node_data->children == NULL) {
+        /*
+         * It's a leaf node.
+         *
+         * If it has no "selected_packet_enabled()" or
+         * "selected_tree_row_enabled()" routines, we enable
+         * it.  This allows tap windows to be popped up even
+         * if you have no capture file; this is done to let
+         * the user pop up multiple tap windows before reading
+         * in a capture file, so that they can be processed in
+         * parallel while the capture file is being read rather
+         * than one at at time as you pop up the windows, and to
+         * let the user pop up tap windows before starting an
+         * "Update list of packets in real time" capture, so that
+         * the statistics can be displayed while the capture is
+         * in progress.
+         *
+         * If it has either of those routines, we disable it for
+         * now - as long as, when a capture is first available,
+         * we don't get called after a packet or tree row is
+         * selected, that's OK.
+         * XXX - that should be done better.
+         */
+        if (node_data->selected_packet_enabled == NULL &&
+            node_data->selected_tree_row_enabled == NULL)
+            node_data->enabled = TRUE;
+        else
+            node_data->enabled = FALSE;
+    } else {
+        /*
+         * It's an interior node; call
+         * "walk_menu_tree_for_captured_packets()" on all its
+         * children and, if any of them are enabled, enable
+         * this node, otherwise disable it.
+         *
+         * XXX - should we just leave all interior nodes enabled?
+         * Which is a better UI choice?
+         */
+        is_enabled = FALSE;
+        for (child = node_data->children; child != NULL; child =
+                 child->next) {
+            if (walk_menu_tree_for_captured_packets(child,
+                                                    have_captured_packets))
+                is_enabled = TRUE;
+        }
+        node_data->enabled = is_enabled;
+    }
 
-	/*
-	 * The root node doesn't correspond to a menu tree item; it
-	 * has a null name pointer.
-	 */
-	if (node_data->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node_data->name,
-		    node_data->enabled);
-	}
-	return node_data->enabled;
+    /*
+     * The root node doesn't correspond to a menu tree item; it
+     * has a null name pointer.
+     */
+    if (node_data->name != NULL) {
+        set_menu_sensitivity(main_menu_factory, node_data->name,
+                             node_data->enabled);
+    }
+    return node_data->enabled;
 }
 
 void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {
-  set_menu_sensitivity(main_menu_factory, "/File/Print...",
-      have_captured_packets);
-  set_menu_sensitivity(packet_list_menu_factory, "/Print...",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Packet...",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Next",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/View/Zoom In",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/View/Zoom Out",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Go/Go to Packet...",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Go/Previous Packet",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Go/Next Packet",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Go/First Packet",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Go/Last Packet",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Statistics/Summary",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Statistics/Protocol Hierarchy",
-      have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/File/Print...",
+                         have_captured_packets);
+    set_menu_sensitivity(packet_list_menu_factory, "/Print...",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Packet...",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/View/Zoom In",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/View/Zoom Out",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Go/Go to Packet...",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Go/Previous Packet",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Go/Next Packet",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Go/First Packet",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Go/Last Packet",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Statistics/Summary",
+                         have_captured_packets);
+    set_menu_sensitivity(main_menu_factory, "/Statistics/Protocol Hierarchy",
+                         have_captured_packets);
 
-  walk_menu_tree_for_captured_packets(tap_menu_tree_root,
-      have_captured_packets);
-  set_toolbar_for_captured_packets(have_captured_packets);
+    walk_menu_tree_for_captured_packets(tap_menu_tree_root,
+                                        have_captured_packets);
+    set_toolbar_for_captured_packets(have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected and,
@@ -2496,183 +2502,183 @@ static gboolean
 walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
     epan_dissect_t *edt)
 {
-	gboolean is_enabled;
-	GList *child;
-	menu_item_t *node_data = node->data;
+    gboolean is_enabled;
+    GList *child;
+    menu_item_t *node_data = node->data;
 
-	/*
-	 * Is this a leaf node or an interior node?
-	 */
-	if (node_data->children == NULL) {
-		/*
-		 * It's a leaf node.
-		 *
-		 * If it has no "selected_packet_enabled()" routine,
-		 * leave its enabled/disabled status alone - it
-		 * doesn't depend on whether we have a packet selected
-		 * or not or on the selected packet.
-		 *
-		 * If it has a "selected_packet_enabled()" routine,
-		 * call it and set the item's enabled/disabled status
-		 * based on its return value.
-		 */
-		if (node_data->selected_packet_enabled != NULL)
-			node_data->enabled = node_data->selected_packet_enabled(fd, edt, node_data->callback_data);
-	} else {
-		/*
-		 * It's an interior node; call
-		 * "walk_menu_tree_for_selected_packet()" on all its
-		 * children and, if any of them are enabled, enable
-		 * this node, otherwise disable it.
-		 *
-		 * XXX - should we just leave all interior nodes enabled?
-		 * Which is a better UI choice?
-		 */
-		is_enabled = FALSE;
-		for (child = node_data->children; child != NULL; child =
-		    child->next) {
-			if (walk_menu_tree_for_selected_packet(child, fd, edt))
-				is_enabled = TRUE;
-		}
-		node_data->enabled = is_enabled;
-	}
+    /*
+     * Is this a leaf node or an interior node?
+     */
+    if (node_data->children == NULL) {
+        /*
+         * It's a leaf node.
+         *
+         * If it has no "selected_packet_enabled()" routine,
+         * leave its enabled/disabled status alone - it
+         * doesn't depend on whether we have a packet selected
+         * or not or on the selected packet.
+         *
+         * If it has a "selected_packet_enabled()" routine,
+         * call it and set the item's enabled/disabled status
+         * based on its return value.
+         */
+        if (node_data->selected_packet_enabled != NULL)
+            node_data->enabled = node_data->selected_packet_enabled(fd, edt, node_data->callback_data);
+    } else {
+        /*
+         * It's an interior node; call
+         * "walk_menu_tree_for_selected_packet()" on all its
+         * children and, if any of them are enabled, enable
+         * this node, otherwise disable it.
+         *
+         * XXX - should we just leave all interior nodes enabled?
+         * Which is a better UI choice?
+         */
+        is_enabled = FALSE;
+        for (child = node_data->children; child != NULL; child =
+                 child->next) {
+            if (walk_menu_tree_for_selected_packet(child, fd, edt))
+                is_enabled = TRUE;
+        }
+        node_data->enabled = is_enabled;
+    }
 
-	/*
-	 * The root node doesn't correspond to a menu tree item; it
-	 * has a null name pointer.
-	 */
-	if (node_data->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node_data->name,
-		    node_data->enabled);
-	}
-	return node_data->enabled;
+    /*
+     * The root node doesn't correspond to a menu tree item; it
+     * has a null name pointer.
+     */
+    if (node_data->name != NULL) {
+        set_menu_sensitivity(main_menu_factory, node_data->name,
+                             node_data->enabled);
+    }
+    return node_data->enabled;
 }
 
 gboolean
 packet_is_ssl(epan_dissect_t* edt)
 {
-  GPtrArray* array;
-  int ssl_id;
-  gboolean is_ssl;
+    GPtrArray* array;
+    int ssl_id;
+    gboolean is_ssl;
 
-  if (!edt || !edt->tree)
-      return FALSE;
-  ssl_id = proto_get_id_by_filter_name("ssl");
-  if (ssl_id < 0)
-      return FALSE;
-  array = proto_find_finfo(edt->tree, ssl_id);
-  is_ssl = (array->len > 0) ? TRUE : FALSE;
-  g_ptr_array_free(array, FALSE);
-  return is_ssl;
+    if (!edt || !edt->tree)
+        return FALSE;
+    ssl_id = proto_get_id_by_filter_name("ssl");
+    if (ssl_id < 0)
+        return FALSE;
+    array = proto_find_finfo(edt->tree, ssl_id);
+    is_ssl = (array->len > 0) ? TRUE : FALSE;
+    g_ptr_array_free(array, FALSE);
+    return is_ssl;
 }
 
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-  gboolean is_ssl = packet_is_ssl(cf->edt);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Set Time Reference (toggle)",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Reference",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Reference",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Expand All",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Colorize Conversation",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Reset Coloring 1-10",
-      tmp_color_filters_used());
-  set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow UDP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Follow UDP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-  set_menu_sensitivity(tree_view_menu_factory, "/Follow UDP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
-      cf->current_frame != NULL ? is_ssl : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",
-      cf->current_frame != NULL ? is_ssl : FALSE);
-  set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
-      cf->current_frame != NULL ? is_ssl : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
-      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
-      cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
-      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
-      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
-      cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/TCP",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/UDP",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/PN-CBA Server",
-      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
-      cf->current_frame != NULL && decode_as_ok());
-  set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",
-      cf->current_frame != NULL && decode_as_ok());
-  set_menu_sensitivity(tree_view_menu_factory, "/Decode As...",
-      cf->current_frame != NULL && decode_as_ok());
-  set_menu_sensitivity(main_menu_factory, "/View/Name Resolution/Resolve Name",
-      cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-  set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
-      cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-  set_menu_sensitivity(packet_list_menu_factory, "/Copy",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Tools/Firewall ACL Rules",
-      cf->current_frame != NULL);
+    gboolean is_ssl = packet_is_ssl(cf->edt);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Mark",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Set Time Reference (toggle)",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Next Reference",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Reference",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Expand All",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Colorize Conversation",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/View/Reset Coloring 1-10",
+                         tmp_color_filters_used());
+    set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
+    set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(main_menu_factory, "/Analyze/Follow UDP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Follow UDP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(tree_view_menu_factory, "/Follow UDP Stream",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
+                         cf->current_frame != NULL ? is_ssl : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",
+                         cf->current_frame != NULL ? is_ssl : FALSE);
+    set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
+                         cf->current_frame != NULL ? is_ssl : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
+                         cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
+                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
+                         cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
+                         cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
+                         cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/TCP",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/UDP",
+                         cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/PN-CBA Server",
+                         cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+    set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
+                         cf->current_frame != NULL && decode_as_ok());
+    set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",
+                         cf->current_frame != NULL && decode_as_ok());
+    set_menu_sensitivity(tree_view_menu_factory, "/Decode As...",
+                         cf->current_frame != NULL && decode_as_ok());
+    set_menu_sensitivity(main_menu_factory, "/View/Name Resolution/Resolve Name",
+                         cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+    set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
+                         cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+    set_menu_sensitivity(packet_list_menu_factory, "/Copy",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Tools/Firewall ACL Rules",
+                         cf->current_frame != NULL);
 
-  walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
-      cf->edt);
+    walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
+                                       cf->edt);
 }
 
 /* Enable or disable menu items based on whether a tree row is selected
@@ -2680,493 +2686,507 @@ set_menus_for_selected_packet(capture_file *cf)
 static gboolean
 walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
 {
-	gboolean is_enabled;
-	GList *child;
-	menu_item_t *node_data = node->data;
+    gboolean is_enabled;
+    GList *child;
+    menu_item_t *node_data = node->data;
 
-	/*
-	 * Is this a leaf node or an interior node?
-	 */
-	if (node_data->children == NULL) {
-		/*
-		 * It's a leaf node.
-		 *
-		 * If it has no "selected_tree_row_enabled()" routine,
-		 * leave its enabled/disabled status alone - it
-		 * doesn't depend on whether we have a tree row selected
-		 * or not or on the selected tree row.
-		 *
-		 * If it has a "selected_tree_row_enabled()" routine,
-		 * call it and set the item's enabled/disabled status
-		 * based on its return value.
-		 */
-		if (node_data->selected_tree_row_enabled != NULL)
-			node_data->enabled = node_data->selected_tree_row_enabled(fi, node_data->callback_data);
-	} else {
-		/*
-		 * It's an interior node; call
-		 * "walk_menu_tree_for_selected_tree_row()" on all its
-		 * children and, if any of them are enabled, enable
-		 * this node, otherwise disable it.
-		 *
-		 * XXX - should we just leave all interior nodes enabled?
-		 * Which is a better UI choice?
-		 */
-		is_enabled = FALSE;
-		for (child = node_data->children; child != NULL; child =
-		    child->next) {
-			if (walk_menu_tree_for_selected_tree_row(child, fi))
-				is_enabled = TRUE;
-		}
-		node_data->enabled = is_enabled;
-	}
+    /*
+     * Is this a leaf node or an interior node?
+     */
+    if (node_data->children == NULL) {
+        /*
+         * It's a leaf node.
+         *
+         * If it has no "selected_tree_row_enabled()" routine,
+         * leave its enabled/disabled status alone - it
+         * doesn't depend on whether we have a tree row selected
+         * or not or on the selected tree row.
+         *
+         * If it has a "selected_tree_row_enabled()" routine,
+         * call it and set the item's enabled/disabled status
+         * based on its return value.
+         */
+        if (node_data->selected_tree_row_enabled != NULL)
+            node_data->enabled = node_data->selected_tree_row_enabled(fi, node_data->callback_data);
+    } else {
+        /*
+         * It's an interior node; call
+         * "walk_menu_tree_for_selected_tree_row()" on all its
+         * children and, if any of them are enabled, enable
+         * this node, otherwise disable it.
+         *
+         * XXX - should we just leave all interior nodes enabled?
+         * Which is a better UI choice?
+         */
+        is_enabled = FALSE;
+        for (child = node_data->children; child != NULL; child =
+                 child->next) {
+            if (walk_menu_tree_for_selected_tree_row(child, fi))
+                is_enabled = TRUE;
+        }
+        node_data->enabled = is_enabled;
+    }
 
-	/*
-	 * The root node doesn't correspond to a menu tree item; it
-	 * has a null name pointer.
-	 */
-	if (node_data->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node_data->name,
-		    node_data->enabled);
-	}
-	return node_data->enabled;
+    /*
+     * The root node doesn't correspond to a menu tree item; it
+     * has a null name pointer.
+     */
+    if (node_data->name != NULL) {
+        set_menu_sensitivity(main_menu_factory, node_data->name,
+                             node_data->enabled);
+    }
+    return node_data->enabled;
 }
 
 static void
 menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 {
-  gboolean *value = data;
-  module_t *module = g_object_get_data (G_OBJECT(w), "module");
-  
-  module->prefs_changed = TRUE;
-  *value = !(*value);
+    gboolean *value = data;
+    module_t *module = g_object_get_data (G_OBJECT(w), "module");
 
-  prefs_apply (module);
-  if (!prefs.gui_use_pref_save) {
-      prefs_main_write();
-  }
-  cf_redissect_packets(&cfile);
+    module->prefs_changed = TRUE;
+    *value = !(*value);
+
+    prefs_apply (module);
+    if (!prefs.gui_use_pref_save) {
+        prefs_main_write();
+    }
+    cf_redissect_packets(&cfile);
 }
 
 static void
 menu_prefs_change_enum (GtkWidget *w, gpointer data)
 {
-  gint *value = data;
-  module_t *module = g_object_get_data (G_OBJECT(w), "module");
-  gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
+    gint *value = data;
+    module_t *module = g_object_get_data (G_OBJECT(w), "module");
+    gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
-  if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
-    return;
+    if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
+        return;
 
-  if (*value != new_value) {
-    module->prefs_changed = TRUE;
-    *value = new_value;
+    if (*value != new_value) {
+        module->prefs_changed = TRUE;
+        *value = new_value;
 
-    prefs_apply (module);
-    if (!prefs.gui_use_pref_save) {
-      prefs_main_write();
+        prefs_apply (module);
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
+        }
+        cf_redissect_packets(&cfile);
     }
-    cf_redissect_packets(&cfile);
-  }
 }
 
 static void
 menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 {
-  GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
-  module_t *module = g_object_get_data (G_OBJECT(w), "module");
-  pref_t *pref = g_object_get_data (G_OBJECT(w), "pref");
-  const gchar *new_value =  gtk_entry_get_text(GTK_ENTRY(entry));
-  range_t *newrange;
-  gchar *p;
-  guint uval;
+    GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+    module_t *module = g_object_get_data (G_OBJECT(w), "module");
+    pref_t *pref = g_object_get_data (G_OBJECT(w), "pref");
+    const gchar *new_value =  gtk_entry_get_text(GTK_ENTRY(entry));
+    range_t *newrange;
+    gchar *p;
+    guint uval;
 
-  switch (pref->type) {
-  case PREF_UINT:
-    uval = strtoul(new_value, &p, pref->info.base);
-    if (p == new_value || *p != '\0') {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "The value \"%s\" isn't a valid number.",
-                    new_value);
-      return;
+    switch (pref->type) {
+    case PREF_UINT:
+        uval = strtoul(new_value, &p, pref->info.base);
+        if (p == new_value || *p != '\0') {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "The value \"%s\" isn't a valid number.",
+                          new_value);
+            return;
+        }
+        if (*pref->varp.uint != uval) {
+            module->prefs_changed = TRUE;
+            *pref->varp.uint = uval;
+        }
+        break;
+    case PREF_STRING:
+        if (strcmp (*pref->varp.string, new_value) != 0) {
+            module->prefs_changed = TRUE;
+            g_free((void*)*pref->varp.string);
+            *pref->varp.string = g_strdup(new_value);
+        }
+        break;
+    case PREF_RANGE:
+        if (range_convert_str(&newrange, new_value, pref->info.max_value) != CVT_NO_ERROR) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "The value \"%s\" isn't a valid range.",
+                          new_value);
+            return;
+        }
+        if (!ranges_are_equal(*pref->varp.range, newrange)) {
+            module->prefs_changed = TRUE;
+            g_free(*pref->varp.range);
+            *pref->varp.range = newrange;
+        } else {
+            g_free (newrange);
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
     }
-    if (*pref->varp.uint != uval) {
-      module->prefs_changed = TRUE;
-      *pref->varp.uint = uval;
-    }
-    break;
-  case PREF_STRING:
-    if (strcmp (*pref->varp.string, new_value) != 0) {
-      module->prefs_changed = TRUE;
-      g_free((void*)*pref->varp.string);
-      *pref->varp.string = g_strdup(new_value);
-    }
-    break;
-  case PREF_RANGE:
-    if (range_convert_str(&newrange, new_value, pref->info.max_value) != CVT_NO_ERROR) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "The value \"%s\" isn't a valid range.",
-                    new_value);
-      return;
-    }
-    if (!ranges_are_equal(*pref->varp.range, newrange)) {
-      module->prefs_changed = TRUE;
-      g_free(*pref->varp.range);
-      *pref->varp.range = newrange;
-    } else {
-      g_free (newrange);
-    }
-    break;
-  default:
-    g_assert_not_reached();
-    break;
-  }
 
-  if (module->prefs_changed) {
-    /* Ensure we reload the sub menu */
-    g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
-    g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
+    if (module->prefs_changed) {
+        /* Ensure we reload the sub menu */
+        g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
+        g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
 
-    prefs_apply (module);
-    if (!prefs.gui_use_pref_save) {
-      prefs_main_write();
+        prefs_apply (module);
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
+        }
+        cf_redissect_packets(&cfile);
     }
-    cf_redissect_packets(&cfile);
-  }
 
-  window_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
 menu_prefs_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 {
-  window_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void 
 menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
-  pref_t *pref = data;
-  module_t *module = g_object_get_data (G_OBJECT(w), "module");
-  gchar *value;
+    pref_t *pref = data;
+    module_t *module = g_object_get_data (G_OBJECT(w), "module");
+    gchar *value;
 
-  GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
-  GtkWidget *entry, *label;
-  GtkTooltips *tooltips;
+    GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+    GtkWidget *entry, *label;
+    GtkTooltips *tooltips;
 
-  switch (pref->type) {
-  case PREF_UINT:
-    switch (pref->info.base) {
-    case 8:
-      value = g_strdup_printf("%o", *pref->varp.uint);
-      break;
-    case 10:
-      value = g_strdup_printf("%u", *pref->varp.uint);
-      break;
-    case 16:
-      value = g_strdup_printf("%x", *pref->varp.uint);
-      break;
+    switch (pref->type) {
+    case PREF_UINT:
+        switch (pref->info.base) {
+        case 8:
+            value = g_strdup_printf("%o", *pref->varp.uint);
+            break;
+        case 10:
+            value = g_strdup_printf("%u", *pref->varp.uint);
+            break;
+        case 16:
+            value = g_strdup_printf("%x", *pref->varp.uint);
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+        }
+        break;
+    case PREF_STRING:
+        value = g_strdup(*pref->varp.string);
+        break;
+    case PREF_RANGE:
+        value = g_strdup(range_convert_range (*pref->varp.range));
+        break;
     default:
-      g_assert_not_reached();
-      break;
+        g_assert_not_reached();
+        break;
     }
-    break;
-  case PREF_STRING:
-    value = g_strdup(*pref->varp.string);
-    break;
-  case PREF_RANGE:
-    value = g_strdup(range_convert_range (*pref->varp.range));
-    break;
-  default:
-    g_assert_not_reached();
-    break;
-  }
 
-   tooltips = gtk_tooltips_new();
-	
-   win = dlg_window_new(module->description);
+    tooltips = gtk_tooltips_new();
 
-   gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
-   gtk_window_resize(GTK_WINDOW(win), 400, 100);
+    win = dlg_window_new(module->description);
 
-   main_vb = gtk_vbox_new(FALSE, 5);
-   gtk_container_add(GTK_CONTAINER(win), main_vb);
-   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
+    gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+    gtk_window_resize(GTK_WINDOW(win), 400, 100);
 
-   main_tb = gtk_table_new(2, 2, FALSE);
-   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+    main_vb = gtk_vbox_new(FALSE, 5);
+    gtk_container_add(GTK_CONTAINER(win), main_vb);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-   label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
-   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
-   gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-   if (pref->description)
-     gtk_tooltips_set_tip(tooltips, label, pref->description, NULL);
+    main_tb = gtk_table_new(2, 2, FALSE);
+    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 
-   entry = gtk_entry_new();
-   gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
-   gtk_entry_set_text(GTK_ENTRY(entry), value);
-   if (pref->description)
-     gtk_tooltips_set_tip(tooltips, entry, pref->description, NULL);
+    label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
+    gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    if (pref->description)
+        gtk_tooltips_set_tip(tooltips, label, pref->description, NULL);
 
-   bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
-   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+    entry = gtk_entry_new();
+    gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+    gtk_entry_set_text(GTK_ENTRY(entry), value);
+    if (pref->description)
+        gtk_tooltips_set_tip(tooltips, entry, pref->description, NULL);
 
-   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-   g_object_set_data (G_OBJECT(ok_bt), "module", module);
-   g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
-   g_object_set_data (G_OBJECT(ok_bt), "pref", pref);
-   g_signal_connect(ok_bt, "clicked", G_CALLBACK(menu_prefs_change_ok), win);
+    bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+    gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-   dlg_set_activate(entry, ok_bt);
+    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    g_object_set_data (G_OBJECT(ok_bt), "module", module);
+    g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+    g_object_set_data (G_OBJECT(ok_bt), "pref", pref);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(menu_prefs_change_ok), win);
 
-   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(menu_prefs_change_cancel), win);
-   window_set_cancel_button(win, cancel_bt, NULL);
+    dlg_set_activate(entry, ok_bt);
 
-   gtk_widget_grab_default(ok_bt);
-   gtk_widget_show_all(win);
-   g_free(value);
+    cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+    g_signal_connect(cancel_bt, "clicked", G_CALLBACK(menu_prefs_change_cancel), win);
+    window_set_cancel_button(win, cancel_bt, NULL);
+
+    gtk_widget_grab_default(ok_bt);
+    gtk_widget_show_all(win);
+    g_free(value);
 }
 
 static guint
 add_protocol_prefs_menu (pref_t *pref, gpointer data)
 {
-  GtkWidget *menu_preferences;
-  GtkWidget *menu_item, *menu_sub_item, *sub_menu;
-  GSList *group = NULL;
-  module_t *module = data;
-  const enum_val_t *enum_valp;
-  gchar *label;
+    GtkWidget *menu_preferences;
+    GtkWidget *menu_item, *menu_sub_item, *sub_menu;
+    GSList *group = NULL;
+    module_t *module = data;
+    const enum_val_t *enum_valp;
+    gchar *label;
 
-  switch (pref->type) {
-  case PREF_UINT:
-    switch (pref->info.base) {
-    case 8:
-      label = g_strdup_printf ("%s: %o", pref->title, *pref->varp.uint);
-      break;
-    case 10:
-      label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
-      break;
-    case 16:
-      label = g_strdup_printf ("%s: %x", pref->title, *pref->varp.uint);
-      break;
+    switch (pref->type) {
+    case PREF_UINT:
+        switch (pref->info.base) {
+        case 8:
+            label = g_strdup_printf ("%s: %o", pref->title, *pref->varp.uint);
+            break;
+        case 10:
+            label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
+            break;
+        case 16:
+            label = g_strdup_printf ("%s: %x", pref->title, *pref->varp.uint);
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+        }
+        menu_item = gtk_menu_item_new_with_label(label);
+        g_object_set_data (G_OBJECT(menu_item), "module", module);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
+        g_free (label);
+        break;
+    case PREF_BOOL:
+        menu_item = gtk_check_menu_item_new_with_label(pref->title);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), *pref->varp.boolp);
+        gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+        g_object_set_data (G_OBJECT(menu_item), "module", module);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref->varp.boolp);
+        break;
+    case PREF_ENUM:
+        menu_item = gtk_menu_item_new_with_label(pref->title);
+        sub_menu = gtk_menu_new();
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
+        enum_valp = pref->info.enum_info.enumvals;
+        while (enum_valp->name != NULL) {
+            menu_sub_item = gtk_radio_menu_item_new_with_label(group, enum_valp->description);
+            group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_sub_item));
+            if (enum_valp->value == *pref->varp.enump) {
+                gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
+            }
+            g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
+            g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
+            g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
+            gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_sub_item);
+            gtk_widget_show (menu_sub_item);
+            enum_valp++;
+        }
+        break;
+    case PREF_STRING:
+        label = g_strdup_printf ("%s: %s", pref->title, *pref->varp.string);
+        menu_item = gtk_menu_item_new_with_label(label);
+        g_object_set_data (G_OBJECT(menu_item), "module", module);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
+        g_free (label);
+        break;
+    case PREF_RANGE:
+        label = g_strdup_printf ("%s: %s", pref->title, range_convert_range (*pref->varp.range));
+        menu_item = gtk_menu_item_new_with_label(label);
+        g_object_set_data (G_OBJECT(menu_item), "module", module);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
+        g_free (label);
+        break;
+    case PREF_UAT:
+        label = g_strdup_printf ("%s...", pref->title);
+        menu_item = gtk_menu_item_new_with_label(label);
+        g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), pref->varp.uat);
+        g_free (label);
+        break;
+    case PREF_STATIC_TEXT:
+    case PREF_OBSOLETE:
     default:
-      g_assert_not_reached();
-      break;
+        /* Nothing to add */
+        return 0;
     }
-    menu_item = gtk_menu_item_new_with_label(label);
-    g_object_set_data (G_OBJECT(menu_item), "module", module);
-    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
-    g_free (label);
-    break;
-  case PREF_BOOL:
-    menu_item = gtk_check_menu_item_new_with_label(pref->title);
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), *pref->varp.boolp);
-    gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
-    g_object_set_data (G_OBJECT(menu_item), "module", module);
-    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref->varp.boolp);
-    break;
-  case PREF_ENUM:
-    menu_item = gtk_menu_item_new_with_label(pref->title);
-    sub_menu = gtk_menu_new();
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
-    enum_valp = pref->info.enum_info.enumvals;
-    while (enum_valp->name != NULL) {
-      menu_sub_item = gtk_radio_menu_item_new_with_label(group, enum_valp->description);
-      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_sub_item));
-      if (enum_valp->value == *pref->varp.enump) {
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
-      }
-      g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
-      g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
-      g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
-      gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_sub_item);
-      gtk_widget_show (menu_sub_item);
-      enum_valp++;
-    }
-    break;
-  case PREF_STRING:
-    label = g_strdup_printf ("%s: %s", pref->title, *pref->varp.string);
-    menu_item = gtk_menu_item_new_with_label(label);
-    g_object_set_data (G_OBJECT(menu_item), "module", module);
-    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
-    g_free (label);
-    break;
-  case PREF_RANGE:
-    label = g_strdup_printf ("%s: %s", pref->title, range_convert_range (*pref->varp.range));
-    menu_item = gtk_menu_item_new_with_label(label);
-    g_object_set_data (G_OBJECT(menu_item), "module", module);
-    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
-    g_free (label);
-    break;
-  case PREF_UAT:
-    label = g_strdup_printf ("%s...", pref->title);
-    menu_item = gtk_menu_item_new_with_label(label);
-    g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), pref->varp.uat);
-    g_free (label);
-    break;
-  case PREF_STATIC_TEXT:
-  case PREF_OBSOLETE:
-  default:
-    /* Nothing to add */
+
+    menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
+    sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    gtk_widget_show (menu_item);
+
     return 0;
-  }
-
-  menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
-  sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
-  gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-  gtk_widget_show (menu_item);
-
-  return 0;
 }
 
 static void
 rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
 {
-  GtkWidget *menu_preferences, *menu_item;
-  GtkWidget *sub_menu;
-  gchar *label;
+    GtkWidget *menu_preferences, *menu_item;
+    GtkWidget *sub_menu;
+    gchar *label;
 
-  menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
-  
-  if (preferences) {
-    sub_menu = gtk_menu_new();
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
+    menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
 
-    label = g_strdup_printf ("%s Preferences...", prefs->description);
-    menu_item = gtk_image_menu_item_new_with_label (label);
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
-				   gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
-    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-    g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-			     G_CALLBACK(properties_cb), (GtkObject *) menu_item);
-    gtk_widget_show (menu_item);
-    g_free (label);
+    if (preferences) {
+        sub_menu = gtk_menu_new();
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
 
-    menu_item = gtk_menu_item_new();
-    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-    gtk_widget_show (menu_item);
+        label = g_strdup_printf ("%s Preferences...", prefs->description);
+        menu_item = gtk_image_menu_item_new_with_label (label);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
+                                       gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
+        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+        g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+                                 G_CALLBACK(properties_cb), (GtkObject *) menu_item);
+        gtk_widget_show (menu_item);
+        g_free (label);
 
-    prefs_pref_foreach(prefs, add_protocol_prefs_menu, prefs);
-  } else {
-    /* No preferences, remove sub menu */
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
-  }
+        menu_item = gtk_menu_item_new();
+        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+        gtk_widget_show (menu_item);
+
+        prefs_pref_foreach(prefs, add_protocol_prefs_menu, prefs);
+    } else {
+        /* No preferences, remove sub menu */
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
+    }
 
 }
 
 void
 set_menus_for_selected_tree_row(capture_file *cf)
 {
-  gboolean properties;
-  gint id;
+    gboolean properties;
+    gint id;
 
-  if (cf->finfo_selected != NULL) {
-	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
-	const char *abbrev;
-	char *prev_abbrev;
+    if (cf->finfo_selected != NULL) {
+        header_field_info *hfinfo = cf->finfo_selected->hfinfo;
+        const char *abbrev;
+        char *prev_abbrev;
 
-	if (hfinfo->parent == -1) {
-	  abbrev = hfinfo->abbrev;
-	  id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
-	} else {
-	  abbrev = proto_registrar_get_abbrev(hfinfo->parent);
-	  id = hfinfo->parent;
-	}
-	properties = prefs_is_registered_protocol(abbrev);
+        if (hfinfo->parent == -1) {
+            abbrev = hfinfo->abbrev;
+            id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
+        } else {
+            abbrev = proto_registrar_get_abbrev(hfinfo->parent);
+            id = hfinfo->parent;
+        }
+        properties = prefs_is_registered_protocol(abbrev);
 
-	set_menu_sensitivity(main_menu_factory,
-	  "/File/Export/Selected Packet Bytes...", TRUE);
-	set_menu_sensitivity(main_menu_factory,
-	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-	set_menu_sensitivity(tree_view_menu_factory,
-	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Copy",
-	  TRUE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Copy/As Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
-	  properties);
-	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...",
-	  (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
-	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
-	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
-	  TRUE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
-	  TRUE);
+        set_menu_sensitivity(main_menu_factory,
+                             "/File/Export/Selected Packet Bytes...", TRUE);
+        set_menu_sensitivity(main_menu_factory,
+                             "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(tree_view_menu_factory,
+                             "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Copy",
+                             TRUE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Copy/As Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
+                             properties);
+        set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...",
+                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
+        set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
+                             TRUE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
+                             TRUE);
         
-	prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
-	if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
-	  /* No previous protocol or protocol changed - update Protocol Preferences menu */
-	  module_t *prefs = prefs_find_module(abbrev);
-	  rebuild_protocol_prefs_menu (prefs, properties);
+        prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
+        if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
+            /* No previous protocol or protocol changed - update Protocol Preferences menu */
+            module_t *prefs = prefs_find_module(abbrev);
+            rebuild_protocol_prefs_menu (prefs, properties);
 
-	  g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
-	  g_free (prev_abbrev);
-	}
-  } else {
-	set_menu_sensitivity(main_menu_factory,
-	  "/File/Export/Selected Packet Bytes...", FALSE);
-	set_menu_sensitivity(main_menu_factory,
-	  "/Go/Go to Corresponding Packet", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory,
-	  "/Go to Corresponding Packet", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
-	  FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
-	  FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
-	  FALSE);
-  }
+            g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
+            g_free (prev_abbrev);
+        }
+    } else {
+        set_menu_sensitivity(main_menu_factory,
+                             "/File/Export/Selected Packet Bytes...", FALSE);
+        set_menu_sensitivity(main_menu_factory,
+                             "/Go/Go to Corresponding Packet", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory,
+                             "/Go to Corresponding Packet", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Description", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Fieldname", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
+                             FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
+                             FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
+                             FALSE);
+    }
 
-  walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
+    walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
 }
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
 
-  set_menu_sensitivity(main_menu_factory, "/Go/Back", back_history);
-  set_menu_sensitivity(main_menu_factory, "/Go/Forward", forward_history);
+    set_menu_sensitivity(main_menu_factory, "/Go/Back", back_history);
+    set_menu_sensitivity(main_menu_factory, "/Go/Forward", forward_history);
 
-  set_toolbar_for_packet_history(back_history, forward_history);
+    set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 
 void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
 
-  set_menu_sensitivity(main_menu_factory, "/File/File Set/List Files", file_set);
-  set_menu_sensitivity(main_menu_factory, "/File/File Set/Previous File", previous_file);
-  set_menu_sensitivity(main_menu_factory, "/File/File Set/Next File", next_file);
+    set_menu_sensitivity(main_menu_factory, "/File/File Set/List Files", file_set);
+    set_menu_sensitivity(main_menu_factory, "/File/File Set/Previous File", previous_file);
+    set_menu_sensitivity(main_menu_factory, "/File/File Set/Next File", next_file);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+

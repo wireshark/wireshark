@@ -464,7 +464,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_item_factory_popup_data_from_widget',     'E',
                 'gtk_item_factory_popup_with_data',            'E',
                 'gtk_item_factory_set_translate_func',         'E',
-                'gtk_label_get',                               'W', # >>> gtk_label_get_text() [!=]
+                'gtk_label_get',                               'E', # gtk_label_get_text() [!=]
                 'gtk_label_parse_uline',                       'E',
                 'gtk_label_set',                               'E', # gtk_label_set_text() [==]
                 'gtk_layout_freeze',                           'E',
@@ -488,8 +488,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_list_scroll_vertical',                    'E',
                 'gtk_list_select_all',                         'E',
                 'gtk_list_select_child',                       'E',
-                'gtk_list_select_item',                        'E', # Fix/remove in expert_dlg.c
-                'gtk_list_set_selection_mode',                 'E', # remove in comment ?
+                'gtk_list_select_item',                        'E',
+                'gtk_list_set_selection_mode',                 'E',
                 'gtk_list_start_selection',                    'E',
                 'gtk_list_toggle_add_mode',                    'E',
                 'gtk_list_toggle_focus_row',                   'E',
@@ -576,7 +576,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_progress_bar_set_discrete_blocks',        'E',
                 'gtk_progress_bar_update',                     'W', # >>> "gtk_progress_set_value() or 
                                                                     #    gtk_progress_set_percentage()" 
-                                                                    ##  Actually: GtkProgrss is deprecated so the 
+                                                                    ##  Actually: GtkProgress is deprecated so the 
                                                                     ##  right answer appears to be to use 
                                                                     ##  gtk_progress_bar_set_fraction()
                 'gtk_progress_configure',                      'E',
