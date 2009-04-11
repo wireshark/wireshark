@@ -2515,55 +2515,57 @@ rtcp_packet_type_to_tree( int rtcp_packet_type)
 static void
 dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	proto_item *ti           = NULL;
-	proto_tree *rtcp_tree    = NULL;
-	unsigned int temp_byte   = 0;
-	unsigned int padding_set = 0;
-	unsigned int elem_count  = 0;
-	unsigned int packet_type = 0;
-	unsigned int offset      = 0;
-	guint16 packet_length    = 0;
-	guint16 total_packet_length = 0;
-	guint rtcp_subtype		 = 0;
-	guint32 app_length		 = 0;
-	gboolean srtcp_encrypted = FALSE;
-	gboolean srtcp_now_encrypted = FALSE;
-	conversation_t *p_conv   = NULL;
-	struct _rtcp_conversation_info *p_conv_data = NULL;
-	struct srtp_info *srtcp_info = NULL;
-	gboolean e_bit;
-	guint32 srtcp_offset = 0;
-	guint32 srtcp_index  = 0;
+    proto_item *ti           = NULL;
+    proto_tree *rtcp_tree    = NULL;
+    unsigned int temp_byte   = 0;
+    unsigned int padding_set = 0;
+    unsigned int elem_count  = 0;
+    unsigned int packet_type = 0;
+    unsigned int offset      = 0;
+    guint16 packet_length    = 0;
+    guint16 total_packet_length = 0;
+    guint8 padding_length;
+    unsigned int padding_offset = 0;
+    guint rtcp_subtype         = 0;
+    guint32 app_length         = 0;
+    gboolean srtcp_encrypted = FALSE;
+    gboolean srtcp_now_encrypted = FALSE;
+    conversation_t *p_conv   = NULL;
+    struct _rtcp_conversation_info *p_conv_data = NULL;
+    struct srtp_info *srtcp_info = NULL;
+    gboolean e_bit;
+    guint32 srtcp_offset = 0;
+    guint32 srtcp_index  = 0;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
-	}
+    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
+        col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
+    }
 
-	/* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
-	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
-	                           pinfo->ptype,
-	                           pinfo->srcport, pinfo->destport, NO_ADDR_B);
-	if (p_conv)
-	{
-		p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
-		if (p_conv_data && p_conv_data->srtcp_info)
-		{
-			srtcp_info = p_conv_data->srtcp_info;
-			/* get the offset to the start of the SRTCP fields at the end of the packet */
-			srtcp_offset = tvb_length_remaining(tvb,offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
-				/* It has been setup as SRTCP, but skip to the SRTCP E field at the end
-				   to see if this particular packet is encrypted or not. The E bit is the MSB. */
-			srtcp_index = tvb_get_ntohl(tvb,srtcp_offset);
-			e_bit = (srtcp_index & 0x80000000) ? TRUE : FALSE;
-			srtcp_index &= 0x7fffffff;
+    /* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
+    p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
+                               pinfo->ptype,
+                               pinfo->srcport, pinfo->destport, NO_ADDR_B);
+    if (p_conv)
+    {
+        p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+        if (p_conv_data && p_conv_data->srtcp_info)
+        {
+            srtcp_info = p_conv_data->srtcp_info;
+            /* get the offset to the start of the SRTCP fields at the end of the packet */
+            srtcp_offset = tvb_length_remaining(tvb,offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
+            /* It has been setup as SRTCP, but skip to the SRTCP E field at the end
+               to see if this particular packet is encrypted or not. The E bit is the MSB. */
+            srtcp_index = tvb_get_ntohl(tvb,srtcp_offset);
+            e_bit = (srtcp_index & 0x80000000) ? TRUE : FALSE;
+            srtcp_index &= 0x7fffffff;
 
-			if (srtcp_info->encryption_algorithm!=SRTP_ENC_ALG_NULL) {
-				/* just flag it for now - the first SR or RR header and SSRC are unencrypted */
-				if (e_bit)
-					srtcp_encrypted = TRUE;
-			}
-		}
-	}
+            if (srtcp_info->encryption_algorithm!=SRTP_ENC_ALG_NULL) {
+                /* just flag it for now - the first SR or RR header and SSRC are unencrypted */
+                if (e_bit)
+                    srtcp_encrypted = TRUE;
+            }
+        }
+    }
 
     /*
      * Check if there are at least 4 bytes left in the frame,
@@ -2592,32 +2594,33 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         /*
          * get the packet-length for the complete RTCP packet
          */
-		packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
-		total_packet_length += packet_length;
+        packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
+        total_packet_length += packet_length;
 
-		ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
-		proto_item_append_text(ti, " (%s)",
-		                       val_to_str(packet_type,
-		                                  rtcp_packet_type_vals,
-		                                  "Unknown"));
+        ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
+        proto_item_append_text(ti, " (%s)",
+                               val_to_str(packet_type,
+                                          rtcp_packet_type_vals,
+                                          "Unknown"));
 
-		rtcp_tree = proto_item_add_subtree( ti, rtcp_packet_type_to_tree(packet_type) );
+        rtcp_tree = proto_item_add_subtree( ti, rtcp_packet_type_to_tree(packet_type) );
 
-		/* Conversation setup info */
-		if (global_rtcp_show_setup_info)
-		{
-			show_setup_info(tvb, pinfo, rtcp_tree);
-		}
+        /* Conversation setup info */
+        if (global_rtcp_show_setup_info)
+        {
+            show_setup_info(tvb, pinfo, rtcp_tree);
+        }
 
 
         temp_byte = tvb_get_guint8( tvb, offset );
 
-		proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
-							 offset, 1, temp_byte);
+        proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
+                             offset, 1, temp_byte);
         padding_set = RTCP_PADDING( temp_byte );
+        padding_offset = offset + packet_length - 1;
 
-		proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
-								offset, 1, temp_byte );
+        proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
+                                offset, 1, temp_byte );
         elem_count = RTCP_COUNT( temp_byte );
 
         switch ( packet_type ) {
@@ -2719,30 +2722,40 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
      * We only have to check for this at the end of the LAST RTCP message
      */
     if ( padding_set ) {
-        /* If everything went according to plan offset should now point to the
-         * first octet of the padding
+        /* The last RTCP message in the packet has padding - find it.
+         *
+         * The padding count is found at an offset of padding_offset; it
+         * contains the number of padding octets, including the padding
+         * count itself.
          */
-        proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
-        offset += tvb_length_remaining( tvb, offset) - 1;
+        padding_length = tvb_get_guint8( tvb, padding_offset);
+
+        /* This length includes the padding length byte itself, so 0 is not
+         * a valid value. */
+        if (padding_length != 0) {
+            proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, padding_length - 1, FALSE );
+            offset += padding_length - 1;
+        }
         proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
+        offset++;
     }
 
-	/* If the payload was encrypted, the main payload was not dissected */
-	if (srtcp_encrypted == TRUE) {
-		proto_tree_add_text(rtcp_tree, tvb, offset, srtcp_offset-offset, "Encrypted RTCP Payload - not dissected");
-		proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, FALSE);
-		proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
-		srtcp_offset += 4;
-		if (srtcp_info->mki_len) {
-			proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, FALSE);
-			srtcp_offset += srtcp_info->mki_len;
-		}
+    /* If the payload was encrypted, the main payload was not dissected */
+    if (srtcp_encrypted == TRUE) {
+        proto_tree_add_text(rtcp_tree, tvb, offset, srtcp_offset-offset, "Encrypted RTCP Payload - not dissected");
+        proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, FALSE);
+        proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
+        srtcp_offset += 4;
+        if (srtcp_info->mki_len) {
+            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, FALSE);
+            srtcp_offset += srtcp_info->mki_len;
+        }
 
-		if (srtcp_info->auth_tag_len) {
-			proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, FALSE);
-			srtcp_offset += srtcp_info->auth_tag_len;
-		}
-	}
+        if (srtcp_info->auth_tag_len) {
+            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, FALSE);
+            srtcp_offset += srtcp_info->auth_tag_len;
+        }
+    }
     /* offset should be total_packet_length by now... */
     else if (offset == (unsigned int)total_packet_length)
     {
