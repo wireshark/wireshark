@@ -9684,6 +9684,29 @@
 00:25:C5	StarLinkCo             # Star Link Communication Pvt. Ltd.
 00:25:C6	Kasercorp              # kasercorp, ltd
 00:25:C7	Altek                  # altek Corporation
+00:25:C8	S-Access               # S-Access GmbH
+00:25:C9	ShenzhenHu             # SHENZHEN HUAPU DIGITAL CO., LTD
+00:25:CA	LsResearch             # LS Research, LLC
+00:25:CB	ReinerSct              # Reiner SCT
+00:25:CC	MobileComm             # Mobile Communications Korea Incorporated
+00:25:CD	SkylaneOpt             # Skylane Optics
+00:25:CE	Innerspace
+00:25:CF	NokiaDanma             # Nokia Danmark A/S
+00:25:D0	NokiaDanma             # Nokia Danmark A/S
+00:25:D1	EastechEle             # Eastech Electronics (Taiwan) Inc.
+00:25:D2	Inpegvisio             # InpegVision Co., Ltd
+00:25:D3	AzurewaveT             # AzureWave Technologies, Inc
+00:25:D4	FortressTe             # Fortress Technologies
+00:25:D5	RobonicaPt             # Robonica (Pty) Ltd
+00:25:D6	Kroger                 # The Kroger Co.
+00:25:D7	Cedo
+00:25:D8	KoreaMaint             # KOREA MAINTENANCE
+00:25:D9	Datafab                # DataFab Systems Inc.
+00:25:DA	SecuraKey              # Secura Key
+00:25:DB	AtiElectro             # ATI Electronics(Shenzhen) Co., LTD
+00:25:DC	SumitomoEl             # Sumitomo Electric Networks, Inc
+00:25:DD	SunnytekIn             # SUNNYTEK INFORMATION CO., LTD.
+00:25:DE	Probits                # Probits Co., LTD.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13080,6 +13103,17 @@
 00:50:C2:A9:20:00/36	SiconSRL               # Sicon s.r.l.
 00:50:C2:A9:30:00/36	SpxDehydra             # SPX Dehydration & Filtration
 00:50:C2:A9:40:00/36	Par-Tech               # Par-Tech, Inc.
+00:50:C2:A9:50:00/36	Innovacion             # INNOVACIONES MICROELECTRONICAS SL (AnaFocus)
+00:50:C2:A9:60:00/36	FepSrl                 # FEP SRL
+00:50:C2:A9:70:00/36	Microsyste             # MICROSYSTEMES
+00:50:C2:A9:80:00/36	Sentry360S             # Sentry 360 Security
+00:50:C2:A9:90:00/36	Haivision              # Haivision Systems Inc
+00:50:C2:A9:A0:00/36	Absolutron             # Absolutron. LLC
+00:50:C2:A9:B0:00/36	PdqManufac             # PDQ Manufacturing  Inc.
+00:50:C2:A9:C0:00/36	Eberspaech             # Eberspaecher Electronics GmbH & Co. KG
+00:50:C2:A9:D0:00/36	JoehlKoefe             # Joehl & Koeferli AG
+00:50:C2:A9:E0:00/36	ProconEngi             # Procon Engineering Limited
+00:50:C2:A9:F0:00/36	Yellowsoft             # YellowSoft Co., Ltd.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
