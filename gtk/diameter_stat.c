@@ -1,13 +1,8 @@
 /* diameter_stat.c
- * Diameter Statistics
+ *  Diameter Service Response Time Statistics
  * (c) 2008 Abhik Sarkar
  *
  * Based almost completely on gtp_stat by Kari Tiirikainen
- *
- * FIXME
- * In the present version, the SRT for all Diameter commands
- * is bunched into one statistic. The statistics should ideally
- * be grouped by vendor/application id and then by command code.
  *
  * $Id$
  *
@@ -44,7 +39,6 @@
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-#include <epan/value_string.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-diameter.h>
 
@@ -69,6 +63,8 @@ typedef struct _diameterstat_t {
 	srt_stat_table diameter_srt_table;
 } diameterstat_t;
 
+GHashTable* cmd_str_hash;
+
 static void
 diameterstat_set_title(diameterstat_t *diameter)
 {
@@ -89,14 +85,24 @@ diameterstat_reset(void *pdiameter)
 	diameterstat_set_title(diameter);
 }
 
+
 static int
 diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi)
 {
 	const diameter_req_ans_pair_t *diameter=pdi;
 	diameterstat_t *fs=(diameterstat_t *)pdiameter;
-	int index=0;
+	int* index = NULL;
 
-	add_srt_table_data(&fs->diameter_srt_table, index, &diameter->req_time, pinfo);
+
+	index = (int*) g_hash_table_lookup(cmd_str_hash, diameter->cmd_str);
+	if (index == NULL) {
+		index = g_malloc(sizeof(int));
+		*index = (int) g_hash_table_size(cmd_str_hash);
+		g_hash_table_insert(cmd_str_hash, (gchar*) diameter->cmd_str, index);
+		init_srt_table_row(&fs->diameter_srt_table, *index,  (const char*) diameter->cmd_str);
+	}
+
+	add_srt_table_data(&fs->diameter_srt_table, *index, &diameter->req_time, pinfo);
 
 	return 1;
 }
@@ -123,6 +129,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	free_srt_table_data(&diameter->diameter_srt_table);
 	g_free(diameter);
+	g_hash_table_destroy(cmd_str_hash);
 }
 
 
@@ -137,6 +144,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *vbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+	int* index;
 
 	if(!strncmp(optarg,"diameter,",9)){
 		filter=optarg+9;
@@ -145,6 +153,10 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	}
 
 	diameter=g_malloc(sizeof(diameterstat_t));
+	index = g_malloc(sizeof(int));
+	*index = 0;
+	cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
+	g_hash_table_insert(cmd_str_hash, (gchar *)"Unknown", index);
 
 	diameter->win=window_new(GTK_WINDOW_TOPLEVEL, "diameter-stat");
 	gtk_window_set_default_size(GTK_WINDOW(diameter->win), 550, 400);
@@ -170,7 +182,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(diameter->win);
 
 	init_srt_table(&diameter->diameter_srt_table, 1, vbox, NULL);
-	init_srt_table_row(&diameter->diameter_srt_table, 0, "All");
+	init_srt_table_row(&diameter->diameter_srt_table, 0, "Unknown");
 
 	error_string=register_tap_listener("diameter", diameter, filter, diameterstat_reset, diameterstat_packet, diameterstat_draw);
 	if(error_string){

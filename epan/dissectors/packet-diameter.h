@@ -26,9 +26,10 @@
 /* Request-Answer Pair */
 typedef struct _diameter_req_ans_pair_t
 {
-	guint32		hop_by_hop_id;	
-	guint32		cmd_code;	
+	guint32		hop_by_hop_id;
+	guint32		cmd_code;
 	guint32		result_code;
+	const char*	cmd_str;
 	guint32 	req_frame; 	/* frame number in which request was seen */
 	guint32		ans_frame;	/* frame number in which answer was seen */
 	nstime_t	req_time;

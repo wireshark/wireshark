@@ -623,7 +623,6 @@ static const char* msgflags_str[] = {
 	"RP--", "RP-T", "RPE-", "RPET"
 };
 
-
 static void
 dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
@@ -784,6 +783,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			diameter_pair = se_alloc(sizeof(diameter_req_ans_pair_t));
 			diameter_pair->hop_by_hop_id = hop_by_hop_id;
 			diameter_pair->cmd_code = cmd;
+			diameter_pair->cmd_str = cmd_str;
 			diameter_pair->req_frame = pinfo->fd->num;
 			diameter_pair->ans_frame = 0;
 			diameter_pair->req_time = pinfo->fd->abs_ts;
