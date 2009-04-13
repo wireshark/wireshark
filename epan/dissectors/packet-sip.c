@@ -2809,7 +2809,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 	gint	next_offset, linelen, parameter_end_offset;
 	guint	offset = 0;
 	guint	parameter_len = meth_len;
-	guchar c;
+	guchar	c= '\0';
 	proto_tree *ruri_item_tree = NULL;
 	proto_item *ti;
 	
@@ -2838,58 +2838,58 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 		ti = proto_tree_add_item(tree, hf_sip_ruri, tvb, offset, parameter_len, FALSE);
 		ruri_item_tree = proto_item_add_subtree(ti, ett_sip_ruri);
 
-			offset = (tvb_find_guint8(tvb, offset, linelen, ':'))+1; /* calc R-URI User/Host begin*/
-			if ((tvb_find_guint8(tvb, offset, linelen, '@')) != -1){
+		offset = (tvb_find_guint8(tvb, offset, linelen, ':'))+1; /* calc R-URI User/Host begin*/
+		if ((tvb_find_guint8(tvb, offset, linelen, '@')) != -1){
 			/* R-URI: User Part found*/
 			parameter_len = (tvb_find_guint8(tvb, offset, linelen, '@'))-offset; /* calc R-URI User len*/
-            if (parameter_len > 0) {
+			if (parameter_len > 0) {
 				proto_tree_add_item(ruri_item_tree, hf_sip_ruri_user, tvb, offset, 
 				parameter_len, FALSE);
 			}
 			offset = offset + parameter_len + 1;
+		}
+		parameter_end_offset=offset;
+		
+		while (parameter_end_offset < linelen){
+			parameter_end_offset++;
+			c = tvb_get_guint8(tvb, parameter_end_offset);
+			switch (c) {
+				case ':':
+				case ',':
+				case ';':
+				case '?':
+				case ' ':
+					goto host_end_found;
+				default :
+				break;
 			}
-			parameter_end_offset=offset;
-			
-							while (parameter_end_offset < linelen){
-								parameter_end_offset++;
-								c = tvb_get_guint8(tvb, parameter_end_offset);
-								switch (c) {
-									case ':':
-									case ',':
-									case ';':
-									case '?':
-									case ' ':
-										goto host_end_found;
-									default :
-									break;
-								}
-							}
-			host_end_found:
-			parameter_len = parameter_end_offset-offset; /* calc R-URI host len*/
-			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_host, tvb, offset, parameter_len, FALSE);
+		}
+		host_end_found:
+		parameter_len = parameter_end_offset-offset; /* calc R-URI host len*/
+		proto_tree_add_item(ruri_item_tree, hf_sip_ruri_host, tvb, offset, parameter_len, FALSE);
 
-			offset = offset + parameter_len + 1;
-			
-			if (c == ':'){
+		offset = offset + parameter_len + 1;
+		
+		if (c == ':'){
 			/* R-URI: Host Port found */
 			parameter_end_offset = offset;
-							while (parameter_end_offset < linelen){
-								parameter_end_offset++;
-								c = tvb_get_guint8(tvb, parameter_end_offset);
-								switch (c) {
-									case ',':
-									case ';':
-									case '?':
-									case ' ':
-										goto host_port_end_found;
-									default :
-									break;
-								}
-							}
+			while (parameter_end_offset < linelen){
+				parameter_end_offset++;
+				c = tvb_get_guint8(tvb, parameter_end_offset);
+				switch (c) {
+					case ',':
+					case ';':
+					case '?':
+					case ' ':
+						goto host_port_end_found;
+					default :
+					break;
+				}
+			}
 			host_port_end_found:
 			parameter_len = parameter_end_offset-offset; /* calc R-URI Host Port len*/
 			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_port, tvb, offset, parameter_len, FALSE);
-			}
+		}
 		/* end of Request-URI tree*/	
 	}
 }
