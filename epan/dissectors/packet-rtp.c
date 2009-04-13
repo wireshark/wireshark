@@ -505,8 +505,8 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		return FALSE;
 	}
 
-	/* Was it sent between 2 even-numbered ports? */
-	if ((pinfo->srcport % 2) || (pinfo->destport % 2)) {
+	/* Was it sent to an even-numbered port? */
+	if ((pinfo->destport % 2) != 0) {
 		return FALSE;
 	}
 

@@ -596,10 +596,10 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		return FALSE;
 	}
 
-	/* Was it sent between 2 odd-numbered ports? */
-	if (!(pinfo->srcport % 2) || !(pinfo->destport % 2))
+	/* Was it sent to an odd-numbered port? */
+	if ((pinfo->destport % 2) == 0)
 	{
-		return FALSE;
+		return FALSE;	/* no */
 	}
 
 	/* Look at first byte */
@@ -625,7 +625,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/* Overall length must be a multiple of 4 bytes */
-	if (tvb_length(tvb) % 4)
+	if (tvb_reported_length(tvb) % 4)
 	{
 		return FALSE;
 	}
