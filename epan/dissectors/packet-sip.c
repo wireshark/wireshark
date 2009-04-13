@@ -78,12 +78,30 @@ static gint hf_raw_sip_line			= -1;
 static gint hf_msg_hdr				= -1;
 static gint hf_Method				= -1;
 static gint hf_Request_Line			= -1;
+static gint hf_sip_ruri			    = -1;
+static gint hf_sip_ruri_user	    = -1;
+static gint hf_sip_ruri_host	    = -1;
+static gint hf_sip_ruri_port	    = -1;
 static gint hf_Status_Code			= -1;
 static gint hf_Status_Line			= -1;
 static gint hf_sip_display			= -1;
 static gint hf_sip_to_addr			= -1;
+static gint hf_sip_to_user			= -1;
+static gint hf_sip_to_host			= -1;
+static gint hf_sip_to_port			= -1;
 static gint hf_sip_from_addr		= -1;
+static gint hf_sip_from_user		= -1;
+static gint hf_sip_from_host		= -1;
+static gint hf_sip_from_port		= -1;
 static gint hf_sip_tag				= -1;
+static gint hf_sip_pai_addr			= -1;
+static gint hf_sip_pai_user			= -1;
+static gint hf_sip_pai_host			= -1;
+static gint hf_sip_pai_port			= -1;
+static gint hf_sip_ppi_addr			= -1;
+static gint hf_sip_ppi_user			= -1;
+static gint hf_sip_ppi_host			= -1;
+static gint hf_sip_ppi_port			= -1;
 static gint hf_sip_uri				= -1;
 static gint hf_sip_contact_addr		= -1;
 static gint hf_sip_contact_item		= -1;
@@ -147,6 +165,11 @@ static gint ett_sip_cseq			= -1;
 static gint ett_sip_via				= -1;
 static gint ett_sip_reason			= -1;
 static gint ett_sip_rack			= -1;
+static gint ett_sip_ruri			= -1;
+static gint ett_sip_to_uri			= -1;
+static gint ett_sip_from_uri		= -1;
+static gint ett_sip_pai_uri			= -1;
+static gint ett_sip_ppi_uri			= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -736,6 +759,12 @@ typedef struct _uri_offset_info
 	gint uri_parameters_end;
 	gint name_addr_start;
 	gint name_addr_end;
+	gint uri_user_start;
+	gint uri_user_end;
+	gint uri_host_start;
+	gint uri_host_end;
+	gint uri_host_port_start;
+	gint uri_host_port_end;
 } uri_offset_info;
 
 /* Code to parse a sip uri.
@@ -753,8 +782,25 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	gint comma_offset;
 	gint semicolon_offset;
 	gint question_mark_offset;
+	gint parameter_end_offset;
 	gboolean uri_without_angle_quotes = FALSE;
 
+	/* Initialize the uri_offsets */
+	uri_offsets->display_name_start = -1;
+	uri_offsets->display_name_end = -1;
+	uri_offsets->uri_start = -1;
+	uri_offsets->uri_end = -1;
+	uri_offsets->uri_parameters_start = -1;
+	uri_offsets->uri_parameters_end = -1;
+	uri_offsets->name_addr_start = -1;
+	uri_offsets->name_addr_end = -1;
+	uri_offsets->uri_user_start = -1;
+	uri_offsets->uri_user_end = -1;
+	uri_offsets->uri_host_start = -1;
+	uri_offsets->uri_host_end = -1;
+	uri_offsets->uri_host_port_start = -1;
+	uri_offsets->uri_host_port_end = -1;
+	
 	/* skip Spaces and Tabs */
 	current_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
 
@@ -892,7 +938,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 			/* If both offsets are equal to -1, we don't have a semicolon or a comma.
 			 * In that case, we assume that the end of the URI is at the line end
 			 */
-			uri_offsets->uri_end = line_end_offset - 2;
+			uri_offsets->uri_end = line_end_offset - 3; /* remove '\r\n' */
 		}
 		uri_offsets->name_addr_end = uri_offsets->uri_end;
 		current_offset = uri_offsets->uri_end + 1; /* Now save current_offset, as it is the value to be returned now */
@@ -960,7 +1006,74 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 
 	}
 
-	return current_offset;
+	/* Look for URI address parts (user, host, host-port) */
+
+	/* Look for '@' within URI */
+	queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
+	if(queried_offset == -1)
+	{
+	/* no '@' = no user part */
+	uri_offsets->uri_host_start = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
+	}
+	else
+	{
+	/* with '@' = with user part */
+	uri_offsets->uri_user_start = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ':')+1;
+	uri_offsets->uri_user_end = tvb_find_guint8(tvb, uri_offsets->uri_user_start, uri_offsets->uri_end - uri_offsets->uri_start, '@')-1;
+	uri_offsets->uri_host_start = uri_offsets->uri_user_end + 2;
+	}
+		
+	/* find URI-Host end*/
+	parameter_end_offset = uri_offsets->uri_host_start;
+			
+	while (parameter_end_offset < line_end_offset)
+	{
+			parameter_end_offset++;
+			c = tvb_get_guint8(tvb, parameter_end_offset);
+			switch (c) {
+				case '>':
+				case ':':
+				case ',':
+				case ';':
+				case '?':
+				case ' ':
+				case '\r':
+					goto uri_host_end_found;
+				default :
+				break;
+				}
+	}
+
+	uri_host_end_found:
+	
+		uri_offsets->uri_host_end = parameter_end_offset - 1;
+
+		if (c == ':') 
+		{
+			uri_offsets->uri_host_port_start = parameter_end_offset + 1;
+			parameter_end_offset = uri_offsets->uri_host_port_start;
+				while (parameter_end_offset < line_end_offset)
+				{
+						parameter_end_offset++;
+						c = tvb_get_guint8(tvb, parameter_end_offset);
+						switch (c) {
+							case '>':
+							case ',':
+							case ';':
+							case '?':
+							case ' ':
+							case '\r':									
+								goto uri_host_port_end_found;
+							default :
+							break;
+						}
+				}
+
+			uri_host_port_end_found:
+
+			uri_offsets->uri_host_port_end = parameter_end_offset -1;
+		}	
+		return current_offset;
 }
 
 
@@ -1729,6 +1842,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		char *value;
 		gboolean is_no_header_termination = FALSE;
 		proto_item *cause;
+		proto_item *ti;
+		proto_tree *pai_uri_item_tree = NULL;
+		proto_tree *ppi_uri_item_tree = NULL;
+		proto_tree *to_uri_item_tree = NULL;
+		proto_tree *from_uri_item_tree = NULL;
+		uri_offset_info uri_offsets;
 
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		if (linelen == 0) {
@@ -1853,8 +1972,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							}
 separator_found:
 							parameter_len = parameter_end_offset - parameter_offset;
-							proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
-							                    parameter_len, FALSE);
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
+									parameter_len, FALSE);
+							to_uri_item_tree = proto_item_add_subtree(ti, ett_sip_to_uri);
+
 							/*info for the tap for voip_calls.c*/
 							stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
 
@@ -1888,12 +2009,32 @@ separator_found:
 							if ( parameter_end_offset == -1)
 								parameter_end_offset = line_end_offset;
 							parameter_len = parameter_end_offset - parameter_offset;
-							proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
-							                    parameter_len, FALSE);
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset, 
+									parameter_len, FALSE);
+							to_uri_item_tree = proto_item_add_subtree(ti, ett_sip_to_uri);
+
 							/*info for the tap for voip_calls.c*/
 							stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
 							offset = parameter_end_offset;
 						}
+						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							{
+								if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
+								{
+									proto_tree_add_item(to_uri_item_tree, hf_sip_to_user, tvb, uri_offsets.uri_user_start,
+											uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+								}
+
+								proto_tree_add_item(to_uri_item_tree, hf_sip_to_host, tvb, uri_offsets.uri_host_start,
+											uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
+
+								if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
+								{
+									proto_tree_add_item(to_uri_item_tree, hf_sip_to_port, tvb, uri_offsets.uri_host_port_start,
+											uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
+								}
+							}
+
 						/* Find parameter tag if present.
 						 * TODO make this generic to find any interesting parameter
 						 * use the same method as for SIP headers ?
@@ -1963,8 +2104,9 @@ separator_found:
 							}
 separator_found2:
 							parameter_len = parameter_end_offset - parameter_offset;
-							dfilter_store_sip_from_addr(tvb, sip_element_tree,
-							                            parameter_offset, parameter_len);
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
+									parameter_len, FALSE);
+							from_uri_item_tree = proto_item_add_subtree(ti, ett_sip_from_uri);
 							/*info for the tap for voip_calls.c*/
 							stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
 							parameter_offset = parameter_end_offset + 1;
@@ -1997,12 +2139,31 @@ separator_found2:
 							if ( parameter_end_offset == -1)
 								parameter_end_offset = line_end_offset;
 							parameter_len = parameter_end_offset - parameter_offset;
-							proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
-							                    parameter_len, FALSE);
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
+											parameter_len, FALSE);
+							from_uri_item_tree = proto_item_add_subtree(ti, ett_sip_from_uri);
 							/*info for the tap for voip_calls.c*/
 							stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, parameter_offset, parameter_len);
 							offset = parameter_end_offset;
 						}
+						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+							{
+								if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
+								{
+									proto_tree_add_item(from_uri_item_tree, hf_sip_from_user, tvb, uri_offsets.uri_user_start,
+											uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+								}
+
+								proto_tree_add_item(from_uri_item_tree, hf_sip_from_host, tvb, uri_offsets.uri_host_start,
+											uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
+
+								if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
+								{
+									proto_tree_add_item(from_uri_item_tree, hf_sip_from_port, tvb, uri_offsets.uri_host_port_start,
+											uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
+								}
+							}
+							
 						/* Find parameter tag if present.
 						 * TODO make this generic to find any interesting parameter
 						 * use the same method as for SIP headers ?
@@ -2025,6 +2186,86 @@ separator_found2:
 						}
 					break;
 
+					case POS_P_ASSERTED_IDENTITY :
+						if(hdr_tree) 
+						{
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_element);
+						}
+
+						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+						{
+							if(uri_offsets.display_name_end != uri_offsets.display_name_start)
+							{
+							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets.display_name_start,
+											uri_offsets.display_name_end - uri_offsets.display_name_start + 1, FALSE);
+							}
+
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_pai_addr, tvb, uri_offsets.uri_start, uri_offsets.uri_end - uri_offsets.uri_start + 1, FALSE);
+							pai_uri_item_tree = proto_item_add_subtree(ti, ett_sip_pai_uri);
+
+							if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
+							{
+								proto_tree_add_item(pai_uri_item_tree, hf_sip_pai_user, tvb, uri_offsets.uri_user_start,
+												uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+							}
+
+							proto_tree_add_item(pai_uri_item_tree, hf_sip_pai_host, tvb, uri_offsets.uri_host_start,
+											uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
+
+							if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
+							{
+								proto_tree_add_item(pai_uri_item_tree, hf_sip_pai_port, tvb, uri_offsets.uri_host_port_start,
+												uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
+							}					
+						}
+					break;
+
+					case POS_P_PREFERRED_IDENTITY :
+						if(hdr_tree) 
+						{
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_element);
+						}
+
+						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
+						{
+							if(uri_offsets.display_name_end != uri_offsets.display_name_start)
+							{
+							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets.display_name_start,
+											uri_offsets.display_name_end - uri_offsets.display_name_start + 1, FALSE);
+							}
+
+							ti = proto_tree_add_item(sip_element_tree, hf_sip_ppi_addr, tvb, uri_offsets.uri_start, uri_offsets.uri_end - uri_offsets.uri_start + 1, FALSE);
+							ppi_uri_item_tree = proto_item_add_subtree(ti, ett_sip_ppi_uri);
+
+							if(uri_offsets.uri_user_end > uri_offsets.uri_user_start)
+							{
+								proto_tree_add_item(ppi_uri_item_tree, hf_sip_ppi_user, tvb, uri_offsets.uri_user_start,
+												uri_offsets.uri_user_end - uri_offsets.uri_user_start + 1, FALSE);
+							}
+
+							proto_tree_add_item(ppi_uri_item_tree, hf_sip_ppi_host, tvb, uri_offsets.uri_host_start,
+											uri_offsets.uri_host_end - uri_offsets.uri_host_start + 1, FALSE);
+
+							if(uri_offsets.uri_host_port_end > uri_offsets.uri_host_port_start)
+							{
+								proto_tree_add_item(ppi_uri_item_tree, hf_sip_ppi_port, tvb, uri_offsets.uri_host_port_start,
+												uri_offsets.uri_host_port_end - uri_offsets.uri_host_port_start + 1, FALSE);
+							}					
+						}
+					break;					
+					
 					case POS_CSEQ :
 						/* Store the sequence number */
 						cseq_number = atoi(value);
@@ -2563,18 +2804,94 @@ separator_found2:
 static void
 dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 {
-	char	*string;
-
+	char	*value;
+	
+	gint	next_offset, linelen, parameter_end_offset;
+	guint	offset = 0;
+	guint	parameter_len = meth_len;
+	guchar c;
+	proto_tree *ruri_item_tree = NULL;
+	proto_item *ti;
+	
 	/*
 	 * We know we have the entire method; otherwise, "sip_parse_line()"
 	 * would have returned OTHER_LINE.
+ 
+          * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+	 * SP = single space
 	 */
-	string = tvb_get_ephemeral_string(tvb, 0, meth_len);
-	if (tree) {
-		proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
-	}
+	 
+	/* get method string*/
+	value = tvb_get_ephemeral_string(tvb, offset, parameter_len);
+
 	/* Copy request method for telling tap */
-	stat_info->request_method = string;
+	stat_info->request_method = value;
+
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	
+	if (tree) {
+		proto_tree_add_string(tree, hf_Method, tvb, offset, parameter_len, value);
+
+		/* build Request-URI tree*/
+		offset=parameter_len+1;
+		parameter_len = (tvb_find_guint8(tvb, offset, linelen, ' '))-offset; /* calc R-URI len*/
+		ti = proto_tree_add_item(tree, hf_sip_ruri, tvb, offset, parameter_len, FALSE);
+		ruri_item_tree = proto_item_add_subtree(ti, ett_sip_ruri);
+
+			offset = (tvb_find_guint8(tvb, offset, linelen, ':'))+1; /* calc R-URI User/Host begin*/
+			if ((tvb_find_guint8(tvb, offset, linelen, '@')) != -1){
+			/* R-URI: User Part found*/
+			parameter_len = (tvb_find_guint8(tvb, offset, linelen, '@'))-offset; /* calc R-URI User len*/
+            if (parameter_len > 0) {
+				proto_tree_add_item(ruri_item_tree, hf_sip_ruri_user, tvb, offset, 
+				parameter_len, FALSE);
+			}
+			offset = offset + parameter_len + 1;
+			}
+			parameter_end_offset=offset;
+			
+							while (parameter_end_offset < linelen){
+								parameter_end_offset++;
+								c = tvb_get_guint8(tvb, parameter_end_offset);
+								switch (c) {
+									case ':':
+									case ',':
+									case ';':
+									case '?':
+									case ' ':
+										goto host_end_found;
+									default :
+									break;
+								}
+							}
+			host_end_found:
+			parameter_len = parameter_end_offset-offset; /* calc R-URI host len*/
+			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_host, tvb, offset, parameter_len, FALSE);
+
+			offset = offset + parameter_len + 1;
+			
+			if (c == ':'){
+			/* R-URI: Host Port found */
+			parameter_end_offset = offset;
+							while (parameter_end_offset < linelen){
+								parameter_end_offset++;
+								c = tvb_get_guint8(tvb, parameter_end_offset);
+								switch (c) {
+									case ',':
+									case ';':
+									case '?':
+									case ' ':
+										goto host_port_end_found;
+									default :
+									break;
+								}
+							}
+			host_port_end_found:
+			parameter_len = parameter_end_offset-offset; /* calc R-URI Host Port len*/
+			proto_tree_add_item(ruri_item_tree, hf_sip_ruri_port, tvb, offset, parameter_len, FALSE);
+			}
+		/* end of Request-URI tree*/	
+	}
 }
 
 /* Display filter for SIP Status-Line */
@@ -2604,13 +2921,6 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 	stat_info->response_code = response_code;
 }
 
-void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset,
-					  guint parameter_len)
-{
-	proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset,
-							parameter_len, FALSE);
-
-}
 /* From section 4.1 of RFC 2543:
  *
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
@@ -3252,6 +3562,26 @@ void proto_register_sip(void)
 					FT_STRING, BASE_NONE,NULL,0x0,
                        "SIP Request-Line", HFILL }
                 },
+		{ &hf_sip_ruri,
+				{ "Request-URI", 		"sip.r-uri",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP R-URI", HFILL }
+		},
+		{ &hf_sip_ruri_user,
+				{ "Request-URI User Part", 		"sip.r-uri.user",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP R-URI User", HFILL }
+		},
+		{ &hf_sip_ruri_host,
+				{ "Request-URI Host Part", 		"sip.r-uri.host",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP R-URI Host", HFILL }
+		},
+		{ &hf_sip_ruri_port,
+				{ "Request-URI Host Port", 		"sip.r-uri.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP R-URI Port", HFILL }
+		},
 		{ &hf_Status_Code,
 		       { "Status-Code", 		"sip.Status-Code",
 		       FT_UINT32, BASE_DEC,NULL,0x0,
@@ -3270,12 +3600,42 @@ void proto_register_sip(void)
 		{ &hf_sip_to_addr,
 				{ "SIP to address", 		"sip.to.addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: to addr", HFILL }
+			"RFC 3261: To Address", HFILL }
+		},
+		{ &hf_sip_to_user,
+		       { "SIP to address User Part", 		"sip.to.user",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: To Address User", HFILL }
+		},
+		{ &hf_sip_to_host,
+		       { "SIP to address Host Part", 		"sip.to.host",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: To Address Host", HFILL }
+		},
+		{ &hf_sip_to_port,
+		       { "SIP to address Host Port", 		"sip.to.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: To Address Port", HFILL }
 		},
 		{ &hf_sip_from_addr,
 		       { "SIP from address", 		"sip.from.addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"RFC 3261: from addr", HFILL }
+			"RFC 3261: From Address", HFILL }
+		},
+		{ &hf_sip_from_user,
+		       { "SIP from address User Part", 		"sip.from.user",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: From Address User", HFILL }
+		},
+		{ &hf_sip_from_host,
+		       { "SIP from address Host Part", 		"sip.from.host",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: From Address Host", HFILL }
+		},
+		{ &hf_sip_from_port,
+		       { "SIP from address Host Port", 		"sip.from.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: From Address Port", HFILL }
 		},
 		{ &hf_sip_contact_addr,
 		       { "SIP contact address", 	"sip.contact.addr",
@@ -3296,6 +3656,46 @@ void proto_register_sip(void)
 		       { "SIP tag", 		"sip.tag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: tag", HFILL }
+		},
+		{ &hf_sip_pai_addr,
+		       { "SIP PAI Address", 		"sip.pai.addr",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Asserted-Identity Address", HFILL }
+		},
+		{ &hf_sip_pai_user,
+		       { "SIP PAI User Part", 		"sip.pai.user",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Asserted-Identity User", HFILL }
+		},
+		{ &hf_sip_pai_host,
+		       { "SIP PAI Host Part", 		"sip.pai.host",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Asserted-Identity Host", HFILL }
+		},
+		{ &hf_sip_pai_port,
+		       { "SIP PAI Host Port", 		"sip.pai.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Asserted-Identity Port", HFILL }
+		},
+		{ &hf_sip_ppi_addr,
+		       { "SIP PPI Address", 		"sip.ppi.addr",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Preferred-Identity Address", HFILL }
+		},
+		{ &hf_sip_ppi_user,
+		       { "SIP PPI User Part", 		"sip.ppi.user",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Preferred-Identity User", HFILL }
+		},
+		{ &hf_sip_ppi_host,
+		       { "SIP PPI Host Part", 		"sip.ppi.host",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Preferred-Identity Host", HFILL }
+		},
+		{ &hf_sip_ppi_port,
+		       { "SIP PPI Host Port", 		"sip.ppi.port",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3325: P-Preferred-Identity Port", HFILL }
 		},
 		{ &hf_header_array[POS_ACCEPT],
 		       { "Accept", 		"sip.Accept",
@@ -4001,7 +4401,12 @@ void proto_register_sip(void)
 		&ett_sip_cseq,
 		&ett_sip_via,
 		&ett_sip_reason,
-		&ett_sip_rack
+		&ett_sip_rack,
+		&ett_sip_ruri,
+		&ett_sip_pai_uri,
+		&ett_sip_ppi_uri,
+		&ett_sip_to_uri,
+		&ett_sip_from_uri		
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
