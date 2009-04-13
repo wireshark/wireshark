@@ -302,9 +302,14 @@
 #define ETHERTYPE_EPL_V2        0x88AB
 #endif
 
+#ifndef ETHERTYPE_XIMETA
+#define ETHERTYPE_XIMETA       0x88AD /* XiMeta Technology Americas Inc. */
+#endif								  /* proprietary communication protocol */	
+
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE
 #endif
+
 
 #ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
 #define ETHERTYPE_IEEE802_OUI_EXTENDED 0x88B7	/* IEEE 802a OUI Extended Ethertype */
