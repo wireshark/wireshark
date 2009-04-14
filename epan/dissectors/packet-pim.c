@@ -507,7 +507,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	return NULL;
     }
 
-    strbuf = ep_strbuf_new_label("");
+    strbuf = ep_strbuf_new_label(NULL);
     switch (at) {
     case pimv2_unicast:
 	switch (af) {

@@ -690,7 +690,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
         case SAFNUM_MPLS_LABEL:
             plen =  tvb_get_guint8(tvb, offset);
-            stack_strbuf = ep_strbuf_new_label("");
+            stack_strbuf = ep_strbuf_new_label(NULL);
             labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
             offset += (1 + labnum * 3);
@@ -772,7 +772,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
             plen =  tvb_get_guint8(tvb, offset);
-            stack_strbuf = ep_strbuf_new_label("");
+            stack_strbuf = ep_strbuf_new_label(NULL);
             labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
             offset += (1 + labnum * 3);
@@ -896,7 +896,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
         case SAFNUM_MPLS_LABEL:
             plen =  tvb_get_guint8(tvb, offset);
-            stack_strbuf = ep_strbuf_new_label("");
+            stack_strbuf = ep_strbuf_new_label(NULL);
             labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
             offset += (1 + labnum * 3);
@@ -952,7 +952,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
             plen =  tvb_get_guint8(tvb, offset);
-            stack_strbuf = ep_strbuf_new_label("");
+            stack_strbuf = ep_strbuf_new_label(NULL);
             labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
             offset += (1 + labnum * 3);
@@ -1041,7 +1041,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             ce_id=tvb_get_ntohs(tvb,offset+10);
             labblk_off=tvb_get_ntohs(tvb,offset+12);
             labblk_size=tvb_get_ntohs(tvb,offset+14);
-            stack_strbuf = ep_strbuf_new_label("");
+            stack_strbuf = ep_strbuf_new_label(NULL);
             labnum = decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
 
             switch (rd_type) {
@@ -1490,7 +1490,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
-    junk_emstr = ep_strbuf_new_label("");
+    junk_emstr = ep_strbuf_new_label(NULL);
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);

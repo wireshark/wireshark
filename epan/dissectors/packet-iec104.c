@@ -433,7 +433,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	asduh = ep_alloc(sizeof(struct asduheader));
-	res = ep_strbuf_new_label("");
+	res = ep_strbuf_new_label(NULL);
 
 	/*** *** START: Common to 'Packet List' and 'Packet Details' *** ***/
 	if (Len >= ASDU_HEAD_LEN)  {
@@ -450,13 +450,13 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		/* Build common string for 'Packet List' and 'Packet Details' */
 		ep_strbuf_printf(res, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "->" : "<-", asduh->OA);
 		ep_strbuf_append(res, val_to_str(asduh->TypeId, asdu_types, "<TypeId=%u>"));
-		ep_strbuf_append(res, " ");
+		ep_strbuf_append_c(res, ' ');
 		cause_str = val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>");
 		ep_strbuf_append(res, cause_str);
 		if (asduh->TNCause & F_NEGA)   ep_strbuf_append(res, "_NEGA");
 		if (asduh->TNCause & F_TEST)   ep_strbuf_append(res, "_TEST");
 		if (asduh->TNCause & (F_TEST | F_NEGA))  {
-			for (Ind=strlen(cause_str); Ind< 7; Ind++)   ep_strbuf_append(res, " ");
+			for (Ind=strlen(cause_str); Ind< 7; Ind++)   ep_strbuf_append_c(res, ' ');
 		}
 		ep_strbuf_append_printf(res, " IOA=%d", asduh->IOA);
 		if (asduh->NumIx > 1)   {
@@ -468,7 +468,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	else   {
 		ep_strbuf_printf(res, "<ERR Short Asdu, Len=%u>", Len);
 	}
-	ep_strbuf_append(res, " "); /* We add an space to separate possible APCIs/ASDUs in the same packet */
+	ep_strbuf_append_c(res, ' '); /* We add a space to separate possible APCIs/ASDUs in the same packet */
 	/*** *** END: Common to 'Packet List' and 'Packet Details' *** ***/
 
 	/*** *** DISSECT 'Packet List' *** ***/
@@ -565,7 +565,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		Brossa = TcpLen;
 	}
 	/* Construir string comu a List i Details */
-	res = ep_strbuf_new_label("");
+	res = ep_strbuf_new_label(NULL);
 	if (Brossa > 0)
 		ep_strbuf_append_printf(res, "<ERR %u bytes> ", Brossa);
 	if (Brossa != TcpLen)  {
@@ -579,9 +579,9 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				ep_strbuf_append_printf(res, "%d)", apcih->Rx);
 				/* Align first packets */
 				if (apcih->Tx < 10)
-					ep_strbuf_append(res, " ");
+					ep_strbuf_append_c(res, ' ');
 				if (apcih->Rx < 10)
-					ep_strbuf_append(res, " ");
+					ep_strbuf_append_c(res, ' ');
 				break;
 			case U_TYPE:
 				ep_strbuf_append_printf(res, "%s)", val_to_str(apcih->UType >> 2, u_types, "<ERR>"));
@@ -593,7 +593,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", apcih->ApduLen);
 		}
 	}
-	ep_strbuf_append(res, " "); /* We add an space to separate possible APCIs/ASDUs in the same packet */
+	ep_strbuf_append_c(res, ' '); /* We add a space to separate possible APCIs/ASDUs in the same packet */
 	/*** *** END: Common to 'Packet List' and 'Packet Details' *** ***/
 
 	/*** *** Dissect 'Packet List' *** ***/

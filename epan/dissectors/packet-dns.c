@@ -1311,7 +1311,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int mask;
       int port_num;
       int i;
-      emem_strbuf_t *bitnames = ep_strbuf_new_label("");
+      emem_strbuf_t *bitnames = ep_strbuf_new_label(NULL);
 
       if (rr_len < 4) {
 	if (dns_tree != NULL)

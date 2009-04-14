@@ -924,7 +924,7 @@ bitrange(tvbuff_t *tvb, int offset, int l, int s)
     emem_strbuf_t *strbuf;
     int i;
 
-    strbuf = ep_strbuf_new_label("");
+    strbuf = ep_strbuf_new_label(NULL);
     for (i = 0; i < l; i++)
 	bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, strbuf);
 

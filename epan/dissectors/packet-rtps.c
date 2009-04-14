@@ -2619,7 +2619,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
   /* Array print */
   if (arr_dimension != NULL) {
     /* Printing an array */
-    emem_strbuf_t *dim_str = ep_strbuf_new_label("");
+    emem_strbuf_t *dim_str = ep_strbuf_new_label(NULL);
     for (i = 0; i < MAX_ARRAY_DIMENSION; ++i) {
       if (arr_dimension[i] != 0) {
         ep_strbuf_append_printf(dim_str, "[%d]", arr_dimension[i]);
@@ -5893,7 +5893,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   /* Compose the content of the 'summary' column */
   if ((pinfo != NULL) && (pinfo->cinfo != NULL) && 
       (check_col(pinfo->cinfo, COL_INFO))) {
-    emem_strbuf_t *info_buf = ep_strbuf_new_label("");
+    emem_strbuf_t *info_buf = ep_strbuf_new_label(NULL);
     struct SMCounterRecord *smcr_ptr = smcr_head;
 
 
