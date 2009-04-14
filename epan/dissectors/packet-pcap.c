@@ -3219,7 +3219,7 @@ dissect_pcap_DGPSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_pcap_T_ue_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GUINT64_CONSTANT(37158911999999), NULL, TRUE);
+                                                            0U, G_GINT64_CONSTANT(37158911999999U), NULL, TRUE);
 
   return offset;
 }
@@ -4753,7 +4753,7 @@ dissect_pcap_GANSS_GenericMeasurementInfo(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_pcap_T_ue_GANSSTimingOfCellFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GUINT64_CONSTANT(345599999999), NULL, FALSE);
+                                                            0U, G_GINT64_CONSTANT(345599999999U), NULL, FALSE);
 
   return offset;
 }
@@ -9725,7 +9725,7 @@ dissect_pcap_VelocityEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_pcap_T_utran_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GUINT64_CONSTANT(2322431999999), NULL, TRUE);
+                                                            0U, G_GINT64_CONSTANT(2322431999999U), NULL, TRUE);
 
   return offset;
 }

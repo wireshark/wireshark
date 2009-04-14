@@ -3106,7 +3106,7 @@ class Type (Node):
     if str(minv).isdigit(): minv += 'U'
     if str(maxv).isdigit():
       if (long(maxv) >= 2**32):
-        maxv = "G_GUINT64_CONSTANT(%s)" % (str(maxv))
+        maxv = "G_GINT64_CONSTANT(%sU)" % (str(maxv))
       else:
         maxv += 'U'
     if (ext): ext = 'TRUE'
