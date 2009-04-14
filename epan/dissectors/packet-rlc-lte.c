@@ -340,8 +340,8 @@ static void show_PDU_in_info(packet_info *pinfo,
 typedef struct
 {
     guint16 ueId;
-    guint8  channelType;
-    guint8  channelId;
+    guint16  channelType;
+    guint16  channelId;
     guint8  direction;
 } rlc_channel_hash_key;
 
