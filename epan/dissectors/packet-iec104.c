@@ -579,6 +579,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				ep_strbuf_append_printf(res, "%d)", apcih->Rx);
 				/* Align first packets */
 				if (apcih->Tx < 10)
+					ep_strbuf_append(res, " ");
 				if (apcih->Rx < 10)
 					ep_strbuf_append(res, " ");
 				break;
