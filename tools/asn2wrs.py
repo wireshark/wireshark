@@ -3104,7 +3104,11 @@ class Type (Node):
     if minv == 'MIN': minv = 'NO_BOUND'
     if maxv == 'MAX': maxv = 'NO_BOUND'
     if str(minv).isdigit(): minv += 'U'
-    if str(maxv).isdigit(): maxv += 'U'
+    if str(maxv).isdigit():
+      if (long(maxv) >= 2**32):
+        maxv = "G_GUINT64_CONSTANT(%s)" % (str(maxv))
+      else:
+        maxv += 'U'
     if (ext): ext = 'TRUE'
     else: ext = 'FALSE'
     return (minv, maxv, ext)
