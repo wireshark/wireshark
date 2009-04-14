@@ -27,8 +27,11 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-rlc-lte.h"
 
@@ -39,14 +42,15 @@
  */
 
 /* TODO:
-   Working towards re-assembly:
-   - track frames within same channel, so can show:
-       - frame link back to start of current segment
-       - show length (and possibly contents) of re-assembled segment
-       - report inconsistent framing info values, i.e. grumble if see for consecutive SNs:
-           -   "... ["   OR     "] ..."
+   - AM sequence analysis/re-assembly
 */
- 
+
+
+/* By default try to analyse the sequence of messages for UM/AM channels */
+static gboolean global_rlc_lte_sequence_analysis = TRUE;
+
+
+
 /* Initialize the protocol and registered fields. */
 int proto_rlc_lte = -1;
 
@@ -101,11 +105,19 @@ static int hf_rlc_lte_am_so_end = -1;
 
 static int hf_rlc_lte_predefined_pdu = -1;
 
+/* Sequence Analysis */
+static int hf_rlc_lte_sequence_analysis = -1;
+static int hf_rlc_lte_sequence_analysis_previous_frame = -1;
+static int hf_rlc_lte_sequence_analysis_expected_sn = -1;
+static int hf_rlc_lte_sequence_analysis_framing_info_correct = -1;
+
+
 /* Subtrees. */
 static int ett_rlc_lte = -1;
 static int ett_rlc_lte_um_header = -1;
 static int ett_rlc_lte_am_header = -1;
 static int ett_rlc_lte_extension_part = -1;
+static int ett_rlc_lte_sequence_analysis = -1;
 
 
 static const value_string direction_vals[] =
@@ -217,8 +229,11 @@ static const value_string am_e2_vals[] =
     { 0, NULL }
 };
 
-/* These are for keeping track of UM/AM extension headers, and the lengths found
-   in them */
+
+
+/**********************************************************************************/
+/* These are for keeping track of UM/AM extension headers, and the lengths found  */
+/* in them                                                                        */
 guint8  s_number_of_extensions = 0;
 #define MAX_RLC_SDUS 64
 guint16 s_lengths[MAX_RLC_SDUS];
@@ -311,6 +326,278 @@ static void show_PDU_in_info(packet_info *pinfo,
                         (last_includes_end) ? "]" : "..");
     }
 }
+
+
+
+/*********************************************************************/
+/* UM/AM sequence analysis                                           */
+
+/* Types for RLC channel hash table                                   */
+/* This table is maintained during initial dissection of RLC          */
+/* frames, mapping from rlc_channel_hash_key -> rlc_channel_status    */
+
+/* Channel key */
+typedef struct
+{
+    guint16 ueId;
+    guint8  channelType;
+    guint8  channelId;
+    guint8  direction;
+} rlc_channel_hash_key;
+
+/* Conversation-type status for channel */
+typedef struct
+{
+    guint16  previousSequenceNumber;
+    guint32  previousFrameNum;
+    gboolean previousSegmentIncomplete;
+} rlc_channel_status;
+
+
+/* Hash table functions for RLC channels */
+
+/* Equal keys */
+static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
+{
+    const rlc_channel_hash_key* val1 = v;
+    const rlc_channel_hash_key* val2 = v2;
+
+    /* All fields must match */
+    return ((val1->ueId        == val2->ueId) &&
+            (val1->channelType == val2->channelType) &&
+            (val1->channelId   == val2->channelId) &&
+            (val1->direction   == val2->direction));
+}
+
+/* Compute a hash value for a given key. */
+static guint rlc_channel_hash_func(gconstpointer v)
+{
+    const rlc_channel_hash_key* val1 = v;
+
+    /* TODO: check/reduce multipliers */
+    return ((val1->ueId * 1024) + (val1->channelType*64) + (val1->channelId*2) + val1->direction);
+}
+
+/* The channel hash table instance itself        */
+static GHashTable *rlc_lte_channel_hash = NULL;
+
+
+
+
+/* Types for frame report hash table                                    */
+/* This is a table from framenum -> state_report_in_frame               */
+/* This is necessary because the per-packet info is already being used  */
+/* for conext information before the dissector is called                */
+
+/* Info to attach to frame when first read, recording what to show about sequence */
+typedef struct
+{
+    guint8  sequenceExpectedCorrect;
+    guint16 sequenceExpected;
+    guint32 previousFrameNum;
+    guint8  previousSegmentIncomplete;
+} state_report_in_frame;
+
+
+/* Hash table functions for frame reports */
+
+/* Equal keys */
+static gint rlc_frame_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+
+/* Compute a hash value for a given key. */
+static guint rlc_frame_hash_func(gconstpointer v)
+{
+    return (guint)v;
+}
+
+/* The frame report hash table instance itself   */
+static GHashTable *rlc_lte_frame_report_hash = NULL;
+
+
+
+/* Add to the tree values associated with sequence analysis for this frame */
+static void addChannelSequenceInfo(state_report_in_frame *p,
+                                   guint16 sequenceNumber,
+                                   guint8  newSegmentStarted,
+                                   packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+{
+    proto_tree *seqnum_tree;
+    proto_item *seqnum_ti;
+    proto_item *ti;
+
+    /* Create subtree */
+    seqnum_ti = proto_tree_add_string_format(tree,
+                                             hf_rlc_lte_sequence_analysis,
+                                             tvb, 0, 0,
+                                             "",
+                                             "Sequence Analysis");
+    seqnum_tree = proto_item_add_subtree(seqnum_ti,
+                                         ett_rlc_lte_sequence_analysis);
+    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+
+    /* Previous channel frame */
+    if (p->previousFrameNum != 0) {
+        proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_previous_frame,
+                            tvb, 0, 0, p->previousFrameNum);
+    }
+
+    /* Expected sequence number */
+    ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_expected_sn,
+                            tvb, 0, 0, p->sequenceExpected);
+    PROTO_ITEM_SET_GENERATED(ti);
+    if (!p->sequenceExpectedCorrect) {
+        /* Incorrect sequence number */
+        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                               "Wrong Sequence Number - got %u, expected %u",
+                               sequenceNumber, p->sequenceExpected);
+    }
+    else {
+        /* Correct sequence number, so check frame indication bits consistent */
+        if (p->previousSegmentIncomplete) {
+            /* Previous segment was incomplete, so this PDU should continue it */
+            if (newSegmentStarted) {
+                ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                         tvb, 0, 0, FALSE);
+                if (!p->sequenceExpectedCorrect) {
+                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                           "Last segment of previous PDU was not continued");
+                }
+            }
+            else {
+               ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                         tvb, 0, 0, TRUE);
+            }
+        }
+        else {
+            /* Previous segment was complete, so this PDU should start a new one */
+            if (!newSegmentStarted) {
+                ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                         tvb, 0, 0, FALSE);
+                if (!p->sequenceExpectedCorrect) {
+                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                           "Last segment of previous PDU was complete, but new segmeng was not started");
+                }
+            }
+            else {
+               ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                         tvb, 0, 0, TRUE);
+            }
+
+        }
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+}
+
+/* Update the channel status and set report for this frame */
+static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
+                                     rlc_lte_info *p_rlc_lte_info,
+                                     guint16 sequenceNumber,
+                                     guint8 first_includes_start, guint8 last_includes_end,
+                                     proto_tree *tree)
+{
+    rlc_channel_hash_key   channel_key;
+    rlc_channel_hash_key   *p_channel_key;
+    rlc_channel_status     *p_channel_status;
+    state_report_in_frame  *p_report_in_frame = NULL;
+    guint8                 createdChannel = FALSE;
+    guint16                expectedSequenceNumber;
+
+    /* If find stat_report_in_frame already, use that and get out */
+    if (pinfo->fd->flags.visited) {
+        p_report_in_frame = (state_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_report_hash,
+                                                                        &pinfo->fd->num);
+        if (p_report_in_frame != NULL) {
+            addChannelSequenceInfo(p_report_in_frame, sequenceNumber, first_includes_start,
+                                   pinfo, tree, tvb);
+            return;
+        }
+        else {
+            /* Give up - we must have tried already... */
+            return;
+        }
+    }
+
+
+    /**************************************************/
+    /* Create or find an entry for this channel state */
+    channel_key.ueId = p_rlc_lte_info->ueid;
+    channel_key.channelType = p_rlc_lte_info->channelType;
+    channel_key.channelId = p_rlc_lte_info->channelId;
+    channel_key.direction = p_rlc_lte_info->direction;
+
+    /* Do the table lookup */
+    p_channel_status = (rlc_channel_status*)g_hash_table_lookup(rlc_lte_channel_hash, &channel_key);
+
+    /* Create table entry if necessary */
+    if (p_channel_status == NULL) {
+        createdChannel = TRUE;
+
+        /* Allocate a new key and value */
+        p_channel_key = se_alloc(sizeof(rlc_channel_hash_key));
+        p_channel_status = se_alloc0(sizeof(rlc_channel_status));
+
+        /* Just give up if allocations failed */
+        if (!p_channel_key || !p_channel_status) {
+            return;
+        }
+
+        /* Copy key contents */
+        memcpy(p_channel_key, &channel_key, sizeof(rlc_channel_hash_key));
+
+        /* Add entry */
+        g_hash_table_insert(rlc_lte_channel_hash, p_channel_key, p_channel_status);
+    }
+
+    /* Create space for frame state_report */
+    p_report_in_frame = se_alloc(sizeof(state_report_in_frame));
+
+    /* Set expected sequence number.
+       Wrap according to number of bits in SN */
+    if (!createdChannel) {
+        guint16 snLimit = 4096;  /* AM default */
+        if (p_rlc_lte_info->rlcMode == RLC_UM_MODE) {
+            if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
+                snLimit = 32;
+            }
+            else {
+                snLimit = 1024;
+            }
+        }
+        expectedSequenceNumber = (p_channel_status->previousSequenceNumber + 1) % snLimit;
+    }
+    else {
+        expectedSequenceNumber = 0;
+    }
+
+    /* Set report info regarding sequence number */
+    if (sequenceNumber == expectedSequenceNumber) {
+        p_report_in_frame->sequenceExpectedCorrect = TRUE;
+    }
+    else {
+        p_report_in_frame->sequenceExpectedCorrect = FALSE;
+    }
+    p_report_in_frame->sequenceExpected = expectedSequenceNumber;
+    p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
+    p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
+
+    /* Associate with this frame number */
+    g_hash_table_insert(rlc_lte_frame_report_hash, &pinfo->fd->num, p_report_in_frame);
+
+    /* Update channel status to remember *this* frame */
+    p_channel_status->previousFrameNum = pinfo->fd->num;
+    p_channel_status->previousSequenceNumber = sequenceNumber;
+    p_channel_status->previousSegmentIncomplete = !last_includes_end;
+
+    /* Add state report for this frame into tree */
+    addChannelSequenceInfo(p_report_in_frame, sequenceNumber, first_includes_start,
+                           pinfo, tree, tvb);
+}
+
+
+
 
 
 /***************************************************/
@@ -420,6 +707,14 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     last_includes_end =    ((guint8)framing_info & 0x01) == 0;
 
 
+    /* Call sequence analysis function now */
+    if (global_rlc_lte_sequence_analysis) {
+        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
+                                (guint16)sn, first_includes_start, last_includes_end,
+                                um_header_tree);
+    }
+
+
     /*************************************/
     /* Data                              */
     if (s_number_of_extensions > 0) {
@@ -446,7 +741,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* Dissect an AM STATUS PDU */
-static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
+                                          packet_info *pinfo,
                                           proto_tree *tree,
                                           int offset)
 {
@@ -554,7 +850,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
 /* Acknowledged mode PDU                           */
 static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree,
-                               int offset)
+                               int offset,
+                               rlc_lte_info *p_rlc_lte_info _U_)
 {
     guint8 is_data;
     guint8 is_segment;
@@ -656,6 +953,16 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Extract these 2 flags from framing_info */
     first_includes_start = (framing_info & 0x02) == 0;
     last_includes_end =    (framing_info & 0x01) == 0;
+
+
+    /* Call sequence analysis function now (pretty limited for AM) */
+#if 0
+    if (global_rlc_lte_sequence_analysis) {
+        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, (guint16)sn,
+                                 first_includes_start, last_includes_end,
+                                 am_header_tree);
+    }
+#endif
 
 
     /*************************************/
@@ -800,7 +1107,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case RLC_AM_MODE:
-            dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset);
+            dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info);
             break;
 
         case RLC_PREDEF:
@@ -815,6 +1122,29 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 }
+
+
+
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in wireshark */
+static void
+rlc_lte_init_protocol(void)
+{
+    /* Destroy any existing hashes. */
+    if (rlc_lte_channel_hash) {
+        g_hash_table_destroy(rlc_lte_channel_hash);
+    }
+
+    if (rlc_lte_frame_report_hash) {
+        g_hash_table_destroy(rlc_lte_frame_report_hash);
+    }
+
+    /* Now create them over */
+    rlc_lte_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
+    rlc_lte_frame_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
+}
+
+
 
 
 void proto_register_rlc_lte(void)
@@ -1057,6 +1387,31 @@ void proto_register_rlc_lte(void)
               "Predefined test data", HFILL
             }
         },
+
+        { &hf_rlc_lte_sequence_analysis,
+            { "Sequence Analysis",
+              "rlc-lte.sequence-analysis", FT_STRING, BASE_NONE, 0, 0x0,
+              "Sequence Analysis", HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_previous_frame,
+            { "Previous frame for channel",
+              "rlc-lte.sequence-analysis.previous-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "Previous frame for channel", HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_expected_sn,
+            { "Expected SN",
+              "rlc-lte.sequence-analysis.expected-sn", FT_UINT16, BASE_DEC, 0, 0x0,
+              "Expected SN", HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_framing_info_correct,
+            { "Frame info continued correctly",
+              "rlc-lte.sequence-analysis.framing-info-correct", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Frame info continued correctly", HFILL
+            }
+        },
     };
 
     static gint *ett[] =
@@ -1065,7 +1420,10 @@ void proto_register_rlc_lte(void)
         &ett_rlc_lte_um_header,
         &ett_rlc_lte_am_header,
         &ett_rlc_lte_extension_part,
+        &ett_rlc_lte_sequence_analysis
     };
+
+    module_t *rlc_lte_module;
 
     /* Register protocol. */
     proto_rlc_lte = proto_register_protocol("RLC-LTE", "RLC-LTE", "rlc-lte");
@@ -1074,6 +1432,16 @@ void proto_register_rlc_lte(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("rlc-lte", dissect_rlc_lte, proto_rlc_lte);
+
+    /* Preferences */
+    rlc_lte_module = prefs_register_protocol(proto_rlc_lte, NULL);
+
+    prefs_register_bool_preference(rlc_lte_module, "do_sequence_analysis",
+        "Do sequence analysis for UM/AM channels",
+        "Attempt to keep track of PDUs for UM/AM channels, and point out problems",
+        &global_rlc_lte_sequence_analysis);
+
+    register_init_routine(&rlc_lte_init_protocol);
 }
 
 
