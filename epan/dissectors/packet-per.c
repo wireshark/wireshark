@@ -447,7 +447,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 static guint32
 dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
 {
-	gboolean small_number;
+	gboolean small_number, length_bit;
 	guint32 len;
 	proto_item *pi;
 
@@ -463,18 +463,14 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 		/* 10.6.1 */
 		*length=0;
 		for(i=0;i<6;i++){
-			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &small_number);
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &length_bit);
 			*length<<=1;
-			if(small_number){
+			if (length_bit) {
 				*length|=1;
 			}
 		}
 		if(hf_index!=-1){
-			if((offset&0x07)<7){
-				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
-			} else {
-				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3), 1, *length);
-			}
+			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-6)>>3, (offset%8<6)?2:1, *length);
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 		return offset;
@@ -515,7 +511,7 @@ guint32
 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   proto_item *ti_tmp;
 
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
+  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>3, 1, FALSE);
   proto_item_append_text(ti_tmp, ": NULL");
 
   return offset;
@@ -1923,6 +1919,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
+				if (new_offset == offset) new_offset += 8;  /* OpenType has at least 1 octet */
 				offset+=length*8;
 				difference = offset - new_offset;
 				/* A difference of 7 or less might be byte aligning */
