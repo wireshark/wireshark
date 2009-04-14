@@ -562,14 +562,18 @@ MIN(), MAX(), and AVG() using a slightly different filter syntax:
 
   [COUNT|SUM|MIN|MAX|AVG](<field>)<filter>
 
-One important thing to note here is that the field that the calculation is 
-based on MUST also be part of the filter string or else the calculation will
-fail.
+NOTE: One important thing to note here is that the field that the 
+calculation is based on MUST also be part of the filter string or 
+else the calculation will fail.
 
 So: B<-z io,stat,0.010,AVG(smb.time)> does not work.  Use B<-z
 io,stat,0.010,AVG(smb.time)smb.time> instead.  Also be aware that a field
 can exist multiple times inside the same packet and will then be counted
 multiple times in those packets. 
+
+NOTE: A second important thing to note is that the system setting for 
+decimal separator is set to "."! If it is set to "," the statisctics 
+will not be displayed per filter.
 
 
 COUNT(<field>) can be used on any type which has a display filter name. 
