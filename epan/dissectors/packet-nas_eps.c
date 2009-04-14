@@ -109,6 +109,11 @@ static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
 static int hf_nas_eps_emm_ss_code = -1;
 
 static int hf_nas_eps_esm_cause = -1;
+static int hf_nas_eps_esm_pdn_type = -1;
+static int hf_nas_eps_esm_pdn_ipv4 = -1;
+static int hf_nas_eps_esm_pdn_ipv6_len = -1;
+static int hf_nas_eps_esm_pdn_ipv6 = -1;
+
 static int hf_nas_eps_esm_linked_bearer_id = -1;
 
 static int hf_nas_eps_active_flg = -1;
@@ -121,7 +126,6 @@ static int hf_nas_eps_msg_esm_type = -1;
 int hf_nas_eps_esm_elem_id = -1;
 static int hf_nas_eps_esm_proc_trans_id = -1;
 static int hf_nas_eps_esm_request_type = -1;
-static int hf_nas_eps_esm_pdn_type = -1;
 
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
@@ -1414,7 +1418,17 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	curr_offset = offset;
 
-
+/*
+QCI octet 3
+Maximum bit rate for uplink octet 4
+Maximum bit rate for downlink octet 5
+Guaranteed bit rate for uplink octet 6
+Guaranteed bit rate for downlink octet 7
+Maximum bit rate for uplink (extended) octet 8
+Maximum bit rate for downlink (extended) octet 9
+Guaranteed bit rate for uplink (extended) octet 10
+Guaranteed bit rate for downlink (extended) octet 11
+*/
 	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
@@ -1557,13 +1571,43 @@ static guint16
 de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 pdn_type;
 
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	pdn_type  = tvb_get_guint8(tvb, offset) & 0x7;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 5, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_esm_pdn_type, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	return(len);
+	switch(pdn_type){
+		case 1:
+			/* IPv4 */
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, FALSE);
+			curr_offset+=4;
+			break;
+		case 2:
+			/* IPv6*/
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_len, tvb, curr_offset, 1, FALSE);
+			curr_offset++;
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6, tvb, curr_offset, 16, FALSE);
+			offset+=16;
+			break;
+		case 3:
+			/* IPv4/IPv6 */
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_len, tvb, curr_offset, 1, FALSE);
+			curr_offset++;
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6, tvb, curr_offset, 16, FALSE);
+			curr_offset+=16;
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, FALSE);
+			curr_offset+=4;
+			break;
+		default:
+			break;
+	}
+
+	return(curr_offset-offset);
 }
 
 /*
@@ -2554,8 +2598,8 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	curr_len--;
 	curr_offset++;
 
-	/* EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 DE_ESM_QOS*/
-	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, "");
+	/* EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, "");
 	/* TFT	Traffic flow template 9.9.4.16	M	LV	2-256 */
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
 	/* 5D	Transaction identifier	Transaction identifier 9.9.4.17	O	TLV	3-4 */
@@ -2628,7 +2672,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	curr_len = len;
 
 	/* 	EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
-	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, "");
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, "");
 	/* 	Access point name	Access point name 9.9.4.1	M	LV	2-101 */
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
 	/* 	PDN address	PDN address 9.9.4.9	M	LV	6-14 DE_ESM_PDN_ADDR*/
@@ -2701,7 +2745,7 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* 	Traffic flow aggregate	Traffic flow aggregate description 9.9.4.15	M	LV	2-256 */
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
 	/* 	Required traffic flow QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
-	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, " - Required traffic flow QoS");
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, " - Required traffic flow QoS");
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
@@ -2753,7 +2797,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* Traffic flow aggregate	Traffic flow aggregate description 9.9.4.15	M	LV	2-256 */
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
 	/* 5B	Required traffic flow QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
-	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_QOS , " - Required traffic flow QoS" );
+	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - Required traffic flow QoS" );
 	/* 58	ESM cause	ESM cause 9.9.4.4	O	TV	2 */
 	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_CAUSE , "" );
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
@@ -2894,7 +2938,7 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	curr_len = len;
 
 	/* 5B	New EPS QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
-	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_QOS , " - New EPS QoS" );
+	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - New EPS QoS" );
 	/* 36	TFT	Traffic flow template 9.9.4.16	O	TLV	3-257 */
 	ELEM_OPT_TLV( 0x36 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
 	/* 30	New QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
@@ -3608,6 +3652,21 @@ void proto_register_nas_eps(void) {
 		{ "Cause","nas_eps.esm.cause",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_esm_cause_vals), 0x0,
 		NULL, HFILL }
+	},
+	{ &hf_nas_eps_esm_pdn_ipv4,
+		{"PDN IPv4", "nas_eps.esm.pdn_ipv4",
+		FT_IPv4, BASE_DEC, NULL, 0x0,
+		"PDN IPv4", HFILL}
+	},
+	{ &hf_nas_eps_esm_pdn_ipv6_len,
+		{"IPv6 Prefix Length", "nas_eps.esm.pdn_ipv6_len",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"IPv6 Prefix Length", HFILL}
+	},
+	{ &hf_nas_eps_esm_pdn_ipv6,
+		{"PDN IPv6", "nas_eps.esm.pdn_ipv6",
+		FT_IPv6, BASE_HEX, NULL, 0x0,
+		"PDN IPv6", HFILL}
 	},
 	{ &hf_nas_eps_esm_linked_bearer_id,
 		{ "Linked EPS bearer identity ","nas_eps.esm.linked_bearer_id",
