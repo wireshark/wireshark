@@ -111,16 +111,22 @@ my %APIs = (
 
 	# APIs that SHOULD NOT be used in Wireshark (any more)
 	'deprecated' => { 'count_errors' => 1, 'functions' => [
-		# Use strerror() and report messages in whatever
-		# fashion is appropriate for the code in question.
-		'perror',
-		### Depreciated glib functions
-		# use g_string_printf() instead of:
-		'g_string_sprintf',
-		# use g_string_append_printf instead of:
-		'g_string_sprintfa',
+		'perror',                            # Use strerror() and report messages in whatever
+		                                     #  fashion is appropriate for the code in question.
+		### Deprecated glib functions
+		# (The list is based upon the GLib 2.20.1 documentation; Some of 
+		#  the entries are are commented out since they are currently 
+		#  being used in Wireshark and since the replacement functionality
+		#  is not available in all the GLib versions that Wireshark
+		#  currently supports (ie: versions starting with GLib 2.4).
+		'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
+		'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
+		'g_string_sprintf',                  # use g_string_printf() instead
+		'g_string_sprintfa',                 # use g_string_append_printf instead
 		'g_tree_traverse',
 		'g_basename',
+		'g_cache_value_foreach',             # g_cache_key_foreach() 
+		'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
 		'g_dirname',
 		'g_hash_table_freeze',
 		'g_hash_table_thaw',
@@ -129,8 +135,12 @@ my %APIs = (
 		'g_io_channel_read',
 		'g_io_channel_seek',
 		'g_io_channel_write',
-		'g_main_new',
 		'g_main_destroy',
+		'g_main_is_running',
+		'g_main_iteration',
+		'g_main_new',
+		'g_main_pending',
+		'g_main_quit',
 		'g_main_run',
 		'g_main_set_poll_func',
 		'g_scanner_add_symbol',
@@ -138,6 +148,33 @@ my %APIs = (
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
+		'G_WIN32_DLLMAIN_FOR_DLL_NAME',
+		'g_win32_get_package_installation_directory',
+		'g_win32_get_package_installation_subdirectory',
+##
+## Deprecated as of GLib 2.10; to be replaced only when Wireshark requires GLib 2.10 or later
+## 2.10		'g_allocator_free',                  # "use slice allocator" (avail since 2.10,2.14)
+## 2.10		'g_allocator_new',                   # "use slice allocator" (avail since 2.10,2.14)
+## 2.10		'g_blow_chunks',                     # "use slice allocator" (avail since 2.10,2.14)
+## 2.10		'g_chunk_free',                      # g_slice_free (avail since 2.10)
+## 2.10		'g_chunk_new',                       # g_slice_new  (avail since 2.10)
+## 2.10		'g_chunk_new0',                      # g_slice_new0 (avail since 2.10)
+## 2.10		'g_list_pop_allocator',              # "does nothing since 2.10"
+## 2.10		'g_list_push_allocator',             # "does nothing since 2.10"
+## 2.10		'g_mem_chunk_alloc',                 # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_alloc0',                # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_clean',                 # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_create',                # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_destroy',               # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_free',                  # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_info',                  # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_new',                   # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_print',                 # "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_reset',                 # "use slice allocator" (avail since 2.10)
+## 2.10		'g_node_pop_allocator',              # "does nothing since 2.10"
+## 2.10		'g_node_push_allocator',             # "does nothing since 2.10"
+## 2.10		'g_slist_pop_allocator',             # "does nothing since 2.10"
+## 2.10		'g_slist_push_allocator',            # "does nothing since 2.10"
 		] },
 
 	# APIs that make the program exit. Dissectors shouldn't call these
@@ -167,7 +204,11 @@ my %APIs = (
 );
 
 # Deprecated GTK functions with (E)rror or (W)arning flag:
-# (The list is based upon the GTK 2.16.0 documentation).
+# (The list is based upon the GTK+ 2.16.0 documentation; Some of 
+#  the entries are are commented out since they are currently 
+#  being used in Wireshark and since the replacement functionality
+#  is not available in all the GTK+ versions that Wireshark
+#  currently supports (ie: versions starting with GTK+ 2.4).
 # E: There should be no current Wireshark usage so Error if seen;
 # W: Not all usages yet fixed so Warn if seen; (Change to E as fixed)
 my %deprecatedGtkFunctions = (
