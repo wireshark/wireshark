@@ -369,10 +369,12 @@ gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, v
  * ****************************************************************** */
 
 typedef struct _emem_strbuf_t {
-    gchar *str;
-    gsize len;
-    gsize alloc_len;
-    gsize max_len;
+    gchar *str;             /* points to the character data. It may move as text is       */
+                            /*  added. The str field is nul-terminated and so can         */
+                            /*  be used as an ordinary C string.                          */
+    gsize len;              /* strlen: ie: length of str not including trailing '\0'      */
+    gsize alloc_len;        /* num bytes curently allocated for str: 1 .. MAX_STRBUF_LEN  */
+    gsize max_alloc_len;    /* max num bytes to allocate for str: 1 .. MAX_STRBUF_LEN     */
 } emem_strbuf_t;
 
 /*
@@ -383,7 +385,7 @@ typedef struct _emem_strbuf_t {
 /**
  * Allocate an ephemeral string buffer with "unlimited" size.
  *
- * @param init The initial string for the buffer, or NULL.
+ * @param init The initial string for the buffer, or NULL to allocate an initial zero-length string.
  *
  * @return A newly-allocated string buffer.
  */
@@ -393,24 +395,24 @@ emem_strbuf_t *ep_strbuf_new(const gchar *init);
  * Allocate an ephemeral string buffer suitable for the protocol tree.
  * The string will never grow beyond the maximum tree item length.
  *
- * @param init The initial string for the buffer, or NULL.
+ * @param init The initial string for the buffer, or NULL to allocate an initial zero-length string.
  *
  * @return A newly-allocated string buffer.
  */
 emem_strbuf_t *ep_strbuf_new_label(const gchar *init);
 
 /**
- * Allocate an ephemeral string buffer with enough initial space for @len bytes
- * and a maximum of @max_len bytes.
+ * Allocate an ephemeral string buffer with enough initial space for @alloc_len bytes
+ * and a maximum of @max_alloc_len bytes.
  *
- * @param len The initial size of the buffer. This value can be 0, but a nonzero
+ * @param alloc_len The initial size of the buffer. This value can be 0, but a nonzero
  * value is recommended.
- * @param max_len The maximum size of the buffer. 0 means "unlimited" (within
+ * @param max_alloc_len The maximum size of the buffer. 0 means "unlimited" (within
  * reason).
  *
  * @return A newly-allocated string buffer. @str will be empty.
  */
-emem_strbuf_t *ep_strbuf_sized_new(gsize len, gsize max_len);
+emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len);
 
 /**
  * Append vprintf-style formatted text to a string buffer.
@@ -444,24 +446,30 @@ void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
  * @param str A null-terminated string.
+ *
+ * @return strbuf
  */
-void ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
+emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
 
 /**
  * Append a character to a string buffer.
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
  * @param c The character to append.
+ *
+ * @return strbuf
  */
-void ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
+emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
 /**
  * Chop off the end of a string buffer.
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
  * @param len The new string length.
+ *
+ * @return strbuf
  */
-void ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
+emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */

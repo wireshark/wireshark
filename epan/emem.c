@@ -123,8 +123,8 @@ typedef struct _emem_chunk_t {
 } emem_chunk_t;
 
 typedef struct _emem_header_t {
-  emem_chunk_t *free_list;
-  emem_chunk_t *used_list;
+	emem_chunk_t *free_list;
+	emem_chunk_t *used_list;
 } emem_header_t;
 
 static emem_header_t ep_packet_mem;
@@ -183,39 +183,39 @@ gboolean intense_canary_checking = FALSE;
 /*  used to intensivelly check ep canaries
  */
 void ep_check_canary_integrity(const char* fmt, ...) {
-    va_list ap;
-    static gchar there[128] = {
-        'L','a','u','n','c','h',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-    gchar here[128];
+	va_list ap;
+	static gchar there[128] = {
+		'L','a','u','n','c','h',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	gchar here[128];
 	emem_chunk_t* npc = NULL;
 
-    if (! intense_canary_checking ) return;
+	if (! intense_canary_checking ) return;
 
-    here[126] = '\0';
-    here[127] = '\0';
+	here[126] = '\0';
+	here[127] = '\0';
 
-    va_start(ap,fmt);
-    g_vsnprintf(here, 126,fmt, ap);
-    va_end(ap);
+	va_start(ap,fmt);
+	g_vsnprintf(here, 126,fmt, ap);
+	va_end(ap);
 
 	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
-        static unsigned i_ctr;
+		static unsigned i_ctr;
 
-        if (npc->c_count > 0x00ffffff) {
-            g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
-        }
+		if (npc->c_count > 0x00ffffff) {
+			g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
+		}
 
 		for (i_ctr = 0; i_ctr < npc->c_count; i_ctr++) {
 			if (memcmp(npc->canary[i_ctr], &ep_canary, npc->cmp_len[i_ctr]) != 0) {
 				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s",there, here);
-            }
+			}
 		}
-    }
+	}
 
-    strncpy(there,here,126);
+	strncpy(there,here,126);
 
 }
 #endif
@@ -232,7 +232,7 @@ ep_init_chunk(void)
 	ep_packet_mem.used_list=NULL;
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
-    intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_CANARY");
+	intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_CANARY");
 #endif
 
 #ifdef DEBUG_USE_CANARIES
@@ -314,8 +314,8 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
 		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
 			MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-                if(npc->buf == NULL) {
-                    THROW(OutOfMemoryError);
+		if(npc->buf == NULL) {
+			THROW(OutOfMemoryError);
 		}
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
@@ -336,9 +336,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 #elif defined(USE_GUARD_PAGES)
 		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
 			PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
-                if(npc->buf == MAP_FAILED) {
-                    /* XXX - what do we have to cleanup here? */
-                    THROW(OutOfMemoryError);
+		if(npc->buf == MAP_FAILED) {
+			/* XXX - what do we have to cleanup here? */
+			THROW(OutOfMemoryError);
 		}
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
@@ -357,8 +357,8 @@ emem_create_chunk(emem_chunk_t **free_list) {
 
 #else /* Is there a draft in here? */
 		npc->buf = malloc(EMEM_PACKET_CHUNK_SIZE);
-                if(npc->buf == NULL) {
-                    THROW(OutOfMemoryError);
+		if(npc->buf == NULL) {
+			THROW(OutOfMemoryError);
 		}
 		npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
 		npc->amount_free = npc->amount_free_init;
@@ -398,13 +398,13 @@ ep_alloc(size_t size)
 	emem_create_chunk(&ep_packet_mem.free_list);
 
 	/* oops, we need to allocate more memory to serve this request
-         * than we have free. move this node to the used list and try again
+	 * than we have free. move this node to the used list and try again
 	 */
 	if(size>ep_packet_mem.free_list->amount_free
 #ifdef DEBUG_USE_CANARIES
-              || ep_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
+	   || ep_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
 #endif /* DEBUG_USE_CANARIES */
-        ){
+		) {
 		emem_chunk_t *npc;
 		npc=ep_packet_mem.free_list;
 		ep_packet_mem.free_list=ep_packet_mem.free_list->next;
@@ -472,13 +472,13 @@ se_alloc(size_t size)
 	emem_create_chunk(&se_packet_mem.free_list);
 
 	/* oops, we need to allocate more memory to serve this request
-         * than we have free. move this node to the used list and try again
+	 * than we have free. move this node to the used list and try again
 	 */
 	if(size>se_packet_mem.free_list->amount_free
 #ifdef DEBUG_USE_CANARIES
-        || se_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
+	   || se_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
 #endif /* DEBUG_USE_CANARIES */
-        ){
+		) {
 		emem_chunk_t *npc;
 		npc=se_packet_mem.free_list;
 		se_packet_mem.free_list=se_packet_mem.free_list->next;
@@ -587,9 +587,9 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 	enum { AT_START, IN_PAD, IN_TOKEN } state;
 	guint curr_tok = 0;
 
-	if ( ! string
-		 || ! sep
-		 || ! sep[0])
+	if (    ! string
+	     || ! sep
+	     || ! sep[0])
 		return NULL;
 
 	s = splitted = ep_strdup(string);
@@ -822,9 +822,9 @@ se_free_all(void)
 
 
 ep_stack_t ep_stack_new(void) {
-    ep_stack_t s = ep_new(struct _ep_stack_frame_t*);
-    *s = ep_new0(struct _ep_stack_frame_t);
-    return s;
+	ep_stack_t s = ep_new(struct _ep_stack_frame_t*);
+	*s = ep_new0(struct _ep_stack_frame_t);
+	return s;
 }
 
 /*  for ep_stack_t we'll keep the popped frames so we reuse them instead
@@ -833,32 +833,32 @@ of allocating new ones.
 
 
 void* ep_stack_push(ep_stack_t stack, void* data) {
-    struct _ep_stack_frame_t* frame;
-    struct _ep_stack_frame_t* head = (*stack);
+	struct _ep_stack_frame_t* frame;
+	struct _ep_stack_frame_t* head = (*stack);
 
-    if (head->above) {
-        frame = head->above;
-    } else {
-       frame = ep_new(struct _ep_stack_frame_t);
-       head->above = frame;
-       frame->below = head;
-       frame->above = NULL;
-    }
+	if (head->above) {
+		frame = head->above;
+	} else {
+		frame = ep_new(struct _ep_stack_frame_t);
+		head->above = frame;
+		frame->below = head;
+		frame->above = NULL;
+	}
 
-    frame->payload = data;
-    (*stack) = frame;
+	frame->payload = data;
+	(*stack) = frame;
 
-    return data;
+	return data;
 }
 
 void* ep_stack_pop(ep_stack_t stack) {
 
-    if ((*stack)->below) {
-        (*stack) = (*stack)->below;
-        return (*stack)->above->payload;
-    } else {
-        return NULL;
-    }
+	if ((*stack)->below) {
+		(*stack) = (*stack)->below;
+		return (*stack)->above->payload;
+	} else {
+		return NULL;
+	}
 }
 
 
@@ -969,8 +969,8 @@ emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key)
 
 
 	/* If we are still at the root of the tree this means that this node
-	 * is either smaller thant the search key and then we return this
-	 * node or else there is no smaller key availabel and then
+	 * is either smaller than the search key and then we return this
+	 * node or else there is no smaller key available and then
 	 * we return NULL.
 	 */
 	if(!node->parent){
@@ -1417,7 +1417,7 @@ emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 	emem_tree_t *next_tree;
 
 	if((key[0].length<1)||(key[0].length>100)){
-	        DISSECTOR_ASSERT_NOT_REACHED();
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	if((key[0].length==1)&&(key[1].length==0)){
 		emem_tree_insert32(se_tree, *key[0].key, data);
@@ -1441,7 +1441,7 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 	emem_tree_t *next_tree;
 
 	if((key[0].length<1)||(key[0].length>100)){
-	        DISSECTOR_ASSERT_NOT_REACHED();
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	if((key[0].length==1)&&(key[1].length==0)){
 		return emem_tree_lookup32(se_tree, *key[0].key);
@@ -1666,55 +1666,59 @@ emem_print_tree(emem_tree_t* emem_tree)
 #define MAX_STRBUF_LEN 65536
 
 static gsize
-next_size(gsize cur_len, gsize wanted_len, gsize max_len) {
-	if (max_len < 1 || max_len > MAX_STRBUF_LEN) {
-		max_len = MAX_STRBUF_LEN;
+next_size(gsize cur_alloc_len, gsize wanted_alloc_len, gsize max_alloc_len) {
+	if (max_alloc_len < 1 || max_alloc_len > MAX_STRBUF_LEN) {
+		max_alloc_len = MAX_STRBUF_LEN;
 	}
 
-	if (cur_len < 1) {
-		cur_len = DEFAULT_STRBUF_LEN;
+	if (cur_alloc_len < 1) {
+		cur_alloc_len = DEFAULT_STRBUF_LEN;
 	}
 
-	while (cur_len < wanted_len) {
-		cur_len *= 2;
+	while (cur_alloc_len < wanted_alloc_len) {
+		cur_alloc_len *= 2;
 	}
 
-	return cur_len < max_len ? cur_len : max_len;
+	return cur_alloc_len < max_alloc_len ? cur_alloc_len : max_alloc_len;
 }
 
 static void
-ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_len) {
+ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_alloc_len) {
 	gsize new_alloc_len;
 	gchar *new_str;
 
-	if (!strbuf || strbuf->alloc_len >= strbuf->max_len) {
+	if (!strbuf || (wanted_alloc_len <= strbuf->alloc_len) || (strbuf->alloc_len >= strbuf->max_alloc_len)) {
 		return;
 	}
 
-	new_alloc_len = next_size(strbuf->len, wanted_len, strbuf->max_len);
-        new_str = ep_alloc(new_alloc_len);
-        g_strlcpy(new_str, strbuf->str, new_alloc_len);
+	new_alloc_len = next_size(strbuf->alloc_len, wanted_alloc_len, strbuf->max_alloc_len);
+	new_str = ep_alloc(new_alloc_len);
+	g_strlcpy(new_str, strbuf->str, new_alloc_len);
 
-        strbuf->alloc_len = new_alloc_len;
-        strbuf->str = new_str;
+	strbuf->alloc_len = new_alloc_len;
+	strbuf->str = new_str;
 }
 
 emem_strbuf_t *
-ep_strbuf_sized_new(gsize len, gsize max_len) {
+ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) {
 	emem_strbuf_t *strbuf;
 
 	strbuf = ep_alloc(sizeof(emem_strbuf_t));
 
-	if (len > 0) {
-		strbuf->str = ep_alloc(len);
-		strbuf->str[0] = '\0';
-	} else {
-		strbuf->str = ep_strdup("");
-	}
+	if ((max_alloc_len == 0) || (max_alloc_len > MAX_STRBUF_LEN))
+		max_alloc_len = MAX_STRBUF_LEN;
+	if (alloc_len == 0)
+		alloc_len = 1;
+	else if (alloc_len > max_alloc_len)
+		alloc_len = max_alloc_len;
 
-	strbuf->len = len;
-	strbuf->alloc_len = len;
-	strbuf->max_len = max_len;
+	strbuf->str = ep_alloc(alloc_len);
+	strbuf->str[0] = '\0';
+
+	strbuf->len = 0;
+	strbuf->alloc_len = alloc_len;
+	strbuf->max_alloc_len = max_alloc_len;
+
 	return strbuf;
 }
 
@@ -1723,39 +1727,66 @@ ep_strbuf_new(const gchar *init) {
 	emem_strbuf_t *strbuf;
 
 	strbuf = ep_strbuf_sized_new(next_size(0, init?strlen(init):0, 0), 0);
-	if (init)
-		g_strlcpy(strbuf->str, init, strbuf->alloc_len);
-	else
-		g_strlcpy(strbuf->str, "", strbuf->alloc_len);
+	if (init) {
+		gsize full_len;
+		full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+		strbuf->len = MIN(full_len, strbuf->alloc_len-1);
+	}
+
 	return strbuf;
 }
 
 emem_strbuf_t *
 ep_strbuf_new_label(const gchar *init) {
 	emem_strbuf_t *strbuf;
-	gsize init_size;
+	gsize full_len;
 
-	if (!init) {
-		init = "";
+	/* Be optimistic: Allocate default size strbuf string and only      */
+        /*  request an increase if needed.                                  */
+        /* XXX: Is it reasonable to assume that much of the usage of        */
+        /*  ep_strbuf_new_label will have  init==NULL or                    */
+        /*   strlen(init) < DEFAULT_STRBUF_LEN) ???                         */
+	strbuf = ep_strbuf_sized_new(DEFAULT_STRBUF_LEN, ITEM_LABEL_LENGTH);
+
+	if (!init)
+		return strbuf;
+
+	/* full_len does not count the trailing '\0'.                       */
+	full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+	if (full_len < strbuf->alloc_len) {
+		strbuf->len += full_len;
+	} else {
+		strbuf = ep_strbuf_sized_new(full_len+1, ITEM_LABEL_LENGTH);
+		full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+		strbuf->len = MIN(full_len, strbuf->alloc_len-1);
 	}
 
-	init_size = strlen(init);
-	strbuf = ep_strbuf_sized_new(init_size > DEFAULT_STRBUF_LEN ? init_size : DEFAULT_STRBUF_LEN,
-				     ITEM_LABEL_LENGTH);
-
-	g_strlcpy(strbuf->str, init, strbuf->alloc_len);
-	strbuf->len = MIN(init_size, strbuf->alloc_len);
 	return strbuf;
 }
 
-void
+emem_strbuf_t *
 ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
+	gsize add_len, full_len;
 
 	if (!strbuf || !str || str[0] == '\0') {
-		return;
+		return strbuf;
 	}
 
-        ep_strbuf_append_printf(strbuf, "%s", str);
+	/* Be optimistic; try the g_strlcpy first & see if enough room.                 */
+	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same  */ 
+	add_len = strbuf->alloc_len - strbuf->len;
+	full_len = g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
+	if (full_len < add_len) {
+		strbuf->len += full_len;
+	} else {
+		strbuf->str[strbuf->len] = '\0'; /* end string at original length again */
+		ep_strbuf_grow(strbuf, strbuf->len + full_len + 1);
+		add_len = strbuf->alloc_len - strbuf->len;
+		full_len = g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
+		strbuf->len += MIN(add_len-1, full_len);
+	}
+
+	return strbuf;
 }
 
 void
@@ -1765,20 +1796,21 @@ ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 
 	G_VA_COPY(ap2, ap);
 
-	add_len = g_printf_string_upper_bound(format, ap);
-
-	if (strbuf->len + add_len > strbuf->alloc_len) {
-		ep_strbuf_grow(strbuf, strbuf->len + add_len);
-	}
-
-	if (strbuf->len + add_len > strbuf->alloc_len) {
+	/* Be optimistic; try the g_vsnprintf first & see if enough room.               */
+	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same. */ 
+	add_len = strbuf->alloc_len - strbuf->len;
+	full_len = g_vsnprintf(&strbuf->str[strbuf->len], (gulong) add_len, format, ap);
+	if (full_len < add_len) {
+		strbuf->len += full_len;
+	} else {
+		strbuf->str[strbuf->len] = '\0'; /* end string at original length again */
+		ep_strbuf_grow(strbuf, strbuf->len + full_len + 1);
 		add_len = strbuf->alloc_len - strbuf->len;
+		full_len = g_vsnprintf(&strbuf->str[strbuf->len], (gulong) add_len, format, ap2);
+		strbuf->len += MIN(add_len-1, full_len);
 	}
 
-	full_len = g_vsnprintf(&strbuf->str[strbuf->len], (gulong) add_len, format, ap2);
-	strbuf->len += MIN(add_len, full_len);
 	va_end(ap2);
-
 }
 
 void
@@ -1804,27 +1836,46 @@ ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 	va_end(ap);
 }
 
-void
+emem_strbuf_t *
 ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c) {
 	if (!strbuf) {
-		return;
+		return strbuf;
 	}
 
-	ep_strbuf_grow(strbuf, strbuf->len + 1);
-
-	if (strbuf->alloc_len > strbuf->len + 1) {
+	/* +1 for the new character & +1 for the trailing '\0'. */
+	if (strbuf->alloc_len < strbuf->len + 1 + 1) {
+		ep_strbuf_grow(strbuf, strbuf->len + 1 + 1);
+	}
+	if (strbuf->alloc_len >= strbuf->len + 1 + 1) {
 		strbuf->str[strbuf->len] = c;
 		strbuf->len++;
 		strbuf->str[strbuf->len] = '\0';
 	}
+
+	return strbuf;
 }
 
-void
+emem_strbuf_t *
 ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len) {
 	if (!strbuf || len >= strbuf->len) {
-		return;
+		return strbuf;
 	}
 
 	strbuf->str[len] = '\0';
 	strbuf->len = len;
+
+	return strbuf;
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
