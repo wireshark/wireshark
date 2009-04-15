@@ -410,7 +410,7 @@ static gint rlc_frame_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint rlc_frame_hash_func(gconstpointer v)
 {
-    return (guint)v;
+    return GPOINTER_TO_UINT(v);
 }
 
 /* The frame report hash table instance itself   */
