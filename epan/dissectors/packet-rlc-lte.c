@@ -421,7 +421,7 @@ static GHashTable *rlc_lte_frame_report_hash = NULL;
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(state_report_in_frame *p,
                                    guint16 sequenceNumber,
-                                   guint8  newSegmentStarted,
+                                   gboolean  newSegmentStarted,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     proto_tree *seqnum_tree;
@@ -495,7 +495,7 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
 static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      rlc_lte_info *p_rlc_lte_info,
                                      guint16 sequenceNumber,
-                                     guint8 first_includes_start, guint8 last_includes_end,
+                                     gboolean first_includes_start, gboolean last_includes_end,
                                      proto_tree *tree)
 {
     rlc_channel_hash_key   channel_key;
