@@ -657,6 +657,8 @@ push $R0
   	Call Associate
   	StrCpy $R0 ".pcap"
   	Call Associate
+  	StrCpy $R0 ".pcapng"
+  	Call Associate
   	StrCpy $R0 ".pkt"
   	Call Associate
   	StrCpy $R0 ".snoop"
