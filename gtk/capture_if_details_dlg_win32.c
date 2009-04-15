@@ -156,6 +156,7 @@ struct sockaddr_storage {
 
 
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
+#ifndef _NTDDNDIS_
 typedef enum ndis_phys_medium {
 	NdisPhysicalMediumUnspecified,
 	NdisPhysicalMediumWirelessLan,
@@ -225,14 +226,6 @@ typedef enum ndis_phys_medium {
 #define OID_PNP_WAKE_UP_PATTERN_LIST		0xFD010105
 #define OID_PNP_ENABLE_WAKE_UP			0xFD010106
 
-
-/* Currently associated SSID (OID_802_11_SSID) */
-#define NDIS_ESSID_MAX_SIZE 32
-struct ndis_essid {
-	ULONG length;
-	UCHAR essid[NDIS_ESSID_MAX_SIZE];
-};
-
 /* Current infrastructure mode (OID_802_11_INFRASTRUCTURE_MODE) */
 enum network_infrastructure {
 	Ndis802_11IBSS,
@@ -283,6 +276,23 @@ enum encryption_status {
 	Ndis802_11Encryption3KeyAbsent
 };
 
+typedef struct _NDIS_802_11_FIXED_IEs
+{
+  UCHAR  Timestamp[8];
+  USHORT  BeaconInterval;
+  USHORT  Capabilities;
+} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
+
+#endif /* _NTDDNDIS_ */
+
+
+/* Currently associated SSID (OID_802_11_SSID) */
+#define NDIS_ESSID_MAX_SIZE 32
+struct ndis_essid {
+	ULONG length;
+	UCHAR essid[NDIS_ESSID_MAX_SIZE];
+};
+
 
 /* some definitions needed for the following structs */
 #define NDIS_MAX_RATES_EX 16
@@ -318,14 +328,6 @@ struct ndis_ssid_item {
 	ULONG ie_length;
 	UCHAR ies[1];
 };
-
-
-typedef struct _NDIS_802_11_FIXED_IEs
-{
-  UCHAR  Timestamp[8];
-  USHORT  BeaconInterval;
-  USHORT  Capabilities;
-} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
 
 
 /* bssid list (OID_802_11_BSSID_LIST) */
