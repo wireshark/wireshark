@@ -121,7 +121,7 @@ gboolean
 file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 {
     gboolean ret;
-    int filename_len = strlen(filename);
+    size_t filename_len = strlen(filename);
     gchar *new_filename;
 
     /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
@@ -224,7 +224,7 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
 void
 set_last_open_dir(char *dirname)
 {
-	int len;
+	size_t len;
 	gchar *new_last_open_dir;
 
 	if (dirname) {

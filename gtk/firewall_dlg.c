@@ -517,7 +517,7 @@ set_rule_text(rule_info_t *rule_info) {
         g_string_append_printf(rtxt, "ERROR: Unable to create rule");
     }
 
-    gtk_text_buffer_set_text(buf, rtxt->str, rtxt->len);
+    gtk_text_buffer_set_text(buf, rtxt->str, (gint) rtxt->len);
 
     g_string_free(rtxt, TRUE);
 }

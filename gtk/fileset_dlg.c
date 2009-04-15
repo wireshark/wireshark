@@ -121,7 +121,7 @@ static char *
 fileset_dlg_name2date_dup(const char * name) {
     char        *pfx;
     char        *filename;
-    int         pos;
+    size_t       pos;
 
 
     /* just to be sure ... */

@@ -802,18 +802,18 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     g_free(chars);
 
     gtk_editable_insert_text(GTK_EDITABLE(filter_te), hfinfo->abbrev,
-                             strlen(hfinfo->abbrev), &pos);
+                             (gint) strlen(hfinfo->abbrev), &pos);
     if (range_str != NULL) {
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), "[", 1, &pos);
         gtk_editable_insert_text(GTK_EDITABLE(filter_te),
-                                 stripped_range_str, strlen(stripped_range_str), &pos);
+                                 stripped_range_str, (gint) strlen(stripped_range_str), &pos);
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), "]", 1, &pos);
         g_free(range_str);
     }
     if (item_str != NULL && !relation_is_presence_test(item_str)) {
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), item_str,
-                                 strlen(item_str), &pos);
+                                 (gint) strlen(item_str), &pos);
     }
     if (value_str != NULL) {
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
@@ -849,7 +849,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
                                      1, &pos);
         }
         gtk_editable_insert_text(GTK_EDITABLE(filter_te),
-                                 stripped_value_str, strlen(stripped_value_str), &pos);
+                                 stripped_value_str, (gint) strlen(stripped_value_str), &pos);
         if (quote_it) {
             /*
              * Put quotes around the string.

@@ -84,7 +84,7 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   if(!(cursor_pos = gtk_editable_get_position(GTK_EDITABLE(filter_te))))
     return TRUE;
   
-  start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, cursor_pos);
+  start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, (gint) cursor_pos);
   
   /* Point to one char before the current string in the filter editable text */
   pos = start + (cursor_pos - str_len);
@@ -94,7 +94,7 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
     if(*pos != ' ' && *pos != '(') {
       /* Check if we have one of the logical operations */
       for(i = 0; i < (sizeof(logic_ops)/sizeof(logic_ops[0])); i++) {
-        op_len = strlen(logic_ops[i]);
+        op_len = (int) strlen(logic_ops[i]);
         
         if(pos-start+1 < op_len)
           continue;
@@ -145,14 +145,14 @@ autocomplete_protocol_string(GtkWidget *filter_te, gchar *selected_str)
   }
 
   if(strncmp(pch, selected_str, pos-(pch-filter_str))) {
-    gtk_editable_delete_text(GTK_EDITABLE(filter_te), pch-filter_str, pos);
-    pos = pch-filter_str;
+    gtk_editable_delete_text(GTK_EDITABLE(filter_te), (gint) (pch-filter_str), pos);
+    pos = (int) (pch-filter_str);
     pch = selected_str;
   } else {
     pch = (selected_str + strlen(pch));
   }
 
-  gtk_editable_insert_text(GTK_EDITABLE(filter_te), pch, strlen(pch), &pos);
+  gtk_editable_insert_text(GTK_EDITABLE(filter_te), pch, (gint) strlen(pch), &pos);
   gtk_editable_set_position(GTK_EDITABLE(filter_te), pos);
   g_free (filter_str);
 }
@@ -209,7 +209,7 @@ check_select_region (GtkWidget *filter_te, GtkWidget *popup_win,
                      const gchar *string, unsigned int str_len)
 {
   gint pos1 = gtk_editable_get_position(GTK_EDITABLE(filter_te));
-  gint pos2 = pos1 + strlen(string) - str_len;
+  gint pos2 = pos1 + (gint) strlen(string) - str_len;
   gint pos3 = pos1;
 
   if (pos2 > pos1) {
@@ -265,7 +265,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
   GtkTreeIter iter;
   GtkTreeSelection *selection;
   gchar *curr_str;
-  unsigned int str_len = strlen(str);
+  unsigned int str_len = (unsigned int) strlen(str);
   gchar *first = NULL;
   gint count = 0;
   gboolean loop = TRUE;
@@ -429,7 +429,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       if(strchr(prefix, '.')) {
         popup_win = filter_autocomplete_new(filter_te, prefix, FALSE, NULL);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
-      } else if(strlen(prefix) && is_protocol_name_being_typed(filter_te, strlen(prefix)+2)) {
+      } else if(strlen(prefix) && is_protocol_name_being_typed(filter_te, (int) strlen(prefix)+2)) {
         popup_win = filter_autocomplete_new(filter_te, prefix, TRUE, NULL);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
       }
@@ -441,7 +441,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   } else if(g_ascii_isalnum(ckey) && !popup_win) {
     gchar *name = g_strconcat(prefix, event->string, NULL);
 
-    if( !strchr(name, '.') && is_protocol_name_being_typed(filter_te, strlen(name)) ) {
+    if( !strchr(name, '.') && is_protocol_name_being_typed(filter_te, (int) strlen(name)) ) {
       popup_win = filter_autocomplete_new(filter_te, name, TRUE, &stop_propagation);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
     }
@@ -619,7 +619,7 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
   const gchar *first = NULL;
   int i;
 
-  protocol_name_len = strlen(protocol_name);
+  protocol_name_len = (unsigned int) strlen(protocol_name);
 
   /* Walk protocols list */
   for (i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie)) {
@@ -755,7 +755,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
 {
   GtkListStore *store;
   GtkRequisition requisition;
-  gint prefix_len;
+  size_t prefix_len;
   gboolean protocols_only = FALSE;
 
   /* Delete the last character in the prefix string */
