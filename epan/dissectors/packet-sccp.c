@@ -805,11 +805,12 @@ static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
 	a->called_ssn = INVALID_SSN;
 	a->has_fw_key = FALSE;
 	a->has_bw_key = FALSE;
+	a->msgs = NULL;
+	a->curr_msg = NULL;
 	a->payload = SCCP_PLOAD_NONE;
 	a->calling_party = NULL;
 	a->called_party = NULL;
 	a->extra_info = NULL;
-	a->msgs = NULL;
 
 	return a;
 }
