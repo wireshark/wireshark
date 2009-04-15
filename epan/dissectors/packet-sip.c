@@ -1062,7 +1062,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 							case ';':
 							case '?':
 							case ' ':
-							case '\r':									
+							case '\r':
 								goto uri_host_port_end_found;
 							default :
 							break;
@@ -1336,237 +1336,267 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 	gint  current_offset;
-	gint  transport_start_offset = 0;
+	gint  transport_start_offset;
 	gint  address_start_offset;
-	gint  semicolon_offset = 0;
-	guint transport_slash_count = 0;
-	gboolean transport_name_started = FALSE;
-	gboolean colon_seen = FALSE;
-	gboolean ipv6_reference = FALSE;
-	gboolean ipv6_address = FALSE;
+	gint  semicolon_offset;
+	guint transport_slash_count;
+	gboolean transport_name_started;
+	gboolean colon_seen;
+	gboolean ipv6_reference;
+	gboolean ipv6_address;
 	guchar c;
 	gchar *param_name = NULL;
 
-	/* skip Spaces and Tabs */
-	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
-
-	if (start_offset >= line_end_offset)
-	{
-		/* Nothing to parse */
-		return;
-	}
-
 	current_offset = start_offset;
 
-	/* Now look for the end of the SIP/2.0/transport parameter.
-	   There may be spaces between the slashes */
-	while (current_offset < line_end_offset)
+	while (1)
 	{
-		c = tvb_get_guint8(tvb, current_offset);
-		if (c == '/')
-		{
-			transport_slash_count++;
-		}
-		else
-		if (!transport_name_started && (transport_slash_count == 2) && isalpha(c))
-		{
-			transport_name_started = TRUE;
-			transport_start_offset = current_offset;
-		}
-		else
-		if (transport_name_started && ((c == ' ') || (c == '\t')))
-		{
-			proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
-			                    current_offset - transport_start_offset, FALSE);
+		/* Reset flags and counters */
+		transport_start_offset = 0;
+		semicolon_offset = 0;
+		transport_name_started = FALSE;
+		transport_slash_count = 0;
+		ipv6_reference = FALSE;
+		ipv6_address = FALSE;
+		colon_seen = FALSE;
 
-			break;
-		}
-
-		current_offset++;
-	}
-
-	/* skip Spaces and Tabs */
-	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
-
-    /* Now read the address part */
-	address_start_offset = current_offset;
-	while (current_offset < line_end_offset)
-	{
-		c = tvb_get_guint8(tvb, current_offset);
-
-		if (c == '[') {
-			ipv6_reference = TRUE;
-			ipv6_address = TRUE;
-		}
-		else if (c == ']')
-		{
-			ipv6_reference = FALSE;
-		}
-
-		if (colon_seen || (c == ' ') || (c == '\t') || ((c == ':') && (ipv6_reference == FALSE)) || (c == ';'))
-		{
-			break;
-		}
-
-		current_offset++;
-	}
-	/* Add address to tree */
-	if (ipv6_address == TRUE) {
-		proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset + 1,
-		                    current_offset - address_start_offset - 2, FALSE);
-	} else {
-		proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
-		                    current_offset - address_start_offset, FALSE);
-	}
-
-	/* Transport port number may follow ([space] : [space])*/
-	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
-	c = tvb_get_guint8(tvb, current_offset);
-
-	if (c == ':')
-	{
-		/* Port number will follow any space after : */
-		gint port_offset;
-		colon_seen = TRUE;
-		current_offset++;
-
-		/* Skip optional space after colon */
+		/* skip Spaces and Tabs */
 		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
-		port_offset = current_offset;
-
-		/* Find digits of port number */
-		while (current_offset < line_end_offset)
+		if (current_offset >= line_end_offset)
 		{
-			c = tvb_get_guint8(tvb, current_offset);
-
-			if (!isdigit(c))
-			{
-				if (current_offset > port_offset)
-				{
-					/* Add address port number to tree */
-					proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
-					                    current_offset - port_offset,
-					                    atoi(tvb_get_ephemeral_string(tvb, port_offset,
-					                                                  current_offset - port_offset)));
-				}
-				else
-				{
-					/* Shouldn't see a colon without a port number given */
-					return;
-				}
-				break;
-			}
-
-			current_offset++;
-		}
-	}
-
-	/* skip Spaces and Tabs */
-	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
-
-
-    /* Dissect any parameters found */
-	while (current_offset < line_end_offset)
-	{
-		gboolean equals_found = FALSE;
-		gint parameter_name_end = 0;
-		gint parameter_value_end;
-		header_parameter_t *via_parameter;
-		guint i = 0;
-
-		/* Look for the semicolon that signals the start of a parameter */
-		while (current_offset < line_end_offset)
-		{
-			c = tvb_get_guint8(tvb, current_offset);
-			if (c == ';')
-			{
-				semicolon_offset = current_offset;
-				current_offset++;
-				break;
-			}
-			else
-			if ((c != ' ') && (c != '\t'))
-			{
-				return;
-			}
-
-			current_offset++;
-		}
-		if (current_offset == line_end_offset)
-		{
+			/* Nothing more to parse */
 			return;
 		}
 
-		/* Look for end of parameter name */
+		/* Now look for the end of the SIP/2.0/transport parameter.
+		   There may be spaces between the slashes */
 		while (current_offset < line_end_offset)
 		{
 			c = tvb_get_guint8(tvb, current_offset);
-			if (!isalpha(c) && (c != '-'))
+			if (c == '/')
 			{
+				transport_slash_count++;
+			}
+			else
+			if (!transport_name_started && (transport_slash_count == 2) && isalpha(c))
+			{
+				transport_name_started = TRUE;
+				transport_start_offset = current_offset;
+			}
+			else
+			if (transport_name_started && ((c == ' ') || (c == '\t')))
+			{
+				proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
+									current_offset - transport_start_offset, FALSE);
+
 				break;
 			}
+
 			current_offset++;
-		}
-
-		/* Not all params have an = */
-		if (c == '=')
-		{
-			equals_found = TRUE;
-		}
-		parameter_name_end = current_offset;
-
-		/* Read until end of parameter value */
-		while (current_offset < line_end_offset)
-		{
-			c = tvb_get_guint8(tvb, current_offset);
-			if ((c == ' ') || (c == '\t') || (c == ';'))
-			{
-				break;
-			}
-			current_offset++;
-		}
-
-		/* Note parameter name */
-		parameter_value_end = current_offset;
-		param_name = tvb_get_ephemeral_string(tvb, semicolon_offset+1,
-		                                      parameter_name_end - semicolon_offset - 1);
-
-		/* Try to add parameter as a filterable item */
-		for (via_parameter = &via_parameters_hf_array[i];
-			 i < array_length(via_parameters_hf_array);
-			 i++, via_parameter++)
-		{
-			if (g_ascii_strcasecmp(param_name, via_parameter->param_name) == 0)
-			{
-				if (equals_found)
-				{
-					proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
-					                    parameter_name_end+1, current_offset-parameter_name_end-1,
-					                    FALSE);
-				}
-				else
-				{
-					proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
-					                    semicolon_offset+1, current_offset-semicolon_offset-1,
-					                    FALSE);
-				}
-				break;
-			}
-		}
-
-		/* If not matched, just add as text... */
-		if (i == array_length(via_parameters_hf_array))
-		{
-			proto_tree_add_text(tree, tvb, semicolon_offset+1, current_offset-semicolon_offset-1,
-			                    "%s", tvb_format_text(tvb, semicolon_offset+1,
-			                    current_offset-semicolon_offset-1));
 		}
 
 		/* skip Spaces and Tabs */
 		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
-	}
 
+		/* Now read the address part */
+		address_start_offset = current_offset;
+		while (current_offset < line_end_offset)
+		{
+			c = tvb_get_guint8(tvb, current_offset);
+
+			if (c == '[') {
+				ipv6_reference = TRUE;
+				ipv6_address = TRUE;
+			}
+			else if (c == ']')
+			{
+				ipv6_reference = FALSE;
+			}
+
+			if (colon_seen || (c == ' ') || (c == '\t') || ((c == ':') && (ipv6_reference == FALSE)) || (c == ';'))
+			{
+				break;
+			}
+
+			current_offset++;
+		}
+		/* Add address to tree */
+		if (ipv6_address == TRUE) {
+			proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset + 1,
+								current_offset - address_start_offset - 2, FALSE);
+		} else {
+			proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
+								current_offset - address_start_offset, FALSE);
+		}
+
+		/* Transport port number may follow ([space] : [space])*/
+		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+		c = tvb_get_guint8(tvb, current_offset);
+
+		if (c == ':')
+		{
+			/* Port number will follow any space after : */
+			gint port_offset;
+			colon_seen = TRUE;
+			current_offset++;
+
+			/* Skip optional space after colon */
+			current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+			port_offset = current_offset;
+
+			/* Find digits of port number */
+			while (current_offset < line_end_offset)
+			{
+				c = tvb_get_guint8(tvb, current_offset);
+
+				if (!isdigit(c))
+				{
+					if (current_offset > port_offset)
+					{
+						/* Add address port number to tree */
+						proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
+											current_offset - port_offset,
+											atoi(tvb_get_ephemeral_string(tvb, port_offset,
+																		  current_offset - port_offset)));
+					}
+					else
+					{
+						/* Shouldn't see a colon without a port number given */
+						return;
+					}
+					break;
+				}
+
+				current_offset++;
+			}
+		}
+
+		/* skip Spaces and Tabs */
+		current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+
+		/* Dissect any parameters found */
+		while (current_offset < line_end_offset)
+		{
+			gboolean equals_found = FALSE;
+			gboolean found_end_of_parameters = FALSE;
+			gint parameter_name_end = 0;
+			gint parameter_value_end;
+			header_parameter_t *via_parameter;
+			guint i = 0;
+
+			/* Look for the semicolon that signals the start of a parameter */
+			while (current_offset < line_end_offset)
+			{
+				c = tvb_get_guint8(tvb, current_offset);
+				if (c == ';')
+				{
+					semicolon_offset = current_offset;
+					current_offset++;
+					break;
+				}
+				else
+				if ((c != ' ') && (c != '\t'))
+				{
+					found_end_of_parameters = TRUE;
+					break;
+				}
+				current_offset++;
+			}
+
+			if (found_end_of_parameters)
+			{
+				break;
+			}
+
+			if (current_offset == line_end_offset)
+			{
+				return;
+			}
+
+			/* Look for end of parameter name */
+			while (current_offset < line_end_offset)
+			{
+				c = tvb_get_guint8(tvb, current_offset);
+				if (!isalpha(c) && (c != '-'))
+				{
+					break;
+				}
+				current_offset++;
+			}
+
+			/* Not all params have an = */
+			if (c == '=')
+			{
+				equals_found = TRUE;
+			}
+			parameter_name_end = current_offset;
+
+			/* Read until end of parameter value */
+			while (current_offset < line_end_offset)
+			{
+				c = tvb_get_guint8(tvb, current_offset);
+				if ((c == ' ') || (c == '\t') || (c == ';') || (c == ','))
+				{
+					break;
+				}
+				current_offset++;
+			}
+
+			/* Note parameter name */
+			parameter_value_end = current_offset;
+			param_name = tvb_get_ephemeral_string(tvb, semicolon_offset+1,
+												  parameter_name_end - semicolon_offset - 1);
+
+			/* Try to add parameter as a filterable item */
+			for (via_parameter = &via_parameters_hf_array[i];
+				 i < array_length(via_parameters_hf_array);
+				 i++, via_parameter++)
+			{
+				if (g_ascii_strcasecmp(param_name, via_parameter->param_name) == 0)
+				{
+					if (equals_found)
+					{
+						proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
+											parameter_name_end+1, current_offset-parameter_name_end-1,
+											FALSE);
+					}
+					else
+					{
+						proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
+											semicolon_offset+1, current_offset-semicolon_offset-1,
+											FALSE);
+					}
+					break;
+				}
+			}
+
+			/* If not matched, just add as text... */
+			if (i == array_length(via_parameters_hf_array))
+			{
+				proto_tree_add_text(tree, tvb, semicolon_offset+1, current_offset-semicolon_offset-1,
+									"%s", tvb_format_text(tvb, semicolon_offset+1,
+									current_offset-semicolon_offset-1));
+			}
+
+			/* skip Spaces and Tabs */
+			current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+			/* There may be a comma, followed by more Via entries... */
+			if (current_offset < line_end_offset)
+			{
+				c = tvb_get_guint8(tvb, current_offset);
+				if (c == ',')
+				{
+					/* Skip it and get out of parameter loop */
+					current_offset++;
+					break;
+				}
+			}
+		}
+	}
 }
 
 
