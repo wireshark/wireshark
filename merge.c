@@ -157,7 +157,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
 {
   int i;
   int ei = -1;
-  struct wtap_nstime tv = {(time_t)LONG_MAX, INT_MAX};
+  struct wtap_nstime tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
   struct wtap_pkthdr *phdr;
 
   /*
