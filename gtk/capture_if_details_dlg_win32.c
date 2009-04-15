@@ -156,7 +156,7 @@ struct sockaddr_storage {
 
 
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
-#ifndef _NTDDNDIS_
+#ifndef _WIN64
 typedef enum ndis_phys_medium {
 	NdisPhysicalMediumUnspecified,
 	NdisPhysicalMediumWirelessLan,
@@ -283,7 +283,7 @@ typedef struct _NDIS_802_11_FIXED_IEs
   USHORT  Capabilities;
 } NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
 
-#endif /* _NTDDNDIS_ */
+#endif /* _WIN64 */
 
 
 /* Currently associated SSID (OID_802_11_SSID) */
