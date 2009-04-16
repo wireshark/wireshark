@@ -73,6 +73,14 @@ UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info
 ToTargetRNC-Container        @s_to_trnc_cont
 TargetRNC-ToSourceRNC-Container @t_to_srnc_cont
 
+#.FIELD_RENAME
+HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/gsm-MessageList gsm-MessageList-r3
+HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/gsm-MessageList gsm-MessageList-r6
+HandoverFromUTRANFailure/interRATMessage/gsm/gsm-MessageList gsm-MessageList-gsm
+
+HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/single-GSM-Message single-GSM-Message-r3
+HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Message-r6
+
 #.END
 #.FN_PARS UTRAN-GANSSReferenceTime/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
 
@@ -575,6 +583,25 @@ TargetRNC-ToSourceRNC-Container @t_to_srnc_cont
 
 	if (dl_dcch_message_tvb)
 		call_dissector(rrc_dl_dcch_handle,dl_dcch_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
+#.FN_BODY GSM-MessageList/_item VAL_PTR = &gsm_messagelist_tvb
+  tvbuff_t *gsm_messagelist_tvb=NULL;
+  
+%(DEFAULT_BODY)s
+
+  if (gsm_messagelist_tvb)
+		call_dissector(gsm_a_dtap_handle,gsm_messagelist_tvb,actx->pinfo, tree);
+
+#.FN_BODY HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/single-GSM-Message single-GSM-Message-r3
+
+%(DEFAULT_BODY)s
+proto_tree_add_bits_item(tree, hf_test, tvb, offset,8, FALSE);
+
+#.FN_BODY HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Message-r6
+
+%(DEFAULT_BODY)s
+
+proto_tree_add_bits_item(tree, hf_test, tvb, offset,8, FALSE);
 
 #.END
 

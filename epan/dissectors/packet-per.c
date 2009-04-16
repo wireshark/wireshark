@@ -164,7 +164,7 @@ static const guint16 bit_mask16[] = {
 /* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
  * (add proceeding zeros in case of aligned PER)
  */
-static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits)
+tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits)
 {
   tvbuff_t *sub_tvb = NULL;
   guint32 boffset = offset >> 3;

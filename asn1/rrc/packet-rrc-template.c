@@ -61,7 +61,7 @@ static dissector_handle_t rrc_dl_dcch_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_rrc = -1;
-
+static int hf_test;
 #include "packet-rrc-hf.c"
 
 /* Initialize the subtree pointers */
@@ -125,6 +125,11 @@ void proto_register_rrc(void) {
   static hf_register_info hf[] = {
 
 #include "packet-rrc-hfarr.c"
+    { &hf_test,
+      { "RAB Test", "rrc.RAB.test",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "rrc.RAB_Info_r6", HFILL }},
+
   };
 
   /* List of subtrees */

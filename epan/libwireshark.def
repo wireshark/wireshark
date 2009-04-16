@@ -209,6 +209,7 @@ dissect_dcom_that
 dissect_dcom_this
 dissect_dcom_VARIANT
 dissect_dcom_VARTYPE
+dissect_e164_cc
 dissect_e212_mcc_mnc
 dissect_gsm_map_GlobalCellId
 dissect_gsm_map_IMSI
@@ -535,6 +536,8 @@ h225_RasMessage_vals                 DATA
 h225_ReleaseCompleteReason_vals      DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
+h248_param_ber_integer 
+h248_register_package 
 have_custom_cols
 have_tap_listeners
 heur_dissector_add
@@ -579,6 +582,7 @@ md5_init
 mkstemp
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
+new_octet_aligned_subset_bits
 new_create_dissector_handle
 new_register_dissector
 nstime_cmp
