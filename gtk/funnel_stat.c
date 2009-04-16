@@ -225,14 +225,14 @@ static void text_window_clear(funnel_text_window_t*  tw)
 static void text_window_append(funnel_text_window_t*  tw, const char *str)
 {
     GtkWidget *txt;
-    int nchars = strlen(str);
+    int nchars;
     GtkTextBuffer *buf;
     GtkTextIter    iter;
 
     if (! tw->win) return; 
 
     txt = tw->txt;
-    nchars = strlen(str);
+    nchars = (int) strlen(str);
     
     
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
@@ -258,14 +258,14 @@ static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
 
 static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) {
     GtkWidget *txt;
-    int nchars = strlen(str);
+    int nchars;
     GtkTextBuffer *buf;
     GtkTextIter    iter;
 	
     if (! tw->win) return; 
 	
     txt = tw->txt;
-    nchars = strlen(str);
+    nchars = (int) strlen(str);
     
     
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));

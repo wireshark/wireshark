@@ -276,8 +276,8 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	const gchar *filter_prepend;
 	gboolean isFirst = TRUE;
 	GList* list;
-	guint filter_length = 0;
-	guint max_filter_length = 2048;
+	size_t filter_length = 0;
+	size_t max_filter_length = 2048;
 	sip_calls_info_t *tmp_sipinfo;
 	isup_calls_info_t *tmp_isupinfo;
 	h323_calls_info_t *tmp_h323info;

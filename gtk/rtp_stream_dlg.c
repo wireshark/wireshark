@@ -451,7 +451,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 
 	/* Now that we have the CSV data, copy it into the default clipboard */
 	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-	gtk_clipboard_set_text(cb, CSV_str->str, CSV_str->len);
+	gtk_clipboard_set_text(cb, CSV_str->str, (gint) CSV_str->len);
 	g_string_free(CSV_str, TRUE);
 }
 

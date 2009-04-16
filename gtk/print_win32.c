@@ -176,7 +176,8 @@ static void print_file( char *file_name, HDC hdc) {
     #define x_offset 5
 
     FILE* fh1;
-    int results, cnt=0, y_pos = y_offset, y_cnt = 0;
+    size_t results;
+    int cnt=0, y_pos = y_offset, y_cnt = 0;
     char buf[ max_buf_size];
     char ch;
     TEXTMETRIC tm;
@@ -197,8 +198,8 @@ static void print_file( char *file_name, HDC hdc) {
         /* end of page (form feed)? */
 	if ( ch == 0x0c){
             /* send buffer */
-            buf[ cnt] = 0;
-	    TextOut(hdc, x_offset,y_pos, buf, strlen(buf));
+            buf[cnt] = 0;
+	    TextOut(hdc, x_offset,y_pos, buf, (int) strlen(buf));
 	    y_pos += tm.tmHeight;
 	    cnt = 0;
 
@@ -214,7 +215,7 @@ static void print_file( char *file_name, HDC hdc) {
 	if ( ch == 0x0a){
             /* send buffer */
             buf[ cnt] = 0;
-	    TextOut(hdc, x_offset,y_pos, buf, strlen(buf));
+	    TextOut(hdc, x_offset,y_pos, buf, (int) strlen(buf));
 	    y_pos += tm.tmHeight;
 	    cnt = 0;
             /* last line on page? -> reset page */
@@ -231,7 +232,7 @@ static void print_file( char *file_name, HDC hdc) {
  	if ( cnt == ( max_buf_size - 1)) {
             /* send buffer */
 	    buf[ cnt] = 0;
-            TextOut(hdc, x_offset, y_pos, buf, strlen(buf));
+            TextOut(hdc, x_offset, y_pos, buf, (int) strlen(buf));
             y_pos += tm.tmHeight;
             cnt = 0;
             /* last line on page? -> reset page */
@@ -250,7 +251,7 @@ static void print_file( char *file_name, HDC hdc) {
     /* Print the remaining text if needed */
     if ( cnt > 0) {
 	buf[ cnt] = 0;
-	TextOut(hdc, 0,y_pos, buf, strlen(buf));
+	TextOut(hdc, 0,y_pos, buf, (int) strlen(buf));
     }
 
     fclose(fh1);

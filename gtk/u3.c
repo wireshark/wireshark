@@ -125,7 +125,7 @@ void u3_register_pid()
 
     pid = getpid();
 
-    pf_size = strlen(u3hostexecpath) + 32;
+    pf_size = (int) strlen(u3hostexecpath) + 32;
     pid_file = g_malloc(pf_size);
 
     g_snprintf(pid_file, pf_size, "%s\\%d.pid", u3hostexecpath, pid);

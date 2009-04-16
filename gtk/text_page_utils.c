@@ -116,7 +116,7 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
   text_file = ws_fopen(absolute_path, "r");
   if (text_file != NULL) {
     while (fgets(line, sizeof line, text_file) != NULL) {
-      text_page_insert(page, line, strlen(line));
+      text_page_insert(page, line, (int) strlen(line));
     }
     if(ferror(text_file)) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",

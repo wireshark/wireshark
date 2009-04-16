@@ -227,11 +227,11 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    name = proto_get_protocol_name(i);
 	    short_name = proto_get_protocol_short_name(protocol);
 	    filter_name = proto_get_protocol_filter_name(i);
-	    if ((len = strlen(name)) > namel)
+	    if ((len = (int) strlen(name)) > namel)
 		    namel = len;
-	    if ((len = strlen(short_name)) > short_namel)
+	    if ((len = (int) strlen(short_name)) > short_namel)
 		    short_namel = len;
-	    if ((len = strlen(filter_name)) > filter_namel)
+	    if ((len = (int) strlen(filter_name)) > filter_namel)
 		    filter_namel = len;
     }
     maxlen = namel + short_namel + filter_namel;
@@ -252,7 +252,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			   -short_namel,  short_name,
 			   -namel,	  name,
 			   -filter_namel, filter_name);
-	    insert_text(w, buffer, strlen(buffer));
+	    insert_text(w, buffer, (int) strlen(buffer));
     }
 
     break;
@@ -271,18 +271,18 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 		    if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
 			    continue;
 
-		    if ((len = strlen(hfinfo->abbrev)) > maxlen)
+		    if ((len = (int) strlen(hfinfo->abbrev)) > maxlen)
 			    maxlen = len;
-		    if ((len = strlen(hfinfo->name)) > maxlen2)
+		    if ((len = (int) strlen(hfinfo->name)) > maxlen2)
 			    maxlen2 = len;
 		    if (hfinfo->blurb != NULL) {
-			    if ((len = strlen(hfinfo->blurb)) > maxlen4)
+			    if ((len = (int) strlen(hfinfo->blurb)) > maxlen4)
 				maxlen4 = len;
 		    }
 	    }
     }
 
-    insert_text(w, dfilter_supported, strlen(dfilter_supported));
+    insert_text(w, dfilter_supported, (int) strlen(dfilter_supported));
 
     fcount = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
@@ -325,7 +325,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 					     -maxlen2, hfinfo->name,
 					     type_name);
 		    }
-		    insert_text(w, buffer, strlen(buffer));
+		    insert_text(w, buffer, (int) strlen(buffer));
 	    }
     }
     len = g_snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);

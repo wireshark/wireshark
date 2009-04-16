@@ -283,12 +283,12 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		switch(f[colnum].mode) {
 			case PT_TXTMOD_STRING:
 				text = gtk_entry_get_text(GTK_ENTRY(e));
-				len = strlen(text);
+				len = (unsigned) strlen(text);
 				break;
 			case PT_TXTMOD_HEXBYTES: {
 				text = gtk_entry_get_text(GTK_ENTRY(e));
 
-				text = (void*) unhexbytes(text, strlen(text), &len, &err);
+				text = (void*) unhexbytes(text, (guint) strlen(text), &len, &err);
 
 				if (err) {
 					err = ep_strdup_printf("error in field '%s': %s",f[colnum].title,err);
@@ -300,7 +300,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 			case PT_TXTMOD_ENUM: {
 				text = *(char**)e;
 				text = text ? text : "";
-				len = strlen(text);
+				len = (unsigned) strlen(text);
 				break;
 			}
 			default:

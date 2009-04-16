@@ -190,7 +190,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gchar* window_name = NULL;
 	GString* error_string;
 	GtkWidget *scr_win;
-	guint init_strlen;
+	size_t init_strlen;
 	GtkWidget *main_vb, *bbox, *bt_close;
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;

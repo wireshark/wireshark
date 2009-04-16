@@ -99,11 +99,11 @@ typedef enum {
 #define FILE_DEFAULT_COLOR 2
 
 
-static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT_PTR CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
@@ -1108,7 +1108,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
 }
 
 
-static UINT CALLBACK
+static UINT_PTR CALLBACK
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -1270,10 +1270,10 @@ build_file_type_list(gboolean save, int *item_to_select) {
     /* append the "All Files" entry */
     if (!save) {
         str16 = utf_8to16("All Files (*.*)");
-        sa = g_array_append_vals(sa, str16, strlen("All Files (*.*)"));
+        sa = g_array_append_vals(sa, str16, (guint) strlen("All Files (*.*)"));
         sa = g_array_append_val(sa, zero);
         str16 = utf_8to16("*.*");
-        sa = g_array_append_vals(sa, str16, strlen("*.*"));
+        sa = g_array_append_vals(sa, str16, (guint) strlen("*.*"));
         sa = g_array_append_val(sa, zero);
     }
 
@@ -1293,12 +1293,12 @@ build_file_type_list(gboolean save, int *item_to_select) {
             continue;
         }
         str16 = utf_8to16(str->str);
-        sa = g_array_append_vals(sa, str16, strlen(str->str));
+        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
         sa = g_array_append_val(sa, zero);
 
         g_string_printf(str, "%s", wtap_file_extensions_string(ft));
         str16 = utf_8to16(str->str);
-        sa = g_array_append_vals(sa, str16, strlen(str->str));
+        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
         sa = g_array_append_val(sa, zero);
 
         if (ft == cfile.cd_t && item_to_select != NULL) {
@@ -1361,7 +1361,7 @@ build_file_format_list(HWND sf_hwnd) {
 #endif
 
 #define RANGE_TEXT_MAX 128
-static UINT CALLBACK
+static UINT_PTR CALLBACK
 save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1605,7 +1605,7 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
     }
 }
 
-static UINT CALLBACK
+static UINT_PTR CALLBACK
 merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -1675,7 +1675,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 
-static UINT CALLBACK
+static UINT_PTR CALLBACK
 export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1733,7 +1733,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-static UINT CALLBACK
+static UINT_PTR CALLBACK
 export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
