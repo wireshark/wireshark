@@ -705,7 +705,7 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
 	    return ret;
 	}
     }
-    *len = ptr - *bits;
+    *len = (guint) (ptr - *bits);
     return ASN1_ERR_NOERROR;
 }
 

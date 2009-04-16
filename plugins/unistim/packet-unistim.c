@@ -2604,7 +2604,7 @@ dissect_audio_phone(proto_tree *msg_tree,
 static void
 set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
    char *buffer=NULL;
-   guint16 buffer_index=0;
+   gsize buffer_index=0;
    guint16 msg_index=0;
    guint8 character;
    char *label="DATA: ";
@@ -2637,7 +2637,7 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
 static void
 set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len,char *label){
    char *buffer=NULL;
-   guint16 buffer_index=0;
+   gsize buffer_index=0;
    guint16 msg_index=0;
    guint8 character;
    #define MAX_BUFFER 1024

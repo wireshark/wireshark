@@ -1312,7 +1312,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   guint mailbox_length = tvb_reported_length(tvb);
+   gint mailbox_length = tvb_reported_length(tvb);
 
    if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN )
    {

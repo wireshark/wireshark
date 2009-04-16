@@ -986,8 +986,8 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 			}
 		case AVP_OP_ENDS:
 			/* does this work? */
-			ls = strlen(src->v);
-			lo = strlen(op->v);
+			ls = (guint) strlen(src->v);
+			lo = (guint) strlen(op->v);
 
 			if ( ls < lo ) {
 				return NULL;

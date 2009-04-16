@@ -10,8 +10,13 @@ include ..\..\Makefile.nmake.inc
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=/DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=/WX $(GENERATED_CFLAGS)
+
+
+
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
@@ -96,6 +101,7 @@ RUNLEX = ..\..\tools\runlex.sh
 
 wimaxasncp_dict_lex.h : wimaxasncp_dict.c
 wimaxasncp_dict.obj :   wimaxasncp_dict.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \

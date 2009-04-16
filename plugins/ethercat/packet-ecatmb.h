@@ -31,7 +31,7 @@ typedef struct TETHERNET_ADDRESS
 {
    guint8 b[6];
 } ETHERNET_ADDRESS, *PETHERNET_ADDRESS;
-#define ETHERNET_ADDRESS_LEN sizeof(ETHERNET_ADDRESS)
+#define ETHERNET_ADDRESS_LEN ((int) sizeof(ETHERNET_ADDRESS))
 
 /* Mailbox*/
 #define ETHERCAT_MBOX_TYPE_ADS 1 /* AMS/ADS header follows*/
@@ -60,7 +60,7 @@ typedef struct TETHERCAT_MBOX_HEADER
    MbxHeaderControlUnion aControlUnion;
 } ETHERCAT_MBOX_HEADER, *PETHERCAT_MBOX_HEADER;
 
-#define ETHERCAT_MBOX_HEADER_LEN sizeof(ETHERCAT_MBOX_HEADER)
+#define ETHERCAT_MBOX_HEADER_LEN ((int) sizeof(ETHERCAT_MBOX_HEADER))
 
 /*/////////////////////////////////////////////////////////////////////////////*/
 /* EoE*/
@@ -118,13 +118,13 @@ typedef struct TETHERCAT_EOE_MACFILTER
    ETHERNET_ADDRESS MacFilter[16];
    ETHERNET_ADDRESS MacFilterMask[4];
 } ETHERCAT_EOE_MACFILTER;
-#define ETHERCAT_EOE_MACFILTER_LEN sizeof(ETHERCAT_EOE_MACFILTER)
+#define ETHERCAT_EOE_MACFILTER_LEN ((int) sizeof(ETHERCAT_EOE_MACFILTER))
 
 typedef struct TETHERCAT_EOE_TIMESTAMP
 {
    guint32 TimeStamp; /* 32 bit time stamp */
 } ETHERCAT_EOE_TIMESTAMP;
-#define ETHERCAT_EOE_TIMESTAMP_LEN sizeof(ETHERCAT_EOE_TIMESTAMP)
+#define ETHERCAT_EOE_TIMESTAMP_LEN ((int) sizeof(ETHERCAT_EOE_TIMESTAMP))
 
 typedef union tEoeHeaderDataUnion
 {
@@ -157,7 +157,7 @@ typedef struct TETHERCAT_EOE_HEADER
    EoeHeaderInfoUnion anEoeHeaderInfoUnion;
    EoeHeaderDataUnion anEoeHeaderDataUnion;
 } ETHERCAT_EOE_HEADER, *PETHERCAT_EOE_HEADER;
-#define ETHERCAT_EOE_HEADER_LEN sizeof(ETHERCAT_EOE_HEADER)
+#define ETHERCAT_EOE_HEADER_LEN ((int) sizeof(ETHERCAT_EOE_HEADER))
 
 /*/////////////////////////////////////////////////////////////////////////////*/
 /* CANopen*/
@@ -180,7 +180,7 @@ typedef union TETHERCAT_COE_HEADER
    } v;
    guint16 header;
 } ETHERCAT_COE_HEADER, *PETHERCAT_COE_HEADER;
-#define ETHERCAT_COE_HEADER_LEN sizeof(ETHERCAT_COE_HEADER)
+#define ETHERCAT_COE_HEADER_LEN ((int) sizeof(ETHERCAT_COE_HEADER))
 
 
 typedef union tSdoHeaderUnion
@@ -475,7 +475,7 @@ typedef struct TETHERCAT_SOE_HEADER
    guint16 ErrorCode                        if (Error==1)
    } MailBoxDataUnion;*/
 } ETHERCAT_SOE_HEADER, *PETHERCAT_SOE_HEADER;
-#define ETHERCAT_SOE_HEADER_LEN sizeof(ETHERCAT_SOE_HEADER)
+#define ETHERCAT_SOE_HEADER_LEN ((int) sizeof(ETHERCAT_SOE_HEADER))
 
 extern void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset);
 
