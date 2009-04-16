@@ -2631,6 +2631,9 @@ nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	curr_offset = offset;
 	curr_len = len;
 
+	if(len==0)
+		return;
+
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
@@ -2818,6 +2821,9 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	curr_offset = offset;
 	curr_len = len;
 
+	if(len==0)
+		return;
+
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
@@ -2848,6 +2854,17 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * 8.3.13 ESM information request
  * No IE:s
  */
+static void
+nas_esm_inf_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 /*
  * 8.3.14 ESM information response
  */
@@ -2861,8 +2878,11 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
+	if(len==0)
+		return;
+
 	/* 28	Access point name	Access point name 9.9.4.1	O	TLV	3-102 */
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
 
@@ -2898,6 +2918,9 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 
 	curr_offset = offset;
 	curr_len = len;
+
+	if(len==0)
+		return;
 
 	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
@@ -2937,6 +2960,8 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	curr_offset = offset;
 	curr_len = len;
 
+	if(len==0)
+		return;
 	/* 5B	New EPS QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
 	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - New EPS QoS" );
 	/* 36	TFT	Traffic flow template 9.9.4.16	O	TLV	3-257 */
@@ -3086,7 +3111,7 @@ static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	nas_esm_bearer_res_all_rej,			/* Bearer resource allocation reject*/
 	nas_esm_bearer_res_mod_req,			/* Bearer resource modification request*/
 	nas_esm_bearer_res_mod_rej,			/* Bearer resource modification reject*/
-	NULL,								/* ESM information request, No IE:s*/
+	nas_esm_inf_req,					/* ESM information request, No IE:s*/
 	nas_esm_inf_resp,					/* ESM information response*/
 	nas_esm_status,						/* ESM status */
 
@@ -3158,6 +3183,7 @@ void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, in
 	return;
 }
 
+/* EPS session management messages. */
 static void
 disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3166,13 +3192,40 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint			ett_tree;
 	int				hf_idx;
 	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
-	guint8			oct;
+	guint8			oct, security_header_type;
 	int				offset = 0;
 
 
 	len = tvb_length(tvb);
+	/* 4.4.4.2
+	 * All ESM messages are integrity protected.
+	 * 
+	 */
+	security_header_type = 0;
+#if 0
+	/* 9.3.1	Security header type */
+	security_header_type = tvb_get_guint8(tvb,offset)>>4;
+	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	offset++;
+	if (security_header_type !=0){
+		/* Message authentication code */
+		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		offset+=4;
+		if ((security_header_type==2)||(security_header_type==4))
+			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+			return;
+	}
 
-	/* EPS bearer identity 9.3.2 */
+	/* Sequence number */
+	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+	offset++;
+#endif
+	/* The EPS bearer identity and the procedure transaction identity are only used in messages with protocol discriminator
+	 * EPS session management. Octet 1a with the procedure transaction identity shall only be included in these messages.
+	 *
+	 * EPS bearer identity 9.3.2
+	 */
 	proto_tree_add_item(tree, hf_nas_eps_bearer_id, tvb, offset, 1, FALSE);
 	/* Protocol discriminator 9.2 */
 	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
@@ -3197,6 +3250,9 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
 		}
+	}else{
+		proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+		return;
 	}
 
 	/*
@@ -3266,6 +3322,9 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
 		}
+	}else{
+		proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+		return;
 	}
 
 	/*
