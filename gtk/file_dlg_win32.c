@@ -98,12 +98,24 @@ typedef enum {
 
 #define FILE_DEFAULT_COLOR 2
 
-
+/*
+ * We should probably test the SDK version instead of the compiler version,
+ * but this should work for our purposes.
+ */
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+#else
 static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT_PTR CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+#endif /* (_MSC_VER <= 1200) */
+
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
@@ -179,7 +191,11 @@ win32_open_file (HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -260,7 +276,11 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = build_file_type_list(TRUE /*save*/, &save_index);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -385,7 +405,11 @@ win32_merge_file (HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -504,7 +528,11 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = FILE_TYPES_EXPORT;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -624,7 +652,11 @@ win32_export_raw_file(HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = FILE_TYPES_RAW;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -703,7 +735,11 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = FILE_TYPES_COLOR;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -764,7 +800,11 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
     ofn->lpstrFilter = FILE_TYPES_COLOR;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;

@@ -155,8 +155,8 @@ struct sockaddr_storage {
 #define OID_GEN_TRANSPORT_HEADER_OFFSET 0x00010119
 
 
+#if 0
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
-#ifndef _WIN64
 typedef enum ndis_phys_medium {
 	NdisPhysicalMediumUnspecified,
 	NdisPhysicalMediumWirelessLan,

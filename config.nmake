@@ -174,7 +174,7 @@ PANGO_INST_VERSION=1.24
 # If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
-PCAP_VERSION=4_0_2
+PCAP_VERSION=4_1_beta5
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 
 #

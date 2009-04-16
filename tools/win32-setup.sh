@@ -9,7 +9,7 @@
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save previous tag.
-DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2009-03-19"}
+DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2009-04-16"}
 WIRESHARK_TARGET_PLATFORM=${WIRESHARK_TARGET_PLATFORM:-"win32"}
 
 DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
@@ -82,7 +82,7 @@ case "$1" in
 	which which > /dev/null 2>&1 || \
 		err_exit "Can't find 'which'.  Unable to proceed."
 
-	MISSING_APPS=        
+	MISSING_APPS=
 	for APP in $* ; do
 		APP_PATH=`cygpath --unix $APP`
 		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
@@ -98,7 +98,7 @@ case "$1" in
 	done
 
 	if [ -n "$MISSING_APPS" ]; then
-		echo 
+		echo
 		echo "Can't find: $MISSING_APPS"
 		err_exit "These are probably optional cygwin packages not yet installed. Try to install them using cygwin's setup.exe!"
 	fi
