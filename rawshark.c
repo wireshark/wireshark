@@ -1503,8 +1503,8 @@ add_string_fmt(string_fmt_e format, gchar *plain) {
 static gboolean
 parse_field_string_format(gchar *format) {
 	GString *plain_s = g_string_new("");
-	int len;
-	int pos = 0;
+	size_t len;
+	size_t pos = 0;
 
 	if (!format) {
 		return FALSE;

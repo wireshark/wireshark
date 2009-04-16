@@ -260,7 +260,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 	const gchar	*label_ptr;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	char		*dfilter_string;
-	int		chop_len;
+	size_t		chop_len;
 	int		i;
 
 	/* Will wrap up top-level field items inside a fake protocol wrapper to
@@ -1506,7 +1506,7 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
     else {
         /* Normal protocols and fields */
         gchar      *dfilter_string;
-        gint        chop_len;
+        size_t      chop_len;
 
         switch (fi->hfinfo->type)
         {

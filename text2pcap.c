@@ -721,7 +721,7 @@ append_to_preamble(char *str)
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
             return;	/* no room to add the token to the preamble */
         g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
-        packet_preamble_len += toklen;
+        packet_preamble_len += (int) toklen;
 	if (debug >= 2) {
 		char *c;
 		char xs[PACKET_PREAMBLE_MAX_LEN];
@@ -810,7 +810,7 @@ parse_preamble (void)
 				 * 10^-6 seconds, we multiply by
 				 * 10^(6-N).
 				 */
-				subseclen = p - subsecs;
+				subseclen = (int) (p - subsecs);
 				if (subseclen > 6) {
 					/*
 					 * *More* than 6 digits; 6-N is

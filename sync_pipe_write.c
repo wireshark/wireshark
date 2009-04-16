@@ -72,12 +72,12 @@ void
 pipe_write_block(int pipe_fd, char indicator, const char *msg)
 {
     int ret;
-    size_t len;
+    int len;
 
     /*g_warning("write %d enter", pipe_fd);*/
 
     if(msg != NULL) {
-        len = strlen(msg) + 1;    /* including the terminating '\0'! */
+        len = (int) strlen(msg) + 1;    /* including the terminating '\0'! */
     } else {
         len = 0;
     }
@@ -91,7 +91,7 @@ pipe_write_block(int pipe_fd, char indicator, const char *msg)
     /* write value (if we have one) */
     if(len) {
         /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe_fd, indicator, len, msg);*/
-        ret = write(pipe_fd, msg, len);
+        ret = (int) write(pipe_fd, msg, len);
         if(ret == -1) {
             return;
         }
@@ -109,7 +109,7 @@ sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
 {
 
     /* first write a "master header" with the length of the two messages plus their "slave headers" */
-    pipe_write_header(pipe_fd, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
+    pipe_write_header(pipe_fd, SP_ERROR_MSG, (int) (strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4));
     pipe_write_block(pipe_fd, SP_ERROR_MSG, error_msg);
     pipe_write_block(pipe_fd, SP_ERROR_MSG, secondary_error_msg);
 }

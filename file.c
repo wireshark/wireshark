@@ -2020,7 +2020,7 @@ print_packet(capture_file *cf, frame_data *fdata,
     line_len = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       /* Find the length of the string for this column. */
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = (int) strlen(cf->cinfo.col_data[i]);
       if (args->col_widths[i] > column_len)
          column_len = args->col_widths[i];
 
@@ -2028,7 +2028,7 @@ print_packet(capture_file *cf, frame_data *fdata,
          double its length. */
       line_len += column_len + 1;	/* "+1" for space */
       if (line_len > args->line_buf_len) {
-        cp_off = cp - args->line_buf;
+        cp_off = (int) (cp - args->line_buf);
         args->line_buf_len = 2 * line_len;
         args->line_buf = g_realloc(args->line_buf, args->line_buf_len + 1);
         cp = args->line_buf + cp_off;
@@ -2152,14 +2152,14 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
       if (i == cf->cinfo.num_cols - 1)
         callback_args.col_widths[i] = 0;
       else {
-        callback_args.col_widths[i] = strlen(cf->cinfo.col_title[i]);
+        callback_args.col_widths[i] = (gint) strlen(cf->cinfo.col_title[i]);
         data_width = get_column_char_width(get_column_format(i));
         if (data_width > callback_args.col_widths[i])
           callback_args.col_widths[i] = data_width;
       }
 
       /* Find the length of the string for this column. */
-      column_len = strlen(cf->cinfo.col_title[i]);
+      column_len = (int) strlen(cf->cinfo.col_title[i]);
       if (callback_args.col_widths[i] > column_len)
         column_len = callback_args.col_widths[i];
 
@@ -2167,7 +2167,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
          double its length. */
       line_len += column_len + 1;	/* "+1" for space */
       if (line_len > callback_args.header_line_buf_len) {
-        cp_off = cp - callback_args.header_line_buf;
+        cp_off = (int) (cp - callback_args.header_line_buf);
         callback_args.header_line_buf_len = 2 * line_len;
         callback_args.header_line_buf = g_realloc(callback_args.header_line_buf,
                                                   callback_args.header_line_buf_len + 1);

@@ -59,7 +59,7 @@ get_args_as_string(int argc, char **argv, int optindex)
 	 */
 	len = 0;
 	for (i = optindex; i < argc; i++) {
-		len += strlen(argv[i]);
+		len += (int) strlen(argv[i]);
 		len++;	/* space, or '\0' if this is the last argument */
 	}
 

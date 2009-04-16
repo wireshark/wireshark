@@ -65,7 +65,7 @@ static int
 try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 {
 	static const char suffix[] = "XXXXXXXXXX";
-	int namelen = strlen(dir) + strlen(pfx) + sizeof suffix;
+	int namelen = (int) (strlen(dir) + strlen(pfx) + sizeof(suffix));
 	int old_umask;
 	int tmp_fd;
 

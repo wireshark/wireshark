@@ -205,7 +205,7 @@ set_time_adjustment(char *optarg)
 {
   char *frac, *end;
   long val;
-  int frac_digits;
+  size_t frac_digits;
 
   if (!optarg)
     return;
@@ -657,7 +657,7 @@ main(int argc, char *argv[])
       if (!filename) {
         exit(5);
       }
-      g_snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], 0);
+      g_snprintf(filename, (gulong) filenamelen, "%s-%05d", argv[optind+1], 0);
     } else {
       if (secs_per_block > 0) {
         filenamelen = strlen(argv[optind+1]) + 7;
@@ -665,7 +665,7 @@ main(int argc, char *argv[])
         if (!filename) {
           exit(5);
           }
-        g_snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], block_cnt);
+        g_snprintf(filename, (gulong) filenamelen, "%s-%05d", argv[optind+1], block_cnt);
         }
       else {
         filename = argv[optind+1];
@@ -706,7 +706,7 @@ main(int argc, char *argv[])
             exit(1);
             }
           block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
-          g_snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], ++block_cnt);
+          g_snprintf(filename, (gulong) filenamelen, "%s-%05d",argv[optind+1], ++block_cnt);
 
           if (verbose) {
             fprintf(stderr, "Continuing writing in file %s\n", filename);
@@ -731,7 +731,7 @@ main(int argc, char *argv[])
           exit(1);
         }
 
-        g_snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
+        g_snprintf(filename, (gulong) filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
 
         if (verbose) {
           fprintf(stderr, "Continuing writing in file %s\n", filename);

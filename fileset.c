@@ -74,8 +74,8 @@ gboolean
 fileset_filename_match_pattern(const char *fname)
 {
     char        *pfx;
-    int         baselen;
-    int         minlen = strlen("_00001_20050418010750");
+    size_t       baselen;
+    size_t      minlen = strlen("_00001_20050418010750");
     char        *filename;
 
 
@@ -133,7 +133,7 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
     char        *pfx2;
     char        *dup_f1;
     char        *dup_f2;
-    int         minlen = strlen("_00001_20050418010750");
+    size_t       minlen = strlen("_00001_20050418010750");
 
 
     /* just to be sure ... */

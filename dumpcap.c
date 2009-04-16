@@ -1152,37 +1152,37 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     switch (err) {
 
     case WSASYSNOTREADY:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: Network system not ready for network communication");
       break;
 
     case WSAVERNOTSUPPORTED:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: Windows Sockets version %u.%u not supported",
         LOBYTE(wVersionRequested), HIBYTE(wVersionRequested));
       break;
 
     case WSAEINPROGRESS:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: Blocking operation is in progress");
       break;
 
     case WSAEPROCLIM:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: Limit on the number of tasks supported by this WinSock implementation has been reached");
       break;
 
     case WSAEFAULT:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: Bad pointer passed to WSAStartup");
       break;
 
     default:
-      g_snprintf(errmsg, errmsg_len,
+      g_snprintf(errmsg, (gulong) errmsg_len,
         "Couldn't initialize Windows Sockets: error %d", err);
       break;
     }
-    g_snprintf(secondary_errmsg, secondary_errmsg_len, please_report);
+    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
     return FALSE;
   }
 #endif
@@ -1285,9 +1285,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       set_linktype_err_str = set_pcap_linktype(ld->pcap_h, capture_opts->iface,
 	capture_opts->linktype);
       if (set_linktype_err_str != NULL) {
-	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
+	g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type (%s).",
 	           set_linktype_err_str);
-        g_snprintf(secondary_errmsg, secondary_errmsg_len, please_report);
+        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
 	return FALSE;
       }
     }
@@ -1295,7 +1295,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   } else {
     /* We couldn't open "iface" as a network device. */
     /* Try to open it as a pipe */
-    ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
+    ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, (int) errmsg_len);
 
     if (ld->cap_pipe_fd == -1) {
 
@@ -1321,14 +1321,14 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	    "at the URL lists a number of mirror sites.";
 	else
 	  libpcap_warn = "";
-	g_snprintf(errmsg, errmsg_len,
+	g_snprintf(errmsg, (gulong) errmsg_len,
 	  "The capture session could not be initiated (%s).", open_err_str);
 #ifndef _WIN32
-	g_snprintf(secondary_errmsg, secondary_errmsg_len,
+	g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
 "Please check to make sure you have sufficient permissions, and that you have "
 "the proper interface or pipe specified.%s", libpcap_warn);
 #else
-    g_snprintf(secondary_errmsg, secondary_errmsg_len,
+    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
 "\n"
 "Please check that \"%s\" is the proper interface.\n"
 "\n"

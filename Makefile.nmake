@@ -19,12 +19,14 @@ WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
-CFLAGS=-WX -DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	$(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
 	$(LUA_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
+CFLAGS=-WX $(GENERATED_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -404,6 +406,9 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) make-tapreg-dotc
 
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
+
+text2pcap-scanner.obj : text2pcap-scanner.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 clean-local: clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \

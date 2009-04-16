@@ -62,7 +62,7 @@ static int     (*p_pcap_snapshot) (pcap_t *);
 static int     (*p_pcap_datalink) (pcap_t *);
 static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
 static char*   (*p_pcap_geterr) (pcap_t *);
-static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, char *, int,
+static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, const char *, int,
 			bpf_u_int32);
 #ifdef WPCAP_CONSTIFIED
 static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
@@ -282,7 +282,7 @@ pcap_geterr(pcap_t *a)
 }
 
 int
-pcap_compile(pcap_t *a, struct bpf_program *b, char *c, int d,
+pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
             bpf_u_int32 e)
 {
 	g_assert(has_wpcap);
