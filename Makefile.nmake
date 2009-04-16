@@ -997,8 +997,8 @@ install-all: install-generated-files
 #	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)
 #	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
-	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
-	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
+	if exist $(GTK_DIR)\etc\pango xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
+	if exist $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
 #	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
@@ -1008,10 +1008,10 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libpng12-0.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBTIFF_DLL
-	xcopy $(GTK_DIR)\bin\libtiff3.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBJPEG_DLL
-	xcopy $(GTK_DIR)\bin\jpeg62.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(JPEG_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
@@ -1028,7 +1028,7 @@ install-all: install-generated-files
 !IFDEF ICONV_DIR
 	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
 !ENDIF
-	xcopy $(GETTEXT_DIR)\bin\intl.dll $(INSTALL_DIR) /d
+	xcopy $(GETTEXT_DIR)\bin\$(GETTEXT_DLL) $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
 	xcopy $(ZLIB_DLL) $(INSTALL_DIR) /d
 !ENDIF

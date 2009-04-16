@@ -152,7 +152,9 @@ CAIRO_PKG=1.8.6-1
 ATK_PKG=1.24.0-1
 LIBPNG_PKG=1.2.34-1
 TIFF_PKG=libtiff-3.8.2
+TIFF_DLL=libtiff3.dll
 JPEG_PKG=jpeg-6b-4-bin
+JPEG_DLL=jpeg62.dll
 PANGO_PKG=1.24.0-1
 
 #
@@ -319,6 +321,7 @@ PORTAUDIO_VERSION=19
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 GETTEXT_PKG=-runtime-0.17-1
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
+GETTEXT_DLL=intl.dll
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic
 # incl. 802.11 management frames.
@@ -375,7 +378,9 @@ CAIRO_PKG=1.8.6-1
 ATK_PKG=1.24.0-1
 LIBPNG_PKG=1.2.34-1
 TIFF_PKG=libtiff_3.8.2-1_win64
+TIFF_DLL=libtiff.dll
 JPEG_PKG=jpeg_6b-2_win64
+JPEG_DLL=libjpeg-62.dll
 PANGO_PKG=1.22.4-1
 
 #
@@ -542,6 +547,7 @@ PORTAUDIO_VERSION=19
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 GETTEXT_PKG=_0.17-1_win64
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
+GETTEXT_DLL=libintl-8.dll
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic
 # incl. 802.11 management frames.
