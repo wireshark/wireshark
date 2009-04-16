@@ -600,7 +600,7 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
 	gint fileopen_dir_te_length;
     
 	fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
-	fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
+	fileopen_dir_te_length = (gint) strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
 	if (fileopen_dir_te_length == 0)
 		return FALSE;
 	lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);

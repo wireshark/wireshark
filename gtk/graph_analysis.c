@@ -204,7 +204,7 @@ static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, gboolean 
 
 static void enlarge_string(GString *gstr, guint32 length, char pad){
 
-	guint32 i;
+	gsize i;
 
 	for (i = gstr->len; i < length; i++){
 		g_string_append_c(gstr, pad);
@@ -219,7 +219,7 @@ static void enlarge_string(GString *gstr, guint32 length, char pad){
 
 static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2){
 
-	guint32 len;
+	gsize len;
 	gsize pos;
 
 	if (p1 == p2)
@@ -238,12 +238,11 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 		len = strlen(text_to_insert);
 	}
 
-	/* ouch this is ugly but gtk1 needs it */
-	if ((guint32)pos > (guint32)gstr->len)
+	if (pos > gstr->len)
 		pos = gstr->len;
 
 	/* ouch this is ugly but gtk1 needs it */
-	if ((guint32)(pos + len) > (guint32)gstr->len)
+	if ((pos + len) > gstr->len)
 		g_string_truncate(gstr, pos);
 	else
 		g_string_erase(gstr, pos, len);
@@ -376,7 +375,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 	g_string_append_c(empty_line, '|');
 
-	enlarge_string(separator_line, empty_line->len + header_length, '-');
+	enlarge_string(separator_line, (guint32) empty_line->len + header_length, '-');
 
 	/*
 	 * Draw the items

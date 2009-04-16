@@ -518,7 +518,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
   GList *col_l, *col_l_elt;
   col_width_data *cfmt;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
-  int cust_format_len = strlen(cust_format);
+  int cust_format_len = (int) strlen(cust_format);
 
   if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {

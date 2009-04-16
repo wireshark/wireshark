@@ -697,9 +697,9 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         if (finfo->hfinfo->blurb != NULL &&
             finfo->hfinfo->blurb[0] != '\0') {
             has_blurb = TRUE;
-            length = strlen(finfo->hfinfo->blurb);
+            length = (guint) strlen(finfo->hfinfo->blurb);
         } else {
-            length = strlen(finfo->hfinfo->name);
+            length = (guint) strlen(finfo->hfinfo->name);
         }
         finfo_length = finfo->length + finfo->appendix_length;
 

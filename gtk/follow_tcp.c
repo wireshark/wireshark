@@ -174,7 +174,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* allocate our new filter. API claims g_malloc terminates program on failure */
 	/* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
-	filter_out_filter_len = strlen(follow_filter) + strlen(previous_filter) + 16;
+	filter_out_filter_len = (int)(strlen(follow_filter) + strlen(previous_filter) + 16);
 	follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
 
 	/* append the negation */
@@ -392,7 +392,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 	    if (nchars == 0)
 		break;
 	    /* XXX - if we don't get "bcount" bytes, is that an error? */
-	    sc.dlen -= nchars;
+	    sc.dlen -= (guint32) nchars;
 
 	    if (!skip) {
 		    frs_return = follow_show(follow_info, print_line, buffer,

@@ -120,10 +120,10 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 
 	gtk_text_buffer_get_end_iter(buf, &iter);
 	if (is_server) {
-		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
+		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, (gint) nchars,
 						 server_tag, NULL);
 	} else {
-		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
+		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, (gint) nchars,
 						 client_tag, NULL);
 	}
 	return TRUE;
@@ -953,7 +953,7 @@ follow_show(follow_info_t *follow_info,
 
 	case SHOW_EBCDIC:
 		/* If our native arch is ASCII, call: */
-		EBCDIC_to_ASCII(buffer, nchars);
+		EBCDIC_to_ASCII(buffer, (guint) nchars);
 		if (!(*print_line) (buffer, nchars, is_server, arg))
 			return FRS_PRINT_ERROR;
 		break;

@@ -189,8 +189,8 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     /* allocate our new filter. API claims g_malloc terminates program on failure */
     /* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
-    previous_filter_len = previous_filter?strlen(previous_filter):0;
-    filter_out_filter_len = strlen(follow_filter) + previous_filter_len + 16;
+    previous_filter_len = previous_filter?(int)strlen(previous_filter):0;
+    filter_out_filter_len = (int)strlen(follow_filter) + previous_filter_len + 16;
     follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
 
     /* append the negation */
@@ -336,7 +336,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
         if (!skip) {
             size_t nchars = rec->data.data_len;
-            gchar *buffer = g_memdup(rec->data.data, nchars);
+            gchar *buffer = g_memdup(rec->data.data, (guint) nchars);
 
 	    frs_return = follow_show(follow_info, print_line, buffer, nchars,
 				     rec->is_server, arg, global_pos,
