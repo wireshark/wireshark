@@ -418,7 +418,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* Dissect Random Access Reponse (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        gint offset)
+                        gint offset, mac_lte_info *p_mac_lte_info)
 {
     gint    number_of_rars = 0;   /* No of RAR bodies expected following headers */
     gboolean backoff_indicator_seen = FALSE;
@@ -429,9 +429,10 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int        start_headers_offset = offset;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, "RAR");
+        col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u)",
+                        p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
     }
- 
+
 
     /* Create headers tree */
     rar_headers_ti = proto_tree_add_item(tree,
@@ -1118,7 +1119,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case RA_RNTI:
             /* RAR PDU */
             if (!global_mac_lte_single_rar) {
-                dissect_rar(tvb, pinfo, mac_lte_tree, offset);
+                dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
             }
             else {
                 dissect_rar_entry(tvb, pinfo, mac_lte_tree, offset);
