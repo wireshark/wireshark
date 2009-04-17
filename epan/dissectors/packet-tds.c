@@ -883,7 +883,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				len *= 2;
 				proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
 			} else {
-				/* This field is the password.  We retrieve it from the packet 
+				/* This field is the password.  We retrieve it from the packet
 				 * as a non-unicode string and then perform two operations on it
 				 * to "decrypt" it.  Finally, we create a new string that consists
 				 * of ASCII characters instead of unicode by skipping every other
@@ -1259,7 +1259,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 	} else {
 		msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
 	}
-	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text((guchar*)msg, (int)strlen(msg)));
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text((guchar*)msg, strlen(msg)));
 	offset += msg_len;
 
 	srvr_len = tvb_get_guint8(tvb, offset);
@@ -1324,7 +1324,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 	} else {
 		msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
 	}
-	proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text((guchar*)msg, (int)strlen(msg)));
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text((guchar*)msg, strlen(msg)));
 	offset += msg_len;
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Server Version");

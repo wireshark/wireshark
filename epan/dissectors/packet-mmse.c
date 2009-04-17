@@ -376,7 +376,7 @@ static const value_string vals_response_status[] = {
     { 0xE9, "Permanent: Reply charging not supported" },
     /* MMS 1.2 */
     { 0xEA, "Permanent: Address hiding not supported" },
-    
+
     { 0x00, NULL },
 };
 
@@ -398,7 +398,7 @@ static const value_string vals_message_status[] = {
     { 0x86, "Forwarded" },
     /* MMS 1.2 */
     { 0x87, "Unreachable" },
-    
+
     { 0x00, NULL },
 };
 
@@ -460,7 +460,7 @@ get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
 {
     guint	 len;
 
-    DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n", 
+    DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n",
 		tvb, offset));
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
@@ -724,7 +724,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
      * columns must be set appropriately too.
      * If tree != NULL then we also want to display the protocol tree
      * with its fields.
-     * 
+     *
      * In the interest of speed, skip protocol tree item generation
      * if tree is NULL.
      */
@@ -1166,7 +1166,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    /* Value-length Integer-value Encoded-string-value */
 		    length = get_value_length(tvb, offset, &count);
 		    if (tree) {
-			guint32 fwd_count, count1, count2;			
+			guint32 fwd_count, count1, count2;
 			proto_tree *subtree = NULL;
 			proto_item *ti = NULL;
 			/* 1. Forwarded-count-value := Integer-value */
@@ -1180,7 +1180,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				format_text(strval, (int)strlen(strval)),
+				format_text(strval, strlen(strval)),
 				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1197,7 +1197,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    /* Value-Length Forwarded-count-value Date-value */
 		    length = get_value_length(tvb, offset, &count);
 		    if (tree) {
-			guint32 fwd_count, count1, count2;			
+			guint32 fwd_count, count1, count2;
 			guint		 tval;
 			nstime_t	 tmptime;
 			proto_tree *subtree = NULL;
@@ -1217,7 +1217,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				format_text(strval, (int)strlen(strval)),
+				format_text(strval, strlen(strval)),
 				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1256,7 +1256,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				proto_tree_add_text(mmse_tree, tvb, offset - 1,
 					length + 1, "%s: %s (Not decoded)",
 					hdr_name,
-					format_text(strval, (int)strlen(strval)));
+					format_text(strval, strlen(strval)));
 			    }
 			} else { /* General form with length */
 			    if (peek == 0x1F) { /* Value length in guintvar */
@@ -1292,8 +1292,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    (const char *) tvb_get_ptr(
 					    tvb, offset, length + length2),
 				    "%s: %s",
-				    format_text(strval, (int)strlen(strval)),
-				    format_text(strval2, (int)strlen(strval2)));
+				    format_text(strval, strlen(strval)),
+				    format_text(strval2, strlen(strval2)));
 			}
 			offset += length + length2;
 		    }
