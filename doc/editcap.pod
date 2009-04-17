@@ -8,7 +8,6 @@ editcap - Edit and/or translate the format of capture files
 B<editcap>
 S<[ B<-c> E<lt>packets per fileE<gt> ]>
 S<[ B<-C> E<lt>choplenE<gt> ]>
-S<[ B<-d> ]>
 S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-A> E<lt>start timeE<gt> ]>
@@ -23,6 +22,14 @@ I<infile>
 I<outfile>
 S<[ I<packet#>[-I<packet#>] ... ]>
 
+B<editcap>
+S< B<-d> > |
+S< B<-D> E<lt>dup windowE<gt> > |
+S< B<-w> E<lt>dup time windowE<gt> >
+S<[ B<-v> ]>
+I<infile>
+I<outfile>
+
 =head1 DESCRIPTION
 
 B<Editcap> is a program that reads some or all of the captured packets from the 
@@ -32,13 +39,17 @@ resulting packets to the capture I<outfile> (or outfiles).
 By default, it reads all packets from the I<infile> and writes them to the 
 I<outfile> in libpcap file format.
 
-A list of packet numbers can be specified on the command line; ranges of 
-packet numbers can be specified as I<start>-I<end>, referring to all packets 
-from I<start> to I<end>.
-The selected packets with those numbers will I<not> be written to the 
-capture file. 
-If the B<-r> flag is specified, the whole packet selection is reversed; 
-in that case I<only> the selected packets will be written to the capture file.
+An optional list of packet numbers can be specified on the command tail; 
+individual packet numbers seperated by whitespace and/or ranges of packet
+numbers can be specified as I<start>-I<end>, referring to all packets from
+I<start> to I<end>.  By default the selected packets with those numbers will
+I<not> be written to the capture file.  If the B<-r> flag is specified, the
+whole packet selection is reversed; in that case I<only> the selected packets
+will be written to the capture file.
+
+B<Editcap> can also be used to remove duplicate packets.  Several different
+options (B<-d>, B<-D> and B<-w>) are used to control the packet window
+or relative time window to be used for duplicate comparison.
 
 B<Editcap> is able to detect, read and write the same capture files that 
 are supported by B<Wireshark>.
@@ -74,9 +85,49 @@ formats leaves some random bytes at the end of each packet.
 
 =item -d
 
-Attempts to remove duplicate packets.  The length and MD5 sum of the 
-current packet are compared to the previous four packets.  If a match 
-is found, the packet is skipped.
+Attempts to remove duplicate packets.  The length and MD5 hash of the 
+current packet are compared to the previous four (4) packets.  If a 
+match is found, the current packet is skipped.  This option is equilivent
+to using the option B<-D 5>.
+
+=item -D  E<lt>dup windowE<gt>
+
+Attempts to remove duplicate packets.  The length and MD5 hash of the
+current packet are compared to the previous <dup window> - 1 packets.
+If a match is found, the current packet is skipped.
+
+The use of the option B<-D 0> combined with the B<-v> option is useful
+in that each packet's Packet number, Len and MD5 Hash will be printed
+to standard out.  This verbose output (specifically the MD5 hash strings)
+can be useful in scripts to identify duplicate packets across trace
+files.
+
+The <dup window> is specifed as an integer value between 0 and 1000000 (inclusive).
+
+NOTE: Specifying large <dup window> values with large tracefiles can
+result in very long processing times for B<editcap>.
+
+=item -w  E<lt>dup time windowE<gt>
+
+Attempts to remove duplicate packets.  The current packet's arrival time
+is compared with up to 1000000 previous packets.  If the packet's relative
+arrival time is I<less than> the <dup time window> of a previous packet
+and the packet length and MD5 hash of the current packet are the same then
+the packet to skipped.  The duplicate comparison test stops when
+the current packet's relative arrival time is greater than <dup time window>.
+
+The <dup time window> is specifed as I<seconds>[I<.fractional seconds>].
+
+The [.fractional seconds] component can be specified to nine (9) decimal
+places (billionths of a second) but most typical trace files have resolution
+to six (6) decimal places (millionths of a second).
+
+NOTE: Specifying large <dup time window> values with large tracefiles can
+result in very long processing times for B<editcap>.
+
+NOTE: The B<-w> option assumes that the packets are in chronological order.  
+If the packets are NOT in chronological order then the B<-w> duplication 
+removal option may not identify some duplicates.
 
 =item -E  E<lt>error probabilityE<gt>
 
@@ -166,6 +217,10 @@ packet, you will need od(1)/text2pcap(1).
 
 Causes B<editcap> to print verbose messages while it's working.
 
+Use of B<-v> with the de-duplication switches of B<-d>, B<-D> or B<-w>
+will cause all MD5 hashes to be printed whether the packet is skipped
+or not.
+
 =back
 
 =head1 EXAMPLES
@@ -188,15 +243,44 @@ To limit a capture file to packets from number 200 to 750 (inclusive) use:
 
 To get all packets from number 1-500 (inclusive) use:
 
-    editcap -r capture.pcap 500.pcap 1-500
+    editcap -r capture.pcap first500.pcap 1-500
 
 or
 
-    editcap capture.pcap 500.pcap 501-9999999
+    editcap capture.pcap first500.pcap 501-9999999
 
-To filter out packets 10 to 20 and 30 to 40 into a new file use:
+To exclude packets 1, 5, 10 to 20 and 30 to 40 from the new file use:
 
-    editcap capture.pcap selection.pcap 10-20 30-40
+    editcap capture.pcap exclude.pcap 1 5 10-20 30-40
+
+To select just packets 1, 5, 10 to 20 and 30 to 40 for the new file use:
+
+    editcap -r capture.pcap select.pcap 1 5 10-20 30-40
+
+To remove duplicate packets seen within the prior four frames use:
+
+    editcap -d capture.pcap dedup.pcap
+
+To remove duplicate packets seen within the prior 100 frames use:
+
+    editcap -D 101 capture.pcap dedup.pcap
+
+To remove duplicate packets seen I<less than> 1/10th of a second:
+
+    editcap -w 0.1 capture.pcap dedup.pcap
+
+To remove duplicate packets seen I<equal to or less than> 1/10th of a second:
+
+    editcap -w 0.1 capture.pcap dedup.pcap
+
+To display the MD5 hash for all of the packets (and NOT generate any
+real output file):
+
+    editcap -v -D 0 capture.pcap /dev/null
+
+or on Windows systems
+
+    editcap -v -D 0 capture.pcap NUL
 
 To introduce 5% random errors in a capture file use:
 

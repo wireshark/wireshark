@@ -84,13 +84,18 @@ struct select_item {
 typedef struct _fd_hash_t {
   md5_byte_t digest[16];
   guint32 len;
+  nstime_t time;
 } fd_hash_t;
 
-#define DUP_DEPTH 5
-fd_hash_t fd_hash[DUP_DEPTH];
-int cur_dup = 0;
+#define DEFAULT_DUP_DEPTH 5     /* Used with -d */
+#define MAX_DUP_DEPTH 1000000   /* the maximum window (and actual size of fd_hash[]) for de-duplication */
+
+fd_hash_t fd_hash[MAX_DUP_DEPTH];
+int dup_window = DEFAULT_DUP_DEPTH;
+int cur_dup_entry = 0;
 
 #define ONE_MILLION 1000000
+#define ONE_BILLION 1000000000
 
 /* Weights of different errors we can introduce */
 /* We should probably make these command-line arguments */
@@ -119,11 +124,13 @@ static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
+static nstime_t relative_time_window = {0, 0}; /* de-dup time window */
 static double err_prob = 0.0;
 static time_t starttime = 0;
 static time_t stoptime = 0;
 static gboolean check_startstop = FALSE;
 static gboolean dup_detect = FALSE;
+static gboolean dup_detect_by_time = FALSE;
 
 static int find_dct2000_real_data(guint8 *buf);
 
@@ -266,29 +273,200 @@ set_time_adjustment(char *optarg)
   time_adj.tv.tv_usec = val;
 }
 
+static void
+set_rel_time(char *optarg)
+{
+  char *frac, *end;
+  long val;
+  int frac_digits;
+
+  if (!optarg)
+    return;
+
+  /* skip leading whitespace */
+  while (*optarg == ' ' || *optarg == '\t') {
+      optarg++;
+  }
+
+  /* ignore negative adjustment  */
+  if (*optarg == '-') {
+      optarg++;
+  }
+
+  /* collect whole number of seconds, if any */
+  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+      val  = 0;
+      frac = optarg;
+  } else {
+      val = strtol(optarg, &frac, 10);
+      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+          fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
+                  optarg);
+          exit(1);
+      }
+      if (val < 0) {            /* implies '--' since we caught '-' above  */
+          fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
+                  optarg);
+          exit(1);
+      }
+  }
+  relative_time_window.secs = val;
+
+  /* now collect the partial seconds, if any */
+  if (*frac != '\0') {             /* chars left, so get fractional part */
+    val = strtol(&(frac[1]), &end, 10);
+    if (*frac != '.' || end == NULL || end == frac
+        || val < 0 || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
+      fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
+              optarg);
+      exit(1);
+    }
+  }
+  else {
+    return;                     /* no fractional digits */
+  }
+
+  /* adjust fractional portion from fractional to numerator
+   * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
+  if (frac && end) {            /* both are valid */
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 9) {    /* this is frac of 10^9 */
+      val *= 10;
+      frac_digits++;
+    }
+  }
+  relative_time_window.nsecs = val;
+}
+
 static gboolean
 is_duplicate(guint8* fd, guint32 len) {
   int i;
   md5_state_t ms;
 
-  cur_dup++;
-  if (cur_dup >= DUP_DEPTH)
-    cur_dup = 0;
+  cur_dup_entry++;
+  if (cur_dup_entry >= dup_window)
+    cur_dup_entry = 0;
 
   /* Calculate our digest */
   md5_init(&ms);
   md5_append(&ms, fd, len);
-  md5_finish(&ms, fd_hash[cur_dup].digest);
+  md5_finish(&ms, fd_hash[cur_dup_entry].digest);
 
-  fd_hash[cur_dup].len = len;
+  fd_hash[cur_dup_entry].len = len;
 
   /* Look for duplicates */
-  for (i = 0; i < DUP_DEPTH; i++) {
-    if (i == cur_dup)
+  for (i = 0; i < dup_window; i++) {
+    if (i == cur_dup_entry)
       continue;
 
-    if (fd_hash[i].len == fd_hash[cur_dup].len &&
-        memcmp(fd_hash[i].digest, fd_hash[cur_dup].digest, 16) == 0) {
+    if (fd_hash[i].len == fd_hash[cur_dup_entry].len &&
+        memcmp(fd_hash[i].digest, fd_hash[cur_dup_entry].digest, 16) == 0) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+static gboolean
+is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
+  int i;
+  md5_state_t ms;
+
+  cur_dup_entry++;
+  if (cur_dup_entry >= dup_window)
+    cur_dup_entry = 0;
+
+  /* Calculate our digest */
+  md5_init(&ms);
+  md5_append(&ms, fd, len);
+  md5_finish(&ms, fd_hash[cur_dup_entry].digest);
+
+  fd_hash[cur_dup_entry].len = len;
+  fd_hash[cur_dup_entry].time.secs = current->secs;
+  fd_hash[cur_dup_entry].time.nsecs = current->nsecs;
+
+  /*
+   * Look for relative time related duplicates.
+   * This is hopefully a reasonably efficient mechanism for
+   * finding duplicates by rel time in the fd_hash[] cache.
+   * We check starting from the most recently added hash
+   * entries and work backwards towards older packets.
+   * This approach allows the dup test to be terminated
+   * when the relative time of a cached entry is found to
+   * be beyond the dup time window.
+   *
+   * Of course this assumes that the input trace file is
+   * "well-formed" in the sense that the packet timestamps are
+   * in strict chronologically increasing order (which is NOT
+   * always the case!!).
+   *
+   * The fd_hash[] table was deliberatly created large (1,000,000).
+   * Looking for time related duplicates in large trace files with
+   * non-fractional dup time window values can potentially take
+   * a long time to complete.
+   */
+
+  for (i = cur_dup_entry - 1;; i--) {
+    nstime_t delta;
+    int cmp;
+
+    if (i < 0) {
+      i = dup_window - 1;
+    }
+
+    if (i == cur_dup_entry) {
+      /*
+       * We've decremented back to where we started.
+       * Check no more!
+       */
+      break;
+    }
+
+    if (nstime_is_unset(&(fd_hash[i].time))) {
+      /*
+       * We've decremented to an unused fd_hash[] entry.
+       * Check no more!
+       */
+      break;
+    }
+
+    nstime_delta(&delta, current, &fd_hash[i].time);
+
+    if(delta.secs < 0 || delta.nsecs < 0)
+    {
+      /*
+       * A negative delta implies that the current packet
+       * has an absolute timestamp less than the cached packet
+       * that it is being compared to.  This is NOT a normal
+       * situation since trace files usually have packets in
+       * chronological order (oldest to newest).
+       *
+       * There are several possible ways to deal with this:
+       * 1. 'continue' dup checking with the next cached frame.
+       * 2. 'break' from looking for a duplicate of the current frame.
+       * 3. Take the absolute value of the delta and see if that
+       * falls within the specifed dup time window.
+       *
+       * Currently this code does option 1.  But it would pretty
+       * easy to add yet-another-editcap-option to select one of
+       * the other behaviors for dealing with out-of-sequence
+       * packets.
+       */
+      continue;
+    }
+
+    cmp = nstime_cmp(&delta, &relative_time_window);
+
+    if(cmp > 0) {
+      /*
+       * The delta time indicates that we are now looking at
+       * cached packets beyond the specified dup time window.
+       * Check no more!
+       */
+      break;
+    } else if (fd_hash[i].len == fd_hash[cur_dup_entry].len &&
+          memcmp(fd_hash[i].digest, fd_hash[cur_dup_entry].digest, 16) == 0) {
       return TRUE;
     }
   }
@@ -317,7 +495,22 @@ usage(void)
   fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss)\n");
   fprintf(stderr, "  -B <stop time>         don't output packets whose timestamp is after the\n");
   fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss)\n");
-  fprintf(stderr, "  -d                     remove duplicate packets\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Duplicate packet removal:\n");
+  fprintf(stderr, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
+  fprintf(stderr, "  -D <dup window>        remove packet if duplicate, configurable <dup window>.\n");
+  fprintf(stderr, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
+  fprintf(stderr, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
+  fprintf(stderr, "                         useful to print MD5 hashes.\n");
+  fprintf(stderr, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
+  fprintf(stderr, "                         LESS THAN <dup time window> prior to current packet.\n");
+  fprintf(stderr, "                         A <dup time window> is specified in relative seconds\n");
+  fprintf(stderr, "                         (e.g. 0.000001)\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
+  fprintf(stderr, "           other editcap options except -v may not always work as expected.\n");
+  fprintf(stderr, "           Specifically the -r and -t options will very likely NOT have the\n");
+  fprintf(stderr, "           desired effect if combined with the -d, -D or -w.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Packet manipulation:\n");
   fprintf(stderr, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data\n");
@@ -343,6 +536,9 @@ usage(void)
   fprintf(stderr, "Miscellaneous:\n");
   fprintf(stderr, "  -h                     display this help and exit\n");
   fprintf(stderr, "  -v                     verbose output\n");
+  fprintf(stderr, "                         If -v is used with any of the 'Duplicate Packet\n");
+  fprintf(stderr, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
+  fprintf(stderr, "                         and MD5 hashes are printed to standard-out.\n");
   fprintf(stderr, "\n");
 }
 
@@ -399,6 +595,7 @@ main(int argc, char *argv[])
   unsigned int choplen = 0;             /* No chop                */
   wtap_dumper *pdh;
   int count = 1;
+  unsigned duplicate_count = 0;
   gint64 data_offset;
   struct wtap_pkthdr snap_phdr;
   const struct wtap_pkthdr *phdr;
@@ -434,7 +631,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:i:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hrs:i:t:T:vw:")) !=-1) {
 
     switch (opt) {
 
@@ -483,10 +680,31 @@ main(int argc, char *argv[])
 
     case 'd':
       dup_detect = TRUE;
-      for (i = 0; i < DUP_DEPTH; i++) {
-        memset(&fd_hash[i].digest, 0, 16);
-        fd_hash[i].len = 0;
+      dup_detect_by_time = FALSE;
+      dup_window = DEFAULT_DUP_DEPTH;
+      break;
+
+    case 'D':
+      dup_detect = TRUE;
+      dup_detect_by_time = FALSE;
+      dup_window = strtol(optarg, &p, 10);
+      if (p == optarg || *p != '\0') {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid dupicate window value\n",
+            optarg);
+        exit(1);
       }
+      if (dup_window < 0 || dup_window > MAX_DUP_DEPTH) {
+        fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
+            dup_window, MAX_DUP_DEPTH);
+        exit(1);
+      }
+      break;
+
+    case 'w':
+      dup_detect = FALSE;
+      dup_detect_by_time = TRUE;
+      dup_window = MAX_DUP_DEPTH;
+      set_rel_time(optarg);
       break;
 
     case '?':              /* Bad options if GNU getopt */
@@ -686,6 +904,14 @@ main(int argc, char *argv[])
       if (add_selection(argv[i]) == FALSE)
         break;
 
+    if (dup_detect || dup_detect_by_time) {
+      for (i = 0; i < dup_window; i++) {
+        memset(&fd_hash[i].digest, 0, 16);
+        fd_hash[i].len = 0;
+        nstime_set_unset(&fd_hash[i].time);
+      }
+    }
+
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
 
       if (secs_per_block > 0) {
@@ -752,7 +978,7 @@ main(int argc, char *argv[])
       if ( ((check_startstop && check_ts) || (!check_startstop && !check_ts)) && ((!selected(count) && !keep_em) ||
           (selected(count) && keep_em)) ) {
 
-        if (verbose)
+        if (verbose && !dup_detect && !dup_detect_by_time)
           printf("Packet: %u\n", count);
 
         /* We simply write it, perhaps after truncating it; we could do other
@@ -805,13 +1031,59 @@ main(int argc, char *argv[])
           phdr = &snap_phdr;
         }
 
+        /* suppress duplicates by packet window */
         if (dup_detect) {
           buf = wtap_buf_ptr(wth);
           if (is_duplicate(buf, phdr->caplen)) {
-            if (verbose)
-              printf("Skipping duplicate: %u\n", count);
+            if (verbose) {
+              fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              for (i = 0; i < 16; i++) {
+                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+              }
+              fprintf(stdout, "\n");
+            }
+            duplicate_count++;
             count++;
             continue;
+          } else {
+            if (verbose) {
+              fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              for (i = 0; i < 16; i++) {
+                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+              }
+              fprintf(stdout, "\n");
+            }
+          }
+        }
+
+        /* suppress duplicates by time window */
+        if (dup_detect_by_time) {
+          nstime_t current;
+
+          current.secs = phdr->ts.secs;
+          current.nsecs = phdr->ts.nsecs;
+
+          buf = wtap_buf_ptr(wth);
+
+          if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
+            if (verbose) {
+              fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              for (i = 0; i < 16; i++) {
+                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+              }
+              fprintf(stdout, "\n");
+            }
+            duplicate_count++;
+            count++;
+            continue;
+          } else {
+            if (verbose) {
+              fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              for (i = 0; i < 16; i++) {
+                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+              }
+              fprintf(stdout, "\n");
+            }
           }
         }
 
@@ -900,6 +1172,17 @@ main(int argc, char *argv[])
       exit(1);
 
     }
+  }
+
+  if (dup_detect) {
+    fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %u packets.\n",
+                count - 1, plurality(count - 1, "", "s"),
+                duplicate_count, plurality(duplicate_count, "", "s"), dup_window);
+  } else if (dup_detect_by_time) {
+    fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
+                count - 1, plurality(count - 1, "", "s"),
+                duplicate_count, plurality(duplicate_count, "", "s"),
+                (long)relative_time_window.secs, (long int)relative_time_window.nsecs);
   }
 
   return 0;
