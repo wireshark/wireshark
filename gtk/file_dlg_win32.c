@@ -1148,7 +1148,11 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
 }
 
 
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
 static UINT_PTR CALLBACK
+#endif
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -1401,7 +1405,11 @@ build_file_format_list(HWND sf_hwnd) {
 #endif
 
 #define RANGE_TEXT_MAX 128
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
 static UINT_PTR CALLBACK
+#endif
 save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1645,7 +1653,11 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
     }
 }
 
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
 static UINT_PTR CALLBACK
+#endif
 merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -1715,7 +1727,11 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
 static UINT_PTR CALLBACK
+#endif
 export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1773,7 +1789,11 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
+#if (_MSC_VER <= 1200)
+static UINT CALLBACK
+#else
 static UINT_PTR CALLBACK
+#endif
 export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
