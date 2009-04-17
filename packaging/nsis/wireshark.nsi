@@ -262,7 +262,19 @@ Var OLD_INSTDIR
 Var OLD_DISPLAYNAME
 Var TMP_UNINSTALLER
 
+!include x64.nsh
+
 Function .onInit
+  !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
+    ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
+    ${If} ${RunningX64}
+      ${EnableX64FSRedirection}
+    ${else}
+      MessageBox MB_OK "This version of Wireshark only runs on x64 machines.\nTry installing the 32-bit version instead."
+      Abort
+    ${EndIf}
+  !endif
+
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
@@ -354,7 +366,7 @@ File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${ICONV_DIR}\bin\iconv.dll"
 !endif
-File "${GETTEXT_DIR}\bin\intl.dll"
+File "${GETTEXT_DIR}\bin\${GETTEXT_DLL}"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
@@ -745,17 +757,21 @@ File "${GTK_DIR}\bin\libpangocairo-1.0-0.dll"
 File "${GTK_DIR}\bin\libpng12-0.dll"
 !endif
 !ifdef NEED_LIBTIFF_DLL
-File "${GTK_DIR}\bin\libtiff3.dll"
+File "${GTK_DIR}\bin\${TIFF_DLL}"
 !endif
 !ifdef NEED_LIBJPEG_DLL
-File "${GTK_DIR}\bin\jpeg62.dll"
+File "${GTK_DIR}\bin\${JPEG_DLL}"
 !endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
+
+!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
 File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
+!endif
+
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules
