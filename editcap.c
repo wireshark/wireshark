@@ -278,7 +278,7 @@ set_rel_time(char *optarg)
 {
   char *frac, *end;
   long val;
-  int frac_digits;
+  size_t frac_digits;
 
   if (!optarg)
     return;
@@ -919,11 +919,11 @@ main(int argc, char *argv[])
 
         if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
           block_start.secs = phdr->ts.secs;
-          block_start.nsecs = phdr->ts.nsecs; 
-          } 
+          block_start.nsecs = phdr->ts.nsecs;
+          }
 
-        while ((phdr->ts.secs - block_start.secs >  secs_per_block) || 
-            (phdr->ts.secs - block_start.secs == secs_per_block && 
+        while ((phdr->ts.secs - block_start.secs >  secs_per_block) ||
+            (phdr->ts.secs - block_start.secs == secs_per_block &&
                 phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
           if (!wtap_dump_close(pdh, &err)) {
