@@ -54,7 +54,10 @@
                          /* (If windows.h were used instead, there might be       */
                          /*  issues re winsock.h included before winsock2.h )     */
 #include <windowsx.h>
+
+#if (_MSC_VER > 1200)
 #include <Ntddndis.h>
+#endif
 
 #include "../capture_wpcap_packet.h"
 
@@ -155,7 +158,8 @@ struct sockaddr_storage {
 #define OID_GEN_TRANSPORT_HEADER_OFFSET 0x00010119
 
 
-#if 0
+/* This will probably break if you're using VC++ 6 _and_ have a newer SDK. */
+#if (_MSC_VER <= 1200)
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
 typedef enum ndis_phys_medium {
 	NdisPhysicalMediumUnspecified,
