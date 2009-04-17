@@ -83,11 +83,17 @@ wireshark-filter.html: wireshark-filter.pod ../config.h ws.css
 	--noindex                                 \
 	wireshark-filter.pod > wireshark-filter.html
 
-wireshark-filter.pod: wireshark-filter.pod.template  ../tshark.exe
+tabchar=	
+# We can't generate a filter list if we can't run TShark.
+wireshark-filter.pod: wireshark-filter.pod.template  dfilter2pod.pl ../tshark.exe
+!if "$(PROCESSOR_ARCHITECTURE)" == "x86" && "$(WIRESHARK_TARGET_PLATFORM)" != "win32"
+	$(PERL) dfilter2pod.pl -e wireshark-filter.pod.template > wireshark-filter.pod
+!else
 	cd ..
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-all
 	$(INSTALL_DIR)\tshark.exe -G | $(PERL) doc\dfilter2pod.pl doc\wireshark-filter.pod.template > doc\wireshark-filter.pod
 	cd doc
+!endif
 
 capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)                      \

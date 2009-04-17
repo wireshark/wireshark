@@ -11,6 +11,8 @@
 #
 # $Id$
 
+use Getopt::Std;
+
 %ftenum_names = (
 	'FT_NONE',		'No value',
 	'FT_PROTOCOL',		'Protocol',
@@ -39,31 +41,39 @@
 	'FT_FRAMENUM',		'Frame number',
 );
 
-# Read all the data into memory
-while (<STDIN>) {
-	next unless (/^([PF])/);
+getopts('e');
 
-	$record_type = $1;
-	# Strip the line from its line-end sequence
-	# chomp($_) won't work on Win32/CygWin as it leaves the '\r' character.
-	$_ =~ s/[\r\n]//g;
-
-	# Store protocol information
-	if ($record_type eq 'P') {
-		($junk, $name, $abbrev) = split(/\t+/, $_);
-		$proto_abbrev{$name} = $abbrev;
-	}
-	# Store header field information
-	else {
-		($junk, $name, $abbrev, $type, $parent, $blurb) =
-			split(/\t+/, $_);
-		push(@{$field_abbrev{$parent}}, $abbrev);
-		$field_info{$abbrev} = [ $name, $type, $blurb ];
+if ($opt_e) {
+	$proto_abbrev{'Unable to generate filter documentation'} =
+		'Please refer to http://www.wireshark.org/docs/dfref/';
+	printf STDERR "Creating empty filter list.\n";
+} else {
+	# Read all the data into memory
+	while (<STDIN>) {
+		next unless (/^([PF])/);
+	
+		$record_type = $1;
+		# Strip the line from its line-end sequence
+		# chomp($_) won't work on Win32/CygWin as it leaves the '\r' character.
+		$_ =~ s/[\r\n]//g;
+	
+		# Store protocol information
+		if ($record_type eq 'P') {
+			($junk, $name, $abbrev) = split(/\t+/, $_);
+			$proto_abbrev{$name} = $abbrev;
+		}
+		# Store header field information
+		else {
+			($junk, $name, $abbrev, $type, $parent, $blurb) =
+				split(/\t+/, $_);
+			push(@{$field_abbrev{$parent}}, $abbrev);
+			$field_info{$abbrev} = [ $name, $type, $blurb ];
+		}
 	}
 }
 
 # if there was no input on stdin, bail out
-if ($record_type ne 'P' and $record_type ne 'F') {
+if ($record_type ne 'P' and $record_type ne 'F' and !defined($opt_e)) {
 	exit;
 }
 
