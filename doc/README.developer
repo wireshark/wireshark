@@ -129,6 +129,45 @@ either, as not all platforms support them; use "gint64" or "guint64",
 which will be defined as the appropriate types for 64-bit signed and
 unsigned integers.
 
+On LLP64 data model systems (notably 64-bit Windows), "int" and "long"
+are 32 bits while "size_t" and "ptrdiff_t" are 64 bits. This means that
+the following will generate a compiler warning:
+
+	int i;
+	i = strlen("hello, sailor");  /* Compiler warning */
+
+Normally, you'd just make "i" a size_t. However, many GLib and Wireshark
+functions won't accept a size_t on LLP64:
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+
+Try to use the appropriate data type when you can. When you can't, you
+will have to cast to a compatible data type, e.g.
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */
+
+or
+
+	gint i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = (gint) strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+
+See http://www.unix.org/version2/whatsnew/lp64_wp.html for more
+information on the sizes of common types in different data models.
+
 When printing or displaying the values of 64-bit integral data types,
 don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
 support "%ll" for printing 64-bit integral data types.  Instead, for
@@ -398,7 +437,9 @@ buffer overflows for large strings.
 
 When using a buffer to create a string, do not use a buffer stored on the stack.
 I.e. do not use a buffer declared as
+
    char buffer[1024];
+
 instead allocate a buffer dynamically using the string-specific or plain emem
 routines (see README.malloc) such as
 
