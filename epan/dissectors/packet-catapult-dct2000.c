@@ -185,6 +185,10 @@ extern int proto_mac_lte;
 extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
 
+static dissector_handle_t mac_lte_handle;
+static dissector_handle_t rlc_lte_handle;
+static dissector_handle_t pdcp_lte_handle;
+
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(char *protocol_name);
@@ -814,7 +818,6 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
     LogicalChannelType logicalChannelType;
     guint8             bcch_transport = 0;
     struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
-    dissector_handle_t protocol_handle = 0;
     tvbuff_t           *pdcp_lte_tvb;
 
     /* Top-level opcode */
@@ -964,9 +967,8 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
             }
 
             /* Call PDCP LTE dissector */
-            protocol_handle = find_dissector("pdcp-lte");
             pdcp_lte_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
-            call_dissector_only(protocol_handle, pdcp_lte_tvb, pinfo, tree);
+            call_dissector_only(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree);
 
             break;
 
@@ -1727,16 +1729,38 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
 
-            /* Work with generic XML protocol.
-               This is a bit of a hack, but xml isn't really a proper
-               encapsulation type... */
+            /**************************************************************************/
+            /* These protocols have no encapsulation type, just look them up directly */
+            if (strcmp(protocol_name, "mac_r8_lte") == 0)
+            {
+                protocol_handle = mac_lte_handle;
+            }
+
+            else
+            if (strcmp(protocol_name, "rlc_r8_lte") == 0)
+            {
+                protocol_handle = rlc_lte_handle;
+            }
+
+            else
+            if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
+            {
+                /* Dissect proprietary header, then pass remainder to PDCP */
+                dissect_pdcp_lte(tvb, offset, pinfo, tree);
+                return;
+            }
+
+
+            /* Work with generic XML protocol. */
+            else
             if (strcmp(protocol_name, "xml") == 0)
             {
                 protocol_handle = find_dissector("xml");
             }
-            else
+
 
             /* Attempt to show tty messages as raw text */
+            else
             if (strcmp(protocol_name, "tty") == 0)
             {
                 dissect_tty_lines(tvb, pinfo, dct2000_tree, offset);
@@ -1747,26 +1771,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (strcmp(protocol_name, "sipprim") == 0)
             {
                 protocol_handle = find_dissector("sipprim");
-            }
-
-            else
-            if (strcmp(protocol_name, "mac_r8_lte") == 0)
-            {
-                protocol_handle = find_dissector("mac-lte");
-            }
-
-            else
-            if (strcmp(protocol_name, "rlc_r8_lte") == 0)
-            {
-                protocol_handle = find_dissector("rlc-lte");
-            }
-
-            else
-            if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
-            {
-                /* Dissect proprietary header, then pass remainder to PDCP */
-                dissect_pdcp_lte(tvb, offset, pinfo, tree);
-                return;
             }
 
             else
@@ -2125,9 +2129,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /******************************************************************************/
 void proto_reg_handoff_catapult_dct2000(void)
 {
+    static gboolean have_cached_handles = FALSE;
     dissector_handle_t catapult_dct2000_handle = find_dissector("dct2000");
     dissector_add("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000,
                   catapult_dct2000_handle);
+
+    /* Cache some protocol handles that we don't want to keep looking up */
+    if (!have_cached_handles) {
+        mac_lte_handle = find_dissector("mac-lte");
+        rlc_lte_handle = find_dissector("rlc-lte");
+        pdcp_lte_handle = find_dissector("pdcp-lte");
+
+        have_cached_handles = TRUE;
+    }
 }
 
 /****************************************/
