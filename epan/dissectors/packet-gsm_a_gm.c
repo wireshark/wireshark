@@ -3189,13 +3189,19 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		{
 			case 0x0001:
 			{
-				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
+				if (e_len == 0) {
+					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address Request" , prot );
+				} else {
+					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
+				}
 				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 
-				tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-				proto_tree_add_text(tree,
-				tvb, curr_offset, 16,
-				"IPv6: %s", ip6_to_str(&ipv6_addr));
+				if (e_len > 0) {
+					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
+					proto_tree_add_text(tree,
+					tvb, curr_offset, 16,
+					"IPv6: %s", ip6_to_str(&ipv6_addr));
+				}
 				break;
 			}
 			case 0x0002:
@@ -3204,13 +3210,19 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				break;
 			case 0x0003:
 			{
-				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
+				if (e_len == 0) {
+					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address Request" , prot );
+				} else {
+					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
+				}
 				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 
-				tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-				proto_tree_add_text(tree,
-				tvb, curr_offset, 16,
-				"IPv6: %s", ip6_to_str(&ipv6_addr));
+				if (e_len > 0) {
+					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
+					proto_tree_add_text(tree,
+					tvb, curr_offset, 16,
+					"IPv6: %s", ip6_to_str(&ipv6_addr));
+				}
 				break;
 			}
 			case 0x0004:
