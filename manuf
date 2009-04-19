@@ -9707,6 +9707,17 @@
 00:25:DC	SumitomoEl             # Sumitomo Electric Networks, Inc
 00:25:DD	SunnytekIn             # SUNNYTEK INFORMATION CO., LTD.
 00:25:DE	Probits                # Probits Co., LTD.
+00:25:DF	Private
+00:25:E0	CeedtecSdn             # CeedTec Sdn Bhd
+00:25:E1	ShanghaiSe             # SHANGHAI SEEYOO ELECTRONIC & TECHNOLOGY CO., LTD
+00:25:E2	Everspring             # Everspring Industry Co., Ltd.
+00:25:E3	Hanshinit              # Hanshinit Inc.
+00:25:E4	Omni-WifiL             # OMNI-WiFi, LLC
+00:25:E5	LgElectron             # LG Electronics Inc
+00:25:E6	BelgianMon             # Belgian Monitoring Systems bvba
+00:25:E7	SonyEricss             # Sony Ericsson Mobile Communications
+00:25:E8	IdahoTechn             # Idaho Technology
+00:25:E9	I-MateDeve             # i-mate Development, Inc.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13114,6 +13125,11 @@
 00:50:C2:A9:D0:00/36	JoehlKoefe             # Joehl & Koeferli AG
 00:50:C2:A9:E0:00/36	ProconEngi             # Procon Engineering Limited
 00:50:C2:A9:F0:00/36	Yellowsoft             # YellowSoft Co., Ltd.
+00:50:C2:AA:00:00/36	SmithMeter             # Smith Meter, Inc.
+00:50:C2:AA:10:00/36	ElremElect             # ELREM ELECTRONIC AG
+00:50:C2:AA:20:00/36	ElpaSas                # ELPA sas
+00:50:C2:AA:30:00/36	PeekTraffi             # Peek Traffic/US Traffic
+00:50:C2:AA:40:00/36	PsiPrinter             # PSi Printer Systems international GmbH
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
