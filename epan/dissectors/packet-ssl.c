@@ -1379,7 +1379,15 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                  * more bytes we need, and return.
                  */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = (record_length + 5) - available_bytes;
+
+                /* Don't use:
+                 * pinfo->desegment_len = (record_length + 5) - available_bytes;
+                 * as it will display two SSL subtrees when a frame contains 
+                 * the continuation of a previous PDU together with a full new
+                 * PDU (and the info column would not show the message type
+                 * of the second PDU)
+                */
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 *need_desegmentation = TRUE;
                 return offset;
             }
