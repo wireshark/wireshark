@@ -879,7 +879,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Move offset to where the list of Power Available Values Exist */
 	offset += 8;
 	while(power_avail_len) {
-	  if (power_avail_len > 4) {
+	  if (power_avail_len >= 4) {
 	    power_avail = tvb_get_ntohl(tvb, offset);
 	    if (tree) {
 	      proto_tree_add_text(tlv_tree, tvb, offset,
@@ -889,14 +889,6 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    power_avail_len -= 4;
 	    offset += 4;
 	  } else {
-	    if (power_avail_len == 4) {
-	      power_avail = tvb_get_ntohl(tvb, offset);
-	      if (tree) {
-		proto_tree_add_text(tlv_tree, tvb, offset,
-				    4, "Power Available: %u mW", power_avail);
-		proto_item_append_text(tlvi, "%u mW", power_avail);
-	      }
-	    }
 	    offset += power_avail_len;
 	    break;
 	  }
