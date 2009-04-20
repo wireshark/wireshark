@@ -86,6 +86,7 @@ static int hf_mac_lte_padding_data = -1;
 
 
 /* RAR fields */
+static int hf_mac_lte_rar = -1;
 static int hf_mac_lte_rar_headers = -1;
 static int hf_mac_lte_rar_header = -1;
 static int hf_mac_lte_rar_extension = -1;
@@ -345,9 +346,6 @@ static const value_string predefined_frame_vals[] =
 };
 
 
-/* By default expect to find complete RAR PDUs for frames received on RA_RNTIs */
-static gboolean global_mac_lte_single_rar = FALSE;
-
 /* By default check and warn about reserved bits not being zero.
    December '08 spec says they should be ignored... */
 static gboolean global_mac_lte_check_reserved_bits = TRUE;
@@ -355,6 +353,9 @@ static gboolean global_mac_lte_check_reserved_bits = TRUE;
 /* If this PDU has been NACK'd (by HARQ) more than a certain number of times,
    we trigger an expert warning. */
 static gint global_mac_lte_retx_counter_trigger = 3;
+
+/* By default try to decode transparent data (BCH, PCH and CCCH) data using LTE RRC dissector */
+static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
 
 
 
@@ -425,6 +426,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8  extension;
     gint    n;
     proto_tree *rar_headers_tree;
+    proto_item *ti;
     proto_item *rar_headers_ti;
     int        start_headers_offset = offset;
 
@@ -433,6 +435,9 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
     }
 
+    /* Create hidden 'virtual root' so can filter on mac-lte.rar */
+    ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create headers tree */
     rar_headers_ti = proto_tree_add_item(tree,
@@ -529,7 +534,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "BCH PDU (%u bytes, on %s transport)",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "BCH PDU (%u bytes, on %s transport)  ",
                         tvb_length_remaining(tvb, offset),
                         val_to_str(p_mac_lte_info->rntiType,
                                    bch_transport_channel_vals,
@@ -541,9 +546,29 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              tvb, offset, 0, p_mac_lte_info->rntiType);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    /* Whole frame is BCH data */
+    /****************************************/
+    /* Whole frame is BCH data              */
+
+    /* Always show as raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_bch_pdu,
                              tvb, offset, -1, FALSE);
+
+    if (global_mac_lte_attempt_rrc_decode) {
+        /* Attempt to decode payload using LTE RRC dissector */
+        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+
+        /* Get appropriate dissector handle */
+        dissector_handle_t protocol_handle = 0;
+        if (p_mac_lte_info->rntiType == SI_RNTI) {
+            protocol_handle = find_dissector("lte-rrc.bcch.dl.sch");
+        }
+        else {
+            protocol_handle = find_dissector("lte-rrc.bcch.bch");
+        }
+
+        /* Call it */
+        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+    }
 
     /* Check that this *is* downlink! */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
@@ -560,12 +585,27 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "PCH PDU (%u bytes)",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "PCH PDU (%u bytes)  ",
                         tvb_length_remaining(tvb, offset));
     }
 
+    /****************************************/
+    /* Whole frame is PCH data              */
+
+    /* Always show as raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_pch_pdu,
                              tvb, offset, -1, FALSE);
+
+    if (global_mac_lte_attempt_rrc_decode) {
+        /* Attempt to decode payload using LTE RRC dissector */
+        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+
+        /* Get appropriate dissector handle */
+        dissector_handle_t protocol_handle = find_dissector("lte-rrc.pcch");
+
+        /* Call it */
+        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+    }
 
     /* Check that this *is* downlink! */
     if (direction == DIRECTION_UPLINK) {
@@ -621,7 +661,8 @@ static int is_bsr_lcid(guint8 lcid)
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   int offset, guint8 direction, mac_lte_tap_info *tap_info)
+                                   int offset, guint8 direction,
+                                   mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     guint8      extension;
     guint8      n;
@@ -736,7 +777,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             have_seen_bsr = TRUE;
         }
 
-        
+
         /********************************************************************/
         /* Length field follows if not the last header or for a fixed-sized
            control element */
@@ -876,6 +917,24 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                         dlsch_lcid_vals,
                                                    "Unknown"),
                                         data_length);
+
+            /* CCCH frames can be dissected directly by LTE RRC... */
+            if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
+                tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+
+                /* Get appropriate dissector handle */
+                dissector_handle_t protocol_handle = 0;
+                if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+                    protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                }
+                else {
+                    protocol_handle = find_dissector("lte-rrc.dl.ccch");
+                }
+
+                /* Call it */
+                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+            }
+
             offset += data_length;
 
             /* Update tap byte count for this channel */
@@ -1118,17 +1177,13 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RA_RNTI:
             /* RAR PDU */
-            if (!global_mac_lte_single_rar) {
-                dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
-            }
-            else {
-                dissect_rar_entry(tvb, pinfo, mac_lte_tree, offset);
-            }
+            dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
             break;
 
         case C_RNTI:
             /* Can be UL-SCH or DL-SCH */
-            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction, &tap_info);
+            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction,
+                                   p_mac_lte_info, &tap_info);
             break;
 
         case SI_RNTI:
@@ -1327,6 +1382,12 @@ void proto_register_mac_lte(void)
 
         /*********************************/
         /* RAR fields                    */
+        { &hf_mac_lte_rar,
+            { "RAR",
+              "mac-lte.rar", FT_NONE, BASE_NONE, NULL, 0x0,
+              "RAR", HFILL
+            }
+        },
         { &hf_mac_lte_rar_headers,
             { "RAR Headers",
               "mac-lte.rar.headers", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1507,12 +1568,8 @@ void proto_register_mac_lte(void)
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
 
-    /* TODO: delete/obselete this preference? */
-    prefs_register_bool_preference(mac_lte_module, "single_rar",
-        "Expect single RAR bodies",
-        "When dissecting an RA_RNTI frame, expect to find only one RAR body "
-        "instead of a complete RAR PDU complete with headers",
-        &global_mac_lte_single_rar);
+    /* Obsolete this preference? (TODO: just delete since never in proper release?) */
+    prefs_register_obsolete_preference(mac_lte_module, "single_rar");
 
     prefs_register_bool_preference(mac_lte_module, "check_reserved_bits",
         "Warn if reserved bits are not 0",
@@ -1523,6 +1580,11 @@ void proto_register_mac_lte(void)
         "Number of Re-Transmits before expert warning triggered",
         "Number of Re-Transmits before expert warning triggered",
         10, &global_mac_lte_retx_counter_trigger);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_rrc_decode",
+        "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
+        "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
+        &global_mac_lte_attempt_rrc_decode);
 }
 
 
