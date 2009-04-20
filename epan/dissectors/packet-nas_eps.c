@@ -1558,7 +1558,6 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 {
 	guint32	curr_offset;
 	guint8 octet;
-	char *str = NULL;
 
 	curr_offset = offset;
 
@@ -1570,7 +1569,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, offset, 1, octet,
-				       "UE->NW Subscribed maximum bit rate for uplink/ NW->UE Reserved", octet);
+				       "UE->NW Subscribed maximum bit rate for uplink/ NW->UE Reserved");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, offset, 1, octet,
 				       "Maximum bit rate for uplink : %u kbps", calc_bitrate(octet));
@@ -1580,7 +1579,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, offset, 1, octet,
-				       "UE->NW Subscribed maximum bit rate for downlink/ NW->UE Reserved", octet);
+				       "UE->NW Subscribed maximum bit rate for downlink/ NW->UE Reserved");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, offset, 1, octet,
 				       "Maximum bit rate for downlink : %u kbps", calc_bitrate(octet));
@@ -1602,7 +1601,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
-				       "Use the value indicated by the maximum bit rate for uplink in octet 4.", octet);
+				       "Use the value indicated by the maximum bit rate for uplink in octet 4.");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
 				       "Maximum bit rate for uplink(extended) : %u %s", 
@@ -1615,7 +1614,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
-				       "Use the value indicated by the maximum bit rate for downlink in octet 5.", octet);
+				       "Use the value indicated by the maximum bit rate for downlink in octet 5.");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
 				       "Maximum bit rate for downlink(extended) : %u %s", 
@@ -1627,7 +1626,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
-				       "Use the value indicated by the Guaranteed bit rate for uplink in octet 6.", octet);
+				       "Use the value indicated by the Guaranteed bit rate for uplink in octet 6.");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
 				       "Guaranteed bit rate for uplink(extended) : %u %s", 
@@ -1639,7 +1638,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	octet = tvb_get_guint8(tvb,offset);
 	if(octet==0){
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
-				       "Use the value indicated by the Guaranteed bit rate for downlink in octet 7.", octet);
+				       "Use the value indicated by the Guaranteed bit rate for downlink in octet 7.");
 	}else{
 		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
 				       "Guaranteed bit rate for downlink(extended) : %u %s", 
