@@ -3585,8 +3585,10 @@ static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
 
 static void
 isakmp_init_protocol(void) {
+#ifdef HAVE_LIBGCRYPT
   guint i;
-  fragment_table_init (&isakmp_fragment_table);
+#endif /* HAVE_LIBGCRYPT */
+  fragment_table_init(&isakmp_fragment_table);
   reassembled_table_init(&isakmp_reassembled_table);
 
 #ifdef HAVE_LIBGCRYPT
