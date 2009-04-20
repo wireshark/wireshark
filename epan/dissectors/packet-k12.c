@@ -362,7 +362,7 @@ k12_free_cb(void* r)
 
 
 static gboolean
-protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1 _U_, void* u2 _U_, const char** err)
+protos_chk_cb(void* r _U_, const char* p, unsigned len, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
 	gchar** protos;
 	gchar* line = ep_strndup(p,len);
