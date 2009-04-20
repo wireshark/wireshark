@@ -189,10 +189,9 @@ DirText "Choose a directory in which to install Wireshark."
 
 ; The default installation directory
 !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
-  InstallDir $PROGRAMFILES64\Wireshark\
+  InstallDir $PROGRAMFILES64\Wireshark
 !else
-  InstallDir $PROGRAMFILES\Wireshark\
-
+  InstallDir $PROGRAMFILES\Wireshark
 !endif
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
