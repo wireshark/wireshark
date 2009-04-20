@@ -353,11 +353,11 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  * LSTRING MACROS
  */
 #define UAT_LSTRING_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
 	char* new_val = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); \
         g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_val; }\
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	if (((rec_t*)rec)->ptr_element ) { \
 		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
 		*out_len = (unsigned)strlen(*out_ptr); \
@@ -375,12 +375,12 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *  XXX: UNTESTED and probably BROKEN
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
         char* new_buf = len ? g_memdup(buf,len) : NULL; \
 	g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_buf; \
 	(((rec_t*)rec)->len_element) = len; } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
 	*out_len = ((rec_t*)rec)->len_element; }
 
@@ -393,9 +393,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *   a decimal number contained in
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,10); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
@@ -408,9 +408,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *   an hexadecimal number contained in
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,16); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
@@ -426,14 +426,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *        value
  */
 #define UAT_VS_DEF(basename,field_name,rec_t,default_val,default_str) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	*out_ptr = ep_strdup(default_str); \
 	*out_len = (unsigned)strlen(default_str);\
@@ -452,7 +452,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 
 #define UAT_PROTO_DEF(basename, field_name, dissector_field, name_field, rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
 	if (len) { \
 		((rec_t*)rec)->name_field = g_strndup(buf,len); g_strdown(((rec_t*)rec)->name_field ); g_strchug(((rec_t*)rec)->name_field); \
 		((rec_t*)rec)->dissector_field = find_dissector(((rec_t*)rec)->name_field); \
@@ -460,7 +460,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 		((rec_t*)rec)->dissector_field = find_dissector("data"); \
 		((rec_t*)rec)->name_field = NULL; \
 		} } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	if ( ((rec_t*)rec)->name_field ) { \
 		*out_ptr = (((rec_t*)rec)->name_field); \
 		*out_len = (unsigned)strlen(*out_ptr); \
@@ -476,11 +476,11 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 
 #define UAT_RANGE_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2) {\
 	char* rng = ep_strndup(buf,len);\
 		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
 	} \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	if ( ((rec_t*)rec)->field_name ) { \
 		*out_ptr = range_convert_range(((rec_t*)rec)->field_name); \
 		*out_len = (unsigned)strlen(*out_ptr); \
