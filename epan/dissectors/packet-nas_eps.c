@@ -72,6 +72,9 @@ static int hf_nas_eps_emm_csfb_resp = -1;
 static int hf_nas_eps_emm_cause = -1;
 static int hf_nas_eps_emm_id_type2 = -1;
 static int hf_nas_eps_emm_short_mac = -1;
+static int hf_nas_eps_emm_tai_tol = -1;
+static int hf_nas_eps_emm_tai_n_elem = -1;
+static int hf_nas_eps_emm_tai_tac = -1;
 static int hf_nas_eps_emm_128eea0 = -1;
 static int hf_nas_eps_emm_128eea1 = -1;
 static int hf_nas_eps_emm_128eea2 = -1;
@@ -107,6 +110,15 @@ static int hf_nas_eps_emm_uia7 = -1;
 static int hf_nas_eps_emm_1xsrvcc_cap = -1;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
 static int hf_nas_eps_emm_ss_code = -1;
+static int hf_nas_eps_qci = -1;
+static int hf_nas_eps_mbr_ul = -1;
+static int hf_nas_eps_mbr_dl = -1;
+static int hf_nas_eps_gbr_ul = -1;
+static int hf_nas_eps_gbr_dl = -1;
+static int hf_nas_eps_embr_ul = -1;
+static int hf_nas_eps_embr_dl = -1;
+static int hf_nas_eps_egbr_ul = -1;
+static int hf_nas_eps_egbr_dl = -1;
 
 static int hf_nas_eps_esm_cause = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
@@ -1028,13 +1040,13 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * 9.9.3.32	Tracking area identity
  */
+
 static guint16
 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
 	curr_offset = offset;
-
 
 	proto_tree_add_text(tree, tvb, curr_offset, 6 , "Not decoded yet");
 	curr_offset+=6;
@@ -1044,17 +1056,100 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * 9.9.3.33	Tracking area identity list
  */
+/* Type of list (octet 1) 
+ * Bits 7 6
+ */
+static const value_string nas_eps_emm_tai_tol_vals[] = {
+	{ 0,	"list of TACs belonging to one PLMN, with non-consecutive TAC values"},
+	{ 1,	"list of TACs belonging to one PLMN, with consecutive TAC values"},
+	{ 2,	"list of TAIs belonging to different PLMNsl"},
+	{ 0, NULL }
+};
+
 static guint16
 de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	proto_item *item;
 	guint32	curr_offset;
+	guint8 octet, tol, n_elem;
+	int i;
 
 	curr_offset = offset;
 
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	/* Type of list (octet 1) Bits 7 6 */
+	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tol, tvb, curr_offset, 1, FALSE);
+	/* Number of elements (octet 1) Bits 5 4 3 2 1 */
+	octet = tvb_get_guint8(tvb,curr_offset)& 0x7f;
+	tol = octet >> 5;
+	n_elem = (octet & 0x1f)+1;
+	item = proto_tree_add_item(tree, hf_nas_eps_emm_tai_n_elem, tvb, curr_offset, 1, FALSE);
+	if(n_elem<16)
+		proto_item_append_text(item, " [+1 = %u element(s)]", n_elem);
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	curr_offset++;
+	if (tol>2){
+		proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset) , "Unknown type of list ( Not in 3GPP TS 24.301 version 8.1.0 Release 8 )");
+		return len;
+	}
 
-	return(len);
+	switch(tol){
+		case 0:
+			/* MCC digit 2 MCC digit 1 octet 2
+			 * MNC digit 3 MCC digit 3 octet 3
+			 * MNC digit 2 MNC digit 1 octet 4
+			 */
+			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			/* type of list = "000" */
+			/* TAC 1             octet 5
+			 * TAC 1 (continued) octet 6
+			 * … …
+			 * … …
+			 * TAC k             octet 2k+3*
+			 * TAC k (continued) octet 2k+4*
+			 */
+			if (len < (guint)(4+(n_elem*2))){
+				proto_tree_add_text(tree, tvb, curr_offset, len-1 , "[Wrong number of elements?]");
+				return len;
+			}
+			for (i=0; i < n_elem; i++, curr_offset+=2)
+				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+			break;
+		case 1:
+
+			/* type of list = "010" */
+			/* MCC digit 2 MCC digit 1 octet 2
+			 * MNC digit 3 MCC digit 3 octet 3
+			 * MNC digit 2 MNC digit 1 octet 4
+			 */
+			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+			curr_offset+=2;
+			break;
+		case 2:
+			if (len< (guint)(4+(n_elem*5))){
+				proto_tree_add_text(tree, tvb, curr_offset, len-1 , "[Wrong number of elements?]");
+				return len;
+			}
+
+			for (i=0; i < n_elem; i++){
+				/* type of list = "001" */
+				/* MCC digit 2 MCC digit 1 octet 2
+				 * MNC digit 3 MCC digit 3 octet 3
+				 * MNC digit 2 MNC digit 1 octet 4
+				 */
+				curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+				curr_offset+=2;
+			}
+			break;
+		default:
+			/* Unknown ( Not in 3GPP TS 24.301 version 8.1.0 Release 8 ) */
+			break;
+	}
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset-offset);
 }
 /*
  * 9.9.3.34	UE network capability 
@@ -1392,6 +1487,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * 9.9.4.2 APN aggregate maximum bit rate
  */
+
 static guint16
 de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1411,25 +1507,146 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 /*
  * 9.9.4.3 EPS quality of service
  */
+
+/* Quality of Service Class Identifier (QCI), octet 3 (see 3GPP TS 23.203 [7]) */
+static const value_string nas_eps_qci_vals[] = {
+	{ 0,	"UE -> NW Network selects the QCI / NW -> UE Reserved"},
+	{ 1,	"QCI 1"},
+	{ 2,	"QCI 2"},
+	{ 3,	"QCI 3"},
+	{ 4,	"QCI 4"},
+	{ 5,	"QCI 5"},
+	{ 6,	"QCI 6"},
+	{ 7,	"QCI 7"},
+	{ 8,	"QCI 8"},
+	{ 9,	"QCI 9"},
+	{ 0, NULL }
+};
+
+static guint8
+calc_bitrate(guint8 value){
+
+
+	if (value > 63 && value <= 127) {
+		value = 64 + (value - 64) * 8;
+	}
+    if (value > 127 && value <= 254) {
+		value = 576 + (value - 128) * 64;
+	}
+
+	return value;
+}
+static guint8
+calc_bitrate_ext(guint8 value){
+
+
+	if (value > 0 && value <= 0x4a) {
+		value = 8600 + value * 100;
+	}
+    if (value > 0x4a && value <= 0xba) {
+		value = 16 + (value-0x4a);
+	}
+	if (value > 0xba && value <= 0xfa) {
+		value = 128 + (value-0xba)*2;
+	}
+
+	return value;
+}
+
 static guint16
 de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 octet;
+	char *str = NULL;
 
 	curr_offset = offset;
 
-/*
-QCI octet 3
-Maximum bit rate for uplink octet 4
-Maximum bit rate for downlink octet 5
-Guaranteed bit rate for uplink octet 6
-Guaranteed bit rate for downlink octet 7
-Maximum bit rate for uplink (extended) octet 8
-Maximum bit rate for downlink (extended) octet 9
-Guaranteed bit rate for uplink (extended) octet 10
-Guaranteed bit rate for downlink (extended) octet 11
-*/
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	/* QCI octet 3 */
+	proto_tree_add_item(tree, hf_nas_eps_qci, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* Maximum bit rate for uplink octet 4 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, offset, 1, octet,
+				       "UE->NW Subscribed maximum bit rate for uplink/ NW->UE Reserved", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, offset, 1, octet,
+				       "Maximum bit rate for uplink : %u kbps", calc_bitrate(octet));
+	}
+	curr_offset++;
+	/* Maximum bit rate for downlink octet 5 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, offset, 1, octet,
+				       "UE->NW Subscribed maximum bit rate for downlink/ NW->UE Reserved", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, offset, 1, octet,
+				       "Maximum bit rate for downlink : %u kbps", calc_bitrate(octet));
+	}
+	curr_offset++;
+	/* Guaranteed bit rate for uplink octet 6 */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint_format(tree, hf_nas_eps_gbr_ul, tvb, offset, 1, octet,
+			       "Guaranteed bit rate for uplink : %u kbps", calc_bitrate(octet));
+
+	curr_offset++;
+	/* Guaranteed bit rate for downlink octet 7 */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_uint_format(tree, hf_nas_eps_gbr_ul, tvb, offset, 1, octet,
+			       "Guaranteed bit rate for downlink : %u kbps", calc_bitrate(octet));
+
+	curr_offset++;
+	/* Maximum bit rate for uplink (extended) octet 8 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Use the value indicated by the maximum bit rate for uplink in octet 4.", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Maximum bit rate for uplink(extended) : %u %s", 
+					   calc_bitrate_ext(octet),
+					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	curr_offset++;
+
+	/* Maximum bit rate for downlink (extended) octet 9 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Use the value indicated by the maximum bit rate for downlink in octet 5.", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Maximum bit rate for downlink(extended) : %u %s", 
+					   calc_bitrate_ext(octet),
+					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	curr_offset++;
+	/* Guaranteed bit rate for uplink (extended) octet 10 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Use the value indicated by the Guaranteed bit rate for uplink in octet 6.", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Guaranteed bit rate for uplink(extended) : %u %s", 
+					   calc_bitrate_ext(octet),
+					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	curr_offset++;
+	/* Guaranteed bit rate for downlink (extended) octet 11 */
+	octet = tvb_get_guint8(tvb,offset);
+	if(octet==0){
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Use the value indicated by the Guaranteed bit rate for downlink in octet 7.", octet);
+	}else{
+		proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, offset, 1, octet,
+				       "Guaranteed bit rate for downlink(extended) : %u %s", 
+					   calc_bitrate_ext(octet),
+					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	curr_offset++;
 
 	return(len);
 }
@@ -3202,7 +3419,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * 
 	 */
 	security_header_type = 0;
-#if 0
+
 	/* 9.3.1	Security header type */
 	security_header_type = tvb_get_guint8(tvb,offset)>>4;
 	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
@@ -3212,15 +3429,20 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Message authentication code */
 		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
 		offset+=4;
-		if ((security_header_type==2)||(security_header_type==4))
+		if ((security_header_type==2)||(security_header_type==4)){
 			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+			proto_tree_add_text(tree, tvb, offset, len-5,"Ciphered message");
 			return;
+		}
+	}else{
+		proto_tree_add_text(tree, tvb, offset, len,"All ESM messages should be integrity protected.");
+		return;
 	}
 
 	/* Sequence number */
 	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
 	offset++;
-#endif
+
 	/* The EPS bearer identity and the procedure transaction identity are only used in messages with protocol discriminator
 	 * EPS session management. Octet 1a with the procedure transaction identity shall only be included in these messages.
 	 *
@@ -3517,17 +3739,32 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_cause,
 		{ "Cause","nas_eps.emm.cause",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_id_type2,
 		{ "Identity type 2","nas_eps.emm.id_type2",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_id_type2_vals), 0x0,
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_id_type2_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_short_mac,
 		{ "Short MAC value","nas_eps.emm.short_mac",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_tai_tol,
+		{ "Type of list","nas_eps.emm.tai_tol",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_tai_tol_vals), 0x60,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_tai_n_elem,
+		{ "Number of elements","nas_eps.emm.tai_n_elem",
+		FT_UINT8, BASE_DEC,  NULL, 0x1f,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_tai_tac,
+		{ "Tracking area code(TAC)","nas_eps.emm.tai_tac",
+		FT_UINT16, BASE_HEX,  NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_128eea0,
@@ -3705,6 +3942,51 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_ss_code,
 		{ "SS Code","nas_eps.emm.eps_update_result_value",
 		FT_UINT8,BASE_DEC, VALS(ssCode_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_qci,
+		{ "Quality of Service Class Identifier (QCI)","nas_eps.emm.qci",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_qci_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_mbr_ul,
+		{ "Maximum bit rate for uplink","nas_eps.emm.mbr_ul",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_mbr_dl,
+		{ "Maximum bit rate for downlink","nas_eps.emm.mbr_dl",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_gbr_ul,
+		{ "Guaranteed bit rate for uplink","nas_eps.emm.gbr_ul",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_gbr_dl,
+		{ "Guaranteed bit rate for downlink","nas_eps.emm.gbr_dl",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_embr_ul,
+		{ "Maximum bit rate for uplink(ext)","nas_eps.emm.embr_ul",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_embr_dl,
+		{ "Maximum bit rate for downlink(ext)","nas_eps.emm.embr_dl",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_egbr_ul,
+		{ "Guaranteed bit rate for uplink(ext)","nas_eps.emm.egbr_ul",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_egbr_dl,
+		{ "Guaranteed bit rate for downlink(ext)","nas_eps.emm.egbr_dl",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_esm_cause,
