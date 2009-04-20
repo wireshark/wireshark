@@ -570,7 +570,7 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 	return d;
 }
 
-static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, const char** error) {
+static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, const void* u1 _U_, const void* u2 _U_, const char** error) {
 	guint i;
 
 	if (name_len == 0) {
