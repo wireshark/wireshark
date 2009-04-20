@@ -2817,6 +2817,10 @@ Christian Durrer		<christian.durrer@sensemail.ch> {
 	sbus dissector
 }
 
+Naoyoshi Ueda			<piyomaru3141@gmail.com> {
+	IKEv2 decryption support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
