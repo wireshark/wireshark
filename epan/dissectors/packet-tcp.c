@@ -1392,6 +1392,29 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 
 }
 
+static void
+print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *tcp_tree, packet_info *pinfo, tvbuff_t *next_tvb)
+{
+	proto_item *tcp_tree_item, *frag_tree_item;
+
+	/*
+	 * The subdissector thought it was completely
+	 * desegmented (although the stuff at the
+	 * end may, in turn, require desegmentation),
+	 * so we show a tree with all segments.
+	 */
+	show_fragment_tree(ipfd_head, &tcp_segment_items,
+		tree, pinfo, next_tvb, &frag_tree_item);
+	/*
+	 * The toplevel fragment subtree is now
+	 * behind all desegmented data; move it
+	 * right behind the TCP tree.
+	 */
+	tcp_tree_item = proto_tree_get_parent(tcp_tree);
+	if(frag_tree_item && tcp_tree_item) {
+		proto_tree_move_item(tree, tcp_tree_item, frag_tree_item);
+	}
+}
 
 /* **************************************************************************
  * End of tcp sequence number analysis
@@ -1477,8 +1500,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	guint32 deseg_seq;
 	gint nbytes;
 	proto_item *item;
-	proto_item *frag_tree_item;
-	proto_item *tcp_tree_item;
 	struct tcp_multisegment_pdu *msp;
 
 again:
@@ -1688,23 +1709,7 @@ again:
 				    "TCP segment data (%u byte%s)", nbytes,
 				    plurality(nbytes, "", "s"));
 
-				/*
-				 * The subdissector thought it was completely
-				 * desegmented (although the stuff at the
-				 * end may, in turn, require desegmentation),
-				 * so we show a tree with all segments.
-				 */
-				show_fragment_tree(ipfd_head, &tcp_segment_items,
-					tree, pinfo, next_tvb, &frag_tree_item);
-				/*
-				 * The toplevel fragment subtree is now
-				 * behind all desegmented data; move it
-				 * right behind the TCP tree.
-				 */
-				tcp_tree_item = proto_tree_get_parent(tcp_tree);
-				if(frag_tree_item && tcp_tree_item) {
-					proto_tree_move_item(tree, tcp_tree_item, frag_tree_item);
-				}
+				print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
 
 				/* Did the subdissector ask us to desegment
 				   some more data?  This means that the data
@@ -3542,6 +3547,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->can_desegment = 0;
 
         process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
+
+        print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
 
         return;
       }
