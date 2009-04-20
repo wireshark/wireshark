@@ -539,7 +539,6 @@ DISSECTOR_SRC = \
 	packet-ipx.c		\
 	packet-ipxwan.c		\
 	packet-irc.c		\
-	packet-isakmp.c		\
 	packet-iscsi.c		\
 	packet-isdn.c		\
 	packet-isis-clv.c	\
@@ -902,6 +901,7 @@ DISSECTOR_SRC = \
 # Dissectors with warnings.
 #
 DIRTY_DISSECTOR_SRC =	\
+	packet-isakmp.c		\
 	packet-k12.c 		\
 	packet-nbd.c		\
 	packet-sccp.c		\

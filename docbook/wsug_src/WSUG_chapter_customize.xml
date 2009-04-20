@@ -1495,6 +1495,86 @@ standard libpcap format.
       </variablelist>
   </section>
 
+      <section id="ChIKEv2DecryptionSection"><title>IKEv2 decryption table</title>
+    <para>
+          Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version 2) packets if necessary information is provided.
+          Note that you can decrypt only IKEv2 packets with this feature. If you want to decrypt IKEv1 packets or ESP packets, 
+          use Log Filename setting under ISAKMP protocol preference or settings under ESP protocol preference respectively.
+   </para>
+   <para>
+         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>Initiator's SPI</command></term>
+	  <listitem>
+		<para>
+			Initiator's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix 
+                        and the length must be 16 hex chars (represents 8 octets). 
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Responder's SPI</command></term>
+	  <listitem>
+		<para>
+			Responder's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix 
+                        and the length must be 16 hex chars (represents 8 octets). 
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_ei</command></term>
+	  <listitem>
+		<para>
+			Key used to encrypt/decrypt IKEv2 packets from initiator to responder.
+                        This field takes hexadecimal string without "0x" prefix and its length 
+                        must meet the requirement of the encryption algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_er</command></term>
+	  <listitem>
+		<para>
+			Key used to encrypt/decrypt IKEv2 packets from responder to initiator.
+                        This field takes hexadecimal string without "0x" prefix and its length 
+                        must meet the requirement of the encryption algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  	  <varlistentry><term><command>Encryption Algorithm</command></term>
+	  <listitem>
+		<para>
+			Encryption algorithm of the IKE_SA.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_ai</command></term>
+	  <listitem>
+		<para>
+			Key used to calculate Integrity Checksum Data for IKEv2 packets from responder to initiator.
+                        This field takes hexadecimal string without "0x" prefix and its length 
+                        must meet the requirement of the integrity algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_ar</command></term>
+	  <listitem>
+		<para>
+			Key used to calculate Integrity Checksum Data for IKEv2 packets from initiator to responder.
+                        This field takes hexadecimal string without "0x" prefix and its length 
+                        must meet the requirement of the integrity algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Integrity Algorithm</command></term>
+	  <listitem>
+		<para>
+			Integrity algorithm of the IKE_SA.
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+      </variablelist>
+  </section>
+
 
 </chapter>
 <!-- End of WSUG Chapter Customizing -->

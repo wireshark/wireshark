@@ -10,6 +10,9 @@
  *
  * Added routines for RFC3947 Negotiation of NAT-Traversal in the IKE
  *   ronnie sahlberg
+ * 
+ * 04/2009 Added routines for decryption of IKEv2 Encrypted Payload
+ *   Naoyoshi Ueda <piyomaru3141@gmail.com>
  *
  * $Id$
  *
@@ -52,8 +55,10 @@
 #include <gcrypt.h>
 #include <epan/strutil.h>
 #include <wsutil/file_util.h>
+#include <epan/uat.h>
 #endif
 
+#include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
@@ -62,6 +67,7 @@
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/dissectors/packet-isakmp.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #define isakmp_min(a, b)  ((a<b) ? a : b)
 
@@ -115,6 +121,11 @@ static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 static gint ett_isakmp_fragment = -1;
 static gint ett_isakmp_fragments = -1;
+#ifdef HAVE_LIBGCRYPT
+/* For decrypted IKEv2 Encrypted payload*/
+static gint ett_isakmp_decrypted_data = -1;
+static gint ett_isakmp_decrypted_payloads = -1;
+#endif /* HAVE_LIBGCRYPT */
 
 static dissector_handle_t eap_handle = NULL;
 
@@ -259,6 +270,154 @@ static GMemChunk *isakmp_key_data = NULL;
 static GMemChunk *isakmp_decrypt_data = NULL;
 static FILE *logf = NULL;
 static const char *pluto_log_path = "insert pluto log path here";
+
+/* Specifications of encryption algorithms for IKEv2 decryption */
+typedef struct _ikev2_encr_alg_spec {
+  guint number;
+  /* Length of encryption key */
+  guint key_len;
+  /* Block size of the cipher */
+  guint block_len;
+  /* Length of initialization vector */
+  guint iv_len;
+  /* Encryption algorithm ID to be passed to gcry_cipher_open() */
+  gint gcry_alg;
+  /* Cipher mode to be passed to gcry_cipher_open() */
+  gint gcry_mode; 
+} ikev2_encr_alg_spec_t;
+
+#define IKEV2_ENCR_NULL 1
+#define IKEV2_ENCR_3DES 2
+#define IKEV2_ENCR_AES_CBC_128 3
+#define IKEV2_ENCR_AES_CBC_192 4
+#define IKEV2_ENCR_AES_CBC_256 5
+
+static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
+  {IKEV2_ENCR_NULL, 0, 1, 0, GCRY_CIPHER_NONE, GCRY_CIPHER_MODE_NONE},
+  {IKEV2_ENCR_3DES, 24, 8, 8, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC},
+  {IKEV2_ENCR_AES_CBC_128, 16, 16, 16, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC},
+  {IKEV2_ENCR_AES_CBC_192, 24, 16, 16, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC},
+  {IKEV2_ENCR_AES_CBC_256, 32, 16, 16, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC}, 
+  {0, 0, 0, 0, 0, 0}
+};
+
+/*
+ * Specifications of authentication algorithms for 
+ * decryption and/or ICD (Integrity Checksum Data) checking of IKEv2
+ */
+typedef struct _ikev2_auth_alg_spec {
+  guint number;
+  /* Output length of the hash algorithm */
+  guint output_len;
+  /* Length of the hash key */
+  guint key_len;
+  /* Actual ICD length after truncation */
+  guint trunc_len;
+  /* Hash algorithm ID to be passed to gcry_md_open() */
+  gint gcry_alg;
+  /* Flags to be passed to gcry_md_open() */
+  guint gcry_flag;
+} ikev2_auth_alg_spec_t;
+
+#define IKEV2_AUTH_NONE 1
+#define IKEV2_AUTH_HMAC_MD5_96 2
+#define IKEV2_AUTH_HMAC_SHA1_96 3
+#define IKEV2_AUTH_ANY_96BITS 4
+#define IKEV2_AUTH_ANY_128BITS 5
+#define IKEV2_AUTH_ANY_160BITS 6
+#define IKEV2_AUTH_ANY_192BITS 7
+#define IKEV2_AUTH_ANY_256BITS 8
+
+static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
+  {IKEV2_AUTH_NONE, 0, 0, 0, GCRY_MD_NONE, 0},
+  {IKEV2_AUTH_HMAC_MD5_96, 16, 16, 12, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_HMAC_SHA1_96, 20, 20, 12, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_ANY_96BITS, 0, 0, 12, 0, 0},
+  {IKEV2_AUTH_ANY_128BITS, 0, 0, 16, 0, 0},
+  {IKEV2_AUTH_ANY_160BITS, 0, 0, 20, 0, 0},
+  {IKEV2_AUTH_ANY_192BITS, 0, 0, 24, 0, 0},
+  {IKEV2_AUTH_ANY_256BITS, 0, 0, 32, 0, 0},
+  {0, 0, 0, 0, 0, 0}
+};
+
+typedef struct _ikev2_decrypt_data {
+  guchar *encr_key;
+  guchar *auth_key;
+  ikev2_encr_alg_spec_t *encr_spec;
+  ikev2_auth_alg_spec_t *auth_spec;
+} ikev2_decrypt_data_t;
+
+typedef struct _ikev2_uat_data_key {
+  guchar *spii;
+  guint spii_len;
+  guchar *spir;
+  guint spir_len;
+} ikev2_uat_data_key_t; 
+
+typedef struct _ikev2_uat_data {
+  ikev2_uat_data_key_t key;
+  guint encr_alg;
+  guint auth_alg;
+  guchar *sk_ei;
+  guint sk_ei_len;
+  guchar *sk_er;
+  guint sk_er_len;
+  guchar *sk_ai;
+  guint sk_ai_len;
+  guchar *sk_ar;
+  guint sk_ar_len;
+  ikev2_encr_alg_spec_t *encr_spec;
+  ikev2_auth_alg_spec_t *auth_spec;
+} ikev2_uat_data_t;
+
+static ikev2_uat_data_t* ikev2_uat_data = NULL;
+static guint num_ikev2_uat_data = 0;
+static uat_t* ikev2_uat;
+
+static GHashTable *ikev2_key_hash = NULL;
+
+static const value_string vs_ikev2_encr_algs[] = {
+  {IKEV2_ENCR_3DES, "3DES [RFC2451]"},
+  {IKEV2_ENCR_AES_CBC_128, "AES-CBC-128 [RFC3602]"},
+  {IKEV2_ENCR_AES_CBC_192, "AES-CBC-192 [RFC3602]"},
+  {IKEV2_ENCR_AES_CBC_256, "AES-CBC-256 [RFC3602]"},
+  {IKEV2_ENCR_NULL, "NULL [RFC2410]"},
+  {0, NULL}
+};
+
+static const value_string vs_ikev2_auth_algs[] = {
+  {IKEV2_AUTH_HMAC_MD5_96, "HMAC_MD5_96 [RFC2403]"},
+  {IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96 [RFC2404]"},
+  {IKEV2_AUTH_NONE, "NONE [RFC4306]"},
+  {IKEV2_AUTH_ANY_96BITS, "ANY 96-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_128BITS, "ANY 128-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_160BITS, "ANY 160-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_192BITS, "ANY 192-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_256BITS, "ANY 256-bits of Authentication [No Checking]"},
+  {0, NULL}
+};
+
+ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(guint num) {
+  ikev2_encr_alg_spec_t *e;
+
+  for (e = ikev2_encr_algs; e->number != 0; e++) {
+    if (e->number == num) {
+      return e;
+    }
+  }
+  return NULL;
+}
+
+ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
+  ikev2_auth_alg_spec_t *a;
+
+  for (a = ikev2_auth_algs; a->number != 0; a++) {
+    if (a->number == num) {
+      return a;
+    }
+  }
+  return NULL;
+}
 
 static void
 scan_pluto_log(void) {
@@ -497,51 +656,51 @@ static proto_tree *dissect_payload_header(tvbuff_t *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
 static void dissect_sa(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_proposal(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_transform(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_transform2(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_id(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_cert(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_certreq_v1(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_certreq_v2(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_hash(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_auth(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_sig(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_nonce(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_notif(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_vid(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_config(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_ts(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_enc(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *,
-    proto_tree *, packet_info *, int, int);
+    proto_tree *, packet_info *, int, int, guint8);
 
 static const char *payloadtype2str(int, guint8);
 static const char *exchtype2str(int, guint8);
@@ -567,7 +726,7 @@ struct payload_func {
   guint8 type;
   const char *	str;
   void (*func)(tvbuff_t *, int, int, proto_tree *, proto_tree *, packet_info *,
-		int, int);
+		int, int, guint8);
 };
 
 static struct payload_func v1_plfunc[] = {
@@ -776,7 +935,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree,
       tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
       if ((f = getpayload_func(payload, isakmp_version)) != NULL && f->func != NULL)
         (*f->func)(tvb, offset + 4, payload_length - 4, ntree, parent_tree,
-		pinfo, isakmp_version, -1);
+		pinfo, isakmp_version, -1, next_payload);
       else {
         proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
                             "Payload");
@@ -870,33 +1029,61 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.exch_type = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload) + sizeof(hdr.version));
   hdr.version = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload));
   isakmp_version = hi_nibble(hdr.version);	/* save the version */
+  hdr.flags = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + sizeof(hdr.next_payload) + sizeof(hdr.version) + sizeof(hdr.exch_type));
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
                 exchtype2str(isakmp_version, hdr.exch_type));
 
 #ifdef HAVE_LIBGCRYPT
-  SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+  if (isakmp_version == 1) {
+    SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-  tvb_memcpy(tvb, i_cookie, offset, COOKIE_SIZE);
-  decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
+    tvb_memcpy(tvb, i_cookie, offset, COOKIE_SIZE);
+    decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
 
-  if (! decr) {
-    ic_key = g_mem_chunk_alloc(isakmp_key_data);
-    memcpy(ic_key, i_cookie, COOKIE_SIZE);
-    decr = g_mem_chunk_alloc(isakmp_decrypt_data);
-    memset(decr, 0, sizeof(decrypt_data_t));
-    SET_ADDRESS(&decr->initiator, AT_NONE, 0, NULL);
+    if (! decr) {
+      ic_key = g_mem_chunk_alloc(isakmp_key_data);
+      memcpy(ic_key, i_cookie, COOKIE_SIZE);
+      decr = g_mem_chunk_alloc(isakmp_decrypt_data);
+      memset(decr, 0, sizeof(decrypt_data_t));
+      SET_ADDRESS(&decr->initiator, AT_NONE, 0, NULL);
 
-    g_hash_table_insert(isakmp_hash, ic_key, decr);
+      g_hash_table_insert(isakmp_hash, ic_key, decr);
+    }
+
+    if (ADDRESSES_EQUAL(&decr->initiator, &null_addr)) {
+      /* XXX - We assume that we're seeing the second packet in an exchange here.
+       * Is there a way to verify this? */
+      SE_COPY_ADDRESS(&decr->initiator, &pinfo->src);
+    }
+
+    pinfo->private_data = decr;
+  } else if (isakmp_version == 2) {
+    ikev2_uat_data_key_t hash_key;
+    ikev2_uat_data_t *ike_sa_data = NULL;
+    ikev2_decrypt_data_t *ikev2_dec_data;
+    guchar spii[COOKIE_SIZE], spir[COOKIE_SIZE];
+
+    tvb_memcpy(tvb, spii, offset, COOKIE_SIZE);
+    tvb_memcpy(tvb, spir, offset + COOKIE_SIZE, COOKIE_SIZE);
+    hash_key.spii = spii;
+    hash_key.spir = spir;
+    hash_key.spii_len = COOKIE_SIZE;
+    hash_key.spir_len = COOKIE_SIZE;
+
+    ike_sa_data = g_hash_table_lookup(ikev2_key_hash, &hash_key);
+    if (ike_sa_data) {
+      guint8 initiator_flag;
+      initiator_flag = hdr.flags & I_FLAG;
+      ikev2_dec_data = ep_alloc(sizeof(ikev2_decrypt_data_t));
+      ikev2_dec_data->encr_key = initiator_flag ? ike_sa_data->sk_ei : ike_sa_data->sk_er;
+      ikev2_dec_data->auth_key = initiator_flag ? ike_sa_data->sk_ai : ike_sa_data->sk_ar;
+      ikev2_dec_data->encr_spec = ike_sa_data->encr_spec;
+      ikev2_dec_data->auth_spec = ike_sa_data->auth_spec;
+
+      pinfo->private_data = ikev2_dec_data;
+    }
   }
-
-  if (ADDRESSES_EQUAL(&decr->initiator, &null_addr)) {
-    /* XXX - We assume that we're seeing the second packet in an exchange here.
-     * Is there a way to verify this? */
-    SE_COPY_ADDRESS(&decr->initiator, &pinfo->src);
-  }
-
-  pinfo->private_data = decr;
 #endif /* HAVE_LIBGCRYPT */
 
   if (tree) {
@@ -931,7 +1118,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item *	fti;
       proto_tree *	ftree;
 
-      hdr.flags = tvb_get_guint8(tvb, offset);
       fti   = proto_tree_add_item(isakmp_tree, hf_isakmp_flags, tvb, offset, sizeof(hdr.flags), FALSE);
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
 
@@ -1054,7 +1240,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
 
 static void
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint32		doi;
   guint32		situation;
@@ -1103,7 +1289,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_,  packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_,  packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -1158,10 +1344,10 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     if (payload_length >= 4) {
       if (isakmp_version == 1)
         dissect_transform(tvb, offset + 4, payload_length - 4, ntree,
-			ntree, pinfo, isakmp_version, protocol_id);
+			ntree, pinfo, isakmp_version, protocol_id, 0);
       else if (isakmp_version == 2)
         dissect_transform2(tvb, offset + 4, payload_length - 4, ntree,
-			ntree, pinfo, isakmp_version, protocol_id);
+			ntree, pinfo, isakmp_version, protocol_id, 0);
     }
     else
       proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4, "Payload");
@@ -1173,7 +1359,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int protocol_id)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int protocol_id, guint8 inner_payload _U_)
 {
   static const value_string vs_v1_attr[] = {
     { 1,	"Encryption-Algorithm" },
@@ -1520,7 +1706,7 @@ v2_aft2str(guint16 aft)
 
 static void
 dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint8 transform_type;
   guint16 transform_id;
@@ -1578,7 +1764,7 @@ dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint16 dhgroup;
 #ifdef HAVE_LIBGCRYPT
@@ -1611,7 +1797,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		id_type;
   guint8		protocol_id;
@@ -1695,7 +1881,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_enc;
   asn1_ctx_t asn1_ctx;
@@ -1713,7 +1899,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_type;
   asn1_ctx_t asn1_ctx;
@@ -1739,7 +1925,7 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_type;
 
@@ -1759,14 +1945,14 @@ dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
 dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint8 auth;
 
@@ -1781,14 +1967,14 @@ dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Signature Data");
 }
 
 static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *ptree, packet_info *pinfo, int isakmp_version _U_, int unused _U_)
+    proto_tree *ptree, packet_info *pinfo, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
 
   guint8 seq; /* Packet sequence number, starting from 1 */
@@ -1842,7 +2028,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
@@ -1868,7 +2054,7 @@ v2_ipcomptype2str(guint8 type)
 
 static void
 dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -1931,7 +2117,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -2166,7 +2352,7 @@ vid_to_str(tvbuff_t* tvb, int offset, int length)
 
 static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint32 CPproduct, CPversion;
   const guint8 * pVID;
@@ -2223,7 +2409,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		type;
 
@@ -2283,7 +2469,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length,
 		      "Hash of address and port: %s",
@@ -2292,7 +2478,7 @@ dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8 id_type;
   guint32 addr_ipv4;
@@ -2345,7 +2531,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
 
 static void
 dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint8	num, tstype, protocol_id, addrlen;
   guint16	len, port;
@@ -2444,16 +2630,205 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_enc(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo, int isakmp_version _U_, int unused _U_, guint8 inner_payload)
 {
-  proto_tree_add_text(tree, tvb, offset, 4, "Initialization Vector: 0x%s",
-                      tvb_bytes_to_str(tvb, offset, 4));
-  proto_tree_add_text(tree, tvb, offset + 4, length, "Encrypted Data");
+#ifdef HAVE_LIBGCRYPT
+  ikev2_decrypt_data_t *key_info = NULL;
+  gint iv_len, encr_data_len, icd_len, encr_key_len, decr_data_len, md_len;
+  guint8 pad_len;
+  guchar *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL;
+  gcry_cipher_hd_t cipher_hd;
+  gcry_md_hd_t md_hd;
+  gcry_error_t err = 0;
+  proto_item *item = NULL, *icd_item = NULL, *encr_data_item = NULL, *padlen_item = NULL;
+  tvbuff_t *decr_tvb = NULL;
+  gint payloads_len;
+  proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
+
+
+  if (pinfo->private_data) {
+    key_info = (ikev2_decrypt_data_t*)(pinfo->private_data);
+    encr_key_len = key_info->encr_spec->key_len;
+    iv_len = key_info->encr_spec->iv_len;
+    icd_len = key_info->auth_spec->trunc_len;
+    encr_data_len = length - iv_len - icd_len;
+
+    /*
+     * Zero or negative length of encrypted data shows that the user specified
+     * wrong encryption algorithm and/or authentication algorithm.
+     */
+    if (encr_data_len <= 0) {
+      item = proto_tree_add_text(tree, tvb, offset, length, "Not enough data for IV, Encrypted data and ICD.");
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Not enough data in IKEv2 Encrypted payload");
+      PROTO_ITEM_SET_GENERATED(item);
+      return;
+    }
+
+    /*
+     * Add the IV to the tree and store it in a packet scope buffer for later decryption 
+     * if the specified encryption algorithm uses IV.
+     */  
+    if (iv_len) {
+      proto_tree_add_text(tree, tvb, offset, iv_len, "Initialization Vector (%d bytes): 0x%s",
+        iv_len, tvb_bytes_to_str(tvb, offset, iv_len));
+      iv = ep_tvb_memdup(tvb, offset, iv_len);
+
+      offset += iv_len;
+    }
+
+    /*
+     * Add the encrypted portion to the tree and store it in a packet scope buffer for later decryption.
+     */
+    encr_data_item = proto_tree_add_text(tree, tvb, offset, encr_data_len, "Encrypted Data (%d bytes)", encr_data_len);
+    encr_data = ep_tvb_memdup(tvb, offset, encr_data_len);
+    offset += encr_data_len;
+
+    /*
+     * Add the ICD (Integrity Checksum Data) to the tree before decryption to ensure 
+     * the ICD be displayed even if the decryption fails.
+     */ 
+    if (icd_len) {
+      icd_item = proto_tree_add_text(tree, tvb, offset, icd_len, "Integrity Checksum Data (%d bytes) ", icd_len);
+
+      /*
+       * Recalculate ICD value if the specified authentication algorithm allows it.
+       */ 
+      if (key_info->auth_spec->gcry_alg) {
+        err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
+        if (err) {
+          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
+            key_info->auth_spec->gcry_alg, gcry_strerror(err)));
+        }
+        err = gcry_md_setkey(md_hd, key_info->auth_key, key_info->auth_spec->key_len);
+        if (err) {
+          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
+            gcry_md_algo_name(key_info->auth_spec->gcry_alg), key_info->auth_spec->key_len, gcry_strerror(err)));
+        }
+
+        /* Calculate hash over the bytes from the beginning of the ISAKMP header to the right before the ICD. */
+        entire_message = ep_tvb_memdup(tvb, 0, offset);
+        gcry_md_write(md_hd, entire_message, offset);
+        md = gcry_md_read(md_hd, 0);
+        md_len = gcry_md_get_algo_dlen(key_info->auth_spec->gcry_alg);
+        if (md_len < icd_len) {
+          gcry_md_close(md_hd);
+          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %s: gcry_md_get_algo_dlen returned %d which is smaller than icd length %d",
+            gcry_md_algo_name(key_info->auth_spec->gcry_alg), md_len, icd_len));
+        }
+        if (tvb_memeql(tvb, offset, md, icd_len) == 0) {
+          proto_item_append_text(icd_item, "[correct]");
+        } else {
+          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_str(md, icd_len));
+          expert_add_info_format(pinfo, icd_item, PI_CHECKSUM, PI_WARN, "IKEv2 Integrity Checksum Data is incorrect");
+        }
+        gcry_md_close(md_hd);
+      } else {
+        proto_item_append_text(icd_item, "[not validated]");
+      }
+      offset += icd_len;
+    }
+
+    /*
+     * Confirm encrypted data length is multiple of block size.
+     */ 
+    if (encr_data_len % key_info->encr_spec->block_len != 0) {
+      proto_item_append_text(encr_data_item, "[Invalid length, should be a multiple of block size (%u)]",
+        key_info->encr_spec->block_len);
+      expert_add_info_format(pinfo, encr_data_item, PI_MALFORMED, PI_WARN, "Encrypted data length isn't a multiple of block size");
+      return;
+    }
+
+    /*
+     * Allocate buffer for decrypted data.
+     */ 
+    decr_data = (guchar*)g_malloc(encr_data_len);
+    decr_data_len = encr_data_len;
+
+    /*
+     * If the cipher is NULL, just copy the encrypted data to the decrypted data buffer. 
+     * And otherwise perform decryption with libgcrypt.
+     */  
+    if (key_info->encr_spec->number == IKEV2_ENCR_NULL) {
+      memcpy(decr_data, encr_data, decr_data_len);
+    } else {
+      err = gcry_cipher_open(&cipher_hd, key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, 0);
+      if (err) {
+        g_free(decr_data);
+        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
+          key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err)));
+      }
+      err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, key_info->encr_spec->key_len);
+      if (err) {
+        g_free(decr_data);
+        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
+          key_info->encr_spec->gcry_alg, key_info->encr_spec->key_len, gcry_strerror(err)));
+      }
+      err = gcry_cipher_setiv(cipher_hd, iv, iv_len);
+      if (err) {
+        g_free(decr_data);
+        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv failed: %s",
+          key_info->encr_spec->gcry_alg, iv_len, gcry_strerror(err)));
+      }
+      err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
+      if (err) {
+        g_free(decr_data);
+        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
+          key_info->encr_spec->gcry_alg, gcry_strerror(err)));
+      }
+      gcry_cipher_close(cipher_hd);
+    }
+
+ 
+    decr_tvb = tvb_new_real_data(decr_data, decr_data_len, decr_data_len);
+    tvb_set_free_cb(decr_tvb, g_free);
+    tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+    add_new_data_source(pinfo, decr_tvb, "Decrypted Data");
+    item = proto_tree_add_text(tree, decr_tvb, 0, decr_data_len, "Decrypted Data (%d bytes)", decr_data_len);
+    /* Move the ICD item to the bottom of the tree. */
+    if (icd_item) {
+      proto_tree_move_item(tree, item, icd_item);
+    }
+    decr_tree = proto_item_add_subtree(item, ett_isakmp_decrypted_data);
+
+    pad_len = tvb_get_guint8(decr_tvb, decr_data_len - 1);
+    payloads_len = decr_data_len - 1 - pad_len;
+
+    if (payloads_len > 0) {
+      item = proto_tree_add_text(decr_tree, decr_tvb, 0, payloads_len, "Contained Payloads (total %d bytes)", payloads_len);
+      decr_payloads_tree = proto_item_add_subtree(item, ett_isakmp_decrypted_payloads);
+    }
+
+    padlen_item = proto_tree_add_text(decr_tree, decr_tvb, payloads_len + pad_len, 1, "Pad Length: %d", pad_len);
+    if (pad_len > 0) {
+      if (payloads_len < 0) {
+        proto_item_append_text(padlen_item, " [too long]");
+        expert_add_info_format(pinfo, padlen_item, PI_MALFORMED, PI_WARN, "Pad length is too big");
+      } else {
+        item = proto_tree_add_text(decr_tree, decr_tvb, payloads_len, pad_len, "Padding (%d bytes)", pad_len);
+        proto_tree_move_item(decr_tree, item, padlen_item);
+      }
+    }
+
+    /*
+     * We dissect the inner payloads at last in order to ensure displaying Padding, Pad Length and ICD 
+     * even if the dissection fails. This may occur when the user specify wrong encryption key.
+     */
+    if (decr_payloads_tree) {
+      dissect_payloads(decr_tvb, decr_payloads_tree, decr_tree, isakmp_version, inner_payload, 0, payloads_len, pinfo);
+    }
+  }else{
+#endif /* HAVE_LIBGCRYPT */
+    proto_tree_add_text(tree, tvb, offset, 4, "Initialization Vector: 0x%s",
+                        tvb_bytes_to_str(tvb, offset, 4));
+    proto_tree_add_text(tree, tvb, offset + 4, length, "Encrypted Data");
+#ifdef HAVE_LIBGCRYPT
+  }
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
 dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   tvbuff_t *eap_tvb = NULL;
 
@@ -3179,11 +3554,38 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 
   return 0;
 }
-#endif
+
+static guint ikev2_key_hash_func(gconstpointer k) {
+  const ikev2_uat_data_key_t *key = (const ikev2_uat_data_key_t*)k;
+  guint hash = 0, keychunk, i;
+
+  /* XOR our icookie down to the size of a guint */
+  for (i = 0; i < key->spii_len - (key->spii_len % sizeof(keychunk)); i += sizeof(keychunk)) {
+    memcpy(&keychunk, &key->spii[i], sizeof(keychunk));
+    hash ^= keychunk;
+  }
+  for (i = 0; i < key->spir_len - (key->spir_len % sizeof(keychunk)); i += sizeof(keychunk)) {
+    memcpy(&keychunk, &key->spir[i], sizeof(keychunk));
+    hash ^= keychunk;
+  }
+
+  return hash;
+}
+
+static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
+  const ikev2_uat_data_key_t *key1 = k1, *key2 = k2;
+  if (key1->spii_len != key2->spii_len) return 0;
+  if (key1->spir_len != key2->spir_len) return 0;
+  if (memcmp(key1->spii, key2->spii, key1->spii_len) != 0) return 0;
+  if (memcmp(key1->spir, key2->spir, key1->spir_len) != 0) return 0;
+
+  return 1;
+}
+#endif /* HAVE_LIBGCRYPT */
 
 static void
 isakmp_init_protocol(void) {
-
+  guint i;
   fragment_table_init (&isakmp_fragment_table);
   reassembled_table_init(&isakmp_reassembled_table);
 
@@ -3208,6 +3610,15 @@ isakmp_init_protocol(void) {
   logf = ws_fopen(pluto_log_path, "r");
 
   scan_pluto_log();
+
+  if (ikev2_key_hash) {
+    g_hash_table_destroy(ikev2_key_hash);
+  }
+
+  ikev2_key_hash = g_hash_table_new(ikev2_key_hash_func, ikev2_key_equal_func);
+  for (i = 0; i < num_ikev2_uat_data; i++) {
+    g_hash_table_insert(ikev2_key_hash, &(ikev2_uat_data[i].key), &(ikev2_uat_data[i]));
+  }
 #endif /* HAVE_LIBGCRYPT */
 }
 
@@ -3217,6 +3628,63 @@ isakmp_prefs_apply_cb(void) {
   isakmp_init_protocol();
 #endif /* HAVE_LIBGCRYPT */
 }
+
+#ifdef HAVE_LIBGCRYPT
+UAT_BUFFER_CB_DEF(ikev2_users, spii, ikev2_uat_data_t, key.spii, key.spii_len)
+UAT_BUFFER_CB_DEF(ikev2_users, spir, ikev2_uat_data_t, key.spir, key.spir_len)
+UAT_BUFFER_CB_DEF(ikev2_users, sk_ei, ikev2_uat_data_t, sk_ei, sk_ei_len)
+UAT_BUFFER_CB_DEF(ikev2_users, sk_er, ikev2_uat_data_t, sk_er, sk_er_len)
+UAT_VS_DEF(ikev2_users, encr_alg, ikev2_uat_data_t, IKEV2_ENCR_3DES, "3DES")
+UAT_BUFFER_CB_DEF(ikev2_users, sk_ai, ikev2_uat_data_t, sk_ai, sk_ai_len)
+UAT_BUFFER_CB_DEF(ikev2_users, sk_ar, ikev2_uat_data_t, sk_ar, sk_ar_len)
+UAT_VS_DEF(ikev2_users, auth_alg, ikev2_uat_data_t, IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96") 
+
+static void ikev2_uat_data_update_cb(void* p, const char** err) {
+  ikev2_uat_data_t *ud = p;
+
+  if (ud->key.spii_len != COOKIE_SIZE) {
+    *err = ep_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex charactors).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    return;
+  }
+
+  if (ud->key.spir_len != COOKIE_SIZE) {
+    *err = ep_strdup_printf("Length of Responder's SPI must be %d octets (%d hex charactors).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    return;
+  }
+
+  if ((ud->encr_spec = ikev2_decrypt_find_encr_spec(ud->encr_alg)) == NULL) {
+    REPORT_DISSECTOR_BUG("Couldn't get IKEv2 encryption algorithm spec.");
+  }
+
+  if ((ud->auth_spec = ikev2_decrypt_find_auth_spec(ud->auth_alg)) == NULL) {
+    REPORT_DISSECTOR_BUG("Couldn't get IKEv2 authentication algorithm spec.");
+  }
+
+  if (ud->sk_ei_len != ud->encr_spec->key_len) {
+    *err = ep_strdup_printf("Length of SK_ei (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+             ud->sk_ei_len, ud->encr_spec->key_len);
+    return;
+  }
+
+  if (ud->sk_er_len != ud->encr_spec->key_len) {
+    *err = ep_strdup_printf("Length of SK_er (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+             ud->sk_er_len, ud->encr_spec->key_len);
+    return;
+  }
+
+  if (ud->sk_ai_len != ud->auth_spec->key_len) {
+    *err = ep_strdup_printf("Length of SK_ai (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+             ud->sk_ai_len, ud->auth_spec->key_len);
+    return;
+  }
+
+  if (ud->sk_ar_len != ud->auth_spec->key_len) {
+    *err = ep_strdup_printf("Length of SK_ar (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+             ud->sk_ar_len, ud->auth_spec->key_len);
+    return;
+  }
+}
+#endif /* HAVE_LIBGCRYPT */
 
 void
 proto_register_isakmp(void)
@@ -3375,9 +3843,25 @@ proto_register_isakmp(void)
     &ett_isakmp_flags,
     &ett_isakmp_payload,
     &ett_isakmp_fragment,
-    &ett_isakmp_fragments
+    &ett_isakmp_fragments,
+#ifdef HAVE_LIBGCRYPT
+    &ett_isakmp_decrypted_data,
+    &ett_isakmp_decrypted_payloads
+#endif /* HAVE_LIBGCRYPT */
   };
-
+#ifdef HAVE_LIBGCRYPT
+  static uat_field_t ikev2_uat_flds[] = {
+    UAT_FLD_BUFFER(ikev2_users, spii, "Initiator's SPI", "Initiator's SPI value of the IKE_SA"),
+    UAT_FLD_BUFFER(ikev2_users, spir, "Responder's SPI", "Responder's SPI value of the IKE_SA"),
+    UAT_FLD_BUFFER(ikev2_users, sk_ei, "SK_ei", "Key used to encrypt/decrypt IKEv2 packets from initiator to responder"),
+    UAT_FLD_BUFFER(ikev2_users, sk_er, "SK_er", "Key used to encrypt/decrypt IKEv2 packets from responder to initiator"),
+    UAT_FLD_VS(ikev2_users, encr_alg, "Encryption algorithm", vs_ikev2_encr_algs, "Encryption algorithm of IKE_SA"),
+    UAT_FLD_BUFFER(ikev2_users, sk_ai, "SK_ai", "Key used to calculate Integrity Checksum Data for IKEv2 packets from initiator to responder"),
+    UAT_FLD_BUFFER(ikev2_users, sk_ar, "SK_ar", "Key used to calculate Integrity Checksum Data for IKEv2 packets from responder to initiator"),
+    UAT_FLD_VS(ikev2_users, auth_alg, "Integrity algorithm", vs_ikev2_auth_algs, "Integrity algorithm of IKE_SA"),
+    UAT_END_FIELDS
+  };
+#endif /* HAVE_LIBGCRYPT */
   proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
 					       "ISAKMP", "isakmp");
   proto_register_field_array(proto_isakmp, hf, array_length(hf));
@@ -3392,6 +3876,26 @@ proto_register_isakmp(void)
     "Log Filename",
     "Path to a pluto log file containing DH secret information",
     &pluto_log_path);
+
+  ikev2_uat = uat_new("IKEv2 Decryption Table",
+      sizeof(ikev2_uat_data_t),
+      "ikev2_decryption_table",
+      TRUE,
+      (void**)&ikev2_uat_data,
+      &num_ikev2_uat_data,
+      UAT_CAT_CRYPTO,
+      "ChIKEv2DecryptionSection",
+      NULL,
+      ikev2_uat_data_update_cb,
+      NULL,
+      ikev2_uat_flds);
+
+  prefs_register_uat_preference(isakmp_module,
+      "ikev2_decryption_table",
+      "IKEv2 Decryption Table",
+      "Table of IKE_SA security parameters for decryption of IKEv2 packets",
+      ikev2_uat);
+
 #endif /* HAVE_LIBGCRYPT */
 }
 
