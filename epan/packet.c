@@ -435,7 +435,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 
 static int
 call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
-    packet_info *pinfo_arg, proto_tree *tree)
+					packet_info *pinfo_arg, proto_tree *tree, gboolean add_proto_name)
 {
  	packet_info *pinfo = pinfo_arg;
 	const char *saved_proto;
@@ -477,8 +477,9 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 
 		/*
 		 * Add the protocol name to the layers
+		 * if not told not to. Asn2wrs generated dissectors may be added multiple times otherwise.
 		 */
-		if (pinfo->layer_names) {
+		if ((pinfo->layer_names)&&(add_proto_name)) {
 			if (pinfo->layer_names->len > 0)
 				g_string_append(pinfo->layer_names, ":");
 			g_string_append(pinfo->layer_names,
@@ -500,7 +501,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
  		 * remove its protocol's name from the list
  		 * of protocols.
 		 */
- 		if (pinfo->layer_names != NULL) {
+ 		if ((pinfo->layer_names != NULL)&&(add_proto_name)) {
  			g_string_truncate(pinfo->layer_names,
  			    saved_layer_names_len);
 		}
@@ -846,9 +847,10 @@ dissector_reset(const char *name, guint32 pattern)
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
+
 gboolean
-dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissector_try_port_new(dissector_table_t sub_dissectors, guint32 port,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean add_proto_name)
 {
 	dtbl_entry_t *dtbl_entry;
 	struct dissector_handle *handle;
@@ -877,7 +879,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		 */
 		saved_match_port = pinfo->match_port;
 		pinfo->match_port = port;
-		ret = call_dissector_work(handle, tvb, pinfo, tree);
+		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name);
 		pinfo->match_port = saved_match_port;
 
 		/*
@@ -898,6 +900,13 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	return FALSE;
 }
 
+gboolean
+dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+	return dissector_try_port_new(sub_dissectors, port, tvb, pinfo, tree, TRUE);
+}
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 dissector_handle_t
@@ -1122,7 +1131,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		 */
 		saved_match_string = pinfo->match_string;
 		pinfo->match_string = string;
-		ret = call_dissector_work(handle, tvb, pinfo, tree);
+		ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE);
 		pinfo->match_string = saved_match_string;
 
 		/*
@@ -1787,7 +1796,7 @@ call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
 	int ret;
 
 	g_assert(handle != NULL);
-	ret = call_dissector_work(handle, tvb, pinfo, tree);
+	ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE);
 	return ret;
 }
 
@@ -1808,7 +1817,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 	        g_assert(data_handle != NULL);
 		g_assert(data_handle->protocol != NULL);
-		call_dissector_work(data_handle, tvb, pinfo, tree);
+		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE);
 		return tvb_length(tvb);
 	}
 	return ret;

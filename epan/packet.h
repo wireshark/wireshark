@@ -190,6 +190,12 @@ extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
     guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Look for a given value in a given uint dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
+extern gboolean dissector_try_port_new(dissector_table_t sub_dissectors, 
+	guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean add_proto_name);
+
+/* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 extern dissector_handle_t dissector_get_port_handle(
     dissector_table_t sub_dissectors, guint32 port);
