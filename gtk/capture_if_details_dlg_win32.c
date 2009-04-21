@@ -159,6 +159,7 @@ struct sockaddr_storage {
 
 
 /* This will probably break if you're using VC++ 6 _and_ have a newer SDK. */
+#if (_MSC_VER <= 1200) || (_MSC_VER == 1310)
 #if (_MSC_VER <= 1200)
 /* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
 typedef enum ndis_phys_medium {
@@ -211,6 +212,9 @@ typedef enum ndis_phys_medium {
 #define OID_802_11_PRIVACY_FILTER		0x0D010119
 #define OID_802_11_BSSID_LIST_SCAN		0x0D01011A
 #define OID_802_11_WEP_STATUS			0x0D01011B
+
+#endif /*(_MSC_VER <= 1200)*/
+
 #define OID_802_11_ENCRYPTION_STATUS		OID_802_11_WEP_STATUS
 #define OID_802_11_RELOAD_DEFAULTS		0x0D01011C
 #define OID_802_11_ADD_KEY			0x0D01011D
@@ -220,6 +224,7 @@ typedef enum ndis_phys_medium {
 #define OID_802_11_CAPABILITY			0x0D010122
 #define OID_802_11_PMKID			0x0D010123
 
+#if (_MSC_VER <= 1200)
 
 /* PnP and power management OIDs */
 #define OID_PNP_CAPABILITIES			0xFD010100
@@ -280,6 +285,8 @@ enum encryption_status {
 	Ndis802_11Encryption3KeyAbsent
 };
 
+#endif /*(_MSC_VER <= 1200)*/
+
 typedef struct _NDIS_802_11_FIXED_IEs
 {
   UCHAR  Timestamp[8];
@@ -287,7 +294,7 @@ typedef struct _NDIS_802_11_FIXED_IEs
   USHORT  Capabilities;
 } NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
 
-#endif /* _WIN64 */
+#endif /* (_MSC_VER <= 1200) || (_MSC_VER == 1310) */
 
 
 /* Currently associated SSID (OID_802_11_SSID) */
@@ -493,24 +500,29 @@ static const value_string win32_802_11_auth_mode_vals[] = {
 	{ Ndis802_11AuthModeOpen,       "Open System" },
 	{ Ndis802_11AuthModeShared,     "Shared Key" },
 	{ Ndis802_11AuthModeAutoSwitch, "Auto Switch" },
+#if (_MSC_VER != 1310)
 	{ Ndis802_11AuthModeWPA,        "WPA" },
 	{ Ndis802_11AuthModeWPAPSK,     "WPA-PSK (pre shared key)" },
 	{ Ndis802_11AuthModeWPANone,    "WPA (ad hoc)" },
 	{ Ndis802_11AuthModeWPA2,       "WPA2" },
 	{ Ndis802_11AuthModeWPA2PSK,    "WPA2-PSK (pre shared key)" },
+#endif	
     { 0, NULL }
 };
 
 static const value_string win32_802_11_network_type_vals[] = {
 	{ Ndis802_11FH,         "FH (frequency-hopping spread-spectrum)" },
 	{ Ndis802_11DS,         "DS (direct-sequence spread-spectrum)" },
+#if (_MSC_VER != 1310)
 	{ Ndis802_11OFDM5,      "5-GHz OFDM" },
 	{ Ndis802_11OFDM24,     "2.4-GHz OFDM" },
 	{ Ndis802_11Automode,   "Auto" },
+#endif
     { 0, NULL }
 };
 
 static const value_string win32_802_11_encryption_status_vals[] = {
+#if (_MSC_VER != 1310)
 	{ Ndis802_11Encryption1Enabled,     "WEP enabled, TKIP & AES disabled, transmit key available" },
 	{ Ndis802_11EncryptionDisabled,     "WEP & TKIP & AES disabled, transmit key available" },
 	{ Ndis802_11Encryption1KeyAbsent,   "WEP enabled, TKIP & AES disabled, transmit key unavailable" },
@@ -519,6 +531,7 @@ static const value_string win32_802_11_encryption_status_vals[] = {
 	{ Ndis802_11Encryption2KeyAbsent,   "WEP & TKIP enabled, AES disabled, transmit key unavailable" },
 	{ Ndis802_11Encryption3Enabled,     "WEP & TKIP & AES enabled, transmit key available" },
 	{ Ndis802_11Encryption3KeyAbsent,   "WEP & TKIP & AES enabled, transmit key unavailable" },
+#endif
     { 0, NULL }
 };
 
