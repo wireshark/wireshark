@@ -33,7 +33,7 @@
 static int proto_infiniband = -1;
 
 /* Variables to hold expansion values between packets */
-static gint ett_infiniband = -1;
+/* static gint ett_infiniband = -1;                */
 static gint ett_all_headers = -1;
 static gint ett_lrh = -1;
 static gint ett_grh = -1;
@@ -59,11 +59,11 @@ static gint ett_subm_attribute = -1;
 static gint ett_suba_attribute = -1;
 static gint ett_datadetails = -1;
 static gint ett_noticestraps = -1;
-static gint ett_nodedesc = -1;
-static gint ett_nodeinfo = -1;
-static gint ett_switchinfo = -1;
-static gint ett_guidinfo = -1;
-static gint ett_portinfo = -1;
+/* static gint ett_nodedesc = -1;                  */
+/* static gint ett_nodeinfo = -1;                  */
+/* static gint ett_switchinfo = -1;                */
+/* static gint ett_guidinfo = -1;                  */
+/* static gint ett_portinfo = -1;                  */
 static gint ett_portinfo_capmask = -1;
 static gint ett_pkeytable = -1;
 static gint ett_sltovlmapping = -1;
@@ -479,8 +479,8 @@ static int hf_infiniband_remote_key = -1;
 static int hf_infiniband_dma_length = -1;	
 /* Atomic Extended Transport Header (AtomicETH) */
 static int hf_infiniband_AtomicETH = -1;
-static int hf_infiniband_virtual_address_AtomicETH = -1;
-static int hf_infiniband_remote_key_AtomicETH = -1;
+/* static int hf_infiniband_virtual_address_AtomicETH = -1;                  */
+/* static int hf_infiniband_remote_key_AtomicETH = -1;                       */
 static int hf_infiniband_swap_or_add_data = -1;
 static int hf_infiniband_compare_data = -1;	
 /* ACK Extended Transport Header (AETH) */
@@ -506,7 +506,7 @@ static int hf_infiniband_MAD = -1;
 static int hf_infiniband_base_version = -1;
 static int hf_infiniband_mgmt_class = -1;
 static int hf_infiniband_class_version = -1;
-static int hf_infiniband_reserved1 = -1;
+/* static int hf_infiniband_reserved1 = -1;                                  */
 static int hf_infiniband_method = -1;
 static int hf_infiniband_status = -1;
 static int hf_infiniband_class_specific = -1;
@@ -525,7 +525,7 @@ static int hf_infiniband_rmpp_status = -1;
 static int hf_infiniband_rmpp_data1 = -1;
 static int hf_infiniband_rmpp_data2 = -1;
 /* RMPP Data */
-static int hf_infiniband_RMPP_DATA = -1;
+/* static int hf_infiniband_RMPP_DATA = -1;                                  */
 static int hf_infiniband_segment_number = -1;
 static int hf_infiniband_payload_length32 = -1;
 static int hf_infiniband_transferred_data = -1;
@@ -600,7 +600,7 @@ static int hf_infiniband_SwitchInfo_FilterRawInboundCap = -1;
 static int hf_infiniband_SwitchInfo_FilterRawOutboundCap = -1;
 static int hf_infiniband_SwitchInfo_EnhancedPortZero = -1;
 /* GUIDInfo */
-static int hf_infiniband_GUIDInfo_GUIDBlock = -1;
+/* static int hf_infiniband_GUIDInfo_GUIDBlock = -1;                         */
 static int hf_infiniband_GUIDInfo_GUID = -1;
 /* PortInfo */
 static int hf_infiniband_PortInfo_GidPrefix = -1;
@@ -609,7 +609,7 @@ static int hf_infiniband_PortInfo_MasterSMLID = -1;
 static int hf_infiniband_PortInfo_CapabilityMask = -1;
 
 /* Capability Mask Flags */
-static int hf_infiniband_PortInfo_CapabilityMask_SM;
+static int hf_infiniband_PortInfo_CapabilityMask_SM = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_NoticeSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_TrapSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_OptionalPDSupported = -1;
@@ -689,23 +689,23 @@ static int hf_infiniband_SLtoVLMappingTable_SLtoVL_HighBits = -1;
 static int hf_infiniband_SLtoVLMappingTable_SLtoVL_LowBits = -1;
 
 /* VLArbitrationTable */
-static int hf_infiniband_VLArbitrationTable_VLWeightPairs = -1;
+/* static int hf_infiniband_VLArbitrationTable_VLWeightPairs = -1;           */
 static int hf_infiniband_VLArbitrationTable_VL = -1;
 static int hf_infiniband_VLArbitrationTable_Weight = -1;
 
 /* LinearForwardingTable */
-static int hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock = -1;
+/* static int hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock = -1;  */
 static int hf_infiniband_LinearForwardingTable_Port = -1;
 
 /* RandomForwardingTable */
-static int hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock = -1;
+/* static int hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock = -1;  */
 static int hf_infiniband_RandomForwardingTable_LID = -1;
 static int hf_infiniband_RandomForwardingTable_Valid = -1;
 static int hf_infiniband_RandomForwardingTable_LMC = -1;
 static int hf_infiniband_RandomForwardingTable_Port = -1;
 
 /* MulticastForwardingTable */
-static int hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock = -1;
+/* static int hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock = -1;    */
 static int hf_infiniband_MulticastForwardingTable_PortMask = -1;
 
 /* SMInfo */
@@ -751,7 +751,7 @@ static int hf_infiniband_SA_BlockNum_EightBit = -1;
 static int hf_infiniband_SA_BlockNum_NineBit = -1;
 static int hf_infiniband_SA_BlockNum_SixteenBit = -1;
 static int hf_infiniband_SA_Position = -1;
-static int hf_infiniband_SA_Index = -1;
+/* static int hf_infiniband_SA_Index = -1;                                   */
 
 /* InformInfoRecord */
 static int hf_infiniband_InformInfoRecord_SubscriberGID = -1;
@@ -870,8 +870,8 @@ static int hf_infiniband_Notice_IssuerLID = -1;
 static int hf_infiniband_Notice_NoticeToggle = -1;
 static int hf_infiniband_Notice_NoticeCount = -1;
 static int hf_infiniband_Notice_DataDetails = -1;
-static int hf_infiniband_Notice_IssuerGID = -1;
-static int hf_infiniband_Notice_ClassTrapSpecificData = -1;
+/* static int hf_infiniband_Notice_IssuerGID = -1;             */
+/* static int hf_infiniband_Notice_ClassTrapSpecificData = -1; */
 
 /* Notice DataDetails and ClassTrapSpecific Data for certain traps 
 * Note that traps reuse many fields, so they are only declared once under the first trap that they appear.
@@ -888,7 +888,7 @@ static int hf_infiniband_Trap_GIDADDR = -1;
 static int hf_infiniband_Trap_COMP_MASK = -1;
 static int hf_infiniband_Trap_WAIT_FOR_REPATH = -1;
 /* ClassTrapSpecificData */
-static int hf_infiniband_Trap_PATH_REC = -1;
+/* static int hf_infiniband_Trap_PATH_REC = -1;                              */
 
 /* Trap 128 */
 static int hf_infiniband_Trap_LIDADDR = -1;
@@ -1308,6 +1308,8 @@ static guint32 opCode_PAYLD[] = {
 * So for instance, to filter packets for a given virtual lane,
 * The filter (infiniband.LRH.vl == 3) or something similar would be used. */
 
+/* XXX: ToDo: Verify against Infiniband 1.2.1 Specification                 */
+/*      Note that all starting with VendorDiag have been verified/corrected */
 static hf_register_info hf[] = {
 	
 	/* Local Route Header (LRH) */
@@ -1365,10 +1367,10 @@ static hf_register_info hf[] = {
 	{"Hop Limit", "infiniband.grh.hoplmt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_source_gid,
-	{"Source GID", "infiniband.grh.sgid", FT_IPv6, BASE_DEC, NULL, 0x0, NULL, HFILL}
+	{"Source GID", "infiniband.grh.sgid", FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_destination_gid,
-	{"Destination GID", "infiniband.grh.dgid", FT_IPv6, BASE_DEC, NULL, 0x0, NULL, HFILL}
+	{"Destination GID", "infiniband.grh.dgid", FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	
 	/* Base Transport Header (BTH) */
@@ -1379,10 +1381,10 @@ static hf_register_info hf[] = {
 	{"Opcode", "infiniband.bth.opcode", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_solicited_event,
-	{"Solicited Event", "infiniband.bth.se", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL}
+	{"Solicited Event", "infiniband.bth.se", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
 	},
 	{&hf_infiniband_migreq,
-	{"MigReq", "infiniband.bth.m", FT_BOOLEAN, BASE_DEC, NULL, 0x40, NULL, HFILL}
+	{"MigReq", "infiniband.bth.m", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
 	},
 	{&hf_infiniband_pad_count,
 	{"Pad Count", "infiniband.bth.padcnt", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL}
@@ -1400,7 +1402,7 @@ static hf_register_info hf[] = {
 	{"Destination Queue Pair", "infiniband.bth.destqp", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_acknowledge_request,
-	{"Acknowledge Request", "infiniband.bth.a", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL}
+	{"Acknowledge Request", "infiniband.bth.a", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
 	},
 	{&hf_infiniband_reserved7,
 	{"Reserved (7 bits)", "infiniband.bth.reserved7", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL}
@@ -1463,12 +1465,12 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_AtomicETH,
 	{"Atomic Extended Transport Header", "infiniband.atomiceth", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
-	{&hf_infiniband_virtual_address_AtomicETH,
-	{"Virtual Address", "infiniband.atomiceth.va", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
-	},
-	{&hf_infiniband_remote_key_AtomicETH,
-	{"Remote Key", "infiniband.atomiceth.r_key", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_virtual_address_AtomicETH,							*/
+/*	{"Virtual Address", "infiniband.atomiceth.va", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}	*/
+/*	},												*/
+/*	{&hf_infiniband_remote_key_AtomicETH,                                                           */
+/*	{"Remote Key", "infiniband.atomiceth.r_key", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}       */
+/*	},                                                                                              */
 	{&hf_infiniband_swap_or_add_data,
 	{"Swap (Or Add) Data", "infiniband.atomiceth.swapdt", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
 	},
@@ -1535,9 +1537,9 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_class_version,
 	{"Class Version", "infiniband.mad.classversion", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
-	{&hf_infiniband_reserved1,
-	{"Reserved", "infiniband.mad.reserved1", FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-	},
+/*	{&hf_infiniband_reserved1,                                                                      */
+/*	{"Reserved", "infiniband.mad.reserved1", FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}           */
+/*	},                                                                                              */
 	{&hf_infiniband_method,
 	{"Method", "infiniband.mad.method", FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL}
 	},
@@ -1587,10 +1589,10 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_rmpp_data2,
 	{"RMPP Data 2", "infiniband.rmpp.data2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
-	/* RMPP Data */
-	{&hf_infiniband_RMPP_DATA,
-	{"RMPP Data (Reliable Multi-Packet Transaction Protocol)", "infiniband.rmpp.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/* RMPP Data */
+/*	{&hf_infiniband_RMPP_DATA,                                                                                                     */
+/*	{"RMPP Data (Reliable Multi-Packet Transaction Protocol)", "infiniband.rmpp.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	}, */
 	{&hf_infiniband_segment_number,
 	{"Segment Number", "infiniband.rmpp.segmentnumber", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
@@ -1768,9 +1770,9 @@ static hf_register_info hf[] = {
 	{"EnhancedPortZero", "infiniband.switchinfo.enhancedportzero", FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL}
 	},
 	/* GUIDInfo */
-	{&hf_infiniband_GUIDInfo_GUIDBlock,
-	{"GUIDBlock", "infiniband.switchinfo.guidblock", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_GUIDInfo_GUIDBlock,                                                            */
+/*	{"GUIDBlock", "infiniband.switchinfo.guidblock", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}   */
+/*	},                                                                                             */
 	{&hf_infiniband_GUIDInfo_GUID,
 	{"GUID", "infiniband.switchinfo.guid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
@@ -2007,9 +2009,9 @@ static hf_register_info hf[] = {
 	{"SL(x)toVL", "infiniband.sltovlmappingtable.sltovllowbits",			FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}
 	},
 	/* VLArbitrationTable */
-	{&hf_infiniband_VLArbitrationTable_VLWeightPairs,
-	{"VLWeightPairs", "infiniband.vlarbitrationtable.vlweightpairs",	FT_BYTES, BASE_HEX, NULL, 0x7FFF, NULL, HFILL}
-	},
+/*	{&hf_infiniband_VLArbitrationTable_VLWeightPairs,                                                                     */
+/*	{"VLWeightPairs", "infiniband.vlarbitrationtable.vlweightpairs",	FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}   */
+/*	},                                                                                                                    */
 	{&hf_infiniband_VLArbitrationTable_VL,
 	{"VL", "infiniband.vlarbitrationtable.vl",							FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}
 	},
@@ -2017,16 +2019,16 @@ static hf_register_info hf[] = {
 	{"Weight", "infiniband.vlarbitrationtable.weight",					FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* LinearForwardingTable */
-	{&hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock,
-	{"LinearForwardingTableBlock", "infiniband.linearforwardingtable.linearforwardingtableblock",	FT_BYTES, BASE_HEX, NULL, 0x0F, NULL, HFILL}
-	},
+/*	{&hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock,                                                                            */
+/*	{"LinearForwardingTableBlock", "infiniband.linearforwardingtable.linearforwardingtableblock",	FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}  */
+/*	},                                                                                                                                           */
 	{&hf_infiniband_LinearForwardingTable_Port,
 	{"Port", "infiniband.linearforwardingtable.port",							FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* RandomForwardingTable */
-	{&hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock,
-	{"RandomForwardingTableBlock", "infiniband.randomforwardingtable.randomforwardingtableblock",			FT_BYTES, BASE_HEX, NULL, 0x7FFF, NULL, HFILL}
-	},
+/*	{&hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock,   */
+/*	{"RandomForwardingTableBlock", "infiniband.randomforwardingtable.randomforwardingtableblock",			FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	},   */
 	{&hf_infiniband_RandomForwardingTable_LID,
 	{"LID", "infiniband.randomforwardingtable.lid",			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
@@ -2034,15 +2036,15 @@ static hf_register_info hf[] = {
 	{"Valid", "infiniband.randomforwardingtable.valid",			FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
 	},
 	{&hf_infiniband_RandomForwardingTable_LMC,
-	{"LMC", "infiniband.randomforwardingtable.lmc",			FT_UINT16, BASE_HEX, NULL, 0x70, NULL, HFILL}
+	{"LMC", "infiniband.randomforwardingtable.lmc",			FT_UINT8, BASE_HEX, NULL, 0x70, NULL, HFILL}
 	},
 	{&hf_infiniband_RandomForwardingTable_Port,
 	{"Port", "infiniband.randomforwardingtable.port",			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* MulticastForwardingTable */
-	{&hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock ,
-	{"MulticastForwardingTableBlock ", "infiniband.multicastforwardingtable.multicastforwardingtableblock", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock ,  */
+/*	{"MulticastForwardingTableBlock ", "infiniband.multicastforwardingtable.multicastforwardingtableblock", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	},  */
 	{&hf_infiniband_MulticastForwardingTable_PortMask,
 	{"PortMask", "infiniband.multicastforwardingtable.portmask",			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
@@ -2062,6 +2064,8 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_SMInfo_SMState,
 	{"SMState", "infiniband.sminfo.smstate",	FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}
 	},
+
+/* XX: All following verified/corrected against Infiniband 1.2.1 Specification */
 	/* VendorDiag */
 	{&hf_infiniband_VendorDiag_NextIndex,
 	{"NextIndex", "infiniband.vendordiag.nextindex", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2124,9 +2128,9 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_SA_Position,
 	{"Position", "infiniband.sa.position",	 FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
 	},
-	{&hf_infiniband_SA_Index,
-	{"Index", "infiniband.sa.index",	 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_SA_Index,  */
+/*	{"Index", "infiniband.sa.index",	 FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}  */
+/*	},  */
 	/* InformInfoRecord */
 	{&hf_infiniband_InformInfoRecord_SubscriberGID,
 	{"SubscriberGID", "infiniband.informinforecord.subscribergid",	 FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2224,7 +2228,7 @@ static hf_register_info hf[] = {
 	{"RawTraffic", "infiniband.pathrecord.rawtraffic",	 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_FlowLabel,
-	{"FlowLabel", "infiniband.pathrecord.flowlabel",	 FT_UINT24, BASE_HEX, NULL, 0xFFFFF0, NULL, HFILL}
+	{"FlowLabel", "infiniband.pathrecord.flowlabel",	 FT_UINT24, BASE_HEX, NULL, 0x0FFFFF, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_HopLimit,
 	{"HopLimit", "infiniband.pathrecord.hoplimit",		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2254,13 +2258,13 @@ static hf_register_info hf[] = {
 	{"RateSelector", "infiniband.pathrecord.rateselector",	 FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_Rate,
-	{"Rate", "infiniband.pathrecord.rate",					FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL}
+	{"Rate", "infiniband.pathrecord.rate",					FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_PacketLifeTimeSelector,
-	{"PacketLifeTimeSelector", "infiniband.pathrecord.packetlifetimeselector",	 FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL}
+	{"PacketLifeTimeSelector", "infiniband.pathrecord.packetlifetimeselector",	 FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_PacketLifeTime,
-	{"PacketLifeTime", "infiniband.pathrecord.packetlifetime",	 FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL}
+	{"PacketLifeTime", "infiniband.pathrecord.packetlifetime",	 FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL}
 	},
 	{&hf_infiniband_PathRecord_Preference,
 	{"Preference", "infiniband.pathrecord.preference",			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2318,7 +2322,7 @@ static hf_register_info hf[] = {
 	{"JoinState", "infiniband.mcmemberrecord.joinstate",	FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
 	},
 	{&hf_infiniband_MCMemberRecord_ProxyJoin,
-	{"ProxyJoin", "infiniband.mcmemberrecord.proxyjoin",	FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL}
+	{"ProxyJoin", "infiniband.mcmemberrecord.proxyjoin",	FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
 	},
 	/* MultiPathRecord */
 	{&hf_infiniband_MultiPathRecord_RawTraffic,
@@ -2352,10 +2356,10 @@ static hf_register_info hf[] = {
 	{"MTU", "infiniband.multipathrecord.mtu",			FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL}
 	},
 	{&hf_infiniband_MultiPathRecord_RateSelector,
-	{"RateSelector", "infiniband.multipathrecord.rateselector",	FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL}
+	{"RateSelector", "infiniband.multipathrecord.rateselector",	FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
 	},
 	{&hf_infiniband_MultiPathRecord_Rate,
-	{"Rate", "infiniband.multipathrecord.rate",			FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL}
+	{"Rate", "infiniband.multipathrecord.rate",			FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL}
 	},
 	{&hf_infiniband_MultiPathRecord_PacketLifeTimeSelector,
 	{"PacketLifeTimeSelector", "infiniband.multipathrecord.packetlifetimeselector",	FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}
@@ -2403,12 +2407,12 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_Notice_DataDetails,
 	{"DataDetails", "infiniband.notice.datadetails",	FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
-	{&hf_infiniband_Notice_IssuerGID,
-	{"IssuerGID", "infiniband.notice.issuergid",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
-	{&hf_infiniband_Notice_ClassTrapSpecificData,
-	{"ClassTrapSpecificData", "infiniband.notice.classtrapspecificdata",		FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_Notice_IssuerGID, */
+/*	{"IssuerGID", "infiniband.notice.issuergid",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	}, */
+/*	{&hf_infiniband_Notice_ClassTrapSpecificData, */
+/*	{"ClassTrapSpecificData", "infiniband.notice.classtrapspecificdata",		FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	}, */
 	/* Traps 64,65,66,67 */
 	{&hf_infiniband_Trap_GIDADDR,
 	{"GIDADDR", "infiniband.trap.gidaddr",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2420,9 +2424,9 @@ static hf_register_info hf[] = {
 	{&hf_infiniband_Trap_WAIT_FOR_REPATH,
 	{"WAIT_FOR_REPATH", "infiniband.trap.wait_for_repath",		FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
 	},
-	{&hf_infiniband_Trap_PATH_REC,
-	{"PATH_REC", "infiniband.trap.path_rec",		FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
-	},
+/*	{&hf_infiniband_Trap_PATH_REC, */
+/*	{"PATH_REC", "infiniband.trap.path_rec",		FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL} */
+/*	}, */
 	/* Trap 128 */
 	{&hf_infiniband_Trap_LIDADDR,
 	{"LIDADDR", "infiniband.trap.lidaddr",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2449,76 +2453,76 @@ static hf_register_info hf[] = {
 	},
 	/* Trap 145 */
 	{&hf_infiniband_Trap_SYSTEMIMAGEGUID,
-	{"SYSTEMIMAGEGUID", "infiniband.trap.systemimageguid",		FT_UINT64, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"SYSTEMIMAGEGUID", "infiniband.trap.systemimageguid",		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* Trap 256 */
 	{&hf_infiniband_Trap_DRSLID,
-	{"DRSLID", "infiniband.trap.drslid",		FT_UINT16, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DRSLID", "infiniband.trap.drslid",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_METHOD,
-	{"METHOD", "infiniband.trap.method",		FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"METHOD", "infiniband.trap.method",		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_ATTRIBUTEID,
-	{"ATTRIBUTEID", "infiniband.trap.attributeid",		FT_UINT16, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"ATTRIBUTEID", "infiniband.trap.attributeid",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_ATTRIBUTEMODIFIER,
-	{"ATTRIBUTEMODIFIER", "infiniband.trap.attributemodifier",		FT_UINT32, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"ATTRIBUTEMODIFIER", "infiniband.trap.attributemodifier",		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_MKEY,
-	{"MKEY", "infiniband.trap.mkey",		FT_UINT64, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"MKEY", "infiniband.trap.mkey",		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_DRNotice,
-	{"DRNotice", "infiniband.trap.drnotice",		FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DRNotice", "infiniband.trap.drnotice",		FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_DRPathTruncated,
-	{"DRPathTruncated", "infiniband.trap.drpathtruncated",		FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DRPathTruncated", "infiniband.trap.drpathtruncated",		FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_DRHopCount,
-	{"DRHopCount", "infiniband.trap.drhopcount",		FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DRHopCount", "infiniband.trap.drhopcount",		FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_DRNoticeReturnPath,
-	{"DRNoticeReturnPath", "infiniband.trap.drnoticereturnpath",		FT_BYTES, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DRNoticeReturnPath", "infiniband.trap.drnoticereturnpath",		FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* Trap 257, 258 */
 	{&hf_infiniband_Trap_LIDADDR1,
-	{"LIDADDR1", "infiniband.trap.lidaddr1",		FT_UINT16, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"LIDADDR1", "infiniband.trap.lidaddr1",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_LIDADDR2,
-	{"LIDADDR2", "infiniband.trap.lidaddr2",		FT_UINT16, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"LIDADDR2", "infiniband.trap.lidaddr2",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_KEY,
-	{"KEY", "infiniband.trap.key",		FT_UINT32, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"KEY", "infiniband.trap.key",		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_SL,
-	{"SL", "infiniband.trap.sl",		FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"SL", "infiniband.trap.sl",		FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_QP1,
-	{"QP1", "infiniband.trap.qp1",		FT_UINT24, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"QP1", "infiniband.trap.qp1",		FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_QP2,
-	{"QP2", "infiniband.trap.qp2",		FT_UINT24, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"QP2", "infiniband.trap.qp2",		FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_GIDADDR1,
-	{"GIDADDR1", "infiniband.trap.gidaddr1",		FT_IPv6, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"GIDADDR1", "infiniband.trap.gidaddr1",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_Trap_GIDADDR2,
-	{"GIDADDR2", "infiniband.trap.gidaddr2",		FT_IPv6, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"GIDADDR2", "infiniband.trap.gidaddr2",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	/* Trap 259 */
 	{&hf_infiniband_Trap_DataValid,
-	{"DataValid", "infiniband.trap.datavalid",		FT_IPv6, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"DataValid", "infiniband.trap.datavalid",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 		{&hf_infiniband_Trap_PKEY,
-	{"PKEY", "infiniband.trap.pkey",		FT_IPv6, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"PKEY", "infiniband.trap.pkey",		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 		{&hf_infiniband_Trap_SWLIDADDR,
-	{"SWLIDADDR", "infiniband.trap.swlidaddr",		FT_IPv6, BASE_HEX, NULL, 0x01, NULL, HFILL}
+	{"SWLIDADDR", "infiniband.trap.swlidaddr",		FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	}
 };
 
 /* Array to hold expansion options between dissections */
 static gint *ett[] = {
-	&ett_infiniband,
+/*	&ett_infiniband,       */
 	&ett_all_headers,
 	&ett_lrh,
 	&ett_grh,
@@ -2544,11 +2548,11 @@ static gint *ett[] = {
 	&ett_suba_attribute,
 	&ett_datadetails,
 	&ett_noticestraps,
-	&ett_nodedesc,
-	&ett_nodeinfo,
-	&ett_switchinfo,
-	&ett_guidinfo,
-	&ett_portinfo,
+/*	&ett_nodedesc,         */
+/*	&ett_nodeinfo,         */
+/*	&ett_switchinfo,       */
+/*	&ett_guidinfo,         */
+/*	&ett_portinfo,         */
 	&ett_portinfo_capmask,
 	&ett_pkeytable,
 	&ett_sltovlmapping,
