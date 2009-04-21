@@ -336,13 +336,13 @@ typedef struct {
 #endif
 
 /* From my old tacacs dissector */
-static value_string tacplus_type_vals[] = {
+static const value_string tacplus_type_vals[] = {
 	{TAC_PLUS_AUTHEN,	"Authentication"},
 	{TAC_PLUS_AUTHOR,	"Authorization"	},
 	{TAC_PLUS_ACCT,		"Accounting"	},
 	{0, NULL}};
 
-static value_string tacplus_authen_action_vals[] = {
+static const value_string tacplus_authen_action_vals[] = {
 	{TAC_PLUS_AUTHEN_LOGIN, 		"Inbound Login"},
 	{TAC_PLUS_AUTHEN_CHPASS, 		"Change password request"},
 	{TAC_PLUS_AUTHEN_SENDPASS, 		"Send password request"},
@@ -350,7 +350,7 @@ static value_string tacplus_authen_action_vals[] = {
 	{0, NULL}};
 
 #if 0
-static value_string tacplus_authen_priv_lvl_vals[] = {
+static const value_string tacplus_authen_priv_lvl_vals[] = {
 	{TAC_PLUS_PRIV_LVL_MAX, 		"LVL_MAX"},
 	{TAC_PLUS_PRIV_LVL_ROOT, 		"LVL_ROOT"},
 	{TAC_PLUS_PRIV_LVL_USER,		"LVL_USER"},
@@ -358,7 +358,7 @@ static value_string tacplus_authen_priv_lvl_vals[] = {
 	{0, NULL}};
 #endif
 
-static value_string tacplus_authen_type_vals[] = {
+static const value_string tacplus_authen_type_vals[] = {
 	{TAC_PLUS_AUTHEN_TYPE_ASCII,	"ASCII"},
 	{TAC_PLUS_AUTHEN_TYPE_PAP,		"PAP"},
 	{TAC_PLUS_AUTHEN_TYPE_CHAP,		"CHAP"},
@@ -366,7 +366,7 @@ static value_string tacplus_authen_type_vals[] = {
 	{TAC_PLUS_AUTHEN_TYPE_MSCHAP,	"MS-CHAP"},
 	{0, NULL}};
 
-static value_string tacplus_authen_service_vals[] = {
+static const value_string tacplus_authen_service_vals[] = {
 	{TAC_PLUS_AUTHEN_SVC_NONE,		"TAC_PLUS_AUTHEN_SVC_NONE"},
 	{TAC_PLUS_AUTHEN_SVC_LOGIN,		"Login"	},
 	{TAC_PLUS_AUTHEN_SVC_ENABLE,	"ENABLE"},
@@ -379,7 +379,7 @@ static value_string tacplus_authen_service_vals[] = {
 	{TAC_PLUS_AUTHEN_SVC_FWPROXY,	"TAC_PLUS_AUTHEN_SVC_FWPROXY"},
 	{0, NULL}};
 
-static value_string tacplus_reply_status_vals[] = {
+static const value_string tacplus_reply_status_vals[] = {
 	{TAC_PLUS_AUTHEN_STATUS_PASS, 		"Authentication Passed"},
 	{TAC_PLUS_AUTHEN_STATUS_FAIL, 		"Authentication Failed"},
 	{TAC_PLUS_AUTHEN_STATUS_GETDATA,	"Send Data"},
@@ -391,7 +391,7 @@ static value_string tacplus_reply_status_vals[] = {
 	{0, NULL}};
 
 
-static value_string tacplus_authen_method[] = {
+static const value_string tacplus_authen_method[] = {
 	{TAC_PLUS_AUTHEN_METH_NOT_SET,		"NOT_SET"},
 	{TAC_PLUS_AUTHEN_METH_NONE,			"NONE"},
 	{TAC_PLUS_AUTHEN_METH_KRB5,			"KRB5"},
@@ -405,7 +405,7 @@ static value_string tacplus_authen_method[] = {
 	{TAC_PLUS_AUTHEN_METH_RCMD,			"RCMD"},
 	{0, NULL}};
 
-static value_string tacplus_author_status[] = {
+static const value_string tacplus_author_status[] = {
 	{TAC_PLUS_AUTHOR_STATUS_PASS_ADD,		"PASS_ADD"},
 	{TAC_PLUS_AUTHOR_STATUS_PASS_REPL,		"PASS_REPL"},
 	{TAC_PLUS_AUTHOR_STATUS_FAIL,		"FAIL"},
@@ -413,14 +413,14 @@ static value_string tacplus_author_status[] = {
 	{TAC_PLUS_AUTHOR_STATUS_FOLLOW,		"FOLLOW"},
 	{0, NULL}};
 
-static value_string tacplus_acct_status[] = {
+static const value_string tacplus_acct_status[] = {
 	{TAC_PLUS_ACCT_STATUS_SUCCESS,	"Success"},
 	{TAC_PLUS_ACCT_STATUS_ERROR,	"Error"},
 	{TAC_PLUS_ACCT_STATUS_FOLLOW,	"Follow"},
 	{0, NULL}};
 
 #ifdef __TAC_ACCOUNTING__
-static value_string tacplus_acct_flags[] = {
+static const value_string tacplus_acct_flags[] = {
 	{TAC_PLUS_ACCT_FLAG_MORE,	"More (deprecated)"},
 	{TAC_PLUS_ACCT_FLAG_START,	"Start"},
 	{TAC_PLUS_ACCT_FLAG_STOP,	"Stop"},

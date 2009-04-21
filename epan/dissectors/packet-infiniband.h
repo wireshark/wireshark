@@ -1057,7 +1057,7 @@ static const value_string Trap_Description[]= {
 #define UC_RDMA_WRITE_ONLY				42 /*0x00101010 */
 #define UC_RDMA_WRITE_ONLY_IMM			43 /*0x00101011 */
 
-static value_string OpCodeMap[] =
+static const value_string OpCodeMap[] =
 {
 	{ RC_SEND_FIRST, "RC Send First " },
 	{ RC_SEND_MIDDLE, "RC Send Middle "},
