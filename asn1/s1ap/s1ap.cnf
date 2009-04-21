@@ -212,7 +212,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # a)	32 bits in case of IPv4 address according to [6]; and
 # b)	128 bits in case of IPv6 address according to [5].
 	/* Get the length */
-	tvb_len = tvb_length(tvb);
+	tvb_len = tvb_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */

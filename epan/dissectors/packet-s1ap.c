@@ -2475,7 +2475,7 @@ dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     return offset;
 
 	/* Get the length */
-	tvb_len = tvb_length(tvb);
+	tvb_len = tvb_length(parameter_tvb);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
