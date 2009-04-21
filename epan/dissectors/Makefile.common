@@ -138,7 +138,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-q932.c \
 	packet-q932-ros.c \
 	packet-qsig.c \
-	packet-ranap.c \
 	packet-ros.c \
 	packet-rtnet.c \
 	packet-rtse.c \
@@ -170,6 +169,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
+	packet-ranap.c \	
 	packet-rnsap.c \
 	packet-rrc.c \
 	packet-rrlp.c \
