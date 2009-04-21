@@ -134,7 +134,7 @@ static void snmp_usm_password_to_key_sha1(const guint8 *password, guint password
 static snmp_usm_auth_model_t model_md5 = {snmp_usm_password_to_key_md5, snmp_usm_auth_md5, 16};
 static snmp_usm_auth_model_t model_sha1 = {snmp_usm_password_to_key_sha1, snmp_usm_auth_sha1, 20};
 
-static value_string auth_types[] = {
+static const value_string auth_types[] = {
 	{0,"MD5"},
 	{1,"SHA1"},
 	{0,NULL}
@@ -142,7 +142,7 @@ static value_string auth_types[] = {
 static snmp_usm_auth_model_t* auth_models[] = {&model_md5,&model_sha1};
 
 
-static value_string priv_types[] = {
+static const value_string priv_types[] = {
 	{0,"DES"},
 	{1,"AES"},
 	{0,NULL}

@@ -750,7 +750,7 @@ static dissector_handle_t gsmmap_handle;
 static dissector_handle_t camel_handle;
 static dissector_handle_t inap_handle;
 
-static value_string sccp_users_vals[] = {
+static const value_string sccp_users_vals[] = {
 	{ SCCP_USER_DATA, "Data"},
 	{ SCCP_USER_TCAP, "TCAP"},
 	{ SCCP_USER_RANAP, "RANAP"},
