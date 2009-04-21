@@ -1,7 +1,7 @@
 -- RANAP-Constants.asn
 --
--- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
+-- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
 --
 -- 9.3.6	Constant Definitions
 --
@@ -72,6 +72,7 @@ id-MBMSRABRelease					INTEGER ::= 42
 id-enhancedRelocationComplete		INTEGER ::= 43
 id-enhancedRelocationCompleteConfirm		INTEGER ::= 44
 id-RANAPenhancedRelocation			INTEGER ::= 45
+id-SRVCCPreparation					INTEGER ::= 256
 
 
 
@@ -183,9 +184,9 @@ id-RequestType 									INTEGER ::= 57
 id-SAI 											INTEGER ::= 58
 id-SAPI 										INTEGER ::= 59
 id-SourceID 									INTEGER ::= 60
-id-SourceRNC-ToTargetRNC-TransparentContainer 	INTEGER ::= 61
+id-Source-ToTarget-TransparentContainer 	INTEGER ::= 61
 id-TargetID 									INTEGER ::= 62
-id-TargetRNC-ToSourceRNC-TransparentContainer 	INTEGER ::= 63
+id-Target-ToSource-TransparentContainer 	INTEGER ::= 63
 id-TemporaryUE-ID 								INTEGER ::= 64
 id-TraceReference 								INTEGER ::= 65
 id-TraceType 									INTEGER ::= 66
@@ -277,7 +278,7 @@ id-UnsuccessfulLinkingList								INTEGER ::= 155
 id-MBMSLinkingInformation								INTEGER ::= 156
 id-MBMSSessionRepetitionNumber							INTEGER ::= 157
 id-AlternativeRABConfiguration							INTEGER ::= 158
-id-AlternativeRABConfigurationRequest    				INTEGER ::= 159
+id-AlternativeRABConfigurationRequest					INTEGER ::= 159
 id-E-DCH-MAC-d-Flow-ID									INTEGER ::= 160
 id-SourceBSS-ToTargetBSS-TransparentContainer			INTEGER ::= 161
 id-TargetBSS-ToSourceBSS-TransparentContainer			INTEGER ::= 162
@@ -317,7 +318,38 @@ id-RAB-SetupItem-EnhRelocInfoRes						INTEGER ::= 195
 id-OldIuSigConId										INTEGER ::= 196
 id-RAB-FailedList-EnhRelocInfoRes						INTEGER ::= 197
 id-RAB-FailedItem-EnhRelocInfoRes						INTEGER ::= 198
+id-Global-ENB-ID										INTEGER ::= 199
+id-UE-History-Information								INTEGER ::= 200
+id-MBMSSynchronisationInformation						INTEGER ::= 201
+id-SubscriberProfileIDforRFP							INTEGER ::= 202
+id-CSG-Id												INTEGER ::= 203
+id-OldIuSigConIdCS										INTEGER ::= 204
+id-OldIuSigConIdPS										INTEGER ::= 205
+id-GlobalCN-IDCS										INTEGER ::= 206
+id-GlobalCN-IDPS										INTEGER ::= 207
+id-SourceExtendedRNC-ID									INTEGER ::= 208
+id-RAB-ToBeReleasedItem-EnhancedRelocCompleteRes		INTEGER ::= 209
+id-RAB-ToBeReleasedList-EnhancedRelocCompleteRes		INTEGER ::= 210
+id-SourceRNC-ID											INTEGER ::= 211
+id-Relocation-TargetRNC-ID								INTEGER ::= 212
+id-Relocation-TargetExtendedRNC-ID						INTEGER ::= 213
+id-Alt-RAB-Parameter-SupportedGuaranteedBitrateInf		INTEGER ::= 214
+id-Alt-RAB-Parameter-SupportedMaxBitrateInf				INTEGER ::= 215
+id-Ass-RAB-Parameter-SupportedGuaranteedBitrateList		INTEGER ::= 216
+id-Ass-RAB-Parameter-SupportedMaxBitrateList			INTEGER ::= 217
+id-RAB-Parameter-SupportedGuaranteedBitrateList			INTEGER ::= 218
+id-RAB-Parameter-SupportedMaxBitrateList				INTEGER ::= 219
+id-Requested-RAB-Parameter-SupportedMaxBitrateList		INTEGER ::= 220
+id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList	INTEGER ::= 221
+id-Relocation-SourceRNC-ID								INTEGER ::= 222
+id-Relocation-SourceExtendedRNC-ID						INTEGER ::= 223
+id-EncryptionKey										INTEGER ::= 224
+id-IntegrityProtectionKey								INTEGER ::= 225
+id-SRVCC-HO-Indication									INTEGER ::= 226
+id-SRVCC-Information									INTEGER ::= 227
+id-SRVCC-Operation-Possible								INTEGER ::= 228
 
 END
+
 
 

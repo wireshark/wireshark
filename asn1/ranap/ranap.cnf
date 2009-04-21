@@ -32,7 +32,15 @@ ProtocolError-IE-ContainerList
 
 #.TYPE_RENAME
 
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
 #.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
 
 SDU-ErrorRatio/exponent exponent_1_8
 
@@ -225,6 +233,27 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #	if (parameter_tvb)
 #		dissect_gtp_mbms_ses_dur(parameter_tvb, actx->pinfo, tree);
 
+#.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+  gint tvb_len;
+  
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+# TransportLayerAddress ::= BIT STRING (SIZE (1..160, ...))
+# Asume 4 bytes used in case of IPv4
+	/* Get the length */
+	tvb_len = tvb_length(parameter_tvb);
+	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
+	if (tvb_len==4){
+		/* IPv4 */
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==16){
+		/* IPv6 */
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+	}
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)
@@ -276,6 +305,7 @@ id-MBMSRABRelease					ProcedureCode
 id-enhancedRelocationComplete		ProcedureCode
 id-enhancedRelocationCompleteConfirm	ProcedureCode
 id-RANAPenhancedRelocation				ProcedureCode
+id-SRVCCPreparation						ProcedureCode
 
 # ProtocolIE-ID
 id-AreaIdentity 								ProtocolIE-ID 
@@ -337,9 +367,9 @@ id-RequestType 									ProtocolIE-ID
 id-SAI 											ProtocolIE-ID 
 id-SAPI 										ProtocolIE-ID 
 id-SourceID 									ProtocolIE-ID 
-id-SourceRNC-ToTargetRNC-TransparentContainer 	ProtocolIE-ID 
+id-Source-ToTarget-TransparentContainer 		ProtocolIE-ID 
 id-TargetID 									ProtocolIE-ID 
-id-TargetRNC-ToSourceRNC-TransparentContainer 	ProtocolIE-ID 
+id-Target-ToSource-TransparentContainer 		ProtocolIE-ID 
 id-TemporaryUE-ID 								ProtocolIE-ID 
 id-TraceReference 								ProtocolIE-ID 
 id-TraceType 									ProtocolIE-ID 
@@ -469,6 +499,37 @@ id-RAB-SetupItem-EnhRelocInfoRes						ProtocolIE-ID
 id-OldIuSigConId										ProtocolIE-ID
 id-RAB-FailedList-EnhRelocInfoRes						ProtocolIE-ID
 id-RAB-FailedItem-EnhRelocInfoRes						ProtocolIE-ID
+
+id-Global-ENB-ID										ProtocolIE-ID
+id-UE-History-Information								ProtocolIE-ID
+id-MBMSSynchronisationInformation						ProtocolIE-ID
+id-SubscriberProfileIDforRFP							ProtocolIE-ID
+id-CSG-Id												ProtocolIE-ID
+id-OldIuSigConIdCS										ProtocolIE-ID
+id-OldIuSigConIdPS										ProtocolIE-ID
+id-GlobalCN-IDCS										ProtocolIE-ID
+id-GlobalCN-IDPS										ProtocolIE-ID
+id-SourceExtendedRNC-ID									ProtocolIE-ID
+id-RAB-ToBeReleasedItem-EnhancedRelocCompleteRes		ProtocolIE-ID
+id-RAB-ToBeReleasedList-EnhancedRelocCompleteRes		ProtocolIE-ID
+id-SourceRNC-ID											ProtocolIE-ID
+id-Relocation-TargetRNC-ID								ProtocolIE-ID
+id-Relocation-TargetExtendedRNC-ID						ProtocolIE-ID
+id-Alt-RAB-Parameter-SupportedGuaranteedBitrateInf		ProtocolIE-ID
+id-Alt-RAB-Parameter-SupportedMaxBitrateInf				ProtocolIE-ID
+id-Ass-RAB-Parameter-SupportedGuaranteedBitrateList		ProtocolIE-ID
+id-Ass-RAB-Parameter-SupportedMaxBitrateList			ProtocolIE-ID
+id-RAB-Parameter-SupportedGuaranteedBitrateList			ProtocolIE-ID
+id-RAB-Parameter-SupportedMaxBitrateList				ProtocolIE-ID
+id-Requested-RAB-Parameter-SupportedMaxBitrateList		ProtocolIE-ID
+id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList	ProtocolIE-ID
+id-Relocation-SourceRNC-ID								ProtocolIE-ID
+id-Relocation-SourceExtendedRNC-ID						ProtocolIE-ID
+id-EncryptionKey										ProtocolIE-ID
+id-IntegrityProtectionKey								ProtocolIE-ID
+id-SRVCC-HO-Indication									ProtocolIE-ID
+id-SRVCC-Information									ProtocolIE-ID
+id-SRVCC-Operation-Possible								ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -482,9 +543,9 @@ RAB-DataVolumeReportItem					N ranap.ies id-RAB-DataVolumeReportItem
 RAB-ReleasedItem-IuRelComp					N ranap.ies id-RAB-ReleasedItem-IuRelComp
 RelocationType								N ranap.ies id-RelocationType
 SourceID									N ranap.ies id-SourceID
-SourceRNC-ToTargetRNC-TransparentContainer	N ranap.ies id-SourceRNC-ToTargetRNC-TransparentContainer
+SourceRNC-ToTargetRNC-TransparentContainer	N ranap.ies id-Source-ToTarget-TransparentContainer
 TargetID									N ranap.ies id-TargetID
-TargetRNC-ToSourceRNC-TransparentContainer	N ranap.ies id-TargetRNC-ToSourceRNC-TransparentContainer
+TargetRNC-ToSourceRNC-TransparentContainer	N ranap.ies id-Target-ToSource-TransparentContainer
 ClassmarkInformation2              N ranap.ies id-ClassmarkInformation2
 ClassmarkInformation3              N ranap.ies id-ClassmarkInformation3
 OldBSS-ToNewBSS-Information        N ranap.ies id-OldBSS-ToNewBSS-Information
@@ -552,20 +613,20 @@ RAB-ReleasedList                   N ranap.ies id-RAB-ReleasedList
 RAB-QueuedList                     N ranap.ies id-RAB-QueuedList
 RAB-ReleaseFailedList              N ranap.ies id-RAB-ReleaseFailedList
 RAB-SetupOrModifiedItem            N ranap.ies id-RAB-SetupOrModifiedItem
-RAB-ReleasedItem                   N ranap.ies id-RAB-ReleasedItem
-RAB-QueuedItem                     N ranap.ies id-RAB-QueuedItem
+RAB-ReleasedItem							N ranap.ies id-RAB-ReleasedItem
+RAB-QueuedItem								N ranap.ies id-RAB-QueuedItem
 GERAN-Iumode-RAB-Failed-RABAssgntResponse-Item N ranap.ies id-GERAN-Iumode-RAB-Failed-RABAssgntResponse-Item
-RAB-ContextList-RANAP-RelocInf     N ranap.ies id-RAB-ContextList-RANAP-RelocInf
-RAB-ContextItem-RANAP-RelocInf     N ranap.ies id-RAB-ContextItem-RANAP-RelocInf
-RAB-ModifyList                     N ranap.ies id-RAB-ModifyList
-RAB-ModifyItem                     N ranap.ies id-RAB-ModifyItem
-LocationRelatedDataRequestType     N ranap.ies id-LocationRelatedDataRequestType
-BroadcastAssistanceDataDecipheringKeys N ranap.ies id-BroadcastAssistanceDataDecipheringKeys
-InformationTransferID              N ranap.ies id-InformationTransferID
-ProvidedData                       N ranap.ies id-ProvidedData
-GlobalCN-ID                        N ranap.ies id-GlobalCN-ID
-UESBI-Iu                           N ranap.ies id-UESBI-Iu
-InterSystemInformationTransferType N ranap.ies id-InterSystemInformationTransferType
+RAB-ContextList-RANAP-RelocInf				N ranap.ies id-RAB-ContextList-RANAP-RelocInf
+RAB-ContextItem-RANAP-RelocInf				N ranap.ies id-RAB-ContextItem-RANAP-RelocInf
+RAB-ModifyList								N ranap.ies id-RAB-ModifyList
+RAB-ModifyItem								N ranap.ies id-RAB-ModifyItem
+LocationRelatedDataRequestType				N ranap.ies id-LocationRelatedDataRequestType
+BroadcastAssistanceDataDecipheringKeys		N ranap.ies id-BroadcastAssistanceDataDecipheringKeys
+InformationTransferID						N ranap.ies id-InformationTransferID
+ProvidedData								N ranap.ies id-ProvidedData
+GlobalCN-ID									N ranap.ies id-GlobalCN-ID
+UESBI-Iu									N ranap.ies id-UESBI-Iu
+InterSystemInformationTransferType			N ranap.ies id-InterSystemInformationTransferType
 InformationExchangeID              N ranap.ies id-InformationExchangeID
 InformationExchangeType            N ranap.ies id-InformationExchangeType
 InformationTransferType            N ranap.ies id-InformationTransferType
@@ -585,95 +646,126 @@ TimeToMBMSDataTransfer             N ranap.ies id-TimeToMBMSDataTransfer
 TransportLayerInformation          N ranap.ies id-TransportLayerInformation
 SessionUpdateID                    N ranap.ies id-SessionUpdateID
 DeltaRAListofIdleModeUEs           N ranap.ies id-DeltaRAListofIdleModeUEs
-MBMSCNDe-Registration              N ranap.ies id-MBMSCNDe-Registration
-JoinedMBMSBearerService-IEs        N ranap.ies id-JoinedMBMSBearerServicesList
-LeftMBMSBearerService-IEs          N ranap.ies id-LeftMBMSBearerServicesList
-UnsuccessfulLinking-IEs            N ranap.ies id-UnsuccessfulLinkingList
-MBMSRegistrationRequestType        N ranap.ies id-MBMSRegistrationRequestType
-IPMulticastAddress                 N ranap.ies id-IPMulticastAddress
-APN                                N ranap.ies id-APN
-RAB-SetupList-EnhancedRelocCompleteReq	N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteReq
-RAB-SetupItem-EnhancedRelocCompleteReq	N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteReq
-RAB-SetupList-EnhancedRelocCompleteRes	N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteRes
-RAB-SetupItem-EnhancedRelocCompleteRes	N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteRes
-RAB-SetupList-EnhRelocInfoReq			N ranap.ies id-RAB-SetupList-EnhRelocInfoReq
-RAB-SetupItem-EnhRelocInfoReq			N ranap.ies id-RAB-SetupItem-EnhRelocInfoReq
-RAB-SetupList-EnhRelocInfoRes			N ranap.ies id-RAB-SetupList-EnhRelocInfoRes
-RAB-SetupItem-EnhRelocInfoRes			N ranap.ies id-RAB-SetupItem-EnhRelocInfoRes
-IuSignallingConnectionIdentifier		N ranap.ies id-OldIuSigConId
-RAB-FailedList-EnhRelocInfoRes			N ranap.ies id-RAB-FailedList-EnhRelocInfoRes
-RAB-FailedItem-EnhRelocInfoRes			N ranap.ies id-RAB-FailedItem-EnhRelocInfoRes 
+MBMSCNDe-Registration							N ranap.ies id-MBMSCNDe-Registration
+JoinedMBMSBearerService-IEs						N ranap.ies id-JoinedMBMSBearerServicesList
+LeftMBMSBearerService-IEs						N ranap.ies id-LeftMBMSBearerServicesList
+UnsuccessfulLinking-IEs							N ranap.ies id-UnsuccessfulLinkingList
+MBMSRegistrationRequestType						N ranap.ies id-MBMSRegistrationRequestType
+IPMulticastAddress								N ranap.ies id-IPMulticastAddress
+APN												N ranap.ies id-APN
+RAB-SetupList-EnhancedRelocCompleteReq			N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteReq
+RAB-SetupItem-EnhancedRelocCompleteReq			N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteReq
+RAB-SetupList-EnhancedRelocCompleteRes			N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteRes
+RAB-SetupItem-EnhancedRelocCompleteRes					N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteRes
+RAB-SetupList-EnhRelocInfoReq							N ranap.ies id-RAB-SetupList-EnhRelocInfoReq
+RAB-SetupItem-EnhRelocInfoReq							N ranap.ies id-RAB-SetupItem-EnhRelocInfoReq
+RAB-SetupList-EnhRelocInfoRes							N ranap.ies id-RAB-SetupList-EnhRelocInfoRes
+RAB-SetupItem-EnhRelocInfoRes							N ranap.ies id-RAB-SetupItem-EnhRelocInfoRes
+IuSignallingConnectionIdentifier						N ranap.ies id-OldIuSigConId
+RAB-FailedList-EnhRelocInfoRes							N ranap.ies id-RAB-FailedList-EnhRelocInfoRes
+RAB-FailedItem-EnhRelocInfoRes							N ranap.ies id-RAB-FailedItem-EnhRelocInfoRes 
+IuSignallingConnectionIdentifier						N ranap.ies id-OldIuSigConIdCS
+IuSignallingConnectionIdentifier						N ranap.ies id-OldIuSigConIdPS
+GlobalCN-ID												N ranap.ies id-GlobalCN-IDCS
+RAB-ToBeReleasedItem-EnhancedRelocCompleteRes			N ranap.ies id-RAB-ToBeReleasedItem-EnhancedRelocCompleteRes
+RAB-ToBeReleasedList-EnhancedRelocCompleteRes			N ranap.ies id-RAB-ToBeReleasedList-EnhancedRelocCompleteRes
+GlobalRNC-ID											N ranap.ies id-Relocation-TargetRNC-ID
+ExtendedRNC-ID											N ranap.ies id-Relocation-TargetExtendedRNC-ID
+Alt-RAB-Parameter-SupportedGuaranteedBitrateInf			N ranap.ies id-Alt-RAB-Parameter-SupportedGuaranteedBitrateInf
+Alt-RAB-Parameter-SupportedMaxBitrateInf				N ranap.ies id-Alt-RAB-Parameter-SupportedMaxBitrateInf
+GlobalRNC-ID											N ranap.ies id-Relocation-SourceRNC-ID
+ExtendedRNC-ID											N ranap.ies id-Relocation-SourceExtendedRNC-ID
+EncryptionKey											N ranap.ies id-EncryptionKey
+IntegrityProtectionKey									N ranap.ies id-IntegrityProtectionKey
+SRVCC-Information										N ranap.ies id-SRVCC-Information
 
 #RANAP-PROTOCOL-IES-PAIR
-RAB-SetupOrModifyItemFirst         N ranap.ies.pair.first id-RAB-SetupOrModifyItem
-RAB-SetupOrModifyItemSecond        N ranap.ies.pair.second id-RAB-SetupOrModifyItem
+RAB-SetupOrModifyItemFirst								N ranap.ies.pair.first id-RAB-SetupOrModifyItem
+RAB-SetupOrModifyItemSecond								N ranap.ies.pair.second id-RAB-SetupOrModifyItem
 
 #RANAP-PROTOCOL-EXTENSION
-RAB-Parameters                     N ranap.extension id-AlternativeRABConfiguration
-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N ranap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
-Alt-RAB-Parameter-ExtendedMaxBitrateInf N ranap.extension id-Alt-RAB-Parameter-ExtendedMaxBitrateInf
-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList N ranap.extension id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList
-Ass-RAB-Parameter-ExtendedMaxBitrateList N ranap.extension id-Ass-RAB-Parameter-ExtendedMaxBitrateList
-MessageStructure                   N ranap.extension id-MessageStructure
-TypeOfError                        N ranap.extension id-TypeOfError
-RAC                                N ranap.extension id-RAC
-LAListofIdleModeUEs                N ranap.extension id-newLAListofIdleModeUEs
-LAListofIdleModeUEs                N ranap.extension id-LAListwithNoIdleModeUEsAnyMore
-GANSS-PositioningDataSet           N ranap.extension id-GANSS-PositioningDataSet
-SignallingIndication               N ranap.extension id-SignallingIndication
-RAB-Parameter-ExtendedGuaranteedBitrateList N ranap.extension id-RAB-Parameter-ExtendedGuaranteedBitrateList
-RAB-Parameter-ExtendedMaxBitrateList N ranap.extension id-RAB-Parameter-ExtendedMaxBitrateList
-CN-DomainIndicator                 N ranap.extension id-CN-DomainIndicator
-LAListofIdleModeUEs                N ranap.extension id-LAofIdleModeUEs
-AlternativeRABConfigurationRequest N ranap.extension id-AlternativeRABConfigurationRequest
-Requested-RAB-Parameter-ExtendedMaxBitrateList N ranap.extension id-Requested-RAB-Parameter-ExtendedMaxBitrateList
-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList N ranap.extension id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList
-ExtendedRNC-ID                     N ranap.extension id-ExtendedRNC-ID
-SRB-TrCH-Mapping                   N ranap.extension id-SRB-TrCH-Mapping
-CellLoadInformationGroup           N ranap.extension id-CellLoadInformationGroup
-TraceRecordingSessionInformation   N ranap.extension id-TraceRecordingSessionInformation
-MBMSLinkingInformation             N ranap.extension id-MBMSLinkingInformation
-HS-DSCH-MAC-d-Flow-ID              N ranap.extension id-hS-DSCH-MAC-d-Flow-ID
-E-DCH-MAC-d-Flow-ID                N ranap.extension id-E-DCH-MAC-d-Flow-ID
-GERAN-Classmark                    N ranap.extension id-GERAN-Classmark
-SourceBSS-ToTargetBSS-TransparentContainer N ranap.extension id-SourceBSS-ToTargetBSS-TransparentContainer
-TransportLayerAddress              N ranap.extension id-TransportLayerAddress
-IuTransportAssociation             N ranap.extension id-IuTransportAssociation
-InterSystemInformation-TransparentContainer N ranap.extension id-InterSystemInformation-TransparentContainer
-TargetBSS-ToSourceBSS-TransparentContainer N ranap.extension id-TargetBSS-ToSourceBSS-TransparentContainer
-Alt-RAB-Parameters                 N ranap.extension id-Alt-RAB-Parameters
-GERAN-BSC-Container                N ranap.extension id-GERAN-BSC-Container
-GlobalCN-ID                        N ranap.extension id-GlobalCN-ID
-SNA-Access-Information             N ranap.extension id-SNA-Access-Information
-UESBI-Iu                           N ranap.extension id-UESBI-Iu
-PLMNidentity                       N ranap.extension id-SelectedPLMN-ID
-CNMBMSLinkingInformation           N ranap.extension id-CNMBMSLinkingInformation
-Ass-RAB-Parameters                 N ranap.extension id-Ass-RAB-Parameters
-NewBSS-To-OldBSS-Information       N ranap.extension id-NewBSS-To-OldBSS-Information
-RAT-Type                           N ranap.extension id-RAT-Type
-TracePropagationParameters         N ranap.extension id-TracePropagationParameters
-VerticalAccuracyCode               N ranap.extension id-VerticalAccuracyCode
-ResponseTime                       N ranap.extension id-ResponseTime
-PositioningPriority                N ranap.extension id-PositioningPriority
-ClientType                         N ranap.extension id-ClientType
-IncludeVelocity                    N ranap.extension id-IncludeVelocity
-PeriodicLocationInfo               N ranap.extension id-PeriodicLocationInfo
-LastKnownServiceArea               N ranap.extension id-LastKnownServiceArea
-PositionData                       N ranap.extension id-PositionData
-PositionDataSpecificToGERANIuMode  N ranap.extension id-PositionDataSpecificToGERANIuMode
-AccuracyFulfilmentIndicator        N ranap.extension id-AccuracyFulfilmentIndicator
-VelocityEstimate                   N ranap.extension id-VelocityEstimate
-PermanentNAS-UE-ID                 N ranap.extension id-PermanentNAS-UE-ID
-NAS-SequenceNumber                 N ranap.extension id-NAS-SequenceNumber
-RedirectAttemptFlag                N ranap.extension id-RedirectAttemptFlag
-RedirectionIndication              N ranap.extension id-RedirectionIndication
-RedirectionCompleted               N ranap.extension id-RedirectionCompleted
-RRC-Container                      N ranap.extension id-SourceRNC-PDCP-context-info
-GERAN-Iumode-RAB-FailedList-RABAssgntResponse N ranap.extension id-GERAN-Iumode-RAB-FailedList-RABAssgntResponse
+RAB-Parameters											N ranap.extension id-AlternativeRABConfiguration
+Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf			N ranap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
+Alt-RAB-Parameter-ExtendedMaxBitrateInf					N ranap.extension id-Alt-RAB-Parameter-ExtendedMaxBitrateInf
+Ass-RAB-Parameter-ExtendedGuaranteedBitrateList			N ranap.extension id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList
+Ass-RAB-Parameter-ExtendedMaxBitrateList				N ranap.extension id-Ass-RAB-Parameter-ExtendedMaxBitrateList
+MessageStructure										N ranap.extension id-MessageStructure
+TypeOfError												N ranap.extension id-TypeOfError
+RAC														N ranap.extension id-RAC
+LAListofIdleModeUEs										N ranap.extension id-newLAListofIdleModeUEs
+LAListofIdleModeUEs										N ranap.extension id-LAListwithNoIdleModeUEsAnyMore
+GANSS-PositioningDataSet								N ranap.extension id-GANSS-PositioningDataSet
+SignallingIndication									N ranap.extension id-SignallingIndication
+RAB-Parameter-ExtendedGuaranteedBitrateList				N ranap.extension id-RAB-Parameter-ExtendedGuaranteedBitrateList
+RAB-Parameter-ExtendedMaxBitrateList					N ranap.extension id-RAB-Parameter-ExtendedMaxBitrateList
+CN-DomainIndicator										N ranap.extension id-CN-DomainIndicator
+LAListofIdleModeUEs										N ranap.extension id-LAofIdleModeUEs
+AlternativeRABConfigurationRequest						N ranap.extension id-AlternativeRABConfigurationRequest
+Requested-RAB-Parameter-ExtendedMaxBitrateList			N ranap.extension id-Requested-RAB-Parameter-ExtendedMaxBitrateList
+Requested-RAB-Parameter-ExtendedGuaranteedBitrateList	N ranap.extension id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList
+ExtendedRNC-ID											N ranap.extension id-ExtendedRNC-ID
+SRB-TrCH-Mapping										N ranap.extension id-SRB-TrCH-Mapping
+CellLoadInformationGroup								N ranap.extension id-CellLoadInformationGroup
+TraceRecordingSessionInformation						N ranap.extension id-TraceRecordingSessionInformation
+MBMSLinkingInformation									N ranap.extension id-MBMSLinkingInformation
+HS-DSCH-MAC-d-Flow-ID									N ranap.extension id-hS-DSCH-MAC-d-Flow-ID
+E-DCH-MAC-d-Flow-ID										N ranap.extension id-E-DCH-MAC-d-Flow-ID
+GERAN-Classmark											N ranap.extension id-GERAN-Classmark
+SourceBSS-ToTargetBSS-TransparentContainer				N ranap.extension id-SourceBSS-ToTargetBSS-TransparentContainer
+TransportLayerAddress									N ranap.extension id-TransportLayerAddress
+IuTransportAssociation									N ranap.extension id-IuTransportAssociation
+InterSystemInformation-TransparentContainer				N ranap.extension id-InterSystemInformation-TransparentContainer
+TargetBSS-ToSourceBSS-TransparentContainer				N ranap.extension id-TargetBSS-ToSourceBSS-TransparentContainer
+Alt-RAB-Parameters										N ranap.extension id-Alt-RAB-Parameters
+GERAN-BSC-Container										N ranap.extension id-GERAN-BSC-Container
+GlobalCN-ID												N ranap.extension id-GlobalCN-ID
+SNA-Access-Information									N ranap.extension id-SNA-Access-Information
+UESBI-Iu												N ranap.extension id-UESBI-Iu
+PLMNidentity											N ranap.extension id-SelectedPLMN-ID
+CNMBMSLinkingInformation								N ranap.extension id-CNMBMSLinkingInformation
+Ass-RAB-Parameters										N ranap.extension id-Ass-RAB-Parameters
+NewBSS-To-OldBSS-Information							N ranap.extension id-NewBSS-To-OldBSS-Information
+RAT-Type												N ranap.extension id-RAT-Type
+TracePropagationParameters								N ranap.extension id-TracePropagationParameters
+VerticalAccuracyCode									N ranap.extension id-VerticalAccuracyCode
+ResponseTime											N ranap.extension id-ResponseTime
+PositioningPriority										N ranap.extension id-PositioningPriority
+ClientType												N ranap.extension id-ClientType
+IncludeVelocity											N ranap.extension id-IncludeVelocity
+PeriodicLocationInfo									N ranap.extension id-PeriodicLocationInfo
+LastKnownServiceArea									N ranap.extension id-LastKnownServiceArea
+PositionData											N ranap.extension id-PositionData
+PositionDataSpecificToGERANIuMode					N ranap.extension id-PositionDataSpecificToGERANIuMode
+AccuracyFulfilmentIndicator							N ranap.extension id-AccuracyFulfilmentIndicator
+VelocityEstimate									N ranap.extension id-VelocityEstimate
+PermanentNAS-UE-ID									N ranap.extension id-PermanentNAS-UE-ID
+NAS-SequenceNumber									N ranap.extension id-NAS-SequenceNumber
+RedirectAttemptFlag									N ranap.extension id-RedirectAttemptFlag
+RedirectionIndication								N ranap.extension id-RedirectionIndication
+RedirectionCompleted								N ranap.extension id-RedirectionCompleted
+RRC-Container										N ranap.extension id-SourceRNC-PDCP-context-info
+GERAN-Iumode-RAB-FailedList-RABAssgntResponse		N ranap.extension id-GERAN-Iumode-RAB-FailedList-RABAssgntResponse
 LocationRelatedDataRequestTypeSpecificToGERANIuMode N ranap.extension id-LocationRelatedDataRequestTypeSpecificToGERANIuMode
-RequestedGANSSAssistanceData       N ranap.extension id-RequestedGANSSAssistanceData
-CriticalityDiagnostics             N ranap.extension id-CriticalityDiagnostics
-MBMSCountingInformation            N ranap.extension id-MBMSCountingInformation
+RequestedGANSSAssistanceData						N ranap.extension id-RequestedGANSSAssistanceData
+CriticalityDiagnostics								N ranap.extension id-CriticalityDiagnostics
+MBMSCountingInformation								N ranap.extension id-MBMSCountingInformation
+
+#N ranap.ies id-Global-ENB-ID
+UE-History-Information								N ranap.extension id-UE-History-Information
+MBMSSynchronisationInformation						N ranap.extension id-MBMSSynchronisationInformation
+SubscriberProfileIDforRFP							N ranap.extension id-SubscriberProfileIDforRFP
+CSG-Id												N ranap.extension id-CSG-Id
+#N ranap.extension id-GlobalCN-IDPS
+#N ranap.extension id-SourceExtendedRNC-ID
+#N ranap.extension id-SourceRNC-ID
+SupportedRAB-ParameterBitrateList					N ranap.extension id-Ass-RAB-Parameter-SupportedGuaranteedBitrateList
+SupportedRAB-ParameterBitrateList					N ranap.extension id-Ass-RAB-Parameter-SupportedMaxBitrateList
+SupportedRAB-ParameterBitrateList					N ranap.extension id-RAB-Parameter-SupportedGuaranteedBitrateList
+SupportedRAB-ParameterBitrateList					N ranap.extension id-RAB-Parameter-SupportedMaxBitrateList
+SupportedRAB-ParameterBitrateList					N ranap.extension id-Requested-RAB-Parameter-SupportedMaxBitrateList
+SupportedRAB-ParameterBitrateList					N ranap.extension id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList
+SRVCC-HO-Indication									N ranap.extension id-SRVCC-HO-Indication
+#N ranap.extension id-SRVCC-Operation-Possible
 
 #NBAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand                      N ranap.proc.imsg id-Iu-Release
@@ -754,4 +846,8 @@ EnhancedRelocationCompleteFailure			N ranap.proc.uout id-enhancedRelocationCompl
 EnhancedRelocationCompleteConfirm			N ranap.proc.imsg id-enhancedRelocationCompleteConfirm
 RANAP-EnhancedRelocationInformationRequest	N ranap.proc.imsg id-RANAPenhancedRelocation
 RANAP-EnhancedRelocationInformationResponse	N ranap.proc.sout id-RANAPenhancedRelocation
+
+SRVCC-CSKeysRequest							N ranap.proc.imsg id-SRVCCPreparation
+SRVCC-CSKeysResponse						N ranap.proc.out id-SRVCCPreparation
+
 #.END

@@ -1,7 +1,7 @@
 -- RANAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
+-- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
 --
 -- 9.3.2	Elementary Procedure Definitions
 --
@@ -14,7 +14,7 @@
 --
 -- **************************************************************
 
-RANAP-PDU-Descriptions  { 
+RANAP-PDU-Descriptions { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 umts-Access (20) modules (3) ranap (0) version1 (1) ranap-PDU-Descriptions (0)}
 
@@ -110,7 +110,9 @@ FROM RANAP-CommonDataTypes
 	MBMSRABEstablishmentIndication,
 	MBMSRABReleaseRequest,
 	MBMSRABRelease,
-	MBMSRABReleaseFailure
+	MBMSRABReleaseFailure,
+	SRVCC-CSKeysRequest,
+	SRVCC-CSKeysResponse
 FROM RANAP-PDU-Contents
 
 	id-LocationRelatedData,
@@ -157,7 +159,8 @@ FROM RANAP-PDU-Contents
 	id-MBMSRegistration,
 	id-MBMSCNDe-Registration-Procedure,
 	id-MBMSRABEstablishmentIndication,
-	id-MBMSRABRelease
+	id-MBMSRABRelease,
+	id-SRVCCPreparation
 
 FROM RANAP-Constants;
 
@@ -258,8 +261,8 @@ RANAP-ELEMENTARY-PROCEDURES-CLASS-1 RANAP-ELEMENTARY-PROCEDURE ::= {
 	mBMSCNDe-Registration		|
 	mBMSRABRelease				|
 	enhancedRelocationComplete	|
-	rANAP-enhancedRelocation
-}
+	rANAP-enhancedRelocation	|
+	sRVCCPreparation}
 
 RANAP-ELEMENTARY-PROCEDURES-CLASS-2 RANAP-ELEMENTARY-PROCEDURE ::= {
 	rAB-ReleaseRequest		|
@@ -603,6 +606,14 @@ rANAP-enhancedRelocation RANAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY		reject
 }
 
+sRVCCPreparation RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	SRVCC-CSKeysRequest
+	OUTCOME				SRVCC-CSKeysResponse
+	PROCEDURE CODE		id-SRVCCPreparation
+	CRITICALITY			reject
+}
+
 END
+
 
 
