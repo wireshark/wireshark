@@ -2517,7 +2517,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
      guint16  code16 = 0;
      guint32  codeipv4 = 0;
      guint32  code32 = 0;
-     float    codefl = 0.0;
+     float    codefl = 0.0f;
 
      /* Print information elements in the specified way */
      switch (octets) {

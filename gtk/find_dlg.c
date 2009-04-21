@@ -282,7 +282,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   combo_lb = gtk_label_new("Character set:");
   gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_lb);
-  gtk_misc_set_alignment(GTK_MISC(combo_lb), 0.0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(combo_lb), 0.0f, 0.5f);
   gtk_widget_show(combo_lb);
 
   /* Character Type Selection Dropdown Box

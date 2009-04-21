@@ -251,7 +251,7 @@ expert_dlg_draw(void *data)
 	if(etd->disp_events < 1000)
 		gtk_clist_columns_autosize(etd->table);
 	gtk_clist_moveto(etd->table,
-                     etd->disp_events - 1, -1, 1.0, 1.0);
+                     etd->disp_events - 1, -1, 1.0f, 1.0f);
 	gtk_clist_thaw(etd->table);
 
 	if(etd->label) {
@@ -510,7 +510,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
 
 	etd->label=gtk_label_new("Please wait ...");
-	gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), etd->label, 0, 1, 0, 1);
 
 	severity_box = gtk_hbox_new(FALSE, 0);

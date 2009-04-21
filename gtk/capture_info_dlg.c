@@ -85,7 +85,7 @@ pct(gint num, gint denom) {
   if (denom) {
     return (float) (num * 100.0 / denom);
   } else {
-    return 0.0;
+    return 0.0f;
   }
 }
 

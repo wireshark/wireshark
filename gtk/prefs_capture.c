@@ -111,7 +111,7 @@ capture_prefs_show(void)
 	/* Default device */
 	if_lb = gtk_label_new("Default interface:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_lb);
 
 	if_cb = gtk_combo_new();
@@ -138,7 +138,7 @@ capture_prefs_show(void)
 	/* Interface properties */
 	ifopts_lb = gtk_label_new("Interfaces:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0f, 0.5f);
 	gtk_widget_show(ifopts_lb);
 
 	ifopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
@@ -331,29 +331,29 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	if_dev_lb = gtk_label_new("Device:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_dev_lb);
 
 	if_dev_lb = gtk_label_new("");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 1, 2, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0f, 0.5f);
 	gtk_widget_show(if_dev_lb);
 	row++;
 
 	if_name_lb = gtk_label_new("Description:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_name_lb);
 
 	if_name_lb = gtk_label_new("");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0f, 0.5f);
 	gtk_widget_show(if_name_lb);
 	row++;
 
 	if_linktype_lb = gtk_label_new("Default link-layer header type:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_linktype_lb);
 
 	if_linktype_cb = gtk_combo_box_new_text();
@@ -368,7 +368,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* create interface description label and text entry */
 	if_descr_lb = gtk_label_new("Comment:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_descr_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_descr_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_descr_lb);
 
 	if_descr_te = gtk_entry_new();
@@ -382,7 +382,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* create hide interface label and button */
 	if_hide_lb = gtk_label_new("Hide interface?:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_lb, 0, 1, row, row+1);
-	gtk_misc_set_alignment(GTK_MISC(if_hide_lb), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(if_hide_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_hide_lb);
 
 	if_hide_cb = gtk_check_button_new();

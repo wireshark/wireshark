@@ -547,16 +547,16 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	row = 0;
 			
 	label = gtk_label_new("ChunkType");
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);	
 	label = gtk_label_new("Association");
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
 	label = gtk_label_new("Endpoint 1");
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
 	label = gtk_label_new("Endpoint 2");
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
 	row ++;
 	label = gtk_label_new("");
@@ -572,37 +572,37 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	for (i=0; i<NUM_CHUNKS-1; i++)
 	{
 		label = gtk_label_new(chunk_name(i));
-		gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);	
 		g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[i]);
 		label = gtk_label_new(label_txt);
-		gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
 		g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[i]);
 		label = gtk_label_new(label_txt);
-		gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
 		g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[i]);
 		label = gtk_label_new(label_txt);
-		gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
 		row ++;
 	}
 	
 	label = gtk_label_new("Others");
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
 	g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[12]);
 	label = gtk_label_new(label_txt);
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
 	g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[12]);
 	label = gtk_label_new(label_txt);
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
 	g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[12]);
 	label = gtk_label_new(label_txt);
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
 	
 	h_button_box=gtk_hbutton_box_new();

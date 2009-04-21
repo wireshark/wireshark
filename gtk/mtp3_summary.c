@@ -207,7 +207,7 @@ add_string_to_box(gchar *str, GtkWidget *box)
 {
   GtkWidget *lb;
   lb = gtk_label_new(str);
-  gtk_misc_set_alignment(GTK_MISC(lb), 0.0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(lb), 0.0f, 0.5f);
   gtk_box_pack_start(GTK_BOX(box), lb,FALSE,FALSE, 0);
   gtk_widget_show(lb);
 }

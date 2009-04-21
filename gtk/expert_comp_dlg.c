@@ -299,7 +299,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
 
     etd->label=gtk_label_new("Please wait ...");
-    gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
 
     etd->win=ss->win;
     expert_dlg_init_table(etd, temp_page);

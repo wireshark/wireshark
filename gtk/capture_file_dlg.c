@@ -361,12 +361,12 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, c
     }
     label = gtk_label_new(indent);
     g_free(indent);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
     gtk_table_attach_defaults(GTK_TABLE(list), label, 0, 1, *row, *row+1);
 
     label = gtk_label_new(value);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
     gtk_table_attach_defaults(GTK_TABLE(list), label, 1, 2, *row, *row+1);
 

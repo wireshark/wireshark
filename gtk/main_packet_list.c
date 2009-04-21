@@ -652,7 +652,7 @@ packet_list_resize_columns(void)
        bump that value by this amount. */
     progbar_quantum = cfile.cinfo.num_cols/N_PROGBAR_UPDATES;
     /* Progress so far. */
-    progbar_val = 0.0;
+    progbar_val = 0.0f;
 
     progbar_stop_flag = FALSE;
     g_get_current_time(&progbar_start_time);
@@ -752,7 +752,7 @@ void
 packet_list_moveto_end(void)
 {
     gtk_clist_moveto(GTK_CLIST(packet_list),
-                     GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+                     GTK_CLIST(packet_list)->rows - 1, -1, 1.0f, 1.0f);
 }
 
 gboolean
@@ -890,7 +890,7 @@ packet_list_set_selected_row(gint row)
     if (!full_visible) {
         gtk_clist_freeze(GTK_CLIST(packet_list));
 
-        gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
+        gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0f, 0.0f);
 
         /* even after move still invisible (happens with empty list) -> give up */
         if(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) != GTK_VISIBILITY_FULL) {
@@ -910,7 +910,7 @@ packet_list_set_selected_row(gint row)
         visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
         first_row = row - visible_rows / 3;
 
-        gtk_clist_moveto(GTK_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
+        gtk_clist_moveto(GTK_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0f, 0.0f);
 
         gtk_clist_thaw(GTK_CLIST(packet_list));
     }

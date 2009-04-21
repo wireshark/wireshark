@@ -140,7 +140,7 @@ splash_new(const char *message)
     g_object_set_data(G_OBJECT(win), "progress_bar", prog_bar);
 
     percentage_lb = gtk_label_new("  0%");
-    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
     g_object_set_data(G_OBJECT(win), "percentage_label", percentage_lb);
 

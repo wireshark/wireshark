@@ -2905,7 +2905,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 
     label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
     gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
-    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
     if (pref->description)
         gtk_tooltips_set_tip(tooltips, label, pref->description, NULL);
 

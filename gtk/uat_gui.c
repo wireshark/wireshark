@@ -449,7 +449,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 		if (f[colnum].desc != NULL)
 			gtk_tooltips_set_tip(tooltips, event_box, f[colnum].desc, NULL);
 
-		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1, colnum+1, colnum + 2);
 		gtk_container_add(GTK_CONTAINER(event_box), label);
 
@@ -579,11 +579,11 @@ static void uat_del_dlg(uat_t* uat, int idx) {
         	char* text = fld_tostr(rec,&(f[colnum]));
 
 		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
-		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
 		
 		label = gtk_label_new(text);
-		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
 	}
 

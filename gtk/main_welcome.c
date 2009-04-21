@@ -226,7 +226,7 @@ welcome_button(const gchar *stock_item,
 
     /* title */
     w = gtk_label_new(title);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.5f);
     formatted_text = g_strdup_printf("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">%s</span>", title);
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
@@ -234,7 +234,7 @@ welcome_button(const gchar *stock_item,
 
     /* subtitle */
     w = gtk_label_new(subtitle);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.5f);
     formatted_text = g_strdup_printf("<span size=\"small\" foreground=\"black\">%s</span>", subtitle);
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
@@ -288,7 +288,7 @@ welcome_header_new(void)
     w = gtk_label_new(message->str);
     gtk_label_set_markup(GTK_LABEL(w), message->str);
     g_string_free(message, TRUE);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.5f);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
     gtk_widget_show_all(eb);
@@ -462,7 +462,7 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 
     w = welcome_filename_link_new(widget_cf_name, &label);
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_item_idle_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(label), 0.0f, 0.0f);
     child_box = scroll_box_dynamic_add(welcome_file_panel_vb);
     gtk_box_pack_start(GTK_BOX(child_box), w, FALSE, FALSE, 0);
     gtk_widget_show_all(w);
@@ -545,7 +545,7 @@ welcome_if_new(const if_info_t *if_info, const gchar *user_descr, GdkColor *topi
     gtk_label_set_markup(GTK_LABEL(w), message->str);
     g_string_free(message, TRUE);
 
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
 
     return eb;
@@ -742,7 +742,7 @@ welcome_new(void)
     w = gtk_label_new(label_text);
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
     if_child_box = gtk_vbox_new(FALSE, 0);
@@ -806,7 +806,7 @@ welcome_new(void)
     w = gtk_label_new(label_text);
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
     file_child_box = gtk_vbox_new(FALSE, 1);

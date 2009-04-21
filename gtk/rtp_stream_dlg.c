@@ -263,7 +263,7 @@ rtpstream_on_findrev		       (GtkButton	*button _U_,
 		row++) {
 		if (rtp_stream_info_cmp_reverse(selected_stream_fwd, pstream) == 0) {
 			gtk_clist_select_row(GTK_CLIST(clist), row, 0);
-			gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5, 0);
+			gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5f, 0);
 			return;
 		}
 	}
@@ -274,7 +274,7 @@ rtpstream_on_findrev		       (GtkButton	*button _U_,
 		row++) {
 		if (rtp_stream_info_cmp_reverse(selected_stream_fwd, pstream) == 0) {
 			gtk_clist_select_row(GTK_CLIST(clist), row, 0);
-			gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5, 0);
+			gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5f, 0);
 			return;
 		}
 	}
@@ -282,7 +282,7 @@ rtpstream_on_findrev		       (GtkButton	*button _U_,
 	/* if we didnt find another stream, highlight the current reverse stream */
 	if (selected_stream_rev!=NULL) {
 		gtk_clist_select_row(GTK_CLIST(clist), row, 0);
-		gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5, 0);
+		gtk_clist_moveto(GTK_CLIST(clist), row, 0, 0.5f, 0);
 	}
 }
 

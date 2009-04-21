@@ -324,7 +324,7 @@ mtp3_stat_draw(
 			 * :
 			 * should generally be preferred when inserting rows in a sorted list store.
 			 */
-			 avg = 0.0;
+			 avg = 0.0f;
 			 if ((*stat_p)[i].si_code[j].num_msus !=0){
 				 avg = (float)(*stat_p)[i].si_code[j].size/(float)(*stat_p)[i].si_code[j].num_msus;
 			 }

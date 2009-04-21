@@ -97,7 +97,7 @@ stream_prefs_show()
   gtk_widget_show(main_tb);
 
   label = gtk_label_new("Set:");
-  gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
   gtk_widget_show(label);
 

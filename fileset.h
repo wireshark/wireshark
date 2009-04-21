@@ -35,7 +35,7 @@ typedef struct _fileset_entry {
   const char    *name;          /* File name without path (g_strdup'ed) */
   time_t        ctime;          /* create time */
   time_t        mtime;          /* last modified time */
-  long          size;           /* size of file in bytes */
+  gint64        size;           /* size of file in bytes */
   gboolean      current;        /* is this the currently loaded file? */
 } fileset_entry;
 

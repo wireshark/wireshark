@@ -489,7 +489,7 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 		if ((wlan_ep->number_of_packets - wlan_ep->type[0x08]) > 0) {
 			f = (float)(((float)tmp->number_of_packets * 100.0) / (wlan_ep->number_of_packets - wlan_ep->type[0x08]));
 		} else {
-			f = 0.0;
+			f = 0.0f;
 		}
 
 		if (hs->resolve_names) {

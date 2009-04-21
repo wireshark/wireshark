@@ -157,7 +157,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
     &style->bg[GTK_STATE_NORMAL], (gchar **) icon);
   type_pm = gtk_pixmap_new(pixmap, mask);
-  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
+  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
 
@@ -178,7 +178,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 #endif
 
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
-  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
+  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
   gtk_container_add(GTK_CONTAINER(msg_vb), msg_label);
   gtk_label_set_line_wrap(GTK_LABEL(msg_label), TRUE);
   gtk_widget_show(msg_label);

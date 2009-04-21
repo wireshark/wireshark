@@ -491,7 +491,7 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
     /* And position the window so the selection is visible.
      * Position the selection in the middle of the viewable
      * pane. */
-    gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5, 0.0);
+    gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5f, 0.0f);
 
     gtk_tree_path_free(first_path);
 
@@ -1028,7 +1028,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
      bump that value by this amount. */
   progbar_quantum = len/N_PROGBAR_UPDATES;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);

@@ -119,19 +119,19 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     static_vb = gtk_vbox_new(FALSE, 1);
     task_title_dup = g_strdup_printf ("%s:", task_title);
     tmp_lb = gtk_label_new(task_title_dup);
-    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
     tmp_lb = gtk_label_new("Status:");
-    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
     tmp_lb = gtk_label_new("Elapsed Time:");
-    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
     tmp_lb = gtk_label_new("Time Left:");
-    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
     tmp_lb = gtk_label_new("Progress:");
-    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
 
 
@@ -147,27 +147,27 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
      */
     title_lb = gtk_label_new(item_title_dup);
     gtk_box_pack_start(GTK_BOX(dynamic_vb), title_lb, FALSE, TRUE, 3);
-    gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0f, 0.0f);
     gtk_misc_set_padding(GTK_MISC(title_lb), 0, 0);
 
     /* same for "Status" */
     status_lb = gtk_label_new("");
     gtk_box_pack_start(GTK_BOX(dynamic_vb), status_lb, FALSE, TRUE, 3);
-    gtk_misc_set_alignment(GTK_MISC(status_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(status_lb), 0.0f, 0.0f);
     gtk_misc_set_padding(GTK_MISC(status_lb), 0, 0);
     dlg->status_lb = (GtkLabel *) status_lb;
 
     /* same for "Elapsed Time" */
     elapsed_lb = gtk_label_new("00:00");
     gtk_box_pack_start(GTK_BOX(dynamic_vb), elapsed_lb, FALSE, TRUE, 3);
-    gtk_misc_set_alignment(GTK_MISC(elapsed_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(elapsed_lb), 0.0f, 0.0f);
     gtk_misc_set_padding(GTK_MISC(elapsed_lb), 0, 0);
     dlg->elapsed_lb = (GtkLabel *) elapsed_lb;
 
     /* same for "Time Left" */
     time_left_lb = gtk_label_new("--:--");
     gtk_box_pack_start(GTK_BOX(dynamic_vb), time_left_lb, FALSE, TRUE, 3);
-    gtk_misc_set_alignment(GTK_MISC(time_left_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(time_left_lb), 0.0f, 0.0f);
     gtk_misc_set_padding(GTK_MISC(time_left_lb), 0, 0);
     dlg->time_left_lb = (GtkLabel *) time_left_lb;
 
@@ -182,7 +182,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, FALSE, TRUE, 3);
 
     percentage_lb = gtk_label_new("  0%");
-    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
     dlg->percentage_lb = (GtkLabel *) percentage_lb;
 

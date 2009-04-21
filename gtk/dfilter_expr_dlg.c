@@ -960,7 +960,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_add(GTK_CONTAINER(main_hb), field_vb);
 
     field_tree_lb = gtk_label_new("Field name");
-    gtk_misc_set_alignment(GTK_MISC(field_tree_lb), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(field_tree_lb), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(field_vb), field_tree_lb, FALSE, FALSE, 0);
 
     tree_scrolled_win = scrolled_window_new(NULL, NULL);
@@ -989,7 +989,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_add(GTK_CONTAINER(main_hb), relation_vb);
 
     relation_label = gtk_label_new("Relation");
-    gtk_misc_set_alignment(GTK_MISC(relation_label), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(relation_label), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_label, FALSE, FALSE, 0);
 
     relation_list_scrolled_win = scrolled_window_new(NULL, NULL);
@@ -1064,14 +1064,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_add(GTK_CONTAINER(main_hb), value_vb);
 
     value_label = gtk_label_new("Value");
-    gtk_misc_set_alignment(GTK_MISC(value_label), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(value_label), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(value_vb), value_label, FALSE, FALSE, 0);
 
     value_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(value_vb), value_entry, FALSE, FALSE, 0);
 
     value_list_label = gtk_label_new("Predefined values:");
-    gtk_misc_set_alignment(GTK_MISC(value_list_label), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(value_list_label), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(value_vb), value_list_label, FALSE, FALSE, 0);
 
     value_list_scrolled_win = scrolled_window_new(NULL, NULL);
@@ -1161,7 +1161,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 }
 
     range_label = gtk_label_new("Range (offset:length)");
-    gtk_misc_set_alignment(GTK_MISC(range_label), 0.0, 0.0);
+    gtk_misc_set_alignment(GTK_MISC(range_label), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(value_vb), range_label, FALSE, FALSE, 0);
 
     range_entry = gtk_entry_new();

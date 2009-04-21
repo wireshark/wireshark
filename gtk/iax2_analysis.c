@@ -2129,7 +2129,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward	");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
@@ -2694,7 +2694,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 
-	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 	raw_rb = gtk_radio_button_new_with_label (format_group, ".raw");
 	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (raw_rb));
@@ -2740,7 +2740,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
-	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward	");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));

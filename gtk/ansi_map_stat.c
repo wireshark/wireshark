@@ -252,7 +252,7 @@ ansi_map_stat_draw(
 		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */
 		while (ansi_map_opr_code_strings[i].strptr)
 		{
-			avg = 0.0;
+			avg = 0.0f;
 			if (stat_p->message_type[ansi_map_opr_code_strings[i].value] !=0 ){
 				avg = (float)stat_p->size[ansi_map_opr_code_strings[i].value]/(float)stat_p->message_type[ansi_map_opr_code_strings[i].value];
 			}

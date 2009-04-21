@@ -633,7 +633,7 @@ set_option_label(GtkWidget *main_tb, int table_position,
 	GtkWidget *event_box;
 
 	label = gtk_label_new(label_text);
-	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_show(label);
 
 	event_box = gtk_event_box_new();
@@ -1653,7 +1653,7 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
     /* And position the window so the selection is visible.
      * Position the selection in the middle of the viewable
      * pane. */
-    gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5, 0.0);
+    gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5f, 0.0f);
 
     gtk_tree_path_free(first_path);
 }

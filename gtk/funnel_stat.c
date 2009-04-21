@@ -432,7 +432,7 @@ static void funnel_new_dialog(const gchar* title,
         GtkWidget *entry, *label;
         
         label = gtk_label_new(fieldname);
-        gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+        gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, i+1, i + 2);
         gtk_widget_show(label);
 

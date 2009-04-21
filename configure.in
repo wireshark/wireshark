@@ -241,12 +241,8 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		# for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
-		#Temporarily put cast-align here waiting eradication of 'cast
-		#increases required alignment of target type' on the Solaris
-		#slave.
 		#
 		# epan/dissectors/packet-afs.c blocks this one for now.
 		#
@@ -261,6 +257,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,

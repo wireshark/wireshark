@@ -340,7 +340,7 @@ ssl_parse(void)
             if ((ssl_keys_file = ws_fopen(ssl_keys_list, "r"))) {
                 read_failed = FALSE;
                 fstat(fileno(ssl_keys_file), &statb);
-                size = statb.st_size;
+                size = (size_t)statb.st_size;
                 tmp_buf = ep_alloc0(size + 1);
                 nbytes = fread(tmp_buf, 1, size, ssl_keys_file);
                 if (ferror(ssl_keys_file)) {

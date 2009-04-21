@@ -220,7 +220,7 @@ sip_draw_hash_requests(gchar *key _U_ , sip_request_method_t *data, gchar * unus
     {
         /* Create new label */
         data->widget=gtk_label_new(string_buff);
-        gtk_misc_set_alignment(GTK_MISC(data->widget), 0.0, 0.5);
+        gtk_misc_set_alignment(GTK_MISC(data->widget), 0.0f, 0.5f);
         gtk_box_pack_start(GTK_BOX(data->sp->request_box), data->widget,FALSE,FALSE, 0);
         gtk_widget_show(data->widget);
     }

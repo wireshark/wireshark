@@ -1745,7 +1745,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0);
 
   snap_lb = gtk_label_new("bytes");
-  gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5f);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_lb, FALSE, FALSE, 0);
 
   /* Filter row */
@@ -1975,7 +1975,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ringbuffer_nbf_sb, 1, 2, row, row+1);
 
   ringbuffer_nbf_lb = gtk_label_new("files");
-  gtk_misc_set_alignment(GTK_MISC(ringbuffer_nbf_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(ringbuffer_nbf_lb), 0, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ringbuffer_nbf_lb, 2, 3, row, row+1);
   row++;
 
@@ -1996,7 +1996,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_sb, 1, 2, row, row+1);
 
   stop_files_lb = gtk_label_new("file(s)");
-  gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_lb, 2, 3, row, row+1);
   row++;
 
@@ -2032,7 +2032,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_sb, 1, 2, row, row+1);
 
   stop_packets_lb = gtk_label_new("packet(s)");
-  gtk_misc_set_alignment(GTK_MISC(stop_packets_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(stop_packets_lb), 0, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_lb, 2, 3, row, row+1);
   row++;
 

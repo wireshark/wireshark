@@ -585,7 +585,7 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 
     data->count++;
 
-    gtk_tree_view_scroll_to_cell(data->color_filters, path, NULL, FALSE, 0.0, 0.0);
+    gtk_tree_view_scroll_to_cell(data->color_filters, path, NULL, FALSE, 0.0f, 0.0f);
 }
 
 /* clear the selection flag of this filter */

@@ -659,7 +659,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if_dlg_data->device_lb = gtk_label_new(if_info->name);
       if_dlg_data->device = if_info->name;
 #ifndef _WIN32
-      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0, 0.5);
+      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0f, 0.5f);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 1, 2, row, row+1);
 #endif
       g_string_append(if_tool_str, "Device: ");
@@ -671,7 +671,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
         if_dlg_data->descr_lb = gtk_label_new(if_info->description);
       else
         if_dlg_data->descr_lb = gtk_label_new("");
-      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0, 0.5);
+      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0f, 0.5f);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);
 
       if (if_info->description) {

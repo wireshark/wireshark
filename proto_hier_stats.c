@@ -206,7 +206,7 @@ ph_stats_new(void)
 	/* Count of packets at which we've looked. */
 	count = 0;
 	/* Progress so far. */
-	progbar_val = 0.0;
+	progbar_val = 0.0f;
 
 	stop_flag = FALSE;
 	g_get_current_time(&start_time);

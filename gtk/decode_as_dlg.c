@@ -1028,7 +1028,7 @@ decode_add_pack_menu (GtkWidget *optmenu)
 {
     GtkWidget *alignment;
 
-    alignment = gtk_alignment_new(0.0, 0.5, 0.0, 0.0);
+    alignment = gtk_alignment_new(0.0f, 0.5f, 0.0f, 0.0f);
     gtk_container_add(GTK_CONTAINER(alignment), optmenu);
 
     return(alignment);

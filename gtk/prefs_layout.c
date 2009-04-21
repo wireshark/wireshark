@@ -85,7 +85,7 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
 
     g_snprintf (buf, sizeof(buf), "Pane %d:", i);
     radio_lb = gtk_label_new(buf);
-    gtk_misc_set_alignment(GTK_MISC(radio_lb), 0.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(radio_lb), 0.0f, 0.5f);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_lb);
 
     radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "None");

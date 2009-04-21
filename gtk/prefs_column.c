@@ -193,7 +193,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(tb);
 
     lb = gtk_label_new("Format:");
-    gtk_misc_set_alignment(GTK_MISC(lb), 1.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(lb), 1.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 0, 1);
     gtk_widget_show(lb);
 
@@ -203,7 +203,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(props_hb);
 
     field_lb = gtk_label_new("Field name:");
-    gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0, 0.5);
+    gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 2, 3, 0, 1);
     gtk_widget_hide(field_lb);
 

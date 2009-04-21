@@ -445,7 +445,7 @@ cf_read(capture_file *cf)
   else
     progbar_quantum = 0;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   packet_list_freeze();
 
@@ -482,8 +482,8 @@ cf_read(capture_file *cf)
                case there's not much we can do about it), or the file
                *shrank* (in which case there's not much we can do about
                it); just clip the progress value at 1.0. */
-            if (progbar_val > 1.0)
-              progbar_val = 1.0;
+            if (progbar_val > 1.0f)
+              progbar_val = 1.0f;
           }
           if (progbar != NULL) {
           	/* update the packet lists content on the first run or frequently on very large files */
@@ -1242,7 +1242,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
      bump that value by this amount. */
   progbar_quantum = f_len/N_PROGBAR_UPDATES;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -1287,11 +1287,11 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         for (i = 0; i < in_file_count; i++)
           file_pos += wtap_read_so_far(in_files[i].wth, NULL);
         progbar_val = (gfloat) file_pos / (gfloat) f_len;
-        if (progbar_val > 1.0) {
+        if (progbar_val > 1.0f) {
           /* Some file probably grew while we were reading it.
              That "shouldn't happen", so we'll just clip the progress
              value at 1.0. */
-          progbar_val = 1.0;
+          progbar_val = 1.0f;
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
@@ -1572,7 +1572,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Count of packets at which we've looked. */
   count = 0;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -1810,7 +1810,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   /* Count of packets at which we've looked. */
   progbar_count = 0;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
@@ -2567,7 +2567,7 @@ cf_change_time_formats(capture_file *cf)
   /* Count of packets at which we've looked. */
   count = 0;
   /* Progress so far. */
-  progbar_val = 0.0;
+  progbar_val = 0.0f;
 
   /*  If the rows are currently sorted by the frame column then we know
    *  the row number of each packet: it's the row number of the previously
@@ -3053,7 +3053,7 @@ find_packet(capture_file *cf,
        bump that value by this amount. */
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
     /* Progress so far. */
-    progbar_val = 0.0;
+    progbar_val = 0.0f;
 
     stop_flag = FALSE;
     g_get_current_time(&start_time);

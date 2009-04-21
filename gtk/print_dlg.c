@@ -628,7 +628,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 #ifndef _WIN32
   cmd_lb = gtk_label_new("Print command:");
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_LB_KEY, cmd_lb);
-  gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0f, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_lb, 0, 1, 1, 2);
   gtk_widget_set_sensitive(cmd_lb, !args->to_file);
   if(action == output_action_print)
