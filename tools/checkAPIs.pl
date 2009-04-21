@@ -1012,6 +1012,11 @@ while ($_ = $ARGV[0])
 				printf STDERR "Error: %-35.35s: Not terminated: %s\n", $filename, $1;
 				$errorCount++;
 			}
+                        if ($vs !~ / (static)? const value_string /xo)  {
+				$vsx =~ /( value_string [^=]+ ) = /xo;
+				printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
+				$errorCount++;
+                        }
 		}
 	}
 
