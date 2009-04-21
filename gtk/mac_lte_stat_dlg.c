@@ -145,6 +145,7 @@ typedef struct mac_lte_common_stats {
     guint32 pch_frames;
     guint32 pch_bytes;
     guint32 rar_frames;
+    guint32 rar_entries;
 } mac_lte_common_stats;
 
 static const char * selected_ue_row_names[] = {"UL SDUs", "UL Bytes", "DL SDUs", "DL Bytes"};
@@ -156,6 +157,7 @@ static GtkWidget *mac_lte_common_bch_bytes;
 static GtkWidget *mac_lte_common_pch_frames;
 static GtkWidget *mac_lte_common_pch_bytes;
 static GtkWidget *mac_lte_common_rar_frames;
+static GtkWidget *mac_lte_common_rar_entries;
 
 /* Labels in selected UE 'table' */
 static GtkWidget *selected_ue_column_entry[NUM_CHANNEL_COLUMNS][5];
@@ -296,6 +298,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return 1;
         case RA_RNTI:
             common_stats.rar_frames++;
+            common_stats.rar_entries += si->number_of_rars;
             return 1;
 
         default:
@@ -508,6 +511,9 @@ mac_lte_stat_draw(void *phs)
     gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_bytes), buff);
     g_snprintf(buff, sizeof(buff), "RAR Frames: %u", common_stats.rar_frames);
     gtk_label_set_text(GTK_LABEL(mac_lte_common_rar_frames), buff);
+    g_snprintf(buff, sizeof(buff), "RAR Entries: %u", common_stats.rar_entries);
+    gtk_label_set_text(GTK_LABEL(mac_lte_common_rar_entries), buff);
+
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
@@ -675,6 +681,11 @@ static void mac_lte_stat_dlg_create(void)
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_rar_frames), 0.0f, .5f);
     gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_rar_frames);
     gtk_widget_show(mac_lte_common_rar_frames);
+
+    mac_lte_common_rar_entries = gtk_label_new("RAR Entries:");
+    gtk_misc_set_alignment(GTK_MISC(mac_lte_common_rar_entries), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_rar_entries);
+    gtk_widget_show(mac_lte_common_rar_entries);
 
     /**********************************************/
     /* UL/DL-SCH data                             */

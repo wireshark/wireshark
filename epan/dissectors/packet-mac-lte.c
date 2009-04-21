@@ -419,7 +419,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* Dissect Random Access Reponse (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        gint offset, mac_lte_info *p_mac_lte_info)
+                        gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     gint    number_of_rars = 0;   /* No of RAR bodies expected following headers */
     gboolean backoff_indicator_seen = FALSE;
@@ -524,6 +524,9 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     for (n=0; n < number_of_rars; n++) {
         offset = dissect_rar_entry(tvb, pinfo, tree, offset);
     }
+
+    /* Update TAP info */
+    tap_info->number_of_rars += number_of_rars;
 }
 
 
@@ -1177,7 +1180,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RA_RNTI:
             /* RAR PDU */
-            dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info);
+            dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info, &tap_info);
             break;
 
         case C_RNTI:
@@ -1202,9 +1205,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Queue tap info */
-    if (!pinfo->in_error_pkt) {
-        tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
-    }
+    /* TODO: if any of above (esp RRC dissection) throws exception, this isn't reached,
+       but if call too early, won't have details... */
+    tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
 }
 
 

@@ -72,5 +72,6 @@ typedef struct mac_lte_tap_info {
     guint32  single_number_of_bytes;
     guint32  bytes_for_lcid[11];
     guint32  sdus_for_lcid[11];
+    guint8   number_of_rars;
 } mac_lte_tap_info;
 
