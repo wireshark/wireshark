@@ -53,6 +53,7 @@ PLUGINS= \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/m2m/m2m.dll \
+	../../plugins/opcua/opcua.dll \
 	../../plugins/mate/mate.dll \
 	../../plugins/sercosiii/sercosiii.dll \
 	../../plugins/stats_tree/stats_tree.dll \
