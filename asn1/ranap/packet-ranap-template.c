@@ -139,7 +139,7 @@ void proto_reg_handoff_ranap(void);
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-  int ret;
+  int ret = 0;
   int key;
 
   /* Special handling, same ID used for different IE's depending on signal */

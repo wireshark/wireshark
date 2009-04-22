@@ -169,7 +169,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
-	packet-ranap.c \
 	packet-rnsap.c \
 	packet-rrc.c \
 	packet-rrlp.c \
@@ -712,6 +711,7 @@ DISSECTOR_SRC = \
 	packet-radius.c		\
 	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
+	packet-ranap.c		\
 	packet-raw.c		\
 	packet-rdm.c		\
 	packet-rdt.c		\
