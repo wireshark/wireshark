@@ -5129,11 +5129,11 @@ proto_registrar_dump_protocols(void)
 	}
 }
 
-/* Dumps the value_string and true/false strings for fields that have
- * them. There is one record per line. Fields are tab-delimited.
- * There are two types of records, Value String records and True/False
- * String records. The first field, 'V' or 'T', indicates the type
- * of record.
+/* Dumps the value_strings, range_strings or true/false strings for fields 
+ * that have them. There is one record per line. Fields are tab-delimited.
+ * There are three types of records: Value String, Range String
+ * and True/False String. The first field, 'V', 'R' or 'T', indicates
+ * the type of record.
  *
  * Value Strings
  * -------------
@@ -5141,6 +5141,14 @@ proto_registrar_dump_protocols(void)
  * Field 2 = field abbreviation to which this value string corresponds
  * Field 3 = Integer value
  * Field 4 = String
+ *
+ * Range Strings
+ * -------------
+ * Field 1 = 'R'
+ * Field 2 = field abbreviation to which this range string corresponds
+ * Field 3 = Integer value: lower bound
+ * Field 4 = Integer value: upper bound
+ * Field 5 = String
  *
  * True/False Strings
  * ------------------
@@ -5155,6 +5163,7 @@ proto_registrar_dump_values(void)
 	header_field_info	*hfinfo, *parent_hfinfo;
 	int			i, len, vi;
 	const value_string	*vals;
+	const range_string	*range;
 	const true_false_string	*tfs;
 
 	len = gpa_hfinfo.len;
@@ -5188,10 +5197,11 @@ proto_registrar_dump_values(void)
 
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
 
-			vals = NULL;
-			tfs = NULL;
+			vals  = NULL;
+			range = NULL;
+			tfs   = NULL;
 
-			if (hfinfo->display != BASE_CUSTOM &&
+			if ((hfinfo->display & BASE_STRUCTURE_RESET) != BASE_CUSTOM &&
 				(hfinfo->type == FT_UINT8 ||
 				hfinfo->type == FT_UINT16 ||
 				hfinfo->type == FT_UINT24 ||
@@ -5203,7 +5213,11 @@ proto_registrar_dump_values(void)
 				hfinfo->type == FT_INT32 ||
 				hfinfo->type == FT_INT64)) {
 
-				vals = hfinfo->strings;
+				if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
+					vals = hfinfo->strings;
+				} else {
+					range = hfinfo->strings;
+				}
 			}
 			else if (hfinfo->type == FT_BOOLEAN) {
 				tfs = hfinfo->strings;
@@ -5225,6 +5239,29 @@ proto_registrar_dump_values(void)
 								hfinfo->abbrev,
 								vals[vi].value,
 								vals[vi].strptr);
+					}
+					vi++;
+				}
+			}
+
+			/* print range strings? */
+			else if (range) {
+				vi = 0;
+				while (range[vi].strptr) {
+					/* Print in the proper base */
+					if ((hfinfo->display & BASE_STRUCTURE_RESET) == BASE_HEX) {
+						printf("R\t%s\t0x%x\t0x%x\t%s\n",
+								hfinfo->abbrev,
+								range[vi].value_min,
+								range[vi].value_max,
+								range[vi].strptr);
+					}
+					else {
+						printf("R\t%s\t%u\t%u\t%s\n",
+								hfinfo->abbrev,
+								range[vi].value_min,
+								range[vi].value_max,
+								range[vi].strptr);
 					}
 					vi++;
 				}
@@ -5269,7 +5306,7 @@ proto_registrar_dump_values(void)
  * Field 4 = type ( textual representation of the the ftenum type )
  * Field 5 = parent protocol abbreviation
  * Field 6 = blurb describing field
- * Field 7 = base for display (for integer types)
+ * Field 7 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
  * Field 8 = blurb describing field (yes, apparently we repeated this accidentally)
  *
  * (format 3)
@@ -5279,10 +5316,11 @@ proto_registrar_dump_values(void)
  * Field 4 = type ( textual representation of the the ftenum type )
  * Field 5 = parent protocol abbreviation
  * Field 6 = blurb describing field
- * Field 7 = base for display (for integer types)
- * Field 8 = bitmask
+ * Field 7 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
+ * Field 8 = bitmask: format: hex: 0x....
  */
 void
+
 proto_registrar_dump_fields(int format)
 {
 	header_field_info	*hfinfo, *parent_hfinfo;
@@ -5290,6 +5328,7 @@ proto_registrar_dump_fields(int format)
 	const char 		*enum_name;
 	const char		*base_name;
 	const char		*blurb;
+	char			width[5];
 
 	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
@@ -5341,7 +5380,7 @@ proto_registrar_dump_fields(int format)
 					hfinfo->type == FT_INT64) {
 
 
-					switch(hfinfo->display) {
+					switch(hfinfo->display & BASE_STRUCTURE_RESET) {
 						case BASE_NONE:
 							base_name = "BASE_NONE";
 							break;
@@ -5363,7 +5402,14 @@ proto_registrar_dump_fields(int format)
 						case BASE_CUSTOM:
 							base_name = "BASE_CUSTOM";
 							break;
+						default:
+							base_name = "????";
+							break;
 					}
+				} else if (hfinfo->type == FT_BOOLEAN) {
+					/* For FT_BOOLEAN: 'display' can be "parent bitfield width" */
+					g_snprintf(width, sizeof(width), "%d", hfinfo->display);
+					base_name = width;
 				}
 			}
 
@@ -5382,7 +5428,7 @@ proto_registrar_dump_fields(int format)
 					base_name, blurb);
 			}
 			else if (format == 3) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%u\n",
+				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t0x%x\n",
 					hfinfo->name, hfinfo->abbrev, enum_name,
 					parent_hfinfo->abbrev, blurb,
 					base_name, hfinfo->bitmask);
@@ -5905,7 +5951,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 }
 /*
- * This function will dissect a sequence of bits that does not need to be byte aligned the bits
+ * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
  * set vill be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
  */
