@@ -744,7 +744,7 @@ static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *str
 }
 
 static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, int *err_p) {
-    long junky_offset = (0x2000 - ( (wdh->dump.k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
+    guint32 junky_offset = (0x2000 - ( (wdh->dump.k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
 
     if (len > junky_offset) {
         if (junky_offset) {
