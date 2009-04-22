@@ -1127,7 +1127,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			curr_offset+=2;
 			break;
 		case 2:
-			if (len< (guint)(4+(n_elem*5))){
+			if (len< (guint)(1+(n_elem*5))){
 				proto_tree_add_text(tree, tvb, curr_offset, len-1 , "[Wrong number of elements?]");
 				return len;
 			}
