@@ -826,9 +826,6 @@ static int hf_ranap_bindingID = -1;               /* BindingID */
 static int hf_ranap_LA_LIST_item = -1;            /* LA_LIST_item */
 static int hf_ranap_listOF_SNAs = -1;             /* ListOF_SNAs */
 static int hf_ranap_ageOfSAI = -1;                /* INTEGER_0_32767 */
-static int hf_ranap_uTRAN_CellID = -1;            /* UTRAN_CellID */
-static int hf_ranap_cellType = -1;                /* CellType */
-static int hf_ranap_time_UE_StayedInCell = -1;    /* Time_UE_StayedInCell */
 static int hf_ranap_ListOF_SNAs_item = -1;        /* SNAC */
 static int hf_ranap_ListOfInterfacesToTrace_item = -1;  /* InterfacesToTraceItem */
 static int hf_ranap_interface = -1;               /* T_interface */
@@ -945,7 +942,6 @@ static int hf_ranap_imei = -1;                    /* IMEI */
 static int hf_ranap_imeisv = -1;                  /* IMEISV */
 static int hf_ranap_uESBI_IuA = -1;               /* UESBI_IuA */
 static int hf_ranap_uESBI_IuB = -1;               /* UESBI_IuB */
-static int hf_ranap_cellID = -1;                  /* TargetCellId */
 static int hf_ranap_horizontalVelocity = -1;      /* HorizontalVelocity */
 static int hf_ranap_horizontalWithVerticalVelocity = -1;  /* HorizontalWithVerticalVelocity */
 static int hf_ranap_horizontalVelocityWithUncertainty = -1;  /* HorizontalVelocityWithUncertainty */
@@ -1115,7 +1111,6 @@ static gint ett_ranap_LA_LIST = -1;
 static gint ett_ranap_LA_LIST_item = -1;
 static gint ett_ranap_LAI = -1;
 static gint ett_ranap_LastKnownServiceArea = -1;
-static gint ett_ranap_LastVisitedUTRANCell_Item = -1;
 static gint ett_ranap_ListOF_SNAs = -1;
 static gint ett_ranap_ListOfInterfacesToTrace = -1;
 static gint ett_ranap_InterfacesToTraceItem = -1;
@@ -1186,7 +1181,6 @@ static gint ett_ranap_TrCH_ID = -1;
 static gint ett_ranap_TrCH_ID_List = -1;
 static gint ett_ranap_UE_ID = -1;
 static gint ett_ranap_UESBI_Iu = -1;
-static gint ett_ranap_UTRAN_CellID = -1;
 static gint ett_ranap_VelocityEstimate = -1;
 static gint ett_ranap_HorizontalVelocity = -1;
 static gint ett_ranap_HorizontalWithVerticalVelocity = -1;
@@ -1403,7 +1397,6 @@ dissect_ranap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 
-
 static int
 dissect_ranap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -1500,7 +1493,7 @@ dissect_ranap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 82 "ranap.cnf"
+#line 81 "ranap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
@@ -1751,7 +1744,7 @@ dissect_ranap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 66 "ranap.cnf"
+#line 65 "ranap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(ranap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -1873,7 +1866,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_ranap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "ranap.cnf"
+#line 106 "ranap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1895,7 +1888,7 @@ static const per_sequence_t ProtocolIE_ContainerPairList_sequence_of[1] = {
 
 static int
 dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "ranap.cnf"
+#line 122 "ranap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -2464,7 +2457,7 @@ dissect_ranap_APN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 227 "ranap.cnf"
+#line 226 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3360,7 +3353,6 @@ dissect_ranap_CellLoadInformationGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-
 static const value_string ranap_ClientType_vals[] = {
   {   0, "emergency-Services" },
   {   1, "value-Added-Services" },
@@ -3711,7 +3703,6 @@ dissect_ranap_DeltaRAListofIdleModeUEs(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-
 
 
 
@@ -4180,7 +4171,7 @@ dissect_ranap_GlobalRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "ranap.cnf"
+#line 267 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;	
   int saved_hf;
   
@@ -4213,7 +4204,7 @@ dissect_ranap_HS_DSCH_MAC_d_Flow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "ranap.cnf"
+#line 179 "ranap.cnf"
   tvbuff_t* imsi_tvb;
   char		*digit_str;
 
@@ -4762,19 +4753,6 @@ dissect_ranap_LastKnownServiceArea(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-
-static int
-dissect_ranap_TargetCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 268435455U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-
-
 static const value_string ranap_T_interface_vals[] = {
   {   0, "iu-cs" },
   {   1, "iu-ps" },
@@ -5055,7 +5033,7 @@ dissect_ranap_MBMSSessionRepetitionNumber(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 203 "ranap.cnf"
+#line 202 "ranap.cnf"
   tvbuff_t *nas_pdu_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6118,7 +6096,7 @@ dissect_ranap_ResponseTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 212 "ranap.cnf"
+#line 211 "ranap.cnf"
   tvbuff_t *rrc_message_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6218,7 +6196,6 @@ dissect_ranap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset
 
 
 
-
 static int
 dissect_ranap_SourceBSS_ToTargetBSS_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6261,6 +6238,16 @@ dissect_ranap_SourceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ranap_SourceID, SourceID_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_TargetCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 268435455U, NULL, FALSE);
 
   return offset;
 }
@@ -6384,7 +6371,6 @@ dissect_ranap_SRVCC_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
-
 static int
 dissect_ranap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6392,7 +6378,6 @@ dissect_ranap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-
 
 
 
@@ -6570,7 +6555,7 @@ dissect_ranap_UnsuccessfullyTransmittedDataVolume(tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 246 "ranap.cnf"
+#line 245 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -6920,7 +6905,7 @@ dissect_ranap_VerticalAccuracyCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_ranap_RAB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "ranap.cnf"
+#line 132 "ranap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfRABs);
@@ -6936,7 +6921,7 @@ dissect_ranap_RAB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_ranap_RAB_IE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "ranap.cnf"
+#line 140 "ranap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerPairList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfRABs);
@@ -6952,7 +6937,7 @@ dissect_ranap_RAB_IE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ranap_IuSigConId_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "ranap.cnf"
+#line 157 "ranap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfIuSigConIds);
@@ -6968,7 +6953,7 @@ dissect_ranap_IuSigConId_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ranap_DirectTransfer_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 166 "ranap.cnf"
+#line 165 "ranap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfDTs);
@@ -13468,18 +13453,6 @@ void proto_register_ranap(void) {
       { "ageOfSAI", "ranap.ageOfSAI",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ranap.INTEGER_0_32767", HFILL }},
-    { &hf_ranap_uTRAN_CellID,
-      { "uTRAN-CellID", "ranap.uTRAN_CellID",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ranap.UTRAN_CellID", HFILL }},
-    { &hf_ranap_cellType,
-      { "cellType", "ranap.cellType",
-        FT_UINT32, BASE_DEC, VALS(ranap_CellType_vals), 0,
-        "ranap.CellType", HFILL }},
-    { &hf_ranap_time_UE_StayedInCell,
-      { "time-UE-StayedInCell", "ranap.time_UE_StayedInCell",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ranap.Time_UE_StayedInCell", HFILL }},
     { &hf_ranap_ListOF_SNAs_item,
       { "ListOF-SNAs", "ranap.ListOF_SNAs_item",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -13944,10 +13917,6 @@ void proto_register_ranap(void) {
       { "uESBI-IuB", "ranap.uESBI_IuB",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ranap.UESBI_IuB", HFILL }},
-    { &hf_ranap_cellID,
-      { "cellID", "ranap.cellID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ranap.TargetCellId", HFILL }},
     { &hf_ranap_horizontalVelocity,
       { "horizontalVelocity", "ranap.horizontalVelocity",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14334,7 +14303,6 @@ void proto_register_ranap(void) {
     &ett_ranap_LA_LIST_item,
     &ett_ranap_LAI,
     &ett_ranap_LastKnownServiceArea,
-    &ett_ranap_LastVisitedUTRANCell_Item,
     &ett_ranap_ListOF_SNAs,
     &ett_ranap_ListOfInterfacesToTrace,
     &ett_ranap_InterfacesToTraceItem,
@@ -14405,7 +14373,6 @@ void proto_register_ranap(void) {
     &ett_ranap_TrCH_ID_List,
     &ett_ranap_UE_ID,
     &ett_ranap_UESBI_Iu,
-    &ett_ranap_UTRAN_CellID,
     &ett_ranap_VelocityEstimate,
     &ett_ranap_HorizontalVelocity,
     &ett_ranap_HorizontalWithVerticalVelocity,

@@ -23,6 +23,11 @@ ProtocolIE-ID
 
 #.NO_EMIT
 TBCD-STRING
+#.END
+
+#.OMIT_ASSIGNMENT
+RateControlAllowed
+ProtocolError-IE-ContainerList
 Presence
 # NOTE when updating the asn1 spec check if these are used !!!!
 ForwardingIndication
@@ -33,12 +38,6 @@ Time-UE-StayedInCell
 SRVCC-Operation-Possible
 SourceeNodeB-ToTargeteNodeB-TransparentContainer
 TargeteNodeB-ToSourceeNodeB-TransparentContainer
-#.END
-
-#.OMIT_ASSIGNMENT
-RateControlAllowed
-ProtocolError-IE-ContainerList
-
 #.TYPE_RENAME
 
 InitiatingMessage/value InitiatingMessage_value
