@@ -247,6 +247,10 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		# epan/dissectors/packet-afs.c blocks this one for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
+		#
+		# More cleanup needed for this on LP64.
+		#
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
@@ -257,7 +261,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
