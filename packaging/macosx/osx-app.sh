@@ -38,7 +38,7 @@ binary_path="/tmp/inst/bin"
 plist="./Info.plist"
 util_dir="./Utilities"
 cli_dir="$util_dir/Command Line"
-startup_dir="$util_dir/Startup"
+chmodbpf_dir="$util_dir/ChmodBPF"
 
 binary_list="
 	capinfos
@@ -188,7 +188,6 @@ mkdir -p "$pkgbin"
 mkdir -p "$pkgplugin"
 
 mkdir -p "$cli_dir"
-mkdir -p "$startup_dir"
 
 # Build and add the launcher
 #----------------------------------------------------------
@@ -226,7 +225,8 @@ for binary in $binary_list ; do
 done
 
 # ChmodBPF
-cp -v ChmodBPF/* "$startup_dir"
+mkdir -p "$chmodbpf_dir"
+cp -v ChmodBPF/* "$chmodbpf_dir"
 
 # The rest of the Wireshark installation (we handled bin above)
 rsync -av \

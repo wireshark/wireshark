@@ -38,7 +38,8 @@
 
 # Defaults
 set_ds_store=false
-ds_store_file="wireshark.ds_store"
+ds_store_root="root.ds_store"
+ds_store_util="util.ds_store"
 package="Wireshark.app"
 rw_name="RWwireshark.dmg"
 volume_name="Wireshark"
@@ -135,6 +136,7 @@ cp -rf "$package" "$tmp_dir"/
 ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 cp -rf "$utilities" "$tmp_dir"/
+ln -sf /Library/StartupItems "$tmp_dir"/"$utilities"
 # Copy the readme
 cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
 
@@ -148,7 +150,8 @@ if [ ${set_ds_store} = "false" ]; then
 	# window size, appearance, etc.  Most of this can be set
 	# with Apple script but involves user intervention so we
 	# just keep a copy of the correct settings and use that instead.
-	cp $ds_store_file "$tmp_dir/.DS_Store"
+	cp $ds_store_root "$tmp_dir/.DS_Store"
+	cp $ds_store_util "$tmp_dir/$utilities/.DS_Store"
 	auto_open_opt=-noautoopen
 fi
 
@@ -188,9 +191,11 @@ if [ ${set_ds_store} = "true" ]; then
 	auto_open_opt=-noautoopen
 	DEV_NAME=`/usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | egrep '^/dev/' | sed 1q | awk '{print $1}'`
 	echo
-	echo "New $ds_store_file file written. Re-run $0 without the -s option to use it"
-	cp /Volumes/$volume_name/.DS_Store ./$ds_store_file
-	SetFile -a v ./$ds_store_file
+	cp /Volumes/$volume_name/.DS_Store ./$ds_store_root
+	SetFile -a v ./$ds_store_root
+	cp /Volumes/$volume_name/$utilities/.DS_Store ./$ds_store_util
+	SetFile -a v ./$ds_store_util
+	echo "New $ds_store_root and $ds_store_util written. Re-run $0 without the -s option to use them"
 
 	# Unmount the disk image.
 	hdiutil detach "$DEV_NAME"
