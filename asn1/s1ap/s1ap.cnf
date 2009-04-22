@@ -38,6 +38,9 @@ SourceRNC-ToTargetRNC-TransparentContainer
 TargeteNB-ToSourceeNB-TransparentContainer
 TargetRNC-ToSourceRNC-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
+RRC-Container
+E-RABInformationList
+UE-HistoryInformation
 #.END
 
 
