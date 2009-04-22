@@ -781,7 +781,7 @@ welcome_new(void)
     w = gtk_label_new(label_text);
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 #endif  /* HAVE_LIBPCAP */
 
