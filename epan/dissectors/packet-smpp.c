@@ -3336,7 +3336,7 @@ proto_register_smpp(void)
         /* Changes in SMPP 5.0 */
         {       &hf_smpp_congestion_state,
                 {       "Congestion State", "smpp.congestion_state",
-                        FT_UINT8, BASE_DEC, RVALS(vals_congestion_state), 0x00,
+                        FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vals_congestion_state), 0x00,
                         "Congestion info between ESME and MC for flow control/cong. control", HFILL
                 }
         },
@@ -3390,7 +3390,7 @@ proto_register_smpp(void)
         },
         {       &hf_smpp_broadcast_channel_indicator,
                 {       "Cell Broadcast channel", "smpp.broadcast_channel_indicator",
-                        FT_UINT8, BASE_DEC, RVALS(vals_broadcast_channel_indicator), 0x00,
+                        FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vals_broadcast_channel_indicator), 0x00,
                         "Cell Broadcast channel", HFILL
                 }
         },
@@ -3444,7 +3444,7 @@ proto_register_smpp(void)
         },
         {       &hf_smpp_broadcast_area_identifier_format,
                 {       "Broadcast Message - Area Identifier Format", "smpp.broadcast_area_identifier.format",
-                        FT_UINT8, BASE_HEX, RVALS(vals_broadcast_area_identifier_format), 0x00,
+                        FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(vals_broadcast_area_identifier_format), 0x00,
                         "Cell Broadcast Message - Area Identifier Format", HFILL
                 }
         },
@@ -3456,7 +3456,7 @@ proto_register_smpp(void)
         },
         {       &hf_smpp_broadcast_area_success,
                 {       "Broadcast Message - Area Success", "smpp.broadcast_area_success",
-                        FT_UINT8, BASE_DEC, RVALS(vals_broadcast_area_success), 0x00,
+                        FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vals_broadcast_area_success), 0x00,
                         "Cell Broadcast Message - success rate indicator (ratio) - No. of BTS which accepted Message:Total BTS", HFILL
                 }
         },
