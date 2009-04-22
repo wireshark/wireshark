@@ -626,24 +626,21 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 				char *formatted;
 
 				formatted = format_text(string_buffer, strlen(string_buffer));
-				/* alloc maximum data area */
-#define STRING_BUFFER_PRINT_MAX_LEN ((guint) strlen(formatted)+12+1)
-				string_buffer_print = (char*)ep_alloc(STRING_BUFFER_PRINT_MAX_LEN);
 				/* copy over the data and append <TRUNCATED> */
-				g_snprintf(string_buffer_print, STRING_BUFFER_PRINT_MAX_LEN, "%s<TRUNCATED>", formatted);
+				string_buffer_print=ep_strdup_printf("%s%s", formatted, RPC_STRING_TRUNCATED);
 			} else {
-				string_buffer_print="<DATA><TRUNCATED>";
+				string_buffer_print=RPC_STRING_DATA RPC_STRING_TRUNCATED;
 			}
 		} else {
 			if (string_data) {
 				string_buffer_print =
 				    ep_strdup(format_text(string_buffer, strlen(string_buffer)));
 			} else {
-				string_buffer_print="<DATA>";
+				string_buffer_print=RPC_STRING_DATA;
 			}
 		}
 	} else {
-		string_buffer_print="<EMPTY>";
+		string_buffer_print=RPC_STRING_EMPTY;
 	}
 
 	if (tree) {

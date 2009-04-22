@@ -211,7 +211,10 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (ident) {
-		pcnfsd_decode_obscure(ident, (int)strlen(ident));
+		/* Only attempt to decode the ident if it has been specified */
+		if (strcmp(ident, RPC_STRING_EMPTY))	
+			pcnfsd_decode_obscure(ident, (int)strlen(ident));
+
 		if (ident_tree)
 			proto_tree_add_string(ident_tree,
 				hf_pcnfsd_auth_ident_clear,
@@ -238,7 +241,10 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (password) {
-		pcnfsd_decode_obscure(password, (int)strlen(password));
+		/* Only attempt to decode the password if it has been specified */
+		if (strcmp(password, RPC_STRING_EMPTY))	
+			pcnfsd_decode_obscure(password, (int)strlen(password));
+
 		if (password_tree)
 			proto_tree_add_string(password_tree,
 				hf_pcnfsd_auth_password_clear,
