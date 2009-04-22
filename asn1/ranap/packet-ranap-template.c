@@ -96,9 +96,17 @@ static guint32 ProtocolExtensionID;
  * ResetResourceList                N rnsap.ies IMSG||id-IuSigConIdList  # no spaces are allowed in value as a space is delimiter
  * PDU type is stored in a global variable and can is used in the IE decoding section.
  */
-/* Only these two needed currently */
+/*
+ * 	&InitiatingMessage				,
+ *	&SuccessfulOutcome				OPTIONAL,
+ *	&UnsuccessfulOutcome				OPTIONAL,
+ *	&Outcome					OPTIONAL,
+ *
+ * Only these two needed currently 
+ */
 #define IMSG (1<<16)
 #define SOUT (2<<16)
+#define SPECIAL (4<<16)
 
 int pdu_type = 0; /* 0 means wildcard */
 
@@ -132,16 +140,25 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 {
 
   int ret;
+  int key;
 
-  ret = (dissector_try_port_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
-  if (ret == 0) {
-
-    int key = pdu_type || ProtocolIE_ID;
-
-    ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
-
+  /* Special handling, same ID used for different IE's depending on signal */
+  switch(ProcedureCode){
+	  case id_RelocationPreparation:
+		  if((ProtocolIE_ID == id_Source_ToTarget_TransparentContainer)||(ProtocolIE_ID == id_Target_ToSource_TransparentContainer)){
+			  key = SPECIAL || ProtocolIE_ID;
+			  ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+		  }
+		  break;
+	  default:
+		  /* no special handling */
+		  ret = (dissector_try_port_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+		  if (ret == 0) {
+			  key = pdu_type || ProtocolIE_ID;
+			  ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+		  }
+		  break;
   }
-
   return ret;
 }
 
