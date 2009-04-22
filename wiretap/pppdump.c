@@ -535,7 +535,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 	pkt_t		*pkt = NULL;
 	int		byte0, byte1;
 	int		n, num_written = 0;
-	long		start_offset;
+	gint64		start_offset;
 	guint32		time_long;
 	guint8		time_short;
 
