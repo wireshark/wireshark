@@ -201,7 +201,7 @@ typedef struct _pppdump_t {
 	guint			tenths;
 	pkt_t			spkt;
 	pkt_t			rpkt;
-	long			offset;
+	gint64			offset;
 	int			num_bytes;
 	pkt_t			*pkt;
 	struct _pppdump_t	*seek_state;
