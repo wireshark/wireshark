@@ -159,7 +159,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 		}
 
 		/* skip the TLV data */
-		seek_increment = tlvh.length - sizeof tlvh;
+		seek_increment = tlvh.length - (int)sizeof tlvh;
 		if (seek_increment > 0) {
 			if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
 				return -1;
@@ -391,7 +391,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 		}
 
 		/* skip the TLV data */
-		seek_increment = tlvh.length - sizeof tlvh;
+		seek_increment = tlvh.length - (int)sizeof tlvh;
 		if (seek_increment > 0) {
 			if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
 				return -1;

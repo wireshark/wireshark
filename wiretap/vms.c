@@ -523,7 +523,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
 
     /* Get the byte_offset directly from the record */
     s = rec;
-    value = strtoul(s + 45 + in_off, NULL, 16);
+    value = (int)strtoul(s + 45 + in_off, NULL, 16);	/* XXX - error check? */
 
     if (value != byte_offset) {
         return FALSE;

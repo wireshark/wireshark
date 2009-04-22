@@ -335,13 +335,13 @@ static gint ett_afs_vldb_flags = -1;
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_UINT(field) \
-	proto_tree_add_uint(tree, field, tvb, offset, sizeof(guint32), tvb_get_ntohl(tvb, offset)); \
+	proto_tree_add_uint(tree, field, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); \
 	offset += 4;
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_INT(field) \
-	proto_tree_add_int(tree, field, tvb, offset, sizeof(gint32), tvb_get_ntohl(tvb, offset)); \
+	proto_tree_add_int(tree, field, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); \
 	offset += 4;
 
 /* Output a unsigned integer, stored into field 'field'
@@ -360,11 +360,11 @@ static gint ett_afs_vldb_flags = -1;
    Assumes it is in network byte order, converts to host before using,
    Note - does not increment offset, so can be used repeatedly for bitfields */
 #define DISP_UINT(field) \
-	proto_tree_add_uint(tree,field,tvb,offset,sizeof(guint32),tvb_get_ntohl(tvb, offset));
+	proto_tree_add_uint(tree,field,tvb,offset,4,tvb_get_ntohl(tvb, offset));
 
 /* Output an IPv4 address, stored into field 'field' */
 #define OUT_IP(field) \
-	proto_tree_add_ipv4(tree,field,tvb,offset,sizeof(gint32),\
+	proto_tree_add_ipv4(tree,field,tvb,offset,4,\
 		tvb_get_letohl(tvb, offset));\
 	offset += 4;
 
@@ -384,7 +384,7 @@ static gint ett_afs_vldb_flags = -1;
 	{ \
 		unsigned int j,i; \
 		j = tvb_get_ntohl(tvb, offset); \
-		offset += sizeof(guint32); \
+		offset += 4; \
 		for (i=0; i<j; i++) { \
 			func; \
 		} \
@@ -396,7 +396,7 @@ static gint ett_afs_vldb_flags = -1;
 	{ nstime_t ts; \
 	ts.secs = tvb_get_ntohl(tvb, offset); \
 	ts.nsecs = tvb_get_ntohl(tvb, offset+4)*1000; \
-	proto_tree_add_time(tree,field, tvb,offset,2*sizeof(guint32),&ts); \
+	proto_tree_add_time(tree,field, tvb,offset,2*4,&ts); \
 	offset += 8; \
 	}
 
@@ -407,7 +407,7 @@ static gint ett_afs_vldb_flags = -1;
 	{ nstime_t ts; \
 	ts.secs = tvb_get_ntohl(tvb, offset); \
 	ts.nsecs = 0; \
-	proto_tree_add_time(tree,field, tvb,offset,sizeof(guint32),&ts); \
+	proto_tree_add_time(tree,field, tvb,offset,4,&ts); \
 	offset += 4; \
 	}
 
@@ -437,10 +437,10 @@ static gint ett_afs_vldb_flags = -1;
 		for (i_orxsv=0; i_orxsv<length; i_orxsv++)\
 		{\
 			tmp_orxsv[i_orxsv] = (char) tvb_get_ntohl(tvb, offset);\
-			offset += sizeof(guint32);\
+			offset += 4;\
 		}\
 		tmp_orxsv[length] = '\0';\
-		proto_tree_add_string(tree, field, tvb, soff_orxsv, length*sizeof(guint32), tmp_orxsv);\
+		proto_tree_add_string(tree, field, tvb, soff_orxsv, length*4, tmp_orxsv);\
 	}
 
 
@@ -487,21 +487,21 @@ static gint ett_afs_vldb_flags = -1;
 		guint32 mask_ofsm; \
 		mask_ofsm = tvb_get_ntohl(tvb, offset); \
 		ti_ofsm = proto_tree_add_uint(tree, hf_afs_fs_status_mask, tvb, offset, \
-			sizeof(guint32), mask_ofsm); \
+			4, mask_ofsm); \
 		save_ofsm = tree; \
 		tree = proto_item_add_subtree(ti_ofsm, ett_afs_status_mask); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmodtime, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setowner, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setgroup, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmode, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setsegsize, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_fsync, \
-			tvb,offset,sizeof(guint32), mask_ofsm); \
+			tvb,offset,4, mask_ofsm); \
 		offset += 4; \
 		tree = save_ofsm; \
 	}
@@ -512,17 +512,17 @@ static gint ett_afs_vldb_flags = -1;
 		guint32 flags; \
 		flags = tvb_get_ntohl(tvb, offset); \
 		ti = proto_tree_add_uint(tree, hf_afs_vldb_flags, tvb, offset, \
-			sizeof(guint32), flags); \
+			4, flags); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_vldb_flags); \
 		proto_tree_add_boolean(tree, hf_afs_vldb_flags_rwexists, \
-			tvb,offset,sizeof(guint32), flags); \
+			tvb,offset,4, flags); \
 		proto_tree_add_boolean(tree, hf_afs_vldb_flags_roexists, \
-			tvb,offset,sizeof(guint32), flags); \
+			tvb,offset,4, flags); \
 		proto_tree_add_boolean(tree, hf_afs_vldb_flags_bkexists, \
-			tvb,offset,sizeof(guint32), flags); \
+			tvb,offset,4, flags); \
 		proto_tree_add_boolean(tree, hf_afs_vldb_flags_dfsfileset, \
-			tvb,offset,sizeof(guint32), flags); \
+			tvb,offset,4, flags); \
 		offset += 4; \
 		tree = save; \
 	}
@@ -677,9 +677,9 @@ static gint ett_afs_vldb_flags = -1;
 
 /* Output a UUID */
 #define OUT_UUID(x) \
-	OUT_BYTES(x, 11*sizeof(guint32));
+	OUT_BYTES(x, 11*4);
 #define SKIP_UUID() \
-	SKIP(11*sizeof(guint32));
+	SKIP(11*4);
 
 
 /* Output a bulkaddr */
@@ -783,7 +783,7 @@ static gint ett_afs_vldb_flags = -1;
 /* Skip the opcode */
 #define SKIP_OPCODE() \
 	{ \
-		SKIP(sizeof(guint32)); \
+		SKIP(4); \
 	}
 
 /* Output a UBIK version code */
@@ -803,12 +803,12 @@ static gint ett_afs_vldb_flags = -1;
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
 		if ( epoch != 0 ) \
 		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
-			sizeof(guint32),&ts); \
+			4,&ts); \
 		else \
 			proto_tree_add_text(tree, tvb, offset-8, \
-			sizeof(guint32),"Epoch: 0"); \
+			4,"Epoch: 0"); \
 		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, tvb,offset-4, \
-			sizeof(guint32),counter); \
+			4,counter); \
 		tree = save; \
 	}
 
@@ -2649,7 +2649,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 						}
 						SKIP(4);
 					}
-					SKIP(8 * sizeof(guint32));
+					SKIP(8 * 4);
 					OUT_UINT(hf_afs_vldb_rwvol);
 					OUT_UINT(hf_afs_vldb_rovol);
 					OUT_UINT(hf_afs_vldb_bkvol);
@@ -2697,7 +2697,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 						}
 						SKIP(4);
 					}
-					SKIP(13 * sizeof(guint32));
+					SKIP(13 * 4);
 					OUT_UINT(hf_afs_vldb_rwvol);
 					OUT_UINT(hf_afs_vldb_rovol);
 					OUT_UINT(hf_afs_vldb_bkvol);
@@ -2729,7 +2729,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 						}
 						else
 						{
-							SKIP(sizeof(guint32));
+							SKIP(4);
 						}
 					}
 					for (i=0; i<13; i++)
@@ -2754,7 +2754,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 						}
 						else
 						{
-							SKIP(sizeof(guint32));
+							SKIP(4);
 						}
 					}
 					OUT_UINT(hf_afs_vldb_rwvol);

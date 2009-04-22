@@ -494,7 +494,7 @@ static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
     /* If ATM capture, need to skip over visual ATM packet header too */
     if (wth->file_encap == WTAP_ENCAP_ATM_PDUS)
     {
-       header_size += sizeof(struct visual_atm_hdr);
+       header_size += (int)sizeof(struct visual_atm_hdr);
     }
     
     /* Seek to the packet header */

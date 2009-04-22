@@ -126,7 +126,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
     rlen=g_ntohs(header.rlen);
     wlen=g_ntohs(header.wlen);
-    packet_size = rlen - sizeof(header);
+    packet_size = rlen - (guint32)sizeof(header);
 
     /* fail on invalid record type, invalid rlen, timestamps decreasing, or incrementing too far */
     
@@ -183,7 +183,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 		    *err = file_error(wth->fh);
 		    return -1;
 	    }
-	    packet_size -= sizeof(erf_ext_header);
+	    packet_size -= (guint32)sizeof(erf_ext_header);
 	    memcpy(&type, &erf_ext_header, sizeof(type));
     }
     
@@ -201,7 +201,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	*err = file_error(wth->fh);
 	return -1;
       }
-      packet_size -= sizeof(mc_hdr);
+      packet_size -= (guint32)sizeof(mc_hdr);
       break;
     case ERF_TYPE_ETH:
     case ERF_TYPE_COLOR_ETH:
@@ -210,7 +210,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	*err = file_error(wth->fh);
 	return -1;
       }
-      packet_size -= sizeof(eth_hdr);
+      packet_size -= (guint32)sizeof(eth_hdr);
       break;
     default:
       break;
@@ -315,16 +315,16 @@ static int erf_read_header(FILE_T fh,
   guint8 erf_exhdr[8];
   guint64 erf_exhdr_sw;
   guint8 type = 0;
-  guint16 eth_hdr,skiplen=0;
+  guint16 eth_hdr;
+  guint32 skiplen=0;
   int i = 0 , max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-;
 
   wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err);
   if (bytes_read != NULL) {
     *bytes_read = sizeof(*erf_header);
   }
 
-  *packet_size =  g_ntohs(erf_header->rlen) - sizeof(*erf_header);
+  *packet_size =  g_ntohs(erf_header->rlen) - (guint32)sizeof(*erf_header);
 
   if (*packet_size > WTAP_MAX_PACKET_SIZE) {
     /*
@@ -343,7 +343,7 @@ static int erf_read_header(FILE_T fh,
     phdr->ts.secs = (long) (ts >> 32);
     ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
     ts += (ts & 0x80000000) << 1; /* rounding */
-    phdr->ts.nsecs = ((long) (ts >> 32));
+    phdr->ts.nsecs = ((int) (ts >> 32));
     if (phdr->ts.nsecs >= 1000000000) {
       phdr->ts.nsecs -= 1000000000;
       phdr->ts.secs += 1;
@@ -363,9 +363,9 @@ static int erf_read_header(FILE_T fh,
   while (type & 0x80){
 	  wtap_file_read_expected_bytes(&erf_exhdr, sizeof(erf_exhdr), fh, err);
 	  if (bytes_read != NULL)
-		  *bytes_read += sizeof(erf_exhdr);
-	  *packet_size -=  sizeof(erf_exhdr);
-	  skiplen += sizeof(erf_exhdr);
+		  *bytes_read += (guint32)sizeof(erf_exhdr);
+	  *packet_size -=  (guint32)sizeof(erf_exhdr);
+	  skiplen += (guint32)sizeof(erf_exhdr);
 	  erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
 	  if (i < max)
 	    memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
@@ -400,9 +400,9 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_DSM_COLOR_ETH:
     wtap_file_read_expected_bytes(&eth_hdr, sizeof(eth_hdr), fh, err);
     if (bytes_read != NULL)
-      *bytes_read += sizeof(eth_hdr);
-    *packet_size -=  sizeof(eth_hdr);
-    skiplen += sizeof(eth_hdr);
+      *bytes_read += (guint32)sizeof(eth_hdr);
+    *packet_size -=  (guint32)sizeof(eth_hdr);
+    skiplen += (guint32)sizeof(eth_hdr);
     pseudo_header->erf.subhdr.eth_hdr = g_htons(eth_hdr);
     break;
 
@@ -415,9 +415,9 @@ static int erf_read_header(FILE_T fh,
   case ERF_TYPE_COLOR_MC_HDLC_POS:
     wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err);
     if (bytes_read != NULL)
-      *bytes_read += sizeof(mc_hdr);
-    *packet_size -=  sizeof(mc_hdr);
-    skiplen += sizeof(mc_hdr);
+      *bytes_read += (guint32)sizeof(mc_hdr);
+    *packet_size -=  (guint32)sizeof(mc_hdr);
+    skiplen += (guint32)sizeof(mc_hdr);
     pseudo_header->erf.subhdr.mc_hdr = g_htonl(mc_hdr);
     break;
 
@@ -434,7 +434,7 @@ static int erf_read_header(FILE_T fh,
   if (phdr != NULL) {
     phdr->len = g_htons(erf_header->wlen);
     phdr->caplen = min( g_htons(erf_header->wlen),
-			g_htons(erf_header->rlen) - sizeof(*erf_header) - skiplen );
+			g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
   return TRUE;
 }

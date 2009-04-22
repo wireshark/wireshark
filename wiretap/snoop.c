@@ -352,7 +352,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we have padding; how much?
 			 */
 			padbytes = g_ntohl(rec_hdr.rec_len) -
-			    (sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
+			    ((guint)sizeof rec_hdr + g_ntohl(rec_hdr.incl_len));
 
 			/*
 			 * Is it at least the size of a Shomiti trailer?
@@ -495,9 +495,9 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		rec_size -= sizeof (struct snoop_atm_hdr);
-		orig_size -= sizeof (struct snoop_atm_hdr);
-		packet_size -= sizeof (struct snoop_atm_hdr);
+		rec_size -= (guint32)sizeof (struct snoop_atm_hdr);
+		orig_size -= (guint32)sizeof (struct snoop_atm_hdr);
+		packet_size -= (guint32)sizeof (struct snoop_atm_hdr);
 		wth->data_offset += sizeof (struct snoop_atm_hdr);
 		break;
 
@@ -531,9 +531,9 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		rec_size -= sizeof (shomiti_wireless_header);
-		orig_size -= sizeof (shomiti_wireless_header);
-		packet_size -= sizeof (shomiti_wireless_header);
+		rec_size -= (guint32)sizeof (shomiti_wireless_header);
+		orig_size -= (guint32)sizeof (shomiti_wireless_header);
+		packet_size -= (guint32)sizeof (shomiti_wireless_header);
 		wth->data_offset += sizeof (shomiti_wireless_header);
 		break;
 	}
@@ -575,7 +575,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		    rec_size, packet_size);
 		return FALSE;
 	}
-	padbytes = rec_size - (sizeof hdr + packet_size);
+	padbytes = rec_size - ((guint)sizeof hdr + packet_size);
 	while (padbytes != 0) {
 		bytes_to_read = padbytes;
 		if ((unsigned)bytes_to_read > sizeof padbuf)
@@ -873,7 +873,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		atm_hdrsize = 0;
 
 	/* Record length = header length plus data length... */
-	reclen = sizeof rec_hdr + phdr->caplen + atm_hdrsize;
+	reclen = (int)sizeof rec_hdr + phdr->caplen + atm_hdrsize;
 
 	/* ... plus enough bytes to pad it to a 4-byte boundary. */
 	padlen = ((reclen + 3) & ~3) - reclen;

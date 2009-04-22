@@ -41,7 +41,7 @@
  * 7-n Byte: Frames
  * 
  * Each Frame starts with the 0xff Flag byte
- * - Bytes 0-2: timestamp (long usec in network byte order)
+ * - Bytes 0-2: timestamp (usec in network byte order)
  * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
  * - Byte 8: channel (0 for D channel, 1-30 for B1-B30)
  * - Byte 9: Sender Bit 0(0 NT, 1 TE), Protocol in Bits 7:1, see enum
@@ -235,7 +235,8 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	guint8		hdr[EYESDN_HDR_LENGTH];
-        unsigned long   secs, usecs;
+	time_t		secs;
+	int		usecs;
 	int		pkt_len;
 	guint8		channel, direction;
 
@@ -251,23 +252,20 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	}
     
         /* extract information from header */
-        usecs = ((unsigned long) hdr[0]);
-        usecs = (usecs << 8) | ((unsigned long) hdr[1]);
-        usecs = (usecs << 8) | ((unsigned long) hdr[2]);
+        usecs = pntoh24(&hdr[0]);
 #ifdef TV64BITS    
-        secs = ((unsigned long) hdr[3]);
+        secs = hdr[3];
 #else    
         secs = 0;
 #endif    
-        secs = (secs << 8) | ((unsigned long) hdr[4]);
-        secs = (secs << 8) | ((unsigned long) hdr[5]);
-        secs = (secs << 8) | ((unsigned long) hdr[6]);
-        secs = (secs << 8) | ((unsigned long) hdr[7]);
+        secs = (secs << 8) | hdr[4];
+        secs = (secs << 8) | hdr[5];
+        secs = (secs << 8) | hdr[6];
+        secs = (secs << 8) | hdr[7];
 
         channel = hdr[8];
         direction = hdr[9];
-        pkt_len = ((unsigned long) hdr[10]);
-        pkt_len = (pkt_len << 8) | ((unsigned long) hdr[11]);
+        pkt_len = pntohs(&hdr[10]);
 
 	switch(direction >> 1) {
 	default:

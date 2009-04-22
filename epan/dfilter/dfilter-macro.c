@@ -547,7 +547,7 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
                  */
 
 		do nparts++; while (m->parts[nparts]);
-		d->parts = g_memdup(m->parts,(nparts+1)*sizeof(void*));
+		d->parts = g_memdup(m->parts,(nparts+1)*(guint)sizeof(void*));
 		nparts = 0;
 		while(m->parts[nparts]) {
 			if(nparts) {
@@ -562,7 +562,7 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 		 * Clone the contents of m->args_pos into d->args_pos.
 		 */
 
-		d->args_pos = g_memdup(m->args_pos,(--nparts)*sizeof(int));
+		d->args_pos = g_memdup(m->args_pos,(--nparts)*(guint)sizeof(int));
 	}
 
 	DUMP_MACRO(d);

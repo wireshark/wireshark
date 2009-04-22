@@ -514,9 +514,9 @@ fill_in_pseudo_header(int encap, const guint8 *pd, guint32 len,
 		decimal = strchr(if_text, '.');
 		if (decimal) {
 			*decimal = '\0';
-			Vpi = strtoul(if_text, NULL, 10);
+			Vpi = (int)strtoul(if_text, NULL, 10);
 			decimal++;
-			Vci = strtoul(decimal, NULL, 10);
+			Vci = (int)strtoul(decimal, NULL, 10);
 		}
 
 		/*

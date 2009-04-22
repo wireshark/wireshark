@@ -66,7 +66,7 @@ get_guid(char *s, e_guid_t *guid)
     p = s;
     strncpy(digits, p, 8); 
     digits[8] = '\0';
-    guid->data1 = strtoul(digits, NULL, 16);
+    guid->data1 = (guint32)strtoul(digits, NULL, 16);
     p += 9;
     strncpy(digits, p, 4); 
     digits[4] = '\0';

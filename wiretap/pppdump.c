@@ -120,8 +120,8 @@ static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
  * "dir" is the direction of the packet.
  */
 typedef struct {
-	long		offset;
-	int		num_bytes_to_skip;
+	gint64		offset;
+	gint64		num_bytes_to_skip;
 	direction_enum	dir;
 } pkt_id;
 
@@ -156,9 +156,9 @@ typedef struct {
 	int		cnt;
 	gboolean	esc;
 	guint8		buf[PPPD_BUF_SIZE];
-	long		id_offset;
-	long		sd_offset;
-	long		cd_offset;
+	gint64		id_offset;
+	gint64		sd_offset;
+	gint64		cd_offset;
 } pkt_t;
 
 /*
@@ -216,7 +216,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 static gboolean
 collate(pppdump_t*, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		int *num_bytes, direction_enum *direction, pkt_id *pid,
-		int num_bytes_to_skip);
+		gint64 num_bytes_to_skip);
 
 static void
 pppdump_close(wtap *wth);
@@ -529,7 +529,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 static gboolean
 collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		int *num_bytes, direction_enum *direction, pkt_id *pid,
-		int num_bytes_to_skip)
+		gint64 num_bytes_to_skip)
 {
 	int		id;
 	pkt_t		*pkt = NULL;
@@ -716,7 +716,7 @@ pppdump_seek_read(wtap *wth,
 	direction_enum	direction;
 	pppdump_t	*state;
 	pkt_id		*pid;
-	int		num_bytes_to_skip;
+	gint64		num_bytes_to_skip;
 
 	state = wth->capture.generic;
 

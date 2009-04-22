@@ -173,9 +173,9 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err)
 	return ret;
     }
     value = strtoul (str_num, &p, 10);
-    if (p == str_num || value > UINT_MAX)
+    if (p == str_num || value > G_MAXUINT32)
 	return 0;
-    *num = value;
+    *num = (guint32)value;
     return 1;
 }
 
@@ -345,11 +345,11 @@ typedef struct {
  * dissector can determine which, if any, information items
  * are present.
  */
-static int
+static ssize_t
 airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     gchar **err_info)
 {
-    long header_len = 0;
+    ssize_t header_len = 0;
     int bytes_read;
     guint8 tag_value[6];
     guint16 tag;
@@ -486,7 +486,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     hdr_info_t hdr_info;
-    int hdrlen;
+    ssize_t hdrlen;
     double  t;
 
     *data_offset = wth->data_offset;

@@ -1467,8 +1467,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct linux_usb_phdr);
-		packet_size -= sizeof (struct linux_usb_phdr);
+		orig_size -= (guint)sizeof (struct linux_usb_phdr);
+		packet_size -= (guint)sizeof (struct linux_usb_phdr);
 		wth->data_offset += sizeof (struct linux_usb_phdr);
 		break;
 
@@ -1495,8 +1495,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct libpcap_bt_phdr);
-		packet_size -= sizeof (struct libpcap_bt_phdr);
+		orig_size -= (guint)sizeof (struct libpcap_bt_phdr);
+		packet_size -= (guint)sizeof (struct libpcap_bt_phdr);
 		wth->data_offset += sizeof (struct libpcap_bt_phdr);
 		break;
 
@@ -1518,8 +1518,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof(struct erf_phdr);
-		packet_size -= sizeof(struct erf_phdr);
+		orig_size -= (guint)sizeof(struct erf_phdr);
+		packet_size -= (guint)sizeof(struct erf_phdr);
 		wth->data_offset += sizeof(struct erf_phdr);
 
 		if (!libpcap_read_erf_exheader(wth->fh, &wth->pseudo_header,
@@ -1563,8 +1563,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct i2c_file_hdr);
-		packet_size -= sizeof (struct i2c_file_hdr);
+		orig_size -= (guint)sizeof (struct i2c_file_hdr);
+		packet_size -= (guint)sizeof (struct i2c_file_hdr);
 		wth->data_offset += sizeof (struct i2c_file_hdr);
 		break;
 
@@ -2633,11 +2633,11 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_USB_LINUX:
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
-		hdrsize = sizeof (struct linux_usb_phdr);
+		hdrsize = (int)sizeof (struct linux_usb_phdr);
 		break;
 
 	case WTAP_ENCAP_ERF:
-	        hdrsize = sizeof (struct erf_phdr);
+	        hdrsize = (int)sizeof (struct erf_phdr);
 		if (pseudo_header->erf.phdr.type & 0x80) hdrsize += 8;
 		switch(pseudo_header->erf.phdr.type & 0x7F) {
 		case ERF_TYPE_MC_HDLC:
@@ -2647,12 +2647,12 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		case ERF_TYPE_MC_AAL5:
 		case ERF_TYPE_MC_AAL2:
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
-		  hdrsize += sizeof(struct erf_mc_hdr);
+		  hdrsize += (int)sizeof(struct erf_mc_hdr);
 		  break;
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
-		  hdrsize += sizeof(struct erf_eth_hdr);
+		  hdrsize += (int)sizeof(struct erf_eth_hdr);
 		  break;
 		default:
 		  break;
@@ -2660,7 +2660,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_ENCAP_I2C:
-		hdrsize = sizeof (struct i2c_file_hdr);
+		hdrsize = (int)sizeof (struct i2c_file_hdr);
 		break;
 
 	default:
@@ -2917,13 +2917,13 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		case ERF_TYPE_MC_AAL2:
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
 		  phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
-		  size += sizeof(struct erf_mc_hdr);
+		  size += (int)sizeof(struct erf_mc_hdr);
 		  break;
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
 		  phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
-		  size += sizeof(struct erf_eth_hdr);
+		  size += (int)sizeof(struct erf_eth_hdr);
 		  break;
 		default:
 		  break;

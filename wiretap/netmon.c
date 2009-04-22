@@ -256,7 +256,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohl(&hdr.frametablelength);
-	frame_table_size = frame_table_length / sizeof (guint32);
+	frame_table_size = frame_table_length / (guint32)sizeof (guint32);
 	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
@@ -420,8 +420,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct netmon_atm_hdr);
-		packet_size -= sizeof (struct netmon_atm_hdr);
+		orig_size -= (guint)sizeof (struct netmon_atm_hdr);
+		packet_size -= (guint)sizeof (struct netmon_atm_hdr);
 		wth->data_offset += sizeof (struct netmon_atm_hdr);
 		break;
 

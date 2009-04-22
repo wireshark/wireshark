@@ -12147,7 +12147,7 @@ proto_register_ansi_a(void)
         register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
         FT_UINT8, BASE_DEC);
 
-    proto_register_subtree_array(ett, ett_len / sizeof(gint *));
+    proto_register_subtree_array(ett, ett_len / (int)sizeof(gint *));
 
     ansi_a_tap = register_tap("ansi_a");
 

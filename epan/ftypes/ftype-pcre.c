@@ -145,7 +145,7 @@ static int
 pcre_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
 	g_assert(rtype == FTREPR_DFILTER);
-	return strlen(fv->value.re->string);
+	return (int)strlen(fv->value.re->string);
 }
 
 static void

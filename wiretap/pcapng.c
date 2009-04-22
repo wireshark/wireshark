@@ -378,9 +378,9 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length
-        - sizeof(pcapng_block_header_t) 
-        - sizeof (pcapng_section_header_block_t) 
-        - sizeof(bh->block_total_length);
+        - (int)sizeof(pcapng_block_header_t) 
+        - (int)sizeof (pcapng_section_header_block_t) 
+        - (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -508,9 +508,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length 
-        - sizeof(pcapng_block_header_t) 
-        - sizeof (pcapng_interface_description_block_t) 
-        - sizeof(bh->block_total_length);
+        - (int)sizeof(pcapng_block_header_t) 
+        - (int)sizeof (pcapng_interface_description_block_t) 
+        - (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -680,9 +680,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = block_total_length 
-        - sizeof(pcapng_block_header_t) 
+        - (int)sizeof(pcapng_block_header_t) 
         - block_read    /* fixed and variable part, including padding */
-        - sizeof(bh->block_total_length);
+        - (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -759,8 +759,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	}
 
 	wblock->data.simple_packet.cap_len = bh->block_total_length 
-					     - sizeof(pcapng_simple_packet_block_t) 
-					     - sizeof(bh->block_total_length);
+					     - (guint32)sizeof(pcapng_simple_packet_block_t) 
+					     - (guint32)sizeof(bh->block_total_length);
 
 	/*g_pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
 			  wblock->data.simple_packet.packet_len);*/
@@ -815,7 +815,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 		block_total_length = bh->block_total_length;
 	}
 
-	block_read = block_total_length - sizeof(bh->block_total_length);
+	block_read = block_total_length - (guint32)sizeof(bh->block_total_length);
 
 	/* jump over this unknown block */
 	file_offset64 = file_seek(fh, block_read, SEEK_CUR, err);
@@ -1235,7 +1235,7 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 
 	/* write (enhanced) packet block header */
 	bh.block_type = wblock->type;
-	bh.block_total_length = sizeof(bh) + sizeof(epb) /* + pseudo header */ + wblock->data.packet.cap_len + cap_pad_len /* + options */ + 4;
+	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) /* + pseudo header */ + wblock->data.packet.cap_len + cap_pad_len /* + options */ + 4;
 
 	nwritten = wtap_dump_file_write(wdh, &bh, sizeof bh);
 	if (nwritten != sizeof bh) {

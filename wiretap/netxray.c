@@ -996,7 +996,7 @@ reread:
 		t /= wth->capture.netxray->ticks_per_sec;
 		t -= wth->capture.netxray->start_timestamp;
 		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
-		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
+		wth->phdr.ts.nsecs = (int)((t-(double)(unsigned long)(t))
 			*1.0e9);
 		/*
 		 * We subtract the padding from the packet size, so our caller
@@ -1009,8 +1009,8 @@ reread:
 		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
 		t /= wth->capture.netxray->ticks_per_sec;
 		t -= wth->capture.netxray->start_timestamp;
-		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
-		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
+		wth->phdr.ts.secs = wth->capture.netxray->start_time + (time_t)t;
+		wth->phdr.ts.nsecs = (int)((t-(double)(unsigned long)(t))
 			*1.0e9);
 		/*
 		 * We subtract the padding from the packet size, so our caller
@@ -1592,7 +1592,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     struct netxray_hdr file_hdr;
     size_t nwritten;
 
-    filelen = ftell(wdh->fh);
+    filelen = (guint32)ftell(wdh->fh);	/* XXX - large files? */
 
     /* Go back to beginning */
     fseek(wdh->fh, 0, SEEK_SET);
@@ -1802,7 +1802,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     struct netxray_hdr file_hdr;
     size_t nwritten;
 
-    filelen = ftell(wdh->fh);
+    filelen = (guint32)ftell(wdh->fh);	/* XXX - large files? */
 
     /* Go back to beginning */
     fseek(wdh->fh, 0, SEEK_SET);

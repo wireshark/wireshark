@@ -494,7 +494,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 		pcre_t->re,	/* Compiled PCRE */
 		pcre_t->ex,	/* PCRE extra from pcre_study() */
 		a->str,		/* The data to check for the pattern... */
-		a->len,		/* ... and its length */
+		(int)a->len,	/* ... and its length */
 		0,			/* Start offset within data */
 		options,	/* PCRE options */
 		NULL,		/* We are not interested in the matched string */

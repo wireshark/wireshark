@@ -813,7 +813,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			 * Yes, get the first up-to-256 bytes of the
 			 * record data.
 			 */
-			bytes_to_read = MIN(length, sizeof buffer);
+			bytes_to_read = MIN(length, (int)sizeof buffer);
 			bytes_read = file_read(buffer, 1, bytes_to_read,
 				wth->fh);
 			if (bytes_read != bytes_to_read) {

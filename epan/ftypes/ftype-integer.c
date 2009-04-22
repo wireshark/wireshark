@@ -102,7 +102,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		return FALSE;
 	}
 
-	fv->value.uinteger = value;
+	fv->value.uinteger = (guint32)value;
 	return TRUE;
 }
 

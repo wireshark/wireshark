@@ -152,8 +152,7 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *ext_tree;
     proto_item *ti;
-    aodv_ext_t aodvext, *ext;
-    int len;
+    guint8 type, len;
 
     if (!tree)
 	return;
@@ -162,32 +161,27 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
     if ((int) tvb_reported_length(tvb) <= offset)
 	return;			/* No more options left */
 
-    ext = &aodvext;
-    tvb_memcpy(tvb, (guint8 *) ext, offset, sizeof(*ext));
-    len = ext->length;
+    type = tvb_get_guint8(tvb, offset);
+    len = tvb_get_guint8(tvb, offset + 1);
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof(aodv_ext_t) +
-			     len, "Extensions");
+    ti = proto_tree_add_text(tree, tvb, offset, 2 + len, "Extensions");
     ext_tree = proto_item_add_subtree(ti, ett_aodv_extensions);
 
+    proto_tree_add_text(ext_tree, tvb, offset, 1,
+			"Type: %u (%s)", type,
+			val_to_str(type, exttype_vals, "Unknown"));
+
     if (len == 0) {
-	proto_tree_add_text(ext_tree, tvb,
-			    offset + offsetof(aodv_ext_t, length), 1,
-			    "Invalid option length: %u", ext->length);
+	proto_tree_add_text(ext_tree, tvb, offset + 1, 1,
+			    "Invalid option length: %u", len);
 	return;			/* we must not try to decode this */
     }
+    proto_tree_add_text(ext_tree, tvb, offset + 1, 1,
+			"Length: %u bytes", len);
 
-    proto_tree_add_text(ext_tree, tvb,
-			offset + offsetof(aodv_ext_t, type), 1,
-			"Type: %u (%s)", ext->type,
-			val_to_str(ext->type, exttype_vals, "Unknown"));
-    proto_tree_add_text(ext_tree, tvb,
-			offset + offsetof(aodv_ext_t, length), 1,
-			"Length: %u bytes", ext->length);
+    offset += 2;
 
-    offset += sizeof(aodv_ext_t);
-
-    switch (ext->type) {
+    switch (type) {
     case AODV_EXT_INT:
 	proto_tree_add_uint(ext_tree, hf_aodv_ext_interval,
 			    tvb, offset, 4, tvb_get_ntohl(tvb, offset));
@@ -202,7 +196,7 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
     /* If multifield extensions appear, we need more
      * sophisticated handler.  For now, this is okay. */
 
-    offset += ext->length;
+    offset += len;
     goto again;
 }
 
