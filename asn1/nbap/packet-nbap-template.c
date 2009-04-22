@@ -52,11 +52,14 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
+static int hf_nbap_transportLayerAddress_ipv4 = -1;
+static int hf_nbap_transportLayerAddress_ipv6 = -1;
 
 #include "packet-nbap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
+static int ett_nbap_TransportLayerAddress = -1;
 
 #include "packet-nbap-ett.c"
 
@@ -83,12 +86,12 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(nbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port_new(nbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(nbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port_new(nbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -132,12 +135,22 @@ void proto_register_nbap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_nbap_transportLayerAddress_ipv4,
+      { "transportLayerAddress IPv4", "nbap.transportLayerAddress_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nbap_transportLayerAddress_ipv6,
+      { "transportLayerAddress IPv6", "nbap.transportLayerAddress_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
 #include "packet-nbap-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_nbap,
+		  &ett_nbap_TransportLayerAddress,
 #include "packet-nbap-ettarr.c"
   };
 

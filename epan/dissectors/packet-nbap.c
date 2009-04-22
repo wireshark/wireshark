@@ -1183,6 +1183,8 @@ typedef enum _ProtocolIE_ID_enum {
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
+static int hf_nbap_transportLayerAddress_ipv4 = -1;
+static int hf_nbap_transportLayerAddress_ipv6 = -1;
 
 
 /*--- Included file: packet-nbap-hf.c ---*/
@@ -2053,12 +2055,12 @@ static int hf_nbap_longTransActionId = -1;        /* INTEGER_0_32767 */
 static int hf_nbap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_nbap_id = -1;                       /* ProtocolIE_ID */
 static int hf_nbap_criticality = -1;              /* Criticality */
-static int hf_nbap_value = -1;                    /* ProtocolIE_Field_value */
+static int hf_nbap_ie_field_value = -1;           /* ProtocolIE_Field_value */
 static int hf_nbap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_nbap_extensionValue = -1;           /* T_extensionValue */
 static int hf_nbap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
 static int hf_nbap_id_01 = -1;                    /* PrivateIE_ID */
-static int hf_nbap_value_01 = -1;                 /* PrivateIE_Field_value */
+static int hf_nbap_private_value = -1;            /* PrivateIE_Field_value */
 static int hf_nbap_AdditionalMeasurementValueList_item = -1;  /* AdditionalMeasurementValue */
 static int hf_nbap_uARFCN = -1;                   /* UARFCN */
 static int hf_nbap_timeSlotMeasurementValueListLCR = -1;  /* TimeSlotMeasurementValueListLCR */
@@ -4165,10 +4167,10 @@ static int hf_nbap_succesfulOutcome = -1;         /* SuccessfulOutcome */
 static int hf_nbap_unsuccesfulOutcome = -1;       /* UnsuccessfulOutcome */
 static int hf_nbap_outcome = -1;                  /* Outcome */
 static int hf_nbap_messageDiscriminator = -1;     /* MessageDiscriminator */
-static int hf_nbap_value_02 = -1;                 /* InitiatingMessage_value */
-static int hf_nbap_value_03 = -1;                 /* SuccessfulOutcome_value */
-static int hf_nbap_value_04 = -1;                 /* UnsuccessfulOutcome_value */
-static int hf_nbap_value_05 = -1;                 /* Outcome_value */
+static int hf_nbap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
+static int hf_nbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
+static int hf_nbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_nbap_outcome_value = -1;            /* Outcome_value */
 /* named bits */
 static int hf_nbap_PreambleSignatures_signature15 = -1;
 static int hf_nbap_PreambleSignatures_signature14 = -1;
@@ -4200,10 +4202,11 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 57 "packet-nbap-template.c"
+#line 59 "packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
+static int ett_nbap_TransportLayerAddress = -1;
 
 
 /*--- Included file: packet-nbap-ett.c ---*/
@@ -5699,7 +5702,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 62 "packet-nbap-template.c"
+#line 65 "packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -5862,7 +5865,7 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 74 "nbap.cnf"
+#line 79 "nbap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
@@ -5897,7 +5900,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "nbap.cnf"
+#line 87 "nbap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5905,7 +5908,7 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
-#line 88 "nbap.cnf"
+#line 93 "nbap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s", 
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));      
@@ -6831,7 +6834,7 @@ dissect_nbap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 63 "nbap.cnf"
+#line 68 "nbap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nbap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -6912,7 +6915,7 @@ dissect_nbap_ProtocolIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static const per_sequence_t ProtocolIE_Field_sequence[] = {
   { &hf_nbap_id             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_ID },
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { &hf_nbap_value          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Field_value },
+  { &hf_nbap_ie_field_value , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_ProtocolIE_Field_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -6999,7 +7002,7 @@ dissect_nbap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const per_sequence_t PrivateIE_Field_sequence[] = {
   { &hf_nbap_id_01          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_ID },
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
-  { &hf_nbap_value_01       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Field_value },
+  { &hf_nbap_private_value  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_PrivateIE_Field_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -8939,8 +8942,29 @@ dissect_nbap_TransportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 105 "nbap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+  gint tvb_len;
+  
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL);
+                                     1, 160, TRUE, &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+	/* Get the length */
+	tvb_len = tvb_length(parameter_tvb);
+	subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
+	if (tvb_len==4){
+		/* IPv4 */
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==16){
+		/* IPv6 */
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+	}
+
+
 
   return offset;
 }
@@ -40760,7 +40784,7 @@ static const per_sequence_t InitiatingMessage_sequence[] = {
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
   { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
   { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { &hf_nbap_value_02       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_InitiatingMessage_value },
+  { &hf_nbap_initiatingMessagevalue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_InitiatingMessage_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -40787,7 +40811,7 @@ static const per_sequence_t SuccessfulOutcome_sequence[] = {
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
   { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
   { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { &hf_nbap_value_03       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SuccessfulOutcome_value },
+  { &hf_nbap_successfulOutcome_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_SuccessfulOutcome_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -40814,7 +40838,7 @@ static const per_sequence_t UnsuccessfulOutcome_sequence[] = {
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
   { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
   { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { &hf_nbap_value_04       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UnsuccessfulOutcome_value },
+  { &hf_nbap_unsuccessfulOutcome_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_UnsuccessfulOutcome_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -40841,7 +40865,7 @@ static const per_sequence_t Outcome_sequence[] = {
   { &hf_nbap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Criticality },
   { &hf_nbap_messageDiscriminator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_MessageDiscriminator },
   { &hf_nbap_transactionID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_TransactionID },
-  { &hf_nbap_value_05       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Outcome_value },
+  { &hf_nbap_outcome_value  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nbap_Outcome_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -47737,16 +47761,16 @@ static void dissect_NBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 83 "packet-nbap-template.c"
+#line 86 "packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(nbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port_new(nbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(nbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port_new(nbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -47790,6 +47814,15 @@ void proto_register_nbap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_nbap_transportLayerAddress_ipv4,
+      { "transportLayerAddress IPv4", "nbap.transportLayerAddress_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nbap_transportLayerAddress_ipv6,
+      { "transportLayerAddress IPv6", "nbap.transportLayerAddress_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
 
 /*--- Included file: packet-nbap-hfarr.c ---*/
 #line 1 "packet-nbap-hfarr.c"
@@ -51257,7 +51290,7 @@ void proto_register_nbap(void) {
       { "criticality", "nbap.criticality",
         FT_UINT32, BASE_DEC, VALS(nbap_Criticality_vals), 0,
         "nbap.Criticality", HFILL }},
-    { &hf_nbap_value,
+    { &hf_nbap_ie_field_value,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.ProtocolIE_Field_value", HFILL }},
@@ -51277,7 +51310,7 @@ void proto_register_nbap(void) {
       { "id", "nbap.id",
         FT_UINT32, BASE_DEC, VALS(nbap_PrivateIE_ID_vals), 0,
         "nbap.PrivateIE_ID", HFILL }},
-    { &hf_nbap_value_01,
+    { &hf_nbap_private_value,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.PrivateIE_Field_value", HFILL }},
@@ -59705,19 +59738,19 @@ void proto_register_nbap(void) {
       { "messageDiscriminator", "nbap.messageDiscriminator",
         FT_UINT32, BASE_DEC, VALS(nbap_MessageDiscriminator_vals), 0,
         "nbap.MessageDiscriminator", HFILL }},
-    { &hf_nbap_value_02,
+    { &hf_nbap_initiatingMessagevalue,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.InitiatingMessage_value", HFILL }},
-    { &hf_nbap_value_03,
+    { &hf_nbap_successfulOutcome_value,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.SuccessfulOutcome_value", HFILL }},
-    { &hf_nbap_value_04,
+    { &hf_nbap_unsuccessfulOutcome_value,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.UnsuccessfulOutcome_value", HFILL }},
-    { &hf_nbap_value_05,
+    { &hf_nbap_outcome_value,
       { "value", "nbap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.Outcome_value", HFILL }},
@@ -59835,12 +59868,13 @@ void proto_register_nbap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 136 "packet-nbap-template.c"
+#line 148 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_nbap,
+		  &ett_nbap_TransportLayerAddress,
 
 /*--- Included file: packet-nbap-ettarr.c ---*/
 #line 1 "packet-nbap-ettarr.c"
@@ -61335,7 +61369,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 142 "packet-nbap-template.c"
+#line 155 "packet-nbap-template.c"
   };
 
 
@@ -62359,7 +62393,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 175 "packet-nbap-template.c"
+#line 188 "packet-nbap-template.c"
 }
 
 

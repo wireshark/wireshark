@@ -42,8 +42,13 @@ MidambleShiftAndBurstType768/type1/midambleAllocationMode  MidambleAllocationMod
 MidambleShiftAndBurstType768/type2/midambleAllocationMode  MidambleAllocationMode7682
 MidambleShiftAndBurstType768/type3/midambleAllocationMode  MidambleAllocationMode7683
 
-
 #.FIELD_RENAME
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+Outcome/value outcome_value
+PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
 DL-HS-PDSCH-Timeslot-InformationItem-LCR-PSCH-ReconfRqst/timeSlot timeSlotLCR
 E-PUCH-Timeslot-Item-InfoLCR/timeSlot timeSlotLCR
 
@@ -96,6 +101,27 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+#.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+  gint tvb_len;
+  
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+# TransportLayerAddress ::= BIT STRING (SIZE (1..160, ...))
+# Asume 4 bytes used in case of IPv4
+	/* Get the length */
+	tvb_len = tvb_length(parameter_tvb);
+	subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
+	if (tvb_len==4){
+		/* IPv4 */
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==16){
+		/* IPv6 */
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+	}
 
 #.REGISTER_NEW
 
