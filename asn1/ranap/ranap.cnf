@@ -27,6 +27,9 @@ Presence
 # NOTE when updating the asn1 spec check if these are used !!!!
 ForwardingIndication
 LastVisitedUTRANCell-Item
+UTRAN-CellID
+CellType
+Time-UE-StayedInCell
 SRVCC-Operation-Possible
 SourceeNodeB-ToTargeteNodeB-TransparentContainer
 TargeteNodeB-ToSourceeNodeB-TransparentContainer
