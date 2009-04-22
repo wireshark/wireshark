@@ -27,6 +27,17 @@ ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
 E-RAB-IE-ContainerPairList
+Presence
+L3-Information
+M-TMSI
+NumberofBroadcast
+OldBSS-ToNewBSS-Information
+SourceBSS-ToTargetBSS-TransparentContainer
+SourceeNB-ToTargeteNB-TransparentContainer
+SourceRNC-ToTargetRNC-TransparentContainer
+TargeteNB-ToSourceeNB-TransparentContainer
+TargetRNC-ToSourceRNC-TransparentContainer
+TargetBSS-ToSourceBSS-TransparentContainer
 #.END
 
 
@@ -309,6 +320,7 @@ id-E-RABReleaseItem									ProtocolIE-ID
 id-E-RABSetupItemBearerSURes						ProtocolIE-ID
 id-SecurityContext									ProtocolIE-ID
 id-HandoverRestrictionList							ProtocolIE-ID
+id-UEPagingID 										ProtocolIE-ID
 id-pagingDRX 										ProtocolIE-ID
 id-TAIList											ProtocolIE-ID
 id-TAIItem											ProtocolIE-ID
@@ -411,7 +423,7 @@ E-RABReleaseItemBearerRelComp			N s1ap.ies id-E-RABReleaseItemBearerRelComp
 E-RABToBeSetupListBearerSUReq			N s1ap.ies id-E-RABToBeSetupListBearerSUReq
 E-RABToBeSetupItemBearerSUReq			N s1ap.ies id-E-RABToBeSetupItemBearerSUReq
 E-RABAdmittedList						N s1ap.ies id-E-RABAdmittedList
-#E-RABFailedtoSetupListHOReqAck			N s1ap.ies id-E-RABFailedToSetupListHOReqAck
+E-RABFailedtoSetupListHOReqAck			N s1ap.ies id-E-RABFailedToSetupListHOReqAck
 E-RABAdmittedItem						N s1ap.ies id-E-RABAdmittedItem
 E-RABFailedToSetupItemHOReqAck			N s1ap.ies id-E-RABFailedtoSetupItemHOReqAck
 E-RABToBeSwitchedDLList					N s1ap.ies id-E-RABToBeSwitchedDLList
@@ -422,7 +434,7 @@ NAS-PDU									N s1ap.ies id-NAS-PDU
 E-RABToBeSetupItemHOReq					N s1ap.ies id-E-RABToBeSetupItemHOReq
 E-RABSetupListBearerSURes				N s1ap.ies id-E-RABSetupListBearerSURes
 E-RABList								N s1ap.ies id-E-RABFailedToSetupListBearerSURes
-E-RABList								N s1ap.ies id-E-RABToBeModifiedListBearerModReq
+E-RABToBeModifiedListBearerModReq		N s1ap.ies id-E-RABToBeModifiedListBearerModReq
 E-RABModifyListBearerModRes				N s1ap.ies id-E-RABModifyListBearerModRes
 E-RABList								N s1ap.ies id-E-RABFailedToModifyList
 E-RABList								N s1ap.ies id-E-RABToBeReleasedList
@@ -434,6 +446,7 @@ E-RABModifyItemBearerModRes				N s1ap.ies id-E-RABModifyItemBearerModRes
 E-RABSetupItemBearerSURes				N s1ap.ies id-E-RABSetupItemBearerSURes
 SecurityContext							N s1ap.ies id-SecurityContext
 HandoverRestrictionList					N s1ap.ies id-HandoverRestrictionList
+UEPagingID								N s1ap.ies id-UEPagingID
 PagingDRX								N s1ap.ies id-pagingDRX
 TAIList									N s1ap.ies id-TAIList
 TAIItem									N s1ap.ies id-TAIItem
