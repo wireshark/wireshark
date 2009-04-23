@@ -16762,7 +16762,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	  offset=dissect_gsm_map_er_IllegalSS_OperationParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
   case 17: /* SS-ErrorStatus */
-	  offset=dissect_gsm_map_ss_SS_Status(FALSE, tvb, offset, actx, tree, -1);
+	  offset=dissect_gsm_map_ss_SS_Status(FALSE, tvb, offset, actx, tree, hf_gsm_map_ss_ss_Status);
 	  break;
   case 18: /* SS-NotAvailableParam */
 	  offset=dissect_gsm_map_er_SS_NotAvailableParam(FALSE, tvb, offset, actx, tree, -1);
@@ -17366,7 +17366,7 @@ void proto_register_gsm_map(void) {
           "gsm_map.old.Component", HFILL }},
       { &hf_gsm_map_getPassword,
         { "getPassword", "gsm_map.getPassword",
-          FT_BYTES, BASE_HEX, NULL, 0,
+          FT_UINT8, BASE_DEC, VALS(gsm_old_GetPasswordArg_vals), 0,
           "getPassword", HFILL }},
       { &hf_gsm_map_currentPassword,
         { "currentPassword", "gsm_map.currentPassword",
