@@ -598,7 +598,10 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "Transport-Neutral Encapsulation Format", "tnef", "*.*", NULL, FALSE, NULL, NULL },
 
 	/* WTAP_FILE_DCT3TRACE */
-	{ "Gammu DCT3 trace", "dct3trace", "*.xml", NULL, FALSE, NULL, NULL }
+	{ "Gammu DCT3 trace", "dct3trace", "*.xml", NULL, FALSE, NULL, NULL },
+
+	/* WTAP_FILE_PACKETLOGGER */
+	{ "PacketLogger", "pklg", "*.pklg", NULL, FALSE, NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
