@@ -17,6 +17,8 @@ EXTRA_DIST = \
 	ChmodBPF/StartupParameters.plist	\
 	dmg_background.png	\
 	dmg_background.svg	\
+	util_background.png	\
+	util_background.svg	\
 	dmg_set_style.scpt	\
 	Info.plist	\
 	Info.plist.in	\
@@ -75,7 +77,8 @@ EXTRA_DIST = \
 	ScriptExec/ScriptExec_Prefix.pch	\
 	ScriptExec/version.plist	\
 	utility-launcher	\
-	wireshark.ds_store
+	root.ds_store	\
+	util.ds_store
 
 clean-local:
 	rm -rf Utilities Wireshark.app ScriptExec/build
