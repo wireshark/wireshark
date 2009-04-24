@@ -370,7 +370,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     int	   pktnum;
     int	   csec = 101;
     struct tm tm;
-    const char mon[4] = {'J', 'A', 'N', 0};
+    char mon[4] = {'J', 'A', 'N', 0};
     gchar *p;
     static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
