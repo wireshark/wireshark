@@ -447,6 +447,12 @@ extern gchar * tvb_format_text_wsp(tvbuff_t *tvb, gint offset, gint size);
  */
 extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
 
+/**
+ * Like "tvb_format_text_wsp()", but for null-padded strings; don't show
+ * the null padding characters as "\000".
+ */
+extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, gint offset, gint size);
+
 
 /**
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough

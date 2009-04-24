@@ -2112,6 +2112,30 @@ tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size)
 }
 
 /*
+ * Like "tvb_format_text_wsp()", but for null-padded strings; don't show
+ * the null padding characters as "\000".
+ */
+gchar *
+tvb_format_stringzpad_wsp(tvbuff_t *tvb, gint offset, gint size)
+{
+  const guint8 *ptr, *p;
+  gint len = size;
+  gint stringlen;
+
+  if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
+
+    len = tvb_length_remaining(tvb, offset);
+    ptr = ensure_contiguous(tvb, offset, len);
+
+  }
+
+  for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
+    ;
+  return format_text_wsp(ptr, stringlen);
+
+}
+
+/*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
  * plus a trailing '\0', copy the string into it, and return a pointer
