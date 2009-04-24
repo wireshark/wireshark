@@ -162,6 +162,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(fragmented && acl_reassembly){
 		multi_fragment_pdu_t *mfp=NULL;
+		gint len;
 
 		if(pb_flag==0x02){ /* first fragment */
 			if(!pinfo->fd->flags.visited){
@@ -170,9 +171,12 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				mfp->last_frame=0;
 				mfp->tot_len=l2cap_length+4;
 				mfp->reassembled=se_alloc(mfp->tot_len);
-				tvb_memcpy(tvb, (guint8*)mfp->reassembled, offset, mfp->tot_len);
-				mfp->cur_off=mfp->tot_len;
-				se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
+				len = tvb_length_remaining(tvb, offset);
+				if (len <= mfp->tot_len) {
+					tvb_memcpy(tvb, (guint8*)mfp->reassembled, offset, len);
+					mfp->cur_off=len;
+					se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
+				}
 			} else {
 				mfp=se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
 			}
@@ -181,16 +185,17 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				item=proto_tree_add_uint(btacl_tree, hf_btacl_reassembled_in, tvb, 0, 0, mfp->last_frame);
 				PROTO_ITEM_SET_GENERATED(item);
 				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
 				}
 			}
 		}
 		if(pb_flag==0x01){ /* continuation fragment */
 			mfp=se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
 			if(!pinfo->fd->flags.visited){
-				if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+tvb_length_remaining(tvb, offset))){
-					tvb_memcpy(tvb, (guint8*)mfp->reassembled+mfp->cur_off, offset, tvb_length_remaining(tvb, offset));
-					mfp->cur_off+=tvb_length_remaining(tvb, offset);
+				len = tvb_length_remaining(tvb, offset);
+				if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+len)){
+					tvb_memcpy(tvb, (guint8*)mfp->reassembled+mfp->cur_off, offset, len);
+					mfp->cur_off+=len;
 					if(mfp->cur_off==mfp->tot_len){
 						mfp->last_frame=pinfo->fd->num;
 					}
@@ -201,7 +206,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				item=proto_tree_add_uint(btacl_tree, hf_btacl_continuation_to, tvb, 0, 0, mfp->first_frame);
 				PROTO_ITEM_SET_GENERATED(item);
 				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
 				}
 			}
 			if(mfp && mfp->last_frame==pinfo->fd->num){
