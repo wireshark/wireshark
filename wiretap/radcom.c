@@ -50,15 +50,15 @@ struct unaligned_frame_date {
 
 /* Found at the beginning of the file. Bytes 2 and 3 (D2:00) seem to be
  * different in some captures */
-static guint8 radcom_magic[8] = {
+static const guint8 radcom_magic[8] = {
 	0x42, 0xD2, 0x00, 0x34, 0x12, 0x66, 0x22, 0x88
 };
 
-static guint8 encap_magic[4] = {
+static const guint8 encap_magic[4] = {
     0x00, 0x42, 0x43, 0x09
 };
 
-static guint8 active_time_magic[11] = {
+static const guint8 active_time_magic[11] = {
 	0x41, 0x63, 0x74, 0x69, 0x76, 0x65, 0x20, 0x54, 0x69, 0x6d, 0x65
 };
 

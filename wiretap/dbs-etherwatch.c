@@ -327,7 +327,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	struct tm tm;
 	char mon[4];
 	gchar *p;
-	static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+	static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 	int	count, line_count;
 
 	eth_hdr_len = 0;

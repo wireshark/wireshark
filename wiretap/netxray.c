@@ -194,7 +194,7 @@ struct netxray_hdr {
  *  CAPTYPE_ATM?  If so, what should the table for ATM captures with
  *  that captype be?
  */
-static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
+static const double TpS[] = { 1e6, 1193000.0, 1193182.0 };
 #define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
 
 /*
@@ -219,7 +219,7 @@ static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
  * (Based upon captures reviewed realtick does not contain the 
  *   correct TpS values for the 'gigpod' captype).
  */
-static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
+static const double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD (sizeof TpS_gigpod / sizeof TpS_gigpod[0])
 
 /*
@@ -227,7 +227,7 @@ static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
  *  (Based upon captures reviewed realtick does not contain the 
  *   correct TpS values for the 'otherpod' captype).
  */
-static double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 }; 
+static const double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 }; 
 #define NUM_NETXRAY_TIMEUNITS_OTHERPOD (sizeof TpS_otherpod / sizeof TpS_otherpod[0])
 
 /*
@@ -235,7 +235,7 @@ static double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 };
  * (Based upon captures reviewed realtick does not contain the 
  *   correct TpS values for the 'otherpod2' captype).
  */
-static double TpS_otherpod2[] = { 1e6, 0.0, 0.0 }; 
+static const double TpS_otherpod2[] = { 1e6, 0.0, 0.0 }; 
 #define NUM_NETXRAY_TIMEUNITS_OTHERPOD2 (sizeof TpS_otherpod2 / sizeof TpS_otherpod2[0])
 
 /*
@@ -243,7 +243,7 @@ static double TpS_otherpod2[] = { 1e6, 0.0, 0.0 };
  * (Based upon captures reviewed realtick does not contain the 
  *   correct TpS values for the 'gigpod2' captype).
  */
-static double TpS_gigpod2[] = { 1e9, 0.0, 20000000.0 };
+static const double TpS_gigpod2[] = { 1e9, 0.0, 20000000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD2 (sizeof TpS_gigpod2 / sizeof TpS_gigpod2[0])
 
 /* Version number strings. */

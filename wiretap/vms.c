@@ -370,9 +370,9 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     int	   pktnum;
     int	   csec = 101;
     struct tm tm;
-    char mon[4] = {'J', 'A', 'N', 0};
+    const char mon[4] = {'J', 'A', 'N', 0};
     gchar *p;
-    static gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+    static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
     tm.tm_year = 1970;
     tm.tm_hour = 1;
@@ -517,7 +517,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
     int        i;
     char        *s;
     int        value;
-    static int offsets[16] = {39,37,35,33,28,26,24,22,17,15,13,11,6,4,2,0};
+    static const int offsets[16] = {39,37,35,33,28,26,24,22,17,15,13,11,6,4,2,0};
     char lbuf[3] = {0,0,0};
 
 

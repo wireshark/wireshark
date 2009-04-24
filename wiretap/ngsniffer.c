@@ -447,7 +447,7 @@ struct frame6_rec {
  * so that interpretation is probably wrong.  Perhaps the interpretation
  * of V.timeunit depends on the version number of the file?
  */
-static guint32 Psec[] = {
+static const guint32 Psec[] = {
 	15000000,		/* 15.0 usecs = 15000000 psecs */
 	  838096,		/* .838096 usecs = 838096 psecs */
 	15000000,		/* 15.0 usecs = 15000000 psecs */
