@@ -2854,7 +2854,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
     pref_t *pref = data;
     module_t *module = g_object_get_data (G_OBJECT(w), "module");
-    gchar *value;
+    gchar *value = NULL;
 
     GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
@@ -2943,7 +2943,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
     GSList *group = NULL;
     module_t *module = data;
     const enum_val_t *enum_valp;
-    gchar *label;
+    gchar *label = NULL;
 
     switch (pref->type) {
     case PREF_UINT:
