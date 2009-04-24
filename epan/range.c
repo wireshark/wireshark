@@ -297,7 +297,7 @@ range_convert_range(range_t *range)
    gboolean prepend_comma = FALSE;
    emem_strbuf_t *strbuf;
 
-   strbuf=ep_strbuf_new("");
+   strbuf=ep_strbuf_new(NULL);
 
    for (i=0; i < range->nranges; i++) {
       if (range->ranges[i].low == range->ranges[i].high) {
