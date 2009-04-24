@@ -45,6 +45,9 @@
 /* Initialize the protocol and registered fields */
 static int proto_nas_eps = -1;
 
+/* Forward declaration */
+static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
 static int hf_nas_eps_msg_emm_type = -1;
 int hf_nas_eps_common_elem_id = -1;
 int hf_nas_eps_emm_elem_id = -1;
@@ -711,10 +714,10 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 			curr_offset+=2;
 			/* MME Code Octet 9 */
 			proto_tree_add_item(tree, hf_nas_eps_emm_mme_code, tvb, curr_offset, 1, FALSE);
-			offset++;
+			curr_offset++;
 			/* M-TMSI Octet 10 - 13 */
 			proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, FALSE);
-			offset+=3;
+			curr_offset+=4;
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Type of identity not known");
@@ -771,7 +774,8 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	/* This IE can contain any ESM PDU as defined in subclause 8.3. */
 	new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
-	dissect_nas_eps(new_tvb, gpinfo, sub_tree);
+	/* Plain NAS message */
+	disect_nas_eps_esm_msg(new_tvb, gpinfo, sub_tree, 0/* offset */);
 
 	return(len);
 }
@@ -2535,22 +2539,41 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 8.2.23	Security protected NAS message
  */
 #if 0
-
-static void
+static int
 nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	proto_item *item;
 	guint32	curr_offset;
-	guint32	consumed;
 	guint	curr_len;
+	guint8 security_header_type;
 
 	curr_offset = offset;
 	curr_len = len;
 
+	/* Security header type Security header type 9.3.1 M V 1/2 */
+	security_header_type = tvb_get_guint8(tvb,offset)>>4;
+	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	/* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	offset++;
 	/* Message authentication code	Message authentication code 9.5	M	V	4 */
+	if (security_header_type !=0){
+		/* Message authentication code */
+		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		offset+=4;
+		if ((security_header_type==2)||(security_header_type==4)){
+			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+			proto_tree_add_text(tree, tvb, offset, len-5,"Ciphered message");
+			return offset;
+		}
+	}else{
+		proto_tree_add_text(tree, tvb, offset, len,"Not a security protected message");
+		return offset;
+	}
 	/* Sequence number	Sequence number 9.6	M	V	1 */
+	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+	offset++;
 	/* NAS message	NAS message 9.7	M	V	1-n  */
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	return offset;
 }
 #endif
 /*
@@ -3399,52 +3422,22 @@ void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, in
 	return;
 }
 
-/* EPS session management messages. */
+/* 
+ * EPS session management messages. 
+ * A plain NAS message is pased to this function
+ */
 static void
-disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	const gchar		*msg_str;
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
 	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
-	guint8			oct, security_header_type;
-	int				offset = 0;
-
+	guint8			oct;
 
 	len = tvb_length(tvb);
-	/* 4.4.4.2
-	 * All ESM messages are integrity protected.
-	 * 
-	 */
-	security_header_type = 0;
-
-	/* 9.3.1	Security header type */
-	security_header_type = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
-	offset++;
-	if (security_header_type !=0){
-		/* Message authentication code */
-		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
-		offset+=4;
-		if ((security_header_type==2)||(security_header_type==4)){
-			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-			proto_tree_add_text(tree, tvb, offset, len-5,"Ciphered message");
-			return;
-		}
-	}else{
-		proto_tree_add_text(tree, tvb, offset, len,"All ESM messages should be integrity protected.");
-		return;
-	}
-
-	/* Sequence number */
-	proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
-	offset++;
-
-	/* The EPS bearer identity and the procedure transaction identity are only used in messages with protocol discriminator
-	 * EPS session management. Octet 1a with the procedure transaction identity shall only be included in these messages.
-	 *
+	/*
 	 * EPS bearer identity 9.3.2
 	 */
 	proto_tree_add_item(tree, hf_nas_eps_bearer_id, tvb, offset, 1, FALSE);
@@ -3497,9 +3490,11 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 }
-
+/*
+ * The "real" security header has been dissected or if dissect_header = TRUE
+ */
 static void
-dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean second_header)
 {
 	const gchar		*msg_str;
 	guint32			len;
@@ -3507,28 +3502,29 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int				hf_idx;
 	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 	guint8			security_header_type, oct;
-	int offset = 0;
 
 	len = tvb_length(tvb);
 
 	/* 9.3.1	Security header type */
-	security_header_type = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
-	offset++;
-	if (security_header_type !=0){
-		/* Message authentication code */
-		proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
-		offset+=4;
-		/* Sequence number */
-		proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
-		offset++;
-		if ((security_header_type==2)||(security_header_type==4))
-			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-			return;
+	if(second_header){
+		security_header_type = tvb_get_guint8(tvb,offset)>>4;
 		proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
 		offset++;
+		if (security_header_type !=0){
+			/* Message authentication code */
+			proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+			offset+=4;
+			/* Sequence number */
+			proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+			offset++;
+			if ((security_header_type==2)||(security_header_type==4))
+				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+				return;
+			proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
+			offset++;
+		}
 	}
 	/* Messge type IE*/
 	oct = tvb_get_guint8(tvb,offset);
@@ -3569,17 +3565,26 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 }
+/*
+ * All messages recived here will have the security header:
+ *  Figure 9.1.2: General message organization example for a security protected NAS message
+ *		9.3.1 Bits 5 to 8 of the first octet of every EPS Mobility Management (EMM)
+ *			  message contain the Security header type IE.
+ *		4.4.4.2 All ESM messages are integrity protected.
+ */
 
 static void
 dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *nas_eps_tree;
-	guint8			pd;
-	int offset = 0;
+	guint8		pd, security_header_type;
+	int			offset = 0;
+	guint32			len;
 
 	/* Save pinfo */
 	gpinfo = pinfo;
+	len = tvb_length(tvb);
 
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3588,19 +3593,51 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
 	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
+	/* Security header type Security header type 9.3.1 M V 1/2 */
+	security_header_type = tvb_get_guint8(tvb,offset)>>4;
+	proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	/* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
+	proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	pd = tvb_get_guint8(tvb,offset)&0x0f;
+	offset++;
+	/* Message authentication code	Message authentication code 9.5	M	V	4 */
+	if (security_header_type == 0){
+		if(pd==7){
+			/* Plain EPS mobility management messages. */
+			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
+			return;
+		}else{
+			proto_tree_add_text(tree, tvb, offset, len, "All ESM messages should be integrity protected");
+			return;
+		}
+	}else{
+		/* Message authentication code */
+		proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		offset+=4;
+		if ((security_header_type==2)||(security_header_type==4)){
+			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+			proto_tree_add_text(nas_eps_tree, tvb, offset, len-5,"Ciphered message");
+			return;
+		}
+	}
+	/* Sequence number	Sequence number 9.6	M	V	1 */
+	proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+	offset++;
+	/* NAS message	NAS message 9.7	M	V	1-n  */
+
 	pd = tvb_get_guint8(tvb,offset)&0x0f;
 	switch (pd){
 		case 2:
 			/* EPS session management messages. 
 			 * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values 
 			 */
-			disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree);
+			disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
 			break;
 		case 7:
 			/* EPS mobility management messages. 
 			 * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values 
 			 */
-			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree);
+			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, TRUE);
 			break;
 		default:
 			proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",pd,val_to_str(pd, protocol_discriminator_vals,"unknown"));
