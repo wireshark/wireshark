@@ -46,15 +46,14 @@
 typedef struct packetlogger_header {
 	guint32 len;
 	guint64 ts;
-	guint8 type;
 } packetlogger_header_t;
 
-#define PACKETLOGGER_HEADER_SIZE 13
+#define PACKETLOGGER_HEADER_SIZE 12
 
 static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info _U_,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
-				       union wtap_pseudo_header *pseudo_header,
+				       union wtap_pseudo_header *pseudo_header _U_,
 				       guchar *pd, int length, int *err,
 				       gchar **err_info _U_);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
@@ -64,14 +63,17 @@ static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	packetlogger_header_t pl_hdr;
+	guint8 type;
 
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
 		return -1;
+	file_read(&type, 1, 1, wth->fh);
 
 	/* Verify this file belongs to us */
-	if(!((pl_hdr.len & 0xFFFF0000) == 0 && (pl_hdr.type < 0x04 ||
-						pl_hdr.type == 0xFE ||
-						pl_hdr.type == 0xFF)))
+	if(!((pl_hdr.len & 0xFFFF0000) == 0 && (type < 0x04 ||
+						type == 0xFB ||
+						type == 0xFE ||
+						type == 0xFF)))
 		return 0;
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
@@ -84,7 +86,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_PACKETLOGGER;
-	wth->file_encap = WTAP_ENCAP_BLUETOOTH_HCI;
+	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1; /* Our kind of file */
@@ -101,11 +103,11 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, pl_hdr.len - 9);
+	buffer_assure_space(wth->frame_buffer, pl_hdr.len - 8);
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			       pl_hdr.len - 9,
+			       pl_hdr.len - 8,
 			       wth->fh);
-	if(bytes_read != pl_hdr.len - 9) {
+	if(bytes_read != pl_hdr.len - 8) {
 		*err = file_error(wth->fh);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -115,34 +117,18 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 
 	wth->data_offset += (pl_hdr.len + 4);
 
-	wth->phdr.len = pl_hdr.len - 9;
-	wth->phdr.caplen = pl_hdr.len - 9;
+	wth->phdr.len = pl_hdr.len - 8;
+	wth->phdr.caplen = pl_hdr.len - 8;
 
 	wth->phdr.ts.secs = (time_t) (pl_hdr.ts >> 32);
 	wth->phdr.ts.nsecs = (int)((pl_hdr.ts & 0xFFFFFFFF) * 1000);
-
-	switch(pl_hdr.type) {
-
-	case 0 :
-		wth->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
-		break;
-	case 1 :
-		wth->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
-		break;
-
-	default :
-		wth->pseudo_header.bthci.channel = pl_hdr.type;
-		break;
-	}
-
-	wth->pseudo_header.bthci.sent = P2P_DIR_UNKNOWN;
 
 	return TRUE;
 }
 
 static gboolean
 packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-		       *pseudo_header, guchar *pd, int length, int *err,
+		       *pseudo_header _U_, guchar *pd, int length, int *err,
 		       gchar **err_info _U_)
 {
 	packetlogger_header_t pl_hdr;
@@ -158,36 +144,20 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		return FALSE;
 	}
 
-	if(length != (int)pl_hdr.len - 9) {
+	if(length != (int)pl_hdr.len - 8) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("packetlogger: record length %u doesn't match requested length %d", pl_hdr.len, length);
 		return FALSE;
 	}
 
-	bytes_read = file_read(pd, 1, pl_hdr.len - 9, wth->random_fh);
-	if(bytes_read != (pl_hdr.len - 9)) {
+	bytes_read = file_read(pd, 1, pl_hdr.len - 8, wth->random_fh);
+	if(bytes_read != (pl_hdr.len - 8)) {
 		*err = file_error(wth->random_fh);
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
 		return FALSE;
 	}
-
-	switch(pl_hdr.type) {
-
-	case 0 :
-		pseudo_header->bthci.channel = BTHCI_CHANNEL_COMMAND;
-		break;
-	case 1 :
-		pseudo_header->bthci.channel = BTHCI_CHANNEL_EVENT;
-		break;
-
-	default :
-		pseudo_header->bthci.channel = pl_hdr.type;
-		break;
-	}
-
-	pseudo_header->bthci.sent = P2P_DIR_UNKNOWN;
 
 	return TRUE;
 }
@@ -199,7 +169,6 @@ packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err)
 
 	bytes_read += file_read(&pl_hdr->len, 4, 1, fh);
 	bytes_read += file_read(&pl_hdr->ts, 8, 1, fh);
-	bytes_read += file_read(&pl_hdr->type, 1, 1, fh);
 
 	/* Convert multi-byte values from big endian to host endian */
 	pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);

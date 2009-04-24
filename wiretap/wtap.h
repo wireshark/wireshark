@@ -208,6 +208,7 @@ extern "C" {
 #define WTAP_ENCAP_USB_LINUX_MMAPPED            115
 #define WTAP_ENCAP_GSM_UM                       116
 #define WTAP_ENCAP_DPNSS                        117
+#define WTAP_ENCAP_PACKETLOGGER                 118
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
