@@ -56,6 +56,24 @@ static int hf_nas_eps_spare_bits = -1;
 static int hf_nas_eps_security_header_type = -1;
 static int hf_nas_eps_msg_auth_code = -1;
 static int hf_nas_eps_seq_no = -1;
+static int hf_nas_eps_emm_ebi0 = -1;
+static int hf_nas_eps_emm_ebi1 = -1;
+static int hf_nas_eps_emm_ebi2 = -1;
+static int hf_nas_eps_emm_ebi3 = -1;
+static int hf_nas_eps_emm_ebi4 = -1;
+static int hf_nas_eps_emm_ebi5 = -1;
+static int hf_nas_eps_emm_ebi6 = -1;
+static int hf_nas_eps_emm_ebi7 = -1;
+static int hf_nas_eps_emm_ebi8 = -1;
+static int hf_nas_eps_emm_ebi9 = -1;
+static int hf_nas_eps_emm_ebi10 = -1;
+static int hf_nas_eps_emm_ebi11 = -1;
+static int hf_nas_eps_emm_ebi12 = -1;
+static int hf_nas_eps_emm_ebi13 = -1;
+static int hf_nas_eps_emm_ebi14 = -1;
+static int hf_nas_eps_emm_ebi15 = -1;
+static int hf_nas_eps_emm_dl_nas_cnt = -1;
+static int hf_nas_eps_emm_nounce_mme = -1;
 static int hf_nas_eps_emm_eps_att_type = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_tsc = -1;
@@ -113,6 +131,7 @@ static int hf_nas_eps_emm_uia7 = -1;
 static int hf_nas_eps_emm_1xsrvcc_cap = -1;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
 static int hf_nas_eps_emm_ss_code = -1;
+static int hf_nas_eps_emm_lcs_ind = -1;
 static int hf_nas_eps_qci = -1;
 static int hf_nas_eps_mbr_ul = -1;
 static int hf_nas_eps_mbr_dl = -1;
@@ -277,6 +296,11 @@ nas_eps_common_elem_idx_t;
 /*
  * 9.9.2.1	EPS bearer context status
  */
+static const true_false_string  nas_eps_emm_ebi_vals = {
+	"BEARER CONTEXT-ACTIVE",
+	"BEARER CONTEXT-INACTIVE"
+};
+
 static guint16
 de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -284,7 +308,26 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	/* EBI(7)  EBI(6)  EBI(5)  EBI(4)  EBI(3)  EBI(2)  EBI(1) EBI(0) octet 3 */
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, FALSE);
+	/* EBI(0) - EBI(4): Bits 0 to 4 of octet 3 are spare and shall be coded as zero. */
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	/* EBI(15) EBI(14) EBI(13) EBI(12) EBI(11) EBI(10) EBI(9) EBI(8) octet 4 */
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi14, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi13, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, FALSE);
 
 	return len;
 }
@@ -332,7 +375,8 @@ de_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	 * This field contains the 4 least significant bits of the binary representation of the downlink
 	 * NAS COUNT value applicable when this information element is sent.
 	 */
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_dl_nas_cnt, tvb, curr_offset, 1, FALSE);
 
 	return len;
 }
@@ -348,20 +392,33 @@ de_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	curr_offset = offset;
 	/* NonceMME value (octet 1 to 5)
 	 * This field is coded as the nonce value in the Nonce information element (see subclause 9.9.3.25).
-	 * Type of integrity protection algorithm (octet 6, bit 1 to 3) and
-	 * type of ciphering algorithm (octet 6, bit 5 to 7)
+	 */
+	proto_tree_add_item(tree, hf_nas_eps_emm_nounce_mme, tvb, curr_offset, 1, FALSE);
+	curr_offset+=4;
+	/* type of ciphering algorithm (octet 6, bit 5 to 7)
 	 * These fields are coded as the type of integrity protection algorithm and type of ciphering algorithm
 	 * in the NAS security algorithms information element (see subclause 9.9.3.23).
 	 * Bit 4 and 8 of octet 6 are spare and shall be coded as zero.
+	 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_toc, tvb, curr_offset, 1, FALSE);
+	/* Type of integrity protection algorithm (octet 6, bit 1 to 3)*/
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_toi, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	/*
 	 * NAS key set identifier (octet 7, bit 1 to 3) and
 	 * type of security context flag (TSC) (octet 7, bit 4)
 	 * These fields are coded as the NAS key set identifier and type of security context flag in the
 	 * NAS key set identifier information element (see subclause 9.9.3.21).
 	 * Bit 5 to 8 of octet 7 are spare and shall be coded as zero.
 	 */
-
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
-
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	/* Type of security context flag (TSC) 	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_tsc, tvb, (curr_offset<<3)+4, 1, FALSE);
+	/* NAS key set identifier */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, (curr_offset<<3)+5, 3, FALSE);
+	curr_offset++;
 	return len;
 }			
 
@@ -1052,8 +1109,9 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, 6 , "Not decoded yet");
-	curr_offset+=6;
+	curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
+	curr_offset+=2;
 
 	return(curr_offset-offset);
 }
@@ -1438,16 +1496,14 @@ de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * 9.9.3.40	LCS indicator
  */
-/*
-LCS indicator value
-	Bits
-8 7 6 5 4 3 2 1
-0 0 0 0 0 0 0 0	Normal, unspecified in this version of the protocol.
-0 0 0 0 0 0 0 1	MT-LR
-0 0 0 0 0 0 1 0
-	to				Normal, unspecified in this version of the protocol
-1 1 1 1 1 1 1 1
-*/
+/* LCS indicator value */
+static const value_string nas_eps_emm_lcs_ind_vals[] = {
+	{ 0,	"Normal, unspecified"},
+	{ 1,	"MT-LR"},
+	{ 0, NULL }
+};
+
+
 static guint16
 de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1456,7 +1512,7 @@ de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	proto_tree_add_item(tree, hf_nas_eps_emm_lcs_ind, tvb, curr_offset, 1, FALSE);
 
 	return(len);
 }
@@ -1472,7 +1528,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	/* LCS client identity (value part)
 	 * The coding of the value part of the LCS client identity is given
-	 * in subclause 17.7.13 of 3GPP TS 29.002 [15B].
+	 * in subclause 17.7.13 of 3GPP TS 29.002 [15B](GSM MAP).
 	 */
 
 	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
@@ -3693,6 +3749,96 @@ void proto_register_nas_eps(void) {
 		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
+	{ &hf_nas_eps_emm_ebi0,
+		{ "EBI(0) spare","nas_eps.emm.ebi0",
+		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi1,
+		{ "EBI(1) spare","nas_eps.emm.ebi1",
+		FT_BOOLEAN, 8, NULL, 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi2,
+		{ "EBI(2) spare","nas_eps.emm.ebi2",
+		FT_BOOLEAN, 8, NULL, 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi3,
+		{ "EBI(3) spare","nas_eps.emm.ebi3",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi4,
+		{ "EBI(4) spare","nas_eps.emm.ebi4",
+		FT_BOOLEAN, 8, NULL, 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi5,
+		{ "EBI(5)","nas_eps.emm.ebi5",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi6,
+		{ "EBI(6)","nas_eps.emm.ebi6",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi7,
+		{ "EBI(7)","nas_eps.emm.ebi7",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi8,
+		{ "EBI(8)","nas_eps.emm.ebi8",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi9,
+		{ "EBI(9)","nas_eps.emm.ebi9",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi10,
+		{ "EBI(10)","nas_eps.emm.ebi10",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi11,
+		{ "EBI(11)","nas_eps.emm.ebi11",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi12,
+		{ "EBI(12)","nas_eps.emm.ebi12",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi13,
+		{ "EBI(13)","nas_eps.emm.ebi13",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi14,
+		{ "EBI(14)","nas_eps.emm.ebi14",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ebi15,
+		{ "EBI(15)","nas_eps.emm.ebi15",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ebi_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_dl_nas_cnt,
+		{ "DL NAS COUNT value","nas_eps.emm.dl_nas_cnt",
+		FT_UINT8,BASE_DEC, NULL, 0x0f,
+		NULL, HFILL }
+	},
+	{&hf_nas_eps_emm_nounce_mme,
+		{ "NonceMME","nas_eps.emm.nounce_mme",
+		FT_UINT32,BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_nas_eps_emm_eps_att_type,
 		{ "EPS attach type","nas_eps.emm.eps_att_type",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_att_type_vals), 0x0,
@@ -3978,6 +4124,11 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_ss_code,
 		{ "SS Code","nas_eps.emm.eps_update_result_value",
 		FT_UINT8,BASE_DEC, VALS(ssCode_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_lcs_ind,
+		{ "LCS indicator","nas_eps.emm.emm_lcs_ind",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_lcs_ind_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_qci,
