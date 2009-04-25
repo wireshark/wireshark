@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.4.0 V8.9.0 (2009-04)
 -- 17.6.1	Mobile Service Operations
 
 MAP-MobileServiceOperations {
@@ -509,3 +509,4 @@ noteMM-Event  OPERATION ::= {				--Timer m
 	CODE	local:89 }
 
 END
+

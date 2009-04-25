@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.9.0 (2009-04)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
@@ -37,9 +37,10 @@ IST-CommandRes,
 UU-Data,
 ReleaseResourcesArg,
 ReleaseResourcesRes,
--- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
+--- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
-CUG-CheckInfo;
+CUG-CheckInfo
+;
 
 IMPORTS
 	SubscriberInfo,
@@ -53,7 +54,8 @@ IMPORTS
 	IST-SupportIndicator,
 	IST-AlertTimerValue,
 	T-CSI,
-	NumberPortabilityStatus
+	NumberPortabilityStatus,
+	PagingArea
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MS-DataTypes (11) version11 (11)}
@@ -74,7 +76,8 @@ FROM MAP-SS-DataTypes {
 	LMSI,
 	Ext-BasicServiceCode,
 	AlertingPattern,
-	NAEA-PreferredCI
+	NAEA-PreferredCI,
+	EMLPP-Priority
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -124,7 +127,8 @@ SendRoutingInfoArg ::= SEQUENCE {
 	basicServiceGroup2	[25] Ext-BasicServiceCode	OPTIONAL,
 	networkSignalInfo2	[26] ExternalSignalInfo	OPTIONAL,
 	suppressMTSS	[27] SuppressMTSS	OPTIONAL,
-	mtRoamingRetrySupported	[28] NULL		OPTIONAL
+	mtRoamingRetrySupported	[28] NULL		OPTIONAL,
+	callPriority	[29]	EMLPP-Priority	OPTIONAL
 	 }
 
 SuppressionOfAnnouncement ::= NULL
@@ -252,7 +256,9 @@ ProvideRoamingNumberArg ::= SEQUENCE {
 	longFTN-Supported	[18]	NULL		OPTIONAL,
 	suppress-VT-CSI	[19]	NULL		OPTIONAL,
 	offeredCamel4CSIsInInterrogatingNode	[20] OfferedCamel4CSIs	OPTIONAL,
-	mtRoamingRetrySupported	[21] NULL		OPTIONAL
+	mtRoamingRetrySupported	[21] NULL		OPTIONAL,
+	pagingArea	[22] PagingArea	OPTIONAL,
+	callPriority	[23]	EMLPP-Priority	OPTIONAL
 	 }
 
 ProvideRoamingNumberRes ::= SEQUENCE {
@@ -467,3 +473,4 @@ ReleaseResourcesRes ::= SEQUENCE{
 
 
 END
+

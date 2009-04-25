@@ -1,6 +1,6 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.9.0 (2009-04)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -213,3 +213,4 @@ DeactivateTraceModeRes ::= SEQUENCE {
 	...}
 
 END
+

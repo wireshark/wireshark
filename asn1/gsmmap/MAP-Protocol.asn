@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.4.0 V8.9.0 (2009-04)
 --17.5	MAP operation and error codes
 MAP-Protocol {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -171,3 +171,4 @@ releaseResources | mt-ForwardSM-VGCS | sendGroupCallInfo }
 
 
 END
+

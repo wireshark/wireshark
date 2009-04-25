@@ -12,7 +12,7 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * including GSM SS.
- * Copyright 2004 - 2008 , Anders Broman <anders.broman [AT] ericsson.com>
+ * Copyright 2004 - 2009 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
  * and Michael Lum <mlum [AT] telostech.com>

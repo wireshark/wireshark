@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)  
+-- 3GPP TS 29.002  V8.9.0 (2009-04)  
 -- 17.7.6	Short message data types
 
 MAP-SM-DataTypes {
@@ -267,3 +267,4 @@ maxNumOfDispatchers  INTEGER ::= 5
 
 
 END
+

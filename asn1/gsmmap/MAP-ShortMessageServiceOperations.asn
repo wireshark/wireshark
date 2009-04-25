@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)  
+-- 3GPP TS 29.002 V8.9.0 (2009-04)  
 -- 17.6.5	Short message service operations
  
 MAP-ShortMessageServiceOperations {
@@ -170,4 +170,5 @@ mt-ForwardSM-VGCS  OPERATION ::= {				--Timer ml
 
 
 END
+
 

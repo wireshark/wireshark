@@ -1,8 +1,7 @@
 -- $Id$
 -- MAP-ExtensionDataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V8.4.0 (2007-12)
--- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-840.zip/29002-840.doc
+-- Taken from 3GPP TS 29.002 V8.9.0 (2009-04)
 --
 -- 17.7.11 Extension data types
 --
@@ -72,3 +71,4 @@ SLR-Arg-PCS-Extensions ::= SEQUENCE {
 	na-ESRK-Request	[0]	NULL		OPTIONAL }
 
 END
+

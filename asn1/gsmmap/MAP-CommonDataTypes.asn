@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.9.0 (2009-04)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
@@ -67,8 +67,10 @@ AccessNetworkSignalInfo,
 	LCSClientExternalID,
 	LCSClientInternalID,
 	LCSServiceTypeID,
--- WS added exports needed by gsmmap.asn (extra asn1 file to handle older prot. ver.)
-	ProtocolId;
+--- WS added exports needed by gsmmap.asn (extra asn1 file to handle older prot. ver.)
+	ProtocolId,
+	LCSServiceTypeID	
+;
 
 IMPORTS
 	TeleserviceCode,
@@ -374,7 +376,8 @@ AdditionalNetworkResource ::= ENUMERATED {
 	nplr (4),
 	auc (5),
 	... ,
-	ue (6)}
+	ue (6),
+	mme (7)}
 	-- if unknown value is received in AdditionalNetworkResource
 	-- it shall be ignored.
 
@@ -539,7 +542,7 @@ CellGlobalIdOrServiceAreaIdFixedLength ::= OCTET STRING (SIZE (7))
 	--			according to 3GPP TS 23.003
 
 LAIFixedLength ::= OCTET STRING (SIZE (5))
-	-- Refers to Location Area Identification defined in TS 3GPP TS 23.003 [17].
+	-- Refers to Location Area Identification defined in 3GPP TS 23.003 [17].
 	-- The internal structure is defined as follows:
 	-- octet 1 bits 4321	Mobile Country Code 1st digit
 	--         bits 8765	Mobile Country Code 2nd digit
@@ -548,7 +551,7 @@ LAIFixedLength ::= OCTET STRING (SIZE (5))
 	--			or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
-	-- octets 4 and 5	Location Area Code according to TS 3GPP TS 24.008 [35]
+	-- octets 4 and 5	Location Area Code according to 3GPP TS 24.008 [35]
 
 -- data types for subscriber management
 
@@ -627,3 +630,4 @@ AgeOfLocationInformation ::= INTEGER (0..32767)
 --               32767 minutes old
 
 END
+

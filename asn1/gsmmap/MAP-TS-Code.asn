@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12) 
+-- 3GPP TS 29.002 V8.9.0 (2009-04) 
 -- 17.7.9	Teleservice Codes
  
 MAP-TS-Code {
@@ -89,3 +89,4 @@ plmn-specificTS-E	TeleserviceCode ::= '11011110'B
 plmn-specificTS-F	TeleserviceCode ::= '11011111'B
 
 END
+

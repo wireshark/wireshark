@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 3GPP TS 29.002 V8.9.0 (2009-04)
 -- 17.7.5	Supplementary service codes
 
 MAP-SS-Code {
@@ -187,3 +187,4 @@ transferToThirdParty	SS-Code ::= '11000011'B
 	-- allow an MS to request transfer of its location to another LCS client
 
 END
+

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12) 
+-- 3GPP TS 29.002 V8.9.0 (2009-04) 
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
@@ -222,7 +222,7 @@ UnknownSubscriberParam ::= SEQUENCE {
 
 UnknownSubscriberDiagnostic ::= ENUMERATED {
 	imsiUnknown  (0),
-	gprsSubscriptionUnknown  (1),
+	gprs-eps-SubscriptionUnknown  (1),
 	...,
 	npdbMismatch  (2)}
 	-- if unknown values are received in 	
@@ -412,3 +412,4 @@ OngoingGroupCallParam ::= SEQUENCE {
 
 
 END
+

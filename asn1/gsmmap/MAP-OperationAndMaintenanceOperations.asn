@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.4.0 (2007-12) 
+-- 3GPP TS 29.002 V8.9.0 (2009-04) 
 --17.6.2	Operation and Maintenance Operations
 MAP-OperationAndMaintenanceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -92,3 +92,4 @@ sendIMSI  OPERATION ::= {				--Timer m
 	CODE	local:58 }
 
 END
+

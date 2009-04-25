@@ -1,8 +1,7 @@
 -- $Id$
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V8.4.0 (2007-12)
--- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-840.zip/29002-840.doc
+-- Taken from 3GPP TS 29.002  V8.9.0 (2009-04)
 --
 -- 17.7.13 Location service data types
 --
@@ -433,18 +432,18 @@ Ext-GeographicalInformation ::= OCTET STRING (SIZE (1..maxExt-GeographicalInform
 	--		(d) Ellipsoid Arc
 	--		(e) Ellipsoid Point
 	-- Any other value in octet 1 shall be treated as invalid
-	-- Octets 2 to 8 for case (a) - Ellipsoid point with uncertainty circle
+	-- Octets 2 to 8 for case (a) – Ellipsoid point with uncertainty circle
 	--		Degrees of Latitude				3 octets
 	--		Degrees of Longitude				3 octets
 	--		Uncertainty code				1 octet
-	-- Octets 2 to 11 for case (b) - Ellipsoid point with uncertainty ellipse:
+	-- Octets 2 to 11 for case (b) – Ellipsoid point with uncertainty ellipse:
 	--		Degrees of Latitude				3 octets
 	--		Degrees of Longitude				3 octets
 	--		Uncertainty semi-major axis				1 octet
 	--		Uncertainty semi-minor axis				1 octet
 	--		Angle of major axis				1 octet
 	--		Confidence				1 octet
-	-- Octets 2 to 14 for case (c) - Ellipsoid point with altitude and uncertainty ellipsoid
+	-- Octets 2 to 14 for case (c) – Ellipsoid point with altitude and uncertainty ellipsoid
 	--		Degrees of Latitude				3 octets
 	--		Degrees of Longitude				3 octets
 	--		Altitude				2 octets
@@ -453,7 +452,7 @@ Ext-GeographicalInformation ::= OCTET STRING (SIZE (1..maxExt-GeographicalInform
 	--		Angle of major axis				1 octet
 	--		Uncertainty altitude				1 octet
 	--		Confidence				1 octet
-	-- Octets 2 to 13 for case (d) - Ellipsoid Arc
+	-- Octets 2 to 13 for case (d) – Ellipsoid Arc
 	--		Degrees of Latitude				3 octets
 	--		Degrees of Longitude				3 octets
 	--		Inner radius				2 octets
@@ -461,7 +460,7 @@ Ext-GeographicalInformation ::= OCTET STRING (SIZE (1..maxExt-GeographicalInform
 	--		Offset angle				1 octet
 	--		Included angle				1 octet
 	--		Confidence				1 octet
-	-- Octets 2 to 7 for case (e) - Ellipsoid Point
+	-- Octets 2 to 7 for case (e) – Ellipsoid Point
 	--		Degrees of Latitude				3 octets
 	--		Degrees of Longitude				3 octets
 
@@ -497,15 +496,15 @@ VelocityEstimate ::= OCTET STRING (SIZE (4..7))
 	-- Octets 2 to 4 for case (a) Horizontal velocity:
 	--		Bearing				1 octet
 	--		Horizontal Speed				2 octets
-	-- Octets 2 to 5 for case (b) - Horizontal with Vertical Velocity:
+	-- Octets 2 to 5 for case (b) – Horizontal with Vertical Velocity:
 	--		Bearing				1 octet
 	--		Horizontal Speed				2 octets
 	--		Vertical Speed				1 octet
-	-- Octets 2 to 5 for case (c) - Horizontal velocity with Uncertainty:
+	-- Octets 2 to 5 for case (c) – Horizontal velocity with Uncertainty:
 	--		Bearing				1 octet
 	--		Horizontal Speed				2 octets
 	--		Uncertainty Speed				1 octet
-	-- Octets 2 to 7 for case (d) - Horizontal with Vertical Velocity and Uncertainty:
+	-- Octets 2 to 7 for case (d) – Horizontal with Vertical Velocity and Uncertainty:
 	--		Bearing				1 octet
 	--		Horizontal Speed				2 octets
 	--		Vertical Speed				1 octet
@@ -655,3 +654,4 @@ SubscriberLocationReport-Res ::= SEQUENCE {
 
 
 END
+
