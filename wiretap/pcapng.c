@@ -912,7 +912,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				memcpy(&wblock->data.if_stats.isb_ifrecv, option_content, sizeof(guint64));
 				if(pn->byte_swapped) 
 					wblock->data.if_stats.isb_ifrecv = BSWAP64(wblock->data.if_stats.isb_ifrecv);
-				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv %llu", wblock->data.if_stats.isb_ifrecv);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifrecv);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv length %u not 8 as expected", oh.option_length);
 			}
@@ -925,7 +925,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				memcpy(&wblock->data.if_stats.isb_ifdrop, option_content, sizeof(guint64));
 				if(pn->byte_swapped) 
 					wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_ifdrop);
-				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %llu", wblock->data.if_stats.isb_ifdrop);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifdrop);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop length %u not 8 as expected", oh.option_length);
 			}
