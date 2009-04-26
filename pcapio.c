@@ -410,7 +410,9 @@ libpcap_write_interface_statistics_block(FILE *fp,
                                          int *err)
 {
 	struct isb isb;
-#ifndef _WIN32
+#ifdef _WIN32
+	FILETIME now;
+#else
 	struct timeval now;
 #endif
 	struct option option;
@@ -421,9 +423,34 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	gboolean stats_retrieved;
 	
 #ifdef _WIN32
-	timestamp = 0; /* FIXME */
+	/*
+	 * Current time, represented as 100-nanosecond intervals since
+	 * January 1, 1601, 00:00:00 UTC.
+	 */
+	GetSystemTimeAsFileTime(&now);
+	timestamp = ((guint64)now.dwHighDateTime) << 32 + now.dwLowDateTime;
+
+	/*
+	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
+	 * intervals.
+	 */
+	timestamp /= 10;
+
+	/*
+	 * Subtract difference, in microseconds, between January 1, 1601
+	 * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
+	 */
+	timestamp -= G_GINT64_CONSTANT(11644473600000000U);
 #else
+	/*
+	 * Current time, represented as seconds and microseconds since
+	 * January 1, 1601, 00:00:00 UTC.
+	 */
 	gettimeofday(&now, NULL);
+
+	/*
+	 * Convert to delta in microseconds.
+	 */
 	timestamp = (guint64)(now.tv_sec) * 1000000 +
 	            (guint64)(now.tv_usec);
 #endif
