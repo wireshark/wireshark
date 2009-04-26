@@ -622,7 +622,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	int to_read;
 	guint64 file_offset64;
 	pcapng_enhanced_packet_block_t epb;
-	pcapng_packet_block_t *pb;
+	pcapng_packet_block_t pb;
 	guint32 block_total_length;
 	pcapng_option_header_t oh;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
@@ -630,40 +630,56 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
 	/* "(Enhanced) Packet Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&epb, 1, sizeof epb, fh);
-	if (bytes_read != sizeof epb) {
-		pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
-		*err = file_error(fh);
-		return 0;
-	}
-	block_read = bytes_read;
-	pb = (pcapng_packet_block_t *)&epb;
+	if (enhanced) {
+		bytes_read = file_read(&epb, 1, sizeof epb, fh);
+		if (bytes_read != sizeof epb) {
+			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
+			*err = file_error(fh);
+			return 0;
+		}
+		block_read = bytes_read;
 
-	/* XXX - as we currently ignore the interface id, both packet blocks are the same for us */
-	if(pn->byte_swapped) {
-		if (enhanced) {
+		/* XXX - as we currently ignore the interface id, both packet blocks are the same for us */
+		if(pn->byte_swapped) {
 			wblock->data.packet.interface_id	= BSWAP32(epb.interface_id);
 			wblock->data.packet.drops_count		= -1; /* invalid */
+			wblock->data.packet.ts_high		= BSWAP32(epb.timestamp_high);
+			wblock->data.packet.ts_low		= BSWAP32(epb.timestamp_low);
+			wblock->data.packet.cap_len		= BSWAP32(epb.captured_len);
+			wblock->data.packet.packet_len		= BSWAP32(epb.packet_len);
 		} else {
-			wblock->data.packet.interface_id	= BSWAP16(pb->interface_id);
-			wblock->data.packet.drops_count		= BSWAP16(pb->drops_count);
-		}
-		wblock->data.packet.ts_high			= BSWAP32(epb.timestamp_high);
-		wblock->data.packet.ts_low			= BSWAP32(epb.timestamp_low);
-		wblock->data.packet.cap_len			= BSWAP32(epb.captured_len);
-		wblock->data.packet.packet_len			= BSWAP32(epb.packet_len);
-	} else {
-		if (enhanced) {
 			wblock->data.packet.interface_id	= epb.interface_id;
 			wblock->data.packet.drops_count		= -1; /* invalid */
-		} else {
-			wblock->data.packet.interface_id	= pb->interface_id;
-			wblock->data.packet.drops_count		= pb->drops_count;
+			wblock->data.packet.ts_high		= epb.timestamp_high;
+			wblock->data.packet.ts_low		= epb.timestamp_low;
+			wblock->data.packet.cap_len		= epb.captured_len;
+			wblock->data.packet.packet_len		= epb.packet_len;
 		}
-		wblock->data.packet.ts_high			= epb.timestamp_high;
-		wblock->data.packet.ts_low			= epb.timestamp_low;
-		wblock->data.packet.cap_len			= epb.captured_len;
-		wblock->data.packet.packet_len			= epb.packet_len;
+	} else {
+		bytes_read = file_read(&pb, 1, sizeof pb, fh);
+		if (bytes_read != sizeof pb) {
+			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
+			*err = file_error(fh);
+			return 0;
+		}
+		block_read = bytes_read;
+
+		/* XXX - as we currently ignore the interface id, both packet blocks are the same for us */
+		if(pn->byte_swapped) {
+			wblock->data.packet.interface_id	= BSWAP16(pb.interface_id);
+			wblock->data.packet.drops_count		= BSWAP16(pb.drops_count);
+			wblock->data.packet.ts_high		= BSWAP32(pb.timestamp_high);
+			wblock->data.packet.ts_low		= BSWAP32(pb.timestamp_low);
+			wblock->data.packet.cap_len		= BSWAP32(pb.captured_len);
+			wblock->data.packet.packet_len		= BSWAP32(pb.packet_len);
+		} else {
+			wblock->data.packet.interface_id	= pb.interface_id;
+			wblock->data.packet.drops_count		= pb.drops_count;
+			wblock->data.packet.ts_high		= pb.timestamp_high;
+			wblock->data.packet.ts_low		= pb.timestamp_low;
+			wblock->data.packet.cap_len		= pb.captured_len;
+			wblock->data.packet.packet_len		= pb.packet_len;
+		}
 	}
 
 	pcapng_debug3("pcapng_read_packet_block: packet data: packet_len %u captured_len %u interface_id %u",
