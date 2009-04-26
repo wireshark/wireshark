@@ -426,9 +426,13 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	/*
 	 * Current time, represented as 100-nanosecond intervals since
 	 * January 1, 1601, 00:00:00 UTC.
+	 *
+	 * I think DWORD might be signed, so cast both parts of "now"
+	 * to guint32 so that the sign bit doesn't get treated specially.
 	 */
 	GetSystemTimeAsFileTime(&now);
-	timestamp = ((guint64)now.dwHighDateTime) << 32 + now.dwLowDateTime;
+	timestamp = ((guint64)(guint32)now.dwHighDateTime) << 32 +
+	    (guint32)now.dwLowDateTime;
 
 	/*
 	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
