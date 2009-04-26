@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 #include <pcap.h>
 
@@ -91,6 +92,102 @@ struct pcaprec_hdr {
 	guint32	incl_len;	/* number of octets of packet saved in file */
 	guint32	orig_len;	/* actual length of packet */
 };
+
+/* Magic numbers in ".pcapng" files.
+ *
+ * .pcapng file records are written in the byte order of the host that
+ * writes them, and the reader is expected to fix this up.
+ * PCAPNG_MAGIC is the magic number, in host byte order;
+ * PCAPNG_SWAPPED_MAGIC is a byte-swapped version of that.
+ */
+#define PCAPNG_MAGIC         0x1A2B3C4D
+#define PCAPNG_SWAPPED_MAGIC 0xD4C3B2A1
+
+/* Currently we are only supporting the initial version of
+   the file format. */
+#define PCAPNG_MAJOR_VERSION 1
+#define PCAPNG_MINOR_VERSION 0
+
+/* Section Header Block without options and trailing Block Total Length */
+struct shb {
+	guint32 block_type;
+	guint32 block_total_length;
+	guint32 byte_order_magic;
+	guint16 major_version;
+	guint16 minor_version;
+	guint64 section_length;
+};
+#define SECTION_HEADER_BLOCK_TYPE 0x0A0D0D0A
+
+/* Interface Decription Block without options and trailing Block Total Length */
+struct idb {
+	guint32 block_type;
+	guint32 block_total_length;
+	guint16 link_type;
+	guint16 reserved;
+	guint32 snap_len;
+};
+#define INTERFACE_DESCRIPTION_BLOCK_TYPE 0x00000001
+
+/* Interface Statistics Block without actual packet, options, and trailing
+   Block Total Length */
+struct isb {
+	guint32 block_type;
+	guint32 block_total_length;
+	guint32 interface_id;
+	guint32 timestamp_high;
+	guint32 timestamp_low;
+};
+#define INTERFACE_STATISTICS_BLOCK_TYPE 0x00000005
+
+/* Enhanced Packet Block without actual packet, options, and trailing
+   Block Total Length */
+struct epb {
+	guint32 block_type;
+	guint32 block_total_length;
+	guint32 interface_id;
+	guint32 timestamp_high;
+	guint32 timestamp_low;
+	guint32 captured_len;
+	guint32 packet_len;
+};
+#define ENHANCED_PACKET_BLOCK_TYPE 0x00000006
+
+struct option {
+	guint16 type;
+	guint16 value_length;
+};
+#define OPT_ENDOFOPT 0
+#define OPT_COMMENT  1 /* currently not used */
+#define SHB_HARDWARE 2 /* currently not used */
+#define SHB_OS       3 /* currently not used */
+#define SHB_USERAPPL 4
+#define IDB_NAME     2
+#define IDB_FILTER  11
+#define ISB_IFRECV   4
+#define ISB_IFDROP   5
+#define ISB_FILTERACCEPT 6
+
+#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
+
+#define WRITE_DATA(file_pointer, data_pointer, data_length, written_length, error_pointer) \
+{                                                                                          \
+	do {                                                                               \
+		size_t nwritten;                                                           \
+		                                                                           \
+		nwritten = fwrite(data_pointer, 1, data_length, file_pointer);             \
+		if (nwritten != data_length) {                                             \
+			if (nwritten == 0 && ferror(file_pointer)) {                       \
+				*error_pointer = errno;                                    \
+			} else {                                                           \
+				*error_pointer = 0;                                        \
+			}                                                                  \
+			fclose(file_pointer);                                              \
+			return FALSE;                                                      \
+		}                                                                          \
+		written_length += nwritten;                                                \
+	} while (0);                                                                       \
+}
 
 /* Returns a FILE * to write to on success, NULL on failure */
 FILE *
@@ -167,6 +264,200 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
 		return FALSE;
 	}
 	*bytes_written += phdr->caplen;
+	return TRUE;
+}
+
+gboolean
+pcapng_write_session_header_block(FILE *fp,
+                                  char *appname,
+                                  long *bytes_written,
+                                  int *err)
+{
+	struct shb shb;
+	struct option option;
+	guint32 block_total_length;
+	const guint32 padding = 0;
+	
+	block_total_length = sizeof(struct shb) +
+	                     sizeof(struct option) + ADD_PADDING(strlen(appname) + 1) +
+	                     sizeof(struct option) +
+	                     sizeof(guint32);
+	/* write shb header */
+	shb.block_type = SECTION_HEADER_BLOCK_TYPE;
+	shb.block_total_length = block_total_length;
+	shb.byte_order_magic = PCAPNG_MAGIC;
+	shb.major_version = PCAPNG_MAJOR_VERSION;
+	shb.minor_version = PCAPNG_MINOR_VERSION;
+	shb.section_length = -1;
+	WRITE_DATA(fp, &shb, sizeof(struct shb), *bytes_written, err);
+	/* write shb_userappl options */
+	option.type = SHB_USERAPPL;
+	option.value_length = strlen(appname) + 1;
+	WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+	WRITE_DATA(fp, appname, strlen(appname) + 1, *bytes_written, err);
+	if ((strlen(appname) + 1) % 4) {
+		WRITE_DATA(fp, &padding, 4 - (strlen(appname) + 1) % 4, *bytes_written, err);
+	}
+	/* write last option */
+	option.type = OPT_ENDOFOPT;
+	option.value_length = 0;
+	WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+	/* write the trailing block total length */
+	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
+	return TRUE;
+}
+
+gboolean
+pcapng_write_interface_description_block(FILE *fp,
+                                         char *name,
+                                         char *filter,
+                                         int link_type,
+                                         int snap_len,
+                                         long *bytes_written,
+                                         int *err)
+{
+	struct idb idb;
+	struct option option;
+	guint32 block_total_length;
+	const guint32 padding = 0;
+
+	block_total_length = sizeof(struct idb) + sizeof(guint32);
+	if (strlen(name) > 0) {
+		block_total_length += sizeof(struct option) + ADD_PADDING(strlen(name) + 1);
+	}
+	if (strlen(filter) > 0) {
+		block_total_length += sizeof(struct option) + ADD_PADDING(strlen(filter) + 1);
+	}
+	if ((strlen(name) > 0) || (strlen(filter) > 0)) {
+		block_total_length += sizeof(struct option);
+	}
+	idb.block_type = INTERFACE_DESCRIPTION_BLOCK_TYPE;
+	idb.block_total_length = block_total_length;
+	idb.link_type = link_type;
+	idb.reserved = 0;
+	idb.snap_len = snap_len;
+	WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
+	/* write the options */
+	if (strlen(name) > 0) {
+		option.type = IDB_NAME;
+		option.value_length = strlen(name) + 1;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, name, strlen(name) + 1, *bytes_written, err);
+		if ((strlen(name) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(name) + 1) % 4 , *bytes_written, err);
+		}
+	}
+	if (strlen(filter) > 0) {
+		option.type = IDB_FILTER;
+		option.value_length = strlen(filter) + 1;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, filter, strlen(filter) + 1, *bytes_written, err);
+		if ((strlen(filter) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 1) % 4 , *bytes_written, err);
+		}
+	}
+	if ((strlen(name) > 0) || (strlen(filter) > 0)) {
+		option.type = OPT_ENDOFOPT;
+		option.value_length = 0;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+	}
+	/* write the trailing Block Total Length */
+	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
+	return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+gboolean
+pcapng_write_enhanced_packet_block(FILE *fp,
+                                   struct pcap_pkthdr *phdr,
+                                   guint32 interface_id,
+                                   u_char *pd,
+                                   long *bytes_written,
+                                   int *err)
+{
+	struct epb epb;
+	guint32 block_total_length;
+	guint64 timestamp;
+	const guint32 padding = 0;
+
+	block_total_length = sizeof(struct epb) +
+	                     ADD_PADDING(phdr->caplen) +
+	                     sizeof(guint32);
+	timestamp = (guint64)(phdr->ts.tv_sec) * 1000000 +
+	            (guint64)(phdr->ts.tv_usec);
+	epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
+	epb.block_total_length = block_total_length;
+	epb.interface_id = interface_id;
+	epb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
+	epb.timestamp_low = (guint32)(timestamp & 0xffffffff);
+	epb.captured_len = phdr->caplen;
+	epb.packet_len = phdr->len;
+	WRITE_DATA(fp, &epb, sizeof(struct epb), *bytes_written, err);
+	WRITE_DATA(fp, pd, phdr->caplen, *bytes_written, err);
+	if (phdr->caplen % 4) {
+		WRITE_DATA(fp, &padding, 4 - phdr->caplen % 4, *bytes_written, err);
+	}
+	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
+	return TRUE;
+}
+
+gboolean
+pcapng_write_interface_statistics_block(FILE *fp,
+                                        guint32 interface_id,
+                                        pcap_t *pd,
+                                        long *bytes_written,
+                                        int *err)
+{
+	struct isb isb;
+	struct timeval now;
+	struct option option;
+	struct pcap_stat stats;
+	guint32 block_total_length;
+	guint64 timestamp;
+	guint64 counter;
+	gboolean stats_retrieved;
+	
+	gettimeofday(&now, NULL);
+	timestamp = (guint64)(now.tv_sec) * 1000000 +
+	            (guint64)(now.tv_usec);
+	if (pcap_stats(pd, &stats) < 0) {
+		stats_retrieved = FALSE;
+		g_warning("pcap_stats() failed.");
+	} else {
+		stats_retrieved = TRUE;
+	}
+	block_total_length = sizeof(struct isb) +
+	                     sizeof(guint32);
+	if (stats_retrieved) {
+		block_total_length += 3 * sizeof(struct option) + 2 * sizeof(guint64);
+	}
+	isb.block_type = INTERFACE_STATISTICS_BLOCK_TYPE;
+	isb.block_total_length = block_total_length;
+	isb.interface_id = interface_id;
+	isb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
+	isb.timestamp_low = (guint32)(timestamp & 0xffffffff);
+	WRITE_DATA(fp, &isb, sizeof(struct isb), *bytes_written, err);
+	if (stats_retrieved) {
+		/* */
+		option.type = ISB_IFRECV;
+		option.value_length = sizeof(guint64);
+		counter = stats.ps_recv;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &counter, sizeof(guint64), *bytes_written, err);
+		/* */
+		option.type = ISB_IFDROP;
+		option.value_length = sizeof(guint64);
+		counter = stats.ps_drop;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &counter, sizeof(guint64), *bytes_written, err);
+		/* last option */
+		option.type = OPT_ENDOFOPT;
+		option.value_length = 0;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+	}
+	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
+	
 	return TRUE;
 }
 
