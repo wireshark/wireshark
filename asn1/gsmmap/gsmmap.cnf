@@ -48,6 +48,9 @@ SubscriberId
 GuidanceInfo
 SS-InfoList
 #.END
+#.PDU_NEW
+LCS-ClientID
+
 #.EXPORTS
 AddressString
 Add-GeographicalInformation
@@ -83,6 +86,8 @@ ISDN-AddressString
 ISDN-SubaddressString
 LAIFixedLength
 LCSClientExternalID
+LCS-ClientID
+LCS-ClientID_PDU
 LCSClientName
 LCSRequestorID
 LCSCodeword

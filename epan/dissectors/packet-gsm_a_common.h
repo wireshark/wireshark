@@ -574,7 +574,7 @@ guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-
+guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -906,7 +906,7 @@ typedef enum
 	DE_CAUSE_NO_CLI,				/* Cause of No CLI */
 	DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
 	DE_SUP_CODEC_LIST,				/* Supported Codec List */
-	DE_SRVC_CAT,					/* Service Category */
+	DE_SERV_CAT,					/* Service Category */
 	DE_REDIAL,						/* 10.5.4.34 Redial */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	DE_CP_USER_DATA,				/* CP-User Data */

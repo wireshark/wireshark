@@ -391,6 +391,13 @@ static int hf_gsm_a_itc = -1;
 static int hf_gsm_a_dtap_spare_bits = -1;
 static int hf_gsm_a_sysid = -1;
 static int hf_gsm_a_bitmap_length = -1;
+static int hf_gsm_a_dtap_serv_cat_b7 = -1;
+static int hf_gsm_a_dtap_serv_cat_b6 = -1;
+static int hf_gsm_a_dtap_serv_cat_b5 = -1;
+static int hf_gsm_a_dtap_serv_cat_b4 = -1;
+static int hf_gsm_a_dtap_serv_cat_b3 = -1;
+static int hf_gsm_a_dtap_serv_cat_b2 = -1;
+static int hf_gsm_a_dtap_serv_cat_b1 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -898,10 +905,26 @@ static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 en_len;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	while ((curr_offset - offset) < len){
+		/* Length of 1st Emergency Number information note 1) octet 3 
+		 * NOTE 1: The length contains the number of octets used to encode the 
+		 * Emergency Service Category Value and the Number digits.
+		 */
+		en_len = tvb_get_guint8(tvb, curr_offset);
+		curr_offset++;
+		/* 0 0 0 Emergency Service Category Value (see
+		 *       Table 10.5.135d/3GPP TS 24.008
+		 * Table 10.5.135d/3GPP TS 24.008: Service Category information element
+		 */
+		de_serv_cat(tvb, tree, curr_offset, 1, NULL, 0);
+		proto_tree_add_text(tree, tvb, curr_offset+1, en_len-1, "Not decoded yet");
+
+		curr_offset = curr_offset + en_len;
+	}
 
 
 	return(len);
@@ -3111,6 +3134,38 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 10.5.4.33 Service category
  */
 /*
+Emergency Service Category Value (octet 3)
+The meaning of the Emergency Category Value is derived from the following settings (see 3GPP TS 22.101 [8] clause
+10):
+Bit 1 Police
+Bit 2 Ambulance
+Bit 3 Fire Brigade
+Bit 4 Marine Guard
+Bit 5 Mountain Rescue
+Bit 6 manually initiated eCall
+Bit 7 automatically initiated eCall
+Bit 8 is spare and set to "0"
+*/
+guint16
+de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b1, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return len;
+}
+/*
  * 10.5.4.34 Redial
  * No data
  */
@@ -3592,13 +3647,13 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	de_stream_id,			/* Stream Identifier */
 	de_nw_call_ctrl_cap,	/* Network Call Control Capabilities */
 	de_ca_of_no_cli,		/* Cause of No CLI */
-	NULL,	/* Immediate Modification Indicator */
-	de_sup_codec_list,	/* Supported Codec List */
-	NULL,				/* Service Category */
-	NULL,				/* 10.5.4.34 Redial */
+	NULL,					/* Immediate Modification Indicator */
+	de_sup_codec_list,		/* Supported Codec List */
+	de_serv_cat,			/* Service Category */
+	NULL,					/* 10.5.4.34 Redial */
 	/* Short Message Service Information Elements [5] 8.1.4 */
-	de_cp_user_data,	/* CP-User Data */
-	de_cp_cause,		/* CP-Cause */
+	de_cp_user_data,		/* CP-User Data */
+	de_cp_cause,			/* CP-Cause */
 	/* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
 	de_tp_sub_channel,					/* Close TCH Loop Cmd Sub-channel */
 	de_tp_ack,							/* Open Loop Cmd Ack */
@@ -4077,7 +4132,7 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " Equivalent");
 
 	/* 34 Emergency Number List O TLV 5-50 10.5.3.13 */
-	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, " Equivalent");
+	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4526,7 +4581,7 @@ dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, "");
 
-	ELEM_OPT_TLV(0x2e, GSM_A_PDU_TYPE_DTAP, DE_SRVC_CAT, " Emergency");
+	ELEM_OPT_TLV(0x2e, GSM_A_PDU_TYPE_DTAP, DE_SERV_CAT, " Emergency");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5829,6 +5884,46 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_bitmap_length,
 		{ "Length", "gsm_a.bitmap_length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b7,
+		{ "Automatically initiated eCall", "gsm_a.dtap.serv_cat_b7",
+		FT_BOOLEAN, 8, NULL, 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b6,
+		{ "Manually initiated eCall", "gsm_a.dtap.serv_cat_b6",
+		FT_BOOLEAN, 8, NULL, 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b5,
+		{ "Mountain Rescue", "gsm_a.dtap.serv_cat_b5",
+		FT_BOOLEAN, 8, NULL, 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b4,
+		{ "Marine Guard", "gsm_a.dtap.serv_cat_b4",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b4,
+		{ "Marine Guard", "gsm_a.dtap.serv_cat_b4",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b3,
+		{ "Fire Brigade", "gsm_a.dtap.serv_cat_b3",
+		FT_BOOLEAN, 8, NULL, 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b2,
+		{ "Ambulance", "gsm_a.dtap.serv_cat_b2",
+		FT_BOOLEAN, 8, NULL, 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_serv_cat_b1,
+		{ "Police", "gsm_a.dtap.serv_cat_b1",
+		FT_BOOLEAN, 8, NULL, 0x01,
 		NULL, HFILL }
 	},
 	};
