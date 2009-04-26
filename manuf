@@ -9718,6 +9718,25 @@
 00:25:E7	SonyEricss             # Sony Ericsson Mobile Communications
 00:25:E8	IdahoTechn             # Idaho Technology
 00:25:E9	I-MateDeve             # i-mate Development, Inc.
+00:25:EA	IphionBv               # Iphion BV
+00:25:EB	ReutechRad             # Reutech Radar Systems (PTY) Ltd
+00:25:EC	Humanware
+00:25:ED	NuvoTechno             # NuVo Technologies LLC
+00:25:EE	Avtex                  # Avtex Ltd
+00:25:EF	I-Tec                  # I-TEC Co., Ltd.
+00:25:F0	SugaElectr             # Suga Electronics Limited
+00:25:F1	MotorolaCh             # Motorola CHS
+00:25:F2	MotorolaCh             # Motorola CHS
+00:25:F3	Nordwestde             # Nordwestdeutsche Zählerrevision
+00:25:F4	KocoConnec             # KoCo Connector AG
+00:25:F5	DvsKorea               # DVS Korea, Co., Ltd
+00:25:F6	NettalkCom             # netTALK.com, Inc.
+00:25:F7	AnsaldoSts             # Ansaldo STS USA
+00:25:F8	ZamirRecog             # Zamir Recognition Systems Ltd.
+00:25:F9	GmkElectro             # GMK electronic design GmbH
+00:25:FA	J&MAnalyti             # J&M Analytik AG
+00:25:FB	TunstallHe             # Tunstall Healthcare A/S
+00:25:FC	EndaEndust             # ENDA ENDUSTRIYEL ELEKTRONIK LTD. STI.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13130,6 +13149,9 @@
 00:50:C2:AA:20:00/36	ElpaSas                # ELPA sas
 00:50:C2:AA:30:00/36	PeekTraffi             # Peek Traffic/US Traffic
 00:50:C2:AA:40:00/36	PsiPrinter             # PSi Printer Systems international GmbH
+00:50:C2:AA:50:00/36	TampereUni             # Tampere University of Technology
+00:50:C2:AA:60:00/36	BassettEle             # Bassett Electronic Systems ltd
+00:50:C2:AA:70:00/36	EndeasOy               # Endeas Oy
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
