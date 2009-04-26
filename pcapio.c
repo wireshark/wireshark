@@ -418,9 +418,13 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	guint64 counter;
 	gboolean stats_retrieved;
 	
+#ifdef _WIN32
+	timestamp = 0; /* FIXME */
+#else
 	gettimeofday(&now, NULL);
 	timestamp = (guint64)(now.tv_sec) * 1000000 +
 	            (guint64)(now.tv_usec);
+#endif
 	if (pcap_stats(pd, &stats) < 0) {
 		stats_retrieved = FALSE;
 		g_warning("pcap_stats() failed.");
