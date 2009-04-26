@@ -410,7 +410,9 @@ libpcap_write_interface_statistics_block(FILE *fp,
                                          int *err)
 {
 	struct isb isb;
+#ifndef _WIN32
 	struct timeval now;
+#endif
 	struct option option;
 	struct pcap_stat stats;
 	guint32 block_total_length;
