@@ -213,6 +213,7 @@ typedef struct _loop_data {
   /* output file */
   FILE          *pdh;
   int            linktype;
+  int            file_snaplen;
   gint           wtap_linktype;
   long           bytes_written;
 
@@ -1454,7 +1455,6 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, 
 /* set up to write to the already-opened capture output file/files */
 static gboolean
 capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
-  int         file_snaplen;
   int         err;
 
 
@@ -1462,19 +1462,25 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
 
   /* get snaplen */
   if (ld->from_cap_pipe) {
-    file_snaplen = ld->cap_pipe_hdr.snaplen;
+    ld->file_snaplen = ld->cap_pipe_hdr.snaplen;
   } else
   {
-    file_snaplen = pcap_snapshot(ld->pcap_h);
+    ld->file_snaplen = pcap_snapshot(ld->pcap_h);
   }
 
   /* Set up to write to the capture file. */
   if (capture_opts->multi_files_on) {
-    ld->pdh = ringbuf_init_libpcap_fdopen(ld->linktype, file_snaplen,
-                                          &ld->bytes_written, &err);
+    ld->pdh = ringbuf_init_libpcap_fdopen(&err);
   } else {
-    ld->pdh = libpcap_fdopen(save_file_fd, ld->linktype, file_snaplen,
-                             &ld->bytes_written, &err);
+    ld->pdh = libpcap_fdopen(save_file_fd, &err);
+  }
+  if (ld->pdh) {
+    ld->bytes_written = 0;
+    if (!libpcap_write_file_header(ld->pdh, ld->linktype, ld->file_snaplen,
+                                   &ld->bytes_written, &err)) {
+      fclose(ld->pdh);
+      ld->pdh = NULL;
+    }
   }
 
   if (ld->pdh == NULL) {
@@ -1980,8 +1986,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
-              &save_file_fd, &global_ld.bytes_written, &global_ld.err)) {
+                                  &save_file_fd, &global_ld.err)) {
             /* File switch succeeded: reset the conditions */
+            global_ld.bytes_written = 0;
+            if (!libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
+                                           &global_ld.bytes_written, &global_ld.err)) {
+              fclose(global_ld.pdh);
+              global_ld.pdh = NULL;
+              global_ld.go = FALSE;
+              continue;
+            }
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
@@ -2053,9 +2067,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
-                                  &save_file_fd, &global_ld.bytes_written,
-				  &global_ld.err)) {
+                                  &save_file_fd, &global_ld.err)) {
             /* file switch succeeded: reset the conditions */
+            global_ld.bytes_written = 0;
+            if (!libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
+                                           &global_ld.bytes_written, &global_ld.err)) {
+              fclose(global_ld.pdh);
+              global_ld.pdh = NULL;
+              global_ld.go = FALSE;
+              continue;
+            }
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);

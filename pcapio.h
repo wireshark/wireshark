@@ -25,11 +25,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Returns a FILE * to write to on success, NULL on failure; sets "*err" to
-   an error code, or 0 for a short write, on failure */
+/* Returns a FILE * to write to on success, NULL on failure */
 extern FILE *
-libpcap_fdopen(int fd, int linktype, int snaplen, long *bytes_written,
-    int *err);
+libpcap_fdopen(int fd, int *err);
+
+/* Write the file header to a dump file.
+   Returns TRUE on success, FALSE on failure.
+   Sets "*err" to an error code, or 0 for a short write, on failure*/
+extern gboolean
+libpcap_write_file_header(FILE *fp, int linktype, int snaplen, long *bytes_written, int *err);
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */

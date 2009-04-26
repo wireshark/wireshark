@@ -92,21 +92,27 @@ struct pcaprec_hdr {
 	guint32	orig_len;	/* actual length of packet */
 };
 
-/* Returns a FILE * to write to on success, NULL on failure; sets "*err" to
-   an error code, or 0 for a short write, on failure */
+/* Returns a FILE * to write to on success, NULL on failure */
 FILE *
-libpcap_fdopen(int fd, int linktype, int snaplen, long *bytes_written,
-    int *err)
+libpcap_fdopen(int fd, int *err)
 {
 	FILE *fp;
-	struct pcap_hdr file_hdr;
-	size_t nwritten;
 
 	fp = fdopen(fd, "wb");
 	if (fp == NULL) {
 		*err = errno;
-		return NULL;
 	}
+	return fp;
+}
+
+/* Write the file header to a dump file.
+   Returns TRUE on success, FALSE on failure.
+   Sets "*err" to an error code, or 0 for a short write, on failure*/
+gboolean
+libpcap_write_file_header(FILE *fp, int linktype, int snaplen, long *bytes_written, int *err)
+{
+	struct pcap_hdr file_hdr;
+	size_t nwritten;
 
 	file_hdr.magic = PCAP_MAGIC;
 	/* current "libpcap" format is 2.4 */
@@ -116,18 +122,17 @@ libpcap_fdopen(int fd, int linktype, int snaplen, long *bytes_written,
 	file_hdr.sigfigs = 0;	/* unknown, but also apparently unused */
 	file_hdr.snaplen = snaplen;
 	file_hdr.network = linktype;
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, fp);
-	if (nwritten != sizeof file_hdr) {
+	nwritten = fwrite(&file_hdr, 1, sizeof(file_hdr), fp);
+	if (nwritten != sizeof(file_hdr)) {
 		if (nwritten == 0 && ferror(fp))
 			*err = errno;
 		else
 			*err = 0;	/* short write */
-		fclose(fp);
-		return NULL;
+		return FALSE;
 	}
-	*bytes_written = sizeof file_hdr;
+	*bytes_written += sizeof(file_hdr);
 
-	return fp;
+	return TRUE;
 }
 
 /* Write a record for a packet to a dump file.
