@@ -185,7 +185,7 @@ struct option {
 			fclose(file_pointer);                                              \
 			return FALSE;                                                      \
 		}                                                                          \
-		written_length += nwritten;                                                \
+		written_length += (long)nwritten;                                          \
 	} while (0);                                                                       \
 }
 
@@ -279,7 +279,7 @@ libpcap_write_session_header_block(FILE *fp,
 	const guint32 padding = 0;
 	
 	block_total_length = sizeof(struct shb) +
-	                     sizeof(struct option) + ADD_PADDING(strlen(appname) + 1) +
+	                     sizeof(struct option) + (guint16)(ADD_PADDING(strlen(appname) + 1)) +
 	                     sizeof(struct option) +
 	                     sizeof(guint32);
 	/* write shb header */
@@ -292,7 +292,7 @@ libpcap_write_session_header_block(FILE *fp,
 	WRITE_DATA(fp, &shb, sizeof(struct shb), *bytes_written, err);
 	/* write shb_userappl options */
 	option.type = SHB_USERAPPL;
-	option.value_length = strlen(appname) + 1;
+	option.value_length = (guint16)(strlen(appname) + 1);
 	WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 	WRITE_DATA(fp, appname, strlen(appname) + 1, *bytes_written, err);
 	if ((strlen(appname) + 1) % 4) {
@@ -340,7 +340,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	/* write the options */
 	if (strlen(name) > 0) {
 		option.type = IDB_NAME;
-		option.value_length = strlen(name) + 1;
+		option.value_length = (guint16)(strlen(name) + 1);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, name, strlen(name) + 1, *bytes_written, err);
 		if ((strlen(name) + 1) % 4) {
@@ -349,7 +349,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	}
 	if (strlen(filter) > 0) {
 		option.type = IDB_FILTER;
-		option.value_length = strlen(filter) + 1;
+		option.value_length = (guint16)(strlen(filter) + 1);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, filter, strlen(filter) + 1, *bytes_written, err);
 		if ((strlen(filter) + 1) % 4) {
