@@ -321,15 +321,17 @@ libpcap_write_interface_description_block(FILE *fp,
 	guint32 block_total_length;
 	const guint32 padding = 0;
 
-	block_total_length = sizeof(struct idb) + sizeof(guint32);
+	block_total_length = (guint32)(sizeof(struct idb) + sizeof(guint32));
 	if (strlen(name) > 0) {
-		block_total_length += sizeof(struct option) + ADD_PADDING(strlen(name) + 1);
+		block_total_length +=
+		    (guint32)(sizeof(struct option) + ADD_PADDING(strlen(name) + 1));
 	}
 	if (strlen(filter) > 0) {
-		block_total_length += sizeof(struct option) + ADD_PADDING(strlen(filter) + 1);
+		block_total_length +=
+		    (guint32)(sizeof(struct option) + ADD_PADDING(strlen(filter) + 1));
 	}
 	if ((strlen(name) > 0) || (strlen(filter) > 0)) {
-		block_total_length += sizeof(struct option);
+		block_total_length += (guint32)sizeof(struct option);
 	}
 	idb.block_type = INTERFACE_DESCRIPTION_BLOCK_TYPE;
 	idb.block_total_length = block_total_length;
