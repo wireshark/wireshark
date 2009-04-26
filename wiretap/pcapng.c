@@ -639,8 +639,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 		block_read = bytes_read;
 
-		/* XXX - as we currently ignore the interface id, both packet blocks are the same for us */
-		if(pn->byte_swapped) {
+		if (pn->byte_swapped) {
 			wblock->data.packet.interface_id	= BSWAP32(epb.interface_id);
 			wblock->data.packet.drops_count		= -1; /* invalid */
 			wblock->data.packet.ts_high		= BSWAP32(epb.timestamp_high);
@@ -664,8 +663,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 		block_read = bytes_read;
 
-		/* XXX - as we currently ignore the interface id, both packet blocks are the same for us */
-		if(pn->byte_swapped) {
+		if (pn->byte_swapped) {
 			wblock->data.packet.interface_id	= BSWAP16(pb.interface_id);
 			wblock->data.packet.drops_count		= BSWAP16(pb.drops_count);
 			wblock->data.packet.ts_high		= BSWAP32(pb.timestamp_high);
