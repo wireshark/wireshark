@@ -268,10 +268,10 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
 }
 
 gboolean
-pcapng_write_session_header_block(FILE *fp,
-                                  char *appname,
-                                  long *bytes_written,
-                                  int *err)
+libpcap_write_session_header_block(FILE *fp,
+                                   char *appname,
+                                   long *bytes_written,
+                                   int *err)
 {
 	struct shb shb;
 	struct option option;
@@ -308,13 +308,13 @@ pcapng_write_session_header_block(FILE *fp,
 }
 
 gboolean
-pcapng_write_interface_description_block(FILE *fp,
-                                         char *name,
-                                         char *filter,
-                                         int link_type,
-                                         int snap_len,
-                                         long *bytes_written,
-                                         int *err)
+libpcap_write_interface_description_block(FILE *fp,
+                                          char *name,
+                                          char *filter,
+                                          int link_type,
+                                          int snap_len,
+                                          long *bytes_written,
+                                          int *err)
 {
 	struct idb idb;
 	struct option option;
@@ -369,12 +369,12 @@ pcapng_write_interface_description_block(FILE *fp,
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-pcapng_write_enhanced_packet_block(FILE *fp,
-                                   struct pcap_pkthdr *phdr,
-                                   guint32 interface_id,
-                                   u_char *pd,
-                                   long *bytes_written,
-                                   int *err)
+libpcap_write_enhanced_packet_block(FILE *fp,
+                                    struct pcap_pkthdr *phdr,
+                                    guint32 interface_id,
+                                    u_char *pd,
+                                    long *bytes_written,
+                                    int *err)
 {
 	struct epb epb;
 	guint32 block_total_length;
@@ -403,11 +403,11 @@ pcapng_write_enhanced_packet_block(FILE *fp,
 }
 
 gboolean
-pcapng_write_interface_statistics_block(FILE *fp,
-                                        guint32 interface_id,
-                                        pcap_t *pd,
-                                        long *bytes_written,
-                                        int *err)
+libpcap_write_interface_statistics_block(FILE *fp,
+                                         guint32 interface_id,
+                                         pcap_t *pd,
+                                         long *bytes_written,
+                                         int *err)
 {
 	struct isb isb;
 	struct timeval now;
