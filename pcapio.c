@@ -169,7 +169,6 @@ struct option {
 #define ISB_FILTERACCEPT 6
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
-#define MAX_GUINT16 ((1<<16) - 1)
 
 #define WRITE_DATA(file_pointer, data_pointer, data_length, written_length, error_pointer) \
 {                                                                                          \
@@ -281,7 +280,7 @@ libpcap_write_session_header_block(FILE *fp,
 	
 	block_total_length = sizeof(struct shb) +
 	                     sizeof(guint32);
-	if ((strlen(appname) > 0) && (strlen(appname) < MAX_GUINT16)) {
+	if ((strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
 		block_total_length += 2 * sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(appname) + 1));
 	}
@@ -294,7 +293,7 @@ libpcap_write_session_header_block(FILE *fp,
 	shb.section_length = -1;
 	WRITE_DATA(fp, &shb, sizeof(struct shb), *bytes_written, err);
 
-	if ((strlen(appname) > 0) && (strlen(appname) < MAX_GUINT16)) {
+	if ((strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
 		/* write shb_userappl options */
 		option.type = SHB_USERAPPL;
 		option.value_length = (guint16)(strlen(appname) + 1);
@@ -328,16 +327,16 @@ libpcap_write_interface_description_block(FILE *fp,
 	const guint32 padding = 0;
 
 	block_total_length = sizeof(struct idb) + sizeof(guint32);
-	if ((strlen(name) > 0) && (strlen(name) < MAX_GUINT16)) {
+	if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) + 
 		                      (guint16)(ADD_PADDING(strlen(name) + 1));
 	}
-	if ((strlen(filter) > 0) && (strlen(name) < MAX_GUINT16)) {
+	if ((strlen(filter) > 0) && (strlen(name) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(filter) + 1));
 	}
-	if (((strlen(name) > 0) && (strlen(name) < MAX_GUINT16)) ||
-	    ((strlen(filter) > 0) && (strlen(name) < MAX_GUINT16))) {
+	if (((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) ||
+	    ((strlen(filter) > 0) && (strlen(name) < G_MAXUINT16))) {
 		block_total_length += sizeof(struct option);
 	}
 	/* write block header */
@@ -348,7 +347,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	idb.snap_len = snap_len;
 	WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
 	/* write interface name string if applicable */
-	if ((strlen(name) > 0) && (strlen(name) < MAX_GUINT16)) {
+	if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
 		option.type = IDB_NAME;
 		option.value_length = (guint16)(strlen(name) + 1);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -358,7 +357,7 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 	/* write filter string if applicable */
-	if ((strlen(filter) > 0) && (strlen(filter) < MAX_GUINT16)) {
+	if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
 		option.type = IDB_FILTER;
 		option.value_length = (guint16)(strlen(filter) + 1);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -368,8 +367,8 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 	/* write endofopt option if there were any options */
-	if (((strlen(name) > 0) && (strlen(name) < MAX_GUINT16)) ||
-	    ((strlen(filter) > 0) && (strlen(filter) < MAX_GUINT16))) {
+	if (((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) ||
+	    ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16))) {
 		option.type = OPT_ENDOFOPT;
 		option.value_length = 0;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
