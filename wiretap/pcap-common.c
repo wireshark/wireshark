@@ -522,16 +522,6 @@ const struct encap_map pcap_to_wtap_map[] = {
 	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
 
 	/*
-	 * nettl (HP-UX) mappings to standard DLT values
-         */
-
-	{ 1,		WTAP_ENCAP_NETTL_ETHERNET },
-	{ 6,		WTAP_ENCAP_NETTL_TOKEN_RING },
-	{ 10,		WTAP_ENCAP_NETTL_FDDI },
-	{ 70,		WTAP_ENCAP_RAW_IP },
-	{ 101,		WTAP_ENCAP_NETTL_RAW_IP },
-
-	/*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do
