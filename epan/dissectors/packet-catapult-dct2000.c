@@ -192,7 +192,7 @@ static dissector_handle_t pdcp_lte_handle;
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(char *protocol_name);
-static void parse_outhdr_string(guchar *outhdr_string);
+static void parse_outhdr_string(const guchar *outhdr_string);
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
 static void attach_mac_lte_info(packet_info *pinfo);
@@ -1076,7 +1076,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-void parse_outhdr_string(guchar *outhdr_string)
+void parse_outhdr_string(const guchar *outhdr_string)
 {
     int n = 0;
 
@@ -1551,10 +1551,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     timestamp_start = offset;
     timestamp_length = tvb_strsize(tvb, offset);
     if (dct2000_tree) {
-        proto_tree_add_double_format_value(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
-                                           offset, timestamp_length,
-                                           atof(tvb_format_text(tvb, offset, timestamp_length)),
-                                           "%s", tvb_format_text(tvb, offset, timestamp_length-1));
+        /* TODO: this is very slow, but float version adds trailing 0s... */
+        proto_tree_add_double(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
+                              offset, timestamp_length,
+                              atof(tvb_format_text(tvb, offset, timestamp_length)));
     }
     offset += timestamp_length;
 
@@ -1610,16 +1610,16 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Add useful details to protocol tree label */
-    protocol_name = (char*)tvb_get_ephemeral_string(tvb, protocol_start, protocol_length);
+    protocol_name = (char*)tvb_get_ptr(tvb, protocol_start, protocol_length);
     if (tree)
     {
         proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
-                               tvb_get_ephemeral_string(tvb, 0, context_length),
+                               tvb_get_ptr(tvb, 0, context_length),
                                port_number,
-                               tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
+                               tvb_get_ptr(tvb, timestamp_start, timestamp_length),
                                (direction == 0) ? 'S' : 'R',
                                protocol_name,
-                               tvb_get_ephemeral_string(tvb, variant_start, variant_length));
+                               tvb_get_ptr(tvb, variant_start, variant_length));
     }
 
 
@@ -1632,29 +1632,29 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r7") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0))
     {
-        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
         attach_fp_info(pinfo, direction, protocol_name,
-                       atoi((char*)tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
+                       atoi((char*)tvb_get_ptr(tvb, variant_start, variant_length)));
     }
 
     /* LTE MAC needs info attached */
     else if (strcmp(protocol_name, "mac_r8_lte") == 0)
     {
-        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
         attach_mac_lte_info(pinfo);
     }
 
     /* LTE RLC needs info attached */
     else if (strcmp(protocol_name, "rlc_r8_lte") == 0)
     {
-        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
         attach_rlc_lte_info(pinfo);
     }
 
     /* LTE PDCP needs info attached */
     else if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
     {
-        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
         attach_pdcp_lte_info(pinfo);
     }
 
@@ -1716,7 +1716,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
                              "%s.%u",
-                             tvb_get_ephemeral_string(tvb, 0, context_length),
+                             tvb_get_ptr(tvb, 0, context_length),
                              port_number);
             }
             else
@@ -1724,7 +1724,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 col_add_fstr(pinfo->cinfo, COL_DEF_DST,
                              "%s.%u",
-                             tvb_get_ephemeral_string(tvb, 0, context_length),
+                             tvb_get_ptr(tvb, 0, context_length),
                              port_number);
             }
 
@@ -2102,12 +2102,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Not dissected  (context=%s.%u   t=%s   %c   prot=%s (v=%s))",
-                         tvb_get_ephemeral_string(tvb, 0, context_length),
+                         tvb_get_ptr(tvb, 0, context_length),
                          port_number,
-                         tvb_get_ephemeral_string(tvb, timestamp_start, timestamp_length),
+                         tvb_get_ptr(tvb, timestamp_start, timestamp_length),
                          (direction == 0) ? 'S' : 'R',
-                         tvb_get_ephemeral_string(tvb, protocol_start, protocol_length),
-                         tvb_get_ephemeral_string(tvb, variant_start, variant_length));
+                         tvb_get_ptr(tvb, protocol_start, protocol_length),
+                         tvb_get_ptr(tvb, variant_start, variant_length));
         }
     }
     else
