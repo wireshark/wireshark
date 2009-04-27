@@ -1374,10 +1374,13 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, FALSE);
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
 	/* Bits 8 to 3 and bit 1 of octet 7 are spare and shall be coded as zero. */
 	/* 1xSRVCC capability (octet 7, bit 2) */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 6, FALSE);
 	proto_tree_add_item(tree, hf_nas_eps_emm_1xsrvcc_cap, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
 
 	return(len);
 }
@@ -1436,6 +1439,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	* Bit 8 of octet 4 is spare and shall be coded as zero.
 	* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
 	*/
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, FALSE);
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
@@ -1861,8 +1865,8 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  */
 /* EIT (ESM information transfer) */
 static const true_false_string  nas_eps_emm_eit_vals = {
-	"security protected ESM information transfer required",
-	"security protected ESM information transfer not required"
+	"Security protected ESM information transfer required",
+	"Security protected ESM information transfer not required"
 };
 static guint16
 de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1872,10 +1876,10 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	curr_offset = offset;
 
 
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
 	proto_tree_add_item(tree, hf_nas_eps_esm_eit, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
-	return(len);
+	return(curr_offset-offset);
 }
 /*
  * 9.9.4.6 Linked EPS bearer identity 
@@ -4153,7 +4157,7 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_ucs2_supp,
 		{ "UCS2 support (UCS2)","nas_eps.emm.emm_ucs2_supp",
-		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ucs2_supp_flg_value), 0x08,
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ucs2_supp_flg_value), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_uia0,
@@ -4234,7 +4238,7 @@ void proto_register_nas_eps(void) {
 
 	{ &hf_nas_eps_emm_1xsrvcc_cap,
 		{ "1xSRVCC capability ","nas_eps.emm.1xsrvcc_cap",
-		FT_BOOLEAN, 8, TFS(&nas_eps_emm_1xsrvcc_cap_flg), 0x04,
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_1xsrvcc_cap_flg), 0x02,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg,
