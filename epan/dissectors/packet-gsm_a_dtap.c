@@ -5906,11 +5906,6 @@ proto_register_gsm_a_dtap(void)
 		FT_BOOLEAN, 8, NULL, 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_dtap_serv_cat_b4,
-		{ "Marine Guard", "gsm_a.dtap.serv_cat_b4",
-		FT_BOOLEAN, 8, NULL, 0x08,
-		NULL, HFILL }
-	},
 	{ &hf_gsm_a_dtap_serv_cat_b3,
 		{ "Fire Brigade", "gsm_a.dtap.serv_cat_b3",
 		FT_BOOLEAN, 8, NULL, 0x04,
