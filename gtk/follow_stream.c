@@ -73,7 +73,7 @@ static void follow_destroy_cb(GtkWidget *w, gpointer data _U_);
 
 GList *follow_infos = NULL;
 
-static frs_return_t
+frs_return_t
 follow_read_stream(follow_info_t *follow_info,
 		   gboolean (*print_line)(char *, size_t, gboolean, void *),
 		   void *arg)
@@ -95,7 +95,7 @@ follow_read_stream(follow_info_t *follow_info,
 	}
 }
 
-static gboolean
+gboolean
 follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 		       void *arg)
 {
@@ -136,7 +136,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
  * lines of what's done when displaying this in a window, as per Warren Young's
  * suggestion.
  */
-static gboolean
+gboolean
 follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 		  void *arg)
 {
@@ -163,7 +163,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 	return TRUE;
 }
 
-static gboolean
+gboolean
 follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 {
 	FILE *fh = arg;
@@ -177,7 +177,7 @@ follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 }
 
 /* Handles the display style toggling */
-static void
+void
 follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -233,7 +233,7 @@ follow_load_text(follow_info_t *follow_info)
 			   follow_info->text);
 }
 
-static void
+void
 follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -254,7 +254,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 	return;
 }
 
-static void
+void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t      	*follow_info = data;
@@ -324,7 +324,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	window_present(find_dlg_w);
 }
 
-static void
+void
 follow_find_button_cb(GtkWidget * w, gpointer data)
 {
 	gboolean		found;
@@ -372,7 +372,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 
 }
 
-static void
+void
 follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -381,7 +381,7 @@ follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 	follow_info->find_dlg_w = NULL;
 }
 
-static void
+void
 follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
 	print_stream_t	*stream;
@@ -518,7 +518,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
  * while there's already a "Save Follow Stream" window up, we just pop
  * up the existing one, rather than creating a new one.
  */
-static void
+void
 follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
 	GtkWidget		*new_win;
@@ -549,7 +549,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 }
 
 
-static void
+void
 follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 {
 	gchar		*to_name;
@@ -632,7 +632,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	g_free(to_name);
 }
 
-static void
+void
 follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -641,7 +641,7 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	follow_info->follow_save_as_w = NULL;
 }
 
-static void
+void
 follow_stream_direction_changed(GtkWidget *w, gpointer data)
 {
 	follow_info_t *follow_info = data;
@@ -664,7 +664,7 @@ follow_stream_direction_changed(GtkWidget *w, gpointer data)
 }
 
 /* Add a "follow_info_t" structure to the list. */
-static void
+void
 remember_follow_info(follow_info_t *follow_info)
 {
 	follow_infos = g_list_append(follow_infos, follow_info);
@@ -672,7 +672,7 @@ remember_follow_info(follow_info_t *follow_info)
 
 #define IS_SHOW_TYPE(x) (follow_info->show_type == x ? 1 : 0)
 /* Remove a "follow_info_t" structure from the list. */
-static void
+void
 forget_follow_info(follow_info_t *follow_info)
 {
 	follow_infos = g_list_remove(follow_infos, follow_info);
