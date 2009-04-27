@@ -116,6 +116,7 @@ typedef struct capture_options_tag {
                                          "use default" */
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
+    gboolean use_pcapng;            /**< TRUE if file format is pcapng */
 
     /* GUI related */
     gboolean real_time_mode;        /**< Update list of packets in real time */

@@ -322,6 +322,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+  fprintf(output, "  -n                       use pcapng format instead of pcap\n");
   /*fprintf(output, "\n");*/
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -v                       print version information and exit\n");
@@ -1475,9 +1476,20 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
     ld->pdh = libpcap_fdopen(save_file_fd, &err);
   }
   if (ld->pdh) {
+    gboolean successful;
+    
     ld->bytes_written = 0;
-    if (!libpcap_write_file_header(ld->pdh, ld->linktype, ld->file_snaplen,
-                                   &ld->bytes_written, &err)) {
+    if (capture_opts->use_pcapng) {
+      char appname[100];
+
+      g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
+      successful = libpcap_write_session_header_block(ld->pdh, appname, &ld->bytes_written, &err) &&
+                   libpcap_write_interface_description_block(ld->pdh, capture_opts->iface, capture_opts->cfilter, ld->linktype, ld->file_snaplen, &ld->bytes_written, &err);
+    } else {
+      successful = libpcap_write_file_header(ld->pdh, ld->linktype, ld->file_snaplen,
+                                             &ld->bytes_written, &err);
+    }
+    if (!successful) {
       fclose(ld->pdh);
       ld->pdh = NULL;
     }
@@ -1527,6 +1539,9 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
   if (capture_opts->multi_files_on) {
     return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
   } else {
+    if (capture_opts->use_pcapng) {
+      libpcap_write_interface_statistics_block(ld->pdh, 0, ld->pcap_h, &ld->bytes_written, err_close);
+    }
     return libpcap_dump_close(ld->pdh, err_close);
   }
 }
@@ -1987,10 +2002,21 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                                   &save_file_fd, &global_ld.err)) {
+            gboolean successful;
+            
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
-            if (!libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
-                                           &global_ld.bytes_written, &global_ld.err)) {
+            if (capture_opts->use_pcapng) {
+              char appname[100];
+
+              g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
+              successful = libpcap_write_session_header_block(global_ld.pdh, appname, &global_ld.bytes_written, &global_ld.err) &&
+                           libpcap_write_interface_description_block(global_ld.pdh, capture_opts->iface, capture_opts->cfilter, global_ld.linktype, global_ld.file_snaplen, &global_ld.bytes_written, &global_ld.err);
+            } else {
+              successful = libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
+                                                     &global_ld.bytes_written, &global_ld.err);
+            }
+            if (!successful) {
               fclose(global_ld.pdh);
               global_ld.pdh = NULL;
               global_ld.go = FALSE;
@@ -2068,10 +2094,21 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                                   &save_file_fd, &global_ld.err)) {
+            gboolean successful;
+
             /* file switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
-            if (!libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
-                                           &global_ld.bytes_written, &global_ld.err)) {
+            if (capture_opts->use_pcapng) {
+              char appname[100];
+
+              g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
+              successful = libpcap_write_session_header_block(global_ld.pdh, appname, &global_ld.bytes_written, &global_ld.err) &&
+                           libpcap_write_interface_description_block(global_ld.pdh, capture_opts->iface, capture_opts->cfilter, global_ld.linktype, global_ld.file_snaplen, &global_ld.bytes_written, &global_ld.err);
+            } else {
+              successful = libpcap_write_file_header(global_ld.pdh, global_ld.linktype, global_ld.file_snaplen,
+                                                     &global_ld.bytes_written, &global_ld.err);
+            }
+            if (!successful) {
               fclose(global_ld.pdh);
               global_ld.pdh = NULL;
               global_ld.go = FALSE;
@@ -2325,10 +2362,16 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     return;
 
   if (ld->pdh) {
+    gboolean successful;
     /* We're supposed to write the packet to a file; do so.
        If this fails, set "ld->go" to FALSE, to stop the capture, and set
        "ld->err" to the error. */
-    if (!libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err)) {
+    if (global_capture_opts.use_pcapng) {
+      successful = libpcap_write_enhanced_packet_block(ld->pdh, phdr, 0, pd, &ld->bytes_written, &err);
+    } else {
+      successful = libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err);
+    }
+    if (!successful) {
       ld->go = FALSE;
       ld->err = err;
     } else {
@@ -2369,9 +2412,9 @@ main(int argc, char *argv[])
   gint                 i;
 
 #ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_INIT "a:A:b:c:Df:hi:Lm:MprSs:uvw:y:Z:"
+#define OPTSTRING_INIT "a:A:b:c:Df:hi:Lm:MnprSs:uvw:y:Z:"
 #else
-#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z:"
+#define OPTSTRING_INIT "a:b:c:Df:hi:LMnpSs:vw:y:Z:"
 #endif
 
 #ifdef _WIN32
@@ -2594,6 +2637,7 @@ main(int argc, char *argv[])
       case 'c':        /* Capture x packets */
       case 'f':        /* capture filter */
       case 'i':        /* Use interface x */
+      case 'n':        /* Use pcapng format */
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */

@@ -106,6 +106,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->saving_to_file          = FALSE;
   capture_opts->save_file               = NULL;
+  capture_opts->use_pcapng              = FALSE;            /* the default is pcap */
   capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
   capture_opts->quit_after_cap          = FALSE;
@@ -179,6 +180,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "LinkType           : %d", capture_opts->linktype);
     g_log(log_domain, log_level, "SavingToFile       : %u", capture_opts->saving_to_file);
     g_log(log_domain, log_level, "SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
+    g_log(log_domain, log_level, "Fileformat         : %s", (capture_opts->use_pcapng) ? "PCAPNG" : "PCAP");
     g_log(log_domain, log_level, "RealTimeMode       : %u", capture_opts->real_time_mode);
     g_log(log_domain, log_level, "ShowInfo           : %u", capture_opts->show_info);
     g_log(log_domain, log_level, "QuitAfterCap       : %u", capture_opts->quit_after_cap);
@@ -500,6 +502,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         }
         break;
 #endif
+    case 'n':        /* Use pcapng format */
+        capture_opts->use_pcapng = TRUE;
+        break;
     case 'p':        /* Don't capture in promiscuous mode */
         capture_opts->promisc_mode = FALSE;
         break;
