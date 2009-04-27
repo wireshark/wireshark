@@ -32,3 +32,13 @@ struct encap_map {
 extern const struct encap_map pcap_to_wtap_map[];
 
 extern int wtap_wtap_encap_to_pcap_encap(int encap);
+
+extern int pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
+    struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
+    int *err, gchar **err_info);
+
+extern int pcap_get_phdr_size(int encap,
+    const union wtap_pseudo_header *pseudo_header);
+
+extern gboolean pcap_write_phdr(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err);

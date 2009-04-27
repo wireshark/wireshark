@@ -24,7 +24,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "wtap.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include "wtap-int.h"
+#include "file_wrappers.h"
+#include "erf.h"
 #include "pcap-common.h"
 
 /*
@@ -612,4 +621,1049 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 			return pcap_to_wtap_map[i].dlt_value;
 	}
 	return -1;
+}
+
+/*
+ * Various pseudo-headers that appear at the beginning of packet data.
+ *
+ * We represent them as sets of offsets, as they might not be aligned on
+ * an appropriate structure boundary in the buffer, and as that makes them
+ * independent of the way the compiler might align fields.
+ */
+
+/*
+ * The link-layer header on SunATM packets.
+ */
+#define SUNATM_FLAGS	0	/* destination and traffic type - 1 byte */
+#define SUNATM_VPI	1	/* VPI - 1 byte */
+#define SUNATM_VCI	2	/* VCI - 2 bytes */
+#define SUNATM_LEN	4	/* length of the header */
+
+/*
+ * The link-layer header on Nokia IPSO ATM packets.
+ */
+#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
+#define NOKIAATM_VPI	1	/* VPI - 1 byte */
+#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
+#define NOKIAATM_LEN	4	/* length of the header */
+
+/*
+ * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
+ * to libpcap.
+ */
+#define IRDA_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+/* 12 unused bytes */
+#define IRDA_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define IRDA_SLL_LEN			16	/* length of the header */
+
+/*
+ * A header containing additional MTP information.
+ */
+#define MTP2_SENT_OFFSET		0	/* 1 byte */
+#define MTP2_ANNEX_A_USED_OFFSET	1	/* 1 byte */
+#define MTP2_LINK_NUMBER_OFFSET		2	/* 2 bytes */
+#define MTP2_HDR_LEN			4	/* length of the header */
+
+/*
+ * A header containing additional SITA WAN information.
+ */
+#define SITA_FLAGS_OFFSET		0	/* 1 byte */
+#define SITA_SIGNALS_OFFSET		1	/* 1 byte */
+#define SITA_ERRORS1_OFFSET		2	/* 1 byte */
+#define SITA_ERRORS2_OFFSET		3	/* 1 byte */
+#define SITA_PROTO_OFFSET		4	/* 1 byte */
+#define SITA_HDR_LEN			5	/* length of the header */
+
+/*
+ * The fake link-layer header of LAPD packets.
+ */
+#ifndef ETH_P_LAPD
+#define ETH_P_LAPD 0x0030
+#endif
+
+#define LAPD_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+#define LAPD_SLL_HATYPE_OFFSET		2	/* hardware address type - 2 bytes */
+#define LAPD_SLL_HALEN_OFFSET		4	/* hardware address length - 2 bytes */
+#define LAPD_SLL_ADDR_OFFSET		6	/* address - 8 bytes */
+#define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define LAPD_SLL_LEN			16	/* length of the header */
+
+/*
+ * I2C link-layer on-disk format
+ */
+struct i2c_file_hdr {
+    guint8 bus;
+    guint8 flags[4];
+};
+
+static gboolean
+pcap_read_sunatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8	atm_phdr[SUNATM_LEN];
+	int	bytes_read;
+	guint8	vpi;
+	guint16	vci;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(atm_phdr, 1, SUNATM_LEN, fh);
+	if (bytes_read != SUNATM_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	vpi = atm_phdr[SUNATM_VPI];
+	vci = pntohs(&atm_phdr[SUNATM_VCI]);
+
+	switch (atm_phdr[SUNATM_FLAGS] & 0x0F) {
+
+	case 0x01:	/* LANE */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LANE;
+		break;
+
+	case 0x02:	/* RFC 1483 LLC multiplexed traffic */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_LLCMX;
+		break;
+
+	case 0x05:	/* ILMI */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_ILMI;
+		break;
+
+	case 0x06:	/* Q.2931 */
+		pseudo_header->atm.aal = AAL_SIGNALLING;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+
+	case 0x03:	/* MARS (RFC 2022) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+
+	case 0x04:	/* IFMP (Ipsilon Flow Management Protocol; see RFC 1954) */
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;	/* XXX - TRAF_IPSILON? */
+		break;
+
+	default:
+		/*
+		 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which
+		 * case assume it's AAL_SIGNALLING; we know nothing more
+		 * about it.
+		 *
+		 * XXX - is this necessary?  Or are we guaranteed that
+		 * all signalling traffic has a type of 0x06?
+		 *
+		 * XXX - is this guaranteed to be AAL5?  Or, if the type is
+		 * 0x00 ("raw"), might it be non-AAL5 traffic?
+		 */
+		if (vpi == 0 && vci == 5)
+			pseudo_header->atm.aal = AAL_SIGNALLING;
+		else
+			pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		break;
+	}
+	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr[SUNATM_FLAGS] & 0x80) ? 0 : 1;
+
+	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_nokiaatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8	atm_phdr[NOKIAATM_LEN];
+	int	bytes_read;
+	guint8	vpi;
+	guint16	vci;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(atm_phdr, 1, NOKIAATM_LEN, fh);
+	if (bytes_read != NOKIAATM_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	vpi = atm_phdr[NOKIAATM_VPI];
+	vci = pntohs(&atm_phdr[NOKIAATM_VCI]);
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr[NOKIAATM_FLAGS] & 0x80) ? 0 : 1;
+
+	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err, gchar **err_info)
+{
+	guint8	irda_phdr[IRDA_SLL_LEN];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(irda_phdr, 1, IRDA_SLL_LEN, fh);
+	if (bytes_read != IRDA_SLL_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	if (pntohs(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
+		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL)
+			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
+		return FALSE;
+	}
+
+	pseudo_header->irda.pkttype = pntohs(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	guint8 mtp2_hdr[MTP2_HDR_LEN];
+	int    bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(mtp2_hdr, 1, MTP2_HDR_LEN, fh);
+	if (bytes_read != MTP2_HDR_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	pseudo_header->mtp2.sent         = mtp2_hdr[MTP2_SENT_OFFSET];
+	pseudo_header->mtp2.annex_a_used = mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET];
+	pseudo_header->mtp2.link_number  = pntohs(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err, gchar **err_info)
+{
+	guint8	lapd_phdr[LAPD_SLL_LEN];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(lapd_phdr, 1, LAPD_SLL_LEN, fh);
+	if (bytes_read != LAPD_SLL_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	if (pntohs(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
+		*err = WTAP_ERR_BAD_RECORD;
+		if (err_info != NULL)
+			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field\n");
+		return FALSE;
+	}
+
+	pseudo_header->lapd.pkttype = pntohs(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->lapd.we_network = !!lapd_phdr[LAPD_SLL_ADDR_OFFSET+0];
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	guint8	sita_phdr[SITA_HDR_LEN];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(sita_phdr, 1, SITA_HDR_LEN, fh);
+	if (bytes_read != SITA_HDR_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	pseudo_header->sita.flags   = sita_phdr[SITA_FLAGS_OFFSET];
+	pseudo_header->sita.signals = sita_phdr[SITA_SIGNALS_OFFSET];
+	pseudo_header->sita.errors1 = sita_phdr[SITA_ERRORS1_OFFSET];
+	pseudo_header->sita.errors2 = sita_phdr[SITA_ERRORS2_OFFSET];
+	pseudo_header->sita.proto   = sita_phdr[SITA_PROTO_OFFSET];
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&pseudo_header->linux_usb, 1,
+	    sizeof (struct linux_usb_phdr), fh);
+	if (bytes_read != sizeof (struct linux_usb_phdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	if (wth->capture.pcap->byte_swapped) {
+		pseudo_header->linux_usb.id = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.id);
+		pseudo_header->linux_usb.bus_id = GUINT16_SWAP_LE_BE(pseudo_header->linux_usb.bus_id);
+		pseudo_header->linux_usb.ts_sec = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.ts_sec);
+		pseudo_header->linux_usb.ts_usec = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.ts_usec);
+		pseudo_header->linux_usb.status = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.status);
+		pseudo_header->linux_usb.urb_len = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.urb_len);
+		pseudo_header->linux_usb.data_len = GUINT32_SWAP_LE_BE(pseudo_header->linux_usb.data_len);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_bt_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	int	bytes_read;
+	struct libpcap_bt_phdr phdr;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&phdr, 1,
+	    sizeof (struct libpcap_bt_phdr), fh);
+	if (bytes_read != sizeof (struct libpcap_bt_phdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & 0x1) == 0)? TRUE: FALSE;
+	return TRUE;
+}
+
+static gboolean
+pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
+			      union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+  guint8 erf_hdr[sizeof(struct erf_phdr)];
+  int    bytes_read;
+
+  errno = WTAP_ERR_CANT_READ;
+  bytes_read = file_read(erf_hdr, 1, sizeof(struct erf_phdr), fh);
+  if (bytes_read != sizeof(struct erf_phdr)) {
+    *err = file_error(fh);
+    if (*err == 0)
+      *err = WTAP_ERR_SHORT_READ;
+    return FALSE;
+  }
+  pseudo_header->erf.phdr.ts = pletohll(&erf_hdr[0]); /* timestamp */
+  pseudo_header->erf.phdr.type =  erf_hdr[8];
+  pseudo_header->erf.phdr.flags = erf_hdr[9];
+  pseudo_header->erf.phdr.rlen = pntohs(&erf_hdr[10]);
+  pseudo_header->erf.phdr.lctr = pntohs(&erf_hdr[12]);
+  pseudo_header->erf.phdr.wlen = pntohs(&erf_hdr[14]);
+
+  /* The high 32 bits of the timestamp contain the integer number of seconds
+   * while the lower 32 bits contain the binary fraction of the second.
+   * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
+  if (whdr) {
+    guint64 ts = pseudo_header->erf.phdr.ts;
+    whdr->ts.secs = (guint32) (ts >> 32);
+    ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+    ts += (ts & 0x80000000) << 1; /* rounding */
+    whdr->ts.nsecs = ((guint32) (ts >> 32));
+    if ( whdr->ts.nsecs >= 1000000000) {
+      whdr->ts.nsecs -= 1000000000;
+      whdr->ts.secs += 1;
+    }
+  }
+  return TRUE;
+}
+
+/*
+ * If the type of record given in the pseudo header indicate the presence of an extension
+ * header then, read all the extension headers
+ */
+static gboolean
+pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+			   int *err, gchar **err_info _U_, guint * psize)
+{
+  int bytes_read = 0;
+  guint8 erf_exhdr[8];
+  guint64 erf_exhdr_sw;
+  int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+  guint8 type = pseudo_header->erf.phdr.type;
+  *psize = 0;
+  if (pseudo_header->erf.phdr.type & 0x80){
+    do{
+      errno = WTAP_ERR_CANT_READ;
+      bytes_read = file_read(erf_exhdr, 1, 8, fh);
+      if (bytes_read != 8 ) {
+	*err = file_error(fh);
+	if (*err == 0)
+	  *err = WTAP_ERR_SHORT_READ;
+	return FALSE;
+      }
+      type = erf_exhdr[0];
+      erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
+      if (i < max)
+	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
+      *psize += 8;
+      i++;
+    } while (type & 0x80);
+  }
+  return TRUE;
+}
+
+/*
+ * If the type of record given in the pseudo header indicate the precense of a subheader
+ * then, read this optional subheader
+ */
+static gboolean
+pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+			   int *err, gchar **err_info _U_, guint * psize)
+{
+  guint8 erf_subhdr[sizeof(union erf_subhdr)];
+  int    bytes_read;
+
+  *psize=0;
+  switch(pseudo_header->erf.phdr.type & 0x7F) {
+  case ERF_TYPE_MC_HDLC:
+  case ERF_TYPE_MC_RAW:
+  case ERF_TYPE_MC_ATM:
+  case ERF_TYPE_MC_RAW_CHANNEL:
+  case ERF_TYPE_MC_AAL5:
+  case ERF_TYPE_MC_AAL2:
+  case ERF_TYPE_COLOR_MC_HDLC_POS:
+    /* Extract the Multi Channel header to include it in the pseudo header part */
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(erf_subhdr, 1, sizeof(erf_mc_header_t), fh);
+    if (bytes_read != sizeof(erf_mc_header_t) ) {
+      *err = file_error(fh);
+      if (*err == 0)
+	*err = WTAP_ERR_SHORT_READ;
+      return FALSE;
+    }
+    pseudo_header->erf.subhdr.mc_hdr = pntohl(&erf_subhdr[0]);
+    *psize = sizeof(erf_mc_header_t);
+    break;
+  case ERF_TYPE_ETH:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_DSM_COLOR_ETH:
+    /* Extract the Ethernet additional header to include it in the pseudo header part */
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(erf_subhdr, 1, sizeof(erf_eth_header_t), fh);
+    if (bytes_read != sizeof(erf_eth_header_t) ) {
+      *err = file_error(fh);
+      if (*err == 0)
+	*err = WTAP_ERR_SHORT_READ;
+      return FALSE;
+    }
+    pseudo_header->erf.subhdr.eth_hdr = pntohs(&erf_subhdr[0]);
+    *psize = sizeof(erf_eth_header_t);
+    break;
+  default:
+    /* No optional pseudo header for this ERF type */
+    break;
+  }
+  return TRUE;
+}
+
+static gboolean
+pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	struct i2c_file_hdr i2c_hdr;
+	int    bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&i2c_hdr, 1, sizeof (i2c_hdr), fh);
+	if (bytes_read != sizeof (i2c_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	pseudo_header->i2c.is_event = i2c_hdr.bus & 0x80 ? 1 : 0;
+	pseudo_header->i2c.bus = i2c_hdr.bus & 0x7f;
+	pseudo_header->i2c.flags = pntohl(&i2c_hdr.flags);
+
+	return TRUE;
+}
+
+int
+pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
+    struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
+    int *err, gchar **err_info)
+{
+	int phdr_len = 0;
+	guint size;
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 */
+			if (packet_size < NOKIAATM_LEN) {
+				/*
+				 * Uh-oh, the packet isn't big enough to even
+				 * have a pseudo-header.
+				 */
+				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup_printf("pcap: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				    packet_size);
+				return -1;
+			}
+			if (!pcap_read_nokiaatm_pseudoheader(fh,
+			    pseudo_header, err))
+				return -1;	/* Read error */
+
+			phdr_len = NOKIAATM_LEN;
+		} else {
+			/*
+			 * SunATM.
+			 */
+			if (packet_size < SUNATM_LEN) {
+				/*
+				 * Uh-oh, the packet isn't big enough to even
+				 * have a pseudo-header.
+				 */
+				*err = WTAP_ERR_BAD_RECORD;
+				*err_info = g_strdup_printf("pcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				    packet_size);
+				return -1;
+			}
+			if (!pcap_read_sunatm_pseudoheader(fh,
+			    pseudo_header, err))
+				return -1;	/* Read error */
+
+			phdr_len = SUNATM_LEN;
+		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 */
+		pseudo_header->eth.fcs_len = -1;
+		break;
+
+	case WTAP_ENCAP_IEEE_802_11:
+	case WTAP_ENCAP_PRISM_HEADER:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 * XXX - are there any OSes where the capture mechanism
+		 * supplies an FCS?
+		 */
+		pseudo_header->ieee_802_11.fcs_len = -1;
+		pseudo_header->ieee_802_11.channel = 0;
+		pseudo_header->ieee_802_11.data_rate = 0;
+		pseudo_header->ieee_802_11.signal_level = 0;
+		break;
+
+	case WTAP_ENCAP_IRDA:
+		if (packet_size < IRDA_SLL_LEN) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_irda_pseudoheader(fh, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = IRDA_SLL_LEN;
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		if (packet_size < MTP2_HDR_LEN) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_mtp2_pseudoheader(fh, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = MTP2_HDR_LEN;
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
+		if (packet_size < LAPD_SLL_LEN) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_lapd_pseudoheader(fh, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = LAPD_SLL_LEN;
+		break;
+
+	case WTAP_ENCAP_SITA:
+		if (packet_size < SITA_HDR_LEN) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_sita_pseudoheader(fh, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = SITA_HDR_LEN;
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAPPED:
+		if (packet_size < sizeof (struct linux_usb_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: Linux USB file has a %u-byte packet, too small to have even a Linux USB pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_linux_usb_pseudoheader(wth, fh,
+		    pseudo_header, err))
+			return -1;	/* Read error */
+
+		phdr_len = (int)sizeof (struct linux_usb_phdr);
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_H4:
+		/* We don't have pseudoheader, so just pretend we received everything. */
+		pseudo_header->p2p.sent = FALSE;
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		if (packet_size < sizeof (struct libpcap_bt_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: lipcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_bt_pseudoheader(fh,
+		    pseudo_header, err))
+			return -1;	/* Read error */
+
+		phdr_len = (int)sizeof (struct libpcap_bt_phdr);
+		break;
+
+	case WTAP_ENCAP_ERF:
+		if (packet_size < sizeof(struct erf_phdr) ) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+
+		if (!pcap_read_erf_pseudoheader(fh, phdr, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = (int)sizeof(struct erf_phdr);
+
+		/* check the optional Extension header */
+		if (!pcap_read_erf_exheader(fh, pseudo_header, err, err_info,
+		    &size))
+			return -1;	/* Read error */
+
+		phdr_len += size;
+
+		/* check the optional Multi Channel header */
+		if (!pcap_read_erf_subheader(fh, pseudo_header, err, err_info,
+		    &size))
+			return -1;	/* Read error */
+
+		phdr_len += size;
+		break;
+
+	case WTAP_ENCAP_I2C:
+		if (packet_size < sizeof (struct i2c_file_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header\n",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_i2c_pseudoheader(fh, pseudo_header,
+		    err, err_info))
+			return -1;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		phdr_len = (int)sizeof (struct i2c_file_hdr);
+		break;
+	}
+
+	return phdr_len;
+}
+
+int
+pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
+{
+	int hdrsize;
+
+	switch (encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		hdrsize = SUNATM_LEN;
+		break;
+
+	case WTAP_ENCAP_IRDA:
+		hdrsize = IRDA_SLL_LEN;
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		hdrsize = MTP2_HDR_LEN;
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
+		hdrsize = LAPD_SLL_LEN;
+		break;
+
+	case WTAP_ENCAP_SITA:
+		hdrsize = SITA_HDR_LEN;
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAPPED:
+		hdrsize = (int)sizeof (struct linux_usb_phdr);
+		break;
+
+	case WTAP_ENCAP_ERF:
+	        hdrsize = (int)sizeof (struct erf_phdr);
+		if (pseudo_header->erf.phdr.type & 0x80)
+			hdrsize += 8;
+		switch (pseudo_header->erf.phdr.type & 0x7F) {
+
+		case ERF_TYPE_MC_HDLC:
+		case ERF_TYPE_MC_RAW:
+		case ERF_TYPE_MC_ATM:
+		case ERF_TYPE_MC_RAW_CHANNEL:
+		case ERF_TYPE_MC_AAL5:
+		case ERF_TYPE_MC_AAL2:
+		case ERF_TYPE_COLOR_MC_HDLC_POS:
+			hdrsize += (int)sizeof(struct erf_mc_hdr);
+			break;
+
+		case ERF_TYPE_ETH:
+		case ERF_TYPE_COLOR_ETH:
+		case ERF_TYPE_DSM_COLOR_ETH:
+			hdrsize += (int)sizeof(struct erf_eth_hdr);
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	case WTAP_ENCAP_I2C:
+		hdrsize = (int)sizeof (struct i2c_file_hdr);
+		break;
+
+	default:
+		hdrsize = 0;
+		break;
+	}
+
+	return hdrsize;
+}
+
+gboolean
+pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
+    int *err)
+{
+	guint8 atm_hdr[SUNATM_LEN];
+	guint8 irda_hdr[IRDA_SLL_LEN];
+	guint8 lapd_hdr[LAPD_SLL_LEN];
+	guint8 mtp2_hdr[MTP2_HDR_LEN];
+	guint8 sita_hdr[SITA_HDR_LEN];
+	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
+	struct i2c_file_hdr i2c_hdr;
+	size_t nwritten;
+	size_t size;
+
+	switch (wdh->encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		/*
+		 * Write the ATM header.
+		 */
+		atm_hdr[SUNATM_FLAGS] =
+		    (pseudo_header->atm.channel == 0) ? 0x80 : 0x00;
+		switch (pseudo_header->atm.aal) {
+
+		case AAL_SIGNALLING:
+			/* Q.2931 */
+			atm_hdr[SUNATM_FLAGS] |= 0x06;
+			break;
+
+		case AAL_5:
+			switch (pseudo_header->atm.type) {
+
+			case TRAF_LANE:
+				/* LANE */
+				atm_hdr[SUNATM_FLAGS] |= 0x01;
+				break;
+
+			case TRAF_LLCMX:
+				/* RFC 1483 LLC multiplexed traffic */
+				atm_hdr[SUNATM_FLAGS] |= 0x02;
+				break;
+
+			case TRAF_ILMI:
+				/* ILMI */
+				atm_hdr[SUNATM_FLAGS] |= 0x05;
+				break;
+			}
+			break;
+		}
+		atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
+		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
+		nwritten = wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr));
+		if (nwritten != sizeof(atm_hdr)) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(atm_hdr);
+		break;
+
+	case WTAP_ENCAP_IRDA:
+		/*
+		 * Write the IrDA header.
+		 */
+		memset(irda_hdr, 0, sizeof(irda_hdr));
+		phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET],
+		    pseudo_header->irda.pkttype);
+		phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
+		nwritten = wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr));
+		if (nwritten != sizeof(irda_hdr)) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(irda_hdr);
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		/*
+		 * Write the MTP2 header.
+		 */
+		memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
+		mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
+		mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
+		phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
+		    pseudo_header->mtp2.link_number);
+		nwritten = wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr));
+		if (nwritten != sizeof(mtp2_hdr)) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(mtp2_hdr);
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
+		/*
+		 * Write the LAPD header.
+		 */
+		memset(&lapd_hdr, 0, sizeof(lapd_hdr));
+		phtons(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET],
+		    pseudo_header->lapd.pkttype);
+		phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
+		lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
+		    pseudo_header->lapd.we_network?0x01:0x00;
+		nwritten = fwrite(&lapd_hdr, 1, sizeof(lapd_hdr), wdh->fh);
+		if (nwritten != sizeof(lapd_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
+
+	case WTAP_ENCAP_SITA:
+		/*
+		 * Write the SITA header.
+		 */
+		memset(&sita_hdr, 0, sizeof(sita_hdr));
+		sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.flags;
+		sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.signals;
+		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.errors1;
+		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.errors2;
+		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.proto;
+		nwritten = fwrite(&sita_hdr, 1, sizeof(sita_hdr), wdh->fh);
+		if (nwritten != sizeof(sita_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(sita_hdr);
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAPPED:
+		/*
+		 * Write out the pseudo-header; it has the same format
+		 * as the Linux USB header, and that header is supposed
+		 * to be written in the host byte order of the machine
+		 * writing the file.
+		 */
+		nwritten = fwrite(&pseudo_header->linux_usb, 1,
+		    sizeof(pseudo_header->linux_usb), wdh->fh);
+		if (nwritten != sizeof(pseudo_header->linux_usb)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
+
+	case WTAP_ENCAP_ERF:
+	         /*
+		 * Write the ERF header.
+		 */
+	        memset(&erf_hdr, 0, sizeof(erf_hdr));
+		pletonll(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+		erf_hdr[8] = pseudo_header->erf.phdr.type;
+		erf_hdr[9] = pseudo_header->erf.phdr.flags;
+		phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+		phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+		phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+		size = sizeof(struct erf_phdr);
+
+		switch(pseudo_header->erf.phdr.type & 0x7F) {
+		case ERF_TYPE_MC_HDLC:
+		case ERF_TYPE_MC_RAW:
+		case ERF_TYPE_MC_ATM:
+		case ERF_TYPE_MC_RAW_CHANNEL:
+		case ERF_TYPE_MC_AAL5:
+		case ERF_TYPE_MC_AAL2:
+		case ERF_TYPE_COLOR_MC_HDLC_POS:
+		  phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
+		  size += (int)sizeof(struct erf_mc_hdr);
+		  break;
+		case ERF_TYPE_ETH:
+		case ERF_TYPE_COLOR_ETH:
+		case ERF_TYPE_DSM_COLOR_ETH:
+		  phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
+		  size += (int)sizeof(struct erf_eth_hdr);
+		  break;
+		default:
+		  break;
+		}
+		nwritten = wtap_dump_file_write(wdh, erf_hdr, size);
+		if (nwritten != (guint) size) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += size;
+		break;
+
+	case WTAP_ENCAP_I2C:
+		/*
+		 * Write the I2C header.
+		 */
+		memset(&i2c_hdr, 0, sizeof(i2c_hdr));
+		i2c_hdr.bus = pseudo_header->i2c.bus |
+			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
+		phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
+		nwritten = fwrite(&i2c_hdr, 1, sizeof(i2c_hdr), wdh->fh);
+		if (nwritten != sizeof(i2c_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(i2c_hdr);
+		break;
+	}
+
+	return TRUE;
 }
