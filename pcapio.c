@@ -433,8 +433,8 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	 * to guint32 so that the sign bit doesn't get treated specially.
 	 */
 	GetSystemTimeAsFileTime(&now);
-	timestamp = ((guint64)(guint32)now.dwHighDateTime) << 32 +
-	    (guint32)now.dwLowDateTime;
+	timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
+	            (guint32)now.dwLowDateTime;
 
 	/*
 	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
