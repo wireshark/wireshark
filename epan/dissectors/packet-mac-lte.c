@@ -98,6 +98,13 @@ static int hf_mac_lte_rar_body = -1;
 static int hf_mac_lte_rar_reserved2 = -1;
 static int hf_mac_lte_rar_ta = -1;
 static int hf_mac_lte_rar_ul_grant = -1;
+static int hf_mac_lte_rar_ul_grant_hopping = -1;
+static int hf_mac_lte_rar_ul_grant_fsrba = -1;
+static int hf_mac_lte_rar_ul_grant_tmcs = -1;
+static int hf_mac_lte_rar_ul_grant_tcsp = -1;
+static int hf_mac_lte_rar_ul_grant_ul_delay = -1;
+static int hf_mac_lte_rar_ul_grant_cqi_request = -1;
+
 static int hf_mac_lte_rar_temporary_crnti = -1;
 
 /* Common channel control values */
@@ -124,6 +131,7 @@ static int ett_mac_lte_sch_subheader = -1;
 static int ett_mac_lte_rar_headers = -1;
 static int ett_mac_lte_rar_header = -1;
 static int ett_mac_lte_rar_body = -1;
+static int ett_mac_lte_rar_ul_grant = -1;
 static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 
@@ -357,6 +365,8 @@ static gint global_mac_lte_retx_counter_trigger = 3;
 /* By default try to decode transparent data (BCH, PCH and CCCH) data using LTE RRC dissector */
 static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
 
+/* Control whether decoding details of RAR UL grant or not */
+static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 
 
 /* Dissect a single Random Access Reponse body */
@@ -368,6 +378,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item *ti;
     proto_item *rar_body_ti;
     proto_tree *rar_body_tree;
+    proto_item *ul_grant_ti;
     guint16 timing_advance;
     guint32 ul_grant;
     guint16 temp_crnti;
@@ -395,7 +406,39 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* UL Grant */
     ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
-    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, FALSE);
+    ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, FALSE);
+
+    /* Break these 20 bits down as described in 36.213, section 6.2 */
+    if (global_mac_lte_decode_rar_ul_grant) {
+        /* Create subtree for UL grant break-down */
+        proto_tree *ul_grant_tree = proto_item_add_subtree(ul_grant_ti, ett_mac_lte_rar_ul_grant);
+
+
+        /* Hopping flag (1 bit) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
+                            tvb, offset, 1, FALSE);
+
+        /* Fixed sized resource block assignment (10 bits) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_fsrba,
+                            tvb, offset, 2, FALSE);
+
+        /* Truncated Modulation and coding scheme (4 bits) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tmcs,
+                            tvb, offset+1, 2, FALSE);
+
+        /* TPC command for scheduled PUSCH (3 bits) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tcsp,
+                            tvb, offset+2, 1, FALSE);
+
+        /* UL delay (1 bit) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay,
+                            tvb, offset+2, 1, FALSE);
+
+        /* CQI request (1 bit) */
+        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_cqi_request,
+                            tvb, offset+2, 1, FALSE);
+    }
+
     offset += 3;
 
     /* Temporary C-RNTI */
@@ -473,6 +516,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             guint8 reserved;
             guint8 backoff_indicator;
             proto_item *ti;
+            proto_item *bi_ti;
 
             /* 2 Reserved bits */
             reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
@@ -484,7 +528,11 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Backoff Indicator */
             backoff_indicator = tvb_get_guint8(tvb, offset) & 0x0f;
-            proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_bi, tvb, offset, 1, FALSE);
+            bi_ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_bi, tvb, offset, 1, FALSE);
+            if (backoff_indicator_seen) {
+                expert_add_info_format(pinfo, bi_ti, PI_MALFORMED, PI_ERROR,
+                                       "MAC RAR PDU has > 1 Backoff Indicator subheader present");
+            }
             backoff_indicator_seen = TRUE;
             proto_item_append_text(rar_header_ti, " (Backoff Indicator=%sms)",
                                    val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
@@ -1455,7 +1503,43 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar_ul_grant,
             { "UL Grant",
               "mac-lte.rar.ul-grant", FT_UINT24, BASE_DEC, 0, 0x0fffff,
-              "Size of UL Grant (length confused in spec!!!!)", HFILL
+              "Size of UL Grant", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_hopping,
+            { "Hopping Flag",
+              "mac-lte.rar.ul-grant.hopping", FT_UINT8, BASE_DEC, 0, 0x08,
+              "Size of UL Grant", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_fsrba,
+            { "Fixed sized resource block assignment",
+              "mac-lte.rar.ul.fsrba", FT_UINT16, BASE_DEC, 0, 0x07fe,
+              "Fixed sized resource block assignment", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_tmcs,
+            { "Truncated Modulation and coding scheme",
+              "mac-lte.rar.ul.tmcs", FT_UINT16, BASE_DEC, 0, 0x01e0,
+              "Truncated Modulation and coding scheme", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_tcsp,
+            { "TPC command for scheduled PUSCH",
+              "mac-lte.rar.ul.tcsp", FT_UINT8, BASE_DEC, 0, 0x01c,
+              "TPC command for scheduled PUSCH", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_ul_delay,
+            { "UL Delay",
+              "mac-lte.rar.ul.ul-delay", FT_UINT8, BASE_DEC, 0, 0x02,
+              "UL Delay", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_cqi_request,
+            { "CQI Request",
+              "mac-lte.rar.ul.cqi-request", FT_UINT8, BASE_DEC, 0, 0x01,
+              "CQI Request", HFILL
             }
         },
         { &hf_mac_lte_rar_temporary_crnti,
@@ -1548,6 +1632,7 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_rar_headers,
         &ett_mac_lte_rar_header,
         &ett_mac_lte_rar_body,
+        &ett_mac_lte_rar_ul_grant,
         &ett_mac_lte_ulsch_header,
         &ett_mac_lte_dlsch_header,
         &ett_mac_lte_sch_subheader,
@@ -1588,6 +1673,11 @@ void proto_register_mac_lte(void)
         "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
         "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
         &global_mac_lte_attempt_rrc_decode);
+
+    prefs_register_bool_preference(mac_lte_module, "decode_rar_ul_grant",
+        "Attempt to decode details of RAR UL grant field",
+        "Attempt to decode details of RAR UL grant field",
+        &global_mac_lte_decode_rar_ul_grant);
 }
 
 
