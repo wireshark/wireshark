@@ -1122,7 +1122,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += bytes_read;
 
 	/* second block must be an "Interface Description Block" */
-	if(wblock.type != 1) {
+	if(wblock.type != BLOCK_TYPE_IDB) {
 		pcapng_debug1("pcapng_open_new: second block type %u not IDB", wblock.type);
 		return 0;
 	}
