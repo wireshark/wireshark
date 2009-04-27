@@ -72,7 +72,10 @@
  * field of "pcap_to_wtap_map[]".
  */
 
-const struct encap_map pcap_to_wtap_map[] = {
+static const struct {
+	int	dlt_value;
+	int	wtap_encap_value;
+} pcap_to_wtap_map[] = {
 	/*
 	 * These are the values that are almost certainly the same
 	 * in all libpcaps (I've yet to find one where the values

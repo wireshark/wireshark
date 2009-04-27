@@ -24,13 +24,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-struct encap_map {
-	int	dlt_value;
-	int	wtap_encap_value;
-};
-
-extern const struct encap_map pcap_to_wtap_map[];
-
 extern int wtap_wtap_encap_to_pcap_encap(int encap);
 
 extern int pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
