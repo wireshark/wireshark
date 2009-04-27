@@ -460,7 +460,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
 #else
 	/*
 	 * Current time, represented as seconds and microseconds since
-	 * January 1, 1601, 00:00:00 UTC.
+	 * January 1, 1970, 00:00:00 UTC.
 	 */
 	gettimeofday(&now, NULL);
 
