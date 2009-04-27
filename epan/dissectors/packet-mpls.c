@@ -98,12 +98,14 @@ static dissector_handle_t dissector_pw_hdlc_nocw_fr;
 static dissector_handle_t dissector_pw_hdlc_nocw_hdlc_ppp;
 static dissector_handle_t dissector_pw_eth_cw;
 static dissector_handle_t dissector_pw_eth_nocw;
+static dissector_handle_t dissector_pw_satop;
 static dissector_handle_t dissector_itdm;
+static dissector_handle_t dissector_pw_cesopsn;
 
 enum mpls_default_dissector_t {
     MDD_PW_ETH_HEUR = 0
-    ,MDD_FAKE_1
-    ,MDD_FAKE_2
+    ,MDD_PW_SATOP
+    ,MDD_PW_CESOPSN
     ,MDD_MPLS_PW_FR_DLCI
     ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
     ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
@@ -120,6 +122,16 @@ enum mpls_default_dissector_t {
  */
 static enum_val_t mpls_default_payload_defs[] = {
     {
+        "pw satop"
+        ,"SAToP (no RTP support)"
+        ,MDD_PW_SATOP
+    },
+    {
+        "pw cesopsn"
+        ,"CESoPSN basic NxDS0 mode (no RTP support)"
+        ,MDD_PW_CESOPSN
+    },
+    {
         "mpls pw ethernet heuristic"
         ,"Ethernet MPLS PW (CW is heuristically detected)"
         ,MDD_PW_ETH_HEUR
@@ -128,7 +140,7 @@ static enum_val_t mpls_default_payload_defs[] = {
         "mpls pw fr dlci"
         ,"Frame relay DLCI MPLS PW"
         ,MDD_MPLS_PW_FR_DLCI
-    }, /*FIXME*/
+    },
     {
         "mpls pw hdlc no_cw fr_port"
         ,"HDLC MPLS PW (no CW), FR Port mode"
@@ -723,6 +735,12 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         switch ( mpls_default_payload )
         {
+        case MDD_PW_SATOP:
+               call_dissector(dissector_pw_satop, next_tvb, pinfo, tree);
+               break;
+        case MDD_PW_CESOPSN:
+               call_dissector(dissector_pw_cesopsn, next_tvb, pinfo, tree);
+               break;
         case MDD_PW_ETH_HEUR:
                call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
                break;
@@ -824,7 +842,9 @@ proto_reg_handoff_mpls(void)
 		dissector_pw_hdlc_nocw_hdlc_ppp = find_dissector("pw_hdlc_nocw_hdlc_ppp");
 		dissector_pw_eth_cw 		= find_dissector("pw_eth_cw");
 		dissector_pw_eth_nocw 		= find_dissector("pw_eth_nocw");
+		dissector_pw_satop 		= find_dissector("pw_satop");
 		dissector_itdm 			= find_dissector("itdm");
+		dissector_pw_cesopsn		= find_dissector("pw_cesopsn");
 
 		initialized = TRUE;
 	}
