@@ -192,6 +192,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_G_CN_ID			89
 #define GTPV2_DELAY_VALUE		92
 #define GTPV2_BEARER_CTX		93
+#define GTPV2_CNG_REP_ACT		131
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
@@ -782,7 +783,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 87, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
 	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 89, Global CN-Id 8.25 */
 	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value},		/* 92, Delay Value 8.29 */
-	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx},			/* 93, Bearer Context  8.31 */
+	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx},		/* 93, Bearer Context  8.31 */
+	{GTPV2_CNG_REP_ACT ,dissect_cng_rep_act},			/* 131 Change Reporting Action 8.61 */
 														/* 137-254 Spare. For future use. FFS */
 
     {0, dissect_gtpv2_unknown}
