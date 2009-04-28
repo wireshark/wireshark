@@ -102,8 +102,8 @@ static GtkWidget *filter_text_box;
  * Save the presskey handlers to be able to dissable the auto-completion 
  * feature for hex and string searches.
  */
-static int te_presskey_handler_id;
-static int win_presskey_handler_id;
+static gulong te_presskey_handler_id;
+static gulong win_presskey_handler_id;
 
 void
 find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
