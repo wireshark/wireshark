@@ -83,6 +83,7 @@ static int hf_nas_eps_tsc = -1;
 static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
 static int hf_nas_eps_emm_mme_grp_id = -1;
+static int hf_nas_eps_emm_imsi = -1;
 static int hf_nas_eps_emm_mme_code = -1;
 static int hf_nas_eps_emm_m_tmsi = -1;
 static int hf_nas_eps_esm_msg_cont = -1;
@@ -802,6 +803,8 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 {
 	guint32	curr_offset;
 	guint8 octet;
+	char	*digit_str;
+	tvbuff_t *new_tvb;
 
 	curr_offset = offset;
 
@@ -813,7 +816,9 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	switch (octet&0x7){
 		case 1:
 			/* IMSI */
-			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Not decoded yet");
+			new_tvb = tvb_new_subset(tvb, curr_offset, len-1, len-1 );
+			digit_str = unpack_digits(new_tvb, 0);
+			proto_tree_add_string(tree, hf_nas_eps_emm_imsi, new_tvb, 0, -1, digit_str);
 			break;
 		case 6:
 			/* GUTI */
@@ -3957,6 +3962,11 @@ void proto_register_nas_eps(void) {
 		{ "MME Group ID","nas_eps.emm.mme_grp_id",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_imsi,
+        { "IMSI", "nas_eps.emm.imsi",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_mme_code,
 		{ "MME Code","nas_eps.emm.mme_code",
