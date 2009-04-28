@@ -1079,6 +1079,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 void parse_outhdr_string(const guchar *outhdr_string)
 {
     int n = 0;
+    guint outhdr_string_len = strlen((gchar*)outhdr_string);
 
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; )
@@ -1087,7 +1088,7 @@ void parse_outhdr_string(const guchar *outhdr_string)
         guint digits;
 
         /* Find digits */
-        for (digits = 0; digits < strlen((gchar*)outhdr_string); digits++, n++)
+        for (digits = 0; digits < outhdr_string_len; digits++, n++)
         {
             if (!isdigit(outhdr_string[n]))
             {
@@ -1551,10 +1552,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     timestamp_start = offset;
     timestamp_length = tvb_strsize(tvb, offset);
     if (dct2000_tree) {
-        /* TODO: this is very slow, but float version adds trailing 0s... */
+        /* TODO: this is *very* slow, but float version adds trailing digits when
+                 displayed as a custom column... */
         proto_tree_add_double(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
                               offset, timestamp_length,
-                              atof(tvb_format_text(tvb, offset, timestamp_length)));
+                              atof(tvb_get_ptr(tvb, offset, timestamp_length)));
     }
     offset += timestamp_length;
 
