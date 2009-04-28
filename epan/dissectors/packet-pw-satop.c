@@ -442,14 +442,8 @@ void proto_register_pw_satop(void)
 
 void proto_reg_handoff_pw_satop(void)
 {
-	static gboolean initialized=FALSE;
-
-	if (!initialized)
-	{
-		dissector_handle_t h;
-		h = find_dissector("pw_satop");
-		data_handle = find_dissector("data");
-		dissector_add("mpls.label", LABEL_INVALID, h);
-		initialized = TRUE;
-	}
+	dissector_handle_t h;
+	h = find_dissector("pw_satop");
+	data_handle = find_dissector("data");
+	dissector_add("mpls.label", LABEL_INVALID, h);
 }
