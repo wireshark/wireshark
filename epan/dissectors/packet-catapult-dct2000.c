@@ -1079,7 +1079,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 void parse_outhdr_string(const guchar *outhdr_string)
 {
     int n = 0;
-    guint outhdr_string_len = strlen((gchar*)outhdr_string);
+    guint outhdr_string_len = (guint)strlen((gchar*)outhdr_string);
 
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; )
