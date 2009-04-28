@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: 3GPP TS 29.274 version 8.0.0 Release 8, ETSI TS 129 274 V8.0.0 (2009-01)
+ * Ref: 3GPP TS 29.274 version 8.1.1 Release 8 ETSI TS 129 274 V8.1.1 (2009-04)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -94,7 +94,7 @@ static const value_string gtpv2_message_type_vals[] = {
 	{0, "Reserved"},
 	{1, "Echo Request"},
 	{2, "Echo Response"},
-	{4, "Version Not Supported Indication"},
+	{3, "Version Not Supported Indication"},
 	/* 4-24 Reserved for S101 interface TS 29.276 */
 	/* 25-31 Reserved for Sv interface TS 29.280 */
 	{32, "Create Session Request"},
@@ -105,9 +105,7 @@ static const value_string gtpv2_message_type_vals[] = {
 	{37, "Modify Bearer Response"},
 	{38, "Delete Session Request"},
 	{39, "Delete Session Response"},
-	{40, "Change Notification Request"},
-	{41, "Change Notification Response"},
-	/* 42-63 For future use */
+	/* 40-63 For future use */
 	/* Messages without explicit response */
 	{64, "Modify Bearer Command"},							/* (MME/SGSN to PGW -S11/S4, S5/S8) */
 	{65, "Modify Bearer Failure Indication"},				/*(PGW to MME/SGSN -S5/S8, S11/S4) */
@@ -116,41 +114,54 @@ static const value_string gtpv2_message_type_vals[] = {
 	{68, "Bearer Resource Command"},						/* (MME/SGSN to PGW -S11/S4, S5/S8) */
 	{69, "Bearer Resource Failure Indication"},				/* (PGW to MME/SGSN -S5/S8, S11/S4) */
 	{70, "Downlink Data Notification Failure Indication"},	/*(SGSN/MME to SGW -S4/S11) */
-	/* 71-94 For future use PDN-GW to SGSN/MME (S5/S8, S4/S11) */
-	{95, "Create Bearer Request "},
-	{96, "Create Bearer Response "},
-	{97, "Update Bearer Request "},
-	{98, "Update Bearer Response "},
-	{99, "Delete Bearer Request "},
-	{100, "Delete Bearer Response "},
+	{71, "Trace Session Activation"},
+	{72, "Trace Session Deactivation"},
+	{73, "Stop Paging Indication"},
+	/* 74-94 For future use */ 
+	/* PDN-GW to SGSN/MME (S5/S8, S4/S11) */
+	{95, "Create Bearer Request"},
+	{96, "Create Bearer Response"},
+	{97, "Update Bearer Request"},
+	{98, "Update Bearer Response"},
+	{99, "Delete Bearer Request"},
+	{100, "Delete Bearer Response"},
 	/* 101-127 For future use MME to MME, SGSN to MME, MME to SGSN, SGSN to SGSN (S3/10/S16) */
-	{128, "Identification Request "},
-	{129, "Identification Response "},
-	{130, "Context Request "},
-	{131, "Context Response "},
-	{132, "Context Acknowledge "},
-	{133, "Forward Relocation Request "},
-	{134, "Forward Relocation Response "},
-	{135, "Forward Relocation Complete Notification "},
-	{136, "Forward Relocation Complete Acknowledge "},
-	{137, "Forward SRNS Context Notification "},
-	{138, "Forward SRNS Context Acknowledge "},
-	{139, "Relocation Cancel Request "},
-	{140, "Relocation Cancel Response "},
-	/* 141-148 For future use SGSN to MME, MME to SGSN (S3) */
-	{149, "Detach Notification "},
-	{150, "Detach Acknowledge "},
-	{151, "CS Paging Indication "},
-	/* 152-159 For future use */
-	{160, "Create Forwarding Tunnel Request "},
-	{161, "Create Forwarding Tunnel Response "},
-	{162, "Suspend Notification "},
-	{163, "Suspend Acknowledge "},
-	{164, "Resume Notification "},
-	{165, "Resume Acknowledge "},
-	{166, "Create Indirect Data Forwarding Tunnel Request "},
-	{167, "Create Indirect Data Forwarding Tunnel Response "},
-	/* 168-175 For future use SGW to SGSN/MME (S4/S11) */
+	{128, "Identification Request"},
+	{129, "Identification Response"},
+	{130, "Context Request"},
+	{131, "Context Response"},
+	{132, "Context Acknowledge"},
+	{133, "Forward Relocation Request"},
+	{134, "Forward Relocation Response"},
+	{135, "Forward Relocation Complete Notification"},
+	{136, "Forward Relocation Complete Acknowledge"},
+	{137, "Forward Access Context Notification"},
+	{138, "Forward Access Context Acknowledge"},
+	{139, "Relocation Cancel Request"},
+	{140, "Relocation Cancel Response"},
+	{141, "Configuration Transfer Tunnel"},
+	/* 142-148 For future use */
+	/* SGSN to MME, MME to SGSN (S3)*/
+	{149, "Detach Notification"},
+	{150, "Detach Acknowledge"},
+	{151, "CS Paging Indication"},
+	{151, "RAN Information Relay"},
+	/* 153-159 For future use */
+	/* MME to SGW (S11) */
+	{160, "Create Forwarding Tunnel Request"},
+	{161, "Create Forwarding Tunnel Response"},
+	{162, "Suspend Notification"},
+	{163, "Suspend Acknowledge"},
+	{164, "Resume Notification"},
+	{165, "Resume Acknowledge"},
+	{166, "Create Indirect Data Forwarding Tunnel Request"},
+	{167, "Create Indirect Data Forwarding Tunnel Response"},
+	{168, "Delete Indirect Data Forwarding Tunnel Request"},
+	{169, "Delete Indirect Data Forwarding Tunnel Response"},
+	{170, "Release Access Bearers Request"},
+	{171, "Release Access Bearers Response"},
+	/* 172-175 For future use */
+	/*SGW to SGSN/MME (S4/S11) */
 	{176, "Downlink Data Notification "},
 	{177, "Downlink Data Notification Acknowledgement "},
 	{178, "Update Bearer Complete "},
@@ -175,96 +186,89 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_FLOW_QOS			81
 #define GTPV2_IE_RAT_TYPE		82
 #define GTPV2_IE_SERV_NET		83
-#define GTPV2_TEID				84
-#define	GTPV2_ULI				87
-#define GTPV2_F_TEID			88
-#define GTPV2_G_CN_ID			90
-#define GTPV2_DELAY_VALUE		94
-#define GTPV2_BEARER_CTX	96
-#define GTPV2_IE_CNG_REP_ACT	139
+
+#define	GTPV2_ULI				86
+#define GTPV2_F_TEID			87
+#define GTPV2_G_CN_ID			89
+#define GTPV2_DELAY_VALUE		92
+#define GTPV2_BEARER_CTX		93
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
 	{0, "Reserved"},
-	{1, "International Mobile Subscriber Identity (IMSI)"},						/* Extendable / 8.3 */
-	{2, "Cause (without embedded offending IE)"},								/* Extendable / 8.4 */
-	{3, "Recovery (Restart Counter)"},											/* Extendable / 8.5 */
+	{1, "International Mobile Subscriber Identity (IMSI)"},						/* Variable Length / 8.3 */
+	{2, "Cause"},																/* Variable Length / 8.4 */
+	{3, "Recovery (Restart Counter)"},											/* Variable Length / 8.5 */
 	/* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
 	/* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
-	{71, "Access Point Name (APN)"},											/* Extendable / 8.6 */
-	{72, "Aggregate Maximum Bit Rate (AMBR)"},									/* Extendable / 8.7 */
+	{71, "Access Point Name (APN)"},											/* Variable Length / 8.6 */
+	{72, "Aggregate Maximum Bit Rate (AMBR)"},									/* Fixed Length / 8.7 */
 	{73, "EPS Bearer ID (EBI)"},												/* Extendable / 8.8 */
 	{74, "IP Address"},															/* Extendable / 8.9 */
-	{75, "Mobile Equipment Identity (MEI)"},									/* Extendable / 8.10 */
-	{76, "MSISDN"},																/* Extendable / 8.11 */
+	{75, "Mobile Equipment Identity (MEI)"},									/* Variable Length / 8.10 */
+	{76, "MSISDN"},																/* Variable Length / 8.11 */
 	{77, "Indication"},															/* Extendable / 8.12 */
-	{78, "Protocol Configuration Options (PCO)"},								/* Extendable / 8.13 */
-	{79, "PDN Address Allocation (PAA)"},										/* Extendable / 8.14 */
-	{80, "Bearer Level Quality of Service (Bearer QoS)"},						/* Extendable / 8.15 */
+	{78, "Protocol Configuration Options (PCO)"},								/* Variable Length / 8.13 */
+	{79, "PDN Address Allocation (PAA)"},										/* Variable Length / 8.14 */
+	{80, "Bearer Level Quality of Service (Bearer QoS)"},						/* Variable Length / 8.15 */
 	{81, "Flow Quality of Service (Flow QoS)"},									/* Extendable / 8.16 */
 	{82, "RAT Type"},															/* Extendable / 8.17 */
 	{83, "Serving Network"},													/* Extendable / 8.18 */
-	{84, "TEID-C"},																/* Extendable / 8.19 */
-																				/* TEID-U Extendable / 8.19a */
-																				/* TEID-U with EPS Bearer ID Extendable / 8.19b */
-	{85, "EPS Bearer Level Traffic Flow Template (Bearer TFT)"},				/* Extendable / 8.20 */
-	{86, "Traffic Aggregation Description (TAD)"},								/* Extendable / 8.21 */
-	{87, "User Location Info (ULI)"},											/* Extendable / 8.22 */
-	{88, "Fully Qualified Tunnel Endpoint Identifier (F-TEID)"},				/* Extendable / 8.23 */
-	{89, "TMSI"},																/* Extendable / 8.24 */
-	{90, "Global CN-Id"},														/* Extendable / 8.25 */
-	{91, "Legacy Quality of Service (Legacy QoS)"},								/* Extendable / 8.26 */
-	{92, "S103 PDN Data Forwarding Info (S103PDF)"},							/* Extendable / 8.27 */
-	{93, "S1-U Data Forwarding Info (S1UDF)"},									/* Extendable / 8.28 */
-	{94, "Delay Value"},														/* Extendable / 8.29 */
-	{95, "Bearer ID List"},														/* Extendable / 8.30 */
-	{96, "Bearer Context"},														/* Extendable / 8.31 */
-	{97, "S101-IP-Address"},													/* Extendable / 8.32 */
-	{98, "S102-IP-Address"},													/* Extendable / 8.33 */
-	{99, "Charging ID"},														/* Extendable / 8.34 */
-	{100, "Charging Characteristics"},											/* Extendable / 8.35 */
-	{101, "Trace Information"},													/* Extendable / 8.36 */
-	{102, "Bearer Flags"},														/* Extendable / 8.37 */
-	{103, "Paging Cause"},														/* Extendable / 8.38 */
-	{104, "PDN Type"},															/* Extendable / 8.39 */
-	{105, "Procedure Transaction ID"},											/* Extendable / 8.40 */
-	{106, "DRX Parameter"},														/* Extendable / 8.41 */
-	{107, "UE Network Capability"},												/* Extendable / 8.42 */
-	{108, "PDU Numbers"},														/* Extendable / 8.46 */
-	{109, "MM Context (GSM Key and Triplets)"},									/* Extendable / 8.43 */
-	{110, "MM Context (UMTS Key, Used Cipher and Quintuplets)"},				/* Extendable / 8.43 */
-	{111, "MM Context (GSM Key, Used Cipher and Quintuplets)"},					/* Extendable / 8.43 */
-	{112, "MM Context (UMTS Key and Quintuplets)"},								/* Extendable / 8.43 */
-	{113, "MM Context (EPS Security Context, Quadruplets and Quintuplets)"},	/* Extendable / 8.43 */
-	{114, "MM Context (UMTS Key, Quadruplets and Quintuplets)"},				/* Extendable / 8.43 */
-	{115, "PDN Connection"},													/* Extendable / 8.44 */
-	{116, "GRE Key"},															/* Extendable / 8.45 */
-	{117, "Bearer Control Mode"},												/* Extendable / 8.68 */
-	{118, "EPS Bearer Contexts Prioritization (Contexts Prioritization)"},		/* Extendable / 8.47 */
-	{119, "LMA IP Address"},													/* Extendable / 8.48 */
-	{120, "P-TMSI"},															/* Extendable / 8.49 */
-	{121, "P-TMSI Signature"},													/* Extendable / 8.50 */
-	{122, "Hop Counter"},														/* Extendable / 8.51 */
-	{123, "Authentication Quintuplet"},											/* Extendable / 8.52 */
-	{124, "Authentication Quadruplet"},											/* Extendable / 8.53 */
-	{125, "Complete Request Message"},											/* Extendable / 8.54 */
-	{126, "GUTI"},																/* Extendable / 8.55 */
-	{127, "F-Container"},														/* Extendable / 8.56 */
-	{128, "F-Cause"},															/* Extendable / 8.57 */
-	{129, "Selected PLMN ID"},													/* Extendable / 8.58 */
-	{130, "Target Identification"},												/* Extendable / 8.59 */
-	{131, "Cell Identification"},												/* Extendable / 8.67 */
-	{132, "NSAPI"},																/* Extendable / 8.60 */
-	{133, "Packet Flow ID"},													/* Extendable / 8.61 */
-	{134, "RAB Context"},														/* Extendable / 8.62 */
-	{135, "Source RNC PDCP Context Info"},										/* Extendable / 8.63 */
-	{136, "UDP Source Port Number"},											/* Extendable / 8.64 */
-	{137, "APN Restriction"},													/* Extendable / 8.65 */
-	{138, "Selection Mode"},													/* Extendable / 8.66 */
-	{139, "Change Reporting Action"},											/* Extendable / 8.69 */
-	{140, "Cause including an embedded offending IE"},							/* Extendable / 8.4 */
-	{141, "PDN Connection Set Identifier (CSID)"},								/* Extendable / 8.70 */
-	/* 142-254 "Spare."},	*/													/* For future use. FFS */
+	{84, "EPS Bearer Level Traffic Flow Template (Bearer TFT)"},				/* Variable Length / 8.19 */
+	{85, "Traffic Aggregation Description (TAD)"},								/* Variable Length / 8.20 */
+	{86, "User Location Info (ULI)"},											/* Variable Length / 8.21 */
+	{87, "Fully Qualified Tunnel Endpoint Identifier (F-TEID)"},				/* Extendable / 8.22 */
+	{88, "TMSI"},																/* Variable Length / 8.23 */
+	{89, "Global CN-Id"},														/* Variable Length / 8.24 */
+	{90, "S103 PDN Data Forwarding Info (S103PDF)"},							/* Variable Length / 8.25 */
+	{91, "S1-U Data Forwarding Info (S1UDF)"},									/* Variable Length/ 8.26 */
+	{92, "Delay Value"},														/* Extendable / 8.27 */
+	{93, "Bearer Context"},														/* Extendable / 8.28 */
+	{94, "Charging ID"},														/* Extendable / 8.29 */
+	{95, "Charging Characteristics"},											/* Extendable / 8.30 */
+	{96, "Trace Information"},													/* Extendable / 8.31 */
+	{97, "Bearer Flags"},														/* Extendable / 8.32 */
+	{98, "Paging Cause"},														/* Variable Length / 8.33 */
+	{99, "PDN Type"},															/* Extendable / 8.34 */
+	{100, "Procedure Transaction ID"},											/* Extendable / 8.35 */
+	{101, "DRX Parameter"},														/* Variable Length/ 8.36 */
+	{102, "UE Network Capability"},												/* Variable Length / 8.37 */
+	{103, "MM Context (GSM Key and Triplets)"},									/* Variable Length / 8.38 */
+	{104, "MM Context (UMTS Key, Used Cipher and Quintuplets)"},				/* Variable Length / 8.38 */
+	{105, "MM Context (GSM Key, Used Cipher and Quintuplets)"},					/* Variable Length / 8.38 */
+	{106, "MM Context (UMTS Key and Quintuplets)"},								/* Variable Length / 8.38 */
+	{107, "MM Context (EPS Security Context, Quadruplets and Quintuplets)"},	/* Variable Length / 8.38 */
+	{108, "MM Context (UMTS Key, Quadruplets and Quintuplets)"},				/* Variable Length / 8.38 */
+	{109, "PDN Connection"},													/* Extendable / 8.39 */
+	{110, "PDU Numbers"},														/* Extendable / 8.40 */
+	{111, "P-TMSI"},															/* Variable Length / 8.41 */
+	{112, "P-TMSI Signature"},													/* Variable Length / 8.42 */
+	{113, "Hop Counter"},														/* Extendable / 8.43 */
+	{114, "UE Time Zone"},														/* Variable Length / 8.44 */
+	{115, "Trace Reference"},													/* Fixed Length / 8.45 */
+	{116, "Complete Request Message"},											/* Variable Length / 8.46 */
+	{117, "GUTI"},																/* Variable Length / 8.47 */
+	{118, "F-Container"},														/* Variable Length / 8.48 */
+	{119, "F-Cause"},															/* Variable Length / 8.49 */
+	{120, "Selected PLMN ID"},													/* Variable Length / 8.50 */
+	{121, "Target Identification"},												/* Variable Length / 8.51 */
+	{122, "NSAPI"},																/* Extendable / 8.52 */
+	{123, "Packet Flow ID"},													/* Variable Length / 8.53 */
+	{124, "RAB Context"},														/* Fixed Length / 8.54 */
+	{125, "Source RNC PDCP Context Info"},										/* Variable Length / 8.55 */
+	{126, "UDP Source Port Number"},											/* Extendable / 8.56 */
+	{127, "APN Restriction"},													/* Extendable / 8.57 */
+	{128, "Selection Mode"},													/* Extendable / 8.58 */
+	{129, "Source Identification Variable"},									/* Length / 8.50 */
+	{130, "Bearer Control Mode"},												/* Extendable / 8.60 */
+	{131, "Change Reporting Action"},											/* Variable Length / 8.61 */
+	{132, "Fully Qualified PDN Connection Set Identifier (FQ-CSID)"},			/* Variable Length / 8.62 */
+	{133, "Channel needed"},													/* Extendable / 8.63 */
+	{134, "eMLPP Priority"},													/* Extendable / 8.64 */
+	{135, "Node Type"},															/* Extendable / 8.65 */
+	{136, "Fully Qualified Domain Name (FQDN)"},								/* Variable Length / 8.66 */
+
+	/* 137-254 "Spare."},	*/													/* For future use. FFS */
 	{255, "Private"},															/* Extension Extendable / 8.71 */
     {0, NULL}
 };
@@ -298,13 +302,13 @@ static const value_string gtpv2_cause_vals[] = {
 	{1, "Paging Cause"},
 	{2, "Local Detach"},
 	{3, "Complete Detach"},
-	/* 4-15 Spare. This value range is reserved for Cause values in a request message */
+	{4, "RAT changed from 3GPP to Non-3GPP"},
+	/* 5-15 Spare. This value range is reserved for Cause values in a request message */
 	{16, "Request accepted"},
 	{17, "Request accepted partially"},
-	{18, "New PDN type due to subscription limitation"},
-	{19, "New PDN type due to network preference"},
-	{20, "New PDN type due to single address bearer only"},
-	/* 21-63 Spare. This value range is reserved for Cause values in acceptance response message */
+	{18, "New PDN type due to network preference"},
+	{19, "New PDN type due to single address bearer only"},
+	/* 20-63 Spare. This value range is reserved for Cause values in acceptance response message */
 	{64, "Context Non Existent/Found"},
 	{65, "Invalid Message Format"},
 	{66, "Version not supported by next peer"},
@@ -335,6 +339,14 @@ static const value_string gtpv2_cause_vals[] = {
 	{91, "No memory available"},
 	{92, "User authentication failed"},
 	{93, "APN access denied - no subscription"},
+	{94, "Request rejected"},
+	{95, "P-TMSI Signature mismatch"},
+	{96, "IMSI not known"},
+	{97, "Semantic error in the TAD operation"},
+	{98, "Syntactic error in the TAD operation"},
+	{99, "Reserved Message Value Received"},
+	{100, "PGW not responding"},
+	{101, "Collision with network initiated request"},
 	/* 94-255 Spare. This value range is reserved for Cause values in rejection response message */
     {0, NULL}
 };
@@ -559,21 +571,11 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	dissect_e212_mcc_mnc(tvb, tree, 0); 
 }
 /*
- * 8.19 Tunnel Endpoint Identifier for Control Plane (TEID-C)
- */
-static void
-dissect_gtpv2_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
-{
-	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
-}
-/*
- * 8.19a Tunnel Endpoint Identifier for User Plane (TEID-U) 
- * 8.19b Tunnel Endpoint Identifier for User Plane with EBI (TEID-U EBI)
- * 8.20 EPS Bearer Level Traffic Flow Template (Bearer TFT)
- * 8.21 Traffic Aggregate Description (TAD)
+ * 8.19 EPS Bearer Level Traffic Flow Template (Bearer TFT)
+ * 8.20 Traffic Aggregate Description (TAD)
  */
 /*
- * 8.22 User Location Info (ULI)
+ * 8.21 User Location Info (ULI)
  *
  * The flags ECGI, TAI, RAI, SAI and CGI in octed 5 indicate if the corresponding
  * fields are present in the IE or not. If one of these flags is set to "0", 
@@ -658,7 +660,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 }
 
 /*
- * 8.23 Fully Qualified TEID (F-TEID)
+ * 8.22 Fully Qualified TEID (F-TEID)
  */
 
 static void
@@ -667,10 +669,10 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 /*
- * 8.24 TMSI 
+ * 8.23 TMSI 
  */
 /*
- * 8.25 Global CN-Id
+ * 8.24 Global CN-Id
  */
 
 static void
@@ -679,10 +681,9 @@ dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 /*
- * 8.26 Legacy Quality of Service (QoS)
- * 8.27 S103 PDN Data Forwarding Info (S103PDF)
- * 8.28 S1-U Data Forwarding (S1UDF)
- * 8.29 Delay Value
+ * 8.25 S103 PDN Data Forwarding Info (S103PDF)
+ * 8.26 S1-U Data Forwarding (S1UDF)
+ * 8.27 Delay Value
  */
 
 static void
@@ -691,10 +692,7 @@ dissect_gtpv2_delay_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 /*
- * 8.30 Bearer ID List
- */
-/*
- * 8.31 Bearer Context
+ * 8.28 Bearer Context
  */
 
 static void
@@ -703,46 +701,40 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 /*
- * 8.32 S101 IP Address 
- * 8.33 S102 IP Address 
- * 8.34 Charging ID
- * 8.35 Charging Characteristics 
- * 8.36 Trace Information
- * 8.37 Bearer Flags
- * 8.38 Paging Cause 
- * 8.39 PDN Type
- * 8.40 Procedure Transaction ID (PTI)
- * 8.41 DRX Parameter 
- * 8.42 UE Network Capability
- * 8.43 MM Context 
- * 8.44 PDN Connection
- * 8.45 GRE Key
- * 8.46 PDU Numbers 
- * 8.47 EPS Bearer Contexts Prioritization (Contexts Prioritization)
- * 8.48 LMA IP Address 
- * 8.49 Packet TMSI (P-TMSI)
- * 8.50 P-TMSI Signature
- * 8.51 Hop Counter
- * 8.52 Authentication Quintuplet
- * 8.53 Authentication Quadruplet
- * 8.54 Complete Request Message
- * 8.55 GUTI
- * 8.56 Fully Qualified Container (F-Container)
- * 8.57 Fully Qualified Cause (F-Cause)
- * 8.58 Selected PLMN ID
- * 8.59 Target Identification
- * 8.60 NSAPI
- * 8.61 Packet Flow ID
- * 8.62 RAB Context
- * 8.63 Source RNC PDCP context info
- * 8.64 UDP Source Port Number
- * 8.65 APN Restriction 
- * 8.66 Selection Mode
- * 8.67 Cell Identification
- * 8.68 Bearer Control Mode
+ * 8.29 Charging ID
+ * 8.30 Charging Characteristics 
+ * 8.31 Trace Information
+ * 8.32 Bearer Flags
+ * 8.33 Paging Cause 
+ * 8.34 PDN Type
+ * 8.35 Procedure Transaction ID (PTI)
+ * 8.36 DRX Parameter 
+ * 8.37 UE Network Capability
+ * 8.38 MM Context 
+ * 8.39 PDN Connection
+ * 8.40 PDU Numbers 
+ * 8.41 Packet TMSI (P-TMSI)
+ * 8.42 Hop Counter
+ * 8.44 UE Time Zone
+ * 8.45 Trace Reference
+ * 8.56 Complete Request Message
+ * 8.47 GUTI
+ * 8.48 Fully Qualified Container (F-Container)
+ * 8.49 Fully Qualified Cause (F-Cause)
+ * 8.50 Selected PLMN ID
+ * 8.51 Target Identification
+ * 8.52 NSAPI
+ * 8.53 Packet Flow ID
+ * 8.54 RAB Context
+ * 8.55 Source RNC PDCP context info
+ * 8.56 UDP Source Port Number
+ * 8.57 APN Restriction 
+ * 8.58 Selection Mode
+ * 8.59 Source Identification
+ * 8.60 Bearer Control Mode
  */
 /*
- * 8.69 Change Reporting Action
+ * 8.61 Change Reporting Action
  */
 static const value_string gtpv2_cng_rep_act_vals[] = {
 	{0, "Stop Reporting"},
@@ -758,8 +750,12 @@ dissect_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 	proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE); 
 }
 /*
- * 8.70 PDN Connection Set Identifier (CSID)
- * 8.71 Private Extension
+ * 8.62 Fully qualified PDN Connection Set Identifier (FQ-CSID)
+ * 8.63 Channel needed
+ * 8.64 eMLPP Priority
+ * 8.65 Node Type
+ * 8.66 Fully Qualified Domain Name (FQDN)
+ * 8.67 Private Extension
  */
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -782,14 +778,12 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_FLOW_QOS, dissect_gtpv2_flow_qos},			/* 81 Flow Quality of Service (Flow QoS) 8.16 */
 	{GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},		/* 82, RAT Type  8.17 */
 	{GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},		/* 83, Serving Network 8.18 */
-	{GTPV2_TEID, dissect_gtpv2_teid},					/* 84, TEID-C  8.19 */
-	{GTPV2_ULI, dissect_gtpv2_uli},						/* 87, User Location Info (ULI) 8.22 */
-	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 88, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
-	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 90, Global CN-Id 8.25 */
-	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value},		/* 94, Delay Value 8.29 */
-	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx},			/* 96, Bearer Context  8.31 */
-	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},			/* 139, Change Reporting Action 8.69 */
-														/* 142-254 Spare. For future use. FFS */
+	{GTPV2_ULI, dissect_gtpv2_uli},						/* 86, User Location Info (ULI) 8.22 */
+	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 87, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
+	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 89, Global CN-Id 8.25 */
+	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value},		/* 92, Delay Value 8.29 */
+	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx},			/* 93, Bearer Context  8.31 */
+														/* 137-254 Spare. For future use. FFS */
 
     {0, dissect_gtpv2_unknown}
 };
