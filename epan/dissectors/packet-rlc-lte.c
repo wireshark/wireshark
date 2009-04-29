@@ -1437,8 +1437,8 @@ void proto_register_rlc_lte(void)
     rlc_lte_module = prefs_register_protocol(proto_rlc_lte, NULL);
 
     prefs_register_bool_preference(rlc_lte_module, "do_sequence_analysis",
-        "Do sequence analysis for UM/AM channels",
-        "Attempt to keep track of PDUs for UM/AM channels, and point out problems",
+        "Do sequence analysis for UM channels",
+        "Attempt to keep track of PDUs for UM channels, and point out problems",
         &global_rlc_lte_sequence_analysis);
 
     register_init_routine(&rlc_lte_init_protocol);
