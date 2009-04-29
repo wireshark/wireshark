@@ -67,7 +67,8 @@
 /* XXX */
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
-
+static GtkWidget *welcome_hb = NULL;
+static GtkWidget *header_lb = NULL;
 static GdkColor header_bar_bg;
 static GdkColor topic_header_bg;
 static GdkColor topic_content_bg;
@@ -79,6 +80,7 @@ static GtkWidget *welcome_file_panel_vb = NULL;
 static GtkWidget *welcome_if_panel_vb = NULL;
 #endif
 
+static GSList *status_messages = NULL;
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
@@ -245,6 +247,34 @@ welcome_button(const gchar *stock_item,
     return eb;
 }
 
+static void
+welcome_header_set_message(gchar *msg) {
+    GString *message;
+    time_t secs = time(NULL);
+    struct tm *now = localtime(&secs);
+    
+    message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">");
+    
+    if (msg) {
+	g_string_append(message, msg);
+    } else { /* Use our default header */
+	if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
+	    g_string_append(message, "Sniffing the glue that holds the Internet together");
+	} else {
+	    g_string_append(message, prefs.gui_start_title);
+	}
+    
+	if (prefs.gui_version_in_start_page) {
+	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"black\">Version " VERSION "%s",
+				   wireshark_svnversion);
+	}
+    }
+
+    g_string_append(message, "</span>");
+
+    gtk_label_set_markup(GTK_LABEL(header_lb), message->str);
+    g_string_free(message, TRUE);
+}
 
 /* create the banner "above our heads" */
 static GtkWidget *
@@ -254,10 +284,6 @@ welcome_header_new(void)
     GtkWidget *item_hb;
     GtkWidget *eb;
     GtkWidget *icon;
-    GString *message;
-    GtkWidget *w;
-    time_t secs = time(NULL);
-    struct tm *now = localtime(&secs);
 
     item_vb = gtk_vbox_new(FALSE, 0);
 
@@ -272,30 +298,46 @@ welcome_header_new(void)
     icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
-    message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">");
-    if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
-        g_string_append(message, "Sniffing the glue that holds the Internet together");
-    } else {
-        g_string_append(message, prefs.gui_start_title);
-    }
-    g_string_append(message, "</span>");
-
-    if (prefs.gui_version_in_start_page) {
-        g_string_append_printf(message, "\n<span size=\"large\" foreground=\"black\">Version " VERSION "%s</span>",
-                               wireshark_svnversion);
-    }
-
-    w = gtk_label_new(message->str);
-    gtk_label_set_markup(GTK_LABEL(w), message->str);
-    g_string_free(message, TRUE);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.5f);
-    gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
+    header_lb = gtk_label_new(NULL);
+    welcome_header_set_message(NULL);
+    gtk_misc_set_alignment (GTK_MISC(header_lb), 0.0f, 0.5f);
+    gtk_box_pack_start(GTK_BOX(item_hb), header_lb, TRUE, TRUE, 5);
 
     gtk_widget_show_all(eb);
 
     return eb;
 }
 
+void
+welcome_header_push_msg(gchar *msg) {
+    gchar *msg_copy = g_strdup(msg);
+    
+    status_messages = g_slist_append(status_messages, msg_copy);
+    
+    welcome_header_set_message(msg_copy);
+    
+    gtk_widget_hide(welcome_hb);
+}
+
+void
+welcome_header_pop_msg() {
+    gchar *msg = NULL;    
+
+    if (status_messages) {
+	g_free(status_messages->data);
+        status_messages = g_slist_delete_link(status_messages, status_messages);
+    }
+    
+    if (status_messages) {
+	msg = status_messages->data;
+    }
+
+    welcome_header_set_message(msg);
+    
+    if (!status_messages) {
+        gtk_widget_show(welcome_hb);
+    }
+}
 
 /* create a "topic header widget" */
 static GtkWidget *
@@ -643,7 +685,6 @@ welcome_new(void)
 {
     GtkWidget *welcome_scrollw;
     GtkWidget *welcome_vb;
-    GtkWidget *welcome_hb;
     GtkWidget *column_vb;
     GtkWidget *item_hb;
     GtkWidget *w;

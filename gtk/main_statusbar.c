@@ -54,6 +54,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/expert_comp_dlg.h"
 #include "gtk/profile_dlg.h"
+#include "gtk/main_welcome.h"
 
 #include "../image/expert_error.xpm"
 #include "../image/expert_warn.xpm"
@@ -571,7 +572,9 @@ statusbar_cf_file_read_finished_cb(capture_file *cf)
 static void
 statusbar_capture_prepared_cb(capture_options *capture_opts _U_)
 {
-    statusbar_push_file_msg(" Waiting for capture input data ...");
+    gchar *msg = " Waiting for capture input data ...";
+    statusbar_push_file_msg(msg);
+    welcome_header_push_msg(msg);
 }
 
 static void
@@ -581,6 +584,7 @@ statusbar_capture_update_started_cb(capture_options *capture_opts)
 
 
     statusbar_pop_file_msg();
+    welcome_header_pop_msg();
 
     if(capture_opts->iface) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
