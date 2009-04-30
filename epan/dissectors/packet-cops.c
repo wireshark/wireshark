@@ -2335,7 +2335,7 @@ void proto_register_cops(void)
 
     { &hf_cops_pcmm_gate_usage_info,
 	    { "Gate Usage Info", "cops.pc_mm_gui",
-	    FT_UINT32, BASE_DEC, NULL, 0,
+	    FT_UINT64, BASE_DEC, NULL, 0,
 	    "PacketCable Multimedia Gate Usage Info", HFILL }
     },
 
@@ -2492,6 +2492,7 @@ void proto_reg_handoff_cops(void)
 #define   FMT_IPv4  2
 #define   FMT_IPv6  3
 #define   FMT_FLT   4
+#define   FMT_STR   5
 
 /* Print the translated information in the display gui in a formatted way
  *
@@ -2504,6 +2505,7 @@ void proto_reg_handoff_cops(void)
  *          2 -> print value as an IPv4 address
  *          3 -> print value as an IPv6 address
  *          4 -> print value as an IEEE float
+ *          5 -> print value as a string
  *
  * This function in combination with the separate function info_to_cops_subtree() for subtrees.
  *
@@ -2513,11 +2515,21 @@ static proto_item *
 info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
 {
      proto_item *pi = NULL;
+     guint8   *codestr;
      guint8   code8  = 0;
      guint16  code16 = 0;
      guint32  codeipv4 = 0;
      guint32  code32 = 0;
+     guint64  code64 = 0;
      float    codefl = 0.0f;
+
+     /* Special section for printing strings */
+	 if (mode==FMT_STR) {
+		 codestr = tvb_get_string(tvb, offset, octets);
+		 pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
+	         offset, octets, codestr, "%-28s : %s", str, codestr);
+		 return pi;
+	 }
 
      /* Print information elements in the specified way */
      switch (octets) {
@@ -2620,19 +2632,23 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
              break;
 
         /* In case of more than 4 octets.... */
-        default: {
+        default:
+
              if (mode==FMT_HEX) {
                 pi = proto_tree_add_bytes(stt, *hf_proto_parameter,
                    tvb, offset, octets, tvb_get_ptr(tvb, offset,octets));
-	     } else if (mode==FMT_IPv6 && octets==16) {
-		pi = proto_tree_add_ipv6(stt, *hf_proto_parameter, tvb, offset, octets,
-		   tvb_get_ptr(tvb, offset, octets));
+             } else if (mode==FMT_IPv6 && octets==16) {
+                pi = proto_tree_add_ipv6(stt, *hf_proto_parameter, tvb, offset, octets,
+                   tvb_get_ptr(tvb, offset, octets));
+             } else if (mode==FMT_DEC && octets==8) {
+                code64 = tvb_get_ntoh64(tvb, offset);
+                pi = proto_tree_add_uint64_format(stt, *hf_proto_parameter, tvb, offset, octets,
+                   code64, "%-28s : %" G_GINT64_MODIFIER "u", str, code64);
              } else {
                 pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,
                    tvb, offset, octets, code32,"%s",str);
-	     }
+             }
              break;
-        }
 
      }
      return pi;
@@ -5204,9 +5220,8 @@ cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Usage Info");
      offset += 4;
 
-     /* Gate Time Info */
-     info_to_display(tvb,stt,offset,4,"Octet Count", NULL,FMT_DEC,&hf_cops_pcmm_gate_usage_info);
-     offset += 4;
+     /* Gate Usage Info */
+     info_to_display(tvb,stt,offset,8,"Octet Count", NULL,FMT_DEC,&hf_cops_pcmm_gate_usage_info);
 }
 
 /* Cops - Section : PacketCable error */
@@ -5329,13 +5344,14 @@ cops_msg_receipt_key(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 static void
 cops_userid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
-     guint8 *userIdText;
-     gint userIdLength = 0;
+     proto_tree *stt;
+
+     /* Create a subtree */
+     stt = info_to_cops_subtree(tvb, st, n, offset, "UserID");
+     offset += 4;
 
      /* UserID */
-     userIdText = tvb_get_stringz(tvb, offset+4, &userIdLength);
-     proto_tree_add_text(st, tvb, offset, n, "UserID: %s", userIdText);
-     offset +=4;
+     info_to_display(tvb, stt, offset, n-4, "UserID", NULL, FMT_STR, &hf_cops_pcmm_userid);
 }
 
 /* PacketCable D-QoS S-Num/S-Type globs */
