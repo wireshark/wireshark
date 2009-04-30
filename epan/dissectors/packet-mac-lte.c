@@ -413,7 +413,6 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* Create subtree for UL grant break-down */
         proto_tree *ul_grant_tree = proto_item_add_subtree(ul_grant_ti, ett_mac_lte_rar_ul_grant);
 
-
         /* Hopping flag (1 bit) */
         proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
                             tvb, offset, 1, FALSE);
@@ -575,6 +574,13 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Update TAP info */
     tap_info->number_of_rars += number_of_rars;
+
+    /* Warn if we don't seem to have reached the end of the frame yet */
+    if (tvb_length_remaining(tvb, offset) != 0) {
+           expert_add_info_format(pinfo, rar_headers_ti, PI_MALFORMED, PI_ERROR,
+                                  "%u bytes remaining after RAR PDU dissected",
+                                  tvb_length_remaining(tvb, offset));
+    }
 }
 
 
@@ -1471,7 +1477,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_rar_rapid,
             { "RAPID",
-              "mac-lte.rar.rapid", FT_UINT8, BASE_HEX, 0, 0x3f,
+              "mac-lte.rar.rapid", FT_UINT8, BASE_HEX_DEC, 0, 0x3f,
               "Random Access Preamble IDentifier", HFILL
             }
         },
