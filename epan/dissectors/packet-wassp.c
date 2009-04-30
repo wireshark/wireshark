@@ -101,14 +101,14 @@ static int hf_snmp_error_status = -1;
 static int hf_snmp_error_index = -1;
 static int hf_ap_img_to_ram = -1;
 static int hf_ap_img_role = -1;
-static int hf_unknown_65 = -1;
-static int hf_unknown_65_62 = -1;
-static int hf_unknown_65_63 = -1;
-static int hf_unknown_65_64 = -1;
+static int hf_ap_stats_block = -1;
+static int hf_ap_stats_block_ether = -1;
+static int hf_ap_stats_block_radio_a = -1;
+static int hf_ap_stats_block_radio_b_g = -1;
 static int hf_unknown_65_70 = -1;
-static int hf_unknown_69 = -1;
-static int hf_unknown_69_1 = -1;
-static int hf_unknown_69_2 = -1;
+static int hf_block_config = -1;
+static int hf_config_radio = -1;
+static int hf_config_vns = -1;
 static int hf_wassp_vlan_tag = -1;
 static int hf_wassp_tunnel_type = -1;
 static int hf_ap_dhcp_mode = -1;
@@ -185,48 +185,213 @@ static int dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tre
 static int dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	guint32 offset, guint32 length, const ext_value_string *value_array);
 
-static const ext_value_string wassp_tunnel_unknown69_2_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_tlv_config_vns_tlv_vals[] = {
+	{ 1, "V_RADIO_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 2, "V_VNS_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 3, "V_TURBO_VOICE", /* &hf_, */ NULL, NULL, NULL },
+	{ 4, "V_PROP_IE", /* &hf_, */ NULL, NULL, NULL },
+	{ 5, "V_ENABLE_802_11_H", /* &hf_, */ NULL, NULL, NULL },
+	{ 6, "V_POWER_BACKOFF", /* &hf_, */ NULL, NULL, NULL },
+	{ 7, "V_BRIDGE_MODE", /* &hf_, */ NULL, NULL, NULL },
+	{ 8, "V_VLAN_TAG", /* &hf_, */ NULL, NULL, NULL },
+	{ 9, "V_PROCESS_IE_REQ", /* &hf_, */ NULL, NULL, NULL },
+	{ 10, "V_ENABLE_U_APSD", /* &hf_, */ NULL, NULL, NULL },
+	{ 11, "V_ADM_CTRL_VOICE", /* &hf_, */ NULL, NULL, NULL },
+	{ 12, "V_ADM_CTRL_VIDEO", /* &hf_, */ NULL, NULL, NULL },
+	{ 13, "V_QOS_UP_VALUE", /* &hf_, */ NULL, NULL, NULL },
+	{ 14, "V_PRIORITY_OVERRIDE", /* &hf_, */ NULL, NULL, NULL },
+	{ 15, "V_DSCP_OVERRIDE_VALUE", /* &hf_, */ NULL, NULL, NULL },
+	{ 16, "V_ENABLE_802_11_E", /* &hf_, */ NULL, NULL, NULL },
+	{ 17, "V_ENABLE_WMM", /* &hf_, */ NULL, NULL, NULL },
+	{ 18, "V_LEGACY_CLIENT_PRIORITY", /* &hf_, */ NULL, NULL, NULL },
+	{ 19, "V_SSID_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 20, "V_SSID_BCAST_STRING", /* &hf_, */ NULL, NULL, NULL },
+	{ 21, "V_SSID_SUPPRESS", /* &hf_, */ NULL, NULL, NULL },
+	{ 22, "V_802_1_X_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 23, "V_802_1_X_DYN_REKEY", /* &hf_, */ NULL, NULL, NULL },
+	{ 24, "V_WPA_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 25, "V_WPA_V2_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 26, "V_WPA_PASSPHRASE", /* &hf_, */ NULL, NULL, NULL },
+	{ 27, "V_WPA_CIPHER_TYPE", /* &hf_, */ NULL, NULL, NULL },
+	{ 28, "V_WPA_V2_CIPHER_TYPE", /* &hf_, */ NULL, NULL, NULL },
+	{ 29, "V_WEP_KEY_INDEX", /* &hf_, */ NULL, NULL, NULL },
+	{ 30, "V_WEP_DEFAULT_KEY_VALUE", /* &hf_, */ NULL, NULL, NULL },
+	{ 31, "V_CHANNEL_REPORT", /* &hf_, */ NULL, NULL, NULL },
+	{ 32, "V_WDS_SERVICE", /* &hf_, */ NULL, NULL, NULL },
+	{ 33, "V_WDS_PREF_PARENT", /* &hf_, */ NULL, NULL, NULL },
+	{ 34, "V_WDS_BRIDGE", /* &hf_, */ NULL, NULL, NULL },
+	{ 35, "V_OKC_ENABLED", /* &hf_, */ NULL, NULL, NULL },
+	{ 36, "V_MU_ASSOC_RETRIES", /* &hf_, */ NULL, NULL, NULL },
+	{ 37, "V_MU_ASSOC_TIMEOUT", /* &hf_, */ NULL, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown69_1_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_tlv_config_radio_tlv_vals[] = {
+	{ 1, "R_RADIO_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 2, "R_ENABLE_RADIO", /* &hf_, */ NULL, NULL, NULL },
+	{ 3, "R_CHANNEL", /* &hf_, */ NULL, NULL, NULL },
+	{ 4, "R_OP_RATE_SET", /* &hf_, */ NULL, NULL, NULL },
+	{ 5, "R_OP_RATE_MAX", /* &hf_, */ NULL, NULL, NULL },
+	{ 6, "R_BEACON_PERIOD", /* &hf_, */ NULL, NULL, NULL },
+	{ 7, "R_DTIM_PERIOD", /* &hf_, */ NULL, NULL, NULL },
+	{ 8, "R_RTS_THRESHOLD", /* &hf_, */ NULL, NULL, NULL },
+	{ 11, "R_FRAGMENT_THRESHOLD", /* &hf_, */ NULL, NULL, NULL },
+	{ 12, "R_POWER_LEVEL", /* &hf_, */ NULL, NULL, NULL },
+	{ 15, "R_DIVERSITY_RX", /* &hf_, */ NULL, NULL, NULL },
+	{ 16, "R_DIVERSITY_TX", /* &hf_, */ NULL, NULL, NULL },
+	{ 17, "R_SHORT_PREAMBLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 18, "R_BASIC_RATE_MAX", /* &hf_, */ NULL, NULL, NULL },
+	{ 19, "R_BASIC_RATE_MIN", /* &hf_, */ NULL, NULL, NULL },
+	{ 20, "R_HW_RETRIES", /* &hf_, */ NULL, NULL, NULL },
+	{ 21, "R_TX_POWER_MIN", /* &hf_, */ NULL, NULL, NULL },
+	{ 22, "R_TX_POWER_MAX", /* &hf_, */ NULL, NULL, NULL },
+	{ 24, "R_DOMAIN_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 25, "R_B_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 26, "R_B_BASIC_RATES", /* &hf_, */ NULL, NULL, NULL },
+	{ 27, "R_G_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 28, "R_G_PROTECT_MODE", /* &hf_, */ NULL, NULL, NULL },
+	{ 29, "R_G_PROTECT_TYPE", /* &hf_, */ NULL, NULL, NULL },
+	{ 30, "R_G_PROTECT_RATE", /* &hf_, */ NULL, NULL, NULL },
+	{ 31, "R_G_BASIC_RATE", /* &hf_, */ NULL, NULL, NULL },
+	{ 32, "R_A_SUPPORT_802_11_J", /* &hf_, */ NULL, NULL, NULL },
+	{ 33, "R_ATPC_EN_INTERVAL", /* &hf_, */ NULL, NULL, NULL },
+	{ 34, "R_ACS_CH_LIST", /* &hf_, */ NULL, NULL, NULL },
+	{ 35, "R_TX_POWER_ADJ", /* &hf_, */ NULL, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown69_tlv_vals[] = {
-	{ 1, "Unknown69_1", NULL, dissect_tlv, wassp_tunnel_unknown69_1_tlv_vals },
-	{ 2, "Unknown69_2", NULL, dissect_tlv, wassp_tunnel_unknown69_2_tlv_vals },
+static const ext_value_string wassp_tunnel_tlv_config_tlv_vals[] = {
+	{ 1, "RADIO_CONFIG_BLOCK", &hf_config_radio, dissect_tlv, wassp_tunnel_tlv_config_radio_tlv_vals },
+	{ 2, "VNS_CONFIG_BLOCK", &hf_config_vns, dissect_tlv, wassp_tunnel_tlv_config_vns_tlv_vals },
+	{ 5, "TRACE_STATUS_DEBUG", /* &hf_, */ NULL, NULL, NULL },
+	{ 6, "TRACE_STATUS_CONFIG", /* &hf_, */ NULL, NULL, NULL },
+	{ 8, "USE_BCAST_FOR_DISASSC", /* &hf_, */ NULL, NULL, NULL },
+	{ 9, "BANDWIDTH_VOICE_ASSC", /* &hf_, */ NULL, NULL, NULL },
+	{ 10, "BANDWIDTH_VOICE_REASSC", /* &hf_, */ NULL, NULL, NULL },
+	{ 11, "BANDWIDTH_VIDEO_ASSC", /* &hf_, */ NULL, NULL, NULL },
+	{ 12, "BANDWIDTH_VIDEO_REASSC", /* &hf_, */ NULL, NULL, NULL },
+	{ 13, "BANDWIDTH_VIDEO_RESERVE", /* &hf_, */ NULL, NULL, NULL },
+	{ 14, "BANDWIDTH_ADM_CTRL_RESERVE", /* &hf_, */ NULL, NULL, NULL },
+	{ 15, "VLAN_TAG", /* &hf_, */ NULL, NULL, NULL },
+	{ 16, "COUNTRY_CODE", /* &hf_, */ NULL, NULL, NULL },
+	{ 17, "POLL_DURATION", /* &hf_, */ NULL, NULL, NULL },
+	{ 18, "POLL_INTERVAL", /* &hf_, */ NULL, NULL, NULL },
+	{ 20, "POLL_MAINTAIN_CLIENT_SESSION", /* &hf_, */ NULL, NULL, NULL },
+	{ 21, "TELNET_ENABLE", /* &hf_, */ NULL, NULL, NULL },
+	{ 22, "TELNET_PASSWORD", /* &hf_, */ NULL, NULL, NULL },
+	{ 23, "TELNET_PASSWORD_ENTRY_MODE", /* &hf_, */ NULL, NULL, NULL },
+	{ 24, "OUTDOOR_ENABLE-ENVIRONMENT", /* &hf_, */ NULL, NULL, NULL },
+	{ 28, "SLP_RETRY_COUNT", /* &hf_, */ NULL, NULL, NULL },
+	{ 29, "SLP_RETRY_DELAY", /* &hf_, */ NULL, NULL, NULL },
+	{ 30, "DNS_RETRY_COUNT", /* &hf_, */ NULL, NULL, NULL },
+	{ 31, "DNS_RETRY_DELAY", /* &hf_, */ NULL, NULL, NULL },
+	{ 32, "MCAST_SLP_RETRY_COUNT", /* &hf_, */ NULL, NULL, NULL },
+	{ 33, "MCAST_SLP_RETRY_DELAY", /* &hf_, */ NULL, NULL, NULL },
+	{ 34, "DISC_RETRY_COUNT", /* &hf_, */ NULL, NULL, NULL },
+	{ 35, "DISC_RETRY_DELAY", /* &hf_, */ NULL, NULL, NULL },
+	{ 36, "LOGGING_ALARM_SEV", /* &hf_, */ NULL, NULL, NULL },
+	{ 37, "BLACKLIST-BLACKLIST_ADD", /* &hf_, */ NULL, NULL, NULL },
+	{ 38, "FAILOVER_AC_IP_ADDR", /* &hf_, */ NULL, NULL, NULL },
+	{ 39, "STATIC_AC_IP_ADDR", /* &hf_, */ NULL, NULL, NULL },
+	{ 40, "DHCP_ASSIGNMENT", /* &hf_, */ NULL, NULL, NULL },
+	{ 41, "STATIC_AP_IP_ADDR", /* &hf_, */ NULL, NULL, NULL },
+	{ 42, "STATIC_AP_IP_NETMASK", /* &hf_, */ NULL, NULL, NULL },
+	{ 43, "STATIC_AP_DEFAULT_GW", /* &hf_, */ NULL, NULL, NULL },
+	{ 44, "BLACKLIST_DEL", /* &hf_, */ NULL, NULL, NULL },
+	{ 45, "MACADDR_REQ", /* &hf_, */ NULL, NULL, NULL },
+	{ 46, "AVAILABILITY_MODE", /* &hf_, */ NULL, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown65_70_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_ap_stats_block_70_tlv_vals[] = {
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown65_64_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_ap_stats_block_radio_b_g_tlv_vals[] = {
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown65_63_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_ap_stats_block_radio_a_tlv_vals[] = {
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown65_62_tlv_vals[] = {
+static const ext_value_string wassp_tunnel_ap_stats_block_ether_tlv_vals[] = {
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_unknown65_tlv_vals[] = {
-	{ 62, "Unknown65_62", NULL, dissect_tlv, wassp_tunnel_unknown65_62_tlv_vals },
-	{ 63, "Unknown65_63", NULL, dissect_tlv, wassp_tunnel_unknown65_63_tlv_vals },
-	{ 64, "Unknown65_64", NULL, dissect_tlv, wassp_tunnel_unknown65_64_tlv_vals },
-	{ 70, "Unknown65_70", NULL, dissect_tlv, wassp_tunnel_unknown65_70_tlv_vals },
+static const ext_value_string wassp_tunnel_ap_stats_block_tlv_vals[] = {
+	{ 1, "DOT11_ACKFailureCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 2, "DOT11_FCSErrorCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 3, "DOT11_FailedCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 4, "DOT11_FrameDuplicateCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 5, "DOT11_MulticastReceivedFrameCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 6, "DOT11_MulticastTransmittedFrameCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 7, "DOT11_MultipleRetryCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 8, "DOT11_RTSFailureCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 9, "DOT11_RTSSuccessCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 10, "DOT11_ReceivedFragementCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 11, "DOT11_RetryCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 12, "DOT11_TransmittedFragmentCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 13, "DOT11_TransmittedFrameCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 14, "DOT11_WEBUndecryptableCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 15, "DOT11_WEPExcludedCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 16, "DOT11_WEPICVErrorCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 17, "DRM_AllocFailures", /* &hf_, */ NULL, NULL, NULL },
+	{ 18, "DRM_CurrentChannel", /* &hf_, */ NULL, NULL, NULL },
+	{ 19, "DRM_CurrentPower", /* &hf_, */ NULL, NULL, NULL },
+	{ 20, "DRM_DataTxFailures", /* &hf_, */ NULL, NULL, NULL },
+	{ 21, "DRM_DeviceType", /* &hf_, */ NULL, NULL, NULL },
+	{ 22, "DRM_InDataPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 23, "DRM_InMgmtPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 24, "DRM_LoadFactor", /* &hf_, */ NULL, NULL, NULL },
+	{ 25, "DRM_MgmtTxFailures", /* &hf_, */ NULL, NULL, NULL },
+	{ 26, "DRM_MsgQFailures", /* &hf_, */ NULL, NULL, NULL },
+	{ 27, "DRM_NoDRMCurrentChannel", /* &hf_, */ NULL, NULL, NULL },
+	{ 28, "DRM_OutDataPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 29, "DRM_OutMgmtPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 30, "IF_InBcastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 31, "IF_InDiscards", /* &hf_, */ NULL, NULL, NULL },
+	{ 32, "IF_InErrors", /* &hf_, */ NULL, NULL, NULL },
+	{ 33, "IF_InMcastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 34, "IF_InOctets", /* &hf_, */ NULL, NULL, NULL },
+	{ 35, "IF_InUcastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 36, "IF_MTU", /* &hf_, */ NULL, NULL, NULL },
+	{ 37, "IF_OutBcastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 38, "IF_OutDiscards", /* &hf_, */ NULL, NULL, NULL },
+	{ 39, "IF_OutErrors", /* &hf_, */ NULL, NULL, NULL },
+	{ 40, "IF_OutOctets", /* &hf_, */ NULL, NULL, NULL },
+	{ 41, "IF_OutUcastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 42, "IF_OutMCastPackets", /* &hf_, */ NULL, NULL, NULL },
+	{ 43, "MU_Address", /* &hf_, */ NULL, NULL, NULL },
+	{ 44, "MU_AssociationCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 45, "MU_AuthenticationCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 46, "MU_DeAssociationCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 47, "MU_DeAuthenticationCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 48, "MU_IfIndex", /* &hf_, */ NULL, NULL, NULL },
+	{ 49, "MU_ReAssociationCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 50, "MU_ReceivedBytes", /* &hf_, */ NULL, NULL, NULL },
+	{ 51, "MU_ReceivedErrors", /* &hf_, */ NULL, NULL, NULL },
+	{ 52, "MU_ReceivedFrameCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 53, "MU_ReceivedRSSI", /* &hf_, */ NULL, NULL, NULL },
+	{ 54, "MU_ReceivedRate", /* &hf_, */ NULL, NULL, NULL },
+	{ 55, "MU_TransmittedBytes", /* &hf_, */ NULL, NULL, NULL },
+	{ 56, "MU_TransmittedErrors", /* &hf_, */ NULL, NULL, NULL },
+	{ 57, "MU_TransmittedFrameCount", /* &hf_, */ NULL, NULL, NULL },
+	{ 58, "MU_TransmittedRSSI", /* &hf_, */ NULL, NULL, NULL },
+	{ 59, "MU_TransmittedRate", /* &hf_, */ NULL, NULL, NULL },
+	{ 60, "MU_RF_STATS_END", /* &hf_, */ NULL, NULL, NULL },
+	{ 61, "RFC_1213_SYSUPTIME", /* &hf_, */ NULL, NULL, NULL },
+	{ 62, "STATS_ETHER_BLOCK", &hf_ap_stats_block_ether, dissect_tlv, wassp_tunnel_ap_stats_block_ether_tlv_vals },
+	{ 63, "STATS_RADIO_A_BLOCK", &hf_ap_stats_block_radio_a, dissect_tlv, wassp_tunnel_ap_stats_block_radio_a_tlv_vals },
+	{ 64, "STATS_RADIO_B_G_BLOCK", &hf_ap_stats_block_radio_b_g, dissect_tlv, wassp_tunnel_ap_stats_block_radio_b_g_tlv_vals },
+	{ 70, "Unknown65_70", &hf_unknown_65_70, dissect_tlv, wassp_tunnel_ap_stats_block_70_tlv_vals },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
@@ -235,8 +400,8 @@ static const ext_value_string wassp_tunnel_tlv_vals[] = {
 	{ 1, "STATUS", &hf_status, NULL, NULL },
 	{ 2, "RU-SOFT-VERSION", &hf_ru_soft_version, NULL, NULL },
 	{ 3, "RU-SERIAL-NUMBER", &hf_ru_serial_number, NULL, NULL },
-	{ 4, "RU-CHALLENGE", &hf_ru_challenge, NULL, NULL },
-	{ 5, "RU-RESPONSE", &hf_ru_response, NULL, NULL },
+	{ 4, "RU-REG-CHALLENGE", &hf_ru_challenge, NULL, NULL },
+	{ 5, "RU-REG-RESPONSE", &hf_ru_response, NULL, NULL },
 	{ 6, "AC-IPADDR", &hf_ac_ipaddr, NULL, NULL },
 	{ 7, "RU-VNS-ID", &hf_ru_vns_id, NULL, NULL },
 	{ 8, "TFTP-SERVER", &hf_tftp_server, NULL, NULL },
@@ -265,20 +430,45 @@ static const ext_value_string wassp_tunnel_tlv_vals[] = {
 	{ 31, "STATIC-BP-NETMASK", &hf_static_bp_netmask, NULL, NULL },
 	{ 32, "STATIC-BP-GATEWAY", &hf_static_bp_gateway, NULL, NULL },
 	{ 33, "STATIC-BM-IPADDR", &hf_static_bm_ipaddr, NULL, NULL },
+	{ 34, "TUNNEL_PROTOCOL", /* &hf_tunnel_protocol, */ NULL, NULL, NULL },
+	{ 35, "BP_WIRED_MACADDR", /* &hf_bp_wired_macaddr, */ NULL, NULL, NULL },
+	{ 36, "RU_CAPABILITY", /* &hf_ru_capability, */ NULL, NULL, NULL },
 	{ 38, "RU-ALARM", &hf_ru_alarm, dissect_snmp, NULL },
+	{ 39, "PREAUTH_RESP", /* &hf_, */ NULL, NULL, NULL },
+	{ 40, "BP_PMK", /* &hf_, */ NULL, NULL, NULL },
+	{ 41, "AC_REG_CHALLENGE", /* &hf_, */ NULL, NULL, NULL },
+	{ 42, "AC_REG_RESPONSE", /* &hf_, */ NULL, NULL, NULL },
+	{ 43, "STATS", /* &hf_, */ NULL, NULL, NULL },
+	{ 44, "CERTIFICATE", /* &hf_, */ NULL, NULL, NULL },
+	{ 45, "RADIO_ID", /* &hf_, */ NULL, NULL, NULL },
 	{ 46, "BP-REQUEST-ID", &hf_bp_request_id, NULL, NULL },
+	{ 47, "NETWORK_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 48, "MU_MAC", /* &hf_, */ NULL, NULL, NULL },
+	{ 49, "TIME", /* &hf_, */ NULL, NULL, NULL },
+	{ 50, "NUM_RADIOS", /* &hf_, */ NULL, NULL, NULL },
+	{ 51, "RADIO_INFO", /* &hf_, */ NULL, NULL, NULL },
+	{ 52, "NETWORK_INFO", /* &hf_, */ NULL, NULL, NULL },
+	{ 53, "VENDOR_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 54, "PRODUCT_ID", /* &hf_, */ NULL, NULL, NULL },
+	{ 55, "RADIO_INFO_ACK", /* &hf_, */ NULL, NULL, NULL },
 	{ 60, "SNMP-ERROR-STATUS", &hf_snmp_error_status, NULL, NULL },
 	{ 61, "SNMP-ERROR-INDEX", &hf_snmp_error_index, NULL, NULL },
 	{ 63, "AP-IMG-TO-RAM", &hf_ap_img_to_ram, NULL, NULL },
 	{ 64, "AP-IMG-ROLE", &hf_ap_img_role, NULL, NULL },
-	{ 65, "UNKNOWN-65", &hf_unknown_65, dissect_tlv, wassp_tunnel_unknown65_tlv_vals },
-	{ 69, "UNKNOWN-69", NULL, dissect_tlv, wassp_tunnel_unknown69_tlv_vals },
+	{ 65, "AP_STATS_BLOCK", &hf_ap_stats_block, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
+	{ 66, "MU_RF_STATS_BLOCK", /* &hf_, */ NULL, NULL, NULL },
+	{ 67, "STATS_REQUEST_TYPE", /* &hf_, */ NULL, NULL, NULL },
+	{ 68, "STATS_LAST", /* &hf_, */ NULL, NULL, NULL },
+	{ 69, "TLV_CONFIG", &hf_block_config, dissect_tlv, wassp_tunnel_tlv_config_tlv_vals },
+	{ 72, "MU_PMKID_LIST", /* &hf_, */ NULL, NULL, NULL },
+	{ 73, "MU_PMK_BP", /* &hf_, */ NULL, NULL, NULL },
+	{ 74, "MU_PMKID_BP", /* &hf_, */ NULL, NULL, NULL },
+	{ 75, "COUNTDOWN_TIME", /* &hf_, */ NULL, NULL, NULL },
 	{ 76, "WASSP-VLAN-TAG", &hf_wassp_vlan_tag, NULL, NULL },
 	{ 81, "WASSP-TUNNEL-TYPE", &hf_wassp_tunnel_type, NULL, NULL },
 	{ 88, "AP-DHCP-MODE", &hf_ap_dhcp_mode, NULL, NULL },
 	{ 89, "AP-IPADDR", &hf_ap_ipaddr, NULL, NULL },
 	{ 90, "AP-NETMASK", &hf_ap_netmask, NULL, NULL },
-	{ 91, "AP-GATEWAY", &hf_ap_gateway, NULL, NULL },
 	{ 91, "AP-GATEWAY", &hf_ap_gateway, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
@@ -307,9 +497,15 @@ static const value_string wassp_tunnel_pdu_type[] = {
 	{ 20, "BP Scan Request" },
 	{ 21, "RFM Notify" },
 	{ 22, "RU SNMP Alarm Notify" },
+	{ 23, "RU SNMP Set Alarm" },
+	{ 24, "RU SNMP Set Log Status" },
+	{ 25, "RU SNMP Get Log Request" },
+	{ 26, "RU SNMP Get Log Response" },
+	{ 27, "SEC Update Notify" },
 	{ 28, "RU Stats Req" },
 	{ 29, "RU Stats Resp" },
 	{ 30, "MU Stats Req" },
+	{ 31, "MU Stats Response" },
 
 	{ 0,	NULL }
 };
@@ -740,12 +936,12 @@ proto_register_wassp(void)
 		{ "AP-IMG-ROLE", "wassp.ap.img.role", FT_UINT32, BASE_DEC, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_65,
-		{ "UNKNOWN-65", "wassp.unknown65", FT_NONE, BASE_NONE, NULL,
+		{ &hf_ap_stats_block,
+		{ "AP Stats Block", "wassp.ap_stats_block", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_69,
-		{ "UNKNOWN-65", "wassp.unknown69", FT_NONE, BASE_NONE, NULL,
+		{ &hf_block_config,
+		{ "Config", "wassp.tlv_config", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_wassp_vlan_tag,
@@ -772,30 +968,30 @@ proto_register_wassp(void)
 		{ "AP-GATEWAY", "wassp.ap.gateway", FT_IPv4, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-	/* WASSP tunnel subtypes unknown 65 */
-		{ &hf_unknown_65_62,
-		{ "UNKNOWN-65-62", "wassp.unknown65.62", FT_BYTES, BASE_NONE, NULL,
+	/* WASSP tunnel subtypes AP stats block */
+		{ &hf_ap_stats_block_ether,
+		{ "Ether Stats", "wassp.ap_stats_block.ether", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_65_63,
-		{ "UNKNOWN-65-63", "wassp.unknown65.63", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_ap_stats_block_radio_a,
+		{ "Radio-A Stats", "wassp.ap_stats_block.radioa", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_65_64,
-		{ "UNKNOWN-65-64", "wassp.unknown65.64", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_ap_stats_block_radio_b_g,
+		{ "Radio-B/G Stats", "wassp.ap_stats_block.radiobg", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_65_70,
-		{ "UNKNOWN-65-70", "wassp.unknown65.70", FT_BYTES, BASE_NONE, NULL,
+		{ "UNKNOWN-65-70", "wassp.ap_stats_block.70", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-	/* WASSP tunnel subtypes unknown 69 */
-		{ &hf_unknown_69_1,
-		{ "UNKNOWN-69-1", "wassp.unknown69.1", FT_BYTES, BASE_NONE, NULL,
+	/* WASSP tunnel subtypes TLV config */
+		{ &hf_config_radio,
+		{ "Config Radio", "wassp.tlv_config.radio", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_69_2,
-		{ "UNKNOWN-69-2", "wassp.unknown69.2", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_config_vns,
+		{ "Config VNS", "wassp.tlv_config.vns", FT_BYTES, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 	/* WASSP discover header */
