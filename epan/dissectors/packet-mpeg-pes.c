@@ -848,7 +848,15 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
-			length -= 5 * 8;
+			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229 
+			 * A value of 0 indicates that the PES packet length is neither specified nor 
+			 * bounded and is allowed only in PES packets whose payload is a video elementary 
+			 * stream contained in Transport Stream packets. 
+			 * XXX Some one with access to the spec should check this 
+			 */ 
+			 if(length !=0 && stream != STREAM_VIDEO){
+				 length -= 5 * 8;
+			 }
 
 			header_length = tvb_get_guint8(tvb, 8);
 			if (header_length > 0) {
@@ -857,7 +865,16 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						header_length, header_length);
 				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
 				offset += header_length * 8;
-				length -= header_length * 8;
+				 /* lenght may be zero for Video stream */
+				if(length !=0 && stream != STREAM_VIDEO){
+					length -= header_length * 8;
+				}
+			}
+
+			/* lenght may be zero for Video stream */ 
+			if(length==0){ 
+				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, FALSE);
+				return TRUE;
 			}
 
 			es = tvb_new_subset(tvb, offset / 8, -1, length / 8);
@@ -1108,7 +1125,7 @@ proto_register_mpeg_pes(void)
         "mpeg_pes.BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 466 "packet-mpeg-pes-template.c"
+#line 483 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1204,7 +1221,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 551 "packet-mpeg-pes-template.c"
+#line 568 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 	};
