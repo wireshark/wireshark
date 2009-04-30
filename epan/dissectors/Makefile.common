@@ -94,7 +94,6 @@ PIDL_DISSECTOR_INCLUDES = \
 ASN1_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
-	packet-agentx.c \
 	packet-ansi_tcap.c \
 	packet-camel.c \
 	packet-cdt.c \
@@ -138,12 +137,12 @@ ASN1_DISSECTOR_SRC = \
 	packet-q932.c \
 	packet-q932-ros.c \
 	packet-qsig.c \
+	packet-ranap.c		\
 	packet-ros.c \
 	packet-rtnet.c \
 	packet-rtse.c \
 	packet-s4406.c \
 	packet-sabp.c \
-	packet-sbus.c \
 	packet-smrse.c \
 	packet-spnego.c \
 	packet-ulp.c \
@@ -195,6 +194,7 @@ DISSECTOR_SRC = \
 	packet-actrace.c	\
 	packet-afp.c		\
 	packet-afs.c		\
+	packet-agentx.c 	\
 	packet-aim.c		\
 	packet-aim-adverts.c	\
 	packet-aim-admin.c 	\
@@ -715,7 +715,6 @@ DISSECTOR_SRC = \
 	packet-radius.c		\
 	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
-	packet-ranap.c		\
 	packet-raw.c		\
 	packet-rdm.c		\
 	packet-rdt.c		\
@@ -760,6 +759,7 @@ DISSECTOR_SRC = \
 	packet-s5066.c		\
 	packet-sadmind.c	\
 	packet-sap.c		\
+	packet-sbus.c 		\
 	packet-sccpmg.c		\
 	packet-scsi.c		\
 	packet-scsi-mmc.c	\
