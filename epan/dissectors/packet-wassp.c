@@ -105,7 +105,7 @@ static int hf_ap_stats_block = -1;
 static int hf_ap_stats_block_ether = -1;
 static int hf_ap_stats_block_radio_a = -1;
 static int hf_ap_stats_block_radio_b_g = -1;
-static int hf_unknown_65_70 = -1;
+static int hf_dot1x_stats_block = -1;
 static int hf_block_config = -1;
 static int hf_config_radio = -1;
 static int hf_config_vns = -1;
@@ -223,6 +223,9 @@ static const ext_value_string wassp_tunnel_tlv_config_vns_tlv_vals[] = {
 	{ 35, "V_OKC_ENABLED", /* &hf_, */ NULL, NULL, NULL },
 	{ 36, "V_MU_ASSOC_RETRIES", /* &hf_, */ NULL, NULL, NULL },
 	{ 37, "V_MU_ASSOC_TIMEOUT", /* &hf_, */ NULL, NULL, NULL },
+	{ 38, "V_WDS_PARENT", /* &hf_, */ NULL, NULL, NULL },
+	{ 39, "V_WDS_BACK_PARENT", /* &hf_, */ NULL, NULL, NULL },
+	{ 40, "V_WDS_NAME", /* &hf_, */ NULL, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
@@ -306,26 +309,6 @@ static const ext_value_string wassp_tunnel_tlv_config_tlv_vals[] = {
 	{ 0,	NULL, NULL, NULL, NULL }
 };
 
-static const ext_value_string wassp_tunnel_ap_stats_block_70_tlv_vals[] = {
-
-	{ 0,	NULL, NULL, NULL, NULL }
-};
-
-static const ext_value_string wassp_tunnel_ap_stats_block_radio_b_g_tlv_vals[] = {
-
-	{ 0,	NULL, NULL, NULL, NULL }
-};
-
-static const ext_value_string wassp_tunnel_ap_stats_block_radio_a_tlv_vals[] = {
-
-	{ 0,	NULL, NULL, NULL, NULL }
-};
-
-static const ext_value_string wassp_tunnel_ap_stats_block_ether_tlv_vals[] = {
-
-	{ 0,	NULL, NULL, NULL, NULL }
-};
-
 static const ext_value_string wassp_tunnel_ap_stats_block_tlv_vals[] = {
 	{ 1, "DOT11_ACKFailureCount", /* &hf_, */ NULL, NULL, NULL },
 	{ 2, "DOT11_FCSErrorCount", /* &hf_, */ NULL, NULL, NULL },
@@ -388,10 +371,13 @@ static const ext_value_string wassp_tunnel_ap_stats_block_tlv_vals[] = {
 	{ 59, "MU_TransmittedRate", /* &hf_, */ NULL, NULL, NULL },
 	{ 60, "MU_RF_STATS_END", /* &hf_, */ NULL, NULL, NULL },
 	{ 61, "RFC_1213_SYSUPTIME", /* &hf_, */ NULL, NULL, NULL },
-	{ 62, "STATS_ETHER_BLOCK", &hf_ap_stats_block_ether, dissect_tlv, wassp_tunnel_ap_stats_block_ether_tlv_vals },
-	{ 63, "STATS_RADIO_A_BLOCK", &hf_ap_stats_block_radio_a, dissect_tlv, wassp_tunnel_ap_stats_block_radio_a_tlv_vals },
-	{ 64, "STATS_RADIO_B_G_BLOCK", &hf_ap_stats_block_radio_b_g, dissect_tlv, wassp_tunnel_ap_stats_block_radio_b_g_tlv_vals },
-	{ 70, "Unknown65_70", &hf_unknown_65_70, dissect_tlv, wassp_tunnel_ap_stats_block_70_tlv_vals },
+	{ 62, "STATS_ETHER_BLOCK", &hf_ap_stats_block_ether, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
+	{ 63, "STATS_RADIO_A_BLOCK", &hf_ap_stats_block_radio_a, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
+	{ 64, "STATS_RADIO_B_G_BLOCK", &hf_ap_stats_block_radio_b_g, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
+	{ 70, "DOT1x_STATS_BLOCK", &hf_dot1x_stats_block, dissect_tlv, wassp_tunnel_ap_stats_block_tlv_vals },
+	{ 71, "DOT1x_CREDENT", /* hf_, */ NULL, NULL, NULL },
+	{ 72, "DOT1x_END_DATE", /* hf_, */ NULL, NULL, NULL },
+	{ 73, "TLV_MAX", /* hf_, */ NULL, NULL, NULL },
 
 	{ 0,	NULL, NULL, NULL, NULL }
 };
@@ -970,28 +956,28 @@ proto_register_wassp(void)
 
 	/* WASSP tunnel subtypes AP stats block */
 		{ &hf_ap_stats_block_ether,
-		{ "Ether Stats", "wassp.ap_stats_block.ether", FT_BYTES, BASE_NONE, NULL,
+		{ "Ether Stats", "wassp.ap_stats_block.ether", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ap_stats_block_radio_a,
-		{ "Radio-A Stats", "wassp.ap_stats_block.radioa", FT_BYTES, BASE_NONE, NULL,
+		{ "Radio-A Stats", "wassp.ap_stats_block.radioa", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ap_stats_block_radio_b_g,
-		{ "Radio-B/G Stats", "wassp.ap_stats_block.radiobg", FT_BYTES, BASE_NONE, NULL,
+		{ "Radio-B/G Stats", "wassp.ap_stats_block.radiobg", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
-		{ &hf_unknown_65_70,
-		{ "UNKNOWN-65-70", "wassp.ap_stats_block.70", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_dot1x_stats_block,
+		{ "DOT1x_STATS_BLOCK", "wassp.ap_stats_block.dot1x", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 	/* WASSP tunnel subtypes TLV config */
 		{ &hf_config_radio,
-		{ "Config Radio", "wassp.tlv_config.radio", FT_BYTES, BASE_NONE, NULL,
+		{ "Config Radio", "wassp.tlv_config.radio", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_config_vns,
-		{ "Config VNS", "wassp.tlv_config.vns", FT_BYTES, BASE_NONE, NULL,
+		{ "Config VNS", "wassp.tlv_config.vns", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 	/* WASSP discover header */
