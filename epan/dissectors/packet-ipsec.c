@@ -2782,7 +2782,7 @@ proto_register_ipsec(void)
 
       prefs_register_string_preference(esp_module, name_str->str, title_str->str,
 			"SA identifier.  Must have the form "
-			"\"Protocol|Source Address|Destination Adress|SPI\". "
+			"\"Protocol|Source Address|Destination Address|SPI\". "
 			"Example: \"IPv4|192.168.0.45|10.1.2.7|*\" "
 			"See the ESP Preferences page on the Wireshark wiki "
 			"(http://wiki.wireshark.org/ESP_Preferences) for "
