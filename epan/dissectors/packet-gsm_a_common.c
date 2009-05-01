@@ -2034,7 +2034,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
 	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		"%s :  SAPI (Sevice Access Point Identifier): %s",
+		"%s :  SAPI (Service Access Point Identifier): %s",
 		a_bigbuf,
 		str);
 
