@@ -3879,7 +3879,7 @@ decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     { 3, "Data missing in position request" },
     { 4, "Unexpected value in position request" },
     { 5, "Position method failure" },
-    { 6, "Target MS unreacheable" },
+    { 6, "Target MS unreachable" },
     { 7, "Location request aborted" },
     { 8, "Facility not supported" },
     { 9, "Inter-BSC handover ongoing" },
