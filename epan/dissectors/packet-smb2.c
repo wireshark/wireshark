@@ -6137,7 +6137,7 @@ proto_register_smb2(void)
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_remaining_bytes,
-		{ "Remaning Bytes", "smb2.remaining_bytes", FT_UINT32, BASE_DEC,		NULL, 0, "", HFILL }},
+		{ "Remaining Bytes", "smb2.remaining_bytes", FT_UINT32, BASE_DEC,		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_channel_info_offset,
 		{ "Channel Info Offset", "smb2.channel_info_offset", FT_UINT16, BASE_DEC,
