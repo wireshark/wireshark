@@ -1934,7 +1934,7 @@ proto_register_sflow(void)
 		{ &hf_sflow_ifoutoct,
 		  { "Output Octets", "sflow.ifoutoct",
 			FT_UINT64, BASE_DEC, NULL, 0x0,
-			"Outterface Output Octets", HFILL }
+			"Interface Output Octets", HFILL }
 		},
 		{ &hf_sflow_ifoutucast,
 		  { "Output unicast packets", "sflow.ifoutucast",
