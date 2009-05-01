@@ -83,6 +83,7 @@ static int hf_mac_lte_bch_pdu = -1;
 static int hf_mac_lte_pch_pdu = -1;
 static int hf_mac_lte_predefined_pdu = -1;
 static int hf_mac_lte_padding_data = -1;
+static int hf_mac_lte_padding_length = -1;
 
 
 /* RAR fields */
@@ -733,6 +734,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint8      extension;
     guint8      n;
     proto_item  *truncated_ti;
+    proto_item  *padding_length_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
     guint8  number_of_headers = 0;
@@ -1014,7 +1016,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         else {
             /* See if its a control PDU type */
             if (direction == DIRECTION_DOWNLINK) {
-                /* DL-SCH Control PDUs */
+
+                /****************************/
+                /* DL-SCH Control PDUs      */
                 switch (lcids[n]) {
                     case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
                         proto_tree_add_item(tree, hf_mac_lte_control_ue_contention_resolution_identity,
@@ -1032,9 +1036,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PADDING_LCID:
                         /* No payload, unless its the last subheader, in which case
                            it extends to the end of the PDU */
-                        if (n == (number_of_headers-1) && (tvb_length_remaining(tvb, offset) > 0)) {
-                            proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                                                tvb, offset, -1, FALSE);
+                        if (n == (number_of_headers-1)) {
+                            if (tvb_length_remaining(tvb, offset) > 0) {
+                                proto_tree_add_item(tree, hf_mac_lte_padding_data,
+                                                    tvb, offset, -1, FALSE);
+                            }
+                            padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                                                    tvb, offset, 0,
+                                                                    p_mac_lte_info->length - offset);
+                            PROTO_ITEM_SET_GENERATED(padding_length_ti);
                         }
                         break;
 
@@ -1043,7 +1053,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
             }
             else {
-                /* DL-SCH Control PDUs */
+
+                /**********************************/
+                /* UL-SCH Control PDUs            */
                 switch (lcids[n]) {
                     case POWER_HEADROOM_REPORT_LCID:
                         {
@@ -1095,10 +1107,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PADDING_LCID:
                         /* No payload, unless its the last subheader, in which case
                            it extends to the end of the PDU */
-                        if ((n == (number_of_headers-1)) && tvb_length_remaining(tvb, offset) > 0) {
-                            proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                                                tvb, offset, -1, FALSE);
+                        if (n == (number_of_headers-1)) {
+                            if (tvb_length_remaining(tvb, offset) > 0) {
+                                proto_tree_add_item(tree, hf_mac_lte_padding_data,
+                                                    tvb, offset, -1, FALSE);
+                            }
+                            padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
+                                                                    tvb, offset, 0,
+                                                                    p_mac_lte_info->length - offset);
+                            PROTO_ITEM_SET_GENERATED(padding_length_ti);
                         }
+
                         break;
 
                     default:
@@ -1445,6 +1464,12 @@ void proto_register_mac_lte(void)
             { "Padding data",
               "mac-lte.padding-data", FT_BYTES, BASE_HEX, 0, 0x0,
               "Padding data", HFILL
+            }
+        },
+        { &hf_mac_lte_padding_length,
+            { "Padding length",
+              "mac-lte.padding-length", FT_UINT32, BASE_DEC, 0, 0x0,
+              "Length of padding data at end of frame", HFILL
             }
         },
 
