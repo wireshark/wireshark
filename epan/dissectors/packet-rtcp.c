@@ -3220,7 +3220,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_app_poc1_request_ts,
 			{
-				"Talk Burst Requst Timestamp",
+				"Talk Burst Request Timestamp",
 				"rtcp.app.poc1.request.ts",
 				FT_STRING,
 				BASE_NONE,
