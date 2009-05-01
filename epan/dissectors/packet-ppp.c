@@ -308,7 +308,7 @@ const value_string ppp_vals[] = {
 	{PPP_MPLS_UNI,  "MPLS Unicast"},
 	{PPP_MPLS_MULTI, "MPLS Multicast"},
 	{PPP_P12844,	"IEEE p1284.4 standard - data packets" },
-	{PPP_ETSI,	"ETSI TETRA Networks Procotol Type 1" },
+	{PPP_ETSI,	"ETSI TETRA Networks Protocol Type 1" },
 	{PPP_MFTP,	"Multichannel Flow Treatment Protocol" },
 	{PPP_RTP_CTCPND,"RTP IPHC Compressed TCP No Delta" },
 	{PPP_RTP_CS,	"RTP IPHC Context State" },
