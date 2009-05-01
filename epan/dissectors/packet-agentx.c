@@ -1023,11 +1023,11 @@ proto_register_agentx(void)
 
     { &hf_unreg_prio,
       { "Priority", "agentx.u.priority", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Unegister Priority", HFILL }},
+        "Unregister Priority", HFILL }},
 
     { &hf_unreg_rsid,
       { "Range_subid", "agentx.u.range_subid", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Unegister range_subid", HFILL }},
+        "Unregister range_subid", HFILL }},
 
     { &hf_unreg_ubound,
       { "Upper bound", "agentx.u.upper_bound", FT_UINT32, BASE_DEC, NULL, 0x0,
