@@ -637,7 +637,7 @@ static const value_string vals_xser_service[] = {
     {  5, "[Privacy Indicator]       TDMA information exchange" },
     {  6, "[Urgency Indicator]       TDMA information exchange" },
     {  7, "[Acknowledgement Request] TDMA information exchange" },
-    {  8, "[Messsage Updating]       TDMA information exchange" },
+    {  8, "[Message Updating]        TDMA information exchange" },
     {  9, "[Call Back Number]        TDMA information exchange" },
     { 10, "[Response Code]           TDMA information exchange" },
     { 11, "[Teleservice ID]          TDMA information exchange" },
