@@ -1932,7 +1932,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					i=0; j = tvb_get_letohl(tvb, offset);
 					proto_tree_add_uint_format(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-						"Number of Priviledged Users: %d", tvb_get_letohl(tvb, offset));
+						"Number of Privileged Users: %d", tvb_get_letohl(tvb, offset));
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
