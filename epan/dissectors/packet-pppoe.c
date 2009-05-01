@@ -174,7 +174,7 @@ static const value_string tag_vals[] = {
 		{PPPOE_TAG_VENDOR,     "Vendor-Specific"   },
 		{PPPOE_TAG_CREDITS,    "Credits"           },
 		{PPPOE_TAG_METRICS,    "Metrics"           },
-		{PPPOE_TAG_SEQ_NUM,    "Seqence Number"    },
+		{PPPOE_TAG_SEQ_NUM,    "Sequence Number"    },
 		{PPPOE_TAG_CRED_SCALE, "Credit Scale Factor"},
 		{PPPOE_TAG_RELAY_ID,   "Relay-Session-Id"  },
 		{PPPOE_TAG_HURL,       "HURL"              },
