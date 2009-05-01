@@ -204,7 +204,7 @@ static const value_string nhrp_error_code_vals[] = {
 	{ NHRP_ERR_PROT_ERROR, 				"Protocol Error" },
 	{ NHRP_ERR_SDU_SIZE_EXCEEDED, 		"NHRP SDU Size Exceeded" },
 	{ NHRP_ERR_INV_EXT, 				"Invalid Extension" },
-	{ NHRP_ERR_INV_RESOLUTION_REPLY, 	"Invalid NHRP Reolution Reply Received" },
+	{ NHRP_ERR_INV_RESOLUTION_REPLY, 	"Invalid NHRP Resolution Reply Received" },
 	{ NHRP_ERR_AUTH_FAILURE, 			"Authentication Failure" },
 	{ NHRP_ERR_HOP_COUNT_EXCEEDED, 		"Hop Count Exceeded" },
 	{ 0, 								NULL }
