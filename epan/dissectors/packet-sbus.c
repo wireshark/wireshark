@@ -1546,7 +1546,7 @@ proto_register_sbus(void)
               },
        
               { &hf_sbus_various,
-                     { "Varous data",      "sbus.various",
+                     { "Various data",      "sbus.various",
                      FT_NONE, BASE_NONE, NULL, 0,           
                      "Various data contained in telegrams but nobody will search for it", HFILL }
               },
