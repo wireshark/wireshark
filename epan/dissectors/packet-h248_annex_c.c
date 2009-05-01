@@ -1208,7 +1208,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_timer_cu,
 		{ "Timer CU", "h248.pkg.annexc.timer_cu",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"Milliseconds to hold the  patially filled cell before sending", HFILL }},
+			"Milliseconds to hold the  partially filled cell before sending", HFILL }},
 		{ &hf_h248_pkg_annexc_maxcpssdu,
 		{ "Max CPS SDU", "h248.pkg.annexc.maxcpssdu",
 			FT_UINT8, BASE_DEC, NULL, 0,
