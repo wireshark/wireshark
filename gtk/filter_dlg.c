@@ -72,7 +72,7 @@ static GtkWidget *filter_dialog_new(GtkWidget *button, GtkWidget *filter_te,
                                     filter_list_type_t list_type,
                                     construct_args_t *construct_args);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
-			      gpointer activate);
+                  gpointer activate);
 static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer data);
 static void filter_apply(GtkWidget *main_w, gboolean destroy);
@@ -105,32 +105,32 @@ static void filter_name_te_changed_cb(GtkWidget *, gpointer);
 void
 capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 {
-	GtkWidget *filter_browse_w;
-	GtkWidget *parent_filter_te;
-	/* No Apply button, and "OK" just sets our text widget, it doesn't
-	   activate it (i.e., it doesn't cause us to try to open the file). */
-	static construct_args_t args = {
-		"Wireshark: Capture Filter",
-		FALSE,
-		FALSE,
+    GtkWidget *filter_browse_w;
+    GtkWidget *parent_filter_te;
+    /* No Apply button, and "OK" just sets our text widget, it doesn't
+       activate it (i.e., it doesn't cause us to try to open the file). */
+    static construct_args_t args = {
+        "Wireshark: Capture Filter",
+        FALSE,
+        FALSE,
         FALSE
-	};
+    };
 
-	/* Has a filter dialog box already been opened for that button? */
-	filter_browse_w = g_object_get_data(G_OBJECT(w), E_FILT_DIALOG_PTR_KEY);
+    /* Has a filter dialog box already been opened for that button? */
+    filter_browse_w = g_object_get_data(G_OBJECT(w), E_FILT_DIALOG_PTR_KEY);
 
-	if (filter_browse_w != NULL) {
-		/* Yes.  Just re-activate that dialog box. */
-		reactivate_window(filter_browse_w);
-		return;
-	}
+    if (filter_browse_w != NULL) {
+        /* Yes.  Just re-activate that dialog box. */
+        reactivate_window(filter_browse_w);
+        return;
+    }
 
-	/* No.  Get the text entry attached to the button. */
-	parent_filter_te = g_object_get_data(G_OBJECT(w), E_FILT_TE_PTR_KEY);
+    /* No.  Get the text entry attached to the button. */
+    parent_filter_te = g_object_get_data(G_OBJECT(w), E_FILT_TE_PTR_KEY);
 
-	/* Now create a new dialog, without an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(w, parent_filter_te,
-	    CFILTER_LIST, &args);
+    /* Now create a new dialog, without an "Add Expression..." button. */
+    filter_browse_w = filter_dialog_new(w, parent_filter_te,
+        CFILTER_LIST, &args);
 }
 #endif
 
@@ -149,26 +149,26 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 void
 display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
-	construct_args_t *construct_args = construct_args_ptr;
-	GtkWidget *filter_browse_w;
-	GtkWidget *parent_filter_te;
+    construct_args_t *construct_args = construct_args_ptr;
+    GtkWidget *filter_browse_w;
+    GtkWidget *parent_filter_te;
 
-	/* Has a filter dialog box already been opened for the button? */
-	filter_browse_w = g_object_get_data(G_OBJECT(w), E_FILT_DIALOG_PTR_KEY);
+    /* Has a filter dialog box already been opened for the button? */
+    filter_browse_w = g_object_get_data(G_OBJECT(w), E_FILT_DIALOG_PTR_KEY);
 
-	if (filter_browse_w != NULL) {
-		/* Yes.  Just re-activate that dialog box. */
-		reactivate_window(filter_browse_w);
-		return;
-	}
+    if (filter_browse_w != NULL) {
+        /* Yes.  Just re-activate that dialog box. */
+        reactivate_window(filter_browse_w);
+        return;
+    }
 
-	/* No.  Get the text entry attached to the button. */
-	parent_filter_te = g_object_get_data(G_OBJECT(w), E_FILT_TE_PTR_KEY);
+    /* No.  Get the text entry attached to the button. */
+    parent_filter_te = g_object_get_data(G_OBJECT(w), E_FILT_TE_PTR_KEY);
 
-	/* Now create a new dialog, possibly with an "Apply" button, and
-	   definitely with an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(w, parent_filter_te,
-	    DFILTER_LIST, construct_args);
+    /* Now create a new dialog, possibly with an "Apply" button, and
+       definitely with an "Add Expression..." button. */
+    filter_browse_w = filter_dialog_new(w, parent_filter_te,
+                                        DFILTER_LIST, construct_args);
 }
 
 /* Should be called when a button that creates filters is destroyed; it
@@ -176,17 +176,17 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 void
 filter_button_destroy_cb(GtkWidget *button, gpointer user_data _U_)
 {
-	GtkWidget *filter_w;
+    GtkWidget *filter_w;
 
-	/* Is there a filter edit/selection dialog associated with this
-	   button? */
-	filter_w = g_object_get_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY);
+    /* Is there a filter edit/selection dialog associated with this
+       button? */
+    filter_w = g_object_get_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY);
 
-	if (filter_w != NULL) {
-		/* Yes.  Break the association, and destroy the dialog. */
-                g_object_set_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY, NULL);
-		window_destroy(filter_w);
-	}
+    if (filter_w != NULL) {
+        /* Yes.  Break the association, and destroy the dialog. */
+        g_object_set_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY, NULL);
+        window_destroy(filter_w);
+    }
 }
 
 #ifdef HAVE_LIBPCAP
@@ -197,29 +197,29 @@ static GtkWidget *global_cfilter_w;
 void
 cfilter_dialog_cb(GtkWidget *w _U_)
 {
-	/* No Apply button, and there's no text widget to set, much less
-	   activate, on "OK". */
-	static construct_args_t args = {
-		"Wireshark: Capture Filter",
-		FALSE,
-		FALSE,
+    /* No Apply button, and there's no text widget to set, much less
+       activate, on "OK". */
+    static construct_args_t args = {
+        "Wireshark: Capture Filter",
+        FALSE,
+        FALSE,
         FALSE
-	};
+    };
 
-	/* Has a filter dialog box already been opened for editing
-	   capture filters? */
-	if (global_cfilter_w != NULL) {
-		/* Yes.  Just reactivate it. */
-		reactivate_window(global_cfilter_w);
-		return;
-	}
+    /* Has a filter dialog box already been opened for editing
+       capture filters? */
+    if (global_cfilter_w != NULL) {
+        /* Yes.  Just reactivate it. */
+        reactivate_window(global_cfilter_w);
+        return;
+    }
 
-	/*
-	 * No.  Create one; we didn't pop this up as a result of pressing
-	 * a button next to some text entry field, so don't associate it
-	 * with a text entry field or button.
-	 */
-	global_cfilter_w = filter_dialog_new(NULL, NULL, CFILTER_LIST, &args);
+    /*
+     * No.  Create one; we didn't pop this up as a result of pressing
+     * a button next to some text entry field, so don't associate it
+     * with a text entry field or button.
+     */
+    global_cfilter_w = filter_dialog_new(NULL, NULL, CFILTER_LIST, &args);
 }
 #endif
 
@@ -228,12 +228,12 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 void
 dfilter_dialog_cb(GtkWidget *w _U_)
 {
-	static construct_args_t args = {
-		"Wireshark: Display Filter",
-		TRUE,
-		TRUE,
+    static construct_args_t args = {
+        "Wireshark: Display Filter",
+        TRUE,
+        TRUE,
         FALSE
-	};
+    };
 
         display_filter_construct_cb(g_object_get_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY), &args);
 }
@@ -251,45 +251,45 @@ static GList *dfilter_dialogs;
 static void
 remember_filter_dialog(GtkWidget *main_w, GList **filter_dialogs)
 {
-	*filter_dialogs = g_list_append(*filter_dialogs, main_w);
+    *filter_dialogs = g_list_append(*filter_dialogs, main_w);
 }
 
 /* Remove a filter dialog from the specified list of filter_dialogs. */
 static void
 forget_filter_dialog(GtkWidget *main_w, filter_list_type_t list_type)
 {
-	switch (list_type) {
+    switch (list_type) {
 
-	case CFILTER_EDITED_LIST:
-		cfilter_dialogs = g_list_remove(cfilter_dialogs, main_w);
-		break;
+    case CFILTER_EDITED_LIST:
+        cfilter_dialogs = g_list_remove(cfilter_dialogs, main_w);
+        break;
 
-	case DFILTER_EDITED_LIST:
-		dfilter_dialogs = g_list_remove(dfilter_dialogs, main_w);
-		break;
+    case DFILTER_EDITED_LIST:
+        dfilter_dialogs = g_list_remove(dfilter_dialogs, main_w);
+        break;
 
-	default:
-		g_assert_not_reached();
-		break;
-	}
+    default:
+        g_assert_not_reached();
+        break;
+    }
 }
 
 /* Get the dialog list corresponding to a particular filter list. */
 static GList *
 get_filter_dialog_list(filter_list_type_t list_type)
 {
-	switch (list_type) {
+    switch (list_type) {
 
-	case CFILTER_EDITED_LIST:
-		return cfilter_dialogs;
+    case CFILTER_EDITED_LIST:
+        return cfilter_dialogs;
 
-	case DFILTER_EDITED_LIST:
-		return dfilter_dialogs;
+    case DFILTER_EDITED_LIST:
+        return dfilter_dialogs;
 
-	default:
-		g_assert_not_reached();
-		return NULL;
-	}
+    default:
+        g_assert_not_reached();
+        return NULL;
+    }
 }
 
 
@@ -312,7 +312,7 @@ fill_list(GtkWidget  *main_w, filter_list_type_t list_type, const gchar *filter_
         filt    = (filter_def *) fl_entry->data;
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter, 0, filt->name,
-                           1, fl_entry, -1);
+                   1, fl_entry, -1);
 
         if (filter_te_str && filt->strval) {
             if (strcmp(filter_te_str, filt->strval) == 0) {
@@ -542,9 +542,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     if (list_type == DFILTER_EDITED_LIST) {
         colorize_filter_te_as_empty(filter_te);
 
-	g_object_set_data(G_OBJECT(main_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-	g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-	g_signal_connect(main_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+    g_object_set_data(G_OBJECT(main_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+    g_signal_connect(main_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     }
     gtk_widget_show(filter_te);
 
@@ -553,7 +553,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     if (list_type == DFILTER_EDITED_LIST) {
         gtk_tooltips_set_tip(tooltips, filter_te,
             "Enter a display filter. "
-            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid, yellow may have unexpected results).",
+            "The background color of this field is changed by a continuous syntax check"
+              " (green is valid, red is invalid, yellow may have unexpected results).",
             NULL);
 
         /* Create the "Add Expression..." button, to pop up a dialog
@@ -613,13 +614,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     remember_filter_dialog(main_w, filter_dialogs);
 
     if (button != NULL) {
-	/* This dialog box was created by a "Filter" button.
-	   Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
-	   the button. */
-	g_object_set_data(G_OBJECT(main_w), E_FILT_BUTTON_PTR_KEY, button);
+    /* This dialog box was created by a "Filter" button.
+       Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
+       the button. */
+    g_object_set_data(G_OBJECT(main_w), E_FILT_BUTTON_PTR_KEY, button);
 
-	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
-	g_object_set_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY, main_w);
+    /* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
+    g_object_set_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY, main_w);
     }
 
     /* DO SELECTION THINGS *AFTER* SHOWING THE DIALOG! */
@@ -715,147 +716,147 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
 static void
 filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
 {
-	filter_list_type_t list_type = *(filter_list_type_t *)data;
+    filter_list_type_t list_type = *(filter_list_type_t *)data;
 
-	/*
-	 * Destroy the dialog box and apply the filter.
-	 */
-	filter_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
+    /*
+     * Destroy the dialog box and apply the filter.
+     */
+    filter_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
 
-	/* if we don't have a Save button, just save the settings now */
-	if (!prefs.gui_use_pref_save) {
-		filter_dlg_save(list_type);
-	}
+    /* if we don't have a Save button, just save the settings now */
+    if (!prefs.gui_use_pref_save) {
+        filter_dlg_save(list_type);
+    }
 }
 
 static void
 filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer data)
 {
-	filter_list_type_t list_type = *(filter_list_type_t *)data;
+    filter_list_type_t list_type = *(filter_list_type_t *)data;
 
-	/*
-	 * Apply the filter, but don't destroy the dialog box.
-	 */
-	filter_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
+    /*
+     * Apply the filter, but don't destroy the dialog box.
+     */
+    filter_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
 
-	/* if we don't have a Save button, just save the settings now */
-	if (!prefs.gui_use_pref_save) {
-		filter_dlg_save(list_type);
-	}
+    /* if we don't have a Save button, just save the settings now */
+    if (!prefs.gui_use_pref_save) {
+        filter_dlg_save(list_type);
+    }
 }
 
 static void
 filter_apply(GtkWidget *main_w, gboolean destroy)
 {
-	construct_args_t *construct_args =
-	    g_object_get_data(G_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY);
-	GtkWidget        *parent_filter_te =
-	    g_object_get_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY);
-	GtkWidget        *filter_te;
-	const gchar      *filter_string;
+    construct_args_t *construct_args =
+        g_object_get_data(G_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY);
+    GtkWidget        *parent_filter_te =
+        g_object_get_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY);
+    GtkWidget        *filter_te;
+    const gchar      *filter_string;
 
-	if (parent_filter_te != NULL) {
-		/*
-		 * We have a text entry widget associated with this dialog
-		 * box; put the filter in our text entry widget into that
-		 * text entry widget.
-		 */
+    if (parent_filter_te != NULL) {
+        /*
+         * We have a text entry widget associated with this dialog
+         * box; put the filter in our text entry widget into that
+         * text entry widget.
+         */
                 filter_te = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
-		filter_string =
+        filter_string =
                     (const gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
-		gtk_entry_set_text(GTK_ENTRY(parent_filter_te), filter_string);
+        gtk_entry_set_text(GTK_ENTRY(parent_filter_te), filter_string);
 
-	}
+    }
 
-	if (destroy) {
-		/*
-		 * Destroy the filter dialog box.
-		 */
-		window_destroy(main_w);
-	}
+    if (destroy) {
+        /*
+         * Destroy the filter dialog box.
+         */
+        window_destroy(main_w);
+    }
 
-	if (parent_filter_te != NULL) {
-		/*
-		 * We have a text entry widget associated with this dialog
-		 * box; activate that widget to cause the filter we put
-		 * there to be applied if we're supposed to do so.
-		 *
-		 * We do this after dismissing the filter dialog box,
-		 * as activating the widget the dialog box to which
-		 * it belongs to be dismissed, and that may cause it
-		 * to destroy our dialog box if the filter succeeds.
-		 * This means that our subsequent attempt to destroy
-		 * it will fail.
-		 *
-		 * We don't know whether it'll destroy our dialog box,
-		 * so we can't rely on it to do so.  Instead, we
-		 * destroy it ourselves, which will clear the
-		 * E_FILT_DIALOG_PTR_KEY pointer for their dialog box,
-		 * meaning they won't think it has one and won't try
-		 * to destroy it.
-		 */
-		if (construct_args->activate_on_ok) {
-			g_signal_emit_by_name(G_OBJECT(parent_filter_te), "activate", NULL);
-		}
-	}
+    if (parent_filter_te != NULL) {
+        /*
+         * We have a text entry widget associated with this dialog
+         * box; activate that widget to cause the filter we put
+         * there to be applied if we're supposed to do so.
+         *
+         * We do this after dismissing the filter dialog box,
+         * as activating the widget the dialog box to which
+         * it belongs to be dismissed, and that may cause it
+         * to destroy our dialog box if the filter succeeds.
+         * This means that our subsequent attempt to destroy
+         * it will fail.
+         *
+         * We don't know whether it'll destroy our dialog box,
+         * so we can't rely on it to do so.  Instead, we
+         * destroy it ourselves, which will clear the
+         * E_FILT_DIALOG_PTR_KEY pointer for their dialog box,
+         * meaning they won't think it has one and won't try
+         * to destroy it.
+         */
+        if (construct_args->activate_on_ok) {
+            g_signal_emit_by_name(G_OBJECT(parent_filter_te), "activate", NULL);
+        }
+    }
 }
 
 
 static void
 filter_dlg_save(filter_list_type_t list_type)
 {
-	char *pf_dir_path;
-	char *f_path;
-	int f_save_errno;
+    char *pf_dir_path;
+    char *f_path;
+    int f_save_errno;
         const char *filter_type;
 
-	switch (list_type) {
+    switch (list_type) {
 
-	case CFILTER_EDITED_LIST:
-		filter_type = "capture";
+    case CFILTER_EDITED_LIST:
+        filter_type = "capture";
                 list_type = CFILTER_LIST;
                 copy_filter_list(CFILTER_LIST, CFILTER_EDITED_LIST);
-		break;
+        break;
 
-	case DFILTER_EDITED_LIST:
-		filter_type = "display";
+    case DFILTER_EDITED_LIST:
+        filter_type = "display";
                 list_type = DFILTER_LIST;
                 copy_filter_list(DFILTER_LIST, DFILTER_EDITED_LIST);
-		break;
+        break;
 
-	default:
-		g_assert_not_reached();
-		filter_type = NULL;
-		break;
-	}
+    default:
+        g_assert_not_reached();
+        filter_type = NULL;
+        break;
+    }
 
-	/* Create the directory that holds personal configuration files,
-	   if necessary.  */
-	if (create_persconffile_dir(&pf_dir_path) == -1) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Can't create directory\n\"%s\"\nfor filter files: %s.",
-		    pf_dir_path, strerror(errno));
-		g_free(pf_dir_path);
-		return;
-	}
+    /* Create the directory that holds personal configuration files,
+       if necessary.  */
+    if (create_persconffile_dir(&pf_dir_path) == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Can't create directory\n\"%s\"\nfor filter files: %s.",
+            pf_dir_path, strerror(errno));
+        g_free(pf_dir_path);
+        return;
+    }
 
-	save_filter_list(list_type, &f_path, &f_save_errno);
-	if (f_path != NULL) {
-		/* We had an error saving the filter. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Could not save to your %s filter file\n\"%s\": %s.",
-		    filter_type, f_path, strerror(f_save_errno));
-		g_free(f_path);
-	}
+    save_filter_list(list_type, &f_path, &f_save_errno);
+    if (f_path != NULL) {
+        /* We had an error saving the filter. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Could not save to your %s filter file\n\"%s\": %s.",
+            filter_type, f_path, strerror(f_save_errno));
+        g_free(f_path);
+    }
 }
 
 
 static void
 filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 {
-	filter_list_type_t list_type = *(filter_list_type_t *)data;
+    filter_list_type_t list_type = *(filter_list_type_t *)data;
 
-	filter_dlg_save(list_type);
+    filter_dlg_save(list_type);
 }
 
 #if 0
@@ -889,13 +890,13 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data)
         switch (list_type) {
         case CFILTER_EDITED_LIST:
                 copy_filter_list(CFILTER_EDITED_LIST, CFILTER_LIST);
-	        break;
+            break;
         case DFILTER_EDITED_LIST:
                 copy_filter_list(DFILTER_EDITED_LIST, DFILTER_LIST);
-	        break;
+            break;
         default:
-	        g_assert_not_reached();
-	        break;
+            g_assert_not_reached();
+            break;
         }
     }
 
@@ -910,44 +911,44 @@ static gboolean
 filter_dlg_delete_event_cb(GtkWidget *main_w, GdkEvent *event _U_,
                            gpointer data)
 {
-  filter_dlg_cancel_cb(main_w, data);
-  return FALSE;
+    filter_dlg_cancel_cb(main_w, data);
+    return FALSE;
 }
 
 
 static void
 filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 {
-	filter_list_type_t list_type = *(filter_list_type_t *)data;
-	GtkWidget *button;
+    filter_list_type_t list_type = *(filter_list_type_t *)data;
+    GtkWidget *button;
 
-	/* Get the button that requested that we be popped up, if any.
-	   (It should arrange to destroy us if it's destroyed, so
-	   that we don't get a pointer to a non-existent window here.) */
-	button = g_object_get_data(G_OBJECT(win), E_FILT_BUTTON_PTR_KEY);
+    /* Get the button that requested that we be popped up, if any.
+       (It should arrange to destroy us if it's destroyed, so
+       that we don't get a pointer to a non-existent window here.) */
+    button = g_object_get_data(G_OBJECT(win), E_FILT_BUTTON_PTR_KEY);
 
-	if (button != NULL) {
-		/* Tell it we no longer exist. */
+    if (button != NULL) {
+        /* Tell it we no longer exist. */
                 g_object_set_data(G_OBJECT(button), E_FILT_DIALOG_PTR_KEY, NULL);
-	} else {
-		/* This is an editing dialog popped up from, for example,
-		   a menu item; note that we no longer have one. */
-		switch (list_type) {
+    } else {
+        /* This is an editing dialog popped up from, for example,
+           a menu item; note that we no longer have one. */
+        switch (list_type) {
 
 #ifdef HAVE_LIBPCAP
-		case CFILTER_EDITED_LIST:
-			g_assert(win == global_cfilter_w);
-			global_cfilter_w = NULL;
-			break;
+        case CFILTER_EDITED_LIST:
+            g_assert(win == global_cfilter_w);
+            global_cfilter_w = NULL;
+            break;
 #endif
-		default:
-			g_assert_not_reached();
-			break;
-		}
-	}
+        default:
+            g_assert_not_reached();
+            break;
+        }
+    }
 
-	/* Remove this from the list of filter dialog windows. */
-	forget_filter_dialog(win, list_type);
+    /* Remove this from the list of filter dialog windows. */
+    forget_filter_dialog(win, list_type);
 }
 
 static gint
@@ -1002,15 +1003,15 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
      * Funny, that.
      * This means that we have to:
      *
-     *	attach to the top-level window data items containing pointers to
-     *	the widgets we affect here;
+     *  attach to the top-level window data items containing pointers to
+     *  the widgets we affect here;
      *
-     *	give each of those widgets their own destroy callbacks;
+     *  give each of those widgets their own destroy callbacks;
      *
-     *	clear that pointer when the widget is destroyed;
+     *  clear that pointer when the widget is destroyed;
      *
-     *	don't do anything to the widget if the pointer we get back is
-     *	null;
+     *  don't do anything to the widget if the pointer we get back is
+     *  null;
      *
      * so that if we're called after any of the widgets we'd affect are
      * destroyed, we know that we shouldn't do anything to those widgets.
@@ -1040,8 +1041,8 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
    "nflp" is the GList member in the model (filter list) for the new
    filter. */
 typedef struct {
-	GtkWidget *active_filter_l;
-	GList     *nflp;
+    GtkWidget *active_filter_l;
+    GList     *nflp;
 } new_filter_cb_args_t;
 
 static void
@@ -1068,27 +1069,27 @@ new_filter_cb(gpointer data, gpointer user_data)
 static void
 filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
 {
-  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
-  GtkWidget  *name_te = g_object_get_data(G_OBJECT(main_w), E_FILT_NAME_TE_KEY);
-  GtkWidget  *filter_te = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
-  GtkWidget  *filter_l = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_L_KEY);
-  filter_list_type_t list_type = *(filter_list_type_t *)data;
-  GList      *fl_entry;
-  const gchar *name, *strval;
-  new_filter_cb_args_t args;
+    GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+    GtkWidget  *name_te = g_object_get_data(G_OBJECT(main_w), E_FILT_NAME_TE_KEY);
+    GtkWidget  *filter_te = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
+    GtkWidget  *filter_l = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_L_KEY);
+    filter_list_type_t list_type = *(filter_list_type_t *)data;
+    GList      *fl_entry;
+    const gchar *name, *strval;
+    new_filter_cb_args_t args;
 
-  name   = gtk_entry_get_text(GTK_ENTRY(name_te));
-  strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
+    name   = gtk_entry_get_text(GTK_ENTRY(name_te));
+    strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
-  /* if the user didn't entered a name, set default one */
-  if (strlen(name) == 0) {
-    name = "new";
-  }
+    /* if the user didn't entered a name, set default one */
+    if (strlen(name) == 0) {
+        name = "new";
+    }
 
-  /* if the user didn't entered a string value, set default one */
-  if (strlen(strval) == 0) {
-    strval = "new";
-  }
+    /* if the user didn't entered a string value, set default one */
+    if (strlen(strval) == 0) {
+        strval = "new";
+    }
 
     /* Add a new entry to the filter list. */
     fl_entry = add_to_filter_list(list_type, name, strval);
@@ -1225,24 +1226,24 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
 void
 filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 {
-	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
-	GtkWidget  *filter_te, *dfilter_w;
+    GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
+    GtkWidget  *filter_te, *dfilter_w;
 
-	filter_te = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
-	dfilter_w = dfilter_expr_dlg_new(filter_te);
+    filter_te = g_object_get_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
+    dfilter_w = dfilter_expr_dlg_new(filter_te);
 
-	/* If we're opening a series of modal dialogs (such as when going
-	 * through file->open, make the latest dialog modal also so that it
-	 * takes over "control" from the other modal dialogs.  Also set
-	 * the transient property of the new dialog so the user doesn't try
-	 * to interact with the previous window when they can't.
+    /* If we're opening a series of modal dialogs (such as when going
+     * through file->open, make the latest dialog modal also so that it
+     * takes over "control" from the other modal dialogs.  Also set
+     * the transient property of the new dialog so the user doesn't try
+     * to interact with the previous window when they can't.
          * XXX: containing widget might be the Filter Toolbar */
 
-	if ( GTK_IS_WINDOW(main_w) && gtk_window_get_modal(GTK_WINDOW(main_w))) {
-		gtk_window_set_modal(GTK_WINDOW(dfilter_w), TRUE);
-		gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
-					     GTK_WINDOW(main_w));
-	}
+    if ( GTK_IS_WINDOW(main_w) && gtk_window_get_modal(GTK_WINDOW(main_w))) {
+        gtk_window_set_modal(GTK_WINDOW(dfilter_w), TRUE);
+        gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
+                         GTK_WINDOW(main_w));
+    }
 }
 
 static void
@@ -1309,46 +1310,60 @@ filter_te_syntax_check_cb(GtkWidget *w)
     use_statusbar = g_object_get_data(G_OBJECT(w), E_FILT_FIELD_USE_STATUSBAR_KEY) ? TRUE : FALSE;
 
     if (use_statusbar) {
-      statusbar_pop_filter_msg();
+        statusbar_pop_filter_msg();
     }
 
     /* colorize filter string entry */
     if (g_object_get_data(G_OBJECT(w), E_FILT_FIELD_NAME_ONLY_KEY) &&
-	strval && (c = proto_check_field_name(strval)) != 0)
+        strval && (c = proto_check_field_name(strval)) != 0)
     {
         colorize_filter_te_as_invalid(w);
-	if (use_statusbar) {
-	  msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
-	  statusbar_push_filter_msg(msg);
-	  g_free(msg);
-	}
+        if (use_statusbar) {
+            msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
+            statusbar_push_filter_msg(msg);
+            g_free(msg);
+        }
     } else if (strval && dfilter_compile(strval, &dfp)) {
-    	if (dfp != NULL) {
-          depr = dfilter_deprecated_tokens(dfp);
-          dfilter_free(dfp);
+        if (dfp != NULL) {
+            depr = dfilter_deprecated_tokens(dfp);
+            dfilter_free(dfp);
         }
         if (strlen(strval) == 0) {
             colorize_filter_te_as_empty(w);
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */
             colorize_filter_te_as_deprecated(w);
-	    if (use_statusbar) {
-	      /*
-	       * We're being lazy and only printing the first "problem" token.
-	       * Would it be better to print all of them?
-	       */
-	      msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
-				    (const char *) g_ptr_array_index(depr, 0));
-	      statusbar_push_filter_msg(msg);
-	      g_free(msg);
-	    }
+            if (use_statusbar) {
+                /*
+                 * We're being lazy and only printing the first "problem" token.
+                 * Would it be better to print all of them?
+                 */
+                msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
+                                      (const char *) g_ptr_array_index(depr, 0));
+                statusbar_push_filter_msg(msg);
+                g_free(msg);
+            }
         } else {
             colorize_filter_te_as_valid(w);
         }
     } else {
         colorize_filter_te_as_invalid(w);
-	if (use_statusbar) {
-	  statusbar_push_filter_msg(" Invalid filter");
-	}
+        if (use_statusbar) {
+            statusbar_push_filter_msg(" Invalid filter");
+        }
     }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+
