@@ -5258,7 +5258,7 @@ proto_register_scsi (void)
           {"Buffer Offset", "scsi.spc.wb.bufoff", FT_UINT24, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_scsi_paramlen24,
-          {"Paremeter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_HEX,
+          {"Parameter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_senddiag_st_code,
           {"Self-Test Code", "scsi.spc.senddiag.code", FT_UINT8, BASE_HEX,
