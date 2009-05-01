@@ -1470,7 +1470,7 @@ proto_register_dcom_cba (void)
 		{ &hf_cba_save_ldev_name,
 		{ "LDevName", "cba.save_ldev_name", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_save_result,
-		{ "PatialResult", "cba.save_result", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "PartialResult", "cba.save_result", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 	};
 
 	static hf_register_info hf_cba_ldev_array[] = {

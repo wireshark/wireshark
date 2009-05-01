@@ -133,7 +133,7 @@ static const value_string pn_dcp_block_error[] = {
     { 0x01, "Option unsupp." },
     { 0x02, "Suboption unsupp. or no DataSet avail." },
     { 0x03, "Suboption not set" },
-    { 0x04, "Ressource Error" },
+    { 0x04, "Resource Error" },
     { 0x05, "SET not possible by local reasons" },
     { 0x06, "In operation, SET not possible" },
     /* all others reserved */
