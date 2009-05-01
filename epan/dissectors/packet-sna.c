@@ -394,7 +394,7 @@ static const value_string sna_rh_csi_vals[] = {
 /* TG Sweep */
 static const value_string sna_th_tg_sweep_vals[] = {
 	{ 0, "This PIU may overtake any PU ahead of it." },
-	{ 1, "This PIU does not ovetake any PIU ahead of it." },
+	{ 1, "This PIU does not overtake any PIU ahead of it." },
 	{ 0x0,	NULL }
 };
 
@@ -2915,7 +2915,7 @@ proto_register_sna(void)
 		    8, TFS(&sna_nlp_lmi_truth), 0x80, "", HFILL }},
 
                 { &hf_sna_nlp_cqfi,
-                { "Connection Qualifyer Field Indicator", "sna.nlp.thdr.cqfi",
+                { "Connection Qualifier Field Indicator", "sna.nlp.thdr.cqfi",
 		    FT_BOOLEAN, 8, TFS(&sna_nlp_cqfi_truth), 0x08, "", HFILL }},
 
                 { &hf_sna_nlp_osi,
@@ -3406,7 +3406,7 @@ proto_register_sna(void)
 		    "", HFILL }},
 
 		{ &hf_sna_xid_3_dedsvc,
-		{ "Dedicated SVC Idicator",
+		{ "Dedicated SVC Indicator",
 		    "sna.xid.type3.dedsvc", FT_BOOLEAN, 8, NULL, 0x20,
 		    "", HFILL }},
 
