@@ -635,7 +635,7 @@ proto_register_linx(void)
 			{ "ACK Number", "linx.ackno", FT_UINT32, BASE_DEC, NULL, 0x00fff000, "ACK Number", HFILL },
 		},
 		{ &hf_linx_ack_seqno, /* in ETHCM_ACK */
-			{ "Seqence Number", "linx.seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, "Sequence Number", HFILL },
+			{ "Sequence Number", "linx.seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, "Sequence Number", HFILL },
 		},
 		{ &hf_linx_conn_cmd, /* in ETHCM_CONN */
 			{ "Command", "linx.cmd", FT_UINT32, BASE_DEC, VALS(linx_conn_cmd), 0x0f000000, "Command", HFILL },
