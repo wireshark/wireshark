@@ -2196,6 +2196,95 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 }
 
 
+static int
+dissect_vendor_action_marvell (proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  guint8 octet;
+
+  octet = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item (tree, ff_marvell_action_type, tvb, offset, 1, TRUE);
+  offset++;
+  switch (octet)
+    {
+      case MRVL_ACTION_MESH_MANAGEMENT:
+        octet = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item (tree, ff_marvell_mesh_mgt_action_code, tvb, offset, 1, TRUE);
+        offset++;
+        switch (octet)
+          {
+            case MRVL_MESH_MGMT_ACTION_RREQ:
+              proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_rreqid, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+              offset+= 6;
+              proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              offset+= 6;
+              proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              offset+= 4;
+              break;
+            case MRVL_MESH_MGMT_ACTION_RREP:
+              proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              offset+= 6;
+              proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+              offset+= 4;
+              proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+              offset+= 6;
+              proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+              offset+= 4;
+              break;
+            case MRVL_MESH_MGMT_ACTION_RERR:
+              proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+              offset++;
+              proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              offset+= 6;
+              proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              offset+= 4;
+              break;
+            default:
+              break;
+          }
+        break;
+      default:
+        break;
+    }
+
+  return offset;
+}
+
 /* ************************************************************************* */
 /*              Dissect and add fixed mgmt fields to protocol tree           */
 /* ************************************************************************* */
@@ -3009,105 +3098,23 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint start = offset;
                 guint32 oui;
                 const guint8 *tag_data_ptr;
-                guint8 octet;
 
                 offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 oui = tvb_get_ntoh24(tvb, offset);
                 tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
                 proto_tree_add_bytes_format (action_tree, tag_oui, tvb, offset, 3,
               	  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
-                offset+=3;
+                offset += 3;
                 switch (oui)
                   {
                     case OUI_MARVELL:
-                      octet = tvb_get_guint8(tvb, offset);
-                      proto_tree_add_item (action_tree, ff_marvell_action_type, tvb, offset, 1, TRUE);
-                      offset++;
-                      switch (octet)
-                        {
-                          case MRVL_ACTION_MESH_MANAGEMENT:
-                            octet = tvb_get_guint8(tvb, offset);
-                            proto_tree_add_item (action_tree, ff_marvell_mesh_mgt_action_code, tvb, offset, 1, TRUE);
-                            offset++;
-                            switch (octet)
-                              {
-                                case MRVL_MESH_MGMT_ACTION_RREQ:
-                                  proto_tree_add_item (action_tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (action_tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_rreqid, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
-                                  offset+= 6;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
-                                  offset+= 6;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  length = offset - start;  /* Size of fixed fields */
-                                  break;
-                                case MRVL_MESH_MGMT_ACTION_RREP:
-                                  proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
-                                  offset+= 6;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
-                                  offset+= 6;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  length = offset - start;  /* Size of fixed fields */
-                                  break;
-                                case MRVL_MESH_MGMT_ACTION_RERR:
-                                  proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
-                                  offset++;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
-                                  offset+= 6;
-                                  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
-                                  offset+= 4;
-                                  length = offset - start;  /* Size of fixed fields */
-                                  break;
-                                default:
-                                  break;
-                              }
-                            break;
-                          default:
-                            break;
-                        }
+                      offset = dissect_vendor_action_marvell (action_tree, tvb, offset);
                       break;
                     default:
                       /* Don't know how to handle this vendor */
                       break;
                   }/* switch(oui) */
+                length = offset - start;  /* Size of fixed fields */
                 break;
               }/* Case vendor specific */
 
