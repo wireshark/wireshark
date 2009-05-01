@@ -650,7 +650,7 @@ static const true_false_string tos_st_nosuid = {
 };
 
 static const true_false_string tos_st_notrunc = {
-	"Does not trunctate filenames longer than NAME_MAX",
+	"Does not truncate filenames longer than NAME_MAX",
 	"Truncates filenames longer than NAME_MAX"
 };
 
