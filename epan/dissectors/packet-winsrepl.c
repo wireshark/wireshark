@@ -157,7 +157,7 @@ static const value_string message_type_vals[] = {
 static const value_string rectype_vals[] = {
 	{WREPL_NAME_TYPE_UNIQUE,	"Unique"},
 	{WREPL_NAME_TYPE_NORMAL_GROUP,	"Normal group"},
-	{WREPL_NAME_TYPE_SPECIAL_GROUP,	"Speical group"},
+	{WREPL_NAME_TYPE_SPECIAL_GROUP,	"Special group"},
 	{WREPL_NAME_TYPE_MULTIHOMED,	"Multihomed"},
 	{0, NULL}
 };
