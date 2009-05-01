@@ -181,9 +181,9 @@ gint pdu_type=-1;
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
-			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Messsage authenticity: %s", error);
+			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Message authenticity: %s", error);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
+			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Message authenticity: %s", error );
 		} else {
 			int severity;
 			gchar* msg;			
