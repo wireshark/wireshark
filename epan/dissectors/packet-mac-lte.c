@@ -371,7 +371,7 @@ static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 
 /* Dissect a single Random Access Reponse body */
 static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                              gint offset)
+                              gint offset, guint8 rapid)
 {
     guint8 reserved;
     guint start_body_offset = offset;
@@ -445,12 +445,12 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_item_append_text(rar_body_ti, " (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                           timing_advance, ul_grant, temp_crnti);
+    proto_item_append_text(rar_body_ti, " RAPID=%u (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+                           rapid, timing_advance, ul_grant, temp_crnti);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                           timing_advance, ul_grant, temp_crnti);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  (RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+                        rapid, timing_advance, ul_grant, temp_crnti);
     }
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
@@ -463,10 +463,11 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
-    gint    number_of_rars = 0;   /* No of RAR bodies expected following headers */
+    gint     number_of_rars = 0;   /* No of RAR bodies expected following headers */
+    guint8   rapids[64];
     gboolean backoff_indicator_seen = FALSE;
-    guint8  extension;
-    gint    n;
+    guint8   extension;
+    gint     n;
     proto_tree *rar_headers_tree;
     proto_item *ti;
     proto_item *rar_headers_ti;
@@ -543,11 +544,12 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
             /* RAPID case */
+            rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
             proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, FALSE);
-            number_of_rars++;
 
-            proto_item_append_text(rar_header_ti, " (RAPID=%u)",
-                                   tvb_get_guint8(tvb, offset) & 0x3f);
+            proto_item_append_text(rar_header_ti, " (RAPID=%u)", rapids[number_of_rars]);
+
+            number_of_rars++;
         }
 
         offset++;
@@ -569,7 +571,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /***************************/
     /* Read any indicated RARs */
     for (n=0; n < number_of_rars; n++) {
-        offset = dissect_rar_entry(tvb, pinfo, tree, offset);
+        offset = dissect_rar_entry(tvb, pinfo, tree, offset, rapids[n]);
     }
 
     /* Update TAP info */
@@ -606,7 +608,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /****************************************/
     /* Whole frame is BCH data              */
 
-    /* Always show as raw data */
+    /* Raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_bch_pdu,
                              tvb, offset, -1, FALSE);
 
@@ -622,6 +624,9 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else {
             protocol_handle = find_dissector("lte-rrc.bcch.bch");
         }
+
+        /* Hide raw view of bytes */
+        PROTO_ITEM_SET_HIDDEN(ti);
 
         /* Call it */
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
@@ -654,11 +659,15 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              tvb, offset, -1, FALSE);
 
     if (global_mac_lte_attempt_rrc_decode) {
+
         /* Attempt to decode payload using LTE RRC dissector */
         tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
 
         /* Get appropriate dissector handle */
         dissector_handle_t protocol_handle = find_dissector("lte-rrc.pcch");
+
+        /* Hide raw view of bytes */
+        PROTO_ITEM_SET_HIDDEN(ti);
 
         /* Call it */
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
@@ -960,20 +969,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Data SDUs treated identically for Uplink or downlink channels */
         if (lcids[n] <= 10) {
+            proto_item *sdu_ti;
             guint16 data_length = (pdu_lengths[n] == -1) ?
                                             tvb_length_remaining(tvb, offset) :
                                             pdu_lengths[n];
 
             /* Dissect SDU */
-            proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
-                                        tvb_get_ptr(tvb, offset, pdu_lengths[n]),
-                                        "SDU (%s, length = %u bytes)",
-                                        val_to_str(lcids[n],
-                                                   (direction == DIRECTION_UPLINK) ?
-                                                        ulsch_lcid_vals :
-                                                        dlsch_lcid_vals,
-                                                   "Unknown"),
-                                        data_length);
+            sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
+                                                 tvb_get_ptr(tvb, offset, pdu_lengths[n]),
+                                                 "SDU (%s, length = %u bytes)",
+                                                 val_to_str(lcids[n],
+                                                            (direction == DIRECTION_UPLINK) ?
+                                                                ulsch_lcid_vals :
+                                                                dlsch_lcid_vals,
+                                                            "Unknown"),
+                                                 data_length);
 
             /* CCCH frames can be dissected directly by LTE RRC... */
             if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
@@ -987,6 +997,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 else {
                     protocol_handle = find_dissector("lte-rrc.dl.ccch");
                 }
+
+                /* Hide raw view of bytes */
+                PROTO_ITEM_SET_HIDDEN(sdu_ti);
 
                 /* Call it */
                 call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
