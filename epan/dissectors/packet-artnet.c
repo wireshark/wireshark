@@ -1776,7 +1776,7 @@ proto_register_artnet(void) {
       { "ProVer",
         "artnet.header.protver",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Protcol revision number", HFILL }},
+        "Protocol revision number", HFILL }},
 
     /* ArtPoll */
 
@@ -2044,7 +2044,7 @@ proto_register_artnet(void) {
       { "Output Subswitch of Port 4",
         "artnet.poll_reply.swout_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "Ouput Subswitch of Port 4", HFILL }},
+        "Output Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_poll_reply_swvideo,
       { "SwVideo",
@@ -2198,7 +2198,7 @@ proto_register_artnet(void) {
       { "Output Subswitch of Port 4",
         "artnet.address.swout_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "Ouput Subswitch of Port 4", HFILL }},
+        "Output Subswitch of Port 4", HFILL }},
 
     { &hf_artnet_address_subswitch,
       { "Subswitch",
