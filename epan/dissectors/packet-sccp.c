@@ -3266,7 +3266,7 @@ proto_register_sccp(void)
 
   prefs_register_bool_preference(sccp_module, "trace_sccp",
 				 "Trace Associations",
-				 "Whether to keep infomation about messages and their associations",
+				 "Whether to keep information about messages and their associations",
 				 &trace_sccp);
 
 
