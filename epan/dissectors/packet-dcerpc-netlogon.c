@@ -4693,7 +4693,7 @@ static const true_false_string get_dcname_request_flags_force_rediscovery = {
 	"You may return cached data"
 };
 static const true_false_string get_dcname_request_flags_directory_service_required = {
-	"DIRECRTORY SERVICE is REQUIRED on the server",
+	"DIRECTORY SERVICE is REQUIRED on the server",
 	"We do NOT require directory service servers"
 };
 static const true_false_string get_dcname_request_flags_directory_service_preferred = {
@@ -4725,7 +4725,7 @@ static const true_false_string get_dcname_request_flags_timeserv_required = {
 	"timeserv service is NOT required"
 };
 static const true_false_string get_dcname_request_flags_writable_required = {
-	"the requrned dc MUST be WRITEABLE",
+	"the returned dc MUST be WRITEABLE",
 	"a read-only dc may be returned"
 };
 static const true_false_string get_dcname_request_flags_good_timeserv_preferred = {
