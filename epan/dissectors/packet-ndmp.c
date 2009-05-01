@@ -709,7 +709,7 @@ static const true_false_string tfs_butype_attr_backup_incremental = {
 	"Perform FULL backup"
 };
 static const true_false_string tfs_butype_attr_recover_incremental = {
-	"Perform INCREMENTAL revocery",
+	"Perform INCREMENTAL recovery",
 	"Perform FULL recovery"
 };
 static const true_false_string tfs_butype_attr_backup_utf8 = {
