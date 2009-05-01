@@ -4530,7 +4530,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 						g_message("    seqof: set repeat mark [push,child]");
 				} else {
 					if (asn1_verbose)
-						g_message("    seqof: end of reapeat loop [next]");
+						g_message("    seqof: end of repeat loop [next]");
 					NEXT;
 				}
 				break;
