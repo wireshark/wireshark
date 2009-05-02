@@ -2821,6 +2821,10 @@ Naoyoshi Ueda			<piyomaru3141@gmail.com> {
 	IKEv2 decryption support
 }
 
+Javier Cardona			<javier@cozybit.com> {
+	Mesh header dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

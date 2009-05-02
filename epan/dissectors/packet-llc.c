@@ -87,12 +87,15 @@ static gint ett_llc_basicxid = -1;
 static dissector_table_t subdissector_table;
 static dissector_table_t xid_subdissector_table;
 
+static dissector_table_t ethertype_subdissector_table;
+
 static dissector_handle_t bpdu_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t turbo_handle;
+static dissector_handle_t mesh_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -371,6 +374,16 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
 		capture_ethertype(etype, pd, offset+5, len, ld);
 		break;
 
+	case OUI_MARVELL:
+		/*
+		 * OLPC packet.  The PID is an Ethertype, but
+		 * there's a mesh header between the PID and
+		 * the payload.  (We assume the header is
+		 * 5 bytes, for now).
+		 */
+		capture_ethertype(etype, pd, offset+5+5, len, ld);
+		break;
+
 	default:
 		ld->other++;
 		break;
@@ -582,6 +595,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	oui_info_t	*oui_info;
 	dissector_table_t subdissector_table;
 	int		hf;
+	int		mesh_header_len;
 
 	/*
 	 * XXX - what about non-UI frames?
@@ -694,6 +708,31 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	case OUI_TURBOCELL:
 		next_tvb = tvb_new_subset(tvb, offset+3, -1, -1);
 		call_dissector(turbo_handle, next_tvb, pinfo, tree);
+		break;
+
+	case OUI_MARVELL:
+		/*
+		 * OLPC packet.  The PID is an Ethertype, but
+		 * there's a mesh header between the PID and
+		 * the payload.
+		 */
+		if (XDLC_IS_INFORMATION(control)) {
+			if (tree) {
+				proto_tree_add_uint(snap_tree, hf_llc_type,
+				    tvb, offset+3, 2, etype);
+			}
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			mesh_header_len = call_dissector(mesh_handle,
+			    next_tvb, pinfo, tree);
+			next_tvb = tvb_new_subset(tvb, offset+5+mesh_header_len,
+			    -1, -1);
+			if (!dissector_try_port(ethertype_subdissector_table,
+			    etype, next_tvb, pinfo, tree))
+				call_dissector(data_handle,next_tvb, pinfo, tree);
+		} else {
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
+		}
 		break;
 
 	default:
@@ -891,7 +930,13 @@ proto_reg_handoff_llc(void)
 	fddi_handle = find_dissector("fddi");
 	tr_handle = find_dissector("tr");
 	turbo_handle = find_dissector("turbocell");
+	mesh_handle = find_dissector("mesh");
 	data_handle = find_dissector("data");
+
+	/*
+	 * Get the Ethertype dissector table.
+	 */
+	ethertype_subdissector_table = find_dissector_table("ethertype");
 
 	llc_handle = find_dissector("llc");
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);

@@ -603,6 +603,7 @@ DISSECTOR_SRC = \
 	packet-media.c		\
 	packet-megaco.c		\
 	packet-memcache.c	\
+	packet-mesh.c		\
 	packet-mgcp.c		\
 	packet-mikey.c		\
 	packet-miop.c		\
