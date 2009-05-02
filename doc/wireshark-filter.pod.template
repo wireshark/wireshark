@@ -341,7 +341,7 @@ ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
 the packet does not pass.  If B<neither> ip.addr field is 192.168.4.1,
 then the packet is displayed.
 
-It is easy to think of the 'ne' and 'eq' operators as having an implict
+It is easy to think of the 'ne' and 'eq' operators as having an implicit
 "exists" modifier when dealing with multiply-recurring fields.  "ip.addr
 ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
 not equal 192.168.4.1".  "not ip.addr eq 192.168.4.1" can be thought of as
