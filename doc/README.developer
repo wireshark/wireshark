@@ -1445,7 +1445,7 @@ For example, the SCTP dissector calls 'col_set_fence' on the Info column
 after it has called any subdissectors for that chunk so that subdissectors
 of any subsequent chunks may only append to the Info column.
 'col_prepend_fence_fstr' prepends data before a fence (moving it if
-necessary).  It will create a fence at the end of the prended data if the
+necessary).  It will create a fence at the end of the prepended data if the
 fence does not already exist.
 
 
@@ -2206,7 +2206,7 @@ static const value_string sna_th_fid_vals[] = {
 	{ 0x3,	"Subarea Node or SNA host <--> Subarea Node" },
 	{ 0x4,	"?" },
 	{ 0x5,	"?" },
-	{ 0xf,	"Adjaced Subarea Nodes" },
+	{ 0xf,	"Adjacent Subarea Nodes" },
 	{ 0,	NULL }
 };
 
@@ -2437,7 +2437,7 @@ Adds a number of bits to the protocol tree which does not have to be byte
 aligned. The offset and length is in bits.
 Output format:
 
-..10 1010 10.. .... "value" (formated as FT_ indicates).
+..10 1010 10.. .... "value" (formatted as FT_ indicates).
 
 proto_tree_add_bits_ret_val()
 -----------------------------
@@ -2523,7 +2523,7 @@ both 'name' and 'fallback' arguments as NULL, and a flags of
 PROTO_ITEM_SET_GENERATED()
 --------------------------
 PROTO_ITEM_SET_GENERATED is used to mark fields as not being read from the
-captured data directly, but infered from one or more values.
+captured data directly, but inferred from one or more values.
 
 One of the primary uses of this is the presentation of verification of
 checksums. Every IP packet has a checksum line, which can present the result
