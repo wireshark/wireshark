@@ -40,7 +40,7 @@ By default, it reads all packets from the I<infile> and writes them to the
 I<outfile> in libpcap file format.
 
 An optional list of packet numbers can be specified on the command tail; 
-individual packet numbers seperated by whitespace and/or ranges of packet
+individual packet numbers separated by whitespace and/or ranges of packet
 numbers can be specified as I<start>-I<end>, referring to all packets from
 I<start> to I<end>.  By default the selected packets with those numbers will
 I<not> be written to the capture file.  If the B<-r> flag is specified, the
@@ -87,7 +87,7 @@ formats leaves some random bytes at the end of each packet.
 
 Attempts to remove duplicate packets.  The length and MD5 hash of the 
 current packet are compared to the previous four (4) packets.  If a 
-match is found, the current packet is skipped.  This option is equilivent
+match is found, the current packet is skipped.  This option is equivalent
 to using the option B<-D 5>.
 
 =item -D  E<lt>dup windowE<gt>
