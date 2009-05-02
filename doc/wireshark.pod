@@ -404,7 +404,7 @@ B<persconf>:I<path> path of personal configuration files, like the
 preferences files.
 
 B<persdata>:I<path> path of personal data files, it's the folder initially
-opened. After the very first initilization, the recent file will keep the
+opened. After the very first initialization, the recent file will keep the
 folder last used.
 
 =item -Q
@@ -803,7 +803,7 @@ dialog box popped up by this menu item.
 
 Exit the application.
 
-=item Edit:Copy:Decription
+=item Edit:Copy:Description
 
 Copies the description of the selected field in the protocol tree to 
 the clipboard.
@@ -865,7 +865,7 @@ Packets that have been selected as Time Reference packets will always be
 displayed in the packet list pane.  Display filters will not affect or
 hide these packets.
 
-If there is a column displayed for "Culmulative Bytes" this counter will
+If there is a column displayed for "Cumulative Bytes" this counter will
 be reset at every Time Reference packet.
 
 =item Edit:Time Reference:Find Next
@@ -920,7 +920,7 @@ Set the format of the packet timestamp displayed in the packet list window.
 
 =item View:Name Resolution:Resolve Name
 
-Try to resolve a name for the currently seleted item.
+Try to resolve a name for the currently selected item.
 
 =item View:Name Resolution:Enable for ... Layer
 
@@ -1049,7 +1049,7 @@ or F</tmp>.
 
 =item Capture:Start
 
-Start a live packet capture with the previously seleted options. This won't
+Start a live packet capture with the previously selected options. This won't
 open the options dialog box, and can be convenient for repeatingly capturing
 with the same options.
 
@@ -1195,7 +1195,7 @@ that time.
 
 Below the drawing area and the scrollbar are the controls.  On the
 bottom left there will be five similar sets of controls to control each
-induvidual graph such as "Display:<button>" which button will toggle
+individual graph such as "Display:<button>" which button will toggle
 that individual graph on/off.  If <button> is ticked, the graph will be
 displayed.  "Color:<color>" which is just a button to show which color
 will be used to draw that graph (color is only available in Gtk2
@@ -1572,7 +1572,7 @@ The right mouse button can be used to pop up a menu of operations.
 
 =item Statusbar
 
-The statusbar is divided into three parts, on the left some context dependant
+The statusbar is divided into three parts, on the left some context dependent
 things are shown, like information about the loaded file, in the center the
 number of packets are displayed, and on the right the current configuration
 profile.
