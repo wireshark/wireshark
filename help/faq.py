@@ -943,7 +943,7 @@ In the case of wireless LAN interfaces, it appears that, when those
 interfaces are promiscuously sniffing, they're running in a
 significantly different mode from the mode that they run in when they're
 just acting as network interfaces (to the extent that it would be a
-significant effor for those drivers to support for promiscuously
+significant effort for those drivers to support for promiscuously
 sniffing <em>and</em> acting as regular network interfaces at the same
 time), so it may be that Windows drivers for those interfaces don't
 support promiscuous mode.
