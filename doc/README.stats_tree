@@ -89,7 +89,7 @@ extern void udp_term_stats_tree_init(stats_tree* st) {
 
 /* this one will be called with every udp packet */
 extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */ 
-                                      packet_info *pinfo,  /* we'll fetch the addreses from here */
+                                      packet_info *pinfo,  /* we'll fetch the addresses from here */
                                       epan_dissect_t *edt _U_, /* unused */ 
                                       const void *p) /* we'll use this to fetch the ports */
 {
