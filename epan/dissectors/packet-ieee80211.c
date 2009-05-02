@@ -1975,17 +1975,52 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
          and just stick the payload into an 802.11 frame.  I've seen
          captures that show frames of that sort.
 
-         This means we have to do the same check for Netware 802.3 -
-         or, if you will, "Netware 802.11" - that we do in the
-         Ethernet dissector, i.e. checking for 0xffff as the first
-         four bytes of the payload and, if we find it, treating it
-         as an IPX frame. */
+         We also handle some odd form of encapsulation in which a
+         complete Ethernet frame is encapsulated within an 802.11
+         data frame, with no 802.2 header.  This has been seen
+         from some hardware.
+
+         On top of that, at least at some point it appeared that
+         the OLPC XO sent out frames with two bytes of 0 between
+         the "end" of the 802.11 header and the beginning of
+         the payload.
+
+         So, if the packet doesn't start with 0xaa 0xaa:
+
+           we first use the same scheme that linux-wlan-ng does to detect
+           those encapsulated Ethernet frames, namely looking to see whether
+           the frame either starts with 6 octets that match the destination
+           address from the 802.11 header or has 6 octets that match the
+           source address from the 802.11 header following the first 6 octets,
+           and, if so, treat it as an encapsulated Ethernet frame;
+
+           otherwise, we use the same scheme that we use in the Ethernet
+           dissector to recognize Netware 802.3 frames, namely checking
+           whether the packet starts with 0xff 0xff and, if so, treat it
+           as an encapsulated IPX frame, and then check whether the
+           packet starts with 0x00 0x00 and, if so, treat it as an OLPC
+           frame. */
       if (!BYTES_ARE_IN_FRAME(offset+hdr_length, len, 2)) {
         ld->other++;
         return;
       }
-      if (pd[offset+hdr_length] == 0xff && pd[offset+hdr_length+1] == 0xff) {
-        capture_ipx (ld);
+      if (pd[offset+hdr_length] != 0xaa && pd[offset+hdr_length+1] != 0xaa) {
+#if 0
+        /* XXX - this requires us to parse the header to find the source
+           and destination addresses. */
+        if (BYTES_ARE_IN_FRAME(offset+hdr_length, len, 12) {
+          /* We have two MAC addresses after the header. */
+          if (memcmp(&pd[offset+hdr_length+6], pinfo->dl_src.data, 6) == 0 ||
+              memcmp(&pd[offset+hdr_length+6], pinfo->dl_dst.data, 6) == 0) {
+            capture_eth (pd, offset + hdr_length, len, ld);
+            return;
+          }
+        }
+#endif
+        if (pd[offset+hdr_length] == 0xff && pd[offset+hdr_length+1] == 0xff)
+          capture_ipx (ld);
+        else if (pd[offset+hdr_length] == 0x00 && pd[offset+hdr_length+1] == 0x00)
+          capture_llc (pd, offset + hdr_length + 2, len, ld);
       }
       else {
         capture_llc (pd, offset + hdr_length, len, ld);
@@ -6048,7 +6083,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_item *fcs_item = NULL;
   proto_item *cw_item = NULL;
   proto_item *hidden_item;
-  proto_tree *hdr_tree = NULL;
+  proto_tree *volatile hdr_tree = NULL;
   proto_tree *fcs_tree = NULL;
   proto_tree *cw_tree = NULL;
   guint16 hdr_len, ohdr_len, htc_len = 0;
@@ -7418,6 +7453,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
          data frame, with no 802.2 header.  This has been seen
          from some hardware.
 
+         On top of that, at least at some point it appeared that
+         the OLPC XO sent out frames with two bytes of 0 between
+         the "end" of the 802.11 header and the beginning of
+         the payload.
+
          So, if the packet doesn't start with 0xaa 0xaa:
 
            we first use the same scheme that linux-wlan-ng does to detect
@@ -7430,7 +7470,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
            otherwise, we use the same scheme that we use in the Ethernet
            dissector to recognize Netware 802.3 frames, namely checking
            whether the packet starts with 0xff 0xff and, if so, treat it
-           as an encapsulated IPX frame. */
+           as an encapsulated IPX frame, and then check whether the
+           packet starts with 0x00 0x00 and, if so, treat it as an OLPC
+           frame. */
       encap_type = ENCAP_802_2;
       TRY {
         octet1 = tvb_get_guint8(next_tvb, 0);
@@ -7443,6 +7485,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             encap_type = ENCAP_ETHERNET;
           else if (octet1 == 0xff && octet2 == 0xff)
             encap_type = ENCAP_IPX;
+          else if (octet1 == 0x00 && octet2 == 0x00) {
+            proto_tree_add_text(tree, next_tvb, 0, 2, "Mysterious OLPC stuff");
+            next_tvb = tvb_new_subset (next_tvb, 2, -1, -1);
+          }
         }
       }
       CATCH2(BoundsError, ReportedBoundsError) {
