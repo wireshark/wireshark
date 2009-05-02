@@ -1166,7 +1166,9 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wtapng_block_t wblock;
 
 
+	pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
 	*data_offset = wth->data_offset;
+	pcapng_debug1("pcapng_read: *data_offset is initially set to %" G_GINT64_MODIFIER "u", *data_offset);
 
 	/* XXX - this probably won't work well with unlimited / per packet snapshot length */
 	buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
@@ -1192,6 +1194,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 		/* XXX - improve handling of "unknown" blocks */
 		pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
+		*data_offset += bytes_read;
+		pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
 	}
 
 	wth->phdr.caplen	= wblock.data.packet.cap_len;
@@ -1217,9 +1221,10 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
-	wth->data_offset += bytes_read;
+	wth->data_offset = *data_offset + bytes_read;
+	pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
 
-    return TRUE;
+	return TRUE;
 }
 
 
@@ -1239,6 +1244,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 	if (bytes_read64 <= 0) {
 		return FALSE;	/* Seek error */
 	}
+	pcapng_debug1("pcapng_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
 	wblock.frame_buffer = pd;
 	wblock.pseudo_header = pseudo_header;
