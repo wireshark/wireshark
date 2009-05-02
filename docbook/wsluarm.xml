@@ -113,7 +113,7 @@ do
 		-- Declare the window we will use
 		local tw = TextWindow.new("Address Counter")
 		
-		-- This will contain a hash of counters of appereances of a certain address
+		-- This will contain a hash of counters of appearances of a certain address
 		local ips = {}
 		
 		-- this is our tap
