@@ -556,7 +556,7 @@ Index: file.h
 --- file.h      (revision 21134)
 +++ file.h      (revision 22401)
 @@ -142,7 +142,7 @@
-  * @param err the error code, if an error had occured
+  * @param err the error code, if an error had occurred
   * @return one of cf_read_status_t
   */
 -cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
