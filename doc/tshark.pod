@@ -78,7 +78,7 @@ When writing a decoded form of packets, B<TShark> writes, by
 default, a summary line containing the fields specified by the
 preferences file (which are also the fields displayed in the packet list
 pane in B<Wireshark>), although if it's writing packets as it captures
-them, rather than writting packets from a saved capture file, it won't
+them, rather than writing packets from a saved capture file, it won't
 show the "frame number" field.  If the B<-V> option is specified, it
 writes instead a view of the details of the packet, showing all the
 fields of all protocols in the packet.
@@ -572,7 +572,7 @@ can exist multiple times inside the same packet and will then be counted
 multiple times in those packets. 
 
 NOTE: A second important thing to note is that the system setting for 
-decimal separator is set to "."! If it is set to "," the statisctics 
+decimal separator is set to "."! If it is set to "," the statistics 
 will not be displayed per filter.
 
 
