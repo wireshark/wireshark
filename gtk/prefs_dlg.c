@@ -191,7 +191,7 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->saved_val.boolval = *pref->varp.boolp;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
                                                    label_string, pref->description,
-                                                   pref>saved_val.boolval);
+                                                   pref->saved_val.boolval);
     break;
 
   case PREF_ENUM:
