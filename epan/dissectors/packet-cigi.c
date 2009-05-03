@@ -26,6 +26,7 @@
  *
  * Contributers:
  * Kyle J. Harms <kyle.j.harms@boeing.com>
+ * Brian M. Ames <bmames@apk.net>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -135,6 +136,18 @@ static gint cigi3_2_add_hat_hot_response(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_2_add_hat_hot_extended_response(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_2_add_line_of_sight_response(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_2_add_line_of_sight_extended_response(tvbuff_t*, proto_tree*, gint);
+
+static gint cigi3_3_add_ig_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_entity_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_component_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_short_component_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_surface_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_text_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_circle_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_line_definition(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_clone(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_symbol_control(tvbuff_t*, proto_tree*, gint);
+static gint cigi3_3_add_short_symbol_control(tvbuff_t*, proto_tree*, gint);
 
 
 static gfloat tvb_get_fixed_point(tvbuff_t*, int, gint);
@@ -740,6 +753,13 @@ static int hf_cigi3_packet_id = -1;
 #define CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST              26
 #define CIGI3_PACKET_ID_POSITION_REQUEST                          27
 #define CIGI3_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST          28
+#define CIGI3_PACKET_ID_SYMBOL_SURFACE_DEFINITION                 29
+#define CIGI3_PACKET_ID_SYMBOL_TEXT_DEFINITION                    30
+#define CIGI3_PACKET_ID_SYMBOL_CIRCLE_DEFINITION                  31
+#define CIGI3_PACKET_ID_SYMBOL_LINE_DEFINITION                    32
+#define CIGI3_PACKET_ID_SYMBOL_CLONE                              33
+#define CIGI3_PACKET_ID_SYMBOL_CONTROL                            34
+#define CIGI3_PACKET_ID_SHORT_SYMBOL_CONTROL                      35
 #define CIGI3_PACKET_ID_START_OF_FRAME                           101
 #define CIGI3_PACKET_ID_HAT_HOT_RESPONSE                         102
 #define CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE                103
@@ -788,6 +808,13 @@ static const value_string cigi3_packet_id_vals[] = {
     {CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST, "Line of Sight Vector Request"},
     {CIGI3_PACKET_ID_POSITION_REQUEST, "Position Request"},
     {CIGI3_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST, "Environmental Conditions Request"},
+    {CIGI3_PACKET_ID_SYMBOL_SURFACE_DEFINITION, "Symbol Surface Definition"},
+    {CIGI3_PACKET_ID_SYMBOL_TEXT_DEFINITION, "Symbol Text Definition"},
+    {CIGI3_PACKET_ID_SYMBOL_CIRCLE_DEFINITION, "Symbol Circle Definition"},
+    {CIGI3_PACKET_ID_SYMBOL_LINE_DEFINITION, "Symbol Line Definition"},
+    {CIGI3_PACKET_ID_SYMBOL_CLONE, "Symbol Clone"},
+    {CIGI3_PACKET_ID_SYMBOL_CONTROL, "Symbol Control"},
+    {CIGI3_PACKET_ID_SHORT_SYMBOL_CONTROL, "Short Symbol Control"},
     {CIGI3_PACKET_ID_START_OF_FRAME, "Start of Frame"},
     {CIGI3_PACKET_ID_HAT_HOT_RESPONSE, "HAT/HOT Response"},
     {CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE, "HAT/HOT Extended Response"},
@@ -896,6 +923,25 @@ static const value_string cigi3_2_ig_control_ig_mode_vals[] = {
     {0, NULL},
 };
 
+/* CIGI3_3 IG Control */
+#define CIGI3_3_PACKET_SIZE_IG_CONTROL 24
+static int hf_cigi3_3_ig_control = -1;
+static int hf_cigi3_3_ig_control_db_number = -1;
+static int hf_cigi3_3_ig_control_ig_mode = -1;
+static int hf_cigi3_3_ig_control_timestamp_valid = -1;
+static int hf_cigi3_3_ig_control_extrapolation_enable = -1;
+static int hf_cigi3_3_ig_control_minor_version = -1;
+static int hf_cigi3_3_ig_control_host_frame_number = -1;
+static int hf_cigi3_3_ig_control_timestamp = -1;
+static int hf_cigi3_3_ig_control_last_ig_frame_number = -1;
+
+static const value_string cigi3_3_ig_control_ig_mode_vals[] = {
+    {0, "Reset/Standby"},
+    {1, "Operate"},
+    {2, "Debug"},
+    {0, NULL},
+};
+
 /* CIGI3 Entity Control */
 #define CIGI3_PACKET_SIZE_ENTITY_CONTROL 48
 static int hf_cigi3_entity_control = -1;
@@ -965,6 +1011,28 @@ static const value_string cigi3_entity_control_animation_state_vals[] = {
     {0, NULL},
 };
 
+/* CIGI3_3 Entity Control */
+static int hf_cigi3_3_entity_control = -1;
+static int hf_cigi3_3_entity_control_entity_id = -1;
+static int hf_cigi3_3_entity_control_entity_state = -1;
+static int hf_cigi3_3_entity_control_attach_state = -1;
+static int hf_cigi3_3_entity_control_collision_detection_request = -1;
+static int hf_cigi3_3_entity_control_inherit_alpha = -1;
+static int hf_cigi3_3_entity_control_ground_ocean_clamp = -1;
+static int hf_cigi3_3_entity_control_animation_direction = -1;
+static int hf_cigi3_3_entity_control_animation_loop_mode = -1;
+static int hf_cigi3_3_entity_control_animation_state = -1;
+static int hf_cigi3_3_entity_control_extrapolation_enable = -1;
+static int hf_cigi3_3_entity_control_alpha = -1;
+static int hf_cigi3_3_entity_control_entity_type = -1;
+static int hf_cigi3_3_entity_control_parent_id = -1;
+static int hf_cigi3_3_entity_control_roll = -1;
+static int hf_cigi3_3_entity_control_pitch = -1;
+static int hf_cigi3_3_entity_control_yaw = -1;
+static int hf_cigi3_3_entity_control_lat_xoff = -1;
+static int hf_cigi3_3_entity_control_lon_yoff = -1;
+static int hf_cigi3_3_entity_control_alt_zoff = -1;
+
 /* CIGI3 Conformal Clamped Entity Control */
 #define CIGI3_PACKET_SIZE_CONFORMAL_CLAMPED_ENTITY_CONTROL 24
 static int hf_cigi3_conformal_clamped_entity_control = -1;
@@ -1005,6 +1073,39 @@ static const value_string cigi3_component_control_component_class_vals[] = {
     {0, NULL},
 };
 
+/* CIGI3_3 Component Control */
+static int hf_cigi3_3_component_control = -1;
+static int hf_cigi3_3_component_control_component_id = -1;
+static int hf_cigi3_3_component_control_instance_id = -1;
+static int hf_cigi3_3_component_control_component_class = -1;
+static int hf_cigi3_3_component_control_component_state = -1;
+static int hf_cigi3_3_component_control_data_1 = -1;
+static int hf_cigi3_3_component_control_data_2 = -1;
+static int hf_cigi3_3_component_control_data_3 = -1;
+static int hf_cigi3_3_component_control_data_4 = -1;
+static int hf_cigi3_3_component_control_data_5 = -1;
+static int hf_cigi3_3_component_control_data_6 = -1;
+
+static const value_string cigi3_3_component_control_component_class_vals[] = {
+    {0, "Entity"},
+    {1, "View"},
+    {2, "View Group"},
+    {3, "Sensor"},
+    {4, "Regional Sea Surface"},
+    {5, "Regional Terrain Surface"},
+    {6, "Regional Layered Weather"},
+    {7, "Global Sea Surface"},
+    {8, "Global Terrain Surface"},
+    {9, "Global Layered Weather"},
+    {10, "Atmosphere"},
+    {11, "Celestial Sphere"},
+    {12, "Event"},
+    {13, "System"},
+    {14, "Symbol Surface"},
+    {15, "Symbol"},
+    {0, NULL},
+};
+
 /* CIGI3 Short Component Control */
 #define CIGI3_PACKET_SIZE_SHORT_COMPONENT_CONTROL 16
 static int hf_cigi3_short_component_control = -1;
@@ -1030,6 +1131,35 @@ static const value_string cigi3_short_component_control_component_class_vals[] =
     {11, "Celestial Sphere"},
     {12, "Event"},
     {13, "System"},
+    {0, NULL},
+};
+
+/* CIGI3_3 Short Component Control */
+static int hf_cigi3_3_short_component_control = -1;
+static int hf_cigi3_3_short_component_control_component_id = -1;
+static int hf_cigi3_3_short_component_control_instance_id = -1;
+static int hf_cigi3_3_short_component_control_component_class = -1;
+static int hf_cigi3_3_short_component_control_component_state = -1;
+static int hf_cigi3_3_short_component_control_data_1 = -1;
+static int hf_cigi3_3_short_component_control_data_2 = -1;
+
+static const value_string cigi3_3_short_component_control_component_class_vals[] = {
+    {0, "Entity"},
+    {1, "View"},
+    {2, "View Group"},
+    {3, "Sensor"},
+    {4, "Regional Sea Surface"},
+    {5, "Regional Terrain Surface"},
+    {6, "Regional Layered Weather"},
+    {7, "Global Sea Surface"},
+    {8, "Global Terrain Surface"},
+    {9, "Global Layered Weather"},
+    {10, "Atmosphere"},
+    {11, "Celestial Sphere"},
+    {12, "Event"},
+    {13, "System"},
+    {14, "Symbol Surface"},
+    {15, "Symbol"},
     {0, NULL},
 };
 
@@ -1317,12 +1447,12 @@ static int hf_cigi3_view_control_yaw = -1;
 static int hf_cigi3_sensor_control = -1;
 static int hf_cigi3_sensor_control_view_id = -1;
 static int hf_cigi3_sensor_control_sensor_id = -1;
-static int hf_cigi3_sensor_control_track_mode = -1;
 static int hf_cigi3_sensor_control_sensor_on_off = -1;
 static int hf_cigi3_sensor_control_polarity = -1;
 static int hf_cigi3_sensor_control_line_dropout_enable = -1;
 static int hf_cigi3_sensor_control_auto_gain = -1;
 static int hf_cigi3_sensor_control_track_white_black = -1;
+static int hf_cigi3_sensor_control_track_mode = -1;
 static int hf_cigi3_sensor_control_response_type = -1;
 static int hf_cigi3_sensor_control_gain = -1;
 static int hf_cigi3_sensor_control_level = -1;
@@ -1687,9 +1817,247 @@ static int hf_cigi3_environmental_conditions_request_alt = -1;
 static const value_string cigi3_environmental_conditions_request_type_vals[] = {
     {1, "Maritime Surface Conditions"},
     {2, "Terrestrial Surface Conditions"},
+    {3, "Maritime+Terrestrial Surface Conditions"},
     {4, "Weather Conditions"},
+    {5, "Maritime+Weather Surface Conditions"},
+    {6, "Terrestrial+Weather Surface Conditions"},
+    {7, "Maritime+Terrestrial+Weather Surface Conditions"},
     {8, "Aerosol Concentrations"},
+    {9, "Maritime Surface Conditions+Aerosol Concentrations"},
+    {10, "Terrestrial Surface Conditions+Aerosol Concentrations"},
+    {11, "Maritime+Terrestrial Surface Conditions+Aerosol Concentrations"},
+    {12, "Weather Conditions+Aerosol Concentrations"},
+    {13, "Maritime+Weather Surface Conditions+Aerosol Concentrations"},
+    {14, "Terrestrial+Weather Surface Conditions+Aerosol Concentrations"},
+    {15, "Maritime+Terrestrial+Weather Surface Conditions+Aerosol Concentrations"},
     {0, NULL},
+};
+
+/* CIGI3_3 Symbol Surface Definition */
+#define CIGI3_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION 56
+static int hf_cigi3_3_symbol_surface_definition = -1;
+static int hf_cigi3_3_symbol_surface_definition_surface_id = -1;
+static int hf_cigi3_3_symbol_surface_definition_surface_state = -1;
+static int hf_cigi3_3_symbol_surface_definition_attach_type = -1;
+static int hf_cigi3_3_symbol_surface_definition_billboard = -1;
+static int hf_cigi3_3_symbol_surface_definition_perspective_growth_enable = -1;
+static int hf_cigi3_3_symbol_surface_definition_entity_view_id = -1;
+static int hf_cigi3_3_symbol_surface_definition_xoff_left = -1;
+static int hf_cigi3_3_symbol_surface_definition_yoff_right = -1;
+static int hf_cigi3_3_symbol_surface_definition_zoff_top = -1;
+static int hf_cigi3_3_symbol_surface_definition_yaw_bottom = -1;
+static int hf_cigi3_3_symbol_surface_definition_pitch = -1;
+static int hf_cigi3_3_symbol_surface_definition_roll = -1;
+static int hf_cigi3_3_symbol_surface_definition_width = -1;
+static int hf_cigi3_3_symbol_surface_definition_height = -1;
+static int hf_cigi3_3_symbol_surface_definition_min_u = -1;
+static int hf_cigi3_3_symbol_surface_definition_max_u = -1;
+static int hf_cigi3_3_symbol_surface_definition_min_v = -1;
+static int hf_cigi3_3_symbol_surface_definition_max_v = -1;
+
+static const true_false_string cigi3_3_symbol_surface_definition_surface_state_tfs = {
+    "Destroyed",
+    "Active"
+};
+
+static const true_false_string cigi3_3_symbol_surface_definition_attach_type_tfs = {
+    "View",
+    "Entity"
+};
+
+static const true_false_string cigi3_3_symbol_surface_definition_billboard_tfs = {
+    "Billboard",
+    "Non-Billboard"
+};
+
+/* CIGI3_3 Symbol Text Definition */
+#define CIGI3_PACKET_SIZE_SYMBOL_TEXT_DEFINITION 56
+static int hf_cigi3_3_symbol_text_definition = -1;
+static int hf_cigi3_3_symbol_text_definition_symbol_id = -1;
+static int hf_cigi3_3_symbol_text_definition_orientation = -1;
+static int hf_cigi3_3_symbol_text_definition_alignment = -1;
+static int hf_cigi3_3_symbol_text_definition_font_ident = -1;
+static int hf_cigi3_3_symbol_text_definition_font_size = -1;
+static int hf_cigi3_3_symbol_text_definition_text = -1;
+
+static const value_string cigi3_3_symbol_text_definition_alignment_vals[] = {
+    {0, "Top Left"},
+    {1, "Top Center"},
+    {2, "Top Right"},
+    {3, "Center Left"},
+    {4, "Center"},
+    {5, "Center Right"},
+    {6, "Bottom Left"},
+    {7, "Bottom Center"},
+    {8, "Bottom Right"},
+    {0, NULL}
+};
+
+static const value_string cigi3_3_symbol_text_definition_orientation_vals[] = {
+    {0, "Left To Right"},
+    {1, "Top To Bottom"},
+    {2, "Right To Left"},
+    {3, "Bottom To Top"},
+    {0, NULL}
+};
+
+static const value_string cigi3_3_symbol_text_definition_font_ident_vals[] = {
+    {0, "IG Default"},
+    {1, "Proportional Sans Serif"},
+    {2, "Proportional Sans Serif Bold"},
+    {3, "Proportional Sans Serif Italic"},
+    {4, "Proportional Sans Serif Bold Italic"},
+    {5, "Proportional Serif"},
+    {6, "Proportional Serif Bold"},
+    {7, "Proportional Serif Italic"},
+    {8, "Proportional Serif Bold Italic"},
+    {9, "Monospace Sans Serif"},
+    {10, "Monospace Sans Serif Bold"},
+    {11, "Monospace Sans Serif Italic"},
+    {12, "Monospace Sans Serif Bold Italic"},
+    {13, "Monospace Serif"},
+    {14, "Monospace Serif Bold"},
+    {15, "Monospace Serif Italic"},
+    {16, "Monospace Serif Bold Italic"},
+    {0, NULL}
+};
+
+/* CIGI3_3 Symbol Circle Definition */
+#define CIGI3_PACKET_SIZE_SYMBOL_CIRCLE_DEFINITION 56
+static int hf_cigi3_3_symbol_circle_definition = -1;
+static int hf_cigi3_3_symbol_circle_definition_symbol_id = -1;
+static int hf_cigi3_3_symbol_circle_definition_drawing_style = -1;
+static int hf_cigi3_3_symbol_circle_definition_stipple_pattern = -1;
+static int hf_cigi3_3_symbol_circle_definition_line_width = -1;
+static int hf_cigi3_3_symbol_circle_definition_stipple_pattern_length = -1;
+static int hf_cigi3_3_symbol_circle_definition_center_u[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_center_v[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_radius[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_inner_radius[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_start_angle[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_circle_definition_end_angle[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+
+static const true_false_string cigi3_3_symbol_circle_definition_drawing_style_tfs = {
+    "Fill",
+    "Line"
+};
+
+/* CIGI3_3 Symbol Line Definition */
+#define CIGI3_PACKET_SIZE_SYMBOL_LINE_DEFINITION 56
+static int hf_cigi3_3_symbol_line_definition = -1;
+static int hf_cigi3_3_symbol_line_definition_symbol_id = -1;
+static int hf_cigi3_3_symbol_line_definition_primitive_type = -1;
+static int hf_cigi3_3_symbol_line_definition_stipple_pattern = -1;
+static int hf_cigi3_3_symbol_line_definition_line_width = -1;
+static int hf_cigi3_3_symbol_line_definition_stipple_pattern_length = -1;
+static int hf_cigi3_3_symbol_line_definition_vertex_u[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_cigi3_3_symbol_line_definition_vertex_v[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+
+static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] = {
+    {0, "Point"},
+    {1, "Line"},
+    {2, "Line Strip"},
+    {3, "Line Loop"},
+    {4, "Triangle"},
+    {5, "Triangle Strip"},
+    {6, "Triangle Fan"},
+    {0, NULL}
+};
+
+/* CIGI3_3 Symbol Clone */
+#define CIGI3_PACKET_SIZE_SYMBOL_CLONE_DEFINITION 8
+static int hf_cigi3_3_symbol_clone = -1;
+static int hf_cigi3_3_symbol_clone_symbol_id = -1;
+static int hf_cigi3_3_symbol_clone_source_type = -1;
+static int hf_cigi3_3_symbol_clone_source_id = -1;
+
+static const true_false_string cigi3_3_symbol_clone_source_type_tfs = {
+    "Symbol Template",
+    "Symbol"
+};
+
+/* CIGI3_3 Symbol Control */
+#define CIGI3_PACKET_SIZE_SYMBOL_CONTROL_DEFINITION 40
+static int hf_cigi3_3_symbol_control = -1;
+static int hf_cigi3_3_symbol_control_symbol_id = -1;
+static int hf_cigi3_3_symbol_control_symbol_state = -1;
+static int hf_cigi3_3_symbol_control_attach_state = -1;
+static int hf_cigi3_3_symbol_control_flash_control = -1;
+static int hf_cigi3_3_symbol_control_inherit_color = -1;
+static int hf_cigi3_3_symbol_control_parent_symbol_ident = -1;
+static int hf_cigi3_3_symbol_control_surface_ident = -1;
+static int hf_cigi3_3_symbol_control_layer = -1;
+static int hf_cigi3_3_symbol_control_flash_duty_cycle = -1;
+static int hf_cigi3_3_symbol_control_flash_period = -1;
+static int hf_cigi3_3_symbol_control_position_u = -1;
+static int hf_cigi3_3_symbol_control_position_v = -1;
+static int hf_cigi3_3_symbol_control_rotation = -1;
+static int hf_cigi3_3_symbol_control_red = -1;
+static int hf_cigi3_3_symbol_control_green = -1;
+static int hf_cigi3_3_symbol_control_blue = -1;
+static int hf_cigi3_3_symbol_control_alpha = -1;
+static int hf_cigi3_3_symbol_control_scale_u = -1;
+static int hf_cigi3_3_symbol_control_scale_v = -1;
+
+static const value_string cigi3_3_symbol_control_symbol_state_vals[] = {
+    {0, "Hidden"},
+    {1, "Visible"},
+    {2, "Destroyed"},
+    {0, NULL}
+};
+
+static const true_false_string cigi3_3_symbol_control_attach_state_tfs = {
+    "Attach",
+    "Detach"
+};
+
+static const true_false_string cigi3_3_symbol_control_flash_control_tfs = {
+    "Reset",
+    "Continue"
+};
+
+static const true_false_string cigi3_3_symbol_control_inherit_color_tfs = {
+    "Inherited",
+    "Not Inherited"
+};
+
+/* CIGI3_3 Short Symbol Control */
+#define CIGI3_PACKET_SIZE_SHORT_SYMBOL_CONTROL_DEFINITION 32
+static int hf_cigi3_3_short_symbol_control = -1;
+static int hf_cigi3_3_short_symbol_control_symbol_id = -1;
+static int hf_cigi3_3_short_symbol_control_inherit_color = -1;
+static int hf_cigi3_3_short_symbol_control_flash_control = -1;
+static int hf_cigi3_3_short_symbol_control_attach_state = -1;
+static int hf_cigi3_3_short_symbol_control_symbol_state = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_select1 = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_select2 = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_value1 = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_value2 = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_value1f = -1;
+static int hf_cigi3_3_short_symbol_control_attribute_value2f = -1;
+static int hf_cigi3_3_short_symbol_control_red1 = -1;
+static int hf_cigi3_3_short_symbol_control_green1 = -1;
+static int hf_cigi3_3_short_symbol_control_blue1 = -1;
+static int hf_cigi3_3_short_symbol_control_alpha1 = -1;
+static int hf_cigi3_3_short_symbol_control_red2 = -1;
+static int hf_cigi3_3_short_symbol_control_green2 = -1;
+static int hf_cigi3_3_short_symbol_control_blue2 = -1;
+static int hf_cigi3_3_short_symbol_control_alpha2 = -1;
+
+static const value_string cigi3_3_short_symbol_control_attribute_select_vals[] = {
+    {0, "None"},
+    {1, "Surface ID"},
+    {2, "Parent Symbol ID"},
+    {3, "Layer"},
+    {4, "Flash Duty Cycle Percentage"},
+    {5, "Flash Period"},
+    {6, "Position U"},
+    {7, "Position V"},
+    {8, "Rotation"},
+    {9, "Color"},
+    {10,"Scale U"},
+    {11,"Scale V"},
+    {0, NULL}
 };
 
 /* CIGI3 Start of Frame */
@@ -2645,7 +3013,7 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
             cigi_version = tvb_get_guint8(tvb, 2);
             if ( packet_size == CIGI3_2_PACKET_SIZE_IG_CONTROL || packet_size == CIGI3_2_PACKET_SIZE_START_OF_FRAME ) {
-               cigi_minor_version = 2;
+               cigi_minor_version = tvb_get_guint8(tvb, 4) >> 4;
             } else {
                cigi_minor_version = 0;
             }
@@ -2667,6 +3035,9 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 2 ) {
             hf_cigi3_packet = hf_cigi3_2_ig_control;
             packet_length = CIGI3_2_PACKET_SIZE_IG_CONTROL;
+        } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 3 ) {
+            hf_cigi3_packet = hf_cigi3_3_ig_control;
+            packet_length = CIGI3_3_PACKET_SIZE_IG_CONTROL;
         } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
             hf_cigi3_packet = hf_cigi3_ig_control;
             packet_length = CIGI3_PACKET_SIZE_IG_CONTROL;
@@ -2688,7 +3059,7 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         } else if ( packet_id == CIGI3_PACKET_ID_SHORT_ARTICULATED_PART_CONTROL ) {
             hf_cigi3_packet = hf_cigi3_short_articulated_part_control;
             packet_length = CIGI3_PACKET_SIZE_SHORT_ARTICULATED_PART_CONTROL;
-        } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_rate_control;
             packet_length = CIGI3_2_PACKET_SIZE_RATE_CONTROL;
         } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL ) {
@@ -2739,19 +3110,19 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         } else if ( packet_id == CIGI3_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION ) {
             hf_cigi3_packet = hf_cigi3_collision_detection_volume_definition;
             packet_length = CIGI3_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION;
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST && cigi_minor_version == 2) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             hf_cigi3_packet = hf_cigi3_2_hat_hot_request;
             packet_length = CIGI3_2_PACKET_SIZE_HAT_HOT_REQUEST;
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST ) {
             hf_cigi3_packet = hf_cigi3_hat_hot_request;
             packet_length = CIGI3_PACKET_SIZE_HAT_HOT_REQUEST;
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_line_of_sight_segment_request;
             packet_length = CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST;
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST ) {
             hf_cigi3_packet = hf_cigi3_line_of_sight_segment_request;
             packet_length = CIGI3_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST;
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_line_of_sight_vector_request;
             packet_length = CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST;
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST ) {
@@ -2763,31 +3134,34 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         } else if ( packet_id == CIGI3_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST ) {
             hf_cigi3_packet = hf_cigi3_environmental_conditions_request;
             packet_length = CIGI3_PACKET_SIZE_ENVIRONMENTAL_CONDITIONS_REQUEST;
-        } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_SURFACE_DEFINITION ) {
+            hf_cigi3_packet = hf_cigi3_3_symbol_surface_definition;
+            packet_length = CIGI3_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION;
+        } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_start_of_frame;
             packet_length = CIGI3_2_PACKET_SIZE_START_OF_FRAME;
         } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
             hf_cigi3_packet = hf_cigi3_start_of_frame;
             packet_length = CIGI3_PACKET_SIZE_START_OF_FRAME;
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_hat_hot_response;
             packet_length = CIGI3_2_PACKET_SIZE_HAT_HOT_RESPONSE;
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE ) {
             hf_cigi3_packet = hf_cigi3_hat_hot_response;
             packet_length = CIGI3_PACKET_SIZE_HAT_HOT_RESPONSE;
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_hat_hot_extended_response;
             packet_length = CIGI3_2_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE;
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE ) {
             hf_cigi3_packet = hf_cigi3_hat_hot_extended_response;
             packet_length = CIGI3_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE;
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_line_of_sight_response;
             packet_length = CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE;
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
             hf_cigi3_packet = hf_cigi3_line_of_sight_response;
             packet_length = CIGI3_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE;
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             hf_cigi3_packet = hf_cigi3_2_line_of_sight_extended_response;
             packet_length = CIGI3_2_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE;
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE ) {
@@ -2851,21 +3225,29 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 
         if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 2 ) {
             offset = cigi3_2_add_ig_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_ig_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
             offset = cigi3_add_ig_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_ENTITY_CONTROL && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_entity_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_ENTITY_CONTROL ) {
             offset = cigi3_add_entity_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_CONFORMAL_CLAMPED_ENTITY_CONTROL ) {
             offset = cigi3_add_conformal_clamped_entity_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_COMPONENT_CONTROL && cigi_minor_version == 3) {
+            offset = cigi3_3_add_component_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_COMPONENT_CONTROL ) {
             offset = cigi3_add_component_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SHORT_COMPONENT_CONTROL && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_short_component_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_SHORT_COMPONENT_CONTROL ) {
             offset = cigi3_add_short_component_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_ARTICULATED_PART_CONTROL ) {
             offset = cigi3_add_articulated_part_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_SHORT_ARTICULATED_PART_CONTROL ) {
             offset = cigi3_add_short_articulated_part_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             offset = cigi3_2_add_rate_control(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_RATE_CONTROL ) {
             offset = cigi3_add_rate_control(tvb, cigi_packet_tree, offset);
@@ -2899,15 +3281,15 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             offset = cigi3_add_collision_detection_segment_definition(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION ) {
             offset = cigi3_add_collision_detection_volume_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             offset = cigi3_2_add_hat_hot_request(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_REQUEST ) {
             offset = cigi3_add_hat_hot_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             offset = cigi3_2_add_line_of_sight_segment_request(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST ) {
             offset = cigi3_add_line_of_sight_segment_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             offset = cigi3_2_add_line_of_sight_vector_request(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST ) {
             offset = cigi3_add_line_of_sight_vector_request(tvb, cigi_packet_tree, offset);
@@ -2915,23 +3297,37 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             offset = cigi3_add_position_request(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST ) {
             offset = cigi3_add_environmental_conditions_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME && cigi_minor_version == 2 ) {
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_SURFACE_DEFINITION && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_surface_definition(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_TEXT_DEFINITION && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_text_definition(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_CIRCLE_DEFINITION && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_circle_definition(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_LINE_DEFINITION && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_line_definition(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_CLONE && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_clone(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SYMBOL_CONTROL && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_symbol_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_SHORT_SYMBOL_CONTROL && cigi_minor_version == 3 ) {
+            offset = cigi3_3_add_short_symbol_control(tvb, cigi_packet_tree, offset);
+        } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME && (cigi_minor_version == 2 || cigi_minor_version == 3) ) {
             offset = cigi3_2_add_start_of_frame(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
             offset = cigi3_add_start_of_frame(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE && cigi_minor_version == 2) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             offset = cigi3_2_add_hat_hot_response(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_RESPONSE ) {
             offset = cigi3_add_hat_hot_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE && cigi_minor_version == 2) {
+        } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             offset = cigi3_2_add_hat_hot_extended_response(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE ) {
             offset = cigi3_add_hat_hot_extended_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE && cigi_minor_version == 2) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             offset = cigi3_2_add_line_of_sight_response(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
             offset = cigi3_add_line_of_sight_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE && cigi_minor_version == 2) {
+        } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE && (cigi_minor_version == 2 || cigi_minor_version == 3)) {
             offset = cigi3_2_add_line_of_sight_extended_response(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE ) {
             offset = cigi3_add_line_of_sight_extended_response(tvb, cigi_packet_tree, offset);
@@ -3815,6 +4211,39 @@ cigi3_2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     return offset;
 }
 
+/* CIGI3_3 IG Control */
+static gint
+cigi3_3_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_ig_control_db_number, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_ig_control_ig_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_ig_control_timestamp_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_ig_control_extrapolation_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_ig_control_minor_version, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    /* Get the Byte Swap in Big-Endian so that we can display whether the value
+     * is big-endian or little-endian to the user */
+    proto_tree_add_item(tree, hf_cigi3_byte_swap, tvb, offset, 2, CIGI_BYTE_ORDER_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_host_frame_number, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_timestamp, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_last_ig_frame_number, tvb, offset, 4, cigi_byte_order);
+    offset += 8;
+
+    return offset;
+}
+
 /* CIGI3 Entity Control */
 static gint
 cigi3_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
@@ -3859,6 +4288,56 @@ cigi3_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     offset += 8;
 
     proto_tree_add_item(tree, hf_cigi3_entity_control_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    offset += 8;
+
+    return offset;
+}
+
+/* CIGI3_3 Entity Control */
+static gint
+cigi3_3_add_entity_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_entity_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_entity_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_attach_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_collision_detection_request, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_inherit_alpha, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_ground_ocean_clamp, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_animation_direction, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_animation_loop_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_animation_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_extrapolation_enable, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_alpha, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_entity_type, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_parent_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_roll, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_pitch, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_yaw, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_cigi3_3_entity_control_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -3920,6 +4399,43 @@ cigi3_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     return offset;
 }
 
+/* CIGI3_3 Component Control */
+static gint
+cigi3_3_add_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_component_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_component_class, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_component_state, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_1, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_2, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_3, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_4, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_5, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_data_6, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    return offset;
+}
+
 /* CIGI3 Short Component Control */
 static gint
 cigi3_add_short_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
@@ -3940,6 +4456,31 @@ cigi3_add_short_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     offset += 4;
 
     proto_tree_add_item(tree, hf_cigi3_short_component_control_data_2, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    return offset;
+}
+
+/* CIGI3_3 Short Component Control */
+static gint
+cigi3_3_add_short_component_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_component_class, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_component_state, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_data_1, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_data_2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -4373,12 +4914,12 @@ cigi3_add_sensor_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item(tree, hf_cigi3_sensor_control_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi3_sensor_control_track_mode, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_sensor_control_sensor_on_off, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_sensor_control_polarity, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_sensor_control_line_dropout_enable, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_sensor_control_auto_gain, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_sensor_control_track_white_black, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_track_mode, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_control_response_type, tvb, offset, 1, cigi_byte_order);
@@ -4870,6 +5411,361 @@ cigi3_add_environmental_conditions_request(tvbuff_t *tvb, proto_tree *tree, gint
 
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_alt, tvb, offset, 8, cigi_byte_order);
     offset += 8;
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Surface Definition */
+static gint
+cigi3_3_add_symbol_surface_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_surface_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_surface_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_attach_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_billboard, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_perspective_growth_enable, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_entity_view_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_xoff_left, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_yoff_right, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_zoff_top, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_yaw_bottom, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_pitch, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_roll, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_width, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_height, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_min_u, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_max_u, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_min_v, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_max_v, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Text Definition */
+static gint
+cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    guint8 packet_size = 0;
+
+    packet_size = tvb_get_guint8(tvb, offset-1);
+
+    /* A symbol text definition packet cannot be less than 16 bytes. */
+    if ( packet_size < 16 ) {
+        THROW(ReportedBoundsError);
+    }
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_alignment, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_orientation, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_font_ident, tvb, offset, 1, cigi_byte_order);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_font_size, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_text, tvb, offset, packet_size-12, cigi_byte_order);
+    offset += packet_size-12;
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Circle Definition */
+static gint
+cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    guint8 packet_size = 0;
+    int ncircles,c;
+
+    packet_size = tvb_get_guint8(tvb, offset-1);
+
+    /* A symbol text definition packet cannot be less than 16 bytes. */
+    if ( packet_size < 16 ) {
+        THROW(ReportedBoundsError);
+    }
+
+    ncircles = (packet_size - 16) / 24;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_drawing_style, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_stipple_pattern, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_line_width, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    for (c = 0; c< ncircles; c++) {
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_center_u[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_center_v[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_radius[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_inner_radius[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_start_angle[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_end_angle[c], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Line Definition */
+static gint
+cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    guint8 packet_size = 0;
+    int nvertices,v;
+
+    packet_size = tvb_get_guint8(tvb, offset-1);
+
+    /* A symbol text definition packet cannot be less than 16 bytes. */
+    if ( packet_size < 16 ) {
+        THROW(ReportedBoundsError);
+    }
+
+    nvertices = (packet_size - 16) / 8;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_primitive_type, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_stipple_pattern, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_line_width, tvb, offset, 4, cigi_byte_order);;
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    for(v=0; v<nvertices; v++) {
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_vertex_u[v], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_vertex_v[v], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Clone */
+static gint
+cigi3_3_add_symbol_clone(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_source_type, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_source_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    return offset;
+}
+
+/* CIGI3_3 Symbol Control */
+static gint
+cigi3_3_add_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_parent_symbol_ident, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_surface_ident, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_layer, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_duty_cycle, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_period, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_position_u, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_position_v, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_rotation, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_red, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_green, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_blue, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_alpha, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_scale_u, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_scale_v, tvb, offset, 4, cigi_byte_order);
+    offset += 4;
+
+    return offset;
+}
+
+/* CIGI3_3 Short Symbol Control */
+static gint
+cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    guint8 select1 = 0;
+    guint8 select2 = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
+    offset += 2;
+
+    select1 = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order);
+    offset += 1;
+
+    select2 = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order);
+    offset++;
+
+    if (select1 == 9) {
+        if (cigi_byte_order == CIGI_BYTE_ORDER_BIG_ENDIAN) {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_green1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_blue1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_alpha1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+        } else {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_alpha1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_blue1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_green1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red1, tvb, offset, 1, cigi_byte_order);
+            offset++;
+        }
+    } else {
+        if (select1 >= 5 && select1 <= 11) {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value1f, tvb, offset, 4, cigi_byte_order);
+        } else {        
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value1, tvb, offset, 4, cigi_byte_order);
+        }    
+        offset += 4;
+    }
+
+    if (select2 == 9) {
+        if (cigi_byte_order == CIGI_BYTE_ORDER_BIG_ENDIAN) {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_green2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_blue2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_alpha2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+        } else {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_alpha2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_blue2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_green2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red2, tvb, offset, 1, cigi_byte_order);
+            offset++;
+        }
+
+    } else {
+        if (select2 >= 5 && select2 <= 11) {
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value2f, tvb, offset, 4, cigi_byte_order);
+        } else {        
+            proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value2, tvb, offset, 4, cigi_byte_order);
+        }    
+        offset += 4;
+    }
 
     return offset;
 }
@@ -5684,6 +6580,53 @@ proto_register_cigi(void)
                 "Contains the value of the IG Frame Number parameter in the last Start of Frame packet received from the IG", HFILL }
         },
 
+        /* CIGI3_3 IG Control */
+        { &hf_cigi3_3_ig_control,
+            { "IG Control", "cigi.ig_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "IG Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_db_number,
+            { "Database Number", "cigi.ig_control.db_number",
+                FT_INT8, BASE_DEC, NULL, 0x0,
+                "Used to initiate a database load on the IG", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_ig_mode,
+            { "IG Mode", "cigi.ig_control.ig_mode",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_ig_control_ig_mode_vals), 0x03,
+                "Dictates the IG's operational mode", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_timestamp_valid,
+            { "Timestamp Valid", "cigi.ig_control.timestamp_valid",
+                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                "Indicates whether the timestamp contains a valid value", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_extrapolation_enable,
+            { "Extrapolation/Interpolation Enable", "cigi.ig_control.extrapolation_enable",
+                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                "Indicates whether any dead reckoning is enabled.", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_minor_version,
+            { "Minor Version", "cigi.ig_control.extrapolation_enable",
+                FT_UINT8, BASE_DEC, NULL, 0xF0,
+                "Indicates the minor version of the CIGI interface", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_host_frame_number,
+            { "Host Frame Number", "cigi.ig_control.host_frame_number",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Uniquely identifies a data frame on the host", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_timestamp,
+            { "Timestamp (microseconds)", "cigi.ig_control.timestamp",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
+        },
+        { &hf_cigi3_3_ig_control_last_ig_frame_number,
+            { "IG Frame Number", "cigi.ig_control.last_ig_frame_number",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Contains the value of the IG Frame Number parameter in the last Start of Frame packet received from the IG", HFILL }
+        },
+
            /* CIGI2 Entity Control */
         { &hf_cigi2_entity_control,
             { "Entity Control", "cigi.entity_control",
@@ -5863,6 +6806,108 @@ proto_register_cigi(void)
                 "Specifies the entity's altitude or the distance from the parent's reference point along its parent's Z axis", HFILL }
         },
 
+        /* CIGI3_3 Entity Control */
+        { &hf_cigi3_3_entity_control,
+            { "Entity Control", "cigi.entity_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Entity Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_entity_id,
+            { "Entity ID", "cigi.entity_control.entity_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the entity to which this packet is applied", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_entity_state,
+            { "Entity State", "cigi.entity_control.entity_state",
+                FT_UINT8, BASE_DEC, VALS(cigi3_entity_control_entity_state_vals), 0x03,
+                "Specifies whether the entity should be active or destroyed", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_attach_state,
+            { "Attach State", "cigi.entity_control.attach_state",
+                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_attach_state_tfs), 0x04,
+                "Specifies whether the entity should be attached as a child to a parent", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_collision_detection_request,
+            { "Collision Detection Request", "cigi.entity_control.coll_det_request",
+                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_collision_detection_request_tfs), 0x08,
+                "Determines whether any collision detection segments and volumes associated with this entity are used as the source in collision testing", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_inherit_alpha,
+            { "Inherit Alpha", "cigi.entity_control.inherit_alpha",
+                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_inherit_alpha_tfs), 0x10,
+                "Specifies whether the entity's alpha is combined with the apparent alpha of its parent", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_ground_ocean_clamp,
+            { "Ground/Ocean Clamp", "cigi.entity_control.ground_ocean_clamp",
+                FT_UINT8, BASE_DEC, VALS(cigi3_entity_control_ground_ocean_clamp_vals), 0x60,
+                "Specifies whether the entity should be clamped to the ground or water surface", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_animation_direction,
+            { "Animation Direction", "cigi.entity_control.animation_dir",
+                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_animation_direction_tfs), 0x01,
+                "Specifies the direction in which an animation plays", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_animation_loop_mode,
+            { "Animation Loop Mode", "cigi.entity_control.animation_loop_mode",
+                FT_BOOLEAN, 8, TFS(&cigi3_entity_control_animation_loop_mode_tfs), 0x02,
+                "Specifies whether an animation should be a one-shot", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_animation_state,
+            { "Animation State", "cigi.entity_control.animation_state",
+                FT_UINT8, BASE_DEC, VALS(cigi3_entity_control_animation_state_vals), 0x0c,
+                "Specifies the state of an animation", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_extrapolation_enable,
+            { "Linear Extrapolation/Interpolation Enable", "cigi.entity_control.extrapolation_enable",
+                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                "Indicates whether the entity's motion may be smoothed by extrapolation or interpolation.", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_alpha,
+            { "Alpha", "cigi.entity_control.alpha",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the explicit alpha to be applied to the entity's geometry", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_entity_type,
+            { "Entity Type", "cigi.entity_control.entity_type",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the type for the entity", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_parent_id,
+            { "Parent ID", "cigi.entity_control.parent_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the parent for the entity", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_roll,
+            { "Roll (degrees)", "cigi.entity_control.roll",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the roll angle of the entity", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_pitch,
+            { "Pitch (degrees)", "cigi.entity_control.pitch",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the pitch angle of the entity", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_yaw,
+            { "Yaw (degrees)", "cigi.entity_control.yaw",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the instantaneous heading of the entity", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_lat_xoff,
+            { "Latitude (degrees)/X Offset (m)", "cigi.entity_control.lat_xoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Specifies the entity's geodetic latitude or the distance from the parent's reference point along its parent's X axis", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_lon_yoff,
+            { "Longitude (degrees)/Y Offset (m)", "cigi.entity_control.lon_yoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Specifies the entity's geodetic longitude or the distance from the parent's reference point along its parent's Y axis", HFILL }
+        },
+        { &hf_cigi3_3_entity_control_alt_zoff,
+            { "Altitude (m)/Z Offset (m)", "cigi.entity_control.alt_zoff",
+                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                "Specifies the entity's altitude or the distance from the parent's reference point along its parent's Z axis", HFILL }
+        },
+
         /* CIGI3 Conformal Clamped Entity Control */
         { &hf_cigi3_conformal_clamped_entity_control,
             { "Conformal Clamped Entity Control", "cigi.conformal_clamped_entity_control",
@@ -5984,6 +7029,63 @@ proto_register_cigi(void)
                 "User-defined component data", HFILL }
         },
 
+        /* CIGI3_3 Component Control */
+        { &hf_cigi3_3_component_control,
+            { "Component Control", "cigi.component_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Component Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_component_control_component_id,
+            { "Component ID", "cigi.component_control.component_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the component to which the data in this packet should be applied", HFILL }
+        },
+        { &hf_cigi3_3_component_control_instance_id,
+            { "Instance ID", "cigi.component_control.instance_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the object to which the component belongs", HFILL }
+        },
+        { &hf_cigi3_3_component_control_component_class,
+            { "Component Class", "cigi.component_control.component_class",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_component_control_component_class_vals), 0x3f,
+                "Identifies the type of object to which the Instance ID parameter refers", HFILL }
+        },
+        { &hf_cigi3_3_component_control_component_state,
+            { "Component State", "cigi.component_control.component_state",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies a discrete state for the component", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_1,
+            { "Component Data 1", "cigi.component_control.data_1",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_2,
+            { "Component Data 2", "cigi.component_control.data_2",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_3,
+            { "Component Data 3", "cigi.component_control.data_3",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_4,
+            { "Component Data 4", "cigi.component_control.data_4",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_5,
+            { "Component Data 5", "cigi.component_control.data_5",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_component_control_data_6,
+            { "Component Data 6", "cigi.component_control.data_6",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+
         /* CIGI3 Short Component Control */
         { &hf_cigi3_short_component_control,
             { "Short Component Control", "cigi.short_component_control",
@@ -6016,6 +7118,43 @@ proto_register_cigi(void)
                 "User-defined component data", HFILL }
         },
         { &hf_cigi3_short_component_control_data_2,
+            { "Component Data 2", "cigi.short_component_control.data_2",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+
+        /* CIGI3_3 Short Component Control */
+        { &hf_cigi3_3_short_component_control,
+            { "Short Component Control", "cigi.short_component_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Short Component Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_component_id,
+            { "Component ID", "cigi.short_component_control.component_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the component to which the data in this packet should be applied", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_instance_id,
+            { "Instance ID", "cigi.short_component_control.instance_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the object to which the component belongs", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_component_class,
+            { "Component Class", "cigi.short_component_control.component_class",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_short_component_control_component_class_vals), 0x3f,
+                "Identifies the type of object to which the Instance ID parameter refers", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_component_state,
+            { "Component State", "cigi.short_component_control.component_state",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies a discrete state for the component", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_data_1,
+            { "Component Data 1", "cigi.short_component_control.data_1",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "User-defined component data", HFILL }
+        },
+        { &hf_cigi3_3_short_component_control_data_2,
             { "Component Data 2", "cigi.short_component_control.data_2",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "User-defined component data", HFILL }
@@ -7218,11 +8357,6 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Specifies the sensor to which the data in this packet are applied", HFILL }
         },
-        { &hf_cigi3_sensor_control_track_mode,
-            { "Track Mode", "cigi.sensor_control.track_mode",
-                FT_UINT8, BASE_DEC, VALS(cigi3_sensor_control_track_mode_vals), 0xe0,
-                "Specifies which track mode the sensor should use", HFILL }
-        },
         { &hf_cigi3_sensor_control_sensor_on_off,
             { "Sensor On/Off", "cigi.sensor_control.sensor_on_off",
                 FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
@@ -7247,6 +8381,11 @@ proto_register_cigi(void)
             { "Track White/Black", "cigi.sensor_control.track_white_black",
                 FT_BOOLEAN, 8, TFS(&cigi3_sensor_control_track_white_black_tfs), 0x10,
                 "Specifies whether the sensor tracks white or black", HFILL }
+        },
+        { &hf_cigi3_sensor_control_track_mode,
+            { "Track Mode", "cigi.sensor_control.track_mode",
+                FT_UINT8, BASE_DEC, VALS(cigi3_sensor_control_track_mode_vals), 0xe0,
+                "Specifies which track mode the sensor should use", HFILL }
         },
         { &hf_cigi3_sensor_control_response_type,
             { "Response Type", "cigi.sensor_control.response_type",
@@ -7659,7 +8798,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_view_definition_reorder,
             { "Reorder", "cigi.view_def.reorder",
-                FT_BOOLEAN, 8, TFS(&cigi3_view_definition_reorder_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&cigi3_view_definition_reorder_tfs), 0x10,
                 "Specifies whether the view should be moved to the top of any overlapping views", HFILL }
         },
         { &hf_cigi3_view_definition_view_type,
@@ -8273,8 +9412,8 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid,
             { "Destination Entity ID Valid", "cigi.los_segment_request.destination_entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
-                "Destination Entity ID is valid", HFILL }
+                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x10,
+                "Destination Entity ID is valid.", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_alpha_threshold,
             { "Alpha Threshold", "cigi.los_segment_request.alpha_threshold",
@@ -8553,6 +9692,990 @@ proto_register_cigi(void)
             { "Altitude (m)", "cigi.env_cond_request.alt",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the geodetic altitude at which the environmental state is requested", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Surface Definition */
+        { &hf_cigi3_3_symbol_surface_definition,
+            { "Symbol Surface Definition", "cigi.symbl_srfc_def",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Surface Definition Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_surface_id,
+            { "Surface ID", "cigi.symbl_srfc_def.surface_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the symbol surface to which this packet is applied", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_surface_state,
+            { "Surface State", "cigi.symbl_srfc_def.surface_state",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_surface_definition_surface_state_tfs), 0x01,
+                "Specifies whether the symbol surface should be active or destroyed", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_attach_type,
+            { "Attach Type", "cigi.symbl_srfc_def.attach_type",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_surface_definition_attach_type_tfs), 0x02,
+                "Specifies whether the surface should be attached to an entity or view", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_billboard,
+            { "Billboard", "cigi.symbl_srfc_def.billboard",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_surface_definition_billboard_tfs), 0x04,
+                "Specifies whether the surface is treated as a billboard", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_perspective_growth_enable,
+            { "Perspective Growth Enable", "cigi.symbl_srfc_def.perspective_growth_enable",
+                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                "Specifies whether the surface appears to maintain a constant size or has perspective growth", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_entity_view_id,
+            { "Entity ID/View ID", "cigi.symbl_srfc_def.entity_view_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the entity or view to which this symbol surface is attached", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_xoff_left,
+            { "X Offset (m)/Left", "cigi.symbl_srfc_def.xoff_left",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the x offset or leftmost boundary for the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_yoff_right,
+            { "Y Offset (m)/Right", "cigi.symbl_srfc_def.yoff_right",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the y offset or rightmost boundary for the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_zoff_top,
+            { "Z Offset (m)/Top", "cigi.symbl_srfc_def.zoff_top",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the z offset or topmost boundary for the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_yaw_bottom,
+            { "Yaw (degrees)/Bottom", "cigi.symbl_srfc_def.yaw_bottom",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the rotation about the surface’s Z axis or bottommost boundary for the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_pitch,
+            { "Pitch (degrees)", "cigi.symbl_srfc_def.pitch",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the rotation about the surface’s Y axis", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_roll,
+            { "Roll (degrees)", "cigi.symbl_srfc_def.roll",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the rotation about the surface’s X axis", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_width,
+            { "Width (m/degrees)", "cigi.symbl_srfc_def.width",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the width of the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_height,
+            { "Height (m/degrees)", "cigi.symbl_srfc_def.height",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the height of the symbol surface", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_min_u,
+            { "Min U (surface horizontal units)", "cigi.symbl_srfc_def.min_u",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the minimum U coordinate of the symbol surface’s viewable area", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_max_u,
+            { "Max U (surface horizontal units)", "cigi.symbl_srfc_def.max_u",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the maximum U coordinate of the symbol surface’s viewable area", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_min_v,
+            { "Min V (surface vertical units)", "cigi.symbl_srfc_def.min_v",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the minimum V coordinate of the symbol surface’s viewable area", HFILL }
+        },
+        { &hf_cigi3_3_symbol_surface_definition_max_v,
+            { "Max V (surface vertical units)", "cigi.symbl_srfc_def.max_v",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the maximum V coordinate of the symbol surface’s viewable area", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Text Definition */
+        { &hf_cigi3_3_symbol_text_definition,
+            { "Symbol Text Definition", "cigi.symbol_text_def",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Text Definition Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_symbol_id,
+            { "Symbol ID", "cigi.symbol_text_def.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the identifier of the symbol that is being defined", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_alignment,
+            { "Alignment", "cigi.symbol_text_def.alignment",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_text_definition_alignment_vals), 0x0f,
+                "Specifies the position of the symbol’s reference point", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_orientation,
+            { "Orientation", "cigi.symbol_text_def.orientation",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_text_definition_orientation_vals), 0x30,
+                "Specifies the orientation of the text", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_font_ident,
+            { "Font ID", "cigi.symbol_text_def.font_ident",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_text_definition_font_ident_vals), 0x0,
+                "Specifies the font to be used", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_font_size,
+            { "Font Size", "cigi.symbol_text_def.font_size",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the font size", HFILL }
+        },
+        { &hf_cigi3_3_symbol_text_definition_text,
+            { "Text", "cigi.symbol_text_def.text",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol text", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Circle Definition */
+        { &hf_cigi3_3_symbol_circle_definition,
+            { "Symbol Circle Definition", "cigi.symbol_circle_def",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Circle Definition Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_symbol_id,
+            { "Symbol ID", "cigi.symbol_circle_def.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the identifier of the symbol that is being defined", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_drawing_style,
+            { "Drawing Style", "cigi.symbl_circle_def.drawing_style",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_circle_definition_drawing_style_tfs), 0x01,
+                "Specifies whether the circles and arcs are curved lines or filled areas", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_stipple_pattern,
+            { "Stipple Pattern", "cigi.symbol_circle_def.stipple_pattern",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "Specifies the dash pattern used", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_line_width,
+            { "Line Width (scaled symbol surface units)", "cigi.symbol_circle_def.line_width",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the thickness of the line", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_stipple_pattern_length,
+            { "Stipple Pattern Length (scaled symbol surface units)", "cigi.symbol_circle_def.stipple_pattern_length",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the length of one complete repetition of the stipple pattern", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[0],
+            { "Center U 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[0],
+            { "Center V 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[0],
+            { "Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.radius1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[0],
+            { "Inner Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[0],
+            { "Start Angle 1 (degrees)", "cigi.symbol_circle_def.start_angle1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[0],
+            { "End Angle 1 (degrees)", "cigi.symbol_circle_def.end_angle1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[1],
+            { "Center U 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[1],
+            { "Center V 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[1],
+            { "Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.radius2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[1],
+            { "Inner Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[1],
+            { "Start Angle 2 (degrees)", "cigi.symbol_circle_def.start_angle2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[1],
+            { "End Angle 2 (degrees)", "cigi.symbol_circle_def.end_angle2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[2],
+            { "Center U 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[2],
+            { "Center V 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[2],
+            { "Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.radius3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[2],
+            { "Inner Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[2],
+            { "Start Angle 3 (degrees)", "cigi.symbol_circle_def.start_angle3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[2],
+            { "End Angle 3 (degrees)", "cigi.symbol_circle_def.end_angle3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[3],
+            { "Center U 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[3],
+            { "Center V 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[3],
+            { "Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.radius4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[3],
+            { "Inner Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[3],
+            { "Start Angle 4 (degrees)", "cigi.symbol_circle_def.start_angle4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[3],
+            { "End Angle 4 (degrees)", "cigi.symbol_circle_def.end_angle4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[4],
+            { "Center U 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[4],
+            { "Center V 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[4],
+            { "Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.radius5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[4],
+            { "Inner Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[4],
+            { "Start Angle 5 (degrees)", "cigi.symbol_circle_def.start_angle5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[4],
+            { "End Angle 5 (degrees)", "cigi.symbol_circle_def.end_angle5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[5],
+            { "Center U 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[5],
+            { "Center V 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[5],
+            { "Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.radius6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[5],
+            { "Inner Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[5],
+            { "Start Angle 6 (degrees)", "cigi.symbol_circle_def.start_angle6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[5],
+            { "End Angle 6 (degrees)", "cigi.symbol_circle_def.end_angle6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[6],
+            { "Center U 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[6],
+            { "Center V 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[6],
+            { "Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.radius7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[6],
+            { "Inner Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[6],
+            { "Start Angle 7 (degrees)", "cigi.symbol_circle_def.start_angle7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[6],
+            { "End Angle 7 (degrees)", "cigi.symbol_circle_def.end_angle7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[7],
+            { "Center U 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[7],
+            { "Center V 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[7],
+            { "Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.radius8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[7],
+            { "Inner Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[7],
+            { "Start Angle 8 (degrees)", "cigi.symbol_circle_def.start_angle8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[7],
+            { "End Angle 8 (degrees)", "cigi.symbol_circle_def.end_angle8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_u[8],
+            { "Center U 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_center_v[8],
+            { "Center V 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the center", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_radius[8],
+            { "Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.radius9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_inner_radius[8],
+            { "Inner Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the inner radius", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_start_angle[8],
+            { "Start Angle 9 (degrees)", "cigi.symbol_circle_def.start_angle9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the start angle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_circle_definition_end_angle[8],
+            { "End Angle 9 (degrees)", "cigi.symbol_circle_def.end_angle9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the end angle", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Line Definition */
+        { &hf_cigi3_3_symbol_line_definition,
+            { "Symbol Line Definition", "cigi.symbol_line_def",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Line Definition Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_symbol_id,
+            { "Symbol ID", "cigi.symbol_line_def.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the identifier of the symbol that is being defined", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_primitive_type,
+            { "Drawing Style", "cigi.symbl_line_def.primitive_type",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_circle_definition_drawing_style_tfs), 0x01,
+                "Specifies the type of point or line primitive used", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_stipple_pattern,
+            { "Stipple Pattern", "cigi.symbol_line_def.stipple_pattern",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "Specifies the dash pattern used", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_line_width,
+            { "Line Width (scaled symbol surface units)", "cigi.symbol_line_def.line_width",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the thickness of the line", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_stipple_pattern_length,
+            { "Stipple Pattern Length (scaled symbol surface units)", "cigi.symbol_line_def.stipple_pattern_length",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the length of one complete repetition of the stipple pattern", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[0],
+            { "Vertex U 1 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[0],
+            { "Vertex V 1 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[1],
+            { "Vertex U 2 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[1],
+            { "Vertex V 2 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[2],
+            { "Vertex U 3 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[2],
+            { "Vertex V 3 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v3",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[3],
+            { "Vertex U 4 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[3],
+            { "Vertex V 4 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v4",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[4],
+            { "Vertex U 5 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[4],
+            { "Vertex V 5 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v5",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[5],
+            { "Vertex U 6 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[5],
+            { "Vertex V 6 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v6",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[6],
+            { "Vertex U 7 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[6],
+            { "Vertex V 7 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v7",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[7],
+            { "Vertex U 8 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[7],
+            { "Vertex V 8 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v8",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[8],
+            { "Vertex U 9 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[8],
+            { "Vertex V 9 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v9",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[9],
+            { "Vertex U 10 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u10",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[9],
+            { "Vertex V 10 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v10",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[10],
+            { "Vertex U 11 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u11",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[10],
+            { "Vertex V 11 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v11",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[11],
+            { "Vertex U 12 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u12",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[11],
+            { "Vertex V 12 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v12",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[12],
+            { "Vertex U 13 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u13",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[12],
+            { "Vertex V 13 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v13",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[13],
+            { "Vertex U 14 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u14",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[13],
+            { "Vertex V 14 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v14",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[14],
+            { "Vertex U 15 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u15",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[14],
+            { "Vertex V 15 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v15",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[15],
+            { "Vertex U 16 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u16",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[15],
+            { "Vertex V 16 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v16",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[16],
+            { "Vertex U 17 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u17",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[16],
+            { "Vertex V 17 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v17",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[17],
+            { "Vertex U 18 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u18",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[17],
+            { "Vertex V 18 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v18",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[18],
+            { "Vertex U 19 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u19",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[18],
+            { "Vertex V 19 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v19",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[19],
+            { "Vertex U 20 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u20",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[19],
+            { "Vertex V 20 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v20",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[20],
+            { "Vertex U 21 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u21",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[20],
+            { "Vertex V 21 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v21",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[21],
+            { "Vertex U 22 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u22",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[21],
+            { "Vertex V 22 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v22",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[22],
+            { "Vertex U 23 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u23",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[22],
+            { "Vertex V 23 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v23",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[23],
+            { "Vertex U 24 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u24",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[23],
+            { "Vertex V 24 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v24",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[24],
+            { "Vertex U 25 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u25",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[24],
+            { "Vertex V 25 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v25",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[25],
+            { "Vertex U 26 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u26",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[25],
+            { "Vertex V 26 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v26",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[26],
+            { "Vertex U 27 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u27",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[26],
+            { "Vertex V 27 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v27",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[27],
+            { "Vertex U 28 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u28",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[27],
+            { "Vertex V 28 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v28",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_u[28],
+            { "Vertex U 29 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u29",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position of the vertex", HFILL }
+        },
+        { &hf_cigi3_3_symbol_line_definition_vertex_v[28],
+            { "Vertex V 29 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v29",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position of the vertex", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Clone */
+        { &hf_cigi3_3_symbol_clone,
+            { "Symbol Surface Definition", "cigi.symbol_clone",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Clone Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_clone_symbol_id,
+            { "Symbol ID", "cigi.symbol_clone.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the identifier of the symbol that is being defined", HFILL }
+        },
+        { &hf_cigi3_3_symbol_clone_source_type,
+            { "Source Type", "cigi.symbol_clone.source_type",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_clone_source_type_tfs), 0x04,
+                "Identifies the source as an existing symbol or symbol template", HFILL }
+        },
+        { &hf_cigi3_3_symbol_clone_source_id,
+            { "Source ID", "cigi.symbol_clone.source_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Identifies the symbol to copy or template to instantiate", HFILL }
+        },
+
+        /* CIGI3_3 Symbol Control */
+        { &hf_cigi3_3_symbol_control,
+            { "Symbol Control", "cigi.symbol_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Symbol Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_symbol_id,
+            { "Symbol ID", "cigi.symbol_control.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the symbol to which this packet is applied", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_symbol_state,
+            { "Symbol State", "cigi.symbol_control.symbol_state",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_control_symbol_state_vals), 0x03,
+                "Specifies whether the symbol should be hidden, visible, or destroyed", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_attach_state,
+            { "Attach State", "cigi.symbol_control.attach_state",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_attach_state_tfs), 0x04,
+                "Specifies whether this symbol should be attached to another", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_flash_control,
+            { "Flash Control", "cigi.symbol_control.flash_control",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_flash_control_tfs), 0x08,
+                "Specifies whether the flash cycle is continued or restarted", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_inherit_color,
+            { "Inherit Color", "cigi.symbol_control.inherit_color",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_inherit_color_tfs), 0x10,
+                "Specifies whether the symbol inherits color from a parent symbol", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_parent_symbol_ident,
+            { "Parent Symbol ID", "cigi.symbol_control.parent_symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the parent for the symbol", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_surface_ident,
+            { "Surface ID", "cigi.symbol_control.surface_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the symbol surface for the symbol", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_layer,
+            { "Layer", "cigi.symbol_control.layer",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the layer for the symbol", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_flash_duty_cycle,
+            { "Flash Duty Cycle (%)", "cigi.symbol_control.flash_duty_cycle",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the duty cycle for a flashing symbol", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_flash_period,
+            { "Flash Period (seconds)", "cigi.symbol_control.flash_period",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the duration of a single flash cycle", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_position_u,
+            { "Position U (scaled symbol surface units)", "cigi.symbol_control.position_u",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u position", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_position_v,
+            { "Position V (scaled symbol surface units)", "cigi.symbol_control.position_v",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v position", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_rotation,
+            { "Rotation (degrees)", "cigi.symbol_control.rotation",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the rotation", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_red,
+            { "Red", "cigi.symbol_control.red",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the red color component", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_green,
+            { "Green", "cigi.symbol_control.green",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the green color component", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_blue,
+            { "Blue", "cigi.symbol_control.blue",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the blue color component", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_alpha,
+            { "Alpha", "cigi.symbol_control.alpha",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the alpha color component", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_scale_u,
+            { "Scale U", "cigi.symbol_control.scale_u",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the u scaling factor", HFILL }
+        },
+        { &hf_cigi3_3_symbol_control_scale_v,
+            { "Scale V", "cigi.symbol_control.scale_v",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the v scaling factor", HFILL }
+        },
+
+        /* CIGI3_3 Short Symbol Control */
+        { &hf_cigi3_3_short_symbol_control,
+            { "Short Symbol Control", "cigi.short_symbol_control",
+                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                "Short Symbol Control Packet", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_symbol_id,
+            { "Symbol ID", "cigi.short_symbol_control.symbol_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Specifies the symbol to which this packet is applied", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_symbol_state,
+            { "Symbol State", "cigi.short_symbol_control.symbol_state",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_control_symbol_state_vals), 0x03,
+                "Specifies whether the symbol should be hidden, visible, or destroyed", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attach_state,
+            { "Atach State", "cigi.short_symbol_control.attach_state",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_attach_state_tfs), 0x04,
+                "Specifies whether this symbol should be attached to another", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_flash_control,
+            { "Flash Control", "cigi.short_symbol_control.flash_control",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_flash_control_tfs), 0x08,
+                "Specifies whether the flash cycle is continued or restarted", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_inherit_color,
+            { "Inherit Color", "cigi.short_symbol_control.inherit_color",
+                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_inherit_color_tfs), 0x10,
+                "Specifies whether the symbol inherits color from a parent symbol", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_select1,
+            { "Attribute Select 1", "cigi.short_symbol_control.attribute_select1",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_short_symbol_control_attribute_select_vals), 0x0,
+                "Identifies the attribute whose value is specified in Attribute Value 1", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_select2,
+            { "Attribute Select 2", "cigi.short_symbol_control.attribute_select2",
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_short_symbol_control_attribute_select_vals), 0x0,
+                "Identifies the attribute whose value is specified in Attribute Value 2", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_value1,
+            { "Value 1", "cigi.short_symbol_control.value1",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Specifies the value for attribute 1", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_value2,
+            { "Value 2", "cigi.short_symbol_control.value2",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Specifies the value for attribute 2", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_value1f,
+            { "Value 1", "cigi.short_symbol_control.value1",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the value for attribute 1", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_attribute_value2f,
+            { "Value 2", "cigi.short_symbol_control.value2",
+                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                "Specifies the value for attribute 2", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_red1,
+            { "Red 1", "cigi.short_symbol_control.red1",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the red color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_green1,
+            { "Green 1", "cigi.short_symbol_control.green1",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the green color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_blue1,
+            { "Blue 1", "cigi.short_symbol_control.blue1",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the blue color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_alpha1,
+            { "Alpha 1", "cigi.short_symbol_control.alpha1",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the alpha color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_red2,
+            { "Red 2", "cigi.short_symbol_control.red2",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the red color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_green2,
+            { "Green 2", "cigi.short_symbol_control.green2",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the green color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_blue2,
+            { "Blue 2", "cigi.short_symbol_control.blue2",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the blue color component", HFILL }
+        },
+        { &hf_cigi3_3_short_symbol_control_alpha2,
+            { "Alpha 2", "cigi.short_symbol_control.alpha2",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Specifies the alpha color component", HFILL }
         },
 
         /* CIGI2 Start of Frame */
