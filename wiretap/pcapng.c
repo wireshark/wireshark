@@ -253,7 +253,7 @@ typedef struct wtapng_block_s {
 } wtapng_block_t;
 
 int wtab_encap;
-int tsprecision;
+guint64 time_units_per_second;
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -451,7 +451,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	}
 
 	wtab_encap = WTAP_ENCAP_UNKNOWN;
-	tsprecision = WTAP_FILE_TSPREC_USEC;
+	time_units_per_second = 1000000;
 
 	return block_read;
 }
@@ -587,10 +587,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				wblock->data.if_descr.if_tsresol = option_content[0];
 				switch (wblock->data.if_descr.if_tsresol) {
 					case(6):
-						tsprecision = WTAP_FILE_TSPREC_USEC;
+						time_units_per_second = 1000000;
 						break;
 					case(9):
-						tsprecision = WTAP_FILE_TSPREC_NSEC;
+						time_units_per_second = 1000000000;
 						break;
 					default:
 						pcapng_debug1("pcapng_open: if_tsresol %u not implemented, timestamp conversion omitted",
@@ -1149,7 +1149,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
-	wth->tsprecision = tsprecision;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 	wth->capture.pcapng = g_malloc(sizeof(pcapng_t));
 	*wth->capture.pcapng = pn;
 	wth->subtype_read = pcapng_read;
@@ -1181,7 +1181,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wblock.pseudo_header = &wth->pseudo_header;
 
 	/* read next block */
-	while(1) {
+	while (1) {
 		bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
 			*err = file_error(wth->fh);
@@ -1192,7 +1192,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		}
 
 		/* block must be a "Packet Block" or an "Enhanced Packet Block" -> otherwise continue */
-		if(wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
+		if (wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
 			break;
 		}
 
@@ -1206,23 +1206,10 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wth->phdr.len       = wblock.data.packet.packet_len;
 	wth->phdr.pkt_encap = wtab_encap;
 
-	/* Combine the two 32-bit pieces of the timestamp into one 64-bit
-         * value */
-        ts = (((guint64)wblock.data.packet.ts_high)<<32) |
-                wblock.data.packet.ts_low;
-
-	switch (tsprecision) {
-		case(WTAP_FILE_TSPREC_USEC):
-			wth->phdr.ts.secs       = (time_t) (ts / 1000000);
-			wth->phdr.ts.nsecs      = (int) (ts % 1000000) * 1000;
-			break;
-		case(WTAP_FILE_TSPREC_NSEC):
-			wth->phdr.ts.secs	= (time_t) (ts / 1000000000);
-			wth->phdr.ts.nsecs	= (int) (ts % 1000000000);
-			break;
-		default:
-			pcapng_debug1("pcapng_read: if_tsresol %u not implemented, timestamp conversion omitted", wblock.data.if_descr.if_tsresol);
-	}
+	/* Combine the two 32-bit pieces of the timestamp into one 64-bit value */
+        ts = (((guint64)wblock.data.packet.ts_high) << 32) | ((guint64)wblock.data.packet.ts_low);
+	wth->phdr.ts.secs	= (time_t) (ts / time_units_per_second);
+	wth->phdr.ts.nsecs	= (int) (((ts % time_units_per_second) * 1000000000) / time_units_per_second);
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
 	wth->data_offset = *data_offset + bytes_read;
