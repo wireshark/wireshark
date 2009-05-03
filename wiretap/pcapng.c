@@ -252,6 +252,8 @@ typedef struct wtapng_block_s {
 	const guchar *frame_buffer;
 } wtapng_block_t;
 
+int wtab_encap;
+int tsprecision;
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -448,6 +450,9 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 		}
 	}
 
+	wtab_encap = WTAP_ENCAP_UNKNOWN;
+	tsprecision = WTAP_FILE_TSPREC_USEC;
+
 	return block_read;
 }
 
@@ -579,15 +584,26 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			break;
 		    case(9): /* if_tsresol */
 			if(oh.option_length == 1) {
-			    wblock->data.if_descr.if_tsresol = option_content[0];
-				    pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
+				wblock->data.if_descr.if_tsresol = option_content[0];
+				switch (wblock->data.if_descr.if_tsresol) {
+					case(6):
+						tsprecision = WTAP_FILE_TSPREC_USEC;
+						break;
+					case(9):
+						tsprecision = WTAP_FILE_TSPREC_NSEC;
+						break;
+					default:
+						pcapng_debug1("pcapng_open: if_tsresol %u not implemented, timestamp conversion omitted",
+						              wblock->data.if_descr.if_tsresol);
+				}
+				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
 			} else {
-				    pcapng_debug1("pcapng_read_if_descr_block: if_tsresol length %u not 1 as expected", oh.option_length);
+				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol length %u not 1 as expected", oh.option_length);
 			}
 			break;
 		    case(11): /* if_filter */
 			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-			    wblock->data.if_descr.if_filter = g_strndup(option_content, sizeof(option_content));
+				wblock->data.if_descr.if_filter = g_strndup(option_content, sizeof(option_content));
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter %s", wblock->data.if_descr.if_filter);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
@@ -608,7 +624,11 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				      oh.option_code, oh.option_length);
 		}
 	}
-
+	if (wtab_encap == WTAP_ENCAP_UNKNOWN) {
+		wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+	} else {
+		pcapng_debug0("pcapng_read_if_descr_block: too many IDBs");
+	}
 	return block_read;
 }
 
@@ -779,7 +799,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 	}
 
-    return block_read;
+	return block_read;
 }
 
 
@@ -1011,7 +1031,7 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 
 	wblock->type = bh.block_type;
 
-	/*pcapng_debug1("pcapng_read_block: block_type 0x%x", bh.block_type);*/
+	pcapng_debug1("pcapng_read_block: block_type 0x%x", bh.block_type);
 
 	switch(bh.block_type) {
 		case(BLOCK_TYPE_SHB):
@@ -1098,7 +1118,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += bytes_read;
 
 	/* first block must be a "Section Header Block" */
-	if(wblock.type != BLOCK_TYPE_SHB) {
+	if (wblock.type != BLOCK_TYPE_SHB) {
 		/*
 		 * XXX - check for damage from transferring a file
 		 * between Windows and UN*X as text rather than
@@ -1122,16 +1142,14 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += bytes_read;
 
 	/* second block must be an "Interface Description Block" */
-	if(wblock.type != BLOCK_TYPE_IDB) {
+	if (wblock.type != BLOCK_TYPE_IDB) {
 		pcapng_debug1("pcapng_open_new: second block type %u not IDB", wblock.type);
 		return 0;
 	}
 
-	/* read "Interface Description Block" specific settings */
-	wth->file_encap = wtap_pcap_encap_to_wtap_encap( wblock.data.if_descr.link_type );
-	wth->snapshot_length = wblock.data.if_descr.snap_len;
-
-
+	wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wth->snapshot_length = 0;
+	wth->tsprecision = tsprecision;
 	/* Seems, this is a pcapng file */
 	wth->capture.pcapng = g_malloc(sizeof(pcapng_t));
 	*wth->capture.pcapng = pn;
@@ -1141,7 +1159,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close	= pcapng_close;
 	wth->file_type		= WTAP_FILE_PCAPNG;
 
-	switch(wblock.data.if_descr.if_tsresol) {
+	switch (wblock.data.if_descr.if_tsresol) {
             case(6):
 		wth->tsprecision	= WTAP_FILE_TSPREC_USEC;	/* usec is the default (without the if_tsresol option) */
 		break;
@@ -1198,26 +1216,26 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
 	}
 
-	wth->phdr.caplen	= wblock.data.packet.cap_len;
-	wth->phdr.len		= wblock.data.packet.packet_len;
+	wth->phdr.caplen    = wblock.data.packet.cap_len;
+	wth->phdr.len       = wblock.data.packet.packet_len;
+	wth->phdr.pkt_encap = wtab_encap;
 
 	/* Combine the two 32-bit pieces of the timestamp into one 64-bit
          * value */
         ts = (((guint64)wblock.data.packet.ts_high)<<32) |
                 wblock.data.packet.ts_low;
-	
-        switch(wth->tsprecision) {
 
-            case(WTAP_FILE_TSPREC_USEC):
-		wth->phdr.ts.secs       = (time_t) (ts / 1000000);
-		wth->phdr.ts.nsecs      = (int) (ts % 1000000) * 1000;
-                break;
-            case(WTAP_FILE_TSPREC_NSEC):
-		wth->phdr.ts.secs	= (time_t) (ts / 1000000000);
-		wth->phdr.ts.nsecs	= (int) (ts % 1000000000);
-		break;
-	    default :
-		pcapng_debug1("pcapng_read: if_tsresol %u not implemented, timestamp conversion omitted", wblock.data.if_descr.if_tsresol);
+	switch (tsprecision) {
+		case(WTAP_FILE_TSPREC_USEC):
+			wth->phdr.ts.secs       = (time_t) (ts / 1000000);
+			wth->phdr.ts.nsecs      = (int) (ts % 1000000) * 1000;
+			break;
+		case(WTAP_FILE_TSPREC_NSEC):
+			wth->phdr.ts.secs	= (time_t) (ts / 1000000000);
+			wth->phdr.ts.nsecs	= (int) (ts % 1000000000);
+			break;
+		default:
+			pcapng_debug1("pcapng_read: if_tsresol %u not implemented, timestamp conversion omitted", wblock.data.if_descr.if_tsresol);
 	}
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
@@ -1258,7 +1276,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 	}
 
 	/* block must be a "Packet Block" or an "Enhanced Packet Block" */
-	if(wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB) {
+	if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB) {
 		pcapng_debug1("pcapng_seek_read: block type %u not PB/EPB", wblock.type);
 		return FALSE;
 	}
