@@ -583,18 +583,30 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 		    case(9): /* if_tsresol */
-			if(oh.option_length == 1) {
+			if (oh.option_length == 1) {
+				guint64 base;
+				guint64 result;
+				guint8 i, exponent;
+
 				wblock->data.if_descr.if_tsresol = option_content[0];
-				switch (wblock->data.if_descr.if_tsresol) {
-					case(6):
-						time_units_per_second = 1000000;
-						break;
-					case(9):
-						time_units_per_second = 1000000000;
-						break;
-					default:
-						pcapng_debug1("pcapng_open: if_tsresol %u not implemented, timestamp conversion omitted",
-						              wblock->data.if_descr.if_tsresol);
+				if (wblock->data.if_descr.if_tsresol & 0x80) {
+					base = 2;
+				} else {
+					base = 10;
+				}
+				exponent = (guint8)(wblock->data.if_descr.if_tsresol & 0x7f);
+				if (((base == 2) && (exponent < 64)) || ((base == 10) && (exponent < 20))) {
+					result = 1;
+					for (i = 0; i < exponent; i++) {
+						result *= base;
+					}
+					time_units_per_second = result;
+				} else {
+					time_units_per_second = G_MAXUINT64;
+				}
+				if (time_units_per_second > (((guint64)1) << 32)) {
+					pcapng_debug1("pcapng_open: time conversion might be inaccurate",
+					               wblock->data.if_descr.if_tsresol);
 				}
 				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
 			} else {
