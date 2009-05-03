@@ -257,12 +257,6 @@ typedef struct interface_data_s {
 	guint64 time_units_per_second;
 } interface_data_t;
 
-/* per IDB data. Maybe we should put it into
- * an glib array. This avoids the hard limit.
- */
-#define MAX_NUMBER_OF_INTERFACES 10
-interface_data_t interface_data[MAX_NUMBER_OF_INTERFACES];
-unsigned int number_of_interfaces = 0;
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -334,7 +328,6 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	pcapng_section_header_block_t shb;
 	pcapng_option_header_t oh;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
-	unsigned int i;
 
 
 	/* read block content */
@@ -460,11 +453,11 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 		}
 	}
 
-	for (i = 0; i < MAX_NUMBER_OF_INTERFACES; i++) {
-		interface_data[i].wtab_encap = WTAP_ENCAP_UNKNOWN;
-		interface_data[i].time_units_per_second = 1000000;
+	if (pn->interface_data != NULL) {
+		g_array_free(pn->interface_data, TRUE);
 	}
-	number_of_interfaces = 0;
+	pn->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
+	pn->number_of_interfaces = 0;
 
 	return block_read;
 }
@@ -481,6 +474,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	int to_read;
 	pcapng_interface_description_block_t idb;
 	pcapng_option_header_t oh;
+	interface_data_t int_data;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
 
 
@@ -650,13 +644,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				      oh.option_code, oh.option_length);
 		}
 	}
-	if (number_of_interfaces < MAX_NUMBER_OF_INTERFACES) {
-		interface_data[number_of_interfaces].wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
-		interface_data[number_of_interfaces].time_units_per_second = time_units_per_second;
-		number_of_interfaces++;
-	} else {
-		pcapng_debug0("pcapng_read_if_descr_block: too many IDBs");
-	}
+	int_data.wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+	int_data.time_units_per_second = time_units_per_second;
+	g_array_append_val(pn->interface_data, int_data);
+	pn->number_of_interfaces++;
 	return block_read;
 }
 
@@ -1127,12 +1118,15 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	pn.if_fcslen = -1;
 	pn.version_major = -1;
 	pn.version_minor = -1;
+	pn.interface_data = NULL;
+	pn.number_of_interfaces = 0;
 
 	/* we don't expect any packet blocks yet */
 	wblock.frame_buffer = NULL;
 	wblock.pseudo_header = NULL;
 
 
+	pcapng_debug0("pcapng_open: opening file");
 	/* read first block */
 	bytes_read = pcapng_read_block(wth->fh, &pn, &wblock, err, err_info);
 	if (bytes_read <= 0) {
@@ -1216,14 +1210,15 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	wth->phdr.caplen = wblock.data.packet.cap_len;
 	wth->phdr.len = wblock.data.packet.packet_len;
-	if (wblock.data.packet.interface_id < number_of_interfaces) {
+	if (wblock.data.packet.interface_id < wth->capture.pcapng->number_of_interfaces) {
+		interface_data_t int_data;
 		guint64 time_units_per_second;
-		guint32 id;
+		gint id;
 		
-		id = wblock.data.packet.interface_id;
-		time_units_per_second = interface_data[id].time_units_per_second;
-		
-		wth->phdr.pkt_encap = interface_data[id].wtab_encap;
+		id = (gint)wblock.data.packet.interface_id;
+		int_data = g_array_index(wth->capture.pcapng->interface_data, interface_data_t, id);
+		time_units_per_second = int_data.time_units_per_second;
+		wth->phdr.pkt_encap = int_data.wtab_encap;
 		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
 	} else {
@@ -1282,6 +1277,10 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 static void
 pcapng_close(wtap *wth)
 {
+	pcapng_debug0("pcapng_close: closing file");
+	if (wth->capture.pcapng->interface_data != NULL) {
+		g_array_free(wth->capture.pcapng->interface_data, TRUE);
+	}
 	g_free(wth->capture.pcapng);
 }
 
