@@ -4128,7 +4128,7 @@
 00:10:10	Initio                 # INITIO CORPORATION
 00:10:11	Cisco                  # CISCO SYSTEMS, INC.
 00:10:12	ProcessorI             # PROCESSOR SYSTEMS (I) PVT LTD
-00:10:13	Kontron
+00:10:13	KontronAme             # Kontron America, Inc.
 00:10:14	Cisco                  # CISCO SYSTEMS, INC.
 00:10:15	Oomon                  # OOmon Inc.
 00:10:16	TSqware                # T.SQWARE
@@ -6565,7 +6565,7 @@
 00:19:96	TurbochefT             # TurboChef Technologies Inc.
 00:19:97	SoftDevice             # Soft Device Sdn Bhd
 00:19:98	Sato                   # SATO CORPORATION
-00:19:99	FujitsuSie             # Fujitsu Siemens Computers
+00:19:99	FujitsuTec             # Fujitsu Technology Solutions
 00:19:9A	Edo-Evi
 00:19:9B	Diversifie             # Diversified Technical Systems, Inc.
 00:19:9C	Ctring
@@ -8703,7 +8703,7 @@
 00:21:F0	Ew3Technol             # EW3 Technologies LLC
 00:21:F1	TutusData              # Tutus Data AB
 00:21:F2	Easy3callT             # EASY3CALL Technology Limited
-00:21:F3	M31Spa                 # M31 SpA
+00:21:F3	Si14Spa                # Si14 SpA
 00:21:F4	Inrange                # INRange Systems, Inc
 00:21:F5	WesternEng             # Western Engravers Supply, Inc.
 00:21:F6	VirtualIro             # Virtual Iron Software
@@ -9737,6 +9737,34 @@
 00:25:FA	J&MAnalyti             # J&M Analytik AG
 00:25:FB	TunstallHe             # Tunstall Healthcare A/S
 00:25:FC	EndaEndust             # ENDA ENDUSTRIYEL ELEKTRONIK LTD. STI.
+00:25:FD	ObrCentrum             # OBR Centrum Techniki Morskiej S.A.
+00:25:FE	PilotElect             # Pilot Electronics Corporation
+00:25:FF	CrenovaTec             # CreNova Technology GmbH
+00:26:00	TeacAustra             # TEAC Australia Pty Ltd.
+00:26:01	Private
+00:26:02	SmartTemps             # SMART Temps LLC
+00:26:03	ShenzhenWi             # Shenzhen Wistar Technology Co., Ltd
+00:26:04	AudioProce             # Audio Processing Technology Ltd
+00:26:05	Cc                     # CC Systems AB
+00:26:06	Raumfeld               # RAUMFELD GmbH
+00:26:07	EnablingTe             # Enabling Technology Pty Ltd
+00:26:08	Apple                  # Apple, Inc
+00:26:09	Phyllis                # Phyllis Co., Ltd.
+00:26:0A	Cisco                  # Cisco Systems
+00:26:0B	Cisco                  # Cisco Systems
+00:26:0C	Dataram
+00:26:0D	Micronetic             # Micronetics, Inc.
+00:26:0E	AblazeLlc              # Ablaze Systems, LLC
+00:26:0F	LinnProduc             # Linn Products Ltd
+00:26:10	ApacewaveT             # Apacewave Technologies
+00:26:11	Licera                 # Licera AB
+00:26:12	SpaceExplo             # Space Exploration Technologies
+00:26:13	EngelAxilS             # Engel Axil S.L.
+00:26:14	Ktnf
+00:26:15	Teracom                # Teracom Limited
+00:26:16	Rosemount              # Rosemount Inc.
+00:26:17	OemWorldwi             # OEM Worldwide
+00:26:18	AsustekCom             # ASUSTek COMPUTER INC.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -9785,7 +9813,7 @@
 00:30:2C	Sylantro               # SYLANTRO SYSTEMS CORPORATION
 00:30:2D	QuantumBri             # QUANTUM BRIDGE COMMUNICATIONS
 00:30:2E	HoftWessel             # Hoft & Wessel AG
-00:30:2F	SmithsIndu             # Smiths Industries
+00:30:2F	GeAviation             # GE Aviation System
 00:30:30	Harmonix               # HARMONIX CORPORATION
 00:30:31	LightwaveC             # LIGHTWAVE COMMUNICATIONS, INC.
 00:30:32	Magicram               # MagicRam, Inc.
@@ -11018,7 +11046,7 @@
 00:50:C2:24:A0:00/36	CdsRail                # CDS Rail
 00:50:C2:24:B0:00/36	Azimuth                # Azimuth Systems, Inc.
 00:50:C2:24:C0:00/36	Supertel
-00:50:C2:24:D0:00/36	Hi-SpeedCh             # Hi-Speed Checkweigher Co Inc
+00:50:C2:24:D0:00/36	Mettler-To             # METTLER-TOLEDO HI-SPEED
 00:50:C2:24:E0:00/36	ScharffWei             # Scharff Weisberg Systems Integration Inc
 00:50:C2:24:F0:00/36	MacronetSR             # Macronet s.r.l.
 00:50:C2:25:00:00/36	AcdElektro             # ACD Elektronik GmbH
@@ -12316,7 +12344,7 @@
 00:50:C2:75:E0:00/36	Sky-Skan               # Sky-Skan, Incorporated
 00:50:C2:75:F0:00/36	BRexrothId             # B. Rexroth the identity company GmbH
 00:50:C2:76:00:00/36	ArS                    # AR'S CO., LTD.
-00:50:C2:76:10:00/36	Efw                    # EFW Inc.
+00:50:C2:76:10:00/36	ElbitOfAme             # Elbit Systems of America - Fort Worth Operations
 00:50:C2:76:20:00/36	AssemblyCo             # Assembly Contracts Limited
 00:50:C2:76:30:00/36	Xtendwave
 00:50:C2:76:40:00/36	Argus-Spec             # Argus-Spectrum
@@ -13152,6 +13180,15 @@
 00:50:C2:AA:50:00/36	TampereUni             # Tampere University of Technology
 00:50:C2:AA:60:00/36	BassettEle             # Bassett Electronic Systems ltd
 00:50:C2:AA:70:00/36	EndeasOy               # Endeas Oy
+00:50:C2:AA:80:00/36	NexansCabl             # Nexans Cabling Solutions
+00:50:C2:AA:90:00/36	SanGiorgio             # SAN GIORGIO S.E.I.N. srl
+00:50:C2:AA:A0:00/36	FlexiblePi             # Flexible Picture Systems
+00:50:C2:AA:B0:00/36	BrsSistema             # BRS Sistemas Eletrônicos
+00:50:C2:AA:C0:00/36	Visicon                # VisiCon GmbH
+00:50:C2:AA:D0:00/36	Update                 # Update Systems Inc.
+00:50:C2:AA:E0:00/36	OutlineSrl             # OUTLINE srl
+00:50:C2:AA:F0:00/36	SantaBarba             # Santa Barbara Instrument Group
+00:50:C2:AB:00:00/36	FrakoKonde             # FRAKO Kondensatoren- und Anlagenbau GmbH
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -14215,7 +14252,7 @@
 00:A0:E8	ReutersHol             # REUTERS HOLDINGS PLC
 00:A0:E9	Electronic             # ELECTRONIC RETAILING SYSTEMS INTERNATIONAL
 00:A0:EA	Ethercom               # ETHERCOM CORP.
-00:A0:EB	EncoreNetw             # Encore Networks
+00:A0:EB	EncoreNetw             # Encore Networks, Inc.
 00:A0:EC	Transmitto             # TRANSMITTON LTD.
 00:A0:ED	BrooksAuto             # Brooks Automation, Inc.
 00:A0:EE	NashobaNet             # NASHOBA NETWORKS
