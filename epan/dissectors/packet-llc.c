@@ -84,7 +84,7 @@ static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
 static gint ett_llc_basicxid = -1;
 
-static dissector_table_t subdissector_table;
+static dissector_table_t dsap_subdissector_table;
 static dissector_table_t xid_subdissector_table;
 
 static dissector_table_t ethertype_subdissector_table;
@@ -547,7 +547,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Try the regular LLC subdissector table
 				 * with the DSAP.
 				 */
-				if (!dissector_try_port(subdissector_table,
+				if (!dissector_try_port(dsap_subdissector_table,
 				    dsap, next_tvb, pinfo, tree)) {
 					call_dissector(data_handle, next_tvb,
 					    pinfo, tree);
@@ -625,11 +625,18 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		   OUI_ENCAP_ETHER and an Ethernet
 		   packet type for AARP packets. */
 		if (XDLC_IS_INFORMATION(control)) {
-			ethertype(etype, tvb, offset+5,
-			    pinfo, tree, snap_tree, hf_type, -1, 0);
+			if (tree) {
+				proto_tree_add_uint(snap_tree, hf_type,
+				    tvb, offset+3, 2, etype);
+			}
+			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			if (!dissector_try_port(ethertype_subdissector_table,
+			    etype, next_tvb, pinfo, tree))
+				call_dissector(data_handle, next_tvb, pinfo,
+				    tree);
 		} else {
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -691,7 +698,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 		default:
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 			break;
 		}
 		break;
@@ -718,7 +725,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		 */
 		if (XDLC_IS_INFORMATION(control)) {
 			if (tree) {
-				proto_tree_add_uint(snap_tree, hf_llc_type,
+				proto_tree_add_uint(snap_tree, hf_type,
 				    tvb, offset+3, 2, etype);
 			}
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
@@ -728,10 +735,11 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    -1, -1);
 			if (!dissector_try_port(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
-				call_dissector(data_handle,next_tvb, pinfo, tree);
+				call_dissector(data_handle, next_tvb, pinfo,
+				    tree);
 		} else {
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -872,7 +880,7 @@ proto_register_llc(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	subdissector_table = register_dissector_table("llc.dsap",
+	dsap_subdissector_table = register_dissector_table("llc.dsap",
 	  "LLC SAP", FT_UINT8, BASE_HEX);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX);
