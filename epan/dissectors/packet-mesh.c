@@ -36,9 +36,6 @@
 
 #include <epan/packet.h>
 
-/* Forward declaration we need below */
-void proto_reg_handoff_mesh(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_mesh = -1;
 static int hf_mesh_ttl = -1;
