@@ -1150,26 +1150,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
 	wth->tsprecision = tsprecision;
-	/* Seems, this is a pcapng file */
 	wth->capture.pcapng = g_malloc(sizeof(pcapng_t));
 	*wth->capture.pcapng = pn;
-
-	wth->subtype_read	= pcapng_read;
-	wth->subtype_seek_read	= pcapng_seek_read;
-	wth->subtype_close	= pcapng_close;
-	wth->file_type		= WTAP_FILE_PCAPNG;
-
-	switch (wblock.data.if_descr.if_tsresol) {
-            case(6):
-		wth->tsprecision	= WTAP_FILE_TSPREC_USEC;	/* usec is the default (without the if_tsresol option) */
-		break;
-            case(9):
-		wth->tsprecision	= WTAP_FILE_TSPREC_NSEC;
-		break;
-            default:
-		pcapng_debug1("pcapng_open: if_tsresol %u not implemented, timestamp conversion omitted",
-                	      wblock.data.if_descr.if_tsresol);
-	}
+	wth->subtype_read = pcapng_read;
+	wth->subtype_seek_read = pcapng_seek_read;
+	wth->subtype_close = pcapng_close;
+	wth->file_type  = WTAP_FILE_PCAPNG;
 
 	return 1;
 }
