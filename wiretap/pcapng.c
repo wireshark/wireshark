@@ -252,8 +252,17 @@ typedef struct wtapng_block_s {
 	const guchar *frame_buffer;
 } wtapng_block_t;
 
-int wtab_encap;
-guint64 time_units_per_second;
+typedef struct interface_data_s {
+	int wtab_encap;
+	guint64 time_units_per_second;
+} interface_data_t;
+
+/* per IDB data. Maybe we should put it into
+ * an glib array. This avoids the hard limit.
+ */
+#define MAX_NUMBER_OF_INTERFACES 10
+interface_data_t interface_data[MAX_NUMBER_OF_INTERFACES];
+unsigned int number_of_interfaces = 0;
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -325,6 +334,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	pcapng_section_header_block_t shb;
 	pcapng_option_header_t oh;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	unsigned int i;
 
 
 	/* read block content */
@@ -450,8 +460,11 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 		}
 	}
 
-	wtab_encap = WTAP_ENCAP_UNKNOWN;
-	time_units_per_second = 1000000;
+	for (i = 0; i < MAX_NUMBER_OF_INTERFACES; i++) {
+		interface_data[i].wtab_encap = WTAP_ENCAP_UNKNOWN;
+		interface_data[i].time_units_per_second = 1000000;
+	}
+	number_of_interfaces = 0;
 
 	return block_read;
 }
@@ -462,6 +475,7 @@ static int
 pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			   wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
+	guint64 time_units_per_second;
 	int	bytes_read;
 	int	block_read;
 	int to_read;
@@ -470,6 +484,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
 
 
+	time_units_per_second = 1000000; /* default */
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&idb, 1, sizeof idb, fh);
@@ -605,8 +620,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 					time_units_per_second = G_MAXUINT64;
 				}
 				if (time_units_per_second > (((guint64)1) << 32)) {
-					pcapng_debug1("pcapng_open: time conversion might be inaccurate",
-					               wblock->data.if_descr.if_tsresol);
+					pcapng_debug0("pcapng_open: time conversion might be inaccurate");
 				}
 				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
 			} else {
@@ -636,8 +650,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				      oh.option_code, oh.option_length);
 		}
 	}
-	if (wtab_encap == WTAP_ENCAP_UNKNOWN) {
-		wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+	if (number_of_interfaces < MAX_NUMBER_OF_INTERFACES) {
+		interface_data[number_of_interfaces].wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+		interface_data[number_of_interfaces].time_units_per_second = time_units_per_second;
+		number_of_interfaces++;
 	} else {
 		pcapng_debug0("pcapng_read_if_descr_block: too many IDBs");
 	}
@@ -1140,25 +1156,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
-
-	/* read second block */
-	bytes_read = pcapng_read_block(wth->fh, &pn, &wblock, err, err_info);
-	if (bytes_read <= 0) {
-		*err = file_error(wth->fh);
-		pcapng_debug0("pcapng_open_new: couldn't read IDB");
-		if (*err != 0)
-			return -1;
-		return 0;
-	}
-
-	wth->data_offset += bytes_read;
-
-	/* second block must be an "Interface Description Block" */
-	if (wblock.type != BLOCK_TYPE_IDB) {
-		pcapng_debug1("pcapng_open_new: second block type %u not IDB", wblock.type);
-		return 0;
-	}
-
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
@@ -1167,7 +1164,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = pcapng_read;
 	wth->subtype_seek_read = pcapng_seek_read;
 	wth->subtype_close = pcapng_close;
-	wth->file_type  = WTAP_FILE_PCAPNG;
+	wth->file_type = WTAP_FILE_PCAPNG;
 
 	return 1;
 }
@@ -1214,14 +1211,25 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
 	}
 
-	wth->phdr.caplen    = wblock.data.packet.cap_len;
-	wth->phdr.len       = wblock.data.packet.packet_len;
-	wth->phdr.pkt_encap = wtab_encap;
-
 	/* Combine the two 32-bit pieces of the timestamp into one 64-bit value */
-        ts = (((guint64)wblock.data.packet.ts_high) << 32) | ((guint64)wblock.data.packet.ts_low);
-	wth->phdr.ts.secs	= (time_t) (ts / time_units_per_second);
-	wth->phdr.ts.nsecs	= (int) (((ts % time_units_per_second) * 1000000000) / time_units_per_second);
+	ts = (((guint64)wblock.data.packet.ts_high) << 32) | ((guint64)wblock.data.packet.ts_low);
+
+	wth->phdr.caplen = wblock.data.packet.cap_len;
+	wth->phdr.len = wblock.data.packet.packet_len;
+	if (wblock.data.packet.interface_id < number_of_interfaces) {
+		guint64 time_units_per_second;
+		guint32 id;
+		
+		id = wblock.data.packet.interface_id;
+		time_units_per_second = interface_data[id].time_units_per_second;
+		
+		wth->phdr.pkt_encap = interface_data[id].wtab_encap;
+		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
+		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
+	} else {
+		pcapng_debug1("pcapng_read: interface_id %d too large", wblock.data.packet.interface_id);
+		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
+	}
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
 	wth->data_offset = *data_offset + bytes_read;
