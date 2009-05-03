@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-04-19)
+(last updated 2009-05-02)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -12602,9 +12602,9 @@ Decimal
     Patrick Raimond
       mis&fcm.gp
 3149
-  Winchester Systems, Inc
-    Jerry Namery
-      jnamery&winsys.com
+  Winchester Systems Inc.
+    Jim Picard
+      jpicard&winsys.com
 3150
   SWD
     Uwe Wannags
@@ -37999,8 +37999,8 @@ Decimal
       jacekg&konsys.com.pl
 9511
   Vulkan Technic GmbH
-    Christian Ullrich
-      c.ullrich&vulkantechnic.de
+    Eric Hack
+      hack-consult&vulkantechnic.de
 9512
   Online Consulting, Ltd.
     Ivan Debnar
@@ -44274,9 +44274,9 @@ Decimal
     Greg Malewski
       gregm&eit.ltd.uk
 11080
-  First Hop
-    Juha Koponen
-      juha.koponen&firsthop.com
+  Airwide Solutions (previous was 'First Hop')
+    Nick Worth
+      snmp&airwidesolutions.com
 11081
   Hydrogen Line, Inc.
     Brad G. Kyer
@@ -48487,8 +48487,8 @@ Decimal
       markb&ordern.com
 12233
   OZ Communications, Inc.
-    Gunnar Gudmundsson
-      gunnar.gudmundsson&oz.com
+    Jean-Marc Serre
+      jean-marc.serre&nokia.com
 12234
   ProGuy.dk
     Paul Fleischer
@@ -70619,9 +70619,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Jon Callas
       jon&pgp.com
 17767
-  LakeSoft, Inc.
+  Schruth, LLC
     Cory Schruth
-      cory.schruth&lakesoft.com
+      cory&schruth.com
 17768
   Ecobyte Limited
     Nic Rutterford
@@ -84110,7 +84110,7 @@ Information Security of Pr
 21138
   Electrosys S.r.l.
     Stefano Dilio
-      s.dilio&electrosys.it
+      diliostefano&electrosys.it
 21139
   Proofpoint, Inc.
     Andy Maas
@@ -86608,9 +86608,9 @@ Information Security of Pr
     Stewart Elkin
       selkin&cornwall.gov.uk
 21763
-  Claranet UK Ltd
-    Ollie Cook
-      ollie&uk.clara.net
+  Claranet
+    David Freedman
+      david.freedman&uk.clara.net
 21764
   Hill Systems LLC
     Charles Robert Hill
@@ -91023,8 +91023,8 @@ Urzêdzie Wojewódzkim w Olsztynie
       stephan.hoffmann&alpha.ch
 22865
   University of Basel
-    Prof. Dr. F. Roesel
-      Fritz.Roesel&unibas.ch
+    Bernd Sindlinger
+      bernd.sindlinger&unibas.ch
 22866
   Vattenfall AB
     Tore Månsson
@@ -118450,9 +118450,9 @@ Decentralization / Helenic Public Administra
     Pasi Kovanen
       pasi.kovanen&concilionetworks.com
 29717
-  Dolmen Computer Applications
+  RealDolmen (previous was 'Dolmen Computer Applications')
     Lieven Willems
-      Lieven.Willems&dolmen.be
+      Lieven.Willems&realdolmen.com
 29718
   Technological Educational Institution of Athens (T.E.I. of Athens)
     Dimitrios Ninos
@@ -120971,8 +120971,8 @@ Decentralization / Helenic Public Administra
     Moritz Kobel
       moritz.kobel&itds.ch
 30347
-  bekatul system
-    danang wijanarko
+  Bekatul Port
+    Danang Wijanarko
       danang.wijanarko&gmail.com
 30348
   W-I-E-S-E-R.net
@@ -129464,8 +129464,8 @@ Decentralization / Helenic Public Administra
       keller&ndm.ch
 32470
   Forschungszentrum Jülich
-    Jens Kirchhoff
-      je.kirchhoff&fz-juelich.de
+    Thomas Eickermann
+      th.eickermann&fz-juelich.de
 32471
   Daitec GmbH
     Steiner Daniel
@@ -132612,8 +132612,8 @@ Decentralization / Helenic Public Administra
     Gena Gulchin
       gena&sonetworks.com
 33257
-  Dienste für Menschen gGmbH
-    abakus IT AG - Hardtmann Stephan
+  Dienste fuer Menschen gGmbH
+    Hardtmann Stephan
       shardtmann&abakus.de
 33258
   mosais pty. ltd.
@@ -132839,6 +132839,454 @@ Decentralization / Helenic Public Administra
   SoeKul, LLC
     Luke Stamm
       iana&soekul.com
+33314
+  Servicio Nacional de Rehabilitación
+    Javier Badaracco
+      javier&snr.gov.ar
+33315
+  Max-Planck-Institut fuer Informatik
+    Dirk Raufer
+      ldap-adm&mpi-inf.mpg.de
+33316
+  Government of Saskatchewan
+    Myles Sartor
+      myles.sartor&gov.sk.ca
+33317
+  INCITS Technical Committee T11
+    Claudio DeSanti
+      cds&cisco.com
+33318
+  AIDS Law Project
+    Brian Honermann
+      honermannb&alp.org.za
+33319
+  Technische Universität Kaiserslautern
+    Heiko Krupp
+      heiko.krupp&rhrk.uni-kl.de
+33320
+  Skarvon
+    Alexander Krasnov
+      Krasnov&serviceline.ru
+33321
+  Tradesmen International Inc
+    Charles Bushong
+      domains&tradesmeninternational.com
+33322
+  Progress Financial
+    David Bryson
+      dbryson&progressfin.com
+33323
+  Chaos Eternal Network
+    Charles Etherme
+      chaoseternal&gmail.com
+33324
+  Istochnik Ltd.
+    Marat N. Faizrakhmanov
+      maratnf&bk.ru
+33325
+  MSB Micro Systems
+    Danny Stemmet
+      support&msbmicro.com
+33326
+  PERTUS
+    Piotr Bylinski
+      p.bylinski&pertus.pl
+33327
+  ZIP Sistemas S.L.
+    Ferran Lax
+      f.lax&zipsl.com
+33328
+  NetArt Piotr Nowak
+    Grzegorz Piszczek
+      hostmaster&netart.pl
+33329
+  Encode Networks Svenska AB
+    Björn Lantz
+      bjorn.lantz&encode.se
+33330
+  Relevantum Oy
+    Vesa Keinänen
+      vesa.keinanen&relevantum.fi
+33331
+  Balance Network Co. ,Ltd.
+    Changyu Yang
+      ycy034&163.com
+33332
+  City of Edmonton
+    Shirley Fenton
+      shirley.fenton&edmonton.ca
+33333
+  Morningstar Corporation
+    IT Support
+      software&morningstarcorp.com
+33334
+  STEALTHbits Technologies, Inc.
+    Phil Burgard
+      phil.burgard&stealthbits.com
+33335
+  TrueOffice
+    Dmitry Shurupov
+      Dmitry.Shurupov&trueoffice.ru
+33336
+  Kat5Design
+    Ron McLeod
+      ron.mcleod&kat5design.com
+33337
+  elineis
+    pierre-mael Cretinon
+      com.iana&elineis.com
+33338
+  Comkom GmbH
+    Christian Dergovics
+      cdergo&comkom.at
+33339
+  The Charity Bus
+    Andy Ryan
+      thecharitybus&googlemail.com
+33340
+  Fundacio Privada Universitat Abat Oliba CEU
+    Responsable de sistemas
+      iana&uao.es
+33341
+  Beijing TongFang Gigamega Tech. co., Ltd.
+    Zhujun Qin
+      qinzhj82&gmail.com
+33342
+  u-blox AG
+    Mike Burgener
+      mike.burgener&u-blox.com
+33343
+  Storebrand ASA
+    IAM Admin
+      iamadmin&storebrand.no
+33344
+  SC Garant Industries SRL
+    Neacsu Marian
+      industries.garant&gmail.com
+33345
+  Branded Payment Solutions
+    David Kelly
+      itsupport&bpscards.com
+33346
+  Conseil Général des Pyrénées Atlantiques
+    BODET Thomas
+      thomas.bodet&cg64.fr
+33347
+  Papa John's International, Inc
+    Christopher Rodman
+      christopher_rodman&papajohns.com
+33348
+  Voidnet.biz
+    James Horner
+      humankind135&gmail.com
+33349
+  Mohawk College of Applied Arts and Technology
+    Jeff Howard
+      jeff.howard&mohawkcollege.ca
+33350
+  GALLACCI COMMUNICATIONS
+    Gabriele Gallacci
+      mailing&gallacci.com
+33351
+  Hospital Service Association of Northeastern Pennsylvania
+    Robert Budd
+      robert.budd&bcnepa.com
+33352
+  MAX Technologies
+    Yvon Belec
+      ybelec&videotron.ca
+33353
+  2Ring
+    Jirka Novak
+      jiri.novak&2ring.com
+33354
+  Kaasjager Consultancy
+    Alexander Kaasjager
+      kalex&kalex.nl
+33355
+  Ozeki Informatics Ltd.
+    Mr. Gyula Rábai
+      gyula.rabai&ozeki.hu
+33356
+  HEADJAPAN Co.,Ltd.
+    Enzo Fukura
+      contact_mib&mx.headjapan.com
+33357
+  TWINSEC GmbH
+    Thomas Kriener
+      thomas.kriener&twinsec.de
+33358
+  ApplianSys Ltd
+    John Robson
+      support&appliansys.com
+33359
+  VUT GmbH
+    Julian Backes
+      j.backes&vutonline.de
+33360
+  Kahaf (pvt) Ltd
+    Muhammad Shoaib
+      shoaib&kahaf.com
+33361
+  Cursum
+    R A Hazeleger
+      robert.hazeleger&cursum.nl
+33362
+  DataSchenk, Inc.
+    Jeffrey Schenk
+      Jeffrey.Schenk&DataSchenk.com
+33363
+  Duff & Phelps, LLC.
+    Scott Goodwin
+      scott.goodwin&duffandphelps.com
+33364
+  ginkgotek
+    huo ju 
+      huoju&ginkgotek.com
+33365
+  Edelbluth Engineering
+    Juergen Edelbluth
+      juergen.edelbluth&edelbluth.eu
+33366
+  Columbia Data Products, Inc
+    Lance Hudson
+      lhudson&cdp.com
+33367
+  VIRTUALMGS
+    Myles Sartor
+      msartor&virtualmgs.com
+33368
+  VTRON TECHNOLOGIES LTD.
+    Zhentao Liu
+      liuzhentao&vtron.com
+33369
+  Sino-telecom Technology Co.,Ltd
+    Wan Renyong
+      wanry&sino-telecom.com
+33370
+  Erasmus MC Rotterdam
+    Maarten Bijl
+      m.a.bijl&erasmusmc.nl
+33371
+  Kelkoo
+    Eric VEYRET
+      eric.veyret&kelkoo.com
+33372
+  Infocare AS
+    Jan Terje Andersen
+      jan.terje.andersen&infocare.no
+33373
+  ZeroPoint.it
+    M. Shoaib Ahmed
+      sysadmin&zeropoint.it
+33374
+  SFProjects
+    Sebastian Fillinger
+      sebastian&fillinger.de
+33375
+  Dalee LLC
+    Andrey Nikolaev
+      andrey.nikolaev&dalee.ru
+33376
+  Argeon Limited
+    Balázs András Dohányos
+      dohanyos.balazs&argeon.hu
+33377
+  Paul Armstrong
+    Paul Armstrong
+      iana&otoh.org
+33378
+  Zetta, inc
+    Theral Mackey
+      tmackey&zetta.net
+33379
+  KLabs
+    Inseok Choi
+      ischoi&klabs.re.kr
+33380
+  ICS Computer Services SA
+    Gordan Vosicki
+      admin&icsa.ch
+33381
+  DVS Digital Video Systems AG
+    Konstantin Schinas
+      schinas&dvs.de
+33382
+  chillyweb
+    Niklas Schulze
+      ns&hardware-area.de
+33383
+  Audisoft Technologies
+    Jean-Pierre Harvey
+      jpharvey&audisoft.net
+33384
+  eSaturnus
+    Dong Hoon Van Uytsel
+      donghoon.vanuytsel&esaturnus.com
+33385
+  Feeva Technology Inc.
+    Don Gilletti
+      don.gilletti&feeva.com
+33386
+  Hyper9
+    Ryan Kruse
+      rkruse&hyper9.com
+33387
+  SS7 Solutions
+    Martin Quevedo
+      martin.quevedo&ss7solutions.com
+33388
+  InCASE - Sven Mueller
+    Sven Mueller
+      iana-pen-registration&incase.de
+33389
+  Keyboard Monkeys Ltd.
+    Reiner Jung
+      reiner&kb-m.com
+33390
+  Cormedica
+    Marcelo O. Rodriguez
+      cormedica&cormedica.com.ar
+33391
+  OSI d.o.o.
+    Rudi Ponikvar
+      rudi.ponikvar&osi.si
+33392
+  Source Allies, Inc
+    Scott Peshak
+      scott&sourceallies.com
+33393
+  C-NET Information Technology LTD.
+    POOR, Laszlo
+      poor.laszlo&cnet.hu
+33394
+  Mio Software Laboratory Inc.
+    Naoki Nishiyama
+      naoki&miolab.com
+33395
+  Washington State Department Of Information Services 
+    Bill Cain, Internal Certificate Authority Administrator
+      billc&dis.wa.gov
+33396
+  Ferpa Consultoria e Sistemas Ltda.
+    Fernando Hackbart
+      fernando&ferpaconsultoria.com.br
+33397
+  CreAPPtive Limited
+    Ian Lee
+      ian.lee&legend-engg.com
+33398
+  Traffic Management Technologies
+    Gerhard Lamprecht
+      glamprecht&tmtservices.co.za
+33399
+  Egyption Root certification authority
+    Dr. Sherif Hazem Nour el-din
+      snoureldin&mcit.gov.eg
+33400
+   Anywire Corporation 
+    Makoto Yamashita
+      yamashita&anywire.jp
+33401
+  Servera, Inc.
+    Kevin Shih
+      kevin.shih&servera-inc.com
+33402
+  Quadrizen
+    Stephen E. Halpin
+      oid-wn5rw5&quadrizen.com
+33403
+  Radiocomp ApS
+    Anne Christensen
+      ach&radiocomp.com
+33404
+  Dipl.-Ing. Christian Lindemann
+    Christian Lindemann
+      ldm_admin&arcor.de
+33405
+  EISST Limited
+    Corrado Ronchi
+      cronchi&eisst.com
+33406
+  Keller Williams Realty Intl
+    Ben Mayfield
+      bmayfield&kw.com
+33407
+  I-Evolve
+    Justin Elze
+      jelze&i-evolve.com
+33408
+  BASIS International Ltd.
+    Adam Hawthorne
+      adamh&basis.com
+33409
+  The Chronicle
+    Kenneth Moir
+      LicenseManagement&chronicle.com
+33410
+  FETAC
+    Giovanni Zaidan
+      gzaidan&fetac.ie
+33411
+  QNETIC LTD.
+    Tom Gleason
+      tom.gleason&qnetic.com
+33412
+  Kootenai Electric Cooperative, Inc.
+    Art Malin
+      malina&kec.com
+33413
+  ADSLWEB-dot-Net
+    Pieter de Rijk
+      domreg&adslweb.net
+33414
+  Monitis Inc.
+    Hovhannes Avoyan
+      havoyan&monitis.com
+33415
+  N-Com, L.P.
+    Brad Landis
+      blandis&ncom.com
+33416
+  wondersgroup
+    zhang fengchang
+      alain&wondersgroup.com
+33417
+  PiN GmbH
+    Kurt Harders
+      harders&pin-gmbh.com
+33418
+  Rila Feinkost-Importe GmbH und Co. KG
+    Kurt Harders
+      k.harders&rila.de
+33419
+  CNStreaming Technologies Co., Ltd
+    Li Jie
+      jie.li&cnstreaming.com
+33420
+  Voalte, Inc
+    Oscar Callejas
+      o.callejas&voalte.com
+33421
+  South Gloucestershire Council CYP ICT
+    Nick Pearce
+      Nick&sgcyp.org.uk
+33422
+  Com-Ned Netwerken B.V.
+    Ronald Huizer
+      ronald&comned.com
+33423
+  TriaGnoSys GmbH
+    Matthias Holzbock
+      matthias.holzbock&triagnosys.com
+33424
+  ITXTEND LLC
+    Raghunathan KV
+      raghukv&itxtend.com
+33425
+  Fortisbank NL NV
+    Steven Geerts
+      steven.geerts&nl.fortis.com
 
 
 End of Document
