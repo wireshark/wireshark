@@ -2751,7 +2751,7 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
     if (!prefs.gui_use_pref_save) {
         prefs_main_write();
     }
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 static void
@@ -2772,7 +2772,7 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();
         }
-        cf_redissect_packets(&cfile);
+        redissect_packets();
     }
 }
 
@@ -2837,7 +2837,7 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();
         }
-        cf_redissect_packets(&cfile);
+        redissect_packets();
     }
 
     window_destroy(GTK_WIDGET(parent_w));

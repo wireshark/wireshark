@@ -362,7 +362,7 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 static void
@@ -379,7 +379,7 @@ proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   }
 
   if (redissect)
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 static void
@@ -390,7 +390,7 @@ proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
   if (set_proto_selection(GTK_WIDGET(parent_w))) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
   }
 }
 
@@ -402,7 +402,7 @@ proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   redissect = revert_proto_selection();
   window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 static gboolean
@@ -523,7 +523,7 @@ proto_disable_dialog_cb(gpointer dialog _U_, gint btn, gpointer data)
     if (proto_is_protocol_enabled(protocol) == TRUE) {
       if (proto_can_toggle_protocol(id) == TRUE) {
         proto_set_decoding(id, FALSE);
-        cf_redissect_packets(&cfile);
+        redissect_packets();
       }
     }
   }

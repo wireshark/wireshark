@@ -1800,7 +1800,7 @@ on_enable_decryption_en_changed(GtkWidget *w, gpointer data)
     }
 
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 /*

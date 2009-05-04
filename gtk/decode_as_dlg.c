@@ -37,6 +37,7 @@
 #include "../globals.h"
 #include "../simple_dialog.h"
 
+#include "gtk/main.h"
 #include "gtk/decode_as_dlg.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
@@ -428,7 +429,7 @@ decode_clear_all(void)
 
     decode_dcerpc_reset_all();
 
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 
@@ -837,7 +838,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
 
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 /*
@@ -866,7 +867,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     func = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
-    cf_redissect_packets(&cfile);
+    redissect_packets();
 }
 
 /*

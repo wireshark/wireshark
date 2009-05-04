@@ -569,7 +569,7 @@ packet_list_recreate(void)
     main_widgets_rearrange();
 
     if(cfile.state != FILE_CLOSED)
-        cf_redissect_packets(&cfile);
+       redissect_packets();
 }
 
 void

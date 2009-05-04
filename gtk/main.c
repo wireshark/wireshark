@@ -3392,7 +3392,13 @@ void change_configuration_profile (const gchar *profile_name)
 
    /* Recreate the packet list according to new preferences */
    packet_list_recreate ();
-   status_expert_update();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply();
+}
+
+/** redissect packets and update UI */
+void redissect_packets(void)
+{
+    cf_redissect_packets(&cfile);
+    status_expert_update();
 }

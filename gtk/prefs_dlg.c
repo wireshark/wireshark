@@ -1399,7 +1399,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
   }
 
 }
@@ -1428,7 +1428,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
   }
 }
 
@@ -1463,7 +1463,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
   }
 }
 
@@ -1564,7 +1564,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    cf_redissect_packets(&cfile);
+    redissect_packets();
   }
 }
 

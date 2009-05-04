@@ -340,6 +340,9 @@ extern void prefs_to_capture_opts(void);
 /** Change configuration profile */
 extern void change_configuration_profile(const gchar *profile_name);
 
+/** redissect packets and update UI */
+extern void redissect_packets(void);
+
 extern GtkWidget *pkt_scrollw;
 
 #endif /* __MAIN_H__ */
