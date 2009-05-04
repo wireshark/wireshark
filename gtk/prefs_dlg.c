@@ -1552,6 +1552,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
      current preferences. */
   free_prefs(&prefs);
   copy_prefs(&prefs, &saved_prefs);
+  cfile.cinfo.columns_changed = FALSE; /* [XXX: "columns_changed" should treally be stored in prefs struct ??] */
 
   /* Now revert the registered preferences. */
   prefs_modules_foreach(module_prefs_revert, &must_redissect);
