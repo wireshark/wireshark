@@ -39,11 +39,11 @@
 /** @page howto_window_page How to develop a window / dialog
  *
  * Windows and dialogs are related to each other. Dialogs are special kind of windows, but they behave
- * slightly different. Dialogs stick on it's parent window, normal windows will be much more independant
- * from it's parent window. Dialogs should be used to ask or note the user something, while windows should
- * show data independantly from the main window.
+ * slightly different. A dialog sticks on its parent window; A normal window will be much more independent
+ * from its parent window. Dialogs should be used to ask or tell the user something, while windows should
+ * show data which is independent of the main window.
  * Dialogs are created by calling dlg_window_new() which in turn will call window_new().
- * After that, dialogs can be developed the same way as windows, all window related functions in gui_utils.h
+ * After that, dialogs can be developed the same way as windows; all window related functions in gui_utils.h
  * can be used for both.
  *
  * @section window_create Create a window
@@ -51,33 +51,33 @@
  * A typical window / dialog will be created by the following calls:
  *
  * - window_new() will create a new window with default position and size,
- *   use dlg_window_new() if you need a dialog (transient to the main window)
- * - gtk_window_set_default_size() to set the default size of the window. Only
- *   needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
- * - g_signal_connect(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be
- *   done after the window is destroyed, e.g. free up memory, or set the window pointer
+ *     use dlg_window_new() if you need a dialog (transient to the main window)
+ * - gtk_window_set_default_size() will set the default size of the window. Only
+ *     needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
+ * - g_signal_connect(my_win, "destroy", my_destroy_cb, NULL) will create a callback if some cleanup
+ *     needs to be done after the window is destroyed, e.g. free up memory, or set the window pointer
  *   of a singleton window (only one instance allowed, e.g. about dialog) back to zero
  * - create and fill in the content and button widgets
  * - gtk_widget_show_all() shows all the widgets in the window
- * - window_present() present the window on screen and
- *   (if available) set previously saved position and size
+ * - window_present() will present the window on screen and
+ *     (if available) set previously saved position and size
  *
  * @section window_events Events
  *
  * The following events are usually interesting:
  *
- * - "delete_event": the window managers "X" (e.g. upper right edge) of the window
- *   was clicked, default handler will call gtk_widget_destroy()
- * - "destroy": everything is already gone, only cleanup of left over ressources
- *   can/should be done now
+ * - "delete_event": the window manager's "X" (e.g. upper right edge) of the window
+ *     was clicked; the default handler will call gtk_widget_destroy()
+ * - "destroy": everything is already gone; only cleanup of left over resources
+ *     can/should be done now
  *
  * @section window_hints Hints
  *
  * If you want to save size and position, be sure to call window_destroy() instead of only
  *   gtk_widget_destroy(), so you will probably have to g_signal_connect() to the "delete_event"!
  *
- * Don't use gtk_widget_set_size_request() to set the size of a window,
- * use gtk_window_set_default_size() for that purpose!
+ * Don't use gtk_widget_set_size_request() to set the size of a window;
+ *   use gtk_window_set_default_size() for that purpose!
  *
  * Be sure to call window_present() / window_destroy() appropriately, if you
  *   want to have size and position of the window handled by ui_util.
@@ -108,7 +108,7 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
  *
  * @param type window type, typical GTK_WINDOW_TOPLEVEL
  * @param title the title for the new window
- * @param geom_name the name to distinguish this window, will also be used for the recent file (don't use special chars)
+ * @param geom_name the name to distinguish this window; will also be used for the recent file (don't use special chars)
  * @return the newly created window
  */
 extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
@@ -152,7 +152,7 @@ extern void window_destroy(GtkWidget *win);
  */
 extern void window_cancel_button_cb(GtkWidget *w _U_, gpointer data);
 
-/** Default callback handler if the window managers X of the window was clicked (delete_event).
+/** Default callback handler if the window manager's X of the window was clicked (delete_event).
  *  Use this for g_signal_connect(), if no user specific functionality required,
  *  will simply call window_destroy()
  */
@@ -175,7 +175,7 @@ typedef struct window_geometry_s {
 /** Get the geometry of a window.
  *
  * @param win the window from window_new()
- * @param geom the current geometry values of the window, the set_xy values will not be used
+ * @param geom the current geometry values of the window; the set_xy values will not be used
  * @todo if main uses the window_new_with_geom() to save size and such, make this function static
  */
 extern void window_get_geometry(GtkWidget *win, window_geometry_t *geom);
