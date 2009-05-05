@@ -360,10 +360,6 @@ static dissector_handle_t ndps_data_handle;
 /* desegmentation of NDPS over TCP */
 static gboolean ndps_desegment = TRUE;
 
-/* global item and value for passing expert data */
-static proto_item  *expert_item;
-static guint32     expert_status;
-
 static const value_string true_false[] = {
     { 0x00000000, "Accept" },
     { 0x00000001, "Deny" },
@@ -6740,6 +6736,7 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
     proto_item  *aitem;
     proto_tree  *btree;
     proto_item  *bitem;
+    proto_item  *expert_item;
 
     ndps_problem_type = tvb_get_ntohl(tvb, foffset);
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -6940,6 +6937,9 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 static int
 return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
+    guint32     expert_status;
+    proto_item  *expert_item;
+
     expert_status = tvb_get_ntohl(tvb, foffset);
     expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
     if (expert_status != 0) {
@@ -6982,6 +6982,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     guint32                 error_val=0;
     guint32                 resource_type=0;
     gint		    length_remaining;
+    proto_item              *expert_item;
+    guint32                 expert_status;
 
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */

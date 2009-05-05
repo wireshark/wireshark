@@ -6263,8 +6263,6 @@ static int hf_iter_search = -1;
 static int hf_iter_other = -1;
 static int hf_nds_oid = -1;
 
-static proto_item *expert_item = NULL;
-
 	"""
 
 	# Look at all packet types in the packets collection, and cull information

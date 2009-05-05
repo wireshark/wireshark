@@ -116,8 +116,6 @@ static gboolean ncp_desegment = TRUE;
 
 static dissector_handle_t data_handle;
 
-static proto_item *expert_item = NULL;
-
 #define TCP_PORT_NCP		524
 #define UDP_PORT_NCP		524
 
@@ -255,82 +253,83 @@ mncp_postseq_cleanup(void)
 static mncp_rhash_value*
 mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwtask, packet_info *pinfo)
 {
-	mncp_rhash_key		*key;
-	mncp_rhash_value	*value;
+    mncp_rhash_key      *key;
+    mncp_rhash_value    *value;
 
-	/* Now remember the request, so we can find it if we later
-	   a reply to it. Track by conversation, connection, and task number.
+    /* Now remember the request, so we can find it if we later
+       a reply to it. Track by conversation, connection, and task number.
        in NetWare these values determine each unique session */
-	key = se_alloc(sizeof(mncp_rhash_key));
-	key->conversation = conversation;
+    key = se_alloc(sizeof(mncp_rhash_key));
+    key->conversation = conversation;
     key->nwconnection = nwconnection;
     key->nwtask = nwtask;
 
-	value = se_alloc(sizeof(mncp_rhash_value));
+    value = se_alloc(sizeof(mncp_rhash_value));
 
-	g_hash_table_insert(mncp_rhash, key, value);
+    g_hash_table_insert(mncp_rhash, key, value);
 
     if (ncp_echo_conn && nwconnection != 65535) {
         expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
         value->session_start_packet_num = pinfo->fd->num;
     }
 
-	return value;
+    return value;
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
 static mncp_rhash_value*
 mncp_hash_lookup(conversation_t *conversation, guint32 nwconnection, guint8 nwtask)
 {
-	mncp_rhash_key		key;
+    mncp_rhash_key        key;
 
-	key.conversation = conversation;
+    key.conversation = conversation;
     key.nwconnection = nwconnection;
     key.nwtask = nwtask;
 
-	return g_hash_table_lookup(mncp_rhash, &key);
+    return g_hash_table_lookup(mncp_rhash, &key);
 }
 
 /*
  * Burst packet system flags.
  */
-#define ABT	0x04		/* Abort request */
+#define ABT 0x04        /* Abort request */
 #define BSY 0x08        /* Server Busy */
-#define EOB	0x10		/* End of burst */
+#define EOB 0x10        /* End of burst */
 #define LST 0x40        /* Include Fragment List */
-#define SYS	0x80		/* System packet */
+#define SYS 0x80        /* System packet */
 
 static void
 dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_tcp)
 {
-	proto_tree			*ncp_tree = NULL;
-	proto_item			*ti;
-	struct ncp_ip_header		ncpiph;
-	struct ncp_ip_rqhdr		ncpiphrq;
-	guint16				ncp_burst_seqno, ncp_ack_seqno;
-	guint16				flags = 0;
-	proto_tree			*flags_tree = NULL;
-	int				hdr_offset = 0;
-	int				commhdr = 0;
-	int				offset = 0;
-	gint				length_remaining;
-	tvbuff_t       			*next_tvb;
-	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
-	guint8				subfunction;
-	guint32				nw_connection = 0, data_offset;
-	guint16				data_len = 0;
-	guint16				missing_fraglist_count = 0;
-	mncp_rhash_value		*request_value = NULL;
-	conversation_t			*conversation;
+    proto_tree            *ncp_tree = NULL;
+    proto_item            *ti;
+    struct ncp_ip_header  ncpiph;
+    struct ncp_ip_rqhdr   ncpiphrq;
+    guint16               ncp_burst_seqno, ncp_ack_seqno;
+    guint16               flags = 0;
+    proto_tree            *flags_tree = NULL;
+    int                   hdr_offset = 0;
+    int                   commhdr = 0;
+    int                   offset = 0;
+    gint                  length_remaining;
+    tvbuff_t              *next_tvb;
+    guint32               testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
+    guint8                subfunction;
+    guint32               nw_connection = 0, data_offset;
+    guint16               data_len = 0;
+    guint16               missing_fraglist_count = 0;
+    mncp_rhash_value      *request_value = NULL;
+    conversation_t        *conversation;
+    proto_item            *expert_item;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
-	hdr_offset = 0;
-	ncp_hdr = &header;
+    hdr_offset = 0;
+    ncp_hdr = &header;
     commhdr = hdr_offset;
 
     ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
@@ -339,16 +338,16 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY)
             commhdr += 1;
         /* Get NCPIP Header data */
-        ncpiph.signature	= tvb_get_ntohl(tvb, commhdr);
+        ncpiph.signature = tvb_get_ntohl(tvb, commhdr);
         proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, tvb, commhdr, 4, ncpiph.signature);
-        ncpiph.length		= (0x7fffffff & tvb_get_ntohl(tvb, commhdr+4));
+        ncpiph.length = (0x7fffffff & tvb_get_ntohl(tvb, commhdr+4));
         proto_tree_add_uint(ncp_tree, hf_ncp_ip_length, tvb, commhdr+4, 4, ncpiph.length);
         commhdr += 8;
         if (ncpiph.signature == NCPIP_RQST) {
-            ncpiphrq.version	= tvb_get_ntohl(tvb, commhdr);
+            ncpiphrq.version = tvb_get_ntohl(tvb, commhdr);
             proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, commhdr, 4, ncpiphrq.version);
             commhdr += 4;
-            ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, commhdr);
+            ncpiphrq.rplybufsize = tvb_get_ntohl(tvb, commhdr);
             proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, commhdr, 4, ncpiphrq.rplybufsize);
             commhdr += 4;
         }
@@ -361,16 +360,16 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
     } else {
-	/* Initialize this structure, we use it below */
-	memset(&ncpiph, 0, sizeof(ncpiph));
+        /* Initialize this structure, we use it below */
+        memset(&ncpiph, 0, sizeof(ncpiph));
     }
 
-    header.type		    = tvb_get_ntohs(tvb, commhdr);
-    header.sequence		= tvb_get_guint8(tvb, commhdr+2);
-    header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
+    header.type         = tvb_get_ntohs(tvb, commhdr);
+    header.sequence     = tvb_get_guint8(tvb, commhdr+2);
+    header.conn_low     = tvb_get_guint8(tvb, commhdr+3);
     header.task         = tvb_get_guint8(tvb, commhdr+4);
-    header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
-    proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr, 2, header.type);
+    header.conn_high    = tvb_get_guint8(tvb, commhdr+5);
+    proto_tree_add_uint(ncp_tree, hf_ncp_type, tvb, commhdr, 2, header.type);
     nw_connection = (header.conn_high*256)+header.conn_low;
 
     /* Ok, we need to track the conversation so that we can
@@ -460,392 +459,390 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
             }
         }
-	}
+    }
 
-	tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
+    tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
-	}
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_str(pinfo->cinfo, COL_INFO,
+            val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
+    }
 
-	/*
-	 * Process the packet-type-specific header.
-	 */
-	switch (header.type) {
+    /*
+     * Process the packet-type-specific header.
+     */
+    switch (header.type) {
 
-	case NCP_BROADCAST_SLOT:    /* Server Broadcast */
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
-		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
-		proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
+    case NCP_BROADCAST_SLOT:    /* Server Broadcast */
+        proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
+        proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
+        proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
         if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file)
         {
             expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
         }
-		break;
+        break;
 
-	case NCP_LIP_ECHO:    /* Lip Echo Packet */
-		proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, FALSE);
-		break;
+    case NCP_LIP_ECHO:    /* Lip Echo Packet */
+        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, FALSE);
+        break;
 
-	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
-		/*
-		 * XXX - we should keep track of whether there's a burst
-		 * outstanding on a connection and, if not, treat the
-		 * beginning of the data as a burst header.
-		 *
-		 * The burst header contains:
-		 *
-		 *	4 bytes of little-endian function number:
-		 *	    1 = read, 2 = write;
-		 *
-		 *	4 bytes of file handle;
-		 *
-		 *	8 reserved bytes;
-		 *
-		 *	4 bytes of big-endian file offset;
-		 *
-		 *	4 bytes of big-endian byte count.
-		 *
-		 * The data follows for a burst write operation.
-		 *
-		 * The first packet of a burst read reply contains:
-		 *
-		 *	4 bytes of little-endian result code:
-		 *	   0: No error
-		 *	   1: Initial error
-		 *	   2: I/O error
-		 *	   3: No data read;
-		 *
-		 *	4 bytes of returned byte count (big-endian?).
-		 *
-		 * The data follows.
-		 *
-		 * Each burst of a write request is responded to with a
-		 * burst packet with a 2-byte little-endian result code:
-		 *
-		 *	0: Write successful
-		 *	4: Write error
-		 */
-		flags = tvb_get_guint8(tvb, commhdr + 2);
+    case NCP_BURST_MODE_XFER:    /* Packet Burst Packet */
+        /*
+         * XXX - we should keep track of whether there's a burst
+         * outstanding on a connection and, if not, treat the
+         * beginning of the data as a burst header.
+         *
+         * The burst header contains:
+         *
+         *    4 bytes of little-endian function number:
+         *        1 = read, 2 = write;
+         *
+         *    4 bytes of file handle;
+         *
+         *    8 reserved bytes;
+         *
+         *    4 bytes of big-endian file offset;
+         *
+         *    4 bytes of big-endian byte count.
+         *
+         * The data follows for a burst write operation.
+         *
+         * The first packet of a burst read reply contains:
+         *
+         *    4 bytes of little-endian result code:
+         *       0: No error
+         *       1: Initial error
+         *       2: I/O error
+         *       3: No data read;
+         *
+         *    4 bytes of returned byte count (big-endian?).
+         *
+         * The data follows.
+         *
+         * Each burst of a write request is responded to with a
+         * burst packet with a 2-byte little-endian result code:
+         *
+         *    0: Write successful
+         *    4: Write error
+         */
+        flags = tvb_get_guint8(tvb, commhdr + 2);
 
-		ti = proto_tree_add_uint(ncp_tree, hf_ncp_system_flags,
-		    tvb, commhdr + 2, 1, flags);
-		flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
+        ti = proto_tree_add_uint(ncp_tree, hf_ncp_system_flags,
+            tvb, commhdr + 2, 1, flags);
+        flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
 
-		proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
-		    tvb, commhdr + 2, 1, FALSE);
-		if (flags & ABT) {
-			proto_item_append_text(ti, "  ABT");
-		}
-		flags&=(~( ABT ));
+        proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
+            tvb, commhdr + 2, 1, FALSE);
+        if (flags & ABT) {
+            proto_item_append_text(ti, "  ABT");
+        }
+        flags&=(~( ABT ));
 
-		proto_tree_add_item(flags_tree, hf_ncp_system_flags_bsy,
-		    tvb, commhdr + 2, 1, FALSE);
-		if (flags & BSY) {
-			proto_item_append_text(ti, "  BSY");
-		}
-		flags&=(~( BSY ));
+        proto_tree_add_item(flags_tree, hf_ncp_system_flags_bsy,
+            tvb, commhdr + 2, 1, FALSE);
+        if (flags & BSY) {
+            proto_item_append_text(ti, "  BSY");
+        }
+        flags&=(~( BSY ));
 
-		proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
-		    tvb, commhdr + 2, 1, FALSE);
-		if (flags & EOB) {
-			proto_item_append_text(ti, "  EOB");
-		}
-		flags&=(~( EOB ));
+        proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
+            tvb, commhdr + 2, 1, FALSE);
+        if (flags & EOB) {
+            proto_item_append_text(ti, "  EOB");
+        }
+        flags&=(~( EOB ));
 
-		proto_tree_add_item(flags_tree, hf_ncp_system_flags_lst,
-		    tvb, commhdr + 2, 1, FALSE);
-		if (flags & LST) {
-			proto_item_append_text(ti, "  LST");
-		}
-		flags&=(~( LST ));
+        proto_tree_add_item(flags_tree, hf_ncp_system_flags_lst,
+            tvb, commhdr + 2, 1, FALSE);
+        if (flags & LST) {
+            proto_item_append_text(ti, "  LST");
+        }
+        flags&=(~( LST ));
 
-		proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
-		    tvb, commhdr + 2, 1, FALSE);
-		if (flags & SYS) {
-			proto_item_append_text(ti, "  SYS");
-		}
-		flags&=(~( SYS ));
+        proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
+            tvb, commhdr + 2, 1, FALSE);
+        if (flags & SYS) {
+            proto_item_append_text(ti, "  SYS");
+        }
+        flags&=(~( SYS ));
 
 
-		proto_tree_add_item(ncp_tree, hf_ncp_stream_type,
-		    tvb, commhdr + 3, 1, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_src_connection,
-		    tvb, commhdr + 4, 4, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_dst_connection,
-		    tvb, commhdr + 8, 4, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_packet_seqno,
-		    tvb, commhdr + 12, 4, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
-		    tvb, commhdr + 16, 4, FALSE);
-		ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
-		proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
-		    tvb, commhdr + 20, 2, FALSE);
-		ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
-		proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
-		    tvb, commhdr + 22, 2, FALSE);
-		proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
-		    tvb, commhdr + 24, 4, FALSE);
-		data_offset = tvb_get_ntohl(tvb, commhdr + 28);
-		proto_tree_add_uint(ncp_tree, hf_ncp_data_offset,
-		    tvb, commhdr + 28, 4, data_offset);
-		data_len = tvb_get_ntohs(tvb, commhdr + 32);
-		proto_tree_add_uint(ncp_tree, hf_ncp_data_bytes,
-		    tvb, commhdr + 32, 2, data_len);
-		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
-		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
-		    tvb, commhdr + 34, 2, FALSE);
-		offset = commhdr + 36;
-		if (!(flags & SYS) && ncp_burst_seqno == ncp_ack_seqno &&
-		    data_offset == 0) {
-			/*
-			 * This is either a Burst Read or Burst Write
-			 * command.  The data length includes the burst
-			 * mode header, plus any data in the command
-			 * (there shouldn't be any in a read, but there
-			 * might be some in a write).
-			 */
-			if (data_len < 4)
-				return;
-			ncp_burst_command = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
-			    tvb, offset, 4, FALSE);
-			offset += 4;
-			data_len -= 4;
+        proto_tree_add_item(ncp_tree, hf_ncp_stream_type,
+            tvb, commhdr + 3, 1, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_src_connection,
+            tvb, commhdr + 4, 4, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_dst_connection,
+            tvb, commhdr + 8, 4, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_packet_seqno,
+            tvb, commhdr + 12, 4, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
+            tvb, commhdr + 16, 4, FALSE);
+        ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
+        proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
+            tvb, commhdr + 20, 2, FALSE);
+        ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
+        proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
+            tvb, commhdr + 22, 2, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
+            tvb, commhdr + 24, 4, FALSE);
+        data_offset = tvb_get_ntohl(tvb, commhdr + 28);
+        proto_tree_add_uint(ncp_tree, hf_ncp_data_offset,
+            tvb, commhdr + 28, 4, data_offset);
+        data_len = tvb_get_ntohs(tvb, commhdr + 32);
+        proto_tree_add_uint(ncp_tree, hf_ncp_data_bytes,
+            tvb, commhdr + 32, 2, data_len);
+        missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
+        proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
+            tvb, commhdr + 34, 2, FALSE);
+        offset = commhdr + 36;
+        if (!(flags & SYS) && ncp_burst_seqno == ncp_ack_seqno &&
+            data_offset == 0) {
+            /*
+             * This is either a Burst Read or Burst Write
+             * command.  The data length includes the burst
+             * mode header, plus any data in the command
+             * (there shouldn't be any in a read, but there
+             * might be some in a write).
+             */
+            if (data_len < 4)
+                return;
+            ncp_burst_command = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
+                tvb, offset, 4, FALSE);
+            offset += 4;
+            data_len -= 4;
 
-			if (data_len < 4)
-				return;
-			burst_file = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
-			    tvb, offset, 4, FALSE);
-			offset += 4;
-			data_len -= 4;
+            if (data_len < 4)
+                return;
+            burst_file = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
+                tvb, offset, 4, FALSE);
+            offset += 4;
+            data_len -= 4;
 
-			if (data_len < 8)
-				return;
-			proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
-			    tvb, offset, 8, FALSE);
-			offset += 8;
-			data_len -= 8;
+            if (data_len < 8)
+                return;
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
+                tvb, offset, 8, FALSE);
+            offset += 8;
+            data_len -= 8;
 
-			if (data_len < 4)
-				return;
-			burst_off = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint(ncp_tree, hf_ncp_burst_offset,
-			    tvb, offset, 4, burst_off);
-			offset += 4;
-			data_len -= 4;
+            if (data_len < 4)
+                return;
+            burst_off = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint(ncp_tree, hf_ncp_burst_offset,
+                tvb, offset, 4, burst_off);
+            offset += 4;
+            data_len -= 4;
 
-			if (data_len < 4)
-				return;
-			burst_len = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint(ncp_tree, hf_ncp_burst_len,
-			    tvb, offset, 4, burst_len);
-			offset += 4;
-			data_len -= 4;
+            if (data_len < 4)
+                return;
+            burst_len = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint(ncp_tree, hf_ncp_burst_len,
+                tvb, offset, 4, burst_len);
+            offset += 4;
+            data_len -= 4;
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO,
-				    "%s %d bytes starting at offset %d in file 0x%08x",
-				    val_to_str(ncp_burst_command,
-				      burst_command, "Unknown (0x%08x)"),
-				     burst_len, burst_off, burst_file);
-			}
-			break;
-		} else {
-			if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_set_str(pinfo->cinfo, COL_INFO,
-					    "End of Burst");
-				}
-			}
-		}
-		break;
-
-	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
-		if (length_remaining > 4) {
-			testvar = tvb_get_ntohl(tvb, commhdr+4);
-			if (testvar == 0x4c495020) {
-				proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, FALSE);
-				break;
-			}
-		}
-		/* otherwise fall through */
-
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
-	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-	case NCP_WATCHDOG:		/* Watchdog Packet */
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-	default:
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
-		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		break;
-	}
-
-	/*
-	 * Process the packet body.
-	 */
-	switch (header.type) {
-
-	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
-		if (length_remaining > 4) {
-			testvar = tvb_get_ntohl(tvb, commhdr+4);
-			if (testvar == 0x4c495020) {
-				proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-				    "Lip Echo Packet");
-				/*break;*/
-			}
-		}
-		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
-		dissect_ncp_request(next_tvb, pinfo, nw_connection,
-		    header.sequence, header.type, ncp_tree);
-		break;
-
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
-		dissect_ncp_request(next_tvb, pinfo, nw_connection,
-		    header.sequence, header.type, ncp_tree);
-		break;
-
-	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
-		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
-		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
-			subfunction = tvb_get_guint8(tvb, commhdr+7);
-			switch (subfunction) {
-
-			case 0x02:	/* NDS Frag Packet to decode */
-				dissect_nds_request(next_tvb, pinfo,
-				    nw_connection, header.sequence,
-				    header.type, ncp_tree);
-				break;
-
-			case 0x01:	/* NDS Ping */
-				dissect_ping_req(next_tvb, pinfo,
-				    nw_connection, header.sequence,
-				    header.type, ncp_tree);
-				break;
-
-			default:
-				dissect_ncp_request(next_tvb, pinfo,
-				    nw_connection, header.sequence,
-				    header.type, ncp_tree);
-				break;
-			 }
-		} else {
-			dissect_ncp_request(next_tvb, pinfo, nw_connection,
-			    header.sequence, header.type, ncp_tree);
-		}
-		break;
-
-	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
-		nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
-		    header.type, ncp_tree, &ncp_tap);
-		break;
-
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
-		/*
-		 * XXX - this used to call "nds_defrag()", which would
-		 * clear out "frags".  Was that the right thing to
-		 * do?
-		 */
-		next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
-		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
-		    header.sequence, header.type, ncp_tree, &ncp_tap);
-		break;
-
-	case NCP_WATCHDOG:		/* Watchdog Packet */
-		/*
-		 * XXX - should the completion code be interpreted as
-		 * it is in "packet-ncp2222.inc"?  If so, this
-		 * packet should be handled by "dissect_ncp_reply()".
-		 */
-		proto_tree_add_item(ncp_tree, hf_ncp_completion_code,
-		    tvb, commhdr + 6, 1, TRUE);
-		proto_tree_add_item(ncp_tree, hf_ncp_connection_status,
-		    tvb, commhdr + 7, 1, TRUE);
-		proto_tree_add_item(ncp_tree, hf_ncp_slot,
-		    tvb, commhdr + 8, 1, TRUE);
-		proto_tree_add_item(ncp_tree, hf_ncp_control_code,
-		    tvb, commhdr + 9, 1, TRUE);
-		/*
-		 * Display the rest of the packet as data.
-		 */
-		if (tvb_offset_exists(tvb, commhdr + 10)) {
-			call_dissector(data_handle,
-			    tvb_new_subset(tvb, commhdr + 10, -1, -1),
-			    pinfo, ncp_tree);
-		}
-		break;
-
-	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
-		if (flags & SYS) {
-			/*
-			 * System packet; show missing fragments if there
-			 * are any.
-			 */
-			while (missing_fraglist_count != 0) {
-				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_offset,
-				    tvb, offset, 4, FALSE);
-				offset += 4;
-				proto_tree_add_item(ncp_tree, hf_ncp_missing_data_count,
-				    tvb, offset, 2, FALSE);
-				offset += 2;
-				missing_fraglist_count--;
-			}
-		} else {
-			/*
-			 * XXX - do this by using -1 and -1 as the length
-			 * arguments to "tvb_new_subset()" and then calling
-			 * "tvb_set_reported_length()"?  That'll throw an
-			 * exception if "data_len" goes past the reported
-			 * length of the packet, but that's arguably a
-			 * feature in this case.
-			 */
-			length_remaining = tvb_length_remaining(tvb, offset);
-			if (length_remaining > data_len)
-				length_remaining = data_len;
-			if (data_len != 0) {
-				call_dissector(data_handle,
-				    tvb_new_subset(tvb, offset,
-					length_remaining, data_len),
-				    pinfo, ncp_tree);
-			}
-		}
-		break;
-
-	case NCP_LIP_ECHO:		/* LIP Echo Packet */
-		proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-		    "Lip Echo Packet");
-		break;
-
-	default:
-		if (tree) {
-		    expert_item = proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
-			    "%s packets not supported yet",
-			    val_to_str(header.type, ncp_type_vals,
-				"Unknown type (0x%04x)"));
-            if (ncp_echo_err) {
-                expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
-                    "Unknown type (0x%04x)"));
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%s %d bytes starting at offset %d in file 0x%08x",
+                    val_to_str(ncp_burst_command,
+                      burst_command, "Unknown (0x%08x)"),
+                     burst_len, burst_off, burst_file);
             }
-		}
-		break;
- 	}
+            break;
+        } else {
+            if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_set_str(pinfo->cinfo, COL_INFO,
+                        "End of Burst");
+                }
+            }
+        }
+        break;
+
+    case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
+        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        if (length_remaining > 4) {
+            testvar = tvb_get_ntohl(tvb, commhdr+4);
+            if (testvar == 0x4c495020) {
+                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, FALSE);
+                break;
+            }
+        }
+        /* otherwise fall through */
+
+    case NCP_POSITIVE_ACK:        /* Positive Acknowledgement */
+    case NCP_SERVICE_REQUEST:    /* Server NCP Request */
+    case NCP_SERVICE_REPLY:        /* Server NCP Reply */
+    case NCP_WATCHDOG:        /* Watchdog Packet */
+    case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
+    default:
+        proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
+        proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, FALSE);
+        break;
+    }
+
+    /*
+     * Process the packet body.
+     */
+    switch (header.type) {
+
+    case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
+        length_remaining = tvb_length_remaining(tvb, commhdr + 4);
+        if (length_remaining > 4) {
+            testvar = tvb_get_ntohl(tvb, commhdr+4);
+            if (testvar == 0x4c495020) {
+                proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+                    "Lip Echo Packet");
+                /*break;*/
+            }
+        }
+        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        dissect_ncp_request(next_tvb, pinfo, nw_connection,
+            header.sequence, header.type, ncp_tree);
+        break;
+
+    case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
+        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        dissect_ncp_request(next_tvb, pinfo, nw_connection,
+            header.sequence, header.type, ncp_tree);
+        break;
+
+    case NCP_SERVICE_REQUEST:    /* Server NCP Request */
+    case NCP_BROADCAST_SLOT:    /* Server Broadcast Packet */
+        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
+            subfunction = tvb_get_guint8(tvb, commhdr+7);
+            switch (subfunction) {
+
+            case 0x02:    /* NDS Frag Packet to decode */
+                dissect_nds_request(next_tvb, pinfo,
+                    nw_connection, header.sequence,
+                    header.type, ncp_tree);
+                break;
+
+            case 0x01:    /* NDS Ping */
+                dissect_ping_req(next_tvb, pinfo,
+                    nw_connection, header.sequence,
+                    header.type, ncp_tree);
+                break;
+
+            default:
+                dissect_ncp_request(next_tvb, pinfo,
+                    nw_connection, header.sequence,
+                    header.type, ncp_tree);
+                break;
+             }
+        } else {
+            dissect_ncp_request(next_tvb, pinfo, nw_connection,
+                header.sequence, header.type, ncp_tree);
+        }
+        break;
+
+    case NCP_SERVICE_REPLY:        /* Server NCP Reply */
+        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
+            header.type, ncp_tree, &ncp_tap);
+        break;
+
+    case NCP_POSITIVE_ACK:        /* Positive Acknowledgement */
+        /*
+         * XXX - this used to call "nds_defrag()", which would
+         * clear out "frags".  Was that the right thing to
+         * do?
+         */
+        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        dissect_ncp_reply(next_tvb, pinfo, nw_connection,
+            header.sequence, header.type, ncp_tree, &ncp_tap);
+        break;
+
+    case NCP_WATCHDOG:        /* Watchdog Packet */
+        /*
+         * XXX - should the completion code be interpreted as
+         * it is in "packet-ncp2222.inc"?  If so, this
+         * packet should be handled by "dissect_ncp_reply()".
+         */
+        proto_tree_add_item(ncp_tree, hf_ncp_completion_code,
+            tvb, commhdr + 6, 1, TRUE);
+        proto_tree_add_item(ncp_tree, hf_ncp_connection_status,
+            tvb, commhdr + 7, 1, TRUE);
+        proto_tree_add_item(ncp_tree, hf_ncp_slot,
+            tvb, commhdr + 8, 1, TRUE);
+        proto_tree_add_item(ncp_tree, hf_ncp_control_code,
+            tvb, commhdr + 9, 1, TRUE);
+        /*
+         * Display the rest of the packet as data.
+         */
+        if (tvb_offset_exists(tvb, commhdr + 10)) {
+            call_dissector(data_handle,
+                tvb_new_subset(tvb, commhdr + 10, -1, -1),
+                pinfo, ncp_tree);
+        }
+        break;
+
+    case NCP_BURST_MODE_XFER:    /* Packet Burst Packet */
+        if (flags & SYS) {
+            /*
+             * System packet; show missing fragments if there
+             * are any.
+             */
+            while (missing_fraglist_count != 0) {
+                proto_tree_add_item(ncp_tree, hf_ncp_missing_data_offset,
+                    tvb, offset, 4, FALSE);
+                offset += 4;
+                proto_tree_add_item(ncp_tree, hf_ncp_missing_data_count,
+                    tvb, offset, 2, FALSE);
+                offset += 2;
+                missing_fraglist_count--;
+            }
+        } else {
+            /*
+             * XXX - do this by using -1 and -1 as the length
+             * arguments to "tvb_new_subset()" and then calling
+             * "tvb_set_reported_length()"?  That'll throw an
+             * exception if "data_len" goes past the reported
+             * length of the packet, but that's arguably a
+             * feature in this case.
+             */
+            length_remaining = tvb_length_remaining(tvb, offset);
+            if (length_remaining > data_len)
+                length_remaining = data_len;
+            if (data_len != 0) {
+                call_dissector(data_handle,
+                    tvb_new_subset(tvb, offset,
+                    length_remaining, data_len),
+                    pinfo, ncp_tree);
+            }
+        }
+        break;
+
+    case NCP_LIP_ECHO:        /* LIP Echo Packet */
+        proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+            "Lip Echo Packet");
+        break;
+
+    default:
+        expert_item = proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
+            "%s packets not supported yet",
+            val_to_str(header.type, ncp_type_vals,
+                "Unknown type (0x%04x)"));
+        if (ncp_echo_err) {
+            expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
+                "Unknown type (0x%04x)"));
+        }
+        break;
+    }
 }
 
 static void
 dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_ncp_common(tvb, pinfo, tree, FALSE);
+    dissect_ncp_common(tvb, pinfo, tree, FALSE);
 }
 
 static guint

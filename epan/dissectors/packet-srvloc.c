@@ -52,8 +52,6 @@
 #include "packet-tcp.h"
 #include <epan/expert.h>
 
-static proto_item *expert_item = NULL;
-static guint16 expert_status = 0;
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;
@@ -810,18 +808,20 @@ dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int 	offset = 0;
-    proto_item 	*ti, *tf;
-    proto_tree 	*srvloc_tree, *srvloc_flags;
-    guint8 	version;
-    guint8 	function;
-    guint16 	encoding;
-    guint32 	length; /* three bytes needed for v2 */
-    guint16 	flags; /* two byes needed for v2 */
-    guint32 	count;
-    guint32 	next_ext_off; /* three bytes, v2 only */
-    guint16	lang_tag_len;
-    nstime_t	ts;
+    int         offset = 0;
+    proto_item  *ti, *tf;
+    proto_tree  *srvloc_tree, *srvloc_flags;
+    guint8      version;
+    guint8      function;
+    guint16     encoding;
+    guint32     length; /* three bytes needed for v2 */
+    guint16     flags; /* two byes needed for v2 */
+    guint32     count;
+    guint32     next_ext_off; /* three bytes, v2 only */
+    guint16     lang_tag_len;
+    nstime_t    ts;
+    proto_item  *expert_item;
+    guint16     expert_status;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
@@ -836,567 +836,567 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, FALSE);
-        srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
+    ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, FALSE);
+    srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
 
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
-                            version);
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
-                            function);
-	if (version < 2) {
-	    length = tvb_get_ntohs(tvb, offset + 2);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 2,
-				length);
-	    flags = tvb_get_guint8(tvb, offset + 4);
-	    tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v1, tvb, offset + 4, 1,
-				     flags);
-	    srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_overflow,
-				   tvb, offset+4, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_monolingual,
-				   tvb, offset+4, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_url_auth,
-				   tvb, offset+4, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_attribute_auth,
-				   tvb, offset+4, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_fresh,
-				   tvb, offset+4, 1, flags);
-	    proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
-				tvb_get_guint8(tvb, offset + 5));
-	    proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
-				tvb_format_text(tvb, offset + 6, 2));
-	    encoding = tvb_get_ntohs(tvb, offset + 8);
-	    proto_tree_add_text(srvloc_tree, tvb, offset + 8, 2, "Encoding: %u (%s)",
-				encoding,
-				val_to_str(encoding, charsets, "Unknown"));
-	    proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
-				tvb_get_ntohs(tvb, offset + 10));
+    proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
+                        version);
+    proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
+                        function);
+    if (version < 2) {
+        length = tvb_get_ntohs(tvb, offset + 2);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 2,
+                            length);
+        flags = tvb_get_guint8(tvb, offset + 4);
+        tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v1, tvb, offset + 4, 1,
+                                 flags);
+        srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_overflow,
+                               tvb, offset+4, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_monolingual,
+                               tvb, offset+4, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_url_auth,
+                               tvb, offset+4, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_attribute_auth,
+                               tvb, offset+4, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_fresh,
+                               tvb, offset+4, 1, flags);
+        proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
+                            tvb_get_guint8(tvb, offset + 5));
+        proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
+                            tvb_format_text(tvb, offset + 6, 2));
+        encoding = tvb_get_ntohs(tvb, offset + 8);
+        proto_tree_add_text(srvloc_tree, tvb, offset + 8, 2, "Encoding: %u (%s)",
+                            encoding,
+                            val_to_str(encoding, charsets, "Unknown"));
+        proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
+                            tvb_get_ntohs(tvb, offset + 10));
         /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */
         if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
 
-	    offset += 12;
+        offset += 12;
 
-	    switch (function) {
-            case SRVREQ:
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, encoding);
-                offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, encoding);
-                offset += length;
-		break;
+        switch (function) {
 
-            case SRVRPLY:
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                count = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
-                offset += 2;
-                while (count > 0) {
-                    offset = dissect_url_entry_v1(tvb, offset, srvloc_tree,
-                                                  encoding, flags);
-                    count--;
-                }
+        case SRVREQ:
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, encoding);
+            offset += length;
             break;
 
-            case SRVREG:
-                offset = dissect_url_entry_v1(tvb, offset, srvloc_tree, encoding,
-                                           flags);
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
+        case SRVRPLY:
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            count = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
+            offset += 2;
+            while (count > 0) {
+                offset = dissect_url_entry_v1(tvb, offset, srvloc_tree,
+                                              encoding, flags);
+                count--;
+            }
+            break;
+
+        case SRVREG:
+            offset = dissect_url_entry_v1(tvb, offset, srvloc_tree, encoding,
+                                          flags);
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, encoding);
+            offset += length;
+            if ( (flags & FLAG_A) == FLAG_A )
+                offset = dissect_authblk(tvb, offset, srvloc_tree);
+            break;
+
+        case SRVDEREG:
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(tree, hf_srvloc_url_url, tvb, offset, length, encoding);
+            offset += length;
+            if ( (flags & FLAG_U) == FLAG_U )
+                offset = dissect_authblk(tvb, offset, srvloc_tree);
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, encoding);
+            offset += length;
+            /*
+             * XXX - this was there before, but RFC 2165 doesn't speak
+             * of there being an attribute authentication block in
+             * a Service Deregister message.  Is that a post-RFC-2165
+             * addition?
+             */
+            if ( (flags & FLAG_A) == FLAG_A )
+                offset = dissect_authblk(tvb, offset, srvloc_tree);
+            break;
+
+        case SRVACK:
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            break;
+
+        case ATTRRQST:
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_attrreq_attrlist, tvb, offset, length, encoding);
+            offset += length;
+            break;
+
+        case ATTRRPLY:
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
+            if (length > 0) {
                 offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, encoding);
+                attr_list(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, encoding);
                 offset += length;
                 if ( (flags & FLAG_A) == FLAG_A )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
+            }
             break;
 
-            case SRVDEREG:
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(tree, hf_srvloc_url_url, tvb, offset, length, encoding);
-                offset += length;
-                if ( (flags & FLAG_U) == FLAG_U )
-                    offset = dissect_authblk(tvb, offset, srvloc_tree);
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, encoding);
-                offset += length;
-                /*
-                 * XXX - this was there before, but RFC 2165 doesn't speak
-                 * of there being an attribute authentication block in
-                 * a Service Deregister message.  Is that a post-RFC-2165
-                 * addition?
-                 */
-                if ( (flags & FLAG_A) == FLAG_A )
-                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+        case DAADVERT:
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, encoding);
+            offset += length;
             break;
 
-            case SRVACK:
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
-                }
+        case SRVTYPERQST:
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, encoding);
+            offset += length;
+            length = tvb_get_ntohs(tvb, offset);
+            /* Updated by Greg Morris on 1-30-04 */
+            if (0xFFFF == length) {
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
                 offset += 2;
+            }
+            else
+            {
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
+                offset += 2;
+                add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, encoding);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, encoding);
+            offset += length;
             break;
 
-            case ATTRRQST:
+        case SRVTYPERPLY:
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            count = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type Count: %u",
+                                count);
+            offset += 2;
+            while (count > 0) {
                 length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelen, tvb, offset, 2, length);
                 offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, encoding);
+                add_v1_string(srvloc_tree, hf_srvloc_srvtyperply_srvtype, tvb, offset, length, encoding);
                 offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, encoding);
-                offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, encoding);
-                offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_attrlistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_attrreq_attrlist, tvb, offset, length, encoding);
-                offset += length;
+                count--;
+            }
             break;
 
-            case ATTRRPLY:
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
-                if (length > 0) {
-                    offset += 2;
-                    attr_list(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, encoding);
-                    offset += length;
-                    if ( (flags & FLAG_A) == FLAG_A )
-                        offset = dissect_authblk(tvb, offset, srvloc_tree);
-                }
-            break;
+        default:
+            expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
+        }
+    }
+    else { /* Version 2 */
+        length = tvb_get_ntoh24(tvb, offset + 2);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3,
+                            length);
+        flags = tvb_get_ntohs(tvb, offset + 5);
+        tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v2, tvb, offset + 5, 2,
+                                 flags);
+        srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_overflow,
+                               tvb, offset+5, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_fresh,
+                               tvb, offset+5, 1, flags);
+        proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_reqmulti,
+                               tvb, offset+5, 1, flags);
 
-            case DAADVERT:
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, encoding);
-                offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, encoding);
-                offset += length;
-            break;
-
-            case SRVTYPERQST:
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, encoding);
-                offset += length;
-                length = tvb_get_ntohs(tvb, offset);
-                /* Updated by Greg Morris on 1-30-04 */
-                if (0xFFFF == length) {
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
-                    offset += 2;
-                }
-                else
-                {
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
-                    offset += 2;
-                    add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, encoding);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                add_v1_string(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, encoding);
-                offset += length;
-            break;
-
-            case SRVTYPERPLY:
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                count = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type Count: %u",
-                                    count);
-                offset += 2;
-                while (count > 0) {
-                    length = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelen, tvb, offset, 2, length);
-                    offset += 2;
-                    add_v1_string(srvloc_tree, hf_srvloc_srvtyperply_srvtype, tvb, offset, length, encoding);
-                    offset += length;
-                    count--;
-                }
-            break;
-
-            default:
-                expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
-	    }
-	}
-	else { /* Version 2 */
-	    length = tvb_get_ntoh24(tvb, offset + 2);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3,
-				length);
-	    flags = tvb_get_ntohs(tvb, offset + 5);
-	    tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v2, tvb, offset + 5, 2,
-				     flags);
-	    srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_overflow,
-				   tvb, offset+5, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_fresh,
-				   tvb, offset+5, 1, flags);
-	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v2_reqmulti,
-				   tvb, offset+5, 1, flags);
-
-	    next_ext_off = tvb_get_ntoh24(tvb, offset + 7);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,
-				next_ext_off);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
-				tvb_get_ntohs(tvb, offset + 10));
+        next_ext_off = tvb_get_ntoh24(tvb, offset + 7);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,
+                            next_ext_off);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
+                            tvb_get_ntohs(tvb, offset + 10));
         if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
-	    lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
-	    proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2,	lang_tag_len);
-	    proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len,	TRUE);
-	    offset += 14+lang_tag_len;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
+        lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2, lang_tag_len);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len, TRUE);
+        offset += 14+lang_tag_len;
 
-	    switch (function) {
-            case SRVREQ: /* RFC2608 8.1 */
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-		length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_srvtypelen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-		length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, TRUE);
-		    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, TRUE);
-		    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_slpspilen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
-		    offset += length;
-                }
-		break;
+        switch (function) {
 
-            case SRVRPLY: /* RFC2608 8.2 */
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                count = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
-                offset += 2;
-                while (count > 0) {
-		    offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
-                    count--;
-                }
+        case SRVREQ: /* RFC2608 8.1 */
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_srvtypelen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_slpspilen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
+                offset += length;
+            }
             break;
 
-            case SRVREG: /* RFC2608 8.3 */
-		offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_srvtypelen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    attr_list2(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
-                    offset += length;
-                }
-		count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrauthcount, tvb, offset, 1, count);
-		offset += 1;
-		while (count > 0) {
-		    offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
-		    count--;
-		}
-		break;
-
-            case SRVDEREG: /* RFC2608 10.6 */
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-		offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-		break;
-
-            case SRVACK: /* RFC2608 8.4 */
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
+        case SRVRPLY: /* RFC2608 8.2 */
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            count = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvrply_urlcount, tvb, offset, 2, count);
+            offset += 2;
+            while (count > 0) {
+                offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
+                count--;
+            }
             break;
 
-            case ATTRRQST: /* RFC2608 10.3*/
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_taglistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_slpspilen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, TRUE);
-                    offset += length;
-                }
+        case SRVREG: /* RFC2608 8.3 */
+            offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_srvtypelen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                attr_list2(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                offset += length;
+            }
+            count = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrauthcount, tvb, offset, 1, count);
+            offset += 1;
+            while (count > 0) {
+                offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
+                count--;
+            }
             break;
 
-            case ATTRRPLY: /* RFC2608 10.4 */
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    attr_list2(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
-                    offset += length;
-                }
-                count = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
-                offset += 1;
-                while (count > 0) {
-                    offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
-                    count--;
-                }
+        case SRVDEREG: /* RFC2608 10.6 */
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
+                offset += length;
+            }
             break;
 
-            case DAADVERT: /* RCC 2608 8.5 */
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-		ts.nsecs = 0;
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_time(srvloc_tree, hf_srvloc_daadvert_timestamp, tvb, offset, 4,
-				    &ts);
-		offset += 4;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_attrlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_slpspilen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-		count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_authcount, tvb, offset, 1, count);
-		offset += 1;
-		while (count > 0) {
-		    offset = dissect_authblk_v2(tvb, offset, srvloc_tree);
-		    count--;
-		}
+        case SRVACK: /* RFC2608 8.4 */
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
             break;
 
-            case SRVTYPERQST: /* RFC2608 10.1 */
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
-                length = tvb_get_ntohs(tvb, offset);
-		if (0xFFFF == length) {
-		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
-		    offset += 2;
-		} else {
-		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
-		    offset += 2;
-                    if (length) {
-		        proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, TRUE);
-		        offset += length;
-		    }
-                }
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
+        case ATTRRQST: /* RFC2608 10.3*/
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_taglistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_slpspilen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, TRUE);
+                offset += length;
+            }
             break;
 
-	    case SRVTYPERPLY: /* rfc2608 10.2 */
-                expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
-                expert_status = tvb_get_ntohs(tvb, offset);
-                if (expert_status!=0) {
-                    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
-                }
-                offset += 2;
-                length = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelistlen, tvb, offset, 2, length);
-                offset += 2;
-                if (length) {
-		    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, TRUE);
-                    offset += length;
-                }
+        case ATTRRPLY: /* RFC2608 10.4 */
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                attr_list2(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                offset += length;
+            }
+            count = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
+            offset += 1;
+            while (count > 0) {
+                offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
+                count--;
+            }
             break;
 
-	    case SAADVERT: /* rfc2608 10.2 */
-		length = tvb_get_ntohs(tvb, offset);
-                  proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_urllen, tvb, offset, 2, length);
-		offset += 2;
-                  if (length) {
-			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
-			offset += length;
-                  }
-		length = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_scopelistlen, tvb, offset, 2, length);
-		offset += 2;
-                  if (length) {
-			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
-			offset += length;
-                  }
-		length = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_attrlistlen, tvb, offset, 2, length);
-		offset += 2;
-                  if (length) {
-			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, TRUE);
-			offset += length;
-                  }
-		count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_authcount, tvb, offset, 1, length);
-		offset += 1;
-		while (count > 0) {
-		    offset = dissect_authblk_v2(tvb, offset, srvloc_tree);
-		    count--;
-		}
-		break;
+        case DAADVERT: /* RCC 2608 8.5 */
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            ts.nsecs = 0;
+            ts.secs = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_time(srvloc_tree, hf_srvloc_daadvert_timestamp, tvb, offset, 4,
+                                &ts);
+            offset += 4;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_slpspilen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            count = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_authcount, tvb, offset, 1, count);
+            offset += 1;
+            while (count > 0) {
+                offset = dissect_authblk_v2(tvb, offset, srvloc_tree);
+                count--;
+            }
+            break;
 
-            default:
-                expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
-	    }
-	}
+        case SRVTYPERQST: /* RFC2608 10.1 */
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            if (0xFFFF == length) {
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
+                offset += 2;
+            } else {
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
+                offset += 2;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            break;
+
+        case SRVTYPERPLY: /* rfc2608 10.2 */
+            expert_item = proto_tree_add_item(srvloc_tree, hf_srvloc_error_v2, tvb, offset, 2, FALSE);
+            expert_status = tvb_get_ntohs(tvb, offset);
+            if (expert_status!=0) {
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %s", val_to_str(expert_status, srvloc_errs_v2, "Unknown SRVLOC Error (0x%02x)"));
+            }
+            offset += 2;
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            break;
+
+        case SAADVERT: /* rfc2608 10.2 */
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_urllen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_scopelistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_attrlistlen, tvb, offset, 2, length);
+            offset += 2;
+            if (length) {
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, TRUE);
+                offset += length;
+            }
+            count = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_authcount, tvb, offset, 1, length);
+            offset += 1;
+            while (count > 0) {
+                offset = dissect_authblk_v2(tvb, offset, srvloc_tree);
+                count--;
+            }
+            break;
+
+        default:
+            expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
+        }
     }
 }
 

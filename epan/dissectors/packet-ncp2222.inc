@@ -4735,6 +4735,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
     nds_val     values;
     proto_tree  *it_subtree, *it_subtree1;
     proto_item  *it_subitem, *it_subitem1;
+    proto_item  *expert_item;
 
     values.vtype = 0;
     values.vvalue = 0;
@@ -8320,6 +8321,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         guint32                         nds_offset;
         guint32                         nds_reply_buffer;
         guint32                         nds_frag;
+        proto_item                      *expert_item;
         const char                      *verb_string;
         nds_val                         pvalues[9];
         gboolean                        resolve_eid=FALSE;
@@ -9010,6 +9012,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         guint32                         nds_reply_buffer = 0;
         const char                      *nds_error_string = NULL;
         guint32                         nds_frag=0;
+        proto_item                      *expert_item;
+        guint8                          conn_stat;
+
 
 #ifdef FAKE_TREE_IS_VISIBLE
         if (ncp_tree) {
@@ -9181,25 +9186,21 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		    completion_code, error_string);
 	}
 
-	if (ncp_tree) {
-                guint8    conn_stat;
-
-                conn_stat = tvb_get_guint8(tvb, 7);
-		expert_item = proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
-		    7, 1, FALSE);
-                if (conn_stat != 0 && conn_stat != 0x40 ) {
-                        if (check_col(pinfo->cinfo, COL_INFO)) {
-                                col_set_str(pinfo->cinfo, COL_INFO,
-                                            "Error: Bad Connection Status");
-                        }
-                        if (ncp_echo_err) {
-                                expert_add_info_format(pinfo, expert_item,
-                                                       PI_RESPONSE_CODE, PI_ERROR,
-                                                       "Error: Bad Connection Status");
-                        }
-                        return;
+        conn_stat = tvb_get_guint8(tvb, 7);
+        expert_item = proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
+            7, 1, FALSE);
+        if (conn_stat != 0 && conn_stat != 0x40 ) {
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                   "Error: Bad Connection Status");
                 }
-	}
+                if (ncp_echo_err) {
+                        expert_add_info_format(pinfo, expert_item,
+                                               PI_RESPONSE_CODE, PI_ERROR,
+                                               "Error: Bad Connection Status");
+                }
+                return;
+        }
 	/*
 	 * Unless this is a successful reply, that's all there
 	 * is to parse.

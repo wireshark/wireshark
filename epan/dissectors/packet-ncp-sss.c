@@ -86,8 +86,6 @@ static int hfbit30 = -1;
 static int hfbit31 = -1;
 static int hfbit32 = -1;
 
-static proto_item *expert_item = NULL;
-
 static const value_string sss_func_enum[] = {
     { 0x00000001, "Ping Server" },
     { 0x00000002, "Fragment" },
@@ -722,6 +720,8 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
 
     proto_tree          *atree;
     proto_item          *aitem;
+    proto_item          *expert_item;
+
 
     foffset = 8;
     if (request_value) {

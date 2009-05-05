@@ -68,8 +68,6 @@ static int hf_enc_data = -1;
 static int hf_reply_buffer_size = -1;
 static int hf_encrypt_error = -1;
 
-static proto_item *expert_item = NULL;
-
 static const value_string nmas_func_enum[] = {
     { 0x01, "Ping" },
     { 0x02, "Fragment" },
@@ -488,6 +486,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     guint32             return_code=0, encrypt_error=0;
     proto_tree          *atree;
     proto_item          *aitem;
+    proto_item          *expert_item;
+
 
     foffset = 8;
     if (request_value) {
