@@ -38,6 +38,7 @@
 #define	OUI_ENCAP_ETHER		0x000000	/* encapsulated Ethernet */
 #define	OUI_XEROX		0x000006	/* Xerox */
 #define	OUI_CISCO		0x00000C	/* Cisco (future use) */
+#define OUI_IANA		0x00005E	/* the IANA */
 #define OUI_NORTEL		0x000081	/* Nortel SONMP */
 #define	OUI_CISCO_90		0x0000F8	/* Cisco (IOS 9.0 and above?) */
 #define	OUI_FORCE10		0x0001E8	/* Force10 */

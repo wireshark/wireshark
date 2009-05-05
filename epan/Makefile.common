@@ -179,6 +179,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	greproto.h		\
 	guid-utils.h		\
 	h225-persistentdata.h	\
+	iana_snap_pid.h		\
 	iax2_codec_type.h	\
 	in_cksum.h		\
 	ip_opts.h		\

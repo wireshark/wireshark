@@ -46,6 +46,7 @@
 #include <epan/sminmpec.h>
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
+#include <epan/iana_snap_pid.h>
 #include <epan/dissectors/packet-llc.h>
 #include "packet-nhrp.h"
 
@@ -366,7 +367,7 @@ void dissect_nhrp_hdr(tvbuff_t *tvb,
 
 	hdr->ar_extoff = tvb_get_ntohs(tvb, offset);
 	ti = proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_extoff, tvb, offset, 2, FALSE);
-	if (hdr->ar_extoff < 20) {
+	if (hdr->ar_extoff != 0 && hdr->ar_extoff < 20) {
 		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
 		    "Extension offset is less than the fixed header length");
 	}
@@ -403,7 +404,7 @@ void dissect_nhrp_hdr(tvbuff_t *tvb,
 	offset += 1;
 	
 	*pOffset = offset;
-	if (hdr->ar_extoff) {
+	if (hdr->ar_extoff != 0) {
 		if (hdr->ar_extoff >= 20) {
 			*pMandLen = hdr->ar_extoff - 20;
 			*pExtLen = total_len - hdr->ar_extoff;
@@ -428,9 +429,9 @@ void dissect_cie_list(tvbuff_t *tvb,
 					  proto_tree *tree,
 					  gint offset,
 					  gint cieEnd,
+					  e_nhrp_hdr *hdr,
 					  gint isReq)
 {
-	guint32 addr;
 	proto_item *cli_addr_tree_item = NULL;
 	proto_tree *cli_addr_tree = NULL;
 	proto_item *cli_saddr_tree_item = NULL;
@@ -496,14 +497,23 @@ void dissect_cie_list(tvbuff_t *tvb,
 		offset += 1;
 
 		if (cli_addr_len) {
-			if (cli_addr_len == 4) {
-				addr = tvb_get_ipv4(tvb, offset);
-				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, addr);
-			}
-			else {
+			switch (hdr->ar_afn) {
+
+			case AFNUM_INET:
+				if (cli_addr_len == 4)
+					proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, FALSE);
+				else {
+					proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
+					    "Client NBMA Address: %s",
+					    tvb_bytes_to_str(tvb, offset, cli_addr_len));
+				}
+				break;
+
+			default:
 				proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
-									"Client NBMA Address: %s",
-									tvb_bytes_to_str(tvb, offset, cli_addr_len));
+				    "Client NBMA Address: %s",
+				    tvb_bytes_to_str(tvb, offset, cli_addr_len));
+				break;
 			}
 			offset += cli_addr_len;
 		}
@@ -515,10 +525,8 @@ void dissect_cie_list(tvbuff_t *tvb,
 		}
 
 		if (cli_prot_len) {
-			if (cli_prot_len == 4) {
-				addr = tvb_get_ipv4(tvb, offset);
-				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, addr);
-			}
+			if (cli_prot_len == 4)
+				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, FALSE);
 			else {
 				proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
 									"Client Protocol Address: %s",
@@ -533,13 +541,12 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 					   packet_info *pinfo,
 					   proto_tree *tree,
 					   gint *pOffset,
+					   gint mandLen,
 					   oui_info_t *oui_info,
-					   e_nhrp_hdr *hdr,
-					   gint mandLen)
+					   e_nhrp_hdr *hdr)
 {
 	gint	offset = *pOffset;
 	gint	mandEnd = offset + mandLen;
-	guint32 addr;
 	guint8	ssl, shl;
 	guint16	flags;
 	guint	srcLen, dstLen;
@@ -628,24 +635,31 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		offset += 6;
 	}
 
-	/* TBD : Check for hdr->afn */
-	shl = hdr->ar_shtl & NHRP_SHTL_LEN_MASK;
+	shl = NHRP_SHTL_LEN(hdr->ar_shtl);
 	if (shl) {
-		if (shl == 4) {
-			addr = tvb_get_ipv4(tvb, offset);
-			proto_tree_add_ipv4(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, addr);
-		}
-		else {
+		switch (hdr->ar_afn) {
+
+		case AFNUM_INET:
+			if (shl == 4)
+				proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, FALSE);
+			else {
+				proto_tree_add_text(nhrp_tree, tvb, offset, shl,
+				    "Source NBMA Address: %s",
+				    tvb_bytes_to_str(tvb, offset, shl));
+			}
+			break;
+
+		default:
 			proto_tree_add_text(nhrp_tree, tvb, offset, shl,
-								"Source NBMA Address: %s",
-								tvb_bytes_to_str(tvb, offset, shl));
+			    "Source NBMA Address: %s",
+			    tvb_bytes_to_str(tvb, offset, shl));
+			break;
 		}
 		offset += shl;
 	}
 	
-	ssl = hdr->ar_sstl & NHRP_SHTL_LEN_MASK;
+	ssl = NHRP_SHTL_LEN(hdr->ar_sstl);
 	if (ssl) {
-		tvb_ensure_bytes_exist(tvb, offset, ssl);
 		proto_tree_add_text(nhrp_tree, tvb, offset, ssl,
 							"Source NBMA Sub Address: %s",
 							tvb_bytes_to_str(tvb, offset, ssl));
@@ -653,10 +667,8 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	}
 
 	if (srcLen) {
-		if (srcLen == 4) {
-			addr = tvb_get_ipv4(tvb, offset);
-			proto_tree_add_ipv4(nhrp_tree, hf_nhrp_src_prot_addr, tvb, offset, 4, addr);
-		}
+		if (srcLen == 4)
+			proto_tree_add_item(nhrp_tree, hf_nhrp_src_prot_addr, tvb, offset, 4, FALSE);
 		else {
 			proto_tree_add_text(nhrp_tree, tvb, offset, srcLen,
 								"Source Protocol Address: %s",
@@ -666,10 +678,8 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	}
 
 	if (dstLen) {
-		if (dstLen == 4) {
-			addr = tvb_get_ipv4(tvb, offset);
-			proto_tree_add_ipv4(nhrp_tree, hf_nhrp_dst_prot_addr, tvb, offset, 4, addr);
-		}
+		if (dstLen == 4)
+			proto_tree_add_item(nhrp_tree, hf_nhrp_dst_prot_addr, tvb, offset, 4, FALSE);
 		else {
 			proto_tree_add_text(nhrp_tree, tvb, offset, dstLen,
 								"Destination Protocol Address: %s",
@@ -761,7 +771,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		offset = mandEnd;
 	}
 
-	dissect_cie_list(tvb, nhrp_tree, offset, mandEnd, isReq);
+	dissect_cie_list(tvb, nhrp_tree, offset, mandEnd, hdr, isReq);
 
 	*pOffset = mandEnd;
 }
@@ -770,7 +780,8 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 void dissect_nhrp_ext(tvbuff_t *tvb,
 					  proto_tree *tree,
 					  gint *pOffset,
-					  gint extLen)
+					  gint extLen,
+					  e_nhrp_hdr *hdr)
 {
 	gint	offset = *pOffset;
 	gint	extEnd = offset + extLen;
@@ -786,8 +797,8 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 		gint extType = extTypeC & 0x3FFF;
 		gint len  = tvb_get_ntohs(tvb, offset+2);
 		nhrp_tree_item =  proto_tree_add_text(tree, tvb, offset,
-											  len + 4, "%s",
-											  val_to_str(extType, ext_type_vals, "Unknown (%u)"));
+		    len + 4, "%s",
+		    val_to_str(extType, ext_type_vals, "Unknown (%u)"));
 		nhrp_tree = proto_item_add_subtree(nhrp_tree_item, ett_nhrp_ext);
 		proto_tree_add_boolean(nhrp_tree, hf_nhrp_ext_C, tvb, offset, 2, extTypeC);
 		proto_tree_add_item(nhrp_tree, hf_nhrp_ext_type, tvb, offset, 2, FALSE);
@@ -803,12 +814,13 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 			case NHRP_EXT_FWD_RECORD:
 			case NHRP_EXT_REV_RECORD:
 			case NHRP_EXT_NAT_ADDRESS:
-				dissect_cie_list(tvb, nhrp_tree, offset, offset + len, 0);
+				dissect_cie_list(tvb, nhrp_tree,
+				    offset, offset + len, hdr, 0);
 				break;
 			default:
 				proto_tree_add_text(nhrp_tree, tvb, offset, len,
-									"Extension Value: %s",
-									tvb_bytes_to_str(tvb, offset, len));
+				    "Extension Value: %s",
+				    tvb_bytes_to_str(tvb, offset, len));
 				break;
 			}
 			offset += len;
@@ -854,12 +866,12 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_nhrp_hdr(tvb, pinfo, nhrp_tree, &offset, &mandLen, &extLen,
 	    &oui_info, &hdr);
 	if (mandLen) {
-		dissect_nhrp_mand(tvb, pinfo, nhrp_tree, &offset, oui_info,
-		    &hdr, mandLen);
+		dissect_nhrp_mand(tvb, pinfo, nhrp_tree, &offset, mandLen,
+		    oui_info, &hdr);
 	}
 
 	if (extLen) {
-		dissect_nhrp_ext(tvb, nhrp_tree, &offset, extLen);
+		dissect_nhrp_ext(tvb, nhrp_tree, &offset, extLen, &hdr);
 	}
 }
 
@@ -1018,4 +1030,5 @@ proto_reg_handoff_nhrp(void)
 	nhrp_handle = create_dissector_handle(dissect_nhrp, proto_nhrp);
 	dissector_add("ip.proto", IP_PROTO_NARP, nhrp_handle);
 	dissector_add("gre.proto", GRE_NHRP, nhrp_handle);
+	dissector_add("llc.iana_pid", IANA_PID_MARS_NHRP_CONTROL, nhrp_handle);
 }
