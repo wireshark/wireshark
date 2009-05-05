@@ -1386,11 +1386,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
         guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
 	int i;
 #define MAX_STR_LEN 256
-	char *str;
+	emem_strbuf_t *str;
 	char *sid_string;
 	char *sid_name;
-	gint returned_length;
-	gint str_index;;
 
 
 	if(sid_str){
@@ -1427,8 +1425,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
           sa_offset = offset;
 
-          str = ep_alloc(MAX_STR_LEN);
-          str_index = 0;
+          str = ep_strbuf_new_label("");
 
 	  /* sub authorities, leave RID to last */
 	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
@@ -1442,9 +1439,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	     * assume that non le byte encodings will be "uncommon"?
 	     */
 
-             returned_length = g_snprintf(&str[str_index], MAX_STR_LEN-str_index,
+             ep_strbuf_append_printf(str,
                 (i>0 ? "-%u" : "%u"), tvb_get_letohl(tvb, offset));
-             str_index += MIN(returned_length, MAX_STR_LEN-str_index);
              offset+=4;
 	  }
 
@@ -1454,10 +1450,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
             rid_present=TRUE;
             rid_offset=offset;
 	    offset+=4;
-            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s-%u", auth, str, rid);
+            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s-%u", auth, str->str, rid);
 	  } else {
             rid_present=FALSE;
-            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s", auth, str);
+            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s", auth, str->str);
           }
 
           sid_name=NULL;
@@ -1477,7 +1473,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           proto_tree_add_item(tree, hf_nt_sid_revision, tvb, rev_offset, 1, TRUE);
           proto_tree_add_item(tree, hf_nt_sid_num_auth, tvb, na_offset, 1, TRUE);
           proto_tree_add_text(tree, tvb, na_offset+1, 6, "Authority: %u", auth);
-          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str);
+          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str->str);
 
           if(rid_present){
             const char *rid_name;
