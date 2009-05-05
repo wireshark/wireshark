@@ -1337,6 +1337,61 @@ prefs_main_destroy_all(GtkWidget *dlg)
 }
 
 
+static guint
+pref_copy(pref_t *pref, gpointer user_data _U_)
+{
+  switch (pref->type) {
+
+  case PREF_UINT:
+    pref->saved_val.uint = *pref->varp.uint;
+    break;
+
+  case PREF_BOOL:
+    pref->saved_val.boolval = *pref->varp.boolp;
+    break;
+
+  case PREF_ENUM:
+    pref->saved_val.enumval = *pref->varp.enump;
+    break;
+
+  case PREF_STRING:
+    g_free(pref->saved_val.string);
+    pref->saved_val.string = g_strdup(*pref->varp.string);
+    break;
+
+  case PREF_RANGE:
+    g_free(pref->saved_val.range);
+    pref->saved_val.range = range_copy(*pref->varp.range);
+    break;
+
+  case PREF_STATIC_TEXT:
+  case PREF_UAT:
+    break;
+
+  case PREF_OBSOLETE:
+    g_assert_not_reached();
+    break;
+  }
+  return 0;
+}
+
+static guint
+module_prefs_copy(module_t *module, gpointer user_data _U_)
+{
+  /* For all preferences in this module, (re)save current value */
+  prefs_pref_foreach(module, pref_copy, NULL);
+  return 0;     /* continue making copies */
+}
+
+/* Copy prefs to saved values so we can revert to these values */
+/*  if the user selects Cancel.                                */
+static void prefs_copy() {
+  free_prefs(&saved_prefs);
+  copy_prefs(&saved_prefs, &prefs);
+  prefs_modules_foreach(module_prefs_copy, NULL);
+}
+
+
 void
 prefs_main_write(void)
 {
@@ -1415,6 +1470,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
     prefs_main_write();
+    prefs_copy();     /* save prefs for reverting if Cancel */
   }
 
   prefs_main_apply_all(parent_w, must_redissect);
@@ -1441,6 +1497,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
     return; /* Errors in some preference setting - already reported */
 
   prefs_main_write();
+  prefs_copy();     /* save prefs for reverting if Cancel */
 
   /* Now apply those preferences.
      XXX - should we do this?  The user didn't click "OK" or "Apply".
