@@ -26,20 +26,6 @@
 #ifndef __PACKET_NHRP_H__
 #define __PACKET_NHRP_H__
 
-typedef struct _e_nhrp {
-	guint16	ar_afn;
-	guint16	ar_pro_type;
-	guint8	ar_pro_snap[5];
-	guint8	ar_hopCnt;
-	guint16	ar_pktsz;
-	guint16	ar_chksum;
-	guint16	ar_extoff;
-	guint8	ar_op_version;
-	guint8	ar_op_type;
-	guint8	ar_shtl;
-	guint8	ar_sstl;
-} e_nhrp_hdr;
-
 void capture_nhrp(const guchar *, int, int, packet_counts *);
 
 /* Export the DSCP value-string table for other protocols */

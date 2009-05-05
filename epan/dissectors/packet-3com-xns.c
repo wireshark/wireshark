@@ -43,7 +43,10 @@ static const value_string retix_bpdu_type_vals[] = {
 	{ 0, NULL }
 };
 
+static dissector_table_t ethertype_subdissector_table;
+
 static dissector_handle_t retix_bpdu_handle;
+static dissector_handle_t data_handle;
 
 /*
  * Apparently 3Com had some scheme for encapsulating XNS in 802.2 LLC,
@@ -65,6 +68,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *subtree = NULL;
 	proto_tree *ti;
 	guint16 type;
+	tvbuff_t *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "3Com XNS");
@@ -77,14 +81,17 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	type = tvb_get_ntohs(tvb, 0);
+	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
 	if (type == 0x0004) {
 		proto_tree_add_uint(subtree, hf_3com_xns_type_retix_bpdu,
 		    tvb, 0, 2, type);
-		call_dissector(retix_bpdu_handle,
-		    tvb_new_subset(tvb, 2, -1, -1), pinfo, tree);
+		call_dissector(retix_bpdu_handle, next_tvb, pinfo, tree);
 	} else {
-		ethertype(type, tvb, 2, pinfo, tree, subtree,
-		    hf_3com_xns_type_ethertype, -1, 0);
+		proto_tree_add_uint(subtree, hf_3com_xns_type_ethertype,
+		    tvb, 0, 2, type);
+		if (!dissector_try_port(ethertype_subdissector_table,
+		    type, next_tvb, pinfo, tree))
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
 
@@ -117,6 +124,9 @@ proto_reg_handoff_3com_xns(void)
 	dissector_handle_t our_xns_handle;
 
 	retix_bpdu_handle = find_dissector("rbpdu");
+	data_handle = find_dissector("data");
+
+	ethertype_subdissector_table = find_dissector_table("ethertype");
 
 	our_xns_handle = create_dissector_handle(dissect_3com_xns, proto_3com_xns);
 	dissector_add("llc.dsap", 0x80, our_xns_handle);

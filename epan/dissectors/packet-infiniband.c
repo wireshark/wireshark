@@ -35,7 +35,6 @@
 #include <epan/dissectors/packet-frame.h>
 #include "packet-infiniband.h"
 
-
 /* Main Dissector */
 /* Notes: */
 /* 1.) Floating "offset+=" statements should probably be "functionized" but they are inline */
@@ -1024,10 +1023,13 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
 static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
 {
     guint16 ether_type;
+    tvbuff_t *next_tvb;
 
     /* RWH - Raw Header */
     proto_tree *RWH_header_tree = NULL;
     proto_item *RWH_header_item = NULL;
+
+    gint captured_length, reported_length;
     
     RWH_header_item = proto_tree_add_item(ah_tree, hf_infiniband_RWH, tvb, *offset, 4, FALSE);
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
@@ -1037,19 +1039,37 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
 #if 0
     ether_type = ether_type & 0x0F; /* mask off reserved bits just in case. */
 #endif
+    proto_tree_add_uint(RWH_header_tree, hf_infiniband_etype, tvb, *offset, 2,
+                        ether_type);
     *offset += 2;
 
-    proto_tree_add_uint(RWH_header_tree, hf_infiniband_reserved16_RWH, tvb,
-            *offset, 2, tvb_get_ntohs(tvb, *offset));
+    proto_tree_add_item(RWH_header_tree, hf_infiniband_reserved16_RWH, tvb,
+            *offset, 2, FALSE);
 
     *offset += 2;
 
-    ethertype(ether_type, tvb, *offset, pinfo, top_tree, RWH_header_tree, hf_infiniband_etype, -1, 0);
+    /* Get the captured length and reported length of the data
+     * after the Ethernet type. */
+    captured_length = tvb_length_remaining(tvb, *offset);
+    reported_length = tvb_reported_length_remaining(tvb, *offset);
+
+    /* Construct a tvbuff for the payload after the Ethernet type,
+     * not including the FCS. */
+    if (captured_length >= 0 && reported_length >= 0) {
+        if (reported_length >= 2)
+            reported_length -= 2;
+        if (captured_length > reported_length)
+            captured_length = reported_length;
+    }
+
+    next_tvb = tvb_new_subset(tvb, *offset, captured_length, reported_length);
+    if (!dissector_try_port(ethertype_dissector_table, ether_type,
+            next_tvb, pinfo, top_tree))
+       call_dissector(data_handle, next_tvb, pinfo, top_tree);
 
     *offset = tvb_reported_length(tvb) - 2;
     /* Display the VCRC */
     proto_tree_add_item(ah_tree, hf_infiniband_variant_crc, tvb, *offset, 2, FALSE);
-    
 }
 
 /* Parse Subnet Management (LID Routed)
@@ -3150,4 +3170,3 @@ void proto_reg_handoff_infiniband(void)
     data_handle = find_dissector("data");
     ethertype_dissector_table = find_dissector_table("ethertype");
 }
-

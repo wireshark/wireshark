@@ -25,6 +25,9 @@
 #define __PACKET_LLC_H__
 
 void capture_llc(const guchar *, int, int, packet_counts *);
+
+extern const value_string sap_vals[];
+
 void capture_snap(const guchar *, int, int, packet_counts *);
 
 void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
@@ -35,6 +38,21 @@ void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
  */
 void llc_add_oui(guint32, const char *, const char *, hf_register_info *);
 
-extern const value_string sap_vals[];
+/*
+ * SNAP information about the PID for a particular OUI:
+ *
+ *	the dissector table to use with the PID's value;
+ *	the field to use for the PID.
+ */
+typedef struct {
+	dissector_table_t table;
+	hf_register_info *field_info;
+} oui_info_t;
+
+/*
+ * Return the oui_info_t for the PID for a particular OUI value, or NULL
+ * if there isn't one.
+ */
+oui_info_t *get_snap_oui_info(guint32);
 
 #endif

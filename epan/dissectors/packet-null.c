@@ -44,6 +44,7 @@
 #include <epan/aftypes.h>
 
 static dissector_table_t null_dissector_table;
+static dissector_table_t ethertype_dissector_table;
 
 /* protocols and header fields */
 static int proto_null = -1;
@@ -417,22 +418,25 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*
      * The null header value must be greater than the IEEE 802.3 maximum
-     * frame length to be a valid Ethernet type; if it is, hand it
-     * to "ethertype()", otherwise treat it as a BSD AF_type (we wire
-     * in the values of the BSD AF_ types, because the values
-     * in the file will be BSD values, and the OS on which
-     * we're building this might not have the same values or
-     * might not have them defined at all; XXX - what if different
-     * BSD derivatives have different values?).
+     * frame length to be a valid Ethernet type; if it is, dissect it
+     * as one, otherwise treat it as a BSD AF_type (we wire in the values
+     * of the BSD AF_ types, because the values in the file will be BSD
+     * values, and the OS on which we're building this might not have the
+     * same values or might not have them defined at all; XXX - what if
+     * different BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN) {
       if (tree) {
         ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, FALSE);
         fh_tree = proto_item_add_subtree(ti, ett_null);
-      } else
-      	fh_tree = NULL;
-      ethertype((guint16) null_header, tvb, 4, pinfo, tree, fh_tree, hf_null_etype, -1,
-	0);
+        proto_tree_add_uint(fh_tree, hf_null_etype, tvb, 0, 4,
+          (guint16) null_header);
+      }
+
+      next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+      if (!dissector_try_port(ethertype_dissector_table,
+            (guint16) null_header, next_tvb, pinfo, tree))
+	call_dissector(data_handle, next_tvb, pinfo, tree);
     } else {
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
@@ -485,10 +489,14 @@ proto_reg_handoff_null(void)
 	dissector_handle_t null_handle;
 
 	/*
-	 * Get a handle for the PPP-in-HDLC-like-framing dissector.
+	 * Get a handle for the PPP-in-HDLC-like-framing dissector and
+	 * the "I don't know what this is" dissector.
 	 */
 	ppp_hdlc_handle = find_dissector("ppp_hdlc");
 	data_handle = find_dissector("data");
+
+	ethertype_dissector_table = find_dissector_table("ethertype");
+
 	null_handle = create_dissector_handle(dissect_null, proto_null);
 	dissector_add("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 }

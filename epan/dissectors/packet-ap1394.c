@@ -41,6 +41,10 @@ static int hf_ap1394_type = -1;
 
 static gint ett_ap1394 = -1;
 
+static dissector_table_t ethertype_subdissector_table;
+
+static dissector_handle_t data_handle;
+
 void
 capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld)
 {
@@ -66,6 +70,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *fh_tree = NULL;
   const guint8 *src_addr, *dst_addr;
   guint16    etype;
+  tvbuff_t *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/IEEE1394");
@@ -88,7 +93,12 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_bytes(fh_tree, hf_ap1394_src, tvb, 8, 8, src_addr);
   }
   etype = tvb_get_ntohs(tvb, 16);
-  ethertype(etype, tvb, 18, pinfo, tree, fh_tree, hf_ap1394_type, -1, 0);
+  if (tree)
+    proto_tree_add_uint(fh_tree, hf_ap1394_type, tvb, 16, 2, etype);
+  next_tvb = tvb_new_subset(tvb, 18, -1, -1);
+  if (!dissector_try_port(ethertype_subdissector_table, etype, next_tvb,
+		pinfo, tree))
+    call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -119,6 +129,10 @@ void
 proto_reg_handoff_ap1394(void)
 {
   dissector_handle_t ap1394_handle;
+
+  data_handle = find_dissector("data");
+
+  ethertype_subdissector_table = find_dissector_table("ethertype");
 
   ap1394_handle = create_dissector_handle(dissect_ap1394, proto_ap1394);
   dissector_add("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_handle);

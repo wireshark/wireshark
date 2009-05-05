@@ -244,15 +244,8 @@ const value_string type_vals[] = {
 };
 
 /*
- * Hash table for translating OUIs to a dissector table/field info pair;
- * the dissector table maps PID values to dissectors, and the field
- * corresponds to the PID for that OUI.
+ * Hash table for translating OUIs to an oui_info_t.
  */
-typedef struct {
-	dissector_table_t table;
-	hf_register_info *field_info;
-} oui_info_t;
-
 static GHashTable *oui_info_table = NULL;
 
 /*
@@ -747,10 +740,8 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Do we have information for this OUI?
 		 */
-		if (oui_info_table != NULL &&
-		    (oui_info =
-		     g_hash_table_lookup(oui_info_table,
-		      GUINT_TO_POINTER(oui))) != NULL) {
+		oui_info = get_snap_oui_info(oui);
+		if (oui_info != NULL) {
 			/*
 			 * Yes - use it.
 			 */
@@ -780,6 +771,20 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
 	}
+}
+
+/*
+ * Return the oui_info_t for the PID for a particular OUI value, or NULL
+ * if there isn't one.
+ */
+oui_info_t *
+get_snap_oui_info(guint32 oui)
+{
+	if (oui_info_table != NULL) {
+		return g_hash_table_lookup(oui_info_table,
+		    GUINT_TO_POINTER(oui));
+	} else
+		return NULL;
 }
 
 void
