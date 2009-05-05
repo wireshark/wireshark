@@ -238,13 +238,13 @@ my %deprecatedGtkFunctions = (
                 'gtk_cell_renderer_editing_canceled',          'E',
                 'GTK_CELL_TEXT',                               'W',
                 'GTK_CELL_WIDGET',                             'E',
-                'GTK_CHECK_CAST',                              'W', # >>> G_TYPE_CHECK_INSTANCE_CAST [==]
-                'GTK_CHECK_CLASS_CAST',                        'W', # >>> G_TYPE_CHECK_CLASS_CAST [==]
-                'GTK_CHECK_CLASS_TYPE',                        'W', # >>> G_TYPE_CHECK_CLASS_TYPE [==]
-                'GTK_CHECK_GET_CLASS',                         'W', # >>> G_TYPE_INSTANCE_GET_CLASS [==]
+                'GTK_CHECK_CAST',                              'E', # >>> G_TYPE_CHECK_INSTANCE_CAST [==]
+                'GTK_CHECK_CLASS_CAST',                        'E', # >>> G_TYPE_CHECK_CLASS_CAST [==]
+                'GTK_CHECK_CLASS_TYPE',                        'E', # >>> G_TYPE_CHECK_CLASS_TYPE [==]
+                'GTK_CHECK_GET_CLASS',                         'E', # >>> G_TYPE_INSTANCE_GET_CLASS [==]
                 'gtk_check_menu_item_set_show_toggle',         'W', # ?? 
                 'gtk_check_menu_item_set_state',               'E',
-                'GTK_CHECK_TYPE',                              'W', # >>> G_TYPE_CHECK_INSTANCE_TYPE [==]
+                'GTK_CHECK_TYPE',                              'E', # >>> G_TYPE_CHECK_INSTANCE_TYPE [==]
                 'GTK_CLASS_NAME',                              'E',
                 'GTK_CLASS_TYPE',                              'E',
                 'GTK_CLIST_ADD_MODE',                          'E', # GtkTreeView (& related) ...
@@ -724,7 +724,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_toggle_button_set_state',                 'E', # gtk_toggle_button_set_active [==]
                 'gtk_toolbar_append_element',                  'E',
                 'gtk_toolbar_append_item',                     'E',
-                'gtk_toolbar_append_space',                    'W', # ??
+                'gtk_toolbar_append_space',                    'W', # Use gtk_toolbar_insert() instead
                 'gtk_toolbar_append_widget',                   'W', # ??
                 'gtk_toolbar_get_tooltips',                    'E',
                 'gtk_toolbar_insert_element',                  'E',
@@ -768,7 +768,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_tree_unselect_item',                      'E',
                 'gtk_tree_view_tree_to_widget_coords',         'E',
                 'gtk_tree_view_widget_to_tree_coords',         'E',
-                'gtk_type_class',                              'W', # g_type_class_peek() or g_type_class_ref()
+                'gtk_type_class',                              'E', # g_type_class_peek() or g_type_class_ref()
                 'GTK_TYPE_CTREE_NODE',                         'E',
                 'gtk_type_enum_find_value',                    'E',
                 'gtk_type_enum_get_values',                    'E',
