@@ -71,13 +71,10 @@ static dissector_handle_t data_handle;
  * on Ethernet those are encapsulated inside SNAP with an OUI of
  * OUI_CISCO, not OUI_ENCAP_ETHER.
  *
- * Perhaps we should set up a protocol table for those protocols
- * that differ between Ethernet and Cisco HDLC, and have the PPP
- * code first try that table and, if it finds nothing in that
- * table, call "ethertype()".  (Unfortunately, that means that -
- * assuming we had a Cisco SLARP dissector - said dissector were
- * disabled, SLARP packets would be dissected as Reverse ARP
- * packets, not as data.)
+ * We thus have a separate dissector table for Cisco HDLC types.
+ * We could perhaps have that table hold only type values that
+ * wouldn't be in the Ethernet dissector table, and check that
+ * table first and the Ethernet dissector table if that fails.
  */
 #define CISCO_SLARP	0x8035	/* Cisco SLARP protocol */
 
