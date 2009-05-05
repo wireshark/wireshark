@@ -315,8 +315,8 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
     /*
      * The null header value must be greater than the IEEE 802.3 maximum
      * frame length to be a valid Ethernet type; if it is, hand it
-     * to "ethertype()", otherwise treat it as a BSD AF_type (we wire
-     * in the values of the BSD AF_ types, because the values
+     * to "capture_ethertype()", otherwise treat it as a BSD AF_type (we
+     * wire in the values of the BSD AF_ types, because the values
      * in the file will be BSD values, and the OS on which
      * we're building this might not have the same values or
      * might not have them defined at all; XXX - what if different
