@@ -311,43 +311,6 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
 #endif
 }
 
-#if 0
-GtkWidget*
-combo_channel_new(void)
-{
-	  GtkWidget* channel_cb;
-	  GList*     popdown;
-
-
-      channel_cb = gtk_combo_new();
-	  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cb)->entry), "1");
-
-	  popdown = NULL;
-
-	  popdown = g_list_append(popdown, "1");
-      popdown = g_list_append(popdown, "2");
-      popdown = g_list_append(popdown, "3");
-      popdown = g_list_append(popdown, "4");
-	  popdown = g_list_append(popdown, "5");
-	  popdown = g_list_append(popdown, "6");
-	  popdown = g_list_append(popdown, "7");
-	  popdown = g_list_append(popdown, "8");
-	  popdown = g_list_append(popdown, "9");
-	  popdown = g_list_append(popdown, "10");
-	  popdown = g_list_append(popdown, "11");
-	  popdown = g_list_append(popdown, "12");
-	  popdown = g_list_append(popdown, "13");
-	  popdown = g_list_append(popdown, "14");
-
-      gtk_combo_set_popdown_strings( GTK_COMBO(channel_cb), popdown) ;
-      g_list_free(popdown);
-	  gtk_widget_set_size_request( GTK_WIDGET(channel_cb),
-                                  45,
-                                  10 );
-
-	  return channel_cb;
-}
-#endif
 
 /*
  * Sorts the Interface List in alphabetical order
