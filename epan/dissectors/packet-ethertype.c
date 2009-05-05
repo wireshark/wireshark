@@ -1,5 +1,7 @@
 /* packet-ethertype.c
- * Routines for calling the right protocol for the ethertype.
+ * Routines for processing Ethernet payloads and payloads like Ethernet
+ * payloads (i.e., payloads when there could be an Ethernet trailer and
+ * possibly an FCS).
  *
  * $Id$
  *
@@ -308,9 +310,6 @@ add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
 
 	if (fh_tree == NULL)
 		return;	/* we're not building a protocol tree */
-
-	if (trailer_id == -1)
-		return;	/* our caller doesn't care about trailers */
 
 	/* OK, how much is there in that tvbuff now? */
 	length = tvb_reported_length(next_tvb);
