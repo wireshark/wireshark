@@ -348,22 +348,24 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     gtk_widget_show_all(ss->win);
     window_present(ss->win);
 
-    /* We currently cannot just retap the packets because we will not be able
-     * to acquire the fvalue data. The expert items would already have been
-     * cleared and we will not be able to perform any filtering of data.
-     * So we force a redissect so that all data is valid.
-     * If someone can figure out why the expert_item value is null when
-     * performing a retap then this call to
-     * cf_redissect_packets(&cfile);
-     * can be changed to...
-     * cf_retap_packets(&cfile, NULL);
-     * which would be much faster.
+    /*
+     * At least at present, the only information the tap listener appears
+     * to care about is available regardless of whether the protocol tree
+     * is being built, so we don't appear to need to have the protocol
+     * tree built.
+     *
+     * This means we can use cf_retap_packets(), even though it will only
+     * build the protocol tree if at least one tap has a filter in place.
+     * cf_retap_packets() is faster than cf_redissect_packets(), as it
+     * assumes we didn't change anything that would cause any packets to
+     * dissect differently, and thus doesn't redo the packet display.
      */
-    cf_redissect_packets(&cfile);
-	/* This will bring up the progress bar
-	 * Put our window back in front
-	 */
-	gdk_window_raise(ss->win->window);
+    cf_retap_packets(&cfile, FALSE);
+
+    /* This will bring up the progress bar
+     * Put our window back in front
+     */
+    gdk_window_raise(ss->win->window);
 }
 
 void
