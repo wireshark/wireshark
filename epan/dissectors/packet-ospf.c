@@ -977,7 +977,7 @@ static hf_register_info ospff_info[] = {
        NULL, 0x0, "", HFILL }}
 };
 
-static guint8 ospf_msg_type_to_filter (guint8 msg_type)
+static gint ospf_msg_type_to_filter (guint8 msg_type)
 {
     if (msg_type >= OSPF_HELLO &&
 	msg_type <= OSPF_LS_ACK)
@@ -985,7 +985,7 @@ static guint8 ospf_msg_type_to_filter (guint8 msg_type)
     return -1;
 }
 
-static guint8 ospf_ls_type_to_filter (guint8 ls_type)
+static gint ospf_ls_type_to_filter (guint8 ls_type)
 {
     if (ls_type >= OSPF_LSTYPE_ROUTER &&
 	ls_type <= OSPF_LSTYPE_EXTATTR)
@@ -1290,10 +1290,12 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    version);
 	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_MSG_TYPE],
 			    tvb, 1, 1, FALSE);
-	hidden_item = proto_tree_add_item(ospf_header_tree,
-				   ospf_filter[ospf_msg_type_to_filter(packet_type)],
-				   tvb, 1, 1, FALSE);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	if (ospf_msg_type_to_filter(packet_type) != -1) {
+		hidden_item = proto_tree_add_item(ospf_header_tree,
+					   ospf_filter[ospf_msg_type_to_filter(packet_type)],
+					   tvb, 1, 1, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
  	proto_tree_add_text(ospf_header_tree, tvb, 2, 2, "Packet Length: %u",
 			    ospflen);
 	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_SRC_ROUTER],
@@ -2661,10 +2663,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb,
 			offset + 3, 1, FALSE);
-    hidden_item = proto_tree_add_item(ospf_lsa_tree,
-			       ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
-			       offset + 3, 1, FALSE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    if (ospf_ls_type_to_filter(ls_type) != -1) {
+        hidden_item = proto_tree_add_item(ospf_lsa_tree,
+					  ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
+					  offset + 3, 1, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
 
     if (is_opaque(ls_type)) {
     	ls_id_type = tvb_get_guint8(tvb, offset + 4);
