@@ -132,6 +132,11 @@ ATTRIBUTE	3PP2-Granted-QoS-Parameters			132 integer
 #
 ATTRIBUTE	3PP2-Flow-ID-Parameter				144 integer
 ATTRIBUTE	3PP2-Flow-Statusb					145 integer
+#
+ATTRIBUTE	3GPP2-HA-Request					168	integer
+ATTRIBUTE	3GPP2-HA-Authorised					169	integer
+ATTRIBUTE	3GPP2-IP-Ver-Authorised				172	integer
+ATTRIBUTE	3GPP2-MIPv4-Mesg-Id					173	string
 
 VALUE		3GPP2-Airlink-Record-Type	Session-Setup				1
 VALUE		3GPP2-Airlink-Record-Type	Active-Start				2
