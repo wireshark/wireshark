@@ -1,5 +1,8 @@
 /* iana-snap-pid.h
  * SNAP PIDs for the IANA's OUI 00:00:5e
+ * See
+ *
+ *	http://www.iana.org/assignments/ethernet-numbers
  *
  * $Id$
  *
