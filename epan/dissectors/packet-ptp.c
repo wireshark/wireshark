@@ -710,6 +710,18 @@ static gint ett_ptp_time2 = -1;
 #define	PTP_V2_AN_GRANDMASTERCLOCKIDENTITY_OFFSET                   53
 #define	PTP_V2_AN_LOCALSTEPSREMOVED_OFFSET                          61
 #define	PTP_V2_AN_TIMESOURCE_OFFSET                              	63
+#define	PTP_V2_AN_TLV_OFFSET                                        64
+/* Announce TLV field offsets */
+#define	PTP_V2_AN_TLV_TYPE_OFFSET                                    0
+#define	PTP_V2_AN_TLV_LENGTHFIELD_OFFSET                             2
+/* PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR field offsets */
+#define	PTP_V2_AN_TLV_ATOI_KEYFIELD_OFFSET                           4
+#define	PTP_V2_AN_TLV_ATOI_CURRENTOFFSET_OFFSET                      5
+#define	PTP_V2_AN_TLV_ATOI_JUMPSECONDS_OFFSET                        9
+#define	PTP_V2_AN_TLV_ATOI_TIMEOFNEXTJUMP_OFFSET                    13
+#define	PTP_V2_AN_TLV_ATOI_DISPLAYNAME_OFFSET                       19
+/* Undissected TLV field offset */
+#define	PTP_V2_AN_TLV_DATA_OFFSET                                    4
 
 /*Offsets for PTP_Sync AND PTP_DelayRequest (=SDR) messages*/
 #define	PTP_V2_SDR_ORIGINTIMESTAMP_OFFSET                           34
@@ -1184,6 +1196,19 @@ static int hf_ptp_v2_an_grandmasterclockvariance = -1;
 static int hf_ptp_v2_an_priority1 = -1;
 static int hf_ptp_v2_an_priority2 = -1;
 
+/* Fields for PTP_Announce TLVs */
+static int hf_ptp_v2_an_tlv_tlvtype = -1;
+static int hf_ptp_v2_an_tlv_lengthfield = -1;
+/* Fields for the ALTERNATE_TIME_OFFSET_INDICATOR TLV */
+static int hf_ptp_v2_atoi_tlv_keyfield = -1;
+static int hf_ptp_v2_atoi_tlv_currentoffset = -1;
+static int hf_ptp_v2_atoi_tlv_jumpseconds = -1;
+static int hf_ptp_v2_atoi_tlv_timeofnextjump = -1;
+static int hf_ptp_v2_atoi_tlv_displayname = -1;
+static int hf_ptp_v2_atoi_tlv_displayname_length = -1;
+
+/* Fields for an undissected TLV */
+static int hf_ptp_v2_an_tlv_data = -1;
 
 /*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
 static int hf_ptp_v2_sdr_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
@@ -1367,6 +1392,7 @@ static gint ett_ptp_v2_protocolAddress = -1;
 static gint ett_ptp_v2_faultRecord = -1;
 static gint ett_ptp_v2_ptptext = -1;
 static gint ett_ptp_v2_timeInterval = -1;
+static gint ett_ptp_v2_tlv = -1;
 
 /* static gint ett_ptp_v2_timesource = -1;
 static gint ett_ptp_v2_priority = -1; */
@@ -2346,6 +2372,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(ptp_v2_messageid){
             case PTP_V2_ANNOUNCE_MESSAGE:{
+                guint16     Offset;
+                guint16     tlv_type;
+                guint16     tlv_length;
+                guint16     tlv_total_length;
+                proto_item *tlv_ti;
+                proto_tree *ptp_tlv_tree;
+
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
                 timeStamp = timeStamp << 16;
                 timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
@@ -2382,6 +2415,95 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(ptp_tree,
                     hf_ptp_v2_an_timesource, tvb, PTP_V2_AN_TIMESOURCE_OFFSET, 1, FALSE);
+
+				tlv_total_length = 0;
+				while (tvb_reported_length_remaining(tvb, PTP_V2_AN_TLV_OFFSET + tlv_total_length) >= 2)
+				{
+					/* There are TLV's to be processed */
+					tlv_type = tvb_get_ntohs (tvb, PTP_V2_AN_TLV_OFFSET+tlv_total_length+PTP_V2_AN_TLV_TYPE_OFFSET);
+					tlv_length = tvb_get_ntohs (tvb, PTP_V2_AN_TLV_OFFSET+tlv_total_length+PTP_V2_AN_TLV_LENGTHFIELD_OFFSET);
+
+					tlv_ti = proto_tree_add_text(
+						ptp_tree,
+						tvb,
+						PTP_V2_AN_TLV_OFFSET + tlv_total_length,
+						tlv_length + PTP_V2_AN_TLV_DATA_OFFSET,
+						"%s TLV",
+						val_to_str(tlv_type,
+								   ptp_v2_TLV_type_vals,
+								   "Unknown (%u)"));
+
+					ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+
+					proto_tree_add_item(ptp_tlv_tree,
+										hf_ptp_v2_an_tlv_tlvtype,
+										tvb,
+										PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_TYPE_OFFSET,
+										2,
+										FALSE);
+
+					proto_tree_add_item(ptp_tlv_tree,
+										hf_ptp_v2_an_tlv_lengthfield,
+										tvb,
+										PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_LENGTHFIELD_OFFSET,
+										2,
+										FALSE);
+
+					switch (tlv_type)
+					{
+						case PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR:
+						{
+							proto_tree_add_item(ptp_tlv_tree,
+												hf_ptp_v2_atoi_tlv_keyfield,
+												tvb,
+												PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_ATOI_KEYFIELD_OFFSET,
+												1,
+												FALSE);
+
+							proto_tree_add_item(ptp_tlv_tree,
+												hf_ptp_v2_atoi_tlv_currentoffset,
+												tvb,
+												PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_ATOI_CURRENTOFFSET_OFFSET,
+												4,
+												FALSE);
+
+							proto_tree_add_item(ptp_tlv_tree,
+												hf_ptp_v2_atoi_tlv_jumpseconds,
+												tvb,
+												PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_ATOI_JUMPSECONDS_OFFSET,
+												4,
+												FALSE);
+
+							proto_tree_add_item(ptp_tlv_tree,
+												hf_ptp_v2_atoi_tlv_timeofnextjump,
+												tvb,
+												PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_ATOI_TIMEOFNEXTJUMP_OFFSET,
+												6,
+												FALSE);
+
+							Offset = PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_ATOI_DISPLAYNAME_OFFSET;
+							dissect_ptp_v2_text(tvb,
+											    &Offset,
+											    ptp_tlv_tree,
+											    hf_ptp_v2_atoi_tlv_displayname,
+											    hf_ptp_v2_atoi_tlv_displayname_length);
+
+							break;
+						}
+						default:
+						{
+							proto_tree_add_item(ptp_tlv_tree,
+												hf_ptp_v2_an_tlv_data,
+												tvb,
+												PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_DATA_OFFSET,
+												tlv_length,
+												FALSE);
+							break;
+						}
+					}
+
+					tlv_total_length += (tlv_length + PTP_V2_AN_TLV_DATA_OFFSET);
+				}
 
                 break;
             }
@@ -4324,6 +4446,56 @@ proto_register_ptp(void)
             "", HFILL }
         },
 
+        /*Fields for PTP_Announce TLVs */
+        { &hf_ptp_v2_an_tlv_tlvtype,
+            { "tlvType", "ptp.v2.an.tlvType",
+            FT_UINT16, BASE_DEC, VALS(ptp_v2_TLV_type_vals), 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_an_tlv_lengthfield,
+            { "lengthField", "ptp.v2.an.lengthField",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        /*Fields for ALTERNATE_TIME_OFFSET_INDICATOR TLV */
+        { &hf_ptp_v2_atoi_tlv_keyfield,
+            { "keyField", "ptp.v2.an.atoi.keyField",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_atoi_tlv_currentoffset,
+            { "currentOffset", "ptp.v2.an.atoi.currentOffset",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_atoi_tlv_jumpseconds,
+            { "jumpSeconds", "ptp.v2.an.atoi.jumpSeconds",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_atoi_tlv_timeofnextjump,
+            { "timeOfNextJump", "ptp.v2.an.atoi.timeOfNextJump",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_atoi_tlv_displayname,
+            { "displayName", "ptp.v2.an.atoi.dislpayName",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_ptp_v2_atoi_tlv_displayname_length,
+            { "length",           "ptp.v2.an.atoi.dislpayName.length",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+
+        /* Fields for undissected TLV */
+        { &hf_ptp_v2_an_tlv_data,
+            { "data",           "ptp.v2.an.tlv.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "", HFILL }
+        },
+
         /*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
         { &hf_ptp_v2_sdr_origintimestamp,
             { "originTimestamp",           "ptp.v2.sdr.origintimestamp",
@@ -5061,6 +5233,7 @@ proto_register_ptp(void)
         &ett_ptp_v2_ptptext,
         &ett_ptp_v2_faultRecord,
         &ett_ptp_v2_timeInterval,
+        &ett_ptp_v2_tlv,
     };
 
 /* Register the protocol name and description */
