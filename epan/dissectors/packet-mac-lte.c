@@ -955,11 +955,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* There might not be any data, if only headers were logged */
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
                                        tvb_length_remaining(tvb, offset) == 0);
-    PROTO_ITEM_SET_GENERATED(truncated_ti);
     if (tvb_length_remaining(tvb, offset) == 0) {
+        PROTO_ITEM_SET_GENERATED(truncated_ti);
         expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
                                "MAC PDU SDUs have been ommitted");
         return;
+    }
+    else {
+        PROTO_ITEM_SET_HIDDEN(truncated_ti);
     }
 
 
@@ -1197,7 +1200,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_predefined_frame,
                              tvb, 0, 0, p_mac_lte_info->isPredefinedData);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_lte_info->isPredefinedData) {
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+    else {
+        PROTO_ITEM_SET_HIDDEN(ti);
+    }
 
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_length,
                              tvb, 0, 0, p_mac_lte_info->length);
@@ -1640,7 +1648,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_timing_advance,
             { "Timing Advance",
               "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Timing Advance (TODO: units)", HFILL
+              "Timing Advance (0-1282 (see 36.213, 4.2.3)", HFILL
             }
         },
         { &hf_mac_lte_control_ue_contention_resolution_identity,
