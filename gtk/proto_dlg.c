@@ -370,7 +370,6 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
     proto_write(parent_w);
-    update_was_enabled();
   }
 
   window_destroy(GTK_WIDGET(parent_w));
