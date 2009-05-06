@@ -322,6 +322,18 @@ proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
   return FALSE;
 }
 
+/* Update protocol_list 'was_enabled' to current value of 'enabled' */
+static void
+update_was_enabled(void)
+{
+  GSList *entry;
+
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    protocol_data_t *p = entry->data;
+    p->was_enabled = p->enabled;
+  }
+}
+
 static void
 proto_write(gpointer parent_w _U_)
 {
@@ -332,17 +344,17 @@ proto_write(gpointer parent_w _U_)
   /* Create the directory that holds personal configuration files, if
      necessary.  */
   if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
-      strerror(errno));
-     g_free(pf_dir_path);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                  "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
+                  strerror(errno));
+    g_free(pf_dir_path);
   } else {
     save_disabled_protos_list(&pf_path, &pf_save_errno);
     if (pf_path != NULL) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	    "Could not save to your disabled protocols file\n\"%s\": %s.",
-	    pf_path, strerror(pf_save_errno));
-	g_free(pf_path);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Could not save to your disabled protocols file\n\"%s\": %s.",
+                    pf_path, strerror(pf_save_errno));
+      g_free(pf_path);
     }
   }
 }
@@ -357,7 +369,8 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
-      proto_write(parent_w);
+    proto_write(parent_w);
+    update_was_enabled();
   }
 
   window_destroy(GTK_WIDGET(parent_w));
@@ -375,7 +388,8 @@ proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
-      proto_write(parent_w);
+    proto_write(parent_w);
+    update_was_enabled();
   }
 
   if (redissect)
