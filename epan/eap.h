@@ -1,4 +1,4 @@
-/* sminmpec.h
+/* eap.h
  * Extenal definitions for EAP Extensible Authentication Protocol dissection
  * RFC 2284, RFC 3748
  *
@@ -6,7 +6,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 2004 Gerald Combs
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,28 +26,27 @@
 #ifndef __EAP_H__
 #define __EAP_H__
 
-#define EAP_REQUEST	1
-#define EAP_RESPONSE	2
-#define EAP_SUCCESS	3
-#define EAP_FAILURE	4
+#define EAP_REQUEST     1
+#define EAP_RESPONSE    2
+#define EAP_SUCCESS     3
+#define EAP_FAILURE     4
 
 WS_VAR_IMPORT const value_string eap_code_vals[];
 
 #define EAP_TYPE_ID     1
 #define EAP_TYPE_NOTIFY 2
 #define EAP_TYPE_NAK    3
-#define EAP_TYPE_MD5	4
-#define EAP_TYPE_TLS	13
-#define EAP_TYPE_LEAP	17
-#define EAP_TYPE_SIM	18
-#define EAP_TYPE_TTLS	21
-#define EAP_TYPE_AKA	23
-#define EAP_TYPE_PEAP	25
+#define EAP_TYPE_MD5    4
+#define EAP_TYPE_TLS   13
+#define EAP_TYPE_LEAP  17
+#define EAP_TYPE_SIM   18
+#define EAP_TYPE_TTLS  21
+#define EAP_TYPE_AKA   23
+#define EAP_TYPE_PEAP  25
 #define EAP_TYPE_MSCHAPV2 26
-#define EAP_TYPE_FAST	43
-#define EAP_TYPE_EXT    254
+#define EAP_TYPE_FAST  43
+#define EAP_TYPE_EXT  254
 
 WS_VAR_IMPORT const value_string eap_type_vals[];
-
 
 #endif

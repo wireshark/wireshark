@@ -65,42 +65,42 @@ References:
   2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
   3) RFC2284
   4) RFC3748
-  5) http://www.iana.org/assignments/eap-numbers	EAP registry( updated 2006-10-23)
+  5) http://www.iana.org/assignments/eap-numbers	EAP registry (updated 2009-02-25)
 */
 
 const value_string eap_type_vals[] = {
-  {EAP_TYPE_ID,  "Identity [RFC3748]" },
-  {EAP_TYPE_NOTIFY,"Notification [RFC3748]" },
-  {EAP_TYPE_NAK, "Legacy Nak (Response only) [RFC3748]" },
-  {EAP_TYPE_MD5, "MD5-Challenge [RFC3748]" },
-  {  5,          "One Time Password (OTP) [RFC2289]" },
+  {  1,          "Identity [RFC3748]" },
+  {  2,          "Notification [RFC3748]" },
+  {  3,          "Legacy Nak (Response only) [RFC3748]" },
+  {  4,          "MD5-Challenge [RFC3748]" },
+  {  5,          "One Time Password (OTP) [RFC3748]" },
   {  6,          "Generic Token Card [RFC3748]" },
-  {  7,          "?? RESERVED ?? " }, /* ??? */
-  {  8,          "?? RESERVED ?? " }, /* ??? */
+  {  7,          "Allocated" },
+  {  8,          "Allocated" },
   {  9,          "RSA Public Key Authentication [Whelan]" },
   { 10,          "DSS Unilateral [Nace]" },
   { 11,          "KEA [Nace]" },
   { 12,          "KEA-VALIDATE [Nace]" },
-  {EAP_TYPE_TLS, "EAP-TLS [RFC2716] [Aboba]" },
+  { 13,          "EAP-TLS [RFC5216] [Aboba]" },
   { 14,          "Defender Token (AXENT) [Rosselli]" },
-  { 15,          "RSA Security SecurID EAP [Asnes, Liberman]" },
+  { 15,          "RSA Security SecurID EAP [Nystrom]" },
   { 16,          "Arcot Systems EAP [Jerdonek]" },
-  {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" },
-  {EAP_TYPE_SIM, "GSM Subscriber Identity Modules (EAP-SIM) [RFC4186]" },
+  { 17,          "EAP-Cisco Wireless (LEAP) [Norman]" },
+  { 18,          "GSM Subscriber Identity Modules (EAP-SIM) [RFC4186]" },
   { 19,          "SRP-SHA1 Part 1 [Carlson]" },
-  { 20,          "AVAILABLE" },
-  {EAP_TYPE_TTLS,"EAP-TTLS [Funk]" },
+  { 20,          "Unassigned" },
+  { 21,          "EAP-TTLS [RFC5281]" },
   { 22,          "Remote Access Service [Fields]" },
-  {EAP_TYPE_AKA, "EAP-AKA Authentication [RFC4187]" },
+  { 23,          "EAP-AKA Authentication [RFC4187]" },
   { 24,          "EAP-3Com Wireless [Young]" },
-  {EAP_TYPE_PEAP,"PEAP [Palekar]" },
-  {EAP_TYPE_MSCHAPV2,"MS-EAP-Authentication [Palekar]" },
+  { 23,          "PEAP [Palekar]" },
+  { 24,          "MS-EAP-Authentication [Palekar]" },
   { 27,          "Mutual Authentication w/Key Exchange (MAKE)[Berrendonner]" },
   { 28,          "CRYPTOCard [Webb]" },
   { 29,          "EAP-MSCHAP-V2 [Potter]" },
   { 30,          "DynamID [Merlin]" },
   { 31,          "Rob EAP [Ullah]" },
-  { 32,          "Protected One-Time Password [RFC-draft-nystrom-eap-potp-07.txt] [Nystrom]" },
+  { 32,          "Protected One-Time Password [RFC4793] [Nystrom]" },
   { 33,          "MS-Authentication-TLV [Palekar]" },
   { 34,          "SentriNET [Kelleher]" },
   { 35,          "EAP-Actiontec Wireless [Chang]" },
@@ -111,14 +111,17 @@ const value_string eap_type_vals[] = {
   { 40,          "DeviceConnect EAP [Pitard]" },
   { 41,          "EAP-SPEKE [Zick]" },
   { 42,          "EAP-MOBAC [Rixom]" },
-  {EAP_TYPE_FAST,"EAP-FAST [Cam-Winget]" },
+  { 43,          "EAP-FAST [RFC4851]" },
   { 44,          "ZoneLabs EAP (ZLXEAP) [Bogue]" },
   { 45,          "EAP-Link [Zick]" },
   { 46,          "EAP-PAX [Clancy]" },
-  { 47,          "EAP-PSK [RFC-bersani-eap-psk-11.txt]" },
-  { 48,          "EAP-SAKE [RFC-vanderveen-eap-sake-02.txt]" },
-  {EAP_TYPE_EXT, "Expanded Type [RFC3748]" }, 
-  { 255,         "EXPERIMENTAL [RFC3748]" },
+  { 47,          "EAP-PSK [RFC4764]" },
+  { 48,          "EAP-SAKE [RFC4763]" },
+  { 49,          "EAP-IKEv2 [RFC5106]" },
+  { 50,          "EAP-AKA' [RFC-arkko-eap-aka-kdf-10.txt]" },
+  { 51,          "EAP-GPSK [RFC5433]" },
+  { 254,         "Expanded Type [RFC3748]" },
+  { 255,         "Experimental [RFC3748]" },
   { 0,          NULL }
 
 };
@@ -1203,27 +1206,27 @@ proto_register_eap(void)
   static hf_register_info hf[] = {
 	{ &hf_eap_code, {
 		"Code", "eap.code", FT_UINT8, BASE_DEC,
-		VALS(eap_code_vals), 0x0, "", HFILL }},
+		VALS(eap_code_vals), 0x0, NULL, HFILL }},
 	{ &hf_eap_identifier, {
 		"Id", "eap.id", FT_UINT8, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eap_len, {
 		"Length", "eap.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eap_type, {
 		"Type", "eap.type", FT_UINT8, BASE_DEC,
-		VALS(eap_type_vals), 0x0, "", HFILL }},
+		VALS(eap_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_eap_type_nak, {
 		"Desired Auth Type", "eap.desired_type", FT_UINT8, BASE_DEC,
-		VALS(eap_type_vals), 0x0, "", HFILL }},
+		VALS(eap_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_eaptls_fragment,
 	  { "EAP-TLS Fragment", "eaptls.fragment",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		"EAP-TLS Fragment", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eaptls_fragments,
 	  { "EAP-TLS Fragments", "eaptls.fragments",
 	        FT_NONE, BASE_NONE, NULL, 0x0,
-	        "EAP-TLS Fragments", HFILL }},
+	        NULL, HFILL }},
 	{ &hf_eaptls_fragment_overlap,
 	  { "Fragment overlap",	"eaptls.fragment.overlap",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -1249,11 +1252,11 @@ proto_register_eap(void)
 	{ &hf_eapext_vendorid,
 	  { "Vendor Id", "eap.ext.vendor_id",
 	    FT_UINT16, BASE_HEX, VALS(eapext_vendorid_vals), 0x0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_eapext_vendortype,
 	  { "Vendor Type", "eap.ext.vendor_type",
 	    FT_UINT8, BASE_HEX, VALS(eapext_vendortype_vals), 0x0,
-	    "", HFILL }},
+	    NULL, HFILL }}
 
   };
   static gint *ett[] = {
@@ -1262,7 +1265,7 @@ proto_register_eap(void)
 	&ett_eaptls_fragments,
 	&ett_eap_sim_attr,
 	&ett_eap_aka_attr,
-	&ett_eap_exp_attr,
+	&ett_eap_exp_attr
   };
 
   proto_eap = proto_register_protocol("Extensible Authentication Protocol",
