@@ -253,9 +253,9 @@ const	gchar pdp_str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 static guint16
 de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32	      curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -263,8 +263,8 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	switch(oct&7)
 	{
-		case 1: str="GPRS only attached"; break;
-		case 3: str="Combined GPRS/IMSI attached";	break;
+		case 1:  str="GPRS only attached";          break;
+		case 3:  str="Combined GPRS/IMSI attached"; break;
 		default: str="reserved";
 	}
 
@@ -287,13 +287,13 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 static guint16
 de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint8	oct_ciph;
-	guint32	curr_offset;
-	const gchar	*str_follow;
-	const gchar	*str_attach;
-	proto_item	*tf = NULL;
-	proto_tree	*tf_tree = NULL;
+	guint8	      oct;
+	guint8	      oct_ciph;
+	guint32	      curr_offset;
+	const gchar  *str_follow;
+	const gchar  *str_attach;
+	proto_item   *tf = NULL;
+	proto_tree   *tf_tree = NULL;
 
 	curr_offset = offset;
 
@@ -304,14 +304,14 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	switch(oct&7)
 	{
-		case 1: str_attach="GPRS attach"; break;
-		case 2: str_attach="GPRS attach while IMSI attached"; break;
-		case 3: str_attach="Combined GPRS/IMSI attach"; break;
+		case 1:  str_attach="GPRS attach";                     break;
+		case 2:  str_attach="GPRS attach while IMSI attached"; break;
+		case 3:  str_attach="Combined GPRS/IMSI attach";       break;
 		default: str_attach="reserved";
 	}
 	switch(oct&8)
 	{
-		case 8: str_follow="Follow-on request pending"; break;
+		case 8:  str_follow="Follow-on request pending";       break;
 		default: str_follow="No follow-on request pending";
 	}
 
@@ -352,9 +352,9 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 static guint16
 de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar *str;
+	guint8	      oct;
+	guint32	      curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -362,14 +362,14 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	switch(oct&7)
 	{
-		case 0: str="ciphering not used"; break;
-		case 1: str="GPRS Encryption Algorithm GEA/1"; break;
-		case 2: str="GPRS Encryption Algorithm GEA/2"; break;
-		case 3: str="GPRS Encryption Algorithm GEA/3"; break;
-		case 4: str="GPRS Encryption Algorithm GEA/4"; break;
-		case 5: str="GPRS Encryption Algorithm GEA/5"; break;
-		case 6: str="GPRS Encryption Algorithm GEA/6"; break;
-		case 7: str="GPRS Encryption Algorithm GEA/7"; break;
+		case 0:  str="ciphering not used";              break;
+		case 1:  str="GPRS Encryption Algorithm GEA/1"; break;
+		case 2:  str="GPRS Encryption Algorithm GEA/2"; break;
+		case 3:  str="GPRS Encryption Algorithm GEA/3"; break;
+		case 4:  str="GPRS Encryption Algorithm GEA/4"; break;
+		case 5:  str="GPRS Encryption Algorithm GEA/5"; break;
+		case 6:  str="GPRS Encryption Algorithm GEA/6"; break;
+		case 7:  str="GPRS Encryption Algorithm GEA/7"; break;
 		default: str="This should never happen";
 	}
 
@@ -392,9 +392,9 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 static guint16
 de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar *str;
+	guint8	      oct;
+	guint32	      curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -402,8 +402,8 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	switch(oct&1)
 	{
-		case 0: str="no valid TMSI available"; break;
-		case 1: str="valid TMSI available"; break;
+		case 0:  str="no valid TMSI available";  break;
+		case 1:  str="valid TMSI available";     break;
 		default: str="This should never happen";
 	}
 
@@ -426,12 +426,12 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 static guint16
 de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
-	const gchar *str_power;
-	proto_item  *tf = NULL;
-	proto_tree	  *tf_tree = NULL;
+	guint8        oct;
+	guint32	      curr_offset;
+	const gchar  *str;
+	const gchar  *str_power;
+	proto_item   *tf = NULL;
+	proto_tree   *tf_tree = NULL;
 
 	curr_offset = offset;
 
@@ -439,16 +439,16 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	switch(oct&7)
 	{
-		case 1: str="GPRS detach/re-attach required"; break;
-		case 2: str="IMSI detach/re-attach not required"; break;
-		case 3: str="Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
+		case 1:  str="GPRS detach/re-attach required";                            break;
+		case 2:  str="IMSI detach/re-attach not required";                        break;
+		case 3:  str="Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
 		default: str="Combined GPRS/IMSI detach/re-attach not required";
 	}
 
 	switch(oct&8)
 	{
-		case 8: str_power="power switched off"; break;
-		default: str_power="normal detach"; break;
+		case 8:  str_power="power switched off"; break;
+		default: str_power="normal detach";      break;
 	}
 
 	tf = proto_tree_add_text(tree,
@@ -541,12 +541,12 @@ static const value_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
 guint16
 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
-	gchar	str_val[3];
-	proto_item  *tf = NULL;
-	proto_tree  *tf_tree = NULL;
+	guint8        oct;
+	guint32	      curr_offset;
+	const gchar  *str;
+	gchar         str_val[3];
+	proto_item   *tf = NULL;
+	proto_tree   *tf_tree = NULL;
 
 	curr_offset = offset;
 
@@ -560,20 +560,20 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	switch(oct)
 	{
-		case 0: str="704"; break;
-		case 65: str="71"; break;
-		case 66: str="72"; break;
-		case 67: str="74"; break;
-		case 68: str="75"; break;
-		case 69: str="77"; break;
-		case 70: str="79"; break;
-		case 71: str="80"; break;
-		case 72: str="83"; break;
-		case 73: str="86"; break;
-		case 74: str="88"; break;
-		case 75: str="90"; break;
-		case 76: str="92"; break;
-		case 77: str="96"; break;
+		case 0:  str="704"; break;
+		case 65: str="71";  break;
+		case 66: str="72";  break;
+		case 67: str="74";  break;
+		case 68: str="75";  break;
+		case 69: str="77";  break;
+		case 70: str="79";  break;
+		case 71: str="80";  break;
+		case 72: str="83";  break;
+		case 73: str="86";  break;
+		case 74: str="88";  break;
+		case 75: str="90";  break;
+		case 76: str="92";  break;
+		case 77: str="96";  break;
 		case 78: str="101"; break;
 		case 79: str="103"; break;
 		case 80: str="107"; break;
@@ -595,11 +595,11 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 		case 96: str="288"; break;
 		case 97: str="320"; break;
 		case 98: str="352"; break;
-	default:
-		str_val[0]=oct/10+'0';
-		str_val[1]=oct%10+'0';
-		str_val[2]=0;
-		str=str_val;
+		default:
+			 str_val[0]=oct/10+'0';
+			 str_val[1]=oct%10+'0';
+			 str_val[2]=0;
+			 str=str_val;
 	}
 
 	proto_tree_add_text(tf_tree,
@@ -626,9 +626,9 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 static guint16
 de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -636,7 +636,7 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	switch(oct&7)
 	{
-		case 1: str="Force to standby indicated"; break;
+		case 1:  str="Force to standby indicated";     break;
 		default: str="force to standby not indicated";
 	}
 
@@ -659,9 +659,9 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 static guint16
 de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8         oct;
+	guint32        curr_offset;
+	const gchar   *str;
 
 	curr_offset = offset;
 
@@ -672,7 +672,7 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	switch(oct&7)
 	{
-		case 1: str="Force to standby indicated"; break;
+		case 1:  str="Force to standby indicated";      break;
 		default: str="force to standby not indicated";
 	}
 
@@ -695,8 +695,8 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 static guint16
 de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	proto_item 	*curr_item;
+	guint32       curr_offset;
+	proto_item   *curr_item;
 
 	curr_offset = offset;
 	
@@ -716,8 +716,8 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 static guint16
 de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len _U_)
 {
-	guint32	curr_offset;
-	proto_item	*curr_item;
+	guint32       curr_offset;
+	proto_item   *curr_item;
 
 	curr_offset = offset;
 
@@ -736,9 +736,9 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint16
 de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -746,9 +746,9 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	switch ( oct&7 )
 	{
-		case 2: str="IMEI"; break;
-		case 3: str="IMEISV"; break;
-		case 4: str="TMSI"; break;
+		case 2:  str="IMEI";   break;
+		case 3:  str="IMEISV"; break;
+		case 4:  str="TMSI";   break;
 		default: str="IMSI";
 	}
 
@@ -771,9 +771,9 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 static guint16
 de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -784,7 +784,7 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	switch ( oct&7 )
 	{
-		case 1: str="IMEISV requested"; break;
+		case 1:  str="IMEISV requested";     break;
 		default: str="IMEISV not requested";
 	}
 
@@ -1021,19 +1021,19 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 guint16
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32     curr_offset;
-	guint       curr_len;
+	guint32      curr_offset;
+	guint        curr_len;
 	proto_item  *tf = NULL;
 	proto_tree  *tf_tree = NULL;
-	guint32     oct;
-	guchar      bits_in_oct;
-	guchar      bits_needed;
-	guint       bits_length;
-	guint       add_ocetets;	/* octets which are covered by one element -1 */
-	guint       curr_bits_length;
-	guchar      acc_type;
+	guint32      oct;
+	guchar       bits_in_oct;
+	guchar       bits_needed;
+	guint        bits_length;
+	guint        add_ocetets;	/* octets which are covered by one element -1 */
+	guint        curr_bits_length;
+	guchar       acc_type;
 	const gchar *str;
-	gchar       multi_slot_str[64][230] = {
+	gchar        multi_slot_str[64][230] = {
 		"Not specified", /* 00 */
 		"Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1", /* 01 */
 		"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 02 */
@@ -1161,17 +1161,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		acc_type = oct>>(32-bits_needed);
 		switch ( acc_type )
 		{
-			case 0x00: str="GSM P"; break;
-			case 0x01: str="GSM E --note that GSM E covers GSM P"; break;
+			case 0x00: str="GSM P";    break;
+			case 0x01: str="GSM E --note that GSM E covers GSM P";           break;
 			case 0x02: str="GSM R --note that GSM R covers GSM E and GSM P"; break;
 			case 0x03: str="GSM 1800"; break;
 			case 0x04: str="GSM 1900"; break;
-			case 0x05: str="GSM 450"; break;
-			case 0x06: str="GSM 480"; break;
-			case 0x07: str="GSM 850"; break;
-			case 0x08: str="GSM 700"; break;
+			case 0x05: str="GSM 450";  break;
+			case 0x06: str="GSM 480";  break;
+			case 0x07: str="GSM 850";  break;
+			case 0x08: str="GSM 700";  break;
 			case 0x0f: str="Indicates the presence of a list of Additional access technologies"; break;
-			default: str="unknown";
+			default:   str="unknown";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1216,8 +1216,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				switch ( oct>>(32-bits_needed) )
 				{
 					case 0x00: str="Not Present"; finished = TRUE; break;
-					case 0x01: str="Present"; finished = FALSE; break;
-					default: str="This should not happen";
+					case 0x01: str="Present"; finished = FALSE;    break;
+					default:   str="This should not happen";
 				}
 
 				proto_tree_add_text(tf_tree,
@@ -1255,17 +1255,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				acc_type = oct>>(32-bits_needed);
 				switch ( acc_type )
 				{
-					case 0x00: str="GSM P"; break;
-					case 0x01: str="GSM E --note that GSM E covers GSM P"; break;
+					case 0x00: str="GSM P";    break;
+					case 0x01: str="GSM E --note that GSM E covers GSM P";           break;
 					case 0x02: str="GSM R --note that GSM R covers GSM E and GSM P"; break;
 					case 0x03: str="GSM 1800"; break;
 					case 0x04: str="GSM 1900"; break;
-					case 0x05: str="GSM 450"; break;
-					case 0x06: str="GSM 480"; break;
-					case 0x07: str="GSM 850"; break;
-					case 0x08: str="GSM 700"; break;
+					case 0x05: str="GSM 450";  break;
+					case 0x06: str="GSM 480";  break;
+					case 0x07: str="GSM 850";  break;
+					case 0x08: str="GSM 700";  break;
 					case 0x0f: str="Indicates the presence of a list of Additional access technologies"; break;
-					default: str="unknown";
+					default:   str="unknown";
 				}
 
 				proto_tree_add_text(tf_tree,
@@ -1286,31 +1286,31 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				{
 					switch ( oct>>(32-bits_needed) )
 					{
-						case 0x01: str="1 W (30 dBm)"; break;
+						case 0x01: str="1 W (30 dBm)";    break;
 						case 0x02: str="0,25 W (24 dBm)"; break;
-						case 0x03: str="2 W (33 dBm)"; break;
-						default: str="Not specified";
+						case 0x03: str="2 W (33 dBm)";    break;
+						default:   str="Not specified";
 					}
 				}
 				else if ( acc_type == 0x03 )
 				{
 					switch ( oct>>(32-bits_needed) )
 					{
-						case 0x01: str="1 W (30 dBm)"; break;
+						case 0x01: str="1 W (30 dBm)";    break;
 						case 0x02: str="0,25 W (24 dBm)"; break;
-						case 0x03: str="4 W (36 dBm)"; break;
-						default: str="Not specified";
+						case 0x03: str="4 W (36 dBm)";    break;
+						default:   str="Not specified";
 					}
 				}
 				else if ( acc_type <= 0x08 )
 				{
 					switch ( oct>>(32-bits_needed) )
 					{
-						case 0x02: str="8 W (39 dBm)"; break;
-						case 0x03: str="5 W (37 dBm)"; break;
-						case 0x04: str="2 W (33 dBm)"; break;
+						case 0x02: str="8 W (39 dBm)";   break;
+						case 0x03: str="5 W (37 dBm)";   break;
+						case 0x04: str="2 W (33 dBm)";   break;
 						case 0x05: str="0,8 W (29 dBm)"; break;
-						default: str="Not specified";
+						default:   str="Not specified";
 					}
 				}
 				else
@@ -1336,7 +1336,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					case 0x01: str="Power class E1"; break;
 					case 0x02: str="Power class E2"; break;
 					case 0x03: str="Power class E3"; break;
-					default: str="This should not happen";
+					default:   str="This should not happen";
 				}
 
 				proto_tree_add_text(tf_tree,
@@ -1362,31 +1362,31 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			switch ( oct>>(32-bits_needed) )
 			{
-				case 0x01: str="1 W (30 dBm)"; break;
+				case 0x01: str="1 W (30 dBm)";    break;
 				case 0x02: str="0,25 W (24 dBm)"; break;
-				case 0x03: str="2 W (33 dBm)"; break;
-				default: str="Not specified";
+				case 0x03: str="2 W (33 dBm)";    break;
+				default:   str="Not specified";
 			}
 		}
 		else if ( acc_type == 0x03 )
 		{
 			switch ( oct>>(32-bits_needed) )
 			{
-				case 0x01: str="1 W (30 dBm)"; break;
+				case 0x01: str="1 W (30 dBm)";    break;
 				case 0x02: str="0,25 W (24 dBm)"; break;
-				case 0x03: str="4 W (36 dBm)"; break;
-				default: str="Not specified";
+				case 0x03: str="4 W (36 dBm)";    break;
+				default:   str="Not specified";
 			}
 		}
 		else if ( acc_type <= 0x08 )
 		{
 			switch ( oct>>(32-bits_needed) )
 			{
-				case 0x02: str="8 W (39 dBm)"; break;
-				case 0x03: str="5 W (37 dBm)"; break;
-				case 0x04: str="2 W (33 dBm)"; break;
+				case 0x02: str="8 W (39 dBm)";   break;
+				case 0x03: str="5 W (37 dBm)";   break;
+				case 0x04: str="2 W (33 dBm)";   break;
 				case 0x05: str="0,8 W (29 dBm)"; break;
-				default: str="Not specified";
+				default:   str="Not specified";
 			}
 		}
 		else
@@ -1439,8 +1439,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				switch ( oct>>(32-bits_needed) )
 				{
 					case 0x00: str="encryption algorithm not available"; break;
-					case 0x01: str="encryption algorithm available"; break;
-					default: str="This should not happen";
+					case 0x01: str="encryption algorithm available";     break;
+					default:   str="This should not happen";
 				}
 
 				proto_tree_add_text(tf_tree,
@@ -1462,8 +1462,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="controlled early Classmark Sending option is not implemented"; break;
-			case 0x01: str="controlled early Classmark Sending option is implemented"; break;
-			default: str="This should not happen";
+			case 0x01: str="controlled early Classmark Sending option is implemented";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1483,8 +1483,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="PS capability not present"; break;
-			case 0x01: str="PS capability present"; break;
-			default: str="This should not happen";
+			case 0x01: str="PS capability present";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1504,8 +1504,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="no VGCS capability or no notifications wanted"; break;
-			case 0x01: str="VGCS capability and notifications wanted"; break;
-			default: str="This should not happen";
+			case 0x01: str="VGCS capability and notifications wanted";      break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1525,8 +1525,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="no VBS capability or no notifications wanted"; break;
-			case 0x01: str="VBS capability and notifications wanted"; break;
-			default: str="This should not happen";
+			case 0x01: str="VBS capability and notifications wanted";      break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1645,8 +1645,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				switch ( oct>>(32-bits_needed) )
 				{
 					case 0x00: str="Extended Dynamic Allocation Capability for GPRS is not implemented"; break;
-					case 0x01: str="Extended Dynamic Allocation Capability for GPRS is implemented"; break;
-					default: str="This should not happen";
+					case 0x01: str="Extended Dynamic Allocation Capability for GPRS is implemented";     break;
+					default:   str="This should not happen";
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
@@ -1792,8 +1792,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				switch ( oct>>(32-bits_needed) )
 				{
 					case 0x00: str="Extended Dynamic Allocation Capability for EGPRS is not implemented"; break;
-					case 0x01: str="Extended Dynamic Allocation Capability for EGPRS is implemented"; break;
-					default: str="This should not happen";
+					case 0x01: str="Extended Dynamic Allocation Capability for EGPRS is implemented";     break;
+					default:   str="This should not happen";
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
@@ -1836,10 +1836,10 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				switch ( oct>>(32-bits_needed) )
 				{
-					case 0: str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
-					case 1: str="Multislot class 5 supported"; break;
-					case 2: str="Multislot class 9 supported"; break;
-					case 3: str="Multislot class 11 supported"; break;
+					case 0:  str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
+					case 1:  str="Multislot class 5 supported";  break;
+					case 2:  str="Multislot class 9 supported";  break;
+					case 3:  str="Multislot class 11 supported"; break;
 					default: str="This should not happen";
 				}
 		
@@ -1860,8 +1860,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				switch ( oct>>(32-bits_needed) )
 				{
 					case 0x00: str="Single Slot DTM not supported"; break;
-					case 0x01: str="Single Slot DTM supported"; break;
-					default: str="This should not happen";
+					case 0x01: str="Single Slot DTM supported";     break;
+					default:   str="This should not happen";
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
@@ -1904,9 +1904,9 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					switch ( oct>>(32-bits_needed) )
 					{
 						case 0: str="Unused. If received, the network shall interpret this as Multislot class 5"; break;
-						case 1: str="Multislot class 5 supported"; break;
-						case 2: str="Multislot class 9 supported"; break;
-						case 3: str="Multislot class 11 supported"; break;
+						case 1:  str="Multislot class 5 supported";  break;
+						case 2:  str="Multislot class 9 supported";  break;
+						case 3:  str="Multislot class 11 supported"; break;
 						default: str="This should not happen";
 					}
 
@@ -1951,11 +1951,11 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			switch ( oct>>(32-bits_needed) )
 			{
-				case 0x00: str="Reserved"; break;
+				case 0x00: str="Reserved";       break;
 				case 0x01: str="Power class E1"; break;
 				case 0x02: str="Power class E2"; break;
 				case 0x03: str="Power class E3"; break;
-				default: str="This should not happen";
+				default:   str="This should not happen";
 			}
 
 			proto_tree_add_text(tf_tree,
@@ -1976,8 +1976,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="COMPACT Interference Measurement Capability is not implemented"; break;
-			case 0x01: str="COMPACT Interference Measurement Capability is implemented"; break;
-			default: str="This should not happen";
+			case 0x01: str="COMPACT Interference Measurement Capability is implemented";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -1997,8 +1997,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="The ME is Release 98 or older"; break;
-			case 0x01: str="The ME is Release 99 onwards"; break;
-			default: str="This should not happen";
+			case 0x01: str="The ME is Release 99 onwards";  break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2018,8 +2018,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="UMTS FDD not supported"; break;
-			case 0x01: str="UMTS FDD supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="UMTS FDD supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2039,8 +2039,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="UMTS 3.84 Mcps TDD not supported"; break;
-			case 0x01: str="UMTS 3.84 Mcps TDD supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="UMTS 3.84 Mcps TDD supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2060,8 +2060,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="CDMA 2000 not supported"; break;
-			case 0x01: str="CDMA 2000 supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="CDMA 2000 supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2081,8 +2081,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="UMTS 1.28 Mcps TDD not supported"; break;
-			case 0x01: str="UMTS 1.28 Mcps TDD supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="UMTS 1.28 Mcps TDD supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2102,8 +2102,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="GERAN feature package 1 not supported"; break;
-			case 0x01: str="GERAN feature package 1 supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="GERAN feature package 1 supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2144,23 +2144,23 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			switch ( (oct>>(32-bits_needed))|(dtm_gprs_mslot<<4) )
 			{
-				case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x10: str="Multislot class 5 supported"; break;
-				case 0x11: str="Multislot class 6 supported"; break;
-				case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-				case 0x20: str="Multislot class 9 supported"; break;
+				case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x10: str="Multislot class 5 supported";  break;
+				case 0x11: str="Multislot class 6 supported";  break;
+				case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+				case 0x20: str="Multislot class 9 supported";  break;
 				case 0x21: str="Multislot class 10 supported"; break;
-				case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
-				case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+				case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported";  break;
+				case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported";  break;
 				case 0x30: str="Multislot class 11 supported"; break;
 				case 0x31: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
 				case 0x32: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
 				case 0x33: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
-				default: str="This should not happen";
+				default:   str="This should not happen";
 			}
 
 			proto_tree_add_text(tf_tree,
@@ -2181,23 +2181,23 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* analyse bits */
 				switch ( (oct>>(32-bits_needed))|(dtm_egprs_mslot<<4) )
 				{
-					case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x10: str="Multislot class 5 supported"; break;
-					case 0x11: str="Multislot class 6 supported"; break;
-					case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported"; break;
-					case 0x20: str="Multislot class 9 supported"; break;
+					case 0x00: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x01: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x02: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x03: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x10: str="Multislot class 5 supported";  break;
+					case 0x11: str="Multislot class 6 supported";  break;
+					case 0x12: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x13: str="Unused. If received, it shall be interpreted as Multislot class 5 supported";  break;
+					case 0x20: str="Multislot class 9 supported";  break;
 					case 0x21: str="Multislot class 10 supported"; break;
-					case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
-					case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported"; break;
+					case 0x22: str="Unused. If received, it shall be interpreted as Multislot class 9 supported";  break;
+					case 0x23: str="Unused. If received, it shall be interpreted as Multislot class 9 supported";  break;
 					case 0x30: str="Multislot class 11 supported"; break;
 					case 0x31: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
 					case 0x32: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
 					case 0x33: str="Unused. If received, it shall be interpreted as Multislot class 11 supported"; break;
-					default: str="This should not happen";
+					default:   str="This should not happen";
 				}
 
 				proto_tree_add_text(tf_tree,
@@ -2219,8 +2219,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="Modulation based multislot class not supported"; break;
-			case 0x01: str="Modulation based multislot class supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="Modulation based multislot class supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2261,7 +2261,12 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"High Multislot Capability: 0x%02x (%u) - This field effect all other multislot fields. To understand the value please read TS 24.008 5.6.0 Release 5 Chap 10.5.5.12 Page 406",oct>>(32-bits_needed),oct>>(32-bits_needed));
+					    "High Multislot Capability: 0x%02x (%u)"
+					    " - This field effect all other multislot fields."
+					    " To understand the value please read TS 24.008 5.6.0"
+					    " Release 5 Chap 10.5.5.12 Page 406",
+					    oct>>(32-bits_needed),
+					    oct>>(32-bits_needed));
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
@@ -2277,8 +2282,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="GERAN Iu mode not supported"; break;
-			case 0x01: str="GERAN Iu mode supported"; break;
-			default: str="This should not happen";
+			case 0x01: str="GERAN Iu mode supported";     break;
+			default:   str="This should not happen";
 		}
 
 		proto_tree_add_text(tf_tree,
@@ -2323,7 +2328,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				case 0x01: str="GMSK_MULTISLOT_POWER_PROFILE 1"; break;
 				case 0x02: str="GMSK_MULTISLOT_POWER_PROFILE 2"; break;
 				case 0x03: str="GMSK_MULTISLOT_POWER_PROFILE 3"; break;
-				default: str="This should not happen";
+				default:   str="This should not happen";
 			}
 	
 			proto_tree_add_text(tf_tree,
@@ -2346,7 +2351,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				case 0x01: str="8-PSK_MULTISLOT_POWER_PROFILE 1"; break;
 				case 0x02: str="8-PSK_MULTISLOT_POWER_PROFILE 2"; break;
 				case 0x03: str="8-PSK_MULTISLOT_POWER_PROFILE 3"; break;
-				default: str="This should not happen";
+				default:   str="This should not happen";
 			}
 	
 			proto_tree_add_text(tf_tree,
@@ -2388,9 +2393,9 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 static guint16
 de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -2399,56 +2404,56 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 	switch ( oct )
 	{
 		/* additional causes can be found in annex g */
-		case 0x02: str="IMSI unknown in HLR"; break;
-		case 0x03: str="Illegal MS"; break;
-		case 0x04: str="IMSI unknown in VLR"; break;
-		case 0x05: str="IMEI not accepted"; break;
-		case 0x06: str="Illegal ME"; break;
-		case 0x07: str="GPRS services not allowed"; break;
-		case 0x08: str="GPRS services and non-GPRS services not	allowed"; break;
-		case 0x09: str="MS identity cannot be derived by the network"; break;
-		case 0x0a: str="Implicitly detached"; break;
-		case 0x0b: str="PLMN not allowed"; break;
-		case 0x0c: str="Location Area not allowed"; break;
-		case 0x0d: str="Roaming not allowed in this location area"; break;
-		case 0x0e: str="GPRS services not allowed in this PLMN"; break;
-		case 0x0f: str="No Suitable Cells In Location Area"; break;
-		case 0x10: str="MSC temporarily not reachable"; break;
-		case 0x11: str="Network failure"; break;
-		case 0x14: str="MAC failure"; break;
-		case 0x15: str="Synch failure"; break;
-		case 0x16: str="Congestion"; break;
-		case 0x17: str="GSM authentication unacceptable"; break;
-		case 0x20: str="Service option not supported"; break;
-		case 0x21: str="Requested service option not subscribed"; break;
-		case 0x22: str="Service option temporarily out of order"; break;
-		case 0x26: str="Call cannot be identified"; break;
-		case 0x28: str="No PDP context activated"; break;
-		case 0x30: str="retry upon entry into a new cell"; break;
-		case 0x31: str="retry upon entry into a new cell"; break;
-		case 0x32: str="retry upon entry into a new cell"; break;
-		case 0x33: str="retry upon entry into a new cell"; break;
-		case 0x34: str="retry upon entry into a new cell"; break;
-		case 0x35: str="retry upon entry into a new cell"; break;
-		case 0x36: str="retry upon entry into a new cell"; break;
-		case 0x37: str="retry upon entry into a new cell"; break;
-		case 0x38: str="retry upon entry into a new cell"; break;
-		case 0x39: str="retry upon entry into a new cell"; break;
-		case 0x3a: str="retry upon entry into a new cell"; break;
-		case 0x3b: str="retry upon entry into a new cell"; break;
-		case 0x3c: str="retry upon entry into a new cell"; break;
-		case 0x3d: str="retry upon entry into a new cell"; break;
-		case 0x3e: str="retry upon entry into a new cell"; break;
-		case 0x3f: str="retry upon entry into a new cell"; break;
-		case 0x5f: str="Semantically incorrect message"; break;
-		case 0x60: str="Invalid mandatory information"; break;
-		case 0x61: str="Message type non-existent or not implemented"; break;
+		case 0x02: str="IMSI unknown in HLR";                                 break;
+		case 0x03: str="Illegal MS";                                          break;
+		case 0x04: str="IMSI unknown in VLR";                                 break;
+		case 0x05: str="IMEI not accepted";                                   break;
+		case 0x06: str="Illegal ME";                                          break;
+		case 0x07: str="GPRS services not allowed";                           break;
+		case 0x08: str="GPRS services and non-GPRS services not allowed";     break;
+		case 0x09: str="MS identity cannot be derived by the network";        break;
+		case 0x0a: str="Implicitly detached";                                 break;
+		case 0x0b: str="PLMN not allowed";                                    break;
+		case 0x0c: str="Location Area not allowed";                           break;
+		case 0x0d: str="Roaming not allowed in this location area";           break;
+		case 0x0e: str="GPRS services not allowed in this PLMN";              break;
+		case 0x0f: str="No Suitable Cells In Location Area";                  break;
+		case 0x10: str="MSC temporarily not reachable";                       break;
+		case 0x11: str="Network failure";                                     break;
+		case 0x14: str="MAC failure";                                         break;
+		case 0x15: str="Synch failure";                                       break;
+		case 0x16: str="Congestion";                                          break;
+		case 0x17: str="GSM authentication unacceptable";                     break;
+		case 0x20: str="Service option not supported";                        break;
+		case 0x21: str="Requested service option not subscribed";             break;
+		case 0x22: str="Service option temporarily out of order";             break;
+		case 0x26: str="Call cannot be identified";                           break;
+		case 0x28: str="No PDP context activated";                            break;
+		case 0x30: str="retry upon entry into a new cell";                    break;
+		case 0x31: str="retry upon entry into a new cell";                    break;
+		case 0x32: str="retry upon entry into a new cell";                    break;
+		case 0x33: str="retry upon entry into a new cell";                    break;
+		case 0x34: str="retry upon entry into a new cell";                    break;
+		case 0x35: str="retry upon entry into a new cell";                    break;
+		case 0x36: str="retry upon entry into a new cell";                    break;
+		case 0x37: str="retry upon entry into a new cell";                    break;
+		case 0x38: str="retry upon entry into a new cell";                    break;
+		case 0x39: str="retry upon entry into a new cell";                    break;
+		case 0x3a: str="retry upon entry into a new cell";                    break;
+		case 0x3b: str="retry upon entry into a new cell";                    break;
+		case 0x3c: str="retry upon entry into a new cell";                    break;
+		case 0x3d: str="retry upon entry into a new cell";                    break;
+		case 0x3e: str="retry upon entry into a new cell";                    break;
+		case 0x3f: str="retry upon entry into a new cell";                    break;
+		case 0x5f: str="Semantically incorrect message";                      break;
+		case 0x60: str="Invalid mandatory information";                       break;
+		case 0x61: str="Message type non-existent or not implemented";        break;
 		case 0x62: str="Message type not compatible with the protocol state"; break;
 		case 0x63: str="Information element non-existent or not implemented"; break;
-		case 0x64: str="Conditional IE error"; break;
-		case 0x65: str="Message not compatible with the protocol state"; break;
-		case 0x6f: str="Protocol error, unspecified"; break;
-		default: str="Protocol error, unspecified";
+		case 0x64: str="Conditional IE error";                                break;
+		case 0x65: str="Message not compatible with the protocol state";      break;
+		case 0x6f: str="Protocol error, unspecified";                         break;
+		default:   str="Protocol error, unspecified";
 	}
 
 	proto_tree_add_text(tree,
@@ -2470,13 +2475,13 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 guint16
 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree	*subtree;
-	proto_item	*item;
-	guint32	mcc;
-	guint32	mnc;
-	guint32	lac;
-	guint32	rac;
-	guint32	curr_offset;
+	proto_tree   *subtree;
+	proto_item   *item;
+	guint32	      mcc;
+	guint32	      mnc;
+	guint32	      lac;
+	guint32	      rac;
+	guint32	      curr_offset;
 
 	curr_offset = offset;
 
@@ -2514,9 +2519,9 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 static guint16
 de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar	*str;
+	guint8        oct;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -2527,8 +2532,8 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	switch(oct&7)
 	{
-		case 0: str="RA updated"; break;
-		case 1: str="combined RA/LA updated";	break;
+		case 0:  str="RA updated";              break;
+		case 1:  str="combined RA/LA updated";	break;
 		default: str="reserved";
 	}
 
@@ -2551,13 +2556,13 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 static guint16
 de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint8	oct_ciph;
-	guint32	curr_offset;
-	const gchar	*str_follow;
-	const gchar	*str_update;
-	proto_item  *tf = NULL;
-	proto_tree	  *tf_tree = NULL;
+	guint8        oct;
+	guint8        oct_ciph;
+	guint32       curr_offset;
+	const gchar  *str_follow;
+	const gchar  *str_update;
+	proto_item   *tf = NULL;
+	proto_tree   *tf_tree = NULL;
 
 	curr_offset = offset;
 
@@ -2568,15 +2573,15 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	switch(oct&7)
 	{
-		case 0: str_update="RA updating"; break;
-		case 1: str_update="combined RA/LA updating"; break;
-		case 2: str_update="combined RA/LA updating with IMSI attach"; break;
-		case 3: str_update="Periodic updating"; break;
+		case 0:  str_update="RA updating";                              break;
+		case 1:  str_update="combined RA/LA updating";                  break;
+		case 2:  str_update="combined RA/LA updating with IMSI attach"; break;
+		case 3:  str_update="Periodic updating";                        break;
 		default: str_update="reserved";
 	}
 	switch(oct&8)
 	{
-		case 8: str_follow="Follow-on request pending"; break;
+		case 8:  str_follow="Follow-on request pending";    break;
 		default: str_follow="No follow-on request pending";
 	}
 
@@ -2672,10 +2677,10 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 static guint16
 de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint8	oct_ciph;
-	guint32	curr_offset;
-	const gchar *str;
+	guint8        oct;
+	guint8        oct_ciph;
+	guint32       curr_offset;
+	const gchar  *str;
 
 	curr_offset = offset;
 
@@ -4117,9 +4122,9 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 {
 	guint32	curr_offset;
 	guint	curr_len;
-	gchar	   oct;
+	gchar	oct;
 
-	gchar	   ti_flag[2][80]={ "The message is sent from the side that originates the TI" ,
+	gchar   ti_flag[2][80]={ "The message is sent from the side that originates the TI" ,
 				"The message is sent to the side that originates the TI" };
 
 	curr_len = len;
@@ -4269,20 +4274,20 @@ static const true_false_string gsm_a_tft_e_bit  = {
 static guint16
 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint	curr_len;
-	proto_item	*tf = NULL;
-	proto_tree	*tf_tree = NULL;
-	proto_tree	*comp_tree = NULL;
-	guchar	op_code;
-	guchar	pkt_fil_count;
-	guchar	e_bit;
-	const gchar	*str;
-	guchar	count;
-	guchar	oct;
-	gint	pf_length;
-	gint	pf_identifier;
-	gint	pack_component_type;
+	guint32	      curr_offset;
+	guint	      curr_len;
+	proto_item   *tf = NULL;
+	proto_tree   *tf_tree = NULL;
+	proto_tree   *comp_tree = NULL;
+	guchar        op_code;
+	guchar        pkt_fil_count;
+	guchar        e_bit;
+	const gchar  *str;
+	guchar        count;
+	guchar        oct;
+	gint          pf_length;
+	gint          pf_identifier;
+	gint          pack_component_type;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -4491,7 +4496,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_gmm_tmsi_stat,	/* TMSI Status */
 	de_gmm_detach_type,	/* Detach Type */
 	de_gmm_drx_param,	/* DRX Parameter */
-	de_gmm_ftostby,	/* Force to Standby */
+	de_gmm_ftostby,		/* Force to Standby */
 	de_gmm_ftostby_h,	/* Force to Standby - Info is in the high nibble */
 	de_gmm_ptmsi_sig,	/* P-TMSI Signature */
 	de_gmm_ptmsi_sig2,	/* P-TMSI Signature 2 */
@@ -4499,37 +4504,37 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_gmm_imeisv_req,	/* IMEISV Request */
 	de_gmm_rec_npdu_lst,	/* Receive N-PDU Numbers List */
 	de_gmm_ms_net_cap,	/* MS Network Capability */
-	de_gmm_ms_radio_acc_cap,	/* MS Radio Access Capability */
-	de_gmm_cause,				/* GMM Cause */
-	de_gmm_rai,					/* Routing Area Identification */
+	de_gmm_ms_radio_acc_cap,/* MS Radio Access Capability */
+	de_gmm_cause,		/* GMM Cause */
+	de_gmm_rai,		/* Routing Area Identification */
 	de_gmm_update_res,	/* Update Result */
 	de_gmm_update_type,	/* Update Type */
 	de_gmm_ac_ref_nr,	/* A&C Reference Number */
-	de_gmm_ac_ref_nr_h, /* A&C Reference Numer - Info is in the high nibble */
+	de_gmm_ac_ref_nr_h, 	/* A&C Reference Numer - Info is in the high nibble */
 	de_gmm_service_type,	/* Service Type */
 	de_gmm_cell_notfi,	/* Cell Notification */
 	de_gmm_ps_lcs_cap,	/* PS LCS Capability */
 	de_gmm_net_feat_supp,	/* Network Feature Support */
 	de_gmm_rat_info_container, /* Inter RAT information container */
 	/* Session Management Information Elements 10.5.6 */
-	de_sm_apn,	/* Access Point Name */
-	de_sm_nsapi,	/* Network Service Access Point Identifier */
-	de_sm_pco,	/* Protocol Configuration Options */
-	de_sm_pdp_addr,	/* Packet Data Protocol Address */
-	de_sm_qos,	/* Quality Of Service */
-	de_sm_cause,	/* SM Cause */
+	de_sm_apn,		/* Access Point Name */
+	de_sm_nsapi,		/* Network Service Access Point Identifier */
+	de_sm_pco,		/* Protocol Configuration Options */
+	de_sm_pdp_addr,		/* Packet Data Protocol Address */
+	de_sm_qos,		/* Quality Of Service */
+	de_sm_cause,		/* SM Cause */
 	de_sm_linked_ti,	/* Linked TI */
-	de_sm_sapi,	/* LLC Service Access Point Identifier */
+	de_sm_sapi,		/* LLC Service Access Point Identifier */
 	de_sm_tear_down,	/* Tear Down Indicator */
-	de_sm_pflow_id,	/* Packet Flow Identifier */
+	de_sm_pflow_id,		/* Packet Flow Identifier */
 	de_sm_tflow_temp,	/* Traffic Flow Template */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,	/* PDP Context Status */
 	de_gc_radio_prio,	/* Radio Priority */
-	de_gc_timer,	/* GPRS Timer */
-	de_gc_timer2,	/* GPRS Timer 2 */
+	de_gc_timer,		/* GPRS Timer */
+	de_gc_timer2,		/* GPRS Timer 2 */
 	de_gc_radio_prio2,	/* Radio Priority 2 */
-	de_gc_mbms_context_stat, /* 10.5.7.6 MBMS context status */
+	de_gc_mbms_context_stat,/* 10.5.7.6 MBMS context status */
 	NULL,	/* NONE */
 };
 
@@ -4789,8 +4794,8 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 {
 	guint32	curr_offset;
 	guint32	consumed;
-	guint	curr_len;
-	guint8      oct;
+	guint   curr_len;
+	guint8  oct;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4926,10 +4931,12 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
 /*  If the half octect that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
-/*    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2 );
+#if 0
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2 );
 	curr_offset--;
 	curr_len++;
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H );*/
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H );
+#endif
 
 	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset);
 	elem_v(tvb, tree, GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, curr_offset);
@@ -5786,135 +5793,148 @@ proto_register_gsm_a_gm(void)
 	{
 	{ &hf_gsm_a_dtap_msg_gmm_type,
 		{ "DTAP GPRS Mobility Management Message Type",	"gsm_a.dtap_msg_gmm_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_gmm_strings), 0x0,
-		"", HFILL }
+		  FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_gmm_strings), 0x0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_sm_type,
-		{ "DTAP GPRS Session Management Message Type",	"gsm_a.dtap_msg_sm_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_sm_strings), 0x0,
-		"", HFILL }
+	  	{ "DTAP GPRS Session Management Message Type",	"gsm_a.dtap_msg_sm_type",
+		  FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_sm_strings), 0x0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_elem_id,
 		{ "Element ID",	"gsm_a_gm.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_delay_cls,
-		{ "Delay class", "gsm_a.qos.delay_cls",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x38,
-		"Quality of Service Delay Class", HFILL }
+		{ "Quality of Service Delay class", "gsm_a.qos.delay_cls",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x38,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_qos_reliability_cls,
 		{ "Reliability class", "gsm_a.qos.delay_cls",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07,
-		"Reliability class", HFILL }
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_traffic_cls,
-	  { "Traffic class", "gsm_a.qos.traffic_cls",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
-		"Traffic class", HFILL }
+	 	{ "Traffic class", "gsm_a.qos.traffic_cls",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_del_order,
-	  { "Delivery order", "gsm_a.qos.del_order",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
-		"Delivery order", HFILL }
+	  	{ "Delivery order", "gsm_a.qos.del_order",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_del_of_err_sdu,
-	  { "Delivery of erroneous SDUs", "gsm_a.qos.del_of_err_sdu",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
-		"Delivery of erroneous SDUs", HFILL }
+	  	{ "Delivery of erroneous SDUs", "gsm_a.qos.del_of_err_sdu",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_ber,
-	  { "Residual Bit Error Rate (BER)", "gsm_a.qos.ber",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
-		"Residual Bit Error Rate (BER)", HFILL }
+	  	{ "Residual Bit Error Rate (BER)", "gsm_a.qos.ber",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_sdu_err_rat,
-	  { "SDU error ratio", "gsm_a.qos.sdu_err_rat",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
-		"SDU error ratio", HFILL }
+	  	{ "SDU error ratio", "gsm_a.qos.sdu_err_rat",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_qos_traff_hdl_pri,
-	  { "Traffic handling priority", "gsm_a.qos.traff_hdl_pri",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
-		"Traffic handling priority", HFILL }
+	  	{ "Traffic handling priority", "gsm_a.qos.traff_hdl_pri",
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_split_on_ccch,
 		{ "SPLIT on CCCH","gsm_a.gmm.split_on_ccch",
-		FT_BOOLEAN,8,  TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
-		"SPLIT on CCCH", HFILL }
+		  FT_BOOLEAN,8,  TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_non_drx_timer,
 		{ "Non-DRX timer","gsm_a.gmm.non_drx_timer",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
-		"Non-DRX timer", HFILL }
+		  FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
 		{ "CN Specific DRX cycle length coefficient","gsm_a.gmm.cn_spec_drs_cycle_len_coef",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
-		"CN Specific DRX cycle length coefficient", HFILL }
+		  FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_op_code,
 		{ "TFT operation code", "gsm_a.tft.op_code",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_tft_op_code_vals), 0xe0,
-		"TFT operation code", HFILL }
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_tft_op_code_vals), 0xe0,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_e_bit,
 		{ "E bit","gsm_a.tft.e_bit",
-		FT_BOOLEAN,8,  TFS(&gsm_a_tft_e_bit), 0x10,
-		"E bit", HFILL }
+		  FT_BOOLEAN,8,  TFS(&gsm_a_tft_e_bit), 0x10,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_pkt_flt,
 		{ "Number of packet filters", "gsm_a.tft.pkt_flt",
-		FT_UINT8, BASE_DEC, NULL, 0x0f,
-		"Number of packet filters", HFILL }
+		  FT_UINT8, BASE_DEC, NULL, 0x0f,
+		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_ip4_address,
-		{ "IPv4 adress", "gsm_a.tft.ip4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IPv4 address", HFILL }
+		{ "IPv4 adress", "gsm_a.tft.ip4_address",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_ip4_mask,
-		{ "IPv4 address mask", "gsm_a.tft.ip4_mask", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IPv4 address mask", HFILL }},
+		{ "IPv4 address mask", "gsm_a.tft.ip4_mask",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_tft_ip6_address,
-		{ "IPv6 adress", "gsm_a.tft.ip6_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-		"IPv6 address", HFILL }
+		{ "IPv6 adress", "gsm_a.tft.ip6_address",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_ip6_mask,
-		{ "IPv6 adress mask", "gsm_a.tft.ip6_mask", FT_IPv6, BASE_NONE, NULL, 0x0,
-		"IPv6 address mask", HFILL }
+		{ "IPv6 adress mask", "gsm_a.tft.ip6_mask",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_protocol_header,
-		{ "Protocol/header", "gsm_a.tft.protocol_header", FT_UINT8, BASE_HEX, NULL, 0x0,
-		"Protocol/header", HFILL }
+		{ "Protocol/header", "gsm_a.tft.protocol_header",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_port,
-		{ "Port", "gsm_a.tft.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Port", HFILL }
+		{ "Port", "gsm_a.tft.port", 
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_port_low,
-		{ "Low limit port", "gsm_a.tft.port_low", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Low limit port", HFILL }
+		{ "Low limit port", "gsm_a.tft.port_low",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_port_high,
-		{ "High limit port", "gsm_a.tft.port_high", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"High limit port", HFILL }
+		{ "High limit port", "gsm_a.tft.port_high",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_security,
-		{ "IPSec security parameter index", "gsm_a.tft.security", FT_UINT32, BASE_HEX, NULL, 0x0,
-		"IPSec security parameter index", HFILL }
+		{ "IPSec security parameter index", "gsm_a.tft.security",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_traffic_mask,
-		{ "Mask field", "gsm_a.tft.traffic_mask", FT_UINT8, BASE_HEX, NULL, 0x0,
-		"Mask field", HFILL }
+		{ "Mask field", "gsm_a.tft.traffic_mask",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_ptmsi_sig,
-		{ "P-TMSI Signature", "gsm_a.ptmsi_sig", FT_UINT24, BASE_HEX, NULL, 0x0,
-		"P-TMSI Signature", HFILL }
+		{ "P-TMSI Signature", "gsm_a.ptmsi_sig",
+		  FT_UINT24, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_ptmsi_sig2,
-		{ "P-TMSI Signature 2", "gsm_a.ptmsi_sig2", FT_UINT24, BASE_HEX, NULL, 0x0,
-		"P-TMSI Signature 2", HFILL }
+		{ "P-TMSI Signature 2", "gsm_a.ptmsi_sig2",
+		  FT_UINT24, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	};
 
@@ -5924,16 +5944,16 @@ proto_register_gsm_a_gm(void)
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 			NUM_GSM_GM_ELEM];
 
-	ett[0] = &ett_tc_component;
-	ett[1] = &ett_tc_invoke_id;
-	ett[2] = &ett_tc_linked_id;
-	ett[3] = &ett_tc_opr_code;
-	ett[4] = &ett_tc_err_code;
-	ett[5] = &ett_tc_prob_code;
-	ett[6] = &ett_tc_sequence;
-	ett[7] = &ett_gmm_drx;
-	ett[8] = &ett_gmm_detach_type;
-	ett[9] = &ett_gmm_attach_type;
+	ett[0]  = &ett_tc_component;
+	ett[1]  = &ett_tc_invoke_id;
+	ett[2]  = &ett_tc_linked_id;
+	ett[3]  = &ett_tc_opr_code;
+	ett[4]  = &ett_tc_err_code;
+	ett[5]  = &ett_tc_prob_code;
+	ett[6]  = &ett_tc_sequence;
+	ett[7]  = &ett_gmm_drx;
+	ett[8]  = &ett_gmm_detach_type;
+	ett[9]  = &ett_gmm_attach_type;
 	ett[10] = &ett_gmm_context_stat;
 	ett[11] = &ett_gmm_update_type;
 	ett[12] = &ett_gmm_radio_cap;
