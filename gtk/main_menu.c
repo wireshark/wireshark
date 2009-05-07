@@ -2969,7 +2969,6 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
     case PREF_BOOL:
         menu_item = gtk_check_menu_item_new_with_label(pref->title);
         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), *pref->varp.boolp);
-        gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
         g_object_set_data (G_OBJECT(menu_item), "module", module);
         g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref->varp.boolp);
         break;

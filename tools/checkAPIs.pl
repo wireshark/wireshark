@@ -238,13 +238,13 @@ my %deprecatedGtkFunctions = (
                 'gtk_cell_renderer_editing_canceled',          'E',
                 'GTK_CELL_TEXT',                               'W',
                 'GTK_CELL_WIDGET',                             'E',
-                'GTK_CHECK_CAST',                              'E', # >>> G_TYPE_CHECK_INSTANCE_CAST [==]
-                'GTK_CHECK_CLASS_CAST',                        'E', # >>> G_TYPE_CHECK_CLASS_CAST [==]
-                'GTK_CHECK_CLASS_TYPE',                        'E', # >>> G_TYPE_CHECK_CLASS_TYPE [==]
-                'GTK_CHECK_GET_CLASS',                         'E', # >>> G_TYPE_INSTANCE_GET_CLASS [==]
-                'gtk_check_menu_item_set_show_toggle',         'W', # ?? 
+                'GTK_CHECK_CAST',                              'E', # G_TYPE_CHECK_INSTANCE_CAST [==]
+                'GTK_CHECK_CLASS_CAST',                        'E', # G_TYPE_CHECK_CLASS_CAST [==]
+                'GTK_CHECK_CLASS_TYPE',                        'E', # G_TYPE_CHECK_CLASS_TYPE [==]
+                'GTK_CHECK_GET_CLASS',                         'E', # G_TYPE_INSTANCE_GET_CLASS [==]
+                'gtk_check_menu_item_set_show_toggle',         'E', # Does nothing; remove; [show_toggle is always TRUE]
                 'gtk_check_menu_item_set_state',               'E',
-                'GTK_CHECK_TYPE',                              'E', # >>> G_TYPE_CHECK_INSTANCE_TYPE [==]
+                'GTK_CHECK_TYPE',                              'E', # G_TYPE_CHECK_INSTANCE_TYPE [==]
                 'GTK_CLASS_NAME',                              'E',
                 'GTK_CLASS_TYPE',                              'E',
                 'GTK_CLIST_ADD_MODE',                          'E', # GtkTreeView (& related) ...
