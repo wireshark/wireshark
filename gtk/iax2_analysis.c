@@ -1562,7 +1562,7 @@ static void create_filter_area(user_data_t* user_data, GtkWidget *box)
 		create_filter_box(&user_data->dlg.dialog_graph.graph[i], vbox, i+1);
 	}
 
-	label=gtk_label_new("Label:    x = Wrong Seq. number	  m = Mark set");
+	label=gtk_label_new("Label:    x = Wrong Seq. number   m = Mark set");
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
@@ -2131,7 +2131,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		(GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
-	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward	");
+	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
@@ -2720,7 +2720,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 
-	sw_rb = gtk_radio_button_new_with_label (format_group, "8 kHz, 16 bit	 ");
+	sw_rb = gtk_radio_button_new_with_label (format_group, "8 kHz, 16 bit");
 	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sw_rb));
 	gtk_widget_show (sw_rb);
 	gtk_table_attach (GTK_TABLE (table1), sw_rb, 2, 3, 0, 1,
@@ -2742,7 +2742,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 			  (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
-	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward	");
+	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
