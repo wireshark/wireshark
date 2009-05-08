@@ -5742,10 +5742,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* XXX */
 	}
-	/* In case of Mobility Management and Call Control and Call related SS messages
-	 * bit 7 and 8 is sequence number
+	/* 3GPP TS 24.008 version 8.5.0 Release 8
+	 * Bits 5 to 8 of the first octet of every message belonging to the protocols "Call Control; 
+	 * call related SS messages" and "Session Management"contain the transaction identifier (TI). 
+	 * The transaction identifier and its use are defined in 3GPP TS 24.007 [20].
+	 *  5 = Mobility Management messages
+	 *  3 = Call Control; call related SS messages
+	 * 10 = GPRS session management messages
 	 */
-	if((pd==5)||(pd==3)){
+	if((pd==5)||(pd==3)||(pd==10)){
 		proto_tree_add_item(dtap_tree, hf_gsm_a_seq_no, tvb, offset, 1, FALSE);
 	}
 	/*
@@ -5813,7 +5818,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_msg_ss_type,
 		{ "DTAP Non call Supplementary Service Message Type", "gsm_a.dtap_msg_ss_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_ss_strings), 0x0,
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_ss_strings), 0x3f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_tp_type,
