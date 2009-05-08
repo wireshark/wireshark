@@ -415,7 +415,7 @@ proto_register_synergy(void)
 			{ "Sequence Number","synergy.clipboard.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }
 		},
 		{ &hf_synergy_csec,
-			{ "Screen Saver Change","synergy.screensaver",FT_BOOLEAN, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Screen Saver Change","synergy.screensaver",FT_BOOLEAN, BASE_NONE, NULL, 0x0,"", HFILL }
 		},
 		{ &hf_synergy_crop,
 			{ "Reset Options","synergy.resetoptions",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }

@@ -2684,7 +2684,7 @@ proto_register_vnc(void)
 		/* Client Framebuffer Update Request */
 		{ &hf_vnc_update_req_incremental,
 		  { "Incremental update", "vnc.update_req_incremental",
-		    FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Specifies if the client wants an incremental update instead of a full one", HFILL }
 		},
 		{ &hf_vnc_update_req_x_pos,

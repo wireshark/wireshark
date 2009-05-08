@@ -549,7 +549,7 @@ void proto_register_h248_3gpp(void) {
 			"The event is used to notify the MGC that a TFO link has been established or broken", HFILL }},
 		{ &hf_h248_pkg_3GTFO_evt_status_tfostatus,
 		{ "TFO Status", "h248.package_3GTFO.status.tfostatus",
-			FT_BOOLEAN, BASE_DEC, NULL, 0,
+			FT_BOOLEAN, BASE_NONE, NULL, 0,
 			"reports whether TFO has been established or broken", HFILL }},
 	};
 	

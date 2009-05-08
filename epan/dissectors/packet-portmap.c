@@ -608,7 +608,7 @@ proto_register_portmap(void)
 			"Version", "portmap.version", FT_UINT32, BASE_DEC,
 			NULL, 0, "Version", HFILL }},
 		{ &hf_portmap_answer, {
-			"Answer", "portmap.answer", FT_BOOLEAN, BASE_DEC,
+			"Answer", "portmap.answer", FT_BOOLEAN, BASE_NONE,
 			NULL, 0, "Answer", HFILL }},
 		{ &hf_portmap_args, {
 			"Arguments", "portmap.args", FT_BYTES, BASE_HEX,

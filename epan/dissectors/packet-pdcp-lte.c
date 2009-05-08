@@ -1748,7 +1748,7 @@ void proto_register_pdcp(void)
 
         { &hf_pdcp_lte_rohc_compression,
             { "ROHC Compression",
-              "pdcp.rohc", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+              "pdcp.rohc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "ROHC Mode", HFILL
             }
         },
@@ -1878,7 +1878,7 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_bitmap_not_received,
             { "Not Received",
-              "pdcp.bitmap.error", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+              "pdcp.bitmap.error", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "Status report PDU error", HFILL
             }
         },

@@ -416,7 +416,7 @@ proto_register_brdwlk (void)
           {"Packet Count", "brdwlk.pktcnt", FT_UINT16, BASE_DEC, NULL, 0x0,
            "", HFILL}},
         { &hf_brdwlk_drop,
-          {"Packet Dropped", "brdwlk.drop", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+          {"Packet Dropped", "brdwlk.drop", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            "", HFILL}},
         { &hf_brdwlk_vsan,
           {"VSAN", "brdwlk.vsan", FT_UINT16, BASE_DEC, NULL, 0xFFF, "",

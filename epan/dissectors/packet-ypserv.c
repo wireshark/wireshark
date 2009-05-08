@@ -625,7 +625,7 @@ proto_register_ypserv(void)
 			"Domain", "ypserv.domain", FT_STRING, BASE_DEC,
 			NULL, 0, "Domain", HFILL }},
 		{ &hf_ypserv_servesdomain, {
-			"Serves Domain", "ypserv.servesdomain", FT_BOOLEAN, BASE_DEC,
+			"Serves Domain", "ypserv.servesdomain", FT_BOOLEAN, BASE_NONE,
 			&yesno, 0, "Serves Domain", HFILL }},
 		{ &hf_ypserv_map, {
 			"Map Name", "ypserv.map", FT_STRING, BASE_DEC,

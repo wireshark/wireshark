@@ -459,13 +459,13 @@ proto_register_tzsp(void)
 			"Port", "tzsp.wlan.status.mac_port", FT_UINT8, BASE_DEC,
 			NULL, 0, "MAC port", HFILL }},
 		{ &hf_status_pcf, {
-			"PCF", "tzsp.wlan.status.pcf", FT_BOOLEAN, BASE_HEX,
+			"PCF", "tzsp.wlan.status.pcf", FT_BOOLEAN, BASE_NONE,
 			TFS (&pcf_flag), 0, "Point Coordination Function", HFILL }},
 		{ &hf_status_undecrypted, {
-			"Undecrypted", "tzsp.wlan.status.undecrypted", FT_BOOLEAN, BASE_HEX,
+			"Undecrypted", "tzsp.wlan.status.undecrypted", FT_BOOLEAN, BASE_NONE,
 			TFS (&undecr_flag), 0, "Undecrypted", HFILL }},
 		{ &hf_status_fcs_error, {
-			"FCS", "tzsp.wlan.status.fcs_err", FT_BOOLEAN, BASE_HEX,
+			"FCS", "tzsp.wlan.status.fcs_err", FT_BOOLEAN, BASE_NONE,
 			TFS (&fcs_err_flag), 0, "Frame check sequence", HFILL }},
 		{ &hf_time, {
 			"Time", "tzsp.wlan.time", FT_UINT32, BASE_HEX,

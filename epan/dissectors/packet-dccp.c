@@ -1033,7 +1033,7 @@ void proto_register_dccp(void)
 		  "", HFILL }},
 
 		{ &hf_dccp_checksum_bad,
-		{ "Bad Checksum",	"dccp.checksum_bad", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		{ "Bad Checksum",	"dccp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		  "", HFILL }},
 
 		{ &hf_dccp_checksum,
@@ -1053,7 +1053,7 @@ void proto_register_dccp(void)
 		  "", HFILL }},
 
 		{ &hf_dccp_x,
-		{ "Extended Sequence Numbers", "dccp.x", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		{ "Extended Sequence Numbers", "dccp.x", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		  "", HFILL }},
 
 		{ &hf_dccp_seq,
@@ -1117,7 +1117,7 @@ void proto_register_dccp(void)
 		  "", HFILL }},
 
 		{ &hf_dccp_malformed,
-		{ "Malformed", "dccp.malformed", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		{ "Malformed", "dccp.malformed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		  "", HFILL }},
 
 		{ &hf_dccp_options,

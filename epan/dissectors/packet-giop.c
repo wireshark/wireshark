@@ -4260,7 +4260,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_boolean,
       { "TypeCode boolean data", "giop.tcboolean",
-	FT_BOOLEAN, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_BOOLEAN, BASE_NONE,  NULL, 0x0, "", HFILL }
     },
 
     { &hf_giop_type_char,

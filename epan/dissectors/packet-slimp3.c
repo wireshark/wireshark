@@ -692,47 +692,47 @@ proto_register_slimp3(void)
 
     { &hf_slimp3_control,
       { "Control Packet",   "slimp3.control",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 control", HFILL }},
 
     { &hf_slimp3_display,
       { "Display",	              "slimp3.display",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 display", HFILL }},
 
     { &hf_slimp3_hello,
       { "Hello",	              "slimp3.hello",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 hello", HFILL }},
 
     { &hf_slimp3_i2c,
       { "I2C",	              "slimp3.i2c",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 I2C", HFILL }},
 
     { &hf_slimp3_data,
       { "Data",              "slimp3.data",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 Data", HFILL }},
 
     { &hf_slimp3_data_request,
       { "Data Request",      "slimp3.data_req",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 Data Request", HFILL }},
 
     { &hf_slimp3_discover_request,
       { "Discovery Request", "slimp3.discovery_req",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 Discovery Request", HFILL }},
 
     { &hf_slimp3_discover_response,
       { "Discovery Response", "slimp3.discovery_response",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 Discovery Response", HFILL }},
 
     { &hf_slimp3_data_ack,
       { "Data Ack",      "slimp3.data_ack",
-	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"SLIMP3 Data Ack", HFILL }},
 
   };

@@ -3674,7 +3674,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_utcreasonable,
             { "utcReasonable",           "ptp.sdr.utcreasonable",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         /*offsets for follow_up (=fu) messages*/
@@ -3843,27 +3843,27 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_default_data_set_clockfollowupcapable,
             { "clockFollowupCapable",           "ptp.mm.default.data.set.clockfollowupcapable",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_default_data_set_preferred,
             { "preferred",           "ptp.mm.default.data.set.preferred",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_default_data_set_initializable,
             { "initializable",           "ptp.mm.default.data.set.initializable",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_default_data_set_externaltiming,
             { "externalTiming",           "ptp.mm.default.data.set.externaltiming",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_default_data_set_isboundaryclock,
             { "isBoundaryClock",           "ptp.mm.default.data.set.isboundaryclock",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_default_data_set_syncinterval,
@@ -3904,7 +3904,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_default_data_set_preferred,
             { "preferred",           "ptp.mm.update.default.data.set.preferred",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_syncinterval,
@@ -3976,12 +3976,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_parentfollowupcapable,
             { "parentFollowupCapable",           "ptp.mm.parent.data.set.parentfollowupcapable",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentexternaltiming,
             { "parentExternalTiming",           "ptp.mm.parent.data.set.parentexternaltiming",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentvariance,
@@ -3991,7 +3991,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_parentstats,
             { "parentStats",           "ptp.mm.parent.data.set.parentstats",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_observedvariance,
@@ -4006,7 +4006,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_utcreasonable,
             { "utcReasonable",           "ptp.mm.parent.data.set.utcreasonable",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastercommunicationtechnology,
@@ -4041,12 +4041,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_grandmasterpreferred,
             { "grandmasterPreferred",           "ptp.mm.parent.data.set.grandmasterpreferred",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterisboundaryclock,
             { "grandmasterIsBoundaryClock",           "ptp.mm.parent.data.set.grandmasterisboundaryclock",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastersequencenumber,
@@ -4092,7 +4092,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_port_data_set_burstenabled,
             { "burstEnabled",           "ptp.mm.port.data.set.burstenabled",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_port_data_set_subdomainaddressoctets,
@@ -4148,12 +4148,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_global_time_data_set_leap59,
             { "leap59",           "ptp.mm.global.time.data.set.leap59",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_leap61,
             { "leap61",           "ptp.mm.global.time.data.set.leap61",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_epochnumber,
@@ -4169,12 +4169,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_global_time_properties_leap59,
             { "leap59",           "ptp.mm.update.global.time.properties.leap59",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_leap61,
             { "leap61",           "ptp.mm.update.global.time.properties.leap61",
-            FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
             "", HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_epochnumber,

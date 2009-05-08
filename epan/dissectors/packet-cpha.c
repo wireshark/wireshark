@@ -518,7 +518,7 @@ proto_register_cpha(void)
     { &hf_ethernet_add,
     { "Ethernet Address", "cpha.ethernet_addr", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     { &hf_is_if_trusted,
-    { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_ip,
     { "IP Address", "cpha.ip", FT_IPv4, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_slot_num,

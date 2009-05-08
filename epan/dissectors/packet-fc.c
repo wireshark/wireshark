@@ -1255,7 +1255,7 @@ proto_register_fc(void)
            HFILL}},
 
         { &hf_fc_reassembled,
-          {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_HEX, NULL,
+          {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_NONE, NULL,
            0x0, "", HFILL}},
         { &hf_fc_nh_da,
           {"Network DA", "fc.nethdr.da", FT_STRING, BASE_HEX, NULL,

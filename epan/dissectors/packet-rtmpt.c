@@ -477,7 +477,7 @@ proto_register_rtmpt(void)
       { "AMF number", "rtmpt.amf.number", FT_DOUBLE, BASE_DEC, NULL, 0x0, "RTMPT AMF number", HFILL }},
 
    { &hf_rtmpt_amf_boolean,
-      { "AMF boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_DEC, NULL, 0x0, "RTMPT AMF boolean", HFILL }},
+      { "AMF boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
    { &hf_rtmpt_amf_string,
       { "AMF string", "rtmpt.amf.string", FT_STRINGZ, BASE_DEC, NULL, 0x0, "RTMPT AMF string", HFILL }}

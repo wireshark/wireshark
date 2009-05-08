@@ -1203,7 +1203,7 @@ void proto_register_h248_annex_c(void) {
 			"Served User Transport", HFILL }},
 		{ &hf_h248_pkg_annexc_tci,
 		{ "TCI", "h248.pkg.annexc.tci",
-			FT_BOOLEAN, BASE_DEC, NULL, 0,
+			FT_BOOLEAN, BASE_NONE, NULL, 0,
 			"Test Connection Indicator", HFILL }},
 		{ &hf_h248_pkg_annexc_timer_cu,
 		{ "Timer CU", "h248.pkg.annexc.timer_cu",
