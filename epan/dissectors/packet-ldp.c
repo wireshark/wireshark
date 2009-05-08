@@ -2781,8 +2781,7 @@ proto_register_ldp(void)
       { "Session KeepAlive Time", "ldp.msg.tlv.sess.ka", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters KeepAlive Time", HFILL }},
 
     { &hf_ldp_tlv_sess_advbit,
-      { "Session Label Advertisement Discipline", "ldp.msg.tlv.sess.advbit",
- FT_BOOLEAN, 8, TFS(&tlv_sess_advbit_vals), 0x80,
+      { "Session Label Advertisement Discipline", "ldp.msg.tlv.sess.advbit", FT_BOOLEAN, 8, TFS(&tlv_sess_advbit_vals), 0x80,
 	"Common Session Parameters Label Advertisement Discipline", HFILL }},
 
     { &hf_ldp_tlv_sess_ldetbit,
@@ -2933,7 +2932,7 @@ proto_register_ldp(void)
       { "Returned PDU Label Space ID", "ldp.msg.tlv.returned.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_ubit,
-      { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_BOOLEAN, BASE_HEX, TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
+      { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_BOOLEAN, 8, TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_type,
       { "Returned Message Type", "ldp.msg.tlv.returned.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x7FFF, "LDP message type", HFILL }},

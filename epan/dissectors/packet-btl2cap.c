@@ -1107,7 +1107,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_continuation_flag,
 			{ "Continuation Flag",           "btl2cap.continuation",
-				FT_BOOLEAN, BASE_DEC, NULL, 0x0001,          
+				FT_BOOLEAN, 16, NULL, 0x0001,          
 				"Continuation Flag", HFILL }
 		},
 		{ &hf_btl2cap_configuration_result,
