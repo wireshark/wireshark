@@ -149,8 +149,8 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* 6.1 AF packet structure
    *
    * AF Header
-   * SYNC		LEN		SEQ		AR		PT
-   * 2 bytes	4 bytes 2 bytes	1 byte	1 byte
+   * SYNC               LEN             SEQ             AR              PT
+   * 2 bytes    4 bytes 2 bytes 1 byte  1 byte
    *
    * SYNC: two-byte ASCII representation of "AF".
    * LEN: length of the payload, in bytes.
@@ -164,9 +164,9 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
    *
    * 7.1 PFT fragment structure
    * PFT Header
-   * 14, 16, 18 or 20 bytes (depending on options)										Optional present if FEC=1 Optional present if Addr = 1	
-   * Psync		Pseq		Findex		Fcount		FEC		HCRC		Addr	Plen	| RSk		RSz			| Source	Dest
-   * 16 bits	16 bits		24 bits		24 bits		1 bit	16 bits		1 bit	14 bits | 8 bits	8 bits		| 16 bits	16 bits
+   * 14, 16, 18 or 20 bytes (depending on options)                                                                              Optional present if FEC=1 Optional present if Addr = 1  
+   * Psync              Pseq            Findex          Fcount          FEC             HCRC            Addr    Plen    | RSk           RSz                     | Source        Dest
+   * 16 bits    16 bits         24 bits         24 bits         1 bit   16 bits         1 bit   14 bits | 8 bits        8 bits          | 16 bits       16 bits
    *
    * Psync: the ASCII string "PF" is used as the synchronization word for the PFT Layer
    *
@@ -174,7 +174,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
    * It should be possible to strengthen the heuristic further if need be.
    */
   if(tvb_length(tvb) < 11)
-	  return FALSE;
+    return FALSE;
 
   sync = tvb_get_ephemeral_string (tvb, 0, 2);
   if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
@@ -278,32 +278,32 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     rx_min++;
   if (fdx)
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
-					    "Reassembled Message",
-					    fdx, &dcp_frag_items,
-					    NULL, tree);
+                                        "Reassembled Message",
+                                        fdx, &dcp_frag_items,
+                                        NULL, tree);
   else {
     guint fragments=0;
     guint32 *got;
     fragment_data *fd;
     fragment_data *fd_head;
 
-      if(tree)
-        proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
-        fcount, fragments, rx_min
+    if(tree)
+      proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
+                           fcount, fragments, rx_min
         );
     got = ep_alloc(fcount*sizeof(guint32));
 
-	/* make a list of the findex (offset) numbers of the fragments we have */
+    /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(pinfo, seq, dcp_fragment_table);
-	for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
+    for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
       if(fd_head->data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
       }
-	}
-	/* put a sentinel at the end */
+    }
+    /* put a sentinel at the end */
     got[fragments++] = fcount;
-	/* have we got enough for Reed Solomon to try to correct ? */
-	if(fragments>=rx_min) { /* yes, in theory */
+    /* have we got enough for Reed Solomon to try to correct ? */
+    if(fragments>=rx_min) { /* yes, in theory */
       guint i,current_findex;
       fragment_data *frag=NULL;
       guint8 *dummy_data = (guint8*) ep_alloc0 (plen);
@@ -311,28 +311,29 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       /* try and decode with missing fragments */
       if(tree)
           proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
-          fcount, fragments, rx_min
-          );
-	  /* fill the fragment table with empty fragments */
-	  current_findex = 0;
+                               fcount, fragments, rx_min
+            );
+      /* fill the fragment table with empty fragments */
+      current_findex = 0;
       for(i=0; i<fragments; i++) {
-	    guint next_fragment_we_have = got[i];
-            if (next_fragment_we_have > MAX_FRAGMENTS) {
-              if (tree)
-                proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
-                return NULL;
-            }
+        guint next_fragment_we_have = got[i];
+        if (next_fragment_we_have > MAX_FRAGMENTS) {
+          if (tree)
+            proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          return NULL;
+        }
         for(; current_findex<next_fragment_we_have; current_findex++) {
           frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
-            dcp_fragment_table, dcp_reassembled_table, current_findex, plen, (current_findex+1!=fcount));
+                                         dcp_fragment_table, dcp_reassembled_table, 
+                                         current_findex, plen, (current_findex+1!=fcount));
         }
-		current_findex++; /* skip over the fragment we have */
+        current_findex++; /* skip over the fragment we have */
       }
       if(frag)
         new_tvb = process_reassembled_data (tvb, offset, pinfo,
-					    "Reassembled Message",
-					    frag, &dcp_frag_items,
-					    NULL, tree);
+                                            "Reassembled Message",
+                                            frag, &dcp_frag_items,
+                                            NULL, tree);
     }
   }
   if(new_tvb) {
@@ -351,7 +352,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     decoded = rs_correct_data(deinterleaved, output, c_max, rsk, rsz);
     if(tree)
-        proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
+      proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
 
     new_tvb = tvb_new_real_data(output, decoded_size, decoded_size);
     tvb_set_child_real_data_tvbuff(dtvb, new_tvb);
@@ -397,21 +398,21 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   first = findex == 0;
   last = fcount == (findex+1);
   frag_edcp = fragment_add_seq_check (
-     tvb, offset, pinfo,
-     seq,
-	 dcp_fragment_table, dcp_reassembled_table,
-	 findex,
-     plen,
-	 !last);
+    tvb, offset, pinfo,
+    seq,
+    dcp_fragment_table, dcp_reassembled_table,
+    findex,
+    plen,
+    !last);
   if(fec) {
     new_tvb = dissect_pft_fec_detailed(
-          tvb, pinfo, tree, findex, fcount, seq, offset, plen, fec, rsk, rsz, frag_edcp
-        );
+      tvb, pinfo, tree, findex, fcount, seq, offset, plen, fec, rsk, rsz, frag_edcp
+      );
   } else {
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
-					    "Reassembled Message",
-					    frag_edcp, &dcp_frag_items,
-					    NULL, tree);
+                                        "Reassembled Message",
+                                        frag_edcp, &dcp_frag_items,
+                                        NULL, tree);
   }
   if (check_col (pinfo->cinfo, COL_INFO)) {
     if(new_tvb) {
@@ -455,7 +456,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
   }
 
-  if (tree) {			/* we are being asked for details */
+  if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, FALSE);
     pft_tree = proto_item_add_subtree (ti, ett_pft);
     proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, FALSE);
@@ -488,11 +489,11 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     fec = TRUE;
     rsk = tvb_get_guint8 (tvb, offset);
     if (tree)
-	  proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, FALSE);
+          proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, FALSE);
     offset += 1;
     rsz = tvb_get_guint8 (tvb, offset);
     if (tree)
-	  proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, FALSE);
+          proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, FALSE);
     offset += 1;
   }
   if (plen & 0x4000) {
@@ -500,7 +501,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (pft_tree, hf_edcp_source, tvb, offset, 2, FALSE);
     offset += 2;
     if (tree)
-	  proto_tree_add_item (pft_tree, hf_edcp_dest, tvb, offset, 2, FALSE);
+          proto_tree_add_item (pft_tree, hf_edcp_dest, tvb, offset, 2, FALSE);
     offset += 2;
   }
   if (tree) {
@@ -514,7 +515,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   }
   hcrc = tvb_get_ntohs (tvb, offset);
   offset += 2;
-  if (fcount > 1) {		/* fragmented*/
+  if (fcount > 1) {             /* fragmented*/
     gboolean save_fragmented = pinfo->fragmented;
     guint16 real_len = tvb_length(tvb)-offset;
     proto_tree_add_item (pft_tree, hf_edcp_pft_payload, tvb, offset, real_len, FALSE);
@@ -560,7 +561,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
   }
 
-  if (tree) {			/* we are being asked for details */
+  if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, FALSE);
     af_tree = proto_item_add_subtree (ti, ett_af);
     proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, FALSE);
@@ -604,7 +605,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, len);
     unsigned long c = crc_drm(crc_buf, len, 16, 0x11021, 1);
     if (tree) {
-   	  proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
+          proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
       proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0xe2f0);
     }
   }
@@ -709,7 +710,7 @@ proto_register_dcp_etsi (void)
      },
     {&hf_edcp_crcflag,
      {"crc flag", "dcp-af.crcflag",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x80,
+      FT_BOOLEAN, 8, NULL, 0x80,
       "Frame is protected by CRC", HFILL}
      },
     {&hf_edcp_maj,
@@ -762,12 +763,12 @@ proto_register_dcp_etsi (void)
      },
     {&hf_edcp_fecflag,
      {"FEC", "dcp-pft.fec",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x8000,
+      FT_BOOLEAN, 16, NULL, 0x8000,
       "When set the optional RS header is present", HFILL}
      },
     {&hf_edcp_addrflag,
      {"Addr", "dcp-pft.addr",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x4000,
+      FT_BOOLEAN, 16, NULL, 0x4000,
       "When set the optional transport header is present", HFILL}
      },
     {&hf_edcp_plen,
@@ -881,9 +882,9 @@ proto_register_dcp_etsi (void)
     &ett_edcp_fragments
   };
 
-  proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",	/* name */
-                                            "DCP (ETSI)",	/* short name */
-                                            "dcp-etsi"	/* abbrev */
+  proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",     /* name */
+                                            "DCP (ETSI)",       /* short name */
+                                            "dcp-etsi"  /* abbrev */
     );
   proto_af = proto_register_protocol ("DCP Application Framing Layer", "DCP-AF", "dcp-af");
   proto_pft = proto_register_protocol ("DCP Protection, Fragmentation & Transport Layer", "DCP-PFT", "dcp-pft");
@@ -897,12 +898,12 @@ proto_register_dcp_etsi (void)
 
   /* subdissector code */
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",
-	    "DCP Sync", FT_STRING, BASE_NONE);
+            "DCP Sync", FT_STRING, BASE_NONE);
   af_dissector_table = register_dissector_table("dcp-af.pt",
-	    "AF Payload Type", FT_UINT8, BASE_DEC);
+            "AF Payload Type", FT_UINT8, BASE_DEC);
 
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
-	    "AF Payload Type", FT_STRING, BASE_NONE);
+            "AF Payload Type", FT_STRING, BASE_NONE);
 
   register_init_routine(dcp_init_protocol);
 
