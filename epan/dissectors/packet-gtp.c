@@ -5111,6 +5111,10 @@ static const value_string daylight_saving_time_vals[] = {
  * UMTS:	29.060 v6.11.0, chapter 7.7.52 
  * MS Time Zone
  * Type = 153 (Decimal)
+ * The ' MS Time Zone' IE is used to indicate the offset between universal time and local time 
+ * in steps of 15 minutes of where the MS currently resides. The 'Time Zone' field uses the same 
+ * format as the 'Time Zone' IE in 3GPP TS 24.008 (10.5.3.8)
+ * its value shall be set as defined in 3GPP TS 22.042
  */
 static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
