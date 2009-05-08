@@ -97,7 +97,7 @@ static gsm_a_stat_t		gsm_a_stat;
 
 /* Create list */
 static
-GtkWidget* create_list()
+GtkWidget* create_list(void)
 {
 
     GtkListStore *list_store;

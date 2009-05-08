@@ -195,7 +195,7 @@ ansi_a_stat_gtk_win_destroy_cb(
 
 /* Create list */
 static
-GtkWidget* create_list()
+GtkWidget* create_list(void)
 {
 
     GtkListStore *list_store;

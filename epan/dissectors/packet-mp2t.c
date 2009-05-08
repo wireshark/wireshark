@@ -268,7 +268,7 @@ get_the_conversation(packet_info *pinfo)
 }
 
 static mp2t_analysis_data_t *
-init_mp2t_conversation_data()
+init_mp2t_conversation_data(void)
 {
 	mp2t_analysis_data_t *mp2t_data = NULL;
 

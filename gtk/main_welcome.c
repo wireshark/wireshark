@@ -320,7 +320,7 @@ welcome_header_push_msg(gchar *msg) {
 }
 
 void
-welcome_header_pop_msg() {
+welcome_header_pop_msg(void) {
     gchar *msg = NULL;    
 
     if (status_messages) {

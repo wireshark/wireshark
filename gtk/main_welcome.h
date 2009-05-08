@@ -50,6 +50,6 @@ void welcome_header_push_msg(gchar *msg);
  *  messages on the stack, the default message and the main columns
  *  will be shown.
  */
-void welcome_header_pop_msg();
+void welcome_header_pop_msg(void);
 
 #endif /* __MAIN_WELCOME_H__ */

@@ -75,7 +75,7 @@ enum
 
 /* Create list */
 static
-GtkWidget* create_list()
+GtkWidget* create_list(void)
 {
 
     GtkListStore *list_store;
