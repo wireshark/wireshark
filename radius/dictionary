@@ -102,113 +102,125 @@ $INCLUDE dictionary.wimax
 #
 #	http://www.iana.org/assignments/radius-types
 #
-ATTRIBUTE	User-Name		1	string
-ATTRIBUTE	User-Password		2	string encrypt=1
-ATTRIBUTE	CHAP-Password		3	octets
-ATTRIBUTE	NAS-IP-Address		4	ipaddr
-ATTRIBUTE	NAS-Port		5	integer
-ATTRIBUTE	Service-Type		6	integer
-ATTRIBUTE	Framed-Protocol		7	integer
-ATTRIBUTE	Framed-IP-Address	8	ipaddr
-ATTRIBUTE	Framed-IP-Netmask	9	ipaddr
-ATTRIBUTE	Framed-Routing		10	integer
-ATTRIBUTE	Filter-Id		11	string
-ATTRIBUTE	Framed-MTU		12	integer
-ATTRIBUTE	Framed-Compression	13	integer
-ATTRIBUTE	Login-IP-Host		14	ipaddr
-ATTRIBUTE	Login-Service		15	integer
-ATTRIBUTE	Login-TCP-Port		16	integer
-ATTRIBUTE	Reply-Message		18	string
-ATTRIBUTE	Callback-Number		19	string
-ATTRIBUTE	Callback-Id		20	string
-ATTRIBUTE	Framed-Route		22	string
-ATTRIBUTE	Framed-IPX-Network	23	ipaddr
-ATTRIBUTE	State			24	octets
-ATTRIBUTE	Class			25	octets
-ATTRIBUTE	Vendor-Specific		26	octets
-ATTRIBUTE	Session-Timeout		27	integer
-ATTRIBUTE	Idle-Timeout		28	integer
-ATTRIBUTE	Termination-Action	29	integer
-ATTRIBUTE	Called-Station-Id	30	string
-ATTRIBUTE	Calling-Station-Id	31	string
-ATTRIBUTE	NAS-Identifier		32	string
-ATTRIBUTE	Proxy-State		33	octets
-ATTRIBUTE	Login-LAT-Service	34	string
-ATTRIBUTE	Login-LAT-Node		35	string
-ATTRIBUTE	Login-LAT-Group		36	octets
-ATTRIBUTE	Framed-AppleTalk-Link	37	integer
-ATTRIBUTE	Framed-AppleTalk-Network 38	integer
-ATTRIBUTE	Framed-AppleTalk-Zone	39	string
+ATTRIBUTE	User-Name					1	string
+ATTRIBUTE	User-Password				2	string encrypt=1
+ATTRIBUTE	CHAP-Password				3	octets
+ATTRIBUTE	NAS-IP-Address				4	ipaddr
+ATTRIBUTE	NAS-Port					5	integer
+ATTRIBUTE	Service-Type				6	integer
+ATTRIBUTE	Framed-Protocol				7	integer
+ATTRIBUTE	Framed-IP-Address			8	ipaddr
+ATTRIBUTE	Framed-IP-Netmask			9	ipaddr
+ATTRIBUTE	Framed-Routing				10	integer
+ATTRIBUTE	Filter-Id					11	string
+ATTRIBUTE	Framed-MTU					12	integer
+ATTRIBUTE	Framed-Compression			13	integer
+ATTRIBUTE	Login-IP-Host				14	ipaddr
+ATTRIBUTE	Login-Service				15	integer
+ATTRIBUTE	Login-TCP-Port				16	integer
+ATTRIBUTE	Reply-Message				18	string
+ATTRIBUTE	Callback-Number				19	string
+ATTRIBUTE	Callback-Id					20	string
+ATTRIBUTE	Framed-Route				22	string
+ATTRIBUTE	Framed-IPX-Network			23	ipaddr
+ATTRIBUTE	State						24	octets
+ATTRIBUTE	Class						25	octets
+ATTRIBUTE	Vendor-Specific				26	octets
+ATTRIBUTE	Session-Timeout				27	integer
+ATTRIBUTE	Idle-Timeout				28	integer
+ATTRIBUTE	Termination-Action			29	integer
+ATTRIBUTE	Called-Station-Id			30	string
+ATTRIBUTE	Calling-Station-Id			31	string
+ATTRIBUTE	NAS-Identifier				32	string
+ATTRIBUTE	Proxy-State					33	octets
+ATTRIBUTE	Login-LAT-Service			34	string
+ATTRIBUTE	Login-LAT-Node				35	string
+ATTRIBUTE	Login-LAT-Group				36	octets
+ATTRIBUTE	Framed-AppleTalk-Link		37	integer
+ATTRIBUTE	Framed-AppleTalk-Network	38	integer
+ATTRIBUTE	Framed-AppleTalk-Zone		39	string
 
-ATTRIBUTE	Acct-Status-Type	40	integer
-ATTRIBUTE	Acct-Delay-Time		41	integer
-ATTRIBUTE	Acct-Input-Octets	42	integer
-ATTRIBUTE	Acct-Output-Octets	43	integer
-ATTRIBUTE	Acct-Session-Id		44	string
-ATTRIBUTE	Acct-Authentic		45	integer
-ATTRIBUTE	Acct-Session-Time	46	integer
-ATTRIBUTE       Acct-Input-Packets	47	integer
-ATTRIBUTE       Acct-Output-Packets	48	integer
-ATTRIBUTE	Acct-Terminate-Cause	49	integer
-ATTRIBUTE	Acct-Multi-Session-Id	50	string
-ATTRIBUTE	Acct-Link-Count		51	integer
-ATTRIBUTE	Acct-Input-Gigawords    52      integer
-ATTRIBUTE	Acct-Output-Gigawords   53      integer
-ATTRIBUTE	Event-Timestamp         55      date
+ATTRIBUTE	Acct-Status-Type			40	integer
+ATTRIBUTE	Acct-Delay-Time				41	integer
+ATTRIBUTE	Acct-Input-Octets			42	integer
+ATTRIBUTE	Acct-Output-Octets			43	integer
+ATTRIBUTE	Acct-Session-Id				44	string
+ATTRIBUTE	Acct-Authentic				45	integer
+ATTRIBUTE	Acct-Session-Time			46	integer
+ATTRIBUTE   Acct-Input-Packets			47	integer
+ATTRIBUTE   Acct-Output-Packets			48	integer
+ATTRIBUTE	Acct-Terminate-Cause		49	integer
+ATTRIBUTE	Acct-Multi-Session-Id		50	string
+ATTRIBUTE	Acct-Link-Count				51	integer
+ATTRIBUTE	Acct-Input-Gigawords		52  integer
+ATTRIBUTE	Acct-Output-Gigawords		53  integer
+ATTRIBUTE	Event-Timestamp				55  date
+ATTRIBUTE	Egress-VLANID				56	integer
+ATTRIBUTE	Ingress-Filters				57	integer
+ATTRIBUTE	Egress-VLAN-Name			58	string
+ATTRIBUTE	User-Priority-Table			59	octets # 8
+ATTRIBUTE	CHAP-Challenge				60	octets
+ATTRIBUTE	NAS-Port-Type				61	integer
+ATTRIBUTE	Port-Limit					62	integer
+ATTRIBUTE	Login-LAT-Port				63	integer
+ATTRIBUTE	Tunnel-Type					64	integer	
+ATTRIBUTE	Tunnel-Medium-Type			65	integer	
+ATTRIBUTE	Tunnel-Client-Endpoint		66	string	
+ATTRIBUTE	Tunnel-Server-Endpoint		67	string	
+ATTRIBUTE	Acct-Tunnel-Connection		68	string
 
-ATTRIBUTE	CHAP-Challenge		60	octets
-ATTRIBUTE	NAS-Port-Type		61	integer
-ATTRIBUTE	Port-Limit		62	integer
-ATTRIBUTE	Login-LAT-Port		63	integer
-
-ATTRIBUTE	Acct-Tunnel-Connection	68	string
-
-ATTRIBUTE	ARAP-Password           70      string
-ATTRIBUTE	ARAP-Features           71      string
-ATTRIBUTE	ARAP-Zone-Access        72      integer
-ATTRIBUTE	ARAP-Security           73      integer
-ATTRIBUTE	ARAP-Security-Data      74      string
-ATTRIBUTE	Password-Retry          75      integer
-ATTRIBUTE	Prompt                  76      integer
-ATTRIBUTE	Connect-Info		77	string
-ATTRIBUTE	Configuration-Token	78	string
-ATTRIBUTE	EAP-Message		79	octets
-ATTRIBUTE	Message-Authenticator	80	octets
-ATTRIBUTE	ARAP-Challenge-Response	84	string	# 10 octets
-ATTRIBUTE	Acct-Interim-Interval   85      integer
-ATTRIBUTE	NAS-Port-Id		87	string
-ATTRIBUTE	Framed-Pool		88	string
-ATTRIBUTE	NAS-IPv6-Address	95	ipv6addr
-ATTRIBUTE	Framed-Interface-Id	96	ifid
-ATTRIBUTE	Framed-IPv6-Prefix	97	ipv6prefix
-ATTRIBUTE	Login-IPv6-Host		98	ipv6addr
-ATTRIBUTE	Framed-IPv6-Route	99	string
-ATTRIBUTE	Framed-IPv6-Pool	100	string
+ATTRIBUTE	ARAP-Password				70  string
+ATTRIBUTE	ARAP-Features				71  string
+ATTRIBUTE	ARAP-Zone-Access			72  integer
+ATTRIBUTE	ARAP-Security				73  integer
+ATTRIBUTE	ARAP-Security-Data			74  string
+ATTRIBUTE	Password-Retry				75  integer
+ATTRIBUTE	Prompt						76  integer
+ATTRIBUTE	Connect-Info				77	string
+ATTRIBUTE	Configuration-Token			78	string
+ATTRIBUTE	EAP-Message					79	octets
+ATTRIBUTE	Message-Authenticator		80	octets
+ATTRIBUTE	ARAP-Challenge-Response		84	string	# 10 octets
+ATTRIBUTE	Acct-Interim-Interval		85  integer
+ATTRIBUTE	Acct-Tunnel-Packets-Lost	86	integer
+ATTRIBUTE	NAS-Port-Id					87	string
+ATTRIBUTE	Framed-Pool					88	string
+ATTRIBUTE	Chargeable-User-Identity	89	string
+ATTRIBUTE	Tunnel-Server-Auth-Id		91	string
+ATTRIBUTE	NAS-Filter-Rule				92	string
+ATTRIBUTE	NAS-IPv6-Address			95	ipv6addr
+ATTRIBUTE	Framed-Interface-Id			96	ifid
+ATTRIBUTE	Framed-IPv6-Prefix			97	ipv6prefix
+ATTRIBUTE	Login-IPv6-Host				98	ipv6addr
+ATTRIBUTE	Framed-IPv6-Route			99	string
+ATTRIBUTE	Framed-IPv6-Pool			100	string
 
 #  As defined in RFC 3576
-ATTRIBUTE	Error-Cause		101	integer
+ATTRIBUTE	Error-Cause					101	integer
+
+ATTRIBUTE	EAP-Key-Name				102	string
 
 #  As defined in RFC 4590
-ATTRIBUTE	Digest-Response		103	string
-ATTRIBUTE	Digest-Realm		104	string
-ATTRIBUTE	Digest-Nonce		105	string
-ATTRIBUTE	Digest-Nextnonce	106	string
-ATTRIBUTE	Digest-Response-Auth	107	string
-ATTRIBUTE	Digest-Method		108	string
-ATTRIBUTE	Digest-URI		109	string
-ATTRIBUTE	Digest-Qop		110	string
-ATTRIBUTE	Digest-Algorithm	111	string
-ATTRIBUTE	Digest-Entity-Body-Hash	112	string
-ATTRIBUTE	Digest-CNonce		113	string
-ATTRIBUTE	Digest-Nonce-Count	114	string
-ATTRIBUTE	Digest-Username		115	string
-ATTRIBUTE	Digest-Opaque		116	string
-ATTRIBUTE	Digest-Auth-Param	117	string
-ATTRIBUTE	Digest-AKA-Auts		118	string
-ATTRIBUTE	Digest-Domain		119	string
-ATTRIBUTE	Digest-Stale		120	string
-ATTRIBUTE	Digest-HA1		121	string
-ATTRIBUTE	SIP-AOR			122	string
+ATTRIBUTE	Digest-Response				103	string
+ATTRIBUTE	Digest-Realm				104	string
+ATTRIBUTE	Digest-Nonce				105	string
+ATTRIBUTE	Digest-Nextnonce			106	string
+ATTRIBUTE	Digest-Response-Auth		107	string
+ATTRIBUTE	Digest-Method				108	string
+ATTRIBUTE	Digest-URI					109	string
+ATTRIBUTE	Digest-Qop					110	string
+ATTRIBUTE	Digest-Algorithm			111	string
+ATTRIBUTE	Digest-Entity-Body-Hash		112	string
+ATTRIBUTE	Digest-CNonce				113	string
+ATTRIBUTE	Digest-Nonce-Count			114	string
+ATTRIBUTE	Digest-Username				115	string
+ATTRIBUTE	Digest-Opaque				116	string
+ATTRIBUTE	Digest-Auth-Param			117	string
+ATTRIBUTE	Digest-AKA-Auts				118	string
+ATTRIBUTE	Digest-Domain				119	string
+ATTRIBUTE	Digest-Stale				120	string
+ATTRIBUTE	Digest-HA1					121	string
+ATTRIBUTE	SIP-AOR						122	string
 
 #  As defined in RFC 4818
 ATTRIBUTE	Delegated-IPv6-Prefix	123	ipv6prefix
@@ -308,6 +320,52 @@ VALUE		Acct-Authentic		Local			2
 VALUE		Acct-Authentic		Remote			3
 VALUE		Acct-Authentic		Diameter		4
 
+VALUE	Ingress-Filters			Enabled			1
+VALUE	Ingress-Filters			Disabled		2
+
+#	Tunnel Type
+
+VALUE	Tunnel-Type			PPTP			1
+VALUE	Tunnel-Type			L2F				2
+VALUE	Tunnel-Type			L2TP			3
+VALUE	Tunnel-Type			ATMP			4
+VALUE	Tunnel-Type			VTP				5
+VALUE	Tunnel-Type			AH				6
+VALUE	Tunnel-Type			IP				7
+VALUE	Tunnel-Type			MIN-IP			8
+VALUE	Tunnel-Type			ESP				9
+VALUE	Tunnel-Type			GRE				10
+VALUE	Tunnel-Type			DVS				11
+VALUE	Tunnel-Type			IP-in-IP		12
+VALUE	Tunnel-Type			VLAN			13
+#	Tunnel Medium Type
+
+VALUE	Tunnel-Medium-Type		IPv4			1
+VALUE	Tunnel-Medium-Type		IPv6			2
+VALUE	Tunnel-Medium-Type		NSAP			3
+VALUE	Tunnel-Medium-Type		HDLC			4
+VALUE	Tunnel-Medium-Type		BBN-1822		5
+VALUE	Tunnel-Medium-Type		IEEE-802		6
+VALUE	Tunnel-Medium-Type		E.163			7
+VALUE	Tunnel-Medium-Type		E.164			8
+VALUE	Tunnel-Medium-Type		F.69			9
+VALUE	Tunnel-Medium-Type		X.121			10
+VALUE	Tunnel-Medium-Type		IPX				11
+VALUE	Tunnel-Medium-Type		Appletalk		12
+VALUE	Tunnel-Medium-Type		DecNet-IV		13
+VALUE	Tunnel-Medium-Type		Banyan-Vines	14
+VALUE	Tunnel-Medium-Type		E.164-NSAP		15
+
+#	ARAP Zone Access
+
+VALUE	ARAP-Zone-Access		Default-Zone		1
+VALUE	ARAP-Zone-Access		Zone-Filter-Inclusive	2
+VALUE	ARAP-Zone-Access		Zone-Filter-Exclusive	4
+
+#	Prompt
+VALUE	Prompt				No-Echo			0
+VALUE	Prompt				Echo			1
+
 #	Termination Options
 
 VALUE		Termination-Action	Default			0
@@ -345,31 +403,28 @@ VALUE		NAS-Port-Type		FTTP			26
 
 #	Acct Terminate Causes
 
-VALUE           Acct-Terminate-Cause    User-Request            1
-VALUE           Acct-Terminate-Cause    Lost-Carrier            2
-VALUE           Acct-Terminate-Cause    Lost-Service            3
-VALUE           Acct-Terminate-Cause    Idle-Timeout            4
-VALUE           Acct-Terminate-Cause    Session-Timeout         5
-VALUE           Acct-Terminate-Cause    Admin-Reset             6
-VALUE           Acct-Terminate-Cause    Admin-Reboot            7
-VALUE           Acct-Terminate-Cause    Port-Error              8
-VALUE           Acct-Terminate-Cause    NAS-Error               9
-VALUE           Acct-Terminate-Cause    NAS-Request             10
-VALUE           Acct-Terminate-Cause    NAS-Reboot              11
-VALUE           Acct-Terminate-Cause    Port-Unneeded           12
-VALUE           Acct-Terminate-Cause    Port-Preempted          13
-VALUE           Acct-Terminate-Cause    Port-Suspended          14
-VALUE           Acct-Terminate-Cause    Service-Unavailable     15
-VALUE           Acct-Terminate-Cause    Callback                16
-VALUE           Acct-Terminate-Cause    User-Error              17
-VALUE           Acct-Terminate-Cause    Host-Request            18
-VALUE		Acct-Terminate-Cause	Supplicant-Restart	19
+VALUE       Acct-Terminate-Cause    User-Request            1
+VALUE       Acct-Terminate-Cause    Lost-Carrier            2
+VALUE       Acct-Terminate-Cause    Lost-Service            3
+VALUE       Acct-Terminate-Cause    Idle-Timeout            4
+VALUE       Acct-Terminate-Cause    Session-Timeout         5
+VALUE       Acct-Terminate-Cause    Admin-Reset             6
+VALUE       Acct-Terminate-Cause    Admin-Reboot            7
+VALUE       Acct-Terminate-Cause    Port-Error              8
+VALUE       Acct-Terminate-Cause    NAS-Error               9
+VALUE       Acct-Terminate-Cause    NAS-Request             10
+VALUE       Acct-Terminate-Cause    NAS-Reboot              11
+VALUE       Acct-Terminate-Cause    Port-Unneeded           12
+VALUE       Acct-Terminate-Cause    Port-Preempted          13
+VALUE       Acct-Terminate-Cause    Port-Suspended          14
+VALUE       Acct-Terminate-Cause    Service-Unavailable     15
+VALUE       Acct-Terminate-Cause    Callback                16
+VALUE       Acct-Terminate-Cause    User-Error              17
+VALUE       Acct-Terminate-Cause    Host-Request            18
+VALUE		Acct-Terminate-Cause	Supplicant-Restart		19
 VALUE		Acct-Terminate-Cause	Reauthentication-Failure 20
-VALUE		Acct-Terminate-Cause	Port-Reinit		21
-VALUE		Acct-Terminate-Cause	Port-Disabled		22
-
-#VALUE		Tunnel-Type		L2TP			3
-#VALUE		Tunnel-Medium-Type	IP			1
+VALUE		Acct-Terminate-Cause	Port-Reinit				21
+VALUE		Acct-Terminate-Cause	Port-Disabled			22
 
 VALUE		Prompt			No-Echo			0
 VALUE		Prompt			Echo			1
@@ -377,18 +432,20 @@ VALUE		Prompt			Echo			1
 #
 #	Error causes
 #
-VALUE		Error-Cause		Residual-Context-Removed	201
-VALUE		Error-Cause		Invalid-EAP-Packet		202
-VALUE		Error-Cause		Unsupported-Attribute		401
-VALUE		Error-Cause		Missing-Attribute		402
-VALUE		Error-Cause		NAS-Identification-Mismatch	403
-VALUE		Error-Cause		Invalid-Request			404
-VALUE		Error-Cause		Unsupported-Service		405
-VALUE		Error-Cause		Unsupported-Extension		406
-VALUE		Error-Cause		Administratively-Prohibited	501
-VALUE		Error-Cause		Proxy-Request-Not-Routable	502
-VALUE		Error-Cause		Session-Context-Not-Found	503
-VALUE		Error-Cause		Session-Context-Not-Removable	504
-VALUE		Error-Cause		Proxy-Processing-Error		505
-VALUE		Error-Cause		Resources-Unavailable		506
-VALUE		Error-Cause		Request-Initiated		507
+VALUE		Error-Cause		Residual-Context-Removed				201
+VALUE		Error-Cause		Invalid-EAP-Packet						202
+VALUE		Error-Cause		Unsupported-Attribute					401
+VALUE		Error-Cause		Missing-Attribute						402
+VALUE		Error-Cause		NAS-Identification-Mismatch				403
+VALUE		Error-Cause		Invalid-Request							404
+VALUE		Error-Cause		Unsupported-Service						405
+VALUE		Error-Cause		Unsupported-Extension					406
+VALUE		Error-Cause		Invalid-Attribute-Value					407
+VALUE		Error-Cause		Administratively-Prohibited				501
+VALUE		Error-Cause		Proxy-Request-Not-Routable				502
+VALUE		Error-Cause		Session-Context-Not-Found				503
+VALUE		Error-Cause		Session-Context-Not-Removable			504
+VALUE		Error-Cause		Proxy-Processing-Error					505
+VALUE		Error-Cause		Resources-Unavailable					506
+VALUE		Error-Cause		Request-Initiated						507
+VALUE		Error-Cause		Multiple-Session-Selection-Unsupported	508

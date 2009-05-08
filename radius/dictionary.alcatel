@@ -14,7 +14,7 @@ VENDOR          Alcatel         3041
 ATTRIBUTE       AAT-Client-Primary-DNS          5       ipaddr          Alcatel
 ATTRIBUTE       AAT-Client-Primary-WINS-NBNS    6       ipaddr          Alcatel
 ATTRIBUTE       AAT-Client-Secondary-WINS-NBNS  7       ipaddr          Alcatel
-#ATTRIBUTE       AAT-Client-Primary-DNS          8       ipaddr          Alcatel
+ATTRIBUTE       AAT-Client-Secondary-DNS        8       ipaddr          Alcatel
 ATTRIBUTE       AAT-PPP-Address                 9       ipaddr          Alcatel
 ATTRIBUTE       AAT-ATM-Direct                  21      string          Alcatel
 ATTRIBUTE       AAT-IP-TOS                      22      integer         Alcatel
@@ -27,6 +27,9 @@ ATTRIBUTE       AAT-IP-Pool-Definition          63      string          Alcatel
 ATTRIBUTE       AAT-Assign-IP-Pool              64      integer         Alcatel
 ATTRIBUTE       AAT-Data-Filter                 65      string          Alcatel
 ATTRIBUTE       AAT-Source-IP-Check             66      integer         Alcatel
+ATTRIBUTE	    AAT-Qos							70	    integer         Alcatel
+ATTRIBUTE	    AAT-Qoa							71	    integer         Alcatel
+ATTRIBUTE	    AAT-Client-Assign-DNS			72	    integer         Alcatel
 ATTRIBUTE       AAT-ATM-VPI                     128     integer         Alcatel
 ATTRIBUTE       AAT-ATM-VCI                     129     integer         Alcatel
 ATTRIBUTE       AAT-Input-Octets-Diff           130     integer         Alcatel
@@ -42,6 +45,12 @@ VALUE   AAT-Require-Auth        Require-Auth                    1
 
 VALUE   AAT-Source-IP-Check     Source-IP-Check-No              0
 VALUE   AAT-Source-IP-Check     Source-IP-Check-Yes             1
+
+VALUE	AAT-FR-Direct			No								0
+VALUE	AAT-FR-Direct			Yes								1
+
+VALUE	AAT-Source-IP-Check		Source-IP-Check-No				0
+VALUE	AAT-Source-IP-Check		Source-IP-Check-Yes				1
 
 VALUE   AAT-IP-TOS              IP-TOS-Normal                   0
 VALUE   AAT-IP-TOS              IP-TOS-Disabled                 1
@@ -62,3 +71,13 @@ VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Four      128
 VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Five      160
 VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Six       192
 VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Seven     224
+
+VALUE	AAT-Auth-Type			AAT-Auth-None					0
+VALUE	AAT-Auth-Type			AAT-Auth-Default				1
+VALUE	AAT-Auth-Type			AAT-Auth-Any					2
+VALUE	AAT-Auth-Type			AAT-Auth-PAP					3
+VALUE	AAT-Auth-Type			AAT-Auth-CHAP					4
+VALUE	AAT-Auth-Type			AAT-Auth-MS-CHAP				5
+
+VALUE	AAT-Client-Assign-DNS	DNS-Assign-No					0
+VALUE	AAT-Client-Assign-DNS	DNS-Assign-Yes					1
