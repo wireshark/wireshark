@@ -1,5 +1,5 @@
-/* packet-vcdu.c
- * Routines for VCDU dissection
+/* packet-ehs.c
+ * Routines for "Enhanced HSC System" (EHS) dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  * Enhanced 2008, Matt Dunkle Matthew.L.Dunkle@nasa.gov
  *
@@ -350,11 +350,10 @@ static const value_string ehs_secondary_header_tdm_end_of_data_flag[] =
   { 0, NULL }
 };
 
-static const value_string ehs_secondary_header_tdm_aoslos_flag[] =
+static const true_false_string ehs_tfs_secondary_header_tdm_aoslos_flag =
 {
-  { 0, "AOS" },
-  { 1, "LOS" },
-  { 0, NULL }
+   "AOS" ,
+   "LOS"
 };
 
 static const value_string ehs_secondary_header_tdm_data_status[] =
@@ -1479,7 +1478,7 @@ proto_register_ehs(void)
 		},
                 { &hf_ehs_sh_tdm_aoslos_flag,
 			{ "AOS/LOS Flag", "ehs2.tdm_aoslos_flag",
-			FT_BOOLEAN, 8, VALS(ehs_secondary_header_tdm_aoslos_flag), 0x08,
+                          FT_BOOLEAN, 8, TFS(&ehs_tfs_secondary_header_tdm_aoslos_flag), 0x08,
 			NULL, HFILL }
 		},
                 { &hf_ehs_sh_tdm_override_errors_flag,
