@@ -79,7 +79,7 @@ static int hf_pdcp_lte_mac = -1;
 static int hf_pdcp_lte_data_control = -1;
 static int hf_pdcp_lte_user_plane_data = -1;
 static int hf_pdcp_lte_control_pdu_type = -1;
-static int hf_pdcp_lte_lis = -1;
+static int hf_pdcp_lte_fms = -1;
 static int hf_pdcp_lte_bitmap = -1;
 static int hf_pdcp_lte_bitmap_not_received = -1;
 
@@ -172,6 +172,7 @@ static int ett_pdcp_rohc_static_rtp = -1;
 static int ett_pdcp_rohc_dynamic_ipv4 = -1;
 static int ett_pdcp_rohc_dynamic_udp = -1;
 static int ett_pdcp_rohc_dynamic_rtp = -1;
+static int ett_pdcp_rohc_report_bitmap = -1;
 
 
 static const value_string pdcp_plane_vals[] = {
@@ -623,12 +624,15 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
 
 static int dissect_pdcp_feedback_feedback1(proto_tree *tree,
+                                           proto_item *item,
                                            tvbuff_t *tvb,
                                            int offset,
                                            struct pdcp_lte_info *p_pdcp_info _U_,
                                            packet_info *pinfo _U_)
 {
     guint8 sn;
+
+    proto_item_append_text(item, " (type 1)");
 
     /* TODO: profile-specific */
     sn = tvb_get_guint8(tvb, offset);
@@ -644,12 +648,14 @@ static int dissect_pdcp_feedback_feedback1(proto_tree *tree,
 
 /* Includes Large-CID, if present */
 static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
+                                           proto_item *item,
                                            tvbuff_t *tvb,
                                            int offset,
                                            int size,
                                            struct pdcp_lte_info *p_pdcp_info _U_,
                                            packet_info *pinfo _U_)
 {
+    proto_item *ti;
     guint8  ack_type;
     guint8  mode;
     guint8  first_octet;
@@ -657,13 +663,16 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     const char * full_mode_name;
     int size_remaining;
 
+    proto_item_append_text(item, " (type 2)");
+
     /* Large CID */
     if (p_pdcp_info->large_cid_present) {
         offset = dissect_large_cid(tree, tvb, offset);
     }
 
-    /* Feeback-2 root.  TODO: add as tree root */
-    proto_tree_add_item(tree, hf_pdcp_lte_feedback_feedback2, tvb, offset, -1, FALSE);
+    /* Feedback2 hidden filter */
+    ti = proto_tree_add_item(tree, hf_pdcp_lte_feedback_feedback2, tvb, offset, -1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Ack-type */
     first_octet = tvb_get_guint8(tvb, offset);
@@ -700,6 +709,7 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     while (tvb_length_remaining(tvb, offset) > 0) {
         guint8 option = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
         guint8 length = tvb_get_guint8(tvb, offset) & 0x0f;
+        guint8 one_byte_value;
 
         /* Preference setting controls showing option and lengths */
         if (global_pdcp_show_feedback_option_tag_length) {
@@ -713,7 +723,11 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
         switch (option) {
             case 1:
                 /* CRC */
+                one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_feedback_crc, tvb, offset, 1, FALSE);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " CRC=%u ", one_byte_value);
+                }
                 break;
             case 2:
                 /* REJECT: TODO */
@@ -723,11 +737,19 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
                 break;
             case 4:
                 /* SN */
+                one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_feedback_option_sn, tvb, offset, 1, FALSE);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u ", one_byte_value);
+                }
                 break;
             case 5:
                 /* Clock */
+                one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_feedback_option_clock, tvb, offset, 1, FALSE);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " Clock=%u ", one_byte_value);
+                }
                 break;
             case 6:
                 /* Jitter: TODO */
@@ -762,7 +784,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
     guint8 code;
     guint8 size;
     proto_item *ti;
-    proto_item *root_ti;
+    proto_item *feedback_ti;
     proto_tree *feedback_tree;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -771,8 +793,8 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
     proto_item_append_text(root_item, " (Feedback)");
 
     /* Create feedback tree root */
-    root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback, tvb, offset, -1, FALSE);
-    feedback_tree = proto_item_add_subtree(root_ti, ett_pdcp_packet);
+    feedback_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback, tvb, offset, -1, FALSE);
+    feedback_tree = proto_item_add_subtree(feedback_ti, ett_pdcp_packet);
 
     /* Code */
     code = tvb_get_guint8(tvb, offset) & 0x07;
@@ -796,7 +818,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
 
         /* Small CID */
         if (size == 1) {
-            offset = dissect_pdcp_feedback_feedback1(feedback_tree, tvb, offset, p_pdcp_info, pinfo);
+            offset = dissect_pdcp_feedback_feedback1(feedback_tree, feedback_ti, tvb, offset, p_pdcp_info, pinfo);
         }
         else if ((size > 1) && ((tvb_get_guint8(tvb, offset) & 0xc0) == 0xc0)) {
             /* Add-CID here! */
@@ -804,18 +826,18 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
             offset++;
 
             if (size == 2) {
-                offset = dissect_pdcp_feedback_feedback1(feedback_tree, tvb, offset, p_pdcp_info, pinfo);
+                offset = dissect_pdcp_feedback_feedback1(feedback_tree, feedback_ti, tvb, offset, p_pdcp_info, pinfo);
             }
             else {
-                offset = dissect_pdcp_feedback_feedback2(feedback_tree, tvb, offset, size, p_pdcp_info, pinfo);
+                offset = dissect_pdcp_feedback_feedback2(feedback_tree, feedback_ti, tvb, offset, size, p_pdcp_info, pinfo);
             }
         }
         else {
-            offset = dissect_pdcp_feedback_feedback2(feedback_tree, tvb, offset, size, p_pdcp_info, pinfo);
+            offset = dissect_pdcp_feedback_feedback2(feedback_tree, feedback_ti, tvb, offset, size, p_pdcp_info, pinfo);
         }
     }
     else {
-        offset = dissect_pdcp_feedback_feedback2(feedback_tree, tvb, offset, size, p_pdcp_info, pinfo);
+        offset = dissect_pdcp_feedback_feedback2(feedback_tree, feedback_ti, tvb, offset, size, p_pdcp_info, pinfo);
     }
 
     return offset;
@@ -1472,20 +1494,24 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 switch (control_pdu_type) {
                     case 0:    /* PDCP status report */
                         {
-                            guint16 lis;
+                            guint16 fms;
                             guint   not_received = 0;
                             guint   sn;
+                            proto_tree *bitmap_tree;
+                            proto_item *bitmap_ti;
 
-                            /* Last-in-sequence SN */
-                            lis = tvb_get_ntohs(tvb, offset) & 0x0fff;
-                            sn = lis;
-                            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_lis, tvb,
+                            /* First-Missing-Sequence SN */
+                            fms = tvb_get_ntohs(tvb, offset) & 0x0fff;
+                            sn = fms;
+                            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_fms, tvb,
                                                 offset, 2, FALSE);
                             offset += 2;
 
-                            /* Bitmap */
-                            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
-                                                offset, -1, FALSE);
+                            /* Bitmap tree */
+                            bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
+                                                            offset, -1, FALSE);
+                            bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_rohc_report_bitmap);
+
 
                             /* For each byte... */
                             for ( ; tvb_length_remaining(tvb, offset); offset++) {
@@ -1493,7 +1519,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 /* .. look for error (0) in each bit */
                                 for ( ; bit_offset < 8; bit_offset++) {
                                     if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 0) {
-                                        proto_tree_add_boolean_format_value(pdcp_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset, 1, TRUE,
+                                        proto_tree_add_boolean_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset, 1, TRUE,
                                                                             " (SN=%u)", sn);
                                         not_received++;
                                     }
@@ -1501,10 +1527,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 }
                             }
 
+                            proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
                             if (check_col(pinfo->cinfo, COL_INFO)) {
                                 col_append_fstr(pinfo->cinfo, COL_INFO,
-                                               " Status Report (lis=%u) not-received=%u",
-                                               lis, not_received);
+                                               " Status Report (fms=%u) not-received=%u",
+                                               fms, not_received);
                             }
                         }
                         return;
@@ -1864,10 +1891,10 @@ void proto_register_pdcp(void)
               "Control PDU type", HFILL
             }
         },
-        { &hf_pdcp_lte_lis,
-            { "Last in sequence SN",
-              "pdcp.lis", FT_UINT16, BASE_DEC, NULL, 0x0fff,
-              "Last in sequence PDCP Sequence Number", HFILL
+        { &hf_pdcp_lte_fms,
+            { "First Missing Sequence Number",
+              "pdcp.fms", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              "First Missing PDCP Sequence Number", HFILL
             }
         },
         { &hf_pdcp_lte_bitmap,
@@ -2286,7 +2313,8 @@ void proto_register_pdcp(void)
         &ett_pdcp_rohc_static_rtp,
         &ett_pdcp_rohc_dynamic_ipv4,
         &ett_pdcp_rohc_dynamic_udp,
-        &ett_pdcp_rohc_dynamic_rtp
+        &ett_pdcp_rohc_dynamic_rtp,
+        &ett_pdcp_rohc_report_bitmap
     };
 
     module_t *pdcp_lte_module;
