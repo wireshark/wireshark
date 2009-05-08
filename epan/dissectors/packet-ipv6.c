@@ -368,11 +368,6 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     return len;
 }
 
-static const true_false_string ipv6_more_frag = {
-  "Yes",
-  "No"
-};
-
 static int
 dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     guint16 *offlg, guint32 *ident) {
@@ -752,11 +747,6 @@ static const value_string shimreapstates[] = {
     { SHIM6_REAP_EXPLORING,   "Exploring" },
     { SHIM6_REAP_INBOUNDOK,   "InboundOK" },
     { 0, NULL }
-};
-
-static const true_false_string shim6_critical_opts = {
-    "Yes",
-    "No"
 };
 
 static const value_string shim6_protocol[] = {
@@ -1652,7 +1642,7 @@ proto_register_ipv6(void)
 				"Fragment Offset", HFILL }},
     { &hf_ipv6_frag_more,
       { "More Fragment",	"ipv6.fragment.more",
-				FT_BOOLEAN, BASE_DEC, TFS(&ipv6_more_frag), IP6F_MORE_FRAG,
+				FT_BOOLEAN, 16, TFS(&tfs_yes_no), IP6F_MORE_FRAG,
 				"More Fragments", HFILL }},
     { &hf_ipv6_frag_id,
       { "Identification",	"ipv6.framgent.id",
@@ -1730,7 +1720,7 @@ proto_register_ipv6(void)
 
     { &hf_ipv6_shim6_p,
       { "P Bit", 		"ipv6.shim6.p",
-				FT_BOOLEAN, BASE_NONE, NULL, SHIM6_BITMASK_P,
+				FT_BOOLEAN, 8, NULL, SHIM6_BITMASK_P,
 				"", HFILL }},
 
     { &hf_ipv6_shim6_ct,
@@ -1827,8 +1817,8 @@ proto_register_ipv6(void)
 
     { &hf_ipv6_shim6_opt_critical,
       { "Option Critical Bit", 	"ipv6.shim6.opt.critical",
-				FT_BOOLEAN, BASE_NONE,
-				TFS(&shim6_critical_opts),
+				FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no),
 				SHIM6_BITMASK_CRITICAL,
 				"TRUE : option is critical, "
 				"FALSE: option is not critical",

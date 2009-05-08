@@ -2840,7 +2840,7 @@ proto_register_dnp3(void)
     { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Point Number", HFILL }},
 
     { &hf_dnp3_al_bit,
-    { "Value (bit)", "dnp3.al.bit", FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x1, "Digital Value (1 bit)", HFILL }},
+    { "Value (bit)", "dnp3.al.bit", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x1, "Digital Value (1 bit)", HFILL }},
 
     { &hf_dnp3_al_2bit,
     { "Value (two bit)", "dnp3.al.2bit", FT_UINT8, BASE_DEC, NULL, 0x0, "Digital Value (2 bit)", HFILL }},
