@@ -67,19 +67,19 @@
 
 /* interface options dialog */
 static GtkWidget *cur_clist, *if_dev_lb, *if_name_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
-static gint ifrow;						/* current interface row selected */
+static GtkTreeSelection *if_selection;	/* current interface row selected */
 static int num_linktypes;
 static gboolean linktypes_nochange;
 
 static void ifopts_edit_cb(GtkWidget *w, gpointer data);
 static void ifopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
 static void ifopts_edit_destroy_cb(GtkWidget *win, gpointer data);
-static void ifopts_edit_ifsel_cb(GtkWidget *clist, gint row, gint column,
+static void ifopts_edit_ifsel_cb(GtkWidget *clist, GtkTreeSelection	*selection, gint column,
     GdkEventButton *event, gpointer data);
 static void ifopts_edit_linktype_changed_cb(GtkComboBox *ed, gpointer udata);
 static void ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata);
 static void ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata);
-static void ifopts_options_add(GtkCList *clist, if_info_t *if_info);
+static void ifopts_options_add(GtkListStore *list_store, if_info_t *if_info);
 static void ifopts_options_free(gchar *text[]);
 static void ifopts_if_clist_add(void);
 static void ifopts_write_new_linklayer(void);
@@ -250,6 +250,17 @@ capture_prefs_destroy(GtkWidget *w)
 /*
  * Create an edit interface options dialog.
  */
+enum
+{
+   DEVICE_COLUMN,
+   DESC_COLUMN,
+   DEF_LINK_LAYER_COLUMN,
+   COMMENT_COLUMN,
+   VISIBLE_COLUMN,
+   DLT_COLUMN,
+   N_COLUMN /* The number of columns */
+};
+
 static void
 ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
@@ -257,7 +268,14 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 				*cur_opts_fr, *ed_opts_fr, *main_vb,
 				*if_linktype_lb, *if_descr_lb, *if_hide_lb,
 				*bbox, *ok_bt, *cancel_bt, *help_bt;
-	const gchar *cur_titles[] = { "Device", "Description", "Default link-layer", "Comment", "Hide?", "" };
+
+	GtkListStore *list_store;
+    GtkWidget *list;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+ 	GtkTreeView     *list_view;
+	GtkTreeSelection  *selection;
+
 	int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
@@ -295,22 +313,106 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/*
 	 * Create current options CList.
 	 */
-	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, (gchar **) cur_titles);
-	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 1, 230);
-	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 2, 260);
-	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 260);
-	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 4, 40);
-	gtk_clist_column_titles_passive(GTK_CLIST(cur_clist));
+    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
+                               G_TYPE_STRING,	/* Device				*/
+                               G_TYPE_STRING,	/* Description			*/
+                               G_TYPE_STRING,	/* Default link-layer	*/
+                               G_TYPE_STRING,	/* Comment				*/
+                               G_TYPE_STRING,	/* Hide?	*/
+							   G_TYPE_INT);		/* Dlt */
+
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+	 * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+	 */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Device", renderer, 
+		"text",	DEVICE_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 230);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    column = gtk_tree_view_column_new_with_attributes ("Description", renderer, 
+		"text",	DESC_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 260);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    column = gtk_tree_view_column_new_with_attributes ("Default link-layer", renderer, 
+		"text",	DEF_LINK_LAYER_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 260);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    column = gtk_tree_view_column_new_with_attributes ("Comment", renderer, 
+		"text",	COMMENT_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    column = gtk_tree_view_column_new_with_attributes ("Hide?", renderer, 
+		"text",	VISIBLE_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 40);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+#if 0
+	/* Don't show the DLT column */
+    column = gtk_tree_view_column_new_with_attributes ("DLT", renderer, 
+		"text",	DLT_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 40);
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+#endif
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	cur_clist = list;
 	gtk_container_add(GTK_CONTAINER(cur_scr_win), cur_clist);
-	g_signal_connect(cur_clist, "select_row", G_CALLBACK(ifopts_edit_ifsel_cb), NULL);
+
+	g_signal_connect (G_OBJECT (selection), "changed", /* select_row */
+                 G_CALLBACK (ifopts_edit_ifsel_cb),
+                 NULL);
+
+	if_selection = selection;
+
 	gtk_widget_show(cur_clist);
 
 	/* add interface names to cell */
 	ifopts_if_clist_add();
-	gtk_clist_columns_autosize(GTK_CLIST(cur_clist));
-
-	/* initialize variable that saves currently selected row in "if_clist" */
-	ifrow = IFOPTS_IF_NOSEL;
 
 	/* create edit options frame */
 	ed_opts_fr = gtk_frame_new("Properties");
@@ -438,7 +540,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 static void
 ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 {
-	if (ifrow != IFOPTS_IF_NOSEL) {
+	if (if_selection){
 		/* create/write new interfaces link-layer string */
 		ifopts_write_new_linklayer();
 
@@ -505,41 +607,49 @@ ifopts_description_to_val (const char *if_name, const char *descr)
  * Interface selected callback; update displayed widgets.
  */
 static void
-ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
-					 gint			row,
-					 gint			column _U_,
-					 GdkEventButton	*event _U_,
-					 gpointer		data _U_)
+ifopts_edit_ifsel_cb(GtkWidget			*clist _U_,
+					 GtkTreeSelection	*selection _U_,
+					 gint				column _U_,
+					 GdkEventButton		*event _U_,
+					 gpointer			data _U_)
 {
-	gchar *text;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gchar *desc, *comment, *vissible, *text;
 	gchar *if_name, *linktype;
 	data_link_info_t *data_link_info;
 	GList *lt_list, *lt_entry;
 	gint selected = 0;
 
 	/* save currently selected row */
-	ifrow = row;
 
 	/* get/display the interface device from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 0, &text);
+	if (!gtk_tree_selection_get_selected (if_selection, &model, &iter)){
+		return;
+	}
+
+	gtk_tree_model_get(model, &iter, 
+		DEVICE_COLUMN, &if_name,
+		DESC_COLUMN, &desc,
+		DEF_LINK_LAYER_COLUMN, &linktype,
+		COMMENT_COLUMN, &comment,
+		VISIBLE_COLUMN, &vissible,
+		-1);
+
 	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-	if_name = g_strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_dev_lb), if_name);
 
-	/* get/display the interface name from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 1, &text);
-	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-	text = g_strdup(text);
-	gtk_label_set_text(GTK_LABEL(if_name_lb), text);
-	g_free(text);
+	/* get/display the interface name from current List */
+	gtk_label_set_text(GTK_LABEL(if_name_lb), desc);
+	g_free(desc);
 
-	/* get/display the link-layer header type from current CList */
+	/* get/display the link-layer header type from current List */
 	linktypes_nochange = TRUE;
 	while (num_linktypes > 0) {
 		num_linktypes--;
 		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
 	}
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 2, &linktype);
+
 	lt_list = capture_pcap_linktype_list(if_name, NULL);
 	for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
 		data_link_info = lt_entry->data;
@@ -561,21 +671,19 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 		free_pcap_linktype_list(lt_list);
 	linktypes_nochange = FALSE;
     
-	/* get/display the interface description from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 3, &text);
-	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-	text = g_strdup(text);
-	gtk_entry_set_text(GTK_ENTRY(if_descr_te), text);
-	g_free(text);
+	/* get/display the interface description from current List */
+	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
+	g_free(comment);
 
 	/* get/display the "hidden" button state from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 4, &text);
-	if (strcmp("Yes", text) == 0)
+	if (strcmp("Yes", vissible) == 0)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), FALSE);
 
+	g_free(vissible);
 	g_free(if_name);
+
 }
 
 /*
@@ -587,23 +695,36 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	gchar *ifnm, *text;
 	gint linktype;
 	GtkTreeModel *model;
+	GtkTreeModel *list_model;
 	GtkTreeIter iter;
+	GtkTreeIter list_iter;
+	GtkListStore *list_store;
 
-	if (ifrow == IFOPTS_IF_NOSEL)
+	if (if_selection == NULL)
 		return;
 
 	if (linktypes_nochange)
 		return;
 
-	gtk_clist_get_text(GTK_CLIST(udata), ifrow, 0, &ifnm);
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+	
+	gtk_tree_model_get(list_model, &list_iter, 
+		DEVICE_COLUMN, &ifnm,
+		-1);
 
 	/* get current description text and set value in current CList */
 	if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(cb), &iter)) {
 		model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
 		gtk_tree_model_get(model, &iter, 0, &text, -1);
-		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 2, text);
 		linktype = ifopts_description_to_val(ifnm, text);
-		gtk_clist_set_row_data(GTK_CLIST(udata), ifrow, GINT_TO_POINTER(linktype));
+		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
+		gtk_list_store_set  (list_store, &list_iter,
+			DEF_LINK_LAYER_COLUMN,text,
+			DLT_COLUMN, linktype,
+			-1);
+		g_free(text);
 	}
 }
 
@@ -614,15 +735,27 @@ static void
 ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata)
 {
 	gchar *text;
+	GtkTreeModel *list_model;
+	GtkTreeIter list_iter;
+	GtkListStore *list_store;
 
-	if (ifrow == IFOPTS_IF_NOSEL)
+	if (if_selection == NULL)
 		return;
+
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
 
 	/* get current description text and set value in current CList */
 	text = gtk_editable_get_chars(GTK_EDITABLE(ed), 0, -1);
 	/* replace any reserved formatting characters "()," with spaces */
 	g_strdelimit(text, "(),", ' ');
-	gtk_clist_set_text(GTK_CLIST(udata), ifrow, 3, text);
+
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
+	gtk_list_store_set  (list_store, &list_iter,
+		COMMENT_COLUMN, text,
+		-1);
+
 	g_free(text);
 }
 
@@ -632,14 +765,27 @@ ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata)
 static void
 ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 {
-	if (ifrow == IFOPTS_IF_NOSEL)
+	GtkTreeModel *list_model;
+	GtkTreeIter list_iter;
+	GtkListStore *list_store;
+
+	if (if_selection == NULL)
 		return;
 
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
 	/* get "hidden" button state and set text in current CList */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt)) == TRUE)
-		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 4, "Yes");
+		gtk_list_store_set  (list_store, &list_iter,
+			VISIBLE_COLUMN, "Yes",
+			-1);
 	else
-		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 4, "No");
+		gtk_list_store_set  (list_store, &list_iter,
+			VISIBLE_COLUMN, "No",
+			-1);
 }
 
 /*
@@ -652,9 +798,8 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
  *		lost permanently if "Save" is selected).
  */
 static void
-ifopts_options_add(GtkCList *clist, if_info_t *if_info)
+ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 {
-	gint	row;
 	gchar	*p;
 	gchar	*ifnm;
 	gchar	*desc;
@@ -663,6 +808,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 	GList   *lt_list, *lt_entry;
 	data_link_info_t *data_link_info;
 	gint     linktype;
+	GtkTreeIter  iter;
 
 	/* set device name text */
 	text[0] = g_strdup(if_info->name);
@@ -751,9 +897,20 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		text[4] = g_strdup("No");
 
 	/* add row to CList */
-	row = gtk_clist_append(GTK_CLIST(clist), text);
-	gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
-	gtk_clist_set_row_data(GTK_CLIST(clist), row, GINT_TO_POINTER(linktype));
+
+#if GTK_CHECK_VERSION(2,6,0)
+	gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+	gtk_list_store_append  (list_store, &iter);
+	gtk_list_store_set  (list_store, &iter,
+#endif
+	   DEVICE_COLUMN, text[0],
+	   DESC_COLUMN, text[1],
+	   DEF_LINK_LAYER_COLUMN, text[2],
+	   COMMENT_COLUMN, text[3],
+	   VISIBLE_COLUMN, text[4],
+	   DLT_COLUMN, linktype,
+			-1);
 
 	ifopts_options_free(text);
 }
@@ -803,7 +960,7 @@ ifopts_if_clist_add(void)
 			continue;
 
 		/* fill current options CList with current preference values */
-		ifopts_options_add(GTK_CLIST(cur_clist), if_info);
+		ifopts_options_add(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (cur_clist))), if_info);
 	}
 
 	free_interface_list(if_list);
@@ -816,57 +973,61 @@ ifopts_if_clist_add(void)
 static void
 ifopts_write_new_linklayer(void)
 {
-	gint	i;
-	gboolean	first_if = TRUE;				/* flag to check if first in list */
-	gchar	*ifnm;
-	gint     linktype;
-	gpointer linktype_p;
-	gchar	*tmp_linklayer;
-	gchar	*new_linklayer;
+	GtkListStore *store;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+	gboolean	more_items = TRUE, first_if = TRUE;				/* flag to check if first in list */
+	gchar		*ifnm;
+	gint		linktype;
+	gchar		*tmp_linklayer;
+	gchar		*new_linklayer;
 
 	/* new preferences interfaces link-layer string */
 	new_linklayer = g_malloc0(MAX_VAL_LEN);
 
 	/* get link-layer for each row (interface) */
-	for (i = 0; ;i++) {
-		linktype_p = gtk_clist_get_row_data(GTK_CLIST(cur_clist), i);
-		if (!linktype_p)
-			break;
-		linktype = GPOINTER_TO_INT(linktype_p);
-		
-		/* if no link-layer, skip this interface */
-		if (linktype == -1)
-			continue;
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_clist));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
 
-		/* get interface name */
-		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+				DEVICE_COLUMN, &ifnm,
+				DLT_COLUMN, &linktype,
+				-1);
 
-		/*
-		 * create/cat interface link-layer to new string
-		 * (leave space for parens, comma and terminator)
-		 */
-		if (first_if != TRUE) {
-			g_strlcat (new_linklayer, ",", MAX_VAL_LEN);
+			if (linktype == -1){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
+
+			if (first_if != TRUE) {
+				g_strlcat (new_linklayer, ",", MAX_VAL_LEN);
+			}
+			/*
+			 * create/cat interface link-layer to new string
+			 * (leave space for parens, comma and terminator)
+			 */			
+			tmp_linklayer = g_strdup_printf("%s(%d)", ifnm, linktype);
+			g_strlcat(new_linklayer, tmp_linklayer, MAX_VAL_LEN);
+			g_free(tmp_linklayer);
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
 		}
 
-		tmp_linklayer = g_strdup_printf("%s(%d)", ifnm, linktype);
-		g_strlcat(new_linklayer, tmp_linklayer, MAX_VAL_LEN);
-		g_free(tmp_linklayer);
-
-		/* set first-in-list flag to false */
-		first_if = FALSE;
-	}
-
-	/* write new link-layer string to preferences */
-	if (strlen(new_linklayer) > 0) {
-		g_free(prefs.capture_devices_linktypes);
-		prefs.capture_devices_linktypes = new_linklayer;
-	}
-	/* no link-layers */
-	else {
-		g_free(prefs.capture_devices_linktypes);
-		g_free(new_linklayer);
-		prefs.capture_devices_linktypes = NULL;
+		/* write new link-layer string to preferences */
+		if (strlen(new_linklayer) > 0) {
+			g_free(prefs.capture_devices_linktypes);
+			prefs.capture_devices_linktypes = new_linklayer;
+		}
+		/* no link-layers */
+		else {
+			g_free(prefs.capture_devices_linktypes);
+			g_free(new_linklayer);
+			prefs.capture_devices_linktypes = NULL;
+		}
 	}
 }
 
@@ -877,7 +1038,10 @@ ifopts_write_new_linklayer(void)
 static void
 ifopts_write_new_descr(void)
 {
-	gint	i;
+	GtkListStore *store;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gboolean more_items = TRUE;
 	gboolean	first_if = TRUE;				/* flag to check if first in list */
 	gchar	*ifnm;
 	gchar	*desc;
@@ -888,43 +1052,48 @@ ifopts_write_new_descr(void)
 	new_descr = g_malloc0(MAX_VAL_LEN);
 
 	/* get description for each row (interface) */
-	for (i = 0; ;i++) {
-		/* get description */
-		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 3, &desc) != 1)
-			break;
-		/* if no description, skip this interface */
-		if (strlen(desc) == 0)
-			continue;
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_clist));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+				DEVICE_COLUMN, &ifnm,
+				COMMENT_COLUMN, &desc,
+				-1);
 
-		/* get interface name */
-		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
+			/* if no description, skip this interface */
+			if (strlen(desc) == 0){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
+			/*
+			 * create/cat interface description to new string
+			 * (leave space for parens, comma and terminator)
+			 */
+			if (first_if != TRUE) {
+				g_strlcat (new_descr, ",", MAX_VAL_LEN);
+			}
 
-		/*
-		 * create/cat interface description to new string
-		 * (leave space for parens, comma and terminator)
-		 */
-		if (first_if != TRUE) {
-			g_strlcat (new_descr, ",", MAX_VAL_LEN);
+			tmp_descr = g_strdup_printf("%s(%s)", ifnm, desc);
+			g_strlcat(new_descr, tmp_descr, MAX_VAL_LEN);
+			g_free(tmp_descr);
+
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
 		}
 
-		tmp_descr = g_strdup_printf("%s(%s)", ifnm, desc);
-		g_strlcat(new_descr, tmp_descr, MAX_VAL_LEN);
-		g_free(tmp_descr);
-
-		/* set first-in-list flag to false */
-		first_if = FALSE;
-	}
-
-	/* write new description string to preferences */
-	if (strlen(new_descr) > 0) {
-		g_free(prefs.capture_devices_descr);
-		prefs.capture_devices_descr = new_descr;
-	}
-	/* no descriptions */
-	else {
-		g_free(prefs.capture_devices_descr);
-		g_free(new_descr);
-		prefs.capture_devices_descr = NULL;
+		/* write new description string to preferences */
+		if (strlen(new_descr) > 0) {
+			g_free(prefs.capture_devices_descr);
+			prefs.capture_devices_descr = new_descr;
+		}
+		/* no descriptions */
+		else {
+			g_free(prefs.capture_devices_descr);
+			g_free(new_descr);
+			prefs.capture_devices_descr = NULL;
+		}
 	}
 }
 
@@ -935,7 +1104,10 @@ ifopts_write_new_descr(void)
 static void
 ifopts_write_new_hide(void)
 {
-	gint	i;
+	GtkListStore *store;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gboolean more_items = TRUE;
 	gint	first_if = TRUE;				/* flag to check if first in list */
 	gchar	*ifnm;
 	gchar	*hide;
@@ -945,38 +1117,44 @@ ifopts_write_new_hide(void)
 	new_hide = g_malloc0(MAX_VAL_LEN);
 
 	/* get "hidden" flag text for each row (interface) */
-	for (i = 0; ;i++) {
-		/* get flag */
-		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 4, &hide) != 1)
-			break;
-		/* if flag text is "No", skip this interface */
-		if (strcmp("No", hide) == 0)
-			continue;
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_clist));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+				DEVICE_COLUMN, &ifnm,
+				VISIBLE_COLUMN, &hide,
+				-1);
 
-		/* get interface name */
-		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
+			/* if flag text is "No", skip this interface */
+			if (strcmp("No", hide) == 0){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
 
 		/*
 		 * create/cat interface to new string
 		 */
-		if (first_if != TRUE)
-			g_strlcat (new_hide, ",", MAX_VAL_LEN);
-		g_strlcat (new_hide, ifnm, MAX_VAL_LEN);
+			if (first_if != TRUE)
+				g_strlcat (new_hide, ",", MAX_VAL_LEN);
+			g_strlcat (new_hide, ifnm, MAX_VAL_LEN);
 
-		/* set first-in-list flag to false */
-		first_if = FALSE;
-	}
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
+		}
 
-	/* write new "hidden" string to preferences */
-	if (strlen(new_hide) > 0) {
-		g_free(prefs.capture_devices_hide);
-		prefs.capture_devices_hide = new_hide;
-	}
-	/* no "hidden" interfaces */
-	else {
-		g_free(prefs.capture_devices_hide);
-		g_free(new_hide);
-		prefs.capture_devices_hide = NULL;
+		/* write new "hidden" string to preferences */
+		if (strlen(new_hide) > 0) {
+			g_free(prefs.capture_devices_hide);
+			prefs.capture_devices_hide = new_hide;
+		}
+		/* no "hidden" interfaces */
+		else {
+			g_free(prefs.capture_devices_hide);
+			g_free(new_hide);
+			prefs.capture_devices_hide = NULL;
+		}
 	}
 }
 
