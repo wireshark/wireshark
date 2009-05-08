@@ -799,92 +799,92 @@ proto_register_llc(void)
 			VALS(sap_vals), 0x0, "DSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_dsap_ig,
-		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_HEX,
-			&ig_bit, 0x0, "Individual/Group - Least Significant Bit only", HFILL }},
+		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, 8,
+			TFS(&ig_bit), 0x0, "Individual/Group - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ssap,
 		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX,
 			VALS(sap_vals), 0x0, "SSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_ssap_cr,
-		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_HEX,
-			&cr_bit, 0x0, "Command/Response - Least Significant Bit only", HFILL }},
+		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, 8,
+			TFS(&cr_bit), 0x0, "Command/Response - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ctrl,
 		{ "Control", "llc.control", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_llc_n_r,
 		{ "N(R)", "llc.control.n_r", FT_UINT16, BASE_DEC,
-			NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+			NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
 
 		{ &hf_llc_n_s,
 		{ "N(S)", "llc.control.n_s", FT_UINT16, BASE_DEC,
-			NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+			NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 
 		{ &hf_llc_p,
 		{ "Poll", "llc.control.p", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+			TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_llc_p_ext,
 		{ "Poll", "llc.control.p", FT_BOOLEAN, 16,
-			TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+			TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 
 		{ &hf_llc_f,
 		{ "Final", "llc.control.f", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+			TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_llc_f_ext,
 		{ "Final", "llc.control.f", FT_BOOLEAN, 16,
-			TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+			TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 
 		{ &hf_llc_s_ftype,
 		{ "Supervisory frame type", "llc.control.s_ftype", FT_UINT16, BASE_HEX,
-			VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+			VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
 		{ &hf_llc_u_modifier_cmd,
 		{ "Command", "llc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-			VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+			VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_llc_u_modifier_resp,
 		{ "Response", "llc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-			VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+			VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_llc_ftype_i,
 		{ "Frame type", "llc.control.ftype", FT_UINT16, BASE_HEX,
-			VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+			VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
 		{ &hf_llc_ftype_s_u,
 		{ "Frame type", "llc.control.ftype", FT_UINT8, BASE_HEX,
-			VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+			VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 		{ &hf_llc_ftype_s_u_ext,
 		{ "Frame type", "llc.control.ftype", FT_UINT16, BASE_HEX,
-			VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+			VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_llc_type,
 		{ "Type", "llc.type", FT_UINT16, BASE_HEX,
-			VALS(etype_vals), 0x0, "", HFILL }},
+			VALS(etype_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_llc_oui,
 		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, "", HFILL }},
+			VALS(oui_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_llc_pid,
 		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_llc,
-		&ett_llc_ctrl,
+		&ett_llc_ctrl
 	};
 
 	proto_llc = proto_register_protocol("Logical-Link Control", "LLC", "llc");
 	proto_register_field_array(proto_llc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-/* subdissector code */
+	/* subdissector code */
 	dsap_subdissector_table = register_dissector_table("llc.dsap",
 	  "LLC SAP", FT_UINT8, BASE_HEX);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
@@ -899,18 +899,18 @@ proto_register_basicxid(void)
 	static hf_register_info hf[] = {
 		{ &hf_llc_xid_format,
 		{ "XID Format", "basicxid.llc.xid.format", FT_UINT8, BASE_HEX,
-			VALS(format_vals), 0x0, "", HFILL }},
+			VALS(format_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_llc_xid_types,
 		{ "LLC Types/Classes", "basicxid.llc.xid.types", FT_UINT8, BASE_HEX,
-			VALS(type_vals), 0x0, "", HFILL }},
+			VALS(type_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_llc_xid_wsize,
 		{ "Receive Window Size", "basicxid.llc.xid.wsize", FT_UINT8, BASE_DEC,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
-		&ett_llc_basicxid,
+		&ett_llc_basicxid
 	};
 
 	proto_basicxid = proto_register_protocol("Logical-Link Control Basic Format XID", "Basic Format XID", "basicxid");
