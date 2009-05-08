@@ -74,7 +74,7 @@ void lua_menu_callback(gpointer data) {
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
 #define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '/'s. (string) */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
-#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of MENU_STAT (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Statistics, third section), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS (Tools). (number) */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of MENU_STAT (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS (Tools). (number) */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
@@ -82,13 +82,13 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
 	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
 	if ( group > REGISTER_TOOLS_GROUP_UNSORTED)
-		WSLUA_OPTARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
+		WSLUA_OPTARG_ERROR(register_menu,GROUP,"Must be a defined MENU_* (see init.lua)");
 
 	if(!name)
-		WSLUA_ARG_ERROR(register_menu,NAME,"must be a string");
+		WSLUA_ARG_ERROR(register_menu,NAME,"Must be a string");
 
     if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION))
-		WSLUA_ARG_ERROR(register_menu,ACTION,"must be a function");
+		WSLUA_ARG_ERROR(register_menu,ACTION,"Must be a function");
 
     md = g_malloc(sizeof(struct _lua_menu_data));
     md->L = L;
@@ -215,17 +215,17 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     }
 
     if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
-        WSLUA_ARG_ERROR(new_dialog,TITLE,"must be a string");
+        WSLUA_ARG_ERROR(new_dialog,TITLE,"Must be a string");
         return 0;
     }
 
     if (! lua_isfunction(L,WSLUA_ARG_new_dialog_ACTION)) {
-        WSLUA_ARG_ERROR(new_dialog,ACTION,"must be a function");
+        WSLUA_ARG_ERROR(new_dialog,ACTION,"Must be a function");
         return 0;
     }
 
     if (top < 3) {
-        WSLUA_ERROR(new_dialog,"at least one field required");
+        WSLUA_ERROR(new_dialog,"At least one field required");
         return 0;
     }
 
@@ -248,7 +248,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 		/* XXX leaks labels on error */
 		if (! label)
-			WSLUA_ERROR(new_dialog,"all fields must be strings");
+			WSLUA_ERROR(new_dialog,"All fields must be strings");
 
         g_ptr_array_add(labels,label);
     }
@@ -294,13 +294,13 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     pd->task = g_strdup(task);
 
 	if (!pd) {
-		WSLUA_ERROR(ProgDlg_update,"cannot be called for something not a ProgDlg");
+		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     }
     
     if (pr >= 0.0 || pr <= 1.0) {
         ops->update_progress(pd->pw, (float) pr, task);
     } else {
-        WSLUA_ERROR(ProgDlg_update,"progress value out of range (must be between 0.0 and 1.0)");
+        WSLUA_ERROR(ProgDlg_update,"Progress value out of range (must be between 0.0 and 1.0)");
     }
     
     return 0;
@@ -310,7 +310,7 @@ WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has press
     ProgDlg pd = checkProgDlg(L,1);
     
 	if (!pd) {
-		WSLUA_ERROR(ProgDlg_stopped,"cannot be called for something not a ProgDlg");
+		WSLUA_ERROR(ProgDlg_stopped,"Cannot be called for something not a ProgDlg");
     }
     
     lua_pushboolean(L,pd->stopped);
@@ -324,7 +324,7 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
     ProgDlg pd = checkProgDlg(L,1);
     
 	if (!pd) {
-		WSLUA_ERROR(ProgDlg_update,"cannot be called for something not a ProgDlg");
+		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     }
 
     if (pd->pw) {
@@ -425,12 +425,12 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     struct _close_cb_data* cbd;
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_at_close,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
 
     lua_settop(L,2);
 
     if (! lua_isfunction(L,2))
-        WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"must be a function");
+        WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"Must be a function");
 
     cbd = g_malloc(sizeof(struct _close_cb_data));
 
@@ -450,13 +450,13 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_set,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
     if (!text)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"must be a string");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
 
     ops->set_text(tw->ws_tw,text);
 
@@ -469,13 +469,13 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_append,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
 	if (!text)
-		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"must be a string");
+		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
 
     ops->append_text(tw->ws_tw,text);
 
@@ -488,27 +488,27 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_prepend,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
  	if (!text)
-		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"must be a string");
+		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
 
     ops->prepend_text(tw->ws_tw,text);
 
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
-WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. */
+WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. */
     TextWindow tw = checkTextWindow(L,1);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_clear,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
     ops->clear_text(tw->ws_tw);
 
@@ -520,10 +520,10 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
 	const gchar* text;
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_get_text,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
 	text = ops->get_text(tw->ws_tw);
 
@@ -555,10 +555,10 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 	gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_set_editable,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
 	if (ops->set_editable)
 		ops->set_editable(tw->ws_tw,editable);
@@ -609,10 +609,10 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	wslua_bt_cb_t* cbd;
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_add_button,"cannot be called for something not a TextWindow");
+		WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Expired TextWindow");
     
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
@@ -676,23 +676,23 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 	if ( ops->retap_packets ) {
 		ops->retap_packets();
 	} else {
-		WSLUA_ERROR(wslua_retap_packets, "does not work on TShark");
+		WSLUA_ERROR(wslua_retap_packets, "Does not work on TShark");
 	}
 
 	return 0;
 }
 
 
-WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* copy a string into the clipboard */
+WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard */
 #define WSLUA_ARG_copy_to_clipboard_TEXT 1 /* The string to be copied into the clipboard. */
 	const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
 	GString* gstr;
 	if (!ops->copy_to_clipboard) {
-		WSLUA_ERROR(wslua_copy_to_clipboard, "does not work on TShark");
+		WSLUA_ERROR(wslua_copy_to_clipboard, "Does not work on TShark");
 	}
 
 	if (!copied_str) {
-		WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"must be a string");
+		WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"Must be a string");
 	}
 
 	gstr = g_string_new(copied_str);
@@ -704,7 +704,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* copy a string into the
 	return 0;
 }
 
-WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a capture file */
+WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
 #define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter to be applied as the file gets opened. */
 
@@ -713,11 +713,11 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a cap
 	const char* error = NULL;
 
 	if (!ops->open_file) {
-		WSLUA_ERROR(wslua_open_capture_file, "does not work on TShark");
+		WSLUA_ERROR(wslua_open_capture_file, "Does not work on TShark");
 	}
 
 	if (!fname) {
-		WSLUA_ARG_ERROR(open_capture_file,FILENAME,"must be a string");
+		WSLUA_ARG_ERROR(open_capture_file,FILENAME,"Must be a string");
 	}
 
 	if (! ops->open_file(fname,filter,&error) ) {
@@ -735,16 +735,16 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a cap
 	}
 }
 
-WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* set the main filter text */
+WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 #define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
 	const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
 
 	if (!ops->set_filter) {
-		WSLUA_ERROR(wslua_set_filter, "does not work on TShark");
+		WSLUA_ERROR(wslua_set_filter, "Does not work on TShark");
 	}
 
 	if (!filter_str) {
-		WSLUA_ARG_ERROR(set_filter,TEXT,"must be a string");
+		WSLUA_ARG_ERROR(set_filter,TEXT,"Must be a string");
 	}
 
 	ops->set_filter(filter_str);
@@ -752,9 +752,9 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* set the main filter text */
 	return 0;
 }
 
-WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* apply the filter in the main filter box */
+WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box */
 	if (!ops->apply_filter) {
-		WSLUA_ERROR(wslua_apply_filter, "does not work on TShark");
+		WSLUA_ERROR(wslua_apply_filter, "Does not work on TShark");
 	}
 
 	ops->apply_filter();
@@ -763,10 +763,10 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* apply the filter in the mai
 }
 
 
-WSLUA_FUNCTION wslua_reload(lua_State* L) { /* reload the current capture file */
+WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file */
 
 	if (!ops->reload) {
-		WSLUA_ERROR(wslua_reload, "does not work on TShark");
+		WSLUA_ERROR(wslua_reload, "Does not work on TShark");
 	}
 
 	ops->reload();
@@ -775,16 +775,16 @@ WSLUA_FUNCTION wslua_reload(lua_State* L) { /* reload the current capture file *
 }
 
 
-WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* open an url in a browser */
+WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser */
 #define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
 	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
 	if (!ops->browser_open_url) {
-		WSLUA_ERROR(browser_open_url, "does not work on TShark");
+		WSLUA_ERROR(browser_open_url, "Does not work on TShark");
 	}
 
 	if (!url) {
-		WSLUA_ARG_ERROR(browser_open_url,URL,"must be a string");
+		WSLUA_ARG_ERROR(browser_open_url,URL,"Must be a string");
 	}
 
 	ops->browser_open_url(url);
@@ -792,16 +792,16 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* open an url in a browse
 	return 0;
 }
 
-WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* open an file in a browser */
+WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a browser */
 #define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The url. */
 	const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
 	if (!ops->browser_open_data_file) {
-		WSLUA_ERROR(browser_open_data_file, "does not work on TShark");
+		WSLUA_ERROR(browser_open_data_file, "Does not work on TShark");
 	}
 
 	if (!file) {
-		WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"must be a string");
+		WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"Must be a string");
 	}
 
 	ops->browser_open_data_file(file);

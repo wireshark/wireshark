@@ -214,7 +214,7 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
-	/* sets the text of the label */
+	/* Sets the text of the label */
 #define WSLUA_ARG_TreeItem_set_text_TEXT 2 /* The text to be used. */
     TreeItem ti = checkTreeItem(L,1);
     
@@ -227,7 +227,7 @@ WSLUA_METHOD TreeItem_set_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_append_text(lua_State *L) {
-	/* appends text to the label */
+	/* Appends text to the label */
 #define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s;
@@ -245,7 +245,7 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
-/* Sets the expert flags of the item. */
+	/* Sets the expert flags of the item. */
 #define WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
 #define WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
     TreeItem ti = checkTreeItem(L,1);
@@ -267,7 +267,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 	/* Sets the expert flags of the item and adds expert info to the packet. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 3 /* the text for the expert info */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info */
     TreeItem ti = checkTreeItem(L,1);
 	int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
 	int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
@@ -285,7 +285,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
-	/* marks the TreeItem as a generated field (with data infered but not contained in the packet). */
+	/* Marks the TreeItem as a generated field (with data infered but not contained in the packet). */
     TreeItem ti = checkTreeItem(L,1);
     if (ti) {
         if (ti->expired) {
@@ -299,7 +299,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 
 
 WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
-	/* should not be used */
+	/* Should not be used */
     TreeItem ti = checkTreeItem(L,1);
     if (ti) {
         if (ti->expired) {

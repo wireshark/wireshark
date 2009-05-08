@@ -67,11 +67,11 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
 	str = abs_time_to_str(&then);    
 	lua_pushstring(LS,str);
 
-	WSLUA_RETURN(1); /* a string with the formated date */
+	WSLUA_RETURN(1); /* A string with the formated date */
 }
 
 WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestamp in a human readable form */
-#define WSLUA_ARG_format_time_TIMESTAMP 1 /* a timestamp value to convert */
+#define WSLUA_ARG_format_time_TIMESTAMP 1 /* A timestamp value to convert */
 	lua_Number time = luaL_checknumber(LS,WSLUA_ARG_format_time_TIMESTAMP);
 	nstime_t then;
 	gchar* str;
@@ -81,11 +81,11 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
 	str = rel_time_to_str(&then);    
 	lua_pushstring(LS,str);
 
-	WSLUA_RETURN(1); /* a string with the formated time */
+	WSLUA_RETURN(1); /* A string with the formated time */
 }
 
-WSLUA_FUNCTION wslua_report_failure(lua_State* LS) { /* reports a failure to the user */
-#define WSLUA_ARG_report_failure_TEXT 1 /* message */
+WSLUA_FUNCTION wslua_report_failure(lua_State* LS) { /* Reports a failure to the user */
+#define WSLUA_ARG_report_failure_TEXT 1 /* Message */
 	const gchar* s = luaL_checkstring(LS,WSLUA_ARG_report_failure_TEXT);
 	report_failure("%s",s);
 	return 0;
@@ -93,7 +93,7 @@ WSLUA_FUNCTION wslua_report_failure(lua_State* LS) { /* reports a failure to the
 
 static int wslua_log(lua_State* L, GLogLevelFlags log_level) {
     GString* str = g_string_new("");
-    int n = lua_gettop(L);  /* number of arguments */
+    int n = lua_gettop(L);  /* Number of arguments */
     int i;
     
     lua_getglobal(L, "tostring");
@@ -186,7 +186,7 @@ static char* wslua_get_actual_filename(const char* fname) {
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	/* Lua's loadfile() has been modified so that if a file does not exist
 	in the current directory it will look for it in wireshark's user and system directories */
-#define WSLUA_ARG_loadfile_FILENAME 1 /* name of the file to be loaded */
+#define WSLUA_ARG_loadfile_FILENAME 1 /* Name of the file to be loaded */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
 	char* filename;
 	
@@ -208,7 +208,7 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	/* Lua's dofile() has been modified so that if a file does not exist
 	in the current directory it will look for it in wireshark's user and system directories */
-#define WSLUA_ARG_dofile_FILENAME 1 /* name of the file to be run */
+#define WSLUA_ARG_dofile_FILENAME 1 /* Name of the file to be run */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
 	char* filename;
 	int n;
@@ -228,30 +228,30 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 
 
 WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
-#define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* a filename */
+#define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* A filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
 	const char* filename = get_persconffile_path(fname,FALSE,FALSE);
 	
 	lua_pushstring(L,filename);
-	WSLUA_RETURN(1); /* the full pathname for a file in the personal configuration directory */
+	WSLUA_RETURN(1); /* The full pathname for a file in the personal configuration directory */
 }
 
 WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
-#define WSLUA_OPTARG_datafile_path_FILENAME 1 /* a filename */
+#define WSLUA_OPTARG_datafile_path_FILENAME 1 /* A filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
 	const char* filename = get_datafile_path(fname);
 
 	lua_pushstring(L,filename);
-	WSLUA_RETURN(1); /* the full pathname for a file in wireshark's configuration directory */
+	WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory */
 }
 
 
 WSLUA_CLASS_DEFINE(Dir,NOP,NOP); /* A Directory */
 
 WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
-	/* usage: for filename in Dir.open(path) do ... end */
-#define WSLUA_ARG_Dir_open_PATHNAME 1 /* the pathname of the directory */
-#define WSLUA_OPTARG_Dir_open_EXTENSION 2 /* if given, only file with this extension will be returned */
+	/* Usage: for filename in Dir.open(path) do ... end */
+#define WSLUA_ARG_Dir_open_PATHNAME 1 /* The pathname of the directory */
+#define WSLUA_OPTARG_Dir_open_EXTENSION 2 /* If given, only file with this extension will be returned */
 	
 	const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
 	const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
@@ -288,7 +288,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Dir__call(lua_State* L) {
-/* at every invocation will return one file (nil when done) */
+	/* At every invocation will return one file (nil when done) */
 
 	Dir dir = checkDir(L,1);
 	const FILE_T* file;
@@ -332,7 +332,7 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
 }
 
 WSLUA_METHOD Dir_close(lua_State* L) {
-/* closes the directory */
+	/* Closes the directory */
 	Dir dir = checkDir(L,1);
 
 	if (dir->dir) {
@@ -417,8 +417,8 @@ void statcmd_init(const char *optarg, void* userdata) {
 
 WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
 	/*  Register a function to handle a -z option */
-#define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /*  */
-#define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /*  */
+#define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* Argument */
+#define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* Action */
 	const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
 	statcmd_t* sc = g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
 	

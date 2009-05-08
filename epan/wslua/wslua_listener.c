@@ -191,8 +191,8 @@ void lua_tap_draw(void *tapdata) {
 
 WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
 	/* Creates a new Listener listener */
-#define WSLUA_OPTARG_Listener_new_TAP 1 /* the name of this tap */
-#define WSLUA_OPTARG_Listener_new_FILTER 2 /* a filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
+#define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap */
+#define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);

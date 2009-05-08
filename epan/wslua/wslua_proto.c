@@ -159,9 +159,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
 }
 
 WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
-	/*
-	 * Creates a boolean preference to be added to a Protocol's prefs table.
-	 */
+	/* Creates a boolean preference to be added to a Protocol's prefs table. */
 #define WSLUA_ARG_Pref_bool_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_bool_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_bool_DESCR 3 /* A description of what this preference is */
@@ -169,9 +167,7 @@ WSLUA_CONSTRUCTOR Pref_bool(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
-	/*
-	 * Creates an (unsigned) integer preference to be added to a Protocol's prefs table.
-	 */
+	/* Creates an (unsigned) integer preference to be added to a Protocol's prefs table. */
 #define WSLUA_ARG_Pref_uint_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_uint_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_uint_DESCR 3 /* A description of what this preference is */
@@ -179,9 +175,7 @@ WSLUA_CONSTRUCTOR Pref_uint(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
-	/*
-	 * Creates a string preference to be added to a Protocol's prefs table.
-	 */
+	/* Creates a string preference to be added to a Protocol's prefs table. */
 #define WSLUA_ARG_Pref_string_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_string_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_string_DESCR 3 /* A description of what this preference is */
@@ -189,35 +183,29 @@ WSLUA_CONSTRUCTOR Pref_string(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Pref_enum(lua_State* L) {
-	/*
-	 * Creates an enum preference to be added to a Protocol's prefs table.
-	 */
+	/* Creates an enum preference to be added to a Protocol's prefs table. */
 #define WSLUA_ARG_Pref_enum_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
 #define WSLUA_ARG_Pref_enum_DEFAULT 2 /* The default value for this preference */
 #define WSLUA_ARG_Pref_enum_DESCR 3 /* A description of what this preference is */
-#define WSLUA_ARG_Pref_enum_ENUM 4 /* enum */
-#define WSLUA_ARG_Pref_enum_RADIO 5 /* radio_button or combobox */
+#define WSLUA_ARG_Pref_enum_ENUM 4 /* A enum table */
+#define WSLUA_ARG_Pref_enum_RADIO 5 /* Radio button (true) or Combobox (false) */
     return new_pref(L,PREF_ENUM);
 }
 
 WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
-	/*
-	 * Creates a range preference to be added to a Protocol's prefs table.
-	 */
-#define WSLUA_ARG_Pref_enum_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ARG_Pref_enum_DEFAULT 2 /* The default value for this preference */
-#define WSLUA_ARG_Pref_enum_DESCR 3 /* A description of what this preference is */
-#define WSLUA_ARG_Pref_enum_RANGE 4 /* The range */
-#define WSLUA_ARG_Pref_enum_MAX 5 /* The maximum value */
+	/* Creates a range preference to be added to a Protocol's prefs table. */
+#define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
+#define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference */
+#define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is */
+#define WSLUA_ARG_Pref_range_RANGE 4 /* The range */
+#define WSLUA_ARG_Pref_range_MAX 5 /* The maximum value */
     return new_pref(L,PREF_RANGE);
 }
 
-WSLUA_CONSTRUCTOR Pref_stext(lua_State* L) {
-	/*
-	 * Creates a static text preference to be added to a Protocol's prefs table.
-	 */
-#define WSLUA_ARG_Pref_enum_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ARG_Pref_enum_TEXT 2 /* The static text */
+WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
+	/* Creates a static text preference to be added to a Protocol's prefs table.  */
+#define WSLUA_ARG_Pref_statictext_LABEL 1 /* The static text */
+#define WSLUA_ARG_Pref_statictext_DESCR 2 /* The static text description */
     return new_pref(L,PREF_STATIC_TEXT);
 }
 
@@ -241,7 +229,7 @@ WSLUA_METHODS Pref_methods[] = {
     {"string", Pref_string},
     {"enum",   Pref_enum},
     {"range",  Pref_range},
-    {"statictext",  Pref_stext},
+    {"statictext",  Pref_statictext},
     {0,0}
 };
 
@@ -259,7 +247,7 @@ WSLUA_REGISTER Pref_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(Prefs,NOP,NOP); /* The table of preferences of a protocol */
 
 WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
-	/* creates a new preference */
+	/* Creates a new preference */
 #define WSLUA_ARG_Prefs__newindex_NAME 2 /* The abbreviation of this preference */
 #define WSLUA_ARG_Prefs__newindex_PREF 3 /* A valid but still unassigned Pref object */
 
@@ -347,10 +335,10 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                     prefs_register_static_text_preference(prefs->proto->prefs_module, 
                                                      pref->name,
                                                      pref->label,
-                                                     "This is just a static text");
+                                                     pref->desc);
                     break;
                 default:
-                    WSLUA_ERROR(Prefs__newindex,"unknow Pref type");
+                    WSLUA_ERROR(Prefs__newindex,"Unknow Pref type");
             }
             
             pref->proto = p->proto;
@@ -365,7 +353,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Prefs__index(lua_State* L) {
-	/* get the value of a preference setting */
+	/* Get the value of a preference setting */
 #define WSLUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference  */
 
     Pref prefs = checkPrefs(L,1);
@@ -383,9 +371,9 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                 case PREF_STRING: lua_pushstring(L,prefs->value.s); break;
                 case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs->value.e); break;
                 case PREF_RANGE: lua_pushstring(L,range_convert_range(prefs->value.r)); break;
-                default: WSLUA_ERROR(Prefs__index,"unknow Pref type");
+                default: WSLUA_ERROR(Prefs__index,"Unknow Pref type");
             }
-            WSLUA_RETURN(1); /* the current value of the preference */
+            WSLUA_RETURN(1); /* The current value of the preference */
         }
     } while (( prefs = prefs->next ));
 
@@ -406,9 +394,7 @@ WSLUA_REGISTER Prefs_register(lua_State* L) {
 
 
 WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"),NOP);
-/*
- * A Protocol field (to be used when adding items to the dissection tree)
- */
+	/* A Protocol field (to be used when adding items to the dissection tree) */
 
 static const wslua_ft_types_t ftenums[] = {
 {"FT_BOOLEAN",FT_BOOLEAN},
@@ -466,7 +452,7 @@ struct base_display_string_t {
 };
 
 static const struct base_display_string_t base_displays[] = {
-	{ "BASE_NONE", BASE_NONE},
+	{"BASE_NONE", BASE_NONE},
 	{"BASE_DEC", BASE_DEC},
 	{"BASE_HEX", BASE_HEX},
 	{"BASE_OCT", BASE_OCT},
@@ -544,9 +530,9 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
 #define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
-#define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* a ValueString object. */
+#define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A ValueString object. */
 #define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
-#define WSLUA_OPTARG_ProtoField_new_MASK 6 /* the bitmask to be used.  */
+#define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 	
     ProtoField f = g_malloc(sizeof(wslua_field_t));
@@ -624,103 +610,103 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 
 #define PROTOFIELD_INTEGER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_integer(L,FT); }
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint8 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint16 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint24 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint32 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_uint64 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int8 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int16 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int24 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int32 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int64 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
-/* _WSLUA_CONSTRUCTOR_ ProtoField_framenum a frame number (for hyperlinks between frames) */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* _WSLUA_CONSTRUCTOR_ ProtoField_framenum A frame number (for hyperlinks between frames) */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_BASE one of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING a table containing the text that corresponds to the values  */
-/* WSLUA_OPTARG_Protofield_uint8_MASK integer mask of this field  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 PROTOFIELD_INTEGER(uint8,FT_UINT8)
 PROTOFIELD_INTEGER(uint16,FT_UINT16)
@@ -757,76 +743,76 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 
 #define PROTOFIELD_OTHER(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_other(L,FT); }
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ipv4 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ipv6 */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ether */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_float */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_double */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_string */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_stringz */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bytes */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ubytes */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_guid */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_oid */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bool */
-/* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
+/* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
-/* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
+/* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
 
 PROTOFIELD_OTHER(ipv4,FT_IPv4)
 PROTOFIELD_OTHER(ipv6,FT_IPv6)
@@ -1004,7 +990,7 @@ static int Proto_tostring(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
-	/* make a protocol (with a dissector) a postdissector. It will be called for every frame after dissection */
+	/* Make a protocol (with a dissector) a postdissector. It will be called for every frame after dissection */
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as postdissector */
     Proto proto = checkProto(L,WSLUA_ARG_register_postdissector_PROTO);
     if (!proto) return 0;
@@ -1150,19 +1136,19 @@ typedef struct {
 } proto_actions_t;
 
 static const proto_actions_t proto_actions[] = {
-	/* WSLUA_ATTRIBUTE Proto_dissector RW the protocol's dissector, a function you define */
+	/* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define */
     {"dissector",Proto_get_dissector, Proto_set_dissector},
 
-	/* WSLUA_ATTRIBUTE Proto_fields RO the Fields Table of this dissector */
+	/* WSLUA_ATTRIBUTE Proto_fields RO The Fields Table of this dissector */
     {"fields" ,Proto_get_fields, Proto_set_fields},
 	
-	/* WSLUA_ATTRIBUTE Proto_get_prefs RO the preferences of this dissector */
+	/* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
     {"prefs",Proto_get_prefs,NULL},
 
-	/* WSLUA_ATTRIBUTE Proto_init WO the init routine of this dissector, a function you define */
+	/* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define */
     {"init",NULL,Proto_set_init},
 
-	/* WSLUA_ATTRIBUTE Proto_name RO the name given to this dissector */
+	/* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
     {"name",Proto_get_name,NULL},
     {NULL,NULL,NULL}
 };
@@ -1283,9 +1269,7 @@ WSLUA_CLASS_DEFINE(Dissector,NOP,NOP);
 
 
 WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
-	/*
-	 *  Obtains a dissector reference by name
-	 */
+	/* Obtains a dissector reference by name */
 #define WSLUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
     Dissector d;
@@ -1302,9 +1286,7 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 }
 
 WSLUA_METHOD Dissector_call(lua_State* L) {
-	/*
-	 *  Calls a dissector against a given packet (or part of it)
-	 */
+	/* Calls a dissector against a given packet (or part of it) */
 #define WSLUA_ARG_Dissector_call_TVB 2 /* The buffer to dissect */
 #define WSLUA_ARG_Dissector_call_PINFO 3 /* The packet info */
 #define WSLUA_ARG_Dissector_call_TREE 4 /* The tree on which to add the protocol items */
@@ -1322,7 +1304,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
         proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-	error = "malformed frame";
+	error = "Malformed frame";
     } ENDTRY;
 
      if (error) { WSLUA_ERROR(Dissector_call,error); }
@@ -1362,13 +1344,11 @@ WSLUA_CLASS_DEFINE(DissectorTable,NOP,NOP);
  */
 
 WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
-	/*
-	 Creates a new DissectorTable for your dissector's use .
-	 */
+	/* Creates a new DissectorTable for your dissector's use. */
 #define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
-#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
-#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* either BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX or BASE_HEX_DEC (defaults to BASE_DEC) */
+#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
+#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX or BASE_HEX_DEC (defaults to BASE_DEC) */
     gchar* name = (void*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
@@ -1547,7 +1527,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
 	} CATCH(ReportedBoundsError) {
 		proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-		error = "malformed frame";
+		error = "Malformed frame";
 	} ENDTRY;
 
 	if (error) { WSLUA_ERROR(DissectorTable_try,error); }

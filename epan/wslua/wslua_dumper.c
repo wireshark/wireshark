@@ -77,7 +77,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
 	 Creates an ethernet pseudoheader
 	 */
 
-#define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* the fcs length */
+#define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* The fcs length */
 	
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
@@ -206,12 +206,12 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 	filename = cross_plat_fname(fname);
 		
     if (!wtap_dump_can_write_encap(filetype, encap))
-        WSLUA_ERROR(Dumper_new,"not every filetype handles every encap");
+        WSLUA_ERROR(Dumper_new,"Not every filetype handles every encap");
     
     d = wtap_dump_open(filename, filetype, encap,0 , FALSE, &err);
     
     if (! d ) {
-		/* WSLUA_ERROR("error while opening file for writing"); */
+		/* WSLUA_ERROR("Error while opening file for writing"); */
         luaL_error(L,"error while opening `%s': %s",
                    filename,
                    wtap_strerror(err));
@@ -319,7 +319,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 	filename = cross_plat_fname(fname);
 	
     if (! lua_pinfo )
-		WSLUA_ERROR(Dumper_new_for_current,"cannot be used outside a tap or a dissector");
+		WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
     
     encap = lua_pinfo->fd->lnk_t;
     
@@ -356,7 +356,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     
     if (!d) return 0;
     
-	if (! lua_pinfo ) WSLUA_ERROR(Dumper_new_for_current,"cannot be used outside a tap or a dissector");
+	if (! lua_pinfo ) WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
 
     data_src = ((data_source*)(lua_pinfo->data_src->data))->tvb;
 

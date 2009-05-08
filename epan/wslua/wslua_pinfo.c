@@ -79,7 +79,7 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
-    WSLUA_RETURN(1); /* the Address object */
+    WSLUA_RETURN(1); /* The Address object */
 }
 
 #if 0
@@ -230,7 +230,7 @@ static int Address__gc(lua_State* L) {
     return 0;
 }
 
-WSLUA_METAMETHOD Address__eq(lua_State* L) { /* compares two Addresses */
+WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -243,7 +243,7 @@ WSLUA_METAMETHOD Address__eq(lua_State* L) { /* compares two Addresses */
     return 1;
 }
 
-WSLUA_METAMETHOD Address__le(lua_State* L) { /* compares two Addresses */
+WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -256,7 +256,7 @@ WSLUA_METAMETHOD Address__le(lua_State* L) { /* compares two Addresses */
     return 1;
 }
 
-WSLUA_METAMETHOD Address__lt(lua_State* L) { /* compares two Addresses */
+WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -495,8 +495,8 @@ WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
 
 WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 	/* Sets the text of a specific column */
-#define WSLUA_ARG_Columns__newindex_COLUMN 2 /* the name of the column to set */
-#define WSLUA_ARG_Columns__newindex_TEXT 3 /* the text for the column */
+#define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set */
+#define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname;
@@ -943,7 +943,7 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns */
     {"columns", Pinfo_columns, pushnil_param, PARAM_NONE },
 
-	/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.cols) */
+	/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns) */
     {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
 
 	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU */
