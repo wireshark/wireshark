@@ -67,12 +67,10 @@
 #define DebugLog(x) ;
 #endif
 
-
 /*
  * Forward declarations
  */
 static void dissect_mmse_standalone(tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_mmse_encapsulated(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 pdut, const char *message_type);
 
@@ -80,10 +78,10 @@ static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Header field values
  */
 /* MMS 1.0 */
-#define MM_BCC_HDR		0x81	/* Bcc			*/
-#define MM_CC_HDR		0x82	/* Cc			*/
+#define MM_BCC_HDR		0x81	/* Bcc				*/
+#define MM_CC_HDR		0x82	/* Cc				*/
 #define MM_CLOCATION_HDR	0x83	/* X-Mms-Content-Location	*/
-#define MM_CTYPE_HDR		0x84	/* Content-Type		*/
+#define MM_CTYPE_HDR		0x84	/* Content-Type			*/
 #define MM_DATE_HDR		0x85	/* Date				*/
 #define MM_DREPORT_HDR		0x86	/* X-Mms-Delivery-Report	*/
 #define MM_DTIME_HDR		0x87	/* X-Mms-Delivery-Time		*/
@@ -177,8 +175,8 @@ static const value_string vals_mm_header_names[] = {
 	{ MM_PREV_SENT_DATE_HDR,	"X-Mms-Previously-Sent-Date" },
 	/* MMS 1.2 */
 	{ MM_STORE_HDR,			"X-Mms-Store" },
-	{ MM_MM_STATE_HDR,		"X-Mms-MM-State	" },
-	{ MM_MM_FLAGS_HDR,		"X-Mms-MM-Flags	" },
+	{ MM_MM_STATE_HDR,		"X-Mms-MM-State" },
+	{ MM_MM_FLAGS_HDR,		"X-Mms-MM-Flags" },
 	{ MM_STORE_STATUS_HDR,		"X-Mms-Store-Status" },
 	{ MM_STORE_STATUS_TEXT_HDR,	"X-Mms-Store-Status-Text" },
 	{ MM_STORED_HDR,		"X-Mms-Stored" },
