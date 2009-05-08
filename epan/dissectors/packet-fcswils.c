@@ -436,7 +436,7 @@ GHashTable *fcswils_req_hash = NULL;
 typedef void (*fcswils_dissector_t)(tvbuff_t *tvb, proto_tree *tree, guint8 isreq);
 
 typedef struct _fcswils_func_table_t {
-	fcswils_dissector_t	func;
+    fcswils_dissector_t func;
 } fcswils_func_table_t;
 
 static dissector_handle_t data_handle, fcsp_handle;
@@ -449,21 +449,21 @@ static gint get_zoneobj_len (tvbuff_t *tvb, gint offset);
 static gint
 fcswils_equal(gconstpointer v, gconstpointer w)
 {
-  const fcswils_conv_key_t *v1 = v;
-  const fcswils_conv_key_t *v2 = w;
+    const fcswils_conv_key_t *v1 = v;
+    const fcswils_conv_key_t *v2 = w;
 
-  return (v1->conv_idx == v2->conv_idx);
+    return (v1->conv_idx == v2->conv_idx);
 }
 
 static guint
 fcswils_hash (gconstpointer v)
 {
-	const fcswils_conv_key_t *key = v;
-	guint val;
+    const fcswils_conv_key_t *key = v;
+    guint val;
 
-	val = key->conv_idx;
+    val = key->conv_idx;
 
-	return val;
+    return val;
 }
 
 /*
@@ -472,10 +472,10 @@ fcswils_hash (gconstpointer v)
 static void
 fcswils_init_protocol(void)
 {
-	if (fcswils_req_hash)
-            g_hash_table_destroy (fcswils_req_hash);
+    if (fcswils_req_hash)
+        g_hash_table_destroy (fcswils_req_hash);
 
-	fcswils_req_hash = g_hash_table_new(fcswils_hash, fcswils_equal);
+    fcswils_req_hash = g_hash_table_new(fcswils_hash, fcswils_equal);
 
 }
 
@@ -531,182 +531,182 @@ static int
 dissect_swils_interconnect_element_info (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 
-     int len, max_len = MAX_INTERCONNECT_ELEMENT_INFO_LEN;
+    int len, max_len = MAX_INTERCONNECT_ELEMENT_INFO_LEN;
 
-     if (tree) {
-          proto_tree_add_item (tree, hf_swils_interconnect_list_len, tvb, offset+3, 1, 0);
-          len = tvb_strsize (tvb, offset+4);
-          proto_tree_add_item (tree, hf_swils_ess_vendorname, tvb, offset+4, len, FALSE);
-          offset += (4 + len);
-          max_len -= len;
-          len = tvb_strsize (tvb, offset);
-          proto_tree_add_item (tree, hf_swils_ess_modelname, tvb, offset, len, FALSE);
-          offset += len;
-          max_len -= len;
-          len = tvb_strsize (tvb, offset);
-          proto_tree_add_item (tree, hf_swils_ess_relcode, tvb, offset, len, FALSE);
-          offset += len;
-          max_len -= len;
-          while (max_len > 0) {
-               /* Vendor specific field is a set of one or more null-terminated
-                * strings
-                */
-               len = tvb_strsize (tvb, offset);
-               proto_tree_add_item (tree, hf_swils_ess_vendorspecific, tvb, offset, len, FALSE);
-               offset += len;
-               max_len -= len;
-          }
-     }
+    if (tree) {
+        proto_tree_add_item (tree, hf_swils_interconnect_list_len, tvb, offset+3, 1, 0);
+        len = tvb_strsize (tvb, offset+4);
+        proto_tree_add_item (tree, hf_swils_ess_vendorname, tvb, offset+4, len, FALSE);
+        offset += (4 + len);
+        max_len -= len;
+        len = tvb_strsize (tvb, offset);
+        proto_tree_add_item (tree, hf_swils_ess_modelname, tvb, offset, len, FALSE);
+        offset += len;
+        max_len -= len;
+        len = tvb_strsize (tvb, offset);
+        proto_tree_add_item (tree, hf_swils_ess_relcode, tvb, offset, len, FALSE);
+        offset += len;
+        max_len -= len;
+        while (max_len > 0) {
+            /* Vendor specific field is a set of one or more null-terminated
+             * strings
+             */
+            len = tvb_strsize (tvb, offset);
+            proto_tree_add_item (tree, hf_swils_ess_vendorspecific, tvb, offset, len, FALSE);
+            offset += len;
+            max_len -= len;
+        }
+    }
 
-     return TRUE;
+    return TRUE;
 }
 
 static void
 dissect_swils_ess_capability (tvbuff_t *tvb, proto_tree *tree, int offset,
                               guint8 srvr_type)
 {
-     if (tree) {
-          switch (srvr_type) {
-          case FCCT_GSRVR_DNS:
-               proto_tree_add_item (tree, hf_swils_ess_dns_zlacc, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_dns_obj3h, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_dns_obj2h, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_dns_obj1h, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_dns_obj0h, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_dns_vendor, tvb,
-                                    offset+4, 4, 0);
-               break;
-          case FCCT_GSRVR_FCTLR:
-               proto_tree_add_item (tree, hf_swils_ess_fctlr_rscn, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fctlr_vendor, tvb,
-                                    offset+4, 4, 0);
-               break;
-          case FCCT_GSRVR_FCS:
-               proto_tree_add_item (tree, hf_swils_ess_fcs_basic, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fcs_platform, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fcs_topology, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fcs_enhanced, tvb,
-                                    offset+3, 1, 0);
-               break;
-          case FCCT_GSRVR_FZS:
-               proto_tree_add_item (tree, hf_swils_ess_fzs_enh_supp, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_enh_ena, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_mr, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_defzone, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_supp, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_ena, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_adc_supp, tvb,
-                                    offset+3, 1, 0);
-               proto_tree_add_item (tree, hf_swils_ess_fzs_hardzone, tvb,
-                                    offset+3, 1, 0);
-               break;
-          default:
-               break;
-          }
-     }
+    if (tree) {
+        switch (srvr_type) {
+        case FCCT_GSRVR_DNS:
+            proto_tree_add_item (tree, hf_swils_ess_dns_zlacc, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_dns_obj3h, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_dns_obj2h, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_dns_obj1h, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_dns_obj0h, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_dns_vendor, tvb,
+                                 offset+4, 4, 0);
+            break;
+        case FCCT_GSRVR_FCTLR:
+            proto_tree_add_item (tree, hf_swils_ess_fctlr_rscn, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fctlr_vendor, tvb,
+                                 offset+4, 4, 0);
+            break;
+        case FCCT_GSRVR_FCS:
+            proto_tree_add_item (tree, hf_swils_ess_fcs_basic, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fcs_platform, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fcs_topology, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fcs_enhanced, tvb,
+                                 offset+3, 1, 0);
+            break;
+        case FCCT_GSRVR_FZS:
+            proto_tree_add_item (tree, hf_swils_ess_fzs_enh_supp, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_enh_ena, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_mr, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_defzone, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_supp, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_ena, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_adc_supp, tvb,
+                                 offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_swils_ess_fzs_hardzone, tvb,
+                                 offset+3, 1, 0);
+            break;
+        default:
+            break;
+        }
+    }
 
-     return;
+    return;
 }
 
 static int
 dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-     int i = 0, num_entries = 0, len = 0, total_len = 0;
-     guint8 type, subtype, srvr_type;
-     proto_item *ti = NULL;
-     proto_tree *capinfo_tree = NULL;
+    int i = 0, num_entries = 0, len = 0, total_len = 0;
+    guint8 type, subtype, srvr_type;
+    proto_item *ti = NULL;
+    proto_tree *capinfo_tree = NULL;
 
-     if (tree) {
-          /*
-           * Structure of capability object is: WK type (2B), WK subtype(2),
-           * rsvd (1), num_cap_entries (1), entry_1 (8) ... entry_n (8)
-           */
-          /* Compute length first to create subtree of cap object */
-          type = tvb_get_guint8 (tvb, offset);
-          if (type != FCCT_GSTYPE_VENDOR) {
-               num_entries = tvb_get_guint8 (tvb, offset+3);
-               total_len = 4 + (num_entries*8);
-               ti = proto_tree_add_text (tree, tvb, offset,
-                                         total_len, "Capability Object (%s)",
-                                         val_to_str (type, fc_ct_gstype_vals,
-                                                     "Unknown (0x%x)"));
-               capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
+    if (tree) {
+        /*
+         * Structure of capability object is: WK type (2B), WK subtype(2),
+         * rsvd (1), num_cap_entries (1), entry_1 (8) ... entry_n (8)
+         */
+        /* Compute length first to create subtree of cap object */
+        type = tvb_get_guint8 (tvb, offset);
+        if (type != FCCT_GSTYPE_VENDOR) {
+            num_entries = tvb_get_guint8 (tvb, offset+3);
+            total_len = 4 + (num_entries*8);
+            ti = proto_tree_add_text (tree, tvb, offset,
+                                      total_len, "Capability Object (%s)",
+                                      val_to_str (type, fc_ct_gstype_vals,
+                                                  "Unknown (0x%x)"));
+            capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
 
-          } else {
-               i = tvb_get_guint8 (tvb, offset+3);
-               i += 12;
+        } else {
+            i = tvb_get_guint8 (tvb, offset+3);
+            i += 12;
 
-               ti = proto_tree_add_text (tree, tvb, offset,
-                                         i, "Capability Object (Vendor-specific 0x%x)",
-                                         type);
-               capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
-          }
+            ti = proto_tree_add_text (tree, tvb, offset,
+                                      i, "Capability Object (Vendor-specific 0x%x)",
+                                      type);
+            capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
+        }
 
-          proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_type, tvb, offset, 1, 0);
-          proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_subtype, tvb, offset+1,
-                               1, 0);
-          subtype = tvb_get_guint8 (tvb, offset+1);
+        proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_type, tvb, offset, 1, 0);
+        proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_subtype, tvb, offset+1,
+                             1, 0);
+        subtype = tvb_get_guint8 (tvb, offset+1);
 
-          if (type != FCCT_GSTYPE_VENDOR) {
-               srvr_type = get_gs_server (type, subtype);
-               proto_tree_add_uint (capinfo_tree, hf_swils_ess_cap_svc, tvb, offset, 2,
-                                    srvr_type);
-               proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_numentries, tvb,
-                                    offset+3, 1, 0);
-               offset += 4;
-               len += 4;
+        if (type != FCCT_GSTYPE_VENDOR) {
+            srvr_type = get_gs_server (type, subtype);
+            proto_tree_add_uint (capinfo_tree, hf_swils_ess_cap_svc, tvb, offset, 2,
+                                 srvr_type);
+            proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_numentries, tvb,
+                                 offset+3, 1, 0);
+            offset += 4;
+            len += 4;
 
-               while ((num_entries > 0) && tvb_bytes_exist (tvb, offset, 8)) {
-                    dissect_swils_ess_capability (tvb, capinfo_tree, offset, srvr_type);
-                    num_entries--;
-                    offset += 8;
-                    len += 8;
-               }
-          } else {
-               /* Those damn T11 guys defined another format for
-                * Vendor-specific objects.
-                */
-               proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_len, tvb, offset+3,
-                                    1, 0);
-               proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_t10, tvb, offset+4,
-                                    8, 0);
-               i -= 8;          /* reduce length by t10 object size */
-               offset += 12;
-               len += 12;
+            while ((num_entries > 0) && tvb_bytes_exist (tvb, offset, 8)) {
+                dissect_swils_ess_capability (tvb, capinfo_tree, offset, srvr_type);
+                num_entries--;
+                offset += 8;
+                len += 8;
+            }
+        } else {
+            /* Those damn T11 guys defined another format for
+             * Vendor-specific objects.
+             */
+            proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_len, tvb, offset+3,
+                                 1, 0);
+            proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_t10, tvb, offset+4,
+                                 8, 0);
+            i -= 8;          /* reduce length by t10 object size */
+            offset += 12;
+            len += 12;
 
-               while ((i > 0) && tvb_bytes_exist (tvb, offset, 8)) {
-                    proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_vendorobj,
-                                         tvb, offset, 8, 0);
-                    i -= 8;
-                    offset += 8;
-                    len += 12;
-               }
-          }
-     }
-     return len;
+            while ((i > 0) && tvb_bytes_exist (tvb, offset, 8)) {
+                proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_vendorobj,
+                                     tvb, offset, 8, 0);
+                i -= 8;
+                offset += 8;
+                len += 12;
+            }
+        }
+    }
+    return len;
 }
 
 static void
 dissect_swils_nullpayload (tvbuff_t *tvb _U_, proto_tree *tree _U_,
                            guint8 isreq _U_)
 {
-     /* Common dissector for those ILSs without a payload */
-     return;
+    /* Common dissector for those ILSs without a payload */
+    return;
 }
 
 static void
@@ -745,7 +745,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
                                fcwwn_to_str (elp.req_sname));
         offset += 8;
 
-	flags="";
+        flags="";
         if (elp.clsf_svcparm[0] & 0x80) {
             if (elp.clsf_svcparm[4] & 0x20) {
                 flags="Class F Valid | X_ID Interlock";
@@ -768,7 +768,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         proto_tree_add_item (elp_tree, hf_swils_elp_clsf_openseq, tvb, offset, 2, 0);
         offset += 4;
 
-	flags="";
+        flags="";
         if (elp.cls1_svcparm[0] & 0x80) {
 #define MAX_FLAGS_LEN 40
             char *flagsbuf;
@@ -778,19 +778,19 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             stroff = 0;
 
             returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
-		"Class 1 Valid");
-	    stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
+                                          "Class 1 Valid");
+            stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             if (elp.cls1_svcparm[0] & 0x40) {
                 returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
-	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
+                stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (elp.cls1_svcparm[0] & 0x20) {
                 returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
-	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
+                stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (elp.cls1_svcparm[0] & 0x10) {
                 returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
-	        stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
+                stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             flags=flagsbuf;
         }
@@ -898,7 +898,7 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
     }
     if (efp_tree)
         proto_tree_add_item (efp_tree, hf_swils_efp_payload_len, tvb, offset, 2, 0);
-    offset += 5;	/* skip 3 reserved bytes, too */
+    offset += 5;       /* skip 3 reserved bytes, too */
     if (efp_tree)
         proto_tree_add_item (efp_tree, hf_swils_efp_pswitch_pri, tvb,
                              offset, 1, FALSE);
@@ -1261,7 +1261,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                        3)));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
-	str = zonenm_to_str (tvb, offset+4);
+        str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, idlen, str);
         break;
@@ -1357,7 +1357,7 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                                  "Active ZoneSet Length: %u", zonesetlen);
 
             if (zonesetlen) {
-		str = zonenm_to_str (tvb, offset+4);
+                str = zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (mr_tree, hf_swils_zone_activezonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);
@@ -1504,7 +1504,7 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                                  "ZoneSet Length: %d", zonesetlen);
 
             if (zonesetlen) {
-		str = zonenm_to_str (tvb, offset+4);
+                str = zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (sfc_tree, hf_swils_sfc_zonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);
@@ -1667,127 +1667,127 @@ dissect_swils_swrjt (tvbuff_t *tvb, proto_tree *swrjt_tree, guint8 isreq _U_)
 static void
 dissect_swils_ess (tvbuff_t *tvb, proto_tree *ess_tree, guint8 isreq _U_)
 {
-     int offset = 0;
-     gint16 numcapobj = 0;
-     gint len = 0;
-     gint capobjlen = 0;
-     proto_item *ti = NULL;
-     proto_tree *ieinfo_tree = NULL;
+    int offset = 0;
+    gint16 numcapobj = 0;
+    gint len = 0;
+    gint capobjlen = 0;
+    proto_item *ti = NULL;
+    proto_tree *ieinfo_tree = NULL;
 
-     if (!ess_tree) {
-          return;
-     }
+    if (!ess_tree) {
+        return;
+    }
 
-     proto_tree_add_item (ess_tree, hf_swils_ess_rev, tvb, offset+4, 4, 0);
-     proto_tree_add_item (ess_tree, hf_swils_ess_len, tvb, offset+8, 4, 0);
-     len = tvb_get_ntohl (tvb, offset+8);
+    proto_tree_add_item (ess_tree, hf_swils_ess_rev, tvb, offset+4, 4, 0);
+    proto_tree_add_item (ess_tree, hf_swils_ess_len, tvb, offset+8, 4, 0);
+    len = tvb_get_ntohl (tvb, offset+8);
 
-     ti = proto_tree_add_text (ess_tree, tvb, offset+12,
-                               MAX_INTERCONNECT_ELEMENT_INFO_LEN+4,
-                               "Interconnect Element Info");
-     ieinfo_tree = proto_item_add_subtree (ti, ett_fcswils_ieinfo);
-     dissect_swils_interconnect_element_info (tvb, ieinfo_tree, offset+12);
-     len -= 256;                /* the interconnect obj above is 256 bytes */
-     offset += 268;
+    ti = proto_tree_add_text (ess_tree, tvb, offset+12,
+                              MAX_INTERCONNECT_ELEMENT_INFO_LEN+4,
+                              "Interconnect Element Info");
+    ieinfo_tree = proto_item_add_subtree (ti, ett_fcswils_ieinfo);
+    dissect_swils_interconnect_element_info (tvb, ieinfo_tree, offset+12);
+    len -= 256;                /* the interconnect obj above is 256 bytes */
+    offset += 268;
 
-     proto_tree_add_item (ess_tree, hf_swils_ess_numobj, tvb, offset, 2, 0);
-     numcapobj = tvb_get_ntohs (tvb, offset);
+    proto_tree_add_item (ess_tree, hf_swils_ess_numobj, tvb, offset, 2, 0);
+    numcapobj = tvb_get_ntohs (tvb, offset);
 
-     len -= 4;                  /* 2B numcapobj + 2B rsvd */
-     offset += 4;
+    len -= 4;                  /* 2B numcapobj + 2B rsvd */
+    offset += 4;
 
-     while ((len > 0) && (numcapobj > 0)) {
-          capobjlen = dissect_swils_ess_capability_obj (tvb, ess_tree, offset);
-          numcapobj--;
-          len -= capobjlen;
-          offset += capobjlen;
-     }
+    while ((len > 0) && (numcapobj > 0)) {
+        capobjlen = dissect_swils_ess_capability_obj (tvb, ess_tree, offset);
+        numcapobj--;
+        len -= capobjlen;
+        offset += capobjlen;
+    }
 }
 
 static void
 dissect_swils_mrra (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
 {
 
-     int offset = 0;
+    int offset = 0;
 
-     if (!tree) {
-          return;
-     }
+    if (!tree) {
+        return;
+    }
 
-     if (isreq) {
-          proto_tree_add_item (tree, hf_swils_mrra_rev, tvb, offset+4, 4, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_size, tvb, offset+8, 4, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+12, 8, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_vendorinfo, tvb, offset+20,
-                               8, 0);
-     } else {
-          proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+4,
-                               8, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_reply, tvb, offset+12,
-                               4, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_reply_size, tvb, offset+16,
-                               4, 0);
-          proto_tree_add_item (tree, hf_swils_mrra_waittime, tvb, offset+20,
-                               4, 0);
-     }
+    if (isreq) {
+        proto_tree_add_item (tree, hf_swils_mrra_rev, tvb, offset+4, 4, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_size, tvb, offset+8, 4, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+12, 8, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_vendorinfo, tvb, offset+20,
+                             8, 0);
+    } else {
+        proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+4,
+                             8, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_reply, tvb, offset+12,
+                             4, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_reply_size, tvb, offset+16,
+                             4, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_waittime, tvb, offset+20,
+                             4, 0);
+    }
 
 
 }
 
 static fcswils_func_table_t fcswils_func_table[FC_SWILS_MAXCODE] = {
-     /* 0x00 */ {NULL},
-     /* 0x01 */ {dissect_swils_swrjt},
-     /* 0x02 */ {NULL},
-     /* 0x03 */ {NULL},
-     /* 0x04 */ {NULL},
-     /* 0x05 */ {NULL},
-     /* 0x06 */ {NULL},
-     /* 0x07 */ {NULL},
-     /* 0x08 */ {NULL},
-     /* 0x09 */ {NULL},
-     /* 0x0a */ {NULL},
-     /* 0x0b */ {NULL},
-     /* 0x0c */ {NULL},
-     /* 0x0d */ {NULL},
-     /* 0x0e */ {NULL},
-     /* 0x0f */ {NULL},
-     /* 0x10 */ {dissect_swils_elp},
-     /* 0x11 */ {dissect_swils_efp},
-     /* 0x12 */ {dissect_swils_dia},
-     /* 0x13 */ {dissect_swils_rdi},
-     /* 0x14 */ {dissect_swils_hello},
-     /* 0x15 */ {dissect_swils_lsupdate},
-     /* 0x16 */ {dissect_swils_lsack},
-     /* 0x17 */ {dissect_swils_nullpayload},
-     /* 0x18 */ {dissect_swils_nullpayload},
-     /* 0x19 */ {NULL},
-     /* 0x1a */ {NULL},
-     /* 0x1b */ {dissect_swils_rscn},
-     /* 0x1c */ {NULL},
-     /* 0x1d */ {NULL},
-     /* 0x1e */ {dissect_swils_drlir},
-     /* 0x1f */ {NULL},
-     /* 0x20 */ {NULL /*dissect_swils_dscn*/},
-     /* 0x21 */ {NULL /*dissect_swils_loopd*/},
-     /* 0x22 */ {dissect_swils_mergereq},
-     /* 0x23 */ {dissect_swils_aca},
-     /* 0x24 */ {dissect_swils_rca},
-     /* 0x25 */ {dissect_swils_sfc},
-     /* 0x26 */ {dissect_swils_ufc},
-     /* 0x27 */ {NULL},
-     /* 0x28 */ {NULL},
-     /* 0x29 */ {NULL},
-     /* 0x2a */ {NULL},
-     /* 0x2b */ {NULL},
-     /* 0x2c */ {NULL},
-     /* 0x2d */ {NULL},
-     /* 0x2e */ {NULL},
-     /* 0x2f */ {NULL},
-     /* 0x30 */ {dissect_swils_esc},
-     /* 0x31 */ {dissect_swils_ess},
-     /* 0x32 */ {NULL},
-     /* 0x33 */ {NULL},
-     /* 0x34 */ {dissect_swils_mrra}
+    /* 0x00 */ {NULL},
+    /* 0x01 */ {dissect_swils_swrjt},
+    /* 0x02 */ {NULL},
+    /* 0x03 */ {NULL},
+    /* 0x04 */ {NULL},
+    /* 0x05 */ {NULL},
+    /* 0x06 */ {NULL},
+    /* 0x07 */ {NULL},
+    /* 0x08 */ {NULL},
+    /* 0x09 */ {NULL},
+    /* 0x0a */ {NULL},
+    /* 0x0b */ {NULL},
+    /* 0x0c */ {NULL},
+    /* 0x0d */ {NULL},
+    /* 0x0e */ {NULL},
+    /* 0x0f */ {NULL},
+    /* 0x10 */ {dissect_swils_elp},
+    /* 0x11 */ {dissect_swils_efp},
+    /* 0x12 */ {dissect_swils_dia},
+    /* 0x13 */ {dissect_swils_rdi},
+    /* 0x14 */ {dissect_swils_hello},
+    /* 0x15 */ {dissect_swils_lsupdate},
+    /* 0x16 */ {dissect_swils_lsack},
+    /* 0x17 */ {dissect_swils_nullpayload},
+    /* 0x18 */ {dissect_swils_nullpayload},
+    /* 0x19 */ {NULL},
+    /* 0x1a */ {NULL},
+    /* 0x1b */ {dissect_swils_rscn},
+    /* 0x1c */ {NULL},
+    /* 0x1d */ {NULL},
+    /* 0x1e */ {dissect_swils_drlir},
+    /* 0x1f */ {NULL},
+    /* 0x20 */ {NULL /*dissect_swils_dscn*/},
+    /* 0x21 */ {NULL /*dissect_swils_loopd*/},
+    /* 0x22 */ {dissect_swils_mergereq},
+    /* 0x23 */ {dissect_swils_aca},
+    /* 0x24 */ {dissect_swils_rca},
+    /* 0x25 */ {dissect_swils_sfc},
+    /* 0x26 */ {dissect_swils_ufc},
+    /* 0x27 */ {NULL},
+    /* 0x28 */ {NULL},
+    /* 0x29 */ {NULL},
+    /* 0x2a */ {NULL},
+    /* 0x2b */ {NULL},
+    /* 0x2c */ {NULL},
+    /* 0x2d */ {NULL},
+    /* 0x2e */ {NULL},
+    /* 0x2f */ {NULL},
+    /* 0x30 */ {dissect_swils_esc},
+    /* 0x31 */ {dissect_swils_ess},
+    /* 0x32 */ {NULL},
+    /* 0x33 */ {NULL},
+    /* 0x34 */ {dissect_swils_mrra}
 };
 
 /* Code to actually dissect the packets */
@@ -1932,383 +1932,382 @@ proto_register_fcswils (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_swils_opcode,
-          {"Cmd Code", "swils.opcode", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_opcode_key_val), 0x0, "", HFILL}},
+          {"Cmd Code", "swils.opcode",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_opcode_key_val), 0x0, NULL, HFILL}},
         { &hf_swils_elp_rev,
-          {"Revision", "swils.elp.rev", FT_UINT8, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Revision", "swils.elp.rev",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_flags,
-          {"Flag", "swils.elp.flag", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"Flag", "swils.elp.flag",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_r_a_tov,
-          {"R_A_TOV", "swils.elp.ratov", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"R_A_TOV", "swils.elp.ratov",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_e_d_tov,
-          {"E_D_TOV", "swils.elp.edtov", FT_UINT32, BASE_DEC, NULL, 0x0, "",
-           HFILL}},
+          {"E_D_TOV", "swils.elp.edtov",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_req_epn,
-          {"Req Eport Name", "swils.elp.reqepn", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Req Eport Name", "swils.elp.reqepn",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_req_esn,
-          {"Req Switch Name", "swils.elp.reqesn", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Req Switch Name", "swils.elp.reqesn",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_clsf_svcp,
-          {"Class F Svc Param", "swils.elp.clsfp", FT_BYTES, BASE_NONE, NULL, 0x0,
-           "", HFILL}},
+          {"Class F Svc Param", "swils.elp.clsfp",
+           FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_clsf_rcvsz,
-          {"Max Class F Frame Size", "swils.elp.clsfrsz", FT_UINT16, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Max Class F Frame Size", "swils.elp.clsfrsz",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_clsf_conseq,
-          {"Class F Max Concurrent Seq", "swils.elp.clsfcs", FT_UINT16, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Class F Max Concurrent Seq", "swils.elp.clsfcs",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_clsf_e2e,
-          {"Class F E2E Credit", "swils.elp.cfe2e", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Class F E2E Credit", "swils.elp.cfe2e",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_clsf_openseq,
-          {"Class F Max Open Seq", "swils.elp.oseq", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Class F Max Open Seq", "swils.elp.oseq",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls1_svcp,
-          {"Class 1 Svc Param", "swils.elp.cls1p", FT_BYTES, BASE_NONE, NULL, 0x0,
-           "", HFILL}},
+          {"Class 1 Svc Param", "swils.elp.cls1p",
+           FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls1_rcvsz,
-          {"Class 1 Frame Size", "swils.elp.cls1rsz", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Class 1 Frame Size", "swils.elp.cls1rsz",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls2_svcp,
-          {"Class 2 Svc Param", "swils.elp.cls2p", FT_BYTES, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Class 2 Svc Param", "swils.elp.cls2p",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls2_rcvsz,
-          {"Class 2 Frame Size", "swils.elp.cls1rsz", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Class 2 Frame Size", "swils.elp.cls1rsz",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls3_svcp,
-          {"Class 3 Svc Param", "swils.elp.cls3p", FT_BYTES, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Class 3 Svc Param", "swils.elp.cls3p",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_cls3_rcvsz,
-          {"Class 3 Frame Size", "swils.elp.cls1rsz", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Class 3 Frame Size", "swils.elp.cls1rsz",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_isl_fc_mode,
-          {"ISL Flow Ctrl Mode", "swils.elp.fcmode", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"ISL Flow Ctrl Mode", "swils.elp.fcmode",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_fcplen,
-          {"Flow Ctrl Param Len", "swils.elp.fcplen", FT_UINT16, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Flow Ctrl Param Len", "swils.elp.fcplen",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_b2bcredit,
-          {"B2B Credit", "swils.elp.b2b", FT_UINT32, BASE_DEC, NULL, 0x0, "",
-           HFILL}},
+          {"B2B Credit", "swils.elp.b2b",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_compat1,
-          {"Compatibility Param 1", "swils.elp.compat1", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Compatibility Param 1", "swils.elp.compat1",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_compat2,
-          {"Compatibility Param 2", "swils.elp.compat2", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Compatibility Param 2", "swils.elp.compat2",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_compat3,
-          {"Compatibility Param 3", "swils.elp.compat3", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Compatibility Param 3", "swils.elp.compat3",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_elp_compat4,
-          {"Compatibility Param 4", "swils.elp.compat4", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Compatibility Param 4", "swils.elp.compat4",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_rec_type,
-          {"Record Type", "swils.efp.rectype", FT_UINT8, BASE_HEX,
-           VALS (fcswils_rectype_val), 0x0, "", HFILL}},
+          {"Record Type", "swils.efp.rectype",
+           FT_UINT8, BASE_HEX, VALS (fcswils_rectype_val), 0x0, NULL, HFILL}},
         { &hf_swils_efp_dom_id,
-          {"Domain ID", "swils.efp.domid", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Domain ID", "swils.efp.domid",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_switch_name,
-          {"Switch Name", "swils.efp.sname", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Switch Name", "swils.efp.sname",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_mcast_grpno,
-          {"Mcast Grp#", "swils.efp.mcastno", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Mcast Grp#", "swils.efp.mcastno",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_alias_token,
-          {"Alias Token", "swils.efp.aliastok", FT_BYTES, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Alias Token", "swils.efp.aliastok",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_record_len,
-          {"Record Len", "swils.efp.recordlen", FT_UINT8, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Record Len", "swils.efp.recordlen",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_payload_len,
-          {"Payload Len", "swils.efp.payloadlen", FT_UINT16, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Payload Len", "swils.efp.payloadlen",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_pswitch_pri,
-          {"Principal Switch Priority", "swils.efp.psprio", FT_UINT8, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Principal Switch Priority", "swils.efp.psprio",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_efp_pswitch_name,
-          {"Principal Switch Name", "swils.efp.psname", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Principal Switch Name", "swils.efp.psname",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_dia_switch_name,
-          {"Switch Name", "swils.dia.sname", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Switch Name", "swils.dia.sname",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rdi_payload_len,
-          {"Payload Len", "swils.rdi.len", FT_UINT16, BASE_DEC, NULL, 0x0, "",
-           HFILL}},
+          {"Payload Len", "swils.rdi.len",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rdi_req_sname,
-          {"Req Switch Name", "swils.rdi.reqsn", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Req Switch Name", "swils.rdi.reqsn",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_cmd,
-          {"Command: ", "swils.fspf.cmd", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Command: ", "swils.fspf.cmd",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_rev,
-          {"Version", "swils.fspf.ver", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"Version", "swils.fspf.ver",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_ar_num,
-          {"AR Number", "swils.fspf.arnum", FT_UINT8, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
+          {"AR Number", "swils.fspf.arnum",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_auth_type,
-          {"Authentication Type", "swils.fspf.authtype", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Authentication Type", "swils.fspf.authtype",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_dom_id,
-          {"Originating Domain ID", "swils.fspf.origdomid", FT_UINT8, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Originating Domain ID", "swils.fspf.origdomid",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_fspfh_auth,
-          {"Authentication", "swils.fspf.auth", FT_BYTES, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Authentication", "swils.fspf.auth",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_hlo_options,
-          {"Options", "swils.hlo.options", FT_BYTES, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Options", "swils.hlo.options",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_hlo_hloint,
-          {"Hello Interval (secs)", "swils.hlo.hloint", FT_UINT32, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Hello Interval (secs)", "swils.hlo.hloint",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_hlo_deadint,
-          {"Dead Interval (secs)", "swils.hlo.deadint", FT_UINT32, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Dead Interval (secs)", "swils.hlo.deadint",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_hlo_rcv_domid,
-          {"Recipient Domain ID", "swils.hlo.rcvdomid", FT_UINT8, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Recipient Domain ID", "swils.hlo.rcvdomid",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_hlo_orig_pidx,
-          {"Originating Port Idx", "swils.hlo.origpidx", FT_UINT24, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Originating Port Idx", "swils.hlo.origpidx",
+           FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_lsrh_lsr_type,
-          {"LSR Type", "swils.lsr.type", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_fspf_linkrec_val), 0x0, "", HFILL}},
+          {"LSR Type", "swils.lsr.type",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_fspf_linkrec_val), 0x0, NULL, HFILL}},
         { &hf_swils_lsrh_lsid,
-          {"Link State Id", "swils.ls.id", FT_UINT8, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Link State Id", "swils.ls.id",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_lsrh_adv_domid,
-          {"Advertising Domain Id", "swils.lsr.advdomid", FT_UINT8, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Advertising Domain Id", "swils.lsr.advdomid",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_lsrh_ls_incid,
-          {"LS Incarnation Number", "swils.lsr.incid", FT_UINT32, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"LS Incarnation Number", "swils.lsr.incid",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ldrec_linkid,
-          {"Link ID", "swils.ldr.linkid", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Link ID", "swils.ldr.linkid",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ldrec_out_pidx,
-          {"Output Port Idx", "swils.ldr.out_portidx", FT_UINT24, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Output Port Idx", "swils.ldr.out_portidx",
+           FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ldrec_nbr_pidx,
-          {"Neighbor Port Idx", "swils.ldr.nbr_portidx", FT_UINT24, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Neighbor Port Idx", "swils.ldr.nbr_portidx",
+           FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ldrec_link_type,
-          {"Link Type", "swils.ldr.linktype", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_link_type_val), 0x0, "", HFILL}},
+          {"Link Type", "swils.ldr.linktype",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_link_type_val), 0x0, NULL, HFILL}},
         { &hf_swils_ldrec_link_cost,
-          {"Link Cost", "swils.ldr.linkcost", FT_UINT16, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Link Cost", "swils.ldr.linkcost",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rscn_evtype,
-          {"Event Type", "swils.rscn.evtype", FT_UINT8, BASE_DEC,
-           VALS (fc_swils_rscn_portstate_val), 0xF0, "", HFILL}},
+          {"Event Type", "swils.rscn.evtype",
+           FT_UINT8, BASE_DEC, VALS (fc_swils_rscn_portstate_val), 0xF0, NULL, HFILL}},
         { &hf_swils_rscn_addrfmt,
-          {"Address Format", "swils.rscn.addrfmt", FT_UINT8, BASE_DEC,
-           VALS (fc_swils_rscn_addrfmt_val), 0x0F, "", HFILL}},
+          {"Address Format", "swils.rscn.addrfmt",
+           FT_UINT8, BASE_DEC, VALS (fc_swils_rscn_addrfmt_val), 0x0F, NULL, HFILL}},
         { &hf_swils_rscn_affectedport,
-          {"Affected Port ID", "swils.rscn.affectedport", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Affected Port ID", "swils.rscn.affectedport",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rscn_detectfn,
-          {"Detection Function", "swils.rscn.detectfn", FT_UINT32, BASE_HEX,
-           VALS (fc_swils_rscn_detectfn_val), 0x0, "", HFILL}},
+          {"Detection Function", "swils.rscn.detectfn",
+           FT_UINT32, BASE_HEX, VALS (fc_swils_rscn_detectfn_val), 0x0, NULL, HFILL}},
         { &hf_swils_rscn_portstate,
-          {"Port State", "swils.rscn.portstate", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Port State", "swils.rscn.portstate",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rscn_portid,
-          {"Port Id", "swils.rscn.portid", FT_STRING, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
+          {"Port Id", "swils.rscn.portid",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rscn_pwwn,
-          {"Port WWN", "swils.rscn.pwwn", FT_STRING, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
+          {"Port WWN", "swils.rscn.pwwn",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rscn_nwwn,
-          {"Node WWN", "swils.rscn.nwwn", FT_STRING, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
+          {"Node WWN", "swils.rscn.nwwn",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_esc_swvendorid,
-          {"Switch Vendor ID", "swils.esc.swvendor", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Switch Vendor ID", "swils.esc.swvendor",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_esc_pdesc_vendorid,
-          {"Vendor ID", "swils.esc.vendorid", FT_STRING, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
+          {"Vendor ID", "swils.esc.vendorid",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_esc_protocolid,
-          {"Protocol ID", "swils.esc.protocol", FT_UINT16, BASE_HEX,
-           VALS (fc_swils_esc_protocol_val), 0x0, "", HFILL}},
+          {"Protocol ID", "swils.esc.protocol",
+           FT_UINT16, BASE_HEX, VALS (fc_swils_esc_protocol_val), 0x0, NULL, HFILL}},
         { &hf_swils_zone_activezonenm,
-          {"Active Zoneset Name", "swils.mr.activezonesetname", FT_STRING,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"Active Zoneset Name", "swils.mr.activezonesetname",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_objname,
-          {"Zone Object Name", "swils.zone.zoneobjname", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Zone Object Name", "swils.zone.zoneobjname",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_objtype,
-          {"Zone Object Type", "swils.zone.zoneobjtype", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_zoneobj_type_val), 0x0, "", HFILL}},
+          {"Zone Object Type", "swils.zone.zoneobjtype",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_zoneobj_type_val), 0x0, NULL, HFILL}},
         { &hf_swils_zone_mbrtype,
-          {"Zone Member Type", "swils.zone.mbrtype", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_zonembr_type_val), 0x0, "", HFILL}},
+          {"Zone Member Type", "swils.zone.mbrtype",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_zonembr_type_val), 0x0, NULL, HFILL}},
         { &hf_swils_zone_protocol,
-          {"Zone Protocol", "swils.zone.protocol", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Zone Protocol", "swils.zone.protocol",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_mbrid,
-          {"Member Identifier", "swils.zone.mbrid", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Member Identifier", "swils.zone.mbrid",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_status,
-          {"Zone Command Status", "swils.zone.status", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_mr_rsp_val), 0x0, "Applies to MR, ACA, RCA, SFC, UFC",
-           HFILL}},
+          {"Zone Command Status", "swils.zone.status",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_rsp_val), 0x0, 
+           "Applies to MR, ACA, RCA, SFC, UFC", HFILL}},
         { &hf_swils_zone_reason,
-          {"Zone Command Reason Code", "swils.zone.reason", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_mr_reason_val), 0x0, "Applies to MR, ACA, RCA, SFC, UFC",
-           HFILL}},
+          {"Zone Command Reason Code", "swils.zone.reason",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_reason_val), 0x0, 
+           "Applies to MR, ACA, RCA, SFC, UFC", HFILL}},
         { &hf_swils_aca_domainid,
-          {"Known Domain ID", "swils.aca.domainid", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Known Domain ID", "swils.aca.domainid",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_sfc_opcode,
-          {"Operation Request", "swils.sfc.opcode", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_sfc_op_val), 0x0, "", HFILL}},
+          {"Operation Request", "swils.sfc.opcode",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_sfc_op_val), 0x0, NULL, HFILL}},
         { &hf_swils_sfc_zonenm,
-          {"Zone Set Name", "swils.sfc.zonename", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Zone Set Name", "swils.sfc.zonename",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_rjt,
-          {"Reason Code", "swils.rjt.reason", FT_UINT8, BASE_HEX,
-           VALS (fc_swils_rjt_val), 0x0, "", HFILL}},
+          {"Reason Code", "swils.rjt.reason",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_rjt_val), 0x0, NULL, HFILL}},
         { &hf_swils_rjtdet,
-          {"Reason Code Explanantion", "swils.rjt.reasonexpl", FT_UINT8,
-           BASE_HEX, VALS (fc_swils_deterr_val), 0x0, "", HFILL}},
+          {"Reason Code Explanantion", "swils.rjt.reasonexpl",
+           FT_UINT8, BASE_HEX, VALS (fc_swils_deterr_val), 0x0, NULL, HFILL}},
         { &hf_swils_rjtvendor,
-          {"Vendor Unique Error Code", "swils.rjt.vendor", FT_UINT8, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Vendor Unique Error Code", "swils.rjt.vendor",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_mbrid_lun,
-          {"LUN", "swils.zone.lun", FT_BYTES, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
+          {"LUN", "swils.zone.lun",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_rev,
-          {"Revision", "swils.ess.revision", FT_UINT32, BASE_DEC, NULL, 0x0, "",
-           HFILL}},
+          {"Revision", "swils.ess.revision",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_len,
-          {"Payload Length", "swils.ess.leb", FT_UINT32, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Payload Length", "swils.ess.leb",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_numobj,
-          {"Number of Capability Objects", "swils.ess.numobj", FT_UINT16, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Number of Capability Objects", "swils.ess.numobj",
+           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_interconnect_list_len,
-          {"List Length", "swils.ess.listlen", FT_UINT8, BASE_DEC, NULL, 0x0, "",
-           HFILL}},
+          {"List Length", "swils.ess.listlen",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_vendorname,
-          {"Vendor Name", "swils.ess.vendorname", FT_STRING, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Vendor Name", "swils.ess.vendorname",
+           FT_STRING, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_modelname,
-          {"Model Name", "swils.ess.modelname", FT_STRING, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Model Name", "swils.ess.modelname",
+           FT_STRING, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_relcode,
-          {"Release Code", "swils.ess.relcode", FT_STRING, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"Release Code", "swils.ess.relcode",
+           FT_STRING, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_vendorspecific,
-          {"Vendor Specific", "swils.ess.vendorspecific", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Vendor Specific", "swils.ess.vendorspecific",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_type,
-          {"Type", "swils.ess.capability.type", FT_UINT8, BASE_DEC,
-           VALS (fc_ct_gstype_vals), 0x0, "", HFILL}},
+          {"Type", "swils.ess.capability.type",
+           FT_UINT8, BASE_DEC, VALS (fc_ct_gstype_vals), 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_subtype,
-          {"Subtype", "swils.ess.capability.subtype", FT_UINT8, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Subtype", "swils.ess.capability.subtype",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_numentries,
-          {"Number of Entries", "swils.ess.capability.numentries", FT_UINT8,
-           BASE_DEC, NULL, 0x0, "", HFILL}},
+          {"Number of Entries", "swils.ess.capability.numentries",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_svc,
-          {"Service Name", "swils.ess.capability.service", FT_UINT8, BASE_DEC,
-           VALS (fc_ct_gsserver_vals), 0x0, "", HFILL}},
+          {"Service Name", "swils.ess.capability.service",
+           FT_UINT8, BASE_DEC, VALS (fc_ct_gsserver_vals), 0x0, NULL, HFILL}},
         { &hf_swils_ess_dns_obj0h,
           {"Name Server Entry Object 00h Support", "swils.ess.capability.dns.obj0h",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x1, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
         { &hf_swils_ess_dns_obj1h,
           {"Name Server Entry Object 01h Support", "swils.ess.capability.dns.obj1h",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x2, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}},
         { &hf_swils_ess_dns_obj2h,
           {"Name Server Entry Object 02h Support", "swils.ess.capability.dns.obj2h",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x4, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}},
         { &hf_swils_ess_dns_obj3h,
           {"Name Server Entry Object 03h Support", "swils.ess.capability.dns.obj3h",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x8, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}},
         { &hf_swils_ess_dns_zlacc,
           {"GE_PT Zero Length Accepted", "swils.ess.capability.dns.zlacc",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x10, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}},
         { &hf_swils_ess_dns_vendor,
-          {"Vendor Specific Flags", "swils.ess.capability.dns.vendor", FT_UINT32,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"Vendor Specific Flags", "swils.ess.capability.dns.vendor",
+           FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_fctlr_rscn,
-          {"SW_RSCN Supported", "swils.ess.capability.fctlr.rscn", FT_BOOLEAN,
-           BASE_HEX, NULL, 0x1, "", HFILL}},
+          {"SW_RSCN Supported", "swils.ess.capability.fctlr.rscn",
+           FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
         { &hf_swils_ess_fctlr_vendor,
           {"Vendor Specific Flags", "swils.ess.capability.fctlr.vendor",
-           FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+           FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_fcs_basic,
           {"Basic Configuration Services", "swils.ess.capability.fcs.basic",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x1, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
         { &hf_swils_ess_fcs_platform,
-          {"Platform Configuration Services",
-           "swils.ess.capability.fcs.platform", FT_BOOLEAN, BASE_HEX, NULL,
-           0x2, "", HFILL}},
+          {"Platform Configuration Services", "swils.ess.capability.fcs.platform",
+           FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}},
         { &hf_swils_ess_fcs_topology,
           {"Topology Discovery Services", "swils.ess.capability.fcs.topology",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x4, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}},
         { &hf_swils_ess_fcs_enhanced,
-          {"Enhanced Configuration Services",
-           "swils.ess.capability.fcs.enhanced", FT_BOOLEAN, BASE_HEX, NULL, 0x8,
-           "", HFILL}},
+          {"Enhanced Configuration Services", "swils.ess.capability.fcs.enhanced",
+           FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}},
         { &hf_swils_ess_fzs_enh_supp,
           {"Enhanced Zoning Supported", "swils.ess.capability.fzs.ezonesupp",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x1, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
         { &hf_swils_ess_fzs_enh_ena,
           {"Enhanced Zoning Enabled", "swils.ess.capability.fzs.ezoneena",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x2, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}},
         { &hf_swils_ess_fzs_mr,
-          {"Merge Control Setting", "swils.ess.capability.fzs.mr", FT_BOOLEAN,
-           BASE_HEX, NULL, 0x4, "", HFILL}},
+          {"Merge Control Setting", "swils.ess.capability.fzs.mr",
+           FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}},
         { &hf_swils_ess_fzs_defzone,
           {"Default Zone Setting", "swils.ess.capability.fzs.defzone",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x8, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}},
         { &hf_swils_ess_fzs_zsdb_supp,
           {"Zoneset Database Supported", "swils.ess.capability.fzs.zsdbsupp",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x10, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}},
         { &hf_swils_ess_fzs_zsdb_ena,
           {"Zoneset Database Enabled", "swils.ess.capability.fzs.zsdbena",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x20, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}},
         { &hf_swils_ess_fzs_adc_supp,
-          {"Active Direct Command Supported",
-           "swils.ess.capability.fzs.adcsupp", FT_BOOLEAN, BASE_HEX, NULL,
-           0x40, "", HFILL}},
+          {"Active Direct Command Supported", "swils.ess.capability.fzs.adcsupp",
+           FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}},
         { &hf_swils_ess_fzs_hardzone,
           {"Hard Zoning Supported", "swils.ess.capability.fzs.hardzone",
-           FT_BOOLEAN, BASE_HEX, NULL, 0x80, "", HFILL}},
+           FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}},
         { &hf_swils_ess_cap_len,
-          {"Length", "swils.ess.capability.length", FT_UINT8, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Length", "swils.ess.capability.length",
+           FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_t10,
-          {"T10 Vendor ID", "swils.ess.capability.t10id", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"T10 Vendor ID", "swils.ess.capability.t10id",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_ess_cap_vendorobj,
-          {"Vendor-Specific Info", "swils.ess.capability.vendorobj", FT_BYTES,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"Vendor-Specific Info", "swils.ess.capability.vendorobj",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_rev,
-          {"Revision", "swils.mrra.revision", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Revision", "swils.mrra.revision",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_size,
-          {"Merge Request Size", "swils.mrra.size", FT_UINT32, BASE_DEC, NULL,
-           0x0, "", HFILL}},
+          {"Merge Request Size", "swils.mrra.size",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_vendorid,
-          {"Vendor ID", "swils.mrra.vendorid", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Vendor ID", "swils.mrra.vendorid",
+           FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_vendorinfo,
-          {"Vendor-Specific Info", "swils.mrra.vendorinfo", FT_BYTES, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
+          {"Vendor-Specific Info", "swils.mrra.vendorinfo",
+           FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_reply,
-          {"MRRA Response", "swils.mrra.reply", FT_UINT32, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+          {"MRRA Response", "swils.mrra.reply",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_reply_size,
-          {"Maximum Resources Available", "swils.mrra.replysize", FT_UINT32,
-           BASE_DEC, NULL, 0x0, "", HFILL}},
+          {"Maximum Resources Available", "swils.mrra.replysize",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_mrra_waittime,
-          {"Waiting Period (secs)", "swils.mrra.waittime", FT_UINT32, BASE_DEC,
-           NULL, 0x0, "", HFILL}},
+          {"Waiting Period (secs)", "swils.mrra.waittime",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
