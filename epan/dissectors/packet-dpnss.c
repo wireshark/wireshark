@@ -471,13 +471,13 @@ static const value_string dpnss_man_code_vals[] = {
 
 
 typedef struct {
-		gint		id_code_no;
-        const char *compact_name;
-        const char *name;
-		gint		par1_num;
-		gint		par2_num;
-		gint		par3_num;
-		gint		par4_num;
+	gint		id_code_no;
+        const char 	*compact_name;
+        const char 	*name;
+	gint		par1_num;
+	gint		par2_num;
+	gint		par3_num;
+	gint		par4_num;
 } dpnns_sup_serv_set_t;
 
 static const dpnns_sup_serv_set_t dpnns_sup_serv_set[] = {
@@ -718,7 +718,7 @@ static const dpnns_sup_serv_set_t dpnns_sup_serv_set[] = {
  	{234, "I-CC",		"ISDN-DPNSS_CLEARING_CAUSE",					DPNSS_CAUSE,			DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{235, "I-CPN",		"ISDN-CALLING PARTY/CONNECTED NUMBER",			DPNSS_ISDN_NUM_ATTR,	DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{236, "I-CSA",		"ISDN-CALLING PARTY/CONNECTED DPNSS_SUBADDRESS", DPNSS_ISDN_DPNSS_SUBADDRESS, DPNSS_ISDN_NUMBER_DIGITS, DPNSS_NONE, DPNSS_NONE },
- 	{237, "I-DSA",		"ISDN-DESTINATION (CALLED PARTY)				DPNSS_SUBADDRESS",		DPNSS_ISDN_DPNSS_SUBADDRESS, DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
+ 	{237, "I-DSA",		"ISDN-DESTINATION (CALLED PARTY) DPNSS_SUBADDRESS",		DPNSS_ISDN_DPNSS_SUBADDRESS, DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{238, "I-HLC",		"ISDN-HIGH LAYER COMPATIBILITY",				DPNSS_HIGH_LAYER_COMP,	DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{239, "I-LLC",		"ISDN-LOW LAYER COMPATIBILITY",					DPNSS_LOW_LAYER_COMP,	DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{240, "I-PROG",		"ISDN-PROGRESS",								DPNSS_PROGRESS_INDICATOR, DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
@@ -743,61 +743,61 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 {
 	guint8 octet, type_of_data;
 
+	octet = tvb_get_guint8(tvb,offset);
+	type_of_data = (octet & 0x70)>>4;
+	proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_dpnss_sic_type, tvb, offset, 1, FALSE);
+	switch(type_of_data){
+	case 1:
+		/* Type of Data (001) : Details for Speech */ 
+		proto_tree_add_item(tree, hf_dpnss_sic_details_for_speech, tvb, offset, 1, FALSE);
+		break;
+	case 2:
+		/* Type of Data (010) : Data Rates */
+		proto_tree_add_item(tree, hf_dpnss_sic_details_for_data1, tvb, offset, 1, FALSE);
+		break;
+	case 3:
+		/* Type of Data (011) : Data Rates */
+		proto_tree_add_item(tree, hf_dpnss_sic_details_for_data2, tvb, offset, 1, FALSE);
+		break;
+	default:
+		/* Illegal */
+		break;
+	}
+	offset++;
+	if((octet&0x80)==0x80){
+		/* Extension bit set 
+		 * Synch/Asynchronous Information
+		 */
 		octet = tvb_get_guint8(tvb,offset);
-		type_of_data = (octet & 0x70)>>4;
-		proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, FALSE);
-		proto_tree_add_item(tree, hf_dpnss_sic_type, tvb, offset, 1, FALSE);
+		type_of_data = octet&0x3;
+		proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, FALSE);
 		switch(type_of_data){
-		case 1:
-			/* Type of Data (001) : Details for Speech */ 
-			proto_tree_add_item(tree, hf_dpnss_sic_details_for_speech, tvb, offset, 1, FALSE);
-			break;
-		case 2:
-			/* Type of Data (010) : Data Rates */
-			proto_tree_add_item(tree, hf_dpnss_sic_details_for_data1, tvb, offset, 1, FALSE);
-			break;
 		case 3:
-			/* Type of Data (011) : Data Rates */
-			proto_tree_add_item(tree, hf_dpnss_sic_details_for_data2, tvb, offset, 1, FALSE);
+			/* Synchronous */
+		case 4:
+			/* Synchronous */
+			proto_tree_add_item(tree, hf_dpnss_sic_oct2_net_ind_clk, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_data_format, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_byte_timing, tvb, offset, 1, FALSE);
+			break;
+		case 5:
+			/* Asynchronous */
+		case 6:
+			/* Asynchronous */
+		case 7:
+			/* Asynchronous */
+			proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_flow_ctrl, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_data, tvb, offset, 1, FALSE);
 			break;
 		default:
-			/* Illegal */
 			break;
 		}
+		proto_tree_add_item(tree, hf_dpnss_sic_oct2_duplex, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_dpnss_sic_oct2_data_type, tvb, offset, 1, FALSE);
 		offset++;
-		if((octet&0x80)==0x80){
-			/* Extension bit set 
-			 * Synch/Asynchronous Information
-			 */
-			octet = tvb_get_guint8(tvb,offset);
-			type_of_data = octet&0x3;
-			proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, FALSE);
-			switch(type_of_data){
-			case 3:
-				/* Synchronous */
-			case 4:
-				/* Synchronous */
-				proto_tree_add_item(tree, hf_dpnss_sic_oct2_net_ind_clk, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_data_format, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_byte_timing, tvb, offset, 1, FALSE);
-				break;
-			case 5:
-				/* Asynchronous */
-			case 6:
-				/* Asynchronous */
-			case 7:
-				/* Asynchronous */
-				proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_flow_ctrl, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_data, tvb, offset, 1, FALSE);
-				break;
-			default:
-				break;
-			}
-			proto_tree_add_item(tree, hf_dpnss_sic_oct2_duplex, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tree, hf_dpnss_sic_oct2_data_type, tvb, offset, 1, FALSE);
-			offset++;
-		}
-		return offset;
+	}
+	return offset;
 }
 /*
 static const value_string dpnss_serv_mark_vals[] = {
@@ -1485,17 +1485,6 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-
-/* Register the protocol with Wireshark */
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-void
-proto_reg_handoff_dpnss(void)
-{
-}
-
 void
 proto_register_dpnss(void)
 {                 
@@ -1506,42 +1495,42 @@ proto_register_dpnss(void)
 		{ &hf_dpnss_msg_grp_id,
 			{ "Message Group Identifier",           "dpnss.msg_grp_id",
 			FT_UINT8, BASE_DEC, VALS(dpnss_msg_grp_id_vals), 0xf0,          
-			"Message Group Identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_cc_msg_type,
 			{ "Call Control Message Type",           "dpnss.cc_msg_type",
 			FT_UINT8, BASE_DEC, VALS(dpnss_cc_msg_type_vals), 0x0f,          
-			"Call Control Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_e2e_msg_type,
 			{ "END-TO-END Message Type",           "dpnss.e2e_msg_type",
 			FT_UINT8, BASE_DEC, VALS(dpnss_e2e_msg_type_vals), 0x0f,          
-			"END-TO-END Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_LbL_msg_type,
 			{ "LINK-BY-LINK Message Type",           "dpnss.lbl_msg_type",
 			FT_UINT8, BASE_DEC, VALS(dpnss_LbL_msg_type_vals), 0x0f,          
-			"LINK-BY-LINK Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_ext_bit,
 			{ "Extension bit",           "dpnss.ext_bit",
 			FT_BOOLEAN, 8, TFS(&dpnss_ext_bit_vals), 0x80,          
-			"Extension bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_ext_bit_notall,
 			{ "Extension bit",           "dpnss.ext_bit_notall",
 			FT_BOOLEAN, 8, TFS(&dpnss_ext_bit_no_ext_vals), 0x80,          
-			"Extension bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_type,
 			{ "Type of data",           "dpnss.sic_type",
 			FT_UINT8, BASE_DEC, VALS(dpnss_sic_type_type_vals), 0x70,          
-			"Type of data", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_details_for_speech,
 			{ "Details for Speech",           "dpnss.sic_details_for_speech",
 			FT_UINT8, BASE_DEC, VALS(dpnss_sic_details_for_speech_vals), 0x0f,          
-			"Details for Speech", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_details_for_data1,
 			{ "Data Rates",           "dpnss.sic_details_for_data1",
@@ -1556,77 +1545,77 @@ proto_register_dpnss(void)
 		{ &hf_dpnss_dest_addr,
 			{ "Destination Address",           "dpnss.dest_addr",
 			FT_STRING, BASE_NONE, NULL, 0x0,          
-			"Destination Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_data_type,
 			{ "Data Type",           "dpnss.sic_oct2_data_type",
 			FT_UINT8, BASE_DEC, VALS(dpnss_sic_oct2_data_type_vals), 0x03,          
-			"Data Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_duplex,
 			{ "Data Type",           "dpnss.sic_oct2_duplex",
 			FT_BOOLEAN, 8, TFS(&dpnss_duplex_vals), 0x08,          
-			"Data Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_net_ind_clk,
 			{ "Network Independent Clock",           "dpnss.sic_oct2_sync_data_format",
 			FT_BOOLEAN, 8, TFS(&dpnss_sic_oct2_net_ind_clk_vals), 0x40,          
-			"Network Independent Clock", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_sync_data_format,
 			{ "Data Format",           "dpnss.sic_oct2_sync_data_format",
 			FT_BOOLEAN, 8, TFS(&dpnss_sic_oct2_sync_data_format_vals), 0x20,          
-			"Data Format", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_sync_byte_timing,
 			{ "Byte Timing",           "dpnss.sic_oct2_sync_byte_timing",
 			FT_BOOLEAN, 8, TFS(&dpnss_provided_vals), 0x10,          
-			"Byte Timing", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_async_data,
 			{ "Data Format",           "dpnss.sic_oct2_async_data",
 			FT_UINT8, BASE_DEC, VALS(dpnss_sic_oct2_async_data_type_vals), 0x30,          
-			"Data Format", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_sic_oct2_async_flow_ctrl,
 			{ "Flow Control",           "dpnss.sic_oct2_async_flow_ctrl",
 			FT_BOOLEAN, 8, TFS(&dpnss_flow_control_vals), 0x40,          
-			"Flow Control", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_clearing_cause,
 			{ "Clearing Cause",           "dpnss.clearing_cause",
 			FT_UINT8, BASE_DEC, VALS(dpnss_clearing_cause_code_vals), 0x0,          
-			"Clearing Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_rejection_cause,
 			{ "Rejection Cause",           "dpnss.rejection_cause",
 			FT_UINT8, BASE_DEC, VALS(dpnss_clearing_cause_code_vals), 0x0,          
-			"Rejection Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_man_code,
 			{ "Manufacturer Code",           "dpnss.man_code",
 			FT_UINT8, BASE_DEC, VALS(dpnss_man_code_vals), 0x3c,          
-			"Manufacturer Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_subcode,
 			{ "Subcode",           "dpnss.subcode",
 			FT_UINT8, BASE_DEC, NULL, 0x03,          
-			"Subcode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_maintenance_action,
 			{ "Maintenance action",           "dpnss.maint_act",
 			FT_UINT8, BASE_DEC, VALS(dpnss_maintenance_actions_vals), 0x0,          
-			"Maintenance action", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_a_b_party_addr,
 			{ "A/B party Address",           "dpnss.a_b_party_addr",
 			FT_STRING, BASE_NONE, NULL, 0x0,          
-			"A/B party Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dpnss_call_idx,
 			{ "Call Index",           "dpnss.call_idx",
 			FT_STRING, BASE_NONE, NULL, 0x0,          
-			"Call Index", HFILL }
+			NULL, HFILL }
 		},
 	};
 
