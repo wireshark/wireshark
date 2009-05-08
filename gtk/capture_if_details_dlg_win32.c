@@ -55,8 +55,13 @@
                          /*  issues re winsock.h included before winsock2.h )     */
 #include <windowsx.h>
 
-#if (_MSC_VER > 1200)
+#ifdef HAVE_NTDDNDIS_H
 #include <Ntddndis.h>
+/* VC 6.0 with SDK has the same Ntddndis.h as MSVC2003 */
+# if (_MSC_VER <= 1200)
+# undef _MSC_VER
+# define _MSC_VER 1310
+# endif
 #endif
 
 #include "../capture_wpcap_packet.h"

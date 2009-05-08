@@ -254,6 +254,9 @@
 /* Define for IPv6 */
 @INET6@
 
+/* Define to have ntddndis.h */
+@HAVE_NTDDNDIS_H@
+
 #define HAVE_WINDOWS_H		1
 #define HAVE_WINSOCK2_H		1
 #define HAVE_DIRECT_H		1
