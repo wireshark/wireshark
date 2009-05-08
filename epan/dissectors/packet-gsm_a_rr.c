@@ -9230,7 +9230,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_pwrc,
               { "PWRC", "gsm_a.rr.pwrc",
-		FT_BOOLEAN, BASE_DEC,  NULL, 0x00,
+		FT_BOOLEAN, BASE_NONE,  NULL, 0x00,
 		"Power Control Indicator (PWRC)", HFILL }
             },
             { &hf_gsm_a_rr_dtx_bcch,
@@ -9345,7 +9345,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_gprs_resumption_ack,
               { "Ack", "gsm_a.rr.gprs_resumption_ack",
-		FT_BOOLEAN, BASE_DEC,  TFS(&gsm_a_rr_gprs_resumption_ack_value), 0x01,
+		FT_BOOLEAN, 8,  TFS(&gsm_a_rr_gprs_resumption_ack_value), 0x01,
 		"GPRS Resumption Ack bit", HFILL }
             },
             { &hf_gsm_a_rr_ext_ind,
@@ -9500,7 +9500,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_gsm_report_type,
               { "Report Type", "gsm_a.rr.gsm_report_type",
-		FT_BOOLEAN, BASE_DEC,  TFS(&gsm_a_rr_gsm_report_type_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x00,
 		"Report type the MS shall use (Report Type)", HFILL }
             },
             { &hf_gsm_a_rr_serving_band_reporting,
@@ -9510,27 +9510,27 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_frequency_scrolling,
               { "Frequency Scrolling", "gsm_a.rr.frequency_scrolling",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_frequency_scrolling_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_frequency_scrolling_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_rep_priority,
               { "Rep Priority", "gsm_a.rr.rep_priority",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_rep_priority_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_rep_priority_value), 0x00,
 		"Reporting Priority", HFILL }
             },
             { &hf_gsm_a_rr_report_type,
               { "Report Type", "gsm_a.rr.report_type",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_report_type_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_report_type_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_reporting_rate,
               { "Reporting Rate", "gsm_a.rr.reporting_rate",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_reporting_rate_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reporting_rate_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_invalid_bsic_reporting,
               { "Invalid BSIC Reporting", "gsm_a.rr.invalid_bsic_reporting",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale_ord,
@@ -9620,12 +9620,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_qsearch_c_initial,
               { "QSearch C Initial", "gsm_a.rr.qsearch_c_initial",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x00,
 		"Qsearch value to be used in connected mode before Qsearch C is received (QSearch C Initial)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_rep_quant,
               { "FDD Rep Quant", "gsm_a.rr.fdd_rep_quant",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x00,
 		"FDD Reporting Quantity (FDD Rep Quant)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_multirat_reporting,
@@ -9645,7 +9645,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_search_prio,
               { "3G Search Prio", "gsm_a.rr.3g_search_prio",
-		FT_BOOLEAN, BASE_DEC,  TFS(&gsm_a_rr_3g_search_prio_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_offset,
@@ -9675,7 +9675,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_ccn_active,
               { "3G CCN Active", "gsm_a.rr.3g_ccn_active",
-		FT_BOOLEAN, BASE_DEC,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_700_reporting_offset,
@@ -9730,12 +9730,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_si2quater_position,
               { "SI2quater Position", "gsm_a.rr.si2quater_position",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_si2quater_position_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si2quater_position_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_si13alt_position,
               { "SI13alt Position", "gsm_a.rr.si13alt_position",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_si13alt_position_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si13alt_position_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_prio_thr,
@@ -9750,7 +9750,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_paging_channel_restructuring,
               { "Paging Channel Restructuring", "gsm_a.rr.paging_channel_restructuring",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_paging_channel_restructuring_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_paging_channel_restructuring_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_nln_sacch,
@@ -9775,12 +9775,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_vbs_vgcs_inband_notifications,
               { "Inband Notifications", "gsm_a.rr.vbs_vgcs_inband_notifications",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_vbs_vgcs_inband_notifications_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_notifications_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_vbs_vgcs_inband_pagings,
               { "Inband Pagings", "gsm_a.rr.vbs_vgcs_inband_pagings",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_vbs_vgcs_inband_pagings_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_vbs_vgcs_inband_pagings_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_rac,
@@ -9800,12 +9800,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_dedicated_mode_mbms_notification_support,
               { "Dedicated Mode MBMS Notification Support", "gsm_a.rr.dedicated_mode_mbms_notification_support",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_dedicated_mode_mbms_notification_support_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dedicated_mode_mbms_notification_support_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_mnci_support,
               { "MNCI Support", "gsm_a.rr.mnci_support",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_mnci_support_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_mnci_support_value), 0x0,
 		"MBMS Neighbouring Cell Information Support (MNCI Support)", HFILL }
             },
             { &hf_gsm_a_rr_amr_config,
@@ -9870,7 +9870,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_spgc_ccch_sup,
               { "SPGC CCCH Sup", "gsm_a.rr.spgc_ccch_sup",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_spgc_ccch_sup_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_spgc_ccch_sup_value), 0x0,
 		"Split PG Cycle Code on CCCH Support (SPGC CCCH Sup)", HFILL }
             },
             { &hf_gsm_a_rr_priority_access_thr,
@@ -9900,12 +9900,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_access_burst_type,
               { "Access Burst Type", "gsm_a.rr.access_burst_type",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_access_burst_type_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_access_burst_type_value), 0x0,
 		"Format used in the PACKET CHANNEL REQUEST message, the PS HANDOVER ACCESS message, the PTCCH uplink block and in the PACKET CONTROL ACKNOWLEDGMENT message (Access Burst Type)", HFILL }
             },
             { &hf_gsm_a_rr_control_ack_type,
               { "Control Ack Type", "gsm_a.rr.control_ack_type",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_control_ack_type_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_control_ack_type_value), 0x0,
 		"Default format of the PACKET CONTROL ACKNOWLEDGMENT message (Control Ack Type)", HFILL }
             },
             { &hf_gsm_a_rr_bs_cv_max,
@@ -9930,7 +9930,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_egprs_packet_channel_request,
               { "EGPRS Packet Channel Request", "gsm_a.rr.egprs_packet_channel_request",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_egprs_packet_channel_request_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_egprs_packet_channel_request_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_bep_period,
@@ -9940,47 +9940,47 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_pfc_feature_mode,
               { "PFC Feature Mode", "gsm_a.rr.pfc_feature_mode",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pfc_feature_mode_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pfc_feature_mode_value), 0x0,
 		"Packet Flow Context Feature Mode (PFC Feature Mode)", HFILL }
             },
             { &hf_gsm_a_rr_dtm_support,
               { "DTM Support", "gsm_a.rr.dtm_support",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_dtm_support_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_support_value), 0x0,
 		"Dual Transfer Mode Support (DTM Support)", HFILL }
             },
             { &hf_gsm_a_rr_bss_paging_coordination,
               { "BSS Paging Coordination", "gsm_a.rr.bss_paging_coordination",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_bss_paging_coordination_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bss_paging_coordination_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_ccn_active,
               { "CCN Active", "gsm_a.rr.ccn_active",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_ccn_active_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ccn_active_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_nw_ext_utbf,
               { "NW Ext UTBF", "gsm_a.rr.nw_ext_utbf",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_nw_ext_utbf_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_nw_ext_utbf_value), 0x0,
 		"Network Extended Uplink TBF (NW Ext UTBF)", HFILL }
             },
             { &hf_gsm_a_rr_multiple_tbf_capability,
               { "Multiple TBF Capability", "gsm_a.rr.multiple_tbf_capability",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_multiple_tbf_capability_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_multiple_tbf_capability_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_ext_utbf_no_data,
               { "Ext UTBF No Data", "gsm_a.rr.ext_utbf_no_data",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_ext_utbf_no_data_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_ext_utbf_no_data_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_dtm_enhancements_capability,
               { "DTM Enhancements Capability", "gsm_a.rr.dtm_enhancements_capability",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_dtm_enhancements_capability_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_dtm_enhancements_capability_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_reduced_latency_access,
               { "Reduced Latency Access", "gsm_a.rr.reduced_latency_access",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_reduced_latency_access_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reduced_latency_access_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_alpha,
@@ -10000,7 +10000,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_pc_meas_chan,
               { "PC Meas Chan", "gsm_a.rr.pc_meas_chan",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pc_meas_chan_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pc_meas_chan_value), 0x0,
 		"Channel used to measure the received power level on the downlink for the purpose of the uplink power control (PC Meas Chan)", HFILL }
             },
             { &hf_gsm_a_rr_n_avg_i,
@@ -10010,12 +10010,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_sgsnr,
               { "SGSNR", "gsm_a.rr.sgsnr",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_sgsnr_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_sgsnr_value), 0x0,
 		"SGSN Release (SGSNR)", HFILL }
             },
             { &hf_gsm_a_rr_si_status_ind,
               { "SI Status Ind", "gsm_a.rr.si_status_ind",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_si_status_ind_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si_status_ind_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_lb_ms_txpwr_max_cch,
@@ -10050,12 +10050,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_bsic_seen,
               { "BSIC Seen", "gsm_a.rr.bsic_seen",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_bsic_seen_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bsic_seen_value), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale,
               { "Scale", "gsm_a.rr.scale",
-		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_scale_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_scale_value), 0x00,
 		"Offset applied for the reported RXLEV values (Scale)", HFILL }
             },
             { &hf_gsm_a_rr_mean_bep_gmsk,
