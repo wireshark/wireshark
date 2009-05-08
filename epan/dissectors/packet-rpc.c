@@ -80,8 +80,6 @@ static gboolean rpc_dissect_unknown_programs = FALSE;
  */
 static gboolean rpc_find_fragment_start = FALSE;
 
-static struct true_false_string yesno = { "Yes", "No" };
-
 static int rpc_tap = -1;
 
 static const value_string rpc_msg_type[] = {
@@ -3576,7 +3574,7 @@ proto_register_rpc(void)
 			NULL, 0, "Reply Frame", HFILL }},
 		{ &hf_rpc_lastfrag, {
 			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, 32,
-			&yesno, RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
+			TFS(&tfs_yes_no), RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
 		{ &hf_rpc_fraglen, {
 			"Fragment Length", "rpc.fraglen", FT_UINT32, BASE_DEC,
 			NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
@@ -3682,7 +3680,7 @@ proto_register_rpc(void)
 			HFILL }},
 		{ &hf_rpc_authgssapi_msg, {
 			"AUTH_GSSAPI Message", "rpc.authgssapi.message",
-			FT_BOOLEAN, BASE_NONE, &yesno, 0, "AUTH_GSSAPI Message",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0, "AUTH_GSSAPI Message",
 			HFILL }},
 		{ &hf_rpc_authgssapi_msgv, {
 			"Msg Version", "rpc.authgssapi.msgversion",
@@ -3732,7 +3730,7 @@ proto_register_rpc(void)
 			NULL, 0, "This is a duplicate to the reply in frame", HFILL }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Value Follows", HFILL }},
+			TFS(&tfs_yes_no), 0, "Value Follows", HFILL }},
 		{ &hf_rpc_array_len, {
 			"num", "rpc.array.len", FT_UINT32, BASE_DEC,
 			NULL, 0, "Length of RPC array", HFILL }},

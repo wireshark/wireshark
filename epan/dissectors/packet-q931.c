@@ -3357,13 +3357,13 @@ proto_register_q931(void)
 		    "True if the interface identifier is explicit in the following octets", HFILL }},
 
 		{ &hf_q931_channel_interface_type,
-		  { "Interface type", "q931.channel.interface_type", FT_BOOLEAN, 8, &tfs_interface_type, 0x20,
+		  { "Interface type", "q931.channel.interface_type", FT_BOOLEAN, 8, TFS(&tfs_interface_type), 0x20,
 		    "Identifies the ISDN interface type", HFILL }},
 
 		/* 0x10 is spare */
 
 		{ &hf_q931_channel_exclusive,
-		  { "Indicated channel", "q931.channel.exclusive", FT_BOOLEAN, 8, &tfs_channel_exclusive, 0x08,
+		  { "Indicated channel", "q931.channel.exclusive", FT_BOOLEAN, 8, TFS(&tfs_channel_exclusive), 0x08,
 		    "True if only the indicated channel is acceptable", HFILL }},
 
 		{ &hf_q931_channel_dchan,
@@ -3379,7 +3379,7 @@ proto_register_q931(void)
 		    "Identifies the information channel to be used", HFILL }},
 
 		{ &hf_q931_channel_map,
-		  { "Number/map", "q931.channel.map", FT_BOOLEAN, 8, &tfs_channel_map, 0x10,
+		  { "Number/map", "q931.channel.map", FT_BOOLEAN, 8, TFS(&tfs_channel_map), 0x10,
 		    "True if channel is indicates by channel map rather than number", HFILL }},
 
 		{ &hf_q931_channel_element_type,

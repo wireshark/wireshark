@@ -1111,7 +1111,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_arp(void)
 {
-  static struct true_false_string type_bit = { "E.164", "ATM Forum NSAPA" };
+  static struct true_false_string tfs_type_bit = { "E.164", "ATM Forum NSAPA" };
 
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
@@ -1131,7 +1131,7 @@ proto_register_arp(void)
 
     { &hf_atmarp_sht,
       { "Sender ATM number type",	"arp.src.htype",
-	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+	FT_BOOLEAN,	8,		TFS(&tfs_type_bit),	ATMARP_IS_E164,
       	"", HFILL }},
 
     { &hf_atmarp_shl,
@@ -1141,7 +1141,7 @@ proto_register_arp(void)
 
     { &hf_atmarp_sst,
       { "Sender ATM subaddress type",	"arp.src.stype",
-	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+	FT_BOOLEAN,	8,		TFS(&tfs_type_bit),	ATMARP_IS_E164,
       	"", HFILL }},
 
     { &hf_atmarp_ssl,
@@ -1166,7 +1166,7 @@ proto_register_arp(void)
 
     { &hf_atmarp_tht,
       { "Target ATM number type",	"arp.dst.htype",
-	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+	FT_BOOLEAN,	8,		TFS(&tfs_type_bit),	ATMARP_IS_E164,
       	"", HFILL }},
 
     { &hf_atmarp_thl,
@@ -1176,7 +1176,7 @@ proto_register_arp(void)
 
     { &hf_atmarp_tst,
       { "Target ATM subaddress type",	"arp.dst.stype",
-	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+	FT_BOOLEAN,	8,		TFS(&tfs_type_bit),	ATMARP_IS_E164,
       	"", HFILL }},
 
     { &hf_atmarp_tsl,
