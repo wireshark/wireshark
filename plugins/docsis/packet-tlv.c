@@ -2117,7 +2117,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_net_access,
      {"3 Network Access", "docsis_tlv.netaccess",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "Network Access TLV", HFILL}
      },
     {&hf_docsis_tlv_cos,
@@ -2162,7 +2162,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_cos_privacy_enable,
      {".7 COS Privacy Enable", "docsis_tlv.cos.privacy_enable",
-      FT_BOOLEAN, BASE_DEC, TFS (&ena_dis_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&ena_dis_tfs), 0x0,
       "Class of Service Privacy Enable", HFILL}
      },
     {&hf_docsis_tlv_mcap,
@@ -2172,7 +2172,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_mcap_concat,
      {".1 Concatenation Support", "docsis_tlv.mcap.concat",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "Concatenation Support", HFILL}
      },
     {&hf_docsis_tlv_mcap_docs_ver,
@@ -2182,22 +2182,22 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_mcap_frag,
      {".3 Fragmentation Support", "docsis_tlv.mcap.frag",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "Fragmentation Support", HFILL}
      },
     {&hf_docsis_tlv_mcap_phs,
      {".4 PHS Support", "docsis_tlv.mcap.phs",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "PHS Support", HFILL}
      },
     {&hf_docsis_tlv_mcap_igmp,
      {".5 IGMP Support", "docsis_tlv.mcap.igmp",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "IGMP Support", HFILL}
      },
     {&hf_docsis_tlv_mcap_privacy,
      {".6 Privacy Support", "docsis_tlv.mcap.privacy",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "Privacy Support", HFILL}
      },
     {&hf_docsis_tlv_mcap_down_said,
@@ -2232,7 +2232,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_mcap_dcc,
      {".12 DCC Support", "docsis_tlv.mcap.dcc",
-      FT_BOOLEAN, BASE_DEC, TFS (&on_off_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&on_off_tfs), 0x0,
       "DCC Support", HFILL}
      },
     {&hf_docsis_tlv_cm_mic,
@@ -2357,7 +2357,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_clsfr_act_state,
      {".6 Activation State", "docsis_tlv.clsfr.actstate",
-      FT_BOOLEAN, BASE_DEC, TFS (&activation_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&activation_tfs), 0x0,
       "Classifier Activation State", HFILL}
      },
     {&hf_docsis_tlv_clsfr_dsc_act,
@@ -2718,7 +2718,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_phsv,
      {".11 PHS Verify", "docsis_tlv.phs.phsv",
-      FT_BOOLEAN, BASE_DEC, TFS (&verify_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&verify_tfs), 0x0,
       "PHS Verify", HFILL}
      },
     {&hf_docsis_tlv_phs_vendorspec,
@@ -2738,7 +2738,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_privacy_enable,
      {"29 Privacy Enable", "docsis_tlv.bpi_en",
-      FT_BOOLEAN, BASE_DEC, TFS (&ena_dis_tfs), 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS (&ena_dis_tfs), 0x0,
       "Privacy Enable", HFILL}
      },
     {&hf_docsis_tlv_auth_block,
