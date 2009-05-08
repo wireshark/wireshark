@@ -2712,7 +2712,7 @@ proto_register_sna(void)
 		    "", HFILL }},
 
                 { &hf_sna_th_mft,
-                { "MPR FID4 Type", "sna.th.mft", FT_BOOLEAN, BASE_NONE,
+                { "MPR FID4 Type", "sna.th.mft", FT_BOOLEAN, 8
 		    NULL, 0x04, "", HFILL }},
 
                 { &hf_sna_th_piubf,
