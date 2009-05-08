@@ -4525,8 +4525,6 @@ dissect_krb5_ERROR(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 
 
 
-static struct { const char *set; const char *unset; } bitval = { "Set", "Not set" };
-
 static gint dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
 static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
@@ -4762,7 +4760,7 @@ proto_register_kerberos(void)
     static hf_register_info hf[] = {
 	{ &hf_krb_rm_reserved, {
 	    "Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
-	    &bitval, KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
+	    TFS(&tfs_set_notset), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
 	{ &hf_krb_rm_reclen, {
 	    "Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
 	    NULL, KRB_RM_RECLEN, "Record length", HFILL }},

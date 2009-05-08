@@ -550,8 +550,6 @@ static const value_string nfsacl3_proc_vals[] = {
 	{ 0,	NULL }
 };
 
-static struct true_false_string yesno = { "Yes", "No" };
-
 void
 proto_register_nfsacl(void)
 {
@@ -590,7 +588,7 @@ proto_register_nfsacl(void)
 			/* V2 */
 		{ &hf_nfsacl_create, {
 			"create", "nfsacl.create", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Create?", HFILL }},
+			TFS(&tfs_yes_no), 0, "Create?", HFILL }},
 	};
 
 	static gint *ett[] = {

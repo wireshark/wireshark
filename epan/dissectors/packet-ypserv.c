@@ -611,9 +611,6 @@ static const value_string ypserv2_proc_vals[] = {
 void
 proto_register_ypserv(void)
 {
-	/*static struct true_false_string okfailed = { "Ok", "Failed" };*/
-	static struct true_false_string yesno = { "Yes", "No" };
-
 	static hf_register_info hf[] = {
 		{ &hf_ypserv_procedure_v1, {
 			"V1 Procedure", "ypserv.procedure_v1", FT_UINT32, BASE_DEC,
@@ -626,7 +623,7 @@ proto_register_ypserv(void)
 			NULL, 0, "Domain", HFILL }},
 		{ &hf_ypserv_servesdomain, {
 			"Serves Domain", "ypserv.servesdomain", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Serves Domain", HFILL }},
+			TFS(&tfs_yes_no), 0, "Serves Domain", HFILL }},
 		{ &hf_ypserv_map, {
 			"Map Name", "ypserv.map", FT_STRING, BASE_DEC,
 			NULL, 0, "Map Name", HFILL }},
@@ -635,7 +632,7 @@ proto_register_ypserv(void)
 			NULL, 0, "Peer Name", HFILL }},
 		{ &hf_ypserv_more, {
 			"More", "ypserv.more", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "More", HFILL }},
+			TFS(&tfs_yes_no), 0, "More", HFILL }},
 		{ &hf_ypserv_ordernum, {
 			"Order Number", "ypserv.ordernum", FT_UINT32, BASE_DEC,
 			NULL, 0, "Order Number for XFR", HFILL }},

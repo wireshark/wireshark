@@ -1131,9 +1131,6 @@ static const value_string nlm4_proc_vals[] = {
 /* end of NLM protocol version 4 */
 
 
-static struct true_false_string yesno = { "Yes", "No" };
-
-
 void
 proto_register_nlm(void)
 {
@@ -1155,10 +1152,10 @@ proto_register_nlm(void)
 			NULL, 0, "cookie", HFILL }},
 		{ &hf_nlm_block, {
 			"block", "nlm.block", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "block", HFILL }},
+			TFS(&tfs_yes_no), 0, "block", HFILL }},
 		{ &hf_nlm_exclusive, {
 			"exclusive", "nlm.exclusive", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "exclusive", HFILL }},
+			TFS(&tfs_yes_no), 0, "exclusive", HFILL }},
 		{ &hf_nlm_lock, {
 			"lock", "nlm.lock", FT_NONE, 0,
 			NULL, 0, "lock", HFILL }},
@@ -1185,7 +1182,7 @@ proto_register_nlm(void)
 			NULL, 0, "l_len", HFILL }},
 		{ &hf_nlm_reclaim, {
 			"reclaim", "nlm.reclaim", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "reclaim", HFILL }},
+			TFS(&tfs_yes_no), 0, "reclaim", HFILL }},
 		{ &hf_nlm_state, {
 			"state", "nlm.state", FT_UINT32, BASE_DEC,
 			NULL, 0, "STATD state", HFILL }},

@@ -209,7 +209,7 @@ proto_register_klm(void)
 			VALS(klm1_proc_vals), 0, "V1 Procedure", HFILL }},
 		{ &hf_klm_exclusive, {
 			"exclusive", "klm.exclusive", FT_BOOLEAN, BASE_NONE,
-			&tfs_exclusive, 0, "Exclusive lock", HFILL }},
+			TFS(&tfs_exclusive), 0, "Exclusive lock", HFILL }},
 
 		{ &hf_klm_lock, {
 			"lock", "klm.lock", FT_NONE, BASE_NONE,
@@ -241,7 +241,7 @@ proto_register_klm(void)
 
 		{ &hf_klm_block, {
 			"block", "klm.block", FT_BOOLEAN, BASE_NONE,
-			&tfs_block, 0, "Block", HFILL }},
+			TFS(&tfs_block), 0, "Block", HFILL }},
 
 	};
 

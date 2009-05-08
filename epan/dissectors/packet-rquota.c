@@ -191,7 +191,7 @@ proto_register_rquota(void)
 
 		{ &hf_rquota_active, {
 			"active", "rquota.active", FT_BOOLEAN, BASE_NONE,
-			&tfs_active, 0, "Indicates whether quota is active", HFILL }},
+			TFS(&tfs_active), 0, "Indicates whether quota is active", HFILL }},
 
 		{ &hf_rquota_bhardlimit, {
 			"bhardlimit", "rquota.bhardlimit", FT_UINT32, BASE_DEC,

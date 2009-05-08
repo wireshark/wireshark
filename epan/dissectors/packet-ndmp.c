@@ -243,8 +243,6 @@ static gint ett_ndmp_file_stats = -1;
 static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
 
-static struct true_false_string yesno = { "Yes", "No" };
-
 /* XXX someone should start adding the new stuff from v3, v4 and v5*/
 #define NDMP_PROTOCOL_UNKNOWN	0
 #define NDMP_PROTOCOL_V2	2
@@ -3781,7 +3779,7 @@ proto_register_ndmp(void)
 		NULL, 0, "Estimated time remaining", HFILL }},
 	{ &hf_ndmp_lastfrag, {
 		"Last Fragment", "ndmp.lastfrag", FT_BOOLEAN, 32,
-		&yesno, RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
+		TFS(&tfs_yes_no), RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
 	{ &hf_ndmp_fraglen, {
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
 		NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
