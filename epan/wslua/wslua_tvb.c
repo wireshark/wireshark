@@ -332,7 +332,7 @@ int ByteArray_register(lua_State* L) {
  * All allocated memory chunks used for tracking the pointers' state are freed after marking the pointer as expired
  * by the garbage collector or by the end of the dissection of the current frame, whichever comes second.
  *
- * We check the expiry state of the pointer before each acces.
+ * We check the expiry state of the pointer before each access.
  *
  */
 
