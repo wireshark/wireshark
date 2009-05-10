@@ -9765,6 +9765,25 @@
 00:26:16	Rosemount              # Rosemount Inc.
 00:26:17	OemWorldwi             # OEM Worldwide
 00:26:18	AsustekCom             # ASUSTek COMPUTER INC.
+00:26:19	Frc
+00:26:1A	FemtocommS             # Femtocomm System Technology Corp.
+00:26:1B	LaurelBank             # LAUREL BANK MACHINES CO., LTD.
+00:26:1C	Neovia                 # NEOVIA INC.
+00:26:1D	CopSecurit             # COP SECURITY SYSTEM CORP.
+00:26:1E	QingbangEl             # QINGBANG ELEC(SZ) CO., LTD
+00:26:1F	SaeMagneti             # SAE Magnetics (H.K.) Ltd.
+00:26:20	Isgus                  # ISGUS GmbH
+00:26:21	Inteliclou             # InteliCloud Technology Inc.
+00:26:22	CompalInfo             # COMPAL INFORMATION (KUNSHAN) CO., LTD.
+00:26:23	JrdCommuni             # JRD Communication Inc
+00:26:24	Thomson                # Thomson Inc.
+00:26:25	Mediasputn             # MediaSputnik
+00:26:26	Geophysica             # Geophysical Survey Systems, Inc.
+00:26:27	Truesell
+00:26:28	Companytec             # companytec automação e controle ltda
+00:26:29	JuphoonSys             # Juphoon System Software Inc.
+00:26:2A	ProxenseLl             # Proxense, LLC
+00:26:2B	WongsElect             # Wongs Electronics Co. Ltd.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13189,6 +13208,14 @@
 00:50:C2:AA:E0:00/36	OutlineSrl             # OUTLINE srl
 00:50:C2:AA:F0:00/36	SantaBarba             # Santa Barbara Instrument Group
 00:50:C2:AB:00:00/36	FrakoKonde             # FRAKO Kondensatoren- und Anlagenbau GmbH
+00:50:C2:AB:10:00/36	Bitmanufak             # Bitmanufaktur GmbH
+00:50:C2:AB:20:00/36	Procom                 # ProCom Systems, Inc.
+00:50:C2:AB:30:00/36	CompañiaDe             # Compañia de Instrumentacion y control, S.L.
+00:50:C2:AB:40:00/36	N3kInforma             # n3k Informatik GmbH
+00:50:C2:AB:50:00/36	Mettler-To             # METTLER-TOLEDO HI-SPEED
+00:50:C2:AB:60:00/36	GygaxEmbed             # Gygax Embedded Engineering GEE.ch
+00:50:C2:AB:70:00/36	TwinfallsT             # Twinfalls Technologies
+00:50:C2:AB:80:00/36	AhmClikapa             # AHM Limited (CLiKAPAD)
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
