@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-05-02)
+(last updated 2009-05-10)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -15338,9 +15338,9 @@ Decimal
     Dennis Dube
       ddube&modicon.com
 3834
-  Novartis Pharma LTD
-    Hanspeter Gubler
-      hanspeter.gubler&pharma.novartis.com
+  Novartis Pharma AG
+    Fabrice Musy
+      Fabrice.musy&novartis.com
 3835
   ALPS Electric
     Yuichiro Sawame
@@ -53822,9 +53822,9 @@ Decimal
     Ryan Dibble
       rdibble&neolytica.com
 13567
-  Netcelo
-    Michel Habert
-      michel.habert&netcelo.com
+  UBIqube Solutions
+    Yves Dumarest
+      yves.dumarest&ubiqube.com
 13568
   Neustar, Inc.
     Peter C Davis
@@ -66535,9 +66535,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Alexander Omelchenko
       aomelche&alfabank.ru
 16746
-  norbu09.org
+  springtimesoft LTD (previous was 'norbu09.org')
     Lorenz Gschwendtner
-      mail&norbu09.org
+      lenz&springtimesoft.com
 16747
   InterCommIT b.v.
     Afdeling beheer
@@ -89866,7 +89866,7 @@ Limited
 22576
   The OpenBSD SNMP Project
     Theron Bair
-      obsdsnmp&ackphft.net
+      obsdsnmp&id-ak.com
 22577
   Thomas Wollner - IT Beratung und Integration
     Thomas Wollner
@@ -90734,8 +90734,8 @@ Informatica Ltda
       rodrigo&voicetechnology.com.br
 22793
   Stratum Communications Pty Ltd
-    Gary Moreland
-      garym&stratumcomms.com
+    Kean Lim
+      keanl&stratumcomms.com
 22794
   Pagaros Pty Limited
     Phil Cairns
@@ -94080,9 +94080,9 @@ Electrónica y Computación
     Edgar Lazarian
       elazarian&csudh.edu
 23629
-  Mykotronx, Inc.
-    David Rodriguez
-      drodriguez&mykotronx.com
+  SafeNet, Inc. (previous was ' Mykotronx, Inc.')
+    Bill Becker
+      bill.becker&safenet-inc.com
 23630
   Computer Aid, Inc.
     Jim Chrapowicz
@@ -99592,8 +99592,8 @@ Minas Gerais
       ondra&sevecek.com
 25006
   SITRONICS Telecom Solutions, Czech Republic a.s.
-    Jakub Hribal
-      jakub.hribal&sitronicsts.com
+    Jan Aftanas
+      jan.aftanas&sitronicsts.com
 25007
   Precesamiento Digital y Sistemas S.L.
     JOSE VALLADARES
@@ -121231,9 +121231,9 @@ Decentralization / Helenic Public Administra
     Victor Meyer
       vmeyer&parker.com
 30412
-  Aeroflex Burnham Limited
-    David Robinson
-      dave.robinson&aeroflex.com
+  Aeroflex Incorporated
+    David Hagood
+      iana_contact&aeroflex.com
 30413
   Channel Islands Stock Exchange LBG
     Donald Fraser
@@ -126376,12 +126376,12 @@ Decentralization / Helenic Public Administra
       sclark&peer1.com
 31698
   Bluemoon Games
-    Spyro Rave
+    Christopher Mettin
       anno.1067&t-online.de
 31699
-  Bluemoon Games
-    Spyro Rave
-      anno.1067&t-online.de
+  Gymnasium Querfurt Broadcasting Channel
+    Christopher Mettin
+      cmettin&gqbc-online.com
 31700
   Ice House Productions
     Marshall Anschutz
@@ -129508,8 +129508,8 @@ Decentralization / Helenic Public Administra
       olliwang&ollix.com
 32481
   Unitronics
-    Koby ben shloosh
-      kobyb&unitronics.co.il
+    Benny Magrafta
+      benny&unitronics.com
 32482
   Qporter Schweitz AG
     Piotr Hawranek
@@ -133287,6 +133287,206 @@ Decentralization / Helenic Public Administra
   Fortisbank NL NV
     Steven Geerts
       steven.geerts&nl.fortis.com
+33426
+  Mirae Ikorn company
+    Sai Thi Hien Ninh
+      sthninh&mikorn.com
+33427
+  5V Technologies Ltd.
+    Hsu Chih-Ming
+      mein_hsu&5vtechnologies.com
+33428
+  TRAKCE, a.s.
+    Bretislav Otruba, Ing.
+      otruba&trakceol.cz
+33429
+  Mobile Experts sp. z o.o.
+    Adam Wos
+      adam.wos&mobileexperts.pl
+33430
+  Libra Szoftver Zrt
+    Mihaly Kepler
+      mkepler&mve.hu
+33431
+  Oberfinanzdirektion Karlsruhe
+    Robert Foerderer
+      robert.foerderer&ofdka.bwl.de
+33432
+  MAHLE International GmbH
+    Michael Zerrer
+      michael.zerrer&mahle.com
+33433
+  Interwetten
+    Otahal Helmut
+      it-admin&interwetten.com
+33434
+  SDC Sistemi di Computer
+    Federico Scaramuzza
+      pen-iana&essedici.it
+33435
+  dicas digital image coding GmbH
+    Matthias Wegener
+      wegener&dicas.de
+33436
+  Lepida spa
+    Maurizio Coppari
+      maurizio.coppari&lepida.it
+33437
+  Heidelberg Engineering GmbH
+    Michael Reutter
+      mreutter&heidelbergengineering.com
+33438
+  RIPN
+    Mikhail Vsevolodov
+      vsev&ripn.net
+33439
+  Centralx
+    Marcos Moreira
+      mm&centralx.com.br
+33440
+  Centro Brasileiro de Pesquisa e Tecnologia em Informática Médica
+    Marcos Moreira
+      mm&cpqt.com.br
+33441
+  Science Systems and Applications, Inc.
+    Owen Steinert
+      admin&ssaihq.com
+33442
+  Bernards
+    Jason Wise
+      supportdesk&bernards.com
+33443
+  Novus Entertainment Inc.
+    Norio Sakuta
+      norio.sakuta&novusnow.ca
+33444
+  obtelecom
+    xuxin
+      xuershao&hotmail.com
+33445
+  The London Library
+    Will David
+      will.david&londonlibrary.co.uk
+33446
+  Relay Station Ltd
+    Alexander Fisher
+      alex.fisher&relaystation.co.uk
+33447
+  Comtech Ltd.
+    Balázs Bagó
+      dev&comtech.co.hu
+33448
+  Chemtura Corporation
+    Michael Baker
+      michael.baker&chemtura.com
+33449
+  Time2Dive
+    michael koch
+      michael&time2dive.at
+33450
+  Facultad de Ingenieria Informatica, CUJAE
+    Bislandry Vejo
+      bvejo&ceis.cujae.edu.cu
+33451
+  Infomed
+    Maykel Moya
+      moya&infomed.sld.cu
+33452
+  Comsenz.Ltd
+    Joanna Zhang
+      zhangjuan&comsenz.com
+33453
+  Polylogics Consulting, Inc.
+    Rod Dorman
+      rodd&polylogics.com
+33454
+  Nippon Sogo Systems, Inc.
+    Kazuhiro Seo
+      k-seo&nssys.co.jp
+33455
+  BVE Solutions
+    Boris Eschenko
+      redhat&ngs.ru
+33456
+  DCF Technologies
+    Uri Margalit
+      uri&dcftech.com
+33457
+  DANET.CZ s.r.o.
+    Roman DAVID
+      rdavid&danet.cz
+33458
+  Colégio Santo Agostinho
+    César Augusto Simões Goudouris
+      cesar&csa.com.br
+33459
+  Vivisimo, Inc.
+    Chris Gillin
+      gillin&vivisimo.com
+33460
+  //SEIBERT/MEDIA GmbH
+    Torsten Rehn
+      trehn&seibert-media.net
+33461
+  DS Media Labs, Inc.
+    Glenn R. Martin
+      iana&dsmedialabs.com
+33462
+  Zmac1, Inc.
+    Dan Maus
+      noc.oid&zmac1.com
+33463
+  Limelight Networks, Inc.
+    Wylie Swanson
+      wylie&llnw.com
+33464
+  Leo Lab
+    Leo Wang
+      xfwang0724&hotmail.com
+33465
+  Unlimited Bandwidth LLC
+    Jim Albanese
+      jalbanese&ubllc.com
+33466
+  Kadeo Pty Ltd
+    Shaun Deans
+      shaun&kadeo.com.au
+33467
+  Cyprotex
+    David Roe
+      d.roe&cyprotex.com
+33468
+  Future Skies
+    Charles Hull
+      charles.hull&future-skies.com
+33469
+  Produban Servicios Informaticos Generales
+    David Manchado
+      dmanchado&produban.com
+33470
+  Vista Systems, Corp.
+    Derek Smithson
+      derek.smithson&vistasystems.net
+33471
+  Alekstra Oy
+    Jani Piitulainen
+      pen&alekstra.com
+33472
+  Sittig Industrie-Elektronik GmbH & Co. KG
+    Michael Sittig
+      michael.sittig&sittig.de
+33473
+  Dataman International B.V.
+    Alexander Kaasjager
+      a.kaasjager&dataman.nl
+33474
+  Regex
+    M. van Buytene
+      martijn&regex.nl
+33475
+  Botswana Power Corporation
+    Hanno van der Maas
+      hanno&bpc.bw
 
 
 End of Document
