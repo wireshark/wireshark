@@ -1,5 +1,5 @@
 /*
- * packet-lua.c
+ * init_wslua.c
  *
  * Wireshark's interface to the Lua Programming Language
  *
@@ -27,6 +27,7 @@
  */
 
 #include "wslua.h"
+#include <epan/dissectors/packet-frame.h>
 #include <epan/nstime.h>
 #include <math.h>
 #include <epan/expert.h>
@@ -44,6 +45,14 @@ int lua_dissectors_table_ref;
 
 dissector_handle_t lua_data_handle;
 
+static void lua_frame_end(void)
+{
+    clear_outstanding_Tvb();
+    clear_outstanding_Pinfo();
+    clear_outstanding_Column();
+    clear_outstanding_Columns();
+    clear_outstanding_TreeItem();
+}
 
 static int wslua_not_register_menu(lua_State* LS) {
     luaL_error(LS,"too late to register a menu");
@@ -104,12 +113,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
     }
 
-    clear_outstanding_Tvb();
-    clear_outstanding_Pinfo();
-    clear_outstanding_Column();
-    clear_outstanding_Columns();
-    clear_outstanding_TreeItem();
-
+    register_frame_end_routine(lua_frame_end);
 
     lua_pinfo = NULL;
     lua_tree = NULL;
