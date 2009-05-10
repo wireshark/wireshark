@@ -89,7 +89,8 @@ taps_used = \
 	../dissectors/packet-http.h \
 	../dissectors/packet-ip.h \
 	../dissectors/packet-udp.h \
-	../dissectors/packet-h225.h
+	../dissectors/packet-h225.h \
+	../dissectors/packet-ieee80211.h
 
 taps: $(taps_used)
 	touch taps
@@ -98,7 +99,7 @@ taps_wslua.c: make-taps.pl taps
 	$(PERL) $(srcdir)/make-taps.pl taps taps_wslua.c taps.txt
 
 taps.txt: taps_wslua.c
-	
+
 wslua.h: declare_wslua.h
 
 register_wslua.c: declare_wslua.h

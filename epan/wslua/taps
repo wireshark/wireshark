@@ -52,7 +52,6 @@ eth ../dissectors/packet-eth.h eth_hdr
 #gsm_map ../dissectors/packet-gsm_map.h gsm_map_info_t
 #h245 ../dissectors/packet-h245.h h245_info_t
 #h245dg ../dissectors/packet-h245dg.h h245dg_info_t
-#wlan ../dissectors/packet-wlan.h wlan_info_t
 #ipx ../dissectors/packet-ipx.h ipx_info_t
 #isup ../dissectors/packet-isup.h isup_info_t
 #jxta ../dissectors/packet-jxta.h jxta_info_t
@@ -77,4 +76,5 @@ eth ../dissectors/packet-eth.h eth_hdr
 #tcp ../dissectors/packet-tcp.h tcp_info_t
 #teredo ../dissectors/packet-teredo.h teredo_info_t
 #tr ../dissectors/packet-tr.h tr_info_t
+wlan ../dissectors/packet-ieee80211.h wlan_hdr
 #wsp ../dissectors/packet-wsp.h wsp_info_t
