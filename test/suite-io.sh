@@ -50,7 +50,7 @@ io_step_input_file() {
 	
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout.txt
-	grep -i 'Number of packets: 4' ./testout.txt > /dev/null
+	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout.txt > /dev/null
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
@@ -81,7 +81,7 @@ io_step_output_piping() {
 	
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
-	grep -i 'Number of packets: 4' ./testout2.txt > /dev/null
+	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout2.txt > /dev/null
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
@@ -113,7 +113,7 @@ io_step_input_piping() {
 	
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
-	grep -i 'Number of packets: 4' ./testout2.txt > /dev/null
+	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout2.txt > /dev/null
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
