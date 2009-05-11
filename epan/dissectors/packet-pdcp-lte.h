@@ -23,6 +23,10 @@
  */
 
 
+/* Direction */
+#define DIRECTION_UPLINK   0
+#define DIRECTION_DOWNLINK 1
+
 enum pdcp_plane
 {
   SIGNALING_PLANE = 1,
@@ -36,28 +40,50 @@ enum rohc_mode
   RELIABLE_BIDIRECTIONAL = 3
 };
 
+typedef enum LogicalChannelType
+{
+    Channel_DCCH=1,
+    Channel_BCCH=2,
+    Channel_CCCH=3,
+    Channel_PCCH=4
+} LogicalChannelType;
+
+typedef enum
+{
+    BCH_TRANSPORT=1,
+    DLSCH_TRANSPORT=2
+} BCCHTransportType;
+
+
 #define CID_IN_PDCP_HEADER 0
 #define CID_IN_ROHC_PACKET 1
 
 #define PDCP_SN_LENGTH_7_BITS 7
 #define PDCP_SN_LENGTH_12_BITS 12
 
+
+
 /* Info attached to each LTE PDCP/RoHC packet */
 typedef struct pdcp_lte_info
 {
+    /* Channel info is needed for RRC parsing */
+    guint8             Direction;
+    LogicalChannelType channelType;
+    BCCHTransportType  BCCHTransport;
+
     /* Details of PDCP header */
-    gboolean        no_header_pdu;
-    enum pdcp_plane plane;
-    guint8          seqnum_length;
+    gboolean           no_header_pdu;
+    enum pdcp_plane    plane;
+    guint8             seqnum_length;
 
     /* RoHC settings */
-    gboolean        rohc_compression;
-    unsigned short  rohc_ip_version;
-    gboolean        cid_inclusion_info;
-    gboolean        large_cid_present;
-    enum rohc_mode  mode;
-    gboolean        rnd;
-    gboolean        udp_checkum_present;
-    unsigned short  profile;
+    gboolean           rohc_compression;
+    unsigned short     rohc_ip_version;
+    gboolean           cid_inclusion_info;
+    gboolean           large_cid_present;
+    enum rohc_mode     mode;
+    gboolean           rnd;
+    gboolean           udp_checkum_present;
+    unsigned short     profile;
 } pdcp_lte_info;
 

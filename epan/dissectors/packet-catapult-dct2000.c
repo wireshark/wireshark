@@ -125,8 +125,8 @@ static const value_string encap_vals[] = {
 };
 
 static const value_string bcch_transport_vals[] = {
-    { 1,   "BCH" },
-    { 2,   "DLSCH" },
+    { BCH_TRANSPORT,    "BCH" },
+    { DLSCH_TRANSPORT,  "DLSCH" },
     { 0,   NULL },
 };
 
@@ -156,14 +156,6 @@ static const value_string rlc_op_vals[] = {
     { 0,   NULL }
 };
 
-
-typedef enum LogicalChannelType
-{
-    Channel_DCCH=1,
-    Channel_BCCH=2,
-    Channel_CCCH=3,
-    Channel_PCCH=4
-} LogicalChannelType;
 
 static const value_string rlc_logical_channel_vals[] = {
     { Channel_DCCH,  "DCCH"},
@@ -713,7 +705,7 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             /* Logical channel type */
             proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                 tvb, offset, 1, FALSE);
-            logicalChannelType = tvb_get_guint8(tvb, offset++);
+            logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
 
             switch (logicalChannelType) {
                 case Channel_BCCH:
@@ -808,17 +800,22 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 }
 
 
-/* Dissect a PDCP LTE frame by first parsing the header entries then passing
+/* Dissect a PDCP LTE frame by first parsing the RLCPrim header then passing
    the data to the PDCP LTE dissector */
-void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
-                      packet_info *pinfo, proto_tree *tree _U_)
+void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
+                      packet_info *pinfo, proto_tree *tree)
 {
-    guint8             opcode;
-    guint8             tag;
-    LogicalChannelType logicalChannelType;
-    guint8             bcch_transport = 0;
+    guint8                 opcode;
+    guint8                 tag;
     struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
-    tvbuff_t           *pdcp_lte_tvb;
+    tvbuff_t               *pdcp_lte_tvb;
+
+    /* Look this up so can update channel info */
+    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    if (p_pdcp_lte_info == NULL) {
+        /* This really should be set...can't dissect anything without it */
+        return;
+    }
 
     /* Top-level opcode */
     opcode = tvb_get_guint8(tvb, offset);
@@ -832,6 +829,18 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
                    val_to_str(opcode, rlc_op_vals, "Unknown"));
     }
 
+    /* Assume UE side, so REQ is UL, IND is DL */
+    switch (opcode) {
+       case RLC_AM_DATA_REQ:
+       case RLC_UM_DATA_REQ:
+       case RLC_TR_DATA_REQ:
+           p_pdcp_lte_info->Direction = DIRECTION_UPLINK;
+
+       default:
+           p_pdcp_lte_info->Direction = DIRECTION_DOWNLINK;
+    }
+
+    /* Parse header */
     switch (opcode) {
         case RLC_AM_DATA_REQ:
         case RLC_AM_DATA_IND:
@@ -850,7 +859,7 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
                     /* Length will fit in one byte here */
                     offset++;
 
-                    logicalChannelType = Channel_DCCH;
+                    p_pdcp_lte_info->channelType = Channel_DCCH;
 
                     /* UEId */
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, FALSE);
@@ -892,15 +901,15 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
                     /* Logical channel type */
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                         tvb, offset, 1, FALSE);
-                    logicalChannelType = tvb_get_guint8(tvb, offset++);
+                    p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset++);
 
-                    switch (logicalChannelType) {
+                    switch (p_pdcp_lte_info->channelType) {
                         case Channel_BCCH:
                             /* Skip length */
                             offset++;
 
                             /* Transport channel type */
-                            bcch_transport = tvb_get_guint8(tvb, offset);
+                            p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
                                                 tvb, offset, 1, FALSE);
                             offset++;
@@ -939,16 +948,16 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
 
                     /* CNF follows MUI in AM */
                     if ((opcode == RLC_AM_DATA_REQ) || (opcode == RLC_AM_DATA_IND)) {
-                        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_cnf,
-                                            tvb, offset, 1, FALSE);
+                        proto_tree_add_boolean(tree, hf_catapult_dct2000_lte_rlc_cnf,
+                                               tvb, offset, 1, tvb_get_guint8(tvb, offset));
                         offset++;
                     }
                 }
                 else if (tag == 0x45) {
                     /* Discard Req */
                     offset++;
-                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_discard_req,
-                                        tvb, offset, 1, FALSE);
+                    proto_tree_add_boolean(tree, hf_catapult_dct2000_lte_rlc_discard_req,
+                                           tvb, offset, 1, tvb_get_guint8(tvb, offset));
                     offset++;
                 }
 
@@ -958,13 +967,6 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
 
             /********************************/
             /* Should be at data tag now    */
-
-            /* Look for packet info! */
-            p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
-            /* Can't dissect anything without it... */
-            if (p_pdcp_lte_info == NULL) {
-                return;
-            }
 
             /* Call PDCP LTE dissector */
             pdcp_lte_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
@@ -2399,13 +2401,13 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_lte_rlc_cnf,
             { "CNF",
-              "dct2000.lte.rlc-cnf", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "dct2000.lte.rlc-cnf", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               "RLC CNF", HFILL
             }
         },
         { &hf_catapult_dct2000_lte_rlc_discard_req,
             { "Discard Req",
-              "dct2000.lte.rlc-discard-req", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "dct2000.lte.rlc-discard-req", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               "RLC Discard Req", HFILL
             }
         },

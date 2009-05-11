@@ -248,7 +248,7 @@ dissector_handle_t ip_handle = 0;
 /* Preference variables */
 static gboolean global_pdcp_show_feedback_option_tag_length = FALSE;
 static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
-static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;  /* Not currently used */
+static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
 /* Dissect a Large-CID field.
@@ -1338,6 +1338,43 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 }
 
 
+/* Look for an RRC dissector for signalling data (using channel type and direction) */
+static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_pdcp_info)
+{
+    dissector_handle_t rrc_handle = 0;
+
+    switch (p_pdcp_info->channelType)
+    {
+        case Channel_CCCH:
+            if (p_pdcp_info->Direction == DIRECTION_UPLINK) {
+                rrc_handle = find_dissector("lte-rrc.ul.ccch");
+            }
+            else {
+                rrc_handle = find_dissector("lte-rrc.dl.ccch");
+            }
+            break;
+        case Channel_PCCH:
+            rrc_handle = find_dissector("lte-rrc.pcch");
+            break;
+        case Channel_BCCH:
+            switch (p_pdcp_info->BCCHTransport) {
+                case BCH_TRANSPORT:
+                    rrc_handle = find_dissector("lte-rrc.bcch.bch");
+                    break;
+                case DLSCH_TRANSPORT:
+                    rrc_handle = find_dissector("lte-rrc.bcch.dl.sch");
+                    break;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return rrc_handle;
+}
+
+
 /******************************/
 /* Main dissection function.  */
 static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1407,13 +1444,23 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
             /* RRC data is all but last 4 bytes.
-               TODO: use lte-rrc dissector when available
-                     (according to direction and channel type) */
+               Call lte-rrc dissector (according to direction and channel type) */
             if (global_pdcp_dissect_signalling_plane_as_rrc) {
-                /*
-                tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset, offset,
-                                                       tvb_length_remaining(tvb, offset) - 4);
-                */
+                /* Get appropriate dissector handle */
+                dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
+
+                if (rrc_handle != 0) {
+                    /* Call RRC dissector if have one */
+                    tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
+                                                           tvb_length_remaining(tvb, offset) - 4,
+                                                           tvb_length_remaining(tvb, offset) - 4);
+                    call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
+                }
+                else {
+                     /* Just show data */
+                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                                            tvb_length_remaining(tvb, offset) - 4, FALSE);
+                }
             }
             else {
                 /* Just show as unparsed data */
@@ -1446,7 +1493,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* Data/Control flag */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, FALSE);
 
-            if (pdu_type == 1) {
+            if (pdu_type == USER_PLANE) {
                 /*****************************/
                 /* Use-plane Data            */
 
@@ -1575,7 +1622,26 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
                 }
                 else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                    if (global_pdcp_dissect_signalling_plane_as_rrc) {
+                        /* Get appropriate dissector handle */
+                        dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
+
+                        if (rrc_handle != 0) {
+                            /* Call RRC dissector if have one */
+                            tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
+                                                                   tvb_length_remaining(tvb, offset),
+                                                                   tvb_length_remaining(tvb, offset));
+                            call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
+                        }
+                        else {
+                             /* Just show data */
+                             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                                                 tvb_length_remaining(tvb, offset), FALSE);
+                        }
+                    }
+                    else {
+                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                    }
                 }
 
                 if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2335,13 +2401,11 @@ void proto_register_pdcp(void)
         "Show uncompressed User-Plane data as IP",
         &global_pdcp_dissect_user_plane_as_ip);
 
-#if 0
     /* Dissect unciphered signalling data as RRC */
     prefs_register_bool_preference(pdcp_lte_module, "show_signalling_plane_as_rrc",
         "Show unciphered Signalling-Plane data as RRC",
         "Show unciphered Signalling-Plane data as RRC",
         &global_pdcp_dissect_signalling_plane_as_rrc);
-#endif
 
     /* Attempt to dissect ROHC headers */
     prefs_register_bool_preference(pdcp_lte_module, "dissect_rohc",
