@@ -96,6 +96,13 @@ secs_nsecs(const struct wtap_nstime * nstime)
   return (nstime->nsecs / 1000000000.0) + (double)nstime->secs;
 }
 
+static void print_value(gchar *text_p1, gint width, gchar *text_p2, double value) {
+  if (value > 0.0)
+    printf("%s%.*f%s\n", text_p1, width, value, text_p2);
+  else
+    printf("%sn/a\n", text_p1);
+}
+
 static void
 print_stats(capture_info *cf_info)
 {
@@ -109,18 +116,18 @@ print_stats(capture_info *cf_info)
   start_time_t = (time_t)cf_info->start_time;
   stop_time_t = (time_t)cf_info->stop_time;
 
-  if (cap_file_type) printf("File type: %s\n", file_type_string);
-  if (cap_file_encap) printf("File encapsulation: %s\n", file_encap_string);
-  if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
-  if (cap_file_size) printf("File size: %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
-  if (cap_data_size) printf("Data size: %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
-  if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
-  if (cap_start_time) printf("Start time: %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
-  if (cap_end_time) printf("End time: %s",     (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
-  if (cap_data_rate_byte) printf("Data rate: %.2f bytes/s\n", cf_info->data_rate);
-  if (cap_data_rate_bit) printf("Data rate: %.2f bits/s\n", cf_info->data_rate*8);
-  if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
-  if (cap_packet_rate) printf("Average packet rate: %.2f packets/s\n", cf_info->packet_rate);
+  if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
+  if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
+  if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
+  if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
+  if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
+  if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration); 
+  if (cap_start_time)     printf     ("Start time:          %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
+  if (cap_end_time)       printf     ("End time:            %s", (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
+  if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/s",   cf_info->data_rate);
+  if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/s",    cf_info->data_rate*8);
+  if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",      cf_info->packet_size);
+  if (cap_packet_rate)    print_value("Average packet rate: ", 2, " packets/s", cf_info->packet_rate);
 }
 
 static int
@@ -134,7 +141,7 @@ process_cap_file(wtap *wth, const char *filename)
   guint32		packet = 0;
   gint64		bytes = 0;
   const struct wtap_pkthdr *phdr;
-  capture_info  cf_info;
+  capture_info  	cf_info;
   double		start_time = 0;
   double		stop_time = 0;
   double		cur_time = 0;
@@ -201,18 +208,19 @@ process_cap_file(wtap *wth, const char *filename)
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
 
+  cf_info.data_rate   = 0.0;
+  cf_info.packet_rate = 0.0;
+  cf_info.packet_size = 0.0;
+
   if (packet > 0) {
-    cf_info.data_rate   = (double)bytes / (stop_time-start_time);  /* Data rate per second */
-    cf_info.packet_rate = (double)packet / (stop_time-start_time); /* packet rate per second */
+    if (cf_info.duration > 0.0) { 
+      cf_info.data_rate   = (double)bytes  / (stop_time-start_time); /* Data rate per second */
+      cf_info.packet_rate = (double)packet / (stop_time-start_time); /* packet rate per second */
+    }
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
   }
-  else {
-    cf_info.data_rate   = 0.0;
-    cf_info.packet_rate = 0.0;
-    cf_info.packet_size = 0.0;
-  }
 
-  printf("File name: %s\n", filename);
+  printf("File name:           %s\n", filename);
   print_stats(&cf_info);
 
   return 0;
