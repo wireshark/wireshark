@@ -66,10 +66,10 @@
 #include "gtk/webbrowser.h"
 #include "gtk/capture_globals.h"
 
-#ifdef _WIN32
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
+#ifdef _WIN32
 #include "../image/toolbar/capture_ethernet_16.xpm"
 
 #include "../image/toolbar/modem_16.xpm"
