@@ -24,7 +24,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef _WIN32
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -2457,6 +2456,7 @@ int load_airpcap(void)
     BOOL base_functions = TRUE;
     BOOL eleven_n_functions = TRUE;
 
+#ifdef _WIN32
     if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)
     {
   		/* Report the error but go on */
@@ -2516,6 +2516,9 @@ int load_airpcap(void)
   		}
     }
     return AirpcapVersion;
+#else /* _WIN32 */
+    return AIRPCAP_DLL_NOT_FOUND;
+#endif /* _WIN32 */
 }
 
 /*
@@ -2546,4 +2549,3 @@ get_runtime_airpcap_version(GString *str)
 	vrev, build);
 }
 #endif /* HAVE_AIRPCAP */
-#endif /* _WIN32 */
