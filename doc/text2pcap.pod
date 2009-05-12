@@ -3,7 +3,7 @@
 
 text2pcap - Generate a capture file from an ASCII hexdump of packets
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<text2pcap>
 S<[ B<-h> ]>

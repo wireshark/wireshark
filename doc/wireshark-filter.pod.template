@@ -2,7 +2,7 @@
 
 wireshark-filter - Wireshark filter syntax and reference
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<wireshark> [other options]
 S<[ B<-R> "filter expression" ]>

@@ -3,7 +3,7 @@
 
 rawshark - Dump and analyze raw libpcap data
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<rawshark>
 S<[ B<-d> E<lt>encap:dltE<gt>|E<lt>proto:protonameE<gt> ]>

@@ -3,7 +3,7 @@
 
 dumpcap - Dump network traffic
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<dumpcap>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>

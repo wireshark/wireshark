@@ -3,7 +3,7 @@
 
 editcap - Edit and/or translate the format of capture files
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<editcap>
 S<[ B<-c> E<lt>packets per fileE<gt> ]>

@@ -3,7 +3,7 @@
 
 mergecap - Merges two or more capture files into one
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<mergecap>
 S<[ B<-a> ]>

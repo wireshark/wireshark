@@ -3,7 +3,7 @@
 
 capinfos - Prints information about capture files
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<capinfos>
 S<[ B<-t> ]>

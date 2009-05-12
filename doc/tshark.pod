@@ -3,7 +3,7 @@
 
 tshark - Dump and analyze network traffic
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
 B<tshark>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
