@@ -13,6 +13,7 @@ S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-A> E<lt>start timeE<gt> ]>
 S<[ B<-B> E<lt>stop timeE<gt> ]>
 S<[ B<-h> ]>
+S<[ B<-i> E<lt>seconds per fileE<gt> ]>
 S<[ B<-r> ]>
 S<[ B<-s> E<lt>snaplenE<gt> ]>
 S<[ B<-t> E<lt>time adjustmentE<gt> ]>
@@ -62,7 +63,7 @@ the same way B<Editcap> handles this.
 
 B<Editcap> can write the file in several output formats. The B<-F>
 flag can be used to specify the format in which to write the capture
-file, B<editcap -F> provides a list of the available output formats.
+file; B<editcap -F> provides a list of the available output formats.
 
 =head1 OPTIONS
 
@@ -70,9 +71,10 @@ file, B<editcap -F> provides a list of the available output formats.
 
 =item -c  E<lt>packets per fileE<gt>
 
-Sets the maximum number of packets per output file. Each output file will 
+Splits the packet output to different files based on uniform packet counts
+with a maximum of <packets per file> each. Each output file will 
 be created with a suffix -nnnnn, starting with 00000. If the specified 
-number of packets are written to the output file, the next output file is 
+number of packets is written to the output file, the next output file is 
 opened. The default is to use a single output file.
 
 =item -C  E<lt>choplenE<gt>
@@ -111,7 +113,7 @@ result in very long processing times for B<editcap>.
 
 Attempts to remove duplicate packets.  The current packet's arrival time
 is compared with up to 1000000 previous packets.  If the packet's relative
-arrival time is I<less than> the <dup time window> of a previous packet
+arrival time is I<less than or equal to> the <dup time window> of a previous packet
 and the packet length and MD5 hash of the current packet are the same then
 the packet to skipped.  The duplicate comparison test stops when
 the current packet's relative arrival time is greater than <dup time window>.
@@ -158,6 +160,14 @@ The time is given in the following format YYYY-MM-DD HH:MM:SS
 =item -h
 
 Prints the version and options and exits.
+
+=item -i  E<lt>seconds per fileE<gt>
+
+Splits the packet output to different files based on uniform time intervals
+using a maximum interval of <seconds per file> each. Each output file will 
+be created with a suffix -nnnnn, starting with 00000. If packets for the specified 
+time interval are written to the output file, the next output file is 
+opened. The default is to use a single output file.
 
 =item -r
 
@@ -264,10 +274,6 @@ To remove duplicate packets seen within the prior four frames use:
 To remove duplicate packets seen within the prior 100 frames use:
 
     editcap -D 101 capture.pcap dedup.pcap
-
-To remove duplicate packets seen I<less than> 1/10th of a second:
-
-    editcap -w 0.1 capture.pcap dedup.pcap
 
 To remove duplicate packets seen I<equal to or less than> 1/10th of a second:
 

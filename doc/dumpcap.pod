@@ -19,6 +19,7 @@ S<[ B<-n> ]>
 S<[ B<-M> ]>
 S<[ B<-p> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
+S<[ B<-S> ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
@@ -166,7 +167,7 @@ link types can be used for the B<-y> option.
 
 =item -M
 
-When used with B<-D> and B<-L>, print verbose, machine-readable output.
+When used with B<-D>, B<-L> and B<-S>, print verbose, machine-readable output.
 
 =item -n
 
@@ -187,6 +188,10 @@ Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
+
+=item -S
+
+Print statistics for each interface once every second.
 
 =item -v
 

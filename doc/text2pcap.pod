@@ -128,9 +128,9 @@ sort of L3 packet.
 Include dummy IP headers before each packet. Specify the IP protocol
 for the packet in decimal. Use this option if your dump is the payload
 of an IP packet (i.e. has complete L4 information) but does not have
-an IP header. Note that this automatically includes an appropriate
-Ethernet header as well. Example: I<-i 46> to specify an RSVP packet
-(IP protocol 46).
+an IP header with each packet. Note that an appropriate Ethernet header
+is automatically included with each packet as well. 
+Example: I<-i 46> to specify an RSVP packet (IP protocol 46).
 
 =item -m E<lt>max-packetE<gt>
 
@@ -148,26 +148,26 @@ TCP packets.
 Include dummy UDP headers before each packet. Specify the source and
 destination UDP ports for the packet in decimal. Use this option if
 your dump is the UDP payload of a packet but does not include any UDP,
-IP or Ethernet headers. Note that this automatically includes
-appropriate Ethernet and IP headers with each packet. Example: I<-u
-1000,69> to make the packets look like TFTP/UDP packets.
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers 
+are automatically also included with each packet. 
+Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 
 =item -T E<lt>srcportE<gt>,E<lt>destportE<gt>
 
 Include dummy TCP headers before each packet. Specify the source and
 destination TCP ports for the packet in decimal. Use this option if
 your dump is the TCP payload of a packet but does not include any TCP,
-IP or Ethernet headers. Note that this automatically includes
-appropriate Ethernet and IP headers with each packet.
-Sequence numbers will start a 0.
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers 
+are automatically also included with each packet.
+Sequence numbers will start at 0.
 
 =item -s E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt>
 
 Include dummy SCTP headers before each packet.  Specify, in decimal, the
 source and destination SCTP ports, and verification tag, for the packet. 
 Use this option if your dump is the SCTP payload of a packet but does
-not include any SCTP, IP or Ethernet headers.  Note that this
-automatically includes appropriate Ethernet and IP headers with each
+not include any SCTP, IP or Ethernet headers.  Note that appropriate 
+Ethernet and IP headers are automatically also included with each
 packet.  A CRC32C checksum will be put into the SCTP header.
 
 =item -S E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>ppiE<gt>
@@ -177,8 +177,8 @@ source and destination SCTP ports, and a verification tag of 0, for the
 packet, and prepend a dummy SCTP DATA chunk header with a payload
 protocol identifier if I<ppi>.  Use this option if your dump is the SCTP
 payload of a packet but does not include any SCTP, IP or Ethernet
-headers.  Note that this automatically includes appropriate Ethernet and
-IP headers with each packet.  A CRC32C checksum will be put into the
+headers.  Note that appropriate Ethernet and IP headers are 
+automatcally included with each packet.  A CRC32C checksum will be put into the
 SCTP header.
 
 =item -t E<lt>timefmtE<gt>

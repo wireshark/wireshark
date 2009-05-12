@@ -23,8 +23,8 @@ a single output file specified by the B<-w> argument.  B<Mergecap> knows
 how to read B<libpcap> capture files, including those of B<tcpdump>,
 B<Wireshark>, and other tools that write captures in that format.  
 
-By default, it writes the capture file in B<libpcap> format, and writes
-all of the packets in both input capture files to the output file.  
+By default, B<Mergecap> writes the capture file in B<libpcap> format, and writes
+all of the packets from the input capture files to the output file.  
 
 B<Mergecap> is able to detect, read and write the same capture files that 
 are supported by B<Wireshark>.
@@ -48,7 +48,7 @@ copied directly from each input file to the output file, independent of
 each frame's timestamp.
 
 The output file frame encapsulation type is set to the type of the input
-files, if all input files have the same type.  If not all of the input
+files if all input files have the same type.  If not all of the input
 files have the same frame encapsulation type, the output file type is
 set to WTAP_ENCAP_PER_PACKET.  Note that some capture file formats, most
 notably B<libpcap>, do not currently support WTAP_ENCAP_PER_PACKET.
@@ -71,7 +71,7 @@ file are already in chronological order.
 =item -F  E<lt>file formatE<gt>
 
 Sets the file format of the output capture file. B<Mergecap> can write 
-the file in several formats, B<mergecap -F> provides a list of the 
+the file in several formats; B<mergecap -F> provides a list of the 
 available output formats. The default is to use the file format of the 
 first input file.
 

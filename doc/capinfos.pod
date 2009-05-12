@@ -95,11 +95,11 @@ B<Capinfos> detects this.
 
 =item -y
 
-Displays the average data rate, in bytes
+Displays the average data rate, in bytes/sec
 
 =item -i
 
-Displays the average data rate, in bits
+Displays the average data rate, in bits/sec
 
 =item -z
 
@@ -107,7 +107,7 @@ displays the average packet size, in bytes
 
 =item -x
 
-displays the average packet rate, in packets
+displays the average packet rate, in packets/sec
 
 =item -h
 
@@ -117,7 +117,7 @@ Prints the help listing and exits.
 
 =head1 SEE ALSO
 
-tcpdump(8), pcap(3), wireshark(1)>, mergecap(1), editcap(1), tshark(1),
+tcpdump(8), pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
 dumpcap(1)
 
 =head1 NOTES
