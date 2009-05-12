@@ -95,22 +95,22 @@ usage(void)
   fprintf(stderr, "Merge two or more capture files into one.\n");
   fprintf(stderr, "See http://www.wireshark.org for more information.\n");
   fprintf(stderr, "\n");
-  fprintf(stderr, "Usage: mergecap [options] -w <outfile|-> <infile> ...\n");
+  fprintf(stderr, "Usage: mergecap [options] -w <outfile>|- <infile> ...\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Output:\n");
-  fprintf(stderr, "  -a                files should be concatenated, not merged\n");
-  fprintf(stderr, "                    Default merges based on frame timestamps\n");
-  fprintf(stderr, "  -s <snaplen>      truncate packets to <snaplen> bytes of data\n");
-  fprintf(stderr, "  -w <outfile|->    set the output filename to <outfile> or '-' for stdout\n");
-  fprintf(stderr, "  -F <capture type> set the output file type, default is libpcap\n");
-  fprintf(stderr, "                    an empty \"-F\" option will list the file types\n");
-  fprintf(stderr, "  -T <encap type>   set the output file encapsulation type,\n");
-  fprintf(stderr, "                    default is the same as the first input file\n");
-  fprintf(stderr, "                    an empty \"-T\" option will list the encapsulation types\n");
+  fprintf(stderr, "  -a                concatenate rather than merge files.\n");
+  fprintf(stderr, "                    default is to merge based on frame timestamps.\n");
+  fprintf(stderr, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
+  fprintf(stderr, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
+  fprintf(stderr, "  -F <capture type> set the output file type; default is libpcap.\n");
+  fprintf(stderr, "                    an empty \"-F\" option will list the file types.\n");
+  fprintf(stderr, "  -T <encap type>   set the output file encapsulation type;\n");
+  fprintf(stderr, "                    default is the same as the first input file.\n");
+  fprintf(stderr, "                    an empty \"-T\" option will list the encapsulation types.\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h                display this help and exit\n");
-  fprintf(stderr, "  -v                verbose output\n");
+  fprintf(stderr, "  -h                display this help and exit.\n");
+  fprintf(stderr, "  -v                verbose output.\n");
 }
 
 static void list_capture_types(void) {

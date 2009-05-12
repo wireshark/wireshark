@@ -124,10 +124,10 @@ print_stats(capture_info *cf_info)
   if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration); 
   if (cap_start_time)     printf     ("Start time:          %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
   if (cap_end_time)       printf     ("End time:            %s", (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
-  if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/s",   cf_info->data_rate);
-  if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/s",    cf_info->data_rate*8);
-  if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",      cf_info->packet_size);
-  if (cap_packet_rate)    print_value("Average packet rate: ", 2, " packets/s", cf_info->packet_rate);
+  if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
+  if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
+  if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
+  if (cap_packet_rate)    print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
 }
 
 static int
@@ -259,20 +259,20 @@ usage(gboolean is_error)
   fprintf(output, "  -d display the total length of all packets (in bytes)\n");
   fprintf(output, "\n");
   fprintf(output, "Time:\n");
-  fprintf(output, "  -u display the capture duration (in seconds) \n");
+  fprintf(output, "  -u display the capture duration (in seconds)\n");
   fprintf(output, "  -a display the capture start time\n");
   fprintf(output, "  -e display the capture end time\n");
   fprintf(output, "\n");
   fprintf(output, "Statistic:\n");
-  fprintf(output, "  -y display average data rate (in bytes/s)\n");
-  fprintf(output, "  -i display average data rate (in bits/s)\n");
+  fprintf(output, "  -y display average data rate (in bytes/sec)\n");
+  fprintf(output, "  -i display average data rate (in bits/sec)\n");
   fprintf(output, "  -z display average packet size (in bytes)\n");
-  fprintf(output, "  -x display average packet rate (in packets/s)\n");
+  fprintf(output, "  -x display average packet rate (in packets/sec)\n");
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h display this help and exit\n");
   fprintf(output, "\n");
-  fprintf(output, "If no options are given, default is to display all infos\n");
+  fprintf(output, "If no options are given the default is to display all infos\n");
 }
 
 #ifdef HAVE_PLUGINS

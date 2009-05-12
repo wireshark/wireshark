@@ -216,7 +216,7 @@ print_usage(gboolean print_ver)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
-  fprintf(output, "  -S                       format string for fields (%%D - name, %%S - stringval, %%N numval\n");
+  fprintf(output, "  -S                       format string for fields (%%D - name, %%S - stringval, %%N numval)\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
 
