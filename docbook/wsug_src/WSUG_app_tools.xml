@@ -83,32 +83,36 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 0.99.6
+dumpcap -h
+Dumpcap 1.1.4
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
 Usage: dumpcap [options] ...
 
 Capture interface:
-  -i &lt;interface>           name or idx of interface (def: first none loopback)
-  -f &lt;capture filter>      packet filter in libpcap filter syntax
-  -s &lt;snaplen>             packet snapshot length (def: 65535)
+  -i &lt;interface&gt;           name or idx of interface (def: first non-loopback)
+  -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
+  -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
-  -B &lt;buffer size>         size of kernel buffer (def: 1MB)
-  -y &lt;link type>           link layer type (def: first appropriate)
+  -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
+  -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
+  -S                       print statistics for each interface once every second
+  -M                       for -D, -L, and -S produce machine-readable output
 
 Stop conditions:
-  -c &lt;packet count>        stop after n packets (def: infinite)
-  -a &lt;autostop cond.> ...  duration:NUM - stop after NUM seconds
+  -c &lt;packet count&gt;        stop after n packets (def: infinite)
+  -a &lt;autostop cond.&gt; ...  duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM KB
                               files:NUM - stop after NUM files
 Output (files):
-  -w &lt;filename>            name of file to save (def: tempfile)
-  -b &lt;ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
+  -w &lt;filename&gt;            name of file to save (def: tempfile)
+  -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
+  -n                       use pcapng format instead of pcap
 Miscellaneous:
   -v                       print version information and exit
   -h                       display this help and exit
@@ -135,26 +139,36 @@ Use Ctrl-C to stop capturing at any time.
       <title>Help information available from capinfos</title>
       <programlisting>
 $ capinfos -h
-Capinfos 0.99.6
+Capinfos 1.1.4
 Prints information about capture files.
 See http://www.wireshark.org for more information.
 
-Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
-                [-i] [-z] [-h] &lt;capfile&gt;
-  where -t display the capture type of &lt;capfile&gt;
-        -c count the number of packets
-        -s display the size of the file
-        -d display the total length of all packets in the file
-           (in bytes)
-        -u display the capture duration (in seconds)
-        -a display the capture start time
-        -e display the capture end time
-        -y display average data rate (in bytes)
-        -i display average data rate (in bits)
-        -z display average packet size (in bytes)
-        -h produces this help listing.
+Usage: capinfos [options] &lt;infile&gt; ...
 
-            If no data flags are given, default is to display all statistics
+General:
+  -t display the capture file type
+  -E display the capture file encapsulation
+
+Size:
+  -c display the number of packets
+  -s display the size of the file (in bytes)
+  -d display the total length of all packets (in bytes)
+
+Time:
+  -u display the capture duration (in seconds)
+  -a display the capture start time
+  -e display the capture end time
+
+Statistic:
+  -y display average data rate (in bytes/sec)
+  -i display average data rate (in bits/sec)
+  -z display average packet size (in bytes)
+  -x display average packet rate (in packets/sec)
+
+Miscellaneous:
+  -h display this help and exit
+
+If no options are given the default is to display all infos
       </programlisting>
 	</example>
     </para>
@@ -176,40 +190,65 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
       <title>Help information available from editcap</title>
       <programlisting>
 $ editcap -h
-Editcap 0.99.6
+Editcap 1.1.4
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
 Usage: editcap [options] ... &lt;infile&gt; &lt;outfile&gt; [ &lt;packet#&gt;[-&lt;packet#&gt;] ... ]
 
+&lt;infile&gt; and &lt;outfile&gt; must both be present.
 A single packet or a range of packets can be selected.
 
-Packets:
-  -C &lt;choplen&gt;           chop each packet at the end by &lt;choplen&gt; bytes
-  -d                     remove duplicate packets
-  -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.)
-                         that a particular packet byte will be randomly changed
-  -r                     keep the selected packets, default is to delete them
-  -s &lt;snaplen&gt;           truncate packets to max. &lt;snaplen&gt; bytes of data
-  -t &lt;time adjustment&gt;   adjust the timestamp of selected packets,
-                         &lt;time adjustment&gt; is in relative seconds (e.g. -0.5)
+Packet selection:
+  -r                     keep the selected packets; default is to delete them.
   -A &lt;start time&gt;        don't output packets whose timestamp is before the
-                         given time (format as YYYY-MM-DD hh:mm:ss)
+                         given time (format as YYYY-MM-DD hh:mm:ss).
   -B &lt;stop time&gt;         don't output packets whose timestamp is after the
-                         given time (format as YYYY-MM-DD hh:mm:ss)
+                         given time (format as YYYY-MM-DD hh:mm:ss).
+
+Duplicate packet removal:
+  -d                     remove packet if duplicate (window == 5).
+  -D &lt;dup window&gt;        remove packet if duplicate; configurable &lt;dup window&gt;
+                         Valid &lt;dup window&gt; values are 0 to 1000000.
+                         NOTE: A &lt;dup window&gt; of 0 with -v (verbose option) is
+                         useful to print MD5 hashes.
+  -w &lt;dup time window&gt;   remove packet if duplicate packet is found EQUAL TO OR
+                         LESS THAN &lt;dup time window&gt; prior to current packet.
+                         A &lt;dup time window&gt; is specified in relative seconds
+                         (e.g. 0.000001).
+
+           NOTE: The use of the 'Duplicate packet removal' options with
+           other editcap options except -v may not always work as expected.
+           Specifically the -r and -t options will very likely NOT have the
+           desired effect if combined with the -d, -D or -w.
+
+Packet manipulation:
+  -s &lt;snaplen&gt;           truncate each packet to max. &lt;snaplen&gt; bytes of data.
+  -C &lt;choplen&gt;           chop each packet at the end by &lt;choplen&gt; bytes.
+  -t &lt;time adjustment&gt;   adjust the timestamp of each packet;
+                         &lt;time adjustment&gt; is in relative seconds (e.g. -0.5).
+  -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.)
+                         that a particular packet byte will be randomly changed.
 
 Output File(s):
-  -c &lt;packets per file&gt;  split the packet output to different files,
-                         with a maximum of &lt;packets per file&gt; each
-  -F &lt;capture type&gt;      set the output file type, default is libpcap
-                         an empty "-F" option will list the file types
-  -T &lt;encap type&gt;        set the output file encapsulation type,
-                         default is the same as the input file
-                         an empty "-T" option will list the encapsulation types
+  -c &lt;packets per file&gt;  split the packet output to different files
+                         based on uniform packet counts
+                         with a maximum of &lt;packets per file&gt; each.
+  -i &lt;seconds per file&gt;  split the packet output to different files
+                         based on uniform time intervals
+                         with a maximum of &lt;seconds per file&gt; each.
+  -F &lt;capture type&gt;      set the output file type; default is libpcap.
+                         an empty "-F" option will list the file types.
+  -T &lt;encap type&gt;        set the output file encapsulation type;
+                         default is the same as the input file.
+                         an empty "-T" option will list the encapsulation types.
 
 Miscellaneous:
-  -h                     display this help and exit
-  -v                     verbose output
+  -h                     display this help and exit.
+  -v                     verbose output.
+                         If -v is used with any of the 'Duplicate Packet
+                         Removal' options (-d, -D or -w) then Packet lengths
+                         and MD5 hashes are printed to standard-out.
 
 $ editcap -F
 editcap: option requires an argument -- F
@@ -218,7 +257,7 @@ editcap: The available capture file types for "F":
     nseclibpcap - Wireshark - nanosecond libpcap
     modlibpcap - Modified tcpdump - libpcap
     nokialibpcap - Nokia tcpdump - libpcap
-    rh6_1libpcap - Red Hat 6.1 tcpdump - libpcap
+    rh6_1libpcap - RedHat 6.1 tcpdump - libpcap
     suse6_3libpcap - SuSE 6.3 tcpdump - libpcap
     5views - Accellent 5Views capture
     dct2000 - Catapult DCT2000 trace (.out format)
@@ -233,6 +272,9 @@ editcap: The available capture file types for "F":
     snoop - Sun snoop
     rf5 - Tektronix K12xx 32-bit .rf5 format
     visual - Visual Networks traffic capture
+    k12text - K12 text file
+    commview - TamoSoft CommView
+    pcapng - Wireshark - pcapng (experimental)
 
 $ editcap -T
 editcap: option requires an argument -- T
@@ -327,98 +369,34 @@ editcap: The available encapsulation types for "T":
     lapd - LAPD
     dct2000 - Catapult DCT2000
     ber - ASN.1 Basic Encoding Rules
+    juniper-vp - Juniper Voice PIC
+    usb - Raw USB packets
+    ieee-802-16-mac-cps - IEEE 802.16 MAC Common Part Sublayer
+    raw-telnet-nettl - Raw telnet with nettl headers
+    usb-linux - USB packets with Linux header
+    mpeg - MPEG
+    ppi - Per-Packet Information header
+    erf - Endace Record File
+    bluetooth-h4 - Bluetooth H4 with linux header
+    sita-wan - SITA WAN packets
+    sccp - SS7 SCCP
+    bluetooth-hci - Bluetooth without transport layer
+    ipmb - Intelligent Platform Management Bus
+    wpan - IEEE 802.15.4 Wireless PAN
+    x2e-xoraya - X2E Xoraya
+    flexray - FlexRay
+    lin - Local Interconnect Network
+    most - Media Oriented Systems Transport
+    can20b - Controller Area Network 2.0B
+    layer1-event - EyeSDN Layer 1 event
+    x2e-serial - X2E serial line capture
+    i2c - I2C
+    wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
+    tnef - Transport-Neutral Encapsulation Format
+    usb-linux-mmap - USB packets with Linux header and padding
+    gsm_um - GSM Um Interface
       </programlisting>
     </example>
-
-      Where each option has the following meaning:
-      <variablelist>
-	<varlistentry><term><command>-r</command></term>
-	  <listitem>
-	    <para>
-	      This option specifies that the frames listed should be kept,
-	      not deleted. The default is to delete the listed frames.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>-h</command></term>
-	  <listitem><para>This option provides help.</para></listitem>
-	</varlistentry>
-	<varlistentry><term><command>-v</command></term>
-	  <listitem>
-	    <para>
-	      This option specifies verbose operation.  The default is
-	      silent operation.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>-T {encap type}</command></term>
-	  <listitem>
-	    <para>
-	      This option specifies the frame encapsulation type to use.
-	    </para>
-	    <para>
-	      It is mainly for converting funny captures to something
-	      that Wireshark can deal with.
-	    </para>
-	    <para>
-		  The default frame
-	      encapsulation type is the same as the input encapsulation.
-	    </para>
-	  </listitem>
-	</varlistentry>
-
-	<varlistentry><term><command>-F {capture type}</command></term>
-	  <listitem>
-	    <para>
-	      This option specifies the capture file format to write
-	      the output file in.
-	    </para>
-	    <para>
-	      The default is libpcap format.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>-s {snaplen}</command></term>
-	  <listitem>
-	    <para>
-        Specifies that packets should be truncated to {snaplen} bytes of data.
-		</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>-t {time adjustment}</command></term>
-	  <listitem>
-	    <para>
-        Specifies the time adjustment to be applied to selected packets.
-		</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>{infile}</command></term>
-	  <listitem>
-	    <para>
-	      This parameter specifies the input file to use. It must be
-	      present.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>{outfile}</command></term>
-	  <listitem>
-	    <para>
-	      This parameter specifies the output file to use. It must
-	      be present.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term><command>[record#[-][record# ...]]</command></term>
-	  <listitem>
-	    <para>
-	      This optional parameter specifies the records to include
-	      or exclude (depending on the <command>-r</command> option.
-	      You can specify individual records or a range of records.
-	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
     </para>
   </section>
 
@@ -443,7 +421,7 @@ editcap: The available encapsulation types for "T":
     </para>
     <para>
       By default, it writes the capture file in libpcap format, and writes
-      all of the packets in both input capture files to the output file.
+      all of the packets in the input capture files to the output file.
       The -F flag can be used to specify the format in which to write the
       capture file; it can write the file in libpcap format (standard
       libpcap format, a modified format used by some patched versions of
@@ -488,154 +466,28 @@ editcap: The available encapsulation types for "T":
       <title>Help information available from mergecap</title>
       <programlisting>
 $ mergecap -h
-Mergecap version 0.99.6
+Mergecap 1.1.4
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
-Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
-          [-F &lt;capture type&gt;] -w &lt;outfile&gt; &lt;infile&gt; [...]
+Usage: mergecap [options] -w &lt;outfile&gt;|- &lt;infile&gt; ...
 
-  where -h produces this help listing.
-        -v verbose operation, default is silent
-        -a files should be concatenated, not merged
-             Default merges based on frame timestamps
-        -s &lt;snaplen&gt;: truncate packets to &lt;snaplen&gt; bytes of data
-        -w &lt;outfile&gt;: sets output filename to &lt;outfile&gt;
-        -T &lt;encap type&gt; encapsulation type to use:
-             ether - Ethernet
-             tr - Token Ring
-             slip - SLIP
-             ppp - PPP
-             fddi - FDDI
-             fddi-swapped - FDDI with bit-swapped MAC addresses
-             rawip - Raw IP
-             arcnet - ARCNET
-             arcnet_linux - Linux ARCNET
-             atm-rfc1483 - RFC 1483 ATM
-             linux-atm-clip - Linux ATM CLIP
-             lapb - LAPB
-             atm-pdus - ATM PDUs
-             atm-pdus-untruncated - ATM PDUs - untruncated
-             null - NULL
-             ascend - Lucent/Ascend access equipment
-             isdn - ISDN
-             ip-over-fc - RFC 2625 IP-over-Fibre Channel
-             ppp-with-direction - PPP with Directional Info
-             ieee-802-11 - IEEE 802.11 Wireless LAN
-             prism - IEEE 802.11 plus Prism II monitor mode header
-             ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
-             ieee-802-11-bsd - IEEE 802.11 plus BSD WLAN header
-             ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
-             linux-sll - Linux cooked-mode capture
-             frelay - Frame Relay
-             frelay-with-direction - Frame Relay with Directional Info
-             chdlc - Cisco HDLC
-             ios - Cisco IOS internal
-             ltalk - Localtalk
-             pflog-old - OpenBSD PF Firewall logs, pre-3.4
-             hhdlc - HiPath HDLC
-             docsis - Data Over Cable Service Interface Specification
-             cosine - CoSine L2 debug log
-             whdlc - Wellfleet HDLC
-             sdlc - SDLC
-             tzsp - Tazmen sniffer protocol
-             enc - OpenBSD enc(4) encapsulating interface
-             pflog - OpenBSD PF Firewall logs
-             chdlc-with-direction - Cisco HDLC with Directional Info
-             bluetooth-h4 - Bluetooth H4
-             mtp2 - SS7 MTP2
-             mtp3 - SS7 MTP3
-             irda - IrDA
-             user0 - USER 0
-             user1 - USER 1
-             user2 - USER 2
-             user3 - USER 3
-             user4 - USER 4
-             user5 - USER 5
-             user6 - USER 6
-             user7 - USER 7
-             user8 - USER 8
-             user9 - USER 9
-             user10 - USER 10
-             user11 - USER 11
-             user12 - USER 12
-             user13 - USER 13
-             user14 - USER 14
-             user15 - USER 15
-             symantec - Symantec Enterprise Firewall
-             ap1394 - Apple IP-over-IEEE 1394
-             bacnet-ms-tp - BACnet MS/TP
-             default is the same as the first input file
-        -F &lt;capture type&gt; capture file type to write:
-             libpcap - libpcap (tcpdump, Wireshark, etc.)
-             rh6_1libpcap - Red Hat Linux 6.1 libpcap (tcpdump)
-             suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
-             modlibpcap - modified libpcap (tcpdump)
-             nokialibpcap - Nokia libpcap (tcpdump)
-             lanalyzer - Novell LANalyzer
-             ngsniffer - Network Associates Sniffer (DOS-based)
-             snoop - Sun snoop
-             netmon1 - Microsoft Network Monitor 1.x
-             netmon2 - Microsoft Network Monitor 2.x
-             ngwsniffer_1_1 - Network Associates Sniffer (Windows-based) 1.1
-             ngwsniffer_2_0 - Network Associates Sniffer (Windows-based) 2.00x
-             visual - Visual Networks traffic capture
-             5views - Accellent 5Views capture
-             niobserverv9 - Network Instruments Observer version 9
-             default is libpcap
+Output:
+  -a                concatenate rather than merge files.
+                    default is to merge based on frame timestamps.
+  -s &lt;snaplen&gt;      truncate packets to &lt;snaplen&gt; bytes of data.
+  -w &lt;outfile&gt;|-    set the output filename to &lt;outfile&gt; or '-' for stdout.
+  -F &lt;capture type&gt; set the output file type; default is libpcap.
+                    an empty "-F" option will list the file types.
+  -T &lt;encap type&gt;   set the output file encapsulation type;
+                    default is the same as the first input file.
+                    an empty "-T" option will list the encapsulation types.
+
+Miscellaneous:
+  -h                display this help and exit.
+  -v                verbose output.
       </programlisting>
     </example>
-    <variablelist>
-      <varlistentry><term><command>-h</command></term>
-	<listitem>
-	  <para>Prints the version and options and exits.</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-v</command></term>
-	<listitem>
-	  <para>
-	    Causes <command>mergecap</command> to print a number of messages
-	    while it's working.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-a</command></term>
-	<listitem>
-	  <para>
-	    Causes the frame timestamps to be ignored, writing all packets
-	    from the first input file followed by all packets from the second
-	    input file.  By default, when <command>-a</command> is not
-	    specified, the contents
-	    of the input files are merged in chronological order based on
-	    each frame's timestamp.  Note: when merging, mergecap assumes
-	    that packets within a capture file are already in chronological
-	    order.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-s</command></term>
-	<listitem>
-	  <para>Sets the snapshot length to use when writing the data.</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-w</command></term>
-	<listitem>
-	  <para>Sets the output filename.</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-T</command></term>
-	<listitem>
-	  <para>
-	    Sets the packet encapsulation type of the output capture file.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-F</command></term>
-	<listitem>
-	  <para>Sets the file format of the output capture file.</para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
     <para>
       A simple example merging <filename>dhcp-capture.libpcap</filename>
       and <filename>imap-1.libpcap</filename> into
@@ -711,146 +563,77 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
     <para>
       Text2pcap also allows the user to read in dumps of application-level
       data, by inserting dummy L2, L3 and L4 headers before each packet.
-      The user can elect to insert Ethernet headers, Ethernet and IP, or
-      Ethernet, IP and UDP headers before each packet. This allows Wireshark
-      or any other full-packet decoder to handle these dumps.
+      Possiblities include inserting headers such as Ethernet, Ethernet + IP,
+      Ethernet + IP + UDP, or Ethernet + Ip + TCP before each packet.
+      This allows Wireshark or any other full-packet decoder to handle these dumps.
     </para>
     <example id="AppToolstext2pcapEx">
       <title>Help information available for text2pcap</title>
       <programlisting>
 $ text2pcap -h
-Text2pcap 0.99.6
+Text2pcap 1.1.4
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
-Usage: text2pcap [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto]
-          [-m max-packet] [-u srcp,destp] [-T srcp,destp] [-s srcp,destp,tag]
-          [-S srcp,destp,tag] [-t timefmt] &lt;input-filename&gt; &lt;output-filename&gt;
+Usage: text2pcap [options] &lt;infile&gt; &lt;outfile&gt;
 
-where &lt;input-filename&gt; specifies input filename (use - for standard input)
-      &lt;output-filename&gt; specifies output filename (use - for standard output)
+where  &lt;infile&gt; specifies input  filename (use - for standard input)
+      &lt;outfile&gt; specifies output filename (use - for standard output)
 
-[options] are one or more of the following
+Input:
+  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal; default is hex.
+  -t &lt;timefmt&gt;           treats the text before the packet as a date/time code;
+                         the specified argument is a format string of the sort
+                         supported by strptime.
+                         Example: The time "10:15:14.5476" has the format code
+                         "%H:%M:%S."
+                         NOTE: The subsecond component delimiter must be given
+                          (.) but no pattern is required; the remaining number
+                          is assumed to be fractions of a second.
+                         NOTE: Date/time fields from the current date/time are
+                         used as the default for unspecified fields.
 
- -h              : Display this help message
- -d              : Generate detailed debug of parser states
- -o hex|oct      : Parse offsets as (h)ex or (o)ctal. Default is hex
- -l typenum      : Specify link-layer type number. Default is 1 (Ethernet).
-                   See net/bpf.h for list of numbers.
- -q              : Generate no output at all (automatically turns off -d)
- -e l3pid        : Prepend dummy Ethernet II header with specified L3PID (in
-                   HEX)
-                   Example: -e 0x800
- -i proto        : Prepend dummy IP header with specified IP protocol (in
-                   DECIMAL).
-                   Automatically prepends Ethernet header as well.
-                   Example: -i 46
- -m max-packet   : Max packet length in output, default is 64000
- -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports
-                   (in DECIMAL).
-                   Automatically prepends Ethernet and IP headers as well
-                   Example: -u 30,40
- -T srcp,destp   : Prepend dummy TCP header with specified dest and source ports
-                   (in DECIMAL).
-                   Automatically prepends Ethernet and IP headers as well
-                   Example: -T 50,60
- -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports
-                   and verification tag (in DECIMAL).
-                   Automatically prepends Ethernet and IP headers as well
-                   Example: -s 30,40,34
- -S srcp,dstp,ppi: Prepend dummy SCTP header with specified dest/source ports
-                   and verification tag 0. It also prepends a dummy SCTP DATA
-                   chunk header with payload protocol identifier ppi.
-                   Example: -S 30,40,34
- -t timefmt      : Treats the text before the packet as a date/time code; the
-                   specified argument is a format string of the sort supported
-                   by strptime.
-                   Example: The time "10:15:14.5476" has the format code
-                   "%H:%M:%S."
-                   NOTE:    The subsecond component delimiter must be specified
-                            (.) but no pattern is required; the remaining number
-                            is assumed to be fractions of a second.
+Output:
+  -l &lt;typenum&gt;           link-layer type number; default is 1 (Ethernet).
+                         See the file net/bpf.h for list of numbers.
+                         Use this option if your dump is a complete hex dump
+                         of an encapsulated packet and you wish to specify
+                         the exact type of encapsulation.
+                         Example: -l 7 for ARCNet packets.
+  -m &lt;max-packet&gt;        max packet length in output; default is 64000
+
+Prepend dummy header:
+  -e &lt;l3pid&gt;             prepend dummy Ethernet II header with specified L3PID
+                         (in HEX).
+                         Example: -e 0x806 to specify an ARP packet.
+  -i &lt;proto&gt;             prepend dummy IP header with specified IP protocol
+                         (in DECIMAL).
+                         Automatically prepends Ethernet header as well.
+                         Example: -i 46
+  -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
+                         dest and source ports (in DECIMAL).
+                         Automatically prepends Ethernet &amp; IP headers as well.
+                         Example: -u 1000 69 to make the packets look like TFTP/UDP packets.
+  -T &lt;srcp&gt;,&lt;destp&gt;      prepend dummy TCP header with specified
+                         dest and source ports (in DECIMAL).
+                         Automatically prepends Ethernet &amp; IP headers as well.
+                         Example: -T 50,60
+  -s &lt;srcp&gt;,&lt;dstp&gt;,&lt;tag&gt; prepend dummy SCTP header with specified
+                         dest/source ports and verification tag (in DECIMAL).
+                         Automatically prepends Ethernet &amp; IP headers as well.
+                         Example: -s 30,40,34
+  -S &lt;srcp&gt;,&lt;dstp&gt;,&lt;ppi&gt; prepend dummy SCTP header with specified
+                         dest/source ports and verification tag 0.
+                         Automatically prepends a dummy SCTP DATA
+                         chunk header with payload protocol identifier ppi.
+                         Example: -S 30,40,34
+
+Miscellaneous:
+  -h                     display this help and exit.
+  -d                     detailed debug of parser states.
+  -q                     generate no output at all (automatically turns off -d).
       </programlisting>
     </example>
-    <variablelist>
-      <varlistentry><term><command>-w &lt;filename&gt;</command></term>
-	<listitem>
-	  <para>
-	    Write the capture file generated by <command>text2pcap</command>
-	    to &lt;filename&gt;.  The default is to write to standard
-	    output.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-h</command></term>
-	<listitem>
-	  <para>Display the help message</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-d</command></term>
-	<listitem>
-	  <para>
-	    Displays debugging information during the process. Can be
-	    used multiple times to generate more debugging information.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-q</command></term>
-	<listitem>
-	  <para>Be completely quiet during the process.</para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-o hex|oct</command></term>
-	<listitem>
-	  <para> Specify the radix for the offsets (hex or octal). Defaults to
-	    hex. This corresponds to the <command>-A</command> option for od.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-l</command></term>
-	<listitem>
-	  <para>
-	    Specify the link-layer type of this packet. Default is
-	    Ethernet(1). See net/bpf.h for the complete list of possible
-	    encapsulations. Note that this option should be used if your
-	    dump is a complete hex dump of an encapsulated packet and you
-	    wish to specify the exact type of encapsulation. Example: -l 7
-	    for ARCNet packets.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-e l3pid</command></term>
-	<listitem>
-	  <para>
-	    Include a dummy Ethernet header before each packet. Specify the
-	    L3PID for the Ethernet header in hex. Use this option if your
-	    dump has Layer 3 header and payload (e.g. IP header), but no
-	    Layer 2 encapsulation. Example: -e 0x806 to specify an ARP
-	    packet.
-	  </para>
-	  <para>
-	    For IP packets, instead of generating a fake Ethernet header you
-	    can also use -l 12 to indicate a raw IP packet to Wireshark. Note
-	    that -l 12 does not work for any non-IP Layer 3 packet (e.g.
-	    ARP), whereas generating a dummy Ethernet header with -e works
-	    for any sort of L3 packet.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry><term><command>-u srcport destport</command></term>
-	<listitem>
-	  <para>
-	    Include dummy UDP headers before each packet. Specify the
-	    source and destination UDP ports for the packet in decimal.
-	    Use this option if your dump is the UDP payload of a packet but
-	    does not include any UDP, IP or Ethernet headers. Note that this
-	    automatically includes appropriate Ethernet and IP headers with
-	    each packet. Example: -u 1000 69 to make the packets look like
-	    TFTP/UDP packets.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
   </section>
 
   <section id="AppToolsidl2wrs" >
