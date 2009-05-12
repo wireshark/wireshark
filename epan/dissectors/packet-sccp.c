@@ -52,6 +52,7 @@
 #include <epan/asn1.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 #include "packet-mtp3.h"
 #include "packet-tcap.h"
 #include "packet-sccp.h"
@@ -1234,10 +1235,10 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
  *  doing so does not appear to be very high.
  */
 static void
-dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
+dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 				  guint length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item;
+  proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item, *expert_item;
   proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint offset;
   guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
@@ -1297,28 +1298,44 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
+		if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
+			if (length < offset + ITU_PC_LENGTH){
+				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
+				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+				PROTO_ITEM_SET_GENERATED(expert_item);
+				return;
+			}
+			proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
+								  : hf_sccp_calling_itu_pc,
+						tvb, offset, ITU_PC_LENGTH, TRUE);
+			offset += ITU_PC_LENGTH;
 
-	proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
-					      : hf_sccp_calling_itu_pc,
-			    tvb, offset, ITU_PC_LENGTH, TRUE);
+		}else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
-	offset += ITU_PC_LENGTH;
-
-      } else if (decode_mtp3_standard == JAPAN_STANDARD) {
-
-	proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
+			if (length < offset + JAPAN_PC_LENGTH){
+				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
+				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+				PROTO_ITEM_SET_GENERATED(expert_item);
+				return;
+			}
+			proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
 					      : hf_sccp_calling_japan_pc,
 			    tvb, offset, JAPAN_PC_LENGTH, TRUE);
 
-	offset += JAPAN_PC_LENGTH;
+			offset += JAPAN_PC_LENGTH;
 
-      } else /* CHINESE_ITU_STANDARD */ {
+		} else /* CHINESE_ITU_STANDARD */ { 
 
-	offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+			if (length < offset + ANSI_PC_LENGTH){
+				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
+				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+				PROTO_ITEM_SET_GENERATED(expert_item);
+				return;
+			}
+			offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
 
-      }
-    }
+		}
+	}
 
     /* Dissect SSN (if present) */
     if (ssni) {
@@ -1448,15 +1465,15 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-dissect_sccp_called_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_called_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint length)
 {
-  dissect_sccp_called_calling_param(tvb, tree, length, TRUE);
+  dissect_sccp_called_calling_param(tvb, tree, pinfo, length, TRUE);
 }
 
 static void
-dissect_sccp_calling_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint length)
 {
-  dissect_sccp_called_calling_param(tvb, tree, length, FALSE);
+  dissect_sccp_called_calling_param(tvb, tree, pinfo, length, FALSE);
 }
 
 static void
@@ -1821,11 +1838,11 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_CALLED_PARTY_ADDRESS:
-      dissect_sccp_called_param(parameter_tvb, sccp_tree, parameter_length);
+      dissect_sccp_called_param(parameter_tvb, sccp_tree, pinfo, parameter_length);
       break;
 
     case PARAMETER_CALLING_PARTY_ADDRESS:
-      dissect_sccp_calling_param(parameter_tvb, sccp_tree, parameter_length);
+      dissect_sccp_calling_param(parameter_tvb, sccp_tree, pinfo, parameter_length);
       break;
 
     case PARAMETER_CLASS:
