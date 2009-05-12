@@ -1758,7 +1758,7 @@ else
 	pcre_message="yes"
 fi
 
-if test "x$want_lua" = "xyes" -a "x$have_plugins" = "xyes" ; then
+if test "x$want_lua" = "xyes" ; then
 	lua_message="yes"
 else
 	lua_message="no"
@@ -1822,7 +1822,7 @@ echo "                     Build rawshark : $enable_rawshark"
 echo ""
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                        Use plugins : $have_plugins"
-echo "                   Build lua plugin : $lua_message"
+echo "                    Use lua library : $lua_message"
 echo "                   Build rtp_player : $portaudio_message"
 echo "                        Use threads : $enable_threads"
 echo "             Build profile binaries : $enable_profile_build"
