@@ -821,10 +821,10 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNum
             switch(chanInfo[i].ExtChannel)
             {
                 case -1:
-                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_HIGH;
+                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_LOW;
                     break;
                 case +1:
-                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_LOW;
+                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_HIGH;
                     break;
                 case 0:
                 default:
@@ -850,10 +850,10 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNum
             switch(chanInfo[i].ExtChannel)
             {
                 case -1:
-                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_HIGH;
+                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_LOW;
                     break;
                 case +1:
-                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_LOW;
+                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_HIGH;
                     break;
                 case 0:
                 default:

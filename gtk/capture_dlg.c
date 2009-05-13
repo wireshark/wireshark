@@ -1466,7 +1466,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *help_bt;
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_bt;
-  GtkWidget     *decryption_cm;
+  GtkWidget     *decryption_cb;
 #endif
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget     *iftype_cb;
@@ -1555,8 +1555,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* load the airpcap interfaces */
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-  decryption_cm = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-  update_decryption_mode_list(decryption_cm);
+  decryption_cb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  update_decryption_mode_list(decryption_cb);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);

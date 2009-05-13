@@ -142,13 +142,13 @@ on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_);
  * Turns the decryption on or off
  */
 void
-on_enable_decryption_en_changed(GtkWidget *w, gpointer data);
+on_decryption_mode_cb_changed(GtkWidget *w, gpointer data);
 
 /*
- * Will fill the given combo box with the current decryption mode string
+ * Selects the current decryption mode in the given combo box
  */
 void
-update_decryption_mode_cm(GtkWidget *w);
+update_decryption_mode(GtkWidget *w);
 
 /* 
  * Reset configuration

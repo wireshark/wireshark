@@ -181,7 +181,7 @@ on_key_ls_click_column(GtkWidget *widget _U_,
  * Callback for the crc checkbox
  */
 static void
-on_fcs_ck_toggled(GtkWidget *w _U_, gpointer user_data _U_)
+on_fcs_ck_toggled(GtkWidget *w, gpointer user_data)
 
 {
     if (airpcap_if_selected != NULL)
@@ -203,24 +203,24 @@ on_fcs_ck_toggled(GtkWidget *w _U_, gpointer user_data _U_)
  * Callback for the wrong crc combo
  */
 static void
-on_edit_type_en_changed(GtkWidget *w, gpointer data)
+on_edit_type_cb_changed(GtkWidget *w, gpointer data)
 {
     GtkWidget *edit_key_w;
     GtkWidget *edit_ssid_te;
-    GtkWidget *type_te;
+    GtkWidget *type_cb;
     GtkWidget *key_lb;
     GtkWidget *ssid_lb;
 
     gchar* type_text = NULL;
 
     edit_key_w = GTK_WIDGET(data);
-    type_te    = w;
+    type_cb    = w;
 
     edit_ssid_te = g_object_get_data(G_OBJECT(edit_key_w),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY);
     key_lb = g_object_get_data(G_OBJECT(edit_key_w),AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY);
     ssid_lb = g_object_get_data(G_OBJECT(edit_key_w),AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY);
 
-    type_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(type_te)));
+    type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
 
     if (string_is_not_empty(type_text))
     {
@@ -271,24 +271,24 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
  * Callback for the wrong crc combo
  */
 static void
-on_add_type_en_changed(GtkWidget *w, gpointer data)
+on_add_type_cb_changed(GtkWidget *w, gpointer data)
 {
     GtkWidget *add_key_w;
     GtkWidget *add_ssid_te;
-    GtkWidget *type_te;
+    GtkWidget *type_cb;
     GtkWidget *key_lb;
     GtkWidget *ssid_lb;
 
     gchar* type_text = NULL;
 
     add_key_w = GTK_WIDGET(data);
-    type_te    = w;
+    type_cb   = w;
 
     add_ssid_te = g_object_get_data(G_OBJECT(add_key_w),AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY);
     key_lb = g_object_get_data(G_OBJECT(add_key_w),AIRPCAP_ADVANCED_ADD_KEY_KEY_LABEL_KEY);
     ssid_lb = g_object_get_data(G_OBJECT(add_key_w),AIRPCAP_ADVANCED_ADD_KEY_SSID_LABEL_KEY);
 
-    type_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(type_te)));
+    type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
 
     if (string_is_not_empty(type_text))
     {
@@ -352,91 +352,43 @@ string_is_not_empty(gchar *s)
  * Callback for the wrong crc combo
  */
 static void
-on_fcs_filter_en_changed(GtkWidget *w, gpointer data _U_)
+on_fcs_filter_cb_changed(GtkWidget *fcs_filter_cb, gpointer data _U_)
 {
-    const gchar *s;
+    gchar *fcs_filter_str;
 
-    s = gtk_entry_get_text(GTK_ENTRY(w));
-
-    if (w != NULL)
+    if (fcs_filter_cb != NULL)
     {
-        if ((g_ascii_strcasecmp("",s)))
+        fcs_filter_str = gtk_combo_box_get_active_text(GTK_COMBO_BOX(fcs_filter_cb));
+        if (fcs_filter_str && (g_ascii_strcasecmp("", fcs_filter_str)))
         {
-            airpcap_if_selected->CrcValidationOn = airpcap_get_validation_type(s);
+            airpcap_if_selected->CrcValidationOn = airpcap_get_validation_type(fcs_filter_str);
             airpcap_if_selected->saved = FALSE;
         }
+        g_free(fcs_filter_str);
     }
 }
 
-/*
- * Changed callback for the channel combobox
- */
-static void
-on_channel_en_changed(GtkWidget *w, gpointer data _U_)
-{
-    const gchar *s;
-    guint32 ch_freq;
-
-    if (w != NULL)
-    {
-        s = gtk_entry_get_text(GTK_ENTRY(w));
-        if ((g_ascii_strcasecmp("",s)))
-        {
-            if (airpcap_if_selected != NULL)
-            {
-				ch_freq = airpcap_get_frequency_from_str(s);
-				airpcap_if_active->channelInfo.Frequency = ch_freq;
-				airpcap_if_selected->saved = FALSE;
-				airpcap_update_channel_offset_cb(airpcap_if_selected, ch_freq, GTK_WIDGET(data));
-            }
-        }
-    }
-}
-
-/*
- * Changed callback for the channel offset combobox
- */
-static void
-on_channel_offset_cb_changed(GtkWidget *w, gpointer data _U_)
-{
-	const gchar *s;
-	int offset;
-
-	if (w == NULL || !GTK_WIDGET_SENSITIVE(w)) {
-		return;
-	}
-
-	s = gtk_entry_get_text(GTK_ENTRY(w));
-	if ((g_ascii_strcasecmp("",s)))
-	{
-		if (airpcap_if_selected != NULL)
-		{
-			sscanf(s,"%d",&offset);
-			airpcap_if_selected->channelInfo.ExtChannel = offset;
-			airpcap_if_selected->saved = FALSE;
-		}
-	}
-}
 
 /*
  * Changed callback for the capture type combobox
  */
 static void
-on_capture_type_en_changed(GtkWidget *w, gpointer data _U_)
+on_capture_type_cb_changed(GtkWidget *cb, gpointer data _U_)
 {
-    const gchar *s;
+    gchar *s;
 
-	if (w == NULL) {
+	if (cb == NULL) {
 		return;
 	}
 	
-    s = gtk_entry_get_text(GTK_ENTRY(w));
+    s = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
 
 	if ((g_ascii_strcasecmp("",s)))
 	{
 		airpcap_if_selected->linkType = airpcap_get_link_type(s);
 		airpcap_if_selected->saved = FALSE;
 	}
+    g_free(s);
 }
 
 /*
@@ -500,7 +452,7 @@ on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data _U_)
                 airpcap_if_close(ad);
             }
         }
-	}
+    }
 }
 
 /*
@@ -604,33 +556,36 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* widgets in the toolbar */
     GtkWidget	*toolbar;
-    GtkWidget   *toolbar_cm;
+    GtkWidget   *toolbar_cb;
     GtkWidget   *key_ls;
-    GtkWidget   *decryption_en;
+    GtkWidget   *decryption_mode_cb;
 
     module_t *wlan_module = prefs_find_module("wlan");
+    gchar *decryption_mode_string;
 
     /* retrieve main window */
     key_management_w      = GTK_WIDGET(data);
-    decryption_en         = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY));
+    decryption_mode_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_DECRYPTION_MODE_KEY));
     key_ls                = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
     toolbar               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
-    toolbar_cm            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
+    toolbar_cb            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
 #define CANT_SAVE_ERR_STR "Cannot save configuration! Another application " \
     "might be using AirPcap, or you might not have sufficient privileges."
     /* Set the Decryption Mode */
-    if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
+
+    decryption_mode_string = gtk_combo_box_get_active_text (GTK_COMBO_BOX(decryption_mode_cb));
+    if (g_ascii_strcasecmp(decryption_mode_string, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);
         if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
-    else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+    else if (g_ascii_strcasecmp(decryption_mode_string, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(TRUE)) g_warning(CANT_SAVE_ERR_STR);
     }
-    else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
+    else if (g_ascii_strcasecmp(decryption_mode_string, AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
@@ -640,105 +595,11 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
 
     /* The update will make redissect al the packets... no need to do it here again */
-    update_decryption_mode_cm(toolbar_cm);
+    update_decryption_mode(toolbar_cb);
 
     /* Redissect all the packets, and re-evaluate the display filter. */
     prefs_apply(wlan_module);
 }
-/*
- * Callback for the Wireless Advanced Settings 'Apply' button.
- */
-void
-on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
-{
-    /* advenced window */
-    GtkWidget	*main_w;
-
-    /* widgets in the toolbar */
-    GtkWidget	*toolbar,
-    *toolbar_if_lb,
-    *toolbar_channel_cm,
-    *toolbar_channel_offset_cb,
-    *toolbar_wrong_crc_cm;
-
-    /* retrieve main window */
-    main_w = GTK_WIDGET(data);
-
-    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w),AIRPCAP_TOOLBAR_KEY));
-
-    /* retrieve toolbar info */
-    toolbar_if_lb				= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cm			= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_channel_offset_cb	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
-    toolbar_wrong_crc_cm		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
-
-    /* Save the configuration (for all ) */
-    airpcap_save_selected_if_configuration(airpcap_if_selected);
-
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    {
-		gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
-		airpcap_update_channel_offset_combo_entry(GTK_WIDGET(toolbar_channel_offset_cb),airpcap_if_selected->channelInfo.ExtChannel);
-		airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
-    }
-}
-
-#if 0 /* XXX: not used ?? */
-/*
- * Callback for the 'OK' button.
- */
-static void
-airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
-{
-    /* advanced window */
-    GtkWidget	*main_w;
-
-    /* widgets in the toolbar */
-    GtkWidget	*toolbar,
-    *toolbar_if_lb,
-    *toolbar_channel_cm,
-    *toolbar_wrong_crc_cm,
-    *toolbar_decryption_ck;
-
-    GtkWidget	*key_ls;
-
-    /* retrieve main window */
-    main_w = GTK_WIDGET(data);
-
-    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w),AIRPCAP_TOOLBAR_KEY));
-
-    key_ls	= GTK_WIDGET(g_object_get_data(G_OBJECT(main_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
-
-    /* retrieve toolbar info */
-    toolbar_if_lb			= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cm		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_wrong_crc_cm	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
-    toolbar_decryption_ck	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
-
-    /* Save the configuration */
-    airpcap_add_keys_from_list(key_ls,airpcap_if_selected);
-    airpcap_save_selected_if_configuration(airpcap_if_selected);
-    /* Remove GLIB timeout */
-    g_source_remove(airpcap_if_selected->tag);
-
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    {
-        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-        airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
-        airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
-
-        g_signal_handlers_block_by_func (toolbar_decryption_ck,airpcap_toolbar_encryption_cb, toolbar);
-        if (airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar_decryption_ck),TRUE);
-        else
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar_decryption_ck),FALSE);
-        g_signal_handlers_unblock_by_func (toolbar_decryption_ck,airpcap_toolbar_encryption_cb, toolbar);
-    }
-}
-#endif
 
 /*
  * Callback for the 'Reset Configuration' button.
@@ -1169,16 +1030,14 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
  * Callback for the 'Add Key' button.
  */
 void
-on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
+on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
 {
     GtkWidget *add_key_window;
     GtkWidget *add_frame;
     GtkWidget *main_v_box;
     GtkWidget *add_tb;
     GtkWidget *add_frame_al;
-    GtkWidget *add_type_cm;
-    GList *add_type_cm_items = NULL;
-    GtkWidget *add_type_en;
+    GtkWidget *add_type_cb;
     GtkWidget *add_key_te;
     GtkWidget *add_ssid_te;
     GtkWidget *add_type_lb;
@@ -1251,28 +1110,20 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
     gtk_widget_show (add_tb);
     gtk_container_add (GTK_CONTAINER (add_frame_al), add_tb);
 
-    add_type_cm = gtk_combo_new ();
-    gtk_widget_set_name (add_type_cm, "add_type_cm");
-    gtk_widget_show (add_type_cm);
-    gtk_table_attach (GTK_TABLE (add_tb), add_type_cm, 0, 1, 1, 2,
+    add_type_cb = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WEP_KEY_STRING);
+
+#ifdef HAVE_AIRPDCAP
+    gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(add_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
+#endif
+    gtk_combo_box_set_active(GTK_COMBO_BOX(add_type_cb), 0);
+    gtk_widget_set_name (add_type_cb, "add_type_cb");
+    gtk_widget_show (add_type_cb);
+    gtk_table_attach (GTK_TABLE (add_tb), add_type_cb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_widget_set_size_request (add_type_cm, 83, -1);
-    add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
-
-    /* XXX - DEcomment only when WPA and WPA_BIN will be ready */
-#ifdef HAVE_AIRPDCAP
-    add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA_PWD_KEY_STRING);
-    add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA_BIN_KEY_STRING);
-#endif
-    gtk_combo_set_popdown_strings (GTK_COMBO (add_type_cm),
-                                   add_type_cm_items);
-    g_list_free (add_type_cm_items);
-
-    add_type_en = GTK_COMBO (add_type_cm)->entry;
-    gtk_widget_set_name (add_type_en, "add_type_en");
-    gtk_editable_set_editable (GTK_EDITABLE (add_type_en), FALSE);
-    gtk_widget_show (add_type_en);
+    gtk_widget_set_size_request (add_type_cb, 83, -1);
 
     add_key_te = gtk_entry_new ();
     gtk_widget_set_name (add_key_te, "add_key_te");
@@ -1344,14 +1195,14 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
     /* Add callbacks */
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_add_key_ok_bt_clicked), add_key_window );
     g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), add_key_window );
-    g_signal_connect(add_type_en, "changed", G_CALLBACK(on_add_type_en_changed), add_key_window);
+    g_signal_connect(add_type_cb, "changed", G_CALLBACK(on_add_type_cb_changed), add_key_window);
     g_signal_connect(add_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), add_key_window);
     g_signal_connect(add_key_window, "destroy", G_CALLBACK(on_add_key_w_destroy), data);
 
     /* Add widget data */
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY,key_ls);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY,selected_item);
-    g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY,add_type_cm);
+    g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY,add_type_cb);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_KEY_KEY,add_key_te);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY,add_ssid_te);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_KEY_LABEL_KEY,add_key_lb);
@@ -1448,9 +1299,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     GtkWidget *main_v_box;
     GtkWidget *edit_tb;
     GtkWidget *edit_frame_al;
-    GtkWidget *edit_type_cm;
-    GList *edit_type_cm_items = NULL;
-    GtkWidget *edit_type_en;
+    GtkWidget *edit_type_cb;
     GtkWidget *edit_key_te;
     GtkWidget *edit_ssid_te;
     GtkWidget *edit_type_lb;
@@ -1523,29 +1372,28 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
         gtk_widget_show (edit_tb);
         gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
 
-        edit_type_cm = gtk_combo_new ();
-        gtk_widget_set_name (edit_type_cm, "edit_type_cm");
-        gtk_widget_show (edit_type_cm);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cm, 0, 1, 1, 2,
+        edit_type_cb = gtk_combo_box_new_text();
+        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WEP_KEY_STRING);
+
+#ifdef HAVE_AIRPDCAP
+        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
+        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
+#endif
+        /* Set current type */
+        gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 0);
+#ifdef HAVE_AIRPDCAP
+        if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0) {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 1);
+        } else if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0) {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 2);
+        }
+#endif
+        gtk_widget_set_name (edit_type_cb, "edit_type_cb");
+        gtk_widget_show (edit_type_cb);
+        gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
                           (GtkAttachOptions) (GTK_FILL),
                           (GtkAttachOptions) (0), 0, 0);
-        gtk_widget_set_size_request (edit_type_cm, 83, -1);
-        edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
-        /* XXX - Decomment only when WPA and WPA_BIN support will be ready!!! */
-#ifdef HAVE_AIRPDCAP
-        edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA_PWD_KEY_STRING);
-        edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA_BIN_KEY_STRING);
-#endif
-        gtk_combo_set_popdown_strings (GTK_COMBO (edit_type_cm),
-                                       edit_type_cm_items);
-        g_list_free (edit_type_cm_items);
-
-        edit_type_en = GTK_COMBO (edit_type_cm)->entry;
-        gtk_widget_set_name (edit_type_en, "edit_type_en");
-        /* Set current type */
-        gtk_entry_set_text(GTK_ENTRY(edit_type_en),row_type);
-        gtk_editable_set_editable (GTK_EDITABLE (edit_type_en), FALSE);
-        gtk_widget_show (edit_type_en);
+        gtk_widget_set_size_request (edit_type_cb, 83, -1);
 
         edit_key_te = gtk_entry_new ();
         gtk_widget_set_name (edit_key_te, "edit_key_te");
@@ -1631,14 +1479,14 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
         /* Add callbacks */
         g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_edit_key_ok_bt_clicked), edit_key_window );
         g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), edit_key_window );
-        g_signal_connect(edit_type_en, "changed", G_CALLBACK(on_edit_type_en_changed), edit_key_window);
+        g_signal_connect(edit_type_cb, "changed", G_CALLBACK(on_edit_type_cb_changed), edit_key_window);
         g_signal_connect(edit_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), edit_key_window);
         g_signal_connect(edit_key_window, "destroy", G_CALLBACK(on_edit_key_w_destroy), data);
 
         /* Add widget data */
         g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY,key_ls);
         g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SELECTED_KEY,selected_item);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY,edit_type_cm);
+        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY,edit_type_cb);
         g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY,edit_key_te);
         g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY,edit_ssid_te);
         g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY,edit_key_lb);
@@ -1750,34 +1598,34 @@ on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer data)
 
 /* Turns the decryption on or off */
 void
-on_enable_decryption_en_changed(GtkWidget *w, gpointer data _U_)
+on_decryption_mode_cb_changed(GtkWidget *cb, gpointer data)
 {
-    GtkEntry *decryption_en;
-
-    decryption_en = GTK_ENTRY(w);
-
-    /*
-     * This callback is called twice: when the current text is canceled ("")
-     * and then when the 'new text' is added ("new text"). We don't really
-     * care about the first time, and we just return.
-     */
-    if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),"") == 0)
+    gint cur_active;
+    
+    if (cb == NULL) {
         return;
-
-    if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
-    {
-        set_wireshark_decryption(TRUE);
-        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
-    else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
-    {
-        set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(TRUE)) g_warning(CANT_SAVE_ERR_STR);
+    
+    cur_active = gtk_combo_box_get_active(GTK_COMBO_BOX(cb));
+    
+    if (cur_active < 0) {
+        return;
     }
-    else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
-    {
-        set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
+    
+    switch(cur_active) {
+        /* XXX - Don't use magic numbers here */
+        case 1: /* Wireshark */
+            set_wireshark_decryption(TRUE);
+            if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
+            break;
+        case 2: /* Driver */
+            set_wireshark_decryption(FALSE);
+            if (!set_airpcap_decryption(TRUE)) g_warning(CANT_SAVE_ERR_STR);
+            break;
+        default:
+            set_wireshark_decryption(FALSE);
+            if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
+            break;
     }
 
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -1785,33 +1633,29 @@ on_enable_decryption_en_changed(GtkWidget *w, gpointer data _U_)
 }
 
 /*
- * Will fill the given combo box with the current decryption mode string
+ * Selects the current decryption mode string in the decryption mode combo box
  */
 void
-update_decryption_mode_cm(GtkWidget *w)
+update_decryption_mode(GtkWidget *cb)
 {
-    /*
-     * This ensures that the entry get changes... the callback will return immediately, but
-     * at least next time packets will be redissected...
-     */
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),"");
+    if (cb == NULL) {
+        return;
+    }
 
     /* Wireshark decryption is on */
     if (wireshark_decryption_on())
     {
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-        /* We don't know if AirPcap decryption is on or off, but we just turn it off */
-        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 1);
     }
     /* AirPcap decryption is on */
     else if (airpcap_decryption_on())
     {
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 2);
     }
     /* No decryption enabled */
     else
     {
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 0);
     }
 
     return;
@@ -1821,51 +1665,51 @@ update_decryption_mode_cm(GtkWidget *w)
  * Creates the list of available decryption modes, depending on the adapters found
  */
 void
-update_decryption_mode_list(GtkWidget *w)
+update_decryption_mode_list(GtkWidget *cb)
 {
-    GList		*enable_decryption_cb_items = NULL;
-    GtkWidget	*entry;
-    gchar		*current_text;
+    gchar *current_text;
 
-    if (w == NULL)
+    if (cb == NULL)
         return;
 
-    entry = GTK_COMBO(w)->entry;
     current_text = NULL;
 
     /*
      * XXX - Retrieve the current 'decryption mode'. It would be better just block the
      * signal handler, but it doesn't work... one of these days I'll try to figure out why...
      */
-    current_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+    current_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
+    
+    while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(cb)), NULL) > 0) {
+        gtk_combo_box_remove_text(GTK_COMBO_BOX(cb), 0);
+    }
 
-    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
-    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-
+    gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+    
     if (airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0)
     {
-        enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+        gtk_combo_box_append_text(GTK_COMBO_BOX(cb), AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
     }
     else
     {
         /* The last decryption mode was 'Driver', but no more AirPcap adapter are found */
         if (g_ascii_strcasecmp(current_text,AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
         {
-            if (current_text != NULL) g_free(current_text);
-
+            g_free(current_text);
             current_text = g_strdup(AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
         }
     }
 
-    g_signal_handlers_block_matched(entry,G_SIGNAL_MATCH_DATA,0,0,0,0,airpcap_tb);
-    gtk_combo_set_popdown_strings (GTK_COMBO (w), enable_decryption_cb_items);
-    /* The 'changed' callback will be called twice */
-    gtk_entry_set_text(GTK_ENTRY(entry),current_text);
-    g_signal_handlers_unblock_matched(entry,G_SIGNAL_MATCH_DATA,0,0,0,0,airpcap_tb);
+    if (g_ascii_strcasecmp(current_text, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 1);
+    } else if (g_ascii_strcasecmp(current_text, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 2);
+    } else { /* None / Invalid */
+        gtk_combo_box_set_active(GTK_COMBO_BOX(cb), 0);
+    }
 
-    if (current_text != NULL) g_free(current_text);
-
-    g_list_free (enable_decryption_cb_items);
+    g_free(current_text);
 }
 
 /* Called to create the airpcap settings' window */
@@ -1887,19 +1731,13 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *channel_lb;
     GtkWidget *channel_offset_lb;
     GtkWidget *capture_type_lb;
-    GtkWidget *channel_cm;
-    GList *channel_cm_items = NULL;
-    GtkWidget *channel_en;
-    GtkWidget *capture_type_cm;
+    GtkWidget *channel_cb;
     GtkWidget *channel_offset_cb;
-    GList *capture_type_cm_items = NULL;
-    GtkWidget *capture_type_en;
+    GtkWidget *capture_type_cb;
     GtkWidget *fcs_ck;
     GtkWidget *basic_parameters_fcs_h_box;
     GtkWidget *basic_parameters_fcs_filter_lb;
-    GtkWidget *fcs_filter_cm;
-    GList *fcs_filter_cm_items = NULL;
-    GtkWidget *fcs_filter_en;
+    GtkWidget *fcs_filter_cb;
     GtkWidget *basic_parameters_frame_lb;
     GtkWidget *low_buttons_h_box;
     GtkWidget *left_h_button_box;
@@ -1909,25 +1747,17 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *apply_bt;
     GtkWidget *cancel_bt;
 
-    /* for loop counter */
-    guint i;
-
     /* widgets in the toolbar */
     GtkWidget	*toolbar,
     *toolbar_if_lb,
-    *toolbar_channel_cm,
-    *toolbar_wrong_crc_cm;
-
-    /* other stuff */
-    /*GList				*channel_list,*capture_list;*/
-    /*GList				*linktype_list = NULL;*/
-    gchar				*capture_s;
+    *toolbar_channel_cb,
+    *toolbar_wrong_crc_cb;
 
     /* user data - RETRIEVE pointers of toolbar widgets */
     toolbar				= GTK_WIDGET(data);
     toolbar_if_lb		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cm	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_wrong_crc_cm= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+    toolbar_channel_cb	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
+    toolbar_wrong_crc_cb= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
 
     /* gray out the toolbar */
     gtk_widget_set_sensitive(toolbar,FALSE);
@@ -2059,12 +1889,10 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     /* End: Channel offset label */
 
     /* Start: Channel offset combo box */
-    channel_offset_cb = gtk_combo_new();
+    channel_offset_cb = gtk_combo_box_new_text();
     gtk_widget_set_name (channel_offset_cb, "channel_offset_cb");
-    gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_offset_cb)->entry),FALSE);
 
-    airpcap_update_channel_offset_cb(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb);
-    airpcap_update_channel_offset_combo_entry(channel_offset_cb, airpcap_if_selected->channelInfo.ExtChannel);
+    airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb);
 
     gtk_widget_show(channel_offset_cb);
 
@@ -2073,72 +1901,40 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
                   (GtkAttachOptions) (0), 0, 0);
     /* End: Channel offset combo box */
 
-    channel_cm = gtk_combo_new ();
-    gtk_widget_set_name (channel_cm, "channel_cm");
-    gtk_widget_show (channel_cm);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_cm, 1, 2, 0, 1,
+    channel_cb = gtk_combo_box_new_text();
+    gtk_widget_set_name (channel_cb, "channel_cb");
+    gtk_widget_show (channel_cb);
+    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_cb, 1, 2, 0, 1,
                       (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
-    if (airpcap_if_selected != NULL && airpcap_if_selected->pSupportedChannels != NULL && airpcap_if_selected->numSupportedChannels > 0){
-        for (i = 0; i<(airpcap_if_selected->numSupportedChannels); i++){
-            channel_cm_items = g_list_append(channel_cm_items, ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
-        }
-        gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_cm_items);
-        airpcap_free_channel_combo_list (channel_cm_items);
+    /* Select the current channel */
+    airpcap_update_channel_combo(GTK_WIDGET(channel_cb), airpcap_if_selected);
+
+    capture_type_cb = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
+    if (airpcap_get_dll_state() == AIRPCAP_DLL_OK) {
+        gtk_combo_box_append_text(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
     }
 
-    /* Select the first entry */
-    if (airpcap_if_selected != NULL)
-    {
-        airpcap_update_channel_combo(GTK_WIDGET(channel_cm), airpcap_if_selected);
-    }
-
-
-    channel_en = GTK_COMBO (channel_cm)->entry;
-    gtk_editable_set_editable(GTK_EDITABLE(channel_en),FALSE);
-    gtk_widget_set_name (channel_en, "channel_en");
-    gtk_widget_show (channel_en);
-
-    capture_type_cm = gtk_combo_new ();
-    gtk_widget_set_name (capture_type_cm, "capture_type_cm");
-    gtk_widget_show (capture_type_cm);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), capture_type_cm, 1, 2, 2,
+    gtk_widget_set_name (capture_type_cb, "capture_type_cb");
+    gtk_widget_show (capture_type_cb);
+    gtk_table_attach (GTK_TABLE (basic_parameters_tb), capture_type_cb, 1, 2, 2,
                       3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    capture_type_cm_items =
-        g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
-    capture_type_cm_items =
-        g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
-
-    if (airpcap_get_dll_state() == AIRPCAP_DLL_OK){
-        capture_type_cm_items =
-            g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
-    }
-    gtk_combo_set_popdown_strings (GTK_COMBO (capture_type_cm),
-                                   capture_type_cm_items);
 
     /* Current interface value */
-    capture_s = NULL;
     if (airpcap_if_selected != NULL)
     {
-		if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11){
-			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
-		}else if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_RADIO){
-			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
+		if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_RADIO){
+            gtk_combo_box_set_active(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NUM_802_11_PLUS_RADIO);
 		}else if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_PPI){
-			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NUM_802_11_PLUS_PPI);
+		} else {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(capture_type_cb), AIRPCAP_LINK_TYPE_NUM_802_11_ONLY);
 		}
-
-        if (capture_s != NULL) gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(capture_type_cm)->entry), capture_s);
     }
-    g_free(capture_s);
-
-    g_list_free (capture_type_cm_items);
-
-    capture_type_en = GTK_COMBO (capture_type_cm)->entry;
-    gtk_widget_set_name (capture_type_en, "capture_type_en");
-    gtk_widget_show (capture_type_en);
 
     fcs_ck = gtk_check_button_new_with_label ("Include 802.11 FCS in Frames");
 
@@ -2174,31 +1970,21 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (basic_parameters_fcs_h_box),
                         basic_parameters_fcs_filter_lb, FALSE, FALSE, 0);
 
-    fcs_filter_cm = gtk_combo_new ();
-    gtk_widget_set_name (fcs_filter_cm, "fcs_filter_cm");
-    gtk_widget_show (fcs_filter_cm);
-    gtk_box_pack_start (GTK_BOX (basic_parameters_fcs_h_box), fcs_filter_cm,
+    fcs_filter_cb = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_EVERYTHING));
+    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRECT_FRAMES));
+    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES));
+    gtk_combo_box_set_active(GTK_COMBO_BOX(fcs_filter_cb), 0);
+    gtk_widget_set_name (fcs_filter_cb, "fcs_filter_cb");
+    gtk_widget_show (fcs_filter_cb);
+    gtk_box_pack_start (GTK_BOX (basic_parameters_fcs_h_box), fcs_filter_cb,
                         FALSE, FALSE, 0);
-    gtk_widget_set_size_request (fcs_filter_cm, 112, -1);
-    fcs_filter_cm_items =
-        g_list_append (fcs_filter_cm_items, (gpointer) "All Frames");
-    fcs_filter_cm_items =
-        g_list_append (fcs_filter_cm_items, (gpointer) "Valid Frames");
-    fcs_filter_cm_items =
-        g_list_append (fcs_filter_cm_items, (gpointer) "Invalid Frames");
-    gtk_combo_set_popdown_strings (GTK_COMBO (fcs_filter_cm),
-                                   fcs_filter_cm_items);
-    g_list_free (fcs_filter_cm_items);
-
-    fcs_filter_en = GTK_COMBO (fcs_filter_cm)->entry;
-    gtk_widget_set_name (fcs_filter_en, "fcs_filter_en");
+    gtk_widget_set_size_request (fcs_filter_cb, 112, -1);
 
     if (airpcap_if_selected != NULL)
     {
-        airpcap_validation_type_combo_set_by_type(fcs_filter_cm,airpcap_if_selected->CrcValidationOn);
+        airpcap_validation_type_combo_set_by_type(fcs_filter_cb, airpcap_if_selected->CrcValidationOn);
     }
-
-    gtk_widget_show (fcs_filter_en);
 
     basic_parameters_frame_lb = gtk_label_new ("<b>Basic Parameters</b>");
     gtk_widget_set_name (basic_parameters_frame_lb,
@@ -2250,11 +2036,11 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
         g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_what_s_this_bt_clicked), airpcap_advanced_w);
     }
 
-    g_signal_connect (channel_en, "changed", G_CALLBACK(on_channel_en_changed), channel_offset_cb);
-    g_signal_connect (GTK_COMBO(channel_offset_cb)->entry, "changed", G_CALLBACK(on_channel_offset_cb_changed), NULL);
-    g_signal_connect (capture_type_en, "changed", G_CALLBACK(on_capture_type_en_changed), airpcap_advanced_w);
+    g_signal_connect (channel_cb, "changed", G_CALLBACK(airpcap_channel_changed_cb), channel_offset_cb);
+    g_signal_connect (channel_offset_cb, "changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
+    g_signal_connect (capture_type_cb, "changed", G_CALLBACK(on_capture_type_cb_changed), airpcap_advanced_w);
     g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), airpcap_advanced_w);
-    g_signal_connect (fcs_filter_en, "changed", G_CALLBACK(on_fcs_filter_en_changed), airpcap_advanced_w);
+    g_signal_connect (fcs_filter_cb, "changed", G_CALLBACK(on_fcs_filter_cb_changed), NULL);
     g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), airpcap_advanced_w);
     g_signal_connect (apply_bt, "clicked", G_CALLBACK(on_advanced_apply_bt_clicked), airpcap_advanced_w);
     g_signal_connect (ok_bt,"clicked", G_CALLBACK(on_advanced_ok_bt_clicked), airpcap_advanced_w);
@@ -2267,10 +2053,10 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     /* Store pointers to all widgets, for use by lookup_widget(). */
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_BLINK_KEY, blink_bt);
-    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_CHANNEL_KEY,channel_cm);
-    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_LINK_TYPE_KEY,capture_type_cm);
+    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_CHANNEL_KEY,channel_cb);
+    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_LINK_TYPE_KEY,capture_type_cb);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_FCS_CHECK_KEY, fcs_ck);
-    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_FCS_FILTER_KEY, fcs_filter_cm);
+    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_FCS_FILTER_KEY, fcs_filter_cb);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_OK_KEY, ok_bt);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_CANCEL_KEY, cancel_bt);
 
@@ -2285,6 +2071,46 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 }
 
 /*
+ * Callback for the Wireless Advanced Settings 'Apply' button.
+ */
+void
+on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
+{
+    /* advenced window */
+    GtkWidget	*airpcap_advanced_w;
+
+    /* widgets in the toolbar */
+    GtkWidget	*toolbar,
+    *toolbar_if_lb,
+    *toolbar_channel_cb,
+    *toolbar_channel_offset_cb,
+    *toolbar_fcs_filter_cb;
+
+    /* retrieve main window */
+    airpcap_advanced_w = GTK_WIDGET(data);
+
+    toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
+
+    /* retrieve toolbar info */
+    toolbar_if_lb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
+    toolbar_channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
+    toolbar_channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
+    toolbar_fcs_filter_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+
+    /* Save the configuration (for all ) */
+    airpcap_save_selected_if_configuration(airpcap_if_selected);
+
+    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
+    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
+    {
+        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
+        airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),airpcap_if_selected);
+        airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, toolbar_channel_offset_cb);
+        airpcap_validation_type_combo_set_by_type(toolbar_fcs_filter_cb,airpcap_if_selected->CrcValidationOn);
+    }
+}
+
+/*
  * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
  */
 void
@@ -2294,48 +2120,14 @@ on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
     /* Retrieve object data */
-    GtkWidget *airpcap_advanced_w;
-    GtkWidget *channel_combo;
-    GtkWidget *capture_combo;
-    GtkWidget *crc_check;
-    GtkWidget *wrong_crc_combo;
-    GtkWidget *blink_bt;
-    GtkWidget *interface_combo;
-    GtkWidget *cancel_bt;
-    GtkWidget *ok_bt;
-
-    /* widgets in the toolbar */
-    GtkWidget	*toolbar,
-    *toolbar_if_lb,
-    *toolbar_channel_cm,
-	*toolbar_channel_offset_cb,
-    *toolbar_wrong_crc_cm,
-    *advanced_bt;
-
-    /* Retrieve the GUI object pointers */
-    airpcap_advanced_w			= GTK_WIDGET(data);
-    interface_combo				= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_INTERFACE_KEY));
-    channel_combo				= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
-    capture_combo				= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_LINK_TYPE_KEY));
-    crc_check					= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_CHECK_KEY));
-    wrong_crc_combo				= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_FCS_FILTER_KEY));
-    blink_bt					= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_BLINK_KEY));
-    cancel_bt					= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CANCEL_KEY));
-    ok_bt						= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_OK_KEY));
-    advanced_bt					= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEY));
-
-    toolbar						= GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
-
-    /* retrieve toolbar info */
-    toolbar_if_lb			= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cm		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_channel_offset_cb	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
-    toolbar_wrong_crc_cm	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+    GtkWidget *airpcap_advanced_w = GTK_WIDGET(data);
 
     if (airpcap_if_selected == NULL) { /* There's not much we can do. */
-		gtk_widget_destroy(airpcap_advanced_w);
-		return;
-	}
+        gtk_widget_destroy(airpcap_advanced_w);
+        return;
+    }
+
+    on_advanced_apply_bt_clicked(button, data);
 
     /* Stop blinking our LED */
     ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
@@ -2348,17 +2140,8 @@ on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
         airpcap_if_close(ad);
     }
 
-    /* ??? - Ask if want to save configuration */
-
-    /* Save the configuration */
-    airpcap_save_selected_if_configuration(airpcap_if_selected);
     /* Remove GLIB timeout */
     g_source_remove(airpcap_if_selected->tag);
-
-    gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-    airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
-    airpcap_update_channel_offset_combo_entry(GTK_WIDGET(toolbar_channel_offset_cb),airpcap_if_selected->channelInfo.ExtChannel);
-    airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
     gtk_widget_destroy(airpcap_advanced_w);
 }
@@ -2386,8 +2169,8 @@ on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* widgets in the toolbar */
     GtkWidget	*toolbar,
     *toolbar_if_lb,
-    *toolbar_channel_cm,
-    *toolbar_wrong_crc_cm,
+    *toolbar_channel_cb,
+    *toolbar_wrong_crc_cb,
     *advanced_bt;
 
     /* Retrieve the GUI object pointers */
@@ -2406,8 +2189,8 @@ on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* retrieve toolbar info */
     toolbar_if_lb			= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_INTERFACE_KEY));
-    toolbar_channel_cm		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
-    toolbar_wrong_crc_cm	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
+    toolbar_channel_cb		= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_KEY));
+    toolbar_wrong_crc_cb	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
 
     /* Stop blinking ALL leds (go through the airpcap_if_list) */
     if (airpcap_if_selected != NULL)
@@ -2442,11 +2225,9 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *keys_fr;
     GtkWidget *keys_al;
     GtkWidget *keys_h_sub_box;
-    GtkWidget *enable_decryption_tb;
-    GtkWidget *enable_decryption_lb;
-    GtkWidget *enable_decryption_cb;
-    /*GList     *enable_decryption_cb_items = NULL;*/
-    GtkWidget *enable_decryption_en;
+    GtkWidget *decryption_mode_tb;
+    GtkWidget *decryption_mode_lb;
+    GtkWidget *decryption_mode_cb;
     GtkWidget *keys_v_sub_box;
     GtkWidget *keys_scrolled_w;
     GtkWidget *key_ls;
@@ -2529,38 +2310,32 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_show (keys_h_sub_box);
     gtk_container_add (GTK_CONTAINER (keys_al), keys_h_sub_box);
 
-    enable_decryption_tb = gtk_table_new (1, 2, FALSE);
-    gtk_widget_set_name (enable_decryption_tb, "enable_decryption_tb");
-    gtk_widget_show (enable_decryption_tb);
-    gtk_box_pack_start (GTK_BOX (keys_h_sub_box), enable_decryption_tb, FALSE,
+    decryption_mode_tb = gtk_table_new (1, 2, FALSE);
+    gtk_widget_set_name (decryption_mode_tb, "decryption_mode_tb");
+    gtk_widget_show (decryption_mode_tb);
+    gtk_box_pack_start (GTK_BOX (keys_h_sub_box), decryption_mode_tb, FALSE,
                         FALSE, 0);
-    gtk_table_set_col_spacings (GTK_TABLE (enable_decryption_tb), 6);
+    gtk_table_set_col_spacings (GTK_TABLE (decryption_mode_tb), 6);
 
-    enable_decryption_lb = gtk_label_new ("Select Decryption Mode");
-    gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
-    gtk_widget_show (enable_decryption_lb);
-    gtk_table_attach (GTK_TABLE (enable_decryption_tb), enable_decryption_lb, 1,
+    decryption_mode_lb = gtk_label_new ("Select Decryption Mode");
+    gtk_widget_set_name (decryption_mode_lb, "decryption_mode_lb");
+    gtk_widget_show (decryption_mode_lb);
+    gtk_table_attach (GTK_TABLE (decryption_mode_tb), decryption_mode_lb, 1,
                       2, 0, 1, (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (enable_decryption_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (decryption_mode_lb), 0, 0.5);
 
-    enable_decryption_cb = gtk_combo_new ();
-    gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
-    gtk_widget_show (enable_decryption_cb);
-    gtk_table_attach (GTK_TABLE (enable_decryption_tb), enable_decryption_cb, 0,
+    decryption_mode_cb = gtk_combo_box_new_text();
+    update_decryption_mode_list(decryption_mode_cb);
+    gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
+    gtk_widget_show (decryption_mode_cb);
+    gtk_table_attach (GTK_TABLE (decryption_mode_tb), decryption_mode_cb, 0,
                       1, 0, 1, (GtkAttachOptions) (0), (GtkAttachOptions) (0),
                       0, 0);
-    gtk_widget_set_size_request (enable_decryption_cb, 83, -1);
-    update_decryption_mode_list(enable_decryption_cb);
-
-    enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
-    gtk_widget_set_name (enable_decryption_en, "enable_decryption_en");
-    gtk_widget_show (enable_decryption_en);
-    gtk_editable_set_editable (GTK_EDITABLE (enable_decryption_en), FALSE);
-    GTK_WIDGET_UNSET_FLAGS (enable_decryption_en, GTK_CAN_FOCUS);
+    gtk_widget_set_size_request (decryption_mode_cb, 83, -1);
 
     /* Set correct decryption mode!!!! */
-    update_decryption_mode_cm(enable_decryption_cb);
+    update_decryption_mode(decryption_mode_cb);
 
     keys_v_sub_box = gtk_hbox_new (FALSE, 0);
     gtk_widget_set_name (keys_v_sub_box, "keys_v_sub_box");
@@ -2712,7 +2487,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY,key_ls_selected_item);
 
     /* Store pointers to all widgets, for use by lookup_widget(). */
-    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY, enable_decryption_en);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_DECRYPTION_MODE_KEY, decryption_mode_cb);
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_KEYLIST_KEY, key_ls);
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_OK_KEY, ok_bt);
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_CANCEL_KEY, cancel_bt);
@@ -2770,6 +2545,8 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 void
 on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
+    PAirpcapHandle ad = NULL;
+
     /* Retrieve object data */
     GtkWidget *key_management_w;
     GtkWidget *cancel_bt;
@@ -3075,7 +2852,7 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 }
 
 void
-on_merge_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3157,7 +2934,7 @@ on_merge_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 
 
 void
-on_import_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3236,7 +3013,7 @@ on_import_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 
 
 void
-on_ignore_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+on_ignore_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;

@@ -35,8 +35,12 @@
 
 #define AIRPCAP_LINK_TYPE_NAME_802_11_ONLY			"802.11 Only"
 #define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO	"802.11 + Radio"
-#define AIRPCAP_LINK_TYPE_NAME_UNKNOWN				"Unknown"
 #define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI		"802.11 + PPI"
+#define AIRPCAP_LINK_TYPE_NAME_UNKNOWN				"Unknown"
+
+#define AIRPCAP_LINK_TYPE_NUM_802_11_ONLY			0
+#define AIRPCAP_LINK_TYPE_NUM_802_11_PLUS_RADIO	1
+#define AIRPCAP_LINK_TYPE_NUM_802_11_PLUS_PPI		2
 
 #define AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK "Wireshark"
 #define AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP   "Driver"
@@ -49,12 +53,12 @@
 extern gboolean change_airpcap_settings;
 
 /*
- * This structure is used because we need to store infos about the currently selected 
- * row in the key list. 
+ * This structure is used because we need to store infos about the currently selected
+ * row in the key list.
  */
 typedef struct{
-gint row;
-gint column;
+    gint row;
+    gint column;
 }airpcap_key_ls_selected_info_t;
 
 /* XXX Not used anywhere -> Delete??? */
@@ -118,6 +122,12 @@ gchar*
 airpcap_get_validation_name(AirpcapValidationType vt);
 
 /*
+ * Return an appropriate combo box entry number for the given an AirpcapValidationType.
+ */
+gint
+airpcap_get_validation_combo_entry(AirpcapValidationType vt);
+
+/*
  * Returns the AirpcapLinkType corresponding to the given string name.
  */
 AirpcapLinkType
@@ -148,22 +158,11 @@ void
 airpcap_validation_type_combo_set_by_type(GtkWidget* c,AirpcapValidationType type);
 
 /*
- * Retrieves the name in the validation combo entry.
- */
-AirpcapValidationType
-airpcap_validation_type_combo_get_type(GtkWidget* c);
-
-/*
  * Update channel offset combo box to 'offset'.
  */
 void
-airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel);
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb);
 
-/*
- * Returns the string corresponding to the given UINT (1-14, for channel only)
- */
-ULONG
-airpcap_get_frequency_from_str(const gchar* s);
 
 /*
  * Retrieve the UINT corresponding to the given string (channel only, handle with care!)
@@ -175,13 +174,28 @@ airpcap_get_channel_name(UINT n);
  * Set the combo box entry string given an UINT channel number
  */
 void
-airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel);
+airpcap_channel_combo_set_by_frequency(GtkWidget* w,UINT channel);
 
-/*
- * Free a channel combo list
+/** Respond to the user changing the channel combo box.
+ * Update the active interface channel and update the offset
+ * combo box.
+ * Requires AirPcap globals.
+ *
+ * @param channel_cb The channel GtkComboBox
+ * @param channel_offset_cb The channel offset GtkComboBox
  */
 void
-airpcap_free_channel_combo_list(GList *channel_list);
+airpcap_channel_changed_cb(GtkWidget *channel_cb, gpointer channel_offset_cb);
+
+/** Respond to the user changing the channel offset combo box.
+ * Update the active interface channel offset.
+ * Requires AirPcap globals.
+ *
+ * @param channel_offset_cb The channel offset GtkComboBox
+ * @param data Unused
+ */
+void
+airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data);
 
 /*
  * Returns '1' if this is the "Any" adapter, '0' otherwise
@@ -198,26 +212,20 @@ airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info);
 /*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
-void 
+void
 airpcap_add_keys_from_list(GtkWidget *w, airpcap_if_info_t *if_info);
 
 /*
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
 void
-airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info);
+airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info);
 
 /*
  * Update the channel offset of the given combobox
  */
 void
 airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb);
-
-/*
- * Update channel offset combo box given the selected frequency. Return the flags from the given frequency.
- */
-ULONG
-airpcap_load_channel_offset_cb(airpcap_if_info_t* if_info, GtkWidget* channel_offset_cb, ULONG chan_freq);
 
 /*
  * This function will take the current keys (widget list), specified for the
@@ -228,7 +236,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA and WPA_BIN) and will set them as default for 
+ * keys (WEP, WPA and WPA_BIN) and will set them as default for
  * each adapter. To do this, it will save the keys in the registry...
  */
 void
@@ -236,14 +244,14 @@ airpcap_load_decryption_keys(GList* if_list);
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA and WPA_BIN) and will set them as default for 
+ * keys (WEP, WPA and WPA_BIN) and will set them as default for
  * each adapter. To do this, it will save the keys in the registry...
  */
 gboolean
 airpcap_check_decryption_keys(GList* if_list);
 
 /*
- * This function will set the gibven GList of decryption_key_t structures 
+ * This function will set the gibven GList of decryption_key_t structures
  * as the defoult for both Wireshark and the AirPcap adapters...
  */
 void
@@ -251,7 +259,7 @@ airpcap_save_decryption_keys(GList* key_list, GList* adapters_list);
 
 /*
  * This function is used to enable/disable the toolbar widgets
- * depending on the type of interface selected... 
+ * depending on the type of interface selected...
  */
 void
 airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en);

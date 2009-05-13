@@ -446,7 +446,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 				*icon;
 
 #ifdef HAVE_AIRPCAP
-  GtkWidget		*decryption_cm;
+  GtkWidget		*decryption_cb;
 #endif
 
   GtkWidget     *if_tb;
@@ -500,8 +500,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if (airpcap_if_list == NULL)
     airpcap_if_active = airpcap_if_selected = NULL;
 
-  decryption_cm = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-  update_decryption_mode_list(decryption_cm);
+  decryption_cb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  update_decryption_mode_list(decryption_cb);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
 #if 0

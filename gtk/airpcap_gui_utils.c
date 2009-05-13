@@ -104,7 +104,7 @@ void
 airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 {
     GtkWidget *airpcap_toolbar_label;
-    GtkWidget *airpcap_toolbar_channel;
+    GtkWidget *toolbar_channel_cb;
     GtkWidget *airpcap_toolbar_channel_lb;
     GtkWidget *airpcap_toolbar_channel_offset;
     GtkWidget *airpcap_toolbar_channel_offset_lb;
@@ -118,7 +118,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
     gchar *if_label_text;
 
     airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    airpcap_toolbar_channel  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    toolbar_channel_cb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
     airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
     airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
@@ -134,7 +134,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
     {
 		gtk_widget_set_sensitive(airpcap_tb,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
-		gtk_widget_set_sensitive(airpcap_toolbar_channel,TRUE);
+		gtk_widget_set_sensitive(toolbar_channel_cb,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,TRUE);
@@ -146,7 +146,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		gtk_widget_set_sensitive(airpcap_toolbar_decryption_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_keys_button,FALSE);
 
-		/*decription check box*/
+		/*decryption check box*/
 		g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
 		if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
@@ -164,22 +164,19 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 			GList	  *channel_list = NULL;
 
 			for (; i<if_info->numSupportedChannels; i++){
-				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
+				gtk_combo_box_append_text(GTK_COMBO_BOX(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
 			}
-			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
-			airpcap_free_channel_combo_list(channel_list);
 		}
 
-		airpcap_update_channel_offset_combo_entry(airpcap_toolbar_channel_offset, if_info->channelInfo.ExtChannel);
-		airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
-		airpcap_update_channel_offset_cb(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
+		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),if_info);
+		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
 		change_airpcap_settings = TRUE;
     }
     else /* Current interface is NOT an AirPcap one... */
     {
 		gtk_widget_set_sensitive(airpcap_tb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_label,FALSE);
-		gtk_widget_set_sensitive(airpcap_toolbar_channel,FALSE);
+		gtk_widget_set_sensitive(toolbar_channel_cb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,FALSE);
@@ -202,7 +199,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
 {
     GtkWidget *airpcap_toolbar_crc_filter_combo;
     GtkWidget *airpcap_toolbar_label;
-    GtkWidget *airpcap_toolbar_channel;
+    GtkWidget *toolbar_channel_cb;
     GtkWidget *airpcap_toolbar_channel_lb;
     GtkWidget *airpcap_toolbar_channel_offset;
     GtkWidget *airpcap_toolbar_channel_offset_lb;
@@ -217,7 +214,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
 
     airpcap_toolbar_crc_filter_combo = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
     airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    airpcap_toolbar_channel  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    toolbar_channel_cb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
     airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
     airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
@@ -233,7 +230,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
     {
   		gtk_widget_set_sensitive(airpcap_tb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
-  		gtk_widget_set_sensitive(airpcap_toolbar_channel,TRUE);
+  		gtk_widget_set_sensitive(toolbar_channel_cb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,TRUE);
@@ -244,7 +241,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   		gtk_widget_set_sensitive(airpcap_toolbar_decryption,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_decryption_lb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_keys_button,TRUE);
-  		airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
+  		airpcap_validation_type_combo_set_by_type(airpcap_toolbar_crc_filter_combo, if_info->CrcValidationOn);
 
   		/*decription check box*/
   		g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
@@ -264,22 +261,19 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   			GList	  *channel_list = NULL;
 
   			for (; i<if_info->numSupportedChannels; i++){
-  				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
+  				gtk_combo_box_append_text(GTK_COMBO_BOX(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
   			}
-  			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
-  			airpcap_free_channel_combo_list(channel_list);
   		}
 
-  		airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
-  		airpcap_update_channel_offset_cb(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
-  		airpcap_update_channel_offset_combo_entry(airpcap_toolbar_channel_offset, if_info->channelInfo.ExtChannel);
+  		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),if_info);
+  		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
   		change_airpcap_settings = TRUE;
   	}
     else
     {
   		gtk_widget_set_sensitive(airpcap_tb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_label,FALSE);
-  		gtk_widget_set_sensitive(airpcap_toolbar_channel,FALSE);
+  		gtk_widget_set_sensitive(toolbar_channel_cb,FALSE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,FALSE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,FALSE);
   		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,FALSE);
@@ -479,6 +473,26 @@ airpcap_get_validation_name(AirpcapValidationType vt)
 }
 
 /*
+ * Return an appropriate combo box entry number for the given an AirpcapValidationType,
+ * defaulting to 0
+ */
+gint
+airpcap_get_validation_combo_entry(AirpcapValidationType vt)
+{
+    switch (vt) {
+        case AIRPCAP_VT_ACCEPT_CORRECT_FRAMES:
+            return 1;
+            break;
+        case AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES:
+            return 2;
+            break;
+        default:
+            return 0;
+            break;
+    }
+}
+
+/*
  * Returns the AirpcapLinkType corresponding to the given string name.
  */
 AirpcapLinkType
@@ -545,38 +559,7 @@ airpcap_link_type_combo_get_type(GtkWidget* c)
 void
 airpcap_validation_type_combo_set_by_type(GtkWidget* c, AirpcapValidationType type)
 {
-    const gchar* s;
-
-    s = airpcap_get_validation_name(type);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(c)->entry),s);
-}
-
-/*
- * Retrieves the name in the validation combo entry.
- */
-AirpcapValidationType
-airpcap_validation_type_combo_get_type(GtkWidget* c)
-{
-    const gchar* s;
-
-    s = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(c)->entry));
-
-    return airpcap_get_validation_type(s);
-}
-
-/*
- * Retrieve the UINT corresponding to the given string (channel only, handle with care!)
- */
-ULONG
-airpcap_get_frequency_from_str(const gchar* s)
-{
-    ULONG ch_freq;
-
-    sscanf(s,"%ld",&ch_freq);
-
-    /* XXX - check for ch_num btween 1-14, and return -1 otherwise??? */
-
-    return ch_freq;
+    gtk_combo_box_set_active(GTK_COMBO_BOX(c), airpcap_get_validation_combo_entry(type));
 }
 
 /*
@@ -588,35 +571,21 @@ airpcap_get_channel_name(UINT n)
     return g_strdup_printf("%d",n);
 }
 
-/*
- * Free a channel combo list
- */
-static void
-free_channel_string(gpointer data, gpointer user_data _U_)
-{
-  g_free(data);
-}
-
-void
-airpcap_free_channel_combo_list(GList *channel_list)
-{
-  if (channel_list != NULL) {
-    g_list_foreach(channel_list, free_channel_string, NULL);
-    g_list_free(channel_list);
-  }
-}
 
 /*
- * Set the combo box entry string given an UINT channel number
+ * Set the combo box entry string given a channel frequency
  */
 void
-airpcap_channel_combo_set_by_number(GtkWidget* w,UINT chan_freq)
+airpcap_channel_combo_set_by_frequency(GtkWidget* cb, guint chan_freq)
 {
-	gchar *entry_text;
+    guint i;
 
-	entry_text = ieee80211_mhz_to_str(chan_freq);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),entry_text);
-	g_free(entry_text);
+    for (i = 0; i < airpcap_if_selected->numSupportedChannels; i++) {
+        if (airpcap_if_selected->pSupportedChannels[i].Frequency == chan_freq) {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(cb), i);
+            break;
+        }
+    }
 }
 
 /*
@@ -642,51 +611,132 @@ airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info)
 }
 
 /*
- * Update the channel offset of the given combobox
+ * Changed callback for the channel combobox
  */
 void
-airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb)
+airpcap_channel_changed_cb(GtkWidget *channel_cb, gpointer channel_offset_cb)
 {
-	const gchar *current_offset;
-	gchar current_offset_copy[10];
-	gchar *new_offset_str;
-	ULONG chan_flags;
+    gint cur_chan_idx;
 
-  if (airpcap_if_is_any(if_info)){
-    gtk_widget_set_sensitive(GTK_WIDGET(channel_offset_cb),FALSE);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry), "0");
-    return;
-  }
-
-	current_offset = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry));
-	g_strlcpy (current_offset_copy, current_offset, sizeof(current_offset_copy));
-	chan_flags = airpcap_load_channel_offset_cb(if_info, channel_offset_cb, ch_freq);
-
-	new_offset_str = current_offset_copy;
-
-	/* If current_offset == -1 && new_offset cannot be -1 */
-	if (strcmp(current_offset_copy, "-1") == 0 && !(chan_flags & FLAG_CAN_BE_HIGH)){
-		if ((chan_flags & FLAG_CAN_BE_LOW)){
-			new_offset_str = "+1";
-		}else{
-			new_offset_str = "0";
-		}
-	}else if (strcmp(current_offset_copy, "+1") == 0 && !(chan_flags & FLAG_CAN_BE_LOW)){
-		if ((chan_flags & FLAG_CAN_BE_HIGH)){
-			new_offset_str = "-1";
-		}else{
-			new_offset_str = "0";
-		}
+    if (channel_cb && channel_offset_cb && change_airpcap_settings && airpcap_if_active) {
+        cur_chan_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(channel_cb));
+        if (cur_chan_idx >= 0 && cur_chan_idx < (gint) airpcap_if_active->numSupportedChannels) {
+            airpcap_if_active->channelInfo.Frequency = airpcap_if_active->pSupportedChannels[cur_chan_idx].Frequency;
+            airpcap_update_channel_offset_combo(airpcap_if_active,
+                    airpcap_if_active->channelInfo.Frequency,
+                    GTK_WIDGET(channel_offset_cb));
 	}
+    }
+}
 
-  change_airpcap_settings = FALSE;
-  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry), new_offset_str);
-  change_airpcap_settings = TRUE;
+static int
+airpcap_get_selected_channel_offset(GtkWidget *channel_offset_cb) {
+    int offset;
+    gchar *off_str;
+    int retval = 0;
+    
 
-  sscanf(new_offset_str,"%c",&(if_info->channelInfo.ExtChannel));
-  if (!airpcap_update_frequency_and_offset(if_info)){
-    simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
-  }
+    if (channel_offset_cb == NULL || !GTK_WIDGET_SENSITIVE(channel_offset_cb)) {
+        return 0;
+    }
+    
+    off_str = gtk_combo_box_get_active_text(GTK_COMBO_BOX(channel_offset_cb));
+    if (off_str && (g_ascii_strcasecmp("", off_str)))
+    {
+        if (airpcap_if_selected != NULL)
+        {
+            sscanf(off_str, "%d", &offset);
+            if (offset >= -1 && offset <= -1) {
+                retval = offset;
+            }
+        }
+    }
+    g_free(off_str);
+    return retval;
+}
+
+/*
+ * Changed callback for the channel offset combobox
+ */
+void
+airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U_)
+{
+    airpcap_if_selected->channelInfo.ExtChannel = airpcap_get_selected_channel_offset(channel_offset_cb);
+    airpcap_if_selected->saved = FALSE;
+}
+
+
+/*
+ * Update the channel offset of the given combobox according to the given frequency.
+ */
+void
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG chan_freq, GtkWidget *channel_offset_cb)
+{
+    gint current_offset;
+    gint new_offset;
+    guint i;
+    gint active_idx;
+    gint idx_count = -1;
+
+    if (!if_info || airpcap_if_is_any(if_info) || if_info->pSupportedChannels == NULL || if_info->numSupportedChannels < 1) {
+        gtk_widget_set_sensitive(GTK_WIDGET(channel_offset_cb),FALSE);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(channel_offset_cb), -1);
+        return;
+    }
+
+    new_offset = current_offset = airpcap_get_selected_channel_offset(channel_offset_cb);
+
+    /* Clear out the list */
+    while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(channel_offset_cb)), NULL) > 0) {
+        gtk_combo_box_remove_text(GTK_COMBO_BOX(channel_offset_cb), 0);
+    }
+
+    for (i = 0; i < if_info->numSupportedChannels; i++) {
+        if (if_info->pSupportedChannels[i].Frequency == chan_freq) {
+
+            /* If we can't be low or high, nudge the offset to 0 */
+            if (current_offset == -1 && !(if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_LOW)) {
+                new_offset = 0;
+            } else if (current_offset == 1 && !(if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)) {
+                new_offset = 0;
+            }
+
+            if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_LOW)) {
+                gtk_combo_box_append_text(GTK_COMBO_BOX(channel_offset_cb), "-1");
+                idx_count++;
+                if (new_offset == -1) {
+                    active_idx = idx_count;
+                }
+            }
+            gtk_combo_box_append_text(GTK_COMBO_BOX(channel_offset_cb), "0");
+            idx_count++;
+            if (new_offset == 0) {
+                active_idx = idx_count;
+            }
+            if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)){
+                gtk_combo_box_append_text(GTK_COMBO_BOX(channel_offset_cb), "+1");
+                idx_count++;
+                if (new_offset == 1) {
+                    active_idx = idx_count;
+                }
+            }
+            break;
+        }
+    }
+
+    gtk_combo_box_set_active(GTK_COMBO_BOX(channel_offset_cb), active_idx);
+
+
+    change_airpcap_settings = TRUE;
+
+    if_info->channelInfo.ExtChannel = new_offset;
+    if (!airpcap_update_frequency_and_offset(if_info)){
+        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %ld   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
+    }
+    
+    if (idx_count < 1) {
+        gtk_widget_set_sensitive(channel_offset_cb, FALSE);
+    }
 }
 
 /*
@@ -705,73 +755,33 @@ airpcap_if_is_any(airpcap_if_info_t* if_info)
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
 void
-airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
+airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
 {
-    gchar* frequency_list;
-
-    if(airpcap_if_is_any(if_info))
+    if(!if_info || airpcap_if_is_any(if_info))
     {
-        frequency_list = airpcap_get_all_channels_list(if_info);
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),frequency_list);
-        g_free(frequency_list);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(channel_cb), -1);
         change_airpcap_settings = FALSE;
-        gtk_widget_set_sensitive(GTK_WIDGET(w),FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(channel_cb),FALSE);
     }
     else
     {
-        airpcap_channel_combo_set_by_number(w,if_info->channelInfo.Frequency);
-        change_airpcap_settings = TRUE;
-        gtk_widget_set_sensitive(GTK_WIDGET(w),TRUE);
-    }
-}
-
-/*
- * Update channel offset combo box to 'offset'.
- */
-void
-airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel)
-{
-    gchar channel_offset_value[3];
-
-    if (extChannel > 0){
-        g_snprintf(channel_offset_value, sizeof(channel_offset_value), "+%d", extChannel);
-    }else{
-        g_snprintf(channel_offset_value, sizeof(channel_offset_value), "%d", extChannel);
-    }
-
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry), channel_offset_value);
-}
-
-/*
- * Update channel offset combo box given the selected frequency. Return the flags from the given frequency.
- */
-ULONG
-airpcap_load_channel_offset_cb(airpcap_if_info_t* if_info, GtkWidget* channel_offset_cb, ULONG chan_freq)
-{
-    GList *channel_offset_list = NULL;
-
-    if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
-        guint i = 0;
-
-        for (; i<if_info->numSupportedChannels; i++){
-            if (if_info->pSupportedChannels[i].Frequency == chan_freq){
-                if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)){
-                    channel_offset_list = g_list_append(channel_offset_list, "-1");
-                }
-                channel_offset_list = g_list_append(channel_offset_list, "0");
-                if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_LOW)){
-                    channel_offset_list = g_list_append(channel_offset_list, "+1");
-                }
-                gtk_combo_set_popdown_strings( GTK_COMBO(channel_offset_cb), channel_offset_list) ;
-                gtk_widget_set_sensitive(channel_offset_cb, g_list_length(channel_offset_list) > 1);
-                g_list_free(channel_offset_list);
-                return if_info->pSupportedChannels[i].Flags;
-            }
+        while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(channel_cb)), NULL) > 0) {
+            gtk_combo_box_remove_text(GTK_COMBO_BOX(channel_cb), 0);
         }
-    }
+        
+        if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+            guint i;
+            for (i = 0; i<(if_info->numSupportedChannels); i++){
+                gtk_combo_box_append_text(GTK_COMBO_BOX(channel_cb), ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
+            }
+        }    
 
-    return 0;
+        airpcap_channel_combo_set_by_frequency(channel_cb, if_info->channelInfo.Frequency);
+        change_airpcap_settings = TRUE;
+        gtk_widget_set_sensitive(GTK_WIDGET(channel_cb), TRUE);
+    }
 }
+
 
 /*
  * Takes the keys from the GtkList widget, and add them to the interface list
@@ -1205,7 +1215,7 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 {
     GtkWidget	*toolbar_tb,
 		*if_description_lb,
-		*channel_cb,
+		*toolbar_channel_cb,
 		*channel_lb,
 		*channel_offset_cb,
     *channel_offset_lb,
@@ -1220,7 +1230,7 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 
     if_description_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
     channel_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    channel_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    toolbar_channel_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     channel_offset_cb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
     channel_offset_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
     fcs_lb				= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
@@ -1230,7 +1240,7 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 
     if(if_description_lb != NULL)	gtk_widget_set_sensitive(if_description_lb,en);
     if(channel_lb != NULL)			gtk_widget_set_sensitive(channel_lb,en);
-    if(channel_cb != NULL)			gtk_widget_set_sensitive(channel_cb,en);
+    if(toolbar_channel_cb != NULL)		gtk_widget_set_sensitive(toolbar_channel_cb,en);
     if(channel_offset_cb != NULL)	gtk_widget_set_sensitive(channel_offset_cb,en);
     if(channel_offset_lb != NULL)	gtk_widget_set_sensitive(channel_offset_lb,en);
     if(fcs_lb != NULL)				gtk_widget_set_sensitive(fcs_lb,en);
@@ -1249,7 +1259,7 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 {
     GtkWidget	*toolbar_tb,
 		*if_description_lb,
-		*channel_cb,
+		*toolbar_channel_cb,
 		*channel_lb,
     *channel_offset_cb,
 		*channel_offset_lb,
@@ -1264,7 +1274,7 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 
     if_description_lb	    = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
     channel_lb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    channel_cb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    toolbar_channel_cb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     channel_offset_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
     channel_offset_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
     fcs_lb				        = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
@@ -1272,7 +1282,7 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
     advanced_bt			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
 
     if(fcs_cb != NULL)				gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(fcs_cb)->entry),"");
-    if(channel_cb != NULL)			gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cb)->entry),"");
+    if(toolbar_channel_cb != NULL)		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(toolbar_channel_cb)->entry),"");
     if(channel_offset_cb != NULL)			gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry),"");
     if(if_description_lb != NULL)	gtk_label_set_text(GTK_LABEL(if_description_lb),"Current Wireless Interface: None");
 

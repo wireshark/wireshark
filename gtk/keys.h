@@ -86,7 +86,7 @@
 #define AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY	"airpcap_advanced_edit_key_ssid_key"
 #define AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY	"airpcap_advanced_edit_key_key_label_key"
 #define AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY	"airpcap_advanced_edit_key_ssid_label_key"
-#define AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY	"airpcap_advanced_wep_decryption_key"
+#define AIRPCAP_ADVANCED_DECRYPTION_MODE_KEY	"airpcap_advanced_decryption_mode_key"
 #define AIRPCAP_ADVANCED_WPA_DECRYPTION_KEY	"airpcap_advanced_wpa_decryption_key"
 #define AIRPCAP_ADVANCED_NOTEBOOK_KEY		"airpcap_advanced_notebook_key"
 #define AIRPCAP_ADVANCED_CANCEL_KEY	        "airpcap_advanced_cancel_key"
