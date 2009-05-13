@@ -67,7 +67,7 @@ typedef enum
 typedef struct pdcp_lte_info
 {
     /* Channel info is needed for RRC parsing */
-    guint8             Direction;
+    guint8             direction;
     LogicalChannelType channelType;
     BCCHTransportType  BCCHTransport;
 

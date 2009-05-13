@@ -57,6 +57,7 @@ int proto_pdcp_lte = -1;
 
 static int hf_pdcp_lte_configuration = -1;
 
+static int hf_pdcp_lte_direction = -1;
 static int hf_pdcp_lte_rohc = -1;
 static int hf_pdcp_lte_rohc_compression = -1;
 static int hf_pdcp_lte_rohc_mode = -1;
@@ -173,6 +174,14 @@ static int ett_pdcp_rohc_dynamic_ipv4 = -1;
 static int ett_pdcp_rohc_dynamic_udp = -1;
 static int ett_pdcp_rohc_dynamic_rtp = -1;
 static int ett_pdcp_rohc_report_bitmap = -1;
+
+
+static const value_string direction_vals[] =
+{
+    { DIRECTION_UPLINK,      "Uplink"},
+    { DIRECTION_DOWNLINK,    "Downlink"},
+    { 0, NULL }
+};
 
 
 static const value_string pdcp_plane_vals[] = {
@@ -1255,6 +1264,11 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                                        tvb, 0, 0, FALSE);
     configuration_tree = proto_item_add_subtree(configuration_ti, ett_pdcp_configuration);
 
+    /* Direction */
+    ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_direction, tvb, 0, 0,
+                             p_pdcp_info->direction);
+    PROTO_ITEM_SET_GENERATED(ti);
+
     /* Plane */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_plane, tvb, 0, 0,
                              p_pdcp_info->plane);
@@ -1317,7 +1331,8 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     }
 
     /* Append summary to configuration root */
-    proto_item_append_text(configuration_ti, "(plane=%s",
+    proto_item_append_text(configuration_ti, "(direction=%s, plane=%s",
+                           val_to_str(p_pdcp_info->direction, direction_vals, "Unknown"),
                            val_to_str(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
     if (p_pdcp_info->rohc_compression) {
@@ -1346,7 +1361,7 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
     switch (p_pdcp_info->channelType)
     {
         case Channel_CCCH:
-            if (p_pdcp_info->Direction == DIRECTION_UPLINK) {
+            if (p_pdcp_info->direction == DIRECTION_UPLINK) {
                 rrc_handle = find_dissector("lte-rrc.ul.ccch");
             }
             else {
@@ -1493,7 +1508,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* Data/Control flag */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, FALSE);
 
-            if (pdu_type == USER_PLANE) {
+            if (pdu_type == 1) {
                 /*****************************/
                 /* Use-plane Data            */
 
@@ -1604,7 +1619,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else {
         /* Show that its a no-header PDU */
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " No-Header");
+            col_append_str(pinfo->cinfo, COL_INFO, " No-Header ");
         }
     }
 
@@ -1645,7 +1660,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 }
 
                 if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes data)",
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
                                     tvb_length_remaining(tvb, offset));
                 }
             }
@@ -1834,57 +1849,64 @@ void proto_register_pdcp(void)
     {
         { &hf_pdcp_lte_configuration,
             { "Configuration",
-              "pdcp_configuration", FT_STRING, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.configuration", FT_STRING, BASE_NONE, NULL, 0x0,
               "Configuation info passed into dissector", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_compression,
             { "ROHC Compression",
-              "pdcp.rohc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_mode,
             { "ROHC mode",
-              "pdcp.rohc.mode", FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x0,
+              "pdcp-lte.rohc.mode", FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x0,
               "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_rnd,
             { "RND",  /* TODO: true/false vals? */
-              "pdcp.rohc.rnd", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.rnd", FT_UINT8, BASE_DEC, NULL, 0x0,
               "RND of outer ip header", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_udp_checksum_present,
             { "UDP Checksum",  /* TODO: true/false vals? */
-              "pdcp.rohc.checksum-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.checksum-present", FT_UINT8, BASE_DEC, NULL, 0x0,
               "UDP Checksum_present", HFILL
             }
         },
 
+
+        { &hf_pdcp_lte_direction,
+            { "Direction",
+              "pdcp-lte.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
+              "Direction of message", HFILL
+            }
+        },
         { &hf_pdcp_lte_rohc_profile,
             { "ROHC profile",
-              "pdcp.rohc.profile", FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
+              "pdcp-lte.rohc.profile", FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
               "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_no_header_pdu,
             { "No Header PDU",
-              "pdcp.no-header_pdu", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.no-header_pdu", FT_UINT8, BASE_DEC, NULL, 0x0,
               "No Header PDU", HFILL
             }
         },
         { &hf_pdcp_lte_plane,
             { "Plane",
-              "pdcp.plane", FT_UINT8, BASE_DEC, VALS(pdcp_plane_vals), 0x0,
+              "pdcp-lte.plane", FT_UINT8, BASE_DEC, VALS(pdcp_plane_vals), 0x0,
               "No Header PDU", HFILL
             }
         },
         { &hf_pdcp_lte_seqnum_length,
             { "Seqnum length",
-              "pdcp.seqnum_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.seqnum_length", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Sequence Number Length", HFILL
             }
         },
@@ -1892,195 +1914,195 @@ void proto_register_pdcp(void)
 
         { &hf_pdcp_lte_cid_inclusion_info,
             { "CID Inclusion Info",
-              "pdcp.cid-inclusion-info", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.cid-inclusion-info", FT_UINT8, BASE_DEC, NULL, 0x0,
               "CID Inclusion Info", HFILL
             }
         },
         { &hf_pdcp_lte_large_cid_present,
             { "Large CID Present",
-              "pdcp.large-cid-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.large-cid-present", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Large CID Present", HFILL
             }
         },
 
         { &hf_pdcp_lte_seq_num_5,
             { "Seq Num",
-              "pdcp.seq-num", FT_UINT8, BASE_DEC, NULL, 0x1f,
+              "pdcp-lte.seq-num", FT_UINT8, BASE_DEC, NULL, 0x1f,
               "PDCP Seq num", HFILL
             }
         },
         { &hf_pdcp_lte_seq_num_7,
             { "Seq Num",
-              "pdcp.seq-num", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              "pdcp-lte.seq-num", FT_UINT8, BASE_DEC, NULL, 0x7f,
               "PDCP Seq num", HFILL
             }
         },
         { &hf_pdcp_lte_reserved3,
             { "Reserved",
-              "pdcp.reserved3", FT_UINT8, BASE_HEX, NULL, 0x70,
+              "pdcp-lte.reserved3", FT_UINT8, BASE_HEX, NULL, 0x70,
               "3 reserved bits", HFILL
             }
         },
         { &hf_pdcp_lte_seq_num_12,
             { "Seq Num",
-              "pdcp.seq-num", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              "pdcp-lte.seq-num", FT_UINT16, BASE_DEC, NULL, 0x0fff,
               "PDCP Seq num", HFILL
             }
         },
         { &hf_pdcp_lte_signalling_data,
             { "Signalling Data",
-              "pdcp.signalling-data", FT_BYTES, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.signalling-data", FT_BYTES, BASE_HEX, NULL, 0x0,
               "Signalling Data", HFILL
             }
         },
         { &hf_pdcp_lte_mac,
             { "MAC",
-              "pdcp.mac", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+              "pdcp-lte.mac", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
               "MAC", HFILL
             }
         },
         { &hf_pdcp_lte_data_control,
             { "PDU Type",
-              "pdcp.pdu-type", FT_UINT8, BASE_HEX, VALS(pdu_type_vals), 0x80,
+              "pdcp-lte.pdu-type", FT_UINT8, BASE_HEX, VALS(pdu_type_vals), 0x80,
               "PDU type", HFILL
             }
         },
         { &hf_pdcp_lte_user_plane_data,
             { "User-Plane Data",
-              "pdcp.user-data", FT_BYTES, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.user-data", FT_BYTES, BASE_HEX, NULL, 0x0,
               "User-Plane Data", HFILL
             }
         },
         { &hf_pdcp_lte_control_pdu_type,
             { "Control PDU Type",
-              "pdcp.control-pdu-type", FT_UINT8, BASE_HEX, VALS(control_pdu_type_vals), 0x70,
+              "pdcp-lte.control-pdu-type", FT_UINT8, BASE_HEX, VALS(control_pdu_type_vals), 0x70,
               "Control PDU type", HFILL
             }
         },
         { &hf_pdcp_lte_fms,
             { "First Missing Sequence Number",
-              "pdcp.fms", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              "pdcp-lte.fms", FT_UINT16, BASE_DEC, NULL, 0x0fff,
               "First Missing PDCP Sequence Number", HFILL
             }
         },
         { &hf_pdcp_lte_bitmap,
             { "Bitmap",
-              "pdcp.bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
               "Status report bitmap (0=error, 1=OK)", HFILL
             }
         },
         { &hf_pdcp_lte_bitmap_not_received,
             { "Not Received",
-              "pdcp.bitmap.error", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.bitmap.error", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "Status report PDU error", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc,
             { "ROHC Message",
-              "pdcp.rohc", FT_NONE, BASE_NONE, NULL, 0,
+              "pdcp-lte.rohc", FT_NONE, BASE_NONE, NULL, 0,
               "ROHC Message", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_padding,
             { "Padding",
-              "pdcp.rohc.padding", FT_NONE, BASE_NONE, NULL, 0,
+              "pdcp-lte.rohc.padding", FT_NONE, BASE_NONE, NULL, 0,
               "ROHC Padding", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_r_0_crc,
             { "R-0-CRC Packet",
-              "pdcp.r-0-crc", FT_NONE, BASE_NONE, NULL, 0,
+              "pdcp-lte.r-0-crc", FT_NONE, BASE_NONE, NULL, 0,
               "R-0-CRC Packet", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_feedback,
             { "Feedback",
-              "pdcp.rohc.feedback", FT_NONE, BASE_NONE, NULL, 0,
+              "pdcp-lte.rohc.feedback", FT_NONE, BASE_NONE, NULL, 0,
               "Feedback Packet", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_type0_t,
             { "T",
-              "pdcp.rohc.t0.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x20,
+              "pdcp-lte.rohc.t0.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x20,
               "Indicates whether frame type is TS (1) or ID (0)", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_type1_t,
             { "T",
-              "pdcp.rohc.t1.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x80,
+              "pdcp-lte.rohc.t1.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x80,
               "Indicates whether frame type is TS (1) or ID (0)", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_type2_t,
             { "T",
-              "pdcp.rohc.t2.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x80,
+              "pdcp-lte.rohc.t2.t", FT_UINT8, BASE_HEX, VALS(t_vals), 0x80,
               "Indicates whether frame type is TS (1) or ID (0)", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_d,
             { "D",
-              "pdcp.rohc.t2.t", FT_UINT8, BASE_HEX, NULL, 0x01,
+              "pdcp-lte.rohc.t2.t", FT_UINT8, BASE_HEX, NULL, 0x01,
               "Indicates whether Dynamic chain is present", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ir_crc,
             { "CRC",
-              "pdcp.rohc.ir.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.ir.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
               "8-bit CRC", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_static_ipv4,
             { "Static IPv4 chain",
-              "pdcp.rohc.static.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.static.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
               "Static IPv4 chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_version,
             { "IP Version",
-              "pdcp.rohc.ip-version", FT_UINT8, BASE_HEX, NULL, 0xf0,
+              "pdcp-lte.rohc.ip-version", FT_UINT8, BASE_HEX, NULL, 0xf0,
               "IP Version", HFILL
             }
         },
         /* TODO: create/use value_string */
         { &hf_pdcp_lte_rohc_ip_protocol,
             { "IP Protocol",
-              "pdcp.rohc.ip-protocol", FT_UINT8, BASE_DEC, VALS(ip_protocol_vals), 0x0,
+              "pdcp-lte.rohc.ip-protocol", FT_UINT8, BASE_DEC, VALS(ip_protocol_vals), 0x0,
               "IP Protocol", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_src,
             { "IP Source address",
-              "pdcp.rohc.ip-src", FT_IPv4, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.ip-src", FT_IPv4, BASE_DEC, NULL, 0x0,
               "IP Source address", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_dst,
             { "IP Destination address",
-              "pdcp.rohc.ip-dst", FT_IPv4, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.ip-dst", FT_IPv4, BASE_DEC, NULL, 0x0,
               "IP Destination address", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_static_udp,
             { "Static UDP chain",
-              "pdcp.rohc.static.udp", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.static.udp", FT_NONE, BASE_NONE, NULL, 0x0,
               "Static UDP chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_udp_src_port,
             { "Static UDP source port",
-              "pdcp.rohc.static.udp.src-port", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.static.udp.src-port", FT_UINT16, BASE_DEC, NULL, 0x0,
               "Static UDP source port", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_udp_dst_port,
             { "Static UDP destination port",
-              "pdcp.rohc.static.udp.dst-port", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.static.udp.dst-port", FT_UINT16, BASE_DEC, NULL, 0x0,
               "Static UDP destination port", HFILL
             }
         },
@@ -2088,280 +2110,280 @@ void proto_register_pdcp(void)
 
         { &hf_pdcp_lte_rohc_static_rtp,
             { "Static RTP chain",
-              "pdcp.rohc.static.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.static.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
               "Static RTP chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_rtp_ssrc,
             { "SSRC",
-              "pdcp.rohc.static.rtp.ssrc", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.static.rtp.ssrc", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               "Static RTP chain SSRC", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_ipv4,
             { "Dynamic IPv4 chain",
-              "pdcp.rohc.dynamic.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
               "Dynamic IPv4 chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_tos,
             { "ToS",
-              "pdcp.rohc.ip.tos", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.ip.tos", FT_UINT8, BASE_HEX, NULL, 0x0,
               "IP Type of Service", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_ttl,
             { "TTL",
-              "pdcp.rohc.ip.ttl", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.ip.ttl", FT_UINT8, BASE_HEX, NULL, 0x0,
               "IP Time To Live", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_id,
             { "IP-ID",
-              "pdcp.rohc.ip.id", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.ip.id", FT_UINT8, BASE_HEX, NULL, 0x0,
               "IP ID", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_df,
             { "Don't Fragment",
-              "pdcp.rohc.ip.df", FT_UINT8, BASE_HEX, NULL, 0x80,
+              "pdcp-lte.rohc.ip.df", FT_UINT8, BASE_HEX, NULL, 0x80,
               "IP Don't Fragment flag", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_rnd,
             { "Random IP-ID field",
-              "pdcp.rohc.ip.rnd", FT_UINT8, BASE_HEX, NULL, 0x40,
+              "pdcp-lte.rohc.ip.rnd", FT_UINT8, BASE_HEX, NULL, 0x40,
               "Random IP-ID field", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_nbo,
             { "Network Byte Order IP-ID field",
-              "pdcp.rohc.ip.nbo", FT_UINT8, BASE_HEX, NULL, 0x20,
+              "pdcp-lte.rohc.ip.nbo", FT_UINT8, BASE_HEX, NULL, 0x20,
               "Network Byte Order IP-ID field", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_udp,
             { "Dynamic UDP chain",
-              "pdcp.rohc.dynamic.udp", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.udp", FT_NONE, BASE_NONE, NULL, 0x0,
               "Dynamic UDP chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_udp_checksum,
             { "UDP Checksum",
-              "pdcp.rohc.dynamic.udp.checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.udp.checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               "UDP Checksum", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_udp_seqnum,
             { "UDP Sequence Number",
-              "pdcp.rohc.dynamic.udp.seqnum", FT_UINT16, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.udp.seqnum", FT_UINT16, BASE_HEX, NULL, 0x0,
               "UDP Sequence Number", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_rtp,
             { "Dynamic RTP chain",
-              "pdcp.rohc.dynamic.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
               "Dynamic RTP chain", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_rx,
             { "RX",
-              "pdcp.rohc.dynamic.rtp.rx", FT_UINT8, BASE_DEC, NULL, 0x10,
+              "pdcp-lte.rohc.dynamic.rtp.rx", FT_UINT8, BASE_DEC, NULL, 0x10,
               "RX", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_cc,
             { "Contributing CSRCs",
-              "pdcp.rohc.dynamic.rtp.cc", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              "pdcp-lte.rohc.dynamic.rtp.cc", FT_UINT8, BASE_DEC, NULL, 0x0f,
               "Dynamic RTP chain CCs", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_seqnum,
             { "RTP Sequence Number",
-              "pdcp.rohc.dynamic.rtp.seqnum", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.rtp.seqnum", FT_UINT16, BASE_DEC, NULL, 0x0,
               "Dynamic RTP chain Sequence Number", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_timestamp,
             { "RTP Timestamp",
-              "pdcp.rohc.dynamic.rtp.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.rtp.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
               "Dynamic RTP chain Timestamp", HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_rtp_reserved3,
             { "Reserved",
-              "pdcp.rohc.dynamic.rtp.reserved3", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              "pdcp-lte.rohc.dynamic.rtp.reserved3", FT_UINT8, BASE_HEX, NULL, 0xc0,
               "Reserved bits", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_x,
             { "X",
-              "pdcp.rohc.dynamic.rtp.x", FT_UINT8, BASE_DEC, NULL, 0x10,
+              "pdcp-lte.rohc.dynamic.rtp.x", FT_UINT8, BASE_DEC, NULL, 0x10,
               "X", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_mode,
             { "Mode",
-              "pdcp.rohc.dynamic.rtp.mode", FT_UINT8, BASE_HEX, VALS(rohc_mode_vals), 0x0c,
+              "pdcp-lte.rohc.dynamic.rtp.mode", FT_UINT8, BASE_HEX, VALS(rohc_mode_vals), 0x0c,
               "Mode", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_tis,
             { "TIS",
-              "pdcp.rohc.dynamic.rtp.tis", FT_UINT8, BASE_HEX, NULL, 0x02,
+              "pdcp-lte.rohc.dynamic.rtp.tis", FT_UINT8, BASE_HEX, NULL, 0x02,
               "Dynamic RTP chain TIS (indicates time_stride present)", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_tss,
             { "TSS",
-              "pdcp.rohc.dynamic.rtp.tss", FT_UINT8, BASE_HEX, NULL, 0x01,
+              "pdcp-lte.rohc.dynamic.rtp.tss", FT_UINT8, BASE_HEX, NULL, 0x01,
               "Dynamic RTP chain TSS (indicates TS_stride present)", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_ts_stride,
             { "TS Stride",
-              "pdcp.rohc.dynamic.rtp.ts-stride", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.dynamic.rtp.ts-stride", FT_UINT32, BASE_DEC, NULL, 0x0,
               "Dynamic RTP chain TS Stride", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ts,
             { "TS",
-              "pdcp.rohc.ts", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.ts", FT_UINT8, BASE_DEC, NULL, 0x0,
               "TS", HFILL
             }
         },
 
         { &hf_pdcp_lte_add_cid,
             { "Add-CID",
-              "pdcp.add-cid", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              "pdcp-lte.add-cid", FT_UINT8, BASE_DEC, NULL, 0x0f,
               "Add-CID", HFILL
             }
         },
         { &hf_pdcp_lte_large_cid,
             { "Large-CID",
-              "pdcp.large-cid", FT_UINT16, BASE_DEC, NULL, 0x07ff,
+              "pdcp-lte.large-cid", FT_UINT16, BASE_DEC, NULL, 0x07ff,
               "Large-CID", HFILL
             }
         },
         { &hf_pdcp_lte_uo0_sn,
             { "SN",
-              "pdcp.rohc.uo0.sn", FT_UINT8, BASE_DEC, NULL, 0x78,
+              "pdcp-lte.rohc.uo0.sn", FT_UINT8, BASE_DEC, NULL, 0x78,
               "SN", HFILL
             }
         },
         { &hf_pdcp_lte_r0_sn,
             { "SN",
-              "pdcp.rohc.r0.sn", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "pdcp-lte.rohc.r0.sn", FT_UINT8, BASE_DEC, NULL, 0x3f,
               "SN", HFILL
             }
         },
         { &hf_pdcp_lte_r0_crc_sn,
             { "SN",
-              "pdcp.rohc.r0-crc.sn", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.rohc.r0-crc.sn", FT_UINT16, BASE_DEC, NULL, 0x0,
               "SN", HFILL
             }
         },
         { &hf_pdcp_lte_r0_crc_crc,
             { "CRC7",
-              "pdcp.rohc.r0-crc.crc", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              "pdcp-lte.rohc.r0-crc.crc", FT_UINT8, BASE_DEC, NULL, 0x7f,
               "CRC 7", HFILL
             }
         },
 
         { &hf_pdcp_lte_feedback_code,
             { "Code",
-              "pdcp.feedback-code", FT_UINT8, BASE_DEC, NULL, 0x07,
+              "pdcp-lte.feedback-code", FT_UINT8, BASE_DEC, NULL, 0x07,
               "Feedback options length (if > 0)", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_size,
             { "Size",
-              "pdcp.feedback-size", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.feedback-size", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Feedback options length", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_feedback1,
             { "FEEDBACK-1 (SN)",
-              "pdcp.feedback.feedback1", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.feedback.feedback1", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Feedback-1", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_feedback2,
             { "FEEDBACK-2",
-              "pdcp.feedback.feedback2", FT_NONE, BASE_NONE, NULL, 0x0,
+              "pdcp-lte.feedback.feedback2", FT_NONE, BASE_NONE, NULL, 0x0,
               "Feedback-2", HFILL
             }
         },
 
         { &hf_pdcp_lte_feedback_ack_type,
             { "Acktype",
-              "pdcp.feedback-acktype", FT_UINT8, BASE_DEC, VALS(feedback_ack_vals), 0xc0,
+              "pdcp-lte.feedback-acktype", FT_UINT8, BASE_DEC, VALS(feedback_ack_vals), 0xc0,
               "Feedback-2 ack type", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_mode,
             { "mode",
-              "pdcp.feedback-mode", FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x30,
+              "pdcp-lte.feedback-mode", FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x30,
               "Feedback mode", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_sn,
             { "SN",
-              "pdcp.feedback-sn", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              "pdcp-lte.feedback-sn", FT_UINT16, BASE_DEC, NULL, 0x0fff,
               "Feedback mode", HFILL
             }
         },
 
         { &hf_pdcp_lte_feedback_option,
             { "Option",
-              "pdcp.feedback-option", FT_UINT8, BASE_DEC, VALS(feedback_option_vals), 0xf0,
+              "pdcp-lte.feedback-option", FT_UINT8, BASE_DEC, VALS(feedback_option_vals), 0xf0,
               "Feedback mode", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_length,
             { "Length",
-              "pdcp.feedback-length", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              "pdcp-lte.feedback-length", FT_UINT8, BASE_DEC, NULL, 0x0f,
               "Feedback length", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_crc,
             { "CRC",
-              "pdcp.feedback-crc", FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
+              "pdcp-lte.feedback-crc", FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
               "Feedback CRC", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_option_sn,
             { "SN",
-              "pdcp.feedback-option-sn", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.feedback-option-sn", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Feedback Option SN", HFILL
             }
         },
         { &hf_pdcp_lte_feedback_option_clock,
             { "Clock",
-              "pdcp.feedback-option-clock", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "pdcp-lte.feedback-option-clock", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Feedback Option Clock", HFILL
             }
         },
 
         { &hf_pdcp_lte_ip_id,
             { "IP-ID",
-              "pdcp.ip-id", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              "pdcp-lte.ip-id", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               "IP-ID", HFILL
             }
         },
         { &hf_pdcp_lte_udp_checksum,
             { "UDP Checksum",
-              "pdcp.udp-checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+              "pdcp-lte.udp-checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
               "UDP Checksum", HFILL
             }
         },
         { &hf_pdcp_lte_payload,
             { "Payload",
-              "pdcp.payload", FT_BYTES, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.payload", FT_BYTES, BASE_HEX, NULL, 0x0,
               "Payload", HFILL
             }
         },

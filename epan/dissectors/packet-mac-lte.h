@@ -26,7 +26,7 @@
 #define FDD_RADIO 1
 #define TDD_RADIO 2
 
-/* direction */
+/* Direction */
 #define DIRECTION_UPLINK   0
 #define DIRECTION_DOWNLINK 1
 

@@ -143,16 +143,12 @@ static const value_string bcch_transport_vals[] = {
 #define RLC_TR_DATA_CONF                0x83
 
 static const value_string rlc_op_vals[] = {
-    { RLC_AM_DATA_REQ,   "AM_DATA_REQ" },
-    { RLC_AM_DATA_IND,   "AM_DATA_IND" },
-    { RLC_UM_DATA_REQ,   "UM_DATA_REQ"},
-    { RLC_UM_DATA_IND,   "UM_DATA_IND"},
-    { RLC_TR_DATA_REQ,   "TR_DATA_REQ"},
-    { RLC_TR_DATA_IND,   "TR_DATA_IND"},
-    { RLC_AM_DATA_REQ,   "AM_DATA_REQ"},
-    { RLC_AM_DATA_IND,   "AM_DATA_IND"},
-    { RLC_UM_DATA_REQ,   "UM_DATA_REQ"},
-    { RLC_UM_DATA_IND,   "UM_DATA_IND"},
+    { RLC_AM_DATA_REQ,   "[UL] [AM]" },
+    { RLC_AM_DATA_IND,   "[DL] [AM]" },
+    { RLC_UM_DATA_REQ,   "[UL] [UM]"},
+    { RLC_UM_DATA_IND,   "[DL] [UM]"},
+    { RLC_TR_DATA_REQ,   "[UL] [TM]"},
+    { RLC_TR_DATA_IND,   "[DL] [TM]"},
     { 0,   NULL }
 };
 
@@ -621,7 +617,8 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
 
 /* Dissect an RRC LTE frame by first parsing the header entries then passing
-   the data to the RRC dissector, according to direction and channel type */
+   the data to the RRC dissector, according to direction and channel type.
+   TODO: factor out common code between this function and dissect_pdcp_lte() */
 void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                      packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -675,11 +672,20 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             switch (tag) {
                 case 0:
                     offset++;
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
+                                        tvb_get_guint8(tvb, offset));
+                    }
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
                                         tvb, offset, 1, FALSE);
+
                     break;
                 case 1:
                     offset++;
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
+                                        tvb_get_guint8(tvb, offset));
+                    }
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
                                         tvb, offset, 1, FALSE);
                     break;
@@ -706,6 +712,11 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                 tvb, offset, 1, FALSE);
             logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                                val_to_str(logicalChannelType, rlc_logical_channel_vals,
+                                           "UNKNOWN-CHANNEL"));
+            }
 
             switch (logicalChannelType) {
                 case Channel_BCCH:
@@ -834,10 +845,10 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
        case RLC_AM_DATA_REQ:
        case RLC_UM_DATA_REQ:
        case RLC_TR_DATA_REQ:
-           p_pdcp_lte_info->Direction = DIRECTION_UPLINK;
+           p_pdcp_lte_info->direction = DIRECTION_UPLINK;
 
        default:
-           p_pdcp_lte_info->Direction = DIRECTION_DOWNLINK;
+           p_pdcp_lte_info->direction = DIRECTION_DOWNLINK;
     }
 
     /* Parse header */
@@ -863,6 +874,10 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
                     /* UEId */
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, FALSE);
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                                        " UEId=%u", tvb_get_ntohs(tvb, offset));
+                    }
                     offset += 2;
 
                     /* Get tag of channel type */
@@ -871,11 +886,19 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     switch (tag) {
                         case 0:
                             offset++;
+                            if (check_col(pinfo->cinfo, COL_INFO)) {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
+                                                tvb_get_guint8(tvb, offset));
+                            }
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
                                                 tvb, offset++, 1, FALSE);
                             break;
                         case 1:
                             offset++;
+                            if (check_col(pinfo->cinfo, COL_INFO)) {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
+                                                tvb_get_guint8(tvb, offset));
+                            }
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
                                                 tvb, offset++, 1, FALSE);
                             break;
@@ -902,6 +925,11 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                         tvb, offset, 1, FALSE);
                     p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset++);
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                                        val_to_str(p_pdcp_lte_info->channelType, rlc_logical_channel_vals,
+                                                   "UNKNOWN-CHANNEL"));
+                    }
 
                     switch (p_pdcp_lte_info->channelType) {
                         case Channel_BCCH:
@@ -909,7 +937,7 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             offset++;
 
                             /* Transport channel type */
-                            p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
+                            p_pdcp_lte_info->BCCHTransport = (LogicalChannelType)tvb_get_guint8(tvb, offset);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
                                                 tvb, offset, 1, FALSE);
                             offset++;

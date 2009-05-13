@@ -105,7 +105,6 @@ static int hf_mac_lte_rar_ul_grant_tmcs = -1;
 static int hf_mac_lte_rar_ul_grant_tcsp = -1;
 static int hf_mac_lte_rar_ul_grant_ul_delay = -1;
 static int hf_mac_lte_rar_ul_grant_cqi_request = -1;
-
 static int hf_mac_lte_rar_temporary_crnti = -1;
 
 /* Common channel control values */
