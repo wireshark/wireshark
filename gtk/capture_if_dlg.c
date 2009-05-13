@@ -105,9 +105,6 @@
  * one, rather than creating a new one.
  */
 static GtkWidget *cap_if_w;
-#ifdef HAVE_AIRPCAP
-static GtkWidget *cap_air_w;
-#endif
 
 GList           *if_data = NULL;
 
