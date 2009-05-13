@@ -1788,10 +1788,9 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 			    data_len, FALSE);
 
 #ifdef HAVE_LIBZ
-	uncomp_tvb = tvb_uncompress(tvb, *offset, data_len);
+	uncomp_tvb = tvb_child_uncompress(tvb, tvb, *offset, data_len);
 
 	if(uncomp_tvb != NULL) {
-		tvb_set_child_real_data_tvbuff(tvb, uncomp_tvb);
 		add_new_data_source(pinfo, uncomp_tvb,
 				    "Uncompressed ZRLE data");
 

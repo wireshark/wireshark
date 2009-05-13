@@ -3114,12 +3114,9 @@ end_cn_stub:
 	    tvbuff_t *next_tvb;
         proto_item *frag_tree_item;
 
-	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-	    if(decrypted_tvb){
-		tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
-	    } else {
-		tvb_set_child_real_data_tvbuff(payload_tvb, next_tvb);
-	    }
+	    next_tvb = tvb_new_child_real_data((decrypted_tvb)?decrypted_tvb:payload_tvb,
+	                         fd_head->data, fd_head->len, fd_head->len);
+
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,
 			tree, pinfo, next_tvb, &frag_tree_item);
@@ -3797,8 +3794,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			    tvbuff_t *next_tvb;
                 proto_item *frag_tree_item;
 
-			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+			    next_tvb = tvb_new_child_real_data(tvb, fd_head->data, fd_head->len, fd_head->len);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb, &frag_tree_item);
@@ -4505,8 +4501,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    /* We completed reassembly... */
         if(pinfo->fd->num==fd_head->reassembled_in) {
             /* ...and this is the reassembled RPC PDU */
-	    	next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-	    	tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+	    	next_tvb = tvb_new_child_real_data(tvb, fd_head->data, fd_head->len, fd_head->len);
 	    	add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    	show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
 					   tree, pinfo, next_tvb, &pi);

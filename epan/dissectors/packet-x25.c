@@ -2369,10 +2369,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		        proto_item *frag_tree_item;
 
 		        /* This is the last packet */
-			next_tvb = tvb_new_real_data(fd_head->data, 
+			next_tvb = tvb_new_child_real_data(tvb, fd_head->data, 
 						     fd_head->len,
 						     fd_head->len);
-			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			add_new_data_source(pinfo, next_tvb, "Reassembled X.25");
                         if (x25_tree) {
                            show_fragment_seq_tree(fd_head, 

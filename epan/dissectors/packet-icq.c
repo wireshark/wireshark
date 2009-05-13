@@ -1520,16 +1520,11 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     decrypt_v5(decr_pd, rounded_size, key);
 
     /* Allocate a new tvbuff, referring to the decrypted data. */
-    decr_tvb = tvb_new_real_data(decr_pd, capturedsize, pktsize);
+    decr_tvb = tvb_new_child_real_data(tvb, decr_pd, capturedsize, pktsize);
 
     /* Arrange that the allocated packet data copy be freed when the
        tvbuff is freed. */
     tvb_set_free_cb(decr_tvb, g_free);
-
-    /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-       were handed refers, so it'll get cleaned up when that tvbuff
-       is cleaned up. */
-    tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
 
     /* Add the decrypted data to the data source list. */
     add_new_data_source(pinfo, decr_tvb, "Decrypted");

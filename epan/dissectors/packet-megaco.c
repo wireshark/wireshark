@@ -1820,8 +1820,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 		if(i==0){
 			return;
 		}
-		h245_tvb = tvb_new_real_data(buf,i,i);
-		tvb_set_child_real_data_tvbuff(tvb,h245_tvb);
+		h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
 		add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
 		/* should go through a handle, however,  the two h245 entry
 		   points are different, one is over tpkt and the other is raw
@@ -1899,8 +1898,7 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
 		if(i==0){
 			return;
 		}
-		h245_tvb = tvb_new_real_data(buf,i,i);
-		tvb_set_child_real_data_tvbuff(tvb,h245_tvb);
+		h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
 		add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
 		/* should go through a handle, however,  the two h245 entry
 		   points are different, one is over tpkt and the other is raw

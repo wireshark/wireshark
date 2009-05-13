@@ -367,6 +367,10 @@ check_msrp_header(tvbuff_t *tvb)
 	 * "tvb_get_ptr()" calls below won't throw exceptions.	 *
 	 */
 	offset = 0;
+	if(tvb_length(tvb) < 4 ||  tvb_get_ntohl(tvb, 0) != 0x4d535250 /* MSRP */){
+		return FALSE;
+	}
+
 	linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
 	/* Find the first SP */
 	space_offset = tvb_find_guint8(tvb, 0, -1, ' ');
@@ -395,7 +399,7 @@ check_msrp_header(tvbuff_t *tvb)
 	/*
 	 * Is the first token "MSRP"?
 	 */
-	if (token_1_len == MSRP_HDR_LEN && tvb_strneql(tvb, 0, MSRP_HDR, MSRP_HDR_LEN) == 0){
+	if (token_1_len == MSRP_HDR_LEN) { /*  && tvb_strneql(tvb, 0, MSRP_HDR, MSRP_HDR_LEN) == 0){ */
 		/* This check can be made more strict but accept we do have MSRP for now */
 		return TRUE;
 

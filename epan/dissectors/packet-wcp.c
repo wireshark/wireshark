@@ -587,7 +587,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 
         TRY {
-                tvb = tvb_new_real_data( pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
+                tvb = tvb_new_child_real_data(src_tvb,  pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
         }
         CATCH(BoundsError) {
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -599,9 +599,6 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 	if (bounds_error) return NULL;
 		
-	/* link new tvbuff into tvbuff chain so cleanup is done later */
-        tvb_set_child_real_data_tvbuff( src_tvb, tvb);
-
 	/* Add new data to the data source list */
 	add_new_data_source( pinfo, tvb, "Uncompressed WCP");
 	return tvb;

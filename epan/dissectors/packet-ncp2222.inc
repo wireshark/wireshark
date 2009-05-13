@@ -7445,10 +7445,8 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 /* Is this the last fragment? nds_frag will indicate */
                 if (fd_head->next != NULL && !request_value->nds_frag)
                 {
-                    frag_tvb = tvb_new_real_data(fd_head->data,
+                    frag_tvb = tvb_new_child_real_data(tvb, fd_head->data,
                                                  fd_head->len, fd_head->len);
-                    tvb_set_child_real_data_tvbuff(tvb,
-                                                   frag_tvb);
                     add_new_data_source(pinfo,
                                         frag_tvb,
                                         "Reassembled NDS");

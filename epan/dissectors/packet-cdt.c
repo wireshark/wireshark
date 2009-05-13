@@ -263,7 +263,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     return offset;
   }
   
-  next_tvb = tvb_uncompress (compr_tvb, 0, tvb_length (compr_tvb));
+  next_tvb = tvb_child_uncompress (tvb, compr_tvb, 0, tvb_length (compr_tvb));
 
   if (next_tvb == NULL) {
     tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
@@ -276,7 +276,6 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     return offset;
   }
 
-  tvb_set_child_real_data_tvbuff (tvb, next_tvb);
   add_new_data_source (actx->pinfo, next_tvb, "Uncompressed Content");
 
    switch (content_type) {

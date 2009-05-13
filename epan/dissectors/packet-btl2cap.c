@@ -704,8 +704,7 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 	if(segment == 0x02 && mfp && mfp->last_frame==pinfo->fd->num){
-		next_tvb = tvb_new_real_data((guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		next_tvb = tvb_new_child_real_data(tvb, (guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
 		add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
 	}
 	/*pass up to higher layer if we have a complete packet*/

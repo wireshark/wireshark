@@ -113,7 +113,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	proto_tree	*uts_trailer_tree	= NULL;
 	proto_item	*ti;
 	int		length;
-	gchar		rid, sid, did;
+	gchar		rid = 0, sid = 0, did = 0;
 	gchar		*msg_msg;
 	int		offset			= 0;
 	int		header_length		= -1;

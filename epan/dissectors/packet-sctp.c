@@ -2284,8 +2284,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if (fragment == message->reassembled_in) {
 
       /* this is the last fragment, create data source */
-      new_tvb = tvb_new_real_data(message->data, message->len, message->len);
-      tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+      new_tvb = tvb_new_child_real_data(tvb, message->data, message->len, message->len);
       add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
 
       /* display reassembly info */
@@ -2523,8 +2522,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
    g_free(end);
 
   /* create data source */
-  new_tvb = tvb_new_real_data(message->data, len, len);
-  tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+  new_tvb = tvb_new_child_real_data(tvb, message->data, len, len);
   add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
 
   /* display reassembly info */

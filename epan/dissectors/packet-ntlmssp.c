@@ -1347,10 +1347,9 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
 
   /* Show the decrypted buffer in a new window */
-  decr_tvb = tvb_new_real_data(packet_ntlmssp_info->verifier,
+  decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->verifier,
 			       encrypted_block_length,
 			       encrypted_block_length);
-  tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
   add_new_data_source(pinfo, decr_tvb,
 		      "Decrypted NTLMSSP Verifier");
 
@@ -1525,11 +1524,9 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   }
 
   /* Show the decrypted buffer in a new window */
-  decr_tvb = tvb_new_real_data(packet_ntlmssp_info->decrypted_payload,
+  decr_tvb = tvb_new_child_real_data(data_tvb, packet_ntlmssp_info->decrypted_payload,
 			       encrypted_block_length,
 			       encrypted_block_length);
-
-  tvb_set_child_real_data_tvbuff(data_tvb, decr_tvb);
 
   offset += encrypted_block_length;
 

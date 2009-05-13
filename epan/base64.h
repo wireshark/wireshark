@@ -32,7 +32,7 @@ extern "C" {
 /* In-place decoding of a base64 string. */
 size_t epan_base64_decode(char *s);
 
-extern tvbuff_t* base64_to_tvb(const char *base64);
+extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
 #ifdef __cplusplus
 }

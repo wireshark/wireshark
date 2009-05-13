@@ -801,10 +801,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 			 appl_data->plain_data.data_len);
 
 		/* create a new TVB structure for desegmented data */
-		next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
-
-		/* add this tvb as a child to the original one */
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		next_tvb = tvb_new_child_real_data(tvb, appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
 
 	add_new_data_source(pinfo, next_tvb, "Decrypted DTLS data");
 
@@ -1315,7 +1312,6 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 			  tvb, offset++, 1, 0);
       if (session_id_length > 0)
         {
-	  tvb_ensure_bytes_exist(tvb, offset, session_id_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
 				      tvb, offset, session_id_length,
 				      tvb_get_ptr(tvb, offset, session_id_length),
@@ -1433,7 +1429,6 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
       if (cookie_length > 0)
 	{
-	  tvb_ensure_bytes_exist(tvb, offset, cookie_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
 				      tvb, offset, cookie_length,
 				      tvb_get_ptr(tvb, offset, cookie_length),
@@ -1564,7 +1559,6 @@ static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
 
       if (cookie_length > 0)
 	{
-	  tvb_ensure_bytes_exist(tvb, offset, cookie_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
 				      tvb, offset, cookie_length,
 				      tvb_get_ptr(tvb, offset, cookie_length),
@@ -1805,7 +1799,6 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 				  tvb, offset, 2, FALSE);
 	      offset += 2;
 
-	      tvb_ensure_bytes_exist(tvb, offset, name_length);
 	      proto_tree_add_bytes_format(subtree,
 					  hf_dtls_handshake_dname,
 					  tvb, offset, name_length,

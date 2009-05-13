@@ -344,9 +344,8 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 		raw_data_ptr += cur_copy + MPA_MARKER_LEN;
 		cur_copy = MIN(MPA_MARKER_INTERVAL, (mfree_buff_length - tot_copy));
 	}
-	mfree_tvb = tvb_new_real_data(mfree_buff, mfree_buff_length,
+	mfree_tvb = tvb_new_child_real_data(tvb, mfree_buff, mfree_buff_length,
 			mfree_buff_length);
-	tvb_set_child_real_data_tvbuff(tvb, mfree_tvb);
 	add_new_data_source(pinfo, mfree_tvb, "FPDU without Markers");
 
 	return mfree_tvb;

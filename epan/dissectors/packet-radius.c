@@ -1069,9 +1069,8 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 					tvbuff_t* vsa_tvb = NULL;
 					proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
 					proto_item_append_text(avp_item, ": Last VSA fragment[%u]", vsa_buffer->seg_num);
-					vsa_tvb = tvb_new_real_data(vsa_buffer->data, vsa_buffer->len, vsa_buffer->len);
+					vsa_tvb = tvb_new_child_real_data(tvb, vsa_buffer->data, vsa_buffer->len, vsa_buffer->len);
 					tvb_set_free_cb(vsa_tvb, g_free);
-					tvb_set_child_real_data_tvbuff(tvb, vsa_tvb);
 					add_new_data_source(pinfo, vsa_tvb, "Reassembled VSA");
 					add_avp_to_tree(avp_tree, avp_item, pinfo, vsa_tvb, dictionary_entry, vsa_buffer->len, 0);
 					g_hash_table_remove(vsa_buffer_table, &(vsa_buffer->key));
@@ -1187,11 +1186,10 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 
                     eap_tree = proto_item_add_subtree(avp_item,ett_eap);
 
-                    eap_tvb = tvb_new_real_data(eap_buffer,
+                    eap_tvb = tvb_new_child_real_data(tvb, eap_buffer,
                                                 eap_tot_len_captured,
                                                 eap_tot_len);
                     tvb_set_free_cb(eap_tvb, g_free);
-                    tvb_set_child_real_data_tvbuff(tvb, eap_tvb);
                     add_new_data_source(pinfo, eap_tvb, "Reassembled EAP");
 
                     /*
@@ -1799,6 +1797,8 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 		dictionary_entry->type = NULL;
 		dictionary_entry->vs = NULL;
 		dictionary_entry->hf = no_dictionary_entry.hf;
+		dictionary_entry->tagged = 0;
+		dictionary_entry->hf_tag = -1;
 		dictionary_entry->hf_len = no_dictionary_entry.hf_len;
 		dictionary_entry->ett = no_dictionary_entry.ett;
 

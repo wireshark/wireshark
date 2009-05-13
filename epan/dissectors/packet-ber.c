@@ -925,11 +925,9 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
 
   if(fd_head) {
     if(fd_head->next) {
-      reassembled_tvb = tvb_new_real_data(fd_head->data,
+      reassembled_tvb = tvb_new_child_real_data(next_tvb, fd_head->data,
 					  fd_head->len,
 					  fd_head->len);
-
-      tvb_set_child_real_data_tvbuff(next_tvb, reassembled_tvb);
 
       /* not sure I really want to do this here - should be nearer the application where we can give it a better name*/
       add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");

@@ -747,8 +747,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 #ifdef HAVE_KERBEROS
     plaintext=decrypt_krb5_data(tree, pinfo, 0, encrypt_length, data_value, keytype, NULL);    
     if(plaintext){
-      next_tvb=tvb_new_real_data(plaintext, encrypt_length, encrypt_length);
-      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+      next_tvb=tvb_new_child_real_data(tvb, plaintext, encrypt_length, encrypt_length);
       add_new_data_source(pinfo, next_tvb, "decrypted kink encrypt");
       dissect_decrypt_kink_encrypt(pinfo, next_tvb, tree, encrypt_length);
     }

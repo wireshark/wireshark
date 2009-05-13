@@ -452,8 +452,7 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   between the 'DCERPC over SMB' tvb and the buffer
 		   tvb with no visual cues as to what is going on. */
 
-		b->tvb = tvb_new_real_data(data, size, size);
-		tvb_set_child_real_data_tvbuff(tvb, b->tvb);
+		b->tvb = tvb_new_child_real_data(tvb, data, size, size);
 		add_new_data_source(pinfo, b->tvb, "SPOOLSS buffer");
 
 		b->item = item;

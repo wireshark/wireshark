@@ -360,16 +360,11 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 	md5_xor( buff, key, len, session_id,version, tvb_get_guint8(tvb,2) );
 
 	/* Allocate a new tvbuff, referring to the decrypted data. */
-	*dst_tvb = tvb_new_real_data( buff, len, len );
+	*dst_tvb = tvb_new_child_real_data(tvb,  buff, len, len );
 
 	/* Arrange that the allocated packet data copy be freed when the
 	   tvbuff is freed. */
 	tvb_set_free_cb( *dst_tvb, g_free );
-
-	/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-	   were handed refers, so it'll get cleaned up when that tvbuff
-	   is cleaned up. */
-	tvb_set_child_real_data_tvbuff( tvb, *dst_tvb );
 
 	/* Add the decrypted data to the data source list. */
 	add_new_data_source(pinfo, *dst_tvb, "TACACS+ Decrypted");

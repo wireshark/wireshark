@@ -932,8 +932,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     return;
 
   data = tvb_get_ephemeral_string(tvb, offset, len);
-  keymgmt_tvb = base64_to_tvb(data);
-  tvb_set_child_real_data_tvbuff(tvb, keymgmt_tvb);
+  keymgmt_tvb = base64_to_tvb(tvb, data);
   add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
 
   if ( prtcl_id != NULL && key_mgmt_dissector_table != NULL ) {
@@ -1211,8 +1210,7 @@ ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 		if(i==0){
 			return NULL;
 		}
-		bytes_tvb = tvb_new_real_data(buf,i,i);
-		tvb_set_child_real_data_tvbuff(tvb,bytes_tvb);
+		bytes_tvb = tvb_new_child_real_data(tvb, buf,i,i);
 		add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
 		return bytes_tvb;
 	}
@@ -1398,8 +1396,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 	    proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data);
 
 		/* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data); */
-		data_tvb = base64_to_tvb(data);
-		tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+		data_tvb = base64_to_tvb(tvb, data);
 		add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
 
 		if(h264_handle && data_tvb){
@@ -1410,8 +1407,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 				tokenlen = end_offset - offset;
 				data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 				proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data);
-				data_tvb = base64_to_tvb(data);
-				tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+				data_tvb = base64_to_tvb(tvb, data);
 				add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
 				dissect_h264_nal_unit(data_tvb, pinfo, tree);
 			}

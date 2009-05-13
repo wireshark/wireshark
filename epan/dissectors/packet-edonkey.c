@@ -2950,13 +2950,13 @@ static int dissect_kademlia_udp_compressed_message(guint8 msg_type,
 {
     tvbuff_t *tvbraw = NULL;
 
-    tvbraw = tvb_uncompress(tvb, offset, length);
+
+    tvbraw = tvb_child_uncompress(tvb, tvb, offset, length);
 
     if (tvbraw) {
         guint32 raw_length;
 
         raw_length = tvb_length( tvbraw );
-        tvb_set_child_real_data_tvbuff(tvb, tvbraw);
         add_new_data_source(pinfo, tvbraw, "Decompressed Data");
 
         dissect_kademlia_udp_message( msg_type, tvbraw, pinfo, 0, raw_length, tree );
@@ -3067,11 +3067,11 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
              * stream.
              */
             message_name = val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
-            tvbraw = tvb_uncompress(tvb, offset+1, msg_len-1);
-            if (tvbraw) {
-                dissector = dissect_edonkey_tcp_message;
-                break;
-            }
+	    tvbraw = tvb_child_uncompress(tvb, tvb, offset+1, msg_len-1);
+	    if (tvbraw) {
+	      dissector = dissect_edonkey_tcp_message;
+	      break;
+	    }
 
         default:
             message_name = "Unknown";
@@ -3087,18 +3087,17 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (edonkey_msg_tree) {
         proto_tree_add_uint_format(edonkey_msg_tree, hf_edonkey_message_type, tvb, offset, 1, msg_type,
                                    "Message Type: %s (0x%02x)", message_name, msg_type);
-        if (dissector && (msg_len > 1)) {
-            if (!tvbraw) {
-                (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
-            } else {
-                ti = proto_tree_add_item(edonkey_msg_tree, hf_emule_zlib, tvb,
-                                         offset+1, msg_len-1, FALSE);
-                emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
-                tvb_set_child_real_data_tvbuff(tvb, tvbraw);
-                add_new_data_source(pinfo, tvbraw, "Decompressed Data");
-                (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
-            }
-        }
+	if (dissector && (msg_len > 1)) {
+	  if (!tvbraw) {
+	    (*dissector)(msg_type, tvb, pinfo, offset+1, msg_len-1, edonkey_msg_tree);
+	  } else {
+	    ti = proto_tree_add_item(edonkey_msg_tree, hf_emule_zlib, tvb,
+				     offset+1, msg_len-1, FALSE);
+	    emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
+	    add_new_data_source(pinfo, tvbraw, "Decompressed Data");
+	    (*dissector)(msg_type, tvbraw, pinfo, 0, tvb_length(tvbraw), emule_zlib_tree);
+	  }
+	}
     }
 }
 

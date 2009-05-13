@@ -464,8 +464,7 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	tvbuff_t *ntlmssp_tvb;
 
-	ntlmssp_tvb = base64_to_tvb(line);
-	tvb_set_child_real_data_tvbuff(tvb, ntlmssp_tvb);
+	ntlmssp_tvb = base64_to_tvb(tvb, line);
 	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP / GSSAPI Data");
 	if (tvb_strneql(ntlmssp_tvb, 0, "NTLMSSP", 7) == 0)
 		call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
@@ -1046,7 +1045,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    g_ascii_strcasecmp(headers.content_encoding, "deflate")
 			    == 0)) {
 
-				uncomp_tvb = tvb_uncompress(next_tvb, 0,
+				uncomp_tvb = tvb_child_uncompress(tvb, next_tvb, 0,
 				    tvb_length(next_tvb));
 			}
 
@@ -1075,7 +1074,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				*/
 				proto_item_append_text(e_ti, " -> %u bytes", tvb_length(uncomp_tvb));
 				next_tvb = uncomp_tvb;
-				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {

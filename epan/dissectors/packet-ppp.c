@@ -3330,8 +3330,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ip_packet[ip_hdr_len + 4] = (length - ip_hdr_len) >> 8;
     ip_packet[ip_hdr_len + 5] = (length - ip_hdr_len);
 
-    next_tvb = tvb_new_real_data(ip_packet, length, length);
-    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+    next_tvb = tvb_new_child_real_data(tvb, ip_packet, length, length);
     add_new_data_source(pinfo, next_tvb, "Decompressed Data");
     tvb_set_free_cb(next_tvb, g_free);
 
@@ -3702,14 +3701,13 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
 	  g_free(buff);
 	  return NULL;
   }
-  next_tvb = tvb_new_real_data(buff,i,i);
+  next_tvb = tvb_new_child_real_data(tvb, buff,i,i);
 
   /* Arrange that the allocated packet data copy be freed when the
    * tvbuff is freed.
    */
   tvb_set_free_cb( next_tvb, g_free );
 
-  tvb_set_child_real_data_tvbuff(tvb,next_tvb);
   return next_tvb;
 
 }

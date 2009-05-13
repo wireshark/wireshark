@@ -490,16 +490,12 @@ try_again:
 		i++;
 		offset++;
 	}
-	unescaped_tvb = tvb_new_real_data(buff,i,i);
+	unescaped_tvb = tvb_new_child_real_data(tvb, buff,i,i);
 	/* Arrange that the allocated packet data copy be freed when the
 	 * tvbuff is freed. 
 	 */
 	tvb_set_free_cb( unescaped_tvb, g_free );
-	/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-	 * were handed refers, so it'll get cleaned up when that tvbuff
-	 * is cleaned up. 
-	 */
-	tvb_set_child_real_data_tvbuff( tvb, unescaped_tvb );
+
 	add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
 	proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dissector");
@@ -763,16 +759,11 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 				return tvb_length(tvb);
 			}
 
-			udvm_tvb = tvb_new_real_data(buff,state_length+state_address,state_length+state_address);
+			udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
 			/* Arrange that the allocated packet data copy be freed when the
 			 * tvbuff is freed. 
 			 */
 			tvb_set_free_cb( udvm_tvb, g_free );
-			/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-			 * were handed refers, so it'll get cleaned up when that tvbuff
-			 * is cleaned up. 
-			 */
-			tvb_set_child_real_data_tvbuff( tvb, udvm_tvb );
 
 
 			udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);

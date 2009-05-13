@@ -1340,14 +1340,12 @@ static void dissect_h223_bitswapped (tvbuff_t * tvb, packet_info * pinfo, proto_
     for( i=0; i<len; i++)
         datax[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
 
-    reversed_tvb = tvb_new_real_data(datax,len,tvb_reported_length(tvb));
-	    
     /*
      * Add the reversed tvbuff to the list of tvbuffs to which
      * the tvbuff we were handed refers, so it'll get
      * cleaned up when that tvbuff is cleaned up.
      */
-    tvb_set_child_real_data_tvbuff(tvb, reversed_tvb);
+    reversed_tvb = tvb_new_child_real_data(tvb, datax,len,tvb_reported_length(tvb));
 
     /* Add a freer */
     tvb_set_free_cb(reversed_tvb, g_free);

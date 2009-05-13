@@ -277,9 +277,8 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else if (ones == 6 && state == DATA) { /* probably starting flag sequence */
 					buff = g_memdup(data, data_len);
 					/* Allocate new tvb for the LAPD frame */
-					new_tvb = tvb_new_real_data(buff, data_len, data_len);
+					new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
 					tvb_set_free_cb(new_tvb, g_free);
-					tvb_set_child_real_data_tvbuff(tvb, new_tvb);
 					add_new_data_source(pinfo, new_tvb, "Decoded LAPD bitstream");
 					dissect_lapd(new_tvb, pinfo, tree);
 					last_packet_end_offset = offset -1;

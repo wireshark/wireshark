@@ -771,9 +771,8 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
 		*(dpos++)=*(spos++);
 		l--;
 	}
-	krb5_tvb = tvb_new_real_data(buf, len-skip, len-skip); 
+	krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip); 
 	tvb_set_free_cb(krb5_tvb, g_free);
-	tvb_set_child_real_data_tvbuff(tvb, krb5_tvb);
 	add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Uption");
 
 	return krb5_tvb;

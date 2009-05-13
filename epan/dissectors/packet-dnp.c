@@ -2506,8 +2506,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* if all crc OK, set up new tvb */
     if (crc_OK)
     {
-      al_tvb = tvb_new_real_data(tmp, (guint) (tmp_ptr-tmp), (gint) (tmp_ptr-tmp));
-      tvb_set_child_real_data_tvbuff(tvb, al_tvb);
+      al_tvb = tvb_new_child_real_data(tvb, tmp, (guint) (tmp_ptr-tmp), (gint) (tmp_ptr-tmp));
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;

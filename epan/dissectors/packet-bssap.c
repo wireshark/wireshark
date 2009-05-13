@@ -1669,7 +1669,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset++;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_set_str(pinfo->cinfo,COL_INFO, val_to_str(message_type,bssap_plus_message_type_values,"Unknown %u"));
+		col_add_str(pinfo->cinfo,COL_INFO, val_to_str(message_type,bssap_plus_message_type_values,"Unknown %u"));
 	}
 
 	switch(message_type){

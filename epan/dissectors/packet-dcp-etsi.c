@@ -345,8 +345,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     guint8 *output = (guint8*) g_malloc (decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
 
-    dtvb = tvb_new_real_data(deinterleaved, reassembled_size, reassembled_size);
-    tvb_set_child_real_data_tvbuff(tvb, dtvb);
+    dtvb = tvb_new_child_real_data(tvb, deinterleaved, reassembled_size, reassembled_size);
     add_new_data_source(pinfo, dtvb, "Deinterleaved");
     tvb_set_free_cb(dtvb, g_free);
 
@@ -354,8 +353,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     if(tree)
       proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
 
-    new_tvb = tvb_new_real_data(output, decoded_size, decoded_size);
-    tvb_set_child_real_data_tvbuff(dtvb, new_tvb);
+    new_tvb = tvb_new_child_real_data(dtvb, output, decoded_size, decoded_size);
     add_new_data_source(pinfo, new_tvb, "RS Error Corrected Data");
     tvb_set_free_cb(new_tvb, g_free);
   }

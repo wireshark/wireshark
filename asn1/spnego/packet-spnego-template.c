@@ -634,10 +634,9 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 					    );
 		if (ret >= 0) {
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
-			pinfo->gssapi_decrypted_tvb=tvb_new_real_data(
+			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb, 
 				output_message_buffer,
 				ret, ret);
-			tvb_set_child_real_data_tvbuff(tvb, pinfo->gssapi_decrypted_tvb);
 			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 			return;
 		}

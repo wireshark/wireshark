@@ -141,8 +141,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
       octet0 = tvb_get_guint8(tvb, boffset + i + 1);
       buf[i] = (octet1 << shift1) | (octet0 >> shift0);
     }
-    sub_tvb = tvb_new_real_data(buf, actual_length, length);
-    tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+    sub_tvb = tvb_new_child_real_data(tvb, buf, actual_length, length);
     add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   } else {  /* aligned */
     sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
@@ -222,8 +221,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
       }
     }
   }
-  sub_tvb = tvb_new_real_data(buf, length, length);
-  tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+  sub_tvb = tvb_new_child_real_data(tvb, buf, length, length);
   add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   
   return sub_tvb;
@@ -598,8 +596,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
 		if (value_tvb) {
-			*value_tvb = tvb_new_real_data(NULL, 0, 0); 
-			tvb_set_child_real_data_tvbuff(tvb, *value_tvb);
+			*value_tvb = tvb_new_child_real_data(tvb, NULL, 0, 0); 
 		}
 		return offset;
 	}
@@ -704,9 +701,8 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	buf[char_pos]=0;
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), (char*)buf);
 	if (value_tvb) {
-		*value_tvb = tvb_new_real_data(buf, length, length); 
+		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length); 
 		tvb_set_free_cb(*value_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, *value_tvb);
 	} else {
 		g_free(buf);
 	}

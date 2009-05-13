@@ -957,11 +957,8 @@ again:
 			int old_len;
 
 			/* create a new TVB structure for desegmented data */
-			next_tvb = tvb_new_real_data(ipfd_head->data,
+			next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
 					ipfd_head->datalen, ipfd_head->datalen);
-
-			/* add this tvb as a child to the original one */
-			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
 			add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
@@ -1251,10 +1248,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
   ssl_print_text_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
 
   /* create a new TVB structure for desegmented data */
-  next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
-
-  /* add this tvb as a child to the original one */
-  tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+  next_tvb = tvb_new_child_real_data(tvb, appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
 
   /* add desegmented data to the data source list */
   add_new_data_source(pinfo, next_tvb, "Decrypted SSL data");

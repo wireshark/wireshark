@@ -476,7 +476,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 					if (slsk_decompress == TRUE){
 
-						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_text(slsk_tree, tvb, offset, -1,
@@ -495,8 +495,6 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(uncompressed packet length: %d)", uncomprlen);
 
-							/* Dissects the uncompressed tvbuffer */
-							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
 							add_new_data_source(pinfo, uncompr_tvb,
 							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;
@@ -639,7 +637,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 					if (slsk_decompress == TRUE){
 
-						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
@@ -658,8 +656,6 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(uncompressed packet length: %d)", uncomprlen);
 
-							/* Dissects the uncompressed tvbuffer */
-							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
 							add_new_data_source(pinfo, uncompr_tvb,
 							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;
@@ -1185,7 +1181,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 					if (slsk_decompress == TRUE){
 
-						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_child_uncompress(tvb, tvb, offset, comprlen);
 
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_text(slsk_tree, tvb, offset, -1,
@@ -1204,8 +1200,6 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"[uncompressed packet length: %d]", uncomprlen);
 
-							/* Dissects the uncompressed tvbuffer */
-							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
 							add_new_data_source(pinfo, uncompr_tvb,
 							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;

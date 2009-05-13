@@ -272,8 +272,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			gss_info->do_reassembly=FALSE;
 			fi->reassembled_in=pinfo->fd->num;
 
-			gss_tvb=tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
-			tvb_set_child_real_data_tvbuff(tvb, gss_tvb);
+			gss_tvb=tvb_new_child_real_data(tvb, fd_head->data, fd_head->datalen, fd_head->datalen);
 			add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
 		}
 		/* We have seen this packet before.
@@ -287,8 +286,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
 					if(pinfo->fd->num==fi->reassembled_in){
 					        proto_item *frag_tree_item;
-						gss_tvb=tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
-						tvb_set_child_real_data_tvbuff(tvb, gss_tvb);
+						gss_tvb=tvb_new_child_real_data(tvb, fd_head->data, fd_head->datalen, fd_head->datalen);
 						add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
 						show_fragment_tree(fd_head, &gssapi_frag_items, tree, pinfo, tvb, &frag_tree_item);
 					} else {

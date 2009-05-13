@@ -4064,10 +4064,9 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 	for (i = 0; i < size; i++) {
 		decrypted_data[i] = ptr[i] ^ 0xA5;
 	}
-	decrypted_tvb = tvb_new_real_data(decrypted_data, size, reported_len);
+ 	decrypted_tvb=tvb_new_child_real_data(tvb, decrypted_data, size, reported_len);
 	tvb_set_free_cb(decrypted_tvb, g_free);
 	
-	tvb_set_child_real_data_tvbuff(tvb, decrypted_tvb);
 	add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
 	it = proto_tree_add_text(tree, decrypted_tvb, 0, size, "Decrypted MAPI PDU");
 	tr = proto_item_add_subtree(it, ett_mapi_mapi_request);
@@ -4311,9 +4310,8 @@ mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet
 	for (i = 0; i < size; i++) {
 		decrypted_data[i] = ptr[i] ^ 0xA5;
 	}
-	decrypted_tvb = tvb_new_real_data(decrypted_data, size, reported_len);
+ 	decrypted_tvb=tvb_new_child_real_data(tvb, decrypted_data, size, reported_len);
 	tvb_set_free_cb(decrypted_tvb, g_free);
-	tvb_set_child_real_data_tvbuff(tvb, decrypted_tvb);
 	add_new_data_source(pinfo, decrypted_tvb, "Decrypted MAPI");
 	it = proto_tree_add_text(tree, decrypted_tvb, 0, size, "Decrypted MAPI PDU");
 	tr = proto_item_add_subtree(it, ett_mapi_mapi_response);

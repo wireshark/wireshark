@@ -1002,10 +1002,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      {
 		proto_item *frag_tree_item;
 
-		next_tvb = tvb_new_real_data(fd_head->data,
+		next_tvb = tvb_new_child_real_data(tvb, fd_head->data,
 					     fd_head->len,
 					     fd_head->len);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
 
 		show_fragment_seq_tree(fd_head, &eaptls_frag_items,
