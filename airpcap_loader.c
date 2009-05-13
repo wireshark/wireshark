@@ -58,7 +58,7 @@
  * We load dynamically the dag library in order link it only when
  * it's present on the system
  */
-static void ** AirpcapLib = NULL;
+static void * AirpcapLib = NULL;
 
 /*
  * Set to TRUE if the DLL was successfully loaded AND all functions
