@@ -167,8 +167,6 @@
 #include "airpcap_loader.h"
 #include "airpcap_dlg.h"
 #include "airpcap_gui_utils.h"
-
-#include "./image/toolbar/wep_closed_24.xpm"
 #endif
 
 #ifdef	HAVE_AIRPDCAP
@@ -1803,8 +1801,10 @@ main(int argc, char *argv[])
   int                  status;
   gchar               *cur_user, *cur_group;
 
+#ifdef _WIN32
 #ifdef HAVE_AIRPCAP
   char			*err_str;
+#endif
 #endif
 
 #define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
