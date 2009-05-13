@@ -58,7 +58,7 @@
  * We load dynamically the dag library in order link it only when
  * it's present on the system
  */
-static HMODULE AirpcapLib = NULL;
+static void ** AirpcapLib = NULL;
 
 /*
  * Set to TRUE if the DLL was successfully loaded AND all functions
@@ -117,7 +117,7 @@ airpcap_if_info_t *airpcap_if_active = NULL;
 module_t *wlan_prefs = NULL;
 
 Dot11Channel *pSupportedChannels;
-ULONG numSupportedChannels;
+guint32 numSupportedChannels;
 
 static AirpcapChannelInfo LegacyChannels[] =
 {
@@ -137,7 +137,7 @@ static AirpcapChannelInfo LegacyChannels[] =
 	{2484, 0, {0,0,0}},
 };
 
-static ULONG num_legacy_channels = 14;
+static guint32 num_legacy_channels = 14;
 
 /*
  * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key
@@ -261,7 +261,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
  * Function used to read the Decryption Keys from the preferences and store them
  * properly into the airpcap adapter.
  */
-BOOL
+gboolean
 load_wlan_driver_wep_keys()
 {
     keys_cb_data_t* user_data;
@@ -316,16 +316,16 @@ load_wlan_driver_wep_keys()
  * This function will tell the airpcap driver the key list to use
  * This will be stored into the registry...
  */
-BOOL
+gboolean
 write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
 {
-    UINT i,j;
+    guint i,j;
     GString *new_key;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    ULONG KeysCollectionSize;
-    UCHAR KeyByte;
-    UINT keys_in_list = 0;
+    guint32 KeysCollectionSize;
+    guint8 KeyByte;
+    guint keys_in_list = 0;
     decryption_key_t* key_item = NULL;
 
     keys_in_list = g_list_length(key_list);
@@ -370,7 +370,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
 	    s[0] = new_key->str[j];
 	    s[1] = new_key->str[j+1];
 	    s[2] = '\0';
-	    KeyByte = (UCHAR)strtol(s, NULL, 16);
+	    KeyByte = (guint8)strtol(s, NULL, 16);
 	    KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
 	}
 
@@ -406,16 +406,16 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
  * This function will tell the airpcap driver the key list to use
  * This will be stored into the registry...
  */
-BOOL
+gboolean
 write_wlan_driver_wep_keys_to_registry(GList* key_list)
 {
-    UINT i,j,k,n,y;
+    guint i,j,k,n,y;
     GString *new_key;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    ULONG KeysCollectionSize;
-    UCHAR KeyByte;
-    UINT keys_in_list = 0;
+    guint32 KeysCollectionSize;
+    guint8 KeyByte;
+    guint keys_in_list = 0;
     decryption_key_t* key_item = NULL;
     airpcap_if_info_t* fake_info_if = NULL;
 
@@ -491,7 +491,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
 		s[0] = new_key->str[j];
 		s[1] = new_key->str[j+1];
 		s[2] = '\0';
-		KeyByte = (UCHAR)strtol(s, NULL, 16);
+		KeyByte = (guint8)strtol(s, NULL, 16);
 		KeysCollection->Keys[y].KeyData[j / 2] = KeyByte;
 	    }
 	    /* XXX - Change when WPA will be supported!!! */
@@ -687,7 +687,7 @@ cant_get_airpcap_if_list_error_message(const char *err_str)
 /*
  * Airpcap wrapper, used to store the current settings for the selected adapter
  */
-BOOL
+gboolean
 airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -698,7 +698,7 @@ airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah)
  * Airpcap wrapper, used to open an airpcap adapter
  */
 PAirpcapHandle
-airpcap_if_open(PCHAR name, PCHAR err)
+airpcap_if_open(gchar * name, gchar * err)
 {
     if (!AirpcapLoaded) return NULL;
     if (name == NULL) return NULL;
@@ -708,7 +708,7 @@ airpcap_if_open(PCHAR name, PCHAR err)
 /*
  * Airpcap wrapper, used to close an airpcap adapter
  */
-VOID
+void
 airpcap_if_close(PAirpcapHandle handle)
 {
     if (!AirpcapLoaded) return;
@@ -727,8 +727,8 @@ airpcap_get_dll_state()
 /*
  * Airpcap wrapper, used to turn on the led of an airpcap adapter
  */
-BOOL
-airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, UINT LedNumber)
+gboolean
+airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, guint LedNumber)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapTurnLedOn(AdapterHandle,LedNumber);
@@ -737,8 +737,8 @@ airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, UINT LedNumber)
 /*
  * Airpcap wrapper, used to turn off the led of an airpcap adapter
  */
-BOOL
-airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber)
+gboolean
+airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, guint LedNumber)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapTurnLedOff(AdapterHandle,LedNumber);
@@ -747,8 +747,8 @@ airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber)
 /*
  * Airpcap wrapper, used to get the channel of an airpcap adapter
  */
-BOOL
-airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch)
+gboolean
+airpcap_if_get_device_channel(PAirpcapHandle ah, guint * ch)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapGetDeviceChannel(ah,ch);
@@ -757,8 +757,8 @@ airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch)
 /*
  * Airpcap wrapper, used to get the supported channels of an airpcap adapter
  */
-BOOL
-airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, PULONG nInfo)
+gboolean
+airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, guint32 * nInfo)
 {
     if (!AirpcapLoaded) return FALSE;
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
@@ -776,10 +776,10 @@ airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo *
  * Airpcap wrapper, used to get the supported channels of an airpcap adapter
  */
 Dot11Channel*
-airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels)
+airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNumSupportedChannels)
 {
     AirpcapChannelInfo *chanInfo;
-    ULONG i=0, j=0, numInfo = 0;
+    guint32 i=0, j=0, numInfo = 0;
 
     if (!AirpcapLoaded)
         return NULL;
@@ -797,7 +797,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSup
 
     for (i = 0; i < numInfo; i++)
     {
-        ULONG supportedChannel = 0xFFFFFFFF;
+        guint32 supportedChannel = 0xFFFFFFFF;
 
         /*
          * search if we have it already
@@ -887,8 +887,8 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSup
 /*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
-BOOL
-airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch)
+gboolean
+airpcap_if_set_device_channel(PAirpcapHandle ah, guint ch)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapSetDeviceChannel(ah,ch);
@@ -897,7 +897,7 @@ airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch)
 /*
  * Airpcap wrapper, used to set the frequency of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelInfo)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -920,7 +920,7 @@ airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelIn
 /*
  * Airpcap wrapper, used to get the frequency of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannelInfo)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -933,7 +933,7 @@ airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannel
 
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
       guint channel = 0;
-      ULONG chan_freq = 0;
+      guint32 chan_freq = 0;
 
       if (!airpcap_if_get_device_channel(ah, &channel)) return FALSE;
 
@@ -951,7 +951,7 @@ airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannel
 /*
  * Airpcap wrapper, used to get the link type of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -961,7 +961,7 @@ airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt)
 /*
  * Airpcap wrapper, used to set the link type of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -971,8 +971,8 @@ airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt)
 /*
  * Airpcap wrapper, used to get the fcs presence of an airpcap adapter
  */
-BOOL
-airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL fcs)
+gboolean
+airpcap_if_get_fcs_presence(PAirpcapHandle ah, gboolean * fcs)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapGetFcsPresence(ah,fcs);
@@ -981,8 +981,8 @@ airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL fcs)
 /*
  * Airpcap wrapper, used to set the fcs presence of an airpcap adapter
  */
-BOOL
-airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL fcs)
+gboolean
+airpcap_if_set_fcs_presence(PAirpcapHandle ah, gboolean fcs)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapSetFcsPresence(ah,fcs);
@@ -991,7 +991,7 @@ airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL fcs)
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnable)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -1001,7 +1001,7 @@ airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnab
 /*
  * Airpcap wrapper, used to set the decryption enabling of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -1011,7 +1011,7 @@ airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap driver
  */
-BOOL
+gboolean
 airpcap_if_get_driver_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnable)
 {
     if (!AirpcapLoaded || (g_PAirpcapGetDriverDecryptionState==NULL)) return FALSE;
@@ -1021,7 +1021,7 @@ airpcap_if_get_driver_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionStat
 /*
  * Airpcap wrapper, used to set the decryption enabling of an airpcap driver
  */
-BOOL
+gboolean
 airpcap_if_set_driver_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable)
 {
     if (!AirpcapLoaded || (g_PAirpcapSetDriverDecryptionState==NULL)) return FALSE;
@@ -1031,7 +1031,7 @@ airpcap_if_set_driver_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState
 /*
  * Airpcap wrapper, used to get the fcs validation of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -1041,7 +1041,7 @@ airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val)
 /*
  * Airpcap wrapper, used to set the fcs validation of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -1051,7 +1051,7 @@ airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val)
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
+gboolean
 airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection)
 {
     if (!AirpcapLoaded) return FALSE;
@@ -1061,8 +1061,8 @@ airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection 
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
-airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize)
+gboolean
+airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapGetDeviceKeys(AdapterHandle,KeysCollection,PKeysCollectionSize);
@@ -1071,7 +1071,7 @@ airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection 
 /*
  * Airpcap wrapper, used to save the driver's set of keys
  */
-BOOL
+gboolean
 airpcap_if_set_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection)
 {
     if (!AirpcapLoaded || (g_PAirpcapSetDriverKeys==NULL)) return FALSE;
@@ -1081,8 +1081,8 @@ airpcap_if_set_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection 
 /*
  * Airpcap wrapper, used to load the driver's set of keys
  */
-BOOL
-airpcap_if_get_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize)
+gboolean
+airpcap_if_get_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize)
 {
     if (!AirpcapLoaded || (g_PAirpcapGetDriverKeys==NULL)) return FALSE;
     return g_PAirpcapGetDriverKeys(AdapterHandle,KeysCollection,PKeysCollectionSize);
@@ -1230,7 +1230,7 @@ airpcap_if_info_print(airpcap_if_info_t* if_info)
 /*
  * Function used to load the WEP keys for a selected interface
  */
-BOOL
+gboolean
 airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 {
     if(!if_info) return FALSE;
@@ -1267,7 +1267,7 @@ airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 /*
  * Function used to load the WEP keys for a selected interface
  */
-BOOL
+gboolean
 airpcap_if_load_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 {
     if_info->keysCollectionSize = 0;
@@ -2453,8 +2453,8 @@ set_airpcap_decryption(gboolean on_off)
  */
 int load_airpcap(void)
 {
-    BOOL base_functions = TRUE;
-    BOOL eleven_n_functions = TRUE;
+    gboolean base_functions = TRUE;
+    gboolean eleven_n_functions = TRUE;
 
 #ifdef _WIN32
     if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)

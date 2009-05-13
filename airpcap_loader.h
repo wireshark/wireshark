@@ -49,41 +49,41 @@
 #define AIRPCAP_DLL_ERROR		2
 #define AIRPCAP_DLL_NOT_FOUND	3
 
-typedef PCHAR (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
-typedef BOOL (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, PCHAR Ebuf);
-typedef VOID (*AirpcapFreeDeviceListHandler)(PAirpcapDeviceDescription PAllDevs);
-typedef PAirpcapHandle (*AirpcapOpenHandler)(PCHAR DeviceName, PCHAR Ebuf);
-typedef VOID (*AirpcapCloseHandler)(PAirpcapHandle AdapterHandle);
-typedef BOOL (*AirpcapGetLinkTypeHandler)(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLinkType);
-typedef BOOL (*AirpcapSetLinkTypeHandler)(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLinkType);
-typedef BOOL (*AirpcapSetKernelBufferHandler)(PAirpcapHandle AdapterHandle, UINT BufferSize);
-typedef BOOL (*AirpcapSetFilterHandler)(PAirpcapHandle AdapterHandle, PVOID Instructions, UINT Len);
-typedef BOOL (*AirpcapGetMacAddressHandler)(PAirpcapHandle AdapterHandle, PAirpcapMacAddress PMacAddress);
-typedef BOOL (*AirpcapSetMinToCopyHandler)(PAirpcapHandle AdapterHandle, UINT MinToCopy);
-typedef BOOL (*AirpcapGetReadEventHandler)(PAirpcapHandle AdapterHandle, HANDLE* PReadEvent);
-typedef BOOL (*AirpcapReadHandler)(PAirpcapHandle AdapterHandle, PBYTE Buffer, UINT BufSize, PUINT PReceievedBytes);
-typedef BOOL (*AirpcapGetStatsHandler)(PAirpcapHandle AdapterHandle, PAirpcapStats PStats);
-typedef BOOL (*AirpcapTurnLedOnHandler)(PAirpcapHandle  AdapterHandle, UINT  LedNumber);
-typedef BOOL (*AirpcapTurnLedOffHandler)(PAirpcapHandle  AdapterHandle, UINT  LedNumber);
-typedef BOOL (*AirpcapSetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, UINT  Channel);
-typedef BOOL (*AirpcapGetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, PUINT PChannel);
-typedef BOOL (*AirpcapSetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, BOOL  IsFcsPresent);
-typedef BOOL (*AirpcapGetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, PBOOL PIsFcsPresent);
-typedef BOOL (*AirpcapSetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, AirpcapValidationType ValidationType);
-typedef BOOL (*AirpcapGetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, PAirpcapValidationType PValidationType);
-typedef BOOL (*AirpcapSetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
-typedef BOOL (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
-typedef BOOL (*AirpcapSetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
-typedef BOOL (*AirpcapGetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
-typedef BOOL (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
-typedef BOOL (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
-typedef BOOL (*AirpcapSetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
-typedef BOOL (*AirpcapGetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
-typedef BOOL (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
-typedef VOID (*AirpcapGetVersionHandler)(PUINT VersionMajor, PUINT VersionMinor, PUINT VersionRev, PUINT VersionBuild);
-typedef BOOL (*AirpcapSetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo ChannelInfo);
-typedef BOOL (*AirpcapGetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
-typedef BOOL (*AirpcapGetDeviceSupportedChannelsHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo **ppChannelInfo, PULONG pNumChannelInfo);
+typedef gchar * (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
+typedef gboolean (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, gchar * Ebuf);
+typedef void (*AirpcapFreeDeviceListHandler)(PAirpcapDeviceDescription PAllDevs);
+typedef PAirpcapHandle (*AirpcapOpenHandler)(gchar * DeviceName, gchar * Ebuf);
+typedef void (*AirpcapCloseHandler)(PAirpcapHandle AdapterHandle);
+typedef gboolean (*AirpcapGetLinkTypeHandler)(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLinkType);
+typedef gboolean (*AirpcapSetLinkTypeHandler)(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLinkType);
+typedef gboolean (*AirpcapSetKernelBufferHandler)(PAirpcapHandle AdapterHandle, guint BufferSize);
+typedef gboolean (*AirpcapSetFilterHandler)(PAirpcapHandle AdapterHandle, void * Instructions, guint Len);
+typedef gboolean (*AirpcapGetMacAddressHandler)(PAirpcapHandle AdapterHandle, PAirpcapMacAddress PMacAddress);
+typedef gboolean (*AirpcapSetMinToCopyHandler)(PAirpcapHandle AdapterHandle, guint MinToCopy);
+typedef gboolean (*AirpcapGetReadEventHandler)(PAirpcapHandle AdapterHandle, void *** PReadEvent);
+typedef gboolean (*AirpcapReadHandler)(PAirpcapHandle AdapterHandle, guint8 * Buffer, guint BufSize, guint * PReceievedBytes);
+typedef gboolean (*AirpcapGetStatsHandler)(PAirpcapHandle AdapterHandle, PAirpcapStats PStats);
+typedef gboolean (*AirpcapTurnLedOnHandler)(PAirpcapHandle  AdapterHandle, guint  LedNumber);
+typedef gboolean (*AirpcapTurnLedOffHandler)(PAirpcapHandle  AdapterHandle, guint  LedNumber);
+typedef gboolean (*AirpcapSetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, guint  Channel);
+typedef gboolean (*AirpcapGetDeviceChannelHandler)(PAirpcapHandle  AdapterHandle, guint * PChannel);
+typedef gboolean (*AirpcapSetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, gboolean  IsFcsPresent);
+typedef gboolean (*AirpcapGetFcsPresenceHandler)(PAirpcapHandle  AdapterHandle, gboolean * PIsFcsPresent);
+typedef gboolean (*AirpcapSetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, AirpcapValidationType ValidationType);
+typedef gboolean (*AirpcapGetFcsValidationHandler)(PAirpcapHandle  AdapterHandle, PAirpcapValidationType PValidationType);
+typedef gboolean (*AirpcapSetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+typedef gboolean (*AirpcapGetDeviceKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
+typedef gboolean (*AirpcapSetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
+typedef gboolean (*AirpcapGetDriverKeysHandler)(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
+typedef gboolean (*AirpcapSetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+typedef gboolean (*AirpcapGetDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
+typedef gboolean (*AirpcapSetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, AirpcapDecryptionState Enable);
+typedef gboolean (*AirpcapGetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
+typedef gboolean (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
+typedef void (*AirpcapGetVersionHandler)(guint * VersionMajor, guint * VersionMinor, guint * VersionRev, guint * VersionBuild);
+typedef gboolean (*AirpcapSetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo ChannelInfo);
+typedef gboolean (*AirpcapGetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
+typedef gboolean (*AirpcapGetDeviceSupportedChannelsHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo **ppChannelInfo, guint32 * pNumChannelInfo);
 
 #define FLAG_CAN_BE_LOW		0x00000001
 #define FLAG_CAN_BE_HIGH	0x00000002
@@ -92,9 +92,9 @@ typedef BOOL (*AirpcapGetDeviceSupportedChannelsHandler)(PAirpcapHandle AdapterH
 
 typedef struct _Dot11Channel
 {
-	UINT  Channel;
-	ULONG Frequency;
-	ULONG Flags;
+	guint  Channel;
+	guint32 Frequency;
+	guint32 Flags;
 } Dot11Channel;
 
 /*
@@ -108,17 +108,17 @@ typedef struct {
 	gboolean				loopback;			/* TRUE if loopback, FALSE otherwise */
 	AirpcapLinkType			linkType;			/* The link layer type */
 	AirpcapChannelInfo		channelInfo;		/* Channel Information */
-	BOOL					IsFcsPresent;		/* Include 802.11 CRC in frames */
+	gboolean					IsFcsPresent;		/* Include 802.11 CRC in frames */
 	AirpcapValidationType	CrcValidationOn;	/* Capture Frames with Wrong CRC */
 	AirpcapDecryptionState  DecryptionOn;		/* TRUE if decryption is on, FALSE otherwise */
 	PAirpcapKeysCollection  keysCollection;		/* WEP Key collection for the adapter */
-	UINT					keysCollectionSize;	/* Size of the key collection */
+	guint					keysCollectionSize;	/* Size of the key collection */
 	gboolean				blinking;			/* TRUE if is blinkng, FALSE otherwise */
 	gboolean				led;				/* TRUE if on, FALSE if off */
 	gboolean				saved;				/* TRUE if current configuration has been saved, FALSE otherwise */
 	gint					tag;				/* int for the gtk blinking callback */
 	Dot11Channel			*pSupportedChannels;
-	ULONG					numSupportedChannels;
+	guint32					numSupportedChannels;
 } airpcap_if_info_t;
 
 /*
@@ -146,13 +146,13 @@ extern airpcap_if_info_t *airpcap_if_active;
  * Function used to read the Decryption Keys from the preferences and store them
  * properly into the airpcap adapter.
  */
-BOOL
+gboolean
 load_wlan_driver_wep_keys();
 
 /*
  *  Function used to save to the prefereces file the Decryption Keys.
  */
-BOOL
+gboolean
 save_wlan_wep_keys(airpcap_if_info_t* info_if);
 
 /*
@@ -199,19 +199,19 @@ airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name);
 /*
  * Airpcap wrapper, used to store the current settings for the selected adapter
  */
-BOOL
+gboolean
 airpcap_if_store_cur_config_as_adapter_default(PAirpcapHandle ah);
 
 /*
  * Function used to load the WEP keys for a selected interface
  */
-BOOL
+gboolean
 airpcap_if_load_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
  * Function used to load the WEP keys from the global driver list
  */
-BOOL
+gboolean
 airpcap_if_load_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 
 /*
@@ -229,96 +229,96 @@ airpcap_if_save_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info);
 /*
  * Airpcap wrapper, used to get the fcs validation of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_fcs_validation(PAirpcapHandle ah, PAirpcapValidationType val);
 
 /*
  * Airpcap wrapper, used to set the fcs validation of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_fcs_validation(PAirpcapHandle ah, AirpcapValidationType val);
 
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState val);
 
 /*
  * Airpcap wrapper, used to set the decryption enabling of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState val);
 
 /*
  * Airpcap wrapper, used to get the fcs presence of an airpcap adapter
  */
-BOOL
-airpcap_if_get_fcs_presence(PAirpcapHandle ah, PBOOL ch);
+gboolean
+airpcap_if_get_fcs_presence(PAirpcapHandle ah, gboolean * ch);
 
 /*
  * Airpcap wrapper, used to set the fcs presence of an airpcap adapter
  */
-BOOL
-airpcap_if_set_fcs_presence(PAirpcapHandle ah, BOOL ch);
+gboolean
+airpcap_if_set_fcs_presence(PAirpcapHandle ah, gboolean ch);
 
 /*
  * Airpcap wrapper, used to get the link type of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_link_type(PAirpcapHandle ah, PAirpcapLinkType lt);
 
 /*
  * Airpcap wrapper, used to set the link type of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_link_type(PAirpcapHandle ah, AirpcapLinkType lt);
 
 /*
  * Airpcap wrapper, used to get the channel of an airpcap adapter
  */
-BOOL
-airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch);
+gboolean
+airpcap_if_get_device_channel(PAirpcapHandle ah, guint * ch);
 
 /*
  * Airpcap wrapper, get the channels supported by the adapter
  */
-BOOL
-airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, PULONG nInfo);
+gboolean
+airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, guint32 * nInfo);
 
 /*
  * Airpcap wrapper, get supported channels formatted into an array
  */
 Dot11Channel*
-airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels);
+airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNumSupportedChannels);
 
 /*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
-BOOL
-airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch);
+gboolean
+airpcap_if_set_device_channel(PAirpcapHandle ah, guint ch);
 
 /*
  * Airpcap wrapper, used to get the frequency of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannelInfo);
 
 /*
  * Airpcap wrapper, used to set the frequency of an airpcap adapter
  */
-BOOL
+gboolean
 airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelInfo);
 
 /*
  * Airpcap wrapper, used to open an airpcap adapter
  */
-PAirpcapHandle airpcap_if_open(PCHAR name, PCHAR err);
+PAirpcapHandle airpcap_if_open(gchar * name, gchar * err);
 
 /*
  * Airpcap wrapper, used to close an airpcap adapter
  */
-VOID airpcap_if_close(PAirpcapHandle handle);
+void airpcap_if_close(PAirpcapHandle handle);
 
 /*
  * Retrieve the state of the Airpcap DLL
@@ -329,12 +329,12 @@ airpcap_get_dll_state();
 /*
  * Airpcap wrapper, used to turn on the led of an airpcap adapter
  */
-BOOL airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, UINT LedNumber);
+gboolean airpcap_if_turn_led_on(PAirpcapHandle AdapterHandle, guint LedNumber);
 
 /*
  * Airpcap wrapper, used to turn off the led of an airpcap adapter
  */
-BOOL airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, UINT LedNumber);
+gboolean airpcap_if_turn_led_off(PAirpcapHandle AdapterHandle, guint LedNumber);
 
 /*
  * This function will create a new airpcap_if_info_t using a name and a description
@@ -392,36 +392,36 @@ airpcap_get_default_if(GList* airpcap_if_list);
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
+gboolean
 airpcap_if_set_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
 
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
-airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+gboolean
+airpcap_if_get_device_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
 
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
+gboolean
 airpcap_if_set_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection);
 
 /*
  * Airpcap wrapper, used to save the settings for the selected_if
  */
-BOOL
-airpcap_if_get_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, PUINT PKeysCollectionSize);
+gboolean
+airpcap_if_get_driver_keys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollection KeysCollection, guint * PKeysCollectionSize);
 
 /*
  * Airpcap wrapper, used to get the decryption enabling of an airpcap driver
  */
-BOOL
+gboolean
 airpcap_if_get_driver_decryption_state(PAirpcapHandle ah, PAirpcapDecryptionState PEnable);
 /*
  * Airpcap wrapper, used to set the decryption enabling of an airpcap driver
  */
-BOOL
+gboolean
 airpcap_if_set_driver_decryption_state(PAirpcapHandle ah, AirpcapDecryptionState Enable);
 
 /*
@@ -440,7 +440,7 @@ airpcap_if_info_free(airpcap_if_info_t *if_info);
  * This function will tell the airpcap driver the key list to use
  * This will be stored into the registry...
  */
-BOOL
+gboolean
 write_wlan_driver_wep_keys_to_registry(GList* key_list);
 
 /*
