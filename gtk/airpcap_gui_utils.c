@@ -680,12 +680,12 @@ airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkW
 	}
 
   change_airpcap_settings = FALSE;
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry), new_offset_str);
+  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry), new_offset_str);
   change_airpcap_settings = TRUE;
 
-  sscanf(new_offset_str,"%d",&(if_info->channelInfo.ExtChannel));
+  sscanf(new_offset_str,"%c",&(if_info->channelInfo.ExtChannel));
   if (!airpcap_update_frequency_and_offset(if_info)){
-    simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %ld   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
+    simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
   }
 }
 
@@ -770,18 +770,16 @@ airpcap_load_channel_offset_cb(airpcap_if_info_t* if_info, GtkWidget* channel_of
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 /*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
 void
-airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info)
+airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 {
     GString		*new_key;
-
-    gchar		*text_entered = NULL;
 
     /* airpcap stuff */
     UINT i, j;
@@ -876,8 +874,6 @@ void
 airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_if_info)
 {
     GString		*new_key;
-
-    gchar		*text_entered = NULL;
 
     /* airpcap stuff */
     UINT i, j;
