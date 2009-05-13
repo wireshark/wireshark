@@ -375,7 +375,7 @@ static void
 on_channel_en_changed(GtkWidget *w, gpointer data _U_)
 {
     const gchar *s;
-    ULONG ch_freq;
+    guint32 ch_freq;
 
     if (w != NULL)
     {
