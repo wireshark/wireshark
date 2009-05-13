@@ -57,48 +57,6 @@
 /* Controls the releay of settings back to the adapter. */
 gboolean change_airpcap_settings = FALSE;
 
-#if 0
-/*
- * Used to retrieve a string containing a list of all the channels
- * on which at least one adapter is capturing. This is true
- * if the adapter passed as parameter is "Any" ... if not,
- * this function returns the only channel number string.
- */
-static gchar*
-airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
-{
-    gchar *frequencies;
-    guint n,i;
-    GList *current_item;
-    airpcap_if_info_t* current_adapter;
-    GString *freq_str = g_string_new("");
-    gchar *sep = "";
-    gchar *chan_str;
-
-    if(airpcap_if_is_any(if_info))
-    {
-        n = g_list_length(airpcap_if_list);
-
-        for(i = 0; i < n; i++)
-        {
-            current_item = g_list_nth(airpcap_if_list,i);
-            current_adapter = (airpcap_if_info_t*)current_item->data;
-            if(current_adapter != if_info && g_ascii_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
-            {
-                chan_str = ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency);
-                g_string_append_printf(freq_str, "%s%s", sep, chan_str);
-                g_free(chan_str);
-                sep = ", ";
-            }
-        }
-    }
-
-    frequencies = freq_str->str;
-    g_string_free(freq_str, FALSE);
-    return frequencies;
-}
-#endif
-
 /*
  * Set up the airpcap toolbar for the new capture interface
  */

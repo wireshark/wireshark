@@ -61,18 +61,6 @@ typedef struct{
     gint column;
 }airpcap_key_ls_selected_info_t;
 
-/* XXX Not used anywhere -> Delete??? */
-#if 0
-/*
- * Used to retrieve a string containing a list of all the channels
- * on which at least one adapter is capturing. This is true
- * if the adapter passed as parameter is "Any" ... if not,
- * this function returns the only channel number string.
- */
-static gchar*
-airpcap_get_all_channels_list(airpcap_if_info_t* if_info);
-#endif
-
 /*
  * set up the airpcap toolbar for the new capture interface
  */
