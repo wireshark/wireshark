@@ -996,6 +996,7 @@ tvb_memcpy
 tvb_memdup
 tvb_memeql
 tvb_new_real_data
+tvb_new_child_real_data
 tvb_new_subset
 tvb_offset_exists
 tvb_pbrk_guint8

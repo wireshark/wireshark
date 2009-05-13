@@ -85,9 +85,8 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 			*dst++ = c;
 		}
 
-		next_tvb = tvb_new_real_data(data, (guint) (dst-data), (guint) (dst-data));
+		next_tvb = tvb_new_child_real_data(tvb, data, (guint) (dst-data), (guint) (dst-data));
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Unescaped SIR");
 		return next_tvb;
 	}

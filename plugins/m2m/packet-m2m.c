@@ -684,9 +684,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 		{
 			pdu_length = pdu_frag->len;
 			/* create the new tvb for defraged frame */
-			pdu_tvb = tvb_new_real_data(pdu_frag->data, pdu_length, pdu_length);
-			/* attach the pdu_tvb to tvb so that it will be cleaned up when tvb is cleaned up */
-			tvb_set_child_real_data_tvbuff(tvb, pdu_tvb);
+			pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_length, pdu_length);
 			/* add the defragmented data to the data source list */
 			add_new_data_source(pinfo, pdu_tvb, "Reassembled WiMax PDU Frame");
 		}

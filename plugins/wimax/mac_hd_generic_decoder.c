@@ -1896,9 +1896,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				{	/* defragmented completely */
 					payload_length = payload_frag->len;
 					/* create the new tvb for defragmented frame */
-					payload_tvb = tvb_new_real_data(payload_frag->data, payload_length, payload_length);
-					/* attach the payload_tvb to tvb so that it will be cleaned up when tvb is cleaned up */
-					tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
+					payload_tvb = tvb_new_child_real_data(tvb, payload_frag->data, payload_length, payload_length);
 					/* add the defragmented data to the data source list */
 					add_new_data_source(pinfo, payload_tvb, "Reassembled WiMax MAC payload");
 					/* save the tvb langth */
