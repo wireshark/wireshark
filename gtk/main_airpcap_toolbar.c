@@ -112,7 +112,7 @@ on_channel_offset_cb_changed(GtkWidget *w, gpointer data _U_)
  * Callback for the wrong crc combo
  */
 static void
-airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data)
+airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data _U_)
 {
   gchar ebuf[AIRPCAP_ERRBUF_SIZE];
   PAirpcapHandle ad;
@@ -131,7 +131,7 @@ airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data)
 }
 
 void
-airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data)
+airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
 {
   /* We need to directly access the .dll functions here... */
   gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -240,15 +240,11 @@ GtkWidget *airpcap_toolbar_new()
 
     GtkWidget     *enable_decryption_lb;
     GtkWidget     *enable_decryption_cb;
-    GList         *enable_decryption_cb_items = NULL;
     GtkWidget     *enable_decryption_en;
 
     GList	  *channel_list = NULL;
     GList	  *linktype_list = NULL;
-    GList	  *link_list = NULL;
     GtkTooltips	  *airpcap_tooltips;
-    /* gchar	  *if_label_text; */
-    gint          *from_widget = NULL;
     gchar         *chan_str;
 
     /* airpcap toolbar */
@@ -471,7 +467,7 @@ driver_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
     recent.airpcap_driver_check_show = !r;
 }
 
-void airpcap_toolbar_show(GtkWidget *airpcap_tb)
+void airpcap_toolbar_show(GtkWidget *airpcap_tb _U_)
 {
   /*
    * This will read the decryption keys from the preferences file, and will
