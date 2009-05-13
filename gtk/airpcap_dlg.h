@@ -93,12 +93,6 @@ void
 on_move_key_up_bt_clicked(GtkWidget *button, gpointer data _U_);
 
 /*
- * Add key window destroy callback
- */
-static void
-add_key_w_destroy_cb(GtkWidget *button, gpointer data _U_);
-
-/*
  * Callback for the Wireless Advanced Settings 'Apply' button.
  */
 void
@@ -156,30 +150,6 @@ on_enable_decryption_en_changed(GtkWidget *w, gpointer data);
 void
 update_decryption_mode_cm(GtkWidget *w);
 
-/*
- * Changed callback for the channel combobox
- */
-static void
-on_channel_en_changed(GtkWidget *w _U_, gpointer data);
-
-/*
- * Activate callback for the link layer combobox
- */
-static void
-link_layer_activate_cb(GtkWidget *w _U_, gpointer data);
-
-/*
- * Changed callback for the link layer combobox
- */
-static void
-link_layer_changed_cb(GtkWidget *w _U_, gpointer data);
-
-/*
- * Callback for the frame check sequence checkbox
- */
-static void
-on_fcs_ck_toggled(GtkWidget *w, gpointer user_data);
-
 /* 
  * Reset configuration
  */
@@ -213,30 +183,6 @@ void
 on_key_ls_click_column(GtkWidget *widget,
                        gint column,
                        gpointer data);
-
-/*
- * Callback for the wrong crc chackbox
- */
-static void
-wrong_crc_check_cb(GtkWidget *w, gpointer user_data);
-
-/*
- * Callbackfunction for WEP key list
- */
-static void
-key_sel_list_cb(GtkWidget *l, gpointer data _U_);
-
-/*
- * Callback function for WEP key list
- */
-static gint
-key_sel_list_button_cb(GtkWidget *widget, GdkEventButton *event,gpointer func_data);
-
-/*
- * Activate callback for the adapter combobox
- */
-static void
-combo_if_activate_cb(GtkWidget *w _U_, gpointer data);
 
 /*
  * Thread function used to blink the led

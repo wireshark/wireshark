@@ -135,10 +135,10 @@ airpcap_fill_if_combo(GtkWidget *combo, GList* if_list)
  * Callback for the select row event in the key list widget
  */
 void
-on_key_ls_select_row(GtkWidget *widget,
+on_key_ls_select_row(GtkWidget *widget _U_,
                      gint row,
                      gint column,
-                     GdkEventButton *event,
+                     GdkEventButton *event _U_,
                      gpointer data)
 {
     airpcap_key_ls_selected_info_t*  selected_item;
@@ -153,10 +153,10 @@ on_key_ls_select_row(GtkWidget *widget,
  * Callback for the unselect row event in the key list widget
  */
 void
-on_key_ls_unselect_row(GtkWidget *widget,
-                       gint row,
-                       gint column,
-                       GdkEventButton *event,
+on_key_ls_unselect_row(GtkWidget *widget _U_,
+                       gint row _U_,
+                       gint column _U_,
+                       GdkEventButton *event _U_,
                        gpointer data)
 {
     airpcap_key_ls_selected_info_t*  selected_item;
@@ -171,9 +171,9 @@ on_key_ls_unselect_row(GtkWidget *widget,
  * Callback for the click column event in the key list widget
  */
 void
-on_key_ls_click_column(GtkWidget *widget,
-                       gint column,
-                       gpointer data)
+on_key_ls_click_column(GtkWidget *widget _U_,
+                       gint column _U_,
+                       gpointer data _U_)
 {
 }
 
@@ -181,7 +181,7 @@ on_key_ls_click_column(GtkWidget *widget,
  * Callback for the crc checkbox
  */
 static void
-on_fcs_ck_toggled(GtkWidget *w, gpointer user_data)
+on_fcs_ck_toggled(GtkWidget *w _U_, gpointer user_data _U_)
 
 {
     if (airpcap_if_selected != NULL)
@@ -440,14 +440,6 @@ on_capture_type_en_changed(GtkWidget *w, gpointer data _U_)
 }
 
 /*
- * Activate callback for the adapter combobox
- */
-static void
-combo_if_activate_cb(GtkWidget *entry _U_, gpointer data _U_)
-{
-}
-
-/*
  * Thread function used to blink the led
  */
 gboolean update_blink(gpointer data)
@@ -480,12 +472,12 @@ gboolean update_blink(gpointer data)
  * Blink button callback
  */
 void
-on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data )
+on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data _U_)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
-    if (airpcap_if_selected != NULL)
+    if (airpcap_if_selected != NULL) {
         if (!(airpcap_if_selected->blinking))
         {
             gtk_button_set_label(GTK_BUTTON(blink_bt),"Stop Blinking");
@@ -508,13 +500,14 @@ on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data )
                 airpcap_if_close(ad);
             }
         }
+	}
 }
 
 /*
  * Callback for the 'Any' adapter What's This button.
  */
 void
-on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data )
+on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data _U_)
 {
     simple_dialog(ESD_TYPE_INFO,ESD_BTN_OK,
                   "The Multi-Channel Aggregator is a virtual device "
@@ -615,7 +608,6 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     GtkWidget   *key_ls;
     GtkWidget   *decryption_en;
 
-    char* decryption_mode_string = NULL;
     module_t *wlan_module = prefs_find_module("wlan");
 
     /* retrieve main window */
@@ -657,7 +649,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
  * Callback for the Wireless Advanced Settings 'Apply' button.
  */
 void
-on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 {
     /* advenced window */
     GtkWidget	*main_w;
@@ -761,7 +753,7 @@ on_reset_configuration_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
  * Callback used to add a WEP key in the add new key box;
  */
 static void
-on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
+on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 {
     GtkWidget	*type_cm,
     *key_en,
@@ -969,7 +961,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
  * Callback used to edit a WEP key in the edit key box;
  */
 static void
-on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
+on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 {
     GtkWidget	*type_cm,
     *key_en,
@@ -1177,7 +1169,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
  * Callback for the 'Add Key' button.
  */
 void
-on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 {
     GtkWidget *add_key_window;
     GtkWidget *add_frame;
@@ -1369,19 +1361,10 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
 }
 
 /*
- * Add key window destroy callback
- */
-static void
-add_key_w_destroy_cb(GtkWidget *button _U_, gpointer data _U_)
-{
-    return;
-}
-
-/*
  * Edit key window destroy callback
  */
 void
-on_edit_key_w_destroy(GtkWidget *button, gpointer data)
+on_edit_key_w_destroy(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
 
@@ -1396,7 +1379,7 @@ on_edit_key_w_destroy(GtkWidget *button, gpointer data)
  * Add key window destroy callback
  */
 void
-on_add_key_w_destroy(GtkWidget *button, gpointer data)
+on_add_key_w_destroy(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
 
@@ -1411,7 +1394,7 @@ on_add_key_w_destroy(GtkWidget *button, gpointer data)
  * Callback for the 'Remove Key' button.
  */
 void
-on_remove_key_bt_clicked(GtkWidget *button, gpointer data)
+on_remove_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *key_ls;
     GtkWidget *airpcap_advanced_w;
@@ -1458,7 +1441,7 @@ on_remove_key_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the 'Edit Key' button.
  */
 void
-on_edit_key_bt_clicked(GtkWidget *button, gpointer data)
+on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *edit_key_window;
     GtkWidget *edit_frame;
@@ -1669,7 +1652,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the 'Move Key Up' button.
  */
 void
-on_move_key_up_bt_clicked(GtkWidget *button, gpointer data)
+on_move_key_up_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
@@ -1719,7 +1702,7 @@ on_move_key_up_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the 'Move Key Down' button.
  */
 void
-on_move_key_down_bt_clicked(GtkWidget *button, gpointer data)
+on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
@@ -1767,11 +1750,9 @@ on_move_key_down_bt_clicked(GtkWidget *button, gpointer data)
 
 /* Turns the decryption on or off */
 void
-on_enable_decryption_en_changed(GtkWidget *w, gpointer data)
+on_enable_decryption_en_changed(GtkWidget *w, gpointer data _U_)
 {
     GtkEntry *decryption_en;
-
-    char* decryption_mode_string = NULL;
 
     decryption_en = GTK_ENTRY(w);
 
@@ -1889,7 +1870,7 @@ update_decryption_mode_list(GtkWidget *w)
 
 /* Called to create the airpcap settings' window */
 void
-display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
+display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *main_box;
@@ -2307,7 +2288,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
  * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
  */
 void
-on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data)
+on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -2386,7 +2367,7 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the CANCEL button 'clicked' in the Advanced Wireless Settings window.
  */
 void
-on_advanced_cancel_bt_clicked(GtkWidget *button, gpointer data)
+on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -2454,7 +2435,7 @@ on_advanced_cancel_bt_clicked(GtkWidget *button, gpointer data)
 
 /* Called to create the key management window */
 void
-display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
+display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget *key_management_w;
     GtkWidget *main_box;
@@ -2787,10 +2768,8 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the CANCEL button 'clicked' in the Decryption Key Management window.
  */
 void
-on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data)
+on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
-    PAirpcapHandle ad = NULL;
-
     /* Retrieve object data */
     GtkWidget *key_management_w;
     GtkWidget *cancel_bt;
@@ -2829,7 +2808,7 @@ on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data)
  * Dialog box that appears whenever keys are not consistent between Wireshark and AirPcap
  */
 void
-airpcap_keys_check_w(GtkWidget *w, gpointer data)
+airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
 {
     GtkWidget *keys_check_w;
     GtkWidget *main_v_box;
@@ -2985,7 +2964,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data)
 }
 
 void
-on_keys_check_cancel_bt_clicked (GtkWidget *button, gpointer user_data)
+on_keys_check_cancel_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3009,7 +2988,7 @@ on_keys_check_cancel_bt_clicked (GtkWidget *button, gpointer user_data)
 }
 
 void
-on_keys_check_ok_bt_clicked (GtkWidget *button, gpointer user_data)
+on_keys_check_ok_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3036,14 +3015,14 @@ on_keys_check_ok_bt_clicked (GtkWidget *button, gpointer user_data)
 }
 
 void
-on_keys_check_w_destroy (GtkWidget *w, gpointer user_data)
+on_keys_check_w_destroy (GtkWidget *w _U_, gpointer user_data)
 {
     gtk_widget_set_sensitive(top_level,TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(user_data),TRUE);
 }
 
 void
-on_keep_bt_clicked (GtkWidget *button, gpointer user_data)
+on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3096,7 +3075,7 @@ on_keep_bt_clicked (GtkWidget *button, gpointer user_data)
 }
 
 void
-on_merge_bt_clicked (GtkWidget * button, gpointer user_data)
+on_merge_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3178,7 +3157,7 @@ on_merge_bt_clicked (GtkWidget * button, gpointer user_data)
 
 
 void
-on_import_bt_clicked (GtkWidget * button, gpointer user_data)
+on_import_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
@@ -3257,7 +3236,7 @@ on_import_bt_clicked (GtkWidget * button, gpointer user_data)
 
 
 void
-on_ignore_bt_clicked (GtkWidget * button, gpointer user_data)
+on_ignore_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
