@@ -57,6 +57,7 @@
 /* Controls the releay of settings back to the adapter. */
 gboolean change_airpcap_settings = FALSE;
 
+#if 0
 /*
  * Used to retrieve a string containing a list of all the channels
  * on which at least one adapter is capturing. This is true
@@ -96,6 +97,7 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
     g_string_free(freq_str, FALSE);
     return frequencies;
 }
+#endif
 
 /*
  * Set up the airpcap toolbar for the new capture interface
@@ -161,7 +163,6 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		change_airpcap_settings = FALSE;
 		if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
 			guint i = 0;
-			GList	  *channel_list = NULL;
 
 			for (; i<if_info->numSupportedChannels; i++){
 				gtk_combo_box_append_text(GTK_COMBO_BOX(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
@@ -258,7 +259,6 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   		change_airpcap_settings = FALSE;
   		if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
   			guint i = 0;
-  			GList	  *channel_list = NULL;
 
   			for (; i<if_info->numSupportedChannels; i++){
   				gtk_combo_box_append_text(GTK_COMBO_BOX(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
@@ -675,7 +675,7 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG chan_freq,
     gint current_offset;
     gint new_offset;
     guint i;
-    gint active_idx;
+    gint active_idx = 0;
     gint idx_count = -1;
 
     if (!if_info || airpcap_if_is_any(if_info) || if_info->pSupportedChannels == NULL || if_info->numSupportedChannels < 1) {
@@ -731,7 +731,7 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG chan_freq,
 
     if_info->channelInfo.ExtChannel = new_offset;
     if (!airpcap_update_frequency_and_offset(if_info)){
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %ld   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
+        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
     }
     
     if (idx_count < 1) {

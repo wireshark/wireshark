@@ -195,9 +195,7 @@ GtkWidget *airpcap_toolbar_new()
     GtkWidget     *decryption_mode_lb;
     GtkWidget     *decryption_mode_cb;
 
-    GList	  *linktype_list = NULL;
     GtkTooltips	  *airpcap_tooltips;
-    gint	   cur_chan_idx = -1;
 
     /* airpcap toolbar */
     airpcap_tooltips = gtk_tooltips_new();

@@ -181,7 +181,7 @@ on_key_ls_click_column(GtkWidget *widget _U_,
  * Callback for the crc checkbox
  */
 static void
-on_fcs_ck_toggled(GtkWidget *w, gpointer user_data)
+on_fcs_ck_toggled(GtkWidget *w _U_, gpointer user_data _U_)
 
 {
     if (airpcap_if_selected != NULL)
@@ -741,7 +741,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
         /*
          * XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
          */
-        if ( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
+        if ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE)
         {
             simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
 
@@ -949,7 +949,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
         /*
          * XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
          */
-        if ( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
+        if ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE)
         {
             simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
 
@@ -1030,7 +1030,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
  * Callback for the 'Add Key' button.
  */
 void
-on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 {
     GtkWidget *add_key_window;
     GtkWidget *add_frame;
@@ -1598,7 +1598,7 @@ on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer data)
 
 /* Turns the decryption on or off */
 void
-on_decryption_mode_cb_changed(GtkWidget *cb, gpointer data)
+on_decryption_mode_cb_changed(GtkWidget *cb, gpointer data _U_)
 {
     gint cur_active;
     
@@ -2545,8 +2545,6 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 void
 on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
-    PAirpcapHandle ad = NULL;
-
     /* Retrieve object data */
     GtkWidget *key_management_w;
     GtkWidget *cancel_bt;
