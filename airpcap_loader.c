@@ -265,7 +265,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
  * properly into the airpcap adapter.
  */
 gboolean
-load_wlan_driver_wep_keys()
+load_wlan_driver_wep_keys(void)
 {
     keys_cb_data_t* user_data;
     guint i;
@@ -541,7 +541,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
  *  Function used to save to the preference file the Decryption Keys.
  */
 int
-save_wlan_driver_wep_keys()
+save_wlan_driver_wep_keys(void)
 {
     GList* key_list = NULL;
     char* tmp_key = NULL;
@@ -719,7 +719,7 @@ airpcap_if_close(PAirpcapHandle handle)
  * Retrieve the state of the Airpcap DLL
  */
 int
-airpcap_get_dll_state()
+airpcap_get_dll_state(void)
 {
   return AirpcapVersion;
 }
@@ -1137,7 +1137,7 @@ airpcap_if_info_new(char *name, char *description)
  * This function will create a new fake drivers' interface, to load global keys...
  */
 airpcap_if_info_t*
-airpcap_driver_fake_if_info_new()
+airpcap_driver_fake_if_info_new(void)
 {
     PAirpcapHandle ad;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -1837,7 +1837,7 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
  * keys for the global AirPcap driver... returns NULL if no keys are found.
  */
 GList*
-get_airpcap_driver_keys()
+get_airpcap_driver_keys(void)
 {
     /* tmp vars */
     char* tmp_key = NULL;
@@ -1911,7 +1911,7 @@ get_airpcap_driver_keys()
  * no key is found
  */
 GList*
-get_wireshark_keys()
+get_wireshark_keys(void)
 {
     keys_cb_data_t* wep_user_data = NULL;
 
@@ -2251,7 +2251,7 @@ test_if_on(pref_t *pref, gpointer ud)
  * Returns TRUE if the Wireshark decryption is active, false otherwise
  */
 gboolean
-wireshark_decryption_on()
+wireshark_decryption_on(void)
 {
     gboolean is_on;
 
@@ -2268,7 +2268,7 @@ wireshark_decryption_on()
  * Returns TRUE if the AirPcap decryption for the current adapter is active, false otherwise
  */
 gboolean
-airpcap_decryption_on()
+airpcap_decryption_on(void)
 {
     gboolean is_on = FALSE;
 

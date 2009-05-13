@@ -1092,7 +1092,7 @@ module_prefs_fetch(module_t *module, gpointer user_data)
  * whenever we apply some changes to the WEP preferences
  */
 static void
-prefs_airpcap_update()
+prefs_airpcap_update(void)
 {
   GtkWidget *decryption_cm;
   GtkWidget *decryption_en;
@@ -1385,7 +1385,7 @@ module_prefs_copy(module_t *module, gpointer user_data _U_)
 
 /* Copy prefs to saved values so we can revert to these values */
 /*  if the user selects Cancel.                                */
-static void prefs_copy() {
+static void prefs_copy(void) {
   free_prefs(&saved_prefs);
   copy_prefs(&saved_prefs, &prefs);
   prefs_modules_foreach(module_prefs_copy, NULL);

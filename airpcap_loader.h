@@ -147,7 +147,7 @@ extern airpcap_if_info_t *airpcap_if_active;
  * properly into the airpcap adapter.
  */
 gboolean
-load_wlan_driver_wep_keys();
+load_wlan_driver_wep_keys(void);
 
 /*
  *  Function used to save to the prefereces file the Decryption Keys.
@@ -318,7 +318,7 @@ void airpcap_if_close(PAirpcapHandle handle);
  * Retrieve the state of the Airpcap DLL
  */
 int
-airpcap_get_dll_state();
+airpcap_get_dll_state(void);
 
 /*
  * Airpcap wrapper, used to turn on the led of an airpcap adapter
@@ -338,7 +338,7 @@ airpcap_if_info_t* airpcap_if_info_new(char *name, char *description);
 /*
  * This function will create a new fake drivers' interface, to load global keys...
  */
-airpcap_if_info_t* airpcap_driver_fake_if_info_new();
+airpcap_if_info_t* airpcap_driver_fake_if_info_new(void);
 
 /*
  *  Used to dinamically load the airpcap library in order link it only when
@@ -447,7 +447,7 @@ airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if);
  *  Function used to save to the preference file the Decryption Keys.
  */
 int
-save_wlan_driver_wep_keys();
+save_wlan_driver_wep_keys(void);
 
 /*
  *  Function used to save to the preference file the Decryption Keys.
@@ -476,14 +476,14 @@ get_airpcap_device_keys(airpcap_if_info_t* if_info);
  * keys for the global AirPcap driver... returns NULL if no keys are found.
  */
 GList*
-get_airpcap_driver_keys();
+get_airpcap_driver_keys(void);
 
 /*
  * Returns the list of the decryption keys specified for wireshark, NULL if
  * no key is found
  */
 GList*
-get_wireshark_keys();
+get_wireshark_keys(void);
 
 /*
  * Tests if two collection of keys are equal or not, to be considered equals, they have to
@@ -522,13 +522,13 @@ free_key_list(GList *list);
  * Returns TRUE if the Wireshark decryption is active, FALSE otherwise
  */
 gboolean
-wireshark_decryption_on();
+wireshark_decryption_on(void);
 
 /*
  * Returns TRUE if the AirPcap decryption for the current adapter is active, FALSE otherwise
  */
 gboolean
-airpcap_decryption_on();
+airpcap_decryption_on(void);
 
 /*
  * Enables decryption for Wireshark if on_off is TRUE, disables it otherwise.
