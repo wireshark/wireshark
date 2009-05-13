@@ -167,12 +167,6 @@ gboolean
 wep_key_is_valid(char* key);
 
 /*
- * Callback used to free an instance of airpcap_if_info_t
- */
-static void
-free_airpcap_if_cb(gpointer data, gpointer user_data _U_);
-
-/*
  * USED FOR DEBUG ONLY... PRINTS AN AirPcap ADAPTER STRUCTURE in a fancy way.
  */
 void

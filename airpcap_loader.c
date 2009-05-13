@@ -55,26 +55,19 @@
 
 
 /*
- * We load dynamically the dag library in order link it only when
- * it's present on the system
- */
-static void * AirpcapLib = NULL;
-
-/*
  * Set to TRUE if the DLL was successfully loaded AND all functions
  * are present.
  */
 static gboolean AirpcapLoaded = FALSE;
 
-static int AirpcapVersion = 3;
+#ifdef _WIN32
+/*
+ * We load dynamically the dag library in order link it only when
+ * it's present on the system
+ */
+static void * AirpcapLib = NULL;
 
 static AirpcapGetLastErrorHandler g_PAirpcapGetLastError;
-static AirpcapGetDeviceListHandler g_PAirpcapGetDeviceList;
-static AirpcapFreeDeviceListHandler g_PAirpcapFreeDeviceList;
-static AirpcapOpenHandler g_PAirpcapOpen;
-static AirpcapCloseHandler g_PAirpcapClose;
-static AirpcapGetLinkTypeHandler g_PAirpcapGetLinkType;
-static AirpcapSetLinkTypeHandler g_PAirpcapSetLinkType;
 static AirpcapSetKernelBufferHandler g_PAirpcapSetKernelBuffer;
 static AirpcapSetFilterHandler g_PAirpcapSetFilter;
 static AirpcapGetMacAddressHandler g_PAirpcapGetMacAddress;
@@ -82,6 +75,16 @@ static AirpcapSetMinToCopyHandler g_PAirpcapSetMinToCopy;
 static AirpcapGetReadEventHandler g_PAirpcapGetReadEvent;
 static AirpcapReadHandler g_PAirpcapRead;
 static AirpcapGetStatsHandler g_PAirpcapGetStats;
+#endif
+
+static int AirpcapVersion = 3;
+
+static AirpcapGetDeviceListHandler g_PAirpcapGetDeviceList;
+static AirpcapFreeDeviceListHandler g_PAirpcapFreeDeviceList;
+static AirpcapOpenHandler g_PAirpcapOpen;
+static AirpcapCloseHandler g_PAirpcapClose;
+static AirpcapGetLinkTypeHandler g_PAirpcapGetLinkType;
+static AirpcapSetLinkTypeHandler g_PAirpcapSetLinkType;
 static AirpcapTurnLedOnHandler g_PAirpcapTurnLedOn;
 static AirpcapTurnLedOffHandler g_PAirpcapTurnLedOff;
 static AirpcapGetDeviceChannelHandler g_PAirpcapGetDeviceChannel;
@@ -266,7 +269,6 @@ load_wlan_driver_wep_keys()
 {
     keys_cb_data_t* user_data;
     guint i;
-    gchar *tmp = NULL;
 
     /* Retrieve the wlan preferences */
     wlan_prefs = prefs_find_module("wlan");
@@ -622,10 +624,8 @@ int
 save_wlan_wireshark_wep_keys(GList* key_ls)
 {
     GList* key_list = NULL;
-    char* tmp_key = NULL;
     guint keys_in_list,i;
     keys_cb_data_t* user_data;
-    airpcap_if_info_t* fake_info_if = NULL;
     decryption_key_t* tmp_dk;
 
     /* Retrieve the wlan preferences */
@@ -902,7 +902,7 @@ airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelIn
 {
     if (!AirpcapLoaded) return FALSE;
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
-      guint channel = 0;
+      gint channel = 0;
       channel = ieee80211_mhz_to_chan(ChannelInfo.Frequency);
 
       if (channel < 0){
@@ -1215,14 +1215,14 @@ airpcap_if_info_print(airpcap_if_info_t* if_info)
     g_print("                  LINKTYPE: %d\n",if_info->linkType);
     g_print("                  LOOPBACK: %s\n",if_info->loopback ? "YES" : "NO");
     g_print("                 (GTK) TAG: %d\n",if_info->tag);
-    g_print("SUPPORTED CHANNELS POINTER: %lu\n",if_info->pSupportedChannels);
-    g_print("    NUM SUPPORTED CHANNELS: %lu\n",if_info->numSupportedChannels);
+    g_print("SUPPORTED CHANNELS POINTER: %p\n",if_info->pSupportedChannels);
+    g_print("    NUM SUPPORTED CHANNELS: %u\n",if_info->numSupportedChannels);
 
     for(i=0; i<(if_info->numSupportedChannels); i++){
       g_print("\n        SUPPORTED CHANNEL #%u\n",i+1);
       g_print("                   CHANNEL: %u\n",if_info->pSupportedChannels[i].Channel);
-      g_print("                 FREQUENCY: %lu\n",if_info->pSupportedChannels[i].Frequency);
-      g_print("                     FLAGS: %lu\n",if_info->pSupportedChannels[i].Flags);
+      g_print("                 FREQUENCY: %u\n",if_info->pSupportedChannels[i].Frequency);
+      g_print("                     FLAGS: %u\n",if_info->pSupportedChannels[i].Flags);
     }
     g_print("\n\n");
 }
@@ -1490,7 +1490,7 @@ airpcap_get_key_string(AirpcapKey key)
 
 	    for(j = 0; j < key.KeyLen; j++)
 	    {
-		src = g_strdup_printf("%.2x\0", key.KeyData[j]);
+		src = g_strdup_printf("%.2x", key.KeyData[j]);
 		/*
 		 * XXX - use g_strconcat() or GStrings instead ???
 		 */
@@ -1560,7 +1560,7 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
     }
     else
     {
-	number = g_strdup_printf("%.2u\0",n);
+	number = g_strdup_printf("%.2u",n);
     }
 
     return number;
@@ -1592,10 +1592,6 @@ airpcap_get_if_string_number_from_description(gchar* description)
 airpcap_if_info_t*
 airpcap_get_default_if(GList* airpcap_if_list)
 {
-    int ifn = 0;
-    GList* popdown_if_list = NULL;
-    GList* curr = NULL;
-
     gchar* s;
     airpcap_if_info_t* if_info = NULL;
 
@@ -1918,8 +1914,6 @@ GList*
 get_wireshark_keys()
 {
     keys_cb_data_t* wep_user_data = NULL;
-
-    gchar *tmp = NULL;
 
     GList* final_list = NULL;
     GList* wep_final_list = NULL;
@@ -2453,10 +2447,10 @@ set_airpcap_decryption(gboolean on_off)
  */
 int load_airpcap(void)
 {
+#ifdef _WIN32
     gboolean base_functions = TRUE;
     gboolean eleven_n_functions = TRUE;
 
-#ifdef _WIN32
     if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)
     {
   		/* Report the error but go on */
