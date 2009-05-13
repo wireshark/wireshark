@@ -161,20 +161,20 @@ airpcap_validation_type_combo_set_by_type(GtkWidget* c,AirpcapValidationType typ
  * Update channel offset combo box to 'offset'.
  */
 void
-airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb);
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 ch_freq, GtkWidget *channel_offset_cb);
 
 
 /*
- * Retrieve the UINT corresponding to the given string (channel only, handle with care!)
+ * Retrieve the guint corresponding to the given string (channel only, handle with care!)
  */
 gchar*
-airpcap_get_channel_name(UINT n);
+airpcap_get_channel_name(guint n);
 
 /*
- * Set the combo box entry string given an UINT channel number
+ * Set the combo box entry string given an guint channel number
  */
 void
-airpcap_channel_combo_set_by_frequency(GtkWidget* w,UINT channel);
+airpcap_channel_combo_set_by_frequency(GtkWidget* w,guint channel);
 
 /** Respond to the user changing the channel combo box.
  * Update the active interface channel and update the offset
@@ -225,7 +225,7 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info);
  * Update the channel offset of the given combobox
  */
 void
-airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb);
+airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, guint32 ch_freq, GtkWidget *channel_offset_cb);
 
 /*
  * This function will take the current keys (widget list), specified for the

@@ -563,10 +563,10 @@ airpcap_validation_type_combo_set_by_type(GtkWidget* c, AirpcapValidationType ty
 }
 
 /*
- * Returns the string corresponding to the given UINT (1-14, for channel only)
+ * Returns the string corresponding to the given guint (1-14, for channel only)
  */
 gchar*
-airpcap_get_channel_name(UINT n)
+airpcap_get_channel_name(guint n)
 {
     return g_strdup_printf("%d",n);
 }
@@ -670,7 +670,7 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
  * Update the channel offset of the given combobox according to the given frequency.
  */
 void
-airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, ULONG chan_freq, GtkWidget *channel_offset_cb)
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_freq, GtkWidget *channel_offset_cb)
 {
     gint current_offset;
     gint new_offset;
@@ -792,13 +792,13 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
     GString		*new_key;
 
     /* airpcap stuff */
-    UINT i, j;
+    guint i, j;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    ULONG KeysCollectionSize;
-    UCHAR KeyByte;
+    guint32 KeysCollectionSize;
+    guint8 KeyByte;
 
-    UINT keys_in_list = 0;
+    guint keys_in_list = 0;
 
     gchar *row_type,
 	  *row_key,
@@ -857,7 +857,7 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 	    s[0] = new_key->str[j];
 	    s[1] = new_key->str[j+1];
 	    s[2] = '\0';
-	    KeyByte = (UCHAR)strtol(s, NULL, 16);
+	    KeyByte = (guint8)strtol(s, NULL, 16);
 	    KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
 	}
     }
@@ -886,13 +886,13 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
     GString		*new_key;
 
     /* airpcap stuff */
-    UINT i, j;
+    guint i, j;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    ULONG KeysCollectionSize;
-    UCHAR KeyByte;
+    guint32 KeysCollectionSize;
+    guint8 KeyByte;
 
-    UINT keys_in_list = 0;
+    guint keys_in_list = 0;
 
     gchar *row_type,
 	  *row_key,
@@ -957,7 +957,7 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
 		    s[0] = new_key->str[j];
 		    s[1] = new_key->str[j+1];
 		    s[2] = '\0';
-		    KeyByte = (UCHAR)strtol(s, NULL, 16);
+		    KeyByte = (guint8)strtol(s, NULL, 16);
 		    KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
 	    }
 	}
