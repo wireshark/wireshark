@@ -1096,9 +1096,9 @@ prefs_airpcap_update()
 {
   GtkWidget *decryption_cm;
   GtkWidget *decryption_en;
-  gboolean wireshark_decryption_was_enabled;
-  gboolean airpcap_decryption_was_enabled;
-  gboolean wireshark_decryption_is_now_enabled;
+  gboolean wireshark_decryption_was_enabled = FALSE;
+  gboolean airpcap_decryption_was_enabled = FALSE;
+  gboolean wireshark_decryption_is_now_enabled = FALSE;
 
   decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
   decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
