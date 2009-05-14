@@ -75,7 +75,8 @@
 #define VENDOR_THE3GPP			10415
 #define VENDOR_GEMTEK_SYSTEMS		10529
 #define VENDOR_WIFI_ALLIANCE		14122
-#define VENDOR_T_SYSTEMS_NOVA	16787
+#define VENDOR_T_SYSTEMS_NOVA	        16787
+#define VENDOR_CACE           		32622
 
 
 WS_VAR_IMPORT const value_string sminmpec_values[];

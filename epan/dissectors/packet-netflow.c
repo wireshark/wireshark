@@ -71,6 +71,8 @@
 
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-udp.h>
 
 /* 4739 is IPFIX.
    2055 and 9996 are common defaults for Netflow
@@ -110,6 +112,8 @@ static range_t *global_ipfix_ports = NULL;
 #define V8PDU_TOSDSTPREFIX_SIZE	V8PDU_DPREFIX_SIZE
 #define V8PDU_TOSMATRIX_SIZE	V8PDU_MATRIX_SIZE
 #define V8PDU_PREPORTPROTOCOL_SIZE (4 * 10)
+
+#define VARIABLE_LENGTH 65535
 
 static const value_string v5_sampling_mode[] = {
 	{0, "No sampling mode configured"},
@@ -170,7 +174,7 @@ struct v9_template {
 	address	source_addr;
 	guint16 option_template; /* 0=data template, 1=option template */
 	guint16 count_scopes;
-	struct  v9_template_entry *scopes;
+	struct v9_template_entry *scopes;
 	struct v9_template_entry *entries;
 };
 
@@ -421,6 +425,21 @@ static int      hf_cflow_total_tcp_urg		 = -1;
 static int      hf_cflow_ip_total_length64       = -1;
 static int      hf_cflow_biflow_direction	 = -1;
 
+static int      hf_pie_cace_local_ipv4_address   = -1;
+static int      hf_pie_cace_remote_ipv4_address  = -1;
+static int      hf_pie_cace_local_ipv6_address   = -1;
+static int      hf_pie_cace_remote_ipv6_address  = -1;
+static int      hf_pie_cace_local_port           = -1;
+static int      hf_pie_cace_remote_port          = -1;
+static int      hf_pie_cace_local_ipv4_id        = -1;
+static int      hf_pie_cace_local_icmp_id        = -1;
+static int      hf_pie_cace_local_uid            = -1;
+static int      hf_pie_cace_local_pid            = -1;
+static int      hf_pie_cace_local_username_len   = -1;
+static int      hf_pie_cace_local_username       = -1;
+static int      hf_pie_cace_local_cmd_len        = -1;
+static int      hf_pie_cace_local_cmd            = -1;
+
 const value_string special_mpls_top_label_type[] = {
 	{0,	"Unknown"},
 	{1,	"TE-MIDPT"},
@@ -457,20 +476,20 @@ typedef struct _hdrinfo_t {
 	address net_src;
 } hdrinfo_t;
 
-typedef int     dissect_pdu_t(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+typedef int     dissect_pdu_t(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset,
 			      hdrinfo_t * hdrinfo);
 
-static int      dissect_pdu(proto_tree * tree, tvbuff_t * tvb, int offset,
+static int      dissect_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset,
 			    hdrinfo_t * hdrinfo);
-static int      dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb,
+static int      dissect_v8_aggpdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				  int offset, hdrinfo_t * hdrinfo);
-static int      dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb,
+static int      dissect_v8_flowpdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				   int offset, hdrinfo_t * hdrinfo);
-static int	dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb,
+static int	dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				   int offset, hdrinfo_t * hdrinfo);
-static int	dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb,
+static int	dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
-static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
+static guint	dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 			       int offset, struct v9_template * template);
 static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
 				   int offset, hdrinfo_t * hdrinfo);
@@ -768,7 +787,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		pdutree = proto_item_add_subtree(pduitem, ett_flow);
 
-		pduret = pduptr(pdutree, tvb, offset, &hdrinfo);
+		pduret = pduptr(tvb, pinfo, pdutree, offset, &hdrinfo);
 
 		if (pduret < pdusize) pduret = pdusize; /* padding */
 
@@ -891,7 +910,7 @@ flow_process_textfield(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 }
 
 static int
-dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+dissect_v8_flowpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdutree, int offset,
 		   hdrinfo_t * hdrinfo)
 {
 	int             startoffset = offset;
@@ -957,7 +976,7 @@ dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
  */
 
 static int
-dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+dissect_v8_aggpdu(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * pdutree, int offset,
 		  hdrinfo_t * hdrinfo)
 {
 	int             startoffset = offset;
@@ -1106,7 +1125,7 @@ dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 /* Dissect a version 9 FlowSet and return the length we processed. */
 
 static int
-dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
+dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset, hdrinfo_t * hdrinfo)
 {
 	int length;
 	guint16	flowset_id;
@@ -1169,7 +1188,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 		 */
 		length -= 4;
 		if (length > 0) {
-			dissect_v9_data(pdutree, tvb, offset, flowset_id,
+			dissect_v9_data(tvb, pinfo, pdutree, offset, flowset_id,
 					(guint)length, hdrinfo);
 		}
 	}
@@ -1178,12 +1197,13 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 }
 
 static int
-dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
 		guint16 id, guint length, hdrinfo_t * hdrinfo)
 {
 	struct v9_template *template;
 	proto_tree *data_tree;
 	proto_item *data_item;
+        guint       pdu_len;
 
 	template = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
 	if (template != NULL && template->length != 0) {
@@ -1195,10 +1215,11 @@ dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			data_tree = proto_item_add_subtree(data_item,
 			    ett_dataflowset);
 
-			dissect_v9_pdu(data_tree, tvb, offset, template);
+			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, template);
 
 			offset += template->length;
-			length -= template->length;
+                        /* XXX - Throw an exception */
+			length -= pdu_len < length ? pdu_len : length;
 		}
 		if (length != 0) {
 			proto_tree_add_text(pdutree, tvb, offset, length,
@@ -1214,11 +1235,35 @@ dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	return (0);
 }
 
-static void
-dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+#define GOT_LOCAL_ADDR  (1 << 0)
+#define GOT_REMOTE_ADDR (1 << 1)
+#define GOT_LOCAL_PORT  (1 << 2)
+#define GOT_REMOTE_PORT (1 << 3)
+#define GOT_IPv4_ID     (1 << 4)
+#define GOT_ICMP_ID     (1 << 5)
+#define GOT_UID         (1 << 6)
+#define GOT_PID         (1 << 7)
+#define GOT_USERNAME    (1 << 8)
+#define GOT_COMMAND     (1 << 9)
+
+#define GOT_BASE ( \
+        GOT_LOCAL_ADDR | \
+        GOT_REMOTE_ADDR | \
+        GOT_UID | \
+        GOT_PID | \
+        GOT_USERNAME | \
+        GOT_COMMAND \
+        )
+
+#define GOT_TCP_UDP (GOT_BASE | GOT_LOCAL_PORT | GOT_REMOTE_PORT)
+#define GOT_ICMP (GOT_BASE | GOT_IPv4_ID | GOT_ICMP_ID)
+
+static guint
+dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
     struct v9_template * template)
 {
-	int i;
+        int             orig_offset = offset;
+	int             i;
 	int             rev;
 	nstime_t        ts_start[2], ts_end[2];
 	int             offset_s[2], offset_e[2];
@@ -1228,6 +1273,14 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	proto_tree *    timetree = 0;
 	proto_item *    timeitem = 0;
 	guint16         pen_count = 0;
+        address         local_addr, remote_addr;
+        guint16         local_port = 0, remote_port = 0, ipv4_id = 0, icmp_id = 0;
+        guint32         uid = 0, pid = 0;
+        int             uname_len;
+        gchar *         uname_str = NULL;
+        int             cmd_len;
+        gchar *         cmd_str = NULL;
+        guint16         got_flags = 0;
 
 	offset_s[0] = offset_s[1] = offset_e[0] = offset_e[1] = 0;
 	msec_start[0] = msec_start[1] = msec_end[0] = msec_end[1] = 0;
@@ -1279,6 +1332,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	}
 
 	for (i = 0; i < template->count; i++) {
+                guint64 pen_type;
 		guint16 type, length;
 		guint32 pen = 0;
 
@@ -1294,7 +1348,9 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		  }
 		}
 
-		switch (type) {
+                pen_type = pen << 16 | (type & 0x7fff);
+
+		switch (pen_type) {
 
 		case 85: /* BYTES_PERMANENT */
 		case 1: /* bytes */
@@ -1627,7 +1683,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		  if (length == 4) {
 		    proto_tree_add_item(pdutree, hf_cflow_ipv6_flowlabel,
 					tvb, offset, length, FALSE);
-		  } 
+		  }
 		  /* RFC3954 defines that length of this field is 3
 		     Bytes */
 		  else if (length == 3) {
@@ -1835,7 +1891,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			proto_tree_add_item(pdutree, hf_cflow_ipv6_exthdr,
 			    tvb, offset, length, FALSE);
 			break;
-			
+
 		case 70: /* MPLS label1*/
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
 			break;
@@ -1905,7 +1961,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
                         proto_tree_add_item(pdutree, hf_cflow_fragment_offset,
 					    tvb, offset, length, FALSE);
 			break;
-		       
+
 		case 89: /* FORWARDING_STATUS */
 			proto_tree_add_item(pdutree, hf_cflow_forwarding_status,
 			    tvb, offset, length, FALSE);
@@ -1938,7 +1994,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 					    hf_cflow_exporter_addr_v6,
 					    tvb, offset, length, FALSE);
 			break;
-			
+
 		case 132: /*  droppedOctetDeltaCount */
 		        if (length == 4) {
 			  proto_tree_add_item(pdutree, hf_cflow_drop_octets,
@@ -2007,7 +2063,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
                         proto_tree_add_item(pdutree, hf_cflow_observation_point_id,
 					    tvb, offset, length, FALSE);
 			break;
-													
+
 		case 139: /* icmpTypeCodeIPv6 */
 			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
 			    tvb, offset, 1, FALSE);
@@ -2041,7 +2097,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
                         proto_tree_add_item(pdutree, hf_cflow_mp_id,
 					    tvb, offset, length, FALSE);
 			break;
-			
+
 		case 144: /* FLOW EXPORTER */
 			proto_tree_add_item(pdutree, hf_cflow_flow_exporter,
 			    tvb, offset, length, FALSE);
@@ -2162,7 +2218,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 						    "Not Sent Packets: length %u", length);
 			}
 		        break;
-		  
+
  		case 169: /* destinationIPv6Prefix */
  			if (length == 16) {
  				proto_tree_add_item(pdutree, hf_cflow_dstnet_v6,
@@ -2499,12 +2555,105 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 					    tvb, offset, length, FALSE);
 			break;
 
+                /* CACE Technologies */
+		case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
+					    tvb, offset, length, FALSE);
+                        SET_ADDRESS(&local_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
+                        got_flags |= GOT_LOCAL_ADDR;
+			break;
+
+		case VENDOR_CACE << 16 | 1: /* caceRemoteIPv4Address */
+			proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv4_address,
+					    tvb, offset, length, FALSE);
+                        SET_ADDRESS(&remote_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
+                        got_flags |= GOT_REMOTE_ADDR;
+			break;
+
+		case VENDOR_CACE << 16 | 2: /* caceLocalIPv6Address */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv6_address,
+					    tvb, offset, length, FALSE);
+                        SET_ADDRESS(&local_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+                        got_flags |= GOT_LOCAL_ADDR;
+			break;
+
+		case VENDOR_CACE << 16 | 3: /* caceRemoteIPv6Address */
+			proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv6_address,
+					    tvb, offset, length, FALSE);
+                        SET_ADDRESS(&remote_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+                        got_flags |= GOT_REMOTE_ADDR;
+			break;
+
+		case VENDOR_CACE << 16 | 4: /* caceLocalTransportPort */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_port,
+					    tvb, offset, length, FALSE);
+                        local_port = tvb_get_ntohs(tvb, offset);
+                        got_flags |= GOT_LOCAL_PORT;
+			break;
+
+		case VENDOR_CACE << 16 | 5: /* caceRemoteTransportPort */
+			proto_tree_add_item(pdutree, hf_pie_cace_remote_port,
+					    tvb, offset, length, FALSE);
+                        remote_port = tvb_get_ntohs(tvb, offset);
+                        got_flags |= GOT_REMOTE_PORT;
+			break;
+
+		case VENDOR_CACE << 16 | 6: /* caceLocalIPv4id */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_id,
+					    tvb, offset, length, FALSE);
+                        ipv4_id = tvb_get_ntohs(tvb, offset);
+                        got_flags |= GOT_IPv4_ID;
+			break;
+
+		case VENDOR_CACE << 16 | 7: /* caceLocalICMPid */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_icmp_id,
+					    tvb, offset, length, FALSE);
+                        icmp_id = tvb_get_ntohs(tvb, offset);
+                        got_flags |= GOT_ICMP_ID;
+			break;
+
+		case VENDOR_CACE << 16 | 8: /* caceLocalProcessUserId */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_uid,
+					    tvb, offset, length, FALSE);
+                        uid = tvb_get_ntohl(tvb, offset);
+                        got_flags |= GOT_UID;
+			break;
+
+		case VENDOR_CACE << 16 | 9: /* caceLocalProcessId */
+			proto_tree_add_item(pdutree, hf_pie_cace_local_pid,
+					    tvb, offset, length, FALSE);
+                        pid = tvb_get_ntohl(tvb, offset);
+                        got_flags |= GOT_PID;
+			break;
+
+		case VENDOR_CACE << 16 | 10: /* caceLocalProcessUserName */
+                        uname_len = tvb_get_guint8(tvb, offset);
+                        uname_str = tvb_format_text(tvb, offset+1, uname_len);
+			proto_tree_add_item(pdutree, hf_pie_cace_local_username_len,
+					    tvb, offset, 1, FALSE);
+			proto_tree_add_string(pdutree, hf_pie_cace_local_username,
+					    tvb, offset+1, uname_len, uname_str);
+                        length = uname_len + 1;
+                        got_flags |= GOT_USERNAME;
+			break;
+
+		case VENDOR_CACE << 16 | 11: /* caceLocalProcessCommand */
+                        cmd_len = tvb_get_guint8(tvb, offset);
+                        cmd_str = tvb_format_text(tvb, offset+1, cmd_len);
+			proto_tree_add_item(pdutree, hf_pie_cace_local_cmd_len,
+					    tvb, offset, 1, FALSE);
+			proto_tree_add_string(pdutree, hf_pie_cace_local_cmd,
+					    tvb, offset+1, cmd_len, cmd_str);
+                        length = cmd_len + 1;
+                        got_flags |= GOT_COMMAND;
+			break;
+
 		default:
 		  if ((type & 0x8000) && (pen != REVPEN))
 			proto_tree_add_text(pdutree, tvb, offset, length,
 					    "(%s) Type %u ",
 					    match_strval(pen, sminmpec_values), type & 0x7fff);
-		    
+
 		  else
 			proto_tree_add_text(pdutree, tvb, offset, length,
 					    "%s Type %u %s", pen == REVPEN ? "Reverse" : "",
@@ -2536,6 +2685,16 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			}
 		}
 	}
+
+        /* XXX - These IDs are currently hard-coded in procflow.py. */
+        if (got_flags == GOT_TCP_UDP && (template->id == 256 || template->id == 258)) {
+                add_tcp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
+        }
+        if (got_flags == GOT_TCP_UDP && (template->id == 257 || template->id == 259)) {
+                add_udp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
+        }
+
+        return (guint) (offset - orig_offset);
 
 }
 
@@ -2710,7 +2869,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 		v9_template_add(&template);
 		remaining -= 4 + sizeof(struct v9_template_entry) * count;
 		if (pen_count > 0) {
-		  remaining -= 4 * pen_count;  
+		  remaining -= 4 * pen_count;
 		}
 	}
 
@@ -2983,22 +3142,25 @@ v9_template_add(struct v9_template *template)
 {
 	int i;
 	int pen_count = 0;
+        guint tmp_length;
 	/* Add up the actual length of the data and store in proper byte order */
 	template->length = 0;
 	/* Options scope */
 	for(i = 0; i < template->count_scopes; i++) {
 		template->scopes[i].type   = g_ntohs(template->scopes[i].type);
-		template->scopes[i].length = g_ntohs(template->scopes[i].length);
+		tmp_length = g_ntohs(template->scopes[i].length);
+		template->scopes[i].length = tmp_length == VARIABLE_LENGTH ? 0 : tmp_length;
 		template->length += template->scopes[i].length;
 	}
 
 	for (i = 0; i < template->count; i++) {
 		template->entries[i + pen_count].type = g_ntohs(template->entries[i + pen_count].type);
-		template->entries[i + pen_count].length = g_ntohs(template->entries[i + pen_count].length);
+		tmp_length = g_ntohs(template->entries[i + pen_count].length);
+		template->entries[i + pen_count].length = tmp_length == VARIABLE_LENGTH ? 0 : tmp_length;
 		template->length += template->entries[i + pen_count].length;
 		if (template->entries[i + pen_count].type & 0x8000) {
 		  pen_count++;
-		  *(guint32 *)&template->entries[i + pen_count] = 
+		  *(guint32 *)&template->entries[i + pen_count] =
 		    g_ntohl(*(guint32 *)&template->entries[i + pen_count]);
 		}
 	}
@@ -3030,7 +3192,7 @@ v9_template_get(guint16 id, address * net_src, guint32 src_id)
  */
 
 static int
-dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
+dissect_pdu(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * pdutree, int offset, hdrinfo_t * hdrinfo)
 {
 	proto_item     *hidden_item;
 	int             startoffset = offset;
@@ -4238,7 +4400,95 @@ proto_register_netflow(void)
 		 {"Scope Unknown", "cflow.scope",
 		  FT_BYTES, BASE_HEX, NULL, 0x0,
 		  "Option Scope Unknown", HFILL}
-		 }
+		 },
+
+                /* Private Information Elements */
+
+		/* CACE Technologies, 32622 / 0 */
+		{&hf_pie_cace_local_ipv4_address,
+		 {"Local IPv4 Address", "cflow.pie.cace.localaddr4",
+		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  "Local IPv4 Address (caceLocalIPv4Address)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 1 */
+		{&hf_pie_cace_remote_ipv4_address,
+		 {"Remote IPv4 Address", "cflow.pie.cace.remoteaddr4",
+		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  "Remote IPv4 Address (caceRemoteIPv4Address)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 2 */
+		{&hf_pie_cace_local_ipv6_address,
+		 {"Local IPv6 Address", "cflow.pie.cace.localaddr6",
+		  FT_IPv6, BASE_HEX, NULL, 0x0,
+		  "Local IPv6 Address (caceLocalIPv6Address)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 3 */
+		{&hf_pie_cace_remote_ipv6_address,
+		 {"Remote IPv6 Address", "cflow.pie.cace.remoteaddr6",
+		  FT_IPv6, BASE_HEX, NULL, 0x0,
+		  "Remote IPv6 Address (caceRemoteIPv6Address)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 4 */
+		{&hf_pie_cace_local_port,
+		 {"Local Port", "cflow.pie.cace.localport",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Local Transport Port (caceLocalTransportPort)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 5 */
+		{&hf_pie_cace_remote_port,
+		 {"Remote Port", "cflow.pie.cace.remoteport",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Remote Transport Port (caceRemoteTransportPort)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 6 */
+		{&hf_pie_cace_local_ipv4_id,
+		 {"Local IPv4 ID", "cflow.pie.cace.localip4id",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "The IPv4 identification header field from a locally-originated packet (caceLocalIPv4id)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 7 */
+		{&hf_pie_cace_local_icmp_id,
+		 {"Local ICMP ID", "cflow.pie.cace.localicmpid",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "The ICMP identification header field from a locally-originated ICMPv4 or ICMPv6 echo request (caceLocalICMPid)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 8 */
+		{&hf_pie_cace_local_uid,
+		 {"Local User ID", "cflow.pie.cace.localuid",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Local User ID (caceLocalProcessUserId)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 9 */
+		{&hf_pie_cace_local_pid,
+		 {"Local Process ID", "cflow.pie.cace.localpid",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Local Process ID (caceLocalProcessId)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 10 */
+		{&hf_pie_cace_local_username_len,
+		 {"Local Username Length", "cflow.pie.cace.localusernamelen",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Local User Name Length (caceLocalProcessUserName)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 10 */
+		{&hf_pie_cace_local_username,
+		 {"Local User Name", "cflow.pie.cace.localusername",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "Local User Name (caceLocalProcessUserName)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 11 */
+		{&hf_pie_cace_local_cmd_len,
+		 {"Local Command Length", "cflow.pie.cace.localcmdlen",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Local Command Length (caceLocalProcessCommand)", HFILL}
+		},
+		/* CACE Technologies, 32622 / 11 */
+		{&hf_pie_cace_local_cmd,
+		 {"Local Command", "cflow.pie.cace.localcmd",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "Local Command (caceLocalProcessCommand)", HFILL}
+		}
+
 	};
 
 	static gint    *ett[] = {
@@ -4350,3 +4600,15 @@ proto_reg_handoff_netflow(void)
 	range_foreach(ipfix_ports, ipfix_add_callback);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

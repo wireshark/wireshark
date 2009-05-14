@@ -61,7 +61,7 @@ struct tcpheader {
 };
 
 /*
- * Private data passed from the TCP dissector to subdissectors. Passed to the 
+ * Private data passed from the TCP dissector to subdissectors. Passed to the
  * subdissectors in pinfo->private_data
  */
 struct tcpinfo {
@@ -111,9 +111,9 @@ typedef struct _tcp_unacked_t {
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
-	
-	guint32  rto_frame;	
-	nstime_t rto_ts;	/* Time since previous packet for 
+
+	guint32  rto_frame;
+	nstime_t rto_ts;	/* Time since previous packet for
 				   retransmissions. */
 	guint16 flags;
 	guint32 dupack_num;	/* dup ack number */
@@ -140,16 +140,16 @@ typedef struct _tcp_flow_t {
 				 */
 	tcp_unacked_t *segments;
 	guint32 lastack;	/* last seen ack */
-	nstime_t lastacktime;	/* Time of the last ack packet */ 
+	nstime_t lastacktime;	/* Time of the last ack packet */
 	guint32 lastnondupack;	/* frame number of last seen non dupack */
 	guint32 dupacknum;	/* dupack number */
 	guint32 nextseq;	/* highest seen nextseq */
 	guint32 nextseqframe;	/* frame number for segment with highest
 				 * sequence number
 				 */
-	nstime_t nextseqtime;	/* Time of the nextseq packet so we can 
-				 * distinguish between retransmission, 
-				 * fast retransmissions and outoforder 
+	nstime_t nextseqtime;	/* Time of the nextseq packet so we can
+				 * distinguish between retransmission,
+				 * fast retransmissions and outoforder
 				 */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we dont know */
@@ -167,8 +167,14 @@ typedef struct _tcp_flow_t {
 	 * all pdus spanning multiple segments for this flow.
 	 */
 	emem_tree_t *multisegment_pdus;
+
+	/* Process info, currently discovered via IPFIX */
+	guint32 process_uid;    /* UID of local process */
+	guint32 process_pid;    /* PID of local process */
+	gchar *username;	/* Username of the local process */
+	gchar *command;         /* Local process name + path + args */
 } tcp_flow_t;
-	
+
 
 struct tcp_analysis {
 	/* These two structs are managed based on comparing the source
@@ -196,7 +202,7 @@ struct tcp_analysis {
 
 	/* This pointer is NULL   or points to a tcp_acked struct if this
 	 * packet has "interesting" properties such as being a KeepAlive or
-	 * similar 
+	 * similar
 	 */
 	struct tcp_acked *ta;
 	/* This structure contains a tree containing all the various ta's
@@ -232,10 +238,22 @@ extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				proto_tree *tcp_tree,
 				struct tcp_analysis *tcpd);
 
-extern struct tcp_analysis *get_tcp_conversation_data(conversation_t *conv, 
+extern struct tcp_analysis *get_tcp_conversation_data(conversation_t *conv,
                                 packet_info *pinfo);
 
 extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *);
 
+/** Associate process information with a given flow
+ *
+ * @param local_addr The local IPv4 or IPv6 address of the process
+ * @param remote_addr The remote IPv4 or IPv6 address of the process
+ * @param local_port The local TCP port of the process
+ * @param remote_port The remote TCP port of the process
+ * @param uid The numeric user ID of the process
+ * @param pid The numeric PID of the process
+ * @param username Ephemeral string containing the full or partial process name
+ * @param command Ephemeral string containing the full or partial process name
+ */
+extern void add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command);
 
 #endif

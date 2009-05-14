@@ -62,9 +62,18 @@ static int hf_udplite_checksum_coverage_bad = -1;
 static int hf_udp_checksum = -1;
 static int hf_udp_checksum_good = -1;
 static int hf_udp_checksum_bad = -1;
+static int hf_udp_proc_src_uid = -1;
+static int hf_udp_proc_src_pid = -1;
+static int hf_udp_proc_src_uname = -1;
+static int hf_udp_proc_src_cmd = -1;
+static int hf_udp_proc_dst_uid = -1;
+static int hf_udp_proc_dst_pid = -1;
+static int hf_udp_proc_dst_uname = -1;
+static int hf_udp_proc_dst_cmd = -1;
 
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
+static gint ett_udp_process_info = -1;
 
 /* Preferences */
 
@@ -73,6 +82,9 @@ static gboolean udp_summary_in_tree = TRUE;
 
 /* Check UDP checksums */
 static gboolean udp_check_checksum = FALSE;
+
+/* Collect IPFIX process flow information */
+static gboolean udp_process_info = FALSE;
 
 /* Ignore an invalid checksum coverage field for UDPLite */
 static gboolean udplite_ignore_checksum_coverage = TRUE;
@@ -89,6 +101,121 @@ static dissector_handle_t data_handle;
 /* can call to it, ie. socks	*/
 
 static gboolean try_heuristic_first = FALSE;
+
+
+/* Conversation and process code originally copied from packet-tcp.c */
+static struct udp_analysis *
+init_udp_conversation_data(packet_info *pinfo)
+{
+  struct udp_analysis *udpd=NULL;
+
+  /* Initialize the udp protocol data structure to add to the udp conversation */
+  udpd = se_alloc0(sizeof(struct udp_analysis));
+  memset(&udpd->flow1, 0, sizeof(udp_flow_t));
+  memset(&udpd->flow2, 0, sizeof(udp_flow_t));
+  udpd->flow1.username = NULL;
+  udpd->flow1.command = NULL;
+  udpd->flow2.username = NULL;
+  udpd->flow2.command = NULL;
+
+  return udpd;
+}
+
+static conversation_t *
+get_udp_conversation(packet_info *pinfo)
+{
+  conversation_t *conv=NULL;
+
+  /* Have we seen this conversation before? */
+  if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
+    /* No this is a new conversation. */
+    conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  }
+  return conv;
+}
+
+static struct udp_analysis *
+get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+  int direction;
+  struct udp_analysis *udpd=NULL;
+
+  /* Did the caller supply the conversation pointer? */
+  if( conv==NULL )
+	  conv = get_udp_conversation(pinfo);
+
+  /* Get the data for this conversation */
+  udpd=conversation_get_proto_data(conv, proto_udp);
+
+  /* If the conversation was just created or it matched a
+   * conversation with template options, udpd will not
+   * have been initialized. So, initialize
+   * a new udpd structure for the conversation.
+   */
+  if (!udpd) {
+    udpd = init_udp_conversation_data(pinfo);
+    conversation_add_proto_data(conv, proto_udp, udpd);
+  }
+
+  if (!udpd) {
+    return NULL;
+  }
+
+  /* check direction and get ua lists */
+  direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+  /* if the addresses are equal, match the ports instead */
+  if(direction==0) {
+	  direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
+  }
+  if(direction>=0){
+	  udpd->fwd=&(udpd->flow1);
+	  udpd->rev=&(udpd->flow2);
+  } else {
+	  udpd->fwd=&(udpd->flow2);
+	  udpd->rev=&(udpd->flow1);
+  }
+
+  return udpd;
+}
+
+/* Attach process info to a flow */
+/* XXX - We depend on the UDP dissector finding the conversation first */
+void
+add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command) {
+  conversation_t *conv;
+  struct udp_analysis *udpd;
+  udp_flow_t *flow = NULL;
+
+  if (!udp_process_info) {
+    return;
+  }
+
+  conv = find_conversation(frame_num, local_addr, remote_addr, PT_UDP, local_port, remote_port, 0);
+  if (!conv) {
+    return;
+  }
+
+  udpd = conversation_get_proto_data(conv, proto_udp);
+  if (!udpd) {
+    return;
+  }
+
+  if (CMP_ADDRESS(local_addr, &conv->key_ptr->addr1) == 0 && local_port == conv->key_ptr->port1) {
+    flow = &udpd->flow1;
+  } else if (CMP_ADDRESS(remote_addr, &conv->key_ptr->addr1) == 0 && remote_port == conv->key_ptr->port1) {
+    flow = &udpd->flow2;
+  }
+  if (!flow || flow->command) {
+    return;
+  }
+
+  flow->process_uid = uid;
+  flow->process_pid = pid;
+  flow->username = se_strdup(username);
+  flow->command = se_strdup(command);
+}
+
+
 
 void
 decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -187,6 +314,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   e_udphdr *udph;
   proto_tree *checksum_tree;
   proto_item *item;
+  conversation_t *conv = NULL;
+  struct udp_analysis *udpd = NULL;
+  proto_tree *process_tree;
 
   udph=ep_alloc(sizeof(e_udphdr));
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -417,6 +547,39 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   pinfo->destport = udph->uh_dport;
 
   tap_queue_packet(udp_tap, pinfo, udph);
+  
+  /* find(or create if needed) the conversation for this udp session */
+  if (udp_process_info) {
+    conv=get_udp_conversation(pinfo);
+    udpd=get_udp_conversation_data(conv,pinfo);
+  }
+
+  if (udpd && (udpd->fwd || udpd->rev) && (udpd->fwd->command || udpd->rev->command)) {
+    ti = proto_tree_add_text(udp_tree, tvb, offset, 0, "Process Information");
+	PROTO_ITEM_SET_GENERATED(ti);
+    process_tree = proto_item_add_subtree(ti, ett_udp_process_info);
+	if (udpd->fwd->command) {
+      proto_tree_add_uint_format_value(process_tree, hf_udp_proc_dst_uid, tvb, 0, 0,
+              udpd->fwd->process_uid, "%u", udpd->fwd->process_uid);
+      proto_tree_add_uint_format_value(process_tree, hf_udp_proc_dst_pid, tvb, 0, 0,
+              udpd->fwd->process_pid, "%u", udpd->fwd->process_pid);
+      proto_tree_add_string_format_value(process_tree, hf_udp_proc_dst_uname, tvb, 0, 0,
+              udpd->fwd->username, "%s", udpd->fwd->username);
+      proto_tree_add_string_format_value(process_tree, hf_udp_proc_dst_cmd, tvb, 0, 0,
+              udpd->fwd->command, "%s", udpd->fwd->command);
+    }
+    if (udpd->rev->command) {
+      proto_tree_add_uint_format_value(process_tree, hf_udp_proc_src_uid, tvb, 0, 0,
+              udpd->rev->process_uid, "%u", udpd->rev->process_uid);
+      proto_tree_add_uint_format_value(process_tree, hf_udp_proc_src_pid, tvb, 0, 0,
+              udpd->rev->process_pid, "%u", udpd->rev->process_pid);
+      proto_tree_add_string_format_value(process_tree, hf_udp_proc_src_uname, tvb, 0, 0,
+              udpd->rev->username, "%s", udpd->rev->username);
+      proto_tree_add_string_format_value(process_tree, hf_udp_proc_src_cmd, tvb, 0, 0,
+              udpd->rev->command, "%s", udpd->rev->command);
+    }
+  }
+
   /*
    * Call sub-dissectors.
    *
@@ -479,7 +642,39 @@ proto_register_udp(void)
 
 		{ &hf_udp_checksum_bad,
 		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }}
+			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+
+		{ &hf_udp_proc_src_uid,
+		  { "Source process user ID", "udp.proc.srcuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Source process user ID", HFILL}},
+
+		{ &hf_udp_proc_src_pid,
+		  { "Source process ID", "udp.proc.srcpid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Source process ID", HFILL}},
+
+		{ &hf_udp_proc_src_uname,
+		  { "Source process user name", "udp.proc.srcuname", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Source process user name", HFILL}},
+
+		{ &hf_udp_proc_src_cmd,
+		  { "Source process name", "udp.proc.srccmd", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Source process command name", HFILL}},
+
+		{ &hf_udp_proc_dst_uid,
+		  { "Destination process user ID", "udp.proc.dstuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Destination process user ID", HFILL}},
+
+		{ &hf_udp_proc_dst_pid,
+		  { "Destination process ID", "udp.proc.dstpid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Destination process ID", HFILL}},
+
+		{ &hf_udp_proc_dst_uname,
+		  { "Destination process user name", "udp.proc.dstuname", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Destination process user name", HFILL}},
+
+		{ &hf_udp_proc_dst_cmd,
+		  { "Destination process name", "udp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Destination process command name", HFILL}}
 	};
 
 	static hf_register_info hf_lite[] = {
@@ -494,7 +689,8 @@ proto_register_udp(void)
 
 	static gint *ett[] = {
 		&ett_udp,
-		&ett_udp_checksum
+		&ett_udp_checksum,
+		&ett_udp_process_info
 	};
 
 	proto_udp = proto_register_protocol("User Datagram Protocol",
@@ -526,6 +722,10 @@ proto_register_udp(void)
 	    "Validate the UDP checksum if possible",
 	    "Whether to validate the UDP checksum",
 	    &udp_check_checksum);
+	prefs_register_bool_preference(udp_module, "process_info",
+	    "Collect process flow information",
+	    "Collect process flow information from IPFIX",
+	    &udp_process_info);
 
 	udplite_module = prefs_register_protocol(proto_udplite, NULL);
 	prefs_register_bool_preference(udplite_module, "ignore_checksum_coverage",

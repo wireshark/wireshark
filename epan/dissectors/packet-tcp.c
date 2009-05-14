@@ -159,6 +159,14 @@ static int hf_tcp_option_snack_offset = -1;
 static int hf_tcp_option_snack_size = -1;
 static int hf_tcp_option_snack_le = -1;
 static int hf_tcp_option_snack_re = -1;
+static int hf_tcp_proc_src_uid = -1;
+static int hf_tcp_proc_src_pid = -1;
+static int hf_tcp_proc_src_uname = -1;
+static int hf_tcp_proc_src_cmd = -1;
+static int hf_tcp_proc_dst_uid = -1;
+static int hf_tcp_proc_dst_pid = -1;
+static int hf_tcp_proc_dst_uname = -1;
+static int hf_tcp_proc_dst_cmd = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -172,6 +180,7 @@ static gint ett_tcp_timestamps = -1;
 static gint ett_tcp_segments = -1;
 static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
+static gint ett_tcp_process_info = -1;
 
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
@@ -250,8 +259,12 @@ init_tcp_conversation_data(packet_info *pinfo)
 	memset(&tcpd->flow2, 0, sizeof(tcp_flow_t));
 	tcpd->flow1.win_scale=-1;
 	tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	tcpd->flow1.username = NULL;
+	tcpd->flow1.command = NULL;
 	tcpd->flow2.win_scale=-1;
 	tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	tcpd->flow2.username = NULL;
+	tcpd->flow2.command = NULL;
 	tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 	tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
 	tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
@@ -318,6 +331,40 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 	tcpd->ta=NULL;
 	return tcpd;
 }
+
+/* Attach process info to a flow */
+/* XXX - We depend on the TCP dissector finding the conversation first */
+void
+add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command) {
+	conversation_t *conv;
+	struct tcp_analysis *tcpd;
+	tcp_flow_t *flow = NULL;
+
+	conv = find_conversation(frame_num, local_addr, remote_addr, PT_TCP, local_port, remote_port, 0);
+	if (!conv) {
+		return;
+	}
+
+	tcpd = conversation_get_proto_data(conv, proto_tcp);
+	if (!tcpd) {
+		return;
+	}
+
+	if (CMP_ADDRESS(local_addr, &conv->key_ptr->addr1) == 0 && local_port == conv->key_ptr->port1) {
+		flow = &tcpd->flow1;
+	} else if (CMP_ADDRESS(remote_addr, &conv->key_ptr->addr1) == 0 && remote_port == conv->key_ptr->port1) {
+		flow = &tcpd->flow2;
+	}
+	if (!flow || flow->command) {
+		return;
+	}
+
+	flow->process_uid = uid;
+	flow->process_pid = pid;
+	flow->username = se_strdup(username);
+	flow->command = se_strdup(command);
+}
+
 
 /* Calculate the timestamps relative to this conversation */
 static void
@@ -3553,6 +3600,32 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  if (tcpd && (tcpd->fwd || tcpd->rev) && (tcpd->fwd->command || tcpd->rev->command)) {
+    ti = proto_tree_add_text(tcp_tree, tvb, offset, 0, "Process Information");
+	PROTO_ITEM_SET_GENERATED(ti);
+    field_tree = proto_item_add_subtree(ti, ett_tcp_process_info);
+	if (tcpd->fwd->command) {
+      proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0,
+              tcpd->fwd->process_uid, "%u", tcpd->fwd->process_uid);
+      proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_pid, tvb, 0, 0,
+              tcpd->fwd->process_pid, "%u", tcpd->fwd->process_pid);
+      proto_tree_add_string_format_value(field_tree, hf_tcp_proc_dst_uname, tvb, 0, 0,
+              tcpd->fwd->username, "%s", tcpd->fwd->username);
+      proto_tree_add_string_format_value(field_tree, hf_tcp_proc_dst_cmd, tvb, 0, 0,
+              tcpd->fwd->command, "%s", tcpd->fwd->command);
+	}
+	if (tcpd->rev->command) {
+      proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_uid, tvb, 0, 0,
+              tcpd->rev->process_uid, "%u", tcpd->rev->process_uid);
+      proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_pid, tvb, 0, 0,
+              tcpd->rev->process_pid, "%u", tcpd->rev->process_pid);
+      proto_tree_add_string_format_value(field_tree, hf_tcp_proc_src_uname, tvb, 0, 0,
+              tcpd->rev->username, "%s", tcpd->rev->username);
+      proto_tree_add_string_format_value(field_tree, hf_tcp_proc_src_cmd, tvb, 0, 0,
+              tcpd->rev->command, "%s", tcpd->rev->command);
+	}
+  }
+
   /*
    * XXX - what, if any, of this should we do if this is included in an
    * error packet?  It might be nice to see the details of the packet
@@ -3983,6 +4056,38 @@ proto_register_tcp(void)
 		{ &hf_tcp_ts_delta,
 		  { "Time since previous frame in this TCP stream", "tcp.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "Time delta from previous frame in this TCP stream", HFILL}},
+
+		{ &hf_tcp_proc_src_uid,
+		  { "Source process user ID", "tcp.proc.srcuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Source process user ID", HFILL}},
+
+		{ &hf_tcp_proc_src_pid,
+		  { "Source process ID", "tcp.proc.srcpid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Source process ID", HFILL}},
+
+		{ &hf_tcp_proc_src_uname,
+		  { "Source process user name", "tcp.proc.srcuname", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Source process user name", HFILL}},
+
+		{ &hf_tcp_proc_src_cmd,
+		  { "Source process name", "tcp.proc.srccmd", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Source process command name", HFILL}},
+
+		{ &hf_tcp_proc_dst_uid,
+		  { "Destination process user ID", "tcp.proc.dstuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Destination process user ID", HFILL}},
+
+		{ &hf_tcp_proc_dst_pid,
+		  { "Destination process ID", "tcp.proc.dstpid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Destination process ID", HFILL}},
+
+		{ &hf_tcp_proc_dst_uname,
+		  { "Destination process user name", "tcp.proc.dstuname", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Destination process user name", HFILL}},
+
+		{ &hf_tcp_proc_dst_cmd,
+		  { "Destination process name", "tcp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Destination process command name", HFILL}}
 	};
 
 	static gint *ett[] = {
@@ -3997,7 +4102,8 @@ proto_register_tcp(void)
 		&ett_tcp_timestamps,
 		&ett_tcp_segments,
 		&ett_tcp_segment,
-		&ett_tcp_checksum
+		&ett_tcp_checksum,
+		&ett_tcp_process_info
 	};
 	module_t *tcp_module;
 
@@ -4063,3 +4169,16 @@ proto_reg_handoff_tcp(void)
 	data_handle = find_dissector("data");
 	tcp_tap = register_tap("tcp");
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 noexpandtab
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */
