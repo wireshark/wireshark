@@ -513,6 +513,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_t, tvb, offset, 1, FALSE);
 
         if (type_value == 0) {
+            /* Backoff Indicator (BI) case */
+
             guint8 reserved;
             guint8 backoff_indicator;
             proto_item *ti;
@@ -529,6 +531,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Backoff Indicator */
             backoff_indicator = tvb_get_guint8(tvb, offset) & 0x0f;
             bi_ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_bi, tvb, offset, 1, FALSE);
+
+            /* As of March 2009 spec, it must be first, and may only appear once */
             if (backoff_indicator_seen) {
                 expert_add_info_format(pinfo, bi_ti, PI_MALFORMED, PI_ERROR,
                                        "MAC RAR PDU has > 1 Backoff Indicator subheader present");
@@ -541,6 +545,11 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (Backoff Indicator=%sms)",
                                 val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
             }
+            if (number_of_rars > 0) {
+                expert_add_info_format(pinfo, bi_ti, PI_MALFORMED, PI_WARN,
+                                       "Backoff Indicator should only appear as first subheader");
+            }
+
         }
         else {
             /* RAPID case */
