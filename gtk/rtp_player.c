@@ -1606,6 +1606,75 @@ play_channels(void)
 #endif /* PORTAUDIO_API_1 */
 
 		if( err != paNoError ) {
+#if PORTAUDIO_API_1
+			const char *deviceName = "No Device";
+
+			PaDeviceID device = Pa_GetDefaultOutputDeviceID();
+
+			if (device != paNoDevice)
+			{
+				const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo( device );
+				if (deviceInfo)
+					deviceName = deviceInfo->name;
+				else
+					deviceName = "(No device info)";
+			}
+
+			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+							  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+							  "Got this info from PortAudio Library:\n"
+							  " Default deviceName: %s (%d)", deviceName, device);
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+#else
+			PaHostApiIndex hostApi = Pa_GetDefaultHostApi();
+			if (hostApi < 0)
+			{
+				dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+								  "Can not even get the default host API from PortAudio Library.\n Error: %s",
+								  Pa_GetErrorText( hostApi ));
+				gtk_dialog_run (GTK_DIALOG (dialog));
+				gtk_widget_destroy (dialog);
+			}
+			else
+			{
+				const PaHostApiInfo *hostApiInfo = Pa_GetHostApiInfo( hostApi );
+
+				if ( !hostApiInfo )
+				{
+					dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+									  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+									  "Can not even get the host API info from PortAudio Library.");
+					gtk_dialog_run (GTK_DIALOG (dialog));
+					gtk_widget_destroy (dialog);
+				}
+				else
+				{
+					const char *hostApiName = hostApiInfo->name;
+					const char *deviceName = "No Device";
+
+					PaDeviceIndex device = hostApiInfo->defaultOutputDevice;
+
+					if (device != paNoDevice)
+					{
+						const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo( device );
+						if (deviceInfo)
+							deviceName = deviceInfo->name;
+						else
+							deviceName = "(No device info)";
+					}
+
+					dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+									  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+									  "Got this info from PortAudio Library:\n"
+									  " Default hostApiName: %s\n"
+									  " Default deviceName: %s (%d)", hostApiName, deviceName, device);
+					gtk_dialog_run (GTK_DIALOG (dialog));
+					gtk_widget_destroy (dialog);
+				}
+			}
+#endif
 			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
 								  "Can not Open Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
