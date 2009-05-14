@@ -4361,29 +4361,24 @@ static void
 dissect_vendor_ie_ht(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   gint tag_len = tvb_length(tag_tvb);
-  gchar out_buff[SHORT_STR];
 
-  g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) OUI");
-  proto_tree_add_string(tree, tag_interpretation, tag_tvb, 0, 3, out_buff);
+  proto_tree_add_string(tree, tag_interpretation, tag_tvb, 0, 3, "802.11n (Pre) OUI");
   /* 802.11n OUI  Information Element */
   if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x33", 4)) {
-    g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) HT information");
-    proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+    proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1,"802.11n (Pre) HT information" );
 
     dissect_ht_capability_ie(tree, tag_tvb, 4, tag_len - 4, TRUE);
     proto_item_append_text(item, ": HT Capabilities (802.11n D1.10)");
   }
   else {
     if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x34", 4)) {
-      g_snprintf(out_buff, SHORT_STR, "HT additional information (802.11n D1.00)");
-      proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+      proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, "HT additional information (802.11n D1.00)");
 
       dissect_ht_info_ie_1_0(tree, tag_tvb, 4, tag_len - 4);
       proto_item_append_text(item, ": HT Additional Capabilities (802.11n D1.00)");
     }
     else {
-        g_snprintf(out_buff, SHORT_STR, "Unknown type");
-        proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+        proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, "Unknown type");
         proto_item_append_text(item, ": 802.11n (pre) Unknown type");
         proto_tree_add_string(tree, tag_interpretation, tag_tvb, 4,
                   tag_len - 4, "Not interpreted");
@@ -4472,7 +4467,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
   proto_tree * orig_tree=tree;
-  proto_item *ti, *en;
+  proto_item *ti = NULL, *en;
   guint8 tag_len_len; /* The length of the length parameter in bytes*/
 
   tag_no = tvb_get_guint8(tvb, offset);
@@ -4484,19 +4479,21 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	  tag_len = tvb_get_guint8(tvb, offset + 1);
   }
 
-  ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+1+tag_len_len,"%s",
+  if (tree) {
+    ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+1+tag_len_len,"%s",
                          val_to_str(tag_no, tag_num_vals,
                          (tag_no >= 17 && tag_no <= 31) ?
                          "Reserved for challenge text" : "Reserved tag number" ));
-  tree=proto_item_add_subtree(ti,ett_80211_mgt_ie);
+    tree=proto_item_add_subtree(ti,ett_80211_mgt_ie);
 
-  proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
+    proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
             "Tag Number: %u (%s)",
             tag_no,
             val_to_str(tag_no, tag_num_vals,
                        (tag_no >= 17 && tag_no <= 31) ?
                        "Reserved for challenge text" :
                        "Reserved tag number"));
+  }
   proto_tree_add_uint (tree, (tag_no==TAG_TIM ? tim_length : tag_length), tvb, offset + 1, tag_len_len, tag_len);
 
   switch (tag_no)
@@ -6564,10 +6561,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (check_col (pinfo->cinfo, COL_INFO))
       {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            ", SN=%d", seq_number);
-
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-            ", FN=%d",frag_number);
+            ", SN=%d, FN=%d", seq_number,frag_number);
       }
 
       /* Now if we have a tree we start adding stuff */
@@ -6580,8 +6574,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           case DATA_ADDR_T1:
             proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
             proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
-            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
-                tvb_get_ptr (tvb, 16, 6));
+            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6, bssid);
             proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
                frag_number);
             proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
@@ -6596,8 +6589,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
           case DATA_ADDR_T2:
             proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
-            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
-                tvb_get_ptr (tvb, 10, 6));
+            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, bssid);
             proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6, src);
             proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
                frag_number);
@@ -6612,8 +6604,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             break;
 
           case DATA_ADDR_T3:
-            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6,
-                tvb_get_ptr (tvb, 4, 6));
+            proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, bssid);
             proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
             proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
 
@@ -12130,9 +12121,8 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     len=dec_caplen-offset;
 
     /* decrypt successful, let's set up a new data tvb.              */
-    decr_tvb = tvb_new_real_data(tmp, len, len);
+    decr_tvb = tvb_new_child_real_data(tvb, tmp, len-8, len-8);
     tvb_set_free_cb(decr_tvb, g_free);
-    tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
   } else
     g_free(tmp);
 

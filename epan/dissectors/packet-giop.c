@@ -3962,8 +3962,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
    if (header.flags & 0x08)
    {
-      payload_tvb = tvb_uncompress( tvb, GIOP_HEADER_SIZE, tvb_length_remaining(tvb, GIOP_HEADER_SIZE ) );
-      tvb_set_child_real_data_tvbuff( tvb, payload_tvb );
+      payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, tvb_length_remaining(tvb, GIOP_HEADER_SIZE ) );
       add_new_data_source (pinfo, payload_tvb, "decompressed Content");
    }
 
