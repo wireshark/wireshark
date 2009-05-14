@@ -147,14 +147,12 @@ dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  char sync[TALI_SYNC_LENGTH];     /* TALI sync */
   char opcode[TALI_OPCODE_LENGTH]; /* TALI opcode */
 
   if (tvb_reported_length(tvb) < TALI_HEADER_LENGTH)	/* Mandatory header	*/
     return FALSE;
 
-  tvb_memcpy(tvb, (guint8*)sync, 0, TALI_SYNC_LENGTH);
-  if (strncmp(sync, TALI_SYNC, TALI_SYNC_LENGTH) != 0)
+  if (tvb_strneql(tvb, 0, TALI_SYNC, TALI_SYNC_LENGTH) != 0)
     return FALSE;
 
   tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);

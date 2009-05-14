@@ -1628,11 +1628,9 @@ again:
 			int old_len;
 
 			/* create a new TVB structure for desegmented data */
-			next_tvb = tvb_new_real_data(ipfd_head->data,
+			next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
 					ipfd_head->datalen, ipfd_head->datalen);
 
-			/* add this tvb as a child to the original one */
-			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
 			add_new_data_source(pinfo, next_tvb, "Reassembled TCP");

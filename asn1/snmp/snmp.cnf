@@ -141,7 +141,6 @@ gint pdu_type=-1;
 
 			
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
-			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
 			
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);

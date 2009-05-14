@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -1334,7 +1334,7 @@ static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_
 	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
-static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
+static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData , gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1392,7 +1392,7 @@ static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 
 	gcry_cipher_close(hd);
 
-	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
 
 	return clear_tvb;
 
@@ -1406,7 +1406,7 @@ on_gcry_error:
 #endif
 }
 
-static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
+static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData , gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1455,7 +1455,7 @@ static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 
 	gcry_cipher_close(hd);
 
-	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
 
 	return clear_tvb;
 
@@ -2088,7 +2088,7 @@ dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 213 "snmp.cnf"
+#line 212 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2143,7 +2143,7 @@ dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 156 "snmp.cnf"
+#line 155 "snmp.cnf"
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */		
@@ -2227,7 +2227,6 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 			
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
-			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
 			
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
@@ -2279,7 +2278,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
-#line 171 "snmp.cnf"
+#line 170 "snmp.cnf"
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc

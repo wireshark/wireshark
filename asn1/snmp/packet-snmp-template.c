@@ -1232,7 +1232,7 @@ static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_
 	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
-static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
+static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData , gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1290,7 +1290,7 @@ static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 
 	gcry_cipher_close(hd);
 
-	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
 
 	return clear_tvb;
 
@@ -1304,7 +1304,7 @@ on_gcry_error:
 #endif
 }
 
-static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
+static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData , gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1353,7 +1353,7 @@ static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 
 	gcry_cipher_close(hd);
 
-	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
 
 	return clear_tvb;
 
