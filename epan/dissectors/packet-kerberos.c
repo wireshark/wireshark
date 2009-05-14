@@ -2110,11 +2110,10 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (proto_tree *tree, tvbuff_t *tvb, int offs
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -3496,11 +3495,10 @@ dissect_krb5_decrypt_PRIV (proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -3650,11 +3648,10 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "EncKrbCredPart");
@@ -3809,11 +3806,10 @@ dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -4003,11 +3999,10 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -4081,11 +4076,10 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
 	 */
 	if( (plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype, NULL)) ){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -4216,11 +4210,10 @@ dissect_krb5_decrypt_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
@@ -4330,11 +4323,10 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
 
 	if(plaintext){
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
+		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
 		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");

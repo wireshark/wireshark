@@ -2378,9 +2378,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		  if(decrypt_ok)
 		    {
-		      tvb_decrypted = tvb_new_real_data(g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,(decrypted_len - esp_iv_len)*sizeof(guint8)), decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
+		      tvb_decrypted = tvb_new_child_real_data(tvb, g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,(decrypted_len - esp_iv_len)*sizeof(guint8)), decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
 		      g_free(decrypted_data);
-		      tvb_set_child_real_data_tvbuff(tvb, tvb_decrypted);
 
 		      add_new_data_source(pinfo,
 					  tvb_decrypted,

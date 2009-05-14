@@ -1496,11 +1496,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		/* the remainder of the cdb from the ahs */
 		tvb_memcpy(tvb, cdb_buf+16, ahs_cdb_offset, ahs_cdb_length);
 
-		cdb_tvb = tvb_new_real_data(cdb_buf,
+		cdb_tvb = tvb_new_child_real_data(tvb, cdb_buf,
 					  ahs_cdb_length+16,
 					  ahs_cdb_length+16);
-
-		tvb_set_child_real_data_tvbuff(tvb, cdb_tvb);
 
 		add_new_data_source(pinfo, cdb_tvb, "CDB+AHS");
 	} else {
