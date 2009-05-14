@@ -352,7 +352,7 @@ execute_next_instruction:
 				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
 		if ( output_address > 0 ){
 			/* At least something got decompressed, show it */
-			decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
+			decomp_tvb = tvb_new_child_real_data(message_tvb, out_buff,output_address,output_address);
 			/* Arrange that the allocated packet data copy be freed when the
 			 * tvbuff is freed.
 			 */
@@ -361,7 +361,6 @@ execute_next_instruction:
 			 * were handed refers, so it'll get cleaned up when that tvbuff
 			 * is cleaned up.
 			 */
-			tvb_set_child_real_data_tvbuff(message_tvb,decomp_tvb);
 			add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message(Incomplete)");
 			proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompression failure");
 		return decomp_tvb;
@@ -2748,13 +2747,12 @@ execute_next_instruction:
 
 
 		/* At least something got decompressed, show it */
-		decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
+		decomp_tvb = tvb_new_child_real_data(message_tvb, out_buff,output_address,output_address);
 		/* Arrange that the allocated packet data copy be freed when the
 		 * tvbuff is freed.
 		 */
 		tvb_set_free_cb( decomp_tvb, g_free );
 
-		tvb_set_child_real_data_tvbuff(message_tvb,decomp_tvb);
 		add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message");
 		/*
 		proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompressed");
