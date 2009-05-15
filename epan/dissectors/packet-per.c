@@ -210,16 +210,23 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
   else
   {
     /* Do not preceed with zeros in case of PER unaligned */
-    if (length >1){
-      shift1 = offset & 0x07;
-      shift0 = 8 - shift1;
+    i = 0;
+    shift1 = offset & 0x07;
+    shift0 = 8 - shift1;
 
-      for (i=0; i<length-1; i++) {
-        octet1 = tvb_get_guint8(tvb, boffset + i);
-        octet0 = tvb_get_guint8(tvb, boffset + i+1);
+    if (length > 1){
+      octet0 = tvb_get_guint8(tvb, boffset);
+      for (; i < length-1; i++) {
+        octet1 = octet0;
+        octet0 = tvb_get_guint8(tvb, boffset + i + 1);
         buf[i] = (octet1 << shift1) | (octet0 >> shift0);
       }
     }
+    /* get the 'odd' bits */
+    word = tvb_get_ntohs(tvb,boffset+i) << shift1;
+    word = word & ~bit_mask16[remainder];
+    word = word >> 8;
+    buf[i] = (guint8) (word & 0x00ff);
   }
   sub_tvb = tvb_new_child_real_data(tvb, buf, length, length);
   add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
