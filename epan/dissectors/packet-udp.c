@@ -105,7 +105,7 @@ static gboolean try_heuristic_first = FALSE;
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
-init_udp_conversation_data(packet_info *pinfo)
+init_udp_conversation_data()
 {
   struct udp_analysis *udpd=NULL;
 
@@ -153,7 +153,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
    * a new udpd structure for the conversation.
    */
   if (!udpd) {
-    udpd = init_udp_conversation_data(pinfo);
+    udpd = init_udp_conversation_data();
     conversation_add_proto_data(conv, proto_udp, udpd);
   }
 
