@@ -1079,6 +1079,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	guint        add_ocetets;	/* octets which are covered by one element -1 */
 	guint        curr_bits_length;
 	guchar       acc_type;
+	guint		 value;
 	const gchar *str;
 	gchar        multi_slot_str[64][230] = {
 		"Not specified", /* 00 */
@@ -1158,6 +1159,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	bits_in_oct = 0;
 	oct = 0;
 
+
 	do
 	{
 		/* check for a new round */
@@ -1208,10 +1210,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		acc_type = oct>>(32-bits_needed);
 
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Access Technology Type: (%u) %s",acc_type,val_to_str(acc_type, gsm_a_gm_acc_tech_type_vals, "Unknown"));
-
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_tech_type, tvb, bit_offset, 4, FALSE);
 		bit_offset+=4;
 
@@ -1227,9 +1225,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		GET_DATA;
 
 		bits_length = curr_bits_length = oct>>(32-bits_needed);
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Length: 0x%02x bits (%u)",bits_length,bits_length);
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
 		proto_item_set_len(tf, (bits_length>>3)+1);
 		/* This is already done - length doesn't contain this field
@@ -1298,9 +1293,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				acc_type = oct>>(32-bits_needed);
 
-				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"Access Technology Type: (%u) %s",acc_type,val_to_str(acc_type, gsm_a_gm_acc_tech_type_vals, "Unknown"));
+				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
 				bit_offset+=4;
 
 				curr_bits_length -= bits_needed;
@@ -1313,10 +1306,11 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				bits_needed = 3;
 				GET_DATA;
 
+				value = tvb_get_bits8(tvb, bit_offset, 3);
 				/* analyse bits */
 				if ( acc_type == 0x04 )	/* GSM 1900 */
 				{
-					switch ( oct>>(32-bits_needed) )
+					switch ( value )
 					{
 						case 0x01: str="1 W (30 dBm)";    break;
 						case 0x02: str="0,25 W (24 dBm)"; break;
@@ -1326,7 +1320,10 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				}
 				else if ( acc_type == 0x03 )
 				{
-					switch ( oct>>(32-bits_needed) )
+					/*
+					 * 3 GSM 1800
+					 */
+					switch ( value )
 					{
 						case 0x01: str="1 W (30 dBm)";    break;
 						case 0x02: str="0,25 W (24 dBm)"; break;
@@ -1336,7 +1333,15 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				}
 				else if ( acc_type <= 0x08 )
 				{
-					switch ( oct>>(32-bits_needed) )
+					/* 0 GSM P
+					 * 1 GSM E
+					 * 2 GSM R 
+					 * 5 GSM 450
+					 * 6 GSM 480
+					 * 7 GSM 850
+					 */
+
+					switch ( value )
 					{
 						case 0x02: str="8 W (39 dBm)";   break;
 						case 0x03: str="5 W (37 dBm)";   break;
@@ -1348,9 +1353,10 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				else
 					str="Not specified??";
 
+				/* decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)*/
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"RF Power Capability, GMSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+					"%s RF Power Capability, GMSK Power Class: (%u) %s", decode_bits_in_field(bit_offset, 3, value), value, str);
 				bit_offset+=3;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1362,8 +1368,9 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				bits_needed = 2;
 				GET_DATA;
 
+				value = tvb_get_bits8(tvb, bit_offset, 2);
 				/* analyse bits */
-				switch ( oct>>(32-bits_needed) )
+				switch ( value )
 				{
 					case 0x00: str="8PSK modulation not supported for uplink"; break;
 					case 0x01: str="Power class E1"; break;
@@ -1374,7 +1381,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"8PSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+					"8PSK Power Class: (%u) %s",value,str);
 				bit_offset+=2;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1391,10 +1398,11 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 3;
 		GET_DATA;
 
+		value = tvb_get_bits8(tvb, bit_offset, 3);
 		/* analyse bits */
 		if ( acc_type == 0x04 )	/* GSM 1900 */
 		{
-			switch ( oct>>(32-bits_needed) )
+			switch ( value )
 			{
 				case 0x01: str="1 W (30 dBm)";    break;
 				case 0x02: str="0,25 W (24 dBm)"; break;
@@ -1404,7 +1412,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		}
 		else if ( acc_type == 0x03 )
 		{
-			switch ( oct>>(32-bits_needed) )
+			switch ( value )
 			{
 				case 0x01: str="1 W (30 dBm)";    break;
 				case 0x02: str="0,25 W (24 dBm)"; break;
@@ -1414,7 +1422,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		}
 		else if ( acc_type <= 0x08 )
 		{
-			switch ( oct>>(32-bits_needed) )
+			switch ( value )
 			{
 				case 0x02: str="8 W (39 dBm)";   break;
 				case 0x03: str="5 W (37 dBm)";   break;
@@ -1428,7 +1436,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"RF Power Capability, GMSK Power Class: (%u) %s",oct>>(32-bits_needed),str);
+			"%s RF Power Capability, GMSK Power Class: (%u) %s", decode_bits_in_field(bit_offset, 3, value), value,str);
+
 		bit_offset+=3;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;

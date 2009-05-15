@@ -82,6 +82,8 @@ extern gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 
 void tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len);
 
+extern char *decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value);
+
 extern char	*other_decode_bitfield_value(char *buf, guint32 val, guint32 mask,
     int width);
 extern char	*decode_bitfield_value(char *buf, guint32 val, guint32 mask,

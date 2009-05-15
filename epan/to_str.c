@@ -741,6 +741,59 @@ fcwwn_to_str (const guint8 *ad)
     }
     return (ethstr);
 }
+/*
+ * Generates a string representing the bits in a bitfield at "bit_offset" from an 8 bit boundary
+ * with the length in bits of no_of_bits based on value.
+ * Ex: ..xx x...
+ */
+
+char *
+decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)
+{
+	guint64 mask = 0,tmp;
+	char *str;
+	int bit;
+	int i;
+
+	mask = 1;
+	mask = mask << (no_of_bits-1);
+
+	/* prepare the string */
+	str=ep_alloc(256);
+	str[0]='\0';
+	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		strcat(str,".");
+	}
+
+	/* read the bits for the int */
+	for(i=0;i<no_of_bits;i++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		if(bit&&(!(bit%8))){
+			strcat(str, " ");
+		}
+		bit++;
+		tmp = value & mask;
+		if(tmp != 0){
+			strcat(str, "1");
+		} else {
+			strcat(str, "0");
+		}
+		mask = mask>>1;
+	}
+
+	for(;bit%8;bit++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		strcat(str,".");
+	}
+	return str;
+}
 
 /* Generate, into "buf", a string showing the bits of a bitfield.
    Return a pointer to the character after that string. */
