@@ -1037,6 +1037,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         offset += 6;
                         break;
                     case TIMING_ADVANCE_LCID:
+                        /* TODO: check 2 reserved bits? */
                         proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
                                             tvb, offset, 1, FALSE);
                         offset++;
@@ -1655,7 +1656,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_timing_advance,
             { "Timing Advance",
-              "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x0,
+              "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x3f,
               "Timing Advance (0-1282 (see 36.213, 4.2.3)", HFILL
             }
         },
