@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.99">
+  <!ENTITY WiresharkCurrentVersion "1.2.0 rc1">
 
 ]>
 
@@ -37,24 +37,12 @@ Wireshark Info
 
         <listitem>
           <para>
-            The X.509sat dissector could crash.
-            <!-- Fixed in r24543 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2329">2329</ulink>) -->
+            The NetFlow dissector could run off with your dog, crash your truck,
+            and write a country music song about the experience.
+            <!-- Fixed in r????? -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">????</ulink>) -->
           </para>
-          <para>Versions affected: 0.99.5 to 0.99.8</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Roofnet dissector could crash on Windows, Solaris, and
-            possibly other platforms.
-            <!-- Fixed in r24555 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2331">2331</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.5 to 0.99.8</para>
+          <para>Versions affected: 0.99.5 to 1.0.8</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
@@ -83,15 +71,94 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
       The following features are new (or have been significantly updated)
-      since the last release:
+      since version 1.0:
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Packet loss magically fixes itself.
+            Wireshark has a spiffy new start page.
           </para>
         </listitem>
+
+        <listitem>
+          <para>
+            Display filter autocompletion.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Support for the c-ares resolver library has been added. It
+            has many advantages over ADNS.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Many new protocol dissectors and capture file formats have been
+            added (see below for a complete list).
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Official Windows packages are now built using Microsoft Visual C++
+            2008 SP1.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            GTK1 is no longer supported. (Yes, this is a feature.)
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Macintosh OS X support has been improved.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.maxmind.com/app/ip-location">GeoIP database
+            lookups.</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://openstreetmap.org/">OpenStreetMap</ulink> + GeoIP
+            integration.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Improved <trademark class="registered">Postscript</trademark> print
+            output.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The preference handling code is now much smarter about changes.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Support for <ulink url="http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html">Pcap-ng</ulink>,
+            the next-generation capture file format.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Support for process information correlation via IPFIX.
+          </para>
+        </listitem>  
 
       </itemizedlist>
 
