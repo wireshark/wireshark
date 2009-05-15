@@ -508,9 +508,10 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
 #define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        0x80
-#define TAG_CISCO_UNKNOWN_1          0x85  /* Cisco Compatible eXtensions */
-#define TAG_CISCO_UNKNOWN_2          0x88  /* Cisco Compatible eXtensions? */
-#define TAG_CISCO_UNKNOWN_3          0x95  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_CCX1_CKIP          0x85  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_UNKNOWN_88         0x88  /* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_95         0x95  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_UNKNOWN_96         0x96  /* Cisco Compatible eXtensions */
 #define TAG_VENDOR_SPECIFIC_IE       0xDD
 #define TAG_SYMBOL_PROPRIETARY       0xAD
 #if 0 /* Not yet assigned tag numbers by ANA */
@@ -4406,9 +4407,10 @@ static const value_string tag_num_vals[] = {
   { TAG_ERP_INFO_OLD,         "ERP Information" },
   { TAG_RSN_IE,               "RSN Information" },
   { TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
-  { TAG_CISCO_UNKNOWN_1,      "Cisco Unknown 1 + Device Name" },
-  { TAG_CISCO_UNKNOWN_2,      "Cisco Unknown 2" },
-  { TAG_CISCO_UNKNOWN_3,      "Cisco Unknown 3" },
+  { TAG_CISCO_CCX1_CKIP,      "Cisco CCX1 CKIP + Device Name" },
+  { TAG_CISCO_UNKNOWN_88,     "Cisco Unknown 88" },
+  { TAG_CISCO_UNKNOWN_95,     "Cisco Unknown 95" },
+  { TAG_CISCO_UNKNOWN_96,     "Cisco Unknown 96" },
   { TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
   { TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
   { TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
@@ -4945,7 +4947,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       break;
 
-    case TAG_CISCO_UNKNOWN_1:
+    case TAG_CISCO_CCX1_CKIP:
       /* From WCS manual:
        * If Aironet IE support is enabled, the access point sends an Aironet
        * IE 0x85 (which contains the access point name, load, number of
