@@ -48,6 +48,10 @@ static gint hf_airopeek_unknown1 = -1;
 static gint hf_airopeek_unknown2 = -1;
 static gint hf_airopeek_unknown3 = -1;
 static gint hf_airopeek_unknown4 = -1;
+static gint hf_airopeek_unknown5 = -1;
+static gint hf_airopeek_unknown6 = -1;
+static gint hf_airopeek_channel = -1;
+static gint hf_airopeek_timestamp = -1;
 static gint ett_airopeek = -1;
 
 static dissector_handle_t ieee80211_handle;
@@ -71,9 +75,14 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown1, tvb, 0, 2,  FALSE);
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown2, tvb, 2, 2,  FALSE);
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown3, tvb, 4, 2,  FALSE);
-    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, 6, 14, FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, 6, 5, FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_timestamp, tvb, 11, 4, FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown5, tvb, 15, 2, FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_channel, tvb, 17, 1, FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown6, tvb, 18, 2, FALSE);
   }
   next_tvb = tvb_new_subset(tvb, 20, -1, -1);
+  pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
@@ -95,6 +104,22 @@ proto_register_airopeek(void)
 
 	{ &hf_airopeek_unknown4,
            { "Unknown4",      "airopeek.unknown4", FT_BYTES, BASE_NONE, NULL,
+             0x0, "", HFILL }},
+
+	{ &hf_airopeek_unknown5,
+           { "Unknown5",      "airopeek.unknown5", FT_BYTES, BASE_NONE, NULL,
+             0x0, "", HFILL }},
+
+	{ &hf_airopeek_unknown6,
+           { "Unknown6",      "airopeek.unknown6", FT_BYTES, BASE_NONE, NULL,
+             0x0, "", HFILL }},
+
+	{ &hf_airopeek_timestamp,
+           { "Timestamp?",       "airopeek.timestamp", FT_UINT32, BASE_DEC, NULL,
+             0x0, "", HFILL }},
+
+	{ &hf_airopeek_channel,
+           { "Channel",       "airopeek.channel", FT_UINT8, BASE_DEC, NULL,
              0x0, "", HFILL }},
 
   };
