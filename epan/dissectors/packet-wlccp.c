@@ -217,7 +217,19 @@ the RESPONSE_REQUEST flag is renamed ACK_REQD
 #define F_ACK_REQD         (1<<14)
 
 
+/* Mask definitions for the SCM Flags field */
+#define F_SCM_LAYER2UPDATE	(1<<3)
+#define F_SCM_UNATTACHED	(1<<2)
+#define F_SCM_UNSCHEDULED 	(1<<1)
+#define F_SCM_ACTIVE 		(1<<0)
 
+/* Mask definitions for the SCM Priority Flags field */
+#define F_SCM_PRIORITY 	0xfe
+#define F_SCM_PREFERRED 	0x01
+
+/* Mask definitions for the SCM Bridge Priority Flags field */
+#define F_SCM_BRIDGE_PRIORITY	0xfe
+#define F_SCM_BRIDGE_DISABLE	0x01
 
 /* The TLV Type definitions are a combination of the TLV Group and the       */
 /* TLV Type ID fields. These mappings are not well documented and have been  */
@@ -503,6 +515,34 @@ static int hf_wlccp_priority = -1;
 static int hf_wlccp_age = -1;
 static int hf_wlccp_period = -1;
 static int hf_wlccp_ipv4_address = -1;
+
+/* SCM Advertisement */
+static int hf_wlccp_scm_hop_address = -1;
+
+static int hf_wlccp_scm_flags = -1; /* SCM Flags Tree */
+static int hf_wlccp_scm_active_flag = -1;
+static int hf_wlccp_scm_unscheduled_flag = -1;
+static int hf_wlccp_scm_unattached_flag = -1;
+static int hf_wlccp_scm_layer2update_flag = -1;
+
+static int hf_wlccp_scm_election_group = -1;
+static int hf_wlccp_scm_attach_count = -1;
+
+static int hf_wlccp_scm_priority_flags = -1; /* SCM Priority Flags */
+static int hf_wlccp_scm_priority = -1;
+static int hf_wlccp_scm_preferred_flag = -1;
+
+static int hf_wlccp_scm_bridge_priority_flags = -1; /* SCM Bridge Priority Flags */
+static int hf_wlccp_scm_bridge_priority = -1;
+static int hf_wlccp_scm_bridge_disable_flag = -1;
+
+static int hf_wlccp_scm_node_id = -1;
+static int hf_wlccp_scm_unknown_short = -1;
+static int hf_wlccp_scm_instance_age = -1;
+static int hf_wlccp_scm_path_cost = -1;
+static int hf_wlccp_scm_hop_count = -1;
+static int hf_wlccp_scm_advperiod = -1;
+
 /*kan for apRegistration messages*/
 static int hf_wlccp_timestamp = -1;
 static int hf_wlccp_apregstatus = -1;
@@ -636,6 +676,9 @@ static gint ett_wlccp = -1;
 static gint ett_wlccp_sap_tree = -1;
 static gint ett_wlccp_type = -1;
 static gint ett_wlccp_cm_flags = -1;
+static gint ett_wlccp_scm_flags = -1;
+static gint ett_wlccp_scm_priority_flags = -1;
+static gint ett_wlccp_scm_bridge_priority_flags = -1;
 static gint ett_wlccp_rm_flags = -1;
 static gint ett_wlccp_nm_flags = -1;
 
@@ -760,9 +803,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	} /* if check_col */
 
-	if (tree) 
-	
-{
+	if (tree) {
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_wlccp, tvb, 0, -1, FALSE);
 		wlccp_tree = proto_item_add_subtree(ti, ett_wlccp);
@@ -1050,7 +1091,7 @@ static gboolean get_mic_flag(void)
 static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type)
 {
 	proto_item *_ti;
-	proto_tree *_wlccp_eapol_msg_tree, *_wlccp_cm_flags_tree;
+	proto_tree *_wlccp_eapol_msg_tree, *_wlccp_cm_flags_tree, *_wlccp_scm_flags_tree, *_wlccp_scm_priority_flags_tree, *_wlccp_scm_bridge_priority_flags_tree;
 
 	gboolean _relay_flag=0, _mic_flag=0, _tlv_flag=0;
 	guint8 _aaa_msg_type=0, _eapol_type=0;
@@ -1143,6 +1184,95 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 		case 0x01:
 		{
+			proto_tree_add_item(_tree, hf_wlccp_scm_hop_address,
+					    _tvb, _offset, 6, FALSE);
+			_offset += 6;
+
+/* Decode the SCM Flags Field */
+
+			_ti = proto_tree_add_item(_tree, hf_wlccp_scm_flags, 
+						_tvb, _offset, 2, FALSE);
+			_wlccp_scm_flags_tree = proto_item_add_subtree(_ti, ett_wlccp_scm_flags);
+
+			proto_tree_add_item(_wlccp_scm_flags_tree, hf_wlccp_scm_layer2update_flag,
+					_tvb, _offset, 2, FALSE);
+
+			proto_tree_add_item(_wlccp_scm_flags_tree, hf_wlccp_scm_unattached_flag,
+					_tvb, _offset, 2, FALSE);
+
+			proto_tree_add_item(_wlccp_scm_flags_tree, hf_wlccp_scm_unscheduled_flag,
+					_tvb, _offset, 2, FALSE);
+
+			proto_tree_add_item(_wlccp_scm_flags_tree, hf_wlccp_scm_active_flag,
+					_tvb, _offset, 2, FALSE);
+			_offset += 2;
+
+/* End Decode the SCM Flags Field */
+
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_election_group,
+					    _tvb, _offset, 1, FALSE);
+			_offset += 1;
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_attach_count,
+					    _tvb, _offset, 1, FALSE);
+			_offset += 1;
+
+/* Decode the SCM Priority Flags Field */
+
+			_ti = proto_tree_add_item(_tree, hf_wlccp_scm_priority_flags, 
+						_tvb, _offset, 1, FALSE);
+			_wlccp_scm_priority_flags_tree = proto_item_add_subtree(_ti, ett_wlccp_scm_priority_flags);
+
+			proto_tree_add_item(_wlccp_scm_priority_flags_tree, hf_wlccp_scm_priority,
+					_tvb, _offset, 1, FALSE);
+
+			proto_tree_add_item(_wlccp_scm_priority_flags_tree, hf_wlccp_scm_preferred_flag,
+					_tvb, _offset, 1, FALSE);
+
+			_offset += 1;
+
+/* End Decode the SCM Priority Flags Field */
+
+/* Decode the SCM Bridge Priority Flags Field */
+
+			_ti = proto_tree_add_item(_tree, hf_wlccp_scm_bridge_priority_flags, 
+						_tvb, _offset, 1, FALSE);
+			_wlccp_scm_bridge_priority_flags_tree = proto_item_add_subtree(_ti, ett_wlccp_scm_bridge_priority_flags);
+
+			proto_tree_add_item(_wlccp_scm_bridge_priority_flags_tree, hf_wlccp_scm_bridge_priority,
+					_tvb, _offset, 1, FALSE);
+
+			proto_tree_add_item(_wlccp_scm_bridge_priority_flags_tree, hf_wlccp_scm_bridge_disable_flag,
+					_tvb, _offset, 1, FALSE);
+
+			_offset += 1;
+
+/* End Decode the SCM Bridge Priority Flags Field */
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_node_id,
+					    _tvb, _offset, 6, FALSE);
+			_offset += 6;
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_unknown_short,
+					    _tvb, _offset, 2, FALSE);
+			_offset += 2;
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_instance_age,
+					    _tvb, _offset, 4, FALSE);
+			_offset += 4;
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_path_cost,
+					    _tvb, _offset, 2, FALSE);
+			_offset += 2;
+			
+			proto_tree_add_item(_tree, hf_wlccp_scm_hop_count,
+					    _tvb, _offset, 1, FALSE);
+			_offset += 1;
+
+			proto_tree_add_item(_tree, hf_wlccp_scm_advperiod,
+					    _tvb, _offset, 1, FALSE);
+			_offset += 1;
 
 			break;
 		} /* case 0x01 */
@@ -1733,10 +1863,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 
 	/* add an arbitrary safety factor in case we foul up the dissector recursion */
-	if (_depth > 1000)
-	{
-	return(tvb_length(_tvb));
-	}
+	DISSECTOR_ASSERT(_depth < 100);
 
 	/* add the flags field to the tlv_tree */
 	_ti = proto_tree_add_item(_tlv_tree, hf_tlv_flags, _tvb, _offset, 2, FALSE);
@@ -1835,48 +1962,49 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 	{
 		case WLCCP_TLV_GROUP_WLCCP:
 		{
-			_offset = dissect_wlccp_ccm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_ccm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_WLCCP */
 
 		case WLCCP_TLV_GROUP_SEC:
 		{
-			_offset = dissect_wlccp_sec_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_sec_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_SEC */
 
 		case WLCCP_TLV_GROUP_RRM:
 		{
-			_offset = dissect_wlccp_rrm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_rrm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_RRM */
 
 		case WLCCP_TLV_GROUP_QOS:
 		{
-			_offset = dissect_wlccp_qos_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_qos_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_QOS */
 
 		case WLCCP_TLV_GROUP_NM:
 		{
-			_offset = dissect_wlccp_nm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_nm_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_NM */
 
 		case WLCCP_TLV_GROUP_MIP:
 		{
-			_offset = dissect_wlccp_mip_tlv(_tlv_tree, _tvb, _offset, _type_id, _length, _temp_ti);
+			_offset = dissect_wlccp_mip_tlv(_tlv_tree, _tvb, _offset, _type_id, _length - 4, _temp_ti);
 			break;
 
 		} /* case WLCCP_TLV_GROUP_MIP */
 
 		default:
 		{
+			_offset = _tlv_end;
 			break;
 		} /* case default for switch _group_id */
 
@@ -1913,7 +2041,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 	/* done with decoding the contained TLVs */
 
-	return(_offset	);
+	return(_tlv_end);
 
 } /* dissect_wlccp_tlvs */
 
@@ -3221,7 +3349,127 @@ proto_register_wlccp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0,
 		    "IPv4 address", HFILL }
 		},
-		
+
+		{ &hf_wlccp_scm_hop_address,
+		  { "Hop Address", "wlccp.scm_hop_address",
+		    FT_ETHER, BASE_NONE, NULL,
+		    0x0, "Source 802 Port Address", HFILL }
+		},
+
+		{ &hf_wlccp_scm_flags,
+		  { "SCM flags", "wlccp.scm_flags",
+		    FT_UINT16, BASE_HEX, NULL,
+		    0x0, "SCM Flags", HFILL }
+		},
+
+		{ &hf_wlccp_scm_active_flag,
+		  { "Active flag", "wlccp.scm_active_flag",
+		    FT_UINT16, BASE_DEC, NULL,
+		    F_SCM_ACTIVE, "Set to on in advertisements from the active SCM", HFILL }
+		},
+
+		{ &hf_wlccp_scm_unscheduled_flag,
+		  { "Unscheduled flag", "wlccp.scm_unscheduled_flag",
+		    FT_UINT16, BASE_DEC, NULL,
+		    F_SCM_UNSCHEDULED, "Set to on in unscheduled advertisement messages", HFILL }
+		},
+
+		{ &hf_wlccp_scm_unattached_flag,
+		  { "Unattached flag", "wlccp.scm_unattached_flag",
+		    FT_UINT16, BASE_DEC, NULL,
+		    F_SCM_UNATTACHED, "Set to on in advertisements from an unattached node", HFILL }
+		},
+
+		{ &hf_wlccp_scm_layer2update_flag,
+		  { "Layer2 Update flag", "wlccp.scm_layer2update_flag",
+		    FT_UINT16, BASE_DEC, NULL,
+		    F_SCM_LAYER2UPDATE, "Set to on if WLCCP Layer 2 path updates are enabled", HFILL }
+		},
+
+		{ &hf_wlccp_scm_election_group,
+		  { "SCM Election Group", "wlccp.scm_election_group",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "SCM Election Group", HFILL }
+		},
+
+		{ &hf_wlccp_scm_attach_count,
+		  { "Attach Count", "wlccp.scm_attach_count",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "Attach count of the hop source", HFILL }
+		},
+
+		{ &hf_wlccp_scm_priority_flags,
+		  { "SCM Priority flags", "wlccp.scm_priority_flags",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    "SCM Priority flags", HFILL }
+		},
+
+		{ &hf_wlccp_scm_priority,
+		  { "SCM Priority", "wlccp.scm_priority",
+		    FT_UINT8, BASE_DEC, NULL,
+		    F_SCM_PRIORITY, "SCM Priority", HFILL }
+		},
+
+		{ &hf_wlccp_scm_preferred_flag,
+		  { "Preferred flag", "wlccp.scm_preferred_flag",
+		    FT_UINT8, BASE_DEC, NULL,
+		    F_SCM_PREFERRED, "Set to off if the SCM is the preferred SCM", HFILL }
+		},
+
+		{ &hf_wlccp_scm_bridge_priority_flags,
+		  { "Bridge Priority flags", "wlccp.scm_bridge_priority_flags",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "Bridge Priority flags", HFILL }
+		},
+
+		{ &hf_wlccp_scm_bridge_priority,
+		  { "Bridge priority", "wlccp.scm_bridge_priority",
+		    FT_UINT8, BASE_DEC, NULL,
+		    F_SCM_BRIDGE_PRIORITY, "Used to negotiate the designated bridge on a non-STP secondary Ethernet LAN", HFILL }
+		},
+
+		{ &hf_wlccp_scm_bridge_disable_flag,
+		  { "Bridge disable flag", "wlccp.scm_bridge_disable_flag",
+		    FT_UINT8, BASE_DEC, NULL,
+		    F_SCM_BRIDGE_DISABLE, "Set to on to indicate that secondary briding is disabled", HFILL }
+		},
+
+		{ &hf_wlccp_scm_node_id,
+		  { "SCM Node ID", "wlccp.scm_node_id",
+		    FT_ETHER, BASE_NONE, NULL,
+		    0x0, "Node ID of the SCM", HFILL }
+		},
+
+		{ &hf_wlccp_scm_unknown_short,
+		  { "Unknown Short", "wlccp.scm_unknown_short",
+		    FT_UINT16, BASE_HEX, NULL,
+		    0x0, "SCM Unknown Short Value", HFILL }
+		},
+
+		{ &hf_wlccp_scm_instance_age,
+		  { "Instance Age", "wlccp.scm_instance_age",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    "Instance age of the SCM in seconds", HFILL }
+		},
+
+		{ &hf_wlccp_scm_path_cost,
+		  { "Path cost", "wlccp.scm_path_cost",
+		    FT_UINT16, BASE_DEC, NULL,
+		    0x0, "Sum of port costs on the path to the SCM", HFILL }
+		},
+
+		{ &hf_wlccp_scm_hop_count,
+		  { "Hop Count", "wlccp.scm_hop_count",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "Number of wireless hops on the path to SCM", HFILL }
+		},
+
+		{ &hf_wlccp_scm_advperiod,
+		  { "Advertisement Period", "wlccp.scm_advperiod",
+		    FT_UINT8, BASE_DEC, NULL, 0,
+		    "Average number of seconds between SCM advertisements", HFILL }
+		},
+
 		{ &hf_wlccp_timestamp,
 		  { "Timestamp", "wlccp.timestamp",
 		    FT_UINT64, BASE_DEC, NULL, 0,
@@ -3849,6 +4097,9 @@ proto_register_wlccp(void)
 		&ett_wlccp_type,
 		&ett_wlccp_flags,
 		&ett_wlccp_cm_flags,
+		&ett_wlccp_scm_flags,
+		&ett_wlccp_scm_priority_flags,
+		&ett_wlccp_scm_bridge_priority_flags,
 		&ett_wlccp_rm_flags,
 		&ett_wlccp_nm_flags,
 		&ett_wlccp_ap_node_id,
