@@ -985,8 +985,12 @@ class EthCtx:
                          'modified' : '', 'attr' : {} }
     name = ident.split('/')[-1]
     if len(ident.split('/')) > 1 and name == '_item':  # Sequence/Set of type
-      self.field[ident]['attr']['NAME'] = '"%s"' % ident.split('/')[-2]
-      self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
+      if len(self.field[ident]['type'].split('/')) > 1:
+        self.field[ident]['attr']['NAME'] = '"%s item"' % ident.split('/')[-2]
+        self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
+      else:
+        self.field[ident]['attr']['NAME'] = '"%s"' % self.field[ident]['type']
+        self.field[ident]['attr']['ABBREV'] = asn2c(self.field[ident]['type'])
     else:
       self.field[ident]['attr']['NAME'] = '"%s"' % name
       self.field[ident]['attr']['ABBREV'] = asn2c(name)
@@ -1128,9 +1132,9 @@ class EthCtx:
            (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t) or 
             self.conform.get_fn_presence('/'.join((t,'_item'))) or self.conform.check_item('FN_PARS', '/'.join((t,'_item')))) and 
            not self.conform.check_item('TYPE_RENAME', t))):
-        if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
+        if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequence of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
-        elif t.split('/')[-1] == '_item':  # Sequnce/Set of type at next levels
+        elif t.split('/')[-1] == '_item':  # Sequence/Set of type at next levels
           nm = 'T_' + self.conform.use_item('FIELD_RENAME', '/'.join(t.split('/')[0:-1]), val_dflt=t.split('/')[-2]) + t.split('/')[-1]
         elif t.split('/')[-1] == '_untag':  # Untagged type
           nm = self.type['/'.join(t.split('/')[0:-1])]['ethname'] + '_U'
@@ -1222,7 +1226,7 @@ class EthCtx:
 
     #--- fields -------------------------
     for f in (self.pdu_ord + self.field_ord):
-      if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce/Set of type
+      if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequence/Set of type
         nm = self.conform.use_item('FIELD_RENAME', '/'.join(f.split('/')[0:-1]), val_dflt=f.split('/')[-2]) + f.split('/')[-1]
       else:
         nm = f.split('/')[-1]
