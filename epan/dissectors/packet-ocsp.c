@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ocsp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
+/* ../../tools/asn2wrs.py -b -p ocsp -c ./ocsp.cnf -s ./packet-ocsp-template -D . OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */
 
@@ -763,7 +763,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_Request", HFILL }},
     { &hf_ocsp_requestList_item,
-      { "requestList", "ocsp.requestList_item",
+      { "Request", "ocsp.Request",
         FT_NONE, BASE_NONE, NULL, 0,
         "ocsp.Request", HFILL }},
     { &hf_ocsp_requestExtensions,
@@ -783,7 +783,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_Certificate", HFILL }},
     { &hf_ocsp_certs_item,
-      { "certs", "ocsp.certs_item",
+      { "Certificate", "ocsp.Certificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.Certificate", HFILL }},
     { &hf_ocsp_reqCert,
@@ -843,7 +843,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_SingleResponse", HFILL }},
     { &hf_ocsp_responses_item,
-      { "responses", "ocsp.responses_item",
+      { "SingleResponse", "ocsp.SingleResponse",
         FT_NONE, BASE_NONE, NULL, 0,
         "ocsp.SingleResponse", HFILL }},
     { &hf_ocsp_responseExtensions,
@@ -899,7 +899,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, VALS(x509ce_CRLReason_vals), 0,
         "x509ce.CRLReason", HFILL }},
     { &hf_ocsp_AcceptableResponses_item,
-      { "AcceptableResponses", "ocsp.AcceptableResponses_item",
+      { "AcceptableResponses item", "ocsp.AcceptableResponses_item",
         FT_OID, BASE_NONE, NULL, 0,
         "ocsp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_ocsp_issuer,

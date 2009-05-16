@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-logotypecertextn.c                                                  */
-/* ../../tools/asn2wrs.py -b -p logotypecertextn -c logotypecertextn.cnf -s packet-logotypecertextn-template LogotypeCertExtn.asn */
+/* ../../tools/asn2wrs.py -b -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . LogotypeCertExtn.asn */
 
 /* Input file: packet-logotypecertextn-template.c */
 
@@ -541,7 +541,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_OF_LogotypeInfo", HFILL }},
     { &hf_logotypecertextn_communityLogos_item,
-      { "communityLogos", "logotypecertextn.communityLogos_item",
+      { "LogotypeInfo", "logotypecertextn.LogotypeInfo",
         FT_UINT32, BASE_DEC, VALS(logotypecertextn_LogotypeInfo_vals), 0,
         "logotypecertextn.LogotypeInfo", HFILL }},
     { &hf_logotypecertextn_issuerLogo,
@@ -557,7 +557,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_OF_OtherLogotypeInfo", HFILL }},
     { &hf_logotypecertextn_otherLogos_item,
-      { "otherLogos", "logotypecertextn.otherLogos_item",
+      { "OtherLogotypeInfo", "logotypecertextn.OtherLogotypeInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "logotypecertextn.OtherLogotypeInfo", HFILL }},
     { &hf_logotypecertextn_direct,
@@ -573,7 +573,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_OF_LogotypeImage", HFILL }},
     { &hf_logotypecertextn_image_item,
-      { "image", "logotypecertextn.image_item",
+      { "LogotypeImage", "logotypecertextn.LogotypeImage",
         FT_NONE, BASE_NONE, NULL, 0,
         "logotypecertextn.LogotypeImage", HFILL }},
     { &hf_logotypecertextn_audio,
@@ -581,7 +581,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_OF_LogotypeAudio", HFILL }},
     { &hf_logotypecertextn_audio_item,
-      { "audio", "logotypecertextn.audio_item",
+      { "LogotypeAudio", "logotypecertextn.LogotypeAudio",
         FT_NONE, BASE_NONE, NULL, 0,
         "logotypecertextn.LogotypeAudio", HFILL }},
     { &hf_logotypecertextn_imageDetails,
@@ -609,7 +609,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue", HFILL }},
     { &hf_logotypecertextn_logotypeHash_item,
-      { "logotypeHash", "logotypecertextn.logotypeHash_item",
+      { "HashAlgAndValue", "logotypecertextn.HashAlgAndValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "logotypecertextn.HashAlgAndValue", HFILL }},
     { &hf_logotypecertextn_logotypeURI,
@@ -617,7 +617,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.T_logotypeURI", HFILL }},
     { &hf_logotypecertextn_logotypeURI_item,
-      { "logotypeURI", "logotypecertextn.logotypeURI_item",
+      { "logotypeURI item", "logotypecertextn.logotypeURI_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "logotypecertextn.T_logotypeURI_item", HFILL }},
     { &hf_logotypecertextn_type,
@@ -677,7 +677,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue", HFILL }},
     { &hf_logotypecertextn_refStructHash_item,
-      { "refStructHash", "logotypecertextn.refStructHash_item",
+      { "HashAlgAndValue", "logotypecertextn.HashAlgAndValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "logotypecertextn.HashAlgAndValue", HFILL }},
     { &hf_logotypecertextn_refStructURI,
@@ -685,7 +685,7 @@ void proto_register_logotypecertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "logotypecertextn.T_refStructURI", HFILL }},
     { &hf_logotypecertextn_refStructURI_item,
-      { "refStructURI", "logotypecertextn.refStructURI_item",
+      { "refStructURI item", "logotypecertextn.refStructURI_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "logotypecertextn.T_refStructURI_item", HFILL }},
     { &hf_logotypecertextn_hashAlg,

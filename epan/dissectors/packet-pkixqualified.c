@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkixqualified.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
+/* ../../tools/asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
@@ -396,7 +396,7 @@ void proto_register_pkixqualified(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "pkixqualified.XmppAddr", HFILL }},
     { &hf_pkixqualified_BiometricSyntax_item,
-      { "BiometricSyntax", "pkixqualified.BiometricSyntax_item",
+      { "BiometricData", "pkixqualified.BiometricData",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.BiometricData", HFILL }},
     { &hf_pkixqualified_typeOfBiometricData,
@@ -424,7 +424,7 @@ void proto_register_pkixqualified(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "pkixqualified.OBJECT_IDENTIFIER", HFILL }},
     { &hf_pkixqualified_QCStatements_item,
-      { "QCStatements", "pkixqualified.QCStatements_item",
+      { "QCStatement", "pkixqualified.QCStatement",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.QCStatement", HFILL }},
     { &hf_pkixqualified_statementId,
@@ -444,7 +444,7 @@ void proto_register_pkixqualified(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkixqualified.NameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
-      { "NameRegistrationAuthorities", "pkixqualified.NameRegistrationAuthorities_item",
+      { "GeneralName", "pkixqualified.GeneralName",
         FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "x509ce.GeneralName", HFILL }},
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkinit.c                                                            */
-/* ../../tools/asn2wrs.py -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn */
+/* ../../tools/asn2wrs.py -b -p pkinit -c ./pkinit.cnf -s ./packet-pkinit-template -D . PKINIT.asn */
 
 /* Input file: packet-pkinit-template.c */
 
@@ -337,7 +337,7 @@ void proto_register_pkinit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkinit.SEQUENCE_OF_TrustedCA", HFILL }},
     { &hf_pkinit_trustedCertifiers_item,
-      { "trustedCertifiers", "pkinit.trustedCertifiers_item",
+      { "TrustedCA", "pkinit.TrustedCA",
         FT_UINT32, BASE_DEC, VALS(pkinit_TrustedCA_vals), 0,
         "pkinit.TrustedCA", HFILL }},
     { &hf_pkinit_kdcCert,
@@ -365,7 +365,7 @@ void proto_register_pkinit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkinit.SEQUENCE_OF_AlgorithmIdentifier", HFILL }},
     { &hf_pkinit_supportedCMSTypes_item,
-      { "supportedCMSTypes", "pkinit.supportedCMSTypes_item",
+      { "AlgorithmIdentifier", "pkinit.AlgorithmIdentifier",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.AlgorithmIdentifier", HFILL }},
     { &hf_pkinit_cusec,

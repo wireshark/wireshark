@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-sabp.c                                                              */
-/* ../../tools/asn2wrs.py -p sabp -c sabp.cnf -s packet-sabp-template SABP-CommonDataTypes.asn SABP-Constants.asn SABP-Containers.asn SABP-IEs.asn SABP-PDU-Contents.asn SABP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p sabp -c ./sabp.cnf -s ./packet-sabp-template -D . SABP-CommonDataTypes.asn SABP-Constants.asn SABP-Containers.asn SABP-IEs.asn SABP-PDU-Contents.asn SABP-PDU-Descriptions.asn */
 
 /* Input file: packet-sabp-template.c */
 
@@ -1826,7 +1826,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, VALS(sabp_SABP_PDU_vals), 0,
         "sabp.SABP_PDU", HFILL }},
     { &hf_sabp_ProtocolIE_Container_item,
-      { "ProtocolIE-Container", "sabp.ProtocolIE_Container_item",
+      { "ProtocolIE-Field", "sabp.ProtocolIE_Field",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.ProtocolIE_Field", HFILL }},
     { &hf_sabp_id,
@@ -1842,7 +1842,7 @@ void proto_register_sabp(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.ProtocolIE_Field_value", HFILL }},
     { &hf_sabp_ProtocolExtensionContainer_item,
-      { "ProtocolExtensionContainer", "sabp.ProtocolExtensionContainer_item",
+      { "ProtocolExtensionField", "sabp.ProtocolExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.ProtocolExtensionField", HFILL }},
     { &hf_sabp_ext_id,
@@ -1874,7 +1874,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "sabp.ProtocolExtensionContainer", HFILL }},
     { &hf_sabp_CriticalityDiagnostics_IE_List_item,
-      { "CriticalityDiagnostics-IE-List", "sabp.CriticalityDiagnostics_IE_List_item",
+      { "CriticalityDiagnostics-IE-List item", "sabp.CriticalityDiagnostics_IE_List_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.CriticalityDiagnostics_IE_List_item", HFILL }},
     { &hf_sabp_iECriticality,
@@ -1890,7 +1890,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "sabp.RepetitionNumber0", HFILL }},
     { &hf_sabp_MessageStructure_item,
-      { "MessageStructure", "sabp.MessageStructure_item",
+      { "MessageStructure item", "sabp.MessageStructure_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.MessageStructure_item", HFILL }},
     { &hf_sabp_repetitionNumber1,
@@ -1898,7 +1898,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "sabp.RepetitionNumber1", HFILL }},
     { &hf_sabp_Failure_List_item,
-      { "Failure-List", "sabp.Failure_List_item",
+      { "Failure-List-Item", "sabp.Failure_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.Failure_List_Item", HFILL }},
     { &hf_sabp_service_area_identifier,
@@ -1910,7 +1910,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
         "sabp.Cause", HFILL }},
     { &hf_sabp_Number_of_Broadcasts_Completed_List_item,
-      { "Number-of-Broadcasts-Completed-List", "sabp.Number_of_Broadcasts_Completed_List_item",
+      { "Number-of-Broadcasts-Completed-List-Item", "sabp.Number_of_Broadcasts_Completed_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.Number_of_Broadcasts_Completed_List_Item", HFILL }},
     { &hf_sabp_number_of_broadcasts_completed,
@@ -1922,7 +1922,7 @@ void proto_register_sabp(void) {
         FT_UINT32, BASE_DEC, VALS(sabp_Number_Of_Broadcasts_Completed_Info_vals), 0,
         "sabp.Number_Of_Broadcasts_Completed_Info", HFILL }},
     { &hf_sabp_Radio_Resource_Loading_List_item,
-      { "Radio-Resource-Loading-List", "sabp.Radio_Resource_Loading_List_item",
+      { "Radio-Resource-Loading-List-Item", "sabp.Radio_Resource_Loading_List_Item",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.Radio_Resource_Loading_List_Item", HFILL }},
     { &hf_sabp_available_bandwidth,
@@ -1942,7 +1942,7 @@ void proto_register_sabp(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "sabp.OCTET_STRING_SIZE_2", HFILL }},
     { &hf_sabp_Service_Areas_List_item,
-      { "Service-Areas-List", "sabp.Service_Areas_List_item",
+      { "Service-Area-Identifier", "sabp.Service_Area_Identifier",
         FT_NONE, BASE_NONE, NULL, 0,
         "sabp.Service_Area_Identifier", HFILL }},
     { &hf_sabp_protocolIEs,

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-charging_ase.c                                                      */
-/* ../../tools/asn2wrs.py -b -e -p charging_ase -c charging_ase.cnf -s packet-charging_ase-template Tariffing-Data-Types.asn */
+/* ../../tools/asn2wrs.py -b -e -p charging_ase -c ./charging_ase.cnf -s ./packet-charging_ase-template -D . Tariffing-Data-Types.asn */
 
 /* Input file: packet-charging_ase-template.c */
 
@@ -909,7 +909,7 @@ proto_register_charging_ase(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "charging_ase.SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField", HFILL }},
     { &hf_charging_ase_extensions_item,
-      { "extensions", "charging_ase.extensions_item",
+      { "ExtensionField", "charging_ase.ExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
         "charging_ase.ExtensionField", HFILL }},
     { &hf_charging_ase_originationIdentification,
@@ -1005,7 +1005,7 @@ proto_register_charging_ase(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "charging_ase.SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification", HFILL }},
     { &hf_charging_ase_networkOperators_item,
-      { "networkOperators", "charging_ase.networkOperators_item",
+      { "NetworkIdentification", "charging_ase.NetworkIdentification",
         FT_OID, BASE_NONE, NULL, 0,
         "charging_ase.NetworkIdentification", HFILL }},
     { &hf_charging_ase_stopIndicators,
@@ -1033,7 +1033,7 @@ proto_register_charging_ase(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "charging_ase.SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency", HFILL }},
     { &hf_charging_ase_communicationChargeSequenceCurrency_item,
-      { "communicationChargeSequenceCurrency", "charging_ase.communicationChargeSequenceCurrency_item",
+      { "CommunicationChargeCurrency", "charging_ase.CommunicationChargeCurrency",
         FT_NONE, BASE_NONE, NULL, 0,
         "charging_ase.CommunicationChargeCurrency", HFILL }},
     { &hf_charging_ase_tariffControlIndicators,
@@ -1065,7 +1065,7 @@ proto_register_charging_ase(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "charging_ase.SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse", HFILL }},
     { &hf_charging_ase_communicationChargeSequencePulse_item,
-      { "communicationChargeSequencePulse", "charging_ase.communicationChargeSequencePulse_item",
+      { "CommunicationChargePulse", "charging_ase.CommunicationChargePulse",
         FT_NONE, BASE_NONE, NULL, 0,
         "charging_ase.CommunicationChargePulse", HFILL }},
     { &hf_charging_ase_tariffControlIndicators_01,

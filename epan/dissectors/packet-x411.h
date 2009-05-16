@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x411.h                                                              */
-/* ../../tools/asn2wrs.py -b -e -p x411 -c x411.cnf -s packet-x411-template MTAAbstractService.asn MTSAbstractService.asn */
+/* ../../tools/asn2wrs.py -b -e -p x411 -c ./x411.cnf -s ./packet-x411-template -D . MTAAbstractService.asn MTSAbstractService.asn */
 
 /* Input file: packet-x411-template.h */
 

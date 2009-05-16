@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ulp.c                                                               */
-/* ../../tools/asn2wrs.py -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn SUPL.asn ULP-Components.asn */
+/* ../../tools/asn2wrs.py -p ulp -c ./ulp.cnf -s ./packet-ulp-template -D . ULP.asn SUPL.asn ULP-Components.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -2470,7 +2470,7 @@ void proto_register_ulp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.SatelliteInfo", HFILL }},
     { &hf_ulp_SatelliteInfo_item,
-      { "SatelliteInfo", "ulp.SatelliteInfo_item",
+      { "SatelliteInfoElement", "ulp.SatelliteInfoElement",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.SatelliteInfoElement", HFILL }},
     { &hf_ulp_satId,
@@ -2766,7 +2766,7 @@ void proto_register_ulp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.UARFCN", HFILL }},
     { &hf_ulp_NMR_item,
-      { "NMR", "ulp.NMR_item",
+      { "NMRelement", "ulp.NMRelement",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.NMRelement", HFILL }},
     { &hf_ulp_aRFCN,
@@ -2782,7 +2782,7 @@ void proto_register_ulp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.INTEGER_0_63", HFILL }},
     { &hf_ulp_MeasuredResultsList_item,
-      { "MeasuredResultsList", "ulp.MeasuredResultsList_item",
+      { "MeasuredResults", "ulp.MeasuredResults",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.MeasuredResults", HFILL }},
     { &hf_ulp_utra_CarrierRSSI,
@@ -2794,7 +2794,7 @@ void proto_register_ulp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.CellMeasuredResultsList", HFILL }},
     { &hf_ulp_CellMeasuredResultsList_item,
-      { "CellMeasuredResultsList", "ulp.CellMeasuredResultsList_item",
+      { "CellMeasuredResults", "ulp.CellMeasuredResults",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.CellMeasuredResults", HFILL }},
     { &hf_ulp_cellIdentity,
@@ -2846,7 +2846,7 @@ void proto_register_ulp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.TimeslotISCP_List", HFILL }},
     { &hf_ulp_TimeslotISCP_List_item,
-      { "TimeslotISCP-List", "ulp.TimeslotISCP_List_item",
+      { "TimeslotISCP", "ulp.TimeslotISCP",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.TimeslotISCP", HFILL }},
     { &hf_ulp_horacc,

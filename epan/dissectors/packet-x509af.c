@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509af.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509af -c ./x509af.cnf -s ./packet-x509af-template -D . AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
 
@@ -1050,7 +1050,7 @@ void proto_register_x509af(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "x509af.GeneralizedTime", HFILL }},
     { &hf_x509af_Extensions_item,
-      { "Extensions", "x509af.Extensions_item",
+      { "Extension", "x509af.Extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.Extension", HFILL }},
     { &hf_x509af_extnId,
@@ -1074,11 +1074,11 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.ForwardCertificationPath", HFILL }},
     { &hf_x509af_ForwardCertificationPath_item,
-      { "ForwardCertificationPath", "x509af.ForwardCertificationPath_item",
+      { "CrossCertificates", "x509af.CrossCertificates",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.CrossCertificates", HFILL }},
     { &hf_x509af_CrossCertificates_item,
-      { "CrossCertificates", "x509af.CrossCertificates_item",
+      { "Certificate", "x509af.Certificate",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.Certificate", HFILL }},
     { &hf_x509af_theCACertificates,
@@ -1086,7 +1086,7 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.SEQUENCE_OF_CertificatePair", HFILL }},
     { &hf_x509af_theCACertificates_item,
-      { "theCACertificates", "x509af.theCACertificates_item",
+      { "CertificatePair", "x509af.CertificatePair",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.CertificatePair", HFILL }},
     { &hf_x509af_issuedByThisCA,
@@ -1114,7 +1114,7 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.T_revokedCertificates", HFILL }},
     { &hf_x509af_revokedCertificates_item,
-      { "revokedCertificates", "x509af.revokedCertificates_item",
+      { "revokedCertificates item", "x509af.revokedCertificates_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.T_revokedCertificates_item", HFILL }},
     { &hf_x509af_revokedUserCertificate,
@@ -1142,7 +1142,7 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.SEQUENCE_OF_ACPathData", HFILL }},
     { &hf_x509af_acPath_item,
-      { "acPath", "x509af.acPath_item",
+      { "ACPathData", "x509af.ACPathData",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.ACPathData", HFILL }},
     { &hf_x509af_certificate,
@@ -1178,7 +1178,7 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.SEQUENCE_OF_Attribute", HFILL }},
     { &hf_x509af_attributes_item,
-      { "attributes", "x509af.attributes_item",
+      { "Attribute", "x509af.Attribute",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_x509af_issuerUniqueID,
@@ -1222,7 +1222,7 @@ void proto_register_x509af(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509af.SET_OF_AttributeType", HFILL }},
     { &hf_x509af_attType_item,
-      { "attType", "x509af.attType_item",
+      { "AttributeType", "x509af.AttributeType",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_x509af_p,

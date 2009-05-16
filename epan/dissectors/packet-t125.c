@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t125.c                                                              */
-/* ../../tools/asn2wrs.py -b -p t125 -c t125.cnf -s packet-t125-template MCS-PROTOCOL.asn */
+/* ../../tools/asn2wrs.py -b -p t125 -c ./t125.cnf -s ./packet-t125-template -D . MCS-PROTOCOL.asn */
 
 /* Input file: packet-t125-template.c */
 
@@ -2296,7 +2296,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_UserId", HFILL }},
     { &hf_t125_admitted_item,
-      { "admitted", "t125.admitted_item",
+      { "UserId", "t125.UserId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.UserId", HFILL }},
     { &hf_t125_assigned,
@@ -2312,7 +2312,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_ChannelAttributes", HFILL }},
     { &hf_t125_mergeChannels_item,
-      { "mergeChannels", "t125.mergeChannels_item",
+      { "ChannelAttributes", "t125.ChannelAttributes",
         FT_UINT32, BASE_DEC, VALS(t125_ChannelAttributes_vals), 0,
         "t125.ChannelAttributes", HFILL }},
     { &hf_t125_purgeChannelIds,
@@ -2320,7 +2320,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_ChannelId", HFILL }},
     { &hf_t125_purgeChannelIds_item,
-      { "purgeChannelIds", "t125.purgeChannelIds_item",
+      { "ChannelId", "t125.ChannelId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.ChannelId", HFILL }},
     { &hf_t125_detachUserIds,
@@ -2328,7 +2328,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_UserId", HFILL }},
     { &hf_t125_detachUserIds_item,
-      { "detachUserIds", "t125.detachUserIds_item",
+      { "UserId", "t125.UserId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.UserId", HFILL }},
     { &hf_t125_grabbed,
@@ -2352,7 +2352,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_UserId", HFILL }},
     { &hf_t125_inhibitors_item,
-      { "inhibitors", "t125.inhibitors_item",
+      { "UserId", "t125.UserId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.UserId", HFILL }},
     { &hf_t125_giving,
@@ -2376,7 +2376,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_TokenAttributes", HFILL }},
     { &hf_t125_mergeTokens_item,
-      { "mergeTokens", "t125.mergeTokens_item",
+      { "TokenAttributes", "t125.TokenAttributes",
         FT_UINT32, BASE_DEC, VALS(t125_TokenAttributes_vals), 0,
         "t125.TokenAttributes", HFILL }},
     { &hf_t125_purgeTokenIds,
@@ -2384,7 +2384,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_TokenId", HFILL }},
     { &hf_t125_purgeTokenIds_item,
-      { "purgeTokenIds", "t125.purgeTokenIds_item",
+      { "TokenId", "t125.TokenId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.TokenId", HFILL }},
     { &hf_t125_reason,
@@ -2408,7 +2408,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_UserId", HFILL }},
     { &hf_t125_userIds_item,
-      { "userIds", "t125.userIds_item",
+      { "UserId", "t125.UserId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.UserId", HFILL }},
     { &hf_t125_channelId_03,
@@ -2424,7 +2424,7 @@ void proto_register_t125(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.SET_OF_ChannelId", HFILL }},
     { &hf_t125_channelIds_item,
-      { "channelIds", "t125.channelIds_item",
+      { "ChannelId", "t125.ChannelId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "t125.ChannelId", HFILL }},
     { &hf_t125_segmentation,

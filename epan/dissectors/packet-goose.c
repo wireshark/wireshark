@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-goose.c                                                             */
-/* ../../tools/asn2wrs.py -b -p goose -c goose.cnf -s packet-goose-template goose.asn */
+/* ../../tools/asn2wrs.py -b -p goose -c ./goose.cnf -s ./packet-goose-template -D . goose.asn */
 
 /* Input file: packet-goose-template.c */
 
@@ -793,7 +793,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.T_offset", HFILL }},
     { &hf_goose_offset_item,
-      { "offset", "goose.offset_item",
+      { "offset item", "goose.offset_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "goose.INTEGER", HFILL }},
     { &hf_goose_references,
@@ -801,7 +801,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.T_references", HFILL }},
     { &hf_goose_references_item,
-      { "references", "goose.references_item",
+      { "references item", "goose.references_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "goose.VisibleString", HFILL }},
     { &hf_goose_confRev,
@@ -825,7 +825,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.SEQUENCE_OF_RequestResults", HFILL }},
     { &hf_goose_result_item,
-      { "result", "goose.result_item",
+      { "RequestResults", "goose.RequestResults",
         FT_UINT32, BASE_DEC, VALS(goose_RequestResults_vals), 0,
         "goose.RequestResults", HFILL }},
     { &hf_goose_responseNegative,
@@ -885,7 +885,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.SEQUENCE_OF_Data", HFILL }},
     { &hf_goose_allData_item,
-      { "allData", "goose.allData_item",
+      { "Data", "goose.Data",
         FT_UINT32, BASE_DEC, VALS(goose_Data_vals), 0,
         "goose.Data", HFILL }},
     { &hf_goose_array,
@@ -893,7 +893,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.SEQUENCE_OF_Data", HFILL }},
     { &hf_goose_array_item,
-      { "array", "goose.array_item",
+      { "Data", "goose.Data",
         FT_UINT32, BASE_DEC, VALS(goose_Data_vals), 0,
         "goose.Data", HFILL }},
     { &hf_goose_structure,
@@ -901,7 +901,7 @@ void proto_register_goose(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "goose.SEQUENCE_OF_Data", HFILL }},
     { &hf_goose_structure_item,
-      { "structure", "goose.structure_item",
+      { "Data", "goose.Data",
         FT_UINT32, BASE_DEC, VALS(goose_Data_vals), 0,
         "goose.Data", HFILL }},
     { &hf_goose_boolean,

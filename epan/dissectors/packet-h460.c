@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h460.c                                                              */
-/* ../../tools/asn2wrs.py -c h460.cnf -s packet-h460-template NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
+/* ../../tools/asn2wrs.py -c ./h460.cnf -s ./packet-h460-template -D . NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
 
 /* Input file: packet-h460-template.c */
 
@@ -2259,7 +2259,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_3.SEQUENCE_OF_CircuitStatusMap", HFILL }},
     { &hf_h460_3_circuitStatusMap_item,
-      { "circuitStatusMap", "h460.3.circuitStatusMap_item",
+      { "CircuitStatusMap", "h460.3.CircuitStatusMap",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_3.CircuitStatusMap", HFILL }},
     { &hf_h460_3_statusType,
@@ -2326,7 +2326,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_4.SEQUENCE_OF_ClearToken", HFILL }},
     { &hf_h460_4_tokens_item,
-      { "tokens", "h460.4.tokens_item",
+      { "ClearToken", "h460.4.ClearToken",
         FT_NONE, BASE_NONE, NULL, 0,
         "h235.ClearToken", HFILL }},
     { &hf_h460_4_cryptoTokens,
@@ -2334,7 +2334,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_4.SEQUENCE_OF_CryptoToken", HFILL }},
     { &hf_h460_4_cryptoTokens_item,
-      { "cryptoTokens", "h460.4.cryptoTokens_item",
+      { "CryptoToken", "h460.4.CryptoToken",
         FT_UINT32, BASE_DEC, VALS(h235_CryptoToken_vals), 0,
         "h235.CryptoToken", HFILL }},
     { &hf_h460_4_rejectReason,
@@ -2457,7 +2457,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_9.SEQUENCE_OF_Extension", HFILL }},
     { &hf_h460_9_extensions_item,
-      { "extensions", "h460.9.extensions_item",
+      { "Extension", "h460.9.Extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_9.Extension", HFILL }},
     { &hf_h460_9_callReferenceValue,
@@ -2477,7 +2477,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_9.SEQUENCE_OF_RTCPMeasures", HFILL }},
     { &hf_h460_9_mediaChannelsQoS_item,
-      { "mediaChannelsQoS", "h460.9.mediaChannelsQoS_item",
+      { "RTCPMeasures", "h460.9.RTCPMeasures",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_9.RTCPMeasures", HFILL }},
     { &hf_h460_9_periodic,
@@ -2497,7 +2497,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_9.SEQUENCE_OF_PerCallQoSReport", HFILL }},
     { &hf_h460_9_perCallInfo_item,
-      { "perCallInfo", "h460.9.perCallInfo_item",
+      { "PerCallQoSReport", "h460.9.PerCallQoSReport",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_9.PerCallQoSReport", HFILL }},
     { &hf_h460_9_mediaInfo,
@@ -2505,7 +2505,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_9.SEQUENCE_OF_RTCPMeasures", HFILL }},
     { &hf_h460_9_mediaInfo_item,
-      { "mediaInfo", "h460.9.mediaInfo_item",
+      { "RTCPMeasures", "h460.9.RTCPMeasures",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_9.RTCPMeasures", HFILL }},
     { &hf_h460_9_networkPacketLossRate,
@@ -2754,7 +2754,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_15.SEQUENCE_OF_TransportAddress", HFILL }},
     { &hf_h460_15_channelResumeAddress_item,
-      { "channelResumeAddress", "h460.15.channelResumeAddress_item",
+      { "TransportAddress", "h460.15.TransportAddress",
         FT_UINT32, BASE_DEC, VALS(h225_TransportAddress_vals), 0,
         "h225.TransportAddress", HFILL }},
     { &hf_h460_15_immediateResume,
@@ -2843,7 +2843,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_21.SEQUENCE_SIZE_1_256_OF_TransmitCapabilities", HFILL }},
     { &hf_h460_21_transmitCapabilities_item,
-      { "transmitCapabilities", "h460.21.transmitCapabilities_item",
+      { "TransmitCapabilities", "h460.21.TransmitCapabilities",
         FT_NONE, BASE_NONE, NULL, 0,
         "h460_21.TransmitCapabilities", HFILL }},
     { &hf_h460_21_capabilities,
@@ -2851,7 +2851,7 @@ void proto_register_h460(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h460_21.SEQUENCE_SIZE_1_256_OF_Capability", HFILL }},
     { &hf_h460_21_capabilities_item,
-      { "capabilities", "h460.21.capabilities_item",
+      { "Capability", "h460.21.Capability",
         FT_UINT32, BASE_DEC, VALS(h245_Capability_vals), 0,
         "h245.Capability", HFILL }},
     { &hf_h460_21_maxGroups,

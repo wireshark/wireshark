@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h323.c                                                              */
-/* ../../tools/asn2wrs.py -p h323 -c h323.cnf -s packet-h323-template RAS-PROTOCOL-TUNNEL.asn ROBUSTNESS-DATA.asn */
+/* ../../tools/asn2wrs.py -p h323 -c ./h323.cnf -s ./packet-h323-template -D . RAS-PROTOCOL-TUNNEL.asn ROBUSTNESS-DATA.asn */
 
 /* Input file: packet-h323-template.c */
 
@@ -472,7 +472,7 @@ void proto_register_h323(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h323.T_messageContent", HFILL }},
     { &hf_h323_messageContent_item,
-      { "messageContent", "h323.messageContent_item",
+      { "messageContent item", "h323.messageContent_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h323.OCTET_STRING", HFILL }},
     { &hf_h323_tunnellingRequired,
@@ -516,7 +516,7 @@ void proto_register_h323(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "h323.StatusInquiry_RD", HFILL }},
     { &hf_h323_BackupCallSignalAddresses_item,
-      { "BackupCallSignalAddresses", "h323.BackupCallSignalAddresses_item",
+      { "BackupCallSignalAddresses item", "h323.BackupCallSignalAddresses_item",
         FT_UINT32, BASE_DEC, VALS(h323_BackupCallSignalAddresses_item_vals), 0,
         "h323.BackupCallSignalAddresses_item", HFILL }},
     { &hf_h323_tcp,
@@ -552,7 +552,7 @@ void proto_register_h323(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h323.T_fastStart", HFILL }},
     { &hf_h323_fastStart_item,
-      { "fastStart", "h323.fastStart_item",
+      { "fastStart item", "h323.fastStart_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h323.OCTET_STRING", HFILL }},
     { &hf_h323_resetH245,

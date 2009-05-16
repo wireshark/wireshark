@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t38.c                                                               */
-/* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38_2002.asn */
+/* ../../tools/asn2wrs.py -p t38 -c ./t38.cnf -s ./packet-t38-template -D . T38_2002.asn */
 
 /* Input file: packet-t38-template.c */
 
@@ -1292,7 +1292,7 @@ proto_register_t38(void)
         FT_UINT32, BASE_DEC, VALS(t38_T30_data_vals), 0,
         "t38.T30_data", HFILL }},
     { &hf_t38_Data_Field_item,
-      { "Data-Field", "t38.Data_Field_item",
+      { "Data-Field item", "t38.Data_Field_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "t38.Data_Field_item", HFILL }},
     { &hf_t38_field_type,
@@ -1320,7 +1320,7 @@ proto_register_t38(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "t38.T_secondary_ifp_packets", HFILL }},
     { &hf_t38_secondary_ifp_packets_item,
-      { "secondary-ifp-packets", "t38.secondary_ifp_packets_item",
+      { "secondary-ifp-packets item", "t38.secondary_ifp_packets_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "t38.OpenType_IFPPacket", HFILL }},
     { &hf_t38_fec_info,
@@ -1336,7 +1336,7 @@ proto_register_t38(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "t38.T_fec_data", HFILL }},
     { &hf_t38_fec_data_item,
-      { "fec-data", "t38.fec_data_item",
+      { "fec-data item", "t38.fec_data_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "t38.OCTET_STRING", HFILL }},
 

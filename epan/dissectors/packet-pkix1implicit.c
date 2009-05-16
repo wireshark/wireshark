@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkix1implicit.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkix1implicit -c pkix1implicit.cnf -s packet-pkix1implicit-template PKIX1IMPLICIT93.asn */
+/* ../../tools/asn2wrs.py -b -p pkix1implicit -c ./pkix1implicit.cnf -s ./packet-pkix1implicit-template -D . PKIX1IMPLICIT93.asn */
 
 /* Input file: packet-pkix1implicit-template.c */
 
@@ -304,7 +304,7 @@ void proto_register_pkix1implicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1implicit.AuthorityInfoAccessSyntax", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_item,
-      { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax_item",
+      { "AccessDescription", "pkix1implicit.AccessDescription",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1implicit.AccessDescription", HFILL }},
     { &hf_pkix1implicit_accessMethod,
@@ -332,7 +332,7 @@ void proto_register_pkix1implicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1implicit.T_noticeNumbers", HFILL }},
     { &hf_pkix1implicit_noticeNumbers_item,
-      { "noticeNumbers", "pkix1implicit.noticeNumbers_item",
+      { "noticeNumbers item", "pkix1implicit.noticeNumbers_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "pkix1implicit.INTEGER", HFILL }},
     { &hf_pkix1implicit_visibleString,

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-crmf.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn */
+/* ../../tools/asn2wrs.py -b -e -p crmf -c ./crmf.cnf -s ./packet-crmf-template -D . CRMF.asn */
 
 /* Input file: packet-crmf-template.c */
 
@@ -906,7 +906,7 @@ void proto_register_crmf(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.EncKeyWithID", HFILL }},
     { &hf_crmf_CertReqMessages_item,
-      { "CertReqMessages", "crmf.CertReqMessages_item",
+      { "CertReqMsg", "crmf.CertReqMsg",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.CertReqMsg", HFILL }},
     { &hf_crmf_certReq,
@@ -922,7 +922,7 @@ void proto_register_crmf(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "crmf.SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue", HFILL }},
     { &hf_crmf_regInfo_item,
-      { "regInfo", "crmf.regInfo_item",
+      { "AttributeTypeAndValue", "crmf.AttributeTypeAndValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.AttributeTypeAndValue", HFILL }},
     { &hf_crmf_certReqId,
@@ -986,7 +986,7 @@ void proto_register_crmf(void) {
         FT_UINT32, BASE_DEC, VALS(pkix1explicit_Time_vals), 0,
         "pkix1explicit.Time", HFILL }},
     { &hf_crmf_Controls_item,
-      { "Controls", "crmf.Controls_item",
+      { "AttributeTypeAndValue", "crmf.AttributeTypeAndValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.AttributeTypeAndValue", HFILL }},
     { &hf_crmf_type,
@@ -1090,7 +1090,7 @@ void proto_register_crmf(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "crmf.SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo", HFILL }},
     { &hf_crmf_pubInfos_item,
-      { "pubInfos", "crmf.pubInfos_item",
+      { "SinglePubInfo", "crmf.SinglePubInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.SinglePubInfo", HFILL }},
     { &hf_crmf_pubMethod,
@@ -1182,7 +1182,7 @@ void proto_register_crmf(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "crmf.Attributes", HFILL }},
     { &hf_crmf_Attributes_item,
-      { "Attributes", "crmf.Attributes_item",
+      { "Attribute", "crmf.Attribute",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.Attribute", HFILL }},
 

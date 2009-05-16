@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_tcap.c                                                         */
-/* ../../tools/asn2wrs.py -b -p ansi_tcap -c ansi_tcap.cnf -s packet-ansi_tcap-template TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
+/* ../../tools/asn2wrs.py -b -p ansi_tcap -c ./ansi_tcap.cnf -s ./packet-ansi_tcap-template -D . TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
 
 /* Input file: packet-ansi_tcap-template.c */
 
@@ -1536,7 +1536,7 @@ proto_register_ansi_tcap(void)
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_tcap.Confidentiality", HFILL }},
     { &hf_ansi_tcap__untag_item,
-      { "_untag", "ansi_tcap._untag_item",
+      { "_untag item", "ansi_tcap._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_tcap.EXTERNAL", HFILL }},
     { &hf_ansi_tcap_confidentialityId,
@@ -1552,7 +1552,7 @@ proto_register_ansi_tcap(void)
         FT_OID, BASE_NONE, NULL, 0,
         "ansi_tcap.OBJECT_IDENTIFIER", HFILL }},
     { &hf_ansi_tcap__untag_item_01,
-      { "_untag", "ansi_tcap._untag_item",
+      { "ComponentPDU", "ansi_tcap.ComponentPDU",
         FT_UINT32, BASE_DEC, VALS(ansi_tcap_ComponentPDU_vals), 0,
         "ansi_tcap.ComponentPDU", HFILL }},
     { &hf_ansi_tcap_invokeLast,

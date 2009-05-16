@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h235.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* ../../tools/asn2wrs.py -e -p h235 -c ./h235.cnf -s ./packet-h235-template -D . H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -1229,7 +1229,7 @@ void proto_register_h235(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h235.SEQUENCE_OF_ProfileElement", HFILL }},
     { &hf_h235_profileInfo_item,
-      { "profileInfo", "h235.profileInfo_item",
+      { "ProfileElement", "h235.ProfileElement",
         FT_NONE, BASE_NONE, NULL, 0,
         "h235.ProfileElement", HFILL }},
     { &hf_h235_elementID,
@@ -1377,7 +1377,7 @@ void proto_register_h235(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "h235.OCTET_STRING", HFILL }},
     { &hf_h235_SrtpCryptoCapability_item,
-      { "SrtpCryptoCapability", "h235.SrtpCryptoCapability_item",
+      { "SrtpCryptoInfo", "h235.SrtpCryptoInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "h235.SrtpCryptoInfo", HFILL }},
     { &hf_h235_cryptoSuite,
@@ -1393,7 +1393,7 @@ void proto_register_h235(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "h235.BOOLEAN", HFILL }},
     { &hf_h235_SrtpKeys_item,
-      { "SrtpKeys", "h235.SrtpKeys_item",
+      { "SrtpKeyParameters", "h235.SrtpKeyParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "h235.SrtpKeyParameters", HFILL }},
     { &hf_h235_masterKey,
@@ -1457,7 +1457,7 @@ void proto_register_h235(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h235.SEQUENCE_OF_GenericData", HFILL }},
     { &hf_h235_newParameter_item,
-      { "newParameter", "h235.newParameter_item",
+      { "GenericData", "h235.GenericData",
         FT_NONE, BASE_NONE, NULL, 0,
         "h225.GenericData", HFILL }},
     { &hf_h235_fecBeforeSrtp,
