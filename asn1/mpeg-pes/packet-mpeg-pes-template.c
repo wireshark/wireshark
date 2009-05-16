@@ -467,7 +467,7 @@ dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_clear(pinfo->cinfo, COL_INFO);
 	if (tree)
