@@ -2358,7 +2358,7 @@
 00:09:25	VsnSysteme             # VSN Systemen BV
 00:09:26	YodaCommun             # YODA COMMUNICATIONS, INC.
 00:09:27	Toyokeiki              # TOYOKEIKI CO.,LTD.
-00:09:28	Telecore               # Telecore Inc
+00:09:28	Telecore
 00:09:29	SanyoIndus             # Sanyo Industries (UK) Limited
 00:09:2A	Mytecs                 # MYTECS Co.,Ltd.
 00:09:2B	IqstorNetw             # iQstor Networks, Inc.
@@ -2568,7 +2568,7 @@
 00:09:F7	SedADivisi             # SED, a division of Calian
 00:09:F8	UnimoTechn             # UNIMO TECHNOLOGY CO., LTD.
 00:09:F9	ArtJapan               # ART JAPAN CO., LTD.
-00:09:FB	PhilipsMed             # Philips Medizinsysteme Boeblingen GmbH
+00:09:FB	PhilipsPat             # Philips Patient Monitoring
 00:09:FC	Ipflex                 # IPFLEX Inc.
 00:09:FD	Ubinetics              # Ubinetics Limited
 00:09:FE	DaisyTechn             # Daisy Technologies, Inc.
@@ -4183,7 +4183,7 @@
 00:10:47	EchoEletri             # ECHO ELETRIC CO. LTD.
 00:10:48	HtrcAutoma             # HTRC AUTOMATION, INC.
 00:10:49	Shoretel               # ShoreTel, Inc
-00:10:4A	Parvuc                 # THE PARVUC CORPORATION
+00:10:4A	Parvus                 # The Parvus Corporation
 00:10:4B	3com                   # 3COM CORPORATION
 00:10:4C	Lecroy                 # LeCroy Corporation
 00:10:4D	SurtecIndu             # SURTEC INDUSTRIES, INC.
@@ -4495,7 +4495,7 @@
 00:11:80	MotorolaBc             # Motorola BCS
 00:11:81	Interenerg             # InterEnergy Co.Ltd,
 00:11:82	ImiNorgren             # IMI Norgren Ltd
-00:11:83	PscScannin             # PSC Scanning, Inc
+00:11:83	DatalogicM             # Datalogic Mobile, Inc.
 00:11:84	HumoLabora             # Humo Laboratory,Ltd.
 00:11:85	HewlettPac             # Hewlett Packard
 00:11:86	Prime                  # Prime Systems, Inc.
@@ -9784,6 +9784,24 @@
 00:26:29	JuphoonSys             # Juphoon System Software Inc.
 00:26:2A	ProxenseLl             # Proxense, LLC
 00:26:2B	WongsElect             # Wongs Electronics Co. Ltd.
+00:26:2C	IktAdvance             # IKT Advanced Technologies s.r.o.
+00:26:2D	Wistron                # Wistron Corporation
+00:26:2E	ChengduJiu             # Chengdu Jiuzhou Electronic Technology Inc
+00:26:2F	HamamatsuT             # HAMAMATSU TOA ELECTRONICS
+00:26:30	AcorelSAS              # ACOREL S.A.S
+00:26:31	Commtact               # COMMTACT LTD
+00:26:32	Instrument             # Instrumentation Technologies d.d.
+00:26:33	Mir-Medica             # MIR - Medical International Research
+00:26:34	Infineta               # Infineta Systems, Inc
+00:26:35	Bluetechni             # Bluetechnix GmbH
+00:26:36	MotorolaMo             # Motorola Mobile Devices
+00:26:37	SamsungEle             # Samsung Electro-Mechanics
+00:26:38	XiaMenJoya             # Xia Men Joyatech Co., Ltd.
+00:26:39	TMElectron             # T.M. Electronics, Inc.
+00:26:3A	Digitec                # Digitec Systems
+00:26:3B	Onbnetech
+00:26:3C	Bachmann               # Bachmann GmbH & Co. KG
+00:26:3D	Mia                    # MIA Corporation
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -11021,7 +11039,7 @@
 00:50:C2:21:E0:00/36	AppliedTec             # Applied Technologies Associates
 00:50:C2:21:F0:00/36	MonitorBus             # Monitor Business Machines Ltd
 00:50:C2:22:00:00/36	Serveron               # Serveron Corporation
-00:50:C2:22:10:00/36	GetingeLun             # Getinge Lunatronic ApS
+00:50:C2:22:10:00/36	GetingeItS             # Getinge IT Solutions ApS
 00:50:C2:22:20:00/36	Imo-Elektr             # imo-elektronik GmbH
 00:50:C2:22:30:00/36	Visicontro             # visicontrol GmbH
 00:50:C2:22:40:00/36	Pannocom               # PANNOCOM Ltd.
@@ -13216,6 +13234,14 @@
 00:50:C2:AB:60:00/36	GygaxEmbed             # Gygax Embedded Engineering GEE.ch
 00:50:C2:AB:70:00/36	TwinfallsT             # Twinfalls Technologies
 00:50:C2:AB:80:00/36	AhmClikapa             # AHM Limited (CLiKAPAD)
+00:50:C2:AB:90:00/36	Showtacle
+00:50:C2:AB:A0:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:AB:B0:00/36	Volantic               # Volantic AB
+00:50:C2:AB:C0:00/36	Barrick
+00:50:C2:AB:D0:00/36	MonitorBus             # Monitor Business Machines Ltd.
+00:50:C2:AB:E0:00/36	ApLabs                 # AP Labs
+00:50:C2:AB:F0:00/36	MccCompute             # MCC Computer Company
+00:50:C2:AC:00:00/36	DsProAudio             # DS PRO Audio Ltda
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -14524,7 +14550,7 @@
 00:C0:B3	ComstatDat             # COMSTAT DATACOMM CORPORATION
 00:C0:B4	MysonTechn             # MYSON TECHNOLOGY, INC.
 00:C0:B5	CorporateN             # CORPORATE NETWORK SYSTEMS,INC.
-00:C0:B6	Adaptec                # Adaptec, Inc.
+00:C0:B6	OverlandSt             # Overland Storage, Inc.
 00:C0:B7	AmericanPo             # AMERICAN POWER CONVERSION CORP
 00:C0:B8	FraserSHil             # FRASER'S HILL LTD.
 00:C0:B9	FunkSoftwa             # FUNK SOFTWARE, INC.
