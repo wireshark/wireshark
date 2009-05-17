@@ -276,8 +276,8 @@ Hide                          [RFC3261] (deprecated)
                 { "P-User-Database",			NULL },  /*  53 RFC4457  */
                 { "P-Visited-Network-ID",       NULL },  /*  54 RFC3455  */
                 { "Path",                       NULL },  /*  55 RFC3327  */
-				{ "Permission-Missing",         NULL },  /*  56 RFC5360  */
-				{ "Priority", 					NULL },  /*  57 RFC3261  */
+                { "Permission-Missing",         NULL },  /*  56 RFC5360  */
+                { "Priority", 					NULL },  /*  57 RFC3261  */
                 { "Priv-Answer-Mode",           NULL },  /*  58 RFC5373  */
                 { "Privacy",                    NULL },  /*  59 RFC3323  */
                 { "Proxy-Authenticate", 		NULL },	 /*  60 */
@@ -315,8 +315,7 @@ Hide                          [RFC3261] (deprecated)
                 { "Target-Dialog",				NULL },  /*  89 RFC4538  */
                 { "Timestamp",					NULL },  /*  90 RFC3261  */
                 { "To",							"t"  },  /*  91 RFC3261  */
-				{ "Trigger-Consent",            NULL },  /*  92 RFC5360  */
-
+                { "Trigger-Consent",            NULL },  /*  92 RFC5360  */
                 { "Unsupported",				NULL },  /*  93 RFC3261  */
                 { "User-Agent", 				NULL },  /*  94 RFC3261  */
                 { "Via",			 			"v"  },  /*  95 RFC3261  */
@@ -463,7 +462,7 @@ static gint hf_header_array[] = {
                 -1, /* 35"Min-SE",								RFC4028 */
                 -1, /* 36"Organization",								*/
                 -1, /* 37"P-Access-Network-Info",				RFC3455	*/
-                -1, /* 38"P-Answer-State",					RFC4964	*/
+                -1, /* 38"P-Answer-State",						RFC4964	*/
                 -1, /* 39"P-Asserted-Identity",					RFC3325	*/
                 -1, /* 40"P-Associated-URI",					RFC3455	*/
                 -1, /* 41"P-Called-Party-ID",					RFC3455	*/
@@ -575,35 +574,35 @@ typedef struct {
 
 static hf_sip_uri_t sip_pai_uri = {
 	&hf_sip_pai_addr,
-    &hf_sip_pai_user,
+	&hf_sip_pai_user,
 	&hf_sip_pai_host,
-    &hf_sip_pai_port,
-    &ett_sip_pai_uri
+	&hf_sip_pai_port,
+	&ett_sip_pai_uri
 };
 
 static hf_sip_uri_t sip_ppi_uri = {
 	&hf_sip_ppi_addr,
-    &hf_sip_ppi_user,
+	&hf_sip_ppi_user,
 	&hf_sip_ppi_host,
-    &hf_sip_ppi_port,
-    &ett_sip_ppi_uri
+	&hf_sip_ppi_port,
+	&ett_sip_ppi_uri
 };
 
 static hf_sip_uri_t sip_pmiss_uri = {
 	&hf_sip_pmiss_addr,
-    &hf_sip_pmiss_user,
+	&hf_sip_pmiss_user,
 	&hf_sip_pmiss_host,
-    &hf_sip_pmiss_port,
-    &ett_sip_pmiss_uri
+	&hf_sip_pmiss_port,
+	&ett_sip_pmiss_uri
 };
 
 
 static hf_sip_uri_t sip_tc_uri = {
 	&hf_sip_tc_addr,
-   	&hf_sip_tc_user,
-    &hf_sip_tc_host,
-   	&hf_sip_tc_port,
-   	&ett_sip_tc_uri
+	&hf_sip_tc_user,
+	&hf_sip_tc_host,
+	&hf_sip_tc_port,
+	&ett_sip_tc_uri
 };
 
 
@@ -2383,7 +2382,7 @@ separator_found2:
 										       tvb_format_text(tvb, offset, linelen));
 
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
-											   							ett_sip_element);
+																		ett_sip_element);
 						}
 
 						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
@@ -2391,20 +2390,20 @@ separator_found2:
 							tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_tc_uri);
 							if (line_end_offset > uri_offsets.uri_end) {
 								gint hparam_offset = uri_offsets.uri_end + 1;
-								// Is there a header parameter
+								/* Is there a header parameter */
 								if (tvb_find_guint8(tvb, hparam_offset, 1,';')) {
 									while ((hparam_offset != -1 && hparam_offset < line_end_offset) )  {
-										   // Is this a target-uri ?
-										   hparam_offset = hparam_offset + 1;
-										   if (tvb_strncaseeql(tvb, hparam_offset, "target-uri=\"", 12) == 0) {
-									           gint turi_start_offset = hparam_offset + 12;
-									           gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
-									           if (turi_end_offset != -1)
-									                proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),FALSE);
-											   else
-							 					    break; //malformed
-										   }
-										   hparam_offset = tvb_find_guint8(tvb, hparam_offset, -1,';');
+										/* Is this a target-uri ? */
+										hparam_offset = hparam_offset + 1;
+										if (tvb_strncaseeql(tvb, hparam_offset, "target-uri=\"", 12) == 0) {
+											gint turi_start_offset = hparam_offset + 12;
+											gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
+											if (turi_end_offset != -1)
+												proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),FALSE);
+											else
+							 					break; /* malformed */
+										}
+										hparam_offset = tvb_find_guint8(tvb, hparam_offset, -1,';');
 									}
 								}
 							}
@@ -2962,8 +2961,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 	/*
 	 * We know we have the entire method; otherwise, "sip_parse_line()"
 	 * would have returned OTHER_LINE.
-
-          * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+	 * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
 	 * SP = single space
 	 */
 
