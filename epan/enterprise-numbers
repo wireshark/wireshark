@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-05-10)
+(last updated 2009-05-15)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -17563,8 +17563,8 @@ Decimal
       cweng&kemperinsurance.com
 4391
   Texas A&M University
-    Keith Marrocco
-      keith&tamu.edu
+    Networking & Information Security
+      tech&net.tamu.edu
 4392
   Northbrook Services, Inc.
     S. Lane Pierce
@@ -42116,7 +42116,7 @@ Decimal
 10540
   AXL Software
     Michael Lecuyer
-      mjl&theorem.com
+      mjl&axlradius.com
 10541
   Caymasa El Sendero, SA
     Jose M. Palomar
@@ -60317,7 +60317,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 15191
   Voice Print International, Inc.
     Ryan Pfeifle
-      rp&digitalvoicelogging.com
+      rpfeifle&vpi-corp.com
 15192
   Evergreen Assurance, Inc.
     Michael Chiang
@@ -67060,8 +67060,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       iana&kungfoocoder.org
 16877
   All Media Banking BV
-    Paul Wagland
-      pwagland&allshare.nl
+    Robin Huiser
+      rhuiser&allshare.nl
 16878
   Oldham Metropolitan Borough Council
     Andrew McCall
@@ -68315,9 +68315,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Bevan Bennett
       bbennett&fulcrummicro.com
 17191
-  Facultad de Física. Universidad de La Laguna
-    Jesus Torres
-      jesus&ie.fisica.ull.es
+  Universidad de La Laguna
+    Javier Quijada Morales
+      sistemas&ull.es
 17192
   Emprisa Networks
     Mirga Jazbutis
@@ -77282,7 +77282,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 19432
   Virulent Software
     Nicholas Holder
-      nrholder&yahoo.com
+      nrholder&gmail.com
 19433
   Austin Independent School District
     William Hill
@@ -83894,7 +83894,7 @@ Information Security of Pr
 21084
   SD Laboratories
     Theron Bair
-      sdeath&att.net
+      sdeath&sdeath.net
 21085
   Open Alliance Sofware Libre, S.A.
     Marc Munoz
@@ -112735,8 +112735,8 @@ Decentralization / Helenic Public Administra
       tlim&optium.com
 28288
   LightRail Inc.
-    Wanhairong
-      wanhairong&gmail.com
+    Kelvin Su
+      lightrail.com&gmail.com
 28289
   WhisperItLoud LLC
     Mark Gregory
@@ -115606,9 +115606,9 @@ Decentralization / Helenic Public Administra
     Sergey P. Korobkov
       sergey&orbita.dp.ua
 29006
-  Voca Limited
-    Ian Richardson
-      ian.richardson&voca.com
+  VocaLink Limited
+    Darren Wilson
+      darren.wilson&vocalink.com
 29007
   R&D ScanEx
     Michael Rusakov
@@ -119259,8 +119259,8 @@ Decentralization / Helenic Public Administra
       evgenij.kurenskij&samotlor.info
 29919
   CJSC Orbita
-    I.E.Bretz
-      orbita&krasnodar.ru
+    Igor V. Alekseev
+      ca&orbitacom.ru
 29920
   mySoftIT GmbH
     Sascha Bitzer
@@ -133487,6 +133487,266 @@ Decentralization / Helenic Public Administra
   Botswana Power Corporation
     Hanno van der Maas
       hanno&bpc.bw
+33476
+  Kittelberger media solutions GmbH
+    René Gerisch
+      sysadmin&kittelberger.de
+33477
+  Sommer Mess-Systemtechnik
+    Bernd Herstelle
+      iana&sommer.at
+33478
+  aserva GmbH
+    Alexander Scheibner
+      alexander.scheibner&aserva.de
+33479
+  TradingScreen Inc
+    Jon Andrews
+      jon.andrews&tradingscreen.com
+33480
+  Canadian Automobile Association, South Central Ontario
+    Alex Savitsky
+      asav&caasco.ca
+33481
+  Manufacturing Resources International
+    John Schuch
+      jschuch&mri-inc.net
+33482
+  ManageIQ, Inc.
+    Oleg Barenboim
+      oleg.barenboim&manageiq.com
+33483
+  Goldflower Incorporated
+    Dr. Charles Cavanaugh
+      cdc&goldflowerinc.com
+33484
+  Initech s.r.o.
+    Petr Antonov
+      development&initech.cz
+33485
+  Caribou Software
+    Jeremy Phillippe
+      jeremy.phillippe&caribousoftware.com
+33486
+  Silk Information Systems, Inc.
+    Brandon Bates
+      info&silkisi.com
+33487
+  Packet Ship Technologies Limited
+    Paul Clark
+      paul&packetship.com
+33488
+  MoaningMarmot
+    Emmanuel Blot
+      emmanuel.blot&free.fr
+33489
+  NERO Network
+    Stephen Fromm
+      stephenf&nero.net
+33490
+  GeneGO Inc.
+    Maxim Kuznetsov
+      max&genego.com
+33491
+  Malviny International
+    Jiri "Malviny" Maly
+      malviny&post.cz
+33492
+  Broadex Technologies, Shanghai
+    Zhu Hangtian
+      hangtian.zhu&broadex-tech.com
+33493
+  Loadcom Technology Shenzhen Co., Ltd.
+    wangdadong
+      dolphine51&163.com
+33494
+  Sekoci Maju Jaya
+    Kunto Harjadji Baiquni
+      kbaiquni&esemje.com
+33495
+  AXPO INFORMATIK AG
+    Matthias Gysin
+      Matthias.Gysin&axpo.ch
+33496
+  Spurious Logic Technology Services
+    Ian Tarasevitsch
+      Ian.Tarasevitsch&gmail.com
+33497
+  Vahni Solutions
+    Cariappa Bollera Appaiah
+      cariappa.ba&vahnisolutions.com
+33498
+  Andrew Kipcharskiy
+    Andrew Kipcharskiy
+      avkipcharskiy&mail.ru
+33499
+  KPN HotSpots
+    Jan Haitjema
+      jan&kpnhotspots.com
+33500
+  Vertex Antennentechnik GmbH
+    SNMP Administrator
+      snmp&vertexant.de
+33501
+  Novatice Technologies
+    Erwan HAMON
+      tech&novatice.com
+33502
+  Comunidad Autonoma Region de Murcia
+    Tomas Sanchez Sandoval
+      tomas.sanchez&carm.es
+33503
+  Heavens-Above GmbH
+    Chirstopher Peat
+      chris.peat&heavens-above.com
+33504
+  Narodni technicka knihovna
+    Jakub Shanel
+      j.shanel&stk.cz
+33505
+  tw telecom, inc.
+    Bill Sella
+      bill.sella&twtelecom.com
+33506
+  Enginuity PLM LLC
+    Carl P. Miller
+      cmiller&enginuityplm.com
+33507
+  Elster Electricity, LLC
+    Edward J. Beroset
+      edward.j.beroset&us.elster.com
+33508
+  Avere Systems, Inc.
+    Daniel S. Nydick
+      mibs&averesys.com
+33509
+  Sociedad Hebraica Argentina
+    Leandro Fernández
+      leandro&hebraica.org.ar
+33510
+  Provincial Health Services Authority
+    Jason Freeman
+      jfreeman&phsa.ca
+33511
+  Radiant Technologies, Inc.
+    Tae Joon Ha
+      tjha&radiantech.net
+33512
+  TheMarkets.com LLC
+    Albert Rech
+      arech&themarkets.com
+33513
+  Arvensian
+    Jon Gray
+      jon&arvensian.co.uk
+33514
+  LUMANTEK
+    Kang Myung Soo
+      mskang&lumantek.com
+33515
+  Antonio Cunha Barbosa
+    Antonio Barbosa
+      cunha.barbosa&gmail.com
+33516
+  Zhuhai Jiasin Industry Co., Ltd
+    xiaohu yu
+      yuxh&jiasin.com
+33517
+  Scourger.nl
+    Richard K. Noorlandt
+      info&scourger.nl
+33518
+  Tap / Bkruse & Associates LLC
+    Ivan D Vasin
+      ivan&vacced.com
+33519
+  SkyMesh PTy Ltd
+    Brett Johnson
+      brett.johnson&skymesh.net.au
+33520
+  Modern Module Inc.
+    Alex Qian
+      alexqian&e-mmi.com
+33521
+  IKT Advanced Technologies s.r.o.
+    Jiri Smitka
+      jiri.smitka&ikt.cz
+33522
+  soit GmbH
+    Haik Schwebke
+      h.schwebke&soit.de
+33523
+  Sword Real Time
+    Stuart Banks
+      stuart.banks&rtel.com
+33524
+  measanctum
+    Bren Norris
+      bren.norris&measanctum.com
+33525
+  Bewigo Technologies SARL
+    Omar BENHAMID
+      omar.benhamid&bewigo.com
+33526
+  DonaldWilson.Info
+    Donald Wilson
+      donald&donaldwilson.info
+33527
+  USDA
+    Rich Barr
+      richard.barr&usda.gov
+33528
+  Krestfield
+    Darren Wilson
+      darren.wilson&krestfield.com
+33529
+  MIDASPLUS, INC.
+    David Stachowski
+      dave.stachowski&acs-inc.com
+33530
+  EasyWay
+    Wang Yongfeng
+      wangsir512&126.com
+33531
+  Dmitry Komarchev
+    Dmitry Komarchev
+      komarchev&gmail.com
+33532
+  Valsts Robežsardze
+    Sergey Lukashevich
+      sergejs.lukasevics&rs.gov.lv
+33533
+  Linkdevices Technology, Inc.
+    Victor Romanchuk
+      vroma&linkdevices.com
+33534
+  Systembase Limited
+    Mr Andrew Steward
+      tech&systembase.com
+33535
+  Herning Kommune
+    Kim Skotte Larsen
+      itakl&herning.dk
+33536
+  INESC Porto
+    Joao Neves
+      Joao.Neves&inescporto.pt
+33537
+  BCV solutions s.r.o.
+    Zdenek Burda
+      info&bcvsolutions.eu
+33538
+  EDX Software Design
+    Eduard Furrer
+      Eduard.Furrer&TheEDX.ch
+33539
+  Europcar Information Services
+    Mounir Chaabane
+      jerome.dufournet&europcar.com
+33540
+  Ion Beam Applications
+    Fabrice Deleau
+      fabdel&gmail.com
 
 
 End of Document
