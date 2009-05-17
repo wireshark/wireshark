@@ -2,6 +2,10 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
+ * See
+ *
+ *	http://www.cisco.com/en/US/tech/tk365/technologies_white_paper09186a00800c8ae1.shtml
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
