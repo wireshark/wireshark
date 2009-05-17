@@ -982,11 +982,12 @@ follow_show(follow_info_t *follow_info,
 			int i;
 			gchar *cur = hexbuf, *ascii_start;
 
-			/* is_server indentation : put 78 spaces at the
+			/* is_server indentation : put 4 spaces at the
 			 * beginning of the string */
+			/* XXX - We might want to prepend each line with "C" or "S" instead. */
 			if (is_server && follow_info->show_stream == BOTH_HOSTS) {
-				memset(cur, ' ', 78);
-				cur += 78;
+				memset(cur, ' ', 4);
+				cur += 4;
 			}
 			cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
 			/* 49 is space consumed by hex chars */
