@@ -167,6 +167,7 @@ http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/inde
 /* ----------------------------- */
 static int proto_afp = -1;
 static int hf_afp_reserved = -1;
+static int hf_afp_unknown = -1;
 
 static int hf_afp_command = -1;		/* CommandCode */
 static int hf_afp_AFPVersion = -1;
@@ -641,6 +642,7 @@ static int hf_afp_map_name_type = -1;
 static int hf_afp_map_name	= -1;
 static int hf_afp_map_id	= -1;
 static int hf_afp_map_id_type	= -1;
+static int hf_afp_map_id_reply_type = -1;
 
 static int hf_afp_request_bitmap_Attributes     = -1;
 static int hf_afp_request_bitmap_ParentDirID    = -1;
@@ -686,6 +688,12 @@ static const value_string map_id_type_vals[] = {
   {6,	"Group UUID to a unicode group name" },
   {0,	NULL } };
 
+/* map_id subfunctions 5,6: reply type */
+static const value_string map_id_reply_type_vals[] = {
+  {1,	"user name" },
+  {2,	"group name" },
+  {0,	NULL } };
+  
 /*
   volume attribute from Apple AFP3.0.pdf
   Table 1-3 p. 22
@@ -3319,23 +3327,45 @@ static gint
 dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 int len;
+int size = 1;
 
 	len = tvb_get_guint8(tvb, offset);
 	/* for type 3 and 4 len is 16 bits but we don't keep the type from the request
 	 * XXX assume name < 256, ie the first byte is zero.
 	*/
 	if (!len) {
-		gint remain = tvb_reported_length_remaining(tvb,offset);
-		if (remain && remain == (len = tvb_get_guint8(tvb, offset +1)) +2) {
-			offset++;
-		}
-		else {
+	        len = tvb_get_guint8(tvb, offset +1);
+	        if (!len) {
+	            /* assume it's undocumented type 5 or 6 reply */ 
+                    proto_tree_add_item(tree, hf_afp_map_id_reply_type, tvb, offset, 4,FALSE);
+                    offset += 4;
+
+                    proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4,FALSE);
+                    offset += 4;
+                    
+                    size = 2;
+                    len = tvb_get_guint8(tvb, offset +1);
+	            
+	        }
+	        else {
+		    gint remain = tvb_reported_length_remaining(tvb,offset);
+		    if (remain == len +2) {
+			size = 2;
+                    }
+                    else {
 			/* give up */
-			len = 0;
+			len = remain;
+			size = 0;
+                    }
 		}
 	}
-	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, 1,FALSE);
-	offset += len +1;
+	if (size) {
+	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, FALSE);
+        }
+        else {
+	    proto_tree_add_item(tree, hf_afp_unknown, tvb, offset, len, FALSE);
+        }
+	offset += len +size;
 	return offset;
 }
 
@@ -3344,12 +3374,25 @@ static gint
 dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 int len;
+int type;
+int size;
+
+	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_map_name_type, tvb, offset, 1,FALSE);
 	offset++;
-
-	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, 1,FALSE);
-	offset += len +1;
+	switch (type) {
+	case 5: /* use 16 bits length */
+	case 6:
+	    size = 2;
+	    len = tvb_get_ntohs(tvb, offset);
+	  break;
+        default:
+            size = 1;
+	    len = tvb_get_guint8(tvb, offset);
+          break;
+	}
+        proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, FALSE);
+	offset += len +size;
 
 	return offset;
 }
@@ -5430,7 +5473,6 @@ proto_register_afp(void)
 		FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Reserved", HFILL }},
 
-
     { &hf_afp_map_name_type,
       { "Type",      "afp.map_name_type",
 		FT_UINT8, BASE_DEC, VALS(map_name_type_vals), 0x0,
@@ -5445,6 +5487,11 @@ proto_register_afp(void)
       { "ID",             "afp.map_id",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
       	"User/Group ID", HFILL }},
+
+    { &hf_afp_map_id_reply_type,
+      { "Reply type",      "afp.map_id_reply_type",
+		FT_UINT32, BASE_DEC, VALS(map_id_reply_type_vals), 0x0,
+      	"Map ID reply type", HFILL }},
 
     { &hf_afp_map_name,
       { "Name",             "afp.map_name",
@@ -5833,6 +5880,11 @@ proto_register_afp(void)
       { "Only inherit",         "afp.ace_flags.only_inherit",
 		FT_BOOLEAN, 32, NULL, ACE_ONLY_INHERIT,
       	"Only inherit", HFILL }},
+
+    { &hf_afp_unknown,
+      { "Unknown parameter",         "afp.unknown",
+		FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Unknown parameter", HFILL }},
   };
 
   static gint *ett[] = {
