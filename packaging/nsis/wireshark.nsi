@@ -806,7 +806,7 @@ SectionGroup "Plugins / Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
-SetOutPath $INSTDIR\plugins\${VERSION}
+SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "..\..\plugins\asn1\asn1.dll"
 File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\ethercat\ethercat.dll"
@@ -827,13 +827,13 @@ SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
-SetOutPath $INSTDIR\plugins\${VERSION}
+SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "..\..\plugins\stats_tree\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
-SetOutPath $INSTDIR\plugins\${VERSION}
+SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "..\..\plugins\mate\mate.dll"
 SectionEnd
 
