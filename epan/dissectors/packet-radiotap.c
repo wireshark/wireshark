@@ -36,6 +36,7 @@
 #include <epan/crc32.h>
 #include <epan/frequency-utils.h>
 #include <epan/tap.h>
+#include <epan/prefs.h>
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
 
@@ -72,23 +73,6 @@ struct ieee80211_radiotap_header {
 #define RADIOTAP_LENGTH_OFFSET	2	/* offset of length field */
 #define RADIOTAP_PRESENT_OFFSET	4	/* offset of "present" field */
 
-/*
- * AAAAAAAAAAAAAAAAAAAAAAAAAARGH.
- *
- * The current NetBSD ieee80211_radiotap.h has IEEE80211_RADIOTAP_RX_FLAGS
- * as 14.
- *
- * The current OpenBSD ieee80211_radiotap.h has IEEE80211_RADIOTAP_FCS as
- * 14.
- *
- * NetBSD and OpenBSD also differ on what comes *after* 14.
- *
- * They all use the same DLT_ value for "802.11+radiotap".
- *
- * This is all wonderfully appreciated by those of us who write code to
- * read files containing packets with radiotap headers.  I will see if
- * I can apply a little cluebat-fu here.
- */
 enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_TSFT = 0,
     IEEE80211_RADIOTAP_FLAGS = 1,
@@ -104,7 +88,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-    IEEE80211_RADIOTAP_FCS = 14,
+    IEEE80211_RADIOTAP_RX_FLAGS = 14,
     IEEE80211_RADIOTAP_XCHANNEL = 18,
     IEEE80211_RADIOTAP_EXT = 31
 };
@@ -168,6 +152,9 @@ enum ieee80211_radiotap_type {
 #define	IEEE80211_RADIOTAP_F_BADFCS	0x40	/* does not pass FCS check */
 #define	IEEE80211_RADIOTAP_F_SHORTGI	0x80	/* HT short GI */
 
+/* For IEEE80211_RADIOTAP_RX_FLAGS */
+#define IEEE80211_RADIOTAP_F_RX_BADPLCP		0x0002 /* bad PLCP */
+
 /* XXX need max array size */
 static const int ieee80211_htrates[16] = {
 	13,		/* IFM_IEEE80211_MCS0 */
@@ -211,6 +198,8 @@ static int hf_radiotap_channel_flags_gsm = -1;
 static int hf_radiotap_channel_flags_sturbo = -1;
 static int hf_radiotap_channel_flags_half = -1;
 static int hf_radiotap_channel_flags_quarter = -1;
+static int hf_radiotap_rxflags = -1;
+static int hf_radiotap_rxflags_badplcp = -1;
 static int hf_radiotap_xchannel = -1;
 static int hf_radiotap_xchannel_frequency = -1;
 static int hf_radiotap_xchannel_flags = -1;
@@ -259,7 +248,8 @@ static int hf_radiotap_present_dbm_tx_attenuation = -1;
 static int hf_radiotap_present_antenna = -1;
 static int hf_radiotap_present_db_antsignal = -1;
 static int hf_radiotap_present_db_antnoise = -1;
-static int hf_radiotap_present_fcs = -1;
+static int hf_radiotap_present_hdrfcs = -1;
+static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_ext = -1;
 
@@ -281,6 +271,7 @@ static int hf_radiotap_fcs_bad = -1;
 static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
 static gint ett_radiotap_flags = -1;
+static gint ett_radiotap_rxflags = -1;
 static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
 
@@ -288,6 +279,9 @@ static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
 
 static int radiotap_tap = -1;
+
+/* Settings */
+static gboolean radiotap_bit14_fcs = FALSE;
 
 static void
 dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -450,7 +444,7 @@ proto_register_radiotap(void)
 #define RADIOTAP_MASK_ANTENNA               0x00000800
 #define RADIOTAP_MASK_DB_ANTSIGNAL          0x00001000
 #define RADIOTAP_MASK_DB_ANTNOISE           0x00002000
-#define RADIOTAP_MASK_FCS                   0x00004000
+#define RADIOTAP_MASK_RX_FLAGS              0x00004000
 #define RADIOTAP_MASK_XCHANNEL              0x00040000
 #define RADIOTAP_MASK_EXT                   0x80000000
 
@@ -525,9 +519,14 @@ proto_register_radiotap(void)
 	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTNOISE,
 	"Specifies if the RF signal power at antenna in dBm field is present", HFILL } },
 
-    { &hf_radiotap_present_fcs,
+    { &hf_radiotap_present_rxflags,
+      { "RX flags", "radiotap.present.rxflags",
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RX_FLAGS,
+	"Specifies if the RX flags field is present", HFILL } },
+
+    { &hf_radiotap_present_hdrfcs,
       { "FCS in header", "radiotap.present.fcs",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FCS,
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RX_FLAGS,
 	"Specifies if the FCS field is present", HFILL } },
 
     { &hf_radiotap_present_xchannel,
@@ -652,6 +651,15 @@ proto_register_radiotap(void)
     { &hf_radiotap_channel_flags_quarter,
        { "Quarter Rate Channel (5MHz Channel Width)", "radiotap.channel.type.quarter",
 	 FT_BOOLEAN, 16, NULL, 0x8000, "Channel Type Quarter Rate", HFILL } },
+
+    { &hf_radiotap_rxflags,
+      { "RX flags", "radiotap.rxflags",
+	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL } },
+
+    { &hf_radiotap_rxflags_badplcp,
+       { "Bad PLCP", "radiotap.rxflags.badplcp",
+	 FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_RX_BADPLCP,
+	 "Frame with bad PLCP", HFILL } },
 
     { &hf_radiotap_xchannel,
       { "Channel number", "radiotap.xchannel",
@@ -779,9 +787,11 @@ proto_register_radiotap(void)
     &ett_radiotap,
     &ett_radiotap_present,
     &ett_radiotap_flags,
+    &ett_radiotap_rxflags,
     &ett_radiotap_channel_flags,
     &ett_radiotap_xchannel_flags
   };
+  module_t *radiotap_module;
 
   proto_radiotap = proto_register_protocol("IEEE 802.11 Radiotap Capture header", "802.11 Radiotap", "radiotap");
   proto_register_field_array(proto_radiotap, hf, array_length(hf));
@@ -789,6 +799,14 @@ proto_register_radiotap(void)
   register_dissector("radiotap", dissect_radiotap, proto_radiotap);
 
   radiotap_tap = register_tap("radiotap");
+
+  radiotap_module = prefs_register_protocol(proto_radiotap, NULL);
+  prefs_register_bool_preference(radiotap_module, "bit14_fcs_in_header",
+      "Assume bit 14 means FCS in header",
+      "Radiotap has a bit to indicate whether the FCS is still on the frame or not. "
+      "Some generators (e.g. AirPcap) use a non-standard radiotap flag 14 to put "
+      "the FCS into the header.",
+      &radiotap_bit14_fcs);
 }
 
 static void
@@ -798,11 +816,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pt, *present_tree = NULL;
     proto_tree *ft, *flags_tree = NULL;
     proto_item *ti = NULL, *hidden_item;
-    proto_item *hdr_fcs_ti = NULL;
-    int hdr_fcs_offset = 0;
     int align_offset, offset;
-    guint32 sent_fcs = 0;
-    guint32 calc_fcs;
     tvbuff_t *next_tvb;
     guint32 version;
     guint length, length_remaining;
@@ -811,7 +825,12 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 db, rflags;
     guint32 present, next_present;
     int bit;
-    
+    /* backward compat with bit 14 == fcs in header */
+    proto_item *hdr_fcs_ti = NULL;
+    int hdr_fcs_offset = 0;
+    guint32 sent_fcs = 0;
+    guint32 calc_fcs;
+
     struct _radiotap_info *radiotap_info;
     static struct _radiotap_info rtp_info_arr[1];
     
@@ -894,8 +913,13 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tvb, 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_db_antnoise,
 	    tvb, 4, 4, TRUE);
-	proto_tree_add_item(present_tree, hf_radiotap_present_fcs,
-	    tvb, 4, 4, TRUE);
+	if (radiotap_bit14_fcs) {
+		proto_tree_add_item(present_tree, hf_radiotap_present_hdrfcs,
+			tvb, 4, 4, TRUE);
+	} else {
+		proto_tree_add_item(present_tree, hf_radiotap_present_rxflags,
+			tvb, 4, 4, TRUE);
+	}
 	proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
 	    tvb, 4, 4, TRUE);
 	proto_tree_add_item(present_tree, hf_radiotap_present_ext,
@@ -1226,21 +1250,40 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset+=2;
 	    length_remaining-=2;
 	    break;
-	case IEEE80211_RADIOTAP_FCS:
-	    /* This handles the case of an FCS existing inside the radiotap header. */
-	    align_offset = ALIGN_OFFSET(offset, 4);
-	    offset += align_offset;
-	    length_remaining -= align_offset;
-	    if (length_remaining < 4)
-		break;
-	    if (tree) {
-		sent_fcs = tvb_get_ntohl(tvb, offset);
-		hdr_fcs_ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
-				tvb, offset, 4, sent_fcs);
-		hdr_fcs_offset = offset;
-	    }
-	    offset+=4;
-	    length_remaining-=4;
+	case IEEE80211_RADIOTAP_RX_FLAGS:
+	    if (radiotap_bit14_fcs) {
+	        align_offset = ALIGN_OFFSET(offset, 4);
+	        offset += align_offset;
+	        length_remaining -= align_offset;
+	        if (length_remaining < 4)
+	            break;
+                if (tree) {
+                    sent_fcs = tvb_get_ntohl(tvb, offset);
+                    hdr_fcs_ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
+                                                     tvb, offset, 4, sent_fcs);
+                    hdr_fcs_offset = offset;
+                }
+                offset+=4;
+                length_remaining-=4;
+	    } else {
+	        proto_item *it;
+
+                align_offset = ALIGN_OFFSET(offset, 2);
+                offset += align_offset;
+                length_remaining -= align_offset;
+                if (length_remaining < 2)
+                    break;
+                if (tree) {
+                    flags = tvb_get_letohs(tvb, offset);
+                    it = proto_tree_add_uint(radiotap_tree, hf_radiotap_rxflags,
+                            tvb, offset, 2, flags);
+                    flags_tree = proto_item_add_subtree(it, ett_radiotap_rxflags);
+                    proto_tree_add_boolean(flags_tree, hf_radiotap_rxflags_badplcp,
+                            tvb, offset, 1, flags);
+                }
+                offset+=2;
+                length_remaining-=2;
+            }
 	    break;
 	default:
 	    /*
@@ -1261,7 +1304,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Grab the rest of the frame. */
     next_tvb = tvb_new_subset(tvb, length, -1, -1);
 
-    /* If we had an in-header FCS, check it. */
+    /* If we had an in-header FCS, check it.
+     * This can only happen if the backward-compat configuration option
+     * is chosen by the user. */
     if (hdr_fcs_ti) {
         /* It would be very strange for the header to have an FCS for the
          * frame *and* the frame to have the FCS at the end, but it's possible, so
@@ -1325,4 +1370,3 @@ proto_reg_handoff_radiotap(void)
  * ex: set shiftwidth=4 tabstop=8 noexpandtab
  * :indentSize=4:tabSize=8:noTabs=false:
  */
-
