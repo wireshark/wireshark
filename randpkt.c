@@ -71,16 +71,20 @@ enum {
 	PKT_TCP,
 	PKT_TDS,
 	PKT_TR,
-	PKT_UDP
+	PKT_UDP,
+	PKT_USB,
+	PKT_USB_LINUX
 };
 
 typedef struct {
 	const char	*abbrev;
 	const char	*longname;
 	int		produceable_type;
-	guint8		*sample_buffer;
 	int		sample_wtap_encap;
+	guint8		*sample_buffer;
 	int		sample_length;
+	guint8		*pseudo_buffer;
+	int		pseudo_length;
 } pkt_example;
 
 /* Ethernet, indicating ARP */
@@ -366,64 +370,114 @@ guint8 pkt_megaco[] = {
 /* This little data table drives the whole program */
 pkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
-		PKT_ARP,	pkt_arp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_arp) },
+		PKT_ARP,	WTAP_ENCAP_ETHERNET,
+		pkt_arp,	array_length(pkt_arp),
+		NULL,		0 },
 
 	{ "bgp", "Border Gateway Protocol",
-		PKT_BGP,	pkt_bgp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bgp) },
+		PKT_BGP,	WTAP_ENCAP_ETHERNET,
+		pkt_bgp,	array_length(pkt_bgp),
+		NULL,		0 },
 
 	{ "bvlc", "BACnet Virtual Link Control",
-		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) },
+		PKT_BVLC,	WTAP_ENCAP_ETHERNET,
+		pkt_bvlc,	array_length(pkt_bvlc),
+		NULL,		0 },
 
 	{ "dns", "Domain Name Service",
-		PKT_DNS,	pkt_dns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_dns) },
+		PKT_DNS,	WTAP_ENCAP_ETHERNET,
+		pkt_dns,	array_length(pkt_dns),
+		NULL,		0 },
 
 	{ "eth", "Ethernet",
-		PKT_ETHERNET,	NULL,		WTAP_ENCAP_ETHERNET,	0 },
+		PKT_ETHERNET,	WTAP_ENCAP_ETHERNET,
+		NULL,		0,
+		NULL,		0 },
 
 	{ "fddi", "Fiber Distributed Data Interface",
-		PKT_FDDI,	NULL,		WTAP_ENCAP_FDDI,	0 },
+		PKT_FDDI,	WTAP_ENCAP_FDDI,
+		NULL,		0,
+		NULL,		0 },
 
 	{ "giop", "General Inter-ORB Protocol",
-		PKT_GIOP,	pkt_giop,	WTAP_ENCAP_ETHERNET,	array_length(pkt_giop) },
+		PKT_GIOP,	WTAP_ENCAP_ETHERNET,
+		pkt_giop,	array_length(pkt_giop),
+		NULL,		0 },
 
 	{ "icmp", "Internet Control Message Protocol",
-		PKT_ICMP,	pkt_icmp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_icmp) },
+		PKT_ICMP,	WTAP_ENCAP_ETHERNET,
+		pkt_icmp,	array_length(pkt_icmp),
+		NULL,		0 },
 
 	{ "ip", "Internet Protocol",
-		PKT_IP,		pkt_ip,		WTAP_ENCAP_ETHERNET,	array_length(pkt_ip) },
+		PKT_IP,		WTAP_ENCAP_ETHERNET,
+		pkt_ip,		array_length(pkt_ip),
+		NULL,		0 },
 
 	{ "llc", "Logical Link Control",
-		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_llc) },
+		PKT_LLC,	WTAP_ENCAP_TOKEN_RING,
+		pkt_llc,	array_length(pkt_llc),
+		NULL,		0 },
 
 	{ "m2m", "WiMAX M2M Encapsulation Protocol",
-		PKT_M2M,	pkt_m2m,	WTAP_ENCAP_ETHERNET,	array_length(pkt_m2m) },
+		PKT_M2M,	WTAP_ENCAP_ETHERNET,
+		pkt_m2m,	array_length(pkt_m2m),
+		NULL,		0 },
 
 	{ "megaco", "MEGACO",
-		PKT_MEGACO,	pkt_megaco,	WTAP_ENCAP_ETHERNET,	array_length(pkt_megaco) },
+		PKT_MEGACO,	WTAP_ENCAP_ETHERNET,
+		pkt_megaco,	array_length(pkt_megaco),
+		NULL,		0 },
 
 	{ "nbns", "NetBIOS-over-TCP Name Service",
-		PKT_NBNS,	pkt_nbns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_nbns) },
+		PKT_NBNS,	WTAP_ENCAP_ETHERNET,
+		pkt_nbns,	array_length(pkt_nbns),
+		NULL,		0 },
 
 	{ "ncp2222", "NetWare Core Protocol",
-		PKT_NCP2222,	pkt_ncp2222,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_ncp2222) },
+		PKT_NCP2222,	WTAP_ENCAP_TOKEN_RING,
+		pkt_ncp2222,	array_length(pkt_ncp2222),
+		NULL,		0 },
 
 	{ "sctp", "Stream Control Transmission Protocol",
-		PKT_SCTP,	pkt_sctp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_sctp) },
+		PKT_SCTP,	WTAP_ENCAP_ETHERNET,
+		pkt_sctp,	array_length(pkt_sctp),
+		NULL,		0 },
 
 	{ "syslog", "Syslog message",
-		PKT_SYSLOG,	pkt_syslog,	WTAP_ENCAP_ETHERNET,	array_length(pkt_syslog) },
+		PKT_SYSLOG,	WTAP_ENCAP_ETHERNET,
+		pkt_syslog,	array_length(pkt_syslog),
+		NULL,		0 },
 
 	{ "tds", "TDS NetLib",
-		PKT_TDS,	pkt_tds,	WTAP_ENCAP_ETHERNET,	array_length(pkt_tds) },
+		PKT_TDS,	WTAP_ENCAP_ETHERNET,
+		pkt_tds,	array_length(pkt_tds),
+		NULL,		0 },
 
 	{ "tcp", "Transmission Control Protocol",
-		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_tcp) },
+		PKT_TCP,	WTAP_ENCAP_TOKEN_RING,
+		pkt_tcp,	array_length(pkt_tcp),
+		NULL,		0 },
 
 	{ "tr",	 "Token-Ring",
-		PKT_TR,		NULL,		WTAP_ENCAP_TOKEN_RING,	0 },
+		PKT_TR,		WTAP_ENCAP_TOKEN_RING,
+		NULL,		0,
+		NULL,		0 },
 
 	{ "udp", "User Datagram Protocol",
-		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) },
+		PKT_UDP,	WTAP_ENCAP_ETHERNET,
+		pkt_udp,	array_length(pkt_udp),
+		NULL,		0 },
+
+	{ "usb", "Universal Serial Bus",
+		PKT_USB,	WTAP_ENCAP_USB,
+		NULL,		0,
+		NULL,		0 },
+
+	{ "usb-linux", "Universal Serial Bus with Linux specific header",
+		PKT_USB_LINUX,	WTAP_ENCAP_USB_LINUX,
+		NULL,		0,
+		NULL,		0 },
 
 };
 
@@ -491,9 +545,6 @@ main(int argc, char **argv)
 
 	example = find_example(produce_type);
 
-	pkthdr.ts.secs = 0;
-	pkthdr.ts.nsecs = 0;
-	pkthdr.pkt_encap = example->sample_wtap_encap;
 
 	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
 		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
@@ -518,6 +569,16 @@ main(int argc, char **argv)
 		produce_max_bytes -= example->sample_length;
 	}
 
+	memset(&pkthdr, 0, sizeof(pkthdr));
+	memset(&ps_header, 0, sizeof(ps_header));
+	memset(buffer, 0, sizeof(buffer));
+
+	pkthdr.pkt_encap = example->sample_wtap_encap;
+
+	/* Load the sample pseudoheader into our pseudoheader buffer */
+	if (example->pseudo_buffer)
+		memcpy(&ps_header, example->pseudo_buffer, example->pseudo_length);
+
 	/* Load the sample into our buffer */
 	if (example->sample_buffer)
 		memcpy(&buffer[0], example->sample_buffer, example->sample_length);
@@ -536,6 +597,10 @@ main(int argc, char **argv)
 		pkthdr.caplen = len_this_pkt;
 		pkthdr.len = len_this_pkt;
 		pkthdr.ts.secs = i; /* just for variety */
+
+		for (j = example->pseudo_length; j < (int) sizeof(ps_header); j++) {
+			((guint8*)&ps_header)[j] = (rand() % 0x100);
+		}
 
 		for (j = example->sample_length; j < len_this_pkt; j++) {
 			/* Add format strings here and there */
