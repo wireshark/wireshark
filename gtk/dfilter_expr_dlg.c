@@ -539,7 +539,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
     header_field_info *hfinfo = g_object_get_data(G_OBJECT(window),
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
-    char value_string[11+1];	/* long enough for 32-bit octal value */
+    gchar *value_string;
 
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
@@ -557,9 +557,9 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          * testing for "false".
          */
         if (value != NULL)
-		g_snprintf(value_string, sizeof value_string, "1");
+		value_string = g_strdup("1");
         else
-		g_snprintf(value_string, sizeof value_string, "0");
+		value_string = g_strdup("0");
     } else {
         /*
          * Numeric type; get the value corresponding to the
@@ -576,16 +576,14 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             case FT_UINT16:
             case FT_UINT24:
             case FT_UINT32:
-                g_snprintf(value_string, sizeof value_string,
-                         "%u", value->value);
+                value_string = g_strdup_printf("%u", value->value);
                 break;
 
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
             case FT_INT32:
-                g_snprintf(value_string, sizeof value_string,
-                         "%d", value->value);
+                value_string = g_strdup_printf("%d", value->value);
                 break;
 
             default:
@@ -594,20 +592,20 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             break;
 
         case BASE_HEX:
-            g_snprintf(value_string, sizeof value_string, "0x%x",
-                     value->value);
+            value_string = g_strdup_printf("0x%x", value->value);
             break;
 
         case BASE_OCT:
-            g_snprintf(value_string, sizeof value_string, "%#o",
-                     value->value);
+            value_string = g_strdup_printf("%#o", value->value);
             break;
 
         default:
             g_assert_not_reached();
         }
     }
+
     gtk_entry_set_text(GTK_ENTRY(value_entry), value_string);
+    g_free (value_string);
 }
 
 static void
