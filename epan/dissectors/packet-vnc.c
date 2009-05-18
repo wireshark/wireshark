@@ -701,10 +701,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		if (!vnc_is_client_or_server_version_message(tvb))
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 			
-		if (tree) {
-			proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
+		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
 						7, FALSE);
-		}
 		per_conversation_info->server_proto_ver =
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
 				 NULL);
@@ -722,10 +720,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		if (!vnc_is_client_or_server_version_message(tvb))
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 		
-		if (tree) {
-			proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
-						4, 7, FALSE);
-		}
+		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
+					4, 7, FALSE);
 		per_conversation_info->client_proto_ver =
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
 				 NULL);
@@ -763,24 +759,21 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		} else {
 			/* Version < 3.007: The server decides the
 			 * authentication type for us to use */
-			 if (tree) {
-				proto_tree_add_item(tree,
-					hf_vnc_server_security_type, tvb,
-					offset, 4, FALSE);
-			}
+			proto_tree_add_item(tree,
+				hf_vnc_server_security_type, tvb,
+				offset, 4, FALSE);
 		}
 
 		per_conversation_info->vnc_next_state =	SECURITY_TYPES;
 		break;
 
 	case SECURITY_TYPES :
-		if (check_col(pinfo->cinfo, COL_INFO))
+		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_set_str(pinfo->cinfo, COL_INFO,
 				    "Authentication type selected by client");
-		if (tree) {
-			proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
-								offset, 1, FALSE);
 		}
+		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
+							offset, 1, FALSE);
 		per_conversation_info->security_type_selected =
 			tvb_get_guint8(tvb, offset);
 	
