@@ -1,20 +1,11 @@
 /* packet-dcm.c
  * Routines for DICOM dissection
  * Copyright 2003, Rich Coe <Richard.Coe@med.ge.com>
- * Copyright 2008, David Aggeler <david_aggeler@hispeed.ch>
+ * Copyright 2008, 2009, David Aggeler <david_aggeler@hispeed.ch>
  *
  * DICOM communication protocol
  * http://medical.nema.org/dicom/2008
  *   DICOM Part 8: Network Communication Support for Message Exchange
- *
- * (NOTE: you need to turn on 'Allow subdissector to desegment TCP streams'
- *        in Preferences/Protocols/TCP Option menu, in order to view
- *        DICOM packets correctly.
- *        Also, you might have to turn off tcp.check_checksum if tcp
- *        detects that the checksum is bad - for example, if you're
- *        capturing on a network interface that does TCP checksum
- *        offloading and you're capturing outgoing packets.
- *        This should probably be documented somewhere besides here.)
  *
  * $Id$
  *
@@ -43,14 +34,22 @@
  * *********************************************************************************
  * ToDo
  *
- * - Better re-assembly, i.e. using named data sources
- *   Hopefully to handle re-transmissions better
  * - Syntax detection, in case an association request is missing in capture
  * - Read private tags from configuration and parse in capture
  * - Show Association Headers as individual items
  * - Support item 56-59 in Accociation Request
  *
- * Oct 26, 2008 - David Aggeler 
+ * May 17, 2009 - David Aggeler 
+ *
+ * - Spelling
+ * - Added expert_add_info() for status responses with warning & error level
+ * - Added command details in info column (optionally)
+ *
+ * Dec 19, 2008 to Mar 29, 2009 - Misc (SVN 27880) 
+ *
+ * - Spellings, see SVN
+ *
+ * Oct 26, 2008 - David Aggeler (SVN 26662)
  *
  * - Support remaining DICOM/ARCNEMA tags
  *
@@ -190,8 +189,6 @@
 
 #include <glib.h>
 
-#include "isprint.h"
-
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
@@ -223,6 +220,7 @@ static guint    global_dcm_export_minsize = 4096;	    /* Filter small objects in
 
 static gboolean global_dcm_seq_subtree = TRUE;
 static gboolean global_dcm_tag_subtree = FALSE;		    /* Only useful for debugging */
+static gboolean global_dcm_cmd_details = TRUE;		    /* Show details in header and info column */
 
 static GHashTable *dcm_tag_table = NULL;
 static GHashTable *dcm_uid_table = NULL;
@@ -380,6 +378,22 @@ typedef struct dcm_state_pdv {
 				   This flag delimits different dicom object in the same
 				   association */
     gboolean is_corrupt;	/* Early termination of long PDVs */
+
+				/* The following five attributes are only used from command PDVs */
+
+    gchar   *command;		/* Decoded command as text */
+    gchar   *status;
+    gchar   *comment;		/* Error comment, if any */
+
+    gboolean is_warning;	/* Command response is a cancel, warning, error */
+
+    guint16  message_id;	/* (0000,0110) Message ID */
+    guint16  message_id_resp;	/* (0000,0120) Message ID Being Responded To */
+
+    guint16  no_remaining;	/* (0000,1020) Number of Remaining Sub-operations */
+    guint16  no_completed;	/* (0000,1021) Number of Completed Sub-operations */
+    guint16  no_failed;		/* (0000,1022) Number of Failed Sub-operations	*/
+    guint16  no_warning;	/* (0000,1023) Number of Warning Sub-operations */
 
     dcm_open_tag_t  open_tag;	/* Container to store information about a fragmented tag */
 
@@ -3627,7 +3641,7 @@ static guint32  dissect_dcm_pdv_header  (tvbuff_t *tvb, packet_info *pinfo, prot
 
 static guint32  dissect_dcm_tag		(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean is_first_tag, gchar **tag_description, gboolean *end_of_seq_or_item);
 static guint32  dissect_dcm_tag_open    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean *is_first_tag);
-static guint32  dissect_dcm_tag_value	(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint16 grp, guint16 elm, guint32 vl, guint32 vl_max, gchar* vr, gchar **tag_value);
+static guint32  dissect_dcm_tag_value	(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint16 grp, guint16 elm, guint32 vl, guint32 vl_max, gchar* vr, gchar **tag_value);
 
 static void dcm_set_syntax		(dcm_state_pctx_t *pctx, gchar *xfer_uid, gchar *xfer_desc);
 static void dcm_export_create_object	(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state_pdv_t *pdv);
@@ -3731,7 +3745,7 @@ dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
 
     dcm_state_assoc_t *assoc;
 
-    assoc = (dcm_state_assoc_t *) g_malloc(sizeof(dcm_state_assoc_t));
+    assoc = (dcm_state_assoc_t *) se_alloc0(sizeof(dcm_state_assoc_t));
     if (assoc) {
 
 	assoc->next = NULL;
@@ -3740,11 +3754,6 @@ dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
 
 	assoc->first_pctx = NULL;	    /* List of Presentation context objects */
 	assoc->last_pctx  = NULL;
-
-	memset(assoc->ae_called, 0, sizeof(assoc->ae_called));
-	memset(assoc->ae_calling, 0, sizeof(assoc->ae_calling));
-	memset(assoc->ae_called_resp, 0, sizeof(assoc->ae_called_resp));
-	memset(assoc->ae_calling_resp, 0, sizeof(assoc->ae_calling_resp));
 
 	/* add to the end of the list */
 	if (dcm_data->last_assoc) {
@@ -3886,6 +3895,18 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 
 	pdv->packet_no = packet_no;
 	pdv->offset = offset;
+
+	pdv->status = NULL;
+	pdv->command = NULL;
+	pdv->comment = NULL;
+	pdv->is_warning = FALSE;
+
+	pdv->message_id = 0;
+	pdv->message_id_resp = 0;
+	pdv->no_remaining = 0;
+	pdv->no_completed = 0;
+	pdv->no_failed = 0;
+	pdv->no_warning = 0;
 
 	pdv->open_tag.is_header_fragmented = FALSE;
 	pdv->open_tag.is_value_fragmented = FALSE;
@@ -4079,18 +4100,18 @@ dcm_cmd2str(guint16 us)
     return s;
 }
 
-static const char *
+static const gchar *
 dcm_rsp2str(guint16 status_value)
 {
 
     dcm_status_t    *status = NULL;
 
-    const char *s = "";
+    const gchar *s = "";
 
     /*
 	Clasification
 	0x0000		: SUCCESS
-	0x001 & Bxxx	: WARNING
+	0x0001 & Bxxx	: WARNING
 	0xFE00		: CANCEL
 	0XFFxx		: PENDING
 
@@ -4099,7 +4120,6 @@ dcm_rsp2str(guint16 status_value)
 
     /* Use specific text first */
     status = (dcm_status_t*) g_hash_table_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
-
 
     if (status) {
 	 s = status->description;
@@ -4117,6 +4137,10 @@ dcm_rsp2str(guint16 status_value)
 	else if ((status_value & 0xF000) == 0xC000) {
 	    /* 0xCxxx */
 	    s = "Error: Cannot understand/Unable to Process";
+	}
+	else {
+	    /* At least came across 0xD001 in one capture */
+	    s = "Unknown";
 	}
     }
 
@@ -5051,11 +5075,13 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static guint32
-dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
+dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv,
 		      guint32 offset, guint16 grp, guint16 elm,
 		      guint32 vl, guint32 vl_max, gchar* vr, gchar **tag_value)
 {
     /* Based on the value representation, decode the value of one tag. Returns new offset */
+
+    proto_item *pitem = NULL;
 
     gboolean is_little_endian;
 
@@ -5109,6 +5135,10 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	}
 	proto_tree_add_string_format(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, *tag_value, "%-8.8s%s", "Value:", *tag_value);
 
+	if (grp == 0x0000 && elm == 0x0902) {
+	    /* The error comment */
+	    pdv->comment = se_strdup(g_strstrip(vals)); 
+	}
     }
     else if ((strncmp(vr, "OB", 2) == 0) || (strncmp(vr, "OF", 2) == 0) ||
 	     (strncmp(vr, "OW", 2) == 0)) {
@@ -5252,7 +5282,8 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%u", val32);
     }
     else if (strncmp(vr, "US", 2) == 0)  {	    /* Unsigned Short */
-	guint16  val16;
+	const gchar *status_message = NULL;
+	guint16	    val16;
 
 	if (is_little_endian)	val16 = tvb_get_letohs(tvb, offset);
 	else			val16 = tvb_get_ntohs(tvb, offset);
@@ -5260,17 +5291,54 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	if (grp == 0x0000 && elm == 0x0100) {
 	    /* This is a command */
 	    g_snprintf(*tag_value, MAX_BUF_LEN, "%s", dcm_cmd2str(val16));
+
+	    pdv->command = se_strdup(*tag_value); 
 	}
 	else if (grp == 0x0000 && elm == 0x0900) {
-	    /* This is a status message */
-	    g_snprintf(*tag_value, MAX_BUF_LEN, "%s (0x%02x)", dcm_rsp2str(val16), val16);
+	    /* This is a status message. If value is not 0x0000, add an expert info */
+
+	    status_message = dcm_rsp2str(val16);
+	    g_snprintf(*tag_value, MAX_BUF_LEN, "%s (0x%02x)", status_message, val16);
+
+	    if (val16 != 0x0000 && ((val16 & 0xFF00) != 0xFF00)) {
+		/* Not 0x0000 0xFFxx */
+		pdv->is_warning = TRUE;
+	    }
+
+	    pdv->status = se_strdup(status_message); 
+
 	}
 	else {
 	    g_snprintf(*tag_value, MAX_BUF_LEN, "%u", val16);
 	}
 
-	proto_tree_add_uint_format(tree, hf_dcm_tag_value_16, tvb, offset, 2,
-	    val16, "%-8.8s%s", "Value:", *tag_value);
+	if (grp == 0x0000) {
+	    if (elm == 0x0110) {		/* (0000,0110) Message ID */
+		pdv->message_id = val16;
+	    }
+	    else if (elm == 0x0120) {		/* (0000,0120) Message ID Being Responded To */
+		pdv->message_id_resp = val16;
+	    }
+	    else if (elm == 0x1020) {		/* (0000,1020) Number of Remaining Sub-operations */
+		pdv->no_remaining = val16;
+	    }
+	    else if (elm == 0x1021) {		/* (0000,1021) Number of Completed Sub-operations */
+		pdv->no_completed = val16;
+	    }
+	    else if (elm == 0x1022) {		/* (0000,1022) Number of Failed Sub-operations	*/
+		pdv->no_failed = val16;
+	    }
+	    else if (elm == 0x1023) {		/* (0000,1023) Number of Warning Sub-operations */
+		pdv->no_warning = val16;
+	    }
+	}
+
+	pitem = proto_tree_add_uint_format(tree, hf_dcm_tag_value_16, tvb, offset, 2,
+		    val16, "%-8.8s%s", "Value:", *tag_value);
+
+	if (pdv->is_warning && status_message) {
+	    expert_add_info_format(pinfo, pitem, PI_RESPONSE_CODE, PI_WARN, "%s", status_message);
+	}
     }
     /* Invalid VR, can only occur with Explicit syntax */
     else {
@@ -5775,7 +5843,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
 	/* Regular value. Identify the type, decode and display */
 
-	offset = dissect_dcm_tag_value(tvb, tag_ptree, pdv, offset, grp, elm, vl, vl_max, vr, &tag_value);
+	offset = dissect_dcm_tag_value(tvb, pinfo, tag_ptree, pdv, offset, grp, elm, vl, vl_max, vr, &tag_value);
 
 	/* -------------------------------------------------------------
 	   We have decoded the value. Now store those tags of interest
@@ -5955,7 +6023,53 @@ dissect_dcm_pdv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
     }
 
-    *pdv_description = pdv->desc;
+    if (pdv->is_command) {
+
+	*pdv_description = se_alloc0(MAX_BUF_LEN);
+
+	if (pdv->is_warning) {
+	    if (pdv->comment) {
+		g_snprintf(*pdv_description, MAX_BUF_LEN, "%s (%s, %s)", pdv->desc, pdv->status, pdv->comment);
+	    }
+	    else {
+		g_snprintf(*pdv_description, MAX_BUF_LEN, "%s (%s)", pdv->desc, pdv->status);
+	    }
+
+	}
+	else if (global_dcm_cmd_details) {
+	    /* Show command details in header */
+
+	    if (pdv->message_id > 0) {
+		g_snprintf(*pdv_description, MAX_BUF_LEN, "%s ID=%d", pdv->desc, pdv->message_id);
+	    }
+	    else if (pdv->message_id_resp > 0) {
+
+		g_snprintf(*pdv_description, MAX_BUF_LEN, "%s ID=%d", pdv->desc, pdv->message_id_resp);
+
+		if (pdv->no_completed > 0) {
+		    g_snprintf(*pdv_description, MAX_BUF_LEN, "%s C=%d", *pdv_description, pdv->no_completed);
+		}
+		if (pdv->no_remaining > 0) {
+		    g_snprintf(*pdv_description, MAX_BUF_LEN, "%s R=%d", *pdv_description, pdv->no_remaining);
+		}
+		if (pdv->no_warning > 0) {
+		    g_snprintf(*pdv_description, MAX_BUF_LEN, "%s W=%d", *pdv_description, pdv->no_warning);
+		}
+		if (pdv->no_failed > 0) {
+		    g_snprintf(*pdv_description, MAX_BUF_LEN, "%s F=%d", *pdv_description, pdv->no_failed);
+		}
+	    }
+	    else {
+		*pdv_description = pdv->desc;
+	    }
+	}
+	else {
+	    *pdv_description = pdv->desc;
+	}
+    }
+    else {
+	*pdv_description = pdv->desc;
+    }
 
     return endpos;	/* we could try offset as return value */
 }
@@ -6516,55 +6630,55 @@ proto_register_dcm(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
     { &hf_dcm_pdu, { "PDU Type", "dicom.pdu.type",
-	FT_UINT8, BASE_HEX, VALS(dcm_pdu_ids), 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, VALS(dcm_pdu_ids), 0, NULL, HFILL } },
     { &hf_dcm_pdu_len, { "PDU Length", "dicom.pdu.len",
-	FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdu_type, { "PDU Detail", "dicom.pdu.detail",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_assoc_item_type, { "Item Type", "dicom.assoc.item.type",
-	FT_UINT8, BASE_HEX, VALS(dcm_assoc_item_type), 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, VALS(dcm_assoc_item_type), 0, NULL, HFILL } },
     { &hf_dcm_assoc_item_len, { "Item Length", "dicom.assoc.item.len",
-	FT_UINT16, BASE_DEC, NULL, 0, "", HFILL } },
+	FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_actx, { "Application Context", "dicom.actx",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_id, { "Presentation Context ID", "dicom.pctx.id",
-	FT_UINT8, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_result, { "Presentation Context Result", "dicom.pctx.id",
-	FT_UINT8, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_abss_syntax, { "Abstract Syntax", "dicom.pctx.abss.syntax",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_xfer_syntax, { "Transfer Syntax", "dicom.pctx.xfer.syntax",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_info_uid, { "Implementation Class UID", "dicom.userinfo.uid",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_info_version, { "Implementation Version", "dicom.userinfo.version",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdu_maxlen, { "Max PDU Length", "dicom.max_pdu_len",
-	FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
-	FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_ctx, { "PDV Context", "dicom.pdv.ctx",
-	FT_UINT8, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_flags, { "PDV Flags", "dicom.pdv.flags",
-	FT_UINT8, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_data_tag, { "Tag", "dicom.data.tag",
-	FT_BYTES, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 
     { &hf_dcm_tag, { "Tag", "dicom.tag",
-	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_vr, { "VR", "dicom.tag.vr",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_vl, { "Length", "dicom.tag.vl",
-	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
 
     { &hf_dcm_tag_value_str, { "Value", "dicom.tag.value.str",
-	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_value_16, { "Value", "dicom.tag.value.16",
-	FT_UINT16, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_value_32, { "Value", "dicom.tag.value.32",
-	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_tag_value_byte, { "Value", "dicom.tag.value.byte",
-	FT_BYTES, BASE_HEX, NULL, 0, "", HFILL } },
+	FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
 
 /*
     { &hf_dcm_FIELDABBREV, { "FIELDNAME", "dicom.FIELDABBREV",
@@ -6617,7 +6731,7 @@ proto_register_dcm(void)
 	    "Create Meta Header on Export",
 	    "Create DICOM File Meta Header according to PS 3.10 on export for PDUs. "
 	    "If the captured PDV does not contain a SOP Class UID and SOP Instance UID "
-	    "(e.g. for command PDVs), wireshark spefic ones will be created.",
+	    "(e.g. for command PDVs), wireshark specific ones will be created.",
 	    &global_dcm_export_header);
 
     prefs_register_uint_preference(dcm_module, "export_minsize",
@@ -6640,6 +6754,11 @@ proto_register_dcm(void)
 	    "This can be useful to debug a tag and to allow display filters on these attributes. "
 	    "When using TShark to create a text output, it's better to have it disabled. ",
 	    &global_dcm_tag_subtree);
+
+    prefs_register_bool_preference(dcm_module, "cmd_details",
+	    "Show command details in header",
+	    "Show message ID and number of completed, remaining, warned or failed operations in header and info column.",
+	    &global_dcm_cmd_details);
 
     dicom_eo_tap = register_tap("dicom_eo"); /* DICOM Export Object tap */
 
