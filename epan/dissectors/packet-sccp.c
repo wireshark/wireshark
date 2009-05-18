@@ -797,15 +797,13 @@ static const value_string assoc_protos[] = {
 };
 
 static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
-	sccp_assoc_info_t* a = se_alloc(sizeof(sccp_assoc_info_t));
+	sccp_assoc_info_t* a = se_alloc0(sizeof(sccp_assoc_info_t));
 
 	a->id = next_assoc_id++;
 	a->calling_dpc = calling;
 	a->called_dpc = called;
 	a->calling_ssn = INVALID_SSN;
 	a->called_ssn = INVALID_SSN;
-	a->has_fw_key = FALSE;
-	a->has_bw_key = FALSE;
 	a->msgs = NULL;
 	a->curr_msg = NULL;
 	a->payload = SCCP_PLOAD_NONE;
@@ -941,7 +939,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 	if (assoc && trace_sccp) {
 	    if ( ! pinfo->fd->flags.visited) {
-			sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
+			sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
 			msg->framenum = framenum;
 			msg->offset = offset;
 			msg->data.co.next = NULL;
@@ -1324,7 +1322,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 			offset += JAPAN_PC_LENGTH;
 
-		} else /* CHINESE_ITU_STANDARD */ { 
+		} else /* CHINESE_ITU_STANDARD */ {
 
 			if (length < offset + ANSI_PC_LENGTH){
 				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
@@ -2007,14 +2005,10 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type _U_) {
-	sccp_msg_info_t* m = ep_alloc(sizeof(sccp_msg_info_t));
+	sccp_msg_info_t* m = ep_alloc0(sizeof(sccp_msg_info_t));
 	m->framenum = pinfo->fd->num;
-	m->offset = 0; /* irrelevant */
-	m->type = 0;
 	m->data.ud.calling_gt = NULL;
-	m->data.ud.calling_ssn = 0;
 	m->data.ud.called_gt = NULL;
-	m->data.ud.called_ssn = 0;
 
 	register_frame_end_routine(reset_sccp_assoc);
 	return m;
