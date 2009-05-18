@@ -250,9 +250,6 @@ mtp3_sum_draw(
         *tot_num_msus_p += num_msus;
         *tot_num_bytes_p += num_bytes;
 
-        /*
-         * XXX - when do these get freed?
-         */
         entries[2] = (seconds) ? g_strdup_printf("%.2f", (double)num_msus/seconds) : g_strdup("N/A");
         entries[4] = (num_msus) ? g_strdup_printf("%.2f", (double)num_bytes/num_msus) : g_strdup("N/A");
         entries[5] = (seconds) ? g_strdup_printf("%.2f", (double)num_bytes/seconds) : g_strdup("N/A");
@@ -270,6 +267,10 @@ mtp3_sum_draw(
            NUM_BYTES_MSU_COLUMN, entries[4],
            NUM_BYTES_SEC_COLUMN, entries[5],
            -1);
+
+        g_free(entries[2]);
+        g_free(entries[4]);
+        g_free(entries[5]);
     }
 }
 
