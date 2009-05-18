@@ -2825,6 +2825,10 @@ Javier Cardona			<javier@cozybit.com> {
 	Mesh header dissector
 }
 
+Jens Steinhauser		<jens.steinhauser@omicron.at> {
+	IEEE C37.118 synchrophasor dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
