@@ -561,7 +561,6 @@ static void
 column_dnd_row_deleted_cb(GtkTreeModel *model, GtkTreePath *path _U_, gpointer data _U_) {
     GtkTreeIter   iter;
     GList        *clp, *new_col_list = NULL;
-    gchar        *title, *format;
     gboolean      items_left;
 
     /*
@@ -572,7 +571,7 @@ column_dnd_row_deleted_cb(GtkTreeModel *model, GtkTreePath *path _U_, gpointer d
          items_left;
          items_left = gtk_tree_model_iter_next (model, &iter)) {
 
-        gtk_tree_model_get(model, &iter, 0, &title, 1, &format, 2, &clp, -1);
+        gtk_tree_model_get(model, &iter, 2, &clp, -1);
         if (clp) {
             prefs.col_list = g_list_remove_link(prefs.col_list, clp);
             new_col_list = g_list_concat(new_col_list, clp);
