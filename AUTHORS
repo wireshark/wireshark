@@ -416,6 +416,7 @@ Yaniv Kaul              <ykaul[AT]netvision.net.il> {
 	DCERPC: Resolve UUID to interface names on win32 platforms
 	PCT support
 	X509 Certificates over HTTP support
+	VNC heuristic dissection
 }
 
 Paul Ionescu            <paul[AT]acorp.ro> {

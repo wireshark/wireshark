@@ -216,7 +216,7 @@ typedef struct {
 	guint8 security_type_selected;
 	gdouble server_proto_ver, client_proto_ver;
 	vnc_session_state_e vnc_next_state;
-
+	guint32 server_port;
 	/* These are specific to TightVNC */
 	gint num_server_message_types;
 	gint num_client_message_types;
@@ -512,6 +512,7 @@ static gint ett_vnc_colormap_color_group = -1;
 guint8 vnc_bytes_per_pixel;
 guint8 vnc_depth;
 
+static dissector_handle_t vnc_handle;
 
 /* Code to dissect the packets */
 static void
@@ -576,7 +577,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vnc_set_depth(pinfo, vnc_depth);
 
 	if(!ret) {	
-		if(DEST_PORT_VNC)
+		if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport)
 			vnc_client_to_server(tvb, pinfo, &offset, vnc_tree);
 		else
 			vnc_server_to_client(tvb, pinfo, &offset, vnc_tree);
@@ -631,6 +632,45 @@ process_tight_capabilities(proto_tree *tree,
 	return offset;
 }
 
+/* Returns true if this looks like a client or server version packet: 12 bytes, in the format "RFB xxx.yyy\n" .
+* Will check for the 12 bytes exact length, the 'RFB ' string and that it ends with a '\n'. 
+* The exact 'xxx.yyy' is checked later, by trying to convert it to a double using g_ascii_strtod.
+*/
+static gboolean
+vnc_is_client_or_server_version_message(tvbuff_t *tvb)
+{
+	if(tvb_length(tvb) != 12) {
+		return FALSE;
+	}
+	
+	if(tvb_strncaseeql(tvb, 0, "RFB ", 4) != 0) {
+		return FALSE;
+	}
+	/* 0x2e = '.'   0xa = '\n' */
+	if((tvb_get_guint8(tvb, 7) != 0x2e) || (tvb_get_guint8(tvb,11) != 0xa)) {
+		return FALSE;
+	}
+	
+	return TRUE;
+}
+
+static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
+                                        proto_tree *tree)
+{
+	conversation_t *conversation;
+	
+	if (vnc_is_client_or_server_version_message(tvb)) {
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+										&pinfo->dst, pinfo->ptype,
+										pinfo->srcport,
+										pinfo->destport, 0);
+		conversation_set_dissector(conversation, vnc_handle);
+		dissect_vnc(tvb, pinfo, tree);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 /* Returns true if additional session startup messages follow */
 static gboolean
 vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
@@ -658,12 +698,17 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	switch(per_packet_info->state) {
 
 	case SERVER_VERSION :
-		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
-				    7, FALSE);
-
+		if (!vnc_is_client_or_server_version_message(tvb))
+			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
+			
+		if (tree) {
+			proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
+						7, FALSE);
+		}
 		per_conversation_info->server_proto_ver =
-			g_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
+			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
 				 NULL);
+		per_conversation_info->server_port = pinfo->srcport;
 		
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -674,11 +719,15 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 		
 	case CLIENT_VERSION :
-		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
-				    4, 7, FALSE);
-
+		if (!vnc_is_client_or_server_version_message(tvb))
+			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
+		
+		if (tree) {
+			proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
+						4, 7, FALSE);
+		}
 		per_conversation_info->client_proto_ver =
-			g_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
+			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
 				 NULL);
 		
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -699,23 +748,26 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
                  * after the server offers the highest version it supports. */
 		
                 if(per_conversation_info->client_proto_ver >= 3.007) {
-                        proto_tree_add_item(tree,
-                                            hf_vnc_num_security_types, tvb,
-                                            offset, 1, FALSE);
-                        num_security_types = tvb_get_guint8(tvb, offset);
-			
-                        for(offset = 1; offset <= num_security_types; offset++){
-                                proto_tree_add_item(tree,
-                                                    hf_vnc_security_type, tvb,
-                                                    offset, 1, FALSE);
-
-                        }
+						num_security_types = tvb_get_guint8(tvb, offset);
+						if (tree) {
+							proto_tree_add_item(tree,
+												hf_vnc_num_security_types, tvb,
+												offset, 1, FALSE);
+									
+							for(offset = 1; offset <= num_security_types; offset++){
+									proto_tree_add_item(tree,
+														hf_vnc_security_type, tvb,
+														offset, 1, FALSE);
+							}
+						}
                 } else {
                         /* Version < 3.007: The server decides the
                          * authentication type for us to use */
-                        proto_tree_add_item(tree,
-                                            hf_vnc_server_security_type, tvb,
-                                            offset, 4, FALSE);
+						 if (tree) {
+							proto_tree_add_item(tree,
+												hf_vnc_server_security_type, tvb,
+												offset, 4, FALSE);
+						}
 		}
 
 		per_conversation_info->vnc_next_state =	SECURITY_TYPES;
@@ -725,9 +777,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
                                     "Authentication type selected by client");
-		
-                proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
-                                    offset, 1, FALSE);
+		if (tree) {
+			proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
+								offset, 1, FALSE);
+		}
 		per_conversation_info->security_type_selected =
 			tvb_get_guint8(tvb, offset);
 	
@@ -3050,7 +3103,7 @@ void
 proto_reg_handoff_vnc(void)
 {
 	static gboolean inited = FALSE;
-	static dissector_handle_t vnc_handle;
+
 	/* This is a behind the scenes variable that is not changed by the user.
 	 * This stores last setting of the vnc_preference_alternate_port.  Used to keep
 	 * track of when the user has changed the setting so that we can delete
@@ -3064,7 +3117,8 @@ proto_reg_handoff_vnc(void)
 		dissector_add("tcp.port", 5501, vnc_handle);
 		dissector_add("tcp.port", 5900, vnc_handle);
 		dissector_add("tcp.port", 5901, vnc_handle);
-
+		
+		heur_dissector_add("tcp", test_vnc_protocol, proto_vnc);
 		/* We don't register a port for the VNC HTTP server because
 		 * that simply provides a java program for download via the
 		 * HTTP protocol.  The java program then connects to a standard
@@ -3093,5 +3147,6 @@ proto_reg_handoff_vnc(void)
 					      vnc_handle);
 			}
 		}
+		heur_dissector_add("tcp", test_vnc_protocol, proto_vnc);
 	}
 }
