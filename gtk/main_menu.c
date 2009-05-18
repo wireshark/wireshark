@@ -1530,6 +1530,8 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_UNSORTED)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
+
+    g_free (sep_entry);
 }
 
 
