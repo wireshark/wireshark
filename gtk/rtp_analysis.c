@@ -1875,8 +1875,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 
 	GtkListStore *store;
 	GtkTreeIter iter;
-	GtkTreeSelection *selection;
 	GtkTreeModel *model;
+	gboolean more_items = TRUE;
 
 	/* To Hold data from the list row */
 	guint			packet;		/* Packet				*/
@@ -1943,10 +1943,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_fwd));
 		store = GTK_LIST_STORE(model);
 		if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
-			 
-			 selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(user_data->dlg.list_fwd));
-			
-			 while (gtk_tree_model_iter_next (model,&iter)) {
+			 			
+			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
 					 0, &packet,
 					 1, &sequence,
@@ -1968,11 +1966,13 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				 fprintf(fp, ",%s", date_str);
 				 fprintf(fp, ",%u", length);
 				 fprintf(fp,"\n");
-			 }
-			 if (ferror(fp)) {
-				 write_failure_alert_box(g_dest, errno);
-				 fclose(fp);
-				 return;
+				 if (ferror(fp)) {
+					 write_failure_alert_box(g_dest, errno);
+					 fclose(fp);
+					 return;
+				 }
+
+	 			 more_items = gtk_tree_model_iter_next (model,&iter);
 			 }
 		 }
 
@@ -2019,10 +2019,10 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_rev));
 		store = GTK_LIST_STORE(model);
 		if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+
+			more_items = TRUE;
 			 
-			 selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(user_data->dlg.list_rev));
-			
-			 while (gtk_tree_model_iter_next (model,&iter)) {
+			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
 					 0, &packet,
 					 1, &sequence,
@@ -2044,11 +2044,13 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				 fprintf(fp, ",%s", date_str);
 				 fprintf(fp, ",%u", length);
 				 fprintf(fp,"\n");
-			 }
-			 if (ferror(fp)) {
-				 write_failure_alert_box(g_dest, errno);
-				 fclose(fp);
-				 return;
+				 if (ferror(fp)) {
+					 write_failure_alert_box(g_dest, errno);
+					 fclose(fp);
+					 return;
+				 }
+
+				 more_items = gtk_tree_model_iter_next (model,&iter);
 			 }
 		 }
 		if (fclose(fp) == EOF) {
