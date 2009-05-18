@@ -98,7 +98,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;
 	GtkWidget *main_vb, *save_as_type_hb, *type_lb, *type_cm;
-	GSList *file_formats;
+	GSList *file_formats,*ffp;
 	GdkWindow *parent;
 
 	pixbuf = gdk_pixbuf_get_from_drawable(NULL, GDK_DRAWABLE(pixmap), NULL,
@@ -139,17 +139,15 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	
 	/* List all of the file formats the gdk-pixbuf library supports */
 	file_formats = gdk_pixbuf_get_formats();
-
-	while(file_formats) {
-		if (gdk_pixbuf_format_is_writable(file_formats->data)) {
-			pixbuf_format = file_formats->data;
+	ffp = file_formats;
+	while(ffp) {
+		if (gdk_pixbuf_format_is_writable(ffp->data)) {
+			pixbuf_format = ffp->data;
 			gtk_combo_box_append_text(GTK_COMBO_BOX(type_cm),
 						  gdk_pixbuf_format_get_name(pixbuf_format));
 		}
-
-		file_formats = file_formats->next;
+		ffp = g_slist_next(ffp);
 	}
-
 	g_slist_free(file_formats);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(type_cm), 0);
