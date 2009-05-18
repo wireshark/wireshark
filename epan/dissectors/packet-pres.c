@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pres.c                                                              */
-/* ../../tools/asn2wrs.py -b -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
+/* ../../tools/asn2wrs.py -b -p pres -c ./pres.cnf -s ./packet-pres-template -D . ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
 
@@ -308,7 +308,7 @@ static const value_string pres_T_mode_value_vals[] = {
 static int
 dissect_pres_T_mode_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -377,7 +377,7 @@ dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t
 #line 69 "pres.cnf"
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &presentation_context_identifier);
+                                                &presentation_context_identifier);
 
 
   if(session)
@@ -767,7 +767,7 @@ static const value_string pres_Result_vals[] = {
 static int
 dissect_pres_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -785,7 +785,7 @@ static const value_string pres_T_provider_reason_vals[] = {
 static int
 dissect_pres_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -891,7 +891,7 @@ static const value_string pres_Provider_reason_vals[] = {
 static int
 dissect_pres_Provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1018,7 +1018,7 @@ static const value_string pres_Abort_reason_vals[] = {
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1065,7 +1065,7 @@ static const value_string pres_Event_identifier_vals[] = {
 static int
 dissect_pres_Event_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1165,7 +1165,7 @@ static const value_string pres_Presentation_context_deletion_result_list_item_va
 static int
 dissect_pres_Presentation_context_deletion_result_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1561,7 +1561,7 @@ void proto_register_pres(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pres.Presentation_context_deletion_result_list", HFILL }},
     { &hf_pres_Context_list_item,
-      { "Item", "pres.Context_list_item",
+      { "Context-list", "pres.Context_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pres.Context_list_item", HFILL }},
     { &hf_pres_presentation_context_identifier,
@@ -1577,7 +1577,7 @@ void proto_register_pres(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pres.SEQUENCE_OF_Transfer_syntax_name", HFILL }},
     { &hf_pres_transfer_syntax_name_list_item,
-      { "Item", "pres.transfer_syntax_name_list_item",
+      { "transfer-syntax-name-list", "pres.transfer_syntax_name_list_item",
         FT_OID, BASE_NONE, NULL, 0,
         "pres.Transfer_syntax_name", HFILL }},
     { &hf_pres_transfer_syntax_name,
@@ -1589,19 +1589,19 @@ void proto_register_pres(void) {
         FT_INT32, BASE_DEC, VALS(pres_T_mode_value_vals), 0,
         "pres.T_mode_value", HFILL }},
     { &hf_pres_Presentation_context_deletion_list_item,
-      { "Item", "pres.Presentation_context_deletion_list_item",
+      { "Presentation-context-deletion-list", "pres.Presentation_context_deletion_list_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "pres.Presentation_context_identifier", HFILL }},
     { &hf_pres_Presentation_context_deletion_result_list_item,
-      { "Item", "pres.Presentation_context_deletion_result_list_item",
+      { "Presentation-context-deletion-result-list", "pres.Presentation_context_deletion_result_list_item",
         FT_INT32, BASE_DEC, VALS(pres_Presentation_context_deletion_result_list_item_vals), 0,
         "pres.Presentation_context_deletion_result_list_item", HFILL }},
     { &hf_pres_Presentation_context_identifier_list_item,
-      { "Item", "pres.Presentation_context_identifier_list_item",
+      { "Presentation-context-identifier-list", "pres.Presentation_context_identifier_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pres.Presentation_context_identifier_list_item", HFILL }},
     { &hf_pres_Result_list_item,
-      { "Item", "pres.Result_list_item",
+      { "Result-list", "pres.Result_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pres.Result_list_item", HFILL }},
     { &hf_pres_result,
@@ -1621,7 +1621,7 @@ void proto_register_pres(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pres.Fully_encoded_data", HFILL }},
     { &hf_pres_Fully_encoded_data_item,
-      { "Item", "pres.Fully_encoded_data_item",
+      { "Fully-encoded-data", "pres.Fully_encoded_data_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pres.PDV_list", HFILL }},
     { &hf_pres_presentation_data_values,

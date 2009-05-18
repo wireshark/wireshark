@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acse.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
+/* ../../tools/asn2wrs.py -b -e -p acse -c ./acse.cnf -s ./packet-acse-template -D . acse.asn */
 
 /* Input file: packet-acse-template.c */
 
@@ -539,7 +539,7 @@ dissect_acse_ASO_qualifier_form1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_acse_ASO_qualifier_form2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -605,7 +605,7 @@ dissect_acse_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 int
 dissect_acse_AP_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -615,7 +615,7 @@ dissect_acse_AP_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int
 dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -749,7 +749,7 @@ dissect_acse_Implementation_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_acse_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -869,7 +869,7 @@ dissect_acse_Syntactic_context_list(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_acse_ASOI_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -997,7 +997,7 @@ static const value_string acse_Associate_result_vals[] = {
 static int
 dissect_acse_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1026,7 +1026,7 @@ static const value_string acse_T_acse_service_user_vals[] = {
 static int
 dissect_acse_T_acse_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1043,7 +1043,7 @@ static const value_string acse_T_acse_service_provider_vals[] = {
 static int
 dissect_acse_T_acse_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1082,7 +1082,7 @@ static const value_string acse_Result_vals[] = {
 static int
 dissect_acse_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1109,7 +1109,7 @@ static const value_string acse_T_provider_reason_vals[] = {
 static int
 dissect_acse_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1198,7 +1198,7 @@ dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &reason);
+                                                &reason);
 
 
   if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1252,7 +1252,7 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &reason);
+                                                &reason);
 
 
   if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1302,7 +1302,7 @@ static const value_string acse_ABRT_source_vals[] = {
 static int
 dissect_acse_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2036,7 +2036,7 @@ void proto_register_acse(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "acse.AE_title_form2", HFILL }},
     { &hf_acse_ASOI_tag_item,
-      { "Item", "acse.ASOI_tag_item",
+      { "ASOI-tag", "acse.ASOI_tag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.ASOI_tag_item", HFILL }},
     { &hf_acse_qualifier,
@@ -2048,7 +2048,7 @@ void proto_register_acse(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acse.ASOI_identifier", HFILL }},
     { &hf_acse_ASO_context_name_list_item,
-      { "Item", "acse.ASO_context_name_list_item",
+      { "ASO-context-name-list", "acse.ASO_context_name_list_item",
         FT_OID, BASE_NONE, NULL, 0,
         "acse.ASO_context_name", HFILL }},
     { &hf_acse_context_list,
@@ -2060,7 +2060,7 @@ void proto_register_acse(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acse.Default_Context_List", HFILL }},
     { &hf_acse_Context_list_item,
-      { "Item", "acse.Context_list_item",
+      { "Context-list", "acse.Context_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.Context_list_item", HFILL }},
     { &hf_acse_pci,
@@ -2076,11 +2076,11 @@ void proto_register_acse(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acse.SEQUENCE_OF_TransferSyntaxName", HFILL }},
     { &hf_acse_transfer_syntaxes_item,
-      { "Item", "acse.transfer_syntaxes_item",
+      { "transfer-syntaxes", "acse.transfer_syntaxes_item",
         FT_OID, BASE_NONE, NULL, 0,
         "acse.TransferSyntaxName", HFILL }},
     { &hf_acse_Default_Context_List_item,
-      { "Item", "acse.Default_Context_List_item",
+      { "Default-Context-List", "acse.Default_Context_List_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.Default_Context_List_item", HFILL }},
     { &hf_acse_abstract_syntax_name,
@@ -2092,7 +2092,7 @@ void proto_register_acse(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "acse.TransferSyntaxName", HFILL }},
     { &hf_acse_P_context_result_list_item,
-      { "Item", "acse.P_context_result_list_item",
+      { "P-context-result-list", "acse.P_context_result_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.P_context_result_list_item", HFILL }},
     { &hf_acse_pcontext_result,

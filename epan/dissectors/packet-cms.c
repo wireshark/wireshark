@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cms.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ../../tools/asn2wrs.py -b -e -p cms -c ./cms.cnf -s ./packet-cms-template -D . CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -368,7 +368,7 @@ static const value_string cms_CMSVersion_vals[] = {
 static int
 dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1359,7 +1359,7 @@ dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &length);
+                                                &length);
 
 
   if(cap_tree != NULL) 
@@ -1403,7 +1403,7 @@ dissect_cms_CBCParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_cms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1718,11 +1718,11 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cms.SignerInfos", HFILL }},
     { &hf_cms_DigestAlgorithmIdentifiers_item,
-      { "Item", "cms.DigestAlgorithmIdentifiers_item",
+      { "DigestAlgorithmIdentifiers", "cms.DigestAlgorithmIdentifiers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.DigestAlgorithmIdentifier", HFILL }},
     { &hf_cms_SignerInfos_item,
-      { "Item", "cms.SignerInfos_item",
+      { "SignerInfos", "cms.SignerInfos_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.SignerInfo", HFILL }},
     { &hf_cms_eContentType,
@@ -1766,11 +1766,11 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cms.SubjectKeyIdentifier", HFILL }},
     { &hf_cms_SignedAttributes_item,
-      { "Item", "cms.SignedAttributes_item",
+      { "SignedAttributes", "cms.SignedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.Attribute", HFILL }},
     { &hf_cms_UnsignedAttributes_item,
-      { "Item", "cms.UnsignedAttributes_item",
+      { "UnsignedAttributes", "cms.UnsignedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.Attribute", HFILL }},
     { &hf_cms_attrType,
@@ -1782,7 +1782,7 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cms.SET_OF_AttributeValue", HFILL }},
     { &hf_cms_attrValues_item,
-      { "Item", "cms.attrValues_item",
+      { "attrValues", "cms.attrValues_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.AttributeValue", HFILL }},
     { &hf_cms_originatorInfo,
@@ -1806,7 +1806,7 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cms.CertificateSet", HFILL }},
     { &hf_cms_RecipientInfos_item,
-      { "Item", "cms.RecipientInfos_item",
+      { "RecipientInfos", "cms.RecipientInfos_item",
         FT_UINT32, BASE_DEC, VALS(cms_RecipientInfo_vals), 0,
         "cms.RecipientInfo", HFILL }},
     { &hf_cms_encryptedContentType,
@@ -1822,7 +1822,7 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cms.EncryptedContent", HFILL }},
     { &hf_cms_UnprotectedAttributes_item,
-      { "Item", "cms.UnprotectedAttributes_item",
+      { "UnprotectedAttributes", "cms.UnprotectedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.Attribute", HFILL }},
     { &hf_cms_ktri,
@@ -1874,7 +1874,7 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cms.BIT_STRING", HFILL }},
     { &hf_cms_RecipientEncryptedKeys_item,
-      { "Item", "cms.RecipientEncryptedKeys_item",
+      { "RecipientEncryptedKeys", "cms.RecipientEncryptedKeys_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.RecipientEncryptedKey", HFILL }},
     { &hf_cms_rekRid,
@@ -1922,15 +1922,15 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cms.UnauthAttributes", HFILL }},
     { &hf_cms_AuthAttributes_item,
-      { "Item", "cms.AuthAttributes_item",
+      { "AuthAttributes", "cms.AuthAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.Attribute", HFILL }},
     { &hf_cms_UnauthAttributes_item,
-      { "Item", "cms.UnauthAttributes_item",
+      { "UnauthAttributes", "cms.UnauthAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.Attribute", HFILL }},
     { &hf_cms_CertificateRevocationLists_item,
-      { "Item", "cms.CertificateRevocationLists_item",
+      { "CertificateRevocationLists", "cms.CertificateRevocationLists_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.CertificateList", HFILL }},
     { &hf_cms_certificate,
@@ -1946,7 +1946,7 @@ void proto_register_cms(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.AttributeCertificate", HFILL }},
     { &hf_cms_CertificateSet_item,
-      { "Item", "cms.CertificateSet_item",
+      { "CertificateSet", "cms.CertificateSet_item",
         FT_UINT32, BASE_DEC, VALS(cms_CertificateChoices_vals), 0,
         "cms.CertificateChoices", HFILL }},
     { &hf_cms_issuer,
@@ -1994,7 +1994,7 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cms.UnauthAttributes", HFILL }},
     { &hf_cms_SMIMECapabilities_item,
-      { "Item", "cms.SMIMECapabilities_item",
+      { "SMIMECapabilities", "cms.SMIMECapabilities_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.SMIMECapability", HFILL }},
     { &hf_cms_capability,

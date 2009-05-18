@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cdt.c                                                               */
-/* ../../tools/asn2wrs.py -b -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
+/* ../../tools/asn2wrs.py -b -p cdt -c ./cdt.cnf -s ./packet-cdt-template -D . cdt.asn */
 
 /* Input file: packet-cdt-template.c */
 
@@ -102,7 +102,7 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
   proto_item_append_text (cdt_item, ", %s",
                           val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
@@ -166,7 +166,7 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
   proto_item_append_text (cdt_item, ", %s",
                           val_to_str (value, cdt_ContentType_ShortForm_vals, 

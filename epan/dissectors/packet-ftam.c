@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ftam.c                                                              */
-/* ../../tools/asn2wrs.py -b -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
+/* ../../tools/asn2wrs.py -b -p ftam -c ./ftam.cnf -s ./packet-ftam-template -D . ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
 
@@ -842,7 +842,7 @@ static const value_string ftam_FTAM_Quality_of_Service_U_vals[] = {
 static int
 dissect_ftam_FTAM_Quality_of_Service_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -997,7 +997,7 @@ dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ftam_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1039,7 +1039,7 @@ static const value_string ftam_State_Result_U_vals[] = {
 static int
 dissect_ftam_State_Result_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1066,7 +1066,7 @@ static const value_string ftam_Action_Result_U_vals[] = {
 static int
 dissect_ftam_Action_Result_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1093,7 +1093,7 @@ static const value_string ftam_T_diagnostic_type_vals[] = {
 static int
 dissect_ftam_T_diagnostic_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1113,7 +1113,7 @@ static const value_string ftam_Entity_Reference_vals[] = {
 static int
 dissect_ftam_Entity_Reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1522,7 +1522,7 @@ static const value_string ftam_Lock_vals[] = {
 static int
 dissect_ftam_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1651,7 +1651,7 @@ static const value_string ftam_Override_vals[] = {
 static int
 dissect_ftam_Override(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1668,7 +1668,7 @@ static const value_string ftam_Object_Type_Attribute_vals[] = {
 static int
 dissect_ftam_Object_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1816,7 +1816,7 @@ static const value_string ftam_T_actual_values8_vals[] = {
 static int
 dissect_ftam_T_actual_values8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2636,7 +2636,7 @@ static const value_string ftam_T_request_recovery_mode_vals[] = {
 static int
 dissect_ftam_T_request_recovery_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2666,7 +2666,7 @@ static const value_string ftam_Degree_Of_Overlap_U_vals[] = {
 static int
 dissect_ftam_Degree_Of_Overlap_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2717,7 +2717,7 @@ static const value_string ftam_T_response_recovery_mode_vals[] = {
 static int
 dissect_ftam_T_response_recovery_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2887,7 +2887,7 @@ static const value_string ftam_T_first_last_vals[] = {
 static int
 dissect_ftam_T_first_last(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2904,7 +2904,7 @@ static const value_string ftam_T_relative_vals[] = {
 static int
 dissect_ftam_T_relative(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2920,7 +2920,7 @@ static const value_string ftam_T_begin_end_vals[] = {
 static int
 dissect_ftam_T_begin_end(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2998,7 +2998,7 @@ static const value_string ftam_FADU_Lock_U_vals[] = {
 static int
 dissect_ftam_FADU_Lock_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3171,7 +3171,7 @@ static const value_string ftam_T_access_context_vals[] = {
 static int
 dissect_ftam_T_access_context(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3230,7 +3230,7 @@ static const value_string ftam_T_file_access_data_unit_Operation_vals[] = {
 static int
 dissect_ftam_T_file_access_data_unit_Operation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3278,7 +3278,7 @@ static const value_string ftam_Request_Type_U_vals[] = {
 static int
 dissect_ftam_Request_Type_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3957,7 +3957,7 @@ static const value_string ftam_T_retrieval_scope_vals[] = {
 static int
 dissect_ftam_T_retrieval_scope(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4107,7 +4107,7 @@ static const value_string ftam_Request_Operation_Result_U_vals[] = {
 static int
 dissect_ftam_Request_Operation_Result_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4211,7 +4211,7 @@ static const value_string ftam_Error_Action_vals[] = {
 static int
 dissect_ftam_Error_Action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4985,7 +4985,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Diagnostic", HFILL }},
     { &hf_ftam__untag_item,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_UINT32, BASE_DEC, VALS(ftam_Contents_Type_List_item_vals), 0,
         "ftam.Contents_Type_List_item", HFILL }},
     { &hf_ftam_document_type_name,
@@ -5189,7 +5189,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SET_OF_Abstract_Syntax_Name", HFILL }},
     { &hf_ftam_remove_contexts_item,
-      { "Item", "ftam.remove_contexts_item",
+      { "remove-contexts", "ftam.remove_contexts_item",
         FT_OID, BASE_NONE, NULL, 0,
         "ftam.Abstract_Syntax_Name", HFILL }},
     { &hf_ftam_define_contexts,
@@ -5197,7 +5197,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SET_OF_Abstract_Syntax_Name", HFILL }},
     { &hf_ftam_define_contexts_item,
-      { "Item", "ftam.define_contexts_item",
+      { "define-contexts", "ftam.define_contexts_item",
         FT_OID, BASE_NONE, NULL, 0,
         "ftam.Abstract_Syntax_Name", HFILL }},
     { &hf_ftam_degree_of_overlap,
@@ -5409,7 +5409,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Attribute_Extensions", HFILL }},
     { &hf_ftam__untag_item_01,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Charging_item", HFILL }},
     { &hf_ftam_resource_identifier,
@@ -5473,7 +5473,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, VALS(ftam_Access_Control_Attribute_vals), 0,
         "ftam.Access_Control_Attribute", HFILL }},
     { &hf_ftam__untag_item_02,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Diagnostic_item", HFILL }},
     { &hf_ftam_diagnostic_type,
@@ -5521,7 +5521,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SEQUENCE_OF_Node_Name", HFILL }},
     { &hf_ftam_name_list_item,
-      { "Item", "ftam.name_list_item",
+      { "name-list", "ftam.name_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Node_Name", HFILL }},
     { &hf_ftam_fadu_number,
@@ -5593,7 +5593,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SET_OF_Access_Control_Element", HFILL }},
     { &hf_ftam_actual_values3_item,
-      { "Item", "ftam.actual_values_item",
+      { "actual-values", "ftam.actual_values_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Access_Control_Element", HFILL }},
     { &hf_ftam_actual_values1,
@@ -5605,7 +5605,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SET_OF_Access_Control_Element", HFILL }},
     { &hf_ftam_insert_values_item,
-      { "Item", "ftam.insert_values_item",
+      { "insert-values", "ftam.insert_values_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Access_Control_Element", HFILL }},
     { &hf_ftam_delete_values,
@@ -5613,7 +5613,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SET_OF_Access_Control_Element", HFILL }},
     { &hf_ftam_delete_values_item,
-      { "Item", "ftam.delete_values_item",
+      { "delete-values", "ftam.delete_values_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Access_Control_Element", HFILL }},
     { &hf_ftam_action_list,
@@ -5725,7 +5725,7 @@ void proto_register_ftam(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "ftam.User_Identity", HFILL }},
     { &hf_ftam_Child_Objects_Attribute_item,
-      { "Item", "ftam.Child_Objects_Attribute_item",
+      { "Child-Objects-Attribute", "ftam.Child_Objects_Attribute_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "ftam.GraphicString", HFILL }},
     { &hf_ftam_f_Change_prefix_request,
@@ -5917,7 +5917,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Read_Attributes", HFILL }},
     { &hf_ftam_Attribute_Extension_Names_item,
-      { "Item", "ftam.Attribute_Extension_Names_item",
+      { "Attribute-Extension-Names", "ftam.Attribute_Extension_Names_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Attribute_Extension_Set_Name", HFILL }},
     { &hf_ftam_extension_set_identifier,
@@ -5929,11 +5929,11 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SEQUENCE_OF_Extension_Attribute_identifier", HFILL }},
     { &hf_ftam_extension_attribute_names_item,
-      { "Item", "ftam.extension_attribute_names_item",
+      { "extension-attribute-names", "ftam.extension_attribute_names_item",
         FT_OID, BASE_NONE, NULL, 0,
         "ftam.Extension_Attribute_identifier", HFILL }},
     { &hf_ftam_Attribute_Extensions_item,
-      { "Item", "ftam.Attribute_Extensions_item",
+      { "Attribute-Extensions", "ftam.Attribute_Extensions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Attribute_Extension_Set", HFILL }},
     { &hf_ftam_extension_set_attributes,
@@ -5941,7 +5941,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SEQUENCE_OF_Extension_Attribute", HFILL }},
     { &hf_ftam_extension_set_attributes_item,
-      { "Item", "ftam.extension_set_attributes_item",
+      { "extension-set-attributes", "ftam.extension_set_attributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Extension_Attribute", HFILL }},
     { &hf_ftam_extension_attribute_identifier,
@@ -5953,7 +5953,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute", HFILL }},
     { &hf_ftam__untag_item_03,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Scope_item", HFILL }},
     { &hf_ftam_root_directory,
@@ -5965,11 +5965,11 @@ void proto_register_ftam(void) {
         FT_INT32, BASE_DEC, VALS(ftam_T_retrieval_scope_vals), 0,
         "ftam.T_retrieval_scope", HFILL }},
     { &hf_ftam_OR_Set_item,
-      { "Item", "ftam.OR_Set_item",
+      { "OR-Set", "ftam.OR_Set_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.AND_Set", HFILL }},
     { &hf_ftam_AND_Set_item,
-      { "Item", "ftam.AND_Set_item",
+      { "AND-Set", "ftam.AND_Set_item",
         FT_UINT32, BASE_DEC, VALS(ftam_AND_Set_item_vals), 0,
         "ftam.AND_Set_item", HFILL }},
     { &hf_ftam_pathname_Pattern,
@@ -6065,7 +6065,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.T_pathname_value", HFILL }},
     { &hf_ftam_pathname_value_item,
-      { "Item", "ftam.pathname_value_item",
+      { "pathname-value", "ftam.pathname_value_item",
         FT_UINT32, BASE_DEC, VALS(ftam_T_pathname_value_item_vals), 0,
         "ftam.T_pathname_value_item", HFILL }},
     { &hf_ftam_string_match,
@@ -6081,7 +6081,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.T_string_value", HFILL }},
     { &hf_ftam_string_value_item,
-      { "Item", "ftam.string_value_item",
+      { "string-value", "ftam.string_value_item",
         FT_UINT32, BASE_DEC, VALS(ftam_T_string_value_item_vals), 0,
         "ftam.T_string_value_item", HFILL }},
     { &hf_ftam_substring_match,
@@ -6141,7 +6141,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Object_Identifier_Pattern", HFILL }},
     { &hf_ftam_Attribute_Extensions_Pattern_item,
-      { "Item", "ftam.Attribute_Extensions_Pattern_item",
+      { "Attribute-Extensions-Pattern", "ftam.Attribute_Extensions_Pattern_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Attribute_Extensions_Pattern_item", HFILL }},
     { &hf_ftam_extension_set_attribute_Patterns,
@@ -6149,7 +6149,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.T_extension_set_attribute_Patterns", HFILL }},
     { &hf_ftam_extension_set_attribute_Patterns_item,
-      { "Item", "ftam.extension_set_attribute_Patterns_item",
+      { "extension-set-attribute-Patterns", "ftam.extension_set_attribute_Patterns_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_set_attribute_Patterns_item", HFILL }},
     { &hf_ftam_attribute_extension_attribute_identifier,
@@ -6161,7 +6161,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute_Pattern", HFILL }},
     { &hf_ftam__untag_item_04,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Read_Attributes", HFILL }},
     { &hf_ftam_success_Object_count,
@@ -6173,19 +6173,19 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.SEQUENCE_OF_Pathname", HFILL }},
     { &hf_ftam_success_Object_names_item,
-      { "Item", "ftam.success_Object_names_item",
+      { "success-Object-names", "ftam.success_Object_names_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Pathname", HFILL }},
     { &hf_ftam_Pathname_item,
-      { "Item", "ftam.Pathname_item",
+      { "Pathname", "ftam.Pathname_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "ftam.GraphicString", HFILL }},
     { &hf_ftam_Pass_Passwords_item,
-      { "Item", "ftam.Pass_Passwords_item",
+      { "Pass-Passwords", "ftam.Pass_Passwords_item",
         FT_UINT32, BASE_DEC, VALS(ftam_Password_U_vals), 0,
         "ftam.Password", HFILL }},
     { &hf_ftam__untag_item_05,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Path_Access_Passwords_item", HFILL }},
     { &hf_ftam_ap,
@@ -6197,7 +6197,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
         "ftam.AE_qualifier", HFILL }},
     { &hf_ftam__untag_item_06,
-      { "Item", "ftam._untag_item",
+      { "_untag", "ftam._untag_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.AND_Set", HFILL }},
     { &hf_ftam_Protocol_Version_U_version_1,

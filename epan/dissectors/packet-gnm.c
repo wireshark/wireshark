@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-gnm.c                                                               */
-/* ../../tools/asn2wrs.py -b -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
+/* ../../tools/asn2wrs.py -b -p gnm -c ./gnm.cnf -s ./packet-gnm-template -D . GNM.asn */
 
 /* Input file: packet-gnm-template.c */
 
@@ -590,7 +590,7 @@ dissect_gnm_Boolean(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_gnm_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -615,7 +615,7 @@ dissect_gnm_Bundle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_gnm_ChannelNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -917,7 +917,7 @@ dissect_gnm_ConnectionTypeBi(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_gnm_Count(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1389,7 +1389,7 @@ dissect_gnm_NameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_gnm_NumberOfCircuits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1541,7 +1541,7 @@ dissect_gnm_SignallingCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_gnm_WaveLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2216,7 +2216,7 @@ void proto_register_gnm(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "gnm.Version", HFILL }},
     { &hf_gnm_MappingList_item,
-      { "Item", "gnm.MappingList_item",
+      { "MappingList", "gnm.MappingList_item",
         FT_OID, BASE_NONE, NULL, 0,
         "gnm.PayloadLevel", HFILL }},
     { &hf_gnm_objectClass,
@@ -2228,11 +2228,11 @@ void proto_register_gnm(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "gnm.CharacteristicInformation", HFILL }},
     { &hf_gnm_SupportedTOClasses_item,
-      { "Item", "gnm.SupportedTOClasses_item",
+      { "SupportedTOClasses", "gnm.SupportedTOClasses_item",
         FT_OID, BASE_NONE, NULL, 0,
         "gnm.OBJECT_IDENTIFIER", HFILL }},
     { &hf_gnm_AcceptableCircuitPackTypeList_item,
-      { "Item", "gnm.AcceptableCircuitPackTypeList_item",
+      { "AcceptableCircuitPackTypeList", "gnm.AcceptableCircuitPackTypeList_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "gnm.PrintableString", HFILL }},
     { &hf_gnm_gtp,
@@ -2244,7 +2244,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_ObjectInstance", HFILL }},
     { &hf_gnm_tpsAdded_item,
-      { "Item", "gnm.tpsAdded_item",
+      { "tpsAdded", "gnm.tpsAdded_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_mpCrossConnection,
@@ -2256,7 +2256,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ToTermSpecifier", HFILL }},
     { &hf_gnm_legs_item,
-      { "Item", "gnm.legs_item",
+      { "legs", "gnm.legs_item",
         FT_UINT32, BASE_DEC, VALS(gnm_ToTermSpecifier_vals), 0,
         "gnm.ToTermSpecifier", HFILL }},
     { &hf_gnm_problem,
@@ -2276,7 +2276,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, VALS(gnm_AlarmSeverityCode_vals), 0,
         "gnm.AlarmSeverityCode", HFILL }},
     { &hf_gnm_AlarmSeverityAssignmentList_item,
-      { "Item", "gnm.AlarmSeverityAssignmentList_item",
+      { "AlarmSeverityAssignmentList", "gnm.AlarmSeverityAssignmentList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.AlarmSeverityAssignment", HFILL }},
     { &hf_gnm_characteristicInfoType,
@@ -2308,7 +2308,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_ObjectInstance", HFILL }},
     { &hf_gnm_concatenated_item,
-      { "Item", "gnm.concatenated_item",
+      { "concatenated", "gnm.concatenated_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_explicitPToP,
@@ -2344,7 +2344,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, VALS(gnm_AlarmStatus_vals), 0,
         "gnm.AlarmStatus", HFILL }},
     { &hf_gnm_CurrentProblemList_item,
-      { "Item", "gnm.CurrentProblemList_item",
+      { "CurrentProblemList", "gnm.CurrentProblemList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.CurrentProblem", HFILL }},
     { &hf_gnm_broadcast,
@@ -2352,7 +2352,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ObjectInstance", HFILL }},
     { &hf_gnm_broadcast_item,
-      { "Item", "gnm.broadcast_item",
+      { "broadcast", "gnm.broadcast_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_broadcastConcatenated,
@@ -2360,11 +2360,11 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.T_broadcastConcatenated", HFILL }},
     { &hf_gnm_broadcastConcatenated_item,
-      { "Item", "gnm.broadcastConcatenated_item",
+      { "broadcastConcatenated", "gnm.broadcastConcatenated_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_ObjectInstance", HFILL }},
     { &hf_gnm__item_item,
-      { "Item", "gnm._item_item",
+      { "_item", "gnm._item_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_fromTp,
@@ -2376,7 +2376,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ExplicitTP", HFILL }},
     { &hf_gnm_toTPs_item,
-      { "Item", "gnm.toTPs_item",
+      { "toTPs", "gnm.toTPs_item",
         FT_UINT32, BASE_DEC, VALS(gnm_ExplicitTP_vals), 0,
         "gnm.ExplicitTP", HFILL }},
     { &hf_gnm_toTp,
@@ -2392,11 +2392,11 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_ObjectInstance", HFILL }},
     { &hf_gnm_listofTPs_item,
-      { "Item", "gnm.listofTPs_item",
+      { "listofTPs", "gnm.listofTPs_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_EquipmentHolderAddress_item,
-      { "Item", "gnm.EquipmentHolderAddress_item",
+      { "EquipmentHolderAddress", "gnm.EquipmentHolderAddress_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "gnm.PrintableString", HFILL }},
     { &hf_gnm_logicalProblem,
@@ -2452,7 +2452,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, VALS(gnm_Connected_vals), 0,
         "gnm.Connected", HFILL }},
     { &hf_gnm_ListOfCharacteristicInformation_item,
-      { "Item", "gnm.ListOfCharacteristicInformation_item",
+      { "ListOfCharacteristicInformation", "gnm.ListOfCharacteristicInformation_item",
         FT_OID, BASE_NONE, NULL, 0,
         "gnm.CharacteristicInformation", HFILL }},
     { &hf_gnm_problemCause,
@@ -2464,11 +2464,11 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ObjectInstance", HFILL }},
     { &hf_gnm_incorrectInstances_item,
-      { "Item", "gnm.incorrectInstances_item",
+      { "incorrectInstances", "gnm.incorrectInstances_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_MultipleConnections_item,
-      { "Item", "gnm.MultipleConnections_item",
+      { "MultipleConnections", "gnm.MultipleConnections_item",
         FT_UINT32, BASE_DEC, VALS(gnm_MultipleConnections_item_vals), 0,
         "gnm.MultipleConnections_item", HFILL }},
     { &hf_gnm_downstreamNotConnected,
@@ -2504,7 +2504,7 @@ void proto_register_gnm(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "gnm.GraphicString", HFILL }},
     { &hf_gnm_ObjectList_item,
-      { "Item", "gnm.ObjectList_item",
+      { "ObjectList", "gnm.ObjectList_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_pointer,
@@ -2532,7 +2532,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.T_toTps", HFILL }},
     { &hf_gnm_toTps_item,
-      { "Item", "gnm.toTps_item",
+      { "toTps", "gnm.toTps_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.T_toTps_item", HFILL }},
     { &hf_gnm_tp,
@@ -2580,15 +2580,15 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ObjectInstance", HFILL }},
     { &hf_gnm_tps_item,
-      { "Item", "gnm.tps_item",
+      { "tps", "gnm.tps_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_SequenceOfObjectInstance_item,
-      { "Item", "gnm.SequenceOfObjectInstance_item",
+      { "SequenceOfObjectInstance", "gnm.SequenceOfObjectInstance_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_SignalRateAndMappingList_item,
-      { "Item", "gnm.SignalRateAndMappingList_item",
+      { "SignalRateAndMappingList", "gnm.SignalRateAndMappingList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.SignalRateAndMappingList_item", HFILL }},
     { &hf_gnm_signalRate,
@@ -2616,7 +2616,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_Bundle", HFILL }},
     { &hf_gnm_complex_item,
-      { "Item", "gnm.complex_item",
+      { "complex", "gnm.complex_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.Bundle", HFILL }},
     { &hf_gnm_notApplicable,
@@ -2628,7 +2628,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_ObjectInstance", HFILL }},
     { &hf_gnm_softwareInstances_item,
-      { "Item", "gnm.softwareInstances_item",
+      { "softwareInstances", "gnm.softwareInstances_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_softwareIdentifiers,
@@ -2636,11 +2636,11 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.T_softwareIdentifiers", HFILL }},
     { &hf_gnm_softwareIdentifiers_item,
-      { "Item", "gnm.softwareIdentifiers_item",
+      { "softwareIdentifiers", "gnm.softwareIdentifiers_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "gnm.PrintableString", HFILL }},
     { &hf_gnm_SupportableClientList_item,
-      { "Item", "gnm.SupportableClientList_item",
+      { "SupportableClientList", "gnm.SupportableClientList_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectClass_vals), 0,
         "cmip.ObjectClass", HFILL }},
     { &hf_gnm_sourceType,
@@ -2680,7 +2680,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_ToTPPools_item,
-      { "Item", "gnm.ToTPPools_item",
+      { "ToTPPools", "gnm.ToTPPools_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.ToTPPools_item", HFILL }},
     { &hf_gnm_tpPoolId,
@@ -2696,7 +2696,7 @@ void proto_register_gnm(void) {
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_TpsInGtpList_item,
-      { "Item", "gnm.TpsInGtpList_item",
+      { "TpsInGtpList", "gnm.TpsInGtpList_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
     { &hf_gnm_TransmissionCharacteristics_satellite,

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509ce.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -672,7 +672,7 @@ dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -697,7 +697,7 @@ dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int
 dissect_x509ce_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -751,7 +751,7 @@ dissect_x509ce_NameConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 int
 dissect_x509ce_SkipCerts(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -776,7 +776,7 @@ dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb 
 int
 dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -899,7 +899,7 @@ dissect_x509ce_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 int
 dissect_x509ce_CRLStreamIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1589,7 +1589,7 @@ void proto_register_x509ce(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "x509af.CertificateSerialNumber", HFILL }},
     { &hf_x509ce_KeyPurposeIDs_item,
-      { "Item", "x509ce.KeyPurposeIDs_item",
+      { "KeyPurposeIDs", "x509ce.KeyPurposeIDs_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509ce.KeyPurposeId", HFILL }},
     { &hf_x509ce_notBefore,
@@ -1601,7 +1601,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "x509ce.GeneralizedTime", HFILL }},
     { &hf_x509ce_CertificatePoliciesSyntax_item,
-      { "Item", "x509ce.CertificatePoliciesSyntax_item",
+      { "CertificatePoliciesSyntax", "x509ce.CertificatePoliciesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PolicyInformation", HFILL }},
     { &hf_x509ce_policyIdentifier,
@@ -1613,7 +1613,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo", HFILL }},
     { &hf_x509ce_policyQualifiers_item,
-      { "Item", "x509ce.policyQualifiers_item",
+      { "policyQualifiers", "x509ce.policyQualifiers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PolicyQualifierInfo", HFILL }},
     { &hf_x509ce_policyQualifierId,
@@ -1625,7 +1625,7 @@ void proto_register_x509ce(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PolicyQualifierValue", HFILL }},
     { &hf_x509ce_PolicyMappingsSyntax_item,
-      { "Item", "x509ce.PolicyMappingsSyntax_item",
+      { "PolicyMappingsSyntax", "x509ce.PolicyMappingsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PolicyMappingsSyntax_item", HFILL }},
     { &hf_x509ce_issuerDomainPolicy,
@@ -1637,7 +1637,7 @@ void proto_register_x509ce(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "x509ce.CertPolicyId", HFILL }},
     { &hf_x509ce_GeneralNames_item,
-      { "Item", "x509ce.GeneralNames_item",
+      { "GeneralNames", "x509ce.GeneralNames_item",
         FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "x509ce.GeneralName", HFILL }},
     { &hf_x509ce_otherName,
@@ -1693,7 +1693,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "x509sat.DirectoryString", HFILL }},
     { &hf_x509ce_AttributesSyntax_item,
-      { "Item", "x509ce.AttributesSyntax_item",
+      { "AttributesSyntax", "x509ce.AttributesSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_x509ce_cA,
@@ -1713,7 +1713,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralSubtrees", HFILL }},
     { &hf_x509ce_GeneralSubtrees_item,
-      { "Item", "x509ce.GeneralSubtrees_item",
+      { "GeneralSubtrees", "x509ce.GeneralSubtrees_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.GeneralSubtree", HFILL }},
     { &hf_x509ce_base,
@@ -1737,7 +1737,7 @@ void proto_register_x509ce(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.SkipCerts", HFILL }},
     { &hf_x509ce_CRLScopeSyntax_item,
-      { "Item", "x509ce.CRLScopeSyntax_item",
+      { "CRLScopeSyntax", "x509ce.CRLScopeSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PerAuthorityScope", HFILL }},
     { &hf_x509ce_authorityName,
@@ -1797,7 +1797,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "x509ce.GeneralizedTime", HFILL }},
     { &hf_x509ce_StatusReferrals_item,
-      { "Item", "x509ce.StatusReferrals_item",
+      { "StatusReferrals", "x509ce.StatusReferrals_item",
         FT_UINT32, BASE_DEC, VALS(x509ce_StatusReferral_vals), 0,
         "x509ce.StatusReferral", HFILL }},
     { &hf_x509ce_cRLReferral,
@@ -1841,7 +1841,7 @@ void proto_register_x509ce(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "x509ce.GeneralizedTime", HFILL }},
     { &hf_x509ce_CRLDistPointsSyntax_item,
-      { "Item", "x509ce.CRLDistPointsSyntax_item",
+      { "CRLDistPointsSyntax", "x509ce.CRLDistPointsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.DistributionPoint", HFILL }},
     { &hf_x509ce_reasons,
@@ -1941,7 +1941,7 @@ void proto_register_x509ce(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "x509ce.OBJECT_IDENTIFIER", HFILL }},
     { &hf_x509ce_CertPolicySet_item,
-      { "Item", "x509ce.CertPolicySet_item",
+      { "CertPolicySet", "x509ce.CertPolicySet_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509ce.CertPolicyId", HFILL }},
     { &hf_x509ce_cpea_issuedToThisCAAssertion,

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s4406.c                                                             */
-/* ../../tools/asn2wrs.py -b -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* ../../tools/asn2wrs.py -b -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -364,7 +364,7 @@ dissect_s4406_MessageInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_s4406_CodressMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -398,7 +398,7 @@ dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 #line 70 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &precedence);
+                                                &precedence);
 
   if((precedence != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(precedence, s4406_PrimaryPrecedence_vals, "precedence(%d)"));
@@ -428,7 +428,7 @@ dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 78 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &precedence);
+                                                &precedence);
 
   if((precedence != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(precedence, s4406_CopyPrecedence_vals, "precedence(%d)"));
@@ -450,7 +450,7 @@ static const value_string s4406_TypeMessage_vals[] = {
 static int
 dissect_s4406_TypeMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -490,7 +490,7 @@ static const value_string s4406_AddressListType_vals[] = {
 static int
 dissect_s4406_AddressListType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -507,7 +507,7 @@ static const value_string s4406_AddressListRequest_vals[] = {
 static int
 dissect_s4406_AddressListRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -553,7 +553,7 @@ static const value_string s4406_OtherRecipientType_vals[] = {
 static int
 dissect_s4406_OtherRecipientType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -604,7 +604,7 @@ static const value_string s4406_PilotPrecedence_vals[] = {
 static int
 dissect_s4406_PilotPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -705,7 +705,7 @@ dissect_s4406_Acp127NotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 static int
 dissect_s4406_BodyPartSequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1048,7 +1048,7 @@ void proto_register_s4406(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "x420.IPN", HFILL }},
     { &hf_s4406_ExemptedAddressSeq_item,
-      { "Item", "s4406.ExemptedAddressSeq_item",
+      { "ExemptedAddressSeq", "s4406.ExemptedAddressSeq_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.ExemptedAddress", HFILL }},
     { &hf_s4406_sics,
@@ -1056,7 +1056,7 @@ void proto_register_s4406(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.SEQUENCE_OF_Sic", HFILL }},
     { &hf_s4406_sics_item,
-      { "Item", "s4406.sics_item",
+      { "sics", "s4406.sics_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.Sic", HFILL }},
     { &hf_s4406_dist_Extensions,
@@ -1064,7 +1064,7 @@ void proto_register_s4406(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.SEQUENCE_OF_DistributionExtensionField", HFILL }},
     { &hf_s4406_dist_Extensions_item,
-      { "Item", "s4406.dist_Extensions_item",
+      { "dist-Extensions", "s4406.dist_Extensions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.DistributionExtensionField", HFILL }},
     { &hf_s4406_dist_type,
@@ -1076,11 +1076,11 @@ void proto_register_s4406(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.T_dist_value", HFILL }},
     { &hf_s4406_HandlingInstructions_item,
-      { "Item", "s4406.HandlingInstructions_item",
+      { "HandlingInstructions", "s4406.HandlingInstructions_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.MilitaryString", HFILL }},
     { &hf_s4406_MessageInstructions_item,
-      { "Item", "s4406.MessageInstructions_item",
+      { "MessageInstructions", "s4406.MessageInstructions_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.MilitaryString", HFILL }},
     { &hf_s4406_message_type_type,
@@ -1092,7 +1092,7 @@ void proto_register_s4406(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.MessageIdentifier", HFILL }},
     { &hf_s4406_AddressListDesignatorSeq_item,
-      { "Item", "s4406.AddressListDesignatorSeq_item",
+      { "AddressListDesignatorSeq", "s4406.AddressListDesignatorSeq_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.AddressListDesignator", HFILL }},
     { &hf_s4406_address_list_type,
@@ -1112,7 +1112,7 @@ void proto_register_s4406(void) {
         FT_INT32, BASE_DEC, VALS(s4406_AddressListRequest_vals), 0,
         "s4406.AddressListRequest", HFILL }},
     { &hf_s4406_OtherRecipientDesignatorSeq_item,
-      { "Item", "s4406.OtherRecipientDesignatorSeq_item",
+      { "OtherRecipientDesignatorSeq", "s4406.OtherRecipientDesignatorSeq_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.OtherRecipientDesignator", HFILL }},
     { &hf_s4406_other_recipient_type,
@@ -1124,7 +1124,7 @@ void proto_register_s4406(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.MilitaryString", HFILL }},
     { &hf_s4406_PilotInformationSeq_item,
-      { "Item", "s4406.PilotInformationSeq_item",
+      { "PilotInformationSeq", "s4406.PilotInformationSeq_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.PilotInformation", HFILL }},
     { &hf_s4406_pilotPrecedence,
@@ -1136,7 +1136,7 @@ void proto_register_s4406(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.SEQUENCE_OF_ORDescriptor", HFILL }},
     { &hf_s4406_pilotRecipient_item,
-      { "Item", "s4406.pilotRecipient_item",
+      { "pilotRecipient", "s4406.pilotRecipient_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x420.ORDescriptor", HFILL }},
     { &hf_s4406_pilotSecurity,
@@ -1148,7 +1148,7 @@ void proto_register_s4406(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.SEQUENCE_OF_MilitaryString", HFILL }},
     { &hf_s4406_pilotHandling_item,
-      { "Item", "s4406.pilotHandling_item",
+      { "pilotHandling", "s4406.pilotHandling_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "s4406.MilitaryString", HFILL }},
     { &hf_s4406_content_security_label,
@@ -1164,7 +1164,7 @@ void proto_register_s4406(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.SEQUENCE_OF_BodyPartSecurityLabel", HFILL }},
     { &hf_s4406_body_part_security_labels_item,
-      { "Item", "s4406.body_part_security_labels_item",
+      { "body-part-security-labels", "s4406.body_part_security_labels_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s4406.BodyPartSecurityLabel", HFILL }},
     { &hf_s4406_body_part_security_label,

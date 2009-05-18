@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-wlancertextn.c                                                      */
-/* ../../tools/asn2wrs.py -b -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
+/* ../../tools/asn2wrs.py -b -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
 
@@ -126,7 +126,7 @@ void proto_register_wlancertextn(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "wlancertextn.SSIDList", HFILL }},
     { &hf_wlancertextn_SSIDList_item,
-      { "Item", "wlancertextn.SSIDList_item",
+      { "SSIDList", "wlancertextn.SSIDList_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "wlancertextn.SSID", HFILL }},
 

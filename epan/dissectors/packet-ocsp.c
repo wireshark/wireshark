@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ocsp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
+/* ../../tools/asn2wrs.py -b -p ocsp -c ./ocsp.cnf -s ./packet-ocsp-template -D . OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */
 
@@ -157,7 +157,7 @@ static const value_string ocsp_Version_vals[] = {
 static int
 dissect_ocsp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -593,7 +593,7 @@ dissect_ocsp_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ocsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -753,7 +753,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_Request", HFILL }},
     { &hf_ocsp_requestList_item,
-      { "Item", "ocsp.requestList_item",
+      { "requestList", "ocsp.requestList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ocsp.Request", HFILL }},
     { &hf_ocsp_requestExtensions,
@@ -773,7 +773,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_Certificate", HFILL }},
     { &hf_ocsp_certs_item,
-      { "Item", "ocsp.certs_item",
+      { "certs", "ocsp.certs_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.Certificate", HFILL }},
     { &hf_ocsp_reqCert,
@@ -833,7 +833,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ocsp.SEQUENCE_OF_SingleResponse", HFILL }},
     { &hf_ocsp_responses_item,
-      { "Item", "ocsp.responses_item",
+      { "responses", "ocsp.responses_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ocsp.SingleResponse", HFILL }},
     { &hf_ocsp_responseExtensions,
@@ -889,7 +889,7 @@ void proto_register_ocsp(void) {
         FT_UINT32, BASE_DEC, VALS(x509ce_CRLReason_vals), 0,
         "x509ce.CRLReason", HFILL }},
     { &hf_ocsp_AcceptableResponses_item,
-      { "Item", "ocsp.AcceptableResponses_item",
+      { "AcceptableResponses", "ocsp.AcceptableResponses_item",
         FT_OID, BASE_NONE, NULL, 0,
         "ocsp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_ocsp_issuer,

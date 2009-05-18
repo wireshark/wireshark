@@ -1422,9 +1422,6 @@ static gint ett_gsm_map_cbs_data_coding = -1;
 
 static gint ett_Remote_Operations_Information_Objects_Code = -1;
 
-/* --- Module MAP-ApplicationContexts --- --- ---                             */
-
-
 /* --- Module MobileDomainDefinitions --- --- ---                             */
 
 
@@ -2745,9 +2742,6 @@ dissect_Remote_Operations_Information_Objects_Priority(gboolean implicit_tag _U_
 
   return offset;
 }
-
-
-/* --- Module MAP-ApplicationContexts --- --- ---                             */
 
 
 /* --- Module MobileDomainDefinitions --- --- ---                             */
@@ -22528,9 +22522,6 @@ void proto_register_gsm_map(void) {
 /* --- Module Remote-Operations-Information-Objects --- --- ---               */
 
     &ett_Remote_Operations_Information_Objects_Code,
-
-/* --- Module MAP-ApplicationContexts --- --- ---                             */
-
 
 /* --- Module MobileDomainDefinitions --- --- ---                             */
 

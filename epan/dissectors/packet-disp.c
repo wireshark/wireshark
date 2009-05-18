@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-disp.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
+/* ../../tools/asn2wrs.py -b -e -p disp -c ./disp.cnf -s ./packet-disp-template -D . disp.asn */
 
 /* Input file: packet-disp-template.c */
 
@@ -546,7 +546,7 @@ dissect_disp_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_disp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1428,7 +1428,7 @@ dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -1666,7 +1666,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_SupplierAndConsumers", HFILL }},
     { &hf_disp_modifiedSecondaryShadows_item,
-      { "Item", "disp.secondaryShadows_item",
+      { "secondaryShadows", "disp.secondaryShadows_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.SupplierAndConsumers", HFILL }},
     { &hf_disp_shadowSubject,
@@ -1718,7 +1718,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.T_selectedContexts", HFILL }},
     { &hf_disp_selectedContexts_item,
-      { "Item", "disp.selectedContexts_item",
+      { "selectedContexts", "disp.selectedContexts_item",
         FT_OID, BASE_NONE, NULL, 0,
         "disp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_disp_contextPrefix,
@@ -1738,7 +1738,7 @@ void proto_register_disp(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "disp.BOOLEAN", HFILL }},
     { &hf_disp_AttributeSelection_item,
-      { "Item", "disp.AttributeSelection_item",
+      { "AttributeSelection", "disp.AttributeSelection_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.ClassAttributeSelection", HFILL }},
     { &hf_disp_class,
@@ -1762,7 +1762,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.AttributeTypes", HFILL }},
     { &hf_disp_AttributeTypes_item,
-      { "Item", "disp.AttributeTypes_item",
+      { "AttributeTypes", "disp.AttributeTypes_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_disp_supplierInitiated,
@@ -1866,7 +1866,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_Attribute", HFILL }},
     { &hf_disp_notification_item,
-      { "Item", "disp.notification_item",
+      { "notification", "disp.notification_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_unsignedInformation,
@@ -1958,7 +1958,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Subtree", HFILL }},
     { &hf_disp_subtree_item,
-      { "Item", "disp.subtree_item",
+      { "subtree", "disp.subtree_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.Subtree", HFILL }},
     { &hf_disp_sDSEType,
@@ -1978,7 +1978,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Attribute", HFILL }},
     { &hf_disp_attributes_item,
-      { "Item", "disp.attributes_item",
+      { "attributes", "disp.attributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_attValIncomplete,
@@ -1986,7 +1986,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_AttributeType", HFILL }},
     { &hf_disp_attValIncomplete_item,
-      { "Item", "disp.attValIncomplete_item",
+      { "attValIncomplete", "disp.attValIncomplete_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_disp_rdn,
@@ -1994,7 +1994,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509if.RelativeDistinguishedName", HFILL }},
     { &hf_disp_IncrementalRefresh_item,
-      { "Item", "disp.IncrementalRefresh_item",
+      { "IncrementalRefresh", "disp.IncrementalRefresh_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.IncrementalStepRefresh", HFILL }},
     { &hf_disp_sDSEChanges,
@@ -2018,7 +2018,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_SubordinateChanges", HFILL }},
     { &hf_disp_subordinateUpdates_item,
-      { "Item", "disp.subordinateUpdates_item",
+      { "subordinateUpdates", "disp.subordinateUpdates_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.SubordinateChanges", HFILL }},
     { &hf_disp_rename,
@@ -2042,7 +2042,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Attribute", HFILL }},
     { &hf_disp_replace_item,
-      { "Item", "disp.replace_item",
+      { "replace", "disp.replace_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_changes,
@@ -2050,7 +2050,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_EntryModification", HFILL }},
     { &hf_disp_changes_item,
-      { "Item", "disp.changes_item",
+      { "changes", "disp.changes_item",
         FT_UINT32, BASE_DEC, VALS(dap_EntryModification_vals), 0,
         "dap.EntryModification", HFILL }},
     { &hf_disp_subordinate,

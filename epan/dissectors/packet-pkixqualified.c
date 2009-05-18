@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkixqualified.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
+/* ../../tools/asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
@@ -141,7 +141,7 @@ static const value_string pkixqualified_PredefinedBiometricType_vals[] = {
 static int
 dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -376,7 +376,7 @@ void proto_register_pkixqualified(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.SemanticsInformation", HFILL }},
     { &hf_pkixqualified_BiometricSyntax_item,
-      { "Item", "pkixqualified.BiometricSyntax_item",
+      { "BiometricSyntax", "pkixqualified.BiometricSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.BiometricData", HFILL }},
     { &hf_pkixqualified_typeOfBiometricData,
@@ -404,7 +404,7 @@ void proto_register_pkixqualified(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "pkixqualified.OBJECT_IDENTIFIER", HFILL }},
     { &hf_pkixqualified_QCStatements_item,
-      { "Item", "pkixqualified.QCStatements_item",
+      { "QCStatements", "pkixqualified.QCStatements_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.QCStatement", HFILL }},
     { &hf_pkixqualified_statementId,
@@ -424,7 +424,7 @@ void proto_register_pkixqualified(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkixqualified.NameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
-      { "Item", "pkixqualified.NameRegistrationAuthorities_item",
+      { "NameRegistrationAuthorities", "pkixqualified.NameRegistrationAuthorities_item",
         FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "x509ce.GeneralName", HFILL }},
 

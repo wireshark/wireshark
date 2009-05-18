@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cmp.c                                                               */
-/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
+/* ../../tools/asn2wrs.py -b -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -334,7 +334,7 @@ static const value_string cmp_T_pvno_vals[] = {
 static int
 dissect_cmp_T_pvno(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -474,7 +474,7 @@ dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate(gboolean implicit_tag _U_, tvb
 static int
 dissect_cmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -495,7 +495,7 @@ const value_string cmp_PKIStatus_vals[] = {
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1725,11 +1725,11 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CMPCertificate", HFILL }},
     { &hf_cmp_extraCerts_item,
-      { "Item", "cmp.extraCerts_item",
+      { "extraCerts", "cmp.extraCerts_item",
         FT_UINT32, BASE_DEC, VALS(cmp_CMPCertificate_vals), 0,
         "cmp.CMPCertificate", HFILL }},
     { &hf_cmp_PKIMessages_item,
-      { "Item", "cmp.PKIMessages_item",
+      { "PKIMessages", "cmp.PKIMessages_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.PKIMessage", HFILL }},
     { &hf_cmp_pvno,
@@ -1781,11 +1781,11 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue", HFILL }},
     { &hf_cmp_generalInfo_item,
-      { "Item", "cmp.generalInfo_item",
+      { "generalInfo", "cmp.generalInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.InfoTypeAndValue", HFILL }},
     { &hf_cmp_PKIFreeText_item,
-      { "Item", "cmp.PKIFreeText_item",
+      { "PKIFreeText", "cmp.PKIFreeText_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "cmp.UTF8String", HFILL }},
     { &hf_cmp_ir,
@@ -1933,7 +1933,7 @@ void proto_register_cmp(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cmp.BIT_STRING", HFILL }},
     { &hf_cmp_POPODecKeyChallContent_item,
-      { "Item", "cmp.POPODecKeyChallContent_item",
+      { "POPODecKeyChallContent", "cmp.POPODecKeyChallContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.Challenge", HFILL }},
     { &hf_cmp_witness,
@@ -1945,7 +1945,7 @@ void proto_register_cmp(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cmp.OCTET_STRING", HFILL }},
     { &hf_cmp_POPODecKeyRespContent_item,
-      { "Item", "cmp.POPODecKeyRespContent_item",
+      { "POPODecKeyRespContent", "cmp.POPODecKeyRespContent_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "cmp.INTEGER", HFILL }},
     { &hf_cmp_caPubs,
@@ -1953,7 +1953,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CMPCertificate", HFILL }},
     { &hf_cmp_caPubs_item,
-      { "Item", "cmp.caPubs_item",
+      { "caPubs", "cmp.caPubs_item",
         FT_UINT32, BASE_DEC, VALS(cmp_CMPCertificate_vals), 0,
         "cmp.CMPCertificate", HFILL }},
     { &hf_cmp_response,
@@ -1961,7 +1961,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_OF_CertResponse", HFILL }},
     { &hf_cmp_response_item,
-      { "Item", "cmp.response_item",
+      { "response", "cmp.response_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.CertResponse", HFILL }},
     { &hf_cmp_certReqId,
@@ -2009,7 +2009,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CMPCertificate", HFILL }},
     { &hf_cmp_caCerts_item,
-      { "Item", "cmp.caCerts_item",
+      { "caCerts", "cmp.caCerts_item",
         FT_UINT32, BASE_DEC, VALS(cmp_CMPCertificate_vals), 0,
         "cmp.CMPCertificate", HFILL }},
     { &hf_cmp_keyPairHist,
@@ -2017,11 +2017,11 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair", HFILL }},
     { &hf_cmp_keyPairHist_item,
-      { "Item", "cmp.keyPairHist_item",
+      { "keyPairHist", "cmp.keyPairHist_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.CertifiedKeyPair", HFILL }},
     { &hf_cmp_RevReqContent_item,
-      { "Item", "cmp.RevReqContent_item",
+      { "RevReqContent", "cmp.RevReqContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.RevDetails", HFILL }},
     { &hf_cmp_certDetails,
@@ -2037,7 +2037,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo", HFILL }},
     { &hf_cmp_rvrpcnt_status_item,
-      { "Item", "cmp.status_item",
+      { "status", "cmp.status_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.PKIStatusInfo", HFILL }},
     { &hf_cmp_revCerts,
@@ -2045,7 +2045,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CertId", HFILL }},
     { &hf_cmp_revCerts_item,
-      { "Item", "cmp.revCerts_item",
+      { "revCerts", "cmp.revCerts_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.CertId", HFILL }},
     { &hf_cmp_crls,
@@ -2053,7 +2053,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_CertificateList", HFILL }},
     { &hf_cmp_crls_item,
-      { "Item", "cmp.crls_item",
+      { "crls", "cmp.crls_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.CertificateList", HFILL }},
     { &hf_cmp_oldWithNew,
@@ -2081,11 +2081,11 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.Extensions", HFILL }},
     { &hf_cmp_CRLAnnContent_item,
-      { "Item", "cmp.CRLAnnContent_item",
+      { "CRLAnnContent", "cmp.CRLAnnContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.CertificateList", HFILL }},
     { &hf_cmp_CertConfirmContent_item,
-      { "Item", "cmp.CertConfirmContent_item",
+      { "CertConfirmContent", "cmp.CertConfirmContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.CertStatus", HFILL }},
     { &hf_cmp_certHash,
@@ -2105,27 +2105,27 @@ void proto_register_cmp(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.T_infoValue", HFILL }},
     { &hf_cmp_SignKeyPairTypesValue_item,
-      { "Item", "cmp.SignKeyPairTypesValue_item",
+      { "SignKeyPairTypesValue", "cmp.SignKeyPairTypesValue_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.AlgorithmIdentifier", HFILL }},
     { &hf_cmp_EncKeyPairTypesValue_item,
-      { "Item", "cmp.EncKeyPairTypesValue_item",
+      { "EncKeyPairTypesValue", "cmp.EncKeyPairTypesValue_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.AlgorithmIdentifier", HFILL }},
     { &hf_cmp_UnsupportedOIDsValue_item,
-      { "Item", "cmp.UnsupportedOIDsValue_item",
+      { "UnsupportedOIDsValue", "cmp.UnsupportedOIDsValue_item",
         FT_OID, BASE_NONE, NULL, 0,
         "cmp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_cmp_SuppLangTagsValue_item,
-      { "Item", "cmp.SuppLangTagsValue_item",
+      { "SuppLangTagsValue", "cmp.SuppLangTagsValue_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "cmp.UTF8String", HFILL }},
     { &hf_cmp_GenMsgContent_item,
-      { "Item", "cmp.GenMsgContent_item",
+      { "GenMsgContent", "cmp.GenMsgContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.InfoTypeAndValue", HFILL }},
     { &hf_cmp_GenRepContent_item,
-      { "Item", "cmp.GenRepContent_item",
+      { "GenRepContent", "cmp.GenRepContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.InfoTypeAndValue", HFILL }},
     { &hf_cmp_pKIStatusInfo,
@@ -2141,11 +2141,11 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.PKIFreeText", HFILL }},
     { &hf_cmp_PollReqContent_item,
-      { "Item", "cmp.PollReqContent_item",
+      { "PollReqContent", "cmp.PollReqContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.PollReqContent_item", HFILL }},
     { &hf_cmp_PollRepContent_item,
-      { "Item", "cmp.PollRepContent_item",
+      { "PollRepContent", "cmp.PollRepContent_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.PollRepContent_item", HFILL }},
     { &hf_cmp_checkAfter,

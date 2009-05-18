@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dop.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
+/* ../../tools/asn2wrs.py -b -e -p dop -c ./dop.cnf -s ./packet-dop-template -D . dop.asn */
 
 /* Input file: packet-dop-template.c */
 
@@ -418,7 +418,7 @@ dissect_dop_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -440,7 +440,7 @@ dissect_dop_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -1572,7 +1572,7 @@ dissect_dop_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   guint32 precedence = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &precedence);
+                                                &precedence);
 
 
   proto_item_append_text(tree, " precedence=%d", precedence);
@@ -1604,7 +1604,7 @@ dissect_dop_T_level(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_dop_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2277,7 +2277,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_ProtocolInformation", HFILL }},
     { &hf_dop_protocolInformation_item,
-      { "Item", "dop.protocolInformation_item",
+      { "protocolInformation", "dop.protocolInformation_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.ProtocolInformation", HFILL }},
     { &hf_dop_agreementID,
@@ -2297,7 +2297,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_AccessPoint", HFILL }},
     { &hf_dop_consumers_item,
-      { "Item", "dop.consumers_item",
+      { "consumers", "dop.consumers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dsp.AccessPoint", HFILL }},
     { &hf_dop_bindingType,
@@ -2425,7 +2425,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SEQUENCE_SIZE_1_MAX_OF_Attribute", HFILL }},
     { &hf_dop_notification_item,
-      { "Item", "dop.notification_item",
+      { "notification", "dop.notification_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dop_modifyInitiator,
@@ -2553,7 +2553,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_Attribute", HFILL }},
     { &hf_dop_entryInfo_item,
-      { "Item", "dop.entryInfo_item",
+      { "entryInfo", "dop.entryInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dop_immediateSuperiorInfo,
@@ -2561,11 +2561,11 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_Attribute", HFILL }},
     { &hf_dop_immediateSuperiorInfo_item,
-      { "Item", "dop.immediateSuperiorInfo_item",
+      { "immediateSuperiorInfo", "dop.immediateSuperiorInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dop_DITcontext_item,
-      { "Item", "dop.DITcontext_item",
+      { "DITcontext", "dop.DITcontext_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.Vertex", HFILL }},
     { &hf_dop_admPointInfo,
@@ -2573,7 +2573,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_Attribute", HFILL }},
     { &hf_dop_admPointInfo_item,
-      { "Item", "dop.admPointInfo_item",
+      { "admPointInfo", "dop.admPointInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dop_subentries,
@@ -2581,7 +2581,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_SubentryInfo", HFILL }},
     { &hf_dop_subentries_item,
-      { "Item", "dop.subentries_item",
+      { "subentries", "dop.subentries_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.SubentryInfo", HFILL }},
     { &hf_dop_accessPoints,
@@ -2593,7 +2593,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_Attribute", HFILL }},
     { &hf_dop_info_item,
-      { "Item", "dop.info_item",
+      { "info", "dop.info_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dop_alias,
@@ -2629,7 +2629,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_ItemPermission", HFILL }},
     { &hf_dop_itemPermissions_item,
-      { "Item", "dop.itemPermissions_item",
+      { "itemPermissions", "dop.itemPermissions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.ItemPermission", HFILL }},
     { &hf_dop_userFirst,
@@ -2645,7 +2645,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_UserPermission", HFILL }},
     { &hf_dop_userPermissions_item,
-      { "Item", "dop.userPermissions_item",
+      { "userPermissions", "dop.userPermissions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.UserPermission", HFILL }},
     { &hf_dop_entry,
@@ -2661,7 +2661,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_AttributeType", HFILL }},
     { &hf_dop_attributeType_item,
-      { "Item", "dop.attributeType_item",
+      { "attributeType", "dop.attributeType_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_dop_allAttributeValues,
@@ -2669,7 +2669,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_AttributeType", HFILL }},
     { &hf_dop_allAttributeValues_item,
-      { "Item", "dop.allAttributeValues_item",
+      { "allAttributeValues", "dop.allAttributeValues_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_dop_allUserAttributeTypesAndValues,
@@ -2681,7 +2681,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_AttributeTypeAndValue", HFILL }},
     { &hf_dop_attributeValue_item,
-      { "Item", "dop.attributeValue_item",
+      { "attributeValue", "dop.attributeValue_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.AttributeTypeAndValue", HFILL }},
     { &hf_dop_selfValue,
@@ -2689,7 +2689,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_AttributeType", HFILL }},
     { &hf_dop_selfValue_item,
-      { "Item", "dop.selfValue_item",
+      { "selfValue", "dop.selfValue_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_dop_rangeOfValues,
@@ -2701,7 +2701,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_MaxValueCount", HFILL }},
     { &hf_dop_maxValueCount_item,
-      { "Item", "dop.maxValueCount_item",
+      { "maxValueCount", "dop.maxValueCount_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.MaxValueCount", HFILL }},
     { &hf_dop_maxImmSub,
@@ -2713,7 +2713,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_RestrictedValue", HFILL }},
     { &hf_dop_restrictedBy_item,
-      { "Item", "dop.restrictedBy_item",
+      { "restrictedBy", "dop.restrictedBy_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.RestrictedValue", HFILL }},
     { &hf_dop_contexts,
@@ -2721,7 +2721,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_ContextAssertion", HFILL }},
     { &hf_dop_contexts_item,
-      { "Item", "dop.contexts_item",
+      { "contexts", "dop.contexts_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.ContextAssertion", HFILL }},
     { &hf_dop_classes,
@@ -2753,7 +2753,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_NameAndOptionalUID", HFILL }},
     { &hf_dop_name_item,
-      { "Item", "dop.name_item",
+      { "name", "dop.name_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.NameAndOptionalUID", HFILL }},
     { &hf_dop_userGroup,
@@ -2761,7 +2761,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_NameAndOptionalUID", HFILL }},
     { &hf_dop_userGroup_item,
-      { "Item", "dop.userGroup_item",
+      { "userGroup", "dop.userGroup_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.NameAndOptionalUID", HFILL }},
     { &hf_dop_subtree,
@@ -2769,7 +2769,7 @@ void proto_register_dop(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dop.SET_OF_SubtreeSpecification", HFILL }},
     { &hf_dop_subtree_item,
-      { "Item", "dop.subtree_item",
+      { "subtree", "dop.subtree_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.SubtreeSpecification", HFILL }},
     { &hf_dop_grantsAndDenials,

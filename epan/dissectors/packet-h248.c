@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h248.c                                                              */
-/* ../../tools/asn2wrs.py -b -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
+/* ../../tools/asn2wrs.py -b -p h248 -c ./h248.cnf -s ./packet-h248-template -D . h248v3.asn */
 
 /* Input file: packet-h248-template.c */
 
@@ -1733,7 +1733,7 @@ dissect_h248_AuthenticationHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_h248_INTEGER_0_99(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1753,7 +1753,7 @@ dissect_h248_OCTET_STRING_SIZE_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_h248_INTEGER_0_65535(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1916,7 +1916,7 @@ dissect_h248_ErrorDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1956,7 +1956,7 @@ dissect_h248_ContextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_h248_INTEGER_0_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2075,7 +2075,7 @@ dissect_h248_T_topologyDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_h248_StreamID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2242,7 +2242,7 @@ dissect_h248_SEQUENCE_OF_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int
 dissect_h248_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2715,7 +2715,7 @@ dissect_h248_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_h248_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2856,7 +2856,7 @@ dissect_h248_MuxDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_h248_RequestID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4161,7 +4161,7 @@ dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_h248_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4793,7 +4793,7 @@ dissect_h248_T_transactionResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_h248_SegmentNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5199,7 +5199,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_Transaction", HFILL }},
     { &hf_h248_transactions_item,
-      { "Item", "h248.transactions_item",
+      { "transactions", "h248.transactions_item",
         FT_UINT32, BASE_DEC, VALS(h248_Transaction_vals), 0,
         "h248.Transaction", HFILL }},
     { &hf_h248_ip4Address,
@@ -5267,7 +5267,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_ActionRequest", HFILL }},
     { &hf_h248_actions_item,
-      { "Item", "h248.actions_item",
+      { "actions", "h248.actions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.ActionRequest", HFILL }},
     { &hf_h248_tpend_transactionId,
@@ -5295,7 +5295,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_ActionReply", HFILL }},
     { &hf_h248_actionReplies_item,
-      { "Item", "h248.actionReplies_item",
+      { "actionReplies", "h248.actionReplies_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.ActionReply", HFILL }},
     { &hf_h248_segmentNumber,
@@ -5311,7 +5311,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.T_seg_rep_transactionId", HFILL }},
     { &hf_h248_TransactionResponseAck_item,
-      { "Item", "h248.TransactionResponseAck_item",
+      { "TransactionResponseAck", "h248.TransactionResponseAck_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.TransactionAck", HFILL }},
     { &hf_h248_firstAck,
@@ -5347,7 +5347,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_CommandRequest", HFILL }},
     { &hf_h248_commandRequests_item,
-      { "Item", "h248.commandRequests_item",
+      { "commandRequests", "h248.commandRequests_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.CommandRequest", HFILL }},
     { &hf_h248_errorDescriptor,
@@ -5363,7 +5363,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_CommandReply", HFILL }},
     { &hf_h248_commandReply_item,
-      { "Item", "h248.commandReply_item",
+      { "commandReply", "h248.commandReply_item",
         FT_UINT32, BASE_DEC, VALS(h248_CommandReply_vals), 0,
         "h248.CommandReply", HFILL }},
     { &hf_h248_priority,
@@ -5379,7 +5379,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.T_topologyReq", HFILL }},
     { &hf_h248_topologyReq_item,
-      { "Item", "h248.topologyReq_item",
+      { "topologyReq", "h248.topologyReq_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.TopologyRequest", HFILL }},
     { &hf_h248_iepscallind_BOOL,
@@ -5391,7 +5391,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyParm", HFILL }},
     { &hf_h248_contextProp_item,
-      { "Item", "h248.contextProp_item",
+      { "contextProp", "h248.contextProp_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.PropertyParm", HFILL }},
     { &hf_h248_contextList,
@@ -5399,7 +5399,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_ContextIDinList", HFILL }},
     { &hf_h248_contextList_item,
-      { "Item", "h248.contextList_item",
+      { "contextList", "h248.contextList_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.ContextIDinList", HFILL }},
     { &hf_h248_topology,
@@ -5423,7 +5423,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_IndAudPropertyParm", HFILL }},
     { &hf_h248_contextPropAud_item,
-      { "Item", "h248.contextPropAud_item",
+      { "contextPropAud", "h248.contextPropAud_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudPropertyParm", HFILL }},
     { &hf_h248_selectpriority,
@@ -5555,7 +5555,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_AmmDescriptor", HFILL }},
     { &hf_h248_descriptors_item,
-      { "Item", "h248.descriptors_item",
+      { "descriptors", "h248.descriptors_item",
         FT_UINT32, BASE_DEC, VALS(h248_AmmDescriptor_vals), 0,
         "h248.AmmDescriptor", HFILL }},
     { &hf_h248_mediaDescriptor,
@@ -5623,7 +5623,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.TerminationAudit", HFILL }},
     { &hf_h248_TerminationAudit_item,
-      { "Item", "h248.TerminationAudit_item",
+      { "TerminationAudit", "h248.TerminationAudit_item",
         FT_UINT32, BASE_DEC, VALS(h248_AuditReturnParameter_vals), 0,
         "h248.AuditReturnParameter", HFILL }},
     { &hf_h248_observedEventsDescriptor,
@@ -5647,7 +5647,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_IndAuditParameter", HFILL }},
     { &hf_h248_auditPropertyToken_item,
-      { "Item", "h248.auditPropertyToken_item",
+      { "auditPropertyToken", "h248.auditPropertyToken_item",
         FT_UINT32, BASE_DEC, VALS(h248_IndAuditParameter_vals), 0,
         "h248.IndAuditParameter", HFILL }},
     { &hf_h248_indaudmediaDescriptor,
@@ -5695,7 +5695,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_IndAudStreamDescriptor", HFILL }},
     { &hf_h248_multiStream_item,
-      { "Item", "h248.multiStream_item",
+      { "multiStream", "h248.multiStream_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudStreamDescriptor", HFILL }},
     { &hf_h248_indAudStreamParms,
@@ -5735,7 +5735,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_IndAudPropertyParm", HFILL }},
     { &hf_h248_indAudPropertyParms_item,
-      { "Item", "h248.propertyParms_item",
+      { "propertyParms", "h248.propertyParms_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudPropertyParm", HFILL }},
     { &hf_h248_streamModeSel,
@@ -5759,7 +5759,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.IndAudPropertyGroup", HFILL }},
     { &hf_h248_IndAudPropertyGroup_item,
-      { "Item", "h248.IndAudPropertyGroup_item",
+      { "IndAudPropertyGroup", "h248.IndAudPropertyGroup_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudPropertyParm", HFILL }},
     { &hf_h248_eventBufferControl,
@@ -5835,7 +5835,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_ObservedEvent", HFILL }},
     { &hf_h248_observedEventLst_item,
-      { "Item", "h248.observedEventLst_item",
+      { "observedEventLst", "h248.observedEventLst_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.ObservedEvent", HFILL }},
     { &hf_h248_eventName,
@@ -5847,7 +5847,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_EventParameter", HFILL }},
     { &hf_h248_eventParList_item,
-      { "Item", "h248.eventParList_item",
+      { "eventParList", "h248.eventParList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.EventParameter", HFILL }},
     { &hf_h248_timeNotation,
@@ -5879,7 +5879,7 @@ void proto_register_h248(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "h248.BOOLEAN", HFILL }},
     { &hf_h248_EventParamValues_item,
-      { "Item", "h248.EventParamValues_item",
+      { "EventParamValues", "h248.EventParamValues_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.EventParamValue", HFILL }},
     { &hf_h248_serviceChangeParms,
@@ -5899,7 +5899,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_WildcardField", HFILL }},
     { &hf_h248_wildcard_item,
-      { "Item", "h248.wildcard_item",
+      { "wildcard", "h248.wildcard_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.WildcardField", HFILL }},
     { &hf_h248_terminationId,
@@ -5907,7 +5907,7 @@ void proto_register_h248(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.T_terminationId", HFILL }},
     { &hf_h248_TerminationIDList_item,
-      { "Item", "h248.TerminationIDList_item",
+      { "TerminationIDList", "h248.TerminationIDList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.TerminationID", HFILL }},
     { &hf_h248_termStateDescr,
@@ -5927,7 +5927,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_StreamDescriptor", HFILL }},
     { &hf_h248_mediaDescriptorMultiStream_item,
-      { "Item", "h248.multiStream_item",
+      { "multiStream", "h248.multiStream_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.StreamDescriptor", HFILL }},
     { &hf_h248_streamParms,
@@ -5963,7 +5963,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyParm", HFILL }},
     { &hf_h248_propertyParms_item,
-      { "Item", "h248.propertyParms_item",
+      { "propertyParms", "h248.propertyParms_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.PropertyParm", HFILL }},
     { &hf_h248_propertyName,
@@ -5975,7 +5975,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyID", HFILL }},
     { &hf_h248_propertyParamValue_item,
-      { "Item", "h248.value_item",
+      { "value", "h248.value_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.PropertyID", HFILL }},
     { &hf_h248_propParm_extraInfo,
@@ -5987,11 +5987,11 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyGroup", HFILL }},
     { &hf_h248_propGrps_item,
-      { "Item", "h248.propGrps_item",
+      { "propGrps", "h248.propGrps_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.PropertyGroup", HFILL }},
     { &hf_h248_PropertyGroup_item,
-      { "Item", "h248.PropertyGroup_item",
+      { "PropertyGroup", "h248.PropertyGroup_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.PropertyParm", HFILL }},
     { &hf_h248_tSEventBufferControl,
@@ -6011,7 +6011,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_TerminationID", HFILL }},
     { &hf_h248_termList_item,
-      { "Item", "h248.termList_item",
+      { "termList", "h248.termList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.TerminationID", HFILL }},
     { &hf_h248_nonStandardData,
@@ -6023,7 +6023,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_RequestedEvent", HFILL }},
     { &hf_h248_eventList_item,
-      { "Item", "h248.eventList_item",
+      { "eventList", "h248.eventList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.RequestedEvent", HFILL }},
     { &hf_h248_eventAction,
@@ -6035,7 +6035,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_EventParameter", HFILL }},
     { &hf_h248_evParList_item,
-      { "Item", "h248.evParList_item",
+      { "evParList", "h248.evParList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.EventParameter", HFILL }},
     { &hf_h248_secondEvent,
@@ -6079,7 +6079,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_SecondRequestedEvent", HFILL }},
     { &hf_h248_secondaryEventList_item,
-      { "Item", "h248.eventList_item",
+      { "eventList", "h248.eventList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.SecondRequestedEvent", HFILL }},
     { &hf_h248_pkgdName,
@@ -6091,11 +6091,11 @@ void proto_register_h248(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.SecondRequestedActions", HFILL }},
     { &hf_h248_EventBufferDescriptor_item,
-      { "Item", "h248.EventBufferDescriptor_item",
+      { "EventBufferDescriptor", "h248.EventBufferDescriptor_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.EventSpec", HFILL }},
     { &hf_h248_SignalsDescriptor_item,
-      { "Item", "h248.SignalsDescriptor_item",
+      { "SignalsDescriptor", "h248.SignalsDescriptor_item",
         FT_UINT32, BASE_DEC, VALS(h248_SignalRequest_vals), 0,
         "h248.SignalRequest", HFILL }},
     { &hf_h248_signal,
@@ -6111,7 +6111,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_Signal", HFILL }},
     { &hf_h248_signalList_item,
-      { "Item", "h248.signalList_item",
+      { "signalList", "h248.signalList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.Signal", HFILL }},
     { &hf_h248_signalName,
@@ -6135,7 +6135,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_SigParameter", HFILL }},
     { &hf_h248_sigParList_item,
-      { "Item", "h248.sigParList_item",
+      { "sigParList", "h248.sigParList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.SigParameter", HFILL }},
     { &hf_h248_direction,
@@ -6159,7 +6159,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo_vals), 0,
         "h248.T_extraInfo", HFILL }},
     { &hf_h248_SigParamValues_item,
-      { "Item", "h248.SigParamValues_item",
+      { "SigParamValues", "h248.SigParamValues_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.SigParamValue", HFILL }},
     { &hf_h248_mtl,
@@ -6167,7 +6167,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_ModemType", HFILL }},
     { &hf_h248_mtl_item,
-      { "Item", "h248.mtl_item",
+      { "mtl", "h248.mtl_item",
         FT_UINT32, BASE_DEC, VALS(h248_ModemType_vals), 0,
         "h248.ModemType", HFILL }},
     { &hf_h248_mpl,
@@ -6175,7 +6175,7 @@ void proto_register_h248(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyParm", HFILL }},
     { &hf_h248_mpl_item,
-      { "Item", "h248.mpl_item",
+      { "mpl", "h248.mpl_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.PropertyParm", HFILL }},
     { &hf_h248_startTimer,
@@ -6239,7 +6239,7 @@ void proto_register_h248(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.NULL", HFILL }},
     { &hf_h248_SCreasonValue_item,
-      { "Item", "h248.SCreasonValue_item",
+      { "SCreasonValue", "h248.SCreasonValue_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.SCreasonValueOctetStr", HFILL }},
     { &hf_h248_timestamp,
@@ -6251,11 +6251,11 @@ void proto_register_h248(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "h248.IA5String_SIZE_1_67", HFILL }},
     { &hf_h248_PackagesDescriptor_item,
-      { "Item", "h248.PackagesDescriptor_item",
+      { "PackagesDescriptor", "h248.PackagesDescriptor_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.PackagesItem", HFILL }},
     { &hf_h248_StatisticsDescriptor_item,
-      { "Item", "h248.StatisticsDescriptor_item",
+      { "StatisticsDescriptor", "h248.StatisticsDescriptor_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.StatisticsParameter", HFILL }},
     { &hf_h248_statName,
@@ -6311,7 +6311,7 @@ void proto_register_h248(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "h248.IA5String_SIZE_8", HFILL }},
     { &hf_h248_Value_item,
-      { "Item", "h248.Value_item",
+      { "Value", "h248.Value_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.OCTET_STRING", HFILL }},
     { &hf_h248_T_auditToken_muxToken,

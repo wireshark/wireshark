@@ -60,12 +60,17 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Lua integration could crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2453">Bug
+          2453</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           The SCCP dissector could crash when loading more than one file in
           a single session.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3409">Bug
           3409</ulink>)
         </para></listitem>
-
 
       </itemizedlist>
 

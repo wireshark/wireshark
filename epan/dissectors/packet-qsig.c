@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-qsig.c                                                              */
-/* ../../tools/asn2wrs.py -e -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
+/* ../../tools/asn2wrs.py -e -c ./qsig.cnf -s ./packet-qsig-template -D . qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
 
 /* Input file: packet-qsig-template.c */
 
@@ -2505,7 +2505,7 @@ static const value_string qsig_na_CharacterSet_vals[] = {
 static int
 dissect_qsig_na_CharacterSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3009,7 +3009,7 @@ dissect_qsig_cf_DiversionReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_qsig_cf_INTEGER_1_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5484,7 +5484,7 @@ dissect_qsig_aoc_Currency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_qsig_aoc_CurrencyAmount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5546,7 +5546,7 @@ dissect_qsig_aoc_ChargingType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_qsig_aoc_LengthOfTimeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5658,7 +5658,7 @@ dissect_qsig_aoc_VolumeRateCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_qsig_aoc_SpecialChargingCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5967,7 +5967,7 @@ dissect_qsig_aoc_T_finalCharge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_qsig_aoc_ChargeIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6510,7 +6510,7 @@ static const value_string qsig_sync_Action_vals[] = {
 static int
 dissect_qsig_sync_Action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6601,7 +6601,7 @@ static const value_string qsig_sync_T_stateinfo_vals[] = {
 static int
 dissect_qsig_sync_T_stateinfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6685,7 +6685,7 @@ static const value_string qsig_cint_CintCause_vals[] = {
 static int
 dissect_qsig_cint_CintCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6796,7 +6796,7 @@ static const value_string qsig_cint_Condition_vals[] = {
 static int
 dissect_qsig_cint_Condition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6890,7 +6890,7 @@ dissect_qsig_cmn_FeatureIdList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_qsig_cmn_INTEGER_0_3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7243,7 +7243,7 @@ dissect_qsig_pumr_ServiceOption(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_qsig_pumr_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -8452,7 +8452,7 @@ dissect_qsig_wtmlr_GetRRCInfArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_qsig_wtmlr_RRClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9165,7 +9165,7 @@ static const value_string qsig_wtmau_DefinedIDs_vals[] = {
 static int
 dissect_qsig_wtmau_DefinedIDs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9236,7 +9236,7 @@ dissect_qsig_wtmau_AuthKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_qsig_wtmau_INTEGER_1_8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9750,7 +9750,7 @@ static int dissect_qsig_cidl_CallIdentificationUpdateArg_PDU(tvbuff_t *tvb _U_, 
 static int
 dissect_qsig_sms_MessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9760,7 +9760,7 @@ dissect_qsig_sms_MessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_qsig_sms_ProtocolIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9770,7 +9770,7 @@ dissect_qsig_sms_ProtocolIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_qsig_sms_ValidityPeriodRel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9798,7 +9798,7 @@ dissect_qsig_sms_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_qsig_sms_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9935,7 +9935,7 @@ dissect_qsig_sms_Concatenated8BitSMHeader(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_qsig_sms_INTEGER_0_65536(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9998,7 +9998,7 @@ static const value_string qsig_sms_DataHeaderSourceIndicator_vals[] = {
 static int
 dissect_qsig_sms_DataHeaderSourceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10090,7 +10090,7 @@ dissect_qsig_sms_UserDataHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_qsig_sms_INTEGER_0_3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10108,7 +10108,7 @@ static const value_string qsig_sms_ShortMessageTextType_vals[] = {
 static int
 dissect_qsig_sms_ShortMessageTextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10352,7 +10352,7 @@ dissect_qsig_sms_DischargeTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_qsig_sms_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10437,7 +10437,7 @@ static const value_string qsig_sms_CommandType_vals[] = {
 static int
 dissect_qsig_sms_CommandType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10532,7 +10532,7 @@ dissect_qsig_sms_DummyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_qsig_sms_FailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10768,7 +10768,7 @@ static const value_string qsig_mcr_CorrelationReason_vals[] = {
 static int
 dissect_qsig_mcr_CorrelationReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -10937,7 +10937,7 @@ static int dissect_qsig_mcr_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 static int
 dissect_qsig_mcm_INTEGER_0_65535(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11051,7 +11051,7 @@ dissect_qsig_mcm_MessageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_qsig_mcm_INTEGER_0_100(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11157,7 +11157,7 @@ static const value_string qsig_mcm_MCMMode_vals[] = {
 static int
 dissect_qsig_mcm_MCMMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11280,7 +11280,7 @@ dissect_qsig_mcm_MCMInterrogateRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_qsig_mcm_NrOfMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11299,7 +11299,7 @@ dissect_qsig_mcm_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_qsig_mcm_INTEGER_0_9(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11391,7 +11391,7 @@ dissect_qsig_mcm_MCMNoNewMsgArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_qsig_mcm_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -12724,7 +12724,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_na.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_na_multiple_item,
-      { "Item", "qsig.na.multiple_item",
+      { "multiple", "qsig.na.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_na_namePresentationAllowed,
@@ -12863,7 +12863,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cf.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cf_multiple_item,
-      { "Item", "qsig.cf.multiple_item",
+      { "multiple", "qsig.cf.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_cf_null,
@@ -12987,7 +12987,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_cf_DLI3Extension_vals), 0,
         "qsig_cf.DLI3Extension", HFILL }},
     { &hf_qsig_cf_IntResultList_item,
-      { "Item", "qsig.cf.IntResultList_item",
+      { "IntResultList", "qsig.cf.IntResultList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_cf.IntResult", HFILL }},
     { &hf_qsig_cf_remoteEnabled,
@@ -13046,7 +13046,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_pr.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_pr_multiple_item,
-      { "Item", "qsig.pr.multiple_item",
+      { "multiple", "qsig.pr.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_pr_extensionPRS,
@@ -13117,7 +13117,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_ct.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_ct_multiple_item,
-      { "Item", "qsig.ct.multiple_item",
+      { "multiple", "qsig.ct.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_ct_callIdentity,
@@ -13276,7 +13276,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cc.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cc_multiple_item,
-      { "Item", "qsig.cc.multiple_item",
+      { "multiple", "qsig.cc.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -13327,7 +13327,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_co.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_co_sequenceOfExtn_item,
-      { "Item", "qsig.co.sequenceOfExtn_item",
+      { "sequenceOfExtn", "qsig.co.sequenceOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_co_ServiceList_callOffer,
@@ -13394,7 +13394,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_dnd.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_dnd_sequenceOfExtn_item,
-      { "Item", "qsig.dnd.sequenceOfExtn_item",
+      { "sequenceOfExtn", "qsig.dnd.sequenceOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_dnd_basicService,
@@ -13414,7 +13414,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_dnd.T_status", HFILL }},
     { &hf_qsig_dnd_status_item,
-      { "Item", "qsig.dnd.status_item",
+      { "status", "qsig.dnd.status_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_dnd.T_status_item", HFILL }},
     { &hf_qsig_dnd_dndProtectionLevel,
@@ -13438,7 +13438,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_dnd.T_status_01", HFILL }},
     { &hf_qsig_dnd_status_item_01,
-      { "Item", "qsig.dnd.status_item",
+      { "status", "qsig.dnd.status_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_dnd.T_status_item_01", HFILL }},
     { &hf_qsig_dnd_resultExtension_01,
@@ -13537,7 +13537,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_ci.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_ci_sequenceOfExtn_item,
-      { "Item", "qsig.ci.sequenceOfExtn_item",
+      { "sequenceOfExtn", "qsig.ci.sequenceOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_ci_ciCapabilityLevel,
@@ -13644,7 +13644,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_aoc.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_aoc_multipleExtension_item,
-      { "Item", "qsig.aoc.multipleExtension_item",
+      { "multipleExtension", "qsig.aoc.multipleExtension_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_aoc_interimCharge,
@@ -13692,7 +13692,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_aoc_T_finalArgExtension_vals), 0,
         "qsig_aoc.T_finalArgExtension", HFILL }},
     { &hf_qsig_aoc_AOCSCurrencyInfoList_item,
-      { "Item", "qsig.aoc.AOCSCurrencyInfoList_item",
+      { "AOCSCurrencyInfoList", "qsig.aoc.AOCSCurrencyInfoList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_aoc.AOCSCurrencyInfo", HFILL }},
     { &hf_qsig_aoc_chargedItem,
@@ -13804,7 +13804,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_aoc.SEQUENCE_SIZE_0_7_OF_AdviceModeCombination", HFILL }},
     { &hf_qsig_aoc_adviceModeCombinations_item,
-      { "Item", "qsig.aoc.adviceModeCombinations_item",
+      { "adviceModeCombinations", "qsig.aoc.adviceModeCombinations_item",
         FT_UINT32, BASE_DEC, VALS(qsig_aoc_AdviceModeCombination_vals), 0,
         "qsig_aoc.AdviceModeCombination", HFILL }},
     { &hf_qsig_aoc_chargeReqArgExtension,
@@ -13883,7 +13883,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_re.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_re_multipleExtension_item,
-      { "Item", "qsig.re.multipleExtension_item",
+      { "multipleExtension", "qsig.re.multipleExtension_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_re_connectedNumber,
@@ -13946,7 +13946,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_sync.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_sync_sequOfExtn_item,
-      { "Item", "qsig.sync.sequOfExtn_item",
+      { "sequOfExtn", "qsig.sync.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -14013,7 +14013,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cint.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cint_multiple_item,
-      { "Item", "qsig.cint.multiple_item",
+      { "multiple", "qsig.cint.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -14060,7 +14060,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cmn.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cmn_multiple_item,
-      { "Item", "qsig.cmn.multiple_item",
+      { "multiple", "qsig.cmn.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_cmn_null,
@@ -14179,7 +14179,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cpi.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cpi_sequenceOfExtn_item,
-      { "Item", "qsig.cpi.sequenceOfExtn_item",
+      { "sequenceOfExtn", "qsig.cpi.sequenceOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_cpi_cpiProtectionLevel,
@@ -14286,7 +14286,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_pumr.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_pumr_sequOfExtn_item,
-      { "Item", "qsig.pumr.sequOfExtn_item",
+      { "sequOfExtn", "qsig.pumr.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_pumr_pumXUserId,
@@ -14314,7 +14314,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_pumr_T_userPin_02_vals), 0,
         "qsig_pumr.T_userPin_02", HFILL }},
     { &hf_qsig_pumr_PumInterrogRes_item,
-      { "Item", "qsig.pumr.PumInterrogRes_item",
+      { "PumInterrogRes", "qsig.pumr.PumInterrogRes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_pumr.PumInterrogRes_item", HFILL }},
     { &hf_qsig_pumr_interrogParams,
@@ -14429,7 +14429,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_pumch.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_pumch_sequOfExtn_item,
-      { "Item", "qsig.pumch.sequOfExtn_item",
+      { "sequOfExtn", "qsig.pumch.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_pumch_alternativeId,
@@ -14461,7 +14461,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_pumch.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_pumch_multiple_item,
-      { "Item", "qsig.pumch.multiple_item",
+      { "multiple", "qsig.pumch.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -14504,7 +14504,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_ssct.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_ssct_multiple_item,
-      { "Item", "qsig.ssct.multiple_item",
+      { "multiple", "qsig.ssct.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_ssct_rerouteingNumber,
@@ -14627,7 +14627,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_wtmlr.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_wtmlr_sequOfExtn_item,
-      { "Item", "qsig.wtmlr.sequOfExtn_item",
+      { "sequOfExtn", "qsig.wtmlr.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_wtmlr_alternativeId,
@@ -14750,7 +14750,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_wtmch.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_wtmch_sequOfExtn_item,
-      { "Item", "qsig.wtmch.sequOfExtn_item",
+      { "sequOfExtn", "qsig.wtmch.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_wtmch_alternativeId,
@@ -14782,7 +14782,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_wtmch.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_wtmch_multiple_item,
-      { "Item", "qsig.wtmch.multiple_item",
+      { "multiple", "qsig.wtmch.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -14893,7 +14893,7 @@ void proto_register_qsig(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "qsig_wtmau.CalculationParam", HFILL }},
     { &hf_qsig_wtmau_CalcWtatInfo_item,
-      { "Item", "qsig.wtmau.CalcWtatInfo_item",
+      { "CalcWtatInfo", "qsig.wtmau.CalcWtatInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_wtmau.CalcWtatInfoUnit", HFILL }},
     { &hf_qsig_wtmau_authResponse,
@@ -14913,7 +14913,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_wtmau.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_wtmau_sequOfExtn_item,
-      { "Item", "qsig.wtmau.sequOfExtn_item",
+      { "sequOfExtn", "qsig.wtmau.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_wtmau_authAlg,
@@ -14968,7 +14968,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_sd.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_sd_multipleExtension_item,
-      { "Item", "qsig.sd.multipleExtension_item",
+      { "multipleExtension", "qsig.sd.multipleExtension_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -15027,7 +15027,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_cidl.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cidl_sequenceOfExt_item,
-      { "Item", "qsig.cidl.sequenceOfExt_item",
+      { "sequenceOfExt", "qsig.cidl.sequenceOfExt_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -15218,7 +15218,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_sms.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_sms_multiple_item,
-      { "Item", "qsig.sms.multiple_item",
+      { "multiple", "qsig.sms.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_sms_validityPeriodRel,
@@ -15274,7 +15274,7 @@ void proto_register_qsig(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "qsig_sms.ShortMessageTextData", HFILL }},
     { &hf_qsig_sms_UserDataHeader_item,
-      { "Item", "qsig.sms.UserDataHeader_item",
+      { "UserDataHeader", "qsig.sms.UserDataHeader_item",
         FT_UINT32, BASE_DEC, VALS(qsig_sms_UserDataHeaderChoice_vals), 0,
         "qsig_sms.UserDataHeaderChoice", HFILL }},
     { &hf_qsig_sms_smscControlParameterHeader,
@@ -15469,7 +15469,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcr.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_mcr_multiple_item,
-      { "Item", "qsig.mcr.multiple_item",
+      { "multiple", "qsig.mcr.multiple_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -15532,7 +15532,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_mcm_MCMExtensions_vals), 0,
         "qsig_mcm.MCMExtensions", HFILL }},
     { &hf_qsig_mcm_MailboxFullFor_item,
-      { "Item", "qsig.mcm.MailboxFullFor_item",
+      { "MailboxFullFor", "qsig.mcm.MailboxFullFor_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.MailboxFullPar", HFILL }},
     { &hf_qsig_mcm_messageType,
@@ -15552,7 +15552,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcm.SEQUENCE_OF_MCMServiceInfo", HFILL }},
     { &hf_qsig_mcm_activateMCM_item,
-      { "Item", "qsig.mcm.activateMCM_item",
+      { "activateMCM", "qsig.mcm.activateMCM_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.MCMServiceInfo", HFILL }},
     { &hf_qsig_mcm_deactivateMCM,
@@ -15560,7 +15560,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcm.SEQUENCE_OF_MessageType", HFILL }},
     { &hf_qsig_mcm_deactivateMCM_item,
-      { "Item", "qsig.mcm.deactivateMCM_item",
+      { "deactivateMCM", "qsig.mcm.deactivateMCM_item",
         FT_UINT32, BASE_DEC, VALS(qsig_mcm_MessageType_vals), 0,
         "qsig_mcm.MessageType", HFILL }},
     { &hf_qsig_mcm_setToDefaultValues,
@@ -15580,7 +15580,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcm.SEQUENCE_OF_MessageType", HFILL }},
     { &hf_qsig_mcm_interrogateInfo_item,
-      { "Item", "qsig.mcm.interrogateInfo_item",
+      { "interrogateInfo", "qsig.mcm.interrogateInfo_item",
         FT_UINT32, BASE_DEC, VALS(qsig_mcm_MessageType_vals), 0,
         "qsig_mcm.MessageType", HFILL }},
     { &hf_qsig_mcm_interrogateResult,
@@ -15588,7 +15588,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcm.SEQUENCE_OF_MCMServiceInfo", HFILL }},
     { &hf_qsig_mcm_interrogateResult_item,
-      { "Item", "qsig.mcm.interrogateResult_item",
+      { "interrogateResult", "qsig.mcm.interrogateResult_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.MCMServiceInfo", HFILL }},
     { &hf_qsig_mcm_servedUserNr,
@@ -15632,7 +15632,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mcm.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_mcm_multipleExtension_item,
-      { "Item", "qsig.mcm.multipleExtension_item",
+      { "multipleExtension", "qsig.mcm.multipleExtension_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
     { &hf_qsig_mcm_argumentExtMCMNoNew,
@@ -15652,7 +15652,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_mcm_MCMUpdArgArgumentExt_vals), 0,
         "qsig_mcm.MCMUpdArgArgumentExt", HFILL }},
     { &hf_qsig_mcm_MCMUpdateReqRes_item,
-      { "Item", "qsig.mcm.MCMUpdateReqRes_item",
+      { "MCMUpdateReqRes", "qsig.mcm.MCMUpdateReqRes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.MCMUpdateReqResElt", HFILL }},
     { &hf_qsig_mcm_argumentExtMCMUpdRes,
@@ -15696,7 +15696,7 @@ void proto_register_qsig(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.NULL", HFILL }},
     { &hf_qsig_mcm_CompleteInfo_item,
-      { "Item", "qsig.mcm.CompleteInfo_item",
+      { "CompleteInfo", "qsig.mcm.CompleteInfo_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig_mcm.AddressHeader", HFILL }},
     { &hf_qsig_mcm_originatorNr,
@@ -15807,7 +15807,7 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "qsig_mid.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_mid_multipleExtension_item,
-      { "Item", "qsig.mid.multipleExtension_item",
+      { "multipleExtension", "qsig.mid.multipleExtension_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
