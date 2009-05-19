@@ -994,14 +994,14 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
   int			isakmp_version;
-  void                 *pd_save;
-  gboolean             pd_changed = FALSE;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t       *decr = NULL;
   tvbuff_t             *decr_tvb;
   proto_tree           *decr_tree;
   address               null_addr;
+  void                 *pd_save;
+  gboolean             pd_changed = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1157,7 +1157,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
 			    hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
 			    hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
+#ifdef HAVE_LIBGCRYPT
         if (pd_changed) pinfo->private_data = pd_save;
+#endif /* HAVE_LIBGCRYPT */
         return;
     }
 
@@ -1167,7 +1169,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
 			    hdr.length, "Length: (bogus, length is %u, which is too large)",
 			    hdr.length);
+#ifdef HAVE_LIBGCRYPT
         if (pd_changed) pinfo->private_data = pd_save;
+#endif /* HAVE_LIBGCRYPT */
         return;
     }
 
@@ -1195,7 +1199,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_payloads(tvb, isakmp_tree, tree, isakmp_version, hdr.next_payload,
 		       offset, len, pinfo);
   }
+#ifdef HAVE_LIBGCRYPT
   if (pd_changed) pinfo->private_data = pd_save;
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static proto_tree *
