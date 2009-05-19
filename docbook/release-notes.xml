@@ -83,7 +83,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            Display filter autocompletion.
+            Display filters now autocomplete.
           </para>
         </listitem>
 
@@ -98,19 +98,6 @@ Wireshark Info
           <para>
             Many new protocol dissectors and capture file formats have been
             added (see below for a complete list).
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Official Windows packages are now built using Microsoft Visual C++
-            2008 SP1.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            GTK1 is no longer supported. (Yes, this is a feature.)
           </para>
         </listitem>
 
@@ -159,6 +146,37 @@ Wireshark Info
             Support for process information correlation via IPFIX.
           </para>
         </listitem>  
+
+        <listitem>
+          <para>
+            Column widths are now saved.
+          </para>
+        </listitem>  
+
+        <listitem>
+          <para>
+            The last used configuration profile is now saved.
+          </para>
+        </listitem>  
+
+        <listitem>
+          <para>
+            Protocol preferences are changeable from the packet details context menu.
+          </para>
+        </listitem>  
+      
+        <listitem>
+          <para>
+            GTK1 is no longer supported. (Yes, this is a feature.)
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Official Windows packages are now built using Microsoft Visual C++
+            2008 SP1.
+          </para>
+        </listitem>
 
       </itemizedlist>
 
