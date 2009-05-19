@@ -58,6 +58,7 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-efs.c \
 	packet-dcerpc-initshutdown.c \
 	packet-dcerpc-nspi.c \
+	packet-dcerpc-rfr.c \
 	packet-dcerpc-wkssvc.c \
 	packet-dcerpc-wzcsvc.c
 
@@ -83,6 +84,7 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-initshutdown.h	\
 	packet-dcerpc-lsa.h	\
 	packet-dcerpc-nspi.h	\
+	packet-dcerpc-rfr.h \
 	packet-dcerpc-srvsvc.h	\
 	packet-dcerpc-winreg.h \
 	packet-dcerpc-wkssvc.h	\

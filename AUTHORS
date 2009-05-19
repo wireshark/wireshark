@@ -1,4 +1,4 @@
-
+﻿
 
 Original Author
 -------- ------
@@ -2829,6 +2829,10 @@ Javier Cardona			<javier@cozybit.com> {
 
 Jens Steinhauser		<jens.steinhauser@omicron.at> {
 	IEEE C37.118 synchrophasor dissector
+}
+
+Julien Kerihuel			<j.kerihuel@openchange.org> {
+	Exchange RFR dissector
 }
 
 and by:
