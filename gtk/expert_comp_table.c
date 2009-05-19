@@ -57,9 +57,9 @@
 
 static gint
 sort_iter_compare_func (GtkTreeModel *model,
-GtkTreeIter *a,
-GtkTreeIter *b,
-gpointer userdata)
+                        GtkTreeIter *a,
+                        GtkTreeIter *b,
+                        gpointer userdata)
 {
     gint sortcol = GPOINTER_TO_INT(userdata);
     gint ret = 0;
@@ -82,8 +82,8 @@ gpointer userdata)
             }
             g_free(name1);
             g_free(name2);
-            }
-            break;
+        }
+        break;
         default:
             g_return_val_if_reached(0);
     }
@@ -126,7 +126,8 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     GtkTreeIter iter;
     GtkTreeModel *model;
-    const expert_info_t expert_data;
+    expert_info_t expert_data;
+    gchar *grp;
 
     action=FILTER_ACTION(callback_action);
     type=FILTER_ACTYPE(callback_action);
@@ -134,16 +135,30 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     gtk_tree_selection_get_selected(err->select, &model, &iter);
 
-    gtk_tree_model_get (model, &iter, GROUP_COLUMN, &expert_data.group, -1);
-    gtk_tree_model_get (model, &iter, PROTOCOL_COLUMN, &expert_data.protocol, -1);
-    gtk_tree_model_get (model, &iter, SUMMARY_COLUMN, &expert_data.summary, -1);
+    gtk_tree_model_get (model, &iter, 
+                        GROUP_COLUMN,    &grp,
+                        PROTOCOL_COLUMN, &expert_data.protocol,
+                        SUMMARY_COLUMN,  &expert_data.summary,
+                        -1);
     
-    if (strcmp((char *)(unsigned long)expert_data.group, "Packet:")==0) {
+    if (strcmp(grp, "Packet:")==0) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
+        g_free(grp);
+        g_free(expert_data.protocol);
+        g_free(expert_data.summary);
         return;
     }
 
+    g_free(grp);
+
+    /* XXX: find_summary_data doesn't (currently) reference expert_data.group.   */
+    /*      If "group" is required, then the message from GROUP_COLUMN will need */
+    /*       to be translated to the group number (or the actual group number    */
+    /*       will also need to be stored in the TreeModel).                      */
     selection = find_summary_data(err, &expert_data);
+
+    g_free(expert_data.protocol);
+    g_free(expert_data.summary);
 
     if(selection>=(int)err->num_procs){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No items are selected");
@@ -386,8 +401,10 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 
         if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
-                gtk_tree_model_get (model, &iter, PROTOCOL_COLUMN, &pkt, -1);
-                gtk_tree_model_get (model, &iter, GROUP_COLUMN, &grp, -1);
+                gtk_tree_model_get (model, &iter, 
+                                    PROTOCOL_COLUMN, &pkt,
+                                    GROUP_COLUMN,    &grp,
+                                    -1);
 
                 if (strcmp(grp, "Packet:")==0) {
                     cf_goto_frame(&cfile, atoi(pkt));
@@ -446,7 +463,7 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (store));
 
-    /* Create a cell render */
+    /* Create a cell renderer */
     renderer = gtk_cell_renderer_text_new ();
 
     /* Create the first column, associating the "text" attribute of the
@@ -534,10 +551,12 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &err->procedures[row].iter, NULL);  /* Acquire an iterator */
         
+        /* (Note: gtk_tree_store_set *copies* the input strings) */
         gtk_tree_store_set (store, &err->procedures[row].iter,
-                    GROUP_COLUMN, (char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)")),
-                    PROTOCOL_COLUMN, (char *)g_strdup(expert_data->protocol),
-                    SUMMARY_COLUMN, (char *)g_strdup(expert_data->summary), -1);
+                            GROUP_COLUMN,    val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"),
+                            PROTOCOL_COLUMN, expert_data->protocol,
+                            SUMMARY_COLUMN,  expert_data->summary,
+                            -1);
 
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
@@ -569,8 +588,9 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
     gint index;
     GtkTreeStore    *store;
     GtkTreeIter      new_iter;
+    gchar            str[16];
 
-    index = find_summary_data(err,expert_data);
+    index = find_summary_data(err, expert_data);
 
     /* We should never encounter a condition where we cannot find the expert data. If
      * we do then we will just abort.
@@ -583,13 +603,13 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
 
+    g_snprintf(str, sizeof(str), "%d", expert_data->packet_num);
     gtk_tree_store_append(store, &new_iter, &errp->iter);
-
     gtk_tree_store_set(store, &new_iter,
-                           GROUP_COLUMN, "Packet:",
-                           PROTOCOL_COLUMN, (char *)g_strdup_printf("%d", expert_data->packet_num),
-                           COUNT_COLUMN, 1,
-                           -1);
+                       GROUP_COLUMN,    "Packet:",
+                       PROTOCOL_COLUMN, str,
+                       COUNT_COLUMN,    1,
+                       -1);
 }
 
 void
