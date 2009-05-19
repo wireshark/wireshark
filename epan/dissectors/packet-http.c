@@ -51,6 +51,7 @@
 #include "packet-ssl.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 
 typedef enum _http_type {
 	HTTP_REQUEST,
@@ -112,6 +113,61 @@ static gint ett_http_header_item = -1;
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t http_handle;
+
+/* Stuff for generation/handling of fields for custom HTTP headers */
+typedef struct _header_field_t {
+	gchar* header_name;
+	gchar* header_desc;
+} header_field_t;
+
+static header_field_t* header_fields = NULL;
+static guint num_header_fields = 0;
+
+static GHashTable* header_fields_hash = NULL;
+
+static void header_fields_update_cb(void* r, const char** err) {
+	header_field_t* rec = r;
+
+	if (rec->header_name == NULL) {
+		*err = ep_strdup_printf("Header name can't be empty");
+	} else {
+		g_strstrip(rec->header_name);
+		if (rec->header_name[0] != 0) {
+			*err = NULL;
+		} else {
+			*err = ep_strdup_printf("Header name can't be empty");
+		}
+	}
+}
+
+static void* header_fields_copy_cb(void* n, const void* o, unsigned siz _U_) {
+    header_field_t* new_rec = n;
+    const header_field_t* old_rec = o;
+
+    if (old_rec->header_name) {
+	new_rec->header_name = g_strdup(old_rec->header_name);
+    } else {
+        new_rec->header_name = NULL;
+    }
+
+    if (old_rec->header_desc) {
+	new_rec->header_desc = g_strdup(old_rec->header_desc);
+    } else {
+        new_rec->header_desc = NULL;
+    }
+
+    return new_rec;
+}
+
+static void header_fields_free_cb(void*r) {
+    header_field_t* rec = r;
+
+    if (rec->header_name) g_free(rec->header_name);
+    if (rec->header_desc) g_free(rec->header_desc);
+}
+
+UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
+UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
 
 /*
  * desegmentation of HTTP headers
@@ -490,12 +546,10 @@ get_http_conversation_data(packet_info *pinfo)
 	conv_data = conversation_get_proto_data(conversation, proto_http);
 	if(!conv_data) {
 		/* Setup the conversation structure itself */
-		conv_data = se_alloc(sizeof(http_conv_t));
+		conv_data = se_alloc0(sizeof(http_conv_t));
 
-		conv_data->response_code = 0;
 		conv_data->request_method = NULL;
 	 	conv_data->request_uri = NULL;
-		conv_data->startframe = 0;
 
 		conversation_add_proto_data(conversation, proto_http,
 					    conv_data);
@@ -1753,6 +1807,91 @@ static const header_info headers[] = {
 	{ "X-Forwarded-For", &hf_http_x_forwarded_for, HDR_NO_SPECIAL },
 };
 
+/*
+ *
+ */
+static gint*
+get_hf_for_header(char* header_name)
+{
+	gint* hf_id = NULL;
+
+	if (header_fields_hash) {
+		hf_id = (gint*) g_hash_table_lookup(header_fields_hash, header_name);
+	} else {
+		hf_id = NULL;
+	}
+
+	return hf_id;
+}
+
+/*
+ *
+ */
+static void
+add_hf_info_for_headers()
+{
+	hf_register_info* hf = NULL;
+	gint* hf_id = NULL;
+	guint i = 0;
+	gchar* header_name;
+	GPtrArray* array;
+	guint new_entries = 0;
+	header_field_t* tmp_hdr = NULL;
+
+	if (!header_fields_hash) {
+		header_fields_hash = g_hash_table_new(g_str_hash, g_str_equal);
+	}
+
+	if (num_header_fields) {
+		array = g_ptr_array_new();
+
+		/* Make a list of fields which are not already added. This is useful only if
+		 * preferences are reloaded and a new header field has been added. Perhaps unlikely
+		 * to be used, but no harm in adding it...
+		 */
+
+		/* Not checking if the UAT has more or same number of entries as the hash table
+		 * because it is possible that some entries are removed and some more added.
+		 * WARNING: We will not de-register fields which have been removed from the UAT
+		 *
+		 * XXX: PS, it turns out that in case of change in UAT, the prefs apply callback is not
+		 * called... so, some of this code will not work at the moment. However, I leave it
+		 * in here for now because if the callback is called in future, it will work (at least
+		 * in theory ;-).
+		 */
+		for (i = 0; i < num_header_fields; i++) {
+			if ((g_hash_table_lookup(header_fields_hash, header_fields[i].header_name)) == NULL) {
+				new_entries++;
+				g_ptr_array_add(array, &header_fields[i]);
+			}
+		}
+
+		if (new_entries) {
+			hf = g_malloc0(sizeof(hf_register_info) * new_entries);
+			for (i = 0; i < new_entries; i++) {
+				tmp_hdr = (header_field_t*) g_ptr_array_index(array, i);
+				hf_id = g_malloc(sizeof(gint));
+				*hf_id = -1;
+				header_name = g_strdup(tmp_hdr->header_name);
+
+				hf[i].p_id = hf_id;
+				hf[i].hfinfo.name = header_name;
+				hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
+				hf[i].hfinfo.type = FT_STRING;
+				hf[i].hfinfo.display = BASE_NONE;
+				hf[i].hfinfo.strings = NULL;
+				hf[i].hfinfo.blurb = g_strdup(tmp_hdr->header_desc);
+				hf[i].hfinfo.same_name_prev = NULL;
+				hf[i].hfinfo.same_name_next = NULL;
+
+				g_hash_table_insert(header_fields_hash, header_name, hf_id);
+			}
+
+			proto_register_field_array(proto_http, hf, num_header_fields);
+		}
+	}
+}
+
 static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset,
@@ -1767,24 +1906,49 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	int value_offset;
 	int value_len;
 	char *value;
+	char *header_name;
 	char *p;
 	guchar *up;
 	proto_item *hdr_item;
 	int i;
+	int* hf_id;
 
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
+	header_name = se_strndup(&line[0], header_len);
 	hf_index = find_header_hf_value(tvb, offset, header_len);
+
+	/*
+	 * Skip whitespace after the colon.
+	 */
+	value_offset = colon_offset + 1;
+	while (value_offset < line_end_offset
+			&& ((c = line[value_offset - offset]) == ' ' || c == '\t'))
+		value_offset++;
+
+	/*
+	 * Fetch the value.
+	 */
+	value_len = line_end_offset - value_offset;
+	value = ep_strndup(&line[value_offset - offset], value_len);
 
 	if (hf_index == -1) {
 		/*
-		 * Not a header we know anything about.  Just put it into
-		 * the tree as text.
+		 * Not a header we know anything about.
+		 * Check if a HF generated from UAT information exists.
 		 */
+		hf_id = get_hf_for_header(header_name);
+
 		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, len,
-			    "%s", format_text(line, len));
+			if (!hf_id) {
+				proto_tree_add_text(tree, tvb, offset, len,
+				    "%s", format_text(line, len));
+			} else {
+				proto_tree_add_string_format(tree,
+					*hf_id, tvb, offset, len,
+				    value, "%s", format_text(line, len));
+			}
 		}
 	} else {
 		/*
@@ -2090,6 +2254,11 @@ static void reinit_http(void) {
 	g_free(http_ssl_range);
 	http_ssl_range = range_copy(global_http_ssl_range);
 	range_foreach(http_ssl_range, range_add_http_ssl_callback);
+
+	/* Attempt to add additional headers that might have been added
+	 * one the preferences are applied.
+	 */
+	add_hf_info_for_headers();
 }
 
 void
@@ -2241,7 +2410,16 @@ proto_register_http(void)
 		&ett_http_encoded_entity,
 		&ett_http_header_item
 	};
+	/* UAT for header fields */
+	static uat_field_t custom_header_uat_fields[] = {
+		UAT_FLD_CSTRING(header_fields, header_name, "Header name", "HTTP header name"),
+		UAT_FLD_CSTRING(header_fields, header_desc, "Field desc", "Description of the value contained in the header"),
+		UAT_END_FIELDS
+	};
+
 	module_t *http_module;
+	uat_t* headers_uat;
+	char* uat_load_err;
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
 	    "HTTP", "http");
@@ -2290,6 +2468,24 @@ proto_register_http(void)
 	prefs_register_range_preference(http_module, "ssl.port", "SSL/TLS Ports",
 									"SSL/TLS Ports range",
 									&global_http_ssl_range, 65535);
+	/* UAT */
+	headers_uat = uat_new("Custom HTTP headers fields Table",
+			sizeof(header_field_t),
+		    "custom_http_header_fields",
+		    TRUE,
+		    (void*) &header_fields,
+		    &num_header_fields,
+		    UAT_CAT_GENERAL,
+		    NULL,
+		    header_fields_copy_cb,
+		    header_fields_update_cb,
+		    header_fields_free_cb,
+		    custom_header_uat_fields
+	);
+
+	prefs_register_uat_preference(http_module, "custom_http_header_fields", "Custom HTTP headers fields",
+	    "A table to define custom HTTP header for which fields can be setup and used for filtering/data extraction etc.",
+	   headers_uat);
 
 	http_handle = create_dissector_handle(dissect_http, proto_http);
 
@@ -2326,6 +2522,13 @@ proto_register_http(void)
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
       	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
+
+	/*
+	 * Add additional HFs for HTTP headers from the UAT (which is loaded manually first).
+	 */
+	if (uat_load(headers_uat, &uat_load_err)) {
+		add_hf_info_for_headers();
+	}
 }
 
 /*
