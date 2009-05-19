@@ -1181,7 +1181,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb_rlen=16;
 		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
-		if(!ndmp_conv_data->task->itlq){
+		if(ndmp_conv_data->task && !ndmp_conv_data->task->itlq){
 			ndmp_conv_data->task->itlq=se_alloc(sizeof(itlq_nexus_t));
 			ndmp_conv_data->task->itlq->lun=0xffff;
 			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->fd->num;
@@ -1195,7 +1195,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;
 			ndmp_conv_data->task->itlq->extra_data=NULL;
 		}
-		if(ndmp_conv_data->task->itlq){
+		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
 		}
 		offset += cdb_len_full;
@@ -1239,7 +1239,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	    		tvb_rlen=payload_len;
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
-		if(ndmp_conv_data->task->itlq){
+		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 			/* ndmp conceptually always send both read and write
 			 * data and always a full nonfragmented pdu
 			 */
@@ -1335,7 +1335,7 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	if (sns_len != 0) {
-		if(ndmp_conv_data->task->itlq){
+		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
 		}
 		offset += sns_len_full;
@@ -1356,7 +1356,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* status */
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
 	status=tvb_get_ntohl(tvb, offset);
-	if(ndmp_conv_data->task->itlq){
+	if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE), (guint8)status);
 	}
 	offset += 4;
