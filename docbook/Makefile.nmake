@@ -177,12 +177,12 @@ release_notes.validated: $(RELEASE_NOTES_SOURCE)
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl release-notes.xml > $@
+	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl release-notes.xml > $@
 
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl release-notes.xml | $(HTML2TXT) > $@
+	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl release-notes.xml | $(HTML2TXT) > $@
 
 news: release-notes.txt
 	copy release-notes.txt ..\NEWS
