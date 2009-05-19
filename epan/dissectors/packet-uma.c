@@ -1581,7 +1581,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}
 		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0 && rtp_handle){
 
-			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, 0);
+			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, FALSE, 0);
 			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
 				RTCP_UDP_port = RTP_UDP_port + 1;
 				rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);

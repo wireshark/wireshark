@@ -8313,7 +8313,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             first_assigned_found = TRUE;
 
             rtp_add_address(g_pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
-                g_pinfo->fd->num, rtp_dyn_payload);
+                g_pinfo->fd->num, FALSE, rtp_dyn_payload);
         }
 
         num_bearers++;

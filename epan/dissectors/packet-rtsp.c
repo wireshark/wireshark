@@ -341,6 +341,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	gboolean	rdt_transport = FALSE;
 	guint		c_data_port, c_mon_port;
 	guint		s_data_port, s_mon_port;
+	gboolean	is_video = FALSE; /* FIX ME - need to indicate video or not */
 
 	/* Copy line into buf */
 	if (line_len > sizeof(buf) - 1)
@@ -473,7 +474,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	{
 		/* There is always data for RTP */
 		rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
-		                "RTSP", pinfo->fd->num, NULL);
+		                "RTSP", pinfo->fd->num, is_video, NULL);
 	
 		/* RTCP only if indicated */
 		if (c_mon_port)

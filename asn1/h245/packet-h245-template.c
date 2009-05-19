@@ -224,6 +224,7 @@ typedef struct _channel_info_t {
   unicast_addr_t media_control_addr;
   unsigned int rfc2198;
   gboolean srtp_flag;
+  gboolean is_video;
 } channel_info_t;
 
 typedef struct _olc_info_t {
@@ -352,10 +353,11 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	if (upcoming_channel->srtp_flag) {
 		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 	}
+	/* FIX ME indicate if Video - temp always false */
 	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 						upcoming_channel->media_addr.port, 0, 
-						"H245", pinfo->fd->num, rtp_dyn_payload, dummy_srtp_info);
+						"H245", pinfo->fd->num, /*upcoming_channel->is_video*/ FALSE, rtp_dyn_payload, dummy_srtp_info);
 	}
 	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
 		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 

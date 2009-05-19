@@ -31,6 +31,7 @@ struct _rtp_info {
 	unsigned int  info_version;
 	gboolean      info_padding_set;
 	gboolean      info_marker_set;
+	gboolean	  info_is_video;
 	unsigned int  info_payload_type;
 	unsigned int  info_padding_count;
 	guint16       info_seq_num;
@@ -99,15 +100,17 @@ struct srtp_info
 struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
-	guint32 frame_number;	/* the frame where this conversation is started */
-	GHashTable *rtp_dyn_payload;   /* a hash table with the dynamic RTP payload */
+	guint32 frame_number;			/* the frame where this conversation is started */
+	gboolean is_video;
+	GHashTable *rtp_dyn_payload;	/* a hash table with the dynamic RTP payload */
 
-	guint32 extended_seqno; /* the sequence number, extended to a 32-bit
-	                         * int to guarantee it increasing monotonically
-                                 */
+	guint32 extended_seqno;			/* the sequence number, extended to a 32-bit
+									 * int to guarantee it increasing monotonically
+									 */
 
 	struct _rtp_private_conv_info *rtp_conv_info; /* conversation info private
-	                                               * to the rtp dissector */
+	                                               * to the rtp dissector
+												   */
 	struct srtp_info *srtp_info;    /* SRTP context */
 };
 
@@ -117,6 +120,7 @@ void rtp_add_address(packet_info *pinfo,
                      int other_port,
                      const gchar *setup_method, 
                      guint32 setup_frame_number,
+					 gboolean is_video,
                      GHashTable *rtp_dyn_payload);
 
 /* Add an SRTP conversation with the given details */
@@ -125,6 +129,7 @@ void srtp_add_address(packet_info *pinfo,
                      int other_port,
                      const gchar *setup_method, 
                      guint32 setup_frame_number,
+					 gboolean is_video,
                      GHashTable *rtp_dyn_payload,
                      struct srtp_info *srtp_info);
 

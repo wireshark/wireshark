@@ -1200,6 +1200,7 @@ static void
 dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
+  gboolean is_video = FALSE; /* FIX ME: need to indicate video or not */
 
   /* Header fields */
   guint32 hdr_data_length;
@@ -1423,7 +1424,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    src_addr.len=4;
 	    src_addr.data=(guint8 *)&ipv4_address;
 	    ipv4_address = tvb_get_ipv4(tvb, offset+16);
-	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, NULL);
+	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
       }
       si->passThruId = tvb_get_letohl(tvb, offset+24);
       break;
@@ -1821,7 +1822,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    src_addr.len=4;
 	    src_addr.data=(char *)&ipv4_address;
 	    ipv4_address = tvb_get_ipv4(tvb, offset+20);
-	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, NULL);
+	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, is_video, NULL);
       }
       si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;

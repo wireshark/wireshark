@@ -2237,7 +2237,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                SET_ADDRESS(&far_addr, AT_IPv4, 4, &far_ip_addr);
 
                far_port = tvb_get_ntohs(tvb, offset-8);
-               rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, NULL);
+               rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, FALSE, NULL);
 
                far_port = tvb_get_ntohs(tvb, offset-6);
                rtcp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num);

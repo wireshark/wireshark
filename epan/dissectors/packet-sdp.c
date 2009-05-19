@@ -204,6 +204,7 @@ typedef struct {
 typedef struct {
   char *connection_address;
   char *connection_type;
+  char *media_type;
   char *encoding_name[SDP_NO_OF_PT]; 
   char *media_port[SDP_MAX_RTP_CHANNELS];
   char *media_proto[SDP_MAX_RTP_CHANNELS];
@@ -276,6 +277,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    set_rtp=FALSE;
   gboolean    is_ipv4_addr=FALSE;
   gboolean    is_ipv6_addr=FALSE;
+  gboolean    is_video=FALSE;
   guint32     ipaddr[4];
   gint        n,i;
   sdp_packet_info *sdp_pi;
@@ -287,6 +289,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Initialise RTP channel info */
   transport_info.connection_address=NULL;
   transport_info.connection_type=NULL;
+  transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
 	  transport_info.encoding_name[n]=NULL;
   }
@@ -483,6 +486,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
       }
     }
+	if (strcmp(transport_info.media_type,"video")==0){
+		is_video = TRUE;
+	}
     set_rtp = FALSE;
     /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
     if((!pinfo->fd->flags.visited) && port!=0 && (is_rtp||is_srtp) && (is_ipv4_addr || is_ipv6_addr)){
@@ -490,10 +496,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if(rtp_handle){
         if (is_srtp) {
           struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
-          srtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
+          srtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num, is_video,
                            transport_info.media[n].rtp_dyn_payload, dummy_srtp_info);
         } else {
-          rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
+          rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num, is_video,
                           transport_info.media[n].rtp_dyn_payload);
         }
         set_rtp = TRUE;
@@ -1021,6 +1027,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
   }
 }
 
+
 /* Dissect media description */
 static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
@@ -1049,6 +1056,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   /* Type of media session */
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
                       FALSE);
+
+  transport_info->media_type = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
   offset = next_offset + 1;
 

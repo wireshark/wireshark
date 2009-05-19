@@ -374,7 +374,7 @@ rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
 void srtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload,
+                     const gchar *setup_method, guint32 setup_frame_number, gboolean is_video _U_, GHashTable *rtp_dyn_payload,
                      struct srtp_info *srtp_info)
 {
 	address null_addr;
@@ -446,6 +446,7 @@ void srtp_add_address(packet_info *pinfo,
 
 	g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
 	p_conv_data->frame_number = setup_frame_number;
+	p_conv_data->is_video = is_video;
 	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
 	p_conv_data->srtp_info = srtp_info;
 }
@@ -454,9 +455,9 @@ void srtp_add_address(packet_info *pinfo,
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
+                     const gchar *setup_method, guint32 setup_frame_number, gboolean is_video , GHashTable *rtp_dyn_payload)
 {
-	srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, rtp_dyn_payload, NULL);
+	srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
 }
 
 static gboolean
@@ -1028,6 +1029,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info->info_padding_set = padding_set;
 	rtp_info->info_padding_count = 0;
 	rtp_info->info_marker_set = marker_set;
+	rtp_info->info_is_video = FALSE;
 	rtp_info->info_payload_type = payload_type;
 	rtp_info->info_seq_num = seq_num;
 	rtp_info->info_timestamp = timestamp;
@@ -1073,6 +1075,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	get_conv_info(pinfo, rtp_info);
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
+	if (p_conv_data)
+		rtp_info->info_is_video = p_conv_data->is_video;
+
 	if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
 	rtp_info->info_is_srtp = is_srtp;
 
@@ -1082,6 +1087,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+
+		
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		if (rtp_info->info_all_data_present) {
@@ -1341,6 +1348,7 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 				p_conv_packet_data = se_alloc(sizeof(struct _rtp_conversation_info));
 				g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
+				p_conv_packet_data->is_video = p_conv_data->is_video;
 				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
 				p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
 				p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
