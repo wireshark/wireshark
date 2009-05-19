@@ -289,15 +289,10 @@ mkds(void)
 {
     dcmState_t *ds;
 
-    if (NULL == (ds = (dcmState_t *) g_malloc(sizeof(dcmState_t)))) {
+    if (NULL == (ds = (dcmState_t *) se_alloc0(sizeof(dcmState_t)))) {
 	return NULL;
     }
-    ds->pdu = 0;
-    ds->tlen = ds->rlen = 0;
     ds->valid = TRUE;
-    memset(ds->orig, 0, sizeof(ds->orig));
-    memset(ds->targ, 0, sizeof(ds->targ));
-    memset(ds->resp, 0, sizeof(ds->resp));
     ds->first = ds->last = NULL;
     return ds;
 }
