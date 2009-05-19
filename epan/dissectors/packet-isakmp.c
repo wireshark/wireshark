@@ -1000,6 +1000,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t             *decr_tvb;
   proto_tree           *decr_tree;
   address               null_addr;
+  void                 *pd_save;
+  gboolean             pd_changed = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1055,7 +1057,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       SE_COPY_ADDRESS(&decr->initiator, &pinfo->src);
     }
 
+    pd_save = pinfo->private_data;
     pinfo->private_data = decr;
+    pd_changed = TRUE;
   } else if (isakmp_version == 2) {
     ikev2_uat_data_key_t hash_key;
     ikev2_uat_data_t *ike_sa_data = NULL;
@@ -1079,7 +1083,9 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ikev2_dec_data->encr_spec = ike_sa_data->encr_spec;
       ikev2_dec_data->auth_spec = ike_sa_data->auth_spec;
 
+      pd_save = pinfo->private_data;
       pinfo->private_data = ikev2_dec_data;
+      pd_changed = TRUE;
     }
   }
 #endif /* HAVE_LIBGCRYPT */
@@ -1151,6 +1157,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
 			    hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
 			    hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
+        if (pd_changed) pinfo->private_data = pd_save;
         return;
     }
 
@@ -1160,6 +1167,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
 			    hdr.length, "Length: (bogus, length is %u, which is too large)",
 			    hdr.length);
+        if (pd_changed) pinfo->private_data = pd_save;
         return;
     }
 
@@ -1187,6 +1195,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_payloads(tvb, isakmp_tree, tree, isakmp_version, hdr.next_payload,
 		       offset, len, pinfo);
   }
+  if (pd_changed) pinfo->private_data = pd_save;
 }
 
 static proto_tree *

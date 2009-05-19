@@ -100,6 +100,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
 	bthci_acl_data_t *acl_data;
 	chandle_data_t *chandle_data;
+	void* pd_save;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
@@ -119,6 +120,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	acl_data=ep_alloc(sizeof(bthci_acl_data_t));
 	acl_data->chandle=flags&0x0fff;
+	pd_save = pinfo->private_data;
 	pinfo->private_data=acl_data;
 
 	/* find the chandle_data structure associated with this chandle */
@@ -157,6 +159,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(btl2cap_handle){
 			call_dissector(btl2cap_handle, next_tvb, pinfo, tree);
 		}
+		pinfo->private_data = pd_save;
 		return;
 	}
 
@@ -220,6 +223,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	pinfo->private_data = pd_save;
 }
 
 

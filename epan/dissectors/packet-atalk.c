@@ -918,6 +918,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (new_tvb) {
+     void* pd_save;
+     pd_save = pinfo->private_data;
      pinfo->private_data = &aspinfo;
      /* if port == 6 it's not an ASP packet but a ZIP packet */
      if (pinfo->srcport == 6 || pinfo->destport == 6 )
@@ -950,6 +952,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         }
      }
+     pinfo->private_data = pd_save;
   }
   else {
     /* Just show this as a fragment. */

@@ -2685,6 +2685,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		if (ind){
 			proto_tree_add_text(tree, tvb, offset+1, 1,
 				"Indefinte length, ignoring component");
+			gsm_a_dtap_pinfo->private_data = save_private_data;
 			return (fac_len);
 		}
 		header_len = header_end_offset - offset;

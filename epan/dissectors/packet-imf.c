@@ -596,13 +596,15 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* now dissect the MIME based upon the content type */
 
   if(content_type_str && media_type_dissector_table) {
-
+    void* pd_save;
+    pd_save = pinfo->private_data;
     pinfo->private_data = parameters; 
 
     next_tvb = tvb_new_subset(tvb, end_offset, -1, -1);
 
     dissected = dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
 
+    pinfo->private_data = pd_save;
   } else {
 
     /* just show the lines or highlight the rest of the buffer as message text */

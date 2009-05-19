@@ -1005,6 +1005,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		tvbuff_t *next_tvb;
 		void *save_private_data = NULL;
+		gboolean private_data_changed = FALSE;
 		gint chunks_decoded = 0;
 
 		/*
@@ -1175,6 +1176,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * for that content type?
 			 */
 			save_private_data = pinfo->private_data;
+			private_data_changed = TRUE;
 
 			if (headers.content_type_parameters)
 				pinfo->private_data = ep_strdup(headers.content_type_parameters);
@@ -1230,7 +1232,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Do *not* attempt at freeing the private data;
 		 * it may be in use by subdissectors.
 		 */
-		if (save_private_data)
+		if (private_data_changed) /*restore even NULL value*/
 			pinfo->private_data = save_private_data;
 		/*
 		 * We've processed "datalen" bytes worth of data

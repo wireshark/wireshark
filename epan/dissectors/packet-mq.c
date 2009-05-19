@@ -2260,15 +2260,18 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							{
 								/* Call subdissector for the payload */
 								tvbuff_t* next_tvb = NULL;
+								void* pd_save;
 								struct mqinfo mqinfo;
 								/* Format, encoding and character set are "data type" information, not subprotocol information */
 								mqinfo.encoding = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetEncoding, bLittleEndian);
 								mqinfo.ccsid    = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetCcsid, bLittleEndian);
 								tvb_memcpy(tvb, mqinfo.format, tMsgProps.iOffsetFormat, 8);
+								pd_save = pinfo->private_data;
 								pinfo->private_data = &mqinfo;
 								next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 								if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, tree))
 									call_dissector(data_handle, next_tvb, pinfo, tree);
+								pinfo->private_data = pd_save;
 							}
 						}
 						offset = tvb_length(tvb);

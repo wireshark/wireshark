@@ -567,6 +567,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree          *volatile ieee802154_tree = NULL;
     proto_item          *volatile proto_root = NULL;
     proto_item          *ti;
+    void                *pd_save;
 
     guint               offset = 0;
     volatile gboolean   fcs_ok = TRUE;
@@ -575,6 +576,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Link our packet info structure into the private data field for the
      * Network-Layer heuristic subdissectors. */
+    pd_save = pinfo->private_data;
     pinfo->private_data = packet;
 
     /* Create the protocol tree. */
@@ -690,6 +692,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
         expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Invalid Destination Address Mode");
+        pinfo->private_data = pd_save;
         return;
     }
 
@@ -769,6 +772,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
         expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Invalid Source Address Mode");
+        pinfo->private_data = pd_save;
         return;
     }
 
@@ -918,6 +922,7 @@ dissect_ieee802154_fcs:
         /* Flag packet as having a bad crc. */
         expert_add_info_format(pinfo, proto_root, PI_CHECKSUM, PI_WARN, "Bad FCS");
     }
+    pinfo->private_data = pd_save;
 } /* dissect_ieee802154_common */
 
 /*FUNCTION:------------------------------------------------------

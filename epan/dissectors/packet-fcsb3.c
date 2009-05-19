@@ -1016,6 +1016,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     tvbuff_t *next_tvb;
     conversation_t *conversation;
     sb3_task_id_t task_key;
+    void* pd_save;
         
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -1034,6 +1035,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       PT_SBCCS, ch_cu_id, dev_addr, 0);
                                       
+    pd_save = pinfo->private_data;
     if (conversation) {
         task_key.conv_id = conversation->index;
         task_key.task_id = ccw;
@@ -1097,6 +1099,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
                                    -1, -1);
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
+    pinfo->private_data = pd_save;
 }
 
 /* Register the protocol with Wireshark */

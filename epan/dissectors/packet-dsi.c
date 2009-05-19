@@ -569,17 +569,20 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case DSIFUNC_WRITE:
 		{
   			tvbuff_t   *new_tvb;
+			void* pd_save;
 			int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
 
 			aspinfo.reply = (dsi_flags == DSIFL_REPLY);
 			aspinfo.command = dsi_command;
 			aspinfo.seq = dsi_requestid;
 			aspinfo.code = dsi_code;
+			pd_save = pinfo->private_data;
 			pinfo->private_data = &aspinfo;
 	  		proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
 
 			new_tvb = tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,len);
 			call_dissector(afp_handle, new_tvb, pinfo, tree);
+			pinfo->private_data = pd_save;
 		}
 		break;
   	default:

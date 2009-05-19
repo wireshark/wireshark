@@ -6286,8 +6286,9 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     tvbuff_t *next_tvb;
     guint8 sub_proto, acfield_len = 0, control_field;
     gtp_msg_hash_t *gcrp=NULL;
-	conversation_t *conversation=NULL;
+    conversation_t *conversation=NULL;
     gtp_conv_info_t *gtp_info=(gtp_conv_info_t *)pinfo->private_data;
+    void* pd_save;
 
 	/* 
 	 * If this is GTPv2-C call the gtpv2 dissector if present 
@@ -6337,6 +6338,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         gtp_info->next = gtp_info_items;
         gtp_info_items = gtp_info;
     }
+    pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
 	
     tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
@@ -6372,6 +6374,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	
 	if(version>=2){
 		proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
+		pinfo->private_data = pd_save;
 		return;
 	}
 
@@ -6583,7 +6586,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
 	}
     }
-
+    pinfo->private_data = pd_save;
 }
 
 static const true_false_string yes_no_tfs = {

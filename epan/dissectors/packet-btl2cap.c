@@ -787,6 +787,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bthci_acl_data_t *acl_data;
 	btl2cap_data_t *l2cap_data;
 	config_data_t *config_data;
+	void* pd_save;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
@@ -813,6 +814,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	l2cap_data=ep_alloc(sizeof(btl2cap_data_t));
 	l2cap_data->chandle=acl_data->chandle;
 	l2cap_data->cid=cid;
+	pd_save = pinfo->private_data;
 	pinfo->private_data=l2cap_data;
 
 	if(cid==0x0001){ /* This is a command packet*/
@@ -984,6 +986,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 		offset+=length;
 	}
+	pinfo->private_data = pd_save;
 }
 
 
