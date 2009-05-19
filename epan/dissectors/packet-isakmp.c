@@ -994,14 +994,14 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
   int			isakmp_version;
+  void                 *pd_save;
+  gboolean             pd_changed = FALSE;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t       *decr = NULL;
   tvbuff_t             *decr_tvb;
   proto_tree           *decr_tree;
   address               null_addr;
-  void                 *pd_save;
-  gboolean             pd_changed = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
