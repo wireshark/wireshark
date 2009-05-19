@@ -223,11 +223,11 @@
 		<avp name="CC-Unit-Type" code="454" mandatory="must">
 			<type type-name="Enumerated"/>
 			<enum name="TIME" code="0"/>
-			<enum name="TOTAL-OCTETS" code="2"/>
+      <enum name="MONEY" code="1"/>
+      <enum name="TOTAL-OCTETS" code="2"/>
 			<enum name="OUTPUT-OCTETS" code="4"/>
 			<enum name="INPUT-OCTETS" code="3"/>
 			<enum name="SERVICE-SPECIFIC-UNITS" code="5"/>
-			<enum name="MONEY" code="1"/>
 		</avp>
 		<avp name="Multiple-Services-Indicator" code="455" mandatory="must">
 			<type type-name="Enumerated"/>

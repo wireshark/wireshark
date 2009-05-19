@@ -333,3 +333,30 @@ Changed paths:
 
 Plug memory leak.
 ------------------------------------------------------------------------
+r28416 | gerald | 2009-05-19 12:58:18 -0700 (Tue, 19 May 2009) | 16 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/asn1/p7/p7.cnf
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-ndmp.c
+   M /trunk-1.0/epan/dissectors/packet-p7.c
+   M /trunk-1.0/epan/dissectors/packet-p7.h
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r28409 | stig | 2009-05-19 07:40:23 -0700 (Tue, 19 May 2009) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ndmp.c
+
+Avoid crash when not reassembling multiple TCP segments.
+(check for valid pointers, in this case: ndmp_conv_data->task)
+
+This fixes the crash in bug #3470.
+------------------------------------------------------------------------
+
+Add a fix for p7 from Anders. Update the release notes, ChangeLog, and
+NEWS.
+
+------------------------------------------------------------------------
