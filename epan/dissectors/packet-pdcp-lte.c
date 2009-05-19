@@ -134,11 +134,14 @@ static int hf_pdcp_lte_rohc_dynamic_rtp_ts_stride = -1;
 
 static int hf_pdcp_lte_rohc_ts = -1;
 static int hf_pdcp_lte_rohc_m = -1;
+static int hf_pdcp_lte_uor2_sn = -1;
+static int hf_pdcp_lte_uor2_x = -1;
 
 static int hf_pdcp_lte_add_cid = -1;
 static int hf_pdcp_lte_large_cid = -1;
 
 static int hf_pdcp_lte_uo0_sn = -1;
+static int hf_pdcp_lte_uo0_crc = -1;
 
 static int hf_pdcp_lte_r0_sn = -1;
 static int hf_pdcp_lte_r0_crc_sn = -1;
@@ -952,7 +955,8 @@ static int dissect_pdcp_uo_0_packet(proto_tree *tree,
     sn = (tvb_get_guint8(tvb, offset) & 0x78) >> 3;
     proto_tree_add_item(tree, hf_pdcp_lte_uo0_sn, tvb, offset, 1, FALSE);
 
-    /* TODO: CRC... */
+    /* CRC (3 bits) */
+    proto_tree_add_item(tree, hf_pdcp_lte_uo0_crc, tvb, offset, 1, FALSE);
 
     offset++;
 
@@ -1157,13 +1161,21 @@ static int  dissect_pdcp_uor_2_packet(proto_tree *tree,
     }
 
     /* Last bit of TS is here */
-    ts = (ts << 1) & (tvb_get_guint8(tvb, offset) >> 7);
+    ts = (ts << 1) | (tvb_get_guint8(tvb, offset) >> 7);
     proto_tree_add_uint(tree, hf_pdcp_lte_rohc_ts, tvb, offset, 1, ts);
 
-
-
     if (p_pdcp_info->profile == 1) {
-        /* TODO: */
+        /* M */
+        proto_tree_add_item(tree, hf_pdcp_lte_rohc_m, tvb, offset, 1, FALSE);
+
+        /* SN (6 bits) */
+        proto_tree_add_item(tree, hf_pdcp_lte_uor2_sn, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* X (one bit) */
+        proto_tree_add_item(tree, hf_pdcp_lte_uor2_x, tvb, offset, 1, FALSE);
+
+        /* TODO: CRC */
         offset++;
     }
     else if (p_pdcp_info->profile == 2) {
@@ -2256,6 +2268,24 @@ void proto_register_pdcp(void)
               "TS", HFILL
             }
         },
+        { &hf_pdcp_lte_rohc_m,
+            { "M",
+              "pdcp-lte.rohc.m", FT_UINT8, BASE_DEC, NULL, 0x40,
+              "M", HFILL
+            }
+        },
+        { &hf_pdcp_lte_uor2_sn,
+            { "SN",
+              "pdcp-lte.rohc.uor2.sn", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "SN", HFILL
+            }
+        },
+        { &hf_pdcp_lte_uor2_x,
+            { "X",
+              "pdcp-lte.rohc.uor2.x", FT_UINT8, BASE_DEC, NULL, 0x80,
+              "X", HFILL
+            }
+        },
 
         { &hf_pdcp_lte_add_cid,
             { "Add-CID",
@@ -2273,6 +2303,12 @@ void proto_register_pdcp(void)
             { "SN",
               "pdcp-lte.rohc.uo0.sn", FT_UINT8, BASE_DEC, NULL, 0x78,
               "SN", HFILL
+            }
+        },
+        { &hf_pdcp_lte_uo0_crc,
+            { "CRC",
+              "pdcp-lte.rohc.uo0.crc", FT_UINT8, BASE_DEC, NULL, 0x07,
+              "3-bit CRC", HFILL
             }
         },
         { &hf_pdcp_lte_r0_sn,
