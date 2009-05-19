@@ -65,7 +65,6 @@
 #define IP_PROTO_BULK           30              /* Bulk Data Transfer Protocol - RFC969 */
 #define IP_PROTO_MFE_NSP        31              /* MFE Network Services Protocol */
 #define IP_PROTO_MERIT          32              /* MERIT Internodal Protocol */
-/* #define IP_PROTO_SEP         33                 Sequential Exchange Protocol */
 #define IP_PROTO_DCCP           33              /* Datagram Congestion Control Protocol */
 #define IP_PROTO_3PC            34              /* Third party connect protocol */
 #define IP_PROTO_IDPR           35              /* Interdomain policy routing protocol */
@@ -81,7 +80,7 @@
 #define IP_PROTO_IDRP           45              /* Inter-Domain Routing Protocol */
 #define IP_PROTO_RSVP           46              /* Resource ReSerVation protocol */
 #define IP_PROTO_GRE		47		/* General Routing Encapsulation */
-#define IP_PROTO_MHRP           48              /* Mobile Host Routing Protocol */
+#define IP_PROTO_DSR            48              /* Dynamic Source Routing Protocol */
 #define IP_PROTO_BNA            49              /* BNA */
 #define IP_PROTO_ESP		50		/* Encap Security Payload for IPv6 - RFC2406 */
 #define IP_PROTO_AH		51		/* Authentication Header for IPv6 - RFC2402*/
@@ -97,7 +96,7 @@
 #define IP_PROTO_DSTOPTS	60		/* IP6 destination options - RFC1883 */
 /* 61 is reserved by IANA for any host internal protocol */
 /* 61 is used by UCL's SHIM6 implementation as Next Header for SHIM6 */
-#define IP_PROTO_SHIM6		61		/* SHIM6 */
+#define IP_PROTO_SHIM6_OLD	61		/* SHIM6 */
 
 /*
  * The current Protocol Numbers list says that the IP protocol number for
@@ -127,14 +126,14 @@
 #define IP_PROTO_SUNND          77              /* SUN ND Protocol - Temporary */
 #define IP_PROTO_WBMON          78              /* Wideband Monitoring */
 #define IP_PROTO_WBEXPAK        79              /* Wideband EXPAK */
-#define IP_PROTO_EON		80		/* ISO cnlp */
+#define IP_PROTO_ISOIP          80              /* ISO IP */
 #define IP_PROTO_VMTP           81
 #define IP_PROTO_SVMTP          82              /* Secure VMTP */
 #define IP_PROTO_VINES		83		/* Vines over raw IP */
 #define IP_PROTO_TTP            84
 #define IP_PROTO_NSFNETIGP      85              /* NSFNET IGP */
 #define IP_PROTO_DGP            86              /* Dissimilar Gateway Protocol */
-#define IP_PROTO_TCF            87        
+#define IP_PROTO_TCF            87
 #define IP_PROTO_EIGRP		88
 #define IP_PROTO_OSPF		89              /* OSPF Interior Gateway Protocol - RFC1583 */
 #define IP_PROTO_SPRITE         90              /* SPRITE RPC protocol */
@@ -185,6 +184,9 @@
 #define IP_PROTO_MIPV6          135             /* Mobile IPv6  */
 #define IP_PROTO_UDPLITE        136             /* Lightweight user datagram protocol - RFC3828 */
 #define IP_PROTO_MPLS_IN_IP     137             /* MPLS in IP - RFC4023 */
+#define IP_PROTO_MANET          138             /* MANET Protocols */
+#define IP_PROTO_HIP            139             /* Host Identity Protocol */
+#define IP_PROTO_SHIM6          140             /* Shim6 Protocol */
 #define IP_PROTO_AX4000		173		/* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224             /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 

@@ -1,5 +1,5 @@
 /* ipproto.c
- * Routines for converting IPv4 protocol/v6 nxthdr field into string
+ * Routines for converting IPv4 protocol/IPv6 nxthdr field into string
  *
  * $Id$
  *
@@ -79,9 +79,6 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_BULK,    "Bulk Data" },
     { IP_PROTO_MFE_NSP, "MFE NSP" },
     { IP_PROTO_MERIT,   "Merit Internodal" },
-#if 0
-    { IP_PROTO_SEP,     "Sequential Exchange" },
-#endif
     { IP_PROTO_DCCP,    "Datagram Congestion Control Protocol" },
     { IP_PROTO_3PC,     "3rd Party Connect" },
     { IP_PROTO_IDPR,    "Interdomain routing" },
@@ -97,7 +94,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IDRP,    "IDRP" },
     { IP_PROTO_RSVP,	"RSVP" },
     { IP_PROTO_GRE,	"GRE" },
-    { IP_PROTO_MHRP,    "MHRP" },
+    { IP_PROTO_DSR,     "Dynamic source routing" },
     { IP_PROTO_BNA,     "BNA" },
     { IP_PROTO_ESP,	"ESP" },
     { IP_PROTO_AH,	"AH" },
@@ -109,7 +106,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_ICMPV6,	"ICMPv6" },
     { IP_PROTO_NONE,	"IPv6 no next header" },
     { IP_PROTO_DSTOPTS,	"IPv6 destination option" },
-    { IP_PROTO_SHIM6,	"SHIM6 header" },
+    { IP_PROTO_SHIM6_OLD, "SHIM6 header" },
     { IP_PROTO_MIPV6_OLD, "Mobile IPv6 (old)" },
     { IP_PROTO_SATEXPAK,"SATNET EXPAK" },
     { IP_PROTO_KRYPTOLAN, "Kryptolan" },
@@ -126,7 +123,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_SUNND,   "Sun ND Protocol" },
     { IP_PROTO_WBMON,   "Wideband Mon" },
     { IP_PROTO_WBEXPAK, "Wideband Expak" },
-    { IP_PROTO_EON,	"EON" },
+    { IP_PROTO_ISOIP,   "ISO Internet Protocol" },
     { IP_PROTO_VMTP,    "VMTP" },
     { IP_PROTO_SVMTP,   "Secure VMTP" },
     { IP_PROTO_VINES,	"VINES" },
@@ -182,6 +179,9 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_MIPV6,	"Mobile IPv6" },
     { IP_PROTO_UDPLITE, "UDPlite" },
     { IP_PROTO_MPLS_IN_IP, "MPLS in IP" },
+    { IP_PROTO_MANET,   "MANET" },
+    { IP_PROTO_HIP,     "HIP" },
+    { IP_PROTO_SHIM6,   "Shim6 header" },
     { IP_PROTO_AX4000,	"AX/4000 Testframe" },
     { IP_PROTO_NCS_HEARTBEAT,"Novell NCS Heartbeat" },
     { 0,		NULL },
