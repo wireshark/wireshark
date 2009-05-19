@@ -1,569 +1,335 @@
 ------------------------------------------------------------------------
-r27386 | gerald | 2009-02-06 10:30:49 -0800 (Fri, 06 Feb 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/NEWS
-
-Update the ChangeLog and NEWS.
-
-------------------------------------------------------------------------
-r27387 | gerald | 2009-02-06 11:18:18 -0800 (Fri, 06 Feb 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/NEWS
-   M /trunk-1.0/docbook/release-notes.xml
-
-Add attributions for the HOME and NetScreen vulnerabilities.
-
-------------------------------------------------------------------------
-r27394 | gerald | 2009-02-08 08:04:52 -0800 (Sun, 08 Feb 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-02-08]
-------------------------------------------------------------------------
-r27454 | gerald | 2009-02-15 08:04:33 -0800 (Sun, 15 Feb 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-02-15]
-------------------------------------------------------------------------
-r27511 | gerald | 2009-02-22 08:03:51 -0800 (Sun, 22 Feb 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-02-22]
-------------------------------------------------------------------------
-r27573 | gerald | 2009-03-01 08:04:05 -0800 (Sun, 01 Mar 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-03-01]
-------------------------------------------------------------------------
-r27658 | gerald | 2009-03-08 08:04:09 -0700 (Sun, 08 Mar 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-03-08]
-------------------------------------------------------------------------
-r27725 | gerald | 2009-03-15 08:05:32 -0700 (Sun, 15 Mar 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-03-15]
-------------------------------------------------------------------------
-r27817 | gerald | 2009-03-22 08:03:40 -0700 (Sun, 22 Mar 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-03-22]
-------------------------------------------------------------------------
-r27884 | gerald | 2009-03-29 08:03:58 -0700 (Sun, 29 Mar 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf update for 2009-03-29]
-------------------------------------------------------------------------
-r27926 | gerald | 2009-04-01 15:09:53 -0700 (Wed, 01 Apr 2009) | 33 lines
-Changed paths:
-   M /trunk-1.0/asn1/ros/packet-ros-template.c
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-ros.c
-   M /trunk-1.0/epan/dissectors/packet-ros.h
-   M /trunk-1.0/epan/dissectors/packet-rsvp.c
-   M /trunk-1.0/epan/dissectors/packet-vines.c
-   M /trunk-1.0/epan/dissectors/packet-x25.c
-   M /trunk-1.0/plugins/asn1/packet-asn1.c
-   M /trunk-1.0/plugins/ethercat/packet-ecatmb.c
-   M /trunk-1.0/plugins/ethercat/packet-ethercat-datagram.c
-   M /trunk-1.0/plugins/ethercat/packet-nv.c
-   M /trunk-1.0/plugins/irda/packet-ircomm.c
-   M /trunk-1.0/plugins/irda/packet-irda.c
-   M /trunk-1.0/plugins/m2m/packet-m2m.c
-   M /trunk-1.0/plugins/mate/mate_util.c
-   M /trunk-1.0/plugins/opcua/opcua_simpletypes.c
-   M /trunk-1.0/plugins/profinet/packet-pn-rt.c
-   M /trunk-1.0/plugins/profinet/packet-pn.c
-   M /trunk-1.0/plugins/unistim/packet-unistim.c
-   M /trunk-1.0/plugins/v5ua/packet-v5ua.c
-   M /trunk-1.0/plugins/wimaxasncp/packet-wimaxasncp.c
-
-Back-port r26652 with manual intervention:
-
-------------------------------------------------------------------------
-r26652 | stig | 2008-10-31 10:27:51 -0700 (Fri, 31 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk/asn1/ros/packet-ros-template.c
-   M /trunk/epan/dissectors/packet-ros.c
-   M /trunk/epan/dissectors/packet-ros.h
-   M /trunk/epan/dissectors/packet-rsvp.c
-   M /trunk/epan/dissectors/packet-vines.c
-   M /trunk/epan/dissectors/packet-x25.c
-   M /trunk/plugins/asn1/packet-asn1.c
-   M /trunk/plugins/ethercat/packet-ecatmb.c
-   M /trunk/plugins/ethercat/packet-ethercat-datagram.c
-   M /trunk/plugins/ethercat/packet-nv.c
-   M /trunk/plugins/irda/packet-ircomm.c
-   M /trunk/plugins/irda/packet-irda.c
-   M /trunk/plugins/m2m/packet-m2m.c
-   M /trunk/plugins/mate/mate_util.c
-   M /trunk/plugins/opcua/opcua_simpletypes.c
-   M /trunk/plugins/profinet/packet-pn-rt.c
-   M /trunk/plugins/profinet/packet-pn.c
-   M /trunk/plugins/sercosiii/packet-sercosiii_1v1_at.c
-   M /trunk/plugins/unistim/packet-unistim.c
-   M /trunk/plugins/v5ua/packet-v5ua.c
-   M /trunk/plugins/wimaxasncp/packet-wimaxasncp.c
-
-Fix some "format not a string literal and no format arguments" warnings.
-
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r27927 | gerald | 2009-04-01 15:50:12 -0700 (Wed, 01 Apr 2009) | 2 lines
+r28015 | gerald | 2009-04-08 22:35:47 -0700 (Wed, 08 Apr 2009) | 2 lines
 Changed paths:
    M /trunk-1.0/config.nmake
    M /trunk-1.0/configure.in
    M /trunk-1.0/debian/changelog
    M /trunk-1.0/version.conf
 
-Set the proper version info.
+Move to 1.0.8pre
 
 ------------------------------------------------------------------------
-r27934 | gerald | 2009-04-02 10:34:30 -0700 (Thu, 02 Apr 2009) | 93 lines
+r28025 | gerald | 2009-04-09 08:47:51 -0700 (Thu, 09 Apr 2009) | 2 lines
 Changed paths:
-   M /trunk-1.0/asn1/ansi_map/packet-ansi_map-template.c
-   M /trunk-1.0/asn1/gsmmap/packet-gsmmap-template.c
-   M /trunk-1.0/asn1/snmp/packet-snmp-template.c
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/column-utils.c
-   M /trunk-1.0/epan/column.c
-   M /trunk-1.0/epan/dissectors/packet-acn.c
-   M /trunk-1.0/epan/dissectors/packet-ansi_map.c
-   M /trunk-1.0/epan/dissectors/packet-cpha.c
-   M /trunk-1.0/epan/dissectors/packet-gsm_map.c
-   M /trunk-1.0/epan/dissectors/packet-gsm_map.h
-   M /trunk-1.0/epan/dissectors/packet-ipvs-syncd.c
-   M /trunk-1.0/epan/dissectors/packet-snmp.c
-   M /trunk-1.0/epan/uat.c
-   M /trunk-1.0/file.c
-   M /trunk-1.0/gtk/menu.c
-   M /trunk-1.0/tap-rtp-common.c
 
-Copy over revisions from the trunk:
+Reset the release notes.
 
 ------------------------------------------------------------------------
-r26827 | stig | 2008-11-23 06:28:36 -0800 (Sun, 23 Nov 2008) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-acn.c
-
-From Bill Florac (bug 3048):
-Calling proto_tree_add_int_format() with a unsigned value can cause dissection
-failure. Correctly switched to proto_tree_add_uint_format().
-------------------------------------------------------------------------
-r27083 | wmeier | 2008-12-22 06:03:00 -0800 (Mon, 22 Dec 2008) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-cpha.c
-
-Best guess fix for missing initializer in array of string pointers;
-Issue reported by Chris Maynard in Bug #2813.
-------------------------------------------------------------------------
-r27379 | etxrab | 2009-02-05 10:09:00 -0800 (Thu, 05 Feb 2009) | 3 lines
-Changed paths:
-   M /trunk/asn1/ansi_map/packet-ansi_map-template.c
-   M /trunk/epan/dissectors/packet-ansi_map.c
-
-From   Michael Lum:
-ANSI MAP digits type decode and bitmask corrections
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3233
-------------------------------------------------------------------------
-r27383 | etxrab | 2009-02-05 13:26:40 -0800 (Thu, 05 Feb 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ipvs-syncd.c
-
-From Sven Wegener:
-- The size element has been in network byte order since october 2004.
-- Someone mixed up the TCP and UDP protocol numbers.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3236
-------------------------------------------------------------------------
-r27424 | stig | 2009-02-11 03:04:30 -0800 (Wed, 11 Feb 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/uat.c
-
-The uat files can be saved before any other preferences, so try creating
-the personal configuration directory if saving the uat file fails.
-------------------------------------------------------------------------
-
-
-Copy over the following revisions with manual intervention:
-
-------------------------------------------------------------------------
-r25043 | lego | 2008-04-15 05:12:20 -0700 (Tue, 15 Apr 2008) | 3 lines
-Changed paths:
-   M /trunk/asn1/snmp/packet-snmp-template.c
-   M /trunk/epan/dissectors/packet-snmp.c
-
-It is useless in a Protocol Analyzer to avoid the user to have a password shorter than 8 chars.
-------------------------------------------------------------------------
-r26802 | rbalint | 2008-11-18 05:39:26 -0800 (Tue, 18 Nov 2008) | 3 lines
-Changed paths:
-   M /trunk/tap-rtp-common.c
-
-Fix determining clock rate for dynamic payload types.
-This fixes bug 3067.
-------------------------------------------------------------------------
-r26808 | rbalint | 2008-11-18 09:09:11 -0800 (Tue, 18 Nov 2008) | 2 lines
-Changed paths:
-   M /trunk/tap-rtp-common.c
-
-Fix alphabetical order of dynamic payload type mime types.
-------------------------------------------------------------------------
-r27311 | etxrab | 2009-01-27 12:25:28 -0800 (Tue, 27 Jan 2009) | 1 line
-Changed paths:
-   M /trunk/asn1/gsmmap/packet-gsmmap-template.c
-   M /trunk/epan/dissectors/packet-gsm_map.c
-
-Handle V3 SendRoutingInfoRes where the tag[3] is missing.
-------------------------------------------------------------------------
-r27396 | jake | 2009-02-08 23:10:46 -0800 (Sun, 08 Feb 2009) | 7 lines
-Changed paths:
-   M /trunk/epan/column-utils.c
-   M /trunk/epan/column.c
-   M /trunk/file.c
-   M /trunk/gtk/main_menu.c
-
-Make "Copy as Filter" on the packet list actually work.
-Up till now every packet in the packet list got a copy of the pointer to the filter expressions for
-the last packets' columns. Hence any 'Copy as Filter" on a column got the expression of the last
-packet in the packet list. Instead every packet needs to get a pointer to the filter expressions
-for its own columns. This requires making a copy of the filter expressions themselves.
-
-Since this is a bug in 1.0 as well the GLIB1 code is provided for backporting, which can later be dropped from the development tree.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r27935 | gerald | 2009-04-02 10:50:48 -0700 (Thu, 02 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-
-Update enterprise numbers.
-
-------------------------------------------------------------------------
-r27936 | gerald | 2009-04-02 11:32:48 -0700 (Thu, 02 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/uat.c
-
-ws_fopen -> eth_fopen.
-
-------------------------------------------------------------------------
-r27961 | gerald | 2009-04-05 08:04:51 -0700 (Sun, 05 Apr 2009) | 1 line
+r28036 | gerald | 2009-04-12 08:04:18 -0700 (Sun, 12 Apr 2009) | 1 line
 Changed paths:
    M /trunk-1.0/epan/enterprise-numbers
    M /trunk-1.0/manuf
 
-[Automatic manuf and enterprise-numbers update for 2009-04-05]
+[Automatic manuf and enterprise-numbers update for 2009-04-12]
 ------------------------------------------------------------------------
-r27973 | gerald | 2009-04-06 11:00:15 -0700 (Mon, 06 Apr 2009) | 114 lines
+r28087 | gerald | 2009-04-19 08:04:30 -0700 (Sun, 19 Apr 2009) | 1 line
 Changed paths:
-   M /trunk-1.0/asn1/ansi_map/ansi_map.asn
-   M /trunk-1.0/asn1/ldap/ldap.cnf
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-04-19]
+------------------------------------------------------------------------
+r28158 | gerald | 2009-04-26 10:12:04 -0700 (Sun, 26 Apr 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-04-26]
+------------------------------------------------------------------------
+r28260 | gerald | 2009-05-03 08:04:13 -0700 (Sun, 03 May 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-05-03]
+------------------------------------------------------------------------
+r28324 | gerald | 2009-05-10 08:05:07 -0700 (Sun, 10 May 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-05-10]
+------------------------------------------------------------------------
+r28382 | gerald | 2009-05-17 08:04:32 -0700 (Sun, 17 May 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-05-17]
+------------------------------------------------------------------------
+r28404 | gerald | 2009-05-18 15:51:53 -0700 (Mon, 18 May 2009) | 84 lines
+Changed paths:
+   M /trunk-1.0/doc/tshark.pod
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-ansi_map.c
-   M /trunk-1.0/epan/dissectors/packet-bacapp.c
-   M /trunk-1.0/epan/dissectors/packet-bgp.c
-   M /trunk-1.0/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.0/epan/dissectors/packet-pcnfsd.c
+   M /trunk-1.0/epan/dissectors/packet-rpc.c
+   M /trunk-1.0/epan/dissectors/packet-rpc.h
+   M /trunk-1.0/epan/dissectors/packet-rtcp.c
+   M /trunk-1.0/epan/dissectors/packet-s5066.c
+   M /trunk-1.0/epan/dissectors/packet-sccp.c
+   M /trunk-1.0/epan/dissectors/packet-ssl.c
+   M /trunk-1.0/epan/dissectors/packet-user_encap.c
+   M /trunk-1.0/epan/uat.h
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r27663 | stig | 2009-03-08 15:31:28 -0700 (Sun, 08 Mar 2009) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-user_encap.c
+   M /trunk/epan/uat.h
+
+Don't use ep_strndup() to copy the uat protocol name, because the value
+can be free'ed before we use it.  Allocate the string like we do for
+other strings and copy/free the memory in the appropriate copy_cb/free_cb
+functions.  This is only used in the DLT_USER table yet.
+------------------------------------------------------------------------
+r27714 | stig | 2009-03-12 15:06:59 -0700 (Thu, 12 Mar 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-s5066.c
+
+From Menno Andriesse:
+Check for correct tx_mode in dissect_s5066_21() and dissect_s5066_25().
+------------------------------------------------------------------------
+r28031 | guy | 2009-04-10 20:56:14 -0700 (Fri, 10 Apr 2009) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rtcp.c
+
+Get the offset of the padding count correct (it has nothing to do with
+the amount of captured packet data, so calculating it must not involve
+tvb_length_remaining()), and, when processing the padding, count the
+padding count octet in the offset, so that the length check is correct.
+------------------------------------------------------------------------
+r28046 | sake | 2009-04-14 09:38:08 -0700 (Tue, 14 Apr 2009) | 8 lines
+Changed paths:
+   M /trunk/doc/tshark.pod
+
+Add a note for -z io,stat,<interval>,<filter>,<filter>,... to use "." as 
+a decimal separator, as the "," will make the command fail.
+
+(of course it would be nice to have this fixed, but for now, it at least
+informs the user how to work around the issue)
+------------------------------------------------------------------------
+r28058 | wmeier | 2009-04-15 13:01:45 -0700 (Wed, 15 Apr 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-sccp.c
+
+packet_sccp.c: Init an uninit'd variable which was the cause of intermittent crashes.
+ Fixes Bug #3409 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3409)
+------------------------------------------------------------------------
+r28088 | sake | 2009-04-19 13:28:18 -0700 (Sun, 19 Apr 2009) | 8 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ssl.c
+
+When a frame contains the remainder of a previous PDU and a new PDU, the 
+protocol tree would show two "Secure Socket Layer" branches and the INFO
+column would fail to show the content type of the second PDU. Don't give
+control back to TCP for the second PDU by just fetching the remaining bytes
+of the first PDU, but ask for a whole new segment so that all processing
+will be done within the SSL dissector itself.
+------------------------------------------------------------------------
+
+
+Copy over revisions by hand:
+
+------------------------------------------------------------------------
+r28397 | gerald | 2009-05-18 13:30:55 -0700 (Mon, 18 May 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-sccp.c
+
+Use se_alloc0 and ep_alloc0.
+------------------------------------------------------------------------
+r28128 | gerald | 2009-04-22 10:42:47 -0700 (Wed, 22 Apr 2009) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-pcnfsd.c
+   M /trunk/epan/dissectors/packet-rpc.c
+   M /trunk/epan/dissectors/packet-rpc.h
+
+From Mark Cave-Ayland: Fix a crash in the PCNFSD dissector.
+
+From me: Apply Mark's fix to the ident string. Add public #defines for
+the special strings that dissect_rpc_* might return and use them in
+PCNFSD.  Replace a manual buffer allocation with ep_strdup_printf.
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r28405 | gerald | 2009-05-18 16:55:55 -0700 (Mon, 18 May 2009) | 47 lines
+Changed paths:
+   M /trunk-1.0/asn1/mpeg-pes/Makefile.nmake
+   M /trunk-1.0/asn1/mpeg-pes/packet-mpeg-pes-template.c
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-acp133.c
+   M /trunk-1.0/epan/dissectors/packet-acp133.h
+   M /trunk-1.0/epan/dissectors/packet-acse.c
+   M /trunk-1.0/epan/dissectors/packet-acse.h
+   M /trunk-1.0/epan/dissectors/packet-ansi_tcap.c
+   M /trunk-1.0/epan/dissectors/packet-camel.c
+   M /trunk-1.0/epan/dissectors/packet-camel.h
+   M /trunk-1.0/epan/dissectors/packet-cdt.c
+   M /trunk-1.0/epan/dissectors/packet-cdt.h
+   M /trunk-1.0/epan/dissectors/packet-cmip.c
+   M /trunk-1.0/epan/dissectors/packet-cmip.h
+   M /trunk-1.0/epan/dissectors/packet-cmp.c
+   M /trunk-1.0/epan/dissectors/packet-cmp.h
+   M /trunk-1.0/epan/dissectors/packet-cms.c
+   M /trunk-1.0/epan/dissectors/packet-cms.h
+   M /trunk-1.0/epan/dissectors/packet-crmf.c
+   M /trunk-1.0/epan/dissectors/packet-crmf.h
+   M /trunk-1.0/epan/dissectors/packet-dap.c
+   M /trunk-1.0/epan/dissectors/packet-dap.h
+   M /trunk-1.0/epan/dissectors/packet-disp.c
+   M /trunk-1.0/epan/dissectors/packet-disp.h
+   M /trunk-1.0/epan/dissectors/packet-dop.c
+   M /trunk-1.0/epan/dissectors/packet-dop.h
+   M /trunk-1.0/epan/dissectors/packet-dsp.c
+   M /trunk-1.0/epan/dissectors/packet-dsp.h
+   M /trunk-1.0/epan/dissectors/packet-ess.c
+   M /trunk-1.0/epan/dissectors/packet-ess.h
+   M /trunk-1.0/epan/dissectors/packet-ftam.c
+   M /trunk-1.0/epan/dissectors/packet-ftam.h
+   M /trunk-1.0/epan/dissectors/packet-gnm.c
+   M /trunk-1.0/epan/dissectors/packet-gnm.h
+   M /trunk-1.0/epan/dissectors/packet-gsm_map.c
+   M /trunk-1.0/epan/dissectors/packet-h225.c
+   M /trunk-1.0/epan/dissectors/packet-h225.h
+   M /trunk-1.0/epan/dissectors/packet-h235.c
+   M /trunk-1.0/epan/dissectors/packet-h235.h
+   M /trunk-1.0/epan/dissectors/packet-h245.c
+   M /trunk-1.0/epan/dissectors/packet-h248.c
+   M /trunk-1.0/epan/dissectors/packet-h248.h
+   M /trunk-1.0/epan/dissectors/packet-h282.c
+   M /trunk-1.0/epan/dissectors/packet-h283.c
+   M /trunk-1.0/epan/dissectors/packet-h323.c
+   M /trunk-1.0/epan/dissectors/packet-h323.h
+   M /trunk-1.0/epan/dissectors/packet-h450.c
+   M /trunk-1.0/epan/dissectors/packet-h460.c
+   M /trunk-1.0/epan/dissectors/packet-h501.c
+   M /trunk-1.0/epan/dissectors/packet-inap.c
+   M /trunk-1.0/epan/dissectors/packet-inap.h
    M /trunk-1.0/epan/dissectors/packet-ldap.c
-   M /trunk-1.0/epan/libwireshark.def
-   M /trunk-1.0/epan/strutil.c
-   M /trunk-1.0/epan/strutil.h
-   M /trunk-1.0/epan/uat.c
-   M /trunk-1.0/packaging/nsis/wireshark.nsi
-   M /trunk-1.0/plugins/asn1/packet-asn1.c
-   M /trunk-1.0/tshark.c
+   M /trunk-1.0/epan/dissectors/packet-ldap.h
+   M /trunk-1.0/epan/dissectors/packet-logotypecertextn.c
+   M /trunk-1.0/epan/dissectors/packet-logotypecertextn.h
+   M /trunk-1.0/epan/dissectors/packet-mms.c
+   M /trunk-1.0/epan/dissectors/packet-mms.h
+   M /trunk-1.0/epan/dissectors/packet-mpeg-audio.c
+   M /trunk-1.0/epan/dissectors/packet-mpeg-pes.c
+   M /trunk-1.0/epan/dissectors/packet-nbap.c
+   M /trunk-1.0/epan/dissectors/packet-ns_cert_exts.c
+   M /trunk-1.0/epan/dissectors/packet-ocsp.c
+   M /trunk-1.0/epan/dissectors/packet-ocsp.h
+   M /trunk-1.0/epan/dissectors/packet-pcap.c
+   M /trunk-1.0/epan/dissectors/packet-pkcs1.c
+   M /trunk-1.0/epan/dissectors/packet-pkcs1.h
+   M /trunk-1.0/epan/dissectors/packet-pkcs12.c
+   M /trunk-1.0/epan/dissectors/packet-pkinit.c
+   M /trunk-1.0/epan/dissectors/packet-pkinit.h
+   M /trunk-1.0/epan/dissectors/packet-pkix1explicit.c
+   M /trunk-1.0/epan/dissectors/packet-pkix1implicit.c
+   M /trunk-1.0/epan/dissectors/packet-pkix1implicit.h
+   M /trunk-1.0/epan/dissectors/packet-pkixproxy.c
+   M /trunk-1.0/epan/dissectors/packet-pkixproxy.h
+   M /trunk-1.0/epan/dissectors/packet-pkixqualified.c
+   M /trunk-1.0/epan/dissectors/packet-pkixqualified.h
+   M /trunk-1.0/epan/dissectors/packet-pkixtsp.c
+   M /trunk-1.0/epan/dissectors/packet-pkixtsp.h
+   M /trunk-1.0/epan/dissectors/packet-pres.c
+   M /trunk-1.0/epan/dissectors/packet-pres.h
+   M /trunk-1.0/epan/dissectors/packet-q932.c
+   M /trunk-1.0/epan/dissectors/packet-q932.h
+   M /trunk-1.0/epan/dissectors/packet-qsig.c
+   M /trunk-1.0/epan/dissectors/packet-qsig.h
+   M /trunk-1.0/epan/dissectors/packet-ranap.c
+   M /trunk-1.0/epan/dissectors/packet-ranap.h
+   M /trunk-1.0/epan/dissectors/packet-rnsap.c
+   M /trunk-1.0/epan/dissectors/packet-ros.c
+   M /trunk-1.0/epan/dissectors/packet-rrc.c
+   M /trunk-1.0/epan/dissectors/packet-rrlp.c
+   M /trunk-1.0/epan/dissectors/packet-s1ap.c
+   M /trunk-1.0/epan/dissectors/packet-s4406.c
+   M /trunk-1.0/epan/dissectors/packet-s4406.h
+   M /trunk-1.0/epan/dissectors/packet-sabp.c
+   M /trunk-1.0/epan/dissectors/packet-smrse.c
+   M /trunk-1.0/epan/dissectors/packet-smrse.h
+   M /trunk-1.0/epan/dissectors/packet-spnego.c
+   M /trunk-1.0/epan/dissectors/packet-spnego.h
+   M /trunk-1.0/epan/dissectors/packet-t125.c
+   M /trunk-1.0/epan/dissectors/packet-t125.h
+   M /trunk-1.0/epan/dissectors/packet-t38.c
+   M /trunk-1.0/epan/dissectors/packet-tcap.c
+   M /trunk-1.0/epan/dissectors/packet-ulp.c
+   M /trunk-1.0/epan/dissectors/packet-wlancertextn.c
+   M /trunk-1.0/epan/dissectors/packet-wlancertextn.h
+   M /trunk-1.0/epan/dissectors/packet-x2ap.c
+   M /trunk-1.0/epan/dissectors/packet-x411.c
+   M /trunk-1.0/epan/dissectors/packet-x411.h
+   M /trunk-1.0/epan/dissectors/packet-x420.c
+   M /trunk-1.0/epan/dissectors/packet-x420.h
+   M /trunk-1.0/epan/dissectors/packet-x509af.c
+   M /trunk-1.0/epan/dissectors/packet-x509af.h
+   M /trunk-1.0/epan/dissectors/packet-x509ce.c
+   M /trunk-1.0/epan/dissectors/packet-x509ce.h
+   M /trunk-1.0/epan/dissectors/packet-x509if.c
+   M /trunk-1.0/epan/dissectors/packet-x509if.h
+   M /trunk-1.0/epan/dissectors/packet-x509sat.c
+   M /trunk-1.0/epan/wslua/init_wslua.c
+   M /trunk-1.0/gtk/rtp_player.c
 
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r27424 | stig | 2009-02-11 03:04:30 -0800 (Wed, 11 Feb 2009) | 3 lines
+r28325 | stig | 2009-05-10 08:56:57 -0700 (Sun, 10 May 2009) | 6 lines
 Changed paths:
-   M /trunk/epan/uat.c
+   M /trunk/epan/wslua/init_wslua.c
 
-The uat files can be saved before any other preferences, so try creating
-the personal configuration directory if saving the uat file fails.
+Postpone marking objects as expired until the whole frame is completed.
+We can have a case where one Lua dissector calls another Lua dissector,
+so we can't mark all objects when only one dissector is completed.
+
+This fixes comment #37 and #39 in bug 2453.
 ------------------------------------------------------------------------
-r27469 | etxrab | 2009-02-16 21:54:04 -0800 (Mon, 16 Feb 2009) | 3 lines
+r28358 | jake | 2009-05-13 23:26:16 -0700 (Wed, 13 May 2009) | 1 line
 Changed paths:
-   M /trunk/asn1/ansi_map/ansi_map.asn
-   M /trunk/epan/dissectors/packet-ansi_map.c
+   M /trunk/gtk/rtp_player.c
 
-From   Michael Lum:
-ANSI MAP fix for missing MEID/MSC ID number in RegNot
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3255
+Extend error reporting from PortAudio library.
 ------------------------------------------------------------------------
-r27482 | stig | 2009-02-18 02:07:29 -0800 (Wed, 18 Feb 2009) | 2 lines
+
+
+Copy over revisions by hand:
+
+------------------------------------------------------------------------
+r28201 | etxrab | 2009-04-30 08:57:05 -0700 (Thu, 30 Apr 2009) | 4 lines
 Changed paths:
-   M /trunk/asn1/ldap/ldap.cnf
-   M /trunk/epan/dissectors/packet-ldap.c
+   M /trunk/asn1/mpeg-pes/Makefile.nmake
+   M /trunk/asn1/mpeg-pes/packet-mpeg-pes-template.c
+   M /trunk/epan/dissectors/packet-mpeg-pes.c
 
-Added one more string_or_null.
+Fix:
+"This is due to a bug in the sourcecode of the MPEG-PES dissector. It originates in r26328, which added a bugfix to the generated code with the use of 'illegal' 
+characters in the comment block.
+Currently the bugfix is dropped since it was never added to the ASN.1 dissector template, hence has been lost with the new generation of this code."
 ------------------------------------------------------------------------
-r27529 | jake | 2009-02-23 14:07:19 -0800 (Mon, 23 Feb 2009) | 2 lines
+r28333 | stig | 2009-05-12 05:03:14 -0700 (Tue, 12 May 2009) | 2 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-bgp.c
+   M /trunk/configure.in
 
-Fix for bug 3247:
-Incorrect index adjustment causes failure to dissect multiple capabilities in optional parameters.
-------------------------------------------------------------------------
-r27531 | jake | 2009-02-23 22:37:45 -0800 (Mon, 23 Feb 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ieee80211.c
-
-From Jerry Kotland:
-There's a slight error with one of the 802.11n SM Power Save labels.
-Currently, when SM Power save == 3, the label is "SM enabled".
-According to 802.11n Draft 2.07 it should be "SM Power Save disabled".
-------------------------------------------------------------------------
-r27550 | jake | 2009-02-25 21:42:55 -0800 (Wed, 25 Feb 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ieee80211.c
-
-From Didier Gautheron:
-ECWmin and ECWmax in the Beacon WME Information Element are not displayed correctly.
-They appear as equal each to the other. It should be: byte2 & 0x0f, (byte2 & 0xf0) >> 4.
-------------------------------------------------------------------------
-r27624 | jake | 2009-03-06 11:25:49 -0800 (Fri, 06 Mar 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-bacapp.c
-
-From Steve Karg:
-BACnet TimeSync message of 12:20 was displayed as 12:20 AM.
-It should have displayed as 12:20 PM.
+Lua support is no plugin.
 ------------------------------------------------------------------------
 
 
-Copy over revisions with manual intervention:
-------------------------------------------------------------------------
-r27458 | wmeier | 2009-02-15 14:03:17 -0800 (Sun, 15 Feb 2009) | 3 lines
-Changed paths:
-   M /trunk/tshark.c
-
-For tshark -b -S -w: close files after reading them; fixes bug #3172;
-Also: Do a bit of cleanup on related code.
-------------------------------------------------------------------------
-r27470 | etxrab | 2009-02-16 21:56:12 -0800 (Mon, 16 Feb 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-bacapp.c
-
-From Steve Karg:
-BACnet PrivateTransferError shows malformed packet.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3257
-------------------------------------------------------------------------
-r27478 | gerald | 2009-02-17 15:15:35 -0800 (Tue, 17 Feb 2009) | 4 lines
-Changed paths:
-   M /trunk/asn1/ldap/ldap.cnf
-   M /trunk/epan/dissectors/packet-ldap.c
-   M /trunk/epan/libwireshark.def
-   M /trunk/epan/strutil.c
-   M /trunk/epan/strutil.h
-
-Add a string utility function "string_or_null" which can be used to
-guarantee a non-null string value. Use it in the LDAP dissector. Fixes
-the crash on Windows (and other platforms) reported in bug 3262.
-------------------------------------------------------------------------
-r27484 | gerald | 2009-02-18 12:27:16 -0800 (Wed, 18 Feb 2009) | 8 lines
-Changed paths:
-   M /trunk/packaging/nsis/wireshark.nsi
-
-Make the dialog that confirms uninstalling the previous version of
-Wireshark default to "yes" for silent installs. Add silent default
-actions for other dialogs. Don't do so for error messages, since we
-probably want the user to see those no matter what. Fixes bug 3260.
-
-Switch back to using the uninstaller icon (which got clobbered 2 weeks
-after it was introduced in 2007).
-------------------------------------------------------------------------
-r27507 | jake | 2009-02-22 04:22:28 -0800 (Sun, 22 Feb 2009) | 5 lines
-Changed paths:
-   M /trunk/plugins/asn1/packet-asn1.c
-
-From Robert Groenenberg:
-As of version 0.99.8, there has been an annoying problem in the ASN.1 dissector:
-when using a 'type table' which discribes the ASN.1 syntax of the traced packets,
-wireshark would crash on the very first packet. The cause for the crash is an out-of-
-boundry write, detected by g_free().
-------------------------------------------------------------------------
+Regenerate all of the ASN.1 dissectors except for p7 (which wouldn't compile).
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r27975 | gerald | 2009-04-06 11:56:49 -0700 (Mon, 06 Apr 2009) | 112 lines
+r28411 | jake | 2009-05-19 10:01:22 -0700 (Tue, 19 May 2009) | 1 line
 Changed paths:
-   M /trunk-1.0/AUTHORS
-   M /trunk-1.0/asn1/ansi_map/ansi_map.asn
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-ansi_map.c
-   M /trunk-1.0/epan/dissectors/packet-netflow.c
-   M /trunk-1.0/epan/plugins.c
-   M /trunk-1.0/gtk/win32-file-dlg.c
-   M /trunk-1.0/wiretap/file_util.c
-   M /trunk-1.0/wiretap/k12.c
+   M /trunk-1.0/epan/dissectors/packet-dcm.c
 
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r27682 | gerald | 2009-03-09 13:52:24 -0700 (Mon, 09 Mar 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-netflow.c
-
-Make sure our offset increases, otherwise we'll go into a large loop.
-------------------------------------------------------------------------
-r27691 | jake | 2009-03-10 23:03:31 -0700 (Tue, 10 Mar 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/plugins.c
-
-From Jakub Zawadzki:
-Fix small memory leak when running from build directory.
-------------------------------------------------------------------------
-r27831 | etxrab | 2009-03-23 10:30:38 -0700 (Mon, 23 Mar 2009) | 2 lines
-Changed paths:
-   M /trunk/asn1/ansi_map/ansi_map.asn
-   M /trunk/epan/dissectors/packet-ansi_map.c
-
-Fix: The AuthDir invoke is missing optional tags for a couple of parameters.
-and FeatReq invoke fixes.
-------------------------------------------------------------------------
-r27836 | etxrab | 2009-03-23 14:24:04 -0700 (Mon, 23 Mar 2009) | 3 lines
-Changed paths:
-   M /trunk/asn1/ansi_map/ansi_map.asn
-   M /trunk/epan/dissectors/packet-ansi_map.c
-
-From Michael Lum:
-ANSI MAP FeatureRequest update
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3349
-------------------------------------------------------------------------
-r27858 | etxrab | 2009-03-26 23:59:15 -0700 (Thu, 26 Mar 2009) | 1 line
-Changed paths:
-   M /trunk/asn1/ansi_map/ansi_map.asn
-   M /trunk/epan/dissectors/packet-ansi_map.c
-
-In informationDirective use MSID instead of mobileIdentificationNumber.
-------------------------------------------------------------------------
-r27923 | etxrab | 2009-04-01 09:21:00 -0700 (Wed, 01 Apr 2009) | 11 lines
-Changed paths:
-   M /trunk/asn1/ansi_map/ansi_map.asn
-   M /trunk/epan/dissectors/packet-ansi_map.c
-
-According to the section 2.4 of the spec.
-
-http://www.3gpp2.org/Public_html/specs/X.S0004-540-E_v2.0_070723.pdf
-
-mandatory parameters for the message Authentication Failure Report.
-
-1. Electronic serial number
-2. MSID(i.e MIN/IMSI)
-3.Report Type
-4.System Access Type
-5.System Capabilities(Serving)
-------------------------------------------------------------------------
-r27902 | jake | 2009-03-30 13:05:42 -0700 (Mon, 30 Mar 2009) | 2 lines
-Changed paths:
-   M /trunk/AUTHORS
-
-Change of metatech email address.
-------------------------------------------------------------------------
-r27918 | gerald | 2009-03-31 15:51:59 -0700 (Tue, 31 Mar 2009) | 4 lines
-Changed paths:
-   M /trunk/wiretap/k12.c
-
-Add a check to make sure we don't try to allocate a huge buffer. If
-we get an improper buffer length, throw an error instead of
-aborting. Clean up the debugging code.
-------------------------------------------------------------------------
-
-
-Copy over revisions with manual intervention:
-
-------------------------------------------------------------------------
-r27661 | wmeier | 2009-03-08 15:12:13 -0700 (Sun, 08 Mar 2009) | 11 lines
-Changed paths:
-   M /trunk/wsutil/file_util.c
-
-Fix ws_stdio_unlink so it works properly on WIndows for all Unicode filenames.
-- Essentially: ws_stdio_unlink would fail trying to delete
-   any path\filename containing a Unicode character which could not be mapped
-   to the "system codepage" (ie: to a character encoded with a value of 1-255).
-   For example: ws_stdio_unlink was not able to delete a path\filename
-   containing the character U+210B.
-- The problem: A copy/paste of the wrong (non-Windows) portion of the GLib
-  g_unlink code was done when file_util.c was created.
-- The solution: replace the ws_stdio_unlink code with the correct code
-   copied from the Glib g_unlink function.
-------------------------------------------------------------------------
-r27662 | wmeier | 2009-03-08 15:19:49 -0700 (Sun, 08 Mar 2009) | 3 lines
-Changed paths:
-   M /trunk/gtk/file_dlg_win32.c
-
-Fix File ! Save As on Windows to properly delete an existing file even if the
- path\filename contains non-ascii characters.
-------------------------------------------------------------------------
-r27674 | wmeier | 2009-03-09 06:59:41 -0700 (Mon, 09 Mar 2009) | 8 lines
-Changed paths:
-   M /trunk/gtk/file_dlg_win32.c
-
- Fix File ! Export ! Selected Bytes [Windows] crash which
-  occurred if the file  path\filename contained non-ascii characters.
-  1. Use ws_open() [not open()] so UTF8 path\filenames properly
-     converted to UTF16 before the open;
-  2. If the open/write/close failed, fix crash due to NULL
-     filename pointer used when trying to popup an error message box.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r27979 | jake | 2009-04-06 13:58:10 -0700 (Mon, 06 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/debian/changelog
-
-Update timestamp.
-
-------------------------------------------------------------------------
-r27987 | gerald | 2009-04-07 17:03:43 -0700 (Tue, 07 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-
-Increase the severity of the .rf5 bug.
-
-------------------------------------------------------------------------
-r27988 | gerald | 2009-04-07 17:04:38 -0700 (Tue, 07 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/version.conf
-
-Build 1.0.7.
-
-------------------------------------------------------------------------
-r27989 | gerald | 2009-04-07 20:24:49 -0700 (Tue, 07 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-bacapp.c
-   M /trunk-1.0/epan/uat.c
-
-Fix compilation problems.
-
-------------------------------------------------------------------------
-r27998 | gerald | 2009-04-08 09:07:07 -0700 (Wed, 08 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-
-Add CVEs and fixes.
-
-------------------------------------------------------------------------
-r28007 | gerald | 2009-04-08 11:39:58 -0700 (Wed, 08 Apr 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/gtk/win32-file-dlg.c
-
-Use proper function names.
-
+Plug memory leak.
 ------------------------------------------------------------------------

@@ -72,6 +72,12 @@ Wireshark Info
           3409</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          The NDMP dissector could crash if reassembly was enabled.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3470">Bug
+          3470</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -96,6 +102,9 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+All ASN.1 protocols,
+DICOM,
+NDMP,
 PCNFSD,
 RTCP,
 SCCP,
