@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -143,13 +144,11 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree)){
-		proto_item *item=NULL;
-		proto_tree *next_tree=NULL;
+		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
-		if(item){
-			next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
-		}
+		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+                                        "RTSE: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 

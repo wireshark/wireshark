@@ -41,6 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -97,7 +98,7 @@ static int hf_rtse_t61String = -1;                /* T_t61String */
 static int hf_rtse_octetString = -1;              /* T_octetString */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 64 "packet-rtse-template.c"
+#line 65 "packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -114,7 +115,7 @@ static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 68 "packet-rtse-template.c"
+#line 69 "packet-rtse-template.c"
 
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
@@ -193,13 +194,11 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 	if(!dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree)){
-		proto_item *item=NULL;
-		proto_tree *next_tree=NULL;
+		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
-		if(item){
-			next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
-		}
+		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+                                        "RTSE: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
@@ -689,7 +688,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 183 "packet-rtse-template.c"
+#line 182 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -948,7 +947,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 341 "packet-rtse-template.c"
+#line 340 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -970,7 +969,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 350 "packet-rtse-template.c"
+#line 349 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;
