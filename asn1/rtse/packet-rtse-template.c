@@ -190,6 +190,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	proto_tree *next_tree=NULL;
 	tvbuff_t *next_tvb = NULL;
 	tvbuff_t *data_tvb = NULL;
 	fragment_data *frag_msg = NULL;
@@ -285,7 +286,14 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			old_offset=offset;
 			offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
 			if(offset == old_offset){
-				proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte RTSE PDU");
+				item = proto_tree_add_text(tree, tvb, offset, -1, "Unknown RTSE PDU");
+
+				if(item){
+					expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN, "Unknown RTSE PDU");
+					next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
+					dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+				}
+
 				offset = tvb_length(tvb);
 				break;
 			}
