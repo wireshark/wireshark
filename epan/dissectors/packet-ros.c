@@ -40,6 +40,7 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -116,7 +117,7 @@ static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
 
 /*--- End of included file: packet-ros-hf.c ---*/
-#line 80 "packet-ros-template.c"
+#line 81 "packet-ros-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
@@ -134,7 +135,7 @@ static gint ett_ros_InvokeId = -1;
 static gint ett_ros_Code = -1;
 
 /*--- End of included file: packet-ros-ett.c ---*/
-#line 84 "packet-ros-template.c"
+#line 85 "packet-ros-template.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 
@@ -270,13 +271,11 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
            !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
-		proto_item *item=NULL;
-		proto_tree *next_tree=NULL;
+		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
-		if(item){
-			next_tree=proto_item_add_subtree(item, ett_ros_unknown);
-		}
+		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+                                        "ROS: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
@@ -1000,7 +999,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 376 "packet-ros-template.c"
+#line 375 "packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1083,6 +1082,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			item = proto_tree_add_text(tree, tvb, offset, -1,"Unknown ROS PDU");
 
 			if(item){
+				expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN, "Unknown ROS PDU");
 				next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 			}
