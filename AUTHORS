@@ -2835,6 +2835,10 @@ Julien Kerihuel			<j.kerihuel@openchange.org> {
 	Exchange RFR dissector
 }
 
+Vincenzo Condoleo		<vcondole@hsr.ch> {
+	IP packet comparison
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
