@@ -32,7 +32,7 @@
 
 #frame ../dissectors/packet_frame.h void
 
-ip ../dissectors/packet-ip.h e_ip
+ip ../dissectors/packet-ip.h ws_ip
 udp ../dissectors/packet-udp.h e_udphdr
 http ../dissectors/packet-http.h http_info_value_t
 h225 ../dissectors/packet-h225.h h225_packet_info h225_msg_type h225_cs_type
