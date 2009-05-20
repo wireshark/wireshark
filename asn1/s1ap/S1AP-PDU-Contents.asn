@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.5.0 (2009-03)
+-- 3GPP TS 36.413 version 8.5.1 (2009-04)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -146,12 +146,13 @@ FROM S1AP-Containers
 	id-HandoverRestrictionList,
 	id-HandoverType,
 	id-InitialContextSetup,
-	id-Inter-SystemInformationTransferTypeEDT,	id-Inter-SystemInformationTransferTypeMDT,
+	id-Inter-SystemInformationTransferTypeEDT,
+	id-Inter-SystemInformationTransferTypeMDT,
 	id-NAS-DownlinkCount,
 	id-MMEname,
 	id-MME-UE-S1AP-ID,
-id-MSClassmark2,
-id-MSClassmark3,
+	id-MSClassmark2,
+	id-MSClassmark3,
 	id-NAS-PDU,
 	id-NASSecurityParametersfromE-UTRAN,
 	id-NASSecurityParameterstoE-UTRAN,
@@ -520,7 +521,7 @@ HandoverNotifyIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID			PRESENCE mandatory	} |
 	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID			PRESENCE mandatory	} |
 	{ ID id-EUTRAN-CGI				CRITICALITY ignore	TYPE EUTRAN-CGI				PRESENCE mandatory}|
-	{ ID id-TAI						CRITICALITY ignore	TYPE TAI					PRESENCE mandatory}|
+	{ ID id-TAI						CRITICALITY ignore	TYPE TAI					PRESENCE mandatory},
 	...
 }
 
@@ -1081,7 +1082,7 @@ PagingIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-pagingDRX					CRITICALITY ignore	TYPE PagingDRX			PRESENCE optional	} |
 	{ ID id-CNDomain					CRITICALITY ignore		TYPE CNDomain		PRESENCE mandatory	} |
 	{ ID id-TAIList					CRITICALITY ignore	TYPE TAIList		 	PRESENCE mandatory	}|
-	{ ID id-CSG-Id-List				CRITICALITY ignore	TYPE CSG-Id-List		PRESENCE optional },
+	{ ID id-CSG-IdList				CRITICALITY ignore	TYPE CSG-IdList		PRESENCE optional },
 	...
 }
 
@@ -1269,7 +1270,7 @@ InitialUEMessage-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI						PRESENCE mandatory} |
 	{ ID id-RRC-Establishment-Cause		CRITICALITY ignore	TYPE RRC-Establishment-Cause		PRESENCE mandatory} |
 	{ ID id-S-TMSI						CRITICALITY reject	TYPE S-TMSI							PRESENCE optional} |
-	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional}.
+	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional},
 	...
 }
 
@@ -1975,7 +1976,7 @@ ENBDirectInformationTransfer ::= SEQUENCE {
 }
 
 ENBDirectInformationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Inter-SystemInformationTransferTypeEDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType				PRESENCE mandatory}  ,
+	{ ID id-Inter-SystemInformationTransferTypeEDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType			PRESENCE mandatory}  ,
 	...
 }
 
@@ -2002,7 +2003,7 @@ MMEDirectInformationTransfer ::= SEQUENCE {
 }
 
 MMEDirectInformationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Inter-SystemInformationTransferTypeMDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType				PRESENCE mandatory}  ,
+	{ ID id-Inter-SystemInformationTransferTypeMDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType			PRESENCE mandatory}  ,
 	...
 }
 -- **************************************************************
@@ -2071,4 +2072,5 @@ PrivateMessageIEs S1AP-PRIVATE-IES ::= {
 }
 
 END
+
 

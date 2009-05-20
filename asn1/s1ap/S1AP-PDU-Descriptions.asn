@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.5.0 (2009-03)
+-- 3GPP TS 36.413 version 8.5.1 (2009-04)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -244,7 +244,7 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	deactivateTrace					|
 	traceStart						|
 	traceFailureIndication			|
-	CellTrafficTrace				|
+	cellTrafficTrace				|
 	locationReportingControl		|
 	locationReportingFailureIndication	|
 	locationReport					|

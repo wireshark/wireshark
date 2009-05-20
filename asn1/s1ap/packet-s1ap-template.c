@@ -24,7 +24,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 25.413 version 6.6.0 Release
+ * References: 3GPP TS 36.413 V8.5.0 (2009-03)
  */
 
 #ifdef HAVE_CONFIG_H

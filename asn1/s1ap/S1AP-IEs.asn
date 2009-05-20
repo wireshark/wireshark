@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.5.0 (2009-03)
+-- 3GPP TS 36.413 version 8.5.1 (2009-04)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -731,7 +731,7 @@ RIMRoutingAddress ::= CHOICE {
 	...
 }
 
-ReportArea	::= ENUMERATED {
+ReportArea ::= ENUMERATED {
 	ecgi,
 	...
 }
@@ -1182,5 +1182,6 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+
 
 
