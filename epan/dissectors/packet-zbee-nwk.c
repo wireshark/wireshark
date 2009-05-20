@@ -441,8 +441,8 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_snprintf(dst_addr, 32, "Broadcast");
     }
     else g_snprintf(dst_addr, 32, "0x%04x", packet.dst);
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
-    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
+    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
     if (tree) {
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
     }
@@ -465,8 +465,8 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_snprintf(src_addr, 32, "Broadcast");
     }
     else g_snprintf(src_addr, 32, "0x%04x", packet.src);
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
-    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
+    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
+    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
     if (tree) {
         proto_item_append_text(proto_root, ", Src: %s", src_addr);
     }
