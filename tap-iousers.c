@@ -253,7 +253,7 @@ static int
 iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	io_users_t *iu=arg;
-	const e_ip *iph=vip;
+	const ws_ip *iph=vip;
 	const address *addr1, *addr2;
 	io_users_item_t *iui;
 

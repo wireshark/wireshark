@@ -173,16 +173,13 @@ same packet, you will have to make sure that each instance of
 tap_queue_packet() is using its own instance of private struct variable
 so they don't overwrite each other.
 
-See packet-ip.c which has a simple solution to the problem. It just
-uses a static struct of 4 instances of the ip header struct and
-cycles through them each time the dissector is called.
-4 is just a number taken out of the blue but it should be enough for most
-cases.
-Of course, if someone would generate a capture with IP encapsulated
-over IP over IP over IP over IP, so that there would be more than 4 IP headers
-in the same packet, yes then this would fail.   The likelihood of this
-happening in real life is probably very low. If it turns out to be a problem
-we can just increase the cycle length when that happens.
+See packet-ip.c which has a simple solution to the problem. It creates
+a unique instance of the IP header using ep_alloc().
+Previous versions used a static struct of 4 instances of the IP header
+struct and cycled through them each time the dissector was called. (4
+was just a number taken out of the blue but it should be enough for most
+cases.) This would fail if there were more than 4 IP headers in the same
+packet, but that was unlikely.
 
 
 TIPS

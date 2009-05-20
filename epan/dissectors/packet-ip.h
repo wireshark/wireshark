@@ -26,7 +26,7 @@
 #ifndef __PACKET_IP_H__
 #define __PACKET_IP_H__
 
-typedef struct _e_ip
+typedef struct _ws_ip
     {
     guint8  ip_v_hl; /* combines ip_v and ip_hl */
     guint8  ip_tos;
@@ -38,7 +38,7 @@ typedef struct _e_ip
     guint16 ip_sum;
     address ip_src;
     address ip_dst;
-} e_ip;
+} ws_ip;
 
 void capture_ip(const guchar *, int, int, packet_counts *);
 

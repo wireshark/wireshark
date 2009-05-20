@@ -1376,23 +1376,16 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
   gboolean   save_fragmented;
-  static e_ip eip_arr[4];
-  static int eip_current=0;
-  e_ip *iph;
+  ws_ip *iph;
   const guchar		*src_addr, *dst_addr;
   guint32 		src32, dst32;
-  int ttl;
   proto_tree *tree;
   proto_item *item, *ttl_item;
   proto_tree *checksum_tree;
 
   tree=parent_tree;
 
-  eip_current++;
-  if(eip_current==4){
-     eip_current=0;
-  }
-  iph=&eip_arr[eip_current];
+  iph=ep_alloc(sizeof(ws_ip));
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
@@ -1526,7 +1519,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       (iph->ip_off & IP_OFFSET)*8);
   }
 
-  ttl = tvb_get_guint8(tvb, offset + 8);
+  iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
     ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
   } else {
@@ -1620,12 +1613,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    * (e.g. 224.0.0.0/4).
    */
   if (is_a_local_network_control_block_addr(dst32)) {
-    if (ttl != 1) {
+    if (iph->ip_ttl != 1) {
       expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
         "\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
     }
-  } else if (!is_a_multicast_addr(dst32) && ttl < 5) {
-    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
+  } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5) {
+    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 
   if (tree) {
