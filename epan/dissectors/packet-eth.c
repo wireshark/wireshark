@@ -39,6 +39,8 @@
 #include <epan/crc32.h>
 #include <epan/tap.h>
 
+/* Assume all packets have an FCS */
+static gboolean eth_assume_fcs = FALSE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
 /* Preference settings defining conditions for which the CCSDS dissector is called */
@@ -500,11 +502,13 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
 }
 
 /* Called for the Ethernet Wiretap encapsulation type; pass the FCS length
-   reported to us. */
+   reported to us, or, if the "assume_fcs" preference is set, pass 4. */
 static void
 dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_eth_common(tvb, pinfo, tree, pinfo->pseudo_header->eth.fcs_len);
+  dissect_eth_common(tvb, pinfo, tree,
+                     eth_assume_fcs ? 4 :
+                     pinfo->pseudo_header->eth.fcs_len);
 }
 
 /* Called by other dissectors  This one's for encapsulated Ethernet
@@ -579,6 +583,14 @@ proto_register_eth(void)
 
 	/* Register configuration preferences */
 	eth_module = prefs_register_protocol(proto_eth, NULL);
+
+	prefs_register_bool_preference(eth_module, "assume_fcs",
+	    "Assume packets have FCS",
+	    "Some Ethernet adapters and drivers include the FCS at the end of a packet, others do not.  "
+	    "The Ethernet dissector attempts to guess whether a captured packet has an FCS, "
+	    "but it cannot always guess correctly.",
+	    &eth_assume_fcs);
+
 	prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
             "Attempt to interpret as FireWall-1 monitor file",
             "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
