@@ -86,12 +86,12 @@ typedef struct _packet_info {
 #define DESEGMENT_ONE_MORE_SEGMENT 0x0fffffff
 #define DESEGMENT_UNTIL_FIN        0x0ffffffe
   guint32 desegment_len;	/* requested desegmentation additional length
-				   or 
+				   or
 				   DESEGMENT_ONE_MORE_SEGMENT:
-				     Desegment one more full segment 
+				     Desegment one more full segment
 				     (warning! only partially implemented)
 				   DESEGMENT_UNTIL_FIN:
-				     Desgment all data for this tcp session 
+				     Desgment all data for this tcp session
 				     until the FIN segment.
 				*/
   guint16 want_pdu_tracking;	/* >0 if the subdissector has specified
@@ -122,9 +122,9 @@ typedef struct _packet_info {
 
   int     iplen;                /* total length of IP packet */
   int     iphdrlen;             /* length of IP header */
-  int	  p2p_dir;              /* Packet was captured as an 
-                                       outbound (P2P_DIR_SENT) 
-                                       inbound (P2P_DIR_RECV) 
+  int	  p2p_dir;              /* Packet was captured as an
+                                       outbound (P2P_DIR_SENT)
+                                       inbound (P2P_DIR_RECV)
                                        unknown (P2P_DIR_UNKNOWN) */
   guint16 oxid;                 /* next 2 fields reqd to identify fibre */
   guint16 rxid;                 /* channel conversations */
@@ -163,7 +163,7 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_encrypted_tvb;
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
- 
+
   guint32 ppid;  /* SCTP PPI of current DATA chunk */
   guint32 ppids[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
                                       * in the SCTP packet
@@ -182,12 +182,12 @@ typedef struct _packet_info {
   struct _sccp_msg_info_t* sccp_info;
   guint16 clnp_srcref;      /* clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;      /* clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
-  guint8 pw_atm_encap_type; /* FF: RFC 4717 is devilish, it describes many 
+  guint8 pw_atm_encap_type; /* FF: RFC 4717 is devilish, it describes many
                              * different types of ATM->PW encapsulation.
                              * None of which can correctly be interpreted by
                              * the packet-atm.c dissector.  Thus I have to
                              * pass some info from packet-pw-atm.c to packet-
-                             * -atm.c, and augment/change packet-atm.c 
+                             * -atm.c, and augment/change packet-atm.c
                              * dissector.
                              *
                              * 0: RFC4717::Sec.  9, ATM One-to-One Cell Mode
@@ -203,6 +203,13 @@ typedef struct _packet_info {
                              */
   guint16 pw_atm_ncells;    /* FF: number of cells fitted in a single
                              * PW frame.
+                             */
+
+  guint16 zbee_cluster_id;  /* ZigBee cluster ID, an application-specific message identifier that
+                             * happens to be included in the transport (APS) layer header.
+                             */
+  guint8 zbee_stack_vers;   /* ZigBee stack version number, present in the ZigBee network layer, but
+                             * impacts the packet format at all layers of the ZigBee stack.
                              */
 } packet_info;
 

@@ -901,7 +901,15 @@ DISSECTOR_SRC = \
 	packet-yppasswd.c	\
 	packet-ypserv.c		\
 	packet-ypxfr.c		\
+	packet-zbee-aps.c	\
+	packet-zbee-security.c	\
+	packet-zbee-nwk.c	\
+	packet-zbee-zdp.c	\
+	packet-zbee-zdp-binding.c	\
+	packet-zbee-zdp-discovery.c	\
+	packet-zbee-zdp-management.c	\
 	packet-zebra.c		\
+	packet-zep.c		\
 	packet-ziop.c		\
 	packet-zrtp.c
 
@@ -1230,6 +1238,12 @@ DISSECTOR_INCLUDES =	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\
 	packet-ypxfr.h	\
+	packet-zbee.h	\
+	packet-zbee-aps.h	\
+	packet-zbee-security.h	\
+	packet-zbee-nwk.h	\
+	packet-zbee-zdp.h	\
+	packet-zep.h	\
 	packet-ziop.h	\
 	rpc_defrag.h	\
 	$(GENERATED_HEADER_FILES) \
