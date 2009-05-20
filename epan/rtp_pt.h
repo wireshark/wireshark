@@ -62,6 +62,42 @@
 #define PT_MP2T		33	/* RFC 2250 */
 #define PT_H263		34	/* from Chunrong Zhu of Intel; see the Web page */
 
+/* Added to by Alex Lindberg to cover port ranges 96-127 - Dynamic RTP
+   Some of these ports are used by Avaya for Modem and FAX support */
+
+#define PT_UNDF_96		96  /* RFC 3551 */
+#define PT_UNDF_97		97
+#define PT_UNDF_98		98
+#define PT_UNDF_99		99
+#define PT_UNDF_100		100
+#define PT_UNDF_101		101
+#define PT_UNDF_102		102
+#define PT_UNDF_103		103
+#define PT_UNDF_104		104
+#define PT_UNDF_105		105
+#define PT_UNDF_106		106
+#define PT_UNDF_107		107
+#define PT_UNDF_108		108
+#define PT_UNDF_109		109
+#define PT_UNDF_110		110
+#define PT_UNDF_111		111
+#define PT_UNDF_112		112
+#define PT_UNDF_113		113
+#define PT_UNDF_114		114
+#define PT_UNDF_115		115
+#define PT_UNDF_116		116
+#define PT_UNDF_117		117
+#define PT_UNDF_118		118
+#define PT_UNDF_119		119
+#define PT_UNDF_120		120
+#define PT_UNDF_121		121
+#define PT_UNDF_122		122
+#define PT_UNDF_123		123
+#define PT_UNDF_124		124
+#define PT_UNDF_125		125
+#define PT_UNDF_126		126
+#define PT_UNDF_127		127
+
 WS_VAR_IMPORT const value_string rtp_payload_type_vals[];
 WS_VAR_IMPORT const value_string rtp_payload_type_short_vals[];
 
