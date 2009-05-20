@@ -167,6 +167,12 @@ Wireshark Info
       
         <listitem>
           <para>
+            Support for IP packet comparison.
+          </para>
+        </listitem>  
+      
+        <listitem>
+          <para>
             GTK1 is no longer supported. (Yes, this is a feature.)
           </para>
         </listitem>
