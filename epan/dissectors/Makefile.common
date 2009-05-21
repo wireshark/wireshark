@@ -679,6 +679,7 @@ DISSECTOR_SRC = \
 	packet-p_mul.c		\
 	packet-packetlogger.c	\
 	packet-pagp.c		\
+	packet-paltalk.c	\
 	packet-pana.c		\
 	packet-pcep.c		\
 	packet-pcli.c		\
