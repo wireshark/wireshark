@@ -40,8 +40,8 @@
 #define PALTALK_HEADER_LENGTH 6
 
 /* forward reference */
-void proto_register_paltalk();
-void proto_reg_handoff_paltalk();
+void proto_register_paltalk(void);
+void proto_reg_handoff_paltalk(void);
 static gboolean dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
 static void dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
