@@ -638,6 +638,9 @@ struct linux_usb_phdr {
     guint32 data_len;       /* amount of urb data really present in this event */
 };
 
+#define LIBPCAP_BT_PHDR_SENT    0
+#define LIBPCAP_BT_PHDR_RECV    1
+
 /*
  * Header prepended by libpcap to each bluetooth hci h:4 frame.
  * Values in network byte order

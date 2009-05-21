@@ -960,7 +960,7 @@ pcap_read_bt_pseudoheader(FILE_T fh,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & 0x1) == 0)? TRUE: FALSE;
+	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & LIBPCAP_BT_PHDR_RECV) == 0)? TRUE: FALSE;
 	return TRUE;
 }
 
@@ -1423,6 +1423,10 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		hdrsize = (int)sizeof (struct i2c_file_hdr);
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		hdrsize = (int)sizeof (struct libpcap_bt_phdr);
+		break;
+
 	default:
 		hdrsize = 0;
 		break;
@@ -1442,6 +1446,7 @@ pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
 	guint8 sita_hdr[SITA_HDR_LEN];
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
 	struct i2c_file_hdr i2c_hdr;
+	struct libpcap_bt_phdr bt_hdr;
 	size_t nwritten;
 	size_t size;
 
@@ -1656,7 +1661,20 @@ pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
 		}
 		wdh->bytes_dumped += sizeof(i2c_hdr);
 		break;
-	}
 
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
+		nwritten = wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr);
+		if (nwritten != sizeof bt_hdr) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof bt_hdr;
+		break;
+	}
+ 
 	return TRUE;
 }
