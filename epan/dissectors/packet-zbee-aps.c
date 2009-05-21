@@ -48,8 +48,6 @@
  *************************
  */
 /* Protocol Registration */
-void    proto_reg_handoff_zbee_aps  (void);
-void    proto_register_zbee_aps     (void);
 void    proto_init_zbee_aps         (void);
 
 /* Dissector Routines */
@@ -76,7 +74,7 @@ guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
  * Global Variables *
  ********************
  */
-/* Field indicies. */
+/* Field indices. */
 static int proto_zbee_aps = -1;
 static int hf_zbee_aps_fcf_frame_type = -1;
 static int hf_zbee_aps_fcf_delivery = -1;
@@ -112,18 +110,18 @@ static int hf_zbee_aps_cmd_device_status = -1;
 static int hf_zbee_aps_cmd_ea_key_type = -1;
 static int hf_zbee_aps_cmd_ea_data = -1;
 
-/* Field indicies for ZigBee 2003 & earlier Application Framework. */
+/* Field indices for ZigBee 2003 & earlier Application Framework. */
 static int proto_zbee_apf = -1;
 static int hf_zbee_apf_count = -1;
 static int hf_zbee_apf_type = -1;
 
-/* Subtree indicies. */
+/* Subtree indices. */
 static gint ett_zbee_aps = -1;
 static gint ett_zbee_aps_fcf = -1;
 static gint ett_zbee_aps_ext = -1;
 static gint ett_zbee_aps_cmd = -1;
 
-/* Fragmentation indicies. */
+/* Fragmentation indices. */
 static int hf_zbee_aps_fragments = -1;
 static int hf_zbee_aps_fragment = -1;
 static int hf_zbee_aps_fragment_overlap = -1;
@@ -135,14 +133,13 @@ static int hf_zbee_aps_reassembled_in = -1;
 static gint ett_zbee_aps_fragment = -1;
 static gint ett_zbee_aps_fragments = -1;
 
-/* Subtree indicies for the ZigBee 2004 & earlier Application Framework. */
+/* Subtree indices for the ZigBee 2004 & earlier Application Framework. */
 static gint ett_zbee_apf = -1;
 
 /* Dissector Handles. */
 static dissector_handle_t   data_handle;
 static dissector_handle_t   zbee_aps_handle;
 static dissector_handle_t   zbee_apf_handle;
-static dissector_handle_t   security_handle;
 
 /* Dissector List. */
 static dissector_table_t    zbee_aps_dissector_table;
@@ -468,7 +465,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Cluster ID is 8-bits long in ZigBee 2004 and earlier. */
         pinfo->zbee_cluster_id = packet.cluster = tvb_get_guint8(tvb, offset);
         if (tree) {
-            //proto_tree_add_uint(aps_tree, hf_zbee_aps_cluster, tvb, offset, sizeof(guint8), packet.cluster);
+#if 0
+            proto_tree_add_uint(aps_tree, hf_zbee_aps_cluster, tvb, offset, sizeof(guint8), packet.cluster);
+#endif
             proto_tree_add_uint_format_value(aps_tree, hf_zbee_aps_cluster, tvb, offset, sizeof(guint8), packet.cluster, "0x%02x", packet.cluster);
         }
         offset += sizeof(guint8);
@@ -1504,19 +1503,19 @@ void proto_register_zbee_aps(void)
     static hf_register_info hf[] = {
             { &hf_zbee_aps_fcf_frame_type,
             { "Frame Type",             "zbee.aps.type", FT_UINT8, BASE_HEX, VALS(zbee_aps_frame_types), ZBEE_APS_FCF_FRAME_TYPE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fcf_delivery,
             { "Delivery Mode",          "zbee.aps.delivery", FT_UINT8, BASE_HEX, VALS(zbee_aps_delivery_modes), ZBEE_APS_FCF_DELIVERY_MODE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fcf_indirect_mode,
             { "Indirect Address Mode",  "zbee.aps.indirect_mode", FT_BOOLEAN, 8, NULL, ZBEE_APS_FCF_INDIRECT_MODE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fcf_ack_mode,
             { "Acknowledgement Mode",  "zbee.aps.ack_mode", FT_BOOLEAN, 8, NULL, ZBEE_APS_FCF_ACK_MODE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fcf_security,
             { "Security",               "zbee.aps.security", FT_BOOLEAN, 8, NULL, ZBEE_APS_FCF_SECURITY,
@@ -1528,35 +1527,35 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_fcf_ext_header,
             { "Extended Header",        "zbee.aps.ext_header", FT_BOOLEAN, 8, NULL, ZBEE_APS_FCF_EXT_HEADER,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_dst,
             { "Destination Endpoint",   "zbee.aps.dst", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_group,
             { "Group",                  "zbee.aps.group", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cluster,
             { "Cluster",                "zbee.aps.cluster", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_profile,
             { "Profile",                "zbee.aps.profile", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_src,
             { "Source Endpoint",        "zbee.aps.src", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_counter,
             { "Counter",                "zbee.aps.counter", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragmentation,
             { "Fragmentation",          "zbee.aps.fragmentation", FT_UINT8, BASE_HEX, VALS(zbee_aps_fragmentation_modes), ZBEE_APS_EXT_FCF_FRAGMENT,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_block_number,
             { "Block Number",           "zbee.aps.block", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1564,7 +1563,7 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_id,
             { "Command Identifier",     "zbee.aps.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_aps_cmd_names), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_initiator,
             { "Initiator Address",      "zbee.aps.cmd.initiator", FT_UINT64, BASE_HEX, NULL, 0x0,
@@ -1584,11 +1583,11 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_device,
             { "Device Address",         "zbee.aps.cmd.device", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "The device who's status is being updated.", HFILL }},
+                "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_challenge,
             { "Challenge",              "zbee.aps.cmd.challenge", FT_BYTES, BASE_HEX, NULL, 0x0,
-                "Random challge value used during SKKE and authentication.", HFILL }},
+                "Random challenge value used during SKKE and authentication.", HFILL }},
 
             { &hf_zbee_aps_cmd_mac,
             { "Message Authentication Code",    "zbee.aps.cmd.mac", FT_BYTES, BASE_HEX, NULL, 0x0,
@@ -1596,19 +1595,19 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_key,
             { "Key",                    "zbee.aps.cmd.key", FT_BYTES, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_key_type,
             { "Key Type",               "zbee.aps.cmd.key_type", FT_UINT8, BASE_HEX, VALS(zbee_aps_key_names), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_dst,
             { "Destination Address",    "zbee.aps.cmd.dst", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_src,
             { "Source Address",         "zbee.aps.cmd.src", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_seqno,
             { "Sequence Number",        "zbee.aps.cmd.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1616,7 +1615,7 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_short_addr,
             { "Device Address",         "zbee.aps.cmd.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "The device who's status is being updated.", HFILL }},
+                "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_device_status,
             { "Device Status",          "zbee.aps.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_aps_update_status_names), 0x0,
@@ -1624,7 +1623,7 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_ea_key_type,
             { "Key Type",               "zbee.aps.cmd.ea.key_type", FT_UINT8, BASE_HEX, VALS(zbee_aps_ea_key_names), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_ea_data,
             { "Data",                   "zbee.aps.cmd.ea.data", FT_BYTES, BASE_HEX, NULL, 0x0,
@@ -1632,45 +1631,45 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_fragments,
             { "Message fragments",      "zbee.aps.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment,
             { "Message fragment",       "zbee.aps.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment_overlap,
             { "Message fragment overlap",       "zbee.aps.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment_overlap_conflicts,
             { "Message fragment overlapping with conflicting data", "zbee.aps.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment_multiple_tails,
             { "Message has multiple tail fragments", "zbee.aps.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment_too_long_fragment,
             { "Message fragment too long",      "zbee.aps.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_fragment_error,
             { "Message defragmentation error",  "zbee.aps.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_reassembled_in,
-            { "Reassembled in",  "zbee.aps.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                "", HFILL }}
+            { "Reassembled in",         "zbee.aps.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }}
     };
 
     static hf_register_info hf_apf[] = {
             { &hf_zbee_apf_count,
             { "Count",                  "zbee.app.count", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_apf_type,
             { "Type",                   "zbee.app.type", FT_UINT8, BASE_HEX, VALS(zbee_apf_type_names), 0x0,
-                "", HFILL }}
+                NULL, HFILL }}
     };
 
     /*  APS subtrees */
@@ -1725,7 +1724,6 @@ void proto_reg_handoff_zbee_aps(void)
     data_handle     = find_dissector("data");
     zbee_aps_handle = find_dissector("zbee.aps");
     zbee_apf_handle = find_dissector("zbee.apf");
-    security_handle = find_dissector("zbee.security");
 } /* proto_reg_handoff_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------

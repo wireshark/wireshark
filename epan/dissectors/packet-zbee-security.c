@@ -132,8 +132,9 @@ static const gchar *  gPREF_zbee_sec_tclink_key = NULL;
  * phase. Unfortunately, this is broken, and I don't know why. However, using
  * the messier EBC mode (to emulate CCM*) still works fine.
  */
-//#define ZBEE_SEC_USE_GCRYPT_CBC_MAC
-
+#if 0
+#define ZBEE_SEC_USE_GCRYPT_CBC_MAC
+#endif
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      zbee_security_register
@@ -151,31 +152,31 @@ void zbee_security_register(module_t *prefs, int proto)
     static hf_register_info hf[] = {
             { &hf_zbee_sec_level,
             { "Level",                  "zbee.sec.level", FT_UINT8, BASE_HEX, VALS(zbee_sec_level_names), ZBEE_SEC_CONTROL_LEVEL,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_key,
             { "Key",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names), ZBEE_SEC_CONTROL_KEY,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_nonce,
             { "Extended Nonce",         "zbee.sec.ext_nonce", FT_BOOLEAN, 8, NULL, ZBEE_SEC_CONTROL_NONCE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_counter,
             { "Frame Counter",          "zbee.sec.counter", FT_UINT32, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_src,
             { "Source",                 "zbee.sec.src", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_key_seqno,
             { "Key Sequence Number",    "zbee.sec.key_seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_sec_mic,
             { "Message Integrity Code", "zbee.sec.mic", FT_BYTES, BASE_HEX, NULL, 0x0,
-                "", HFILL }}
+                NULL, HFILL }}
     };
 
     static gint *ett[] = {

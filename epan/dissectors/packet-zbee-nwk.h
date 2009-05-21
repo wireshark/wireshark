@@ -30,11 +30,11 @@
 #define ZBEE_NWK_FCF_FRAME_TYPE             0x0003
 #define ZBEE_NWK_FCF_VERSION                0x003C
 #define ZBEE_NWK_FCF_DISCOVER_ROUTE         0x00C0
-#define ZBEE_NWK_FCF_MULTICAST              0x0100  // ZigBee 2006 and Later
+#define ZBEE_NWK_FCF_MULTICAST              0x0100  /* ZigBee 2006 and Later */
 #define ZBEE_NWK_FCF_SECURITY               0x0200
-#define ZBEE_NWK_FCF_SOURCE_ROUTE           0x0400  // ZigBee 2006 and Later
-#define ZBEE_NWK_FCF_EXT_DEST               0x0800  // ZigBee 2006 and Later
-#define ZBEE_NWK_FCF_EXT_SOURCE             0x1000  // ZigBee 2006 and Later
+#define ZBEE_NWK_FCF_SOURCE_ROUTE           0x0400  /* ZigBee 2006 and Later */
+#define ZBEE_NWK_FCF_EXT_DEST               0x0800  /* ZigBee 2006 and Later */
+#define ZBEE_NWK_FCF_EXT_SOURCE             0x1000  /* ZigBee 2006 and Later */
 
 /*  ZigBee NWK FCF Frame Types */
 #define ZBEE_NWK_FCF_DATA                   0x0000
@@ -46,31 +46,31 @@
 #define ZBEE_NWK_FCF_DISCOVERY_FORCE        0x0003
 
 /* Multicast Control */
-#define ZBEE_NWK_MCAST_MODE                 0x03    // ZigBee 2006 and later
-#define ZBEE_NWK_MCAST_RADIUS               0x1c    // ZigBee 2006 and later
-#define ZBEE_NWK_MCAST_MAX_RADIUS           0xe0    // ZigBee 2006 and later
-#define ZBEE_NWK_MCAST_MODE_NONMEMBER       0x00    // ZigBee 2006 and later
-#define ZBEE_NWK_MCAST_MODE_MEMBER          0x01    // ZigBee 2006 and later
+#define ZBEE_NWK_MCAST_MODE                 0x03    /* ZigBee 2006 and later */
+#define ZBEE_NWK_MCAST_RADIUS               0x1c    /* ZigBee 2006 and later */
+#define ZBEE_NWK_MCAST_MAX_RADIUS           0xe0    /* ZigBee 2006 and later */
+#define ZBEE_NWK_MCAST_MODE_NONMEMBER       0x00    /* ZigBee 2006 and later */
+#define ZBEE_NWK_MCAST_MODE_MEMBER          0x01    /* ZigBee 2006 and later */
 
 /*  ZigBee NWK Command Types */
 #define ZBEE_NWK_CMD_ROUTE_REQ                  0x01
 #define ZBEE_NWK_CMD_ROUTE_REPLY                0x02
 #define ZBEE_NWK_CMD_NWK_STATUS                 0x03
-#define ZBEE_NWK_CMD_LEAVE                      0x04    // ZigBee 2006 and Later
-#define ZBEE_NWK_CMD_ROUTE_RECORD               0x05    // ZigBee 2006 and later
-#define ZBEE_NWK_CMD_REJOIN_REQ                 0x06    // ZigBee 2006 and later
-#define ZBEE_NWK_CMD_REJOIN_RESP                0x07    // ZigBee 2006 and later
-#define ZBEE_NWK_CMD_LINK_STATUS                0x08    // ZigBee 2007 and later
-#define ZBEE_NWK_CMD_NWK_REPORT                 0x09    // ZigBee 2007 and later
-#define ZBEE_NWK_CMD_NWK_UPDATE                 0x0a    // ZigBee 2007 and later
+#define ZBEE_NWK_CMD_LEAVE                      0x04    /* ZigBee 2006 and Later */
+#define ZBEE_NWK_CMD_ROUTE_RECORD               0x05    /* ZigBee 2006 and later */
+#define ZBEE_NWK_CMD_REJOIN_REQ                 0x06    /* ZigBee 2006 and later */
+#define ZBEE_NWK_CMD_REJOIN_RESP                0x07    /* ZigBee 2006 and later */
+#define ZBEE_NWK_CMD_LINK_STATUS                0x08    /* ZigBee 2007 and later */
+#define ZBEE_NWK_CMD_NWK_REPORT                 0x09    /* ZigBee 2007 and later */
+#define ZBEE_NWK_CMD_NWK_UPDATE                 0x0a    /* ZigBee 2007 and later */
 
 /*  ZigBee NWK Route Options Flags */
-#define ZBEE_NWK_CMD_ROUTE_OPTION_REPAIR        0x80    // ZigBee 2004 only.
-#define ZBEE_NWK_CMD_ROUTE_OPTION_MCAST         0x40    // ZigBee 2006 and later
-#define ZBEE_NWK_CMD_ROUTE_OPTION_DEST_EXT      0x20    // ZigBee 2007 and later (route request only).
-#define ZBEE_NWK_CMD_ROUTE_OPTION_MANY_MASK     0x18    // ZigBee 2007 and later (route request only).
-#define ZBEE_NWK_CMD_ROUTE_OPTION_RESP_EXT      0x20    // ZigBee 2007 and layer (route reply only).
-#define ZBEE_NWK_CMD_ROUTE_OPTION_ORIG_EXT      0x10    // ZigBee 2007 and later (route reply only).
+#define ZBEE_NWK_CMD_ROUTE_OPTION_REPAIR        0x80    /* ZigBee 2004 only. */
+#define ZBEE_NWK_CMD_ROUTE_OPTION_MCAST         0x40    /* ZigBee 2006 and later */
+#define ZBEE_NWK_CMD_ROUTE_OPTION_DEST_EXT      0x20    /* ZigBee 2007 and later (route request only). */
+#define ZBEE_NWK_CMD_ROUTE_OPTION_MANY_MASK     0x18    /* ZigBee 2007 and later (route request only). */
+#define ZBEE_NWK_CMD_ROUTE_OPTION_RESP_EXT      0x20    /* ZigBee 2007 and layer (route reply only). */
+#define ZBEE_NWK_CMD_ROUTE_OPTION_ORIG_EXT      0x10    /* ZigBee 2007 and later (route reply only). */
 
 /* Many-to-One modes, ZigBee 2007 and later (route request only). */
 #define ZBEE_NWK_CMD_ROUTE_OPTION_MANY_NONE     0x00
@@ -126,23 +126,23 @@ typedef struct{
     gboolean    security;
     gboolean    discovery;
     gboolean    is_bcast;
-    gboolean    multicast;          // ZigBee 2006 and Later
-    gboolean    route;              // ZigBee 2006 and Later
-    gboolean    ext_dst;            // ZigBee 2006 and Later
-    gboolean    ext_src;            // ZigBee 2006 and Later
+    gboolean    multicast;          /* ZigBee 2006 and Later */
+    gboolean    route;              /* ZigBee 2006 and Later */
+    gboolean    ext_dst;            /* ZigBee 2006 and Later */
+    gboolean    ext_src;            /* ZigBee 2006 and Later */
     guint16     type;
     guint8      version;
 
     guint16     dst;
     guint16     src;
-    guint64     dst64;              // ZigBee 2006 and Later
-    guint64     src64;              // ZigBee 2006 and Later
+    guint64     dst64;              /* ZigBee 2006 and Later */
+    guint64     src64;              /* ZigBee 2006 and Later */
     guint8      radius;
     guint8      seqno;
 
-    guint8      mcast_mode;         // ZigBee 2006 and Later
-    guint8      mcast_radius;       // ZigBee 2006 and Later
-    guint8      mcast_max_radius;   // ZigBee 2006 and Later
+    guint8      mcast_mode;         /* ZigBee 2006 and Later */
+    guint8      mcast_radius;       /* ZigBee 2006 and Later */
+    guint8      mcast_max_radius;   /* ZigBee 2006 and Later */
 
     guint8      payload_offset;
     guint8      payload_len;

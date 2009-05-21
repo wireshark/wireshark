@@ -43,36 +43,36 @@
 #define ZBEE_ZDP_REQ_DISCOVERY_CACHE        0x0012
 #define ZBEE_ZDP_REQ_DEVICE_ANNCE           0x0013
 #define ZBEE_ZDP_REQ_SET_USER_DESC          0x0014
-#define ZBEE_ZDP_REQ_SYSTEM_SERVER_DISC     0x0015  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_DISCOVERY        0x0016  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_NODE_DESC        0x0017  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_POWER_DESC       0x0018  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_ACTIVE_EP        0x0019  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_SIMPLE_DESC      0x001a  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_REMOVE_NODE_CACHE      0x001b  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_FIND_NODE_CACHE        0x001c  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_EXT_SIMPLE_DESC        0x001d  // ZigBee 2007 & later.
-#define ZBEE_ZDP_REQ_EXT_ACTIVE_EP          0x001e  // ZigBee 2007 & later.
+#define ZBEE_ZDP_REQ_SYSTEM_SERVER_DISC     0x0015  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_DISCOVERY        0x0016  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_NODE_DESC        0x0017  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_POWER_DESC       0x0018  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_ACTIVE_EP        0x0019  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_SIMPLE_DESC      0x001a  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_REMOVE_NODE_CACHE      0x001b  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_FIND_NODE_CACHE        0x001c  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_EXT_SIMPLE_DESC        0x001d  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_REQ_EXT_ACTIVE_EP          0x001e  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_REQ_END_DEVICE_BIND        0x0020
 #define ZBEE_ZDP_REQ_BIND                   0x0021
 #define ZBEE_ZDP_REQ_UNBIND                 0x0022
-#define ZBEE_ZDP_REQ_BIND_REGISTER          0x0023  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_REPLACE_DEVICE         0x0024  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_STORE_BAK_BIND_ENTRY   0x0025  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_REMOVE_BAK_BIND_ENTRY  0x0026  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_BACKUP_BIND_TABLE      0x0027  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_RECOVER_BIND_TABLE     0x0028  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_BACKUP_SOURCE_BIND     0x0029  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_RECOVER_SOURCE_BIND    0x002a  // ZigBee 2006 & later.
+#define ZBEE_ZDP_REQ_BIND_REGISTER          0x0023  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_REPLACE_DEVICE         0x0024  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_STORE_BAK_BIND_ENTRY   0x0025  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_REMOVE_BAK_BIND_ENTRY  0x0026  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_BACKUP_BIND_TABLE      0x0027  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_RECOVER_BIND_TABLE     0x0028  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_BACKUP_SOURCE_BIND     0x0029  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_RECOVER_SOURCE_BIND    0x002a  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_REQ_MGMT_NWK_DISC          0x0030
 #define ZBEE_ZDP_REQ_MGMT_LQI               0x0031
 #define ZBEE_ZDP_REQ_MGMT_RTG               0x0032
 #define ZBEE_ZDP_REQ_MGMT_BIND              0x0033
 #define ZBEE_ZDP_REQ_MGMT_LEAVE             0x0034
 #define ZBEE_ZDP_REQ_MGMT_DIRECT_JOIN       0x0035
-#define ZBEE_ZDP_REQ_MGMT_PERMIT_JOIN       0x0036  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_MGMT_CACHE             0x0037  // ZigBee 2006 & later.
-#define ZBEE_ZDP_REQ_MGMT_NWKUPDATE         0x0038  // ZigBee 2007 & later.
+#define ZBEE_ZDP_REQ_MGMT_PERMIT_JOIN       0x0036  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_MGMT_CACHE             0x0037  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_REQ_MGMT_NWKUPDATE         0x0038  /* ZigBee 2007 & later. */
 
 #define ZBEE_ZDP_RSP_NWK_ADDR               0x8000
 #define ZBEE_ZDP_RSP_IEEE_ADDR              0x8001
@@ -84,37 +84,37 @@
 #define ZBEE_ZDP_RSP_COMPLEX_DESC           0x8010
 #define ZBEE_ZDP_RSP_USER_DESC              0x8011
 #define ZBEE_ZDP_RSP_DISCOVERY_CACHE        0x8012
-#define ZBEE_ZDP_RSP_CONF_USER_DESC         0x8014  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_SYSTEM_SERVER_DISC     0x8015  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_DISCOVERY        0x8016  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_NODE_DESC        0x8017  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_POWER_DESC       0x8018  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_ACTIVE_EP        0x8019  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_SIMPLE_DESC      0x801a  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_REMOVE_NODE_CACHE      0x801b  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_FIND_NODE_CACHE        0x801c  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_EXT_SIMPLE_DESC        0x801d  // ZigBee 2007 & later.
-#define ZBEE_ZDP_RSP_EXT_ACTIVE_EP          0x801e  // ZigBee 2007 & later.
+#define ZBEE_ZDP_RSP_CONF_USER_DESC         0x8014  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_SYSTEM_SERVER_DISC     0x8015  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_DISCOVERY        0x8016  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_NODE_DESC        0x8017  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_POWER_DESC       0x8018  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_ACTIVE_EP        0x8019  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_SIMPLE_DESC      0x801a  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_REMOVE_NODE_CACHE      0x801b  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_FIND_NODE_CACHE        0x801c  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_EXT_SIMPLE_DESC        0x801d  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_RSP_EXT_ACTIVE_EP          0x801e  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_RSP_END_DEVICE_BIND        0x8020
 #define ZBEE_ZDP_RSP_BIND                   0x8021
 #define ZBEE_ZDP_RSP_UNBIND                 0x8022
-#define ZBEE_ZDP_RSP_BIND_REGISTER          0x8023  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_REPLACE_DEVICE         0x8024  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_STORE_BAK_BIND_ENTRY   0x8025  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_REMOVE_BAK_BIND_ENTRY  0x8026  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_BACKUP_BIND_TABLE      0x8027  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_RECOVER_BIND_TABLE     0x8028  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_BACKUP_SOURCE_BIND     0x8029  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_RECOVER_SOURCE_BIND    0x802a  // ZigBee 2006 & later.
+#define ZBEE_ZDP_RSP_BIND_REGISTER          0x8023  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_REPLACE_DEVICE         0x8024  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_STORE_BAK_BIND_ENTRY   0x8025  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_REMOVE_BAK_BIND_ENTRY  0x8026  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_BACKUP_BIND_TABLE      0x8027  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_RECOVER_BIND_TABLE     0x8028  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_BACKUP_SOURCE_BIND     0x8029  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_RECOVER_SOURCE_BIND    0x802a  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_RSP_MGMT_NWK_DISC          0x8030
 #define ZBEE_ZDP_RSP_MGMT_LQI               0x8031
 #define ZBEE_ZDP_RSP_MGMT_RTG               0x8032
 #define ZBEE_ZDP_RSP_MGMT_BIND              0x8033
 #define ZBEE_ZDP_RSP_MGMT_LEAVE             0x8034
 #define ZBEE_ZDP_RSP_MGMT_DIRECT_JOIN       0x8035
-#define ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN       0x8036  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_MGMT_CACHE             0x8037  // ZigBee 2006 & later.
-#define ZBEE_ZDP_RSP_MGMT_NWKUPDATE         0x8038  // ZigBee 2007 & later.
+#define ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN       0x8036  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_MGMT_CACHE             0x8037  /* ZigBee 2006 & later. */
+#define ZBEE_ZDP_RSP_MGMT_NWKUPDATE         0x8038  /* ZigBee 2007 & later. */
 
 #define ZBEE_ZDP_MSG_RESPONSE_BIT           0x8000
 #define ZBEE_ZDP_MSG_MASK                   (ZBEE_ZDP_MSG_RESPONSE_BIT-1)

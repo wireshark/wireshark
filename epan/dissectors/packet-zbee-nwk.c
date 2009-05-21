@@ -154,7 +154,6 @@ static gint ett_zbee_nwk_cmd_cinfo = -1;
 
 static dissector_handle_t   data_handle;
 static dissector_handle_t   aps_handle;
-static dissector_handle_t   security_handle;
 
 /********************/
 /* Field Names      */
@@ -1453,11 +1452,11 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_frame_type,
             { "Frame Type",             "zbee.nwk.frame_type", FT_UINT16, BASE_HEX, VALS(zbee_nwk_frame_types), ZBEE_NWK_FCF_FRAME_TYPE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_proto_version,
             { "Protocol Version",       "zbee.nwk.proto_version", FT_UINT16, BASE_DEC, NULL, ZBEE_NWK_FCF_VERSION,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_discover_route,
             { "Discover Route",         "zbee.nwk.discovery", FT_UINT16, BASE_HEX, VALS(zbee_nwk_discovery_modes), ZBEE_NWK_FCF_DISCOVER_ROUTE,
@@ -1465,7 +1464,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_multicast,
             { "Multicast",              "zbee.nwk.multicast", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_MULTICAST,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_security,
             { "Security",               "zbee.nwk.security", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SECURITY,
@@ -1473,23 +1472,23 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_source_route,
             { "Source Route",           "zbee.nwk.src_route", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SOURCE_ROUTE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_ext_dst,
             { "Extended Destination",   "zbee.nwk.ext_dst", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_DEST,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_ext_src,
             { "Extended Source",        "zbee.nwk.ext_src", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_SOURCE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_dst,
             { "Destination",            "zbee.nwk.dst", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_src,
             { "Source",                 "zbee.nwk.src", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_radius,
             { "Radius",                 "zbee.nwk.radius", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1497,7 +1496,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_seqno,
             { "Sequence Number",        "zbee.nwk.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_mcast_mode,
             { "Multicast Mode",         "zbee.nwk.multicast.mode", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_MODE,
@@ -1509,15 +1508,15 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_mcast_max_radius,
             { "Max Non-Member Radius",  "zbee.nwk.multicast.max_radius", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_MAX_RADIUS,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_dst64,
             { "Extended Destination",   "zbee.nwk.dst64", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_src64,
             { "Extended Source",        "zbee.nwk.scr64", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_relay_count,
             { "Relay Count",            "zbee.nwk.relay.count", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1529,11 +1528,11 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_id,
             { "Command Identifier",     "zbee.nwk.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_cmd_names), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_addr,
             { "Address",                "zbee.nwk.cmd.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_id,
             { "Route ID",               "zbee.nwk.cmd.route.id", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1541,27 +1540,27 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_route_dest,
             { "Destination",            "zbee.nwk.cmd.route.dest", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_orig,
             { "Originator",             "zbee.nwk.cmd.route.orig", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_resp,
             { "Responder",              "zbee.nwk.cmd.route.resp", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_dest_ext,
             { "Extended Destination",   "zbee.nwk.cmd.route.dest_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_orig_ext,
             { "Extended Originator",    "zbee.nwk.cmd.route.orig_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_resp_ext,
             { "Extended Responder",     "zbee.nwk.cmd.route.resp_ext", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_cost,
             { "Path Cost",              "zbee.nwk.cmd.route.cost", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1577,23 +1576,23 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_route_opt_dest_ext,
             { "Extended Destination",   "zbee.nwk.cmd.route.opts.dest_ext", FT_BOOLEAN, 8, NULL, ZBEE_NWK_CMD_ROUTE_OPTION_DEST_EXT,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_resp_ext,
             { "Extended Responder",   "zbee.nwk.cmd.route.opts.resp_ext", FT_BOOLEAN, 8, NULL, ZBEE_NWK_CMD_ROUTE_OPTION_RESP_EXT,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_orig_ext,
             { "Extended Originator",    "zbee.nwk.cmd.route.opts.orig_ext", FT_BOOLEAN, 8, NULL, ZBEE_NWK_CMD_ROUTE_OPTION_ORIG_EXT,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_many_to_one,
             { "Many-to-One Discovery",  "zbee.nwk.cmd.route.opts.many2one", FT_UINT8, BASE_HEX, VALS(zbee_nwk_cmd_route_many_modes), ZBEE_NWK_CMD_ROUTE_OPTION_MANY_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_nwk_status,
             { "Status Code",            "zbee.nwk.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_nwk_status_codes), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_leave_rejoin,
             { "Rejoin",                 "zbee.nwk.cmd.leave.rejoin", FT_BOOLEAN, 8, NULL, ZBEE_NWK_CMD_LEAVE_OPTION_REJOIN,
@@ -1617,7 +1616,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_cinfo_type,
             { "Full-Function Device",   "zbee.nwk.cmd.cinfo.ffd", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_CINFO_DEVICE_TYPE,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_power,
             { "AC Power",               "zbee.nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_CINFO_POWER_SRC,
@@ -1637,7 +1636,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_rejoin_status,
             { "Status",                 "zbee.nwk.cmd.rejoin_status", FT_UINT8, BASE_HEX, VALS(zbee_nwk_rejoin_codes), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_link_last,
             { "Last Frame",             "zbee.nwk.cmd.link.last", FT_BOOLEAN, 8, NULL, ZBEE_NWK_CMD_LINK_OPTION_LAST_FRAME,
@@ -1649,43 +1648,43 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_cmd_link_count,
             { "Link Status Count",      "zbee.nwk.cmd.link.count", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_CMD_LINK_OPTION_COUNT_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_report_type,
             { "Report Type",            "zbee.nwk.cmd.report.type", FT_UINT8, BASE_HEX, VALS(zbee_nwk_report_types), ZBEE_NWK_CMD_NWK_REPORT_ID_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_report_count,
             { "Report Information Count",   "zbee.nwk.cmd.report.count", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_CMD_NWK_REPORT_COUNT_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_type,
             { "Update Type",            "zbee.nwk.cmd.update.type", FT_UINT8, BASE_HEX, VALS(zbee_nwk_update_types), ZBEE_NWK_CMD_NWK_UPDATE_ID_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_count,
             { "Update Information Count",   "zbee.nwk.cmd.update.count", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_CMD_NWK_UPDATE_COUNT_MASK,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_id,
             { "Update ID",              "zbee.nwk.cmd.update.id", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_epid,
             { "Extended PAN ID",        "zbee.nwk.cmd.epid", FT_UINT64, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_beacon_protocol,
             { "Protocol ID",            "zbee.beacon.protocol", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_beacon_stack_profile,
             { "Stack Profile",          "zbee.beacon.profile", FT_UINT8, BASE_HEX, VALS(zbee_nwk_stack_profiles), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_beacon_version,
             { "Protocol Version",       "zbee.beacon.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_beacon_router_capacity,
             { "Router Capacity", "zbee.beacon.router", FT_BOOLEAN, 8, NULL, 0x0,
@@ -1709,7 +1708,7 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_beacon_update_id,
             { "Update ID",              "zbee.beacon.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }}
+                NULL, HFILL }}
     };
 
     /*  NWK Layer subtrees */
@@ -1752,7 +1751,6 @@ void proto_reg_handoff_zbee_nwk(void)
 {
     /* Find the other dissectors we need. */
     data_handle     = find_dissector("data");
-    security_handle = find_dissector("zbee.security");
     aps_handle      = find_dissector("zbee.aps");
 
     /* Register our dissector with IEEE 802.15.4 */

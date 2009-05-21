@@ -29,25 +29,25 @@
 
 /*  Structure to contain the APS frame information */
 typedef struct{
-    gboolean    indirect_mode;  // ZigBee 2004 and Earlier
-    gboolean    ack_mode;       // ZigBee 2007 and Later
+    gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
+    gboolean    ack_mode;       /* ZigBee 2007 and Later    */
     gboolean    security;
     gboolean    ack_req;
-    gboolean    ext_header;     // ZigBee 2007 and Later
+    gboolean    ext_header;     /* ZigBee 2007 and Later    */
     guint8      type;
     guint8      delivery;
 
     guint8      dst;
-    guint16     group;          // ZigBee 2006 and Later
+    guint16     group;          /* ZigBee 2006 and Later    */
     guint16     cluster;
     guint16     profile;
     guint8      src;
     guint8      counter;
 
     /* Fragmentation Fields. */
-    guint8      fragmentation;  // ZigBee 2007 and Later
-    guint8      block_number;   // ZigBee 2007 and Later
-    guint8      ack_bitfield;   // ZigBee 2007 and Later
+    guint8      fragmentation;  /* ZigBee 2007 and Later    */
+    guint8      block_number;   /* ZigBee 2007 and Later    */
+    guint8      ack_bitfield;   /* ZigBee 2007 and Later    */
 
     /* Some helpers for the upper layers. */
     gboolean    profile_present;
@@ -57,8 +57,8 @@ typedef struct{
 
 #define ZBEE_APS_FCF_FRAME_TYPE     0x03
 #define ZBEE_APS_FCF_DELIVERY_MODE  0x0c
-#define ZBEE_APS_FCF_INDIRECT_MODE  0x10    // ZigBee 2004 and earlier.
-#define ZBEE_APS_FCF_ACK_MODE       0x10    // ZigBee 2007 and later.
+#define ZBEE_APS_FCF_INDIRECT_MODE  0x10    /* ZigBee 2004 and earlier.  */
+#define ZBEE_APS_FCF_ACK_MODE       0x10    /* ZigBee 2007 and later.    */
 #define ZBEE_APS_FCF_SECURITY       0x20
 #define ZBEE_APS_FCF_ACK_REQ        0x40
 #define ZBEE_APS_FCF_EXT_HEADER     0x80
@@ -70,7 +70,7 @@ typedef struct{
 #define ZBEE_APS_FCF_UNICAST        0x00
 #define ZBEE_APS_FCF_INDIRECT       0x01
 #define ZBEE_APS_FCF_BCAST          0x02
-#define ZBEE_APS_FCF_GROUP          0x03    // ZigBee 2006 and later.
+#define ZBEE_APS_FCF_GROUP          0x03    /* ZigBee 2006 and later.    */
 
 #define ZBEE_APS_EXT_FCF_FRAGMENT           0x03
 #define ZBEE_APS_EXT_FCF_FRAGMENT_NONE      0x00
