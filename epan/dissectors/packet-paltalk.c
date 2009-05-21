@@ -30,7 +30,6 @@
 
 #include <gmodule.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #include "packet-tcp.h"
 
@@ -40,52 +39,17 @@
 #define PALTALK_HEADER_LENGTH 6
 
 /* forward reference */
-void proto_register_paltalk(void);
-void proto_reg_handoff_paltalk(void);
-static gboolean dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
 static void dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_paltalk = -1;
+
 static int hf_paltalk_pdu_type = -1;
 static int hf_paltalk_version = -1;
 static int hf_paltalk_length = -1;
 static int hf_paltalk_content = -1;
+
 static gint ett_paltalk = -1;
-
-static hf_register_info hf[] = {
-	{ &hf_paltalk_pdu_type, { "Packet Type", "paltalk.type", FT_UINT16, BASE_HEX, NULL, 0x00, "", HFILL }},
-	{ &hf_paltalk_version,  { "Protocol Version", "paltalk.version", FT_INT16, BASE_DEC, NULL, 0x00, "", HFILL }},
-	{ &hf_paltalk_length,   { "Payload Length", "paltalk.length", FT_INT16, BASE_DEC, NULL, 0x00, "", HFILL }},
-	{ &hf_paltalk_content,  { "Payload Content", "paltalk.content", FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL }}
-};
-
-/* Setup protocol subtree array */
-static gint *ett[] = { &ett_paltalk };
-
-void
-proto_register_paltalk(void)
-{
-	module_t *paltalk_module;
-
-	if (proto_paltalk == -1)
-		proto_paltalk = proto_register_protocol("Paltalk Messenger Protocol"
-				, "Paltalk", "paltalk");
-	paltalk_module = prefs_register_protocol(proto_paltalk, proto_reg_handoff_paltalk);
-}
-
-void
-proto_reg_handoff_paltalk(void)
-{
-	static int initialized = 0;
-
-	if (!initialized) {
-		heur_dissector_add("tcp", dissect_paltalk, proto_paltalk);
-		proto_register_field_array(proto_paltalk, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-		initialized = 1;
-	}
-}
 
 static gboolean
 dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -131,3 +95,31 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), FALSE);
 	}
 }
+
+void
+proto_register_paltalk(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_paltalk_pdu_type, { "Packet Type", "paltalk.type", 
+					  FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+		{ &hf_paltalk_version,  { "Protocol Version", "paltalk.version",
+					  FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_paltalk_length,   { "Payload Length", "paltalk.length",
+					  FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_paltalk_content,  { "Payload Content", "paltalk.content",
+					  FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }}
+	};
+
+	static gint *ett[] = { &ett_paltalk };
+
+	proto_paltalk = proto_register_protocol("Paltalk Messenger Protocol", "Paltalk", "paltalk");
+	proto_register_field_array(proto_paltalk, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_paltalk(void)
+{
+	heur_dissector_add("tcp", dissect_paltalk, proto_paltalk);
+}
+
