@@ -30,6 +30,7 @@ my @defines; # stack of defines
 while ($line = <>) {
     if($line =~ /^SetOutPath (.+)$/) {
 	$outpath = $1;
+	$outpath =~ s/^'(.*)'$/$1/;
 	if($outpath ne '$PROFILE') { # ignore the PROFILE
 	    push(@dirs, $outpath);
 	}
