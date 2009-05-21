@@ -61,7 +61,8 @@
 
 #include "gtk/gui_stat_menu.h"
 #include "gtk/stock_icons.h"
-
+#include "gtk/help_dlg.h"
+#include "gtk/filter_autocomplete.h"
 
 #include "gui_utils.h"
 #include "dlg_utils.h"
@@ -703,6 +704,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	GtkWidget *filter_label;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+	GtkWidget *help_bt;
 	GtkWidget *vbox;
 	gdouble variance;
 	gint start, stop,ttl, order, pos=0;
@@ -806,11 +808,14 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	}
 
 	/* button row. */
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(cs->win, close_bt, window_cancel_button_cb);
+
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_COMPARE_FILES_DIALOG);
 
 	g_signal_connect(cs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(cs->win, "destroy", G_CALLBACK(win_destroy_cb), cs);
@@ -1009,6 +1014,9 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* filter entry */
 	filter_entry=gtk_entry_new();
 	g_signal_connect(filter_entry, "changed",  G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+	g_signal_connect(filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
 	/* filter prefs dialog */
 	g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);

@@ -489,6 +489,13 @@
 	</tip>
   </section>
 
+  <section id="ChStatCompareCaptureFiles">
+    <title>Compare two capture files</title>
+    <para>
+      Compare two capture files.
+    </para>
+  </section>
+
   <section id="ChStatWLANTraffic">
     <title>WLAN Traffic Statistics</title>
     <para>

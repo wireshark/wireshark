@@ -283,6 +283,9 @@ topic_action(topic_action_e action)
     case(HELP_STATS_IO_GRAPH_DIALOG):
         help_topic_html("ChStatIOGraphs.html");
         break;
+    case(HELP_STATS_COMPARE_FILES_DIALOG):
+        help_topic_html("ChStatCompareCaptureFiles.html");
+        break;
     case(HELP_STATS_LTE_MAC_TRAFFIC_DIALOG):
         help_topic_html("ChStatLTEMACTraffic.html");
         break;
