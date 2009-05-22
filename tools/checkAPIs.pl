@@ -451,7 +451,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_entry_select_region',                     'E',
                 'gtk_entry_set_editable',                      'W', # >> gtk_editable_set_editable() [==?]
                 'gtk_entry_set_position',                      'E',
-                'gtk_exit',                                    'W', # exit() [==?]
+                'gtk_exit',                                    'E', # exit() [==]
                 'gtk_file_chooser_button_new_with_backend',    'E',
                 'gtk_file_chooser_dialog_new_with_backend',    'E',
                 'gtk_file_chooser_widget_new_with_backend',    'E',
