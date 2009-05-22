@@ -2843,6 +2843,10 @@ Mohammad Ebrahim Mohammadi Panah	<mebrahim@gmail.com> {
 	Initial Paltalk support
 }
 
+Greg Schwendimann		<gregs@iol.unh.edu> {
+	WPA decryption security association caching
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
