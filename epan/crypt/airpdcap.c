@@ -990,7 +990,8 @@ AirPDcapRsnaMng(
     AIRPDCAP_SEC_ASSOCIATION *sa,
     INT offset)
 {
-    INT ret_value;
+    INT ret_value=1;
+    UCHAR *try_data;
 
     if (sa->key==NULL) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "No key associated", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1000,34 +1001,53 @@ AirPDcapRsnaMng(
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Key not yet valid", AIRPDCAP_DEBUG_LEVEL_3);
         return AIRPDCAP_RET_UNSUCCESS;
     }
-    if (sa->wpa.key_ver==1) {
-        /*	CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm	*/
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP", AIRPDCAP_DEBUG_LEVEL_3);
 
-		DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
-		DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
+    /* allocate a temp buffer for the decryption loop */
+    try_data=ep_alloc(*decrypt_len);
 
-        ret_value=AirPDcapTkipDecrypt(decrypt_data+offset, *decrypt_len-offset, decrypt_data+AIRPDCAP_TA_OFFSET, AIRPDCAP_GET_TK(sa->wpa.ptk));
-		if (ret_value){
-	        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP failed!", AIRPDCAP_DEBUG_LEVEL_3);
-            return ret_value;
-		}
+    /* start of loop added by GCS */
+    for(/* sa */; sa != NULL && ret_value == 1 ;sa=sa->next) {
 
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-        /* remove MIC (8bytes) and ICV (4bytes) from the end of packet	*/
-        *decrypt_len-=12;
-    } else {
-        /*	AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm	*/
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
+       /* copy the encrypted data into a temp buffer */
+       memcpy(try_data, decrypt_data, *decrypt_len);
 
-        ret_value=AirPDcapCcmpDecrypt(decrypt_data, mac_header_len, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
-        if (ret_value)
-            return ret_value;
+       if (sa->wpa.key_ver==1) {
+           /*	CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm	*/
+           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP", AIRPDCAP_DEBUG_LEVEL_3);
 
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-        /* remove MIC (8bytes) from the end of packet	*/
-        *decrypt_len-=8;
+		   DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
+		   DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
+
+           ret_value=AirPDcapTkipDecrypt(try_data+offset, *decrypt_len-offset, try_data+AIRPDCAP_TA_OFFSET, AIRPDCAP_GET_TK(sa->wpa.ptk));
+		   if (ret_value){
+	           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP failed!", AIRPDCAP_DEBUG_LEVEL_3);
+               continue;
+		   }
+
+           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
+           /* remove MIC (8bytes) and ICV (4bytes) from the end of packet	*/
+           *decrypt_len-=12;
+       } else {
+           /*	AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm	*/
+           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
+
+           ret_value=AirPDcapCcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
+           if (ret_value)
+              continue;
+
+           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
+           /* remove MIC (8bytes) from the end of packet	*/
+           *decrypt_len-=8;
+       }
     }
+    /* end of loop */
+
+    /* non of the keys workd */
+    if(sa == NULL)
+      return ret_value;
+
+    /* copy the decrypted data into the decrypt buffer GCS*/
+    memcpy(decrypt_data, try_data, *decrypt_len);
 
     /* remove protection bit	*/
     decrypt_data[1]&=0xBF;
@@ -1035,7 +1055,7 @@ AirPDcapRsnaMng(
     /* remove TKIP/CCMP header	*/
     offset = mac_header_len;
     *decrypt_len-=8;
-    memcpy(decrypt_data+offset, decrypt_data+offset+8, *decrypt_len-offset);
+    memmove(decrypt_data+offset, decrypt_data+offset+8, *decrypt_len-offset);
 
     if (key!=NULL) {
         memcpy(key, sa->key, sizeof(AIRPDCAP_KEY_ITEM));
@@ -1156,6 +1176,7 @@ AirPDcapRsna4WHandshake(
     INT offset)
 {
     AIRPDCAP_KEY_ITEM *tmp_key, pkt_key;
+    AIRPDCAP_SEC_ASSOCIATION *tmp_sa;
     INT key_index;
     INT ret_value=1;
     UCHAR useCache=FALSE;
@@ -1171,7 +1192,14 @@ AirPDcapRsna4WHandshake(
         return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
     }
 
-    /* TODO timeouts? reauthentication?	*/
+    /* TODO timeouts? */
+    
+    /* This saves the sa since we are reauthenticating which will overwrite our current sa GCS*/
+    if(sa->handshake == 4) {
+        tmp_sa=se_alloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
+        memcpy(tmp_sa, sa, sizeof(AIRPDCAP_SEC_ASSOCIATION));
+        sa->next=tmp_sa;
+    }
 
     /* TODO consider key-index	*/
 

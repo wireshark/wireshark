@@ -125,9 +125,14 @@ typedef struct _AIRPDCAP_SEC_ASSOCIATION_ID {
 } AIRPDCAP_SEC_ASSOCIATION_ID, *PAIRPDCAP_SEC_ASSOCIATION_ID;
 
 typedef struct _AIRPDCAP_SEC_ASSOCIATION {
+    /* This is for reassociations. A linked list of old security 
+     * associations is kept.  GCS
+     */
+    struct _AIRPDCAP_SEC_ASSOCIATION* next;
+
 	/**
 	 * This flag define whether this item is used or not. Accepted
-         * values are TRUE and FALSE
+     * values are TRUE and FALSE
 	 */
 	UINT8 used;
 	AIRPDCAP_SEC_ASSOCIATION_ID saId;
@@ -144,6 +149,8 @@ typedef struct _AIRPDCAP_SEC_ASSOCIATION {
 
 		UCHAR ptk[AIRPDCAP_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
 	} wpa;
+
+
 } AIRPDCAP_SEC_ASSOCIATION, *PAIRPDCAP_SEC_ASSOCIATION;
 
 typedef struct _AIRPDCAP_CONTEXT {
