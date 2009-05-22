@@ -405,11 +405,12 @@ welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpoin
 static GtkWidget *
 welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 {
-    GtkWidget *w;
-    GtkWidget *eb;
-    GString		*str;
+    GtkWidget	*w;
+    GtkWidget	*eb;
+    GString	*str;
+    gchar	*str_escaped;
     const unsigned int max = 60;
-    int err;
+    int		err;
     struct stat stat_buf;
     GtkTooltips *tooltips;
 
@@ -425,15 +426,26 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
         g_string_insert(str, 20, " ... ");
     }
 
-    /* add file size */
+    /* escape the possibly shortened filename before adding pango language */
+    str_escaped=g_markup_escape_text(str->str, -1);
+    g_string_free(str, TRUE);
+    str=g_string_new(str_escaped);
+    g_free(str_escaped);
+
+    /*
+     * Add file size. We use binary prefixes instead of IEC because that's what
+     * most OSes use.
+     */
     err = ws_stat(filename, &stat_buf);
     if(err == 0) {
-        if (stat_buf.st_size/1024/1024 > 10) {
-            g_string_append_printf(str, " %" G_GINT64_MODIFIER "dMB", (gint64) (stat_buf.st_size/1024/1024));
+        if (stat_buf.st_size/1024/1024/1024 > 10) {
+            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));
+	} else if (stat_buf.st_size/1024/1024 > 10) {
+            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d MB)", (gint64) (stat_buf.st_size/1024/1024));
         } else if (stat_buf.st_size/1024 > 10) {
-            g_string_append_printf(str, " %" G_GINT64_MODIFIER "dKB", (gint64) (stat_buf.st_size/1024));
+            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d KB)", (gint64) (stat_buf.st_size/1024));
         } else {
-            g_string_append_printf(str, " %" G_GINT64_MODIFIER "d Bytes", (gint64) (stat_buf.st_size));
+            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d Bytes)", (gint64) (stat_buf.st_size));
         }
     } else {
         g_string_append(str, " [not found]");
@@ -451,7 +463,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     gtk_label_set_markup(GTK_LABEL(w), str->str);
     gtk_misc_set_padding(GTK_MISC(w), 5, 2);
 
-	/* event box */
+    /* event box */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
     gtk_tooltips_set_tip(tooltips, eb, filename, "");
