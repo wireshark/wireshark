@@ -1573,7 +1573,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 
 	/* write the interface description block */
 	wblock.type = BLOCK_TYPE_IDB;
-	wblock.data.if_descr.link_type	= wdh->encap;
+	wblock.data.if_descr.link_type  = wtap_wtap_encap_to_pcap_encap(wdh->encap);
 	wblock.data.if_descr.snap_len	= wdh->snaplen;
 
 	/* XXX - options unused */
@@ -1598,8 +1598,8 @@ int pcapng_dump_can_write_encap(int encap)
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-	/* XXX - for now we only support Ethernet */
-	if (encap != WTAP_ENCAP_ETHERNET)
+	/* Make sure we can figure out this DLT type */
+	if (wtap_wtap_encap_to_pcap_encap(encap) == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
