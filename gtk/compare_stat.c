@@ -853,7 +853,7 @@ comparestat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	g_string_append_printf(str, ",%d,%d,%d,%d,%lf",compare_start, compare_stop, TTL_method, ON_method, compare_variance);
 	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
-		g_string_sprintfa(str, ",%s", filter);
+		g_string_append_sprintf(str, ",%s", filter);
 	}
 
 	if(first_window){
@@ -903,7 +903,7 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
@@ -931,8 +931,8 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	spin_stop_int=gtk_spin_button_new(stop_integer, 1.0, 0);
 
 	/* pack it up */
-	gtk_box_pack_start_defaults(GTK_BOX(spin_start_box), spin_start_int);
-	gtk_box_pack_start_defaults(GTK_BOX(spin_stop_box), spin_stop_int);
+	gtk_box_pack_start(GTK_BOX(spin_start_box), spin_start_int, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(spin_stop_box), spin_stop_int,  TRUE, TRUE, 0);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), spin_start_box, FALSE, FALSE, 0);
 	gtk_widget_show(spin_start_box);
@@ -951,8 +951,8 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* create radio buttons */
 	radio_MAC=gtk_radio_button_new_with_label (NULL, "MAC");
 	radio_TTL=gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(radio_MAC), "TTL");
-	gtk_box_pack_start_defaults(GTK_BOX(differ_box), radio_MAC);
-	gtk_box_pack_start_defaults(GTK_BOX(differ_box), radio_TTL);
+	gtk_box_pack_start(GTK_BOX(differ_box), radio_MAC, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(differ_box), radio_TTL, TRUE, TRUE, 0);
 	gtk_widget_show(radio_MAC);
 	gtk_widget_show(radio_TTL);
 
@@ -971,8 +971,8 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* create radio buttons */
 	radio_ON=gtk_radio_button_new_with_label (NULL, "ON");
 	radio_OFF=gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(radio_ON), "OFF");
-	gtk_box_pack_start_defaults(GTK_BOX(order_box), radio_ON);
-	gtk_box_pack_start_defaults(GTK_BOX(order_box), radio_OFF);
+	gtk_box_pack_start(GTK_BOX(order_box), radio_ON, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(order_box), radio_OFF, TRUE, TRUE, 0);
 	gtk_widget_show(radio_ON);
 	gtk_widget_show(radio_OFF);
 
@@ -996,7 +996,7 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 	spin_var_int=gtk_spin_button_new(var_integer, 0.0, 2);
 
 	/* pack it up */
-	gtk_box_pack_start_defaults(GTK_BOX(spin_var_box), spin_var_int);
+	gtk_box_pack_start(GTK_BOX(spin_var_box), spin_var_int, TRUE, TRUE, 0);
 	gtk_widget_show(spin_var_int);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), spin_var_box, FALSE, FALSE, 0);
