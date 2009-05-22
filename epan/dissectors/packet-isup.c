@@ -3629,6 +3629,14 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
 
+  length = tvb_length_remaining(parameter_tvb, offset);
+
+  if (length == 0) {
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Original Called Number (empty)");
+    proto_item_set_text(parameter_item, "Original Called Number: (empty)");
+    return;
+  }
+
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
 					    offset, -1,
 					    "Original Called Number");
@@ -3685,6 +3693,14 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
   proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
+
+  length = tvb_length_remaining(parameter_tvb, offset);
+
+  if (length == 0) {
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Redirecting Number (empty)");
+    proto_item_set_text(parameter_item, "Redirecting Number: (empty)");
+	return;
+  }
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
 					    offset, -1,
@@ -4429,11 +4445,49 @@ static void
 dissect_isup_mlpp_precedence_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   char NI_digits[5]="";
+  char *temp_text = "";
   guint8 indicators, digit_pair;
   guint32 bin_code;
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, 1, "LFB (Bits 6+7) and precedence level (Bits 1-4): 0x%x",indicators);
+  switch ((indicators & 0x60) >> 5) {
+    case 0x0:
+      temp_text = "Allowed";
+      break;
+    case 0x1:
+      temp_text = "Not Allowed";
+      break;
+    case 0x2:
+	  temp_text = "Path reserved";
+      break;
+    case 0x3:
+      temp_text = "Spare";
+      break;
+  }
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, 1, "Look forward busy: %s", temp_text);
+  switch (indicators & 0xf) {
+    case 0x0:
+      temp_text = "Flash Override";
+      break;
+    case 0x1:
+      temp_text = "Flash";
+      break;
+    case 0x2:
+      temp_text = "Immediate";
+      break;
+    case 0x3:
+      temp_text = "Priority";
+      break;
+    case 0x4:
+      temp_text = "Routine";
+      break;
+    default:
+      temp_text = "Spare";
+      break;
+  }
+
+
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, 1, "Precedence Level: %s",temp_text);
   digit_pair = tvb_get_guint8(parameter_tvb, 1);
   NI_digits[0] = number_to_char((digit_pair & HGFE_8BIT_MASK) / 0x10);
   NI_digits[1] = number_to_char(digit_pair & DCBA_8BIT_MASK);
@@ -4444,7 +4498,7 @@ dissect_isup_mlpp_precedence_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   proto_tree_add_text(parameter_tree, parameter_tvb, 1, 2, "Network Identity: %s", NI_digits);
   bin_code = tvb_get_ntoh24(parameter_tvb, 3);
   proto_tree_add_text(parameter_tree, parameter_tvb, 3, 3, "MLPP service domain: 0x%x", bin_code);
-  proto_item_set_text(parameter_item, "MLPP precedence: NI = %s, MLPP service domain = 0x%x", NI_digits, bin_code);
+  proto_item_set_text(parameter_item, "MLPP precedence: Prec = %s, NI = %s, MLPP service domain = 0x%x", temp_text, NI_digits, bin_code);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter MCID request indicators
