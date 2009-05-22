@@ -2847,6 +2847,10 @@ Greg Schwendimann		<gregs@iol.unh.edu> {
 	WPA decryption security association caching
 }
 
+Nick Lewis			<nick.lewis@atltelecom.com> {
+	Show timestamp problems in RTP player
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

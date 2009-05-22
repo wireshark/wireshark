@@ -148,6 +148,7 @@ typedef struct _sample_t {
 #define S_NORMAL 0
 #define S_DROP_BY_JITT 1
 #define S_WRONG_SEQ 2
+#define S_WRONG_TIMESTAMP 3 /* The timestamp does not reflect the number of samples - samples have been dropped or silence inserted to match timestamp */
 
 /* Display channels constants */
 #define MULT 80
@@ -189,6 +190,7 @@ typedef struct _rtp_channel_info {
 	guint32 frame_index;
 	guint32 drop_by_jitter_buff;
 	guint32 out_of_seq;
+	guint32 wrong_timestamp;
 	guint32 max_frame_index;
 	GtkWidget *check_bt;
 	GtkWidget *separator;
@@ -641,6 +643,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		rci->frame_index = 0;
 		rci->drop_by_jitter_buff = 0;
 		rci->out_of_seq = 0;
+		rci->wrong_timestamp = 0;
 		rci->max_frame_index = 0;
 		rci->samples = g_array_new (FALSE, FALSE, sizeof(sample_t));
 		rci->check_bt = NULL;
@@ -783,6 +786,10 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		} else {
 			/* Add silence if it is necessary */
 			silence_frames = (gint32)((rtp_time - rtp_time_prev)*SAMPLE_RATE - decoded_bytes_prev/2);
+			if (silence_frames != 0) {
+				rci->wrong_timestamp++;
+				status = S_WRONG_TIMESTAMP;
+			}
 			for (i = 0; i< silence_frames; i++) {
 				silence.status = status;
 				g_array_append_val(rci->samples, silence);
@@ -791,13 +798,16 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				status = S_NORMAL;
 			}
 
-			status = S_NORMAL;
 
+			if (silence_frames > 0) {
+				silence_frames = 0;
+			}
 			/* Add the audio */
-			for (i = 0; i< (decoded_bytes/2); i++) {
+			for (i = - silence_frames; i< (decoded_bytes/2); i++) {
 				sample.val = out_buff[i];
 				sample.status = status;
 				g_array_append_val(rci->samples, sample);
+				status = S_NORMAL;
 			}
 	
 			rtp_time_prev = rtp_time;
@@ -1221,7 +1231,9 @@ static void channel_draw(rtp_channel_info_t* rci)
 	guint status;
 	GdkGC *gc;
 	GdkGC *red_gc;
+	GdkGC *amber_gc;
 	GdkColor red_color = {0, 65535, 0, 0};
+	GdkColor amber_color = {0, 65535, 49152, 0};
 	
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
 		/* Clear out old plot */
@@ -1256,6 +1268,8 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 		red_gc = gdk_gc_new(rci->draw_area->window);
 		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
+		amber_gc = gdk_gc_new(rci->draw_area->window);
+		gdk_gc_set_rgb_fg_color(amber_gc, &amber_color);
 
 		for (i=0; i< imax; i++) {
 			sample.val = 0;
@@ -1278,10 +1292,13 @@ static void channel_draw(rtp_channel_info_t* rci)
 				max = max(max, sample.val);
 				min = min(min, sample.val);
 				if (sample.status == S_DROP_BY_JITT) status = S_DROP_BY_JITT;
+				if (sample.status == S_WRONG_TIMESTAMP) status = S_WRONG_TIMESTAMP;
 			}
 
 			if (status == S_DROP_BY_JITT) {
 				gc = red_gc;
+			} else if (status == S_WRONG_TIMESTAMP) {
+				gc = amber_gc;
 			} else {
 				gc = rci->draw_area->style->black_gc;
 			}
@@ -1524,14 +1541,20 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 	label = g_string_new("");
 	if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
-		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)", get_addr_name(&(rci->first_stream->src_addr)), 
-		rci->first_stream->src_port, get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port, 
-		(double)rci->samples->len/SAMPLE_RATE, rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets);
+		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
+		get_addr_name(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
+		get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
+		(double)rci->samples->len/SAMPLE_RATE,
+		rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets,
+		rci->wrong_timestamp, (double)rci->wrong_timestamp * 100 / (double)rci->num_packets);
 	} else {
-		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Drop by Jitter Buff:%d(%.1f%%)   Out of Seq: %d(%.1f%%)", get_addr_name(&(rci->first_stream->src_addr)), 
-		rci->first_stream->src_port, get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port, 
-		(double)rci->samples->len/SAMPLE_RATE, rci->drop_by_jitter_buff, (double)rci->drop_by_jitter_buff * 100 / (double)rci->num_packets
-		, rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets);
+		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Drop by Jitter Buff:%d(%.1f%%)   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
+		get_addr_name(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
+		get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
+		(double)rci->samples->len/SAMPLE_RATE,
+		rci->drop_by_jitter_buff, (double)rci->drop_by_jitter_buff * 100 / (double)rci->num_packets,
+		rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets,
+		rci->wrong_timestamp, (double)rci->wrong_timestamp * 100 / (double)rci->num_packets);
 	}
 
 	rci->check_bt = gtk_check_button_new_with_label(label->str);
