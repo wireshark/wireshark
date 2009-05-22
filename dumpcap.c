@@ -232,6 +232,12 @@ static const char please_report[] =
  */
 static loop_data   global_ld;
 
+/*
+ * Event used for overlapped IO reads from named pipes.
+ */
+#ifdef _WIN32
+static HANDLE cap_pipe_read_event = 0;
+#endif
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
@@ -694,9 +700,9 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
  * Returns the same values as select.  If an error is returned,
  * the string cap_pipe_err_str should be used instead of errno.
  */
+#ifndef _WIN32
 static int
 cap_pipe_select(int pipe_fd) {
-#ifndef _WIN32
   fd_set      rfds;
   struct timeval timeout, *pto;
   int sel_ret;
@@ -715,14 +721,23 @@ cap_pipe_select(int pipe_fd) {
     cap_pipe_err_str = strerror(errno);
   return sel_ret;
 }
-#else
+#else /* _WIN32 */
+static int
+cap_pipe_select(int pipe_fd, guint32* pre_read_word) {
   /* XXX - Should we just use file handles exclusively under Windows?
    * Otherwise we have to convert between file handles and file descriptors
    * here and when we open a named pipe.
    */
   HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
   wchar_t *err_str;
-  DWORD wait_ret;
+
+  BOOL read_file_result;
+  OVERLAPPED overlap;
+
+  guint32 read_word = 0; 
+
+  DWORD num_bytes_read = 0;
+  DWORD return_val = 1;
 
   if (hPipe == INVALID_HANDLE_VALUE) {
     cap_pipe_err_str = "Could not open standard input";
@@ -731,26 +746,72 @@ cap_pipe_select(int pipe_fd) {
 
   cap_pipe_err_str = "Unknown error";
 
-  wait_ret = WaitForSingleObject(hPipe, CAP_READ_TIMEOUT);
-  switch (wait_ret) {
-    /* XXX - This probably isn't correct */
-    case WAIT_ABANDONED:
-      errno = EINTR;
-      return -1;
-    case WAIT_OBJECT_0:
-      return 1;
-    case WAIT_TIMEOUT:
-      return 0;
-    case WAIT_FAILED:
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-        NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-      cap_pipe_err_str = utf_16to8(err_str);
-      LocalFree(err_str);
-      return -1;
+  overlap.Offset = 0;
+  overlap.OffsetHigh = 0;
+  overlap.hEvent = cap_pipe_read_event;
+  read_file_result = ReadFile(hPipe, (LPVOID) &read_word, 4, &num_bytes_read, &overlap);
+  if (!read_file_result) {
+    DWORD lastErr = GetLastError();
+    switch (lastErr) {
+
+    case ERROR_HANDLE_EOF:
+      return_val = 0;
+      break;
+    case ERROR_IO_PENDING:
+    {
+      DWORD waitResult = WaitForSingleObject(overlap.hEvent, CAP_READ_TIMEOUT);
+      switch (waitResult) {
+      case WAIT_ABANDONED:
+        errno = EINTR;
+        return_val = -1;
+        break;
+      case WAIT_OBJECT_0:
+      {
+        DWORD numBytes = 0;
+        BOOL ovRes = GetOverlappedResult(hPipe, &overlap, &numBytes, FALSE);
+        if (ovRes) {
+          *pre_read_word = read_word;
+          return_val = 1;
+        } else {
+          return_val = 0;
+        }
+        break;
+      }
+      case WAIT_TIMEOUT:
+      {
+        BOOL cancelRes = CancelIo(hPipe);
+        if (!cancelRes) {
+          FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                        NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+          LocalFree(err_str);
+        }
+        return_val = 0;
+        break;
+      }
+      case WAIT_FAILED:
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                      NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+        cap_pipe_err_str = utf_16to8(err_str);
+        LocalFree(err_str);
+        return_val = -1;
+        break;
+      default:
+        g_assert_not_reached();
+        return_val = -1;
+        break;
+      }
+      break;
+    }
     default:
-      g_assert_not_reached();
-      return -1;
+      return_val = -1;
+      break;
+    }
+  } else {
+    *pre_read_word = read_word;
+    return_val = 1;
   }
+
+  return return_val;
 }
 #endif
 
@@ -767,10 +828,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #ifndef _WIN32
   struct stat pipe_stat;
 #else
-#if 1
   char *pncopy, *pos;
+  guint32 pre_read_word;
   wchar_t *err_str;
-#endif
   HANDLE hPipe = NULL;
 #endif
   int          sel_ret;
@@ -855,7 +915,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     /* Wait for the pipe to appear */
     while (1) {
       hPipe = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
-          OPEN_EXISTING, 0, NULL);
+          OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 
       if (hPipe != INVALID_HANDLE_VALUE)
         break;
@@ -893,6 +953,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       ld->cap_pipe_err = PIPERR;
       return -1;
     }
+
+    cap_pipe_read_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+
 #endif /* _WIN32 */
   }
 
@@ -901,13 +964,25 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   /* read the pcap header */
   bytes_read = 0;
   while (bytes_read < sizeof magic) {
+#ifndef _WIN32     
     sel_ret = cap_pipe_select(fd);
+#else
+    sel_ret = cap_pipe_select(fd, &pre_read_word);
+#endif
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
       goto error;
     } else if (sel_ret > 0) {
-      b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
+#ifdef _WIN32
+      g_assert(bytes_read == 0);
+      bytes_read += sizeof pre_read_word;
+      magic = pre_read_word;
+#endif
+      if (bytes_read < sizeof magic)
+        b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
+      else
+        continue;
       if (b <= 0) {
         if (b == 0)
           g_snprintf(errmsg, errmsgl, "End of file on pipe during open");
@@ -956,12 +1031,20 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   /* Read the rest of the header */
   bytes_read = 0;
   while (bytes_read < sizeof(struct pcap_hdr)) {
+#ifndef _WIN32
     sel_ret = cap_pipe_select(fd);
+#else
+    sel_ret = cap_pipe_select(fd, &pre_read_word);
+#endif
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
       goto error;
     } else if (sel_ret > 0) {
+#ifdef _WIN32
+      *(((guint32*)hdr) + bytes_read) = pre_read_word;
+      bytes_read += sizeof pre_read_word;
+#endif
       b = read(fd, ((char *)hdr)+bytes_read,
             sizeof(struct pcap_hdr) - bytes_read);
       if (b <= 0) {
@@ -1005,8 +1088,12 @@ error:
 
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
+#ifndef _WIN32
 static int
 cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
+#else
+cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl, guint32 pre_read_word)
+#endif
 {
   struct pcap_pkthdr phdr;
   int b;
@@ -1028,6 +1115,10 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
     /* Fall through */
 
   case STATE_READ_REC_HDR:
+#ifdef _WIN32
+    *(((guint32*) &ld->cap_pipe_rechdr) + ld->cap_pipe_bytes_read) = pre_read_word;
+    ld->cap_pipe_bytes_read += sizeof pre_read_word;
+#endif
     b = read(ld->cap_pipe_fd, ((char *)&ld->cap_pipe_rechdr)+ld->cap_pipe_bytes_read,
              ld->cap_pipe_bytes_to_read - ld->cap_pipe_bytes_read);
     if (b <= 0) {
@@ -1048,6 +1139,10 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
     /* Fall through */
 
   case STATE_READ_DATA:
+#ifdef _WIN32
+    *(((guint32*) (data+ld->cap_pipe_bytes_read) + ld->cap_pipe_bytes_read)) = pre_read_word;
+    ld->cap_pipe_bytes_read += sizeof pre_read_word;
+#endif
     b = read(ld->cap_pipe_fd, data+ld->cap_pipe_bytes_read,
              ld->cap_pipe_rechdr.hdr.incl_len - ld->cap_pipe_bytes_read);
     if (b <= 0) {
@@ -1399,6 +1494,11 @@ static void capture_loop_close_input(loop_data *ld) {
   ld->go = FALSE;
 
 #ifdef _WIN32
+  if (ld->from_cap_pipe == TRUE && cap_pipe_read_event != 0) {
+    CloseHandle(cap_pipe_read_event);
+    cap_pipe_read_event = 0;
+  }
+
   /* Shut down windows sockets */
   WSACleanup();
 #endif
@@ -1565,6 +1665,9 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
   int       sel_ret;
   gint      packet_count_before;
   guchar    pcap_data[WTAP_MAX_PACKET_SIZE];
+#ifdef _WIN32
+  guint32   pre_read_word;
+#endif
 
   packet_count_before = ld->packet_count;
   if (ld->from_cap_pipe) {
@@ -1572,9 +1675,19 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
 #endif
+#ifndef _WIN32
     sel_ret = cap_pipe_select(ld->cap_pipe_fd);
+#else
+    sel_ret = cap_pipe_select(ld->cap_pipe_fd, &pre_read_word);
+#endif
     if (sel_ret <= 0) {
       inpkts = 0;
+#ifdef _WIN32
+      if (sel_ret < 0 && GetLastError() == ERROR_BROKEN_PIPE) {
+          /* The pipe was closed - don't output an error */
+          ld->go = FALSE;
+      } else
+#endif
       if (sel_ret < 0 && errno != EINTR) {
         g_snprintf(errmsg, errmsg_len,
           "Unexpected error from select: %s", strerror(errno));
@@ -1585,7 +1698,11 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
       /*
        * "select()" says we can read from the pipe without blocking
        */
+#ifndef _WIN32
       inpkts = cap_pipe_dispatch(ld, pcap_data, errmsg, errmsg_len);
+#else
+      inpkts = cap_pipe_dispatch(ld, pcap_data, errmsg, errmsg_len, pre_read_word);
+#endif
       if (inpkts < 0) {
         ld->go = FALSE;
       }
@@ -1612,7 +1729,11 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
 #endif
     if (ld->pcap_fd != -1) {
+#ifndef _WIN32
       sel_ret = cap_pipe_select(ld->pcap_fd);
+#else
+      sel_ret = cap_pipe_select(ld->pcap_fd, &pre_read_word);
+#endif
       if (sel_ret > 0) {
         /*
          * "select()" says we can read from it without blocking; go for
