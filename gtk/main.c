@@ -2620,7 +2620,7 @@ main(int argc, char *argv[])
 
         case CF_READ_ABORTED:
           /* Exit now. */
-          gtk_exit(0);
+          exit(0);
           break;
         }
         /* Save the name of the containing directory specified in the
@@ -2711,14 +2711,7 @@ main(int argc, char *argv[])
   destroy_console();
 #endif
 
-  gtk_exit(0);
-
-  /* This isn't reached, but we need it to keep GCC from complaining
-     that "main()" returns without returning a value - it knows that
-     "exit()" never returns, but it doesn't know that "gtk_exit()"
-     doesn't, as GTK+ doesn't declare it with the attribute
-     "noreturn". */
-  return 0;	/* not reached */
+  exit(0);
 }
 
 #ifdef _WIN32

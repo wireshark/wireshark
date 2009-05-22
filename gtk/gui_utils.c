@@ -570,7 +570,7 @@ void main_window_update(void)
 /* exit the main window */
 void main_window_exit(void)
 {
-  gtk_exit(0);
+  exit(0);
 }
 
 #ifdef HAVE_LIBPCAP
