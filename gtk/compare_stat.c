@@ -853,7 +853,7 @@ comparestat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	g_string_append_printf(str, ",%d,%d,%d,%d,%lf",compare_start, compare_stop, TTL_method, ON_method, compare_variance);
 	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
-		g_string_append_sprintf(str, ",%s", filter);
+		g_string_append_printf(str, ",%s", filter);
 	}
 
 	if(first_window){
