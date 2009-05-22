@@ -300,3 +300,213 @@ snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	}
 	return TRUE;
 }
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int btsnoop_dump_can_write_encap(int encap)
+{
+    /* Per-packet encapsulations aren't supported. */
+    if (encap == WTAP_ENCAP_PER_PACKET)
+        return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+    /* XXX - for now we only support WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
+    if (encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+        return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+    return 0;
+}
+
+struct hci_flags_mapping
+{
+    guint8 hci_type;
+    guint8 sent;
+    guint8 flags;
+};
+
+static const struct hci_flags_mapping hci_flags[] =
+{
+    { 0x02, TRUE,   KHciLoggerHostToController|KHciLoggerACLDataFrame   }, /* HCI_H4_TYPE_ACL */
+    { 0x02, FALSE,  KHciLoggerControllerToHost|KHciLoggerACLDataFrame   }, /* HCI_H4_TYPE_ACL */
+    { 0x01, TRUE,   KHciLoggerHostToController|KHciLoggerCommandOrEvent }, /* HCI_H4_TYPE_CMD */
+    { 0x04, FALSE,  KHciLoggerControllerToHost|KHciLoggerCommandOrEvent }, /* HCI_H4_TYPE_EVT */
+};
+
+static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags)
+{
+    guint8 i;
+
+    for (i=0; i < G_N_ELEMENTS(hci_flags); ++i)
+    {
+        if (hci_flags[i].hci_type == hci_type &&
+            hci_flags[i].sent == sent)
+        {
+            *flags = hci_flags[i].flags;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header,
+    const guchar *pd, int *err,
+    struct btsnooprec_hdr *rec_hdr)
+{
+    gint64 ts_usec;
+    guint8 flags = 0;
+
+    if (!btsnoop_lookup_flags(*pd, pseudo_header->p2p.sent, &flags)) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        return FALSE;
+    }
+
+    ts_usec  = ((gint64) phdr->ts.secs * 1000000) + ((gint64) phdr->ts.nsecs / 1000);
+    ts_usec += KUnixTimeBase;
+
+    rec_hdr->flags = GUINT32_TO_BE(flags);
+    rec_hdr->cum_drops = GUINT32_TO_BE(0);
+    rec_hdr->ts_usec = GINT64_TO_BE(ts_usec);
+
+    return TRUE;
+}
+
+/* FIXME: How do we support multiple backends?*/
+static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header,
+    const guchar *pd, int *err)
+{
+    struct btsnooprec_hdr rec_hdr;
+
+    if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
+        return FALSE;
+
+    rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen-1);
+    rec_hdr.orig_len = GUINT32_TO_BE(phdr->len-1);
+
+    if (!wtap_dump_file_write_all(wdh, &rec_hdr, sizeof rec_hdr, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof rec_hdr;
+
+    /* Skip HCI packet type */
+    ++pd;
+
+    if (!wtap_dump_file_write_all(wdh, pd, phdr->caplen-1, err))
+        return FALSE;
+
+    wdh->bytes_dumped += phdr->caplen-1;
+
+    return TRUE;
+}
+
+static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header,
+    const guchar *pd, int *err)
+{
+    struct btsnooprec_hdr rec_hdr;
+
+    if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
+        return FALSE;
+
+    rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen);
+    rec_hdr.orig_len = GUINT32_TO_BE(phdr->len);
+
+    if (!wtap_dump_file_write_all(wdh, &rec_hdr, sizeof rec_hdr, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof rec_hdr;
+
+    if (!wtap_dump_file_write_all(wdh, pd, phdr->caplen, err))
+        return FALSE;
+
+    wdh->bytes_dumped += phdr->caplen;
+
+    return TRUE;
+}
+
+/* FIXME: How do we support multiple backends?*/
+gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+{
+    struct btsnoop_hdr file_hdr;
+
+    /* This is a libpcap file */
+    wdh->subtype_write = btsnoop_dump_h1;
+    wdh->subtype_close = NULL;
+
+    /* Write the file header. */
+    switch (wdh->file_type) {
+
+    case WTAP_FILE_BTSNOOP:
+        wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+        break;
+
+    default:
+        /* We should never get here - our open routine
+           should only get called for the types above. */
+        *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+        return FALSE;
+    }
+
+    if (!wtap_dump_file_write_all(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof btsnoop_magic;
+
+    /* current "btsnoop" format is 1 */
+    file_hdr.version  = GUINT32_TO_BE(1);
+    /* HCI type encoded in first byte */
+    file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH1);
+
+    if (!wtap_dump_file_write_all(wdh, &file_hdr, sizeof file_hdr, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof file_hdr;
+
+    return TRUE;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
+{
+    struct btsnoop_hdr file_hdr;
+
+    /* This is a libpcap file */
+    wdh->subtype_write = btsnoop_dump_h4;
+    wdh->subtype_close = NULL;
+
+    /* Write the file header. */
+    switch (wdh->file_type) {
+
+    case WTAP_FILE_BTSNOOP:
+        wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+        break;
+
+    default:
+        /* We should never get here - our open routine
+           should only get called for the types above. */
+        *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+        return FALSE;
+    }
+
+    if (!wtap_dump_file_write_all(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof btsnoop_magic;
+
+    /* current "btsnoop" format is 1 */
+    file_hdr.version  = GUINT32_TO_BE(1);
+    /* HCI type encoded in first byte */
+    file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH4);
+
+    if (!wtap_dump_file_write_all(wdh, &file_hdr, sizeof file_hdr, err))
+        return FALSE;
+
+    wdh->bytes_dumped += sizeof file_hdr;
+
+    return TRUE;
+}
+

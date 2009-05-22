@@ -589,7 +589,8 @@ static const struct file_type_info dump_open_table_base[] = {
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_BTSNOOP */
-	{ "Symbian OS btsnoop", "btsnoop", "*.log", NULL, FALSE, NULL, NULL },
+	{ "Symbian OS btsnoop", "btsnoop", "*.log", ".log", FALSE,
+	  btsnoop_dump_can_write_encap, btsnoop_dump_open_h4 },
         
 	/* WTAP_FILE_X2E_XORAYA */
 	{ NULL, NULL, NULL, NULL, FALSE, NULL, NULL },
@@ -1011,6 +1012,21 @@ size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize)
 	{
 		return fwrite(buf, 1, bufsize, wdh->fh);
 	}
+}
+
+gboolean wtap_dump_file_write_all(wtap_dumper *wdh, const void *buf, unsigned bufsize, int *err)
+{
+	size_t nwritten;
+
+    nwritten = wtap_dump_file_write(wdh, buf, bufsize);
+    if (nwritten != bufsize) {
+        if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+            *err = wtap_dump_file_ferror(wdh);
+        else
+            *err = WTAP_ERR_SHORT_WRITE;
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /* internally close a file for writing (compressed or not) */

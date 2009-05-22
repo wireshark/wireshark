@@ -278,6 +278,7 @@ struct wtap_dumper {
 							 * e.g. WTAP_FILE_TSPREC_USEC */
 };
 
+extern gboolean wtap_dump_file_write_all(wtap_dumper *wdh, const void *buf, unsigned bufsize, int *err);
 extern size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize);
 extern int wtap_dump_file_ferror(wtap_dumper *wdh);
 
