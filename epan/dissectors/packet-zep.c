@@ -183,7 +183,7 @@ dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 #if 0
-//??dat
+/*??dat*/
     if (zep_data.ntp_time.secs && zep_data.ntp_time.nsecs) {
         pinfo->fd->abs_ts = zep_data.ntp_time;
     }
