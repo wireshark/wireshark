@@ -974,13 +974,13 @@ main(int argc, char *argv[])
         block_start.secs = phdr->ts.secs;
         block_start.nsecs = phdr->ts.nsecs;
 
-      if (split_packet_count > 0 || secs_per_block > 0) {
-        if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
-            exit(5);
+        if (split_packet_count > 0 || secs_per_block > 0) {
+          if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
+              exit(5);
 
-        filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
-      } else
-        filename = g_strdup(argv[optind+1]);
+          filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+        } else
+          filename = g_strdup(argv[optind+1]);
 
         pdh = wtap_dump_open(filename, out_file_type,
             out_frame_type, wtap_snapshot_length(wth),
