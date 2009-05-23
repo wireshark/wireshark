@@ -186,9 +186,10 @@ fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffi
     gchar *save_file;
 
     save_file = g_strdup(fname);
-
-    if (!fprefix || !fsuffix || !save_file)
-        return FALSE;
+    if (save_file == NULL) {
+      fprintf(stderr, "editcap: Out of memory\n");
+      return FALSE;
+    }
 
     last_pathsep = strrchr(save_file, G_DIR_SEPARATOR);
     pfx = strrchr(save_file,'.');
@@ -936,7 +937,7 @@ main(int argc, char *argv[])
       g_free(err_info);
       break;
     }
-    exit(1);
+    exit(2);
 
   }
 
@@ -976,7 +977,7 @@ main(int argc, char *argv[])
 
         if (split_packet_count > 0 || secs_per_block > 0) {
           if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
-              exit(5);
+              exit(2);
 
           filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
         } else
@@ -988,7 +989,7 @@ main(int argc, char *argv[])
         if (pdh == NULL) {  
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
-          exit(1);
+          exit(2);
         }
       }
 
@@ -1002,7 +1003,7 @@ main(int argc, char *argv[])
           if (!wtap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                 wtap_strerror(err));
-            exit(1);
+            exit(2);
           }
           block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
           g_free(filename);
@@ -1019,7 +1020,7 @@ main(int argc, char *argv[])
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
               wtap_strerror(err));
-            exit(1);
+            exit(2);
           }
         }
       }
@@ -1032,7 +1033,7 @@ main(int argc, char *argv[])
           if (!wtap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                 wtap_strerror(err));
-            exit(1);
+            exit(2);
           }
 
           g_free(filename);
@@ -1048,7 +1049,7 @@ main(int argc, char *argv[])
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                 wtap_strerror(err));
-            exit(1);
+            exit(2);
           }
         }
       }
@@ -1222,7 +1223,7 @@ main(int argc, char *argv[])
                        &err)) {
           fprintf(stderr, "editcap: Error writing to %s: %s\n",
                   filename, wtap_strerror(err));
-          exit(1);
+          exit(2);
         }
         written_count++;
       }
@@ -1253,7 +1254,7 @@ main(int argc, char *argv[])
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
           wtap_strerror(err));
-      exit(1);
+      exit(2);
 
     }
   }
