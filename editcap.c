@@ -677,7 +677,7 @@ main(int argc, char *argv[])
   char *p;
   unsigned int snaplen = 0;             /* No limit               */
   unsigned int choplen = 0;             /* No chop                */
-  wtap_dumper *pdh;
+  wtap_dumper *pdh = NULL;
   int count = 1;
   unsigned duplicate_count = 0;
   gint64 data_offset;
