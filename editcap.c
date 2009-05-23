@@ -134,6 +134,89 @@ static gboolean dup_detect_by_time = FALSE;
 
 static int find_dct2000_real_data(guint8 *buf);
 
+static gchar *
+abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
+{
+    struct tm *tmp;
+    gchar *buf = g_malloc(16);
+    
+#ifdef _MSC_VER
+    /* calling localtime() on MSVC 2005 with huge values causes it to crash */
+    /* XXX - find the exact value that still does work */
+    /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+    if(abs_time->secs > 2000000000) {
+        tmp = NULL;
+    } else
+#endif
+    tmp = localtime(&abs_time->secs);
+    if (tmp) {
+        g_snprintf(buf, 16, "%d%02d%02d%02d%02d%02d",
+            tmp->tm_year + 1900,
+            tmp->tm_mon+1,
+            tmp->tm_mday,
+            tmp->tm_hour,
+            tmp->tm_min,
+            tmp->tm_sec);
+    } else
+        strcpy(buf, "");
+
+    return buf;
+}
+
+static gchar*
+fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time, 
+                                    gchar *fprefix, gchar *fsuffix)
+{
+    gchar filenum[5+1];
+    gchar *timestr;
+    gchar *abs_str;
+
+    timestr = abs_time_to_str_with_sec_resolution(time);
+    g_snprintf(filenum, sizeof(filenum), "%05u", idx);
+    abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
+    g_free(timestr);
+
+    return abs_str;
+}
+
+static gboolean
+fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffix)
+{
+    char  *pfx, *last_pathsep;
+    gchar *save_file;
+
+    save_file = g_strdup(fname);
+
+    if (!fprefix || !fsuffix || !save_file)
+        return FALSE;
+
+    last_pathsep = strrchr(save_file, G_DIR_SEPARATOR);
+    pfx = strrchr(save_file,'.');
+    if (pfx != NULL && (last_pathsep == NULL || pfx > last_pathsep)) {
+      /* The pathname has a "." in it, and it's in the last component
+         of the pathname (because there is either only one component,
+         i.e. last_pathsep is null as there are no path separators,
+         or the "." is after the path separator before the last
+         component.
+
+         Treat it as a separator between the rest of the file name and
+         the file name suffix, and arrange that the names given to the
+         ring buffer files have the specified suffix, i.e. put the
+         changing part of the name *before* the suffix. */
+      pfx[0] = '\0';
+      *fprefix = g_strdup(save_file);
+      pfx[0] = '.'; /* restore capfile_name */
+      *fsuffix = g_strdup(pfx);
+    } else {
+      /* Either there's no "." in the pathname, or it's in a directory
+         component, so the last component has no suffix. */
+      *fprefix = g_strdup(save_file);
+      *fsuffix = NULL;
+    }
+    g_free(save_file);
+    return TRUE;
+}
+
 /* Add a selection item, a simple parser for now */
 static gboolean
 add_selection(char *sel)
@@ -604,12 +687,13 @@ main(int argc, char *argv[])
   guint8 *buf;
   int split_packet_count = 0;
   int written_count = 0;
-  char *filename;
-  size_t filenamelen = 0;
+  char *filename = NULL;
   gboolean check_ts;
   int secs_per_block = 0;
   int block_cnt = 0;
   nstime_t block_start;
+  gchar *fprefix = NULL;
+  gchar *fsuffix = NULL;
 
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
@@ -760,7 +844,6 @@ main(int argc, char *argv[])
 
     case 'i': /* break capture file based on time interval */
       secs_per_block = atoi(optarg);
-      nstime_set_unset(&block_start);
       if(secs_per_block <= 0) {
         fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
         exit(1);
@@ -826,6 +909,8 @@ main(int argc, char *argv[])
     stoptime = mktime(&stoptm);
   }
 
+  nstime_set_unset(&block_start);
+
   if (starttime > stoptime) {
     fprintf(stderr, "editcap: start time is after the stop time\n");
     exit(1);
@@ -870,37 +955,6 @@ main(int argc, char *argv[])
     if (out_frame_type == -2)
       out_frame_type = wtap_file_encap(wth);
 
-    if (split_packet_count > 0) {
-      filenamelen = strlen(argv[optind+1]) + 20;
-      filename = (char *) g_malloc(filenamelen);
-      if (!filename) {
-        exit(5);
-      }
-      g_snprintf(filename, (gulong) filenamelen, "%s-%05d", argv[optind+1], 0);
-    } else {
-      if (secs_per_block > 0) {
-        filenamelen = strlen(argv[optind+1]) + 7;
-        filename = (char *) g_malloc(filenamelen);
-        if (!filename) {
-          exit(5);
-          }
-        g_snprintf(filename, (gulong) filenamelen, "%s-%05d", argv[optind+1], block_cnt);
-        }
-      else {
-        filename = argv[optind+1];
-        }
-      }
-
-    pdh = wtap_dump_open(filename, out_file_type,
-        out_frame_type, wtap_snapshot_length(wth),
-        FALSE /* compressed */, &err);
-    if (pdh == NULL) {
-
-      fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
-              wtap_strerror(err));
-      exit(1);
-    }
-
     for (i = optind + 2; i < argc; i++)
       if (add_selection(argv[i]) == FALSE)
         break;
@@ -914,30 +968,50 @@ main(int argc, char *argv[])
     }
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
+      phdr = wtap_phdr(wth);
+
+      if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
+        block_start.secs = phdr->ts.secs;
+        block_start.nsecs = phdr->ts.nsecs;
+
+      if (split_packet_count > 0 || secs_per_block > 0) {
+        if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
+            exit(5);
+
+        filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+      } else
+        filename = g_strdup(argv[optind+1]);
+
+        pdh = wtap_dump_open(filename, out_file_type,
+            out_frame_type, wtap_snapshot_length(wth),
+            FALSE /* compressed */, &err);
+        if (pdh == NULL) {  
+          fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+                  wtap_strerror(err));
+          exit(1);
+        }
+      }
+
+      g_assert(filename);
 
       if (secs_per_block > 0) {
-        phdr = wtap_phdr(wth);
-
-        if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
-          block_start.secs = phdr->ts.secs;
-          block_start.nsecs = phdr->ts.nsecs;
-          }
-
         while ((phdr->ts.secs - block_start.secs >  secs_per_block) ||
-            (phdr->ts.secs - block_start.secs == secs_per_block &&
+               (phdr->ts.secs - block_start.secs == secs_per_block &&
                 phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
           if (!wtap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                 wtap_strerror(err));
             exit(1);
-            }
+          }
           block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
-          g_snprintf(filename, (gulong) filenamelen, "%s-%05d",argv[optind+1], ++block_cnt);
+          g_free(filename);
+          filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+          g_assert(filename);
 
           if (verbose) {
             fprintf(stderr, "Continuing writing in file %s\n", filename);
-            }
+          }
 
           pdh = wtap_dump_open(filename, out_file_type,
              out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
@@ -950,27 +1024,32 @@ main(int argc, char *argv[])
         }
       }
 
-      if (split_packet_count > 0 && (written_count % split_packet_count == 0)) {
-        if (!wtap_dump_close(pdh, &err)) {
+      if (split_packet_count > 0) {
 
-          fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
-              wtap_strerror(err));
-          exit(1);
-        }
+        /* time for the next file? */
+        if (written_count > 0 && 
+            written_count % split_packet_count == 0) {
+          if (!wtap_dump_close(pdh, &err)) {
+            fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+                wtap_strerror(err));
+            exit(1);
+          }
 
-        g_snprintf(filename, (gulong) filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
+          g_free(filename);
+          filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+          g_assert(filename);
 
-        if (verbose) {
-          fprintf(stderr, "Continuing writing in file %s\n", filename);
-        }
+          if (verbose) {
+            fprintf(stderr, "Continuing writing in file %s\n", filename);
+          }
 
-        pdh = wtap_dump_open(filename, out_file_type,
-            out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
-        if (pdh == NULL) {
-
-          fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
-              wtap_strerror(err));
-          exit(1);
+          pdh = wtap_dump_open(filename, out_file_type,
+              out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+          if (pdh == NULL) {
+            fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+                wtap_strerror(err));
+            exit(1);
+          }
         }
       }
 
@@ -1149,6 +1228,10 @@ main(int argc, char *argv[])
       }
       count++;
     }
+
+    g_free(filename);
+    g_free(fprefix);
+    g_free(fsuffix);
 
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
