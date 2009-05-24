@@ -9748,17 +9748,17 @@ proto_register_cigi(void)
         { &hf_cigi3_3_symbol_surface_definition_yaw_bottom,
             { "Yaw (degrees)/Bottom", "cigi.symbl_srfc_def.yaw_bottom",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the rotation about the surface’s Z axis or bottommost boundary for the symbol surface", HFILL }
+                "Specifies the rotation about the surface's Z axis or bottommost boundary for the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_pitch,
             { "Pitch (degrees)", "cigi.symbl_srfc_def.pitch",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the rotation about the surface’s Y axis", HFILL }
+                "Specifies the rotation about the surface's Y axis", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_roll,
             { "Roll (degrees)", "cigi.symbl_srfc_def.roll",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the rotation about the surface’s X axis", HFILL }
+                "Specifies the rotation about the surface's X axis", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_width,
             { "Width (m/degrees)", "cigi.symbl_srfc_def.width",
@@ -9773,22 +9773,22 @@ proto_register_cigi(void)
         { &hf_cigi3_3_symbol_surface_definition_min_u,
             { "Min U (surface horizontal units)", "cigi.symbl_srfc_def.min_u",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the minimum U coordinate of the symbol surface’s viewable area", HFILL }
+                "Specifies the minimum U coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_max_u,
             { "Max U (surface horizontal units)", "cigi.symbl_srfc_def.max_u",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the maximum U coordinate of the symbol surface’s viewable area", HFILL }
+                "Specifies the maximum U coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_min_v,
             { "Min V (surface vertical units)", "cigi.symbl_srfc_def.min_v",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the minimum V coordinate of the symbol surface’s viewable area", HFILL }
+                "Specifies the minimum V coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_max_v,
             { "Max V (surface vertical units)", "cigi.symbl_srfc_def.max_v",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the maximum V coordinate of the symbol surface’s viewable area", HFILL }
+                "Specifies the maximum V coordinate of the symbol surface's viewable area", HFILL }
         },
 
         /* CIGI3_3 Symbol Text Definition */
@@ -9805,7 +9805,7 @@ proto_register_cigi(void)
         { &hf_cigi3_3_symbol_text_definition_alignment,
             { "Alignment", "cigi.symbol_text_def.alignment",
                 FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_text_definition_alignment_vals), 0x0f,
-                "Specifies the position of the symbol’s reference point", HFILL }
+                "Specifies the position of the symbol's reference point", HFILL }
         },
         { &hf_cigi3_3_symbol_text_definition_orientation,
             { "Orientation", "cigi.symbol_text_def.orientation",
