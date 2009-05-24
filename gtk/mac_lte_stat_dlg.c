@@ -15,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -132,7 +132,6 @@ typedef struct mac_lte_row_data {
 typedef struct mac_lte_ep {
     struct mac_lte_ep* next;
     struct mac_lte_row_data stats;
-    guint32 number_of_packets;
     GtkTreeIter iter;
     gboolean iter_valid;
 } mac_lte_ep_t;
@@ -173,8 +172,6 @@ static GtkWidget  *mac_lte_stat_selected_ue_lb = NULL;
 /* Used to keep track of whole MAC LTE statistics window */
 typedef struct mac_lte_stat_t {
     GtkTreeView   *ue_table;
-    guint32       number_of_packets;
-    guint32       num_entries;
     mac_lte_ep_t* ep_list;
 } mac_lte_stat_t;
 
@@ -210,7 +207,6 @@ mac_lte_stat_reset(void *phs)
     }
 
     mac_lte_stat->ep_list = NULL;
-    mac_lte_stat->number_of_packets = 0;
 
     /* Set all of the channel counters to 0 */
     for (n=1; n <=4; n++) {
@@ -236,7 +232,6 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     }
 
     /* Copy SI data into ep->stats */
-    ep->number_of_packets = 0;
     ep->stats.rnti = si->rnti;
 
     /* Counts for new UE are all 0 */
@@ -283,8 +278,6 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         return (0);
     }
 
-    hs->number_of_packets++;
-
     /* For common channels, just update global counters */
     switch (si->rntiType) {
         case P_RNTI:
@@ -300,19 +293,23 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             common_stats.rar_frames++;
             common_stats.rar_entries += si->number_of_rars;
             return 1;
+        case C_RNTI:
+            /* Drop through for per-UE update */
+            break;
 
         default:
-            break;
+            return 0;
     }
-
 
     /* For per-UE data, must create a new row if none already existing */
     if (!hs->ep_list) {
+        /* Allocate new list */
         hs->ep_list = alloc_mac_lte_ep(si, pinfo);
+        /* Make it the first/only entry */
         te = hs->ep_list;
     } else {
         /* Look among existing rows for this RNTI */
-        for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
+        for (tmp = hs->ep_list;(tmp != NULL); tmp = tmp->next) {
             if (tmp->stats.rnti == si->rnti) {
                 te = tmp;
                 break;
@@ -320,7 +317,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         }
 
         /* Not found among existing, so create a new one anyway */
-        if (!te) {
+        if (te == NULL) {
             if ((te = alloc_mac_lte_ep(si, pinfo))) {
                 /* New item is head of list */
                 te->next = hs->ep_list;
@@ -335,7 +332,6 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     }
 
     /* Update entry with details from si */
-    te->number_of_packets++;
     te->stats.rnti = si->rnti;
     te->stats.is_predefined_data = si->isPredefinedData;
     if (si->crcStatusValid && !si->crcStatus) {
@@ -398,86 +394,86 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 
-static void invalidate_ues_iters(mac_lte_stat_t *hs)
-{
-    mac_lte_ep_t *ep = hs->ep_list;
-    mac_lte_ep_t *d_ep;
-
-    /* Set 'valid' pointer in each entry in list of FALSE */
-    while (ep) {
-        d_ep = ep;
-        while (d_ep) {
-            d_ep->iter_valid = FALSE;
-            d_ep = d_ep->next;
-        }
-        ep = ep->next;
-    }
-}
-
-
 /* Draw the UE details table according to the current UE selection */
 static void
-mac_lte_ue_details(mac_lte_stat_t *hs _U_, mac_lte_ep_t *mac_stat_ep _U_, gboolean clear _U_)
+mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
 {
     int n;
     gchar buff[32];
-
-    /* Clear details if necessary */
-    if (clear) {
-        invalidate_ues_iters(hs);
-    }
-
 
     /**********************************/
     /* Set data one row at a time     */
 
     /* UL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_sdus_for_lcid[n]);
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep ? mac_stat_ep->stats.UL_sdus_for_lcid[n] : 0);
          gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
     }
 
     /* Predefined */
-    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                             mac_stat_ep->stats.UL_frames :
-                                             0);
+    if (mac_stat_ep) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                                 mac_stat_ep->stats.UL_frames :
+                                                 0);
+    }
+    else {
+        g_snprintf(buff, sizeof(buff), "%u", 0);
+    }
     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][1]), buff);
 
 
     /* UL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_bytes_for_lcid[n]);
-         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
+        g_snprintf(buff, sizeof(buff), "%u",
+            (mac_stat_ep) ? mac_stat_ep->stats.UL_bytes_for_lcid[n] : 0);
+        gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
     }
 
     /* Predefined */
-    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                             mac_stat_ep->stats.UL_total_bytes :
-                                             0);
+    if (mac_stat_ep) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                                 mac_stat_ep->stats.UL_total_bytes :
+                                                 0);
+    }
+    else {
+        g_snprintf(buff, sizeof(buff), "%u", 0);
+    }
     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][2]), buff);
 
 
     /* DL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_sdus_for_lcid[n]);
-         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep ? mac_stat_ep->stats.DL_sdus_for_lcid[n] : 0);
+        gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
     }
     /* Predefined */
-    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                             mac_stat_ep->stats.DL_frames :
-                                             0);
+    if (mac_stat_ep) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                                 mac_stat_ep->stats.DL_frames :
+                                                 0);
+    }
+    else {
+        g_snprintf(buff, sizeof(buff), "%u", 0);
+    }
     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][3]), buff);
 
 
     /* DL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_bytes_for_lcid[n]);
-         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep ? mac_stat_ep->stats.DL_bytes_for_lcid[n] : 0);
+        gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
     }
     /* Predefined */
-    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                             mac_stat_ep->stats.DL_total_bytes :
-                                             0);
+    if (mac_stat_ep) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                                 mac_stat_ep->stats.DL_total_bytes :
+                                                 0);
+    }
+    else {
+        g_snprintf(buff, sizeof(buff), "%u", 0);
+    }
     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
 }
 
@@ -517,16 +513,16 @@ mac_lte_stat_draw(void *phs)
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
-    hs->num_entries = 0;
 
     /* Set title that shows how many UEs currently in table */
-    for (tmp = list; tmp; tmp=tmp->next, number_of_ues++);
+    for (tmp = list; (tmp!=NULL); tmp=tmp->next, number_of_ues++);
     g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u UEs)", number_of_ues);
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
-    /* For each row/UE/C-RNTI */
+    /* For each row/UE/C-RNTI in the model */
     for (tmp = list; tmp; tmp=tmp->next) {
         if (tmp->iter_valid != TRUE) {
+            /* Add to list control if not drawn this UE before */
             gtk_list_store_append(ues_store, &tmp->iter);
             tmp->iter_valid = TRUE;
         }
@@ -544,8 +540,6 @@ mac_lte_stat_draw(void *phs)
                            DL_RETX_FRAMES_COLUMN, tmp->stats.DL_retx_frames,
                            TABLE_COLUMN, tmp,
                            -1);
-
-        hs->num_entries++;
     }
 
     /* If there is a UE selected, update its counters in details window */
@@ -554,15 +548,14 @@ mac_lte_stat_draw(void *phs)
         mac_lte_ep_t *ep;
 
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
-        mac_lte_ue_details(hs, ep, FALSE);
+        mac_lte_ue_details(ep);
     }
 }
 
 
 /* What to do when a list item is selected/unselected */
-static void mac_lte_select_cb(GtkTreeSelection *sel, gpointer data)
+static void mac_lte_select_cb(GtkTreeSelection *sel, gpointer data _U_)
 {
-    mac_lte_stat_t *hs = (mac_lte_stat_t *)data;
     mac_lte_ep_t   *ep;
     GtkTreeModel   *model;
     GtkTreeIter    iter;
@@ -570,7 +563,10 @@ static void mac_lte_select_cb(GtkTreeSelection *sel, gpointer data)
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         /* Show details of selected UE */
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
-        mac_lte_ue_details(hs, ep, TRUE);
+        mac_lte_ue_details(ep);
+    }
+    else {
+        mac_lte_ue_details(NULL);
     }
 }
 
@@ -624,9 +620,7 @@ static void mac_lte_stat_dlg_create(void)
 
     /* Create dialog */
     hs = g_malloc(sizeof(mac_lte_stat_t));
-    hs->num_entries = 0;
     hs->ep_list = NULL;
-    hs->number_of_packets = 0;
 
     /* Set title */
     g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Statistics: %s",
