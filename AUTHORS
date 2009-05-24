@@ -2770,7 +2770,7 @@ Sven Eckelmann		<lazhur [AT] gmx.de> {
 	B.A.T.M.A.N. dissector
 }
 
-Edward J. Paradise		<pdice [AT] cisco.com> {
+Edward J. Paradise	<pdice [AT] cisco.com> {
 	RFC4938bis enhancements to PPPoE
 }
 
@@ -2790,72 +2790,72 @@ Joan Ramió		<joan[AT]ramio.cat> {
 	IEC 60870-5-104 dissector
 }
 
-David Castleford			<david.castleford [AT] orange-ftgroup.com> {
+David Castleford	<david.castleford [AT] orange-ftgroup.com> {
 	ISMACryp dissector
 	Simulcrypt dissector
 }
 
-Martin Lutz			<MartinL [AT] copadata.at> {
+Martin Lutz		<MartinL [AT] copadata.at> {
 	IEC 61850 GOOSE Dissector
 }
 
-Johnny Mitrevski		<mitrevj [AT] hotmail.com> {
+Johnny Mitrevski	<mitrevj [AT] hotmail.com> {
 	BSSAP LE Dissector
 } 
 
-Neil Horman			<nhorman [AT] tuxdriver.com> {
+Neil Horman		<nhorman [AT] tuxdriver.com> {
 	Netdump dissector
 }
 
-Andreas Schuler			<krater [AT] badterrorist.com> {
+Andreas Schuler		<krater [AT] badterrorist.com> {
 	DECT dissector
 }
 
-Matthias Wenzel			<dect [AT] mazzoo.de> {
+Matthias Wenzel		<dect [AT] mazzoo.de> {
 	DECT dissector
 }
 
-Christian Durrer		<christian.durrer@sensemail.ch> {
+Christian Durrer	<christian.durrer [AT] sensemail.ch> {
 	sbus dissector
 }
 
-Naoyoshi Ueda			<piyomaru3141@gmail.com> {
+Naoyoshi Ueda		<piyomaru3141 [AT] gmail.com> {
 	IKEv2 decryption support
 }
 
-Javier Cardona			<javier@cozybit.com> {
+Javier Cardona		<javier [AT] cozybit.com> {
 	Mesh header dissector
 }
 
-Jens Steinhauser		<jens.steinhauser@omicron.at> {
+Jens Steinhauser	<jens.steinhauser [AT] omicron.at> {
 	IEEE C37.118 synchrophasor dissector
 }
 
-Julien Kerihuel			<j.kerihuel@openchange.org> {
+Julien Kerihuel		<j.kerihuel [AT] openchange.org> {
 	Exchange RFR dissector
 }
 
-Vincenzo Condoleo		<vcondole@hsr.ch> {
+Vincenzo Condoleo	<vcondole [AT] hsr.ch> {
 	IP packet comparison
 }
 
-Mohammad Ebrahim Mohammadi Panah	<mebrahim@gmail.com> {
+Mohammad Ebrahim Mohammadi Panah <mebrahim [AT] gmail.com> {
 	Initial Paltalk support
 }
 
-Greg Schwendimann		<gregs@iol.unh.edu> {
+Greg Schwendimann	<gregs [AT] iol.unh.edu> {
 	WPA decryption security association caching
 }
 
-Nick Lewis			<nick.lewis@atltelecom.com> {
+Nick Lewis		<nick.lewis [AT] atltelecom.com> {
 	Show timestamp problems in RTP player
 }
 
-Benjamin Tse			<benjamin_tse@agilent.com> {
+Benjamin Tse		<benjamin_tse [AT] agilent.com> {
 	Overlapped pipe I/O for dumpcap under Windows
 }
 
-Fred Fierling			<fff [AT] exegin.com> {
+Fred Fierling		<fff [AT] exegin.com> {
 	Daintree's Sensor Network Analyzer file support
 }
 
