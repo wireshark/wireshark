@@ -1266,7 +1266,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
       response_chars[tokenlen] = '\0';
 
       cas = (guint64) strtoul (response_chars, NULL, 10);
-      proto_tree_add_uint (tree, hf_cas, tvb, offset, tokenlen, cas);
+      proto_tree_add_uint64 (tree, hf_cas, tvb, offset, tokenlen, cas);
 
       offset += (int) (next_token - line);
       line = next_token;
@@ -1478,7 +1478,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       response_chars[tokenlen] = '\0';
 
       cas = (guint64) strtoul (response_chars, NULL, 10);
-      proto_tree_add_uint (tree, hf_cas, tvb, offset, tokenlen, cas);
+      proto_tree_add_uint64 (tree, hf_cas, tvb, offset, tokenlen, cas);
 
       offset += (int) (next_token - line);
       line = next_token;
