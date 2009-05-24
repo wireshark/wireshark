@@ -80,6 +80,7 @@
 #include "tnef.h"
 #include "dct3trace.h"
 #include "packetlogger.h"
+#include "daintree-sna.h"
 
 
 /* The open_file_* routines should return:
@@ -128,6 +129,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	mpeg_open,
 	tnef_open,
 	dct3trace_open,
+	daintree_sna_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -602,7 +604,10 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "Gammu DCT3 trace", "dct3trace", "*.xml", NULL, FALSE, NULL, NULL },
 
 	/* WTAP_FILE_PACKETLOGGER */
-	{ "PacketLogger", "pklg", "*.pklg", NULL, FALSE, NULL, NULL }
+	{ "PacketLogger", "pklg", "*.pklg", NULL, FALSE, NULL, NULL },
+
+	/* WTAP_FILE_DAINTREE_SNA */
+	{ "Daintree SNA", "dsna", "*.dcf", NULL, FALSE, NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

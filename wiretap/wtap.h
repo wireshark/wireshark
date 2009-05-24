@@ -271,6 +271,7 @@ extern "C" {
 #define WTAP_FILE_TNEF                          53
 #define WTAP_FILE_DCT3TRACE                     54
 #define WTAP_FILE_PACKETLOGGER                  55
+#define WTAP_FILE_DAINTREE_SNA                  56
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 
