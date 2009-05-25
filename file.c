@@ -415,6 +415,7 @@ cf_read(capture_file *cf)
   volatile gint64 progbar_nextstep;
   volatile gint64 progbar_quantum;
   dfilter_t   *dfcode;
+  volatile int displayed_once = 0;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -486,14 +487,17 @@ cf_read(capture_file *cf)
               progbar_val = 1.0f;
           }
           if (progbar != NULL) {
-          	/* update the packet lists content on the first run or frequently on very large files */
+              /* update the packet lists content on the first run or frequently on very large files */
               /* (on smaller files the display update takes longer than reading the file) */
 #ifdef HAVE_LIBPCAP
-              if(progbar_quantum > 500000 || progbar_nextstep == 0) {
-            packet_list_thaw();
-            if (auto_scroll_live && cf->plist_end != NULL)
-              packet_list_moveto_end();
-            packet_list_freeze();
+              if (progbar_quantum > 500000 || displayed_once == 0) {
+                  if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
+                      displayed_once = 1;
+                      packet_list_thaw();
+                      if (auto_scroll_live)
+                          packet_list_moveto_end();
+                      packet_list_freeze();
+                  }
               }
 #endif
 
