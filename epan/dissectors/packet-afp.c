@@ -38,6 +38,7 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include <epan/expert.h>
 
 #include "packet-afp.h"
 
@@ -4161,7 +4162,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (!aspinfo->reply)  {
 
-		proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
+		ti = proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
 	        if (afp_command != tvb_get_guint8(tvb, offset))
 	        {
 	        	/* we have the same conversation for different connections eg:
@@ -4173,6 +4174,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (col_info) {
 				col_set_str(pinfo->cinfo, COL_INFO,
 			          "[Error!IP port reused, you need to split the capture file]");
+				expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+				  "IP port reused, you need to split the capture file"); 
 				return;
 			}
 		}
