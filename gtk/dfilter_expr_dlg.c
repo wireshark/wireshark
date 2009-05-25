@@ -539,7 +539,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
     header_field_info *hfinfo = g_object_get_data(G_OBJECT(window),
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
-    gchar *value_string;
+    gchar *value_string = NULL;
 
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
