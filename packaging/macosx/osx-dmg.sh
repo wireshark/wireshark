@@ -172,7 +172,7 @@ bless -openfolder /Volumes/$volume_name
 
 # In case the apperance has to be modified, mount the image and apply the base settings to it via Applescript
 if [ ${set_ds_store} = "true" ]; then
-	/usr/bin/osascript dmg_set_style.scpt
+#	/usr/bin/osascript dmg_set_style.scpt
 
 	open "/Volumes/$volume_name"
 	# BUG: one needs to move and close the window manually for the
