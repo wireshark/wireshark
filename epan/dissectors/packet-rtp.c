@@ -646,8 +646,8 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	/* if the payload type is dynamic (96 to 127), we check if the conv is set and we look for the pt definition */
-	else if ( (payload_type >=96) && (payload_type <=127) ) {
+	/* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
+	else if ( (payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) ) {
 		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 			gchar *payload_type_str = NULL;
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
