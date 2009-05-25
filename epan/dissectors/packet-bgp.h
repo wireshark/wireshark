@@ -170,7 +170,7 @@ struct bgp_attr {
 #define BGP_EXT_COM_QOS_MARK_NT 0x44	/* QoS Marking non-transitive attribute of regular type (8bit)       */
                                         /* Format Type(1byte):Flags(1byte):QoS Set(1byte):Tec. Type(1byte):  */
                                         /*        Marking O(2bytes):Marking A(1byte):Proc.Cnt(1byte)         */
-#define BGP_EXT_COM_COS_CAP_NT  0x40    /* CoS Capability - Format Type(1byte):Flags(1byte):remaining '0..0' */
+#define BGP_EXT_COM_COS_CAP_T   0x05    /* CoS Capability - Format Type(1byte):Flags(1byte):remaining '0..0' */
 
                                         /* draft-ietf-idr-bgp-ext-communities */
 #define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */

@@ -189,7 +189,7 @@ static const value_string bgpattr_type[] = {
 static const value_string bgpext_com8_type[] = {
     { BGP_EXT_COM_QOS_MARK_T, "QoS Marking - transitive" },
     { BGP_EXT_COM_QOS_MARK_NT, "QoS Marking - non-transitive" },
-    { BGP_EXT_COM_COS_CAP_NT, "CoS Capability - non-transitive" },
+    { BGP_EXT_COM_COS_CAP_T, "CoS Capability - transitive" },
     { 0, NULL }
 };
 
@@ -2299,7 +2299,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 				ti = proto_tree_add_text(subtree4, tvb, q+7, 1,
 						    "Defaults to zero: 0x%02x", tvb_get_guint8(tvb,q+7));
 				break;
-			    case BGP_EXT_COM_COS_CAP_NT:
+			    case BGP_EXT_COM_COS_CAP_T:
                                 is_regular_type = TRUE;
 				ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
 
