@@ -122,7 +122,7 @@ static int fix_next_header(tvbuff_t *tvb, int offset)
     const guint8 *start = data; 
         
     while ((start = strstr(start, "\0018"))) {
-        min_len = start +1 -data;
+        min_len = (guint) (start +1 -data);
         /*  if remaining length < 6 return and let the next desegment round
             test for 8=FIX
         */
