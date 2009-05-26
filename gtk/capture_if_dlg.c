@@ -98,6 +98,9 @@
 #include "airpcap_dlg.h"
 #endif
 
+#define CAPTURE_IF_IP_ADDR_LABEL      "capture_if_ip_addr_label"
+#define CAPTURE_IF_SELECTED_IP_ADDR   "capture_if_selected_ip_addr"
+
 /*
  * Keep a static pointer to the current "Capture Interfaces" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
@@ -433,6 +436,80 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
 }
 
 
+static const gchar *
+set_ip_addr_label(GSList *ip_addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
+{
+  GSList *curr_ip;
+  if_addr_t *ip_addr;
+  const gchar *addr_str = NULL;
+
+  curr_ip = g_slist_nth(ip_addr_list, selected_ip_addr);
+  if (curr_ip) {
+    ip_addr = (if_addr_t *)curr_ip->data;
+    switch (ip_addr->type) {
+
+    case AT_IPv4:
+      addr_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
+      break;
+
+    case AT_IPv6:
+      addr_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
+      break;
+
+    default:
+      g_assert_not_reached();
+    }
+  }
+
+  if (addr_str) {
+    gtk_label_set_text(GTK_LABEL(ip_lb), addr_str);
+  } else {
+    gtk_label_set_text(GTK_LABEL(ip_lb), "unknown");
+  }
+  g_object_set_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR, GINT_TO_POINTER(selected_ip_addr));
+
+  return addr_str;
+}
+
+
+static gboolean
+ip_label_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
+{
+    gtk_widget_set_state(eb, GTK_STATE_PRELIGHT);
+
+    return FALSE;
+}
+
+
+static gboolean
+ip_label_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
+{
+    gtk_widget_set_state(eb, GTK_STATE_NORMAL);
+
+    return FALSE;
+}
+
+
+static gboolean
+ip_label_press_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer data)
+{
+  GtkWidget *ip_lb = g_object_get_data(G_OBJECT(widget), CAPTURE_IF_IP_ADDR_LABEL);
+  GSList *ip_addr_list = data;
+  guint selected_ip_addr = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR));
+
+  /* Select next IP address */
+  selected_ip_addr++;
+  if (g_slist_length(ip_addr_list) <= selected_ip_addr) {
+    /* Probably have the last one, start over again */
+    selected_ip_addr = 0;
+  }
+
+  set_ip_addr_label(ip_addr_list, ip_lb, selected_ip_addr);
+
+  return FALSE;
+}
+
+
 
 /* start getting capture stats from all interfaces */
 void
@@ -451,6 +528,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   GtkWidget     *if_tb;
   GtkWidget     *if_lb;
+  GtkWidget     *eb;
   GtkTooltips   *tooltips;
   int           err;
   gchar         *err_str;
@@ -460,8 +538,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   int           ifs;
   GList         *curr;
   if_info_t     *if_info;
-  GSList        *curr_ip;
-  if_addr_t     *ip_addr;
   GString       *if_tool_str = g_string_new("");
   const gchar   *addr_str;
   gchar         *tmp_str;
@@ -648,34 +724,27 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       }
 
       /* IP address */
-      /* only the first IP address will be shown */
+      /* Only one IP address will be shown, start with the first */
       g_string_append(if_tool_str, "IP: ");
-      curr_ip = g_slist_nth(if_info->ip_addr, 0);
-      if(curr_ip) {
-        ip_addr = (if_addr_t *)curr_ip->data;
-        switch (ip_addr->type) {
-
-        case AT_IPv4:
-          addr_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
-          break;
-
-        case AT_IPv6:
-          addr_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
-          break;
-
-        default:
-          g_assert_not_reached();
-          addr_str = NULL;
-        }
-        if_dlg_data->ip_lb = gtk_label_new(addr_str);
+      if_dlg_data->ip_lb = gtk_label_new("");
+      addr_str = set_ip_addr_label (if_info->ip_addr, if_dlg_data->ip_lb, 0);
+      if (addr_str) {
         gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
         g_string_append(if_tool_str, addr_str);
       } else {
-        if_dlg_data->ip_lb = gtk_label_new("unknown");
         gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
         g_string_append(if_tool_str, "unknown");
       }
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->ip_lb, 3, 4, row, row+1);
+      eb = gtk_event_box_new ();
+      gtk_container_add(GTK_CONTAINER(eb), if_dlg_data->ip_lb);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), eb, 3, 4, row, row+1);
+      if (g_slist_length(if_info->ip_addr) > 1) {
+        /* More than one IP address, make it possible to toggle */
+        g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, if_dlg_data->ip_lb);
+        g_signal_connect(eb, "enter-notify-event", G_CALLBACK(ip_label_enter_cb), NULL);
+        g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
+        g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), if_info->ip_addr);
+      }
       g_string_append(if_tool_str, "\n");
 
       /* packets */
