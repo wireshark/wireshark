@@ -450,7 +450,7 @@ const value_string special_mpls_top_label_type[] = {
 	{0,	NULL }
 };
 
-void
+static void
 proto_tree_add_mpls_label(proto_tree * pdutree, tvbuff_t * tvb, int offset, int length, int level)
 {
 	if( length == 3) {
@@ -2701,89 +2701,89 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 static int
 dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
 {
-  guint16 length, option_scope_len, option_len, i, id, size;
-  guint16 type, scope_pen_count = 0, pen_count = 0;
-  struct v9_template template;
-  int template_offset;
-  int scopes_offset;
+	guint16 length, option_scope_len, option_len, i, id, size;
+	guint16 type, scope_pen_count = 0, pen_count = 0;
+	struct v9_template template;
+	int template_offset;
+	int scopes_offset;
 
-  id = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
-		      offset, 2, FALSE);
-  offset += 2;
+	id = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
+			    offset, 2, FALSE);
+	offset += 2;
 
-  option_scope_len = length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(pdutree, hf_cflow_option_scope_length, tvb,
-		      offset, 2, FALSE);
-  offset += 2;
+	option_scope_len = length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(pdutree, hf_cflow_option_scope_length, tvb,
+			    offset, 2, FALSE);
+	offset += 2;
 
-  option_len = length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
-		      offset, 2, FALSE);
-  offset += 2;
+	option_len = length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
+			    offset, 2, FALSE);
+	offset += 2;
 
-  scopes_offset = offset;
+	scopes_offset = offset;
 
-  for(i=0; i<option_scope_len; i++) {
-    type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(pdutree, hf_cflow_template_scope_field_type, tvb,
-			offset, 2, FALSE);
-    offset += 2; i += 2;
+	for(i=0; i<option_scope_len; i++) {
+		type = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_type, tvb,
+				    offset, 2, FALSE);
+		offset += 2; i += 2;
 
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
-			offset, 2, FALSE);
-    offset += 2; i += 2;
+		length = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
+				    offset, 2, FALSE);
+		offset += 2; i += 2;
 
-    if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
-      proto_tree_add_item(pdutree,
-			  hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-      scope_pen_count++;
-      offset += 4; i += 4;
-    }
-  }
+		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+			proto_tree_add_item(pdutree,
+					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
+			scope_pen_count++;
+			offset += 4; i += 4;
+		}
+	}
 
-  template_offset = offset;
+	template_offset = offset;
 
-  for(i=0; i<option_len;) {
-    type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(pdutree, hf_cflow_template_field_type, tvb,
-			offset, 2, FALSE);
-    offset += 2; i += 2;
+	for(i=0; i<option_len;) {
+		type = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(pdutree, hf_cflow_template_field_type, tvb,
+				    offset, 2, FALSE);
+		offset += 2; i += 2;
 
-    length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
-			offset, 2, FALSE);
-    offset += 2; i += 2;
+		length = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
+				    offset, 2, FALSE);
+		offset += 2; i += 2;
 
-    if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
-      proto_tree_add_item(pdutree,
-			  hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-      pen_count++;
-      offset += 4; i += 4;
-    }
-  }
+		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+			proto_tree_add_item(pdutree,
+					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
+			pen_count++;
+			offset += 4; i += 4;
+		}
+	}
 
-  /* Cache template */
-  memset(&template, 0, sizeof(template));
-  template.id = id;
-  template.count = option_len/4;
-  SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
-  template.source_id = hdrinfo->src_id;
-  /* Option scopes */
-  template.count_scopes = option_scope_len/4;
-  size = template.count_scopes * sizeof(struct v9_template_entry) + scope_pen_count * 4;
-  template.scopes      = g_malloc( size );
-  tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
+	/* Cache template */
+	memset(&template, 0, sizeof(template));
+	template.id = id;
+	template.count = option_len/4;
+	SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
+	template.source_id = hdrinfo->src_id;
+	/* Option scopes */
+	template.count_scopes = option_scope_len/4;
+	size = template.count_scopes * sizeof(struct v9_template_entry) + scope_pen_count * 4;
+	template.scopes      = g_malloc( size );
+	tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
 
-  template.option_template = 1; /* Option template */
-  size = template.count * sizeof(struct v9_template_entry) + pen_count * 4;
-  template.entries = g_malloc(size);
-  tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
+	template.option_template = 1; /* Option template */
+	size = template.count * sizeof(struct v9_template_entry) + pen_count * 4;
+	template.entries = g_malloc(size);
+	tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
 
-  v9_template_add(&template);
+	v9_template_add(&template);
 
-  return (0);
+	return (0);
 }
 
 static int

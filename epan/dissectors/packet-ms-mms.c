@@ -579,7 +579,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /* Parse the only known UDP command (0x01) */
-gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti = NULL;
     proto_tree  *msmms_tree = NULL;
@@ -634,7 +634,7 @@ gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /* Dissect a data packet */
-gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset = 0;
     proto_item  *ti = NULL;
@@ -766,8 +766,8 @@ gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /***************************************/
 
 /* Transport information (address, port, etc) */
-void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   guint offset, guint length_remaining)
+static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                          guint offset, guint length_remaining)
 {
     char    *transport_info;
     guint   ipaddr[4];
@@ -839,8 +839,8 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 /* Dissect server data */
-void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         guint offset)
+static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                guint offset)
 {
     guint32 server_version_length = 0;
     guint32 tool_version_length = 0;
@@ -944,8 +944,8 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* Player (client) information */
-void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                guint offset, guint length_remaining)
+static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                       guint offset, guint length_remaining)
 {
     char *player_info;
 
@@ -973,7 +973,7 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /* Dissect info about where client wants to start playing from */
-void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -995,7 +995,7 @@ void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, guint offs
 }
 
 /* Dissect cancel parameters */
-void dissect_cancel_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_cancel_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -1005,7 +1005,7 @@ void dissect_cancel_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect timing test data request */
-void dissect_timing_test_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_timing_test_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Flags */
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
@@ -1015,7 +1015,7 @@ void dissect_timing_test_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect timing test data response */
-void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, TRUE);
@@ -1040,8 +1040,8 @@ void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect request for server file */
-void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 guint offset, guint length_remaining)
+static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                        guint offset, guint length_remaining)
 {
     char *server_file;
 
@@ -1069,7 +1069,7 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 /* Dissect media details from server */
-void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, TRUE);
@@ -1108,7 +1108,7 @@ void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect header response */
-void dissect_header_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_header_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, TRUE);
@@ -1122,7 +1122,7 @@ void dissect_header_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect network timer test response */
-void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -1132,8 +1132,8 @@ void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree, guint 
 }
 
 /* Dissect transport info response */
-void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
-                                     guint offset, guint length_remaining)
+static void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
+                                            guint offset, guint length_remaining)
 {
     char *strange_string;
 
@@ -1156,7 +1156,7 @@ void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
 }
 
 /* Media stream MBR selector */
-void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Stream structure count (always 1) */
     proto_tree_add_item(tree, hf_msmms_command_stream_structure_count, tvb, offset, 4, TRUE);
@@ -1172,7 +1172,7 @@ void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, guint of
 }
 
 /* Dissect header request */
-void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     gint n = 0;
 
@@ -1194,7 +1194,7 @@ void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 /* Dissect stop button pressed */
-void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint offset)
+static void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -1207,7 +1207,7 @@ void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint offset)
 /********************************************************/
 /* Helper function to set up an MS-MMS data conversation */
 /********************************************************/
-void msmms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int port)
+static void msmms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int port)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -1284,7 +1284,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1296,7 +1296,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1308,7 +1308,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1320,7 +1320,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1332,7 +1332,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1344,7 +1344,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1356,7 +1356,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1368,7 +1368,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1380,7 +1380,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(to_server_command_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1392,7 +1392,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(to_client_command_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1404,7 +1404,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(command_direction_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1417,7 +1417,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1429,7 +1429,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(server_to_client_error_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1441,7 +1441,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1453,7 +1453,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1465,7 +1465,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1477,7 +1477,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1489,7 +1489,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1501,7 +1501,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1513,7 +1513,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1525,7 +1525,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1537,7 +1537,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1549,7 +1549,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1561,7 +1561,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1573,7 +1573,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1585,7 +1585,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1597,7 +1597,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1609,7 +1609,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1621,7 +1621,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(media_result_flags_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1633,7 +1633,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(broadcast_indexing_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1645,7 +1645,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(broadcast_liveness_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1657,7 +1657,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1669,7 +1669,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1681,7 +1681,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1693,7 +1693,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1705,7 +1705,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1717,7 +1717,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1729,7 +1729,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 VALS(stream_selection_action_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1741,7 +1741,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1756,7 +1756,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1768,7 +1768,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1780,7 +1780,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1792,7 +1792,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1805,7 +1805,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1817,7 +1817,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1829,7 +1829,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1841,7 +1841,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1853,7 +1853,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1865,7 +1865,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 VALS(tcp_flags_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1878,7 +1878,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1890,7 +1890,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1902,7 +1902,7 @@ void proto_register_msmms(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1914,7 +1914,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1926,7 +1926,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1938,7 +1938,7 @@ void proto_register_msmms(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1952,7 +1952,7 @@ void proto_register_msmms(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
 

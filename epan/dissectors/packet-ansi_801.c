@@ -93,7 +93,7 @@ static const guint8 global_bit_mask[] = {
     0xff
 };
 
-guint64
+static guint64
 ansi_801_tvb_get_bits(tvbuff_t *tvb, guint32 *offset_p, guint8 *bit_offset_p, guint8 num_bits)
 {
     guint64	bits;
@@ -2504,37 +2504,37 @@ proto_register_ansi_801(void)
 	{ &hf_ansi_801_for_req_type,
 	    { "Forward Request Type",		"ansi_801.for_req_type",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_for_rsp_type,
 	    { "Forward Response Type",		"ansi_801.for_rsp_type",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_rev_req_type,
 	    { "Reverse Request Type",		"ansi_801.rev_req_type",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_rev_rsp_type,
 	    { "Reverse Response Type",		"ansi_801.rev_rsp_type",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_for_sess_tag,
 	    { "Forward Session Tag",		"ansi_801.for_sess_tag",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_rev_sess_tag,
 	    { "Reverse Session Tag",		"ansi_801.rev_sess_tag",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_801_sess_tag,
 	    { "Session Tag",			"ansi_801.sess_tag",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
     };
 

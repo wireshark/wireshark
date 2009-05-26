@@ -2145,7 +2145,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Code to dissect PTPText */
-void
+static void
 dissect_ptp_v2_text(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree, int hf_ptp_v2_mm_ptptext, int hf_ptp_v2_mm_ptptext_length)
 {
 	guint8 	length = 0;
@@ -2170,7 +2170,7 @@ dissect_ptp_v2_text(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree, int hf
 	}
 }
 
-void
+static void
 dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree, char* name, int hf_ptp_v2_timeInterval_ns, int hf_ptp_v2_timeInterval_subns)
 {
 
@@ -2215,7 +2215,7 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 
 /* Code to actually dissect the PTPv2 packets */
 
-void
+static void
 dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ptp_v2_messageid = 0;
@@ -3466,88 +3466,88 @@ proto_register_ptp(void)
         { &hf_ptp_versionptp,
             { "versionPTP",           "ptp.versionptp",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_versionnetwork,
             { "versionNetwork",           "ptp.versionnetwork",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_subdomain,
             { "subdomain",           "ptp.subdomain",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_messagetype,
             { "messageType",           "ptp.messagetype",
             FT_UINT8, BASE_DEC, VALS(ptp_messagetype_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sourcecommunicationtechnology,
             { "sourceCommunicationTechnology",           "ptp.sourcecommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sourceuuid,
             { "sourceUuid",           "ptp.sourceuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sourceportid,
             { "sourcePortId",           "ptp.sourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sequenceid,
             { "sequenceId",           "ptp.sequenceid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_control,
             { "control",           "ptp.control",
             FT_UINT8, BASE_DEC, VALS(ptp_control_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*THE FLAGS-FIELD*/
         { &hf_ptp_flags,
             { "flags",           "ptp.flags",
             FT_UINT16, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_li61,
             { "PTP_LI61",           "ptp.flags.li61",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_LI61_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_li59,
             { "PTP_LI59",           "ptp.flags.li59",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_LI59_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_boundary_clock,
             { "PTP_BOUNDARY_CLOCK",           "ptp.flags.boundary_clock",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_BOUNDARY_CLOCK_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_assist,
             { "PTP_ASSIST",           "ptp.flags.assist",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_ASSIST_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_ext_sync,
             { "PTP_EXT_SYNC",           "ptp.flags.ext_sync",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_EXT_SYNC_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_parent,
             { "PTP_PARENT_STATS",           "ptp.flags.parent_stats",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_PARENT_STATS_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_flags_sync_burst,
             { "PTP_SYNC_BURST",           "ptp.flags.sync_burst",
             FT_UINT16, BASE_DEC, VALS(ptp_bool_vals), PTP_FLAGS_SYNC_BURST_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*END OF THE FLAG-FIELD*/
 
@@ -3555,692 +3555,692 @@ proto_register_ptp(void)
         { &hf_ptp_sdr_origintimestamp,
             { "originTimestamp",           "ptp.sdr.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_origintimestamp_seconds,
             { "originTimestamp (seconds)",           "ptp.sdr.origintimestamp_seconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_origintimestamp_nanoseconds,
             { "originTimestamp (nanoseconds)",           "ptp.sdr.origintimestamp_nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_epochnumber,
             { "epochNumber",           "ptp.sdr.epochnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_currentutcoffset,
             { "currentUTCOffset",           "ptp.sdr.currentutcoffset",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmastercommunicationtechnology,
             { "grandmasterCommunicationTechnology",           "ptp.sdr.grandmastercommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterclockuuid,
             { "grandMasterClockUuid",           "ptp.sdr.grandmasterclockuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterportid,
             { "grandmasterPortId",           "ptp.sdr.grandmasterportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmastersequenceid,
             { "grandmasterSequenceId",           "ptp.sdr.grandmastersequenceid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterclockstratum,
             { "grandmasterClockStratum",           "ptp.sdr.grandmasterclockstratum",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterclockidentifier,
             { "grandmasterClockIdentifier",           "ptp.sdr.grandmasterclockidentifier",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterclockvariance,
             { "grandmasterClockVariance",           "ptp.sdr.grandmasterclockvariance",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterpreferred,
             { "grandmasterPreferred",           "ptp.sdr.grandmasterpreferred",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterisboundaryclock,
             { "grandmasterIsBoundaryClock",           "ptp.sdr.grandmasterisboundaryclock",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_syncinterval,
             { "syncInterval",           "ptp.sdr.syncinterval",
             FT_INT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_localclockvariance,
             { "localClockVariance",           "ptp.sdr.localclockvariance",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_localstepsremoved,
             { "localStepsRemoved",           "ptp.sdr.localstepsremoved",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_localclockstratum,
             { "localClockStratum",           "ptp.sdr.localclockstratum",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_localclockidentifier,
             { "localClockIdentifier",           "ptp.sdr.localclockidentifier",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_parentcommunicationtechnology,
             { "parentCommunicationTechnology",           "ptp.sdr.parentcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_parentuuid,
             { "parentUuid",           "ptp.sdr.parentuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_parentportfield,
             { "parentPortField",           "ptp.sdr.parentportfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_estimatedmastervariance,
             { "estimatedMasterVariance",           "ptp.sdr.estimatedmastervariance",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_estimatedmasterdrift,
             { "estimatedMasterDrift",           "ptp.sdr.estimatedmasterdrift",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_sdr_utcreasonable,
             { "utcReasonable",           "ptp.sdr.utcreasonable",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*offsets for follow_up (=fu) messages*/
         { &hf_ptp_fu_associatedsequenceid,
             { "associatedSequenceId",           "ptp.fu.associatedsequenceid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_fu_preciseorigintimestamp,
             { "preciseOriginTimestamp",    "ptp.fu.hf_ptp_fu_preciseorigintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_fu_preciseorigintimestamp_seconds,
             { "preciseOriginTimestamp (seconds)",    "ptp.fu.hf_ptp_fu_preciseorigintimestamp_seconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_fu_preciseorigintimestamp_nanoseconds,
             { "preciseOriginTimestamp (nanoseconds)",           "ptp.fu.preciseorigintimestamp_nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*offsets for delay_resp (=dr) messages*/
         { &hf_ptp_dr_delayreceipttimestamp,
             { "delayReceiptTimestamp",           "ptp.dr.delayreceipttimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_delayreceipttimestamp_seconds,
             { "delayReceiptTimestamp (Seconds)",           "ptp.dr.delayreceipttimestamp_seconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_delayreceipttimestamp_nanoseconds,
             { "delayReceiptTimestamp (nanoseconds)",           "ptp.dr.delayreceipttimestamp_nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_requestingsourcecommunicationtechnology,
             { "requestingSourceCommunicationTechnology",    "ptp.dr.requestingsourcecommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_requestingsourceuuid,
             { "requestingSourceUuid",           "ptp.dr.requestingsourceuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_requestingsourceportid,
             { "requestingSourcePortId",           "ptp.dr.requestingsourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_dr_requestingsourcesequenceid,
             { "requestingSourceSequenceId",           "ptp.dr.requestingsourcesequenceid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*offsets for management (=mm) messages*/
         { &hf_ptp_mm_targetcommunicationtechnology,
             { "targetCommunicationTechnology",           "ptp.mm.targetcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_targetuuid,
             { "targetUuid",           "ptp.mm.targetuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_targetportid,
             { "targetPortId",           "ptp.mm.targetportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_startingboundaryhops,
             { "startingBoundaryHops",           "ptp.mm.startingboundaryhops",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_boundaryhops,
             { "boundaryHops",           "ptp.mm.boundaryhops",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_managementmessagekey,
             { "managementMessageKey",           "ptp.mm.managementmessagekey",
             FT_UINT8, BASE_DEC, VALS(ptp_managementMessageKey_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parameterlength,
             { "parameterLength",           "ptp.mm.parameterlength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*parameterlength > 0*/
         { &hf_ptp_mm_messageparameters,
             { "messageParameters",           "ptp.mm.messageparameters",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_clock_identity (parameterlength = 64)*/
         { &hf_ptp_mm_clock_identity_clockcommunicationtechnology,
             { "clockCommunicationTechnology",           "ptp.mm.clock.identity.clockcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_clock_identity_clockuuidfield,
             { "clockUuidField",           "ptp.mm.clock.identity.clockuuidfield",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_clock_identity_clockportfield,
             { "clockPortField",           "ptp.mm.clock.identity.clockportfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_clock_identity_manufactureridentity,
             { "manufacturerIdentity",           "ptp.mm.clock.identity.manufactureridentity",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*ptp_mm_initialize_clock (parameterlength = 4)*/
         { &hf_ptp_mm_initialize_clock_initialisationkey,
             { "initialisationKey",           "ptp.mm.initialize.clock.initialisationkey",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_set_subdomain (parameterlength = 16)*/
         { &hf_ptp_mm_set_subdomain_subdomainname,
             { "subdomainName",           "ptp.mm.set.subdomain.subdomainname",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_default_data_set (parameterlength = 76)*/
         { &hf_ptp_mm_default_data_set_clockcommunicationtechnology,
             { "clockCommunicationTechnology",           "ptp.mm.default.data.set.clockcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockuuidfield,
             { "clockUuidField",           "ptp.mm.default.data.set.clockuuidfield",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockportfield,
             { "clockPortField",           "ptp.mm.default.data.set.clockportfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockstratum,
             { "clockStratum",           "ptp.mm.default.data.set.clockstratum",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockidentifier,
             { "clockIdentifier",           "ptp.mm.default.data.set.clockidentifier",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockvariance,
             { "clockVariance",           "ptp.mm.default.data.set.clockvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockfollowupcapable,
             { "clockFollowupCapable",           "ptp.mm.default.data.set.clockfollowupcapable",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_preferred,
             { "preferred",           "ptp.mm.default.data.set.preferred",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_initializable,
             { "initializable",           "ptp.mm.default.data.set.initializable",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_externaltiming,
             { "externalTiming",           "ptp.mm.default.data.set.externaltiming",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_isboundaryclock,
             { "isBoundaryClock",           "ptp.mm.default.data.set.isboundaryclock",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_syncinterval,
             { "syncInterval",           "ptp.mm.default.data.set.syncinterval",
             FT_INT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_subdomainname,
             { "subDomainName",           "ptp.mm.default.data.set.subdomainname",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_numberports,
             { "numberPorts",           "ptp.mm.default.data.set.numberports",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_numberforeignrecords,
             { "numberForeignRecords",           "ptp.mm.default.data.set.numberforeignrecords",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_update_default_data_set (parameterlength = 36)*/
         { &hf_ptp_mm_update_default_data_set_clockstratum,
             { "clockStratum",           "ptp.mm.update.default.data.set.clockstratum",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_clockidentifier,
             { "clockIdentifier",           "ptp.mm.update.default.data.set.clockidentifier",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_clockvariance,
             { "clockVariance",           "ptp.mm.update.default.data.set.clockvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_preferred,
             { "preferred",           "ptp.mm.update.default.data.set.preferred",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_syncinterval,
             { "syncInterval",           "ptp.mm.update.default.data.set.syncinterval",
             FT_INT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_subdomainname,
             { "subdomainName",           "ptp.mm.update.default.data.set.subdomainname",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_current_data_set (parameterlength = 20)*/
         { &hf_ptp_mm_current_data_set_stepsremoved,
             { "stepsRemoved",           "ptp.mm.current.data.set.stepsremoved",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_offsetfrommaster,
             { "offsetFromMaster",           "ptp.mm.current.data.set.offsetfrommaster",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_offsetfrommasterseconds,
             { "offsetFromMasterSeconds",           "ptp.mm.current.data.set.offsetfrommasterseconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_offsetfrommasternanoseconds,
             { "offsetFromMasterNanoseconds",           "ptp.mm.current.data.set.offsetfrommasternanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_onewaydelay,
             { "oneWayDelay",           "ptp.mm.current.data.set.onewaydelay",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_onewaydelayseconds,
             { "oneWayDelaySeconds",           "ptp.mm.current.data.set.onewaydelayseconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_current_data_set_onewaydelaynanoseconds,
             { "oneWayDelayNanoseconds",           "ptp.mm.current.data.set.onewaydelaynanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_parent_data_set (parameterlength = 90)*/
         { &hf_ptp_mm_parent_data_set_parentcommunicationtechnology,
             { "parentCommunicationTechnology",           "ptp.mm.parent.data.set.parentcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentuuid,
             { "parentUuid",           "ptp.mm.parent.data.set.parentuuid",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentportid,
             { "parentPortId",           "ptp.mm.parent.data.set.parentportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentlastsyncsequencenumber,
             { "parentLastSyncSequenceNumber",           "ptp.mm.parent.data.set.parentlastsyncsequencenumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentfollowupcapable,
             { "parentFollowupCapable",           "ptp.mm.parent.data.set.parentfollowupcapable",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentexternaltiming,
             { "parentExternalTiming",           "ptp.mm.parent.data.set.parentexternaltiming",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentvariance,
             { "parentVariance",           "ptp.mm.parent.data.set.parentvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentstats,
             { "parentStats",           "ptp.mm.parent.data.set.parentstats",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_observedvariance,
             { "observedVariance",           "ptp.mm.parent.data.set.observedvariance",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_observeddrift,
             { "observedDrift",           "ptp.mm.parent.data.set.observeddrift",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_utcreasonable,
             { "utcReasonable",           "ptp.mm.parent.data.set.utcreasonable",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastercommunicationtechnology,
             { "grandmasterCommunicationTechnology",    "ptp.mm.parent.data.set.grandmastercommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasteruuidfield,
             { "grandmasterUuidField",           "ptp.mm.parent.data.set.grandmasteruuidfield",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterportidfield,
             { "grandmasterPortIdField",           "ptp.mm.parent.data.set.grandmasterportidfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterstratum,
             { "grandmasterStratum",           "ptp.mm.parent.data.set.grandmasterstratum",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasteridentifier,
             { "grandmasterIdentifier",           "ptp.mm.parent.data.set.grandmasteridentifier",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastervariance,
             { "grandmasterVariance",           "ptp.mm.parent.data.set.grandmastervariance",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterpreferred,
             { "grandmasterPreferred",           "ptp.mm.parent.data.set.grandmasterpreferred",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterisboundaryclock,
             { "grandmasterIsBoundaryClock",           "ptp.mm.parent.data.set.grandmasterisboundaryclock",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastersequencenumber,
             { "grandmasterSequenceNumber",           "ptp.mm.parent.data.set.grandmastersequencenumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_port_data_set (parameterlength = 52)*/
         { &hf_ptp_mm_port_data_set_returnedportnumber,
             { "returnedPortNumber",           "ptp.mm.port.data.set.returnedportnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_portstate,
             { "portState",           "ptp.mm.port.data.set.portstate",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_lastsynceventsequencenumber,
             { "lastSyncEventSequenceNumber",           "ptp.mm.port.data.set.lastsynceventsequencenumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_lastgeneraleventsequencenumber,
             { "lastGeneralEventSequenceNumber",           "ptp.mm.port.data.set.lastgeneraleventsequencenumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_portcommunicationtechnology,
             { "portCommunicationTechnology",           "ptp.mm.port.data.set.portcommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_portuuidfield,
             { "portUuidField",           "ptp.mm.port.data.set.portuuidfield",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_portidfield,
             { "portIdField",           "ptp.mm.port.data.set.portidfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_burstenabled,
             { "burstEnabled",           "ptp.mm.port.data.set.burstenabled",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_subdomainaddressoctets,
             { "subdomainAddressOctets",           "ptp.mm.port.data.set.subdomainaddressoctets",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_eventportaddressoctets,
             { "eventPortAddressOctets",           "ptp.mm.port.data.set.eventportaddressoctets",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_generalportaddressoctets,
             { "generalPortAddressOctets",           "ptp.mm.port.data.set.generalportaddressoctets",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_subdomainaddress,
             { "subdomainAddress",           "ptp.mm.port.data.set.subdomainaddress",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_eventportaddress,
             { "eventPortAddress",           "ptp.mm.port.data.set.eventportaddress",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_generalportaddress,
             { "generalPortAddress",           "ptp.mm.port.data.set.generalportaddress",
             FT_BYTES, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_global_time_data_set (parameterlength = 24)*/
         { &hf_ptp_mm_global_time_data_set_localtime,
             { "localTime",           "ptp.mm.global.time.data.set.localtime",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_localtimeseconds,
             { "localTimeSeconds",           "ptp.mm.global.time.data.set.localtimeseconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_localtimenanoseconds,
             { "localTimeNanoseconds",           "ptp.mm.global.time.data.set.localtimenanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_currentutcoffset,
             { "currentUtcOffset",           "ptp.mm.global.time.data.set.currentutcoffset",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_leap59,
             { "leap59",           "ptp.mm.global.time.data.set.leap59",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_leap61,
             { "leap61",           "ptp.mm.global.time.data.set.leap61",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_epochnumber,
             { "epochNumber",           "ptp.mm.global.time.data.set.epochnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_update_global_time_properties (parameterlength = 16)*/
         { &hf_ptp_mm_update_global_time_properties_currentutcoffset,
             { "currentUtcOffset",           "ptp.mm.update.global.time.properties.currentutcoffset",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_leap59,
             { "leap59",           "ptp.mm.update.global.time.properties.leap59",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_leap61,
             { "leap61",           "ptp.mm.update.global.time.properties.leap61",
             FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_epochnumber,
             { "epochNumber",           "ptp.mm.update.global.time.properties.epochnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_get_foreign_data_set (parameterlength = 4)*/
         { &hf_ptp_mm_get_foreign_data_set_recordkey,
             { "recordKey",           "ptp.mm.get.foreign.data.set.recordkey",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_foreign_data_set (parameterlength = 28)*/
         { &hf_ptp_mm_foreign_data_set_returnedportnumber,
             { "returnedPortNumber",           "ptp.mm.foreign.data.set.returnedportnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_returnedrecordnumber,
             { "returnedRecordNumber",           "ptp.mm.foreign.data.set.returnedrecordnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_foreignmastercommunicationtechnology,
             { "foreignMasterCommunicationTechnology",
               "ptp.mm.foreign.data.set.foreignmastercommunicationtechnology",
             FT_UINT8, BASE_DEC, VALS(ptp_communicationid_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_foreignmasteruuidfield,
             { "foreignMasterUuidField",           "ptp.mm.foreign.data.set.foreignmasteruuidfield",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_foreignmasterportidfield,
             { "foreignMasterPortIdField",           "ptp.mm.foreign.data.set.foreignmasterportidfield",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_foreignmastersyncs,
             { "foreignMasterSyncs",           "ptp.mm.foreign.data.set.foreignmastersyncs",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_set_sync_interval (parameterlength = 4)*/
         { &hf_ptp_mm_set_sync_interval_syncinterval,
             { "syncInterval",           "ptp.mm.set.sync.interval.syncinterval",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*ptp_mm_set_time (parameterlength = 8)*/
         { &hf_ptp_mm_set_time_localtime,
             { "localtime",           "ptp.mm.set.time.localtime",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_set_time_localtimeseconds,
             { "localtimeSeconds",           "ptp.mm.set.time.localtimeseconds",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_mm_set_time_localtimenanoseconds,
             { "localTimeNanoseconds",           "ptp.mm.set.time.localtimenanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
 
 
@@ -4251,965 +4251,965 @@ proto_register_ptp(void)
         { &hf_ptp_v2_transportspecific,
             { "transportSpecific",           "ptp.v2.transportspecific",
             FT_UINT8, BASE_HEX, NULL, 0xF0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_transportspecific_v1_compatibility,
             { "V1 Compatibility",           "ptp.v2.transportspecific.v1compatibility",
             FT_BOOLEAN, 8, NULL, PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_transportspecific_802as_conform,
             { "802.1as conform",           "ptp.v2.transportspecific.802.1asconform",
             FT_BOOLEAN, 8, NULL, PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_messageid,
             { "messageId",           "ptp.v2.messageid",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_messageid_vals), 0x0F,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_versionptp,
             { "versionPTP",           "ptp.v2.versionptp",
             FT_UINT8, BASE_DEC, NULL, 0x0F,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_messagelength,
             { "messageLength",           "ptp.v2.messagelength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_domainnumber,
             { "subdomainNumber",           "ptp.v2.subdomainnumber",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags,
             { "flags",           "ptp.v2.flags",
             FT_UINT16, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_alternatemaster,
             { "PTP_ALTERNATE_MASTER",     "ptp.v2.flags.alternatemaster",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_ALTERNATE_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_twostep,
             { "PTP_TWO_STEP",           "ptp.v2.flags.twostep",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_TWO_STEP_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_unicast,
             { "PTP_UNICAST",           "ptp.v2.flags.unicast",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_UNICAST_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_specific1,
             { "PTP profile Specific 1",           "ptp.v2.flags.specific1",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SPECIFIC1_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_specific2,
             { "PTP profile Specific 2",           "ptp.v2.flags.specific2",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SPECIFIC2_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_security,
             { "PTP_SECURITY",           "ptp.v2.flags.security",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SECURITY_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_li61,
             { "PTP_LI_61",           "ptp.v2.flags.li61",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_LI61_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_li59,
             { "PTP_LI_59",           "ptp.v2.flags.li59",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_LI59_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_utcoffsetvalid,
             { "PTP_UTC_REASONABLE",           "ptp.v2.flags.utcreasonable",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_UTC_OFFSET_VALID_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_ptptimescale,
             { "PTP_TIMESCALE",           "ptp.v2.flags.timescale",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_PTP_TIMESCALE_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_timetraceable,
             { "TIME_TRACEABLE",           "ptp.v2.flags.timetraceable",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_TIME_TRACEABLE_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_flags_frequencytraceable,
             { "FREQUENCY_TRACEABLE",           "ptp.v2.flags.frequencytraceable",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_correction,
             { "correction",           "ptp.v2.correction.ns",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_correctionsubns,
             { "correctionSubNs",           "ptp.v2.correction.subns",
             FT_DOUBLE, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_clockidentity,
             { "ClockIdentity",           "ptp.v2.clockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_sourceportid,
             { "SourcePortID",           "ptp.v2.sourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_sequenceid,
             { "sequenceId",           "ptp.v2.sequenceid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_control,
             { "control",           "ptp.v2.control",
             FT_UINT8, BASE_DEC, VALS(ptp_control_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_logmessageperiod,
             { "logMessagePeriod",           "ptp.v2.logmessageperiod",
             FT_INT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Announce (=an) messages*/
         { &hf_ptp_v2_an_origintimestamp,
             { "originTimestamp",           "ptp.v2.an.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_origintimestamp_seconds,
             { "originTimestamp (seconds)",           "ptp.v2.an.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_origintimestamp_nanoseconds,
             { "originTimestamp (nanoseconds)",           "ptp.v2.an.origintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_origincurrentutcoffset,
             { "originCurrentUTCOffset",           "ptp.v2.an.origincurrentutcoffset",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_timesource,
             { "TimeSource",           "ptp.v2.timesource",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_timesource_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_localstepsremoved,
             { "localStepsRemoved",           "ptp.v2.an.localstepsremoved",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_grandmasterclockidentity,
             { "grandmasterClockIdentity",           "ptp.v2.an.grandmasterclockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_grandmasterclockclass,
             { "grandmasterClockClass",           "ptp.v2.an.grandmasterclockclass",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_grandmasterclockaccuracy,
             { "grandmasterClockAccuracy",           "ptp.v2.an.grandmasterclockaccuracy",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_clockaccuracy_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_grandmasterclockvariance,
             { "grandmasterClockVariance",           "ptp.v2.an.grandmasterclockvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_priority1,
             { "priority1",           "ptp.v2.an.priority1",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_priority2,
             { "priority2",           "ptp.v2.an.priority2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Announce TLVs */
         { &hf_ptp_v2_an_tlv_tlvtype,
             { "tlvType", "ptp.v2.an.tlvType",
             FT_UINT16, BASE_DEC, VALS(ptp_v2_TLV_type_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_an_tlv_lengthfield,
             { "lengthField", "ptp.v2.an.lengthField",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /*Fields for ALTERNATE_TIME_OFFSET_INDICATOR TLV */
         { &hf_ptp_v2_atoi_tlv_keyfield,
             { "keyField", "ptp.v2.an.atoi.keyField",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_currentoffset,
             { "currentOffset", "ptp.v2.an.atoi.currentOffset",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_jumpseconds,
             { "jumpSeconds", "ptp.v2.an.atoi.jumpSeconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_timeofnextjump,
             { "timeOfNextJump", "ptp.v2.an.atoi.timeOfNextJump",
             FT_BYTES, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_displayname,
             { "displayName", "ptp.v2.an.atoi.dislpayName",
             FT_STRING, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_displayname_length,
             { "length",           "ptp.v2.an.atoi.dislpayName.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /* Fields for undissected TLV */
         { &hf_ptp_v2_an_tlv_data,
             { "data",           "ptp.v2.an.tlv.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
         { &hf_ptp_v2_sdr_origintimestamp,
             { "originTimestamp",           "ptp.v2.sdr.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_sdr_origintimestamp_seconds,
             { "originTimestamp (seconds)",           "ptp.v2.sdr.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_sdr_origintimestamp_nanoseconds,
             { "originTimestamp (nanoseconds)",           "ptp.v2.sdr.origintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Follow_Up (=fu) messages*/
         { &hf_ptp_v2_fu_preciseorigintimestamp,
             { "preciseOriginTimestamp",           "ptp.v2.fu.preciseorigintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_fu_preciseorigintimestamp_seconds,
             { "preciseOriginTimestamp (seconds)",           "ptp.v2.fu.preciseorigintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds,
             { "preciseOriginTimestamp (nanoseconds)",           "ptp.v2.fu.preciseorigintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_DelayResponse (=dr) messages*/
         { &hf_ptp_v2_dr_receivetimestamp,
             { "receiveTimestamp",           "ptp.v2.dr.receivetimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_dr_receivetimestamp_seconds,
             { "receiveTimestamp (seconds)",           "ptp.v2.dr.receivetimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_dr_receivetimestamp_nanoseconds,
             { "receiveTimestamp (nanoseconds)",           "ptp.v2.dr.receivetimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_dr_requestingportidentity,
             { "requestingSourcePortIdentity",           "ptp.v2.dr.requestingsourceportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_dr_requestingsourceportid,
             { "requestingSourcePortId",           "ptp.v2.dr.requestingsourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_PDelayRequest (=pdrq) messages*/
         { &hf_ptp_v2_pdrq_origintimestamp,
             { "originTimestamp",           "ptp.v2.pdrq.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrq_origintimestamp_seconds,
             { "originTimestamp (seconds)",           "ptp.v2.pdrq.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrq_origintimestamp_nanoseconds,
             { "originTimestamp (nanoseconds)",           "ptp.v2.pdrq.origintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_PDelayResponse (=pdrs) messages*/
         { &hf_ptp_v2_pdrs_requestreceipttimestamp,
             { "requestreceiptTimestamp",           "ptp.v2.pdrs.requestreceipttimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrs_requestreceipttimestamp_seconds,
             { "requestreceiptTimestamp (seconds)",           "ptp.v2.pdrs.requestreceipttimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds,
             { "requestreceiptTimestamp (nanoseconds)",           "ptp.v2.pdrs.requestreceipttimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrs_requestingportidentity,
             { "requestingSourcePortIdentity",           "ptp.v2.pdrs.requestingportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdrs_requestingsourceportid,
             { "requestingSourcePortId",           "ptp.v2.pdrs.requestingsourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_PDelayResponseFollowUp (=pdfu) messages*/
         { &hf_ptp_v2_pdfu_responseorigintimestamp,
             { "responseOriginTimestamp",           "ptp.v2.pdfu.responseorigintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdfu_responseorigintimestamp_seconds,
             { "responseOriginTimestamp (seconds)",           "ptp.v2.pdfu.responseorigintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds,
             { "responseOriginTimestamp (nanoseconds)",           "ptp.v2.pdfu.responseorigintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdfu_requestingportidentity,
             { "requestingSourcePortIdentity",           "ptp.v2.pdfu.requestingportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_pdfu_requestingsourceportid,
             { "requestingSourcePortId",           "ptp.v2.pdfu.requestingsourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Signalling (=sig) messages*/
         { &hf_ptp_v2_sig_targetportidentity,
             { "targetPortIdentity",           "ptp.v2.sig.targetportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_sig_targetportid,
             { "targetPortId",           "ptp.v2.sig.targetportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*Fields for PTP_Management (=mm) messages*/
         { &hf_ptp_v2_mm_targetportidentity,
             { "targetPortIdentity",           "ptp.v2.mm.targetportidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_targetportid,
             { "targetPortId",           "ptp.v2.mm.targetportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_startingboundaryhops,
             { "startingBoundaryHops",           "ptp.v2.mm.startingboundaryhops",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_boundaryhops,
             { "boundaryHops",           "ptp.v2.mm.boundaryhops",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_action,
             { "action",           "ptp.v2.mm.action",
             FT_UINT8, BASE_DEC, VALS(ptp_v2_mm_action_vals), 0x0F,
-            "", HFILL }
+            NULL, HFILL }
         },
         /* Management TLV */
         { &hf_ptp_v2_mm_tlvType,
             { "tlvType",           "ptp.v2.mm.tlvType",
             FT_UINT16, BASE_DEC, VALS(ptp_v2_TLV_type_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_lengthField,
             { "lengthField",           "ptp.v2.mm.lengthField",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_managementId,
             { "managementId",           "ptp.v2.mm.managementId",
             FT_UINT16, BASE_DEC, VALS(ptp_v2_managementID_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_data,
             { "data",           "ptp.v2.mm.data",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /* Management TLV dataField */
         /* CLOCK_DESCRIPTION */
         { &hf_ptp_v2_mm_clockType,
             { "clockType",           "ptp.v2.mm.clockType",
             FT_UINT16, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_ordinaryClock,
             { "The node implements an ordinary clock", "ptp.v2.mm.clockType.OC",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_ORDINARY_CLOCK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_boundaryClock,
             { "The node implements a boundary clock", "ptp.v2.mm.clockType.BC",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_BOUNDARY_CLOCK,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_p2p_transparentClock,
             { "The node implements a peer-to-peer transparent clock", "ptp.v2.mm.clockType.p2p_TC",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_P2P_TC,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_e2e_transparentClock,
             { "The node implements an end-to-end transparent clock", "ptp.v2.mm.clockType.e2e_TC",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_E2E_TC,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_managementNode,
             { "The node implements a management node", "ptp.v2.mm.clockType.MM",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_MANAGEMENT_NODE,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockType_reserved,
             { "Reserved", "ptp.v2.mm.clockType.reserved",
             FT_BOOLEAN, 16, NULL, CLOCKTYPE_RESERVED,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_physicalLayerProtocol,
             { "physicalLayerProtocol",           "ptp.v2.mm.physicalLayerProtocol",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_physicalLayerProtocol_length,
             { "length",           "ptp.v2.mm.physicalLayerProtocol.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_physicalAddressLength,
             { "physical address length",  "ptp.v2.mm.physicalAddressLength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_physicalAddress,
             { "physical address",  "ptp.v2.mm.physicalAddress",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress,
             { "protocol address",  "ptp.v2.mm.protocolAddress",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress_networkProtocol,
             { "network protocol",           "ptp.v2.mm.networkProtocol",
             FT_UINT16, BASE_DEC, VALS(ptp2_networkProtocol_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress_length,
             { "length",  "ptp.v2.mm.protocolAddress.length",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_manufacturerIdentity,
             { "manufacturer identity",  "ptp.v2.mm.manufacturerIdentity",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_reserved,
             { "reserved",  "ptp.v2.mm.reserved",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_productDescription,
             { "product description",  "ptp.v2.mm.productDescription",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_productDescription_length,
             { "length",           "ptp.v2.mm.productDescription.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_revisionData,
             { "revision data",  "ptp.v2.mm.revisionData",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_revisionData_length,
             { "length",           "ptp.v2.mm.revisionData.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_userDescription,
             { "user description",  "ptp.v2.mm.userDescription",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_userDescription_length,
             { "length",           "ptp.v2.mm.userDescription.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_profileIdentity,
             { "profileIdentity",           "ptp.v2.mm.profileIdentity",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pad,
             { "Pad",           "ptp.v2.mm.pad",
             FT_BYTES, BASE_HEX, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_initializationKey,
             { "initialization key",           "ptp.v2.mm.initializationKey",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_numberOfFaultRecords,
             { "number of fault records",  "ptp.v2.mm.numberOfFaultRecords",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultRecord,
             { "fault record",  "ptp.v2.mm.faultRecord",
             FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultRecordLength,
             { "fault record length",           "ptp.v2.mm.faultRecordLength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_severityCode,
             { "severity code",           "ptp.v2.mm.severityCode",
             FT_UINT8, BASE_DEC, VALS(ptp2_severityCode_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultName,
             { "faultName",  "ptp.v2.mm.faultName",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultName_length,
             { "length",           "ptp.v2.mm.faultName.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultValue,
             { "faultValue",  "ptp.v2.mm.faultValue",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultValue_length,
             { "length",           "ptp.v2.mm.faultValue.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultDescription,
             { "faultDescription",  "ptp.v2.mm.faultDescription",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultDescription_length,
             { "length",           "ptp.v2.mm.faultDescription.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultTime,
             { "Fault time", "ptp.v2.mm.faultTime",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultTime_s,
             { "Fault time (seconds)", "ptp.v2.mm.faultTime.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultTime_ns,
             { "Fault time (nanoseconds)", "ptp.v2.mm.faultTime.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_currentTime_s,
             { "current time (seconds)", "ptp.v2.mm.currentTime.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_currentTime_ns,
             { "current time (nanoseconds)", "ptp.v2.mm.currentTime.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockAccuracy,
             { "Clock accuracy",           "ptp.v2.mm.clockaccuracy",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_clockaccuracy_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_ptp_v2_mm_priority1,
             { "priority1",           "ptp.v2.mm.priority1",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_priority2,
             { "priority2",           "ptp.v2.mm.priority2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_dds_SO,
             { "Slave only",           "ptp.v2.mm.SlavOnly",
             FT_BOOLEAN, 8, NULL, 0x02,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_TSC,
             { "Two step",           "ptp.v2.mm.twoStep",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_numberPorts,
             { "number of ports",  "ptp.v2.mm.numberPorts",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockclass,
             { "Clock class",           "ptp.v2.mm.clockclass",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockaccuracy,
             { "Clock accuracy",           "ptp.v2.mm.clockaccuracy",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_clockaccuracy_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockvariance,
             { "Clock variance",           "ptp.v2.mm.clockvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_clockidentity,
             { "Clock identity",           "ptp.v2.mm.clockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_domainNumber,
             { "domain number",           "ptp.v2.mm.domainNumber",
             FT_UINT8, BASE_DEC, NULL , 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_SO,
             { "Slave only",           "ptp.v2.mm.SlavOnly",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_stepsRemoved,
             { "steps removed",           "ptp.v2.mm.stepsRemoved",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_parentIdentity,
             { "parent ClockIdentity",           "ptp.v2.mm.parentclockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_parentPort,
             { "parent SourcePortID",           "ptp.v2.mm.parentsourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_parentStats,
             { "parent stats",           "ptp.v2.mm.parentstats",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_observedParentOffsetScaledLogVariance,
             { "observedParentOffsetScaledLogVariance", "ptp.v2.mm.observedParentOffsetScaledLogVariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_observedParentClockPhaseChangeRate,
             { "observedParentClockPhaseChangeRate", "ptp.v2.mm.observedParentClockPhaseChangeRate",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterPriority1,
             { "Grandmaster priority1", "ptp.v2.mm.grandmasterPriority1",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterPriority2,
             { "Grandmaster priority2", "ptp.v2.mm.grandmasterPriority2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterclockclass,
             { "Grandmaster clock class", "ptp.v2.mm.grandmasterclockclass",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterclockaccuracy,
             { "Grandmaster clock accuracy", "ptp.v2.mm.grandmasterclockaccuracy",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_clockaccuracy_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterclockvariance,
             { "Grandmaster clock variance", "ptp.v2.mm.grandmasterclockvariance",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_grandmasterIdentity,
             { "Grandmaster clock identity", "ptp.v2.mm.grandmasterclockidentity",
             FT_UINT64, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_currentUtcOffset,
             { "CurrentUTCOffset", "ptp.v2.mm.currentutcoffset",
             FT_INT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_LI_61,
             { "leap 61", "ptp.v2.mm.li61",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_LI_59,
             { "leap 59", "ptp.v2.mm.li59",
             FT_BOOLEAN, 8, NULL, 0x02,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_UTCV,
             { "CurrentUTCOffset valid", "ptp.v2.mm.CurrentUTCOffsetValid",
             FT_BOOLEAN, 8, NULL, 0x04,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_PTP,
             { "PTP timescale", "ptp.v2.mm.ptptimescale",
             FT_BOOLEAN, 8, NULL, 0x08,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_TTRA,
             { "Time traceable", "ptp.v2.mm.timeTraceable",
             FT_BOOLEAN, 8, NULL, 0x10,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_FTRA,
             { "Frequency traceable", "ptp.v2.mm.frequencyTraceable",
             FT_BOOLEAN, 8, NULL, 0x20,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_timesource,
             { "TimeSource",           "ptp.v2.mm.timesource",
             FT_UINT8, BASE_HEX, VALS(ptp_v2_timesource_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_offset_ns,
             { "correction",           "ptp.v2.mm.offset.ns",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_offset_subns,
             { "SubNs",           "ptp.v2.mm.offset.subns",
             FT_DOUBLE, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_ns,
             { "ns",           "ptp.v2.mm.pathDelay.ns",
             FT_UINT64, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_subns,
             { "SubNs",           "ptp.v2.mm.pathDelay.subns",
             FT_DOUBLE, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_PortNumber,
             { "PortNumber",           "ptp.v2.mm.PortNumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_portState,
             { "Port state",           "ptp.v2.mm.portState",
             FT_UINT8, BASE_DEC, VALS(ptp2_portState_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logMinDelayReqInterval,
                 { "logMinDelayReqInterval",           "ptp.v2.mm.logMinDelayReqInterval",
                 FT_INT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_ns,
                 { "ns",           "ptp.v2.mm.peerMeanPathDelay.ns",
                 FT_UINT64, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_subns,
                 { "SubNs",           "ptp.v2.mm.peerMeanPathDelay.subns",
                 FT_DOUBLE, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logAnnounceInterval,
                 { "logAnnounceInterval",           "ptp.v2.mm.logAnnounceInterval",
                 FT_INT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_announceReceiptTimeout,
                 { "announceReceiptTimeout",           "ptp.v2.mm.announceReceiptTimeout",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logSyncInterval,
                 { "logSyncInterval",           "ptp.v2.mm.logSyncInterval",
                 FT_INT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_delayMechanism,
                 { "Delay mechanism",           "ptp.v2.mm.delayMechanism",
                 FT_UINT8, BASE_DEC, VALS(ptp2_delayMechanism_vals), 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logMinPdelayReqInterval,
                 { "logMinPdelayReqInterval",           "ptp.v2.mm.logMinPdelayReqInterval",
                 FT_INT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_versionNumber,
                 { "versionNumber",           "ptp.v2.mm.versionNumber",
                 FT_UINT8, BASE_DEC, NULL, 0x0F,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_primaryDomain,
                 { "Primary domain number",  "ptp.v2.mm.primaryDomain",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultyFlag,
                 { "Faulty flag", "ptp.v2.mm.faultyFlag",
                 FT_BOOLEAN, 8, NULL, 0x01,
-                "", HFILL }
+                NULL, HFILL }
         },
 
         { &hf_ptp_v2_mm_managementErrorId,
                 { "managementErrorId",  "ptp.v2.mm.managementErrorId",
                 FT_UINT16, BASE_DEC, VALS(ptp2_managementErrorId_vals), 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayData,
                 { "Display data",           "ptp.v2.mm.displayData",
                 FT_STRING, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayData_length,
                 { "length",           "ptp.v2.mm.displayData.length",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
-                "", HFILL }
+                NULL, HFILL }
         },
         { &hf_ptp_v2_mm_ucEN,
             { "Enable unicast", "ptp.v2.mm.unicastEnable",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_ptEN,
             { "Path trace unicast", "ptp.v2.mm.pathTraceEnable",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_atEN,
             { "Path trace unicast", "ptp.v2.mm.pathTraceEnable",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_keyField,
             { "Key field", "ptp.v2.mm.keyField",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayName,
             { "Display name",           "ptp.v2.mm.displayName",
             FT_STRING, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayName_length,
             { "length",           "ptp.v2.mm.displayName.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_maxKey,
             { "Max key", "ptp.v2.mm.maxKey",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_currentOffset,
             { "Current offset", "ptp.v2.mm.currentOffset",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_jumpSeconds,
             { "Jump seconds", "ptp.v2.mm.jumpSeconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_numberOfAlternateMasters,
             { "Number of alternate masters", "ptp.v2.mm.numberOfAlternateMasters",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logAlternateMulticastSyncInterval,
             { "Alternate multicast sync interval", "ptp.v2.mm.AlternateMulticastSyncInterval",
             FT_INT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ptp_v2_mm_transmitAlternateMulticastSync,
             { "Transmit alternate multicast sync", "ptp.v2.mm.transmitAlternateMulticastSync",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
     };
 

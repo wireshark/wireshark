@@ -69,7 +69,6 @@
 #include <epan/prefs.h>
 
 /* forward reference */
-void proto_register_2dparityfec(void);
 void proto_reg_handoff_2dparityfec(void);
 
 static gboolean dissect_fec = FALSE;
@@ -94,10 +93,10 @@ static int hf_2dparityfec_snbase_ext      = -1;
 static int hf_2dparityfec_payload         = -1;
 
 static const value_string fec_type_names[] = {
-      {0, "XOR"},
-      {1, "Hamming"},
-      {2, "Reed-Solomon"},
-      {0, NULL}
+   {0, "XOR"},
+   {1, "Hamming"},
+   {2, "Reed-Solomon"},
+   {0, NULL}
 };
 
 static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -168,6 +167,10 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    }
 }
 
+void proto_register_2dparityfec(void)
+{
+   module_t *module_2dparityfec;
+
 /* Payload type definitions */
 static hf_register_info hf[] = {
 	{&hf_2dparityfec_snbase_low,
@@ -177,7 +180,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_length_recovery,
@@ -187,7 +190,7 @@ static hf_register_info hf[] = {
 			BASE_HEX,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_rfc2733_ext,
@@ -197,7 +200,7 @@ static hf_register_info hf[] = {
 			8,
 			NULL,
 			0x80,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_pt_recovery,
@@ -207,7 +210,7 @@ static hf_register_info hf[] = {
 			BASE_HEX,
 			NULL,
 			0x7f,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_mask,
@@ -217,7 +220,7 @@ static hf_register_info hf[] = {
 			BASE_HEX,
 			NULL,
 			/*0x00ffffff*/0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_ts_recovery,
@@ -227,7 +230,7 @@ static hf_register_info hf[] = {
 			BASE_HEX,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_ts_pro_mpeg_ext,
@@ -237,7 +240,7 @@ static hf_register_info hf[] = {
 			8,
 			NULL,
 			0x80,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_row_flag,
@@ -247,7 +250,7 @@ static hf_register_info hf[] = {
 			8,
 			NULL,
 			0x40,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_type,
@@ -257,7 +260,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			VALS(fec_type_names),
 			0x38,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_index,
@@ -267,7 +270,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			NULL,
 			0x07,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_offset,
@@ -277,7 +280,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_na,
@@ -287,7 +290,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_snbase_ext,
@@ -297,7 +300,7 @@ static hf_register_info hf[] = {
 			BASE_DEC,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   },
 
 	{&hf_2dparityfec_payload,
@@ -307,7 +310,7 @@ static hf_register_info hf[] = {
 			BASE_HEX,
 			NULL,
 			0x0,
-			"",
+			NULL,
 			HFILL}   }
 
 
@@ -318,12 +321,8 @@ static gint *ett[] = {
 	&ett_2dparityfec,
 };
 
-void proto_register_2dparityfec(void)
-{
-   module_t *module_2dparityfec;
-
    proto_2dparityfec = proto_register_protocol(
-	"Pro-MPEG Code of Practice #3 release 2 FEC Protocol",   /* name */
+	     "Pro-MPEG Code of Practice #3 release 2 FEC Protocol",   /* name */
         "2dparityfec",            /* short name */
         "2dparityfec");           /* abbrev */
 
@@ -331,28 +330,41 @@ void proto_register_2dparityfec(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    module_2dparityfec = prefs_register_protocol(proto_2dparityfec,
-						proto_reg_handoff_2dparityfec);
+                                                proto_reg_handoff_2dparityfec);
 
    prefs_register_bool_preference(module_2dparityfec, "enable",
-      "Decode Pro-MPEG FEC on RTP dynamic payload type 96",
-      "Enable this option to recognise all traffic on RTP dynamic payload type 96 (0x60) "
-      "as FEC data corresponding to Pro-MPEG Code of Practice #3 release 2",
-      &dissect_fec);
+        "Decode Pro-MPEG FEC on RTP dynamic payload type 96",
+        "Enable this option to recognise all traffic on RTP dynamic payload type 96 (0x60) "
+        "as FEC data corresponding to Pro-MPEG Code of Practice #3 release 2",
+        &dissect_fec);
 
 }
 
 void proto_reg_handoff_2dparityfec(void)
 {
-      static dissector_handle_t handle_2dparityfec = NULL;
- 
-      if (!handle_2dparityfec) {
-      	handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
-							proto_2dparityfec);
-      }
+   static dissector_handle_t handle_2dparityfec = NULL;
 
-      if (dissect_fec) {
-        dissector_add("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
-      } else {
-        dissector_delete("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
-      }
+   if (!handle_2dparityfec) {
+      handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
+                                                   proto_2dparityfec);
+   }
+
+   if (dissect_fec) {
+      dissector_add("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
+   } else {
+      dissector_delete("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
+   }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 3
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=3 noexpandtab
+ * :indentSize=3:tabSize=3:noTabs=false:
+ */

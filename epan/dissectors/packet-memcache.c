@@ -699,7 +699,7 @@ desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const int offset,
 /*
  * Optionally do reassembly of the requests, responses and data.
  */
-gboolean
+static gboolean
 memcache_req_resp_hdrs_do_reassembly (
     tvbuff_t *tvb, const int offset, packet_info *pinfo, 
     const gboolean desegment_headers, const gboolean desegment_body, 

@@ -45,7 +45,6 @@
 
 #include <stdio.h>
 #include <epan/packet.h>
-#include <epan/value_string.h>
 #include <epan/prefs.h>
 #include "packet-dis-enums.h"
 #include "packet-dis-pdus.h"
@@ -152,32 +151,10 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return tvb_length(tvb);
 }
 
-/* Register handoff routine for DIS dissector.  This will be invoked initially
- * and when the preferences are changed, to handle changing the UDP port for
- * which this dissector is registered.
- */
-void proto_reg_handoff_dis(void)
-{
-    static gboolean dis_prefs_initialized = FALSE;
-    static dissector_handle_t dis_dissector_handle;
-    static guint saved_dis_udp_port;
-
-    if (!dis_prefs_initialized)
-    {
-        dis_dissector_handle = new_create_dissector_handle(dissect_dis, proto_dis);
-        dis_prefs_initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete("udp.port", saved_dis_udp_port, dis_dissector_handle);
-    }
-
-    dissector_add("udp.port", dis_udp_port, dis_dissector_handle);
-    saved_dis_udp_port = dis_udp_port;
-}
-
 /* Registration routine for the DIS protocol.
  */
+void proto_reg_handoff_dis(void);
+
 void proto_register_dis(void)
 {
     /* Only these 3 ett variables will be present for every DIS PDU --
@@ -210,3 +187,28 @@ void proto_register_dis(void)
      */
     initializeParsers();
 }
+
+/* Register handoff routine for DIS dissector.  This will be invoked initially
+ * and when the preferences are changed, to handle changing the UDP port for
+ * which this dissector is registered.
+ */
+void proto_reg_handoff_dis(void)
+{
+    static gboolean dis_prefs_initialized = FALSE;
+    static dissector_handle_t dis_dissector_handle;
+    static guint saved_dis_udp_port;
+
+    if (!dis_prefs_initialized)
+    {
+        dis_dissector_handle = new_create_dissector_handle(dissect_dis, proto_dis);
+        dis_prefs_initialized = TRUE;
+    }
+    else
+    {
+        dissector_delete("udp.port", saved_dis_udp_port, dis_dissector_handle);
+    }
+
+    dissector_add("udp.port", dis_udp_port, dis_dissector_handle);
+    saved_dis_udp_port = dis_udp_port;
+}
+

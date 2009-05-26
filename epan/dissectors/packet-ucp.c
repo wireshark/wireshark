@@ -57,9 +57,9 @@ static void dissect_ucp_common(tvbuff_t *, packet_info *, proto_tree *);
 
 /* Tap Record */
 typedef struct _ucp_tap_rec_t {
-	guint message_type;	/* 0 = Operation; 1 = Result */
-	guint operation;	/* Operation Type */
-	guint result;		/* 0 = Success; Non 0 = Error Code */
+    guint message_type;	/* 0 = Operation; 1 = Result */
+    guint operation;	/* Operation Type */
+    guint result;	/* 0 = Success; Non 0 = Error Code */
 } ucp_tap_rec_t;
 
 /* Preferences */
@@ -647,7 +647,7 @@ static const value_string vals_xser_service[] = {
 };
 
 /* For statistics */
-void
+static void
 ucp_stats_tree_init(stats_tree* st)
 {
     st_ucp_messages = stats_tree_create_node(st, st_str_ucp, 0, TRUE);
@@ -658,7 +658,7 @@ ucp_stats_tree_init(stats_tree* st)
     st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, TRUE);
 }
 
-int
+static int
 ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                                       packet_info *pinfo _U_,
                                       epan_dissect_t *edt _U_,
@@ -1742,22 +1742,22 @@ get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     guint	 intval=0;
     int		 i;
 
-	offset = offset + 4;
-	for (i = 0; i < UCP_LEN_LEN; i++) {	/* Length	*/
-	    intval = 10 * intval +
-			(tvb_get_guint8(tvb, offset) - '0');
-		offset++;
-	}
+    offset = offset + 4;
+    for (i = 0; i < UCP_LEN_LEN; i++) {	/* Length	*/
+        intval = 10 * intval +
+            (tvb_get_guint8(tvb, offset) - '0');
+        offset++;
+    }
 
-	return intval + 2;
+    return intval + 2;
 }
 
 
 static void
 dissect_ucp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, ucp_desegment, UCP_HEADER_SIZE,
-	    get_ucp_pdu_len, dissect_ucp_common);
+    tcp_dissect_pdus(tvb, pinfo, tree, ucp_desegment, UCP_HEADER_SIZE,
+                     get_ucp_pdu_len, dissect_ucp_common);
 }
 /*
  * The actual dissector
@@ -1809,7 +1809,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      /* Make entries in  Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
-   if (check_col(pinfo->cinfo, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
 		     val_to_str(OT,  vals_hdr_OT,  "unknown operation"),
@@ -2725,12 +2725,12 @@ proto_register_ucp(void)
     ucp_tap = register_tap("ucp");
 
   /* register preferences */
-  ucp_module = prefs_register_protocol(proto_ucp, NULL);
-  prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
-    "Reassemble UCP messages spanning multiple TCP segments",
-    "Whether the UCP dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &ucp_desegment);
+    ucp_module = prefs_register_protocol(proto_ucp, NULL);
+    prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
+                           "Reassemble UCP messages spanning multiple TCP segments",
+                           "Whether the UCP dissector should reassemble messages spanning multiple TCP segments."
+                           " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                           &ucp_desegment);
 
 }
 

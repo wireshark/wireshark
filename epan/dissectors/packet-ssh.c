@@ -221,7 +221,7 @@ static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree,int is_response);
-proto_item * ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+static proto_item * ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
 
@@ -1005,7 +1005,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	return offset;
 }
-proto_item *
+static proto_item *
 ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian)
 {
@@ -1134,108 +1134,107 @@ proto_register_ssh(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "SSH Protocol Packet MAC", HFILL }},
 
-  { &hf_ssh_kex_algorithms,
+    { &hf_ssh_kex_algorithms,
       { "kex_algorithms string",         "ssh.kex_algorithms",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH kex_algorithms string", HFILL }},
 
-  { &hf_ssh_server_host_key_algorithms,
+    { &hf_ssh_server_host_key_algorithms,
       { "server_host_key_algorithms string",         "ssh.server_host_key_algorithms",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH server_host_key_algorithms string", HFILL }},
 
-  { &hf_ssh_encryption_algorithms_client_to_server,
+    { &hf_ssh_encryption_algorithms_client_to_server,
       { "encryption_algorithms_client_to_server string",         "ssh.encryption_algorithms_client_to_server",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH encryption_algorithms_client_to_server string", HFILL }},
 
-  { &hf_ssh_encryption_algorithms_server_to_client,
+    { &hf_ssh_encryption_algorithms_server_to_client,
       { "encryption_algorithms_server_to_client string",         "ssh.encryption_algorithms_server_to_client",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH encryption_algorithms_server_to_client string", HFILL }},
 
-  { &hf_ssh_mac_algorithms_client_to_server,
+    { &hf_ssh_mac_algorithms_client_to_server,
       { "mac_algorithms_client_to_server string",         "ssh.mac_algorithms_client_to_server",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH mac_algorithms_client_to_server string", HFILL }},
 
-  { &hf_ssh_mac_algorithms_server_to_client,
+    { &hf_ssh_mac_algorithms_server_to_client,
       { "mac_algorithms_server_to_client string",         "ssh.mac_algorithms_server_to_client",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH mac_algorithms_server_to_client string", HFILL }},
 
-  { &hf_ssh_compression_algorithms_client_to_server,
+    { &hf_ssh_compression_algorithms_client_to_server,
       { "compression_algorithms_client_to_server string",         "ssh.compression_algorithms_client_to_server",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH compression_algorithms_client_to_server string", HFILL }},
 
-  { &hf_ssh_compression_algorithms_server_to_client,
+    { &hf_ssh_compression_algorithms_server_to_client,
       { "compression_algorithms_server_to_client string",         "ssh.compression_algorithms_server_to_client",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH compression_algorithms_server_to_client string", HFILL }},
 
-  { &hf_ssh_languages_client_to_server,
+    { &hf_ssh_languages_client_to_server,
       { "languages_client_to_server string",         "ssh.languages_client_to_server",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH languages_client_to_server string", HFILL }},
 
-  { &hf_ssh_languages_server_to_client,
+    { &hf_ssh_languages_server_to_client,
       { "languages_server_to_client string",         "ssh.languages_server_to_client",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "SSH languages_server_to_client string", HFILL }},
 
-  { &hf_ssh_kex_algorithms_length,
+    { &hf_ssh_kex_algorithms_length,
       { "kex_algorithms length",         "ssh.kex_algorithms_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH kex_algorithms length", HFILL }},
 
-  { &hf_ssh_server_host_key_algorithms_length,
+    { &hf_ssh_server_host_key_algorithms_length,
       { "server_host_key_algorithms length",         "ssh.server_host_key_algorithms_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH server_host_key_algorithms length", HFILL }},
 
-  { &hf_ssh_encryption_algorithms_client_to_server_length,
+    { &hf_ssh_encryption_algorithms_client_to_server_length,
       { "encryption_algorithms_client_to_server length",         "ssh.encryption_algorithms_client_to_server_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH encryption_algorithms_client_to_server length", HFILL }},
 
-  { &hf_ssh_encryption_algorithms_server_to_client_length,
+    { &hf_ssh_encryption_algorithms_server_to_client_length,
       { "encryption_algorithms_server_to_client length",         "ssh.encryption_algorithms_server_to_client_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH encryption_algorithms_server_to_client length", HFILL }},
 
-  { &hf_ssh_mac_algorithms_client_to_server_length,
+    { &hf_ssh_mac_algorithms_client_to_server_length,
       { "mac_algorithms_client_to_server length",         "ssh.mac_algorithms_client_to_server_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH mac_algorithms_client_to_server length", HFILL }},
 
-  { &hf_ssh_mac_algorithms_server_to_client_length,
+    { &hf_ssh_mac_algorithms_server_to_client_length,
       { "mac_algorithms_server_to_client length",         "ssh.mac_algorithms_server_to_client_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH mac_algorithms_server_to_client length", HFILL }},
 
-  { &hf_ssh_compression_algorithms_client_to_server_length,
+    { &hf_ssh_compression_algorithms_client_to_server_length,
       { "compression_algorithms_client_to_server length",         "ssh.compression_algorithms_client_to_server_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH compression_algorithms_client_to_server length", HFILL }},
 
-  { &hf_ssh_compression_algorithms_server_to_client_length,
+    { &hf_ssh_compression_algorithms_server_to_client_length,
       { "compression_algorithms_server_to_client length",         "ssh.compression_algorithms_server_to_client_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH compression_algorithms_server_to_client length", HFILL }},
 
-  { &hf_ssh_languages_client_to_server_length,
+    { &hf_ssh_languages_client_to_server_length,
       { "languages_client_to_server length",         "ssh.languages_client_to_server_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH languages_client_to_server length", HFILL }},
 
-  { &hf_ssh_languages_server_to_client_length,
+    { &hf_ssh_languages_server_to_client_length,
       { "languages_server_to_client length",         "ssh.languages_server_to_client_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "SSH languages_server_to_client length", HFILL }},
-
-
   	};
+
   	static gint *ett[] = {
     		&ett_ssh,
 		&ett_key_exchange,
@@ -1245,16 +1244,15 @@ proto_register_ssh(void)
   	};
   	module_t *ssh_module;
 
-  	proto_ssh = proto_register_protocol("SSH Protocol",
-				       "SSH", "ssh");
- 	 proto_register_field_array(proto_ssh, hf, array_length(hf));
+  	proto_ssh = proto_register_protocol("SSH Protocol", "SSH", "ssh");
+	proto_register_field_array(proto_ssh, hf, array_length(hf));
   	proto_register_subtree_array(ett, array_length(ett));
 
   	ssh_module = prefs_register_protocol(proto_ssh, NULL);
 	prefs_register_bool_preference(ssh_module, "desegment_buffers",
 		"Reassemble SSH buffers spanning multiple TCP segments",
 		"Whether the SSH dissector should reassemble SSH buffers spanning multiple TCP segments. "
-	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&ssh_desegment);
 }
 

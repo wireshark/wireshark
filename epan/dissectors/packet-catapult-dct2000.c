@@ -619,7 +619,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 /* Dissect an RRC LTE frame by first parsing the header entries then passing
    the data to the RRC dissector, according to direction and channel type.
    TODO: factor out common code between this function and dissect_pdcp_lte() */
-void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
+static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                      packet_info *pinfo _U_, proto_tree *tree)
 {
     guint8  tag;
@@ -813,7 +813,7 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 
 /* Dissect a PDCP LTE frame by first parsing the RLCPrim header then passing
    the data to the PDCP LTE dissector */
-void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
+static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                       packet_info *pinfo, proto_tree *tree)
 {
     guint8                 opcode;
@@ -1013,7 +1013,7 @@ void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
 /* Look up dissector by protocol name.  Fix up known name mis-matches.
    This includes exact matches and prefixes (e.g. "diameter_rx" -> "diameter") */
-dissector_handle_t look_for_dissector(char *protocol_name)
+static dissector_handle_t look_for_dissector(char *protocol_name)
 {
     /* Use known aliases and protocol name prefixes */
     if (strcmp(protocol_name, "tbcp") == 0)
@@ -1106,7 +1106,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-void parse_outhdr_string(const guchar *outhdr_string)
+static void parse_outhdr_string(const guchar *outhdr_string)
 {
     int n = 0;
     guint outhdr_string_len = (guint)strlen((gchar*)outhdr_string);
@@ -1469,7 +1469,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
 
 
 /* Attempt to show tty (raw character messages) as text lines. */
-void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     gint        next_offset;
     proto_tree  *tty_tree;
@@ -2161,19 +2161,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /******************************************************************************/
 void proto_reg_handoff_catapult_dct2000(void)
 {
-    static gboolean have_cached_handles = FALSE;
     dissector_handle_t catapult_dct2000_handle = find_dissector("dct2000");
-    dissector_add("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000,
-                  catapult_dct2000_handle);
 
-    /* Cache some protocol handles that we don't want to keep looking up */
-    if (!have_cached_handles) {
-        mac_lte_handle = find_dissector("mac-lte");
-        rlc_lte_handle = find_dissector("rlc-lte");
-        pdcp_lte_handle = find_dissector("pdcp-lte");
+    dissector_add("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000, catapult_dct2000_handle);
 
-        have_cached_handles = TRUE;
-    }
+    mac_lte_handle = find_dissector("mac-lte");
+    rlc_lte_handle = find_dissector("rlc-lte");
+    pdcp_lte_handle = find_dissector("pdcp-lte");
 }
 
 /****************************************/
@@ -2192,7 +2186,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_port_number,
             { "Context Port number",
               "dct2000.context_port", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Context port number", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_timestamp,
@@ -2247,7 +2241,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_ipprim_addresses,
             { "IPPrim Addresses",
               "dct2000.ipprim", FT_STRING, BASE_NONE, NULL, 0x0,
-              "IPPrim Addresses", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_src_addr_v4,
@@ -2375,7 +2369,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_tty_line,
             { "tty line",
               "dct2000.tty-line", FT_STRING, BASE_NONE, NULL, 0x0,
-              "tty line", HFILL
+              NULL, HFILL
             }
         },
 

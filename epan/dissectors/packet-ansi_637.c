@@ -220,7 +220,7 @@ static proto_tree *g_tree;
 
 #define GN_CHAR_ESCAPE 0x1b
 
-gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+static gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
     /* Fixed to use unicode */
@@ -247,7 +247,7 @@ gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 };
 
 
-gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+static gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /*ITU-T recommendation T.50 specifies International Reference Alphabet 5 (IA5) */
 
@@ -269,13 +269,13 @@ gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
     'x',  'y',  'z',  '{',  '|',  '}',  '~',  '?'
 };
 
-gboolean
+static gboolean
 char_is_escape(unsigned char value)
 {
     return (value == GN_CHAR_ESCAPE);
 }
 
-gunichar
+static gunichar
 char_def_alphabet_ext_decode(unsigned char value)
 {
     switch (value)
@@ -294,7 +294,7 @@ char_def_alphabet_ext_decode(unsigned char value)
     }
 }
 
-gunichar 
+static gunichar 
 char_def_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -307,7 +307,7 @@ char_def_alphabet_decode(unsigned char value)
     }
 }
 
-void
+static void
 gsm_sms_char_7bit_ascii_decode(unsigned char * dest, const unsigned char* src, int len)
 {
     int i, j;
@@ -331,7 +331,7 @@ gsm_sms_char_7bit_ascii_decode(unsigned char * dest, const unsigned char* src, i
 
 
 
-gunichar 
+static gunichar 
 char_def_ia5_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -344,7 +344,7 @@ char_def_ia5_alphabet_decode(unsigned char value)
     }
 }
 
-void
+static void
 IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 {
     int i, j;
@@ -495,100 +495,100 @@ tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 static void
 tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-	/* Declare some variables */
+    /* Declare some variables */
 
-	guint8	oct;
-	guint8	error_class;
+    guint8	oct;
+    guint8	error_class;
     guint8	msg_status_code;
     const gchar *str = NULL;
 
     /* Chceck if the exact length */  
-	EXACT_DATA_CHECK(len, 1);
+    EXACT_DATA_CHECK(len, 1);
    
-	/* get the status octet? */
+    /* get the status octet? */
 
-	oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_guint8(tvb, offset);
    
 
-	/* error class filter */
-	proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, FALSE);
+    /* error class filter */
+    proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, FALSE);
 
-	/*error class filter end */
+    /*error class filter end */
 
 
 /*error class */
 
-	error_class = ((oct & 0xc0) >> 6);
-	switch (error_class)
+    error_class = ((oct & 0xc0) >> 6);
+    switch (error_class)
     {
-	case 0x00: str = "No Error";break;
-	case 0x01: str = "Reserved";break;
-	case 0x02: str = "Temporary Condition";break;
-	case 0x03: str = "Permanent Condition";break;
-	default: str = "Reserved";break;
-	}
-	other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Erorr Class: %s",
-	ansi_637_bigbuf,
-	str);
+    case 0x00: str = "No Error";break;
+    case 0x01: str = "Reserved";break;
+    case 0x02: str = "Temporary Condition";break;
+    case 0x03: str = "Permanent Condition";break;
+    default: str = "Reserved";break;
+    }
+    other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
+    proto_tree_add_text(tree, tvb, offset, 1,
+                        "%s :  Erorr Class: %s",
+                        ansi_637_bigbuf,
+                        str);
 	
 
 	 
-	msg_status_code = (oct & 0x3f);
+    msg_status_code = (oct & 0x3f);
 
-	if (error_class == 0x00){
+    if (error_class == 0x00){
 	switch (msg_status_code)
 	{
 	case 0x00: str = "Message accepted";break;
-    case 0x01: str = "Message deposited to internet";break;
-    case 0x02: str = "Message delivered";break;
-    case 0x03: str = "Message cancelled";break;
-    default: str = "Reserved";break;
-    }
+        case 0x01: str = "Message deposited to internet";break;
+        case 0x02: str = "Message delivered";break;
+        case 0x03: str = "Message cancelled";break;
+        default: str = "Reserved";break;
+        }
 	other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
 	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Message status code: %s",
-	ansi_637_bigbuf,
-	str);
-	}
+                            "%s :  Message status code: %s",
+                            ansi_637_bigbuf,
+                            str);
+    }
 
 /*error message status */
-  if (error_class == 0x02){
-  switch (msg_status_code)
-    {
-    case 0x04: str = "Network congestion";break;
-    case 0x05: str = "Network error";break;
-    case 0x1f: str = "Unknown error";break;
-    default: str = "Reserved";break;
+    if (error_class == 0x02){
+        switch (msg_status_code)
+        {
+        case 0x04: str = "Network congestion";break;
+        case 0x05: str = "Network error";break;
+        case 0x1f: str = "Unknown error";break;
+        default: str = "Reserved";break;
+        }
+        other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
+        proto_tree_add_text(tree, tvb, offset, 1,
+                            "%s :  Message status code: %s",
+                            ansi_637_bigbuf,
+                            str);   
     }
-  other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
-  proto_tree_add_text(tree, tvb, offset, 1,
-  "%s :  Message status code: %s",
-  ansi_637_bigbuf,
-  str);   
-  }
   
-  if (error_class == 0x03){
-  switch (msg_status_code)
-    {
-    case 0x04: str = "Network congestion";break;
-    case 0x05: str = "Network error";break;
-    case 0x06: str = "Cancel failed";break;
-    case 0x07: str = "Blocked destination";break;
-    case 0x08: str = "Text too long";break;
-    case 0x09: str = "Duplicate message";break;
-    case 0x0a: str = "Invalid destination";break;
-    case 0x0d: str = "Message expired";break;
-    case 0x1f: str = "Unknown error";break;
-    default: str = "Reserved";break;
+    if (error_class == 0x03){
+        switch (msg_status_code)
+        {
+        case 0x04: str = "Network congestion";break;
+        case 0x05: str = "Network error";break;
+        case 0x06: str = "Cancel failed";break;
+        case 0x07: str = "Blocked destination";break;
+        case 0x08: str = "Text too long";break;
+        case 0x09: str = "Duplicate message";break;
+        case 0x0a: str = "Invalid destination";break;
+        case 0x0d: str = "Message expired";break;
+        case 0x1f: str = "Unknown error";break;
+        default: str = "Reserved";break;
+        }
+        other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
+        proto_tree_add_text(tree, tvb, offset, 1,
+                            "%s :  Message status code: %s",
+                            ansi_637_bigbuf,
+                            str);
     }
-  other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
-  proto_tree_add_text(tree, tvb, offset, 1,
-  "%s :  Message status code: %s",
-  ansi_637_bigbuf,
-  str);
-  }
 }
 
 
@@ -606,9 +606,9 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     guint32	i , out_len;
     const gchar	*str = NULL;
 
-	/*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/ 
-	proto_item *ucs2_item;
-	gchar *utf8_text = NULL;
+    /*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/ 
+    proto_item *ucs2_item;
+    gchar *utf8_text = NULL;
     GIConv cd;
     GError *l_conv_error = NULL;
 
@@ -751,113 +751,113 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     }
 	else if (encoding == 0x03)/* IA5 */
 	{
-		i = (num_fields * 7) - 3;
-		required_octs = (i / 8) + ((i % 8) ? 1 : 0);
+            i = (num_fields * 7) - 3;
+            required_octs = (i / 8) + ((i % 8) ? 1 : 0);
 
-		if (required_octs + used > len)
-		{
-			proto_tree_add_text(tree, tvb, offset, 1,
-			"Missing %d octet(s) for number of fields",
-			(required_octs + used) - len);
+            if (required_octs + used > len)
+            {
+                proto_tree_add_text(tree, tvb, offset, 1,
+                                    "Missing %d octet(s) for number of fields",
+                                    (required_octs + used) - len);
 
-			return;
-		}
+                return;
+            }
 
-		bit = 3;
-		saved_offset = offset;
-		out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
-		IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
+            bit = 3;
+            saved_offset = offset;
+            out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
+            IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
 
-		proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
-			"Encoded user data: %s",
-			ia5_637_bigbuf);
+            proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
+                                "Encoded user data: %s",
+                                ia5_637_bigbuf);
 	}
 	/*TODO UCS else if (encoding == 0x04)
 	{
 	}*/
     else if (encoding == 0x07)/* Latin/Hebrew */
-	{
-		saved_offset = offset - 1;
-		for (i=0; i < num_fields; i++)
-		{
-			oct = tvb_get_guint8(tvb, saved_offset);
-			oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
-			ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);			
-			saved_offset++;
-		}
-
-		if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
-		{
-			utf8_text = g_convert_with_iconv(tvb->real_data +  offset, num_fields , cd , NULL , NULL , &l_conv_error);
-			if(!l_conv_error)
-			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
-			}
-			else
-			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
-			}
-			if(utf8_text)
-				g_free(utf8_text);
-			g_iconv_close(cd);
-		}
-	}
-	else if (encoding == 0x08) /* Latin */
-	{
-		saved_offset = offset - 1;
-		for (i=0; i < num_fields; i++)
-		{
-			oct = tvb_get_guint8(tvb, saved_offset);
-			oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
-			ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
-			saved_offset++;
-		}
-
-		if ((cd = g_iconv_open("UTF-8","iso-8859-1")) != (GIConv)-1)
-		{
-			utf8_text = g_convert_with_iconv(ansi_637_bigbuf , num_fields , cd , NULL , NULL , &l_conv_error);
-			if(!l_conv_error)
-			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
-			}
-			else
-			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
-			}			
-			if(utf8_text)
-				g_free(utf8_text);
-			g_iconv_close(cd);
-		}
-	}
-	else if (encoding == 0x09) /* GSM 7-bit default alphabet */
-	{
-		i = (num_fields * 7) - 3;
-		required_octs = (i / 8) + ((i % 8) ? 1 : 0);
-
-		if (required_octs + used > len)
-		{
-			proto_tree_add_text(tree, tvb, offset, 1,
-			"Missing %d octet(s) for number of fields",
-			(required_octs + used) - len);
-
-			return;
-		}
-
-		bit = 3;
-		saved_offset = offset;
-		out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
-		gsm_sms_char_7bit_ascii_decode(gsm_637_bigbuf, ansi_637_bigbuf, out_len);
-
-		proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
-			"Encoded user data: %s",
-			gsm_637_bigbuf);
-
-
-	}
-	else
     {
-		proto_tree_add_text(tree, tvb, offset, len - used,
-	    "Encoded user data");
+        saved_offset = offset - 1;
+        for (i=0; i < num_fields; i++)
+        {
+            oct = tvb_get_guint8(tvb, saved_offset);
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+            ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);			
+            saved_offset++;
+        }
+
+        if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
+        {
+            utf8_text = g_convert_with_iconv(tvb->real_data +  offset, num_fields , cd , NULL , NULL , &l_conv_error);
+            if(!l_conv_error)
+            {
+                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+            }
+            else
+            {
+                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
+            }
+            if(utf8_text)
+                g_free(utf8_text);
+            g_iconv_close(cd);
+        }
+    }
+    else if (encoding == 0x08) /* Latin */
+    {
+        saved_offset = offset - 1;
+        for (i=0; i < num_fields; i++)
+        {
+            oct = tvb_get_guint8(tvb, saved_offset);
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+            ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
+            saved_offset++;
+        }
+
+        if ((cd = g_iconv_open("UTF-8","iso-8859-1")) != (GIConv)-1)
+        {
+            utf8_text = g_convert_with_iconv(ansi_637_bigbuf , num_fields , cd , NULL , NULL , &l_conv_error);
+            if(!l_conv_error)
+            {
+                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+            }
+            else
+            {
+                ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
+            }			
+            if(utf8_text)
+                g_free(utf8_text);
+            g_iconv_close(cd);
+        }
+    }
+    else if (encoding == 0x09) /* GSM 7-bit default alphabet */
+    {
+        i = (num_fields * 7) - 3;
+        required_octs = (i / 8) + ((i % 8) ? 1 : 0);
+
+        if (required_octs + used > len)
+        {
+            proto_tree_add_text(tree, tvb, offset, 1,
+                                "Missing %d octet(s) for number of fields",
+                                (required_octs + used) - len);
+
+            return;
+        }
+
+        bit = 3;
+        saved_offset = offset;
+        out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
+        gsm_sms_char_7bit_ascii_decode(gsm_637_bigbuf, ansi_637_bigbuf, out_len);
+
+        proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
+                            "Encoded user data: %s",
+                            gsm_637_bigbuf);
+
+
+    }
+    else
+    {
+        proto_tree_add_text(tree, tvb, offset, len - used,
+                            "Encoded user data");
     }
 }
 
@@ -954,11 +954,11 @@ tele_param_rel_timestamp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
 }
 
 static const value_string tele_param_pri_ind_strings[] = {
-	{ 0,	"Normal" },
-	{ 1,	"Interactive" },
-	{ 2,	"Urgent" },
-	{ 3,	"Emergency" },
-	{ 0, NULL }
+    { 0,	"Normal" },
+    { 1,	"Interactive" },
+    { 2,	"Urgent" },
+    { 3,	"Emergency" },
+    { 0, NULL }
 };
 
 static void
@@ -2278,19 +2278,19 @@ proto_register_ansi_637(void)
 	  { "Message Type",
 	    "ansi_637_trans.msg_type",
 	    FT_UINT24, BASE_DEC, VALS(ansi_trans_msg_type_strings), 0xf00000,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_trans_param_id,
 	    { "Transport Param ID", "ansi_637_trans.param_id",
 	    FT_UINT8, BASE_DEC, VALS(ansi_trans_param_strings), 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_trans_length,
 	    { "Length", "ansi_637_trans.len",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_trans_bin_addr,
 	    { "Binary Address", "ansi_637_trans.bin_addr",
 	    FT_BYTES, BASE_HEX, 0, 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	};
     static hf_register_info hf_tele[] =
     {
@@ -2298,30 +2298,30 @@ proto_register_ansi_637(void)
 	  { "Message Type",
 	    "ansi_637_tele.msg_type",
 	    FT_UINT24, BASE_DEC, VALS(ansi_tele_msg_type_strings), 0xf00000,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_tele_msg_id,
 	  { "Message ID",
 	    "ansi_637_tele.msg_id",
 	    FT_UINT24, BASE_DEC, NULL, 0x0ffff0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_tele_msg_status,
 	  { "Message Status",
 	    "ansi_637_tele.msg_status",
 	    FT_UINT8, BASE_DEC, VALS(ansi_tele_msg_status_strings), 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_tele_msg_rsvd,
 	  { "Reserved",
 	    "ansi_637_tele.msg_rsvd",
 	    FT_UINT24, BASE_DEC, NULL, 0x00000f,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_tele_length,
 	    { "Length", "ansi_637_tele.len",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_637_tele_subparam_id,
 	    { "Teleservice Subparam ID", "ansi_637_tele.subparam_id",
 	    FT_UINT8, BASE_DEC, VALS(ansi_tele_param_strings), 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
