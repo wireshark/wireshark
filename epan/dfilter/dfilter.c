@@ -179,6 +179,7 @@ dfwork_new(void)
 	dfw->loaded_fields = NULL;
 	dfw->interesting_fields = NULL;
 	dfw->next_insn_id = 0;
+	dfw->next_const_id = 0;
 	dfw->next_register = 0;
 	dfw->first_constant = -1;
 
