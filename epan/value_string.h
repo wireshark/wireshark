@@ -34,6 +34,13 @@ typedef struct _value_string {
   const gchar   *strptr;
 } value_string;
 
+/* Struct for the str_to_str, match_strstr_idx, and match_strstr functions */
+
+typedef struct _string_string {
+  const gchar   *value;
+  const gchar   *strptr;
+} string_string;
+
 /* Struct for the rval_to_str, match_strrval_idx, and match_strrval functions */
 typedef struct _range_string {
   guint32        value_min;
@@ -57,6 +64,20 @@ extern const gchar* match_strval(guint32 val, const value_string *vs);
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
 extern const gchar* val_to_str(guint32 val, const value_string *vs, const char *fmt);
+
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+extern const gchar* match_strstr_idx(const gchar *val, const string_string *vs, gint *idx);
+
+/* Like match_strval_idx(), but doesn't return the index. */
+extern const gchar* match_strstr(const gchar *val, const string_string *vs);
+
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match.
+   Formats val with fmt, and returns the resulting string, on failure. */
+extern const gchar* str_to_str(const gchar *val, const string_string *vs, const char *fmt);
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */

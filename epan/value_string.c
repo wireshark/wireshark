@@ -31,6 +31,7 @@
 #include "to_str.h"
 #include "emem.h"
 #include "value_string.h"
+#include <string.h>
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
@@ -75,6 +76,51 @@ const gchar*
 match_strval(guint32 val, const value_string *vs) {
     gint ignore_me;
     return match_strval_idx(val, vs, &ignore_me);
+}
+
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match.
+   Formats val with fmt, and returns the resulting string, on failure. */
+const gchar*
+str_to_str(const gchar *val, const string_string *vs, const char *fmt) {
+  const gchar *ret;
+
+  g_assert(fmt != NULL);
+
+  ret = match_strstr(val, vs);
+  if (ret != NULL)
+    return ret;
+
+  return ep_strdup_printf(fmt, val);
+}
+
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+const gchar*
+match_strstr_idx(const gchar *val, const string_string *vs, gint *idx) {
+  gint i = 0;
+
+  if(vs) {
+    while (vs[i].strptr) {
+      if (!strcmp(vs[i].value,val)) {
+        *idx = i;
+        return(vs[i].strptr);
+      }
+      i++;
+    }
+  }
+
+  *idx = -1;
+  return NULL;
+}
+
+/* Like match_strval_idx(), but doesn't return the index. */
+const gchar*
+match_strstr(const gchar *val, const string_string *vs) {
+    gint ignore_me;
+    return match_strstr_idx(val, vs, &ignore_me);
 }
 
 /* Generate a string describing an enumerated bitfield (an N-bit field

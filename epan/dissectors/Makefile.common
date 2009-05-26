@@ -1029,6 +1029,7 @@ DISSECTOR_INCLUDES =	\
 	packet-fcswils.h	\
 	packet-fddi.h	\
 	packet-ff.h	\
+	packet-fix.h	\
 	packet-fmp.h	\
 	packet-fmp_notify.h	\
 	packet-fr.h	\

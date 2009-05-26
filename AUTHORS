@@ -109,6 +109,7 @@ Martin Maciaszek        <fastjack[AT]i-s-o.net> {
 Didier Jorand           <Didier.Jorand[AT]alcatel.fr> {
 	SNMP support
 	TCP SEQ/ACK analysis bugfix for sequence number wrapping.
+	FIX 4.0 to 4.4 fields
 }
 
 Jun-ichiro itojun Hagino <itojun[AT]itojun.org> {

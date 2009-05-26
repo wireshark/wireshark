@@ -1,0 +1,20 @@
+FIX4x.xml from quickfixengine.org 
+
+FIX.xml is a modified FIX44.xml with fields from previous versions.
+cf new field attributes 'since' and 'until'.
+
+hfField.xsl: generate hf_register_info list.
+hfDecl.xsl : generate fix_field list.
+Values.xsl : generate value_string and string_string tables.
+hfList.xsl : find the last tag number.
+
+packet-fix.h: Values.xsl hfDecl.xsl hfField.xsl output on FIX.xml follow
+by output of hfList.xsl on FIX40.xml to FIX44.xml
+example
+(xsltproc Values.xsl FIX.xml ; xsltproc hfDecl.xsl FIX.xml; xsltproc hfField.xsl FIX.xml;\
+xsltproc hfList.xsl FIX40.xml; xsltproc hfList.xsl FIX41.xml; xsltproc hfList.xsl FIX42.xml;\
+xsltproc hfList.xsl FIX43.xml; xsltproc hfList.xsl FIX44.xml) > packet-fix.h
+
+NOTES:
+- fix_field structure should use 'since' and 'until' attributes for removed
+tags.
