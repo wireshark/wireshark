@@ -465,6 +465,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   GString       *if_tool_str = g_string_new("");
   const gchar   *addr_str;
   gchar         *tmp_str;
+  gchar         *user_descr;
   if_stat_cache_t *sc;
 
   if (cap_if_w != NULL) {
@@ -627,10 +628,16 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_string_append(if_tool_str, "\n");
 
       /* description */
-      if (if_info->description != NULL)
-        if_dlg_data->descr_lb = gtk_label_new(if_info->description);
-      else
-        if_dlg_data->descr_lb = gtk_label_new("");
+      user_descr = capture_dev_user_descr_find(if_info->name);
+      if (user_descr) {
+        if_dlg_data->descr_lb = gtk_label_new(user_descr);
+        g_free (user_descr);
+      } else {
+        if (if_info->description)
+          if_dlg_data->descr_lb = gtk_label_new(if_info->description);
+        else
+          if_dlg_data->descr_lb = gtk_label_new("");
+      }
       gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0f, 0.5f);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);
 
