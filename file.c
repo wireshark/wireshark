@@ -415,7 +415,9 @@ cf_read(capture_file *cf)
   volatile gint64 progbar_nextstep;
   volatile gint64 progbar_quantum;
   dfilter_t   *dfcode;
+#ifdef HAVE_LIBPCAP
   volatile int displayed_once = 0;
+#endif
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
