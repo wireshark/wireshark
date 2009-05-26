@@ -34,6 +34,12 @@
 	simpler, while deployment of the finished code may well be done as build-in
 	dissector.
 	</para>
+	<note><title>See also README.developer</title>
+	<para>
+	The file <filename>doc/README.developer</filename> contains much detailed information about
+	implementing a dissector (and may, in some cases, be more up-to-date than this document).
+	</para>
+	</note>
   </section>
 
   <section id="ChDissectAdd">
