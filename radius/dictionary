@@ -221,6 +221,14 @@ ATTRIBUTE	Digest-Domain				119	string
 ATTRIBUTE	Digest-Stale				120	string
 ATTRIBUTE	Digest-HA1					121	string
 ATTRIBUTE	SIP-AOR						122	string
+# http://www.iana.org/assignments/radius-types 2009-04-24
+#123       Delegated-IPv6-Prefix                    [RFC4818]
+#124       MIP6-Feature-Vector                      [RFC5447]
+#125       MIP6-Home-Link-Prefix                    [RFC5447]
+#126-191   Unassigned
+#192-223   Experimental Use                         [RFC3575]
+#224-240   Implementation Specific                  [RFC3575]
+#241-255   Reserved                                 [RFC3575]   
 
 #  As defined in RFC 4818
 ATTRIBUTE	Delegated-IPv6-Prefix	123	ipv6prefix
@@ -236,30 +244,30 @@ ATTRIBUTE	Digest-Attributes	207	octets	# stupid format
 
 #	User Types
 
-VALUE		Service-Type		Login-User		1
-VALUE		Service-Type		Framed-User		2
-VALUE		Service-Type		Callback-Login-User	3
+VALUE		Service-Type		Login-User				1
+VALUE		Service-Type		Framed-User				2
+VALUE		Service-Type		Callback-Login-User		3
 VALUE		Service-Type		Callback-Framed-User	4
-VALUE		Service-Type		Outbound-User		5
-VALUE		Service-Type		Administrative-User	6
-VALUE		Service-Type		NAS-Prompt-User		7
-VALUE		Service-Type		Authenticate-Only	8
-VALUE		Service-Type		Callback-NAS-Prompt	9
-VALUE		Service-Type		Call-Check		10
+VALUE		Service-Type		Outbound-User			5
+VALUE		Service-Type		Administrative-User		6
+VALUE		Service-Type		NAS-Prompt-User			7
+VALUE		Service-Type		Authenticate-Only		8
+VALUE		Service-Type		Callback-NAS-Prompt		9
+VALUE		Service-Type		Call-Check				10
 VALUE		Service-Type		Callback-Administrative	11
-VALUE		Service-Type		Voice			12
-VALUE		Service-Type		Fax			13
-VALUE		Service-Type		Modem-Relay		14
-VALUE		Service-Type		IAPP-Register		15
-VALUE		Service-Type		IAPP-AP-Check		16
-VALUE		Service-Type		Authorize-Only		17
+VALUE		Service-Type		Voice					12
+VALUE		Service-Type		Fax						13
+VALUE		Service-Type		Modem-Relay				14
+VALUE		Service-Type		IAPP-Register			15
+VALUE		Service-Type		IAPP-AP-Check			16
+VALUE		Service-Type		Authorize-Only			17
 
 
 #	Framed Protocols
 
-VALUE		Framed-Protocol		PPP			1
-VALUE		Framed-Protocol		SLIP			2
-VALUE		Framed-Protocol		ARAP			3
+VALUE		Framed-Protocol		PPP					1
+VALUE		Framed-Protocol		SLIP				2
+VALUE		Framed-Protocol		ARAP				3
 VALUE		Framed-Protocol		Gandalf-SLML		4
 VALUE		Framed-Protocol		Xylogics-IPX-SLIP	5
 VALUE		Framed-Protocol		X.75-Synchronous	6
@@ -298,20 +306,20 @@ VALUE		Login-TCP-Port		Rsh			514
 
 #	Status Types
 
-VALUE		Acct-Status-Type	Start			1
-VALUE		Acct-Status-Type	Stop			2
+VALUE		Acct-Status-Type	Start				1
+VALUE		Acct-Status-Type	Stop				2
 VALUE		Acct-Status-Type	Interim-Update		3
-VALUE		Acct-Status-Type	Alive			3
+VALUE		Acct-Status-Type	Alive				3
 VALUE		Acct-Status-Type	Accounting-On		7
 VALUE		Acct-Status-Type	Accounting-Off		8
 #	RFC 2867 Additional Status-Type Values
 VALUE		Acct-Status-Type	Tunnel-Start		9
-VALUE		Acct-Status-Type	Tunnel-Stop		10
+VALUE		Acct-Status-Type	Tunnel-Stop			10
 VALUE		Acct-Status-Type	Tunnel-Reject		11
 VALUE		Acct-Status-Type	Tunnel-Link-Start	12
 VALUE		Acct-Status-Type	Tunnel-Link-Stop	13
 VALUE		Acct-Status-Type	Tunnel-Link-Reject	14
-VALUE		Acct-Status-Type	Failed			15
+VALUE		Acct-Status-Type	Failed				15
 
 #	Authentication Types
 
