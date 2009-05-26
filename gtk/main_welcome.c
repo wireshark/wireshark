@@ -55,7 +55,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
-#include "../image/wssplash-dev.xpm"
+#include "../image/wssplash.xpm"
 #include "../version_info.h"
 
 #ifdef HAVE_AIRPCAP
@@ -252,9 +252,9 @@ welcome_header_set_message(gchar *msg) {
     GString *message;
     time_t secs = time(NULL);
     struct tm *now = localtime(&secs);
-    
+
     message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">");
-    
+
     if (msg) {
 	g_string_append(message, msg);
     } else { /* Use our default header */
@@ -263,7 +263,7 @@ welcome_header_set_message(gchar *msg) {
 	} else {
 	    g_string_append(message, prefs.gui_start_title);
 	}
-    
+
 	if (prefs.gui_version_in_start_page) {
 	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"black\">Version " VERSION "%s",
 				   wireshark_svnversion);
@@ -311,29 +311,29 @@ welcome_header_new(void)
 void
 welcome_header_push_msg(gchar *msg) {
     gchar *msg_copy = g_strdup(msg);
-    
+
     status_messages = g_slist_append(status_messages, msg_copy);
-    
+
     welcome_header_set_message(msg_copy);
-    
+
     gtk_widget_hide(welcome_hb);
 }
 
 void
 welcome_header_pop_msg(void) {
-    gchar *msg = NULL;    
+    gchar *msg = NULL;
 
     if (status_messages) {
 	g_free(status_messages->data);
         status_messages = g_slist_delete_link(status_messages, status_messages);
     }
-    
+
     if (status_messages) {
 	msg = status_messages->data;
     }
 
     welcome_header_set_message(msg);
-    
+
     if (!status_messages) {
         gtk_widget_show(welcome_hb);
     }

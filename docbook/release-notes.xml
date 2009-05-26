@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0 rc1">
+  <!ENTITY WiresharkCurrentVersion "1.2.0rc1">
 
 ]>
 
@@ -84,6 +84,12 @@ Wireshark Info
         <listitem>
           <para>
             Display filters now autocomplete.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            A 64-bit Windows (x64) installer is now provided.
           </para>
         </listitem>
 
@@ -265,18 +271,6 @@ Wireshark Info
     </para>
 
     <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
-    </para>
-
-    <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
-    </para>
-
-    <para>
       The BER dissector might infinitely loop.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
@@ -300,12 +294,6 @@ Wireshark Info
       Wireshark might freeze when reading from a pipe.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082">Bug
       2082</ulink>)
-    </para>
-
-    <para>
-      Capturing from named pipes might be delayed on Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200">Bug
-      2200</ulink>)
     </para>
 
     <para>

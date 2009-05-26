@@ -52,7 +52,7 @@
 #include "gtk/main.h"
 #include "gtk/plugins_dlg.h"
 
-#include "../image/wssplash-dev.xpm"
+#include "../image/wssplash.xpm"
 #include "webbrowser.h"
 
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
