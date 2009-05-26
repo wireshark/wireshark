@@ -1672,60 +1672,16 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     dissect_linux_usb_pseudo_header(tvb, pinfo, tree);
 
     type = pinfo->pseudo_header->linux_usb.transfer_type;
-#if 0
-    /* The direction flag is broken so we must strip it off */
-    endpoint=pinfo->pseudo_header->linux_usb.endpoint_number;
-#else
-    endpoint=pinfo->pseudo_header->linux_usb.endpoint_number&(~URB_TRANSFER_IN);
-#endif
-    tmp_addr=pinfo->pseudo_header->linux_usb.device_address;
+
+    endpoint = pinfo->pseudo_header->linux_usb.endpoint_number & (~URB_TRANSFER_IN);
+
+    tmp_addr = pinfo->pseudo_header->linux_usb.device_address;
     setup_flag = pinfo->pseudo_header->linux_usb.setup_flag;
 
-#if 0
-    /* this is how it is supposed to work but this flag seems to be broken -- ronnie */
-    is_request = endpoint & URB_TRANSFER_IN;
-#else
-    /* Determine whether this is a request or a response */
-    switch(type){
-    case URB_BULK:
-    case URB_CONTROL:
-    case URB_ISOCHRONOUS:
-        switch(pinfo->pseudo_header->linux_usb.event_type){
-        case URB_SUBMIT:
-            is_request=TRUE;
-            break;
-        case URB_COMPLETE:
-        case URB_ERROR:
-            is_request=FALSE;
-            break;
-        default:
-            DISSECTOR_ASSERT_NOT_REACHED();
-        }
-        break;
-    case URB_INTERRUPT:
-        switch(pinfo->pseudo_header->linux_usb.event_type){
-        case URB_SUBMIT:
-            is_request=FALSE;
-            break;
-        case URB_COMPLETE:
-        case URB_ERROR:
-            is_request=TRUE;
-            break;
-        default:
-            DISSECTOR_ASSERT_NOT_REACHED();
-        }
-        break;
-     default:
-        DISSECTOR_ASSERT_NOT_REACHED();
-    }
-#endif
+    is_request = (pinfo->pseudo_header->linux_usb.event_type == URB_SUBMIT) ? TRUE : FALSE;
 
-    /* Set up addresses and ports.
-     * Note that URB_INTERRUPT goes in the reverse direction and thus
-     * the request comes from the device and not the host.
-     */
-    if ( (is_request&&(type!=URB_INTERRUPT))
-      || (!is_request&&(type==URB_INTERRUPT)) ){
+    /* Set up addresses and ports. */
+    if (is_request) {
         src_addr.device = src_device = 0xffffffff;
         src_addr.endpoint = src_endpoint = NO_ENDPOINT;
         dst_addr.device = dst_device = htolel(tmp_addr);
