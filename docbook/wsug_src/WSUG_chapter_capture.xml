@@ -156,8 +156,7 @@ wireshark -i eth0 -k
 	<note><title>Not all available interfaces may be displayed!</title>
 	<para>
 	This dialog box will only show the local interfaces Wireshark knows 
-	of. It will not show interfaces marked as hidden in the "Interface Options" 
-	preferences dialog.
+	of. It will not show interfaces marked as hidden in <xref linkend="ChCustInterfaceOptionsSection"/>.
 	As Wireshark might not be able to detect all local interfaces, and it 
 	cannot detect the remote interfaces available, there could be more capture 
 	interfaces available than listed.
@@ -182,7 +181,8 @@ wireshark -i eth0 -k
 	  <varlistentry><term><command>Description</command></term>
 	    <listitem>
 	      <para>
-		  The interface description provided by the operating system.
+		  The interface description provided by the operating system, or the 
+		  user defined comment added in <xref linkend="ChCustInterfaceOptionsSection"/>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
