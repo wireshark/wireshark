@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0 rc1">
+  <!ENTITY WiresharkCurrentVersion "1.3.0">
 
 ]>
 
@@ -145,32 +145,32 @@ Wireshark Info
           <para>
             Support for process information correlation via IPFIX.
           </para>
-        </listitem>  
+        </listitem>
 
         <listitem>
           <para>
             Column widths are now saved.
           </para>
-        </listitem>  
+        </listitem>
 
         <listitem>
           <para>
             The last used configuration profile is now saved.
           </para>
-        </listitem>  
+        </listitem>
 
         <listitem>
           <para>
             Protocol preferences are changeable from the packet details context menu.
           </para>
-        </listitem>  
-      
+        </listitem>
+
         <listitem>
           <para>
             Support for IP packet comparison.
           </para>
-        </listitem>  
-      
+        </listitem>
+
         <listitem>
           <para>
             GTK1 is no longer supported. (Yes, this is a feature.)
