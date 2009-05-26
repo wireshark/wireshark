@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.8">
+  <!ENTITY WiresharkCurrentVersion "1.0.9">
 
 ]>
 
@@ -37,13 +37,13 @@ Wireshark Info
 
         <listitem>
           <para>
-            The PCNFSD dissector could crash.
-            <!-- Fixed in trunk: r28128 -->
-            <!-- Fixed in trunk-1.0: r28404 -->
+            The IPFIX dissector could make silverfish appear in your bedroom.
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.0: r????? -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
           </para>
-          <para>Versions affected: 0.8.20 to 1.0.7</para>
+          <para>Versions affected: 0.8.20 to 1.0.8</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
@@ -60,22 +60,9 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Lua integration could crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2453">Bug
-          2453</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The SCCP dissector could crash when loading more than one file in
-          a single session.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3409">Bug
-          3409</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The NDMP dissector could crash if reassembly was enabled.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3470">Bug
-          3470</ulink>)
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+          ????</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -102,14 +89,7 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-All ASN.1 protocols,
-DICOM,
-NDMP,
-PCNFSD,
-RTCP,
-SCCP,
-SSL,
-STANAG 5066
+.
 
     </para>
     </section>

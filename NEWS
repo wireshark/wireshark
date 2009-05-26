@@ -12,24 +12,24 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the [1]security
+   The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
      o The PCNFSD dissector could crash.
 
        Versions affected: 0.8.20 to 1.0.7
 
-       [2]CVE-2009-????
+       CVE-2009-????
 
    The following bugs have been fixed:
 
-     o Lua integration could crash. ([3]Bug 2453)
+     o Lua integration could crash. (Bug 2453)
 
      o The SCCP dissector could crash when loading more than one file
-       in a single session. ([4]Bug 3409)
+       in a single session. (Bug 3409)
 
-     o The NDMP dissector could crash if reassembly was enabled.
-       ([5]Bug 3470)
+     o The NDMP dissector could crash if reassembly was enabled. (Bug
+       3470)
 
   New and Updated Features
 
@@ -51,14 +51,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [6]download page on the main web site.
+   the download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [7]download page on the Wireshark web
+   packages can be found on the download page on the Wireshark web
    site.
 
 File Locations
@@ -71,63 +71,38 @@ File Locations
 Known Problems
 
    Wireshark may appear offscreen on multi-monitor Windows systems.
-   ([8]Bug 553)
+   (Bug 553)
 
    Wireshark might make your system disassociate from a wireless
-   network on OS X. ([9]Bug 1315)
+   network on OS X. (Bug 1315)
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([10]Bug
-   1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
-   The BER dissector might infinitely loop. ([11]Bug 1516)
+   The BER dissector might infinitely loop. (Bug 1516)
 
    Wireshark can't dynamically update the packet list. This means
    that host name resolutions above a certain response time threshold
-   won't show up in the packet list. ([12]Bug 1605)
+   won't show up in the packet list. (Bug 1605)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([13]Bug 1814)
+   (Bug 1814)
 
-   Wireshark might freeze when reading from a pipe. ([14]Bug 2082)
+   Wireshark might freeze when reading from a pipe. (Bug 2082)
 
-   Capturing from named pipes might be delayed on Windows. ([15]Bug
-   2200)
+   Capturing from named pipes might be delayed on Windows. (Bug 2200)
 
    Filtering tshark captures with display filters (-R) no longer
-   works. ([16]Bug 2234)
+   works. (Bug 2234)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [17]the web site.
+   mailing lists can be found on the web site.
 
    Commercial support and development services are available from
-   [18]CACE Technologies.
+   CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [19]Wireshark web site.
-
-References
-
-   Visible links
-   1. http://www.wireshark.org/security/wnpa-sec-2009-02.html
-   2. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2453
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3409
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3470
-   6. http://www.wireshark.org/download.html
-   7. http://www.wireshark.org/download.html#otherplat
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  17. http://www.wireshark.org/lists/
-  18. http://www.cacetech.com/
-  19. http://www.wireshark.org/faq.html
+   A complete FAQ is available on the Wireshark web site.
