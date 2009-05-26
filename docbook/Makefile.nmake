@@ -19,7 +19,7 @@ include Makefile.common
 	$(FOP) $< $@
 
 
-all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
+all: svn_version_check wsug wsdg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -38,7 +38,7 @@ svn_version_check: FORCE
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
+wsug: wsug.validated wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -106,7 +106,7 @@ user-guide.zip: user-guide.chm
 user-guide.zip:
 !endif
 
-wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
+wsdg: wsdg.validated wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)
@@ -166,7 +166,7 @@ developer-guide.chm: $(WSDG_SOURCE)
 !endif
 
 
-release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf release-notes.chm
+release_notes: release_notes.validated release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf release-notes.chm
 
 # validate the content
 release_notes.validated: $(RELEASE_NOTES_SOURCE)
