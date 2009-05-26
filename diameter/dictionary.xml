@@ -1359,11 +1359,19 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
-<!-- 486    unallocated  -->
-		<avp name="Accounting-Sub-Session-Id" code="487" mandatory="must">
-			<type type-name="Unsigned64"/>
-		</avp>
-		<avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
+<!--
+486 MIP6-Agent-Info [RFC5447]    
+487 MIP-Careof-Address [RFC-ietf-dime-mip6-split-17] 
+488 MIP-Authenticator [RFC-ietf-dime-mip6-split-17] 
+489 MIP-MAC-Mobility-Data [RFC-ietf-dime-mip6-split-17] 
+490 MIP-Timestamp [RFC-ietf-dime-mip6-split-17] 
+491 MIP-MN-HA-SPI [RFC-ietf-dime-mip6-split-17] 
+492 MIP-MN-HA-MSA [RFC-ietf-dime-mip6-split-17] 
+493 Service-Selection [RFC-ietf-dime-mip6-split-17] 
+494 MIP6-Auth-Mode [RFC-ietf-dime-mip6-split-17] 
+
+-->
+    <avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
 			<grouped>
 				<gavp name="Origin-Host"/>
 				<gavp name="Host-IP-Address"/>
@@ -1437,8 +1445,27 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 			<enum name="2G GBA" code="1"/>
 		</avp>
 <!--
+400 GBA-UserSecSettings OctedString
+401 Transaction-Identifier OctetString
+402 NAF-Hostname OctetString
+403 GAA-Service-Identifier OctedString
+404 Key-ExpiryTime Time
+405 ME-Key-Material OctedString
+406 UICC-Key-Material OctedString
+407 GBA_U-Awareness-Indicator Enumerated
+408 BootstrapInfoCreationTime Time
+409 GUSS-Timestamp Time
+410 GBA-Type Enumerated
+411 UE-Id OctectString
+412 UE-Id-Type Enumerated
+413 UICC-App-Label OctectString
+414 UICC-ME Enumerated
+415 Requested-Key-Lifetime Time
+416 Private-Identity-Request Enumerated
+417 GBA-Push-Info OctectString
+418 NAF-SA-Identifier OctectString
 29.109 [7]
-Note: TThe AVP codes from 410 to 499 are reserved for TS 29.109
+Note: TThe AVP codes from 419 to 499 are reserved for TS 29.109
 -->
 <!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6 
  NOTE AVP 500 - 523 is in gqpolicy.xml
@@ -1464,13 +1491,13 @@ Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 609 SIP-Authenticate OctetString
 610 SIP-Authorization OctetString
 611 SIP-Authentication-Context OctetString
-29.229 [2]
-612 SIP-Auth-Data-Item Grouped 29.229 [2], 29.234 [6]
+612 SIP-Auth-Data-Item Grouped
 613 SIP-Item-Number Unsigned32
 614 Server-Assignment-Type Enumerated
 615 Deregistration-Reason Grouped
 616 Reason-Code Enumerated
 617 Reason-Info UTF8String
+
 -->
 		<avp name="Charging-Information" code="618" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
 			<grouped>
@@ -1521,8 +1548,10 @@ Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 644	From-SIP-Header	OctetString	
 645	To-SIP-Header	OctetString	
 646	Record-Route	OctetString	
-647	Associated-Registered-Identities	Grouped	
-Note: The AVP codes from 648 to 699 are reserved for TS 29.229.
+647	Associated-Registered-Identities	Grouped
+648 Multiple-Registration-Indication Enumerated
+649 Restoration-Info Grouped
+Note: The AVP codes from 650 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
@@ -2173,7 +2202,9 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
   1026 Guaranteed-Bitrate-UL Unsigned32   
   1027 IP-CAN-Type Enumerated   
   1028 QoS-Class-Identifier Enumerated 
-
+1029 QoS-Negotiation Enumerated
+1030 QoS-Upgrade Enumerated
+1031 Rule-Failure-Code Enumerated
 29.210 [15]
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
@@ -2190,8 +2221,27 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
       <enum name="HRPD" code="2001" />
       <enum name="UMB" code="2002" />
     </avp>
-
-    <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
+<!--
+1033 Event-Report-Indication Grouped
+1034 Allocation-Retention-Priority Grouped
+1035 CoA-IP-Address Address
+1036 Tunnel-Header-Filter IPFilterRule
+1037 Tunnel-Header-Length Unsigned32
+1038 Tunnel-Information Grouped
+1039 CoA-Information Grouped
+1040 APN-Aggregate-Max-Bitrate-DL Unsigned32
+1041 APN-Aggregate-Max-Bitrate-UL Unsigned32
+1042 Revalidation-Time Time
+1043 Rule-Activation-Time Time
+1044 Rule-DeActivation-Time Time
+1045 Session-Release-Cause Enumerated
+1046 Priority-Level Unsigned32
+1047 Pre-emption-Capability Enumerated
+1048 Pre-emption-Vulnerability Enumerated
+1049 Default-EPS-Bearer-QoS Grouped
+1050 AN-GW-Address Address
+-->
+    <!-- Note: The AVP codes from 1051 to 1099 are reserved for TS 29.210 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -3133,7 +3183,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <enum name="MODIFIED/ADDED_PDP CONTEXTS_INCLUDED" code="1"/>
     </avp>
 		<avp name="PDP-Context" code="1469" vendor-bit="must" vendor-id="TGPP">
-      <grouped>    
+      <type type-name="Grouped"/>
       <gavp name="Context-Identifier"/>
       <gavp name="PDP-Type"/>
       <gavp name="PDP-Address"/>
@@ -3141,7 +3191,6 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <gavp name="VPLMN-Dynamic-Address-Allowed"/>
       <gavp name="Service-Selection"/>
       <gavp name="3GPP-Charging-Characteristics"/>
-      <grouped>
     </avp>
 		<avp name="PDP-Type" code="1470" vendor-bit="must" vendor-id="TGPP">
      <type type-name="OctetString"/>	
@@ -3150,14 +3199,26 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <type type-name="OctetString"/>
 		</avp>
     <!--    
-Note: The AVP codes from 1472 to 1499 are reserved for TS 29.272.
+1473 LCS-Info Grouped
+1474 GMLC-Address OctetString
+1475 LCS-PrivacyException Grouped
+1476 SS-Code OctetString
+1477 SS-Status Grouped
+1478 Notification-To-UE-User Enumerated
+1479 External-Client Grouped
+1480 Client-Identity OctetString
+1481 GMLC-Restriction Enumerated
+1482 PLMN-Client Enumerated
+1483 Service-Type Grouped
+1484 ServiceTypeIdentity Unsigned32    
+Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
 1500	Non-3GPP-User-Data	Grouped	29.273 [20]
 1501	Non-3GPP-IP-Access	Enumerated	
 1502	Non-3GPP-IP-Access-APN	Enumerated	
 1503	SGW-Address	Address	
 1504	ANID	UTF8String	
 Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
-2000	SMS-Information	Grouped	32.299 [5]
+-->
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="SMS-Node"/>
@@ -3206,8 +3267,6 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <enum name="APPLICATION_ORIGINATING" code="3"/>
       <enum name="APPLICATION_TERMINATION" code="4"/>
     </avp>
-
-2007	Message-Type	Enumerated	
 		<avp name="SM-Message-Type" code="2007" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="SUBMISSION" code="0"/>
@@ -3348,7 +3407,7 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <enum name="SDP Offer" code="0"/>
       <enum name="SDP Answer" code="1"/>
 		</avp>
-
+ <!--  
 Change-Condition 2037 X - - - Enumerated V,M P N
 Change-Time 2038 X - - - Time V,M P N
 		<avp name="Non-3GPP-Access-Information" code="2050" vendor-bit="must" vendor-id="TGPP"> 
@@ -3400,6 +3459,12 @@ Note: The AVP codes from 2023 to 2099 are reserved for TS 32.299
 		</avp>
 
 Note: The AVP codes from 2115 to 2199 are reserved for TS 32.299
+2200 Subsession-Decision-Info Grouped
+2201 Subsession-Enforcement-Info Grouped
+2202 Subsession-Id Unsigned32
+2203 Subsession-Operation Enumerated
+29.215 [22]
+Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
 
 -->
 <!--- 3GPP2 AVP's X.S0013-014-0 
@@ -3511,6 +3576,15 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
   <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+    <command name="3GPP-Update-Location" code="316" vendor-id="None"/>
+    <command name="3GPP-Cancel-Location" code="317" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Authentication-Information" code="318" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Insert-Subscriber-Data" code="319" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Delete-Subscriber-Data" code="320" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Purge-UE" code="321" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Reset" code="322" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-Notify" code="323" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
+    <command name="3GPP-ME-Identity-Check" code="324" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
   </application>
   &nasreq;
 	&mobileipv4;
