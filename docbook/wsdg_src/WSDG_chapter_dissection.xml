@@ -74,55 +74,43 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
-/* forward reference */
-void proto_register_foo();
-void proto_reg_handoff_foo();
-static void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+#define FOO_PORT 1234
 
 static int proto_foo = -1;
-static int global_foo_port = 1234;
-static dissector_handle_t foo_handle;
 
 
 void
 proto_register_foo(void)
 {
-	if (proto_foo == -1) {
-		proto_foo = proto_register_protocol (
-			"FOO Protocol",	/* name */
-			"FOO",		/* short name */
-			"foo"		/* abbrev */
-			);
-	}
+	proto_foo = proto_register_protocol (
+		"FOO Protocol",	/* name       */
+		"FOO",		/* short name */
+		"foo"		/* abbrev     */
+		);
 }]]>
    </programlisting></example>
 	<para>
-	Let's go through this a bit at a time. First we have some boiler plate
-	include files. These will be pretty constant to start with. Here we also
-	pre-declare some functions that we'll be writing shortly.
+	Let's go through this a bit at a time. First we have some boilerplate
+	include files. These will be pretty constant to start with.
 	</para>
 	<para>
 	Next we have an int that is initialised to -1 that records our protocol.
 	This will get updated when we register this dissector with the main program.
-	We can use this as a handy way to detect if we've been initialised yet.
 	It's good practice to make all variables and functions that aren't exported
 	static to keep name space pollution down. Normally this isn't a problem unless your
 	dissector gets so big it has to span multiple files.
 	</para>
 	<para>
-	Then a module variable which contains the UDP port that we'll assume we are dissecting traffic for.
+	Then a #define for the UDP port that we'll assume we are dissecting traffic for.
 	</para>
 	<para>
-	Next a dissector reference that we'll initialise later.
+	Now that we have the basics in place to interact with the main program, we'll 
+	start with two protocol dissector setup functions.
+	
 	</para>
 	<para>
-	Now we have the basics in place to interact with the main program, we had
-	better fill in those missing functions. Let's start with register function.
-	</para>
-	<para>
-	First a call to proto_register_protocol that registers the protocol.
+	First we'll call the proto_register_protocol function which registers the protocol.
 	We can give it three names that	will be used for display in various places.
 	The full and short name are used in e.g. the "Preferences" and "Enabled protocols"
 	dialogs as well as the generated field name list in the documentation.
@@ -136,22 +124,22 @@ proto_register_foo(void)
 <![CDATA[void
 proto_reg_handoff_foo(void)
 {
-	static gboolean initialized = FALSE;
+	static dissector_handle_t foo_handle;
 
-	if (!initialized) {
-		foo_handle = create_dissector_handle(dissect_foo, proto_foo);
-		dissector_add("udp.port", global_foo_port, foo_handle);
-		initialized = TRUE;
-	}
+	foo_handle = create_dissector_handle(dissect_foo, proto_foo);
+	dissector_add("udp.port", FOO_PORT, foo_handle);
 }]]>
    </programlisting></example>
 	<para>
-	What's happening here? We are initialising the dissector if it hasn't
-	been initialised yet.
-	First we create the dissector. This registers a routine
-	to be called to do the actual dissecting.
-	Then we associate it with a UDP port number
+	What's happening here? We are initialising the dissector.
+	First we create a dissector handle; It is associated with the foo protocol and
+	with a routine to be called to do the actual dissecting. 
+	Then we associate the handle with a UDP port number
 	so that the main program will know to call us when it gets UDP traffic on that port.
+	</para>
+	<para>
+	The stardard Wireshark dissector convention is to put proto_register_foo and 
+	proto_reg_handoff_foo as the last two functions in the dissector source.
 	</para>
 	<para>
 	Now at last we get to write some dissecting code. For the moment we'll
@@ -284,32 +272,40 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	<para>
 	Now let's go to the next step and add some protocol dissection.
 	For this step we'll need to construct a couple of tables that help with dissection.
-	This needs some changes to proto_register_foo. First a couple of statically
-	declare arrays.
+	This needs some additions to the proto_register_foo function shown previously. 
+	</para>
+	<para>
+	Two statically allocated arrays are added at the beginning of proto_register_foo. The
+	arrays are then registered after the call to proto_register_protocol.
 	</para>
 	   <example><title>Registering data structures.</title>
    <programlisting>
-<![CDATA[static hf_register_info hf[] = {
-	{ &hf_foo_pdu_type,
-		{ "FOO PDU Type", "foo.type",
-		FT_UINT8, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	}
-};
+<![CDATA[void
+proto_register_foo(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_foo_pdu_type,
+			{ "FOO PDU Type", "foo.type",
+			FT_UINT8, BASE_DEC,
+			NULL, 0x0,
+			NULL, HFILL }
+		}
+	};
 
-/* Setup protocol subtree array */
-static gint *ett[] = {
-	&ett_foo
-};]]>
-   </programlisting></example>
-   	<para>
-   	Then, after the registration code, we register these arrays.
-   	</para>
-	   <example><title>Registering data structures.</title>
-   <programlisting>
-<![CDATA[proto_register_field_array(proto_foo, hf, array_length(hf));
-proto_register_subtree_array(ett, array_length(ett));]]>
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_foo
+	};
+
+	proto_foo = proto_register_protocol (
+		"FOO Protocol",	/* name       */
+		"FOO",		/* short name */
+		"foo"		/* abbrev     */
+		);
+
+	proto_register_field_array(proto_foo, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}]]>
    </programlisting></example>
    	<para>
    	The variables hf_foo_pdu_type and ett_foo also need to be declared
@@ -389,37 +385,59 @@ static gint ett_foo = -1;]]>
 	</para>
 	   <example><title>Wrapping up the packet dissection.</title>
    <programlisting>
-<![CDATA[static int hf_foo_flags = -1;
+<![CDATA[...
+static int hf_foo_flags = -1;
 static int hf_foo_sequenceno = -1;
 static int hf_foo_initialip = -1;
 ...
-	{ &hf_foo_flags,
-		{ "FOO PDU Flags", "foo.flags",
-		FT_UINT8, BASE_HEX,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_foo_sequenceno,
-		{ "FOO PDU Sequence Number", "foo.seqn",
-		FT_UINT16, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_foo_initialip,
-		{ "FOO PDU Initial IP", "foo.initialip",
-		FT_IPv4, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
 
+static void
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	gint offset = 0;
 
-	ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
-	foo_tree = proto_item_add_subtree(ti, ett_foo);
-	proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;]]>
+	...
+
+	if (tree) { /* we are being asked for details */
+		proto_item *ti = NULL;
+		proto_tree *foo_tree = NULL;
+
+		ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+		foo_tree = proto_item_add_subtree(ti, ett_foo);
+		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
+		proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
+		proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
+		proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;
+	}
+	...
+}
+
+void
+proto_register_foo(void) {
+	...
+		...
+		{ &hf_foo_flags,
+			{ "FOO PDU Flags", "foo.flags",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_foo_sequenceno,
+			{ "FOO PDU Sequence Number", "foo.seqn",
+			FT_UINT16, BASE_DEC,
+			NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_foo_initialip,
+			{ "FOO PDU Initial IP", "foo.initialip",
+			FT_IPv4, BASE_NONE,
+			NULL, 0x0,
+			NULL, HFILL }
+		},
+		...
+	...
+}
+...]]>
    </programlisting></example>
    <para>
    This dissects all the bits of this simple hypothetical protocol. We've introduced a new
@@ -471,30 +489,46 @@ static int hf_foo_initialip = -1;
 static int hf_foo_startflag = -1;
 static int hf_foo_endflag = -1;
 static int hf_foo_priorityflag = -1;
-...
-	{ &hf_foo_startflag,
-		{ "FOO PDU Start Flags", "foo.flags.start",
-		FT_BOOLEAN, 8,
-		NULL, FOO_START_FLAG,
-		NULL, HFILL }
-	},
-	{ &hf_foo_endflag,
-		{ "FOO PDU End Flags", "foo.flags.end",
-		FT_BOOLEAN, 8,
-		NULL, FOO_END_FLAG,
-		NULL, HFILL }
-	},
-	{ &hf_foo_priorityflag,
-		{ "FOO PDU Priority Flags", "foo.flags.priority",
-		FT_BOOLEAN, 8,
-		NULL, FOO_PRIORITY_FLAG,
-		NULL, HFILL }
-	},
-...
-	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE);
-	proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, FALSE);
-	proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, FALSE);
-	proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, FALSE); offset += 1;]]>
+
+static void
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	...
+		...
+		proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE);
+		proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, FALSE);
+		proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, FALSE);
+		proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, FALSE); offset += 1;
+		...
+	...
+}
+
+void
+proto_register_foo(void) {
+	...
+		...
+		{ &hf_foo_startflag,
+			{ "FOO PDU Start Flags", "foo.flags.start",
+			FT_BOOLEAN, 8,
+			NULL, FOO_START_FLAG,
+			NULL, HFILL }
+		},
+		{ &hf_foo_endflag,
+			{ "FOO PDU End Flags", "foo.flags.end",
+			FT_BOOLEAN, 8,
+			NULL, FOO_END_FLAG,
+			NULL, HFILL }
+		},
+		{ &hf_foo_priorityflag,
+			{ "FOO PDU Priority Flags", "foo.flags.priority",
+			FT_BOOLEAN, 8,
+			NULL, FOO_PRIORITY_FLAG,
+			NULL, HFILL }
+		},
+		...
+	...
+}
+...]]>
    </programlisting></example>
    <para>
    Some things to note here. For the flags, as each bit is a different flag, we use
