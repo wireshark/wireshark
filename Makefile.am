@@ -621,7 +621,17 @@ EXTRA_DIST = \
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
-	wireshark.desktop	\
+	fix/FIX.xml		\
+	fix/FIX40.xml		\
+	fix/FIX41.xml		\
+	fix/FIX42.xml		\
+	fix/FIX43.xml		\
+	fix/FIX44.xml		\
+	fix/README		\
+	fix/Values.xsl		\
+	fix/hfDecl.xsl		\
+	fix/hfField.xsl		\
+	fix/hfList.xsl		\
 	idl/cosnaming.idl	\
 	idl/tango.idl	\
 	idl/parlay/am.idl	\
@@ -797,6 +807,7 @@ EXTRA_DIST = \
 	text2pcap.c		\
 	text2pcap.h		\
 	services		\
+	wireshark.desktop	\
 	wka.tmpl
 
 if SETUID_INSTALL
