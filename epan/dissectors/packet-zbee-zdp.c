@@ -42,15 +42,8 @@
 /*************************/
 /* Function Declarations */
 /*************************/
-/* Protocol Registration */
-void    proto_reg_handoff_zbee_zdp  (void);
-void    proto_register_zbee_zdp     (void);
-
-/* Main Dissector Routines */
-void    dissect_zbee_zdp            (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Local Helper routines. */
-guint16 zdp_convert_2003cluster     (guint8 cluster);
+static guint16 zdp_convert_2003cluster     (guint8 cluster);
 
 /* Message dissector routines. */
 extern void dissect_zbee_zdp_req_nwk_addr           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -288,13 +281,13 @@ dissector_handle_t  data_handle;
  * Value Strings
  **************************************
  */
-const value_string zbee_zdp_req_types[] = {
+static const value_string zbee_zdp_req_types[] = {
     { ZBEE_ZDP_REQ_TYPE_SINGLE,     "Single Device Response" },
     { ZBEE_ZDP_REQ_TYPE_EXTENDED,   "Extended Response" },
     { 0, NULL }
 };
 
-const value_string zbee_zdp_cluster_names[] = {
+static const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_NWK_ADDR,            "Network Address Request" },
     { ZBEE_ZDP_REQ_IEEE_ADDR,           "Extended Address Request" },
     { ZBEE_ZDP_REQ_NODE_DESC,           "Node Descriptor Request" },
@@ -382,7 +375,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { 0, NULL }
 };
 
-const value_string zbee_zdp_status_names[] = {
+static const value_string zbee_zdp_status_names[] = {
     { ZBEE_ZDP_STATUS_SUCCESS,          "Success" },
     { ZBEE_ZDP_STATUS_INV_REQUESTTYPE,  "Invalid Request Type" },
     { ZBEE_ZDP_STATUS_DEVICE_NOT_FOUND, "Device Not Found" },
@@ -430,7 +423,7 @@ zdp_status_name(guint8 status)
  *      guint16
  *---------------------------------------------------------------
  */
-guint16
+static guint16
 zdp_convert_2003cluster(guint8 cluster)
 {
     if (cluster & ZBEE_ZDP_MSG_RESPONSE_BIT_2003) {
@@ -451,7 +444,7 @@ zdp_convert_2003cluster(guint8 cluster)
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      guint       offset  - offset after parsing last item.
  *      packet_info *pinfo  - packet information structure.
- *      proto_tree  *tree   - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -471,7 +464,7 @@ zdp_dump_excess(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tre
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      zbee_add_info
+ *      zbee_append_info
  *  DESCRIPTION
  *      ZigBee helper function. Appends the info to the info column
  *      and proto item.
@@ -508,7 +501,7 @@ zbee_append_info(proto_item *item, packet_info *pinfo, const gchar *format, ...)
  *  DESCRIPTION
  *      ZigBee helper function. extracts an integer and displays it to the tree.
  *  PARAMETERS
- *      proto_tree  *tree   - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *      int         hfindex - index to field information.
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      guint       *offset - pointer to value of offset.
@@ -565,7 +558,7 @@ zbee_parse_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, gui
  *      ZigBee helper function. extracts an EUI64 address and displays
  *      it to the tree.
  *  PARAMETERS
- *      proto_tree  *tree   - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *      int         hfindex - index to field information.
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      guint       *offset - pointer to value of offset.
@@ -605,7 +598,7 @@ zbee_parse_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, gu
  *  DESCRIPTION
  *      Parses and displays the status value.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
  *      guint      *offset  - offset into the tvb to find the status value.
  *  RETURNS
@@ -633,7 +626,7 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *  DESCRIPTION
  *      Parses and displays the a channel mask.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
  *      guint      *offset  - offset into the tvb to find the status value.
  *  RETURNS
@@ -696,7 +689,7 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *  DESCRIPTION
  *      Parses and displays MAC capability info flags.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint       ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
@@ -739,7 +732,7 @@ zdp_parse_cinfo(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset)
  *  DESCRIPTION
  *      Parses and displays server mode flags.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint       ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
@@ -783,7 +776,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
  *      Parses and displays a node descriptor to the the specified
  *      tree.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint       ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
@@ -856,7 +849,7 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
  *      Parses and displays a node descriptor to the the specified
  *      tree.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint       ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
@@ -920,7 +913,7 @@ zdp_parse_power_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offs
  *      Parses and displays a simple descriptor to the the specified
  *      tree.
  *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint       ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t   *tvb     - pointer to buffer containing raw packet.
@@ -988,7 +981,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
  *      Parses and displays a simple descriptor to the the specified
  *      tree.
  *  PARAMETERS
- *      proto_tree  *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree    - pointer to data tree Wireshark uses to display packet.
  *      gint        ettindex - subtree index to create the node descriptor in, or -1
  *                              to create it without a subtree.
  *      tvbuff_t    *tvb     - pointer to buffer containing raw packet.
@@ -1082,12 +1075,12 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree      *zdp_tree = NULL;
@@ -1791,6 +1784,6 @@ void proto_reg_handoff_zbee_zdp(void)
     data_handle     = find_dissector("data");
 
     /* Register our dissector with the ZigBee application dissectors. */
-    zdp_handle = create_dissector_handle(dissect_zbee_zdp, proto_zbee_zdp);
+    zdp_handle = find_dissector("zbee.zdp");
     dissector_add("zbee.profile", ZBEE_ZDP_PROFILE, zdp_handle);
 } /* proto_reg_handoff_zbee_zdp */

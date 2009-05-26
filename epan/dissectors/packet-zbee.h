@@ -54,11 +54,8 @@
 #define ZBEE_HAS_2007(x)        ((x) >= ZBEE_VERSION_2007)
 
 /* Helper Functions */
-proto_item  *proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gint64 value);
-guint get_bit_field(guint input, guint mask);
-
-/* Name Strings */
-extern const value_string zbee_nwk_stack_profiles[];
+extern proto_item  *proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gint64 value);
+extern guint zbee_get_bit_field(guint input, guint mask);
 
 #endif /* PACKET_ZBEE_H */
 

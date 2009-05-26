@@ -62,9 +62,6 @@
 
 /*  Function declarations */
 void proto_reg_handoff_zep(void);
-void proto_register_zep(void);
-void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void ntp_to_nstime(guint32, guint32, nstime_t *);
 
 /*  Initialize protocol and registered fields. */
 static int proto_zep = -1;
@@ -86,8 +83,8 @@ static guint32  gPREF_zep_udp_port = ZEP_DEFAULT_PORT;
 
 /*  Dissector handles */
 static dissector_handle_t data_handle;
-static dissector_handle_t ieee802154_handle = NULL;
-static dissector_handle_t ieee802154_ccfcs_handle = NULL;
+static dissector_handle_t ieee802154_handle;
+static dissector_handle_t ieee802154_ccfcs_handle;
 
 
 /*FUNCTION:------------------------------------------------------
@@ -103,7 +100,7 @@ static dissector_handle_t ieee802154_ccfcs_handle = NULL;
  *      void
  *---------------------------------------------------------------
  */
-void ntp_to_nstime(guint32 ntp_secs, guint32 ntp_fraction, nstime_t *nstime_ptr)
+static void ntp_to_nstime(guint32 ntp_secs, guint32 ntp_fraction, nstime_t *nstime_ptr)
 {
     double temp;
     nstime_ptr->secs = (ntp_secs >= NTP_BASETIME) ? ntp_secs - NTP_BASETIME : ntp_secs;
@@ -115,17 +112,16 @@ void ntp_to_nstime(guint32 ntp_secs, guint32 ntp_fraction, nstime_t *nstime_ptr)
  *  NAME
  *      dissect_zep
  *  DESCRIPTION
- *      IEEE 802.15.4 packet dissection routine for ethereal.
+ *      IEEE 802.15.4 packet dissection routine for Wireshark.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void
-dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t            *next_tvb;
     proto_item          *proto_root, *pi;
@@ -136,7 +132,7 @@ dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissector_handle_t  next_dissector;
 
-    /*  Determine whether this is a Q51/IEEE 802.15.4 Sniffer Packet or not */
+    /*  Determine whether this is a Q51/IEEE 802.15.4 sniffer packet or not */
     if(strcmp(tvb_get_string(tvb, 0, 2), ZEP_PREAMBLE)){
         /*  This is not a Q51/ZigBee sniffer packet */
         call_dissector(data_handle, tvb, pinfo, tree);
@@ -311,15 +307,15 @@ void proto_register_zep(void)
 
         { &hf_zep_lqi,
         { "Link Quality Indication",    "zep.lqi", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_zep_timestamp,
         { "Timestamp",                  "zep.time", FT_ABSOLUTE_TIME, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_zep_seqno,
         { "Sequence Number",            "zep.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_zep_ieee_length,
         { "Length",              "zep.length", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -346,7 +342,7 @@ void proto_register_zep(void)
                  "Default port is 17754",
                  10, &gPREF_zep_udp_port);
 
-    /*  Register dissector with Ethereal. */
+    /*  Register dissector with Wireshark. */
     register_dissector("zep", dissect_zep, proto_zep);
 } /* proto_register_zep */
 
@@ -354,7 +350,7 @@ void proto_register_zep(void)
  *  NAME
  *      proto_reg_handoff_zep
  *  DESCRIPTION
- *      Registers the zigbee dissector with Ethereal.
+ *      Registers the zigbee dissector with Wireshark.
  *      Will be called every time 'apply' is pressed in the preferences menu.
  *  PARAMETERS
  *      none
@@ -364,24 +360,25 @@ void proto_register_zep(void)
  */
 void proto_reg_handoff_zep(void)
 {
-    static gboolean     inited = FALSE;
-    static int          lastPort;
-    dissector_handle_t  h;
-    dissector_handle_t  zep_handle;
+    static dissector_handle_t  zep_handle;
+    static int                 lastPort;
+    static gboolean            inited = FALSE;
 
-    /* Get dissector handles. */
-    if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 disector */
-        h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin disector */
-    }
-    ieee802154_handle = h;
-    if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) disector */
-        h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin disector */
-    }
-    ieee802154_ccfcs_handle = h;
-    zep_handle = find_dissector("zep");
-    data_handle = find_dissector("data");
-
-    if (inited){
+    if ( !inited) {
+        dissector_handle_t h;
+        /* Get dissector handles. */
+        if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 disector */
+            h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin disector */
+        }
+        ieee802154_handle = h;
+        if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) disector */
+            h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin disector */
+        }
+        ieee802154_ccfcs_handle = h;
+        zep_handle = find_dissector("zep");
+        data_handle = find_dissector("data");
+        inited = TRUE;
+    } else {
         /* If we were already registered, de-register our dissector
          * to free the port. */
         dissector_delete("udp.port", lastPort, zep_handle);
@@ -390,6 +387,5 @@ void proto_reg_handoff_zep(void)
     /* Register our dissector. */
     dissector_add("udp.port", gPREF_zep_udp_port, zep_handle);
     lastPort = gPREF_zep_udp_port;
-    inited = TRUE;
 } /* proto_reg_handoff_zep */
 

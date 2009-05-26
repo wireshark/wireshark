@@ -50,7 +50,7 @@
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -118,7 +118,7 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -227,7 +227,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
  *      Parses and displays a routing table entry.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -271,7 +271,7 @@ zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -291,7 +291,7 @@ extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *o
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -344,7 +344,7 @@ dissect_zbee_zdp_req_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -370,7 +370,7 @@ dissect_zbee_zdp_req_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -396,7 +396,7 @@ dissect_zbee_zdp_req_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -422,7 +422,7 @@ dissect_zbee_zdp_req_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -460,7 +460,7 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -490,7 +490,7 @@ dissect_zbee_zdp_req_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -518,7 +518,7 @@ dissect_zbee_zdp_req_mgmt_permit_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -544,7 +544,7 @@ dissect_zbee_zdp_req_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -589,7 +589,7 @@ dissect_zbee_zdp_req_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -635,7 +635,7 @@ dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -681,7 +681,7 @@ dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -727,7 +727,7 @@ dissect_zbee_zdp_rsp_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -773,7 +773,7 @@ dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -801,7 +801,7 @@ dissect_zbee_zdp_rsp_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -829,7 +829,7 @@ dissect_zbee_zdp_rsp_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -857,7 +857,7 @@ dissect_zbee_zdp_rsp_mgmt_permit_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
@@ -909,7 +909,7 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------

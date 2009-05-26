@@ -53,10 +53,10 @@
 #include "packet-zbee-security.h"
 
 /* Helper Functions */
-void        zbee_security_parse_prefs(void);
-gboolean    zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
-void        zbee_sec_make_nonce (guint8 *, zbee_security_packet *);
-guint8 *    zbee_sec_key_hash(guint8 *, guint8, packet_info *);
+static void        zbee_security_parse_prefs(void);
+static gboolean    zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
+static void        zbee_sec_make_nonce (guint8 *, zbee_security_packet *);
+static guint8 *    zbee_sec_key_hash(guint8 *, guint8, packet_info *);
 
 /* Field pointers. */
 static int hf_zbee_sec_level = -1;
@@ -73,7 +73,7 @@ static gint ett_zbee_sec_control = -1;
 
 static dissector_handle_t   data_handle;
 
-const value_string zbee_sec_key_names[] = {
+static const value_string zbee_sec_key_names[] = {
     { ZBEE_SEC_KEY_LINK,        "Link Key" },
     { ZBEE_SEC_KEY_NWK,         "Network Key" },
     { ZBEE_SEC_KEY_TRANSPORT,   "Key-Transport Key" },
@@ -85,7 +85,7 @@ const value_string zbee_sec_key_names[] = {
  * security control field. If we were to display them all we would ever see is
  * security level 0.
  */
-const value_string zbee_sec_level_names[] = {
+static const value_string zbee_sec_level_names[] = {
     { ZBEE_SEC_NONE,        "None" },
     { ZBEE_SEC_MIC32,       "No Encryption, 32-bit MIC" },
     { ZBEE_SEC_MIC64,       "No Encryption, 64-bit MIC" },
@@ -219,7 +219,7 @@ void zbee_security_register(module_t *prefs, int proto)
  *      gboolean
  *---------------------------------------------------------------
  */
-gboolean
+static gboolean
 zbee_security_parse_key(const gchar *key_str, guint8 *key_buf)
 {
     int             i;
@@ -271,7 +271,7 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf)
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 zbee_security_parse_prefs(void)
 {
     int             i;
@@ -346,7 +346,7 @@ zbee_security_handoff(void)
  *  PARAMETERS
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree  *tree   - pointer to data tree ethereal uses to display packet.
+ *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
  *      guint       offset  - pointer to the start of the auxilliary security header.
  *      guint64     src     - extended source address, or 0 if unknown.
  *  RETURNS
@@ -399,9 +399,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
      */
     ((guint8 *)(enc_buffer))[offset] = packet.control;
 #endif /* HAVE_LIBGCRYPT */
-    packet.level    = get_bit_field(packet.control, ZBEE_SEC_CONTROL_LEVEL);
-    packet.key      = get_bit_field(packet.control, ZBEE_SEC_CONTROL_KEY);
-    packet.nonce    = get_bit_field(packet.control, ZBEE_SEC_CONTROL_NONCE);
+    packet.level    = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_LEVEL);
+    packet.key      = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_KEY);
+    packet.nonce    = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_NONCE);
     if (tree) {
         ti = proto_tree_add_text(sec_tree, tvb, offset, sizeof(guint8), "Security Control Field");
         field_tree = proto_item_add_subtree(ti, ett_zbee_sec_control);
@@ -610,7 +610,7 @@ decrypt_failed:
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 zbee_sec_make_nonce(guint8 *nonce, zbee_security_packet *packet)
 {
     /* First 8 bytes are the extended source address (little endian). */
@@ -661,7 +661,7 @@ zbee_sec_make_nonce(guint8 *nonce, zbee_security_packet *packet)
  *      gboolean        - TRUE if successful.
  *---------------------------------------------------------------
  */
-gboolean
+static gboolean
 zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
                     const gchar     *nonce, /* Input */
                     const gchar     *a,     /* Input */
@@ -875,7 +875,7 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
 {
     guint8              cipher_in[ZBEE_SEC_CONST_BLOCKSIZE];
@@ -980,7 +980,7 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
  *      guint8*
  *---------------------------------------------------------------
  */
-guint8 *
+static guint8 *
 zbee_sec_key_hash(guint8 *key, guint8 input, packet_info *pinfo _U_)
 {
     guint8              hash_in[2*ZBEE_SEC_CONST_BLOCKSIZE];

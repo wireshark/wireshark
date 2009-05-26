@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <gmodule.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
+#include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 
@@ -47,28 +47,25 @@
  * Function Declarations *
  *************************
  */
-/* Protocol Registration */
-void    proto_init_zbee_aps         (void);
-
 /* Dissector Routines */
-void    dissect_zbee_aps            (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void    dissect_zbee_aps_cmd        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void    dissect_zbee_apf            (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void    dissect_zbee_aps            (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void    dissect_zbee_aps_cmd        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void    dissect_zbee_apf            (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Command Dissector Helpers */
-guint   dissect_zbee_aps_skke_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_skke_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_transport_key  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_update_device  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_remove_device  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_request_key    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_switch_key     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_auth_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_auth_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_skke_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_skke_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_transport_key  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_update_device  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_remove_device  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_request_key    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_switch_key     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_auth_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_auth_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /* Helper routine. */
-guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
+static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
 
 /********************
  * Global Variables *
@@ -169,7 +166,7 @@ static const fragment_items zbee_aps_frag_items = {
 /* Field Names      */
 /********************/
 /* Frame Type Names */
-const value_string zbee_aps_frame_types[] = {
+static const value_string zbee_aps_frame_types[] = {
     { ZBEE_APS_FCF_DATA,            "Data" },
     { ZBEE_APS_FCF_CMD,             "Command" },
     { ZBEE_APS_FCF_ACK,             "Ack" },
@@ -177,7 +174,7 @@ const value_string zbee_aps_frame_types[] = {
 };
 
 /* Delivery Mode Names */
-const value_string zbee_aps_delivery_modes[] = {
+static const value_string zbee_aps_delivery_modes[] = {
     { ZBEE_APS_FCF_UNICAST,         "Unicast" },
     { ZBEE_APS_FCF_INDIRECT,        "Indirect" },
     { ZBEE_APS_FCF_BCAST,           "Broadcast" },
@@ -186,7 +183,7 @@ const value_string zbee_aps_delivery_modes[] = {
 };
 
 /* Fragmentation Mode Names */
-const value_string zbee_aps_fragmentation_modes[] = {
+static const value_string zbee_aps_fragmentation_modes[] = {
     { ZBEE_APS_EXT_FCF_FRAGMENT_NONE,   "None" },
     { ZBEE_APS_EXT_FCF_FRAGMENT_FIRST,  "First Block" },
     { ZBEE_APS_EXT_FCF_FRAGMENT_MIDDLE, "Middle Block" },
@@ -194,7 +191,7 @@ const value_string zbee_aps_fragmentation_modes[] = {
 };
 
 /* APS Command Names */
-const value_string zbee_aps_cmd_names[] = {
+static const value_string zbee_aps_cmd_names[] = {
     { ZBEE_APS_CMD_SKKE1,           "SKKE-1" },
     { ZBEE_APS_CMD_SKKE2,           "SKKE-2" },
     { ZBEE_APS_CMD_SKKE3,           "SKKE-3" },
@@ -213,7 +210,7 @@ const value_string zbee_aps_cmd_names[] = {
 };
 
 /* APS Key Names */
-const value_string zbee_aps_key_names[] = {
+static const value_string zbee_aps_key_names[] = {
     { ZBEE_APS_CMD_KEY_TC_MASTER,       "Trust Center Master Key" },
     { ZBEE_APS_CMD_KEY_STANDARD_NWK,    "Standard Network Key" },
     { ZBEE_APS_CMD_KEY_APP_MASTER,      "Application Master Key" },
@@ -224,14 +221,14 @@ const value_string zbee_aps_key_names[] = {
 };
 
 /* APS Key Names (Entity-Authentication). */
-const value_string zbee_aps_ea_key_names[] = {
+static const value_string zbee_aps_ea_key_names[] = {
     { ZBEE_APS_CMD_EA_KEY_NWK,          "Network Key" },
     { ZBEE_APS_CMD_EA_KEY_LINK,         "Link Key" },
     { 0, NULL }
 };
 
 /* Update Device Status Names */
-const value_string zbee_aps_update_status_names[] = {
+static const value_string zbee_aps_update_status_names[] = {
     { ZBEE_APS_CMD_UPDATE_STANDARD_SEC_REJOIN,  "Standard device secured rejoin" },
     { ZBEE_APS_CMD_UPDATE_STANDARD_UNSEC_JOIN,  "Standard device unsecured join" },
     { ZBEE_APS_CMD_UPDATE_LEAVE,                "Device left" },
@@ -243,13 +240,13 @@ const value_string zbee_aps_update_status_names[] = {
 };
 
 /* Outdated ZigBee 2004 Value Strings. */
-const value_string zbee_apf_type_names[] = {
+static const value_string zbee_apf_type_names[] = {
     { ZBEE_APP_TYPE_KVP,    "Key-Value Pair" },
     { ZBEE_APP_TYPE_MSG,    "Message" },
     { 0, NULL }
 };
 
-const value_string zbee_apf_kvp_command_names[] = {
+static const value_string zbee_apf_kvp_command_names[] = {
     { ZBEE_APP_KVP_SET,         "Set" },
     { ZBEE_APP_KVP_EVENT,       "Event" },
     { ZBEE_APP_KVP_GET_ACK,     "Get Acknowledgement" },
@@ -261,7 +258,7 @@ const value_string zbee_apf_kvp_command_names[] = {
     { 0, NULL }
 };
 
-const value_string zbee_apf_kvp_type_names[] = {
+static const value_string zbee_apf_kvp_type_names[] = {
     { ZBEE_APP_KVP_NO_DATA,     "No Data" },
     { ZBEE_APP_KVP_UINT8,       "8-bit Unsigned Integer" },
     { ZBEE_APP_KVP_INT8,        "8-bit Signed Integer" },
@@ -283,12 +280,12 @@ const value_string zbee_apf_kvp_type_names[] = {
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void
+static void
 dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t            *payload_tvb = NULL;
@@ -320,13 +317,13 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Get the FCF */
     fcf = tvb_get_guint8(tvb, offset);
-    packet.type         = get_bit_field(fcf, ZBEE_APS_FCF_FRAME_TYPE);
-    packet.delivery     = get_bit_field(fcf, ZBEE_APS_FCF_DELIVERY_MODE);
-    packet.indirect_mode = get_bit_field(fcf, ZBEE_APS_FCF_INDIRECT_MODE);
-    packet.ack_mode     = get_bit_field(fcf, ZBEE_APS_FCF_ACK_MODE);
-    packet.security     = get_bit_field(fcf, ZBEE_APS_FCF_SECURITY);
-    packet.ack_req      = get_bit_field(fcf, ZBEE_APS_FCF_ACK_REQ);
-    packet.ext_header   = get_bit_field(fcf, ZBEE_APS_FCF_EXT_HEADER);
+    packet.type         = zbee_get_bit_field(fcf, ZBEE_APS_FCF_FRAME_TYPE);
+    packet.delivery     = zbee_get_bit_field(fcf, ZBEE_APS_FCF_DELIVERY_MODE);
+    packet.indirect_mode = zbee_get_bit_field(fcf, ZBEE_APS_FCF_INDIRECT_MODE);
+    packet.ack_mode     = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_MODE);
+    packet.security     = zbee_get_bit_field(fcf, ZBEE_APS_FCF_SECURITY);
+    packet.ack_req      = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_REQ);
+    packet.ext_header   = zbee_get_bit_field(fcf, ZBEE_APS_FCF_EXT_HEADER);
 
     /* Display the frame type to the proto root and info column. */
     if (tree) {
@@ -695,13 +692,13 @@ dissect_zbee_aps_no_endpt:
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      proto_item *proto_root - pointer to the root of the APS tree
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *cmd_root = NULL;
     proto_tree  *cmd_tree = NULL;
@@ -817,7 +814,7 @@ void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint64 init;
@@ -863,7 +860,7 @@ dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_skke_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint64 init;
@@ -910,7 +907,7 @@ guint   dissect_zbee_aps_skke_data      (tvbuff_t *tvb, packet_info *pinfo, prot
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  key_type;
@@ -1036,7 +1033,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint64 device;
@@ -1084,7 +1081,7 @@ dissect_zbee_aps_update_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_remove_device(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint64 device;
@@ -1114,7 +1111,7 @@ dissect_zbee_aps_remove_device(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_request_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  key_type;
@@ -1154,7 +1151,7 @@ dissect_zbee_aps_request_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_switch_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  seqno;
@@ -1185,7 +1182,7 @@ dissect_zbee_aps_switch_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  key_type;
@@ -1249,7 +1246,7 @@ dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
     guint8  data_type;
@@ -1299,7 +1296,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  *      guint               - offset after command dissection.
  *---------------------------------------------------------------
  */
-guint
+static guint
 dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint64     dst;
@@ -1338,7 +1335,7 @@ dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  *      void
  *---------------------------------------------------------------
  */
-void dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *apf_tree = NULL;
     proto_item  *proto_root;
@@ -1359,8 +1356,8 @@ void dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Get the count and type. */
-    count   = get_bit_field(tvb_get_guint8(tvb, offset), ZBEE_APP_COUNT);
-    type    = get_bit_field(tvb_get_guint8(tvb, offset), ZBEE_APP_TYPE);
+    count   = zbee_get_bit_field(tvb_get_guint8(tvb, offset), ZBEE_APP_COUNT);
+    type    = zbee_get_bit_field(tvb_get_guint8(tvb, offset), ZBEE_APP_TYPE);
     if (tree) {
         proto_tree_add_uint(apf_tree, hf_zbee_apf_count, tvb, offset, sizeof(guint8), count);
         proto_tree_add_uint(apf_tree, hf_zbee_apf_type, tvb, offset, sizeof(guint8), type);
@@ -1411,7 +1408,7 @@ dissect_app_end:
  *      guint
  *---------------------------------------------------------------
  */
-guint
+static guint
 zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
 {
     if (type == ZBEE_APP_TYPE_KVP) {
@@ -1419,8 +1416,8 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
         /* | 1 Byte |    1 Byte     |  2 Bytes  | 0/1 Bytes  | Variable |
          * | SeqNo  | Cmd/Data Type | Attribute | Error Code |   Data   |
          */
-        guint8  kvp_cmd     = get_bit_field(tvb_get_guint8(tvb, offset+1), ZBEE_APP_KVP_CMD);
-        guint8  kvp_type    = get_bit_field(tvb_get_guint8(tvb, offset+1), ZBEE_APP_KVP_TYPE);
+        guint8  kvp_cmd     = zbee_get_bit_field(tvb_get_guint8(tvb, offset+1), ZBEE_APP_KVP_CMD);
+        guint8  kvp_type    = zbee_get_bit_field(tvb_get_guint8(tvb, offset+1), ZBEE_APP_KVP_TYPE);
         guint   kvp_len     = ZBEE_APP_KVP_OVERHEAD;
 
         /* Add the length of the error code, if present. */
@@ -1486,6 +1483,23 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
     }
 } /* zbee_apf_transaction_len */
 
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_init_zbee_aps
+ *  DESCRIPTION
+ *      Initializes the APS dissectors prior to beginning protocol
+ *      dissection.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void proto_init_zbee_aps(void)
+{
+    fragment_table_init(&zbee_aps_fragment_table);
+    reassembled_table_init(&zbee_aps_reassembled_table);
+} /* proto_init_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1726,20 +1740,3 @@ void proto_reg_handoff_zbee_aps(void)
     zbee_apf_handle = find_dissector("zbee.apf");
 } /* proto_reg_handoff_zbee_aps */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_init_zbee_aps
- *  DESCRIPTION
- *      Initializes the APS dissectors prior to beginning protocol
- *      dissection.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
-void proto_init_zbee_aps(void)
-{
-    fragment_table_init(&zbee_aps_fragment_table);
-    reassembled_table_init(&zbee_aps_reassembled_table);
-} /* proto_init_zbee_aps */
