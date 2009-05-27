@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0pre1">
+  <!ENTITY WiresharkCurrentVersion "1.2.0">
 
 ]>
 
@@ -30,36 +30,12 @@ Wireshark Info
     <section id="BugFixes"><title>Bug Fixes</title>
     <para>
 
-      The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
-
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The NetFlow dissector could run off with your dog, crash your truck,
-            and write a country music song about the experience.
-            <!-- Fixed in r????? -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">????</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.5 to 1.0.8</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-      </itemizedlist>
-
-    </para>
-
-    <para>
-
     The following bugs have been fixed:
 
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash without warning.
+          .
         </para></listitem>
 
       </itemizedlist>
@@ -198,16 +174,119 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
+Anything in Anything Protocol,
+ATM PW, N-to-one Cell Mode,
+B.A.T.M.A.N. Layer 3 Protocol,
+BACnet MS/TP,
+BSS LCS Assistance Protocol,
+Canon BJNP,
+CESoPSN basic NxDS0 mode (no RTP support),
+Charging ASE,
+Cimetrics MS/TP,
+DECT Protocol,
+Digital Private Signalling System No 1 Link Layer,
+DOCSIS Mac Domain Description,
+DOCSIS Registration Request Multipart,
+DOCSIS Registration Response Multipart,
+DOCSIS Synchronisation Message,
+E100 Encapsulation,
+EHS,
+Enhanced Variable Rate Codec,
+Ethernet Global Data,
+Ethernet PW,
+Exchange 2003 Directory Request For Response,
+Far End Failure Detection,
+FCoE Initialization Protocol,
+GOOSE,
+GPEF,
+GPRS Tunneling Protocol V2,
+GSM A-I/F COMMON,
+GSM A-I/F GPRS Mobility and Session Management,
+GSM SACCH,
+GSM Um Interface,
+HDLC PW, FR port mode (no CW),
+HDLC-like framing for PPP,
+IEC 60870-5-104,Apci,
+IEC 60870-5-104,Asdu,
+IEEE 802.15.4 Low-Rate Wireless PAN non-ASK PHY,
+IEEE C37.118 Synchrophasor Protocol,
+Intelligent Platform Management Interface (Session Wrapper),
+Inter-Integrated Circuit,
+Internal TDM,
+IPSICTL,
+ISMACryp Protocol,
+iWARP Direct Data Placement and Remote Direct Memory Access Protocol,
+iWARP Marker Protocol data unit Aligned framing,
+Kontiki Delivery Protocol,
+LANforge Traffic Generator,
+Layer 1 Event Messages,
+Lb-I/F BSSMAP LE,
+LeCroy VICP,
+Link Access Procedure, Channel Dm (LAPDm),
+Local Download Sharing Service,
+LTE Radio Resource Control (RRC) protocol,
+MAC-LTE,
+Memcache Protocol,
+Mesh Header,
+MP4V-ES,
+Nasdaq TotalView-ITCH,
+Nasdaq-SoupTCP version 2.0,
+NAT Port Mapping Protocol,
+Netdump Protocol,
+Non-Access-Stratum (NAS)PDU,
+PacketLogger,
+Paltalk Messenger Protocol,
+PDCP-LTE,
+PW Associated Channel Header,
+PW Ethernet Control Word,
+PW Frame Relay DLCI Control Word,
+PW MPLS Control Word (generic/preferred),
+Real-Time Publish-Subscribe Wire Protocol 2.x,
+Remote Packet Capture,
+RLC-LTE,
+SAToP (no RTP support),
+SERCOS III V1.1,
+SIMULCRYPT Protocol,
+Subnetwork Dependent Convergence Protocol XID,
+Teamspeak2 Protocol,
+TTEthernet,
+TTEthernet Protocol Control Frame,
+Turbocell Aggregate Data,
+Turbocell Header,
+TURN Channel,
+Unreliable Multicast Inter-ORB Protocol,
+VCDU,
+Wave Short Message Protocol(IEEE P1609.3),
+Wireless Access Station Session Protocol,
+Wireshark Expert Info,
+World of Warcraft,
+Xpress Transport Protocol,
+ZigBee Application Framework,
+ZigBee Application Support Layer,
+ZigBee Device Profile,
+ZigBee Encapsulation Protocol,
+ZigBee Network Layer,
+Zipped Inter-ORB Protocol,
+ZRTP
+
     </para>
     </section>
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+There are too many updates to list here.
+
     </para>
     </section>
 
-    <section id="NewCapture"><title>New and Updated Capture File Support</title>
+    <section id="NewCapture"><title>New Capture File Support</title>
     <para>
+
+Apple Bluetooth PacketLogger,
+Daintree's Sensor Network Analyzer,
+dct3trace,
+Pcap-NG,
+TNEF (yes, those silly winmail.dat attachments)
 
     </para>
     </section>
