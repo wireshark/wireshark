@@ -17,6 +17,11 @@ BSCMAKE= bscmake
 
 WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
+# Check that the Wireshark libraries are up-to-date
+!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)] != 0
+!ERROR ? Wireshark Libraries not up-to-date ?
+!ENDIF
+
 LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
 # We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
@@ -174,7 +179,8 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res \
 	image\rawshark.res image\libwsutil.res
 
-LIBS_CHECK=_libs_check_
+####LIBS_CHECK=_libs_check_
+LIBS_CHECK=
 
 all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
 
@@ -691,6 +697,7 @@ verify_tools:
 WIN_SETUP_OPT=--download
 !ENDIF
 
+!IF 0  #### The library "tag" is now checked at the beginning of the make
 # Verify that the required library 'package' (zip) files have been downloaded.
 # (It seems reasonable to assume that if the files have been downloaded
 #  then they have been installed).
@@ -707,6 +714,7 @@ check_libs:
 $(LIBS_CHECK): Makefile.nmake
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
 	@touch --reference=Makefile.nmake -d "+0.000001 sec" $@
+!ENDIF
 
 # Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
 # A clean_setup is done first to ensure that the target dirs don't
@@ -717,8 +725,10 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
+!IF 0  #### The library "tag" is now checked at the beginning of the make
 !IF "$(WIN_SETUP_OPT)" == "--libverify"
     @$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"
+!ENDIF
 !ENDIF
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
