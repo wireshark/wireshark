@@ -353,11 +353,13 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	if (upcoming_channel->srtp_flag) {
 		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 	}
-	/* FIX ME indicate if Video - temp always false */
+
+	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel->media_addr.addr.type, upcoming_channel->media_addr.port );
+	*/
 	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 						upcoming_channel->media_addr.port, 0, 
-						"H245", pinfo->fd->num, /*upcoming_channel->is_video*/ FALSE, rtp_dyn_payload, dummy_srtp_info);
+						"H245", pinfo->fd->num, upcoming_channel->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}
 	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
 		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 

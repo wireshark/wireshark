@@ -484,11 +484,13 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	if (upcoming_channel->srtp_flag) {
 		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 	}
-	/* FIX ME indicate if Video - temp always false */
+
+	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel->media_addr.addr.type, upcoming_channel->media_addr.port );
+	*/
 	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 						upcoming_channel->media_addr.port, 0, 
-						"H245", pinfo->fd->num, /*upcoming_channel->is_video*/ FALSE, rtp_dyn_payload, dummy_srtp_info);
+						"H245", pinfo->fd->num, upcoming_channel->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}
 	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
 		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
@@ -1904,7 +1906,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 372 "packet-h245-template.c"
+#line 374 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2405,7 +2407,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 377 "packet-h245-template.c"
+#line 379 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -7202,9 +7204,23 @@ static const per_choice_t DataType_choice[] = {
 
 static int
 dissect_h245_DataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 999 "h245.cnf"
+gint choice_index;
+
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_DataType, DataType_choice,
-                                 NULL);
+                                 &choice_index);
+
+
+if (upcoming_channel){
+	if (choice_index==2){
+		upcoming_channel->is_video=TRUE;
+	}else{
+		upcoming_channel->is_video=FALSE;
+	}
+}
+
+
 
   return offset;
 }
@@ -14444,7 +14460,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 386 "packet-h245-template.c"
+#line 388 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20127,7 +20143,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 464 "packet-h245-template.c"
+#line 466 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20630,7 +20646,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 471 "packet-h245-template.c"
+#line 473 "packet-h245-template.c"
   };
   module_t *h245_module;
 
