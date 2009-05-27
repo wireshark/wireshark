@@ -55,6 +55,11 @@
 #include "../image/wssplash-dev.xpm"
 #include "webbrowser.h"
 
+/*
+ * Update frequence for the splash screen, given in milliseconds.
+ */
+int splash_register_freq = 100;
+
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
 
 
@@ -151,8 +156,6 @@ splash_new(const char *message)
     return win;
 }
 
-#define REGISTER_FREQ 100 /* Milliseconds */
-
 void
 splash_update(register_action_e action, const char *message, gpointer client_data)
 {
@@ -179,12 +182,12 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 
     g_get_current_time(&cur_tv);
     if (cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
-      /* Only update every REGISTER_FREQ milliseconds */
+      /* Only update every splash_register_freq milliseconds */
       ul_sofar++;
       return;
     }
     memcpy(&next_tv, &cur_tv, sizeof(next_tv));
-    next_tv.tv_usec += REGISTER_FREQ * 1000;
+    next_tv.tv_usec += splash_register_freq * 1000;
     if (next_tv.tv_usec >= 1000000) {
         next_tv.tv_sec++;
         next_tv.tv_usec -= 1000000;
