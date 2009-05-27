@@ -18,7 +18,7 @@ BSCMAKE= bscmake
 WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 # Check that the Wireshark libraries are up-to-date
-!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)] != 0
+!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
 !ERROR ? Wireshark Libraries not up-to-date ?
 !ENDIF
 
