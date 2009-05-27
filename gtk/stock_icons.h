@@ -51,6 +51,7 @@
 #define WIRESHARK_STOCK_CLEAR_EXPRESSION         "Wireshark_Stock_Clear_Expression"
 #define WIRESHARK_STOCK_APPLY_EXPRESSION         "Wireshark_Stock_Apply_Expression"
 #define WIRESHARK_STOCK_DONT_SAVE                "Wireshark_Stock_Continue_without_Saving"
+#define WIRESHARK_STOCK_QUIT_DONT_SAVE           "Wireshark_Stock_Quit_without_Saving"
 #define WIRESHARK_STOCK_SAVE_ALL                 "Wireshark_Stock_Save_All"
 #define WIRESHARK_STOCK_ABOUT                    "Wireshark_Stock_About"
 #define WIRESHARK_STOCK_COLORIZE                 "Wireshark_Stock_Colorize"

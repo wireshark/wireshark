@@ -865,7 +865,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     gtk_window_present(GTK_WINDOW(top_level));
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL,
                 "%sSave capture file before program quit?%s\n\n"
                 "If you quit the program without saving, your capture data will be discarded.",
                 simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -954,7 +954,7 @@ static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _
         /* save file first */
         file_save_as_cmd(after_save_exit, NULL);
         break;
-    case(ESD_BTN_DONT_SAVE):
+    case(ESD_BTN_QUIT_DONT_SAVE):
         main_do_quit();
         break;
     case(ESD_BTN_CANCEL):
@@ -971,7 +971,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL,
                 "%sSave capture file before program quit?%s\n\n"
                 "If you quit the program without saving, your capture data will be discarded.",
                 simple_dialog_primary_start(), simple_dialog_primary_end());
