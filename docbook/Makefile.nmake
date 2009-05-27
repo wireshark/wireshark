@@ -24,45 +24,37 @@ RELEASE_NOTES_SOURCE = $(RELEASE_NOTES_SOURCE) Makefile.nmake Makefile.common
 
 .SUFFIXES: .fo .pdf
 
+# On every build, record the working copy revision string
+#   in svn_version.xml (if the svn version has changed).
+# This is done during nmake "preprocessing" so that it's done *before* 
+#  nmake gets the date/time of the dependency file(s)].
+!IF [$(SH) ./check_svn_version.sh]
+!ENDIF
+
+
 # -- (Public) targets -------------------------------------------------------
-#    Note that the command for each of the four targets below recurse to
-#     force a reread of the svn_version.xml file date/time (which may or
-#      may not have been updated by the svn_version_check target).
 
 # Make all (default)
-all: svn_version_check 
-	@ $(MAKE) /$(MAKEFLAGS) -f makefile.nmake all_x
+all: all_x
 
 # Make only the WSUG
-wsug: svn_version_check
-	@ $(MAKE) /$(MAKEFLAGS) -f makefile.nmake wsug.validated wsug_x
+wsug: wsug.validated wsug_x
 
 # Make only the WSDG
-wsdg: svn_version_check
-	@ $(MAKE) /$(MAKEFLAGS) -f makefile.nmake wsdg.validated wsdg_x
+wsdg: wsdg.validated wsdg_x
 
 # Make only the release notes
-release_notes: svn_version_check
-	@ $(MAKE) /$(MAKEFLAGS) -f makefile.nmake release_notes.validated release_notes_x
+release_notes: release_notes.validated release_notes_x
 
 # Clean all
 clean:
 	rm -rf $(CLEANFILES)
 
-## ----------------------------------------------------------------------------
-
-# FORCE is the portable version of .PHONY
-FORCE:
-
-#
-# on every build, record the working copy revision string
-#   in svn_version.xml (if the svn version has changed)
-svn_version_check: FORCE
-	@ $(SH) ./check_svn_version.sh
-
+# -- All -------------------------------------------------------------------------------
 
 all_x: wsug.validated wsdg.validated release_notes.validated wsug_x wsdg_x release_notes_x
 
+# -- User Guide ------------------------------------------------------------------------
 
 wsug_x: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
 
@@ -132,6 +124,12 @@ user-guide.zip: user-guide.chm
 user-guide.zip:
 !endif
 
+wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
+	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
+	touch wsluarm
+
+# -- Developer's Guide ------------------------------------------------------------------------
+
 wsdg_x: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 # validate the content
@@ -191,6 +189,8 @@ developer-guide.chm: $(WSDG_SOURCE)
 	-rm -r toc.hhc
 !endif
 
+# -- Release Notes ------------------------------------------------------------------------
+
 release_notes_x: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf release-notes.chm
 
 # validate the content
@@ -238,10 +238,4 @@ release-notes.chm: $(RELEASE_NOTES_SOURCE)
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
 !endif
-
-
-wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
-	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
-	touch wsluarm
-
 
