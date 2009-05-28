@@ -379,7 +379,7 @@ static gboolean global_mac_lte_heur = FALSE;
 static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree)
 {
-    unsigned int         offset = 0;
+    gint                 offset = 0;
     struct mac_lte_info  *p_mac_lte_info;
     tvbuff_t             *mac_tvb;
     guint8               tag = 0;
@@ -420,10 +420,10 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
+    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, (gint)strlen(MAC_LTE_START_STRING)) != 0) {
         return FALSE;
     }
-    offset += strlen(MAC_LTE_START_STRING);
+    offset += (gint)strlen(MAC_LTE_START_STRING);
 
     /* Read fixed fields */
     p_mac_lte_info->radioType = tvb_get_guint8(tvb, offset++);
