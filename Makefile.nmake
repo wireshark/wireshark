@@ -17,10 +17,26 @@ BSCMAKE= bscmake
 
 WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
-# Check that the Wireshark libraries are up-to-date
+# -------------
+# Check that the Wireshark Libraries are up-to-date (checktag)
+# 1. winxx-setup.sh --checktag is invoked during nmake "preprocessing".
+# 2. If an error status is returned (ie: the libraries are not up-to-date)
+#    then LIBS_CHECK is defined as a non-null string.
+#    When $(LIBS_CHECK) is first referenced as a dependency
+#    during the make, the $(LIBS_CHECK) target will be invoked 
+#    causing an error message and an error exit.
+# 3. If a success status is returned, then LIBS_CHECK is defined as a 
+#    null string and thus any use of $(LIBS_CHECK) as a 
+#    dependency is effectively ignored.
+# The net result: If the Wireshark libraries are not current, a 
+#  "libraries not up to date" error exit will occur for
+#  the specific targets which have $(LIBS_CHECK) as a dependency.  
 !IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
-!ERROR ? Wireshark Libraries not up-to-date ?
+LIBS_CHECK=_libs_check_
+!ELSE
+LIBS_CHECK=
 !ENDIF
+# -------------
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
@@ -179,8 +195,6 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res \
 	image\rawshark.res image\libwsutil.res
 
-####LIBS_CHECK=_libs_check_
-LIBS_CHECK=
 
 all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
 
@@ -714,6 +728,19 @@ check_libs:
 $(LIBS_CHECK): Makefile.nmake
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
 	@touch --reference=Makefile.nmake -d "+0.000001 sec" $@
+!ENDIF ###
+
+# Target for "libraries not up-to-date"
+# Defined only if "checktag" failed (see beginning of Makefile).
+!IF "$(LIBS_CHECK)" != ""
+$(LIBS_CHECK): FORCE
+	@echo ? Wireshark Libraries not up-to-date ?
+	@echo ? Do you need to run "nmake -f makefile.nmake setup" ?
+	@echo.
+	@exit 1
+
+FORCE:  ## Assumption: no file named FORCE exists in the current directory
+
 !ENDIF
 
 # Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
@@ -727,7 +754,7 @@ setup: verify_tools clean_setup process_libs
 process_libs:
 !IF 0  #### The library "tag" is now checked at the beginning of the make
 !IF "$(WIN_SETUP_OPT)" == "--libverify"
-    @$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"
+	@$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"
 !ENDIF
 !ENDIF
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
@@ -847,7 +874,7 @@ process_libs:
 		. nasm-2.02-win32.zip
 !ENDIF
 !IF "$(WIN_SETUP_OPT)" == "--download"
-    @$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIBS)"
+	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIBS)"
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.

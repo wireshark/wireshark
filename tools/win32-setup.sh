@@ -169,8 +169,7 @@ case "$1" in
 		fi
 		err_exit \
 			"The contents of $WIN_PATH\\$TAG_FILE is $LAST_TAG." \
-			"It should be $DOWNLOAD_TAG." \
-			"Do you need to run \"nmake -f makefile.nmake setup\"?"
+			"It should be $DOWNLOAD_TAG."
 	fi
 	;;
 *)
