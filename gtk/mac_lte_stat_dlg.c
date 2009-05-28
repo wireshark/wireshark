@@ -37,6 +37,7 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -45,19 +46,14 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-mac-lte.h>
-#include <epan/strutil.h>
 
 #include "../register.h"
 #include "../simple_dialog.h"
-#include "../globals.h"
 #include "../stat_menu.h"
-#include "../isprint.h"
 
-#include "gtk/gtkglobals.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/gui_utils.h"
-#include "gtk/recent.h"
 #include "gtk/help_dlg.h"
 #include "gtk/main.h"
 
@@ -255,6 +251,8 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     }
 
     ep->next = NULL;
+
+    ep->iter_valid = FALSE;
 
     return ep;
 }

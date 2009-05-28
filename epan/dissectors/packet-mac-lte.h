@@ -75,3 +75,62 @@ typedef struct mac_lte_tap_info {
     guint8   number_of_rars;
 } mac_lte_tap_info;
 
+
+
+/*****************************************************************/
+/* UDP framing format                                            */
+/* -----------------------                                       */
+/* Several people have asked about dissecting MAC by framing     */
+/* PDUs over IP.  A suggested format over UDP has been           */
+/* and implemented by this dissector, using the definitions      */
+/* below. An example program showing you how to encode this      */
+/* header and send LTE MAC PDUs on a UDP socket is available     */
+/* from http://wiki.wireshark.org/MAC-LTE                        */
+/*                                                               */
+/* A heuristic dissected (enabled by a preference) will          */
+/* recognise a signature at the beginning of these frames   .    */
+/* Until someone is using this format, suggestions for chage     */
+/* are welcome.                                                  */
+/*****************************************************************/
+
+
+/* Signature.  Rather than try to define a port for this, or make the
+   port number a preference, frames will start with this string (with no
+   terminating NULL */
+#define MAC_LTE_START_STRING "mac-lte"
+
+/* Fixed fields.  This is followed by the following 3 mandatory fields:
+   - radioType (1 byte)
+   - direction (1 byte) 
+   - rntiType (1 byte)
+   (where the allowed values are defined above */
+
+/* Optional fields. Attaching this info to frames will allow you
+   to show you display/filter/plot/add-custom-columns on these fields, so should
+   be added if available.
+   The format is to have the tag, followed by the value (there is no length field,
+   its implicit from the tag) */
+
+#define MAC_LTE_RNTI_TAG            0x02
+/* 2 bytes, network order */
+
+#define MAC_LTE_UEID_TAG            0x03
+/* 2 bytes, network order */
+
+#define MAC_LTE_SUBFRAME_TAG        0x04
+/* 2 bytes, network order */
+
+#define MAC_LTE_PREDFINED_DATA_TAG  0x05
+/* 1 byte */
+
+#define MAC_LTE_RETX_TAG            0x06
+/* 1 byte */
+
+#define MAC_LTE_CRC_STATUS_TAG      0x07
+/* 1 byte */
+
+
+/* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
+   continues until the end of the frame) */
+#define MAC_LTE_PAYLOAD_TAG 0x01
+

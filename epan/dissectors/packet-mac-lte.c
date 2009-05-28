@@ -368,6 +368,124 @@ static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
 /* Control whether decoding details of RAR UL grant or not */
 static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 
+/* Forward declarations */
+void proto_reg_handoff_mac_lte(void);
+void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+
+/* Heuristic dissection */
+static gboolean global_mac_lte_heur = FALSE;
+
+static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree)
+{
+    unsigned int         offset = 0;
+    struct mac_lte_info  *p_mac_lte_info;
+    tvbuff_t             *mac_tvb;
+    guint8               tag = 0;
+    gboolean             infoAlreadySet = FALSE;
+
+    /* This is a heuristic dissector, which means we get all the UDP
+     * traffic not sent to a known dissector and not claimed by
+     * a heuristic dissector called before us!
+     */
+
+    if (!global_mac_lte_heur) {
+        return FALSE;
+    }
+
+    /* If redissecting, use previous info struct (if available) */
+    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    if (p_mac_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        if (p_mac_lte_info == NULL) {
+            return FALSE;
+        }
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
+    /* Do this again on re-dissection to re-discover offset of actual PDU */
+    
+    /* Needs to be at least as long as:
+       - the signature string
+       - fixed header bytes
+       - tag for data
+       - at least one byte of MAC PDU payload */
+    if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(MAC_LTE_START_STRING)+3+2)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
+        return FALSE;
+    }
+    offset += strlen(MAC_LTE_START_STRING);
+
+    /* Read fixed fields */
+    p_mac_lte_info->radioType = tvb_get_guint8(tvb, offset++);
+    p_mac_lte_info->direction = tvb_get_guint8(tvb, offset++);
+    p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
+
+    /* Read optional fields */
+    while (tag != MAC_LTE_PAYLOAD_TAG) {
+        /* Process next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case MAC_LTE_RNTI_TAG:
+                p_mac_lte_info->rnti = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case MAC_LTE_UEID_TAG:
+                p_mac_lte_info->ueid = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case MAC_LTE_SUBFRAME_TAG:
+                p_mac_lte_info->subframeNumber = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case MAC_LTE_PREDFINED_DATA_TAG:
+                p_mac_lte_info->isPredefinedData = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case MAC_LTE_RETX_TAG:
+                p_mac_lte_info->reTxCount = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case MAC_LTE_CRC_STATUS_TAG:
+                p_mac_lte_info->crcStatusValid = TRUE;
+                p_mac_lte_info->crcStatus = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+
+            case MAC_LTE_PAYLOAD_TAG:
+                /* Have reached data, so set payload length and get out of loop */
+                p_mac_lte_info->length= tvb_length_remaining(tvb, offset);
+                continue;
+
+            default:
+                /* It must be a recognised tag */
+                return FALSE;
+        }
+
+        if (!infoAlreadySet) {
+            /* Store info in packet */
+            p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+        }
+    }
+
+
+    /**************************************/
+    /* OK, now dissect as MAC LTE         */
+
+    /* Create tvb that starts at actual MAC PDU */
+    mac_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    dissect_mac_lte(mac_tvb, pinfo, tree);
+    return TRUE;
+}
 
 /* Dissect a single Random Access Reponse body */
 static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1176,6 +1294,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    /* Clear info column */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
+
+
     /*****************************************/
     /* Show context information              */
 
@@ -1739,6 +1863,23 @@ void proto_register_mac_lte(void)
         "Attempt to decode details of RAR UL grant field",
         "Attempt to decode details of RAR UL grant field",
         &global_mac_lte_decode_rar_ul_grant);
+
+    prefs_register_bool_preference(mac_lte_module, "heuristic_mac_lte_over_udp",
+        "Try Heuristic LTE-MAC over UDP framing",
+        "When enabled, use heuristic dissector to find MAC-LTE frames sent with "
+        "UDP framing",
+        &global_mac_lte_heur);
 }
 
+void
+proto_reg_handoff_mac_lte(void)
+{
+    static dissector_handle_t mac_lte_handle;
+    if (!mac_lte_handle) {
+        mac_lte_handle = find_dissector("mac-lte");
+
+        /* Add as a heuristic UDP dissector */
+        heur_dissector_add("udp", dissect_mac_lte_heur, proto_mac_lte);
+    }
+}
 
