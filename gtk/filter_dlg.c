@@ -1349,7 +1349,13 @@ filter_te_syntax_check_cb(GtkWidget *w)
     } else {
         colorize_filter_te_as_invalid(w);
         if (use_statusbar) {
-            statusbar_push_filter_msg(" Invalid filter");
+            if (dfilter_error_msg) {
+                msg = g_strdup_printf(" Invalid filter: %s", dfilter_error_msg);
+                statusbar_push_filter_msg(msg);
+                g_free(msg);
+            } else {
+                statusbar_push_filter_msg(" Invalid filter");
+            }
         }
     }
 }
