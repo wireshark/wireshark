@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 my $debug = 0;
 # 0: off
@@ -46,12 +46,15 @@ my $debug = 0;
 #
 # NOTE: This tool currently generates false positives!
 #
-# The "NO ARRAY" messages - if accurate - point to an error that will
-# cause (t)(wire)shark to terminate with an assertion when a packet containing
+# The "NO ARRAY" messages - if accurate - points to an error that will
+# cause (t|wire)shark to terminate with an assertion when a packet containing
 # this particular element is being dissected.
 #
-# The "Unused entry" message indicates the opposite: 
+# The "Unused entry" message indicates the opposite: We define an entry but
+# never use it in a proto_...add... function.
+#
 
+use warnings;
 use strict;
 
 my $D;
