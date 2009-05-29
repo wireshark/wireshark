@@ -3223,14 +3223,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Create a new TVB structure for
 		 * defragmented data.
 		 */
-		rec_tvb = tvb_new_real_data(ipfd_head->data,
+		rec_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
 		    ipfd_head->datalen, ipfd_head->datalen);
-
-		/*
-		 * Add this tvb as a child to the original
-		 * one.
-		 */
-		tvb_set_child_real_data_tvbuff(tvb, rec_tvb);
 
 		/*
 		 * Add defragmented data to the data source list.

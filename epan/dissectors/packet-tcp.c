@@ -3577,11 +3577,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if(ipfd_head){
         tvbuff_t *next_tvb;
 
-        /* create a new TVB structure for desegmented data */
-        next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
-
-        /* add this tvb as a child to the original one */
-        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+        /* create a new TVB structure for desegmented data
+         * datalen-1 to strip the dummy FIN byte off
+         */
+        next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 
         /* add desegmented data to the data source list */
         add_new_data_source(pinfo, next_tvb, "Reassembled TCP");

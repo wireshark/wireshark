@@ -12157,9 +12157,8 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
     if (wep_decrypt(tmp, len, i) == 0) {
 
       /* decrypt successful, let's set up a new data tvb. */
-      decr_tvb = tvb_new_real_data(tmp, len-8, len-8);
+      decr_tvb = tvb_new_child_real_data(tvb, tmp, len-8, len-8);
       tvb_set_free_cb(decr_tvb, g_free);
-      tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
 
       break;
     }

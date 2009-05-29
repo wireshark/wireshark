@@ -579,8 +579,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Setup the new tvbuff_t and return */
-    payload_tvb = tvb_new_real_data(dec_buffer, payload_len, payload_len);
-    tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
+    payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_len, payload_len);
     add_new_data_source(pinfo, payload_tvb, "Decrypted ZigBee Payload");
     /* Done! */
     return payload_tvb;

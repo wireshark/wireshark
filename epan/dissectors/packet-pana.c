@@ -483,7 +483,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                          "AVP Value (EAP packet)");
                                        avp_eap_tree = proto_item_add_subtree(avp_eap_item, ett_pana_avp);
                                        eap_tvb = tvb_new_subset(tvb, offset, avp_data_length, avp_data_length);
-                                       if (avp_eap_tree != NULL && eap_handle != NULL) {
+                                       if (eap_handle != NULL) {
                                                call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
                                        }
                                        break;
