@@ -21,44 +21,64 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-ADD_LIBRARY(wiretap SHARED 
-        5views.c                
-        airopeek9.c             
-        ascend.c                
-        atm.c                   
-        ber.c                   
-        buffer.c                
-        catapult_dct2000.c      
-        cosine.c                
-        csids.c                 
-        dbs-etherwatch.c        
-        erf.c                   
-        etherpeek.c             
-        eyesdn.c                
-        file_access.c           
-        file_wrappers.c         
-        hcidump.c               
-        i4btrace.c              
-        iptrace.c               
-        iseries.c               
-        k12.c                   
-        lanalyzer.c             
-        libpcap.c               
-        netmon.c                
-        nettl.c                 
-        network_instruments.c   
-        netxray.c               
-        ngsniffer.c             
-        pppdump.c               
-        radcom.c                
-        snoop.c                 
-        toshiba.c               
-        visual.c                
-        vms.c                   
-        wtap.c
 
-        ascend-grammar.c        
-        ascend-scanner.c
+set(WIRETAP_FILES
+	5views.c
+	airopeek9.c
+	ascend.c
+	atm.c
+	ber.c
+	btsnoop.c
+	buffer.c
+	catapult_dct2000.c
+	commview.c
+	cosine.c
+	csids.c
+	daintree-sna.c
+	dbs-etherwatch.c
+	dct3trace.c
+	erf.c
+	etherpeek.c
+	eyesdn.c
+	file_access.c
+	file_wrappers.c
+	hcidump.c
+	i4btrace.c
+	iptrace.c
+	iseries.c
+	k12.c
+	lanalyzer.c
+	libpcap.c
+	mpeg.c
+	netmon.c
+	netscreen.c
+	nettl.c
+	network_instruments.c
+	netxray.c
+	ngsniffer.c
+	packetlogger.c
+	pcap-common.c
+	pcapng.c
+	pppdump.c
+	radcom.c
+	snoop.c
+	toshiba.c
+	visual.c
+	vms.c
+	wtap.c
+)
+
+ADD_LEX_FILES(WIRETAP_FILES
+	ascend-scanner.l
+	k12text.l
+)
+
+ADD_YACC_FILES(WIRETAP_FILES
+	ascend-grammar.y
+)
+
+ADD_LIBRARY(wiretap SHARED 
+	${WIRETAP_FILES}
 )
 
 INSTALL(TARGETS wiretap LIBRARY DESTINATION lib)

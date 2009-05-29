@@ -5,8 +5,8 @@ INCLUDE(FindCygwin)
 
 FIND_PROGRAM(LEX_EXECUTABLE
   NAMES 
-  lex
   flex
+  lex
   PATH
   ${CYGWIN_INSTALL_PATH}/bin
   /bin
@@ -18,38 +18,39 @@ MARK_AS_ADVANCED(
   LEX_EXECUTABLE
 )
 
----------
-# flex a .ll file
+# flex a .l file
 
 # search flex
-MACRO(FIND_FLEX)
-    IF(NOT FLEX_EXECUTABLE)
-        FIND_PROGRAM(FLEX_EXECUTABLE flex)
-        IF (NOT FLEX_EXECUTABLE)
+MACRO(FIND_LEX)
+    IF(NOT LEX_EXECUTABLE)
+        FIND_PROGRAM(LEX_EXECUTABLE flex)
+        IF (NOT LEX_EXECUTABLE)
           MESSAGE(FATAL_ERROR "flex not found - aborting")
-        ENDIF (NOT FLEX_EXECUTABLE)
-    ENDIF(NOT FLEX_EXECUTABLE)
-ENDMACRO(FIND_FLEX)
+        ENDIF (NOT LEX_EXECUTABLE)
+    ENDIF(NOT LEX_EXECUTABLE)
+ENDMACRO(FIND_LEX)
 
-MACRO(ADD_FLEX_FILES _sources )
-    FIND_FLEX()
+MACRO(ADD_LEX_FILES _sources )
+    FIND_LEX()
 
     FOREACH (_current_FILE ${ARGN})
       GET_FILENAME_COMPONENT(_in ${_current_FILE} ABSOLUTE)
       GET_FILENAME_COMPONENT(_basename ${_current_FILE} NAME_WE)
 
-      SET(_out ${CMAKE_CURRENT_BINARY_DIR}/flex_${_basename}.cpp)
+      SET(_outc ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.c)
+      SET(_outh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.h)
 
       ADD_CUSTOM_COMMAND(
-         OUTPUT ${_out}
-         COMMAND ${FLEX_EXECUTABLE}
+         OUTPUT ${_outc} ${_outh}
+         COMMAND ${LEX_EXECUTABLE}
          ARGS
-         -o${_out}
+         -o${_outc}
+         --header-file=${_outh}
          ${_in}
          DEPENDS ${_in}
       )
 
-      SET(${_sources} ${${_sources}} ${_out} )
+      SET(${_sources} ${${_sources}} ${_outc} ${_outh} )
    ENDFOREACH (_current_FILE)
-ENDMACRO(ADD_FLEX_FILES)
+ENDMACRO(ADD_LEX_FILES)
 

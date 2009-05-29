@@ -25,6 +25,8 @@ project(wireshark C)
 
 set(dumpcap_LIBS wiretap)
 
+cmake_minimum_required(VERSION 2.6)
+
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -66,7 +68,7 @@ endif(ENABLE_EXTRA_GCC_CHECKS)
 if(CMAKE_COMPILER_IS_GNUCC)
   add_definitions(
     -DHAVE_CONFIG_H
-    -D_U_=\"__attribute__\(\(unused\)\)\"
+    -D_U_=__attribute__\(\(unused\)\)
     -Wall -Wpointer-arith -W
     ${WIRESHARK_EXTRA_GCC_FLAGS}
   )
@@ -78,7 +80,7 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 subdirs(wiretap)
 
 #The minimum package list
-set(PACKAGELIST GLIB2 ZLIB PCAP ${PACKAGELIST})
+set(PACKAGELIST GLIB2 ZLIB PCAP LEX YACC ${PACKAGELIST})
 
 #build the gui ?
 if(BUILD_WIRESHARK)
@@ -212,6 +214,13 @@ configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h
 
 link_directories(wiretap)
 
+ADD_CUSTOM_COMMAND(
+   OUTPUT ${CMAKE_BINARY_DIR}/svnversion.h
+   COMMAND perl ${CMAKE_SOURCE_DIR}/make-version.pl
+   ARGS
+   ${CMAKE_SOURCE_DIR}
+)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
 
 if(BUILD_DUMPCAP)
 
@@ -220,19 +229,19 @@ if(BUILD_DUMPCAP)
   )
 
   set(DUMPCAP_FILES
-          capture_opts.c
-          capture_loop.c
-          capture-pcap-util.c
-          capture_stop_conditions.c
-          clopts_common.c
-          conditions.c
-          dumpcap.c
-          pcapio.c
-          ringbuffer.c
-          sync_pipe_write.c
-          tempfile.c
-          version_info.c
-          ${DUMPCAP_PLATFORM_SRC}
+	svnversion.h
+	capture_opts.c
+	capture-pcap-util.c
+	capture_stop_conditions.c
+	clopts_common.c
+	conditions.c
+	dumpcap.c
+	pcapio.c
+	ringbuffer.c
+	sync_pipe_write.c
+	tempfile.c
+	version_info.c
+	${DUMPCAP_PLATFORM_SRC}
   )
 
   add_executable(dumpcap ${DUMPCAP_FILES})
