@@ -734,8 +734,8 @@ $(LIBS_CHECK): Makefile.nmake
 # Defined only if "checktag" failed (see beginning of Makefile).
 !IF "$(LIBS_CHECK)" != ""
 $(LIBS_CHECK): FORCE
-	@echo ? Wireshark Libraries not up-to-date ?
-	@echo ? Do you need to run "nmake -f makefile.nmake setup" ?
+	@echo \? Wireshark Libraries not up-to-date \?
+	@echo \? Do you need to run "nmake -f makefile.nmake setup" \?
 	@echo.
 	@exit 1
 
@@ -940,16 +940,15 @@ install-generated-files:
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IF "$(MSVC_VARIANT)" == "MSVC2008"
-	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)\*.*
+	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)\*.* /d
 !ENDIF
 !IFDEF ENABLE_LIBWIRESHARK
 	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d
+	if exist epan\libwireshark.pdb xcopy .\epan\libwireshark.pdb $(INSTALL_DIR) /d
 !ENDIF
 	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d
-	xcopy ".\epan\libwireshark.dll" $(INSTALL_DIR) /d
 	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR) /d
-	if exist ".\epan\libwireshark.pdb" xcopy ".\epan\libwireshark.pdb" $(INSTALL_DIR) /d
 	if exist wireshark.exe copy wireshark.exe $(INSTALL_DIR)\wireshark.exe
 	if exist wireshark.pdb copy wireshark.pdb $(INSTALL_DIR)\wireshark.pdb
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
@@ -990,7 +989,7 @@ install-generated-files:
 # you can't reliably use xcopy to rename files "on the fly" (so copy first, then rename)
 	xcopy ".\help\faq.txt" $(INSTALL_DIR) /d
 	if exist $(INSTALL_DIR)\FAQ del $(INSTALL_DIR)\FAQ
-    ren $(INSTALL_DIR)\faq.txt FAQ 
+	ren $(INSTALL_DIR)\faq.txt FAQ 
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
