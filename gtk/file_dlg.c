@@ -51,69 +51,69 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 GtkWidget *
 file_selection_new(const gchar *title, file_selection_action_t action)
 {
-  GtkWidget *win;
-  GtkFileChooserAction gtk_action;
+    GtkWidget *win;
+    GtkFileChooserAction gtk_action;
 #ifdef _WIN32
-  char *u3devicedocumentpath;
+    char *u3devicedocumentpath;
 #endif 
-  const gchar *ok_button_text;
+    const gchar *ok_button_text;
 
-  switch (action) {
+    switch (action) {
 
-  case FILE_SELECTION_OPEN:
-    gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
-    ok_button_text = GTK_STOCK_OPEN;
-    break;
+    case FILE_SELECTION_OPEN:
+        gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
+        ok_button_text = GTK_STOCK_OPEN;
+        break;
 
-  case FILE_SELECTION_READ_BROWSE:
-    gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
-    ok_button_text = GTK_STOCK_OK;
-    break;
+    case FILE_SELECTION_READ_BROWSE:
+        gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
+        ok_button_text = GTK_STOCK_OK;
+        break;
 
-  case FILE_SELECTION_SAVE:
-    gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
-    ok_button_text = GTK_STOCK_SAVE;
-    break;
+    case FILE_SELECTION_SAVE:
+        gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
+        ok_button_text = GTK_STOCK_SAVE;
+        break;
 
-  case FILE_SELECTION_WRITE_BROWSE:
-    gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
-    ok_button_text = GTK_STOCK_OK;
-    break;
+    case FILE_SELECTION_WRITE_BROWSE:
+        gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
+        ok_button_text = GTK_STOCK_OK;
+        break;
 
-  case FILE_SELECTION_CREATE_FOLDER:
-    gtk_action = GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER;
-    ok_button_text = GTK_STOCK_OK;
-    break;
+    case FILE_SELECTION_CREATE_FOLDER:
+        gtk_action = GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER;
+        ok_button_text = GTK_STOCK_OK;
+        break;
 
-  default:
-    g_assert_not_reached();
-    gtk_action = -1;
-    ok_button_text = NULL;
-    break;
-  }
-  win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
+    default:
+        g_assert_not_reached();
+        gtk_action = -1;
+        ok_button_text = NULL;
+        break;
+    }
+    win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
 #ifndef _WIN32
-                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                    ok_button_text, GTK_RESPONSE_ACCEPT,
+                                      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                      ok_button_text, GTK_RESPONSE_ACCEPT,
 #else
-                                    ok_button_text, GTK_RESPONSE_ACCEPT,
-                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                      ok_button_text, GTK_RESPONSE_ACCEPT,
+                                      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 #endif
-                                    NULL);
+                                      NULL);
 
-  /* If we've opened a file before, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(win, last_open_dir);
+    /* If we've opened a file before, start out by showing the files in the directory
+       in which that file resided. */
+    if (last_open_dir)
+        file_selection_set_current_folder(win, last_open_dir);
 #ifdef _WIN32
-  else {
-	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
-	if(u3devicedocumentpath != NULL)
-	  file_selection_set_current_folder(win, u3devicedocumentpath);
+    else {
+        u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
+        if(u3devicedocumentpath != NULL)
+            file_selection_set_current_folder(win, u3devicedocumentpath);
 
-  }
+    }
 #endif
-  return win;
+    return win;
 }
 
 /* Set the current folder for a file selection dialog. */
@@ -164,91 +164,91 @@ file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label, file_selection_action_t action)
 {
-  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
-  GtkWidget *fs;
-  gchar     *f_name;
+    GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
+    GtkWidget *fs;
+    gchar     *f_name;
 
-  /* Has a file selection dialog box already been opened for that top-level
-     widget? */
-  fs = g_object_get_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
-  if (fs != NULL) {
-    /* Yes.  Just re-activate that dialog box. */
-    reactivate_window(fs);
-    return;
-  }
+    /* Has a file selection dialog box already been opened for that top-level
+       widget? */
+    fs = g_object_get_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
+    if (fs != NULL) {
+        /* Yes.  Just re-activate that dialog box. */
+        reactivate_window(fs);
+        return;
+    }
 
-  fs = file_selection_new(label, action);
+    fs = file_selection_new(label, action);
 
-  g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
+    g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+    /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+    g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
 
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+    /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+    g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
 
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  g_signal_connect(fs, "destroy", G_CALLBACK(file_selection_browse_destroy_cb), 
-		 file_te);
+    /* Call a handler when the file selection box is destroyed, so we can inform
+       our caller, if any, that it's been destroyed. */
+    g_signal_connect(fs, "destroy", G_CALLBACK(file_selection_browse_destroy_cb), 
+                     file_te);
 
-  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
-  {
-      f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-      gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
-      g_free(f_name);
-  }
-  window_destroy(fs);
+    if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
+    {
+        f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+        gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
+        g_free(f_name);
+    }
+    window_destroy(fs);
 }
 
 
 static void
 file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
 {
-  GtkWidget *caller;
+    GtkWidget *caller;
 
-  /* Get the widget that requested that we be popped up.
-     (It should arrange to destroy us if it's destroyed, so
-     that we don't get a pointer to a non-existent window here.) */
-  caller = g_object_get_data(G_OBJECT(win), E_FS_CALLER_PTR_KEY);
+    /* Get the widget that requested that we be popped up.
+       (It should arrange to destroy us if it's destroyed, so
+       that we don't get a pointer to a non-existent window here.) */
+    caller = g_object_get_data(G_OBJECT(win), E_FS_CALLER_PTR_KEY);
 
-  /* Tell it we no longer exist. */
-  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+    /* Tell it we no longer exist. */
+    g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
 
-  /* Give the focus to the file text entry widget so the user can just press
-     Return to print to the file. */
-  gtk_widget_grab_focus(parent_te);
+    /* Give the focus to the file text entry widget so the user can just press
+       Return to print to the file. */
+    gtk_widget_grab_focus(parent_te);
 }
 
 
 void
 set_last_open_dir(char *dirname)
 {
-	size_t len;
-	gchar *new_last_open_dir;
+    size_t len;
+    gchar *new_last_open_dir;
 
-	if (dirname) {
-		len = strlen(dirname);
-		if (dirname[len-1] == G_DIR_SEPARATOR) {
-			new_last_open_dir = g_strconcat(dirname, NULL);
-		}
-		else {
-			new_last_open_dir = g_strconcat(dirname,
-				G_DIR_SEPARATOR_S, NULL);
-		}
+    if (dirname) {
+        len = strlen(dirname);
+        if (dirname[len-1] == G_DIR_SEPARATOR) {
+            new_last_open_dir = g_strconcat(dirname, NULL);
+        }
+        else {
+            new_last_open_dir = g_strconcat(dirname,
+                                            G_DIR_SEPARATOR_S, NULL);
+        }
 
-		if (last_open_dir == NULL ||
-		    strcmp(last_open_dir, new_last_open_dir) != 0)
-			updated_last_open_dir = TRUE;
-	}
-	else {
-		new_last_open_dir = NULL;
-		if (last_open_dir != NULL)
-			updated_last_open_dir = TRUE;
-	}
+        if (last_open_dir == NULL ||
+            strcmp(last_open_dir, new_last_open_dir) != 0)
+            updated_last_open_dir = TRUE;
+    }
+    else {
+        new_last_open_dir = NULL;
+        if (last_open_dir != NULL)
+            updated_last_open_dir = TRUE;
+    }
 
-	g_free(last_open_dir);
-	last_open_dir = new_last_open_dir;
+    g_free(last_open_dir);
+    last_open_dir = new_last_open_dir;
 }
 
 char *
