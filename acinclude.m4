@@ -1597,4 +1597,57 @@ AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
 	LIBS="$ac_save_LIBS"
 ])
 
-
+#
+# AC_WIRESHARK_PYTHON_CHECK
+#
+# Check whether python devel package is present
+#
+AC_DEFUN([AC_WIRESHARK_PYTHON_CHECK],
+  [
+    #
+    # Checking whether we have a python devel environment available
+    #
+#  AC_CACHE_CHECK([checking python devel package], ac_cv_wireshark_python_devel,
+#    [
+    AC_CHECK_PROG([ac_ws_python_config], [python-config], "yes", "no")
+    if test ac_ws_python_config = "no"; then
+      ac_cv_wireshark_python_devel = "no"
+    else
+      AC_MSG_CHECKING([python devel])
+      ac_save_ws_cflags=$CFLAGS
+      ac_save_ws_libs=$LIBS
+      CFLAGS=$(python-config --includes)
+      LIBS=$(python-config --ldflags)
+      AC_COMPILE_IFELSE(
+        [
+          AC_LANG_PROGRAM(
+            [[#include <Python.h>]],
+            [[Py_Initialiaze();]]
+          )
+        ],
+        [
+          #
+          # Compilation successful, we have python devel available
+          #
+          ac_cv_wireshark_python_devel=yes
+          PY_LIBS=$LIBS
+          PY_CFLAGS=$CFLAGS
+          AC_SUBST(PY_LIBS)
+          AC_SUBST(PY_CFLAGS)
+          CFLAGS="$ac_save_ws_cflags"
+          LIBS="$ac_save_ws_libs"
+          AC_DEFINE(HAVE_PYTHON, 1, [Define if python devel package available])
+          AC_MSG_RESULT([yes])
+        ],
+        [
+          #
+          # Compilation unsuccessful, python devel not available
+          #
+          ac_cv_wireshark_python_devel=no
+          CFLAGS=$ac_save_ws_cflags
+          LIBS=$ac_save_ws_libs
+          AC_MSG_RESULT([no])
+        ])
+    fi
+#    ])
+])

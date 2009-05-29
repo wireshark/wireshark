@@ -51,6 +51,13 @@ extern const char *get_progfile_dir(void);
 extern const char *get_plugin_dir(void);
 
 /*
+ * Get the directory in which python plugins are stored; this must not be
+ * called before init_progfile_dir() is called, as they might be stored in a
+ * subdirectory of the program file directory.
+ */
+extern const char *get_wspython_dir(void);
+
+/*
  * Get the flag indicating whether we're running from a build
  * directory.
  */

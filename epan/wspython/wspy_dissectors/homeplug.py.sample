@@ -1,0 +1,90 @@
+from wspy_dissector import Dissector
+from wspy_dissector import FT_UINT8, FT_NONE
+from wspy_dissector import BASE_NONE, BASE_HEX
+
+class homeplug(Dissector):
+  # return the two first parameters of dissector_add as a tuple
+  def protocol_ids(self):
+    #you could use self.find_dissector() or self.create_dissector_handle() as
+    #defined in proto.h and pass the result in the third element of the tuple
+    #returned
+    return [ ("ethertype", 0x887B, None) ]
+
+  #Main default entry point of dissection
+  def dissect(self):
+    self.dissect_mctrl()
+    self.dissect_mehdr()
+    self.dissect_melen()
+
+  def dissect_mctrl(self):
+    self.hf = self.fields()
+    self.subt = self.subtrees()
+    self.c_tree = self.tree()
+    try:
+      tree = self.c_tree.add_item(self.hf.homeplug_mctrl, length=1, adv=False)
+      mctrl_tree = tree.add_subtree(self.subt.mctrl)
+
+      mctrl_tree.add_item(self.hf.homeplug_mctrl_rsvd, length=1, adv=False)
+      mctrl_tree.add_item(self.hf.homeplug_mctrl_ne, length=1)
+    except Exception, e:
+      print e
+
+  def dissect_mehdr(self):
+    try:
+      tree = self.c_tree.add_item(self.hf.homeplug_mehdr, length=1, adv=False)
+      mehdr_tree = tree.add_subtree(self.subt.mehdr)
+
+      mehdr_tree.add_item(self.hf.homeplug_mehdr_mev, length=1, adv=False)
+      mehdr_tree.add_item(self.hf.homeplug_mehdr_metype, length=1)
+    except Exception, e:
+      print e
+
+  def dissect_melen(self):
+    try:
+      self.c_tree.add_item(self.hf.homeplug_melen, length=1)
+    except Exception, e:
+      print e
+
+  def dissect_mme(self):
+    try:
+      self.c_tree.add_item(self.hf.homeplug_mme, length=1)
+    except Exception, e:
+      print e
+
+
+HOMEPLUG_MCTRL_RSVD   = 0x80
+HOMEPLUG_MCTRL_NE     = 0x7F
+HOMEPLUG_MEHDR_MEV    = 0xE0
+HOMEPLUG_MEHDR_METYPE = 0x1F
+
+def register_protocol():
+  tp = homeplug("HomePlug protocol", "HomePlug", "homeplug")
+
+  #
+  # Register Protocol Fields
+  #
+  hf = tp.fields()
+  # MAC Control Field
+  hf.add("Mac Control Field", "homeplug.mctrl", FT_NONE, BASE_NONE)
+  hf.add("Reserved", "homeplug.mctrl.rsvd", FT_UINT8, bitmask=HOMEPLUG_MCTRL_RSVD)
+  hf.add("Number of MAC Data Entries", "homeplug.mctrl.ne", FT_UINT8, bitmask=HOMEPLUG_MCTRL_NE)
+
+  # MAC Entry Header
+  hf.add("MAC Management Entry Header", "homeplug.mehdr", FT_NONE, BASE_NONE)
+  hf.add("MAC Entry Version", "homeplug.mehdr.mev", FT_UINT8, bitmask=HOMEPLUG_MEHDR_MEV)
+  hf.add("MAC Entry Type", "homeplug.mehdr.metype", FT_UINT8, BASE_HEX, bitmask=HOMEPLUG_MEHDR_METYPE)
+
+  # MAC Entry Len
+  hf.add("MAC Management Entry Length", "homeplug.melen", FT_UINT8)
+
+  # MAC Management Entry
+  hf.add("MAC Management Entry Data", "homeplug.mmentry", FT_UINT8)
+
+  #
+  # Register Subtrees
+  #
+  subt = tp.subtrees()
+  #subt.add("homeplug") => we let Dissector output the main tree of this protocol
+  subt.add("mctrl")
+  subt.add("mehdr")
+  return tp

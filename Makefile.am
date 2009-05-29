@@ -25,6 +25,13 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 INCLUDES= @LUA_INCLUDES@
 
+if HAVE_LIBPY
+py_dissectors_dir = -DPYTHON_DIR=\"@pythondir@\"
+else
+py_dissectors_dir = -DPYTHONDIR=
+endif
+
+
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
@@ -319,7 +326,7 @@ wireshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@
-wireshark_CFLAGS = $(AM_CLEAN_CFLAGS)
+wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
@@ -349,7 +356,7 @@ tshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
-tshark_CFLAGS = $(AM_CLEAN_CFLAGS)
+tshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC
 rawshark_LDFLAGS = -Wl,-static -all-static
@@ -379,7 +386,7 @@ rawshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
-rawshark_CFLAGS = $(AM_CLEAN_CFLAGS)
+rawshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Optional objects that I know how to build, and that are needed by
 # text2pcap.
@@ -402,21 +409,21 @@ mergecap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-mergecap_CFLAGS = $(AM_CLEAN_CFLAGS)
+mergecap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-capinfos_CFLAGS = $(AM_CLEAN_CFLAGS)
+capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-editcap_CFLAGS = $(AM_CLEAN_CFLAGS)
+editcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
@@ -428,7 +435,7 @@ randpkt_LDADD = \
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@
-randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
+randpkt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
@@ -449,7 +456,7 @@ dftest_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
-dftest_CFLAGS = $(AM_CLEAN_CFLAGS)
+dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
@@ -464,7 +471,7 @@ dumpcap_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBCAP_LIBS@
-dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
+dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \

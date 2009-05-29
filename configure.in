@@ -1353,6 +1353,26 @@ else
 fi
 AC_SUBST(GEOIP_LIBS)
 
+dnl Python devel Check
+AC_ARG_WITH(python,
+    AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
+                    [use python interpretor (installed in DIR, if supplied). @<:@default=no@:>@ (EXPERIMENTAL)]),
+[
+pythondir='${libdir}/wireshark/python/${VERSION}'
+if test "x$withval" = "xno"; then
+  want_python=no
+elif test "x$withval" != "xyes"; then
+  pythondir="$withval"
+  want_python=yes
+  AC_WIRESHARK_PYTHON_CHECK
+else
+  want_python=yes
+  AC_WIRESHARK_PYTHON_CHECK
+fi
+])
+AM_CONDITIONAL(HAVE_LIBPY, test x$want_python = xyes)
+AC_SUBST(pythondir)
+
 #
 # Define WS_VAR_IMPORT appropriately for declarations of external
 # variables exported from dynamically-linked libraries.
@@ -1698,6 +1718,7 @@ AC_OUTPUT(
   epan/dissectors/Makefile
   epan/ftypes/Makefile
   epan/wslua/Makefile
+  epan/wspython/Makefile
   codecs/Makefile
   gtk/Makefile
   gtk/doxygen.cfg
@@ -1764,6 +1785,12 @@ else
 	lua_message="no"
 fi
 
+if test "x$want_python" = "xyes"; then
+        python_message="yes"
+else
+        python_message="no"
+fi
+
 if test "x$want_portaudio" = "xyes" ; then
 	portaudio_message="yes"
 else
@@ -1823,6 +1850,7 @@ echo ""
 echo "             Install dumpcap setuid : $setuid_message"
 echo "                        Use plugins : $have_plugins"
 echo "                    Use lua library : $lua_message"
+echo "                     python binding : $python_message"
 echo "                   Build rtp_player : $portaudio_message"
 echo "                        Use threads : $enable_threads"
 echo "             Build profile binaries : $enable_profile_build"

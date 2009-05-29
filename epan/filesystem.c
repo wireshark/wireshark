@@ -669,6 +669,102 @@ get_datafile_dir(void)
 	return datafile_dir;
 }
 
+#ifdef HAVE_PYTHON
+/*
+ * Find the directory where the python dissectors are stored.
+ *
+ * On Windows, we use the "py_dissector" subdirectory of the datafile directory.
+ *
+ * On UN*X, we use the PLUGIN_DIR value supplied by the configure
+ * script, unless we think we're being run from the build directory,
+ * in which case we use the "py_dissector" subdirectory of the datafile directory.
+ *
+ * In both cases, we then use the subdirectory of that directory whose
+ * name is the version number.
+ *
+ * XXX - if we think we're being run from the build directory, perhaps we
+ * should have the plugin code not look in the version subdirectory
+ * of the plugin directory, but look in all of the subdirectories
+ * of the plugin directory, so it can just fetch the plugins built
+ * as part of the build process.
+ */
+static const char *wspython_dir = NULL;
+
+static void
+init_wspython_dir(void)
+{
+#ifdef _WIN32
+	/*
+	 * On Windows, the data file directory is the installation
+	 * directory; the python dissectors are stored under it.
+	 *
+	 * Assume we're running the installed version of Wireshark;
+	 * on Windows, the data file directory is the directory
+	 * in which the Wireshark binary resides.
+	 */
+        wspython_dir = g_strdup_printf("%s\\python\\%s", get_datafile_dir(),
+                                        VERSION);
+
+	/*
+	 * Make sure that pathname refers to a directory.
+	 */
+	if (test_for_directory(wspython_dir) != EISDIR) {
+		/*
+		 * Either it doesn't refer to a directory or it
+		 * refers to something that doesn't exist.
+		 *
+		 * Assume that means we're running a version of
+		 * Wireshark we've built in a build directory,
+		 * in which case {datafile dir}\python is the
+		 * top-level plugins source directory, and use
+		 * that directory and set the "we're running in
+		 * a build directory" flag, so the plugin
+		 * scanner will check all subdirectories of that
+		 * directory for python dissectors.
+		 */
+		g_free( (gpointer) wspython_dir);
+		wspython_dir = g_strdup_printf("%s\\python", get_datafile_dir());
+		running_in_build_directory_flag = TRUE;
+	}
+#else
+	if (running_in_build_directory_flag) {
+		/*
+		 * We're (probably) being run from the build directory and
+		 * weren't started with special privileges, so we'll use
+		 * the "python" subdirectory of the datafile directory
+		 * (the datafile directory is the build directory).
+		 */
+		wspython_dir = g_strdup_printf("%s/epan/wspython/", get_datafile_dir());
+	} else {
+		if (getenv("WIRESHARK_PYTHON_DIR") && !started_with_special_privs()) {
+			/*
+			 * The user specified a different directory for plugins
+			 * and we aren't running with special privileges.
+			 */
+			wspython_dir = g_strdup(getenv("WIRESHARK_PYTHON_DIR"));
+		} else {
+			wspython_dir = PYTHON_DIR;
+		}
+	}
+#endif
+}
+#endif /* HAVE_PYTHON */
+
+/*
+ * Get the directory in which the python dissectors are stored.
+ */
+const char *
+get_wspython_dir(void)
+{
+#ifdef HAVE_PYTHON
+	if (!wspython_dir) init_wspython_dir();
+	return wspython_dir;
+#else
+	return NULL;
+#endif
+}
+
+
 #ifdef HAVE_PLUGINS
 /*
  * Find the directory where the plugins are stored.

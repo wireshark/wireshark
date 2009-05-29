@@ -34,10 +34,21 @@ wslua_dir =
 wslua_dist_dir = wslua
 endif           # HAVE_LIBLUA
 
+if HAVE_LIBPY
+wspython_lib = wspython/libwspython.la
+wspython_dir = wspython
+wspython_dist_dir =
+py_dissectors_dir = -DPYTHON_DIR=\"@pythondir@\"
+else
+wspython_lib =
+wspython_dir =
+wspython_dist_dir = wspython
+py_dissectors_dir = -DPYTHONDIR=
+endif
 
-SUBDIRS = crc crypt ftypes dfilter dissectors $(wslua_dir)
+SUBDIRS = crc crypt ftypes dfilter dissectors $(wslua_dir) $(wspython_dir)
 
-DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
+DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir) $(wspython_dist_dir)
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
@@ -63,7 +74,7 @@ endif
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)	\
 	$(LIBWIRESHARK_INCLUDES)
-libwireshark_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
+libwireshark_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS) $(py_dissectors_dir)
 
 libwireshark_generated_la_SOURCES = \
 	$(LIBWIRESHARK_GENERATED_SRC) \
@@ -127,7 +138,7 @@ libwireshark_la_LIBADD = \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
 	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
+	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
 	${top_builddir}/wsutil/libwsutil.la -lm
@@ -136,7 +147,7 @@ libwireshark_la_DEPENDENCIES = \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
 	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la $(wslua_lib) \
+	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) \
 	${top_builddir}/wsutil/libwsutil.la
 
 #EXTRA_PROGRAMS = reassemble_test
