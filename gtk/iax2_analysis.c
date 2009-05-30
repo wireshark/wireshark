@@ -2125,7 +2125,9 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					    NULL);
+#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
+#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Build our "extra widget" to be added to the file chooser widget */
@@ -2718,7 +2720,9 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					    NULL);
+#if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
+#endif
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
