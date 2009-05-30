@@ -17,15 +17,15 @@ class homeplug(Dissector):
     self.dissect_melen()
 
   def dissect_mctrl(self):
-    self.hf = self.fields()
-    self.subt = self.subtrees()
-    self.c_tree = self.tree()
+    self.subt = self.subtrees
+    self.c_tree = self.tree
     try:
       tree = self.c_tree.add_item(self.hf.homeplug_mctrl, length=1, adv=False)
       mctrl_tree = tree.add_subtree(self.subt.mctrl)
 
       mctrl_tree.add_item(self.hf.homeplug_mctrl_rsvd, length=1, adv=False)
       mctrl_tree.add_item(self.hf.homeplug_mctrl_ne, length=1)
+      #item = self.libhandle.proto_tree_add_text(mctrl_tree.raw_tree, self.raw_tvb, 0, 1, "test") => example using libhandle
     except Exception, e:
       print e
 
@@ -63,7 +63,7 @@ def register_protocol():
   #
   # Register Protocol Fields
   #
-  hf = tp.fields()
+  hf = tp.hf
   # MAC Control Field
   hf.add("Mac Control Field", "homeplug.mctrl", FT_NONE, BASE_NONE)
   hf.add("Reserved", "homeplug.mctrl.rsvd", FT_UINT8, bitmask=HOMEPLUG_MCTRL_RSVD)
@@ -83,7 +83,7 @@ def register_protocol():
   #
   # Register Subtrees
   #
-  subt = tp.subtrees()
+  subt = tp.subtrees
   #subt.add("homeplug") => we let Dissector output the main tree of this protocol
   subt.add("mctrl")
   subt.add("mehdr")

@@ -174,23 +174,59 @@ class Dissector(object):
     self.__hf = None
     self.__subtree = None
 
-  def fields(self):
+  def _fields(self):
+    '''hf property : hf_register_info fields. every defined field is available
+    as an attribute of this object'''
     if not self.__hf:
       self.__hf = register_info(self.__wsl)
     return self.__hf
+  hf = property(_fields)
 
-  def subtrees(self):
+  def _subtrees(self):
+    '''subtrees property : subtress definition. every subtree added is
+    accessible as an attribute of this object'''
     if not self.__subtree:
       self.__subtree = Subtree(self.__wsl, self.__short)
     return self.__subtree
+  subtrees = property(_subtrees)
 
-  def tree(self):
+  def _tree(self):
+    '''tree property : initial tree at the start of the dissection'''
     if not self.__Tree:
       self.__Tree = Tree(self.__tree, self)
     return self.__Tree
+  tree = property(_tree)
 
   def display(self):
     print self.__short
+
+  def _libhandle(self):
+    '''libhandle property : return a handle to the libwireshark lib. You don't
+    want to use this in normal situation. Use it only if you know what you're
+    doing.'''
+    return self.__wsl
+  libhandle = property(_libhandle)
+
+  def _raw_tree(self):
+    '''raw_tree property : returns the raw tree pointer. You can use this with
+    libhandle. You don't want to use this in normal situation. Use it only if
+    you know what you're doing.'''
+    return self.__tree
+  raw_tree = property(_raw_tree)
+
+  def _raw_pinfo(self):
+    '''raw_pinfo property : return the raw pinfo pointer. You can use this with
+    libhandle. You don't want to use this in normal situation. Use it only if
+    you know what you're doing.'''
+    return self.__pinfo
+  raw_pinfo = property(_raw_pinfo)
+
+  def _raw_tvb(self):
+    '''raw_tvb property : returns the raw tvb pointer. You can use this with
+    libhandle. You don't want to use this in normal situation. Use it only if
+    you know what you're doing.'''
+    return self.__tvb
+  raw_tvb = property(_raw_tvb)
 
   def __str__(self):
     # STA TODO : keep with short_desc because used in the hash table of
@@ -207,6 +243,8 @@ class Dissector(object):
     return self.__protocol
 
   def register_protocol(self):
+    '''private function called by libwireshark when registering all
+    protocols'''
     self.__protocol = \
       self.__wsl.proto_register_protocol( \
         self.__protocol_name, self.__short_desc, \
@@ -216,37 +254,48 @@ class Dissector(object):
     self.__subtree.register()
 
   def dissect(self):
+    '''point of entry when starting dissecting a packet. This method must be
+    therefore overloaded by the object implementing the dissector of a specific
+    protocol.'''
     pass
 
   def pre_dissect(self):
+    '''private method executed right before dissect in order to retrieve some
+    internal information and enabling the possibility to add the base tree of
+    this protocol dissection to the tree without any user intervention'''
     self.__tvb = self.__wsl.py_tvbuff()
     self.__pinfo = self.__wsl.py_pinfo()
     self.__tree = self.__wsl.py_tree()
 
     #self.__wsl.print_current_proto(py_object(pinfo))
-    subt = self.subtrees()
+    subt = self.subtrees
     try:
       if not subt.has_user_defined_protocol_tree():
-        tree = self.tree()
-        p_tree = tree.add_item(self.protocol())
+        p_tree = self.tree.add_item(self.protocol())
         self.__Tree = p_tree.add_subtree(subt.homeplug)
     except:
       print e
     self.dissect()
 
   def protocol_ids(self):
+    '''defined a list of tuples containing three values. Each tuple is defining
+    the parameters of dissector_add(). This function MUST be defined when
+    implementing the dissector of a specific protocol.'''
     return [ (None, 0, None) ]
 
   def create_dissector_handle(self, protocol=None):
+    '''create_dissector_handle : see proto.h'''
     gdissector = self.__wsl.py_generic_dissector()
     if not protocol:
       protocol = self.__protocol
     return self.__wsl.create_dissector_handle(gdissector, protocol)
 
   def find_dissector(self, protocol):
+    '''find_dissector : see proto.h'''
     return self.__wsl.find_dissector(protocol)
 
   def register_handoff(self):
+    '''private method used during the registration of protocol dissectors'''
     #TODO STA : think how we would use dissector_add in an easy way *and* with
     #the possibility to add the same dissector for TCP and UDP (extend
     #py_generic_dissector)
@@ -268,16 +317,14 @@ class Dissector(object):
       raise
 
   def advance(self, step):
+    '''method used to change the value of the offset'''
     self.__offset += step
 
-  def offset(self):
+  def _offset(self):
+    '''offset property : if is the current offset computed from the
+    dissection.'''
     return self.__offset
-
-  def _wsl(self):
-    return self.__wsl
-
-  def _tvb(self):
-    return self.__tvb
+  offset = property(_offset)
 
 #Tree class implementation
 #see proto.h
@@ -285,14 +332,18 @@ class Tree(object):
   def __init__(self, tree, dissector):
     self.__dissector = dissector
     self.__tree = tree
-    self.__wsl = dissector._wsl()
-    self.__tvb = dissector._tvb()
+    self.__wsl = dissector.libhandle
+    self.__tvb = dissector.raw_tvb
+
+  def _raw_tree(self):
+    return self.__tree
+  raw_tree = property(_raw_tree)
 
   def add_item(self, field, offset=0, length=-1, little_endian=False, adv=True):
     '''add an item to the tree'''
     try:
       tree = self.__wsl.proto_tree_add_item(self.__tree, \
-        field, self.__tvb, self.__dissector.offset(), length, \
+        field, self.__tvb, self.__dissector.offset, length, \
         little_endian)
     except Exception, e:
       print e
@@ -304,7 +355,7 @@ class Tree(object):
   def add_uint(self, field, value, offset=0, length=4, adv=True):
     '''add unsigned integer to the tree'''
     try:
-      tree = self.__wsl.proto_tree_add_uint(self.__tree, field, self.__tvb, self.__dissector.offset(), length, value)
+      tree = self.__wsl.proto_tree_add_uint(self.__tree, field, self.__tvb, self.__dissector.offset, length, value)
     except Exception, e:
       print e
     else:
@@ -315,7 +366,7 @@ class Tree(object):
   def add_text(self, string, offset=0, length=-1, adv=True):
     '''add text to the tree'''
     try:
-      tree = self.__wsl.proto_tree_add_text(self.__tree, self.__tvb, self.__dissector.offset(), length, string)
+      tree = self.__wsl.proto_tree_add_text(self.__tree, self.__tvb, self.__dissector.offset, length, string)
     except Exception, e:
       print e
     else:
@@ -345,7 +396,7 @@ class TVB(object):
 
   def length_remaining(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_length_remaining(self.__tvb, offset)
 
   def reported_length(self):
@@ -353,38 +404,38 @@ class TVB(object):
 
   def reported_length_remaining(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_length_remaining(self.__tvb, offset)
 
   def get_guint8(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_guint8(self.__tvb)
 
   def get_ntohs(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_ntohs(self.__tvb, offset)
 
   def get_ntohl(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_ntohl(self.__tvb, offset)
 
   def get_letohl(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_letohl(self.__tvb, offset)
 
   def get_letohs(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_letohs(self.__tvb, offset)
 
   #STA TODO : check that we can do that
   def get_ptr(self, offset=-1):
     if offset < 0:
-      offset = self.__dissector.offset()
+      offset = self.__dissector.offset
     return self.__wsl.tvb_get_ptr(self.__tvb, offset)
 
   #how to get this working ??? check how application uses this!

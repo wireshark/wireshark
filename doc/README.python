@@ -1,0 +1,299 @@
+Help on module wspy_dissector:
+
+NAME
+    wspy_dissector
+
+FILE
+    /Users/standel/xcode/wireshark/wireshark.git/epan/wspython/wspy_dissector.py
+
+DESCRIPTION
+    # wspy_dissector.py
+    #
+    # $Id: $
+    #
+    # Wireshark Protocol Python Binding
+    #
+    # Copyright (c) 2009 by Sebastien Tandel <sebastien [AT] tandel [dot] be>
+    # Copyright (c) 2001 by Gerald Combs <gerald@wireshark.org>
+    #
+    # This program is free software; you can redistribute it and/or
+    # modify it under the terms of the GNU General Public License
+    # as published by the Free Software Foundation; either version 2
+    # of the License, or (at your option) any later version.
+    #
+    # This program is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    #
+    # You should have received a copy of the GNU General Public License
+    # along with this program; if not, write to the Free Software
+    # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+CLASSES
+    __builtin__.object
+        Dissector
+        Subtree
+        TVB
+        Tree
+        register_info
+    
+    class Dissector(__builtin__.object)
+     |  #Dissector class : base class to write a dissector in python
+     |  
+     |  Methods defined here:
+     |  
+     |  __hash__(self)
+     |  
+     |  __init__(self, protocol_name, short_desc, short)
+     |  
+     |  __str__(self)
+     |  
+     |  __unicode__(self)
+     |  
+     |  advance(self, step)
+     |      method used to change the value of the offset
+     |  
+     |  create_dissector_handle(self, protocol=None)
+     |      create_dissector_handle : see proto.h
+     |  
+     |  display(self)
+     |  
+     |  dissect(self)
+     |      point of entry when starting dissecting a packet. This method must be
+     |      therefore overloaded by the object implementing the dissector of a specific
+     |      protocol.
+     |  
+     |  find_dissector(self, protocol)
+     |      find_dissector : see proto.h
+     |  
+     |  pre_dissect(self)
+     |      private method executed right before dissect in order to retrieve some
+     |      internal information and enabling the possibility to add the base tree of
+     |      this protocol dissection to the tree without any user intervention
+     |  
+     |  protocol(self)
+     |  
+     |  protocol_ids(self)
+     |      defined a list of tuples containing three values. Each tuple is defining
+     |      the parameters of dissector_add(). This function MUST be defined when
+     |      implementing the dissector of a specific protocol.
+     |  
+     |  register_handoff(self)
+     |      private method used during the registration of protocol dissectors
+     |  
+     |  register_protocol(self)
+     |      private function called by libwireshark when registering all
+     |      protocols
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  hf
+     |      hf property : hf_register_info fields. every defined field is available
+     |      as an attribute of this object
+     |  
+     |  libhandle
+     |      libhandle property : return a handle to the libwireshark lib. You don't
+     |      want to use this in normal situation. Use it only if you know what you're
+     |      doing.
+     |  
+     |  offset
+     |      offset property : if is the current offset computed from the
+     |      dissection.
+     |  
+     |  raw_pinfo
+     |      raw_pinfo property : return the raw pinfo pointer. You can use this with
+     |      libhandle. You don't want to use this in normal situation. Use it only if
+     |      you know what you're doing.
+     |  
+     |  raw_tree
+     |      raw_tree property : returns the raw tree pointer. You can use this with
+     |      libhandle. You don't want to use this in normal situation. Use it only if
+     |      you know what you're doing.
+     |  
+     |  raw_tvb
+     |      raw_tvb property : returns the raw tvb pointer. You can use this with
+     |      libhandle. You don't want to use this in normal situation. Use it only if
+     |      you know what you're doing.
+     |  
+     |  subtrees
+     |      subtrees property : subtress definition. every subtree added is
+     |      accessible as an attribute of this object
+     |  
+     |  tree
+     |      tree property : initial tree at the start of the dissection
+    
+    class Subtree(__builtin__.object)
+     |  #Subtrees definition
+     |  #Every subtree added can be accesses as an attribute after having been
+     |  #registered
+     |  
+     |  Methods defined here:
+     |  
+     |  __getattr__(self, name)
+     |  
+     |  __init__(self, wsl, protocol)
+     |  
+     |  add(self, name)
+     |  
+     |  has_user_defined_protocol_tree(self)
+     |  
+     |  register(self)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+    
+    class TVB(__builtin__.object)
+     |  #tvb class implementation
+     |  #see proto.h
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, wsl, tvb, dissector)
+     |  
+     |  get_guint8(self, offset=-1)
+     |  
+     |  get_letohl(self, offset=-1)
+     |  
+     |  get_letohs(self, offset=-1)
+     |  
+     |  get_ntohl(self, offset=-1)
+     |  
+     |  get_ntohs(self, offset=-1)
+     |  
+     |  get_ptr(self, offset=-1)
+     |      #STA TODO : check that we can do that
+     |  
+     |  length(self)
+     |  
+     |  length_remaining(self, offset=-1)
+     |  
+     |  reported_length(self)
+     |  
+     |  reported_length_remaining(self, offset=-1)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+    
+    class Tree(__builtin__.object)
+     |  #Tree class implementation
+     |  #see proto.h
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, tree, dissector)
+     |  
+     |  add_item(self, field, offset=0, length=-1, little_endian=False, adv=True)
+     |      add an item to the tree
+     |  
+     |  add_subtree(self, subtree)
+     |      add a subtree to the tree
+     |  
+     |  add_text(self, string, offset=0, length=-1, adv=True)
+     |      add text to the tree
+     |  
+     |  add_uint(self, field, value, offset=0, length=4, adv=True)
+     |      add unsigned integer to the tree
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  raw_tree
+    
+    class register_info(__builtin__.object)
+     |  # hf_register_info from usual dissectors
+     |  
+     |  Methods defined here:
+     |  
+     |  __del__(self)
+     |  
+     |  __init__(self, wsl)
+     |  
+     |  add(self, name, short_desc, type=6, display=1, strings=None, bitmask=0, desc=None)
+     |  
+     |  display(self)
+     |  
+     |  get(self)
+     |  
+     |  register(self, protocol)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+
+FUNCTIONS
+    POINTER(...)
+    
+    pointer(...)
+
+DATA
+    BASE_CUSTOM = 6
+    BASE_DEC = 1
+    BASE_DEC_HEX = 4
+    BASE_HEX = 2
+    BASE_HEX_DEC = 5
+    BASE_NONE = 0
+    BASE_OCT = 3
+    FT_ABSOLUTE_TIME = 15
+    FT_BOOLEAN = 2
+    FT_BYTES = 22
+    FT_DOUBLE = 14
+    FT_EBCDIC = 19
+    FT_ETHER = 21
+    FT_FLOAT = 13
+    FT_FRAMENUM = 27
+    FT_GUID = 29
+    FT_INT16 = 9
+    FT_INT24 = 10
+    FT_INT32 = 11
+    FT_INT64 = 12
+    FT_INT8 = 8
+    FT_IPXNET = 26
+    FT_IPv4 = 24
+    FT_IPv6 = 25
+    FT_NONE = 0
+    FT_OID = 30
+    FT_PCRE = 28
+    FT_PROTOCOL = 1
+    FT_RELATIVE_TIME = 16
+    FT_STRING = 17
+    FT_STRINGZ = 18
+    FT_UINT16 = 4
+    FT_UINT24 = 5
+    FT_UINT32 = 6
+    FT_UINT64 = 7
+    FT_UINT8 = 3
+    FT_UINT_BYTES = 23
+    FT_UINT_STRING = 20
+
+
