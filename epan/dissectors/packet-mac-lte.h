@@ -109,13 +109,13 @@ typedef struct mac_lte_tap_info {
 /* Several people have asked about dissecting MAC by framing     */
 /* PDUs over IP.  A suggested format over UDP has been           */
 /* and implemented by this dissector, using the definitions      */
-/* below. An example program showing you how to encode this      */
-/* header and send LTE MAC PDUs on a UDP socket is available     */
-/* from http://wiki.wireshark.org/MAC-LTE                        */
+/* below. A link to an example program showing you how to encode */
+/* these headers and send LTE MAC PDUs on a UDP socket is        */
+/* provided at http://wiki.wireshark.org/MAC-LTE                 */
 /*                                                               */
-/* A heuristic dissected (enabled by a preference) will          */
+/* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames   .    */
-/* Until someone is using this format, suggestions for chage     */
+/* Until someone is using this format, suggestions for changes   */
 /* are welcome.                                                  */
 /*****************************************************************/
 
