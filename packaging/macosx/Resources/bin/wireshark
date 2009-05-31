@@ -32,6 +32,7 @@ export DYLD_LIBRARY_PATH="$TOP/lib"
 
 export WIRESHARK_DATA_DIR="$TOP/share/wireshark"
 export WIRESHARK_PLUGIN_DIR="$TOP/lib/wireshark/plugins"
+export WIRESHARK_PYTHON_DIR="$TOP/lib/wireshark/python"
 
 if [ "$APPNAME" == "wireshark" ] ; then # Apply GUI settings
 	# For Panther and Tiger, override the default fontconfig configuration

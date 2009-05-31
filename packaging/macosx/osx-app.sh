@@ -182,10 +182,12 @@ pkgres="$package/Contents/Resources"
 pkgbin="$pkgres/bin"
 pkglib="$pkgres/lib"
 pkgplugin="$pkglib/wireshark/plugins"
+pkgpython="$pkglib/wireshark/python"
 
 mkdir -p "$pkgexec"
 mkdir -p "$pkgbin"
 mkdir -p "$pkgplugin"
+mkdir -p "$pkgpython"
 
 mkdir -p "$cli_dir"
 
@@ -232,11 +234,16 @@ cp -v ChmodBPF/* "$chmodbpf_dir"
 rsync -av \
 	--exclude bin/ \
 	--exclude lib/wireshark/plugins/ \
+	--exclude lib/wireshark/python/ \
 	"$binary_path/.."/* "$pkgres"
 
 # Remove the version number from the plugin path
 find "$binary_path/../lib/wireshark/plugins" -type f \
 	-exec cp -fv "{}" "$pkgplugin/" \;
+
+# Remove the version number from the python path
+find "$binary_path/../lib/wireshark/python" -type f \
+	-exec cp -fv "{}" "$pkgpython/" \;
 
 cp "$plist" "$package/Contents/Info.plist"
 
