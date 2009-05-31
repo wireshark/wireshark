@@ -475,7 +475,7 @@ dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS)
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(PY_CFLAGS)
 
 #
 # Build the version string
