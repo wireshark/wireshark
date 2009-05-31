@@ -1,6 +1,6 @@
 /* packetlogger.c
  * Routines for opening Apple's (Bluetooth) PacketLogger file format captures
- * Copyright 2008-2009, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

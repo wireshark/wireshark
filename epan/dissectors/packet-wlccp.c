@@ -2,7 +2,7 @@
  * Routines for Cisco Wireless LAN Context Control Protocol dissection
  *
  * Copyright 2005, Joerg Mayer (see AUTHORS file)
- * Copyright 2006, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2006, Stephen Fisher (see AUTHORS file)
  * Copyright 2007, Kevin A. Noll <maillistnoll@earthlink.net>
  *
  * $Id$

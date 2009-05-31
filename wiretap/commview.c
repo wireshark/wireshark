@@ -1,6 +1,6 @@
 /* commview.c
  * Routines for opening CommView file format packet captures
- * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

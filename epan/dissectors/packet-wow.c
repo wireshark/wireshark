@@ -1,6 +1,6 @@
 /* packet-wow.c
  * Routines for World of Warcraft (WoW) protocol dissection
- * Copyright 2008-2009, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

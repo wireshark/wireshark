@@ -1,6 +1,6 @@
 /* export_object.h
  * Common routines for tracking & saving objects found in streams of data
- * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  * 

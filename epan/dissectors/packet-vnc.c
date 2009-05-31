@@ -1,7 +1,7 @@
 /* packet-vnc.c
  * Routines for VNC dissection (Virtual Network Computing)
  * Copyright 2005, Ulf Lamping <ulf.lamping@web.de>
- * Copyright 2006-2007, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2006-2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

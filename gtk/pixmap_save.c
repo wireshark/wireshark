@@ -1,6 +1,6 @@
 /* pixmap_save.c
  * Routines for saving pixmaps using the Gdk-Pixmap library
- * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

@@ -1,6 +1,6 @@
 /* packet-newmail.c
  * Routines for Exchange New Mail Notification dissection
- * Copyright 2006, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2006, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

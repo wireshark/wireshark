@@ -1,6 +1,6 @@
 /* packet-daytime.c
  * Routines for Daytime Protocol (RFC 867) packet dissection
- * Copyright 2006, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2006, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

@@ -1,6 +1,6 @@
 /* packet-llt.c
  * Routines for Veritas Low Latency Transport (LLT) dissection
- * Copyright 2006, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2006, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *

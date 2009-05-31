@@ -1,7 +1,7 @@
 /* export_object_http.c
  * Routines for tracking & saving objects found in HTTP streams
  * See also: export_object.c / export_object.h for common code
- * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  * 
