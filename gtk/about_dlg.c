@@ -431,6 +431,12 @@ about_folders_page_new(void)
       "dissector plugins");
 #endif
 
+#ifdef HAVE_PYTHON
+  /* global python bindings */
+  about_folders_row(table, "Python Bindings", get_wspython_dir(),
+      "python bindings");
+#endif
+
 #ifdef HAVE_GEOIP
   /* GeoIP */
   path = geoip_db_get_paths();
