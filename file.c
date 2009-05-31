@@ -1057,8 +1057,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         fdata->col_expr.col_expr[i] = g_strdup(cf->cinfo.col_expr.col_expr[i]);
         fdata->col_expr.col_expr_val[i] = g_strdup(cf->cinfo.col_expr.col_expr_val[i]);
       }
-      fdata->col_expr.col_expr[i] = NULL;
-      fdata->col_expr.col_expr_val[i] = NULL;
     }
 #endif
     row = packet_list_append(cf->cinfo.col_data, fdata);
