@@ -465,9 +465,9 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			clock_rate = 1;
 	}
 
-	/* store the current time and calculate the current jitter */
-	current_time = nstime_to_sec(&pinfo->fd->rel_ts);
-	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate);
+	/* Store the current time and calculate the current jitter(in ms) */
+	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
+	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/(clock_rate*1000));
 	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
 	statinfo->delta = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
@@ -477,7 +477,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
-	while ((statinfo->bw_history[statinfo->bw_start_index].time+1)<current_time){
+	while ((statinfo->bw_history[statinfo->bw_start_index].time+1000/* ms */)<current_time){
 	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
 		statinfo->bw_start_index++;
 		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index=0;

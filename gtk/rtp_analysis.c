@@ -592,8 +592,8 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	else {
 		add_to_list(list, user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
-			statinfo->delta*1000,
-			statinfo->jitter*1000,
+			statinfo->delta,
+			statinfo->jitter,
 			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
@@ -2826,21 +2826,21 @@ static void draw_stat(user_data_t *user_data)
                 r_perc = 0;
         }
 
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
-		user_data->forward.statinfo.total_nr,
-		f_expected, f_lost, f_perc, user_data->forward.statinfo.sequence);
+		user_data->forward.statinfo.total_nr, f_expected, f_lost, f_perc, 
+		user_data->forward.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
-		user_data->reversed.statinfo.total_nr,
-		r_expected, r_lost, r_perc, user_data->reversed.statinfo.sequence);
+		user_data->reversed.statinfo.total_nr, r_expected, r_lost, r_perc, 
+		user_data->reversed.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
 

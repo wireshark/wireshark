@@ -120,9 +120,9 @@ rtp_streams_stat_draw(void *arg _U_)
 	    payload_type,
 	    strinfo->npackets,
 	    lost, perc,
-	    strinfo->rtp_stats.max_delta*1000,
-	    strinfo->rtp_stats.max_jitter*1000,
-	    strinfo->rtp_stats.mean_jitter*1000,
+	    strinfo->rtp_stats.max_delta,
+	    strinfo->rtp_stats.max_jitter,
+	    strinfo->rtp_stats.mean_jitter,
 	    (strinfo->problem)?"X":"");
         
 	list = g_list_next(list);
