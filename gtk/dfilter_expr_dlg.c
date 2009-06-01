@@ -732,6 +732,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
                           item_str);
         }
         g_free(range_str);
+        g_free(item_str);
         return;
     }
 
@@ -752,6 +753,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
                           "compare it.");
             g_free(range_str);
             g_free(value_str);
+            g_free(item_str);
             return;
         }
 
@@ -779,6 +781,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
              */
             g_free(range_str);
             g_free(value_str);
+            g_free(item_str);
             return;
         }
         FVALUE_FREE(fvalue);
