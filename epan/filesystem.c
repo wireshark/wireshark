@@ -675,7 +675,7 @@ get_datafile_dir(void)
  *
  * On Windows, we use the "py_dissector" subdirectory of the datafile directory.
  *
- * On UN*X, we use the PLUGIN_DIR value supplied by the configure
+ * On UN*X, we use the PYTHON_DIR value supplied by the configure
  * script, unless we think we're being run from the build directory,
  * in which case we use the "py_dissector" subdirectory of the datafile directory.
  *
