@@ -50,6 +50,7 @@
 #include "../register.h"
 #include "../color.h"
 #include "../simple_dialog.h"
+#include "../alert_box.h"
 #include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
@@ -277,6 +278,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 	of = ws_fopen(user_data->dlg.save_file,"w");
 	if (of==NULL){
+		open_failure_alert_box(user_data->dlg.save_file, errno, TRUE);
 		return FALSE;
 	}
 
@@ -319,7 +321,8 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	display_items = current_item;
 
 	/* if not items to display */
-	if (display_items == 0)	goto exit;
+	if (display_items == 0)
+		goto exit;
 
 	display_nodes = user_data->num_nodes;
 
@@ -488,7 +491,7 @@ static void save_to_file_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 /* first an auxiliary function in case we need an overwrite confirmation dialog */
 
-static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer user_data _U_)
+static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer user_data)
 {
 	graph_analysis_data_t *user_data_p;
 
@@ -508,64 +511,77 @@ static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer u
 
 /* and then the save in a file dialog itself */
 
-static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
+static gboolean save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data)
 {
 	FILE *file_test;
-	gpointer dialog;
 	graph_analysis_data_t *user_data_p;
 
 	user_data_p = user_data;
 
-	user_data_p->dlg.save_file = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_to_file_w)));
+	user_data_p->dlg.save_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_to_file_w));
 
 	/* Perhaps the user specified a directory instead of a file.
-	Check whether they did. */
+	   Check whether they did. */
 	if (test_for_directory(user_data_p->dlg.save_file) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(user_data_p->dlg.save_file);
-		g_free(user_data_p->dlg.save_file);
 		file_selection_set_current_folder(save_to_file_w, get_last_open_dir());
-		return;
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_to_file_w), "");
+		g_free(user_data_p->dlg.save_file);
+		return FALSE;  /* run the dialog again */
 	}
 
-
+	/* GtkFileChooserDialog/gtk_dialog_run is currently being used.         */
+	/*      So: Trying to leave the graph_analysis window up if graph_dump  */
+	/*          fails doesn't work well.                                    */
+	/*  (See comment under on_save_bt_clicked)                              */
+	/*                                                                      */
+	/* As a work-around:                                                    */
+	/*  We'll always destroy the window.                                    */
+       
 	/* check whether the file exists */
 	file_test = ws_fopen(user_data_p->dlg.save_file,"r");
 	if (file_test!=NULL){
-
+		gpointer dialog;
 		dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
 		  "%sFile: \"%s\" already exists!%s\n\n"
 		  "Do you want to overwrite it?",
 		  simple_dialog_primary_start(),user_data_p->dlg.save_file, simple_dialog_primary_end());
 		simple_dialog_set_cb(dialog, overwrite_existing_file_cb, user_data);
 		fclose(file_test);
+		return TRUE;
 	}
 
 	else{
-		if (!dialog_graph_dump_to_file(user_data))
-			return;
+		if (!dialog_graph_dump_to_file(user_data)) {
+			/* Couldn't open the file ?  */
+			g_free(user_data_p->dlg.save_file);
+			return TRUE;
+		}
 	}
-	window_destroy(GTK_WIDGET(save_to_file_w));
-
+	g_free(user_data_p->dlg.save_file);
+	return TRUE;
 }
 
 /****************************************************************************/
 static void
 on_save_bt_clicked                    (GtkWidget       *button _U_,
-                                        graph_analysis_data_t *user_data _U_)
+                                        graph_analysis_data_t *user_data)
 {
-
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (save_to_file_w != NULL) {
 		/* There's already a Save to file dialog box; reactivate it. */
 		reactivate_window(save_to_file_w);
 		return;
 	}
-
-	save_to_file_w = gtk_file_chooser_dialog_new("Wireshark: Save graph to plain text file", GTK_WINDOW(user_data->dlg.window), GTK_FILE_CHOOSER_ACTION_SAVE,
-                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                    NULL);
-
+#endif
+	save_to_file_w = 
+		gtk_file_chooser_dialog_new("Wireshark: Save graph to plain text file",
+					    GTK_WINDOW(user_data->dlg.window),
+					    GTK_FILE_CHOOSER_ACTION_SAVE,
+					    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+					    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					    NULL);
 
 	g_signal_connect(save_to_file_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb), NULL);
@@ -573,12 +589,25 @@ on_save_bt_clicked                    (GtkWidget       *button _U_,
 	gtk_widget_show(save_to_file_w);
 	window_present(save_to_file_w);
 
-	if (gtk_dialog_run(GTK_DIALOG(save_to_file_w)) == GTK_RESPONSE_ACCEPT){
-		save_to_file_ok_cb(save_to_file_w, user_data);
-	}else{
-		window_destroy(save_to_file_w);
+	/* "Run" the GtkFileChooserDialog.                                              */
+        /* Upon exit: If "Accept" run the OK callback.                                  */
+        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+        /*            Destroy the window.                                               */
+        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+        /*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(save_to_file_w)) == GTK_RESPONSE_ACCEPT) {
+		if (save_to_file_ok_cb(NULL, user_data)) {
+			break;  /* we're done */
+		}
 	}
-
+	window_destroy(save_to_file_w);
 }
 
 /****************************************************************************/
