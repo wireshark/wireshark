@@ -260,7 +260,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     /* (the whole button cluster will then be right aligned) */
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
 
-/* GTK+ 1.3 and later - on Win32, we use 1.3[.x] or 2.x, not 1.2[.x] */
 #if !defined(_WIN32)
     /* beware: sequence of buttons are important! */
 
