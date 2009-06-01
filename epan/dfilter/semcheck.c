@@ -591,7 +591,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 
 static void
 check_relation_LHS_STRING(const char* relation_string,
-		FtypeCanFunc can_func _U_, gboolean allow_partial_value _U_,
+		FtypeCanFunc can_func, gboolean allow_partial_value _U_,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
