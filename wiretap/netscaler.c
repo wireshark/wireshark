@@ -1075,7 +1075,7 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 			return FALSE;    
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += nwritten;
+		wdh->dump.nstr->page_offset += (guint16) nwritten;
 	
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
@@ -1093,7 +1093,7 @@ gboolean nstrace_add_signature(wtap_dumper *wdh)
 			return FALSE;    
 
 		/* Move forward the page offset */
-		wdh->dump.nstr->page_offset += nwritten;
+		wdh->dump.nstr->page_offset += (guint16) nwritten;
 	
 	} else  
 	{
@@ -1225,7 +1225,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				return FALSE;
 			}
 
-			wdh->dump.nstr->page_offset += nwritten;
+			wdh->dump.nstr->page_offset += (guint16) nwritten;
 		} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 		{
 			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
@@ -1274,7 +1274,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 				return FALSE;
 			}
 
-			wdh->dump.nstr->page_offset += nwritten;
+			wdh->dump.nstr->page_offset += (guint16) nwritten;
 		}
 
 		break;
