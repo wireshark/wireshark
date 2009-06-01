@@ -3194,11 +3194,16 @@ find_packet(capture_file *cf,
   if (new_fd != NULL) {
     /* We found a frame.  Find what row it's in. */
     row = packet_list_find_row_from_data(new_fd);
-    if (row == -1)
+    if (row == -1) {
         /* We didn't find a row even though we know that a frame
          * exists that satifies the search criteria. This means that the
          * frame isn't being displayed currently so we can't select it. */
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                      "%sEnd of capture exceeded!%s\n\n"
+                      "The capture file is probably not fully loaded.",
+                      simple_dialog_primary_start(), simple_dialog_primary_end());
         return FALSE;
+    }
 
     /* Select that row, make it the focus row, and make it visible. */
     packet_list_set_selected_row(row);
