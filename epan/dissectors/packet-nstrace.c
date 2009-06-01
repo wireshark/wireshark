@@ -34,8 +34,6 @@
 
 static int proto_nstrace = -1;
 
-static int hf_ns_recoff = -1;
-static int hf_ns_reclen = -1;
 static int hf_ns_nicno = -1;
 static int hf_ns_dir = -1;
 static int hf_ns_pcbdevno = -1;
@@ -89,8 +87,8 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree   *ns_tree = NULL;
 	proto_item   *ti = NULL;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
-	tvbuff_t	*next_tvb_eth_client;
-	guint8 offset;
+	tvbuff_t     *next_tvb_eth_client;
+	guint8        offset;
 
 
 	if ((pnstr->rec_type == NSPR_HEADER_VERSION202)  || (pnstr->rec_type == NSPR_HEADER_VERSION203))
@@ -112,7 +110,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, TRUE);
 		PROTO_ITEM_SET_HIDDEN(ti);
 		if ((pnstr->rec_type != NSPR_HEADER_VERSION201) && 
-			(tvb_get_ntohs(tvb, pnstr->vlantag_offset) != 0))
+		    (tvb_get_ntohs(tvb, pnstr->vlantag_offset) != 0))
 			proto_tree_add_item(ns_tree, hf_ns_vlantag, tvb, pnstr->vlantag_offset, 2, TRUE);			
 	}
   
@@ -130,40 +128,32 @@ proto_register_ns(void)
 {
 	static hf_register_info hf[] = {
 
-		{ &hf_ns_recoff,
-		  { "Record Offset",	"ns.recoff", FT_INT64, BASE_DEC,NULL, 0x0,
-			NULL, HFILL }},
-
-		{ &hf_ns_reclen,
-		  { "Record Length",	"ns.reclen", FT_INT32, BASE_DEC,  NULL, 0x0,
-			NULL, HFILL }},
-
 		{ &hf_ns_nicno,
-		  { "Nic No",		"ns.nicno", FT_UINT8, BASE_DEC,NULL, 0x0,
+		  { "Nic No",		"nstrace.nicno", FT_UINT8, BASE_DEC,NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_coreid,
-		  { "Core Id",		"ns.coreid", FT_UINT16, BASE_DEC,NULL, 0x0,
+		  { "Core Id",		"nstrace.coreid", FT_UINT16, BASE_DEC,NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_dir,
-		  { "Operation",	"ns.dir", FT_UINT8, BASE_HEX,  VALS(ns_dir_vals), 0x0,
+		  { "Operation",	"nstrace.dir", FT_UINT8, BASE_HEX,  VALS(ns_dir_vals), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_pcbdevno,
-		  { "PcbDevNo",		"ns.pdevno", FT_UINT32, BASE_HEX, NULL, 0x0,
+		  { "PcbDevNo",		"nstrace.pdevno", FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_l_pcbdevno,
-		  { "Linked PcbDevNo",	"ns.l_pdevno", FT_UINT32, BASE_HEX, NULL, 0x0,
+		  { "Linked PcbDevNo",	"nstrace.l_pdevno", FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_devno,
-		  { "DevNo",		"ns.devno", FT_UINT32, BASE_HEX, NULL, 0x0,
+		  { "DevNo",		"nstrace.devno", FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ns_vlantag,
-		  { "Vlan",		"ns.vlan", FT_UINT16, BASE_DEC, NULL, 0x0,
+		  { "Vlan",		"nstrace.vlan", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},	
 
 	};
