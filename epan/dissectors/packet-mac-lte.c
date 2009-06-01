@@ -874,8 +874,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_bsr = FALSE;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
-                        (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH");
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) ",
+                        (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
+                        p_mac_lte_info->subframeNumber);
     }
 
     /* Add PDU block header subtree */
