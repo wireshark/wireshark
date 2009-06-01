@@ -438,9 +438,11 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	double current_time;
 	double current_jitter;
 	double current_diff;
+	double expected_time;
 	guint32 clock_rate;
 
 	statinfo->flags = 0;
+
 	/* check payload type */
 	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD)
@@ -467,8 +469,11 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/* Store the current time and calculate the current jitter(in ms) */
 	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
-	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/(clock_rate*1000));
-	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
+	/* Expected time is last arrival time + the timestamp difference divided by the sampling clock( /1000 to get ms) */ 
+	expected_time = statinfo->time + ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/(clock_rate/1000);
+	current_diff = fabs(current_time - expected_time);
+	current_jitter = (15 * statinfo->jitter + current_diff) / 16;
+
 	statinfo->delta = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
 	statinfo->diff = current_diff;

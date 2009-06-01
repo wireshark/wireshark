@@ -2904,10 +2904,12 @@ static void draw_stat(user_data_t *user_data)
                 r_perc = 0;
         }
 
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
+		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
+		user_data->forward.statinfo.max_jitter,user_data->forward.statinfo.mean_jitter,
 		user_data->forward.statinfo.total_nr, f_expected, f_lost, f_perc, 
 		user_data->forward.statinfo.sequence);
 
@@ -2915,8 +2917,10 @@ static void draw_stat(user_data_t *user_data)
 
 	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
+		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
 		"   Sequence errors = %u",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
+		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
 		user_data->reversed.statinfo.total_nr, r_expected, r_lost, r_perc, 
 		user_data->reversed.statinfo.sequence);
 
@@ -3021,7 +3025,7 @@ GtkWidget* create_list(user_data_t* user_data)
                                G_TYPE_UINT,		/* Packet				*/
                                G_TYPE_UINT,		/* Sequence				*/
                                G_TYPE_FLOAT,	/* Delta(ms)			*/
-                               G_TYPE_FLOAT,	/* Jitter(ms)			*/
+                               G_TYPE_FLOAT,	/* Filtered Jitter(ms)  */
                                G_TYPE_FLOAT,	/* IP BW(kbps)			*/
                                G_TYPE_BOOLEAN,  /* Marker				*/
                                G_TYPE_STRING,   /* Status				*/
@@ -3061,12 +3065,12 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, PACKET_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 55);
 
 	/* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
 
-    /* Second column.. Sequence. */
+    /* Sequence. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Sequence", renderer, 
 		"text", SEQUENCE_COLUMN,
@@ -3076,10 +3080,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, SEQUENCE_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Third column.. Delta(ms). */
+    /* Delta(ms). */
     renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Delta(ms)", renderer, 
 		"text", DELTA_COLUMN, 
@@ -3093,12 +3097,12 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, DELTA_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Forth column.. Jitter(ms). */
+    /* Jitter(ms). */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Jitter(ms)", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Filtered Jitter(ms)", renderer, 
 		"text", JITTER_COLUMN, 
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
@@ -3110,10 +3114,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 110);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Fifth column.. IP BW(kbps). */
+    /* IP BW(kbps). */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("IP BW(kbps)", renderer, 
 		"text", IPBW_COLUMN, 
@@ -3127,10 +3131,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, IPBW_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Sixth column.. Marker. */
+    /* Marker. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Marker", renderer, 
 		"text", MARKER_COLUMN, 
@@ -3144,10 +3148,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, MARKER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 75);
+    gtk_tree_view_column_set_min_width(column, 60);
     gtk_tree_view_append_column (list_view, column);
 
-	 /* Seventh column.. Status. */
+	 /* Status. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ( "Status", renderer, 
 		"text", STATUS_COLUMN,
