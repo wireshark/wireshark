@@ -674,6 +674,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 		    i == PERCENT_COLUMN || i == PROTECTION_COLUMN) {
 			gtk_tree_model_get(model, iter, i, &table_text, -1);
 			g_string_append(CSV_str, table_text);
+                        g_free(table_text);
 		} else {
 			gtk_tree_model_get(model, iter, i, &table_value, -1);
 			g_string_append_printf(CSV_str, "%u", table_value);
