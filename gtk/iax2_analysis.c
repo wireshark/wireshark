@@ -434,17 +434,17 @@ static void iax2_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
-                         double delta, double jitter, double bandwidth, gchar *status, 
-                         gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
+			double delta, double jitter, double bandwidth, gchar *status, 
+			gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
 
 static int iax2_packet_add_info(GtkWidget *list,user_data_t * user_data,
 	tap_iax2_stat_t *statinfo, packet_info *pinfo,
 	const struct _iax2_info_t *iax2info);
 
 static int iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
-                                   tap_iax2_stat_t *statinfo,
-                                   packet_info *pinfo,
-                                   const struct _iax2_info_t *iax2info);
+				    tap_iax2_stat_t *statinfo,
+				    packet_info *pinfo,
+				    const struct _iax2_info_t *iax2info);
 
 
 /****************************************************************************/
@@ -509,8 +509,8 @@ static int iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *
 /****************************************************************************/
 
 int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
-                              packet_info *pinfo,
-                              const struct _iax2_info_t *iax2info)
+			packet_info *pinfo,
+			const struct _iax2_info_t *iax2info)
 {
 	double current_time;
 	double current_jitter;
@@ -692,9 +692,9 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 #define MAX_SILENCE_TICKS 1000000
 /****************************************************************************/
 static int iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
-                                   tap_iax2_stat_t *statinfo,
-                                   packet_info *pinfo,
-                                   const struct _iax2_info_t *iax2info)
+				    tap_iax2_stat_t *statinfo,
+				    packet_info *pinfo,
+				    const struct _iax2_info_t *iax2info)
 {
 	const guint8 *data;
 	size_t nchars;
@@ -787,9 +787,9 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 
 /****************************************************************************/
 static void on_notebook_switch_page(GtkNotebook *notebook _U_,
-                                    GtkNotebookPage *page _U_,
-                                    gint page_num _U_,
-                                    user_data_t *user_data _U_)
+				    GtkNotebookPage *page _U_,
+				    gint page_num _U_,
+				    user_data_t *user_data _U_)
 {
 	user_data->dlg.selected_list =
 		(page_num==0) ? user_data->dlg.list_fwd : user_data->dlg.list_rev ;
@@ -888,19 +888,19 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 /****************************************************************************/
 static void dialog_graph_set_title(user_data_t* user_data)
 {
-	char            *title;
+	char	*title;
 	if (!user_data->dlg.dialog_graph.window){
 		return;
 	}
 	title = g_strdup_printf("IAX2 Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			get_addr_name(&(user_data->ip_src_fwd)),
-			user_data->port_src_fwd,
-			get_addr_name(&(user_data->ip_dst_fwd)),
-			user_data->port_dst_fwd,
-			get_addr_name(&(user_data->ip_src_rev)),
-			user_data->port_src_rev,
-			get_addr_name(&(user_data->ip_dst_rev)),
-			user_data->port_dst_rev);
+				get_addr_name(&(user_data->ip_src_fwd)),
+				user_data->port_src_fwd,
+				get_addr_name(&(user_data->ip_dst_fwd)),
+				user_data->port_dst_fwd,
+				get_addr_name(&(user_data->ip_src_rev)),
+				user_data->port_src_rev,
+				get_addr_name(&(user_data->ip_dst_rev)),
+				user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
 	g_free(title);
@@ -1441,22 +1441,22 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 /****************************************************************************/
 static gint scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
-        user_data_t *user_data=(user_data_t *)data;
-        guint32 mi;
+	user_data_t *user_data=(user_data_t *)data;
+	guint32 mi;
 
-        mi=(guint32) (user_data->dlg.dialog_graph.scrollbar_adjustment->value+user_data->dlg.dialog_graph.scrollbar_adjustment->page_size);
-        if(user_data->dlg.dialog_graph.last_interval==mi){
-                return TRUE;
-        }
-        if( (user_data->dlg.dialog_graph.last_interval==0xffffffff)
-        &&  (mi==user_data->dlg.dialog_graph.max_interval) ){
-                return TRUE;
-        }
+	mi=(guint32) (user_data->dlg.dialog_graph.scrollbar_adjustment->value+user_data->dlg.dialog_graph.scrollbar_adjustment->page_size);
+	if(user_data->dlg.dialog_graph.last_interval==mi){
+		return TRUE;
+	}
+	if( (user_data->dlg.dialog_graph.last_interval==0xffffffff)
+	    &&  (mi==user_data->dlg.dialog_graph.max_interval) ){
+		return TRUE;
+	}
 
-        user_data->dlg.dialog_graph.last_interval=(mi/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.interval;
+	user_data->dlg.dialog_graph.last_interval=(mi/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.interval;
 
 	dialog_graph_redraw(user_data);
-        return TRUE;
+	return TRUE;
 }
 
 /****************************************************************************/
@@ -1918,7 +1918,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	FILE *fp;
 	int j;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
 	 * Check whether they did.
@@ -1926,9 +1926,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
-		g_free(g_dest);
 		file_selection_set_current_folder(fc, get_last_open_dir());
 		gtk_file_chooser_set_current_name(fc, "");
+		g_free(g_dest);
 		return FALSE; /* run the dialog again */
 	}
 	rev  = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "reversed_rb");
@@ -2522,16 +2522,16 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	user_data_t *user_data;
 	gint         channels , format;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
 	   Check whether they did. */
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
-		g_free(g_dest);
 		file_selection_set_current_folder(fc, get_last_open_dir());
 		gtk_file_chooser_set_current_name(fc, "");
+		g_free(g_dest);
 		return FALSE; /* run the dialog again */
 	}
 
@@ -2572,6 +2572,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 	/* we can not save forward direction */
@@ -2589,6 +2590,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 	/* we can not save reversed direction */
@@ -2609,6 +2611,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 
@@ -2642,17 +2645,20 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		if ((channels & SAVE_FORWARD_DIRECTION_MASK) && (user_data->forward.statinfo.pt != AST_FORMAT_ALAW) && (user_data->forward.statinfo.pt != AST_FORMAT_ULAW)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 		if ((channels & SAVE_REVERSE_DIRECTION_MASK) && (user_data->reversed.statinfo.pt != AST_FORMAT_ALAW) && (user_data->reversed.statinfo.pt != AST_FORMAT_ULAW)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 		/* make sure pt's don't differ */
 		if ((channels == SAVE_BOTH_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Forward and reverse direction differ in type");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 	}
@@ -2662,6 +2668,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		if (channels == SAVE_BOTH_DIRECTION_MASK){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Unable to save raw data in both directions");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 	}
@@ -2669,6 +2676,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	{
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Invalid save format");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 
@@ -2686,7 +2694,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 /****************************************************************************/
 /* when the user wants to save the voice information in a file */
 /* XXX support for different formats is currently commented out */
-static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
+static void save_voice_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GtkWidget *vertb;
 	GtkWidget *table1;
@@ -2855,17 +2863,17 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	window_present(user_data->dlg.save_voice_as_w);
 
 	/* "Run" the GtkFileChooserDialog.                                              */
-        /* Upon exit: If "Accept" run the OK callback.                                  */
-        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-        /*            Destroy the window.                                               */
-        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-        /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_voice_as_w)) == GTK_RESPONSE_ACCEPT) {
 		if (save_voice_as_ok_cb(NULL, user_data->dlg.save_voice_as_w)) {
@@ -3200,7 +3208,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 
 	user_data->dlg.notebook_signal_id =
-        g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), user_data);
+		g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), user_data);
 
 	/* page for forward connection */
 	page = gtk_vbox_new(FALSE, 8);
@@ -3247,8 +3255,8 @@ static void create_iax2_dialog(user_data_t* user_data)
 	label = gtk_label_new("  Reversed Direction  ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_r, label);
 
-	/* page for help&about or future */
 #if 0
+	/* page for help&about or future */
 	page_help = gtk_hbox_new(FALSE, 5);
 	label = gtk_label_new("     Future    ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
@@ -3274,7 +3282,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	voice_bt = gtk_button_new_with_label("Save payload...");
 	gtk_container_add(GTK_CONTAINER(box4), voice_bt);
 	gtk_widget_show(voice_bt);
-	g_signal_connect(voice_bt, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
+	g_signal_connect(voice_bt, "clicked", G_CALLBACK(save_voice_as_cb), user_data);
 
 	csv_bt = gtk_button_new_with_label("Save as CSV...");
 	gtk_container_add(GTK_CONTAINER(box4), csv_bt);
@@ -3291,7 +3299,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show(goto_bt);
 	g_signal_connect(goto_bt, "clicked", G_CALLBACK(on_goto_bt_clicked), user_data);
 
-        graph_bt = gtk_button_new_with_label("Graph");
+	graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
 	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
@@ -3353,7 +3361,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 		hfssrc = proto_registrar_get_byname(proto_field);
 		if (hfssrc == NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		                    "Bad field name!");
+				      "Bad field name!");
 			return FALSE;
 			}
 		for(ptree_node=ptree_node->first_child; ptree_node!=NULL;
@@ -3395,14 +3403,14 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 	hfinformation = proto_registrar_get_byname(proto_name);
 	if (hfinformation == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Bad proto!");
+			      "Bad proto!");
 		return FALSE;
 		}
 
 	ptree_node = ((proto_node *)protocol_tree)->first_child;
 	if (!ptree_node) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "No info!");
+			      "No info!");
 		return FALSE;
 		}
 	return process_node(ptree_node, hfinformation, proto_field, p_result);
@@ -3426,9 +3434,9 @@ void iax2_analysis(
 	int i;
 	static color_t col[MAX_GRAPHS] = {
        		{0,     0x0000, 0x0000, 0x0000},
-        	{0,     0xffff, 0x0000, 0x0000},
-        	{0,     0x0000, 0xffff, 0x0000},
-        	{0,     0x0000, 0x0000, 0xffff}
+		{0,     0xffff, 0x0000, 0x0000},
+		{0,     0x0000, 0xffff, 0x0000},
+		{0,     0x0000, 0x0000, 0xffff}
 	};
 
 	/* init */
@@ -3456,7 +3464,7 @@ void iax2_analysis(
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;
 	user_data->dlg.save_csv_as_w = NULL;
-        user_data->dlg.dialog_graph.window = NULL;
+	user_data->dlg.dialog_graph.window = NULL;
 
 #ifdef USE_CONVERSATION_GRAPH
 	user_data->dlg.graph_window = NULL;
