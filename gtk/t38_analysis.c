@@ -26,6 +26,8 @@
  * Foundation,	Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <gtk/gtk.h>
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -44,7 +46,6 @@
 #include "../alert_box.h"
 #include "../simple_dialog.h"
 
-#include "gtk/graph_analysis.h"
 #include "gtk/main.h"
 #include "gtk/gui_stat_menu.h"
 
