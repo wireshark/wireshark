@@ -28,7 +28,7 @@ INCLUDES= @LUA_INCLUDES@
 if HAVE_LIBPY
 py_dissectors_dir = -DPYTHON_DIR=\"@pythondir@\"
 else
-py_dissectors_dir = -DPYTHONDIR=
+py_dissectors_dir = -DPYTHON_DIR=
 endif
 
 
