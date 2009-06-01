@@ -348,6 +348,7 @@ static gint about_folders_callback(GtkWidget *widget, GdkEventButton *event, gin
   if(gtk_tree_selection_get_selected (tree_selection, &model, &iter)) {
     gtk_tree_model_get(model, &iter, 1, &path, -1);
     filemanager_open_directory(path);
+    g_free(path);
   }
 
   return TRUE;
