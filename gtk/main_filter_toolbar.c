@@ -221,32 +221,36 @@ GtkWidget *filter_toolbar_new()
     return filter_tb;
 }
 
+static gint
+dfilter_entry_match(gconstpointer a, gconstpointer b)
+{
+    const char *s1 = a;
+    const char *s2 = b;
+
+    return strcmp(s1, s2);
+}
+
 /* add a display filter to the combo box */
-/* Note: a new filter string will replace an old identical one */
+/* Note: a new filter string will not replace an old identical one */
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
-    GList     *li;
     GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
-
 
     /* GtkCombos don't let us get at their list contents easily, so we maintain
        our own filter list, and feed it to gtk_combo_set_popdown_strings when
        a new filter is added. */
-    li = g_list_first(dfilter_list);
-    while (li) {
-        /* If the filter is already in the list, remove the old one and
-         * append the new one at the latest position (at g_list_append() below) */
-        if (li->data && strcmp(s, li->data) == 0) {
-            dfilter_list = g_list_remove(dfilter_list, li->data);
-            break;
-        }
-        li = li->next;
+    if (s && strlen(s) > 0 &&
+        g_list_length(dfilter_list) < prefs.gui_recent_df_entries_max &&
+        g_list_find_custom(dfilter_list, s, dfilter_entry_match) == NULL) {
+
+      dfilter_list = g_list_append(dfilter_list, s);
+      s = NULL;
+      g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
+      gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
+      gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_first(dfilter_list)->data);
     }
 
-    dfilter_list = g_list_append(dfilter_list, s);
-    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
-    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(dfilter_list)->data);
+    g_free(s);
 
     return TRUE;
 }
@@ -288,12 +292,8 @@ dfilter_combo_add_recent(gchar *s) {
   char      *dup;
 
   dup = g_strdup(s);
-  if (!dfilter_combo_add(filter_cm, dup)) {
-    g_free(dup);
-    return FALSE;
-  }
 
-  return TRUE;
+  return dfilter_combo_add(filter_cm, dup);
 }
 
 /* call cf_filter_packets() and add this filter string to the recent filter list */
@@ -302,8 +302,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
   GtkCombo  *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
   GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
-  GList     *li;
-  gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
   cf_status_t cf_status;
@@ -317,27 +315,25 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if (cf_status == CF_OK) {
-    li = g_list_first(dfilter_list);
-    while (li) {
-      if (li->data && strcmp(s, li->data) == 0)
-        add_filter = FALSE;
-      li = li->next;
-    }
+  if (cf_status == CF_OK && strlen(s) > 0) {
+    GList *li;
 
-    if (add_filter) {
-      /* trim list size first */
-      while (g_list_length(dfilter_list) >= prefs.gui_recent_df_entries_max) {
-        dfilter_list = g_list_remove(dfilter_list, g_list_first(dfilter_list)->data);
-      }
+    while ((li = g_list_find_custom(dfilter_list, s, dfilter_entry_match)) != NULL)
+      /* Delete old/duplicate entry now. We'll re-add it later */
+      dfilter_list = g_list_delete_link(dfilter_list, li);
 
-      free_filter = FALSE;
-      dfilter_list = g_list_append(dfilter_list, s);
-      g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
-      gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
-      gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(dfilter_list)->data);
-    }
+    /* trim list size first */
+    while (g_list_length(dfilter_list) >= prefs.gui_recent_df_entries_max)
+      dfilter_list = g_list_delete_link(dfilter_list, g_list_last(dfilter_list));
+
+    free_filter = FALSE;
+    /* Push the filter to the front of the list */
+    dfilter_list = g_list_prepend(dfilter_list, s);
+    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
+    gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
+    gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_first(dfilter_list)->data);
   }
+
   if (free_filter)
     g_free(s);
 
