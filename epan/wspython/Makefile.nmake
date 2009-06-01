@@ -1,0 +1,32 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+include Makefile.common
+
+############### no need to modify below this line #########
+
+CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) $(PYTHON_CFLAGS) \
+	-D_U_="" $(LOCAL_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
+
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+LIBWSPYTHON_OBJECTS = $(LIBWSPYTHON_SRC:.c=.obj)
+
+wspython.lib: $(LIBWSPYTHON_OBJECTS)
+	link /lib /out:wspython.lib $(LIBWSPYTHON_OBJECTS)
+
+clean:
+	rm -f $(LIBWSPYTHON_OBJECTS) wspython.lib *.pdb
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(LIBWSPYTHON_OBJECTS)
