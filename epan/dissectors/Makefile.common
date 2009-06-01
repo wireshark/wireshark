@@ -661,6 +661,7 @@ DISSECTOR_SRC = \
 	packet-nlm.c		\
 	packet-nlsp.c		\
 	packet-nntp.c		\
+	packet-nstrace.c	\
 	packet-nsip.c		\
 	packet-nsrp.c		\
 	packet-nt-oui.c		\

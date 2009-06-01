@@ -58,6 +58,7 @@ NONGENERATED_C_FILES = \
 	mpeg.c			\
 	netmon.c		\
 	netscreen.c		\
+	netscaler.c		\
 	nettl.c			\
 	network_instruments.c	\
 	netxray.c		\
@@ -106,6 +107,7 @@ NONGENERATED_HEADER_FILES = \
 	mpeg.h			\
 	netmon.h		\
 	netscreen.h		\
+	netscaler.h		\
 	nettl.h			\
 	network_instruments.h	\
 	netxray.h		\

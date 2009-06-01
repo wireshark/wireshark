@@ -439,7 +439,14 @@ static struct encap_type_info encap_table_base[] = {
 	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
 
 	/* WTAP_ENCAP_GSM_UM */
-	{ "GSM Um Interface", "gsm_um" }
+	{ "GSM Um Interface", "gsm_um" },
+
+	/* WTAP_ENCAP_NSTRACE_1_0 */
+	{ "NetScaler Encapsulation 1.0 of Ethernet", "nstrace10" },
+
+	/* WTAP_ENCAP_NSTRACE_2_0 */
+	{ "NetScaler Encapsulation 2.0 of Ethernet", "nstrace20" },
+
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

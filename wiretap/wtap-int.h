@@ -158,6 +158,19 @@ typedef struct {
 	time_t t0;
 } mpeg_t;
 
+typedef struct {
+	gchar *pnstrace_buf;
+	gint32 nstrace_buf_offset;
+	gint32 nstrace_buflen;
+	/* Performance Monitor Time variables */
+	guint32	nspm_curtime;		/* current time since 1970 */
+	guint64	nspm_curtimemsec;	/* current time in mili second */
+	guint64	nspm_curtimelastmsec;	/* nspm_curtime last update time in milisec */
+	guint64 nsg_creltime;
+	guint64 file_size;
+} nstrace_t;
+
+
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
@@ -189,6 +202,7 @@ struct wtap {
 		k12_t			*k12;
 		catapult_dct2000_t	*catapult_dct2000;
 		mpeg_t			*mpeg;
+		nstrace_t		*nstrace;
 		void			*generic;
 		pcapng_t		*pcapng;
 	} capture;
@@ -233,6 +247,12 @@ typedef struct {
 } netmon_dump_t;
 
 typedef struct {
+	guint16 page_offset;
+	guint16 page_len;
+	guint32 absrec_time;
+} nstrace_dump_t;
+
+typedef struct {
 	guint32	nframes;
 } _5views_dump_t;
 
@@ -269,6 +289,7 @@ struct wtap_dumper {
 		niobserver_dump_t	*niobserver;
 		k12_dump_t		*k12;
 		dct2000_dump_t		*dct2000;
+		nstrace_dump_t		*nstr;
 	} dump;
 
 	subtype_write_func	subtype_write;

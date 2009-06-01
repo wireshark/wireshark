@@ -209,6 +209,8 @@ extern "C" {
 #define WTAP_ENCAP_GSM_UM                       116
 #define WTAP_ENCAP_DPNSS                        117
 #define WTAP_ENCAP_PACKETLOGGER                 118
+#define WTAP_ENCAP_NSTRACE_1_0                  119
+#define WTAP_ENCAP_NSTRACE_2_0                  120
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -272,6 +274,8 @@ extern "C" {
 #define WTAP_FILE_DCT3TRACE                     54
 #define WTAP_FILE_PACKETLOGGER                  55
 #define WTAP_FILE_DAINTREE_SNA                  56
+#define WTAP_FILE_NETSCALER_1_0                 57
+#define WTAP_FILE_NETSCALER_2_0                 58
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 
@@ -304,6 +308,22 @@ extern "C" {
  * succeeds.  See various other capture file type handlers for examples
  * of that.
  */
+
+
+struct nstr_phdr {
+	gint64 rec_offset;
+	gint32 rec_len;
+	guint8 nicno_offset;
+	guint8 nicno_len;
+	guint8 dir_offset;
+	guint8 dir_len;
+	guint8 eth_offset;
+	guint8 pcb_offset;
+	guint8 l_pcb_offset;
+	guint8 rec_type;
+	guint8 vlantag_offset;
+	guint8 coreid_offset;
+};
 
 /* Packet "pseudo-header" information for Ethernet capture files. */
 struct eth_phdr {
@@ -810,6 +830,7 @@ union wtap_pseudo_header {
 	struct l1event_phdr	l1event;
 	struct i2c_phdr		i2c;
 	struct gsm_um_phdr	gsm_um;
+	struct nstr_phdr	nstr;
 };
 
 struct wtap_nstime {

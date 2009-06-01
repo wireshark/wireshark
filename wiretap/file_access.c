@@ -81,6 +81,7 @@
 #include "dct3trace.h"
 #include "packetlogger.h"
 #include "daintree-sna.h"
+#include "netscaler.h"
 
 
 /* The open_file_* routines should return:
@@ -154,7 +155,8 @@ static wtap_open_routine_t open_routines_base[] = {
 	vms_open,
 	cosine_open,
 	hcidump_open,
-	commview_open
+	commview_open,
+	nstrace_open
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])
@@ -607,7 +609,16 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "PacketLogger", "pklg", "*.pklg", NULL, FALSE, NULL, NULL },
 
 	/* WTAP_FILE_DAINTREE_SNA */
-	{ "Daintree SNA", "dsna", "*.dcf", NULL, FALSE, NULL, NULL }
+	{ "Daintree SNA", "dsna", "*.dcf", NULL, FALSE, NULL, NULL },
+
+	/* WTAP_FILE_NETSCALER_1_0 */
+	{ "NetScaler Trace (Version 1.0)", "nstrace10", "*.*", "*.*", FALSE,
+	  nstrace_10_dump_can_write_encap, nstrace_dump_open },
+
+	/* WTAP_FILE_NETSCALER_2_0 */
+	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", "*.cap", FALSE,
+	  nstrace_20_dump_can_write_encap, nstrace_dump_open },
+
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
