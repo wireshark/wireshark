@@ -136,9 +136,6 @@ typedef struct tn_opt {
 				/* routine to dissect option */
 } tn_opt;
 
-static tvbuff_t *
-unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offset, int len);
-
 static void
 dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
                       proto_tree *tree)
@@ -305,14 +302,14 @@ dissect_htstops_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
 }
 
 static void
-dissect_naws_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset,
-                    int len, proto_tree *tree)
+dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
+                    int len _U_, proto_tree *tree)
 {
-  tvbuff_t * unpacked_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-  proto_tree_add_text(tree, unpacked_tvb, 0, 2, "Width: %u",
-                      tvb_get_ntohs(unpacked_tvb, 0));
-  proto_tree_add_text(tree, unpacked_tvb, 2, 2, "Height: %u",
-                      tvb_get_ntohs(unpacked_tvb, 2));
+  proto_tree_add_text(tree, tvb, offset, 2, "Width: %u",
+                      tvb_get_ntohs(tvb, offset));
+  offset += 2;
+  proto_tree_add_text(tree, tvb, offset, 2, "Height: %u",
+                      tvb_get_ntohs(tvb, offset));
 }
 
 /* BEGIN RFC-2217 (COM Port Control) Definitions */
