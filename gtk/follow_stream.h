@@ -93,21 +93,8 @@ typedef struct {
    so we can redraw them all if the colors or font changes. */
 extern GList *follow_infos;
 
-void follow_charset_toggle_cb(GtkWidget * w, gpointer parent_w);
 void follow_load_text(follow_info_t *follow_info);
 void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
-void follow_find_cb(GtkWidget * w, gpointer data);
-void follow_find_button_cb(GtkWidget * w _U_, gpointer parent_w);
-void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
-void follow_print_stream(GtkWidget * w, gpointer parent_w);
-void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
-void follow_save_as_ok_cb(GtkWidget * w, gpointer fs);
-void follow_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
-void follow_stream_om_both(GtkWidget * w, gpointer data);
-void follow_stream_om_client(GtkWidget * w, gpointer data);
-void follow_stream_om_server(GtkWidget * w, gpointer data);
-void remember_follow_info(follow_info_t *follow_info);
-void forget_follow_info(follow_info_t *follow_info);
 void follow_stream(gchar *title, follow_info_t *follow_info,
 		   gchar *both_directions_string,
 		   gchar *server_to_client_string,

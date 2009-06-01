@@ -69,7 +69,11 @@ static GdkColor server_fg, server_bg;
 static GdkColor client_fg, client_bg;
 static GtkTextTag *server_tag, *client_tag;
 
+static void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
+static void follow_find_button_cb(GtkWidget * w, gpointer data);
+static gboolean follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs);
 static void follow_destroy_cb(GtkWidget *w, gpointer data _U_);
+static void follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data);
 
 GList *follow_infos = NULL;
 
@@ -177,7 +181,7 @@ follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 }
 
 /* Handles the display style toggling */
-void
+static void
 follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -254,7 +258,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 	return;
 }
 
-void
+static void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
 	follow_info_t      	*follow_info = data;
@@ -324,7 +328,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	window_present(find_dlg_w);
 }
 
-void
+static void
 follow_find_button_cb(GtkWidget * w, gpointer data)
 {
 	gboolean		found;
@@ -372,7 +376,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 
 }
 
-void
+static void
 follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -381,7 +385,7 @@ follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 	follow_info->find_dlg_w = NULL;
 }
 
-void
+static void
 follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
 	print_stream_t	*stream;
@@ -518,18 +522,20 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
  * while there's already a "Save Follow Stream" window up, we just pop
  * up the existing one, rather than creating a new one.
  */
-void
+
+static void
 follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
 	GtkWidget		*new_win;
 	follow_info_t	*follow_info = data;
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (follow_info->follow_save_as_w != NULL) {
 		/* There's already a dialog box; reactivate it. */
 		reactivate_window(follow_info->follow_save_as_w);
 		return;
 	}
-
+#endif
 	new_win = file_selection_new("Wireshark: Save Follow Stream As",
 				     FILE_SELECTION_SAVE);
 	follow_info->follow_save_as_w = new_win;
@@ -540,16 +546,37 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	g_signal_connect(new_win, "destroy", G_CALLBACK(follow_save_as_destroy_cb),
 		       follow_info);
 
+#if 0
 	if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
 		{
 			follow_save_as_ok_cb(new_win, new_win);
 		} else {
 		window_destroy(new_win);
 	}
+#endif
+	/* "Run" the GtkFileChooserDialog.                                              */
+        /* Upon exit: If "Accept" run the OK callback.                                  */
+        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+        /*            If not accept (ie: cancel) destroy the window.                    */
+        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+        /*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT) {
+		if (follow_save_as_ok_cb(NULL, new_win)) {
+                    break; /* we're done */
+		}
+	}
+	window_destroy(new_win);
 }
 
 
-void
+static gboolean
 follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 {
 	gchar		*to_name;
@@ -558,7 +585,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	print_stream_t	*stream = NULL;
 	gchar		*dirname;
 
-	to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+	to_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
 	/* Perhaps the user specified a directory instead of a file.
 	   Check whether they did. */
@@ -568,10 +595,12 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 		set_last_open_dir(to_name);
 		g_free(to_name);
 		file_selection_set_current_folder(fs, get_last_open_dir());
-		return;
+		gtk_file_chooser_set_current_name(fs, "");
+		return FALSE; /* do gtk_dialog_run again */
 	}
 
 	follow_info = g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
+
 	if (follow_info->show_type == SHOW_RAW) {
 		/* Write the data out as raw binary data */
 		fh = ws_fopen(to_name, "wb");
@@ -582,12 +611,13 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	if (fh == NULL) {
 		open_failure_alert_box(to_name, errno, TRUE);
 		g_free(to_name);
-		return;
+		return TRUE;
 	}
 
+#if 0 /* handled by caller (for now) .... */
 	gtk_widget_hide(GTK_WIDGET(fs));
 	window_destroy(GTK_WIDGET(fs));
-
+#endif
 	if (follow_info->show_type == SHOW_RAW) {
 		switch (follow_read_stream(follow_info, follow_write_raw, fh)) {
 		case FRS_OK:
@@ -630,9 +660,10 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	dirname = get_dirname(to_name);  /* Overwrites to_name */
 	set_last_open_dir(dirname);
 	g_free(to_name);
+        return TRUE;
 }
 
-void
+static void
 follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
 	follow_info_t	*follow_info = data;
@@ -664,7 +695,7 @@ follow_stream_direction_changed(GtkWidget *w, gpointer data)
 }
 
 /* Add a "follow_info_t" structure to the list. */
-void
+static void
 remember_follow_info(follow_info_t *follow_info)
 {
 	follow_infos = g_list_append(follow_infos, follow_info);
@@ -672,7 +703,7 @@ remember_follow_info(follow_info_t *follow_info)
 
 #define IS_SHOW_TYPE(x) (follow_info->show_type == x ? 1 : 0)
 /* Remove a "follow_info_t" structure from the list. */
-void
+static void
 forget_follow_info(follow_info_t *follow_info)
 {
 	follow_infos = g_list_remove(follow_infos, follow_info);
