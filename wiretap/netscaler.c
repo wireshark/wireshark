@@ -356,13 +356,13 @@ typedef	struct	nspr_pktracepart_v23
 
 #define myoffsetof(type,fieldname) (&(((type*)0)->fieldname))
 #define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
-	guint8 enumprefix##_##hdrname##_offset = (guint8)(guint)(void *)myoffsetof(nspr_##structname##_t,structprefix##_##structfieldname);
+	guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structprefix##_##structfieldname));
 
 #define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
 	guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
 	
 #define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
-	guint8 enumprefix##_##hdrname##_offset = (guint8)(guint)(void *)myoffsetof(nspr_##structname##_t,structfieldname);
+	guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structfieldname));
 
 #define __TNV1L(enumprefix,structprefix,structname,hdrname,structfieldname) \
 	guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);
