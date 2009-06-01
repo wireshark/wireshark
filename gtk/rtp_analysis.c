@@ -730,10 +730,11 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 	ws_remove(user_data->f_tempname);
 	ws_remove(user_data->r_tempname);
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
 		window_destroy(user_data->dlg.save_voice_as_w);
-
+#endif
 	/* destroy graph window if open */
 	if (user_data->dlg.dialog_graph.window != NULL)
 		window_destroy(user_data->dlg.dialog_graph.window);
@@ -766,7 +767,7 @@ static void on_notebook_switch_page(GtkNotebook *notebook _U_,
 /****************************************************************************/
 
 static void on_list_select_row(GtkTreeSelection *selection, 
-							   user_data_t *user_data _U_/*gpointer data */)
+							   user_data_t *user_data/*gpointer data */)
 {
 	user_data->dlg.selected_list_sel = selection;
 }
@@ -1757,7 +1758,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
         if (user_data->dlg.dialog_graph.window != NULL) {
                 /* There's already a graph window; reactivate it. */
@@ -1888,7 +1889,7 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	FILE *fp;
 	int j;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
 	 * Check whether they did.
@@ -2051,6 +2052,8 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 				 fprintf(fp, ",%s", date_str);
 				 fprintf(fp, ",%u", length);
 				 fprintf(fp,"\n");
+				 g_free(status_str);
+				 g_free(date_str);
 				 if (ferror(fp)) {
 					 write_failure_alert_box(g_dest, errno);
 					 fclose(fp);
@@ -2089,18 +2092,19 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (user_data->dlg.save_csv_as_w != NULL) {
 		/* There's already a Save CSV info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_csv_as_w);
 		return;
 	}
-
+#endif
 	user_data->dlg.save_csv_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV",
-									GTK_WINDOW(user_data->dlg.notebook), 
-									GTK_FILE_CHOOSER_ACTION_SAVE,
-                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                    NULL);
+								   GTK_WINDOW(user_data->dlg.notebook), 
+								   GTK_FILE_CHOOSER_ACTION_SAVE,
+								   GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+								   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+								   NULL);
 #if GTK_CHECK_VERSION(2,8,0)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
 #endif
@@ -2127,7 +2131,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 
-	channels_label = gtk_label_new ("Channels:");
+	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
@@ -2141,7 +2145,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
-	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
+	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
@@ -2171,17 +2175,17 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	window_present(user_data->dlg.save_csv_as_w);
 
 	/* "Run" the GtkFileChooserDialog.                                              */
-    /* Upon exit: If "Accept" run the OK callback.                                  */
-    /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-    /*            Destroy the window.                                               */
-    /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-    /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-    /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-    /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_csv_as_w)) == GTK_RESPONSE_ACCEPT) {
 		if (save_csv_as_ok_cb(NULL, user_data->dlg.save_csv_as_w)) {
@@ -2193,7 +2197,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 
 
 /****************************************************************************/
-static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data _U_)
+static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data)
 {
 	/* Note that we no longer have a Save voice info dialog box. */
 	user_data->dlg.save_voice_as_w = NULL;
@@ -2502,7 +2506,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	user_data_t *user_data;
 	gint channels, format;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
 	 * Check whether they did.
@@ -2557,6 +2561,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 	/* we can not save forward direction */
@@ -2577,6 +2582,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 	/* we can not save reversed direction */
@@ -2600,6 +2606,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: File I/O problem!");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 
@@ -2633,17 +2640,20 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		if ((channels & SAVE_FORWARD_DIRECTION_MASK) && (user_data->forward.statinfo.pt != PT_PCMA) && (user_data->forward.statinfo.pt != PT_PCMU)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 		if ((channels & SAVE_REVERSE_DIRECTION_MASK) && (user_data->reversed.statinfo.pt != PT_PCMA) && (user_data->reversed.statinfo.pt != PT_PCMU)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 		/* make sure pt's don't differ */
 		if ((channels == SAVE_BOTH_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Forward and reverse direction differ in type");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 	}
@@ -2653,6 +2663,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		if (channels == SAVE_BOTH_DIRECTION_MASK){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Unable to save raw data in both directions");
+			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 	}
@@ -2660,6 +2671,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	{
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Invalid save format");
+		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
 
@@ -2694,11 +2706,12 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	GtkWidget *raw_rb;
 
 	/* if we can't save in a file: wrong codec, cut packets or other errors */
-	/* Sholud the error arise here or later when you click ok button ?
+	/* Should the error arise here or later when you click ok button ?
 	 * if we do it here, then we must disable the refresh button, so we don't do it here
 	 */
 
 #if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
+	if (user_data->dlg.save_voice_as_w != NULL) {
 		/* There's already a Save voice info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_voice_as_w);
 		return;
@@ -2828,35 +2841,35 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	}
  #endif
 
-	/*g_object_set_data(G_OBJECT(ok_bt), "wav_rb", wav_rb);*/
+	/*g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "wav_rb", wav_rb);*/
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "au_rb", au_rb);
-	/*g_object_set_data(G_OBJECT(ok_bt), "sw_rb", sw_rb);*/
+	/*g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "sw_rb", sw_rb);*/
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "raw_rb", raw_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "forward_rb", forward_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "reversed_rb", reversed_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "both_rb", both_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "user_data", user_data);
 
-    g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
+	g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
                         G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(user_data->dlg.save_voice_as_w, "destroy",
                         G_CALLBACK(save_voice_as_destroy_cb), user_data);
 
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
-    window_present(user_data->dlg.save_voice_as_w);
+	window_present(user_data->dlg.save_voice_as_w);
 
 	/* "Run" the GtkFileChooserDialog.                                              */
-    /* Upon exit: If "Accept" run the OK callback.                                  */
-    /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-    /*            Destroy the window.                                               */
-    /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-    /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-    /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-    /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_voice_as_w)) == GTK_RESPONSE_ACCEPT) {
 		if (save_voice_as_ok_cb(NULL, user_data->dlg.save_voice_as_w)) {
