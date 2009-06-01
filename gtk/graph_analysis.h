@@ -78,7 +78,7 @@ typedef struct _display_items {
 	guint16 line_style;			/* the arrow line width in pixels*/
 } display_items_t;
 
-typedef struct _dialog_data_t {
+typedef struct _graph_analysis_dialog_data_t {
 	GtkWidget *window;
 	GtkWidget *parent_w;
 	gboolean needs_redraw;
@@ -105,7 +105,7 @@ typedef struct _dialog_data_t {
     guint32 left_x_border;
     char *save_file;
 	char *title; 				/* Graph analysis window's title */
-} dialog_data_t;
+} graph_analysis_dialog_data_t;
 
 typedef void (*destroy_user_data_cb)(void *data);
 
@@ -115,7 +115,7 @@ typedef struct _graph_analysis_data_t {
 	graph_analysis_info_t *graph_info;
 
 	/* dialog associated data */
-	dialog_data_t dlg;
+	graph_analysis_dialog_data_t dlg;
 	address nodes[MAX_NUM_NODES];
 	guint32 num_nodes;
 	guint32 num_items;
