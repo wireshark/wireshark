@@ -2916,8 +2916,8 @@ static void draw_stat(user_data_t *user_data)
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
 	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
-		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
+		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
