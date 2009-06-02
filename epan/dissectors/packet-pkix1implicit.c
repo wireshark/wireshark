@@ -57,6 +57,7 @@ static int proto_pkix1implicit = -1;
 #line 1 "packet-pkix1implicit-hf.c"
 static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
+static int hf_pkix1implicit_UserNotice_PDU = -1;  /* UserNotice */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_item = -1;  /* AccessDescription */
 static int hf_pkix1implicit_accessMethod = -1;    /* OBJECT_IDENTIFIER */
 static int hf_pkix1implicit_accessLocation = -1;  /* GeneralName */
@@ -281,6 +282,11 @@ static void dissect_AuthorityInfoAccessSyntax_PDU(tvbuff_t *tvb _U_, packet_info
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkix1implicit_AuthorityInfoAccessSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU);
 }
+static void dissect_UserNotice_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkix1implicit_UserNotice(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkix1implicit_UserNotice_PDU);
+}
 
 
 /*--- End of included file: packet-pkix1implicit-fn.c ---*/
@@ -303,6 +309,10 @@ void proto_register_pkix1implicit(void) {
       { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1implicit.AuthorityInfoAccessSyntax", HFILL }},
+    { &hf_pkix1implicit_UserNotice_PDU,
+      { "UserNotice", "pkix1implicit.UserNotice",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1implicit.UserNotice", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_item,
       { "AccessDescription", "pkix1implicit.AccessDescription",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -417,6 +427,7 @@ void proto_reg_handoff_pkix1implicit(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.6", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-key-recovery-agent");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.19", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-ds-email-replication");
   register_ber_oid_dissector("1.3.6.1.5.5.8.2.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-ipsec-kp-ike-intermediate");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.2.2", dissect_UserNotice_PDU, proto_pkix1implicit, "id-qt-unotice");
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/

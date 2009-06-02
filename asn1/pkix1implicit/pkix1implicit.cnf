@@ -64,6 +64,8 @@ Dummy		B "1.3.6.1.4.1.311.21.19" "id-ms-ds-email-replication"
 
 Dummy		B "1.3.6.1.5.5.8.2.2" "id-ms-ipsec-kp-ike-intermediate" 
 
+UserNotice		B "1.3.6.1.5.5.7.2.2" "id-qt-unotice"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
