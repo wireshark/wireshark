@@ -562,7 +562,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len, gint64 file_si
 	gchar *dp = nstrace_buf;
 	gint64 data_offset = 0;
 
-	while (len > 0 && len != file_read(dp, 1, len, wth->fh)) {
+	while (len > 0 && len == file_read(dp, 1, len, wth->fh)) {
 
 		data_offset += len;
 
