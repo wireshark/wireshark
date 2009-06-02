@@ -734,8 +734,8 @@ $(LIBS_CHECK): Makefile.nmake
 # Defined only if "checktag" failed (see beginning of Makefile).
 !IF "$(LIBS_CHECK)" != ""
 $(LIBS_CHECK): FORCE
-	@echo \? Wireshark Libraries not up-to-date \?
-	@echo \? Do you need to run "nmake -f makefile.nmake setup" \?
+	@echo ^? Wireshark Libraries not up-to-date ^?
+	@echo ^? Do you need to run "nmake -f makefile.nmake setup" ^?
 	@echo.
 	@exit 1
 
