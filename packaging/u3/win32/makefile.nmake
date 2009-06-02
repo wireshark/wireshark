@@ -23,6 +23,7 @@ COPY	= xcopy
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y
 
+!undef UPX
 UPX_FLAGS = -q
 
 U3_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
@@ -58,15 +59,13 @@ nsis-bits:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
 	cd ../u3/win32
 
-$(WSMANIFEST):
+distribution.nmake:	makenmake.pl
 	cd ../..
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
 	cd u3/win32
-
-distribution.nmake:	$(WSMANIFEST)  makenmake.pl
 	$(PERL) makenmake.pl $(WSMANIFEST) > $@	
 
-distribution: u3-dirs manifest.u3i u3util.exe nsis-bits wireshark.bat distribution.nmake
+distribution: u3-dirs manifest.u3i u3util.exe u3util.exe.manifest nsis-bits wireshark.bat distribution.nmake
 # manifest
 	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
@@ -87,9 +86,9 @@ pack:	distribution
 	-$(UPX) $(UPX_FLAGS) $(DEVICE)\plugins\$(VERSION)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
-	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\$(GTK_WIMP_DLLDST_DIR)\*.dll
-	-$(UPX) $(UPX_FLAGS) $(HOST)\[a-z]*.exe	
+	-$(UPX) $(UPX_FLAGS) $(HOST)\*.exe	
 !ENDIF
 
 test:		pack
@@ -98,16 +97,17 @@ test:		pack
 package:	verify-tools test
 	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) wireshark.bat
 
-
+CFLAGS	= -DWINPCAP_PACKAGE="\"\\\\WinPcap_$(PCAP_VERSION).exe\""
 
 u3util_LIBS= user32.lib shell32.lib
 
-u3util.exe:	u3util.obj
+u3util.exe:	u3util.obj ../../../config.nmake
 	@echo Linking $@
-	$(LINK) /OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll)
-# the u3util.exe don't create a manifest file, maybe because only windows (no WS specific) libs are used
+	$(LINK) @<<
+		/OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll)
+<<
 #!IF $(MSC_VER_REQUIRED) >= 1400
-#	mt.exe -nologo -manifest "u3util.exe.manifest" -outputresource:u3util.exe;1
+	mt.exe -nologo -manifest "u3util.exe.manifest" -outputresource:u3util.exe;1
 #!ENDIF
 
 clean:

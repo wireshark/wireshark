@@ -4,6 +4,7 @@
 #
 
 # These are the known directories in the distribution and where they should live on a U3 device
+
 my %u3locs = qw(
 	$INSTDIR device
 	$INSTDIR\${GTK_WIMP_DLLDST_DIR} host
@@ -78,10 +79,10 @@ foreach $dir(sort @dirs) {
 		}
 
 		if($dir eq '$INSTDIR') { # try and find a better location
-		    if($file =~ /\.dll$|\.exe$|EXE}$|DLL}$/) {
+		    if($file =~ /\.dll$|\.exe$|EXE}$|DLL}$/ && !($file =~ /WinPcap/) && !($file =~ /VCREDIST_EXE/)) {
 			print " u3loc=host";
 		    }
-		} 
+	}
 
 		print "\n";
 	    }

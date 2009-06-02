@@ -46,10 +46,23 @@
 #define SHELL_OPEN_COMMAND   "\\Shell\\open\\command"
 #define DEFAULT_ICON         "\\DefaultIcon"
 
-#define WINPCAP_PACKAGE      "\\WinPcap_4_0_2.exe"
 #define WINPCAP_KEY          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinPcapInst"
 #define WINPCAP_UNINSTALL    "UninstallString"
 #define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
+
+#define VCREDIST_PACKAGE     "\\vcredist_x86.exe"
+#define VCREDIST_KEY         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{9A25302D-30C0-39D9-BD6F-21E6EC160475}"
+#define VCREDIST_UNINSTALL    "UninstallString"
+#define VCREDIST_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed the redistributable */
+
+
+#define WINDOWS_VERSION_KEY  "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
+#define WINDOWS_VERSION      "CurrentVersion"
+#define VISTA_VERSION        "6.0"
+
+#define NPF_KEY              "SYSTEM\\CurrentControlSet\\Service\\NPF"
+#define NPF_START            "Start"
+#define NPF_START_VAL        2 /* SERVICE_AUTO_START */
 
 #define MY_CAPTURES          "\\My Captures"
 
@@ -309,6 +322,100 @@ void ExecuteAndWait(char *buffer)
   }
 }
 
+void uninstall(char *regkey, char *u3installed, char *uninstall)
+{
+  char buffer[BUFSIZ];
+  int buflen = BUFSIZ;
+  char *u3_device_serial;
+  char reg_key[BUFSIZ];
+  HKEY  key;
+
+  /* UNINSTALL ONLY IF WE INSTALLED IT */
+  buffer[0] = '\0';
+
+  /* see if it is installed */
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, regkey, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
+
+    buflen = BUFSIZ;
+
+    /* see if a U3 device installed the package */
+    if(RegQueryValueEx(key, u3installed, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      u3_device_serial = getenv("U3_DEVICE_SERIAL");
+
+      /* see if this U3 device installed the package */
+      if(!strncmp(buffer, u3_device_serial, strlen(u3_device_serial) + 1)) {
+
+	buffer[0] = '"';
+	buflen = BUFSIZ-1;
+	/* we installed WinPcap - we should now uninstall it - read the uninstall string */
+	(void) RegQueryValueEx(key, uninstall, NULL, NULL, &buffer[1], &buflen);
+
+
+	if(!strncmp(buffer, "\"MsiExec.exe", 12)) {
+	  /* run msiexec.exe quietly */
+	  strncat(buffer, " /qn", 5);
+
+	}
+
+	strncat(buffer, "\"", 2); /* close the quotes */
+
+	/* delete our value */
+	RegDeleteValue(key, u3installed);
+
+      } else {
+	/* empty the buffer */
+	buffer[0] = '\0';
+      }
+    }
+
+    RegCloseKey(key);
+  }
+
+  if(*buffer) {
+#if 0
+    MessageBox(NULL,
+	       buffer,
+	       "Uninstall",
+	       MB_YESNO|MB_TOPMOST|MB_ICONQUESTION);
+#endif 
+
+    /* we have an uninstall string */
+    ExecuteAndWait(buffer);
+  }
+}
+
+
+void winpcap_auto_start()
+{
+
+  HKEY  key;
+  HKEY  npfKey;
+  char buffer[BUFSIZ+1];
+  int  buflen = 0;
+  DWORD startVal = NPF_START_VAL;
+  
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINDOWS_VERSION_KEY, 0, (KEY_READ), &key) == ERROR_SUCCESS) {
+
+    if(RegQueryValueEx(key, WINDOWS_VERSION, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      if(!strcmp(buffer, VISTA_VERSION)) {
+	/* this is Vista - set the autostart */
+	/* if installation was successful this key will now exist */
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, NPF_KEY, 0, (KEY_READ | KEY_WRITE), &npfKey) == ERROR_SUCCESS) {
+
+	  (void)RegSetValueEx(npfKey, NPF_START, 0, REG_DWORD, (BYTE*)&startVal, sizeof(DWORD));
+	  
+	  RegCloseKey(npfKey);
+
+	}
+      }
+    }
+    RegCloseKey(key);
+  }
+}
+
+
 void app_start(int argc, char *argv[])
 {
   char *u3hostexecpath;
@@ -547,11 +654,13 @@ void host_configure(void)
   char *u3_device_document_path;
   char wireshark_path[MAX_PATH+1];
   char winpcap_path[MAX_PATH+1];
+  char vcredist_path[MAX_PATH+1];
   char my_captures_path[MAX_PATH+1];
   char reg_key[BUFSIZ];
   char buffer[BUFSIZ];
   int  buflen = BUFSIZ;
   boolean hasWinPcap = FALSE;
+  boolean hasRedist = FALSE;
 
   /* CREATE THE U3 Wireshark TYPE */
   if(RegCreateKeyEx(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC, 0, NULL, 0,
@@ -573,10 +682,10 @@ void host_configure(void)
   /* associate the application */
   if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0,
 		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
-
     (void)RegSetValueEx(key, "", 0, REG_SZ, wireshark_path, strlen(wireshark_path) + 1);
 
     RegCloseKey(key);
+
   }
 
   /* associate the icon */
@@ -640,8 +749,47 @@ void host_configure(void)
 
       (void)RegSetValueEx(key, WINPCAP_U3INSTALLED, 0, REG_SZ, u3_device_serial, strlen(u3_device_serial) + 1);
 
+      winpcap_auto_start();
+
     }
   }
+
+  /* START VCREDIST INSTALLATION IF NOT ALREADY INSTALLED */
+
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, VCREDIST_KEY, 0, (KEY_READ), &key) == ERROR_SUCCESS) {
+
+    buflen = BUFSIZ;
+
+    if(RegQueryValueEx(key, VCREDIST_UNINSTALL, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      if(buffer[0] != '\0')
+	hasRedist = TRUE;
+    }
+
+    RegCloseKey(key);
+
+  } 
+
+  if(!hasRedist) {
+
+    /* compute the U3 path to the Visual C++  redistributables package - it stays on the device */
+    u3_device_exec_path = getenv("U3_DEVICE_EXEC_PATH");
+    strncpy(vcredist_path, "\"", 2);
+    strncat(vcredist_path, u3_device_exec_path, strlen(u3_device_exec_path) + 1);
+    strncat(vcredist_path, VCREDIST_PACKAGE, strlen(VCREDIST_PACKAGE) + 1);
+    strncat(vcredist_path, "\" /q", 5); /* do things quietly */
+
+    ExecuteAndWait(vcredist_path);
+
+    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, VCREDIST_KEY, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
+
+      u3_device_serial = getenv("U3_DEVICE_SERIAL");
+
+      (void)RegSetValueEx(key, VCREDIST_U3INSTALLED, 0, REG_SZ, u3_device_serial, strlen(u3_device_serial) + 1);
+
+    }
+  }
+
 
   /* CREATE THE "My Captures" FOLDER IF IT DOESN'T ALREADY EXIST */
 
@@ -667,12 +815,9 @@ Remove any references to the U3 Wireshark from the host. This involves:
 
 void host_clean_up(void)
 {
-  HKEY  key;
   DWORD disposition;
   char **pext;
   char *u3_device_serial;
-  char buffer[BUFSIZ];
-  int buflen = BUFSIZ;
   char reg_key[BUFSIZ];
 
   /* the device has been removed -
@@ -714,42 +859,8 @@ void host_clean_up(void)
   /* finally delete the toplevel key */
   RegDeleteKey(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC);
 
-  /* UNINSTALL WINPCAP ONLY IF WE INSTALLED IT */
-  buffer[0] = '\0';
-
-  /* see if WinPcap is installed */
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINPCAP_KEY, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
-
-    /* see if a U3 device installed the package */
-    if(RegQueryValueEx(key, WINPCAP_U3INSTALLED, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
-
-      u3_device_serial = getenv("U3_DEVICE_SERIAL");
-
-      /* see if this U3 device installed the package */
-      if(!strncmp(buffer, u3_device_serial, strlen(u3_device_serial) + 1)) {
-
-	buffer[0] = '"';
-	buflen = BUFSIZ-1;
-	/* we installed WinPcap - we should now uninstall it - read the uninstall string */
-	(void) RegQueryValueEx(key, WINPCAP_UNINSTALL, NULL, NULL, &buffer[1], &buflen);
-	strncat(buffer, "\"", 2); /* close the quotes */
-
-	/* delete our value */
-	RegDeleteValue(key, WINPCAP_U3INSTALLED);
-
-      } else {
-	/* empty the buffer */
-	buffer[0] = '\0';
-      }
-    }
-
-    RegCloseKey(key);
-  }
-
-  if(*buffer) {
-    /* we have an uninstall string */
-    ExecuteAndWait(buffer);
-  }
+  uninstall(WINPCAP_KEY, WINPCAP_U3INSTALLED, WINPCAP_UNINSTALL);
+  uninstall(VCREDIST_KEY, VCREDIST_U3INSTALLED, VCREDIST_UNINSTALL);
 
 }
 
@@ -757,12 +868,25 @@ main(int argc, char *argv[])
 {
   DWORD time_out = 0;
   char *u3_is_device_available;
-
+#if 0 
+  char **envptr;
+  char *envval;
+# endif 
   u3_is_device_available = getenv("U3_IS_DEVICE_AVAILABLE");
 
   if(u3_is_device_available && !strncmp(u3_is_device_available, "true", 4))
     /* the device is available - wait for user to respond to any dialogs */
     time_out = INFINITE;
+#if 0
+  for(envptr = environmentvars; *envptr; envptr++) {
+    envval = getenv(*envptr);
+
+    MessageBox(NULL,
+	       envval ? envval : "NULL",
+	       *envptr,
+	       MB_YESNO|MB_TOPMOST|MB_ICONQUESTION);
+  }
+#endif
 
   if(argc > 1) {
 
