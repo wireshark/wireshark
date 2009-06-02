@@ -2870,6 +2870,10 @@ Fred Fierling		<fff [AT] exegin.com> {
 	Daintree's Sensor Network Analyzer file support
 }
 
+Samu Varjonen		<samu.varjonen [AT] hiit.fi> {
+	Host Identity Protocol (HIP) support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
