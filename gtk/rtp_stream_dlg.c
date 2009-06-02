@@ -39,6 +39,7 @@
 
 #include "../globals.h"
 #include "../stat_menu.h"
+#include "../simple_dialog.h"
 
 #include "gtk/rtp_stream_dlg.h"
 #include "gtk/gui_stat_menu.h"
@@ -156,32 +157,48 @@ static void save_stream_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 /* save in a file */
-static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
+static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
 {
 	gchar *g_dest;
 
-	if (!selected_stream_fwd)
-		return;
+	if (!selected_stream_fwd) {
+		return TRUE;
+	}
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
 	/* Perhaps the user specified a directory instead of a file.
-	Check whether they did. */
+	   Check whether they did. */
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(rtpstream_save_dlg, get_last_open_dir());
-		return;
+		file_selection_set_current_folder(fs, get_last_open_dir());
+		gtk_file_chooser_set_current_name(fs, "");
+		return FALSE;
 	}
 
+#if 0 /* GtkFileChooser/gtk_dialog_run currently being used.         */
+      /*  So: Leaving the dialog box displayed after popping-up an   */
+      /*  alert box won't work.                                      */
 	/*
 	 * Don't dismiss the dialog box if the save operation fails.
 	 */
-	if (!rtpstream_save(selected_stream_fwd, g_dest))
+	if (!rtpstream_save(selected_stream_fwd, g_dest)) {
+		g_free(g_dest);
 		return;
-
+	}
+	g_free(g_dest);
 	window_destroy(GTK_WIDGET(rtpstream_save_dlg));
+	return;
+#else
+	/*  Dialog box needs to be always destroyed. Return TRUE      */
+	/*  so that caller will destroy the dialog box.               */
+	/*  See comment under rtpstream_on_save.                      */
+	rtpstream_save(selected_stream_fwd, g_dest);    
+	g_free(g_dest);
+	return TRUE;
+#endif
 }
 
 
@@ -306,37 +323,65 @@ static void
 rtpstream_on_save                      (GtkButton       *button _U_,
                                         gpointer         data _U_)
 {
-/* XX - not neded?
+/* XX - not needed?
 	rtpstream_tapinfo_t* tapinfo = data;
 */
 
-	if (!selected_stream_fwd)
+    if (!selected_stream_fwd) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Please select a forward stream");
 		return;
+    }
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (rtpstream_save_dlg != NULL) {
 		/* There's already a Save dialog box; reactivate it. */
 		reactivate_window(rtpstream_save_dlg);
 		return;
 	}
+#endif
 
-	rtpstream_save_dlg = gtk_file_chooser_dialog_new("Wireshark: Save selected stream in rtpdump ('-F dump') format", GTK_WINDOW(rtp_stream_dlg), GTK_FILE_CHOOSER_ACTION_SAVE,
+	rtpstream_save_dlg = gtk_file_chooser_dialog_new(
+		"Wireshark: Save selected stream in rtpdump ('-F dump') format",
+		GTK_WINDOW(rtp_stream_dlg), GTK_FILE_CHOOSER_ACTION_SAVE,
 		GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		NULL);
+#if GTK_CHECK_VERSION(2,8,0)
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(rtpstream_save_dlg), TRUE);
+#endif
 
 	g_signal_connect(rtpstream_save_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(rtpstream_save_dlg, "destroy", G_CALLBACK(save_stream_destroy_cb),
-	               NULL);
+	g_signal_connect(rtpstream_save_dlg, "destroy", G_CALLBACK(save_stream_destroy_cb), NULL);
 
 	gtk_widget_show(rtpstream_save_dlg);
 	window_present(rtpstream_save_dlg);
-
+#if 0
 	if (gtk_dialog_run(GTK_DIALOG(rtpstream_save_dlg)) == GTK_RESPONSE_ACCEPT){
 		save_stream_ok_cb(rtpstream_save_dlg, rtpstream_save_dlg);
 	}else{
 		window_destroy(rtpstream_save_dlg);
 	}
-
+#endif
+	/* "Run" the GtkFileChooserDialog.                                              */
+        /* Upon exit: If "Accept" run the OK callback.                                  */
+        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+        /*            If not accept (ie: cancel) destroy the window.                    */
+        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+        /*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(rtpstream_save_dlg)) == GTK_RESPONSE_ACCEPT) {
+		if (save_stream_ok_cb(NULL, rtpstream_save_dlg)) {
+                    break; /* we're done */
+		}
+	}
+	window_destroy(rtpstream_save_dlg);
 }
 
 
