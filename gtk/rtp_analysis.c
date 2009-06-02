@@ -87,6 +87,7 @@ enum
    SEQUENCE_COLUMN,
    DELTA_COLUMN,
    JITTER_COLUMN,
+   SKEW_COLUMN,
    IPBW_COLUMN,
    MARKER_COLUMN,
    STATUS_COLUMN,
@@ -238,11 +239,12 @@ typedef struct _user_data_t {
 
 
 /* Column titles. */
-static const gchar *titles[9] =  {
+static const gchar *titles[10] =  {
 	"Packet",
 	"Sequence",
 	"Delta (ms)",
 	"Jitter (ms)",
+	"Skew(ms)",
 	"IP BW (kbps)",
 	"Marker",
 	"Status",
@@ -430,7 +432,7 @@ static void rtp_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
-                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
+                         double delta, double jitter, double skew ,double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
 
 static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
@@ -582,6 +584,7 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
 			0,
 			0,
+			0,
 			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
@@ -594,6 +597,7 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
 			statinfo->delta,
 			statinfo->jitter,
+			statinfo->skew,
 			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
@@ -2885,46 +2889,86 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 /* when we are finished with redisection, we add the label for the statistic */
 static void draw_stat(user_data_t *user_data)
 {
-	gchar label_max[200];
+	gchar label_max[300];
 	guint32 f_expected = (user_data->forward.statinfo.stop_seq_nr + user_data->forward.statinfo.cycles*65536)
 		- user_data->forward.statinfo.start_seq_nr + 1;
 	guint32 r_expected = (user_data->reversed.statinfo.stop_seq_nr + user_data->reversed.statinfo.cycles*65536)
 		- user_data->reversed.statinfo.start_seq_nr + 1;
-	gint32 f_lost = f_expected - user_data->forward.statinfo.total_nr;
-	gint32 r_lost = r_expected - user_data->reversed.statinfo.total_nr;
+	guint32 f_total_nr = user_data->forward.statinfo.total_nr;
+	guint32 r_total_nr = user_data->reversed.statinfo.total_nr;
+	gint32 f_lost = f_expected - f_total_nr;
+	gint32 r_lost = r_expected - r_total_nr;
+	double f_sumt = user_data->forward.statinfo.sumt;
+	double f_sumTS = user_data->forward.statinfo.sumTS;
+	double f_sumt2 = user_data->forward.statinfo.sumt2;
+	double f_sumtTS = user_data->forward.statinfo.sumtTS;
+
+	double r_sumt = user_data->reversed.statinfo.sumt;
+	double r_sumTS = user_data->reversed.statinfo.sumTS;
+	double r_sumt2 = user_data->reversed.statinfo.sumt2;
+	double r_sumtTS = user_data->reversed.statinfo.sumtTS;
 	double f_perc, r_perc;
+	double f_clock_drift = 1.0;
+	double r_clock_drift = 1.0;
+	double f_duration = user_data->forward.statinfo.time - user_data->forward.statinfo.start_time;
+	double r_duration = user_data->reversed.statinfo.time - user_data->reversed.statinfo.start_time;
+	guint32 f_clock_rate = user_data->forward.statinfo.clock_rate;
+	guint32 r_clock_rate = user_data->reversed.statinfo.clock_rate;
+
+	if (f_clock_rate == 0){
+		f_clock_rate = 1;
+	}
+
+	if (r_clock_rate == 0){
+		r_clock_rate = 1;
+	}
+
 	if (f_expected){
 		f_perc = (double)(f_lost*100)/(double)f_expected;
 	} else {
 		f_perc = 0;
 	}
-        if (r_expected){
-                r_perc = (double)(r_lost*100)/(double)r_expected;
-        } else {
-                r_perc = 0;
-        }
+    if (r_expected){
+            r_perc = (double)(r_lost*100)/(double)r_expected;
+    } else {
+            r_perc = 0;
+    }
+
+	if ((f_total_nr >0)&&(f_sumt2 > 0)){
+		f_clock_drift = (f_total_nr * f_sumtTS - f_sumt * f_sumTS) / (f_total_nr * f_sumt2 - f_sumt * f_sumt);
+	}
+	if ((r_total_nr >0)&&(r_sumt2 > 0)){
+		r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
+	}
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
+		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
+		"Max skew = %.2f ms.\n"
+		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
+		"   Sequence errors = %u \n"
+		"Duration %.2f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
+		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
+		user_data->forward.statinfo.max_jitter,user_data->forward.statinfo.mean_jitter,
+		user_data->forward.statinfo.max_skew,
+		f_expected, f_expected, f_lost, f_perc, 
+		user_data->forward.statinfo.sequence,
+		f_duration/1000,f_duration*(f_clock_drift-1.0),f_clock_drift*f_clock_rate,100.0*(f_clock_drift-1.0));
+
+	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_fwd),TRUE);
 
 	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
 		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
-		"   Sequence errors = %u",
-		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
-		user_data->forward.statinfo.max_jitter,user_data->forward.statinfo.mean_jitter,
-		user_data->forward.statinfo.total_nr, f_expected, f_lost, f_perc, 
-		user_data->forward.statinfo.sequence);
-
-	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
-
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f ms at packet no. %u \n"
-		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
-		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
-		"   Sequence errors = %u",
+		"   Sequence errors = %u \n"
+		"Duration %.0f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
-		user_data->reversed.statinfo.total_nr, r_expected, r_lost, r_perc, 
-		user_data->reversed.statinfo.sequence);
+		r_expected, r_expected, r_lost, r_perc, 
+		user_data->reversed.statinfo.sequence,
+		r_duration/1000,r_duration*(r_clock_drift-1.0),r_clock_drift*r_clock_rate,100.0*(r_clock_drift-1.0));
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_rev),TRUE);
 
 	return ;
 }
@@ -2934,7 +2978,7 @@ static void draw_stat(user_data_t *user_data)
 /****************************************************************************/
 /* append a line to list */
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
-                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
+                         double delta, double jitter,double skew, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
     GtkListStore *list_store;
@@ -2961,6 +3005,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
                 SEQUENCE_COLUMN, seq_num,
 				DELTA_COLUMN, delta,
 				JITTER_COLUMN, jitter,
+				SKEW_COLUMN, skew,
 				IPBW_COLUMN, bandwidth,
 				MARKER_COLUMN, marker,
 				STATUS_COLUMN, (char *)status,
@@ -3026,6 +3071,7 @@ GtkWidget* create_list(user_data_t* user_data)
                                G_TYPE_UINT,		/* Sequence				*/
                                G_TYPE_FLOAT,	/* Delta(ms)			*/
                                G_TYPE_FLOAT,	/* Filtered Jitter(ms)  */
+                               G_TYPE_FLOAT,	/* Skew(ms)				*/
                                G_TYPE_FLOAT,	/* IP BW(kbps)			*/
                                G_TYPE_BOOLEAN,  /* Marker				*/
                                G_TYPE_STRING,   /* Status				*/
@@ -3112,6 +3158,23 @@ GtkWidget* create_list(user_data_t* user_data)
 		GINT_TO_POINTER(JITTER_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 110);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Skew(ms). */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Skew(ms)", renderer, 
+		"text", SKEW_COLUMN, 
+        "foreground", FOREGROUND_COLOR_COL,
+        "background", BACKGROUND_COLOR_COL,
+		NULL);
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(SKEW_COLUMN), NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, SKEW_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 110);

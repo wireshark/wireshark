@@ -357,7 +357,7 @@ get_clock_rate(guint32 key)
 		if (clock_map[i].key == key)
 			return clock_map[i].value;
 	}
-	return 1;
+	return 0;
 }
 
 typedef struct _mimetype_and_clock {
@@ -399,7 +399,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"GSM-EFR",	8000},			/* [RFC3551] */
 	{"H263-1998",	90000},		/* [RFC2429],[RFC3555] */
 	{"H263-2000",	90000},		/* [RFC2429],[RFC3555] */
-	{"H264", 90000},            /* [RFC3984] */
+	{"H264",	90000},         /* [RFC3984] */
 	{"MP1S",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP2P",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP4V-ES",	90000},			/* [RFC3016] */
@@ -427,7 +427,7 @@ get_dyn_pt_clock_rate(gchar *payload_type_str)
 			return mimetype_and_clock_map[i].value;
 	}
 
-	return 1;
+	return 0;
 }
 
 /****************************************************************************/
@@ -438,9 +438,46 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	double current_time;
 	double current_jitter;
 	double current_diff;
+	double nominaltime;
+	double arrivaltime;		/* Time relative to start_time */
 	double expected_time;
+	double absskew;
 	guint32 clock_rate;
 
+	/* Store the current time */
+	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
+
+	/*  Is this the first packet we got in this direction? */
+	if (statinfo->first_packet) {
+		statinfo->start_seq_nr = rtpinfo->info_seq_num;
+		statinfo->stop_seq_nr = rtpinfo->info_seq_num;
+		statinfo->seq_num = rtpinfo->info_seq_num;
+		statinfo->start_time = current_time;
+		statinfo->timestamp = rtpinfo->info_timestamp;
+		statinfo->first_timestamp = rtpinfo->info_timestamp;
+		statinfo->time = current_time;
+		statinfo->pt = rtpinfo->info_payload_type;
+		statinfo->reg_pt = rtpinfo->info_payload_type;
+		statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+		statinfo->bw_history[statinfo->bw_index].time = current_time;
+		statinfo->bw_index++;
+		statinfo->total_bytes += rtpinfo->info_data_len + 28;
+		statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
+		/* Not needed ? initialised to zero? */
+		statinfo->delta = 0;
+		statinfo->jitter = 0;
+		statinfo->diff = 0;
+
+		statinfo->total_nr++;
+		statinfo->flags |= STAT_FLAG_FIRST;
+		if (rtpinfo->info_marker_set) {
+			statinfo->flags |= STAT_FLAG_MARKER;
+		}
+		statinfo->first_packet = FALSE;
+		return 0;
+	}
+
+	/* Reset flags */
 	statinfo->flags = 0;
 
 	/* check payload type */
@@ -453,10 +490,10 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	if (rtpinfo->info_payload_type != statinfo->pt)
 		statinfo->flags |= STAT_FLAG_PT_CHANGE;
 	statinfo->pt = rtpinfo->info_payload_type;
+
 	/*
-	 * XXX - should "get_clock_rate()" return 0 for unknown
-	 * payload types, presumably meaning that we should
-	 * just ignore this packet?
+	 * Return 0 for unknown payload types
+	 * Ignore jitter calculation for clockrate = 0
 	 */
 	if (statinfo->pt < 96 ){
 		clock_rate = get_clock_rate(statinfo->pt);
@@ -464,23 +501,67 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		if ( rtpinfo->info_payload_type_str != NULL )
 			clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
 		else
-			clock_rate = 1;
+			clock_rate = 0;
 	}
 
-	/* Store the current time and calculate the current jitter(in ms) */
-	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
-	/* Expected time is last arrival time + the timestamp difference divided by the sampling clock( /1000 to get ms) */ 
-	expected_time = statinfo->time + ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/(clock_rate/1000);
-	current_diff = fabs(current_time - expected_time);
-	current_jitter = (15 * statinfo->jitter + current_diff) / 16;
+		/* Handle wraparound ? */
+	arrivaltime = current_time - statinfo->start_time;
 
-	statinfo->delta = current_time-(statinfo->time);
-	statinfo->jitter = current_jitter;
-	statinfo->diff = current_diff;
+	if (statinfo->first_timestamp > rtpinfo->info_timestamp){
+		/* Handle wraparound */
+		nominaltime = (double)(rtpinfo->info_timestamp + 0xffffffff - statinfo->first_timestamp + 1);
+	}else{
+		nominaltime = (double)(rtpinfo->info_timestamp - statinfo->first_timestamp);
+	}
+
+	/* Can only analyze defined sampling rates */
+    if (clock_rate != 0) { 
+		statinfo->clock_rate = clock_rate;
+		/* Convert from sampling clock to ms */
+		nominaltime = nominaltime /(clock_rate/1000);
+
+		/* Calculate the current jitter(in ms) */
+		if (!statinfo->first_packet) {
+			expected_time = statinfo->time + (nominaltime - statinfo->lastnominaltime);
+			current_diff = fabs(current_time - expected_time);
+			current_jitter = (15 * statinfo->jitter + current_diff) / 16;
+
+			statinfo->delta = current_time-(statinfo->time);
+			statinfo->jitter = current_jitter;
+			statinfo->diff = current_diff;
+		}
+		statinfo->lastnominaltime = nominaltime;
+		/* Calculate skew, i.e. absolute jitter that also catches clock drift
+		 * Skew is positive if TS (nominal) is too fast
+		 */
+		statinfo->skew    = nominaltime - arrivaltime;
+		absskew = fabs(statinfo->skew);
+		if(absskew > fabs(statinfo->max_skew)){
+			statinfo->max_skew = statinfo->skew;
+		}
+		/* Gather data for calculation of average, minimum and maximum framerate based on timestamp */
+#if 0
+		if (numPackets > 0 && (!hardPayloadType || !alternatePayloadType)) { 
+			/* Skip first packet and possibly alternate payload type packets */
+			double dt;
+			dt     = nominaltime - statinfo->lastnominaltime;
+			sumdt += 1.0 * dt;
+			numdt += (dt != 0 ? 1 : 0);
+			mindt  = (dt < mindt ? dt : mindt);
+			maxdt  = (dt > maxdt ? dt : maxdt);
+		}
+#endif
+		/* Gather data for calculation of skew least square */
+		statinfo->sumt   += 1.0 * current_time;
+		statinfo->sumTS  += 1.0 * nominaltime;
+		statinfo->sumt2  += 1.0 * current_time * current_time;
+		statinfo->sumtTS += 1.0 * current_time * nominaltime;
+	}
 
 	/* calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP)+8bytes(UDP) = 28bytes */
 	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
+
 	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
 	while ((statinfo->bw_history[statinfo->bw_start_index].time+1000/* ms */)<current_time){
 	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
@@ -524,11 +605,13 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->max_delta = statinfo->delta;
 			statinfo->max_nr = pinfo->fd->num;
 		}
-		/* maximum and mean jitter calculation */
-		if (statinfo->jitter > statinfo->max_jitter) {
-			statinfo->max_jitter = statinfo->jitter;
+		if (clock_rate != 0) { 
+			/* maximum and mean jitter calculation */
+			if (statinfo->jitter > statinfo->max_jitter) {
+				statinfo->max_jitter = statinfo->jitter;
+			}
+			statinfo->mean_jitter = (statinfo->mean_jitter*statinfo->total_nr + current_diff) / (statinfo->total_nr+1);
 		}
-		statinfo->mean_jitter = (statinfo->mean_jitter*statinfo->total_nr + current_diff) / (statinfo->total_nr+1);
 	}
 	/* regular payload change? (CN ignored) */
 	if (!(statinfo->flags & STAT_FLAG_FIRST)
