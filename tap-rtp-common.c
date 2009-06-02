@@ -437,7 +437,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 {
 	double current_time;
 	double current_jitter;
-	double current_diff;
+	double current_diff = 0;
 	double nominaltime;
 	double arrivaltime;		/* Time relative to start_time */
 	double expected_time;
