@@ -791,22 +791,54 @@ dissect_destination_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tr
 #define CAUSE_TYPE_OFFSET  (PARAMETER_VALUE_OFFSET + RESERVED_2_LENGTH)
 #define CAUSE_VALUE_OFFSET (CAUSE_TYPE_OFFSET + CAUSE_TYPE_LENGTH)
 
+#define CAUSE_TYPE_RETURN  0x1
+#define CAUSE_TYPE_REFUSAL 0x2
+#define CAUSE_TYPE_RELEASE 0x3
+#define CAUSE_TYPE_RESET   0x4
+#define CAUSE_TYPE_ERROR   0x5
 static const value_string cause_type_values[] = {
-  { 0x1,   "Return Cause" },
-  { 0x2,   "Refusal Cause" },
-  { 0x3,   "Release Cause" },
-  { 0x4,   "Reset Cause" },
-  { 0x5,   "Error cause" },
-  { 0,     NULL } };
+  { CAUSE_TYPE_RETURN,	"Return Cause" },
+  { CAUSE_TYPE_REFUSAL,	"Refusal Cause" },
+  { CAUSE_TYPE_RELEASE,	"Release Cause" },
+  { CAUSE_TYPE_RESET,	"Reset Cause" },
+  { CAUSE_TYPE_ERROR,	"Error cause" },
+  { 0,			NULL } };
 
 static void
 dissect_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint8 cause_type, cause;
+  proto_item *pi;
+  const gchar *cause_string;
+
   proto_tree_add_item(parameter_tree, hf_cause_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_cause_type,     parameter_tvb, CAUSE_TYPE_OFFSET,      CAUSE_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_cause_value,    parameter_tvb, CAUSE_VALUE_OFFSET,     CAUSE_VALUE_LENGTH, NETWORK_BYTE_ORDER);
+  cause_type = tvb_get_guint8(parameter_tvb, CAUSE_TYPE_OFFSET);
+  pi = proto_tree_add_item(parameter_tree, hf_cause_value, parameter_tvb, CAUSE_VALUE_OFFSET,   CAUSE_VALUE_LENGTH, NETWORK_BYTE_ORDER);
+  cause = tvb_get_guint8(parameter_tvb, CAUSE_VALUE_OFFSET);
 
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_guint8(parameter_tvb,  CAUSE_TYPE_OFFSET), cause_type_values, "unknown"));
+  switch (cause_type) {
+  case CAUSE_TYPE_RETURN:
+    cause_string = val_to_str(cause, sccp_return_cause_values, "unknown");
+    break;
+  case CAUSE_TYPE_REFUSAL:
+    cause_string = val_to_str(cause, sccp_refusal_cause_values, "unknown");
+    break;
+  case CAUSE_TYPE_RELEASE:
+    cause_string = val_to_str(cause, sccp_release_cause_values, "unknown");
+    break;
+  case CAUSE_TYPE_RESET:
+    cause_string = val_to_str(cause, sccp_reset_cause_values, "unknown");
+    break;
+  case CAUSE_TYPE_ERROR:
+    cause_string = val_to_str(cause, sccp_error_cause_values, "unknown");
+    break;
+  default:
+    cause_string = "unknown";
+  }
+
+  proto_item_append_text(pi, " (%s)", cause_string);
+  proto_item_append_text(parameter_item, " (%s: %s)", val_to_str(cause_type, cause_type_values, "unknown"), cause_string);
 }
 
 #define SEQUENCE_NUMBER_REC_SEQ_LENGTH  1

@@ -426,7 +426,7 @@ static const value_string sccp_segmenting_reassembling_values [] = {
 #define CREDIT_LENGTH 1
 
 #define RELEASE_CAUSE_LENGTH 1
-static const value_string sccp_release_cause_values [] = {
+const value_string sccp_release_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "End user congestion" },
   { 0x02,  "End user failure" },
@@ -448,7 +448,7 @@ static const value_string sccp_release_cause_values [] = {
 
 
 #define RETURN_CAUSE_LENGTH 1
-static const value_string sccp_return_cause_values [] = {
+const value_string sccp_return_cause_values [] = {
   { 0x00,  "No translation for an address of such nature" },
   { 0x01,  "No translation for this specific address" },
   { 0x02,  "Subsystem congestion" },
@@ -476,7 +476,7 @@ static const value_string sccp_return_cause_values [] = {
 
 
 #define RESET_CAUSE_LENGTH 1
-static const value_string sccp_reset_cause_values [] = {
+const value_string sccp_reset_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "SCCP user originated" },
   { 0x02,  "Message out of order - incorrect send sequence number" },
@@ -494,7 +494,7 @@ static const value_string sccp_reset_cause_values [] = {
 
 
 #define ERROR_CAUSE_LENGTH 1
-static const value_string sccp_error_cause_values [] = {
+const value_string sccp_error_cause_values [] = {
   { 0x00,  "Local Reference Number (LRN) mismatch - unassigned destination LRN" },
   { 0x01,  "Local Reference Number (LRN) mismatch - inconsistent source LRN" },
   { 0x02,  "Point code mismatch" },
@@ -504,7 +504,7 @@ static const value_string sccp_error_cause_values [] = {
 
 
 #define REFUSAL_CAUSE_LENGTH 1
-static const value_string sccp_refusal_cause_values [] = {
+const value_string sccp_refusal_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "End user congestion" },
   { 0x02,  "End user failure" },

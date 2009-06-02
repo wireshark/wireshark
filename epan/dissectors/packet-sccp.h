@@ -49,6 +49,11 @@
 #define SCCP_MSG_TYPE_LUDTS 0x14
 
 WS_VAR_IMPORT const value_string sccp_message_type_acro_values[];
+WS_VAR_IMPORT const value_string sccp_release_cause_values[];
+WS_VAR_IMPORT const value_string sccp_return_cause_values[];
+WS_VAR_IMPORT const value_string sccp_reset_cause_values[];
+WS_VAR_IMPORT const value_string sccp_error_cause_values[];
+WS_VAR_IMPORT const value_string sccp_refusal_cause_values[];
 
 /* from packet-sua.c */
 WS_VAR_IMPORT const value_string sua_co_class_type_acro_values[];
