@@ -183,10 +183,10 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 #.FN_BODY ContextAssertion/contextValues/_item
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_PARS Attribute/type
+#.FN_PARS AttributeTypeAndDistinguishedValue/type
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
-#.FN_BODY Attribute/type
+#.FN_BODY AttributeTypeAndDistinguishedValue/type
   const char *fmt; 
   const char *name;
 
@@ -221,7 +221,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     }
   }
 
-#.FN_BODY Attribute/values/_item
+#.FN_BODY AttributeTypeAndDistinguishedValue/value
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char  	*value = NULL;
@@ -303,10 +303,10 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 #.FN_BODY AttributeValueAssertion/assertion
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_PARS AttributeTypeAndDistinguishedValue/type
+#.FN_PARS Attribute/type
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
-#.FN_BODY AttributeTypeAndDistinguishedValue/value
+#.FN_BODY Attribute/values/_item
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS ContextProfile/contextType
