@@ -1350,7 +1350,7 @@ void proto_reg_handoff_x509af(void) {
 	/* these will generally be encoded as ";binary" in LDAP */
 
 	register_ldap_name_dissector("cACertificate", dissect_Certificate_PDU, proto_x509af);
-	register_ldap_name_dissector("certificate", dissect_Certificate_PDU, proto_x509af);
+	register_ldap_name_dissector("userCertificate", dissect_Certificate_PDU, proto_x509af);
 	
 	register_ldap_name_dissector("certificateRevocationList", dissect_CertificateList_PDU, proto_x509af);
 	register_ldap_name_dissector("crl", dissect_CertificateList_PDU, proto_x509af);
