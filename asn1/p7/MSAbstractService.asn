@@ -27,7 +27,7 @@ IMPORTS
     ORAddressAndOrDirectoryName, ProbeSubmissionArgument,
     ProbeSubmissionResult, ResponderCredentials, SecurityContext, SecurityLabel,
 -- WS added imports because of expansion of COMPONENTS OF
-	MessageSubmissionIdentifier, ExtensionField, MTSOriginatorName, 
+	MessageSubmissionIdentifier, ExtensionField, OriginatorName, 
 	OriginalEncodedInformationTypes, ContentType, ProbeSubmissionIdentifier, 
 	ProbeSubmissionTime
     FROM MTSAbstractService {joint-iso-itu-t mhs(6) mts(3) modules(0)
@@ -897,7 +897,7 @@ MSProbeSubmissionArgument ::= SET {
 --  COMPONENTS OF
 --    ProbeSubmissionArgument - This imported type has IMPLICIT tags -,
 -- WS Expanded
-  originator-name                     MTSOriginatorName,
+  originator-name                     OriginatorName,
   original-encoded-information-types  OriginalEncodedInformationTypes OPTIONAL,
   content-type                        ContentType,
   content-identifier                  ContentIdentifier OPTIONAL,

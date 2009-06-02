@@ -60,6 +60,7 @@ void prefs_register_x411(void); /* forward declaration for use in preferences re
 
 /* Initialize the protocol and registered fields */
 int proto_x411 = -1;
+int proto_p3 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = -1; /* integer extension id */
@@ -84,6 +85,7 @@ static int hf_x411_MTABindError_PDU = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
+static gint ett_p3 = -1;
 static gint ett_x411_content_unknown = -1;
 static gint ett_x411_bilateral_information = -1;
 static gint ett_x411_additional_information = -1;
@@ -97,8 +99,25 @@ static dissector_table_t x411_extension_dissector_table;
 static dissector_table_t x411_extension_attribute_dissector_table;
 static dissector_table_t x411_tokendata_dissector_table;
 
+#include "packet-x411-val.h"
+
+#include "packet-x411-table.c"   /* operation and error codes */
 
 #include "packet-x411-fn.c"
+
+#include "packet-x411-table11.c" /* operation argument/result dissectors */
+#include "packet-x411-table21.c" /* error dissector */
+
+static const ros_info_t p3_ros_info = {
+  "P3",
+  &proto_p3,
+  &ett_p3,
+  p3_opr_code_string_vals,
+  p3_opr_tab,
+  p3_err_code_string_vals,
+  p3_err_tab
+};
+
 
 char* x411_get_last_oraddress() { return oraddress; }
 
@@ -239,6 +258,7 @@ void proto_register_x411(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_x411,
+    &ett_p3,
     &ett_x411_content_unknown,
     &ett_x411_bilateral_information,
     &ett_x411_additional_information,
@@ -253,6 +273,9 @@ void proto_register_x411(void) {
   /* Register protocol */
   proto_x411 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("x411", dissect_x411, proto_x411);
+
+  proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_x411, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -295,6 +318,25 @@ void proto_reg_handoff_x411(void) {
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
+
+  /* APPLICATION CONTEXT */
+
+  oid_add_from_string("id-ac-mts-access-88", id_ac_mts_access_88);
+  oid_add_from_string("id-ac-mts-forced-access-88", id_ac_mts_forced_access_88);
+  oid_add_from_string("id-ac-mts-access-94", id_ac_mts_access_94);
+  oid_add_from_string("id-ac-mts-forced-access-94", id_ac_mts_forced_access_94);
+
+
+  /* Register P3 with ROS */
+  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE); 
+
+  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE); 
+  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", FALSE); 
+
+  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", FALSE); 
+  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE); 
+
+  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE); 
 
 }
 

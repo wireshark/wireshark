@@ -1,11 +1,13 @@
+#.TYPE_ATTR
+CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
+Time		TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
-
-#.TYPE_ATTR
-CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
-Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+#.IMPORT ../ros/ros-exp.cnf
+#.IMPORT ../rtse/rtse-exp.cnf
 
 #.OMIT_ASSIGNMENT
 # These gives unused code warnings
@@ -16,23 +18,6 @@ ContentIntegrityAlgorithmIdentifier
 MessageOriginAuthenticationAlgorithmIdentifier
 ProbeOriginAuthenticationAlgorithmIdentifier
 ReportOriginAuthenticationAlgorithmIdentifier
-MessageSubmissionResult
-ProbeSubmissionArgument
-ProbeSubmissionResult
-CancelDeferredDeliveryArgument
-CancelDeferredDeliveryResult
-SubmissionControlArgument
-SubmissionControlResult
-MessageDeliveryArgument
-MessageDeliveryResult
-ReportDeliveryResult
-DeliveryControlArgument
-DeliveryControlResult
-ChangeCredentialsArgument
-# Currently not used
-MTSBindArgument
-MTSBindResult
-MTSBindError
 #.END
 
 #.EXPORTS
@@ -59,9 +44,9 @@ MessageSubmissionEnvelope
 MessageSubmissionIdentifier
 MessageSubmissionTime
 MessageToken
-MTSOriginatorName
 ORAddress
 ORAddressAndOrDirectoryName
+OriginatorName
 ORName
 OriginalEncodedInformationTypes
 OriginatingMTACertificate
@@ -84,6 +69,80 @@ NonDeliveryReasonCode
 NonDeliveryDiagnosticCode
 
 # Forward declaration of Classes
+# CONNECTION-PACKAGE CONTRACT from ROS
+#.CLASS CONNECTION-PACKAGE
+&bind                ClassReference OPERATION
+&unbind              ClassReference OPERATION
+&responderCanUnbind  BooleanType
+&unbindCanFail       BooleanType
+&id                  ObjectIdentifierType
+#.END
+
+#.CLASS APPLICATION-CONTEXT
+&associationContract	ClassReference CONTRACT
+&associationRealization
+&transferRealization
+&AbstractSyntaxes	ClassReference ABSTRACT-SYNTAX
+&applicationContextName	ObjectIdentifierType
+#.END
+
+
+#.CLASS CONTRACT
+&connection           ClassReference CONNECTION-PACKAGE
+&OperationsOf         ClassReference OPERATION-PACKAGE
+&InitiatorConsumerOf  ClassReference OPERATION-PACKAGE
+&InitiatorSupplierOf  ClassReference OPERATION-PACKAGE
+&id                   ObjectIdentifierType
+#.END
+
+#.CLASS MHS-OBJECT
+&Is                    ClassReference MHS-OBJECT
+&Initiates             ClassReference CONTRACT
+&Responds              ClassReference CONTRACT
+&InitiatesAndResponds  ClassReference CONTRACT
+&id                    ObjectIdentifierType
+#.END
+
+# Ros OPERATION
+#.CLASS ABSTRACT-OPERATION 
+&ArgumentType          
+&argumentTypeOptional  BooleanType
+&returnResult          BooleanType
+&ResultType            
+&resultTypeOptional    BooleanType
+&Errors                ClassReference ERROR
+&Linked                ClassReference OPERATION
+&synchronous           BooleanType
+&alwaysReturns         BooleanType
+&InvokePriority        _FixedTypeValueSetFieldSpec
+&ResultPriority        _FixedTypeValueSetFieldSpec
+&operationCode         TypeReference Code
+#.END
+
+# ros ERROR
+#.CLASS ABSTRACT-ERROR 
+&ParameterType          
+&parameterTypeOptional  BooleanType
+&ErrorPriority          _FixedTypeValueSetFieldSpec
+&errorCode              TypeReference Code
+#.END
+
+#.CLASS EXTENSION
+&id			TypeReference ExtensionType
+&Type
+&absent			_VariableTypeValueSetFieldSpec
+&recommended		TypeReference Criticality
+#.END
+
+#.CLASS EXTENSION-ATTRIBUTE
+&id			IntegerType
+&Type
+#.END
+
+#.CLASS TOKEN-DATA
+&id			IntegerType
+&Type
+#.END
 
 
 #.TYPE_RENAME
@@ -153,6 +212,12 @@ MessageSubmissionArgument/envelope	message-submission-envelope
 OtherMessageDeliveryFields/content-type	delivered-content-type
 Report/content				report-content
 
+ReportDeliveryResult/extensions		max-extensions
+
+OtherMessageDeliveryFields/originator-name	delivered-originator-name
+
+PDSParameter/teletex-string		pds-teletex-string
+
 PerDomainBilateralInformation/domain	bilateral-domain
 
 Report/envelope				report-envelope
@@ -191,9 +256,60 @@ CertificateSelectors/content-integrity-check		selectors-content-integrity-check
 
 #.PDU
 
+# This table creates the value_sting to name P3 operation codes and errors
+# in file packet-p3-table.c which is included in the template file
+#
+#.TABLE_HDR
+/* P3 ABSTRACT-OPERATIONS */
+const value_string p3_opr_code_string_vals[] = {
+#.TABLE_BODY OPERATION
+	{ %(&operationCode)s, "%(_ident)s" },
+#.TABLE_FTR
+	{ 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+/* P3 ERRORS */
+static const value_string p3_err_code_string_vals[] = {
+#.TABLE_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
+#.TABLE_FTR
+	  { 0, NULL }
+};
+#.END
+
+# Create a table of opcode and corresponding args and res
+#.TABLE11_HDR
+static const ros_opr_t p3_opr_tab[] = {
+#.TABLE11_BODY OPERATION
+  /* %(_name)s */ 
+  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s }, 
+#.TABLE11_FTR
+  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+};
+#.END
+
+#.TABLE21_HDR
+static const ros_err_t p3_err_tab[] = {
+#.TABLE21_BODY ERROR
+  /* %(_name)s*/ 
+  { %(&errorCode)s,	%(_parameter_pdu)s },
+#.TABLE21_FTR
+  { 0,	(new_dissector_t)(-1) },
+};
+#.END
+
+#.PDU_NEW
+ERROR.&ParameterType
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+#.END
+
+
 #.REGISTER
 RecipientReassignmentProhibited				N x411.extension 1
-MTSOriginatorRequestedAlternateRecipient	N x411.extension 2
+OriginatorRequestedAlternateRecipient	N x411.extension 2
 DLExpansionProhibited						N x411.extension 3
 ConversionWithLossProhibited				N x411.extension 4
 LatestDeliveryTime							N x411.extension 5
@@ -277,7 +393,7 @@ UniversalPosteRestanteAddress				N x411.extension-attribute 38
 UniversalUniquePostalName					N x411.extension-attribute 39
 UniversalLocalPostalAttributes				N x411.extension-attribute 40
 
-ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
+#ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
 
 AsymmetricToken			B	"2.6.3.6.0"	"id-tok-asymmetricToken"
 MTANameAndOptionalGDI	B	"2.6.5.6.0"	"id-on-mtaName"
@@ -405,7 +521,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	}
 		
 
-#.FN_BODY SecurityCategory/value
+#.FN_BODY SecurityCategoryValue
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 

@@ -6,10 +6,6 @@
 #.IMPORT ../ros/ros-exp.cnf
 #.IMPORT ../rtse/rtse-exp.cnf
 
-#.MODULE_IMPORT
-MTSAbstractService				x411
-Reliable-Transfer-APDU			rtse
-
 #.EXPORTS
 SequenceNumber
 SignatureStatus

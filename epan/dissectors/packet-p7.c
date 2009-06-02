@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p7.c                                                                */
-/* ../../tools/asn2wrs.py -b -e -L -p p7 -c ./p7.cnf -s ./packet-p7-template -D . MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
 
 /* Input file: packet-p7-template.c */
 
@@ -346,7 +346,7 @@ static int hf_p7_extensions = -1;                 /* SET_OF_ExtensionField */
 static int hf_p7_extensions_item = -1;            /* ExtensionField */
 static int hf_p7_ms_message_result = -1;          /* CommonSubmissionResults */
 static int hf_p7_store_draft_result = -1;         /* CommonSubmissionResults */
-static int hf_p7_originator_name = -1;            /* MTSOriginatorName */
+static int hf_p7_originator_name = -1;            /* OriginatorName */
 static int hf_p7_original_encoded_information_types = -1;  /* OriginalEncodedInformationTypes */
 static int hf_p7_content_type = -1;               /* ContentType */
 static int hf_p7_content_length = -1;             /* ContentLength */
@@ -2804,7 +2804,7 @@ dissect_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields(gboolean implicit_tag _
 
 
 static const ber_sequence_t MSProbeSubmissionArgument_set[] = {
-  { &hf_p7_originator_name  , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_x411_MTSOriginatorName },
+  { &hf_p7_originator_name  , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_x411_OriginatorName },
   { &hf_p7_original_encoded_information_types, BER_CLASS_APP, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_OriginalEncodedInformationTypes },
   { &hf_p7_content_type     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x411_ContentType },
   { &hf_p7_content_identifier, BER_CLASS_APP, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_ContentIdentifier },
@@ -5256,7 +5256,7 @@ void proto_register_p7(void) {
     { &hf_p7_originator_name,
       { "originator-name", "p7.originator_name",
         FT_NONE, BASE_NONE, NULL, 0,
-        "x411.MTSOriginatorName", HFILL }},
+        "x411.OriginatorName", HFILL }},
     { &hf_p7_original_encoded_information_types,
       { "original-encoded-information-types", "p7.original_encoded_information_types",
         FT_NONE, BASE_NONE, NULL, 0,
