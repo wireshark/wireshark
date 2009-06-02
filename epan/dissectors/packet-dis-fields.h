@@ -77,6 +77,14 @@ typedef enum
     DIS_FIELDTYPE_SUBCATEGORY,
     DIS_FIELDTYPE_TIMESTAMP,
     DIS_FIELDTYPE_WARHEAD,
+    DIS_FIELDTYPE_NUM_FIXED_DATA,
+    DIS_FIELDTYPE_NUM_VARIABLE_DATA,
+    DIS_FIELDTYPE_DATUM_ID,
+    DIS_FIELDTYPE_DATUM_LENGTH,
+    DIS_FIELDTYPE_FIXED_DATUM_VALUE,
+    DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,
+    DIS_FIELDTYPE_REQUEST_ID,
+    DIS_FIELDTYPE_TIME_INTERVAL,
 
     /* composite types */
     DIS_FIELDTYPE_ARTICULATION_PARAMETERS,
@@ -86,7 +94,10 @@ typedef enum
     DIS_FIELDTYPE_EVENT_ID,
     DIS_FIELDTYPE_LINEAR_VELOCITY,
     DIS_FIELDTYPE_LOCATION_WORLD,
-    DIS_FIELDTYPE_LOCATION_ENTITY
+    DIS_FIELDTYPE_LOCATION_ENTITY,
+    DIS_FIELDTYPE_FIXED_DATUM,
+    DIS_FIELDTYPE_VARIABLE_DATUM
+
 } DIS_FieldType;
 
 /* Struct which contains the data needed to parse a single DIS field.
@@ -141,6 +152,10 @@ extern DIS_ParserNode DIS_FIELDS_ORIENTATION[];
 
 extern DIS_ParserNode DIS_FIELDS_NONE[];
 
+extern DIS_ParserNode DIS_FIELDS_FIXED_DATUM[];
+
+extern DIS_ParserNode DIS_FIELDS_VARIABLE_DATUM[];
+
 extern DIS_BitMask DIS_APPEARANCE_LANDPLATFORM[];
 
 extern DIS_BitMask DIS_APPEARANCE_LIFEFORM[];
@@ -166,5 +181,6 @@ gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_Pars
 extern guint32 pduType;
 extern guint32 entityKind;
 extern guint32 entityDomain;
+extern guint32 variableDatumLength;
 
 #endif /* packet-dis-fieldparsers.h */

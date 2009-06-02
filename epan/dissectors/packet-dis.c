@@ -124,6 +124,13 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case DIS_PDUTYPE_DETONATION:
         pduParser = DIS_PARSER_DETONATION_PDU;
         break;
+    case DIS_PDUTYPE_DATA_QUERY:
+        pduParser = DIS_PARSER_DATA_QUERY_PDU;
+        break;
+    case DIS_PDUTYPE_SET_DATA:
+    case DIS_PDUTYPE_DATA:
+        pduParser = DIS_PARSER_DATA_PDU;
+        break;
     default:
         pduParser = 0;
 	break;

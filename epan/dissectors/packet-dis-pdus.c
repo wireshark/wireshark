@@ -33,7 +33,11 @@
 #include "packet-dis-fields.h"
 
 guint32 numArticulations;
+guint32 numFixedData;
+guint32 numVariableData;
 gint ettArticulations[DIS_PDU_MAX_ARTICULATIONS];
+gint ettFixedData;
+gint ettVariableData;
 
 DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[] =
 {
@@ -84,6 +88,32 @@ DIS_ParserNode DIS_PARSER_DETONATION_PDU[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
 };
 
+DIS_ParserNode DIS_PARSER_DATA_PDU[] =
+{
+    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0 },
+    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0 },
+    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0 },
+    { DIS_FIELDTYPE_PAD32,                   "Padding",0,0,0 },
+    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of fixed data fields",0,0,&numFixedData },
+    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of variable data fields",0,0,&numVariableData },
+    { DIS_FIELDTYPE_FIXED_DATUM,             "Fixed data",0,0,0 },
+    { DIS_FIELDTYPE_VARIABLE_DATUM,          "Variable data",0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
+};
+
+DIS_ParserNode DIS_PARSER_DATA_QUERY_PDU[] =
+{
+    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0 },
+    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0 },
+    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0 },
+    { DIS_FIELDTYPE_TIME_INTERVAL,           "Time interval",0,0,0 },
+    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of fixed data fields",0,0,&numFixedData },
+    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of variable data fields",0,0,&numVariableData },
+    { DIS_FIELDTYPE_FIXED_DATUM,             "Fixed data",0,0,0 },
+    { DIS_FIELDTYPE_VARIABLE_DATUM,          "Variable data",0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
+};
+
 /* Initialize the parsers for each PDU type and the standard DIS header.
  */
 void initializeParsers(void)
@@ -92,6 +122,8 @@ void initializeParsers(void)
     initializeParser(DIS_PARSER_FIRE_PDU);
     initializeParser(DIS_PARSER_DETONATION_PDU);
     initializeParser(DIS_FIELDS_PDU_HEADER);
+    initializeParser(DIS_PARSER_DATA_PDU);
+    initializeParser(DIS_PARSER_DATA_QUERY_PDU);
 }
 
 /* Create a specific subtree for a PDU or a composite PDU field.
@@ -182,6 +214,16 @@ void initializeParser(DIS_ParserNode parserNodes[])
         case DIS_FIELDTYPE_ORIENTATION:
             parserNodes[parserIndex].children = createSubtree(
                 DIS_FIELDS_ORIENTATION,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_FIXED_DATUM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_FIXED_DATUM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_VARIABLE_DATUM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VARIABLE_DATUM,
                 &parserNodes[parserIndex].ettVar);
             break;
         default:
@@ -392,6 +434,80 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 	        }
             }
 	    break;
+        case DIS_FIELDTYPE_NUM_FIXED_DATA:
+        case DIS_FIELDTYPE_NUM_VARIABLE_DATA:
+            offset = parseField_UInt(tvb, tree, offset,
+                parserNodes[fieldIndex], 4);
+            break;
+        case DIS_FIELDTYPE_FIXED_DATUM:
+            {
+                guint i;
+                if (numFixedData > INT32_MAX)
+                {
+                    numFixedData = INT32_MAX;
+                }
+
+                for (i = 0; i < numFixedData; ++i)
+                {
+                    proto_item *newSubtree;
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                        parserNodes[fieldIndex].fieldLabel);
+                    newSubtree = proto_item_add_subtree(newField, ettFixedData);
+                    offset = parseFields(tvb, newSubtree, offset, parserNodes[fieldIndex].children);
+                    proto_item_set_end(newField, tvb, offset);
+                }
+
+            }
+            break;
+        case DIS_FIELDTYPE_VARIABLE_DATUM:
+            {
+                guint i;
+                if (numVariableData > INT32_MAX)
+                {
+                    numVariableData = INT32_MAX;
+                }
+
+                for (i = 0; i < numVariableData; ++i)
+                {
+                    proto_item *newSubtree;
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                        parserNodes[fieldIndex].fieldLabel);
+                    newSubtree = proto_item_add_subtree(newField, ettVariableData);
+                    offset = parseFields(tvb, newSubtree, offset, parserNodes[fieldIndex].children);
+                    proto_item_set_end(newField, tvb, offset);
+                }
+
+            }
+            break;
+        case DIS_FIELDTYPE_DATUM_ID:
+        case DIS_FIELDTYPE_DATUM_LENGTH:
+            offset = parseField_UInt(tvb, tree, offset,
+                parserNodes[fieldIndex], 4);
+            break;
+        case DIS_FIELDTYPE_FIXED_DATUM_VALUE:
+            offset = parseField_Bytes(tvb, tree, offset,
+                parserNodes[fieldIndex], 4);
+            break;
+        case DIS_FIELDTYPE_VARIABLE_DATUM_VALUE:
+            {
+                guint lengthInBytes;
+                lengthInBytes = variableDatumLength / 8;
+                if (variableDatumLength % 8 > 0)
+                {
+                    lengthInBytes++;
+                }
+                offset = parseField_Bytes(tvb, tree, offset,
+                    parserNodes[fieldIndex], lengthInBytes);
+            }
+            break;
+        case DIS_FIELDTYPE_REQUEST_ID:
+            offset = parseField_UInt(tvb, tree, offset,
+                parserNodes[fieldIndex], 4);
+            break;
+        case DIS_FIELDTYPE_TIME_INTERVAL:
+            offset = parseField_UInt(tvb, tree, offset,
+                parserNodes[fieldIndex], 4);
+            break;
 	default:
 	    break;
 	}

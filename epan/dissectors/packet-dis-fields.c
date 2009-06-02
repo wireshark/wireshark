@@ -36,6 +36,7 @@
 guint32 pduType;
 guint32 entityKind;
 guint32 entityDomain;
+guint32 variableDatumLength;
 
 DIS_ParserNode DIS_FIELDS_PDU_HEADER[] =
 {
@@ -132,6 +133,21 @@ DIS_ParserNode DIS_FIELDS_ARTICULATION_PARAMETER[] =
 DIS_ParserNode DIS_FIELDS_NONE[] =
 {
     { DIS_FIELDTYPE_END, NULL, 0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_FIXED_DATUM[] =
+{
+    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0 },
+    { DIS_FIELDTYPE_FIXED_DATUM_VALUE,       "Datum value",0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VARIABLE_DATUM[] =
+{
+    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0 },
+    { DIS_FIELDTYPE_DATUM_LENGTH,            "Datum length",0,0,&variableDatumLength },
+    { DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,    "Datum value",0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
 };
 
 DIS_BitMask DIS_APPEARANCE_LANDPLATFORM[] =
