@@ -1250,9 +1250,9 @@ main(int argc, char *argv[])
       }
     }
 
-    if (!wtap_dump_close(pdh, &err)) {
+    if (pdh && !wtap_dump_close(pdh, &err)) {
 
-      fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+      fprintf(stderr, "editcap: Error closing %s: %s\n", filename,
           wtap_strerror(err));
       exit(2);
 
