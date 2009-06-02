@@ -969,7 +969,7 @@ proto_register_capwap_control(void)
 			FT_UINT8, BASE_DEC, VALS(type_header_vals), 0x0,
 			"Type of Payload", HFILL }},
 		{ &hf_capwap_preamble_reserved,
-			{ "Reserved",           "capwap.preamble.reserved",
+		{ "Reserved",           "capwap.preamble.reserved",
 			FT_UINT24, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
@@ -979,7 +979,7 @@ proto_register_capwap_control(void)
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},	
 		{ &hf_capwap_header_hlen,
-		{ "Header Lenght",	"capwap.header.lenght", 
+		{ "Header Length",	"capwap.header.length", 
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},	
 		{ &hf_capwap_header_rid,
@@ -1160,7 +1160,7 @@ proto_register_capwap_control(void)
 			FT_UINT16, BASE_DEC, VALS(ac_information_type_vals), 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_ac_information_length,
-		{ "AC Information Lenght",	"capwap.control.message_element.ac_information.length",
+		{ "AC Information Length",	"capwap.control.message_element.ac_information.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
@@ -1268,7 +1268,7 @@ proto_register_capwap_control(void)
 			FT_UINT16, BASE_DEC, VALS(wtp_descriptor_type_vals), 0x0,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_wtp_descriptor_length,
-		{ "Descriptor Lenght",	"capwap.control.message_element.wtp_descriptor.length",
+		{ "Descriptor Length",	"capwap.control.message_element.wtp_descriptor.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_wtp_descriptor_value,
@@ -1314,7 +1314,7 @@ proto_register_capwap_control(void)
 			NULL, HFILL }},
 
 		{ &hf_capwap_msg_element_type_wtp_mac_type,
-			{ "WTP MAC Type",           "capwap.control.message_element.wtp_mac_type",
+		{ "WTP MAC Type",           "capwap.control.message_element.wtp_mac_type",
 			FT_UINT8, BASE_DEC, VALS(wtp_mac_vals), 0x0,
 			"The MAC mode of operation supported by the WTP", HFILL }},
 	};
@@ -1355,8 +1355,12 @@ proto_reg_handoff_capwap(void)
 	
 	if (!inited) {
  		capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap);
-		capwap_data_handle = create_dissector_handle(dissect_capwap_data, proto_capwap);
-		inited = TRUE;
+		capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap);
+		dtls_handle 	      = find_dissector("dtls");
+		ieee8023_handle       = find_dissector("eth_withoutfcs");
+		ieee80211_handle      = find_dissector("wlan");
+		data_handle           = find_dissector("data");
+		inited                = TRUE;
 	} else {
 		dissector_delete("udp.port", capwap_control_udp_port, capwap_control_handle);
 		dissector_delete("udp.port", capwap_data_udp_port, capwap_data_handle);
@@ -1368,8 +1372,4 @@ proto_reg_handoff_capwap(void)
 	capwap_control_udp_port = global_capwap_control_udp_port;
 	capwap_data_udp_port 	= global_capwap_data_udp_port;
 
-	dtls_handle 	= find_dissector("dtls");
-	ieee8023_handle = find_dissector("eth_withoutfcs");
-	ieee80211_handle = find_dissector("wlan");
-	data_handle = find_dissector("data");
 }
