@@ -773,7 +773,7 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
 	}
 	krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip); 
 	tvb_set_free_cb(krb5_tvb, g_free);
-	add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Uption");
+	add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Option");
 
 	return krb5_tvb;
 }
@@ -1288,17 +1288,14 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   gint ett = ett_telnet_subopt;
   int iac_offset;
   guint len;
+  tvbuff_t * unescaped_tvb; 
   void (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
   gint cur_offset;
   gboolean iac_found;
 
   /*
-   * iac_data is a hack: as data with value iac (0xff) is possible,
-   * this value must be escaped with iac (rfc 854). The proper way to
-   * handle this would be to copy all data into a buffer with iac in
-   * the data part removed and process it from there. For now, just
-   * fix the sanity checks. This of course leaves the double iac
-   * values in the decoded options.
+   * As data with value iac (0xff) is possible, this value must be escaped 
+   * with iac (rfc 854). 
    */
   int  iac_data = 0;
 
@@ -1388,11 +1385,24 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       }
 
       /* We have a dissector for this suboption's parameters; call it. */
-      (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree);
+      if (iac_data > 0) { 
+        /* Data is escaped, we have to unescape it. */
+        unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
+        (*dissect)(pinfo, opt, unescaped_tvb, 0, subneg_len - iac_data, option_tree);
+      } else {
+        (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree);
+      }
     } else {
       /* We don't have a dissector for them; just show them as data. */
-      proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+      if (iac_data > 0) { 
+        /* Data is escaped, we have to unescape it. */
+        unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
+        proto_tree_add_text(option_tree, unescaped_tvb, 0, subneg_len - iac_data,
                           "Option data");
+      } else {
+        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+                          "Option data");
+      }
     }
   }
   return offset;
