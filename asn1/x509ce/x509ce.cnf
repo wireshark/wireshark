@@ -142,6 +142,9 @@ EnhancedCertificateAssertion	B "2.5.13.65" "id-mr-enhancedCertificateMatch"
 CertificateTemplate		B "1.3.6.1.4.1.311.21.7"  "id-ms-certificate-template"
 CertificatePoliciesSyntax	B "1.3.6.1.4.1.311.21.10" "id-ms-application-certificate-policies"
 
+# Entrust extensions
+EntrustVersionInfo	B "1.2.840.113533.7.65.0" "id-ce-entrustVersionInfo"
+
 #.NO_EMIT
 
 #.TYPE_RENAME

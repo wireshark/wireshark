@@ -98,6 +98,7 @@ static int hf_x509ce_CertificateListAssertion_PDU = -1;  /* CertificateListAsser
 static int hf_x509ce_PkiPathMatchSyntax_PDU = -1;  /* PkiPathMatchSyntax */
 static int hf_x509ce_EnhancedCertificateAssertion_PDU = -1;  /* EnhancedCertificateAssertion */
 static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
+static int hf_x509ce_EntrustVersionInfo_PDU = -1;  /* EntrustVersionInfo */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
 static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
@@ -223,6 +224,8 @@ static int hf_x509ce_altNameValue = -1;           /* GeneralName */
 static int hf_x509ce_templateID = -1;             /* OBJECT_IDENTIFIER */
 static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
 static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
+static int hf_x509ce_entrustVers = -1;            /* GeneralString */
+static int hf_x509ce_entrustVersInfoFlags = -1;   /* EntrustInfoFlags */
 /* named bits */
 static int hf_x509ce_KeyUsage_digitalSignature = -1;
 static int hf_x509ce_KeyUsage_contentCommitment = -1;
@@ -245,6 +248,12 @@ static int hf_x509ce_ReasonFlags_cessationOfOperation = -1;
 static int hf_x509ce_ReasonFlags_certificateHold = -1;
 static int hf_x509ce_ReasonFlags_privilegeWithdrawn = -1;
 static int hf_x509ce_ReasonFlags_aACompromise = -1;
+static int hf_x509ce_EntrustInfoFlags_keyUpdateAllowed = -1;
+static int hf_x509ce_EntrustInfoFlags_newExtensions = -1;
+static int hf_x509ce_EntrustInfoFlags_pKIXCertificate = -1;
+static int hf_x509ce_EntrustInfoFlags_enterpriseCategory = -1;
+static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
+static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
 #line 55 "packet-x509ce-template.c"
@@ -310,6 +319,8 @@ static gint ett_x509ce_PkiPathMatchSyntax = -1;
 static gint ett_x509ce_EnhancedCertificateAssertion = -1;
 static gint ett_x509ce_AltName = -1;
 static gint ett_x509ce_CertificateTemplate = -1;
+static gint ett_x509ce_EntrustVersionInfo = -1;
+static gint ett_x509ce_EntrustInfoFlags = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
 #line 58 "packet-x509ce-template.c"
@@ -342,7 +353,7 @@ dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "x509ce.cnf"
+#line 171 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -399,7 +410,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 171 "x509ce.cnf"
+#line 174 "x509ce.cnf"
   
 	PROTO_ITEM_SET_URL(actx->created_item);
 
@@ -411,7 +422,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "x509ce.cnf"
+#line 164 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -594,7 +605,7 @@ dissect_x509ce_T_policyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x509ce_T_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "x509ce.cnf"
+#line 161 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1570,6 +1581,52 @@ dissect_x509ce_CertificateTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
   return offset;
 }
 
+
+
+static int
+dissect_x509ce_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const asn_namedbit EntrustInfoFlags_bits[] = {
+  {  0, &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed, -1, -1, "keyUpdateAllowed", NULL },
+  {  1, &hf_x509ce_EntrustInfoFlags_newExtensions, -1, -1, "newExtensions", NULL },
+  {  2, &hf_x509ce_EntrustInfoFlags_pKIXCertificate, -1, -1, "pKIXCertificate", NULL },
+  {  3, &hf_x509ce_EntrustInfoFlags_enterpriseCategory, -1, -1, "enterpriseCategory", NULL },
+  {  4, &hf_x509ce_EntrustInfoFlags_webCategory, -1, -1, "webCategory", NULL },
+  {  5, &hf_x509ce_EntrustInfoFlags_sETCategory, -1, -1, "sETCategory", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_x509ce_EntrustInfoFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    EntrustInfoFlags_bits, hf_index, ett_x509ce_EntrustInfoFlags,
+                                    NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EntrustVersionInfo_sequence[] = {
+  { &hf_x509ce_entrustVers  , BER_CLASS_UNI, BER_UNI_TAG_GeneralString, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralString },
+  { &hf_x509ce_entrustVersInfoFlags, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_EntrustInfoFlags },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_EntrustVersionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EntrustVersionInfo_sequence, hf_index, ett_x509ce_EntrustVersionInfo);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_AuthorityKeyIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -1751,6 +1808,11 @@ static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509ce_CertificateTemplate(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificateTemplate_PDU);
+}
+static void dissect_EntrustVersionInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_EntrustVersionInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_EntrustVersionInfo_PDU);
 }
 
 
@@ -1942,6 +2004,10 @@ void proto_register_x509ce(void) {
       { "CertificateTemplate", "x509ce.CertificateTemplate",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.CertificateTemplate", HFILL }},
+    { &hf_x509ce_EntrustVersionInfo_PDU,
+      { "EntrustVersionInfo", "x509ce.EntrustVersionInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.EntrustVersionInfo", HFILL }},
     { &hf_x509ce_keyIdentifier,
       { "keyIdentifier", "x509ce.keyIdentifier",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -2442,6 +2508,14 @@ void proto_register_x509ce(void) {
       { "templateMinorVersion", "x509ce.templateMinorVersion",
         FT_INT32, BASE_DEC, NULL, 0,
         "x509ce.INTEGER", HFILL }},
+    { &hf_x509ce_entrustVers,
+      { "entrustVers", "x509ce.entrustVers",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "x509ce.GeneralString", HFILL }},
+    { &hf_x509ce_entrustVersInfoFlags,
+      { "entrustVersInfoFlags", "x509ce.entrustVersInfoFlags",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "x509ce.EntrustInfoFlags", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2526,6 +2600,30 @@ void proto_register_x509ce(void) {
       { "aACompromise", "x509ce.aACompromise",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed,
+      { "keyUpdateAllowed", "x509ce.keyUpdateAllowed",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_newExtensions,
+      { "newExtensions", "x509ce.newExtensions",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_pKIXCertificate,
+      { "pKIXCertificate", "x509ce.pKIXCertificate",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_enterpriseCategory,
+      { "enterpriseCategory", "x509ce.enterpriseCategory",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_webCategory,
+      { "webCategory", "x509ce.webCategory",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+    { &hf_x509ce_EntrustInfoFlags_sETCategory,
+      { "sETCategory", "x509ce.sETCategory",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        "", HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
 #line 102 "packet-x509ce-template.c"
@@ -2593,6 +2691,8 @@ void proto_register_x509ce(void) {
     &ett_x509ce_EnhancedCertificateAssertion,
     &ett_x509ce_AltName,
     &ett_x509ce_CertificateTemplate,
+    &ett_x509ce_EntrustVersionInfo,
+    &ett_x509ce_EntrustInfoFlags,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
 #line 107 "packet-x509ce-template.c"
@@ -2653,6 +2753,7 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.13.65", dissect_EnhancedCertificateAssertion_PDU, proto_x509ce, "id-mr-enhancedCertificateMatch");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.7", dissect_CertificateTemplate_PDU, proto_x509ce, "id-ms-certificate-template");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
+  register_ber_oid_dissector("1.2.840.113533.7.65.0", dissect_EntrustVersionInfo_PDU, proto_x509ce, "id-ce-entrustVersionInfo");
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
