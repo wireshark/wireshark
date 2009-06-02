@@ -272,6 +272,7 @@ DISSECTOR_SRC = \
 	packet-btsdp.c		\
 	packet-bvlc.c		\
 	packet-calcappprotocol.c  \
+	packet-capwap.c		\
 	packet-cast.c		\
 	packet-catapult-dct2000.c \
 	packet-ccsds.c		\

@@ -2874,6 +2874,10 @@ Samu Varjonen		<samu.varjonen [AT] hiit.fi> {
 	Host Identity Protocol (HIP) support
 }
 
+Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
+	CAPWAP dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
