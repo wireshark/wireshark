@@ -9,7 +9,7 @@ ROS
 
 #.OMIT_ASSIGNMENT
 Priority
-.#END
+#.END
 
 #.TYPE_RENAME
 ReturnResult/result/result	OperationResult
