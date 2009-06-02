@@ -2145,7 +2145,7 @@ main(int argc, char *argv[])
   tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
-#if HAVE_GNU_ADNS
+#if HAVE_GNU_ADNS || HAVE_C_ARES
   g_timeout_add(750, host_name_lookup_process, NULL);
 #endif
 
