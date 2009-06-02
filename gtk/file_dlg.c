@@ -194,7 +194,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
     if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
     {
-        f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+        f_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
         gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
         g_free(f_name);
     }
