@@ -831,7 +831,7 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (pntohs(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
 		*err = WTAP_ERR_BAD_RECORD;
 		if (err_info != NULL)
-			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
+			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field");
 		return FALSE;
 	}
 
@@ -881,7 +881,7 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (pntohs(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
 		*err = WTAP_ERR_BAD_RECORD;
 		if (err_info != NULL)
-			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field\n");
+			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field");
 		return FALSE;
 	}
 
@@ -1135,7 +1135,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 				 * have a pseudo-header.
 				 */
 				*err = WTAP_ERR_BAD_RECORD;
-				*err_info = g_strdup_printf("pcap: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				*err_info = g_strdup_printf("pcap: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 				    packet_size);
 				return -1;
 			}
@@ -1154,7 +1154,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 				 * have a pseudo-header.
 				 */
 				*err = WTAP_ERR_BAD_RECORD;
-				*err_info = g_strdup_printf("pcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+				*err_info = g_strdup_printf("pcap: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 				    packet_size);
 				return -1;
 			}
@@ -1195,7 +1195,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1213,7 +1213,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1231,7 +1231,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1249,7 +1249,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1268,7 +1268,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: Linux USB file has a %u-byte packet, too small to have even a Linux USB pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: Linux USB file has a %u-byte packet, too small to have even a Linux USB pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1291,7 +1291,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: lipcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: lipcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1309,7 +1309,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1342,7 +1342,7 @@ pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header\n",
+			*err_info = g_strdup_printf("pcap: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header",
 			    packet_size);
 			return -1;
 		}

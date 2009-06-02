@@ -409,7 +409,7 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
 			return FALSE;
 		}
