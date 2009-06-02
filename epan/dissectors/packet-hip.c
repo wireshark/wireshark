@@ -276,11 +276,7 @@ static const value_string nat_traversal_mode_vals[] = {
 };
  
 /* functions */
-static void dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len);
-static void dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree); 
-
-static dissector_handle_t data_handle;
 
 static int proto_hip = -1;
 static int hf_hip_proto = -1;
@@ -562,405 +558,6 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-void
-proto_register_hip(void)
-{
-	static hf_register_info hf[] = {
-	        { &hf_hip_proto,
-		  { "Payload Protocol", "hip.proto", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_hdr_len,
-		  { "Header Length", "hip.hdr_len", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_packet_type,
-		  { "Packet Type", "hip.packet_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_shim6_fixed_bit_p,
-		  { "Header fixed bit P", "hip.shim6_fixed_p", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-	        { &hf_hip_version,
-		  { "Version", "hip.version", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_shim6_fixed_bit_s,
-		  { "Header fixed bit S", "hip.shim6_fixed_s", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_controls,
-		  { "HIP Controls", "hip.controls", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-				
-	        { &hf_hip_controls_anon,
-		  { "Anonymous (Sender's HI is anonymous)", "hip.controls.a", 
-		    FT_BOOLEAN, 16, NULL, HIP_CONTROL_A_MASK, NULL, HFILL }},
-		
-	        { &hf_hip_checksum,
-		  { "Checksum", "hip.checksum", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_hit_sndr,
-		  { "Sender's HIT", "hip.hit_sndr", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_hit_rcvr,
-		  { "Receiver's HIT", "hip.hit_rcvr", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_type,
-		  { "Type", "hip.type", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_r1_res,
-		  { "Reserved", "hip.tlv.r1_reserved", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_r1count,
-		  { "R1 Counter", "hip.tlv.r1_counter", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_puzzle_k,
-		  { "Difficulty (K)", "hip.tlv_puzzle_k", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_puzzle_life,
-		  { "Lifetime", "hip.tlv_puzzle_lifetime", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_puzzle_o,
-		  { "Opaque Data", "hip.tlv_puzzle_opaque", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_puzzle_i,
-		  { "Random number (I)", "hip.tlv.puzzle_random_i", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-	        { &hf_hip_tlv_solution_k,
-		  { "Difficulty (K)", "hip.tlv_solution_k", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_solution_reserved,
-		  { "Reserved", "hip.tlv_solution_reserved", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_solution_o,
-		  { "Opaque Data", "hip.tlv_solution_opaque", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_solution_i,
-		  { "Random number (I)", "hip.tlv.solution_random_i", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_solution_j,
-		  { "Solution (J)", "hip.tlv_solution_j", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-				
-	        { &hf_hip_tlv_ei_res,
-		{ "Reserved", "hip.tlv_esp_info_reserved", 
-                  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_ei_keyidx,
-		  { "Keymaterial Index", "hip.tlv_esp_info_key_index", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_ei_oldspi,
-		  { "Old SPI", "hip.tlv_esp_info_old_spi", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_ei_newspi,
-		  { "New SPI", "hip.tlv_esp_info_new_spi", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_seq_updid,
-		  { "Seq Update ID", "hip.tlv_seq_update_id", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-	        { &hf_hip_tlv_ack_updid,
-		  { "ACKed Peer Update ID", "hip.tlv_ack_updid", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_dh_group_id,
-		  { "Group ID", "hip.tlv.dh_group_id", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_hip_tlv_dh_pv_length,
-		  { "Public Value Length", "hip.tlv.dh_pv_length", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_dh_pub,
-		  { "Public Value", "hip.tlv.dh_public_value", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_trans_id,
-		  { "Transform ID", "hip.tlv.trans_id", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_esp_reserved,
-		  { "Reserved", "hip.tlv.esp_trans_res", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_len,
-		  { "Host Identity Length", "hip.tlv.host_id_length", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_di_type,
-		  { "Domain Identifier Type", "hip.tlv.host_domain_id_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_di_len,
-		  { "Domain Identifier Length", "hip.tlv.host_domain_id_length", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_hdr,
-		  { "Host Identity flags", "hip.tlv.host_id_hdr", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_hdr_flags,
-		  { "Host Identity Header Flags", "hip.tlv.host_id_header_flags", 
-		    FT_UINT32, BASE_HEX, VALS(hi_hdr_flags_vals), 
-		    HI_HDR_FLAGS_MASK, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_hdr_proto,
-		  { "Host Identity Header Protocol", "hip.tlv.host_id_header_proto", 
-		    FT_UINT32, BASE_HEX, VALS(hi_hdr_proto_vals), 
-		    HI_HDR_PROTO_MASK, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_hdr_alg,
-		  { "Host Identity Header Algorithm", "hip.tlv.host_id_header_algo", 
-		    FT_UINT32, BASE_HEX, VALS(hi_hdr_alg_vals), 
-		    HI_HDR_ALG_MASK, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_t,
-		  { "Host Identity T", "hip.tlv.host_identity_t", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_q,
-		  { "Host Identity Q", "hip.tlv.host_identity_q", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_p,
-		  { "Host Identity P", "hip.tlv.host_id_p", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_host_id_g,
-		  { "Host Identity G", "hip.tlv.host_id_g", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_host_id_y,
-		  { "Host Identity Y (public value)", "hip.tlv.host_id_y", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_e_len,
-		  { "RSA Host Identity exponent length (e_len)", "hip.tlv.host_id_e_length",
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_e,
-		  { "RSA Host Identity exponent (e)", "hip.tlv.host_id_e", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_host_id_n,
-		  { "RSA Host Identity public modulus (n)", "hip.tlv.host_id_n", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-				
-		{ &hf_hip_tlv_notification_res,
-		  { "Notification Reserved", "hip.tlv.notification_res", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_notification_type,
-		  { "Notification Message Type", "hip.tlv.notification_type", 
-		    FT_UINT16, BASE_DEC, VALS(notification_vals), 0xFFFF, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_notification_data,
-		  { "Notification Data", "hip.tlv.notification_data", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_opaque_data,
-		  { "Opaque Data", "hip.tlv.opaque_data", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_reg_ltmin,
-		  { "Minimum Registration Lifetime", "hip.tlv.reg_ltmin", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_reg_ltmax,
-		  { "Maximum Registration Lifetime", "hip.tlv.reg_ltmax", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_reg_lt,
-		  { "Registration Lifetime", "hip.tlv.reg_lt", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_reg_type,
-		  { "Registration Type", "hip.tlv.reg_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_reg_failtype,
-		  { "Registration Failure Type", "hip.tlv.reg_failtype", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_hmac,
-		  { "HMAC", "hip.tlv.hmac", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_sig_alg,
-		  { "Signature Algorithm", "hip.tlv.sig_alg", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_sig,
-		  { "Signature", "hip.tlv.sig", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_enc_reserved,
-		  { "Reserved", "hip.tlv.enc_reserved", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_traffic_type,
-		  { "Traffic Type", "hip.tlv.locator_traffic_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_type,
-		  { "Locator Type", "hip.tlv.locator_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_len,
-		  { "Locator Length", "hip.tlv.locator_len", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_reserved,
-		  { "Reserved", "hip.tlv.locator_reserved", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_lifetime,
-		  { "Locator Lifetime", "hip.tlv.locator_lifetime", 
-		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_port,
-		  { "Locator port", "hip.tlv.locator_port", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_transport_protocol,
-		  { "Locator transport protocol", "hip.tlv.locator_transport_protocol", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_kind,
-		  { "Locator kind", "hip.tlv.locator_kind", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_priority,
-		  { "Locator priority", "hip.tlv.locator_priority", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_spi,
-		  { "Locator spi", "hip.tlv.locator_spi", 
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_locator_address,
-		  { "Locator" , "hip.tlv.locator_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_hip_tlv_cert_group,
-		  { "Cert group", "hip.tlv.cert_group", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_hip_tlv_cert_count,
-		  { "Cert count", "hip.tlv.cert_count", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_cert_id,
-		  { "Cert ID", "hip.tlv.cert_id", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_cert_type,
-		  { "Cert type", "hip.tlv.cert_type", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-		{ &hf_hip_tlv_certificate,
-		  { "Certificate", "hip.tlv.certificate", 
-		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_hip_tlv_nat_traversal_mode_id,
-		  { "NAT Traversal Mode ID", "hip.tlv.nat_traversal_mode_id", 
-		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_from_port,
-		  { "Relay From Port", "hip.tlv.relay_from_port", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_to_port,
-		  { "Relay To Port", "hip.tlv.relay_to_port", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		
-                { &hf_hip_tlv_reg_from_port,
-		  { "Port", "hip.tlv.reg_from_port", 
-		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_transaction_minta,
-		  { "Min Ta" , "hip.tlv_transaction_minta", 
-		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_from_address,
-		  { "Address" , "hip.tlv_from_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_rvs_address,
-		  { "RVS Address" , "hip.tlv_rvs_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_from_protocol,
-		  { "Protocol" , "hip.tlv_relay_from_protocol", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_from_reserved,
-		  { "Reserved" , "hip.tlv_relay_from_reserved", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_from_address,
-		  { "Address" , "hip.tlv_relay_from_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_to_protocol,
-		  { "Protocol" , "hip.tlv_relay_to_protocol", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_to_reserved,
-		  { "Reserved" , "hip.tlv_relay_to_reserved", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_relay_to_address,
-		  { "Address" , "hip.tlv_relay_to_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_reg_from_protocol,
-		  { "Protocol" , "hip.tlv_reg_from_protocol", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_reg_from_reserved,
-		  { "Reserved" , "hip.tlv_reg_from_reserved", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-                { &hf_hip_tlv_reg_from_address,
-		  { "Address" , "hip.tlv_reg_from_address", 
-		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-	};
-
-	static gint *ett[] = {
-		&ett_hip,
-		&ett_hip_controls,
-		&ett_hip_tlv,
-		&ett_hip_tlv_data,
-		&ett_hip_tlv_host_id_hdr,
-	};
-
-	proto_hip = proto_register_protocol("Host Identity Protocol",
-					    "HIP", "hip");
-
-	proto_register_field_array(proto_hip, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-}
    
 static int 
 dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len)
@@ -1504,6 +1101,406 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 }
 
 void
+proto_register_hip(void)
+{
+	static hf_register_info hf[] = {
+	        { &hf_hip_proto,
+		  { "Payload Protocol", "hip.proto", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_hdr_len,
+		  { "Header Length", "hip.hdr_len", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_packet_type,
+		  { "Packet Type", "hip.packet_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_shim6_fixed_bit_p,
+		  { "Header fixed bit P", "hip.shim6_fixed_p", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+	        { &hf_hip_version,
+		  { "Version", "hip.version", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_shim6_fixed_bit_s,
+		  { "Header fixed bit S", "hip.shim6_fixed_s", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_controls,
+		  { "HIP Controls", "hip.controls", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+				
+	        { &hf_hip_controls_anon,
+		  { "Anonymous (Sender's HI is anonymous)", "hip.controls.a", 
+		    FT_BOOLEAN, 16, NULL, HIP_CONTROL_A_MASK, NULL, HFILL }},
+		
+	        { &hf_hip_checksum,
+		  { "Checksum", "hip.checksum", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_hit_sndr,
+		  { "Sender's HIT", "hip.hit_sndr", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_hit_rcvr,
+		  { "Receiver's HIT", "hip.hit_rcvr", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_type,
+		  { "Type", "hip.type", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_r1_res,
+		  { "Reserved", "hip.tlv.r1_reserved", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_r1count,
+		  { "R1 Counter", "hip.tlv.r1_counter", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_puzzle_k,
+		  { "Difficulty (K)", "hip.tlv_puzzle_k", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_puzzle_life,
+		  { "Lifetime", "hip.tlv_puzzle_lifetime", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_puzzle_o,
+		  { "Opaque Data", "hip.tlv_puzzle_opaque", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_puzzle_i,
+		  { "Random number (I)", "hip.tlv.puzzle_random_i", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+	        { &hf_hip_tlv_solution_k,
+		  { "Difficulty (K)", "hip.tlv_solution_k", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_solution_reserved,
+		  { "Reserved", "hip.tlv_solution_reserved", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_solution_o,
+		  { "Opaque Data", "hip.tlv_solution_opaque", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_solution_i,
+		  { "Random number (I)", "hip.tlv.solution_random_i", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_solution_j,
+		  { "Solution (J)", "hip.tlv_solution_j", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+				
+	        { &hf_hip_tlv_ei_res,
+		{ "Reserved", "hip.tlv_esp_info_reserved", 
+                  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_ei_keyidx,
+		  { "Keymaterial Index", "hip.tlv_esp_info_key_index", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_ei_oldspi,
+		  { "Old SPI", "hip.tlv_esp_info_old_spi", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_ei_newspi,
+		  { "New SPI", "hip.tlv_esp_info_new_spi", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_seq_updid,
+		  { "Seq Update ID", "hip.tlv_seq_update_id", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+	        { &hf_hip_tlv_ack_updid,
+		  { "ACKed Peer Update ID", "hip.tlv_ack_updid", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_dh_group_id,
+		  { "Group ID", "hip.tlv.dh_group_id", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_hip_tlv_dh_pv_length,
+		  { "Public Value Length", "hip.tlv.dh_pv_length", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_dh_pub,
+		  { "Public Value", "hip.tlv.dh_public_value", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_trans_id,
+		  { "Transform ID", "hip.tlv.trans_id", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_esp_reserved,
+		  { "Reserved", "hip.tlv.esp_trans_res", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_len,
+		  { "Host Identity Length", "hip.tlv.host_id_length", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_di_type,
+		  { "Domain Identifier Type", "hip.tlv.host_domain_id_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_di_len,
+		  { "Domain Identifier Length", "hip.tlv.host_domain_id_length", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_hdr,
+		  { "Host Identity flags", "hip.tlv.host_id_hdr", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_hdr_flags,
+		  { "Host Identity Header Flags", "hip.tlv.host_id_header_flags", 
+		    FT_UINT32, BASE_HEX, VALS(hi_hdr_flags_vals), 
+		    HI_HDR_FLAGS_MASK, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_hdr_proto,
+		  { "Host Identity Header Protocol", "hip.tlv.host_id_header_proto", 
+		    FT_UINT32, BASE_HEX, VALS(hi_hdr_proto_vals), 
+		    HI_HDR_PROTO_MASK, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_hdr_alg,
+		  { "Host Identity Header Algorithm", "hip.tlv.host_id_header_algo", 
+		    FT_UINT32, BASE_HEX, VALS(hi_hdr_alg_vals), 
+		    HI_HDR_ALG_MASK, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_t,
+		  { "Host Identity T", "hip.tlv.host_identity_t", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_q,
+		  { "Host Identity Q", "hip.tlv.host_identity_q", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_p,
+		  { "Host Identity P", "hip.tlv.host_id_p", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_host_id_g,
+		  { "Host Identity G", "hip.tlv.host_id_g", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_host_id_y,
+		  { "Host Identity Y (public value)", "hip.tlv.host_id_y", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_e_len,
+		  { "RSA Host Identity exponent length (e_len)", "hip.tlv.host_id_e_length",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_e,
+		  { "RSA Host Identity exponent (e)", "hip.tlv.host_id_e", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_host_id_n,
+		  { "RSA Host Identity public modulus (n)", "hip.tlv.host_id_n", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+				
+		{ &hf_hip_tlv_notification_res,
+		  { "Notification Reserved", "hip.tlv.notification_res", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_notification_type,
+		  { "Notification Message Type", "hip.tlv.notification_type", 
+		    FT_UINT16, BASE_DEC, VALS(notification_vals), 0xFFFF, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_notification_data,
+		  { "Notification Data", "hip.tlv.notification_data", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_opaque_data,
+		  { "Opaque Data", "hip.tlv.opaque_data", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_reg_ltmin,
+		  { "Minimum Registration Lifetime", "hip.tlv.reg_ltmin", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_reg_ltmax,
+		  { "Maximum Registration Lifetime", "hip.tlv.reg_ltmax", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_reg_lt,
+		  { "Registration Lifetime", "hip.tlv.reg_lt", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_reg_type,
+		  { "Registration Type", "hip.tlv.reg_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_reg_failtype,
+		  { "Registration Failure Type", "hip.tlv.reg_failtype", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_hmac,
+		  { "HMAC", "hip.tlv.hmac", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_sig_alg,
+		  { "Signature Algorithm", "hip.tlv.sig_alg", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_sig,
+		  { "Signature", "hip.tlv.sig", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_enc_reserved,
+		  { "Reserved", "hip.tlv.enc_reserved", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_traffic_type,
+		  { "Traffic Type", "hip.tlv.locator_traffic_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_type,
+		  { "Locator Type", "hip.tlv.locator_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_len,
+		  { "Locator Length", "hip.tlv.locator_len", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_reserved,
+		  { "Reserved", "hip.tlv.locator_reserved", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_lifetime,
+		  { "Locator Lifetime", "hip.tlv.locator_lifetime", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_port,
+		  { "Locator port", "hip.tlv.locator_port", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_transport_protocol,
+		  { "Locator transport protocol", "hip.tlv.locator_transport_protocol", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_kind,
+		  { "Locator kind", "hip.tlv.locator_kind", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_priority,
+		  { "Locator priority", "hip.tlv.locator_priority", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_spi,
+		  { "Locator spi", "hip.tlv.locator_spi", 
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_locator_address,
+		  { "Locator" , "hip.tlv.locator_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_hip_tlv_cert_group,
+		  { "Cert group", "hip.tlv.cert_group", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_hip_tlv_cert_count,
+		  { "Cert count", "hip.tlv.cert_count", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_cert_id,
+		  { "Cert ID", "hip.tlv.cert_id", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_cert_type,
+		  { "Cert type", "hip.tlv.cert_type", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+		{ &hf_hip_tlv_certificate,
+		  { "Certificate", "hip.tlv.certificate", 
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_hip_tlv_nat_traversal_mode_id,
+		  { "NAT Traversal Mode ID", "hip.tlv.nat_traversal_mode_id", 
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_from_port,
+		  { "Relay From Port", "hip.tlv.relay_from_port", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_to_port,
+		  { "Relay To Port", "hip.tlv.relay_to_port", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		
+                { &hf_hip_tlv_reg_from_port,
+		  { "Port", "hip.tlv.reg_from_port", 
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_transaction_minta,
+		  { "Min Ta" , "hip.tlv_transaction_minta", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_from_address,
+		  { "Address" , "hip.tlv_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_rvs_address,
+		  { "RVS Address" , "hip.tlv_rvs_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_from_protocol,
+		  { "Protocol" , "hip.tlv_relay_from_protocol", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_from_reserved,
+		  { "Reserved" , "hip.tlv_relay_from_reserved", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_from_address,
+		  { "Address" , "hip.tlv_relay_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_to_protocol,
+		  { "Protocol" , "hip.tlv_relay_to_protocol", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_to_reserved,
+		  { "Reserved" , "hip.tlv_relay_to_reserved", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_to_address,
+		  { "Address" , "hip.tlv_relay_to_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_reg_from_protocol,
+		  { "Protocol" , "hip.tlv_reg_from_protocol", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_reg_from_reserved,
+		  { "Reserved" , "hip.tlv_reg_from_reserved", 
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_reg_from_address,
+		  { "Address" , "hip.tlv_reg_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+	};
+
+	static gint *ett[] = {
+		&ett_hip,
+		&ett_hip_controls,
+		&ett_hip_tlv,
+		&ett_hip_tlv_data,
+		&ett_hip_tlv_host_id_hdr,
+	};
+
+	proto_hip = proto_register_protocol("Host Identity Protocol",
+					    "HIP", "hip");
+
+	proto_register_field_array(proto_hip, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
 proto_reg_handoff_hip(void)
 {
 	dissector_handle_t hip_handle;
@@ -1514,5 +1511,4 @@ proto_reg_handoff_hip(void)
 
 	hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
 	dissector_add("udp.port", 50500, hip_handle2);
-	data_handle = find_dissector("data");
 }
