@@ -323,7 +323,7 @@ static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
     GtkWidget *prev = g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
-    const gchar* cf_name;
+    gchar *cf_name;
     gboolean have_preview;
     wtap       *wth;
 
@@ -333,6 +333,8 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
     /* set the filename to the preview */
     wth = preview_set_filename(prev, cf_name);
     have_preview = (wth != NULL);
+
+    g_free(cf_name);
 
     /* make the preview widget sensitive */
     gtk_widget_set_sensitive(prev, have_preview);
@@ -600,7 +602,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   dfilter_t   *rfcode = NULL;
   int          err;
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
   filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
@@ -914,7 +916,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   char        *in_filenames[2];
   char        *tmpname;
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
   filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
@@ -1279,7 +1281,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   GtkWidget *compressed_cb;
 
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
   compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), "compressed");
 
@@ -1352,7 +1354,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
 {
     gchar	*cf_name;
 
-    cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data)));
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data));
 
     switch(btn) {
     case(ESD_BTN_OK):
@@ -1370,6 +1372,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
     default:
         g_assert_not_reached();
     }
+    g_free(cf_name);
 }
 
 
@@ -1379,7 +1382,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gpointer  dialog;
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -1546,7 +1549,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
   gchar     *cf_name, *s;
   GtkWidget *fs = gtk_widget_get_toplevel(w);
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
@@ -1689,7 +1692,7 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
   gchar	*dirname;
   GtkWidget *fs = gtk_widget_get_toplevel(w);
 
-  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
