@@ -42,20 +42,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/conversation.h>
 
 #include "ipproto.h"
 #include "in_cksum.h"
-#include "prefs.h"
-
-#include "packet-ip.h"
-
-/* 128-bit Host Identity Tag */
-#define HIT_BITSIZE 128
-typedef unsigned char hip_hit [HIT_BITSIZE/8];
 
 #define HI_ALG_DSA 3
 #define HI_ALG_RSA 5
@@ -390,9 +381,6 @@ static gint ett_hip_tlv = -1;
 static gint ett_hip_tlv_data = -1;
 static gint ett_hip_tlv_host_id_hdr = -1;
 
-/* Place HIP summary in protocol tree */
-static gboolean hip_summary_in_tree = TRUE;
-
 /* Dissect the HIP packet */
 static void 
 dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
@@ -448,12 +436,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* populate a tree in the second pane with the status of the link layer (i.e. none) */
 	if(tree) {
-		if (hip_summary_in_tree) {
-			ti = proto_tree_add_protocol_format(tree, proto_hip, tvb, 0, -1, 
-							    "Host Identity Protocol");
-		} else {
-			ti = proto_tree_add_item(tree, proto_hip, tvb, 0, -1, FALSE);
-		}
+		ti = proto_tree_add_item(tree, proto_hip, tvb, 0, -1, FALSE);
 
 		hip_tree = proto_item_add_subtree(ti, ett_hip);
 		proto_tree_add_item(hip_tree, hf_hip_proto, tvb, offset, 1, FALSE);
@@ -575,7 +558,6 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_hip(void)
 {
-	module_t *hip_module;
 	static hf_register_info hf[] = {
 	        { &hf_hip_proto,
 		  { "Payload Protocol", "hip.proto", 
@@ -946,14 +928,6 @@ proto_register_hip(void)
 
 	proto_register_field_array(proto_hip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	/* Register configuration preferences */
-        hip_module = prefs_register_protocol(proto_hip, NULL);
-        prefs_register_bool_preference(hip_module, "summary_in_tree",
-				       "Show HIP summary in protocol tree",
-				       "Whether the HIP summary line should be "
-				       "shown in the protocol tree",
-				       &hip_summary_in_tree);
 }
    
 static int 
