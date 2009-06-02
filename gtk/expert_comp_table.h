@@ -54,6 +54,7 @@ typedef struct _error_equiv_table {
 typedef struct _expert_tapdata_s {
 	GtkWidget	*win;
 	GtkWidget	*scrolled_window;
+	GtkCList	*table;
 	GtkWidget	*label;
 	GList		*all_events;
 	GList		*new_events;
