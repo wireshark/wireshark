@@ -356,6 +356,7 @@ static int hf_hip_tlv_locator_transport_protocol = -1;
 static int hf_hip_tlv_locator_kind = -1;
 static int hf_hip_tlv_locator_priority = -1;
 static int hf_hip_tlv_locator_spi = -1;
+static int hf_hip_tlv_locator_address = -1;
 
 static int hf_hip_tlv_cert_group = -1;
 static int hf_hip_tlv_cert_count = -1;
@@ -363,17 +364,23 @@ static int hf_hip_tlv_cert_id = -1;
 static int hf_hip_tlv_cert_type = -1;
 static int hf_hip_tlv_certificate = -1;
 
+static int hf_hip_tlv_from_address = -1;
+static int hf_hip_tlv_rvs_address = -1;
+
 static int hf_hip_tlv_nat_traversal_mode_id = -1;
 static int hf_hip_tlv_transaction_minta = -1;
 static int hf_hip_tlv_relay_from_port = -1;
 static int hf_hip_tlv_relay_from_protocol = -1;
 static int hf_hip_tlv_relay_from_reserved = -1;
+static int hf_hip_tlv_relay_from_address = -1;
 static int hf_hip_tlv_relay_to_port = -1;
 static int hf_hip_tlv_relay_to_protocol = -1;
 static int hf_hip_tlv_relay_to_reserved = -1;
+static int hf_hip_tlv_relay_to_address = -1;
 static int hf_hip_tlv_reg_from_port = -1;
 static int hf_hip_tlv_reg_from_protocol = -1;
 static int hf_hip_tlv_reg_from_reserved = -1;
+static int hf_hip_tlv_reg_from_address = -1;
 
 static gint ett_hip = -1;
 static gint ett_hip_controls = -1;
@@ -850,6 +857,10 @@ proto_register_hip(void)
 		  { "Locator spi", "hip.tlv.locator_spi", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+                { &hf_hip_tlv_locator_address,
+		  { "Locator" , "hip.tlv.locator_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_hip_tlv_cert_group,
 		  { "Cert group", "hip.tlv.cert_group", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -890,6 +901,14 @@ proto_register_hip(void)
 		  { "Min Ta" , "hip.tlv_transaction_minta", 
 		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+                { &hf_hip_tlv_from_address,
+		  { "Address" , "hip.tlv_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_rvs_address,
+		  { "RVS Address" , "hip.tlv_rvs_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
                 { &hf_hip_tlv_relay_from_protocol,
 		  { "Protocol" , "hip.tlv_relay_from_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -897,6 +916,10 @@ proto_register_hip(void)
                 { &hf_hip_tlv_relay_from_reserved,
 		  { "Reserved" , "hip.tlv_relay_from_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_relay_from_address,
+		  { "Address" , "hip.tlv_relay_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_to_protocol,
 		  { "Protocol" , "hip.tlv_relay_to_protocol", 
@@ -906,6 +929,10 @@ proto_register_hip(void)
 		  { "Reserved" , "hip.tlv_relay_to_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+                { &hf_hip_tlv_relay_to_address,
+		  { "Address" , "hip.tlv_relay_to_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
                 { &hf_hip_tlv_reg_from_protocol,
 		  { "Protocol" , "hip.tlv_reg_from_protocol", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -913,6 +940,11 @@ proto_register_hip(void)
                 { &hf_hip_tlv_reg_from_reserved,
 		  { "Reserved" , "hip.tlv_reg_from_reserved", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_reg_from_address,
+		  { "Address" , "hip.tlv_reg_from_address", 
+		    FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -1001,9 +1033,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 			/* Locator types 1 and 0 RFC 5206 section 4.2.*/
 			if (locator_type == 1 || locator_type == 0) {
 				/* Locator */
-				proto_tree_add_text(t, tvb, newoffset, 16, "Locator: %s",
-						    ip6_to_str((const struct e_in6_addr*)
-							       tvb_get_ptr(tvb, newoffset, 16)));
+				proto_tree_add_item(t, hf_hip_tlv_locator_address, tvb, newoffset, 16, FALSE);
 				newoffset += 16;
 				tlv_len -= 24;
 			/* Locator type 2 draft-ietf-hip-nat-raversal-06.txt section 5.7. */
@@ -1035,9 +1065,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 						    newoffset, 4, FALSE);
 				newoffset += 4; 
 				/* Locator */
-				proto_tree_add_text(t, tvb, newoffset, 16, "Locator: %s",
-						    ip6_to_str((const struct e_in6_addr*)
-							       tvb_get_ptr(tvb, newoffset, 16)));
+				proto_tree_add_item(t, hf_hip_tlv_locator_address, tvb, newoffset, 16, FALSE);
 				newoffset += 16;
 				tlv_len -= 36;                        
 			}
@@ -1283,8 +1311,8 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 				break;
 			}
 			/* e */
-			proto_tree_add_bytes(t, hf_hip_tlv_host_id_e, tvb, newoffset,
-					     e_len, tvb_get_ptr(tvb, newoffset, e_len));
+			proto_tree_add_item(t, hf_hip_tlv_host_id_e, tvb, newoffset,
+					     e_len, FALSE);
 			newoffset += e_len;
 			hi_len -= e_len;
 			
@@ -1295,8 +1323,8 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 			}
 			
 			/* RSA public modulus n */
-			proto_tree_add_bytes(t, hf_hip_tlv_host_id_n, tvb, newoffset,
-					     hi_len, tvb_get_ptr(tvb,newoffset,hi_len));
+			proto_tree_add_item(t, hf_hip_tlv_host_id_n, tvb, newoffset,
+					     hi_len, FALSE);
 			break;
 		default:
 			proto_tree_add_text(t, tvb, newoffset, 1,
@@ -1415,17 +1443,13 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 	case PARAM_FROM:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* Address */
-		proto_tree_add_text(t, tvb, newoffset, 16, "Address: %s",
-				    ip6_to_str((const struct e_in6_addr*)
-					       tvb_get_ptr(tvb, newoffset, 16)));
+		proto_tree_add_item(t, hf_hip_tlv_from_address, tvb, newoffset, 16, FALSE);
 		break;
 	case PARAM_VIA_RVS:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* RVS Addresses  */
 		while (tlv_len > 0) {
-			proto_tree_add_text(t, tvb, newoffset, 16, "RVS Address: %s",
-					    ip6_to_str((const struct e_in6_addr*)
-						       tvb_get_ptr(tvb, newoffset, 16)));
+			proto_tree_add_item(t, hf_hip_tlv_rvs_address, tvb, newoffset, 16, FALSE);
 			tlv_len -= 16;
 			newoffset += 16;
 		}
@@ -1442,9 +1466,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_relay_from_reserved, tvb, newoffset, 1, FALSE);
                 newoffset += 1; 
 		/* Address */
-                proto_tree_add_text(t, tvb, newoffset, 16, "Address: %s",
-                                    ip6_to_str((const struct e_in6_addr*)
-                                               tvb_get_ptr(tvb, newoffset, 16)));
+                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
 		break;
 	case PARAM_RELAY_TO:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1458,9 +1480,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_relay_to_reserved, tvb, newoffset, 1, FALSE);
                 newoffset += 1; 
 		/* Address */
-                proto_tree_add_text(t, tvb, newoffset, 16, "Address: %s",
-                                    ip6_to_str((const struct e_in6_addr*)
-                                               tvb_get_ptr(tvb, newoffset, 16)));
+                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
 		break;
 	case PARAM_REG_FROM:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1474,9 +1494,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_reg_from_reserved, tvb, newoffset, 1, FALSE);
                 newoffset += 1; 
 		/* Address */
-                proto_tree_add_text(t, tvb, newoffset, 16, "Address: %s",
-                                    ip6_to_str((const struct e_in6_addr*)
-                                               tvb_get_ptr(tvb, newoffset, 16)));
+                proto_tree_add_item(t, hf_hip_tlv_reg_from_address, tvb, newoffset, 16, FALSE);
 		break;
 
 	default:
