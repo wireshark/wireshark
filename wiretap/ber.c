@@ -114,7 +114,7 @@ static gboolean ber_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
 int ber_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-#define BER_BYTES_TO_CHECK 4
+#define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
   int bytes_read;
   guint8 id;
@@ -149,31 +149,33 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
   /* now check the length */
   oct = bytes[offset++];
 
-  if(!(oct & 0x80))
-    len = oct;
-  else {
-    nlb = oct & 0x7F; /* number of length bytes */
+  if(oct != 0x80) {
+    /* not indefinite length encoded */
 
-    if((nlb > 0) && (nlb <= (BER_BYTES_TO_CHECK - 2))) {
-      /* not indefinite length and we have read enough bytes to compute the length */
-      i = nlb;
-      while(i--) {
-	oct = bytes[offset++];
-	len = (len<<8) + oct;
+    if(!(oct & 0x80))
+      /* length fits into a single byte */
+      len = oct;
+    else {
+      nlb = oct & 0x7F; /* number of length bytes */
+
+      if((nlb > 0) && (nlb <= (BER_BYTES_TO_CHECK - 2))) {
+	/* not indefinite length and we have read enough bytes to compute the length */
+	i = nlb;
+	while(i--) {
+	  oct = bytes[offset++];
+	  len = (len<<8) + oct;
+	}
       }
     }
-  }
 
-  if(len) { /* if we have a length, check it */
     len += (2 + nlb); /* add back Tag and Length bytes */
     file_size = wtap_file_size(wth, err);
 
     if(len != file_size) {
       return 0; /* not ASN.1 */
     }
-  }else{
-	  /* XXX what if indefinite length? */
-	  return 0;
+  } else {
+    /* Indefinite length encoded - assume it is BER */
   }
 
   /* seek back to the start of the file  */
