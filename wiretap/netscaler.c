@@ -403,7 +403,7 @@ typedef	struct	nspr_pktracepart_v23
 
 guint32 nspm_signature_isv10(gchar *sigp);
 guint32 nspm_signature_isv20(gchar *sigp);
-guint32 nspm_signature_version(wtap*, gchar*, gint32, gint64);
+guint32 nspm_signature_version(wtap*, gchar*, gint32);
 gboolean nstrace_read(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
 gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
@@ -462,7 +462,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	nstrace_buf = g_malloc(NSPR_PAGESIZE);
 	page_size = GET_READ_PAGE_SIZE(file_size);
 
-	switch ((wth->file_type = nspm_signature_version(wth, nstrace_buf, page_size, file_size)))
+	switch ((wth->file_type = nspm_signature_version(wth, nstrace_buf, page_size)))
 	{
 	case WTAP_FILE_NETSCALER_1_0:
 		wth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
@@ -557,14 +557,11 @@ nspm_signature_func(20)
 ** has to be a file seek to return to the start of the first page.
 */
 guint32
-nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len, gint64 file_size)
+nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 {
 	gchar *dp = nstrace_buf;
-	gint64 data_offset = 0;
 
-	while (len > 0 && len == file_read(dp, 1, len, wth->fh)) {
-
-		data_offset += len;
+	if (len == file_read(dp, 1, len, wth->fh)) {
 
 		for ( ; len > (gint32)(ns_min(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
 		{
@@ -584,9 +581,6 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len, gint64 file_si
 				return WTAP_FILE_NETSCALER_2_0;
 #undef	sigv20p
 		}
-
-		dp = nstrace_buf;
-		len = GET_READ_PAGE_SIZE((file_size-data_offset));
 	}
 
 	return 0;	/* no version found */
