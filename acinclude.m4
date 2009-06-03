@@ -922,6 +922,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				LUA_INCLUDES=""
 			fi
 			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			want_lua=yes
 
 		],[
 			#
@@ -935,8 +936,9 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			    #
 			    #  Lua 5.1 found
 			    #
-			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
 			    LUA_LIBS=" -llua5.1 -lm"
+			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			    want_lua=yes
 			],[
 				#
 				# Restore the versions of CFLAGS, CPPFLAGS,
