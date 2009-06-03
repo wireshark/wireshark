@@ -2524,8 +2524,9 @@ Kees Cook		<kees [AT] outflux.net> {
 	TiVoConnect Discovery Protocol
 }
 
-Thomas Dreibholz	<dreibh [AT] exp-math.uni-essen.de> {
+Thomas Dreibholz	<dreibh [AT] iem.uni-due.de> {
 	RSerPol protocol stack
+	Scripting Service Protocol support
 }
 
 Authesserre Samuel	<sauthess [AT] gmail.com> {
@@ -2736,10 +2737,6 @@ Shane Kearns		<shane.kearns [AT] symbian.com> {
 	Support Symbian OS btsnoop
 }
 
-Thomas Dreibholz	<dreibh [AT] iem.uni-due.de> {
-	Scripting Service Protocol support
-}
-
 Loris Degioanni		<loris.degioanni [AT] cacetech.com> {
 	Rawshark
 }
@@ -2903,7 +2900,6 @@ Arsen Chaloyan          <achaloyan [AT] yahoo.com>
 Arnaud Jacques          <webmaster [AT] securiteinfo.com>
 D. Manzella             <manzella [AT] lucent.com>
 Jari Mustajarvi         <jari.mustajarvi [AT] nokia.com>
-Joost Yervante Damad    <Joost.Damad [AT] siemens.com>
 Pierre Juhen            <pierre.juhen [AT] wanadoo.fr>
 David Richards          <drichards [AT] alum.mit.edu>
 Shusaku Ueda            <ueda [AT] sra.co.jp>
