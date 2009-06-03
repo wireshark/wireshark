@@ -2834,6 +2834,10 @@ Naoyoshi Ueda		<piyomaru3141 [AT] gmail.com> {
 	IKEv2 decryption support
 }
 
+Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
+	CAPWAP dissector
+}
+
 Javier Cardona		<javier [AT] cozybit.com> {
 	Mesh header dissector
 }
