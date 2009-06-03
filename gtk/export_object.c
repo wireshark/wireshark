@@ -100,9 +100,9 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	export_object_entry_t *entry;
 	GSList *slist = object_list->entries;
 
-        protect_thread_critical_region();
-        remove_tap_listener(object_list);
-        unprotect_thread_critical_region();
+	protect_thread_critical_region();
+	remove_tap_listener(object_list);
+	unprotect_thread_critical_region();
 
 	/* Free the GSList attributes */
 	while(slist) {
@@ -114,12 +114,12 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 		g_free(entry->payload_data);
 
 		slist = slist->next;
-       		g_free(entry);
+		g_free(entry);
 	}
 
 	/* Free the GSList elements */
 	g_slist_free(object_list->entries);
-   	g_free(object_list);
+	g_free(object_list);
 }
 
 static gboolean
@@ -290,7 +290,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	if (error_msg) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Can't register http tap: %s\n", error_msg->str);
+			      "Can't register %s tap: %s\n", name, error_msg->str);
 		g_string_free(error_msg, TRUE);
 		return;
 	}
@@ -307,8 +307,8 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	vbox = gtk_vbox_new(FALSE, 5);
 
-        gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
-        gtk_container_add(GTK_CONTAINER(object_list->dlg), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
+	gtk_container_add(GTK_CONTAINER(object_list->dlg), vbox);
 
 	sw = scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
@@ -374,19 +374,19 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_container_add(GTK_CONTAINER(sw), object_list->tree);
 
 	selection = gtk_tree_view_get_selection(object_list->tree_view);
-        g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
+	g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
 
 
-    bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_SAVE_ALL, GTK_STOCK_SAVE_AS, GTK_STOCK_CANCEL, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_SAVE_ALL, GTK_STOCK_SAVE_AS, GTK_STOCK_CANCEL, NULL);
 
 	/* Help button */
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_OBJECT_LIST);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
 			     "Show help for this dialog.", NULL);
 
 	/* Save All button */
-    save_all_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_SAVE_ALL);
+	save_all_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_SAVE_ALL);
 	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb),
 		       object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_all_bt,
@@ -394,14 +394,14 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 			     "filenames.", NULL);
 
 	/* Save As button */
-    save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE_AS);
+	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE_AS);
 	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_bt,
 			     "Saves the currently selected content to a file.",
 			     NULL);
 
 	/* Cancel button */
-    cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), cancel_bt,
 			     "Cancel this dialog.", NULL);
 
@@ -414,7 +414,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
         g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(object_list->dlg, "destroy",
 		       G_CALLBACK(eo_win_destroy_cb), object_list);
-       	window_set_cancel_button(object_list->dlg, cancel_bt,
+	window_set_cancel_button(object_list->dlg, cancel_bt,
 				 window_cancel_button_cb);
 
 	/* Show the window */
