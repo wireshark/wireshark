@@ -865,25 +865,36 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				AC_MSG_CHECKING(for extraneous lua header directories)
 				found_lua_dir=""
 				lua_dir_list="/usr/include/lua5.1 $prefix/include/lua5.1"
-				if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+				if test "x$ac_cv_enable_usr_local" = "xyes"
+				then
 					lua_dir_list="$lua_dir_list /usr/local/include/lua5.1"
 				fi
 				for lua_dir in $lua_dir_list
 				do
-					if test -d $lua_dir ; then
+					if test -d $lua_dir
+					then
 						LUA_INCLUDES="-I$prefix/include/lua5.1"
 					fi
 					found_lua_dir="$lua_dir"
 					break
 				done
 
-				if test "$found_lua_dir" != "" ; then
+				if test "x$found_lua_dir" != "x"
+				then
 					AC_MSG_RESULT(found -- $found_lua_dir)
 				else
 					AC_MSG_RESULT(not found)
-
-					# we found lua5.1/lua.h, but we don't know which include dir contains it
-					AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
+					if test "x$want_lua" = "xyes"
+					then
+						# we found lua5.1/lua.h, but we don't know which include dir contains it
+						AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
+					else
+						#
+						# We couldn't find the header file; don't use the
+						# library, as it's probably not present.
+						#
+						want_lua=no
+					fi
 	  			fi
 			fi
 		],
