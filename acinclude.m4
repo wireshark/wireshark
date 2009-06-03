@@ -869,12 +869,12 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				then
 					lua_dir_list="$lua_dir_list /usr/local/include/lua5.1"
 				fi
-				for lua_dir in $lua_dir_list
+				for lua_dir_ent in $lua_dir_list
 				do
-					if test -d $lua_dir
+					if test -d $lua_dir_ent
 					then
-						LUA_INCLUDES="-I$lua_dir"
-						found_lua_dir="$lua_dir"
+						LUA_INCLUDES="-I$lua_dir_ent"
+						found_lua_dir="$lua_dir_ent"
 						break
 					fi
 				done
