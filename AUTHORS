@@ -911,8 +911,9 @@ Steve Dickson           <steved[AT]talarian.com> {
 	PGM (Pragmatic General Multicast) support
 }
 
-Markus Seehofer         <mseehofe[AT]nt.hirschmann.de> {
+Markus Seehofer         <Markus.Seehofer [AT] hirschmann.de> {
 	GMRP support
+	IEEE 1588 / PTP version 2 support
 }
 
 Lee Berger              <lberger[AT]roy.org> {
@@ -1753,8 +1754,10 @@ Teemu Rinta-aho         <teemu.rinta-aho [AT] nomadiclab.com> {
 	Draft 20 MIPv6 support
 }
 
-Martijn Schipper        <martijn.schipper [AT] intersil.com> {
+Martijn Schipper        <mschipper [AT] globespanvirata.com> {
 	Fix for tag for 802.11g ERP Information field
+	Support for reading AiroPeek files in V9 capture file format
+	(AiroPeek 2.x)
 }
 
 Wayne Parrott           <wayne_p [AT] pacific.net.au> {
@@ -2049,11 +2052,6 @@ David Fort              <david.fort [AT] irisa.fr> {
 	DNS DS RR support
 	MLDv2 report message decoding
 	DNS IPSECKEY RR support
-}
-
-Martijn Schipper        <mschipper [AT] globespanvirata.com> {
-	Support for reading AiroPeek files in V9 capture file format
-	(AiroPeek 2.x)
 }
 
 Felix Fei               <felix.fei [AT] utstar.com> {
@@ -2957,7 +2955,6 @@ Tomasz Mrugalski	<thomson [AT] klub.com.pl>
 Brett Kuskie		<mstrprgmmr [AT] chek.com>
 Brian Caswell		<bmc [AT] sourcefire.com>
 Yann			<yann_eads [AT] hotmail.com>
-Jon Ringle		<ml-ethereal [AT] ringle.org>
 Julien Leproust		<julien [AT] via.ecp.fr>
 Mutsuya Irie		<irie [AT] sakura-catv.ne.jp>
 Yoshihiro Oyama		<y.oyama [AT] netagent.co.jp>
@@ -2986,7 +2983,6 @@ Maria-Luiza Crivat	<luizacri [AT] gmail.com>
 Brice Augustin		<bricecotte [AT] gmail.com>
 Matt Thornton		<MATT_THORNTON [AT] appsig.com>
 Markus Seehofer		<Markus.Seehofer [AT] hirschmann.de>
-Matthias Drochner	<M.Drochner [AT] fz-juelich.de>
 Timo Metsala		<timo.metsala [AT] gmail.com>
 Tomer Shani		<thetour [AT} japan.com>
 Manu Pathak		<mapathak [AT] cisco.com>
