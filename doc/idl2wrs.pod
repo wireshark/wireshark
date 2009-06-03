@@ -98,7 +98,7 @@ Improve command line options.
 =item *
 Improve decode algorithm when we have operation name collision.
 
-=back 4
+=back
 
 =head1 AUTHORS
 
