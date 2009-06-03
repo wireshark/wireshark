@@ -123,9 +123,9 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 		perc = 0;
 	}
 	data[7] = g_strdup_printf("%d (%.1f%%)", lost, perc);
-	data[8] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_delta*1000);
-	data[9] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_jitter*1000);
-	data[10] = g_strdup_printf("%.2f", strinfo->rtp_stats.mean_jitter*1000);
+	data[8] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_delta);
+	data[9] = g_strdup_printf("%.2f", strinfo->rtp_stats.max_jitter);
+	data[10] = g_strdup_printf("%.2f", strinfo->rtp_stats.mean_jitter);
 	if (strinfo->problem)
 		data[11] = g_strdup("X");
 	else
