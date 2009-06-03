@@ -2291,6 +2291,7 @@ Luca Deri		<deri [AT] ntop.org> {
 Viorel Suman		<vsuman [AT] avmob.ro> {
 	TALI (RFC 3094) support
 	Various GSM SMS fixes
+	Computer Interface to Message Distribution (CIMD) version 2 dissection
 }
 
 Alejandro Vaquero	<alejandro.vaquero [AT] verso.com> {
@@ -2426,10 +2427,6 @@ Fred Hoekstra		<fred.hoekstra [AT] philips.com> {
 Ankur Aggarwal		<ankur [AT] in.athenasemi.com> {
 	IEEE 802.11e (QoS) decoding
 	Improved IEEE 802.11h decoding
-}
-
-Viorel Suman		<vsuman [AT] avmob.ro> {
-	Computer Interface to Message Distribution (CIMD) version 2 dissection
 }
 
 Lucian Piros		<lpiros [AT] avmob.ro> {
