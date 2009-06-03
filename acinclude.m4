@@ -873,10 +873,10 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				do
 					if test -d $lua_dir
 					then
-						LUA_INCLUDES="-I$prefix/include/lua5.1"
+						LUA_INCLUDES="-I$lua_dir"
+						found_lua_dir="$lua_dir"
+						break
 					fi
-					found_lua_dir="$lua_dir"
-					break
 				done
 
 				if test "x$found_lua_dir" != "x"
@@ -884,6 +884,17 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 					AC_MSG_RESULT(found -- $found_lua_dir)
 				else
 					AC_MSG_RESULT(not found)
+					#
+					# Restore the versions of CFLAGS, CPPFLAGS,
+					# LDFLAGS, and LIBS before we added the
+					# "--with-lua=" directory, as we didn't
+					# actually find lua there.
+					#
+					CFLAGS="$wireshark_save_CFLAGS"
+					CPPFLAGS="$wireshark_save_CPPFLAGS"
+					LDFLAGS="$wireshark_save_LDFLAGS"
+					LIBS="$wireshark_save_LIBS"
+					LUA_LIBS=""
 					if test "x$want_lua" = "xyes"
 					then
 						# we found lua5.1/lua.h, but we don't know which include dir contains it
@@ -899,6 +910,17 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			fi
 		],
 		[
+			#
+			# Restore the versions of CFLAGS, CPPFLAGS,
+			# LDFLAGS, and LIBS before we added the
+			# "--with-lua=" directory, as we didn't
+			# actually find lua there.
+			#
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
+			LUA_LIBS=""
 			if test "x$lua_dir" != "x"
 			then
 				#
