@@ -50,6 +50,8 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/range.h>
+#include <epan/prefs.h>
 
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
@@ -74,7 +76,12 @@ static gint ett_tftp_option = -1;
 
 static dissector_handle_t tftp_handle;
 
-#define UDP_PORT_TFTP    69
+#define UDP_PORT_TFTP_RANGE    "69"
+
+void proto_reg_handoff_tftp (void);
+
+/* User definable values */
+static range_t *global_tftp_port_range;
 
 #define	TFTP_RRQ	1
 #define	TFTP_WRQ	2
@@ -421,7 +428,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * the destination address of this packet, and its port 2 being
 	 * wildcarded, and give it the TFTP dissector as a dissector.
 	 */
-	if (pinfo->destport == UDP_PORT_TFTP) {
+	if (value_is_in_range(global_tftp_port_range, pinfo->destport)) {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					   pinfo->srcport, 0, NO_PORT_B);
 	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
@@ -509,21 +516,51 @@ proto_register_tftp(void)
     &ett_tftp_option,
   };
 
+  module_t *tftp_module;
+
   proto_tftp = proto_register_protocol("Trivial File Transfer Protocol",
 				       "TFTP", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("tftp", dissect_tftp, proto_tftp);
+
+  /* Set default UDP ports */
+  range_convert_str (&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);
+
+  tftp_module = prefs_register_protocol (proto_tftp, proto_reg_handoff_tftp);
+  prefs_register_range_preference (tftp_module, "udp_ports",
+				  "TFTP port numbers",
+				  "Port numbers used for TFTP traffic "
+				   "(default " UDP_PORT_TFTP_RANGE ")",
+				   &global_tftp_port_range, MAX_UDP_PORT);
+}
+
+static void range_delete_callback (guint32 port)
+{
+    dissector_delete ("udp.port", port, tftp_handle);
+}
+
+static void range_add_callback (guint32 port)
+{
+    dissector_add ("udp.port", port, tftp_handle);
 }
 
 void
 proto_reg_handoff_tftp(void)
 {
-  tftp_handle = find_dissector("tftp");
+  static range_t *tftp_port_range;
+  static gboolean tftp_initialized = FALSE;
 
-  dissector_add("udp.port", UDP_PORT_TFTP, tftp_handle);
+  if (!tftp_initialized) {
+    tftp_handle = find_dissector("tftp");
+    heur_dissector_add("stun2", dissect_embeddedtftp_heur, proto_tftp);
+    tftp_initialized = TRUE;
+  } else {
+    range_foreach (tftp_port_range, range_delete_callback);
+    g_free (tftp_port_range);
+  }
 
-  heur_dissector_add("stun2", dissect_embeddedtftp_heur, 
-  		     proto_tftp);
+  tftp_port_range = range_copy (global_tftp_port_range);
+  range_foreach (tftp_port_range, range_add_callback);
 }
