@@ -135,6 +135,7 @@ typedef struct mac_lte_ep {
 
 /* Common channel stats */
 typedef struct mac_lte_common_stats {
+    guint32 all_frames;
     guint32 bch_frames;
     guint32 bch_bytes;
     guint32 pch_frames;
@@ -184,8 +185,8 @@ mac_lte_stat_reset(void *phs)
 
     /* Set the title */
     if (mac_lte_stat_dlg_w != NULL) {
-        g_snprintf (title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s",
-                    cf_get_display_name(&cfile));
+        g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s",
+                   cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat_dlg_w), title);
     }
 
@@ -275,6 +276,8 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     if (!hs) {
         return (0);
     }
+
+    common_stats.all_frames++;
 
     /* For common channels, just update global counters */
     switch (si->rntiType) {
@@ -516,6 +519,15 @@ mac_lte_stat_draw(void *phs)
     for (tmp = list; (tmp!=NULL); tmp=tmp->next, number_of_ues++);
     g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u UEs)", number_of_ues);
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
+
+    /* Update title to include number of UEs and frames */
+    g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (%u UEs, %u frames)",
+               cf_get_display_name(&cfile),
+               number_of_ues,
+               common_stats.all_frames);
+    gtk_window_set_title(GTK_WINDOW(mac_lte_stat_dlg_w), title);
+
+
 
     /* For each row/UE/C-RNTI in the model */
     for (tmp = list; tmp; tmp=tmp->next) {
