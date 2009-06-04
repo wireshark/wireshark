@@ -626,14 +626,25 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		}
 		if (flags & END_SPDU) {
 			/*
-			 * In Data Transfer and Typed Data SPDUs,
+			 * In Data Transfer and Typed Data SPDUs, (X.225: 8.3.{11,13}.4)
 			 * "The User Information Field shall be present
 			 * if the Enclosure Item is not present, or has
 			 * bit 2 = 0", which presumably means it shall
 			 * *not* be present if the Enclosure item *is*
 			 * present and has bit 2 = 1.
 			 */
-			has_user_information = FALSE;
+
+		  if(!(flags & BEGINNING_SPDU)) {
+		    /* X.225 7.11.2 also states:
+		     * "All DATA TRANSFER SPDUs, except the last DATA TRANSFER SPDU in a sequence greater than one, must have user information"
+		     * So if BEGINNING_SPDU and END_SPDU are set in the enclosure item, then this is presumably a sequence of one and 
+		     * consequently there must be user information.
+		     *
+		     * So, there is only no user information if *only* END_SPDU is set.
+		     */
+
+		     has_user_information = FALSE;
+		  }
 		}
 		break;
 
