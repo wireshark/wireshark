@@ -872,6 +872,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     gboolean   have_seen_data_header = FALSE;
     gboolean   have_seen_bsr = FALSE;
+    gboolean   expecting_body_data = FALSE;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) ",
@@ -953,6 +954,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Remember if we've seen a data subheader */
         if (lcids[number_of_headers] <= 10) {
             have_seen_data_header = TRUE;
+            expecting_body_data = TRUE;
         }
 
         /* Show an expert item if a contol subheader (except Padding) appears
@@ -1078,6 +1080,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* And set its length to offset */
     proto_item_set_len(pdu_header_ti, offset);
 
+
+    /* TODO: some valid PDUs don't have any bodies, so don't want expert info.
+       Use expecting_body_data to track this */
 
     /* There might not be any data, if only headers were logged */
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
@@ -1611,7 +1616,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_padding_length,
             { "Padding length",
               "mac-lte.padding-length", FT_UINT32, BASE_DEC, 0, 0x0,
-              "Length of padding data at end of frame", HFILL
+              "Length of padding data not included at end of frame", HFILL
             }
         },
 
@@ -1700,31 +1705,31 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_rar_ul_grant_fsrba,
             { "Fixed sized resource block assignment",
-              "mac-lte.rar.ul.fsrba", FT_UINT16, BASE_DEC, 0, 0x07fe,
+              "mac-lte.rar.ul-grant.fsrba", FT_UINT16, BASE_DEC, 0, 0x07fe,
               "Fixed sized resource block assignment", HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_tmcs,
             { "Truncated Modulation and coding scheme",
-              "mac-lte.rar.ul.tmcs", FT_UINT16, BASE_DEC, 0, 0x01e0,
+              "mac-lte.rar.ul-grant.tmcs", FT_UINT16, BASE_DEC, 0, 0x01e0,
               "Truncated Modulation and coding scheme", HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_tcsp,
             { "TPC command for scheduled PUSCH",
-              "mac-lte.rar.ul.tcsp", FT_UINT8, BASE_DEC, 0, 0x01c,
+              "mac-lte.rar.ul-grant.tcsp", FT_UINT8, BASE_DEC, 0, 0x01c,
               "TPC command for scheduled PUSCH", HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_ul_delay,
             { "UL Delay",
-              "mac-lte.rar.ul.ul-delay", FT_UINT8, BASE_DEC, 0, 0x02,
+              "mac-lte.rar.ul-grant.ul-delay", FT_UINT8, BASE_DEC, 0, 0x02,
               "UL Delay", HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_cqi_request,
             { "CQI Request",
-              "mac-lte.rar.ul.cqi-request", FT_UINT8, BASE_DEC, 0, 0x01,
+              "mac-lte.rar.ul-grant.cqi-request", FT_UINT8, BASE_DEC, 0, 0x01,
               "CQI Request", HFILL
             }
         },
@@ -1782,13 +1787,13 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_timing_advance,
             { "Timing Advance",
               "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x3f,
-              "Timing Advance (0-1282 (see 36.213, 4.2.3)", HFILL
+              "Timing Advance (0-1282 - see 36.213, 4.2.3)", HFILL
             }
         },
         { &hf_mac_lte_control_ue_contention_resolution_identity,
-            { "UE Contention Resoluation Identity",
-              "mac-lte.control.ue-contention-resoluation-identity", FT_BYTES, BASE_HEX, 0, 0x0,
-              "UE Contention Resoluation Identity", HFILL
+            { "UE Contention Resolution Identity",
+              "mac-lte.control.ue-contention-resolution-identity", FT_BYTES, BASE_HEX, 0, 0x0,
+              "UE Contention Resolution Identity", HFILL
             }
         },
         { &hf_mac_lte_control_power_headroom_reserved,
