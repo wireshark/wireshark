@@ -359,13 +359,7 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 		rst->num_procs=index+1;
 		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
 		for(i=old_num_procs;i<rst->num_procs;i++){
-			rst->procedures[i].stats.num=0;
-			rst->procedures[i].stats.min.secs=0;
-			rst->procedures[i].stats.min.nsecs=0;
-			rst->procedures[i].stats.max.secs=0;
-			rst->procedures[i].stats.max.nsecs=0;
-			rst->procedures[i].stats.tot.secs=0;
-			rst->procedures[i].stats.tot.nsecs=0;
+			time_stat_init(&rst->procedures[i].stats);
 			for(j=0;j<6;j++){
 				rst->procedures[i].entries[j]=NULL;
 			}
