@@ -1,5 +1,6 @@
 /* 
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
+ * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
  *
  * $Id$
  *
@@ -58,7 +59,12 @@ enum chunk_types {
 	SHUTDOWN_ACK  = 8,
 	SCTP_ERROR    = 9,
 	COOKIE_ECHO   = 10,
-	COOKIE_ACK    = 11
+	COOKIE_ACK    = 11,
+	ECNE          = 12,
+	CWR           = 13,
+	SHUT_COMPLETE = 14,
+	AUTH          = 15,
+	NR_SACK       = 16
 };
 enum
 {
@@ -75,6 +81,11 @@ enum
    ERROR_COLUMN,
    COOKIE_ECHO_COLUMN,
    COOKIE_ACK_COLUMN,
+   ECNE_COLUMN,
+   CWR_COLUMN,
+   SHUT_COMPLETE_COLUMN,
+   AUTH_COLUMN,
+   NR_SACK_COLUMN,
    OTHERS_COLUMN,
    N_COLUMN /* The number of columns */
 };
@@ -89,25 +100,30 @@ GtkWidget* create_list(void)
     GtkTreeViewColumn *column;
     GtkCellRenderer *renderer;
     GtkTreeSortable *sortable;
-	GtkTreeView     *list_view;
-	GtkTreeSelection  *selection;
+    GtkTreeView     *list_view;
+    GtkTreeSelection  *selection;
 
-	/* Create the store */
-    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX	*/
-                                G_TYPE_STRING,	/* IP Address					*/
-                                G_TYPE_INT,		/* DATA							*/
-								G_TYPE_INT,		/* INIT							*/
-								G_TYPE_INT,		/* INIT_ACK						*/
-								G_TYPE_INT,		/* SACK							*/
-								G_TYPE_INT,		/* HEARTBEAT					*/
-								G_TYPE_INT,		/* HEARTBEAT_ACK				*/
-								G_TYPE_INT,		/* ABORT						*/
-								G_TYPE_INT,		/* SHUTDOWN						*/
-								G_TYPE_INT,		/* SHUTDOWN_ACK					*/
-								G_TYPE_INT,		/* ERROR						*/
-								G_TYPE_INT,		/* COOKIE_ECHO					*/
-								G_TYPE_INT,		/* COOKIE_ACK					*/
-								G_TYPE_INT);	/* Others						*/
+    /* Create the store */
+    list_store = gtk_list_store_new(N_COLUMN,      /* Total number of columns XXX */
+                                    G_TYPE_STRING, /* IP Address                  */
+                                    G_TYPE_INT,    /* DATA                        */
+                                    G_TYPE_INT,    /* INIT                        */
+                                    G_TYPE_INT,    /* INIT_ACK                    */
+                                    G_TYPE_INT,    /* SACK                        */
+                                    G_TYPE_INT,    /* HEARTBEAT                   */
+                                    G_TYPE_INT,    /* HEARTBEAT_ACK               */
+                                    G_TYPE_INT,    /* ABORT                       */
+                                    G_TYPE_INT,    /* SHUTDOWN                    */
+                                    G_TYPE_INT,    /* SHUTDOWN_ACK                */
+                                    G_TYPE_INT,    /* ERROR                       */
+                                    G_TYPE_INT,    /* COOKIE_ECHO                 */
+                                    G_TYPE_INT,    /* COOKIE_ACK                  */
+                                    G_TYPE_INT,    /* ECNE                        */
+                                    G_TYPE_INT,    /* CWR                         */
+                                    G_TYPE_INT,    /* SHUT_COMPLETE               */
+                                    G_TYPE_INT,    /* AUTH                        */
+                                    G_TYPE_INT,    /* NR_SACK                     */
+                                    G_TYPE_INT);   /* Others                      */
     /* Create a view */
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
@@ -127,11 +143,11 @@ GtkWidget* create_list(void)
     g_object_unref (G_OBJECT (list_store));
 
     /* 
-	 * Create the first column packet, associating the "text" attribute of the
+     * Create the first column packet, associating the "text" attribute of the
      * cell_renderer to the first column of the model 
-	 */
-	/* 1:st column */
-	renderer = gtk_cell_renderer_text_new ();
+     */
+    /* 1:st column */
+    renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("IP Address", renderer, 
 		"text",	IP_ADDR_COLUMN, 
 		NULL);
@@ -152,7 +168,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, DATA_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 50);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
     /* 3:d column... */
@@ -163,7 +179,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, INIT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 50);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
     /* 4:th column... */
@@ -174,10 +190,10 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, INIT_ACK_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 50);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
-	/* 5:th column... */
+    /* 5:th column... */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("SACK", renderer, 
 		"text", SACK_COLUMN,
@@ -185,7 +201,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, SACK_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 35);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
     /* 6:th column... */
@@ -196,7 +212,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, HEARTBEAT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 60);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
     /* 7:th column... */
@@ -207,7 +223,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, HEARTBEAT_ACK_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 90);
+    gtk_tree_view_column_set_min_width(column, 120);
     gtk_tree_view_append_column (list_view, column);
 
     /* 8:th column... */
@@ -218,7 +234,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, ABORT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 40);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
 
@@ -230,7 +246,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, SHUTDOWN_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 65);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
     /* 10:th column... */
@@ -241,7 +257,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, SHUTDOWN_ACK_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 90);
+    gtk_tree_view_column_set_min_width(column, 120);
     gtk_tree_view_append_column (list_view, column);
 
     /* 11:th column... */
@@ -252,7 +268,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, ERROR_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 40);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
     /* 12:th column... */
@@ -263,7 +279,7 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, COOKIE_ECHO_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_min_width(column, 120);
     gtk_tree_view_append_column (list_view, column);
 
     /* 13:th column... */
@@ -274,10 +290,65 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, COOKIE_ACK_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_min_width(column, 120);
     gtk_tree_view_append_column (list_view, column);
 
     /* 14:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("ECNE", renderer, 
+		"text", ECNE_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, ECNE_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 70);
+    gtk_tree_view_append_column (list_view, column);
+    
+    /* 15:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("CWR", renderer, 
+		"text", CWR_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CWR_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 70);
+    gtk_tree_view_append_column (list_view, column);
+   
+    /* 16:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("SHUT_COMPLETE", renderer, 
+		"text", SHUT_COMPLETE_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, SHUT_COMPLETE_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 140);
+    gtk_tree_view_append_column (list_view, column);
+    
+    /* 17:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("AUTH", renderer, 
+		"text", AUTH_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, AUTH_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+    
+    /* 18:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("NR_SACK", renderer, 
+		"text", NR_SACK_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, NR_SACK_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+    
+    /* 19:th column... */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Others", renderer, 
 		"text", OTHERS_COLUMN,
@@ -285,10 +356,10 @@ GtkWidget* create_list(void)
     gtk_tree_view_column_set_sort_column_id(column, OTHERS_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 35);
+    gtk_tree_view_column_set_min_width(column, 70);
     gtk_tree_view_append_column (list_view, column);
 
-	/* Now enable the sorting of each column */
+    /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
 
@@ -318,6 +389,11 @@ static const char *chunk_name(int type)
 		CASE(SCTP_ERROR);
 		CASE(COOKIE_ECHO);
 		CASE(COOKIE_ACK);
+		CASE(ECNE);
+		CASE(CWR);
+		CASE(SHUT_COMPLETE);
+		CASE(AUTH);
+		CASE(NR_SACK);
 	}
 	return s;
 }
@@ -353,41 +429,43 @@ on_destroy(GtkObject *object _U_, gpointer user_data)
 static void add_to_clist(sctp_addr_chunk* sac)
 {
     GtkListStore *list_store = NULL;
-	GtkTreeIter  iter;
-	gchar field[1][MAX_ADDRESS_LEN];
+    GtkTreeIter  iter;
+    gchar field[1][MAX_ADDRESS_LEN];
 
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
-		
-	if (sac->addr->type==AT_IPv4)
-	{
-		g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip_to_str((const guint8 *)(sac->addr->data)));
-	}
-	else if (sac->addr->type==AT_IPv6)
-	{
-		g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
-	}
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
+
+    if (sac->addr->type==AT_IPv4) {
+        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip_to_str((const guint8 *)(sac->addr->data)));
+    } else if (sac->addr->type==AT_IPv6) {
+        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
+    }
 
 #if GTK_CHECK_VERSION(2,6,0)
-	gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+    gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
 #else
-	gtk_list_store_append  (list_store, &iter);
-	gtk_list_store_set  (list_store, &iter,
+    gtk_list_store_append  (list_store, &iter);
+    gtk_list_store_set  (list_store, &iter,
 #endif
-	   IP_ADDR_COLUMN,		field[0],
-	   DATA_COLUMN,			sac->addr_count[0],
-	   INIT_COLUMN,			sac->addr_count[1],
-	   INIT_ACK_COLUMN,		sac->addr_count[2],
-	   SACK_COLUMN,			sac->addr_count[3],
-	   HEARTBEAT_COLUMN,	sac->addr_count[4],
-	   HEARTBEAT_ACK_COLUMN,sac->addr_count[5],
-	   ABORT_COLUMN,		sac->addr_count[6],
-	   SHUTDOWN_COLUMN,		sac->addr_count[7],
-	   SHUTDOWN_ACK_COLUMN,	sac->addr_count[8],
-	   ERROR_COLUMN,		sac->addr_count[9],
-	   COOKIE_ECHO_COLUMN,	sac->addr_count[10],
-	   COOKIE_ACK_COLUMN,	sac->addr_count[11],
-	   OTHERS_COLUMN,		sac->addr_count[12],
-	   -1);
+         IP_ADDR_COLUMN,         field[0],
+         DATA_COLUMN,            sac->addr_count[0],
+         INIT_COLUMN,            sac->addr_count[1],
+         INIT_ACK_COLUMN,        sac->addr_count[2],
+         SACK_COLUMN,            sac->addr_count[3],
+         HEARTBEAT_COLUMN,       sac->addr_count[4],
+         HEARTBEAT_ACK_COLUMN,   sac->addr_count[5],
+         ABORT_COLUMN,           sac->addr_count[6],
+         SHUTDOWN_COLUMN,        sac->addr_count[7],
+         SHUTDOWN_ACK_COLUMN,    sac->addr_count[8],
+         ERROR_COLUMN,           sac->addr_count[9],
+         COOKIE_ECHO_COLUMN,     sac->addr_count[10],
+         COOKIE_ACK_COLUMN,      sac->addr_count[11],
+         ECNE_COLUMN,            sac->addr_count[12],
+         CWR_COLUMN,             sac->addr_count[13],
+         SHUT_COMPLETE_COLUMN,   sac->addr_count[14],
+         AUTH_COLUMN,            sac->addr_count[15],
+         NR_SACK_COLUMN,         sac->addr_count[16],
+         OTHERS_COLUMN,          sac->addr_count[17],
+         -1);
 }
 
 void sctp_chunk_stat_dlg_update(struct sctp_udata* udata, unsigned int direction)
@@ -466,7 +544,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 	io->window=NULL;
 	u_data->io=io;
 	u_data->io->window= gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(u_data->io->window), 600, 300);
+	gtk_window_set_default_size(GTK_WINDOW(u_data->io->window), 850, 200);
 	gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
 	path_window_set_title(u_data, direction);
 	g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(chunk_dlg_destroy), u_data);
@@ -531,7 +609,7 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	u_data->io=io;
 	u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
-	gtk_widget_set_size_request(u_data->io->window, 500, 400);
+	gtk_widget_set_size_request(u_data->io->window, 500, 650);
 	g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(on_destroy), u_data);
 
 	/* Container for each row of widgets */
@@ -592,15 +670,15 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	label = gtk_label_new("Others");
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
-	g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[12]);
+	g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[OTHER_CHUNKS_INDEX]);
 	label = gtk_label_new(label_txt);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
-	g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[12]);
+	g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[OTHER_CHUNKS_INDEX]);
 	label = gtk_label_new(label_txt);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
-	g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[12]);
+	g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[OTHER_CHUNKS_INDEX]);
 	label = gtk_label_new(label_txt);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);

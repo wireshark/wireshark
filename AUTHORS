@@ -2257,7 +2257,7 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 	MANOLITO support
 }
 
-Irene Rüngle		<i.ruengeler [AT] fh-muenster.de {
+Irene Rüngler		<i.ruengeler [AT] fh-muenster.de {
 	SCTP analysis
 	Support PPID and SCTP port based selection in Decode as
 }
@@ -2868,6 +2868,10 @@ Samu Varjonen		<samu.varjonen [AT] hiit.fi> {
 
 Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	CAPWAP dissector
+}
+
+Varun Notibala		<nbvarun [AT] gmail.com {
+	SCTP NR-SACK support
 }
 
 and by:

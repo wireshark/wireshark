@@ -1,5 +1,6 @@
 /*
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
+ * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
  *
  * $Id$
  *
@@ -65,6 +66,15 @@
 #define SUB_32(a, b)	a-b
 #define POINT_SIZE	3
 
+GtkWidget * sack_bt;
+
+/* 
+ * Global variables that help in redrawing graph
+ * for SACK and NRSACK
+ */
+guint8 gIsSackChunkPresent = 0;
+guint8 gIsNRSackChunkPresent = 0;
+
 struct chunk_header {
 	guint8  type;
 	guint8  flags;
@@ -108,6 +118,18 @@ struct sack_chunk_header {
 	struct gaps gaps[1];
 };
 
+struct nr_sack_chunk_header {
+	guint8  type;
+	guint8  flags;
+	guint16 length;
+	guint32 cum_tsn_ack;
+	guint32 a_rwnd;
+	guint16 nr_of_gaps;
+	guint16 nr_of_nr_gaps;
+	guint16 nr_of_dups;
+	guint16 reserved;
+	struct gaps gaps[1];
+};
 
 static gboolean label_set = FALSE;
 static guint32 max_tsn=0, min_tsn=0;
@@ -179,6 +201,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 
 			if (type == SCTP_SACK_CHUNK_ID)
 			{
+				gIsSackChunkPresent = 1;
 				sack_header =(struct sack_chunk_header *)tlist->data;
 				nr=g_ntohs(sack_header->nr_of_gaps);
 				tsnumber = g_ntohl(sack_header->cum_tsn_ack);
@@ -234,8 +257,8 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								     POINT_SIZE, POINT_SIZE,0, (64*360) );
 					}
 				}
-			tlist = g_list_next(tlist);
 			}
+			tlist = g_list_next(tlist);
 		}
 		list = g_list_previous(list);
 	}
@@ -243,6 +266,175 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	g_object_unref(G_OBJECT(green_gc));
 }
 
+/* 
+ * This function plots the NR_SACK gap ack and
+ * nr gap acks.
+ * Red dot - Cumulative TSN ack 
+ * Green dot - Gap ack 
+ * Blue circle - NR Gap ack
+ */
+static void draw_nr_sack_graph(struct sctp_udata *u_data)
+{
+	tsn_t *sack;
+	GList *list=NULL, *tlist;
+	guint16 gap_start=0, gap_end=0, i, j, numberOf_gaps, numberOf_nr_gaps;
+	guint8 type;
+	guint32 tsnumber;
+	gint xvalue, yvalue;
+	GdkColor red_color = {0, 65535, 0, 0};
+	GdkColor blue_color = {0, 0, 0, 65535};
+	GdkColor green_color = {0, 0, 65535, 0};
+	GdkGC *red_gc, *blue_gc, *green_gc;
+	struct nr_sack_chunk_header *nr_sack_header;
+	struct gaps *nr_gap;
+	guint32 max_num, diff;
+	/* This holds the sum of gap acks and nr gap acks */
+	guint16 total_gaps = 0; 
+	
+	red_gc = gdk_gc_new(u_data->io->draw_area->window);
+	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
+	blue_gc = gdk_gc_new(u_data->io->draw_area->window);
+	gdk_gc_set_rgb_fg_color(blue_gc, &blue_color);
+	green_gc = gdk_gc_new(u_data->io->draw_area->window);
+	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
+
+
+	if (u_data->dir==2)
+	{
+		list = g_list_last(u_data->assoc->sack2);
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=u_data->assoc->min_tsn2;
+			max_tsn=u_data->assoc->max_tsn2;
+		}
+		else
+		{
+			min_tsn=u_data->assoc->min_tsn2+u_data->io->tmp_min_tsn2;
+			max_tsn=u_data->assoc->min_tsn2+u_data->io->tmp_max_tsn2;
+		}
+	}
+	else if (u_data->dir==1)
+	{
+		list = g_list_last(u_data->assoc->sack1);
+		if (u_data->io->tmp==FALSE)
+		{
+			min_tsn=u_data->assoc->min_tsn1;
+			max_tsn=u_data->assoc->max_tsn1;
+		}
+		else
+		{
+			min_tsn=u_data->assoc->min_tsn1+u_data->io->tmp_min_tsn1;
+			max_tsn=u_data->assoc->min_tsn1+u_data->io->tmp_max_tsn1;
+		}
+	}
+	while (list)
+	{
+		sack = (tsn_t*) (list->data);
+		tlist = g_list_first(sack->tsns);
+		while (tlist)
+		{
+			type = ((struct chunk_header *)tlist->data)->type; 
+			/* 
+			 * The tlist->data is memcpy ied to the appropriate structure
+			 * They entire raw tvb bytes are copied on to one of the *_chunk_header
+			 * structures in sctp_stat.c
+			 */
+			if (type == SCTP_NR_SACK_CHUNK_ID)
+			{
+				gIsNRSackChunkPresent = 1;
+				nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
+				numberOf_nr_gaps=g_ntohs(nr_sack_header->nr_of_nr_gaps);
+				numberOf_gaps=g_ntohs(nr_sack_header->nr_of_gaps);
+				tsnumber = g_ntohl(nr_sack_header->cum_tsn_ack);
+				total_gaps = numberOf_gaps + numberOf_nr_gaps;
+				if (sack->secs>=u_data->io->x1_tmp_sec)
+				{
+					/* If the number of nr_gaps is greater than 0 */
+					if ( total_gaps > 0 )
+					{
+						nr_gap = &nr_sack_header->gaps[0];
+						for ( i=0; i < total_gaps; i++ )
+						{
+							gap_start=g_ntohs(nr_gap->start);
+							gap_end = g_ntohs(nr_gap->end);
+							max_num= gap_end + tsnumber;
+							for ( j = gap_start; j <= gap_end; j++)
+							{
+								if (u_data->io->uoff)
+									diff = sack->secs - u_data->io->min_x;
+								else
+									diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
+								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
+								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(j+tsnumber,min_tsn))*u_data->io->y_interval));
+								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
+								    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+								    yvalue >= TOP_BORDER-u_data->io->offset &&
+								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+								{
+									/* Check if this is an GAP ACK or NR GAP ACK */
+									if ( i >= numberOf_gaps) 
+									{
+										/* This is a nr gap ack */
+										gdk_draw_arc(u_data->io->pixmap,blue_gc,FALSE,
+										             xvalue,
+										             yvalue,
+										             POINT_SIZE , POINT_SIZE,0, (64*360) );
+
+										/* All NR GAP Acks are also gap acks, so plot these as
+										 * gap acks - green dot.
+										 * These will be shown as points with a green dot - GAP ACK
+										 * surrounded by a blue circle - NR GAP ack
+										 */
+										gdk_draw_arc(u_data->io->pixmap, green_gc, TRUE,
+										             xvalue,
+										             yvalue,
+										             POINT_SIZE , POINT_SIZE,0, (64*360) );
+
+									}
+									else
+									{
+										/* This is just a gap ack */
+										gdk_draw_arc(u_data->io->pixmap, green_gc, TRUE,
+										             xvalue,
+										             yvalue,
+										             POINT_SIZE , POINT_SIZE,0, (64*360) );
+									}
+								}
+							}
+							if (i < total_gaps-1)
+								nr_gap++;
+						}
+					}
+					else
+						max_num=tsnumber;
+					
+					if (tsnumber>=min_tsn)
+					{
+						if (u_data->io->uoff)
+							diff = sack->secs - u_data->io->min_x;
+						else
+							diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
+						xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
+						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
+						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+						    yvalue >= TOP_BORDER-u_data->io->offset &&
+						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+							gdk_draw_arc(u_data->io->pixmap,red_gc,TRUE,
+								     xvalue,
+								     yvalue,
+								     POINT_SIZE, POINT_SIZE,0, (64*360) );
+					}
+				}
+			}
+			tlist = g_list_next(tlist);
+		}
+		list = g_list_previous(list);
+	}
+	g_object_unref(G_OBJECT(red_gc));
+	g_object_unref(G_OBJECT(blue_gc));
+	g_object_unref(G_OBJECT(green_gc));
+}
 
 static void draw_tsn_graph(struct sctp_udata *u_data)
 {
@@ -614,6 +806,25 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
 }
 
+/* This function is used to change the title
+ * in the graph dialogue to NR_SACK or SACK based on the
+ * association
+ * If an association has both SAKC and NR_SACK PDU's
+ * a warning is popped
+ */
+void updateLabels()
+{
+	if (gIsSackChunkPresent && gIsNRSackChunkPresent)
+	{
+		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "This data set contains both SACK and NR SACK PDUs.");
+		gtk_button_set_label( (GtkButton*) sack_bt, "Show both Sack and NR Sack");
+	}
+	else if (gIsSackChunkPresent)
+		gtk_button_set_label( (GtkButton*) sack_bt, "Show Only Sack");
+	else
+		/* gIsNRSackChunkPresent will be true here */
+		gtk_button_set_label( (GtkButton*) sack_bt, "Show Only NR Sack");
+}
 
 static void sctp_graph_redraw(struct sctp_udata *u_data)
 {
@@ -625,18 +836,36 @@ sctp_graph_t *ios;
 	switch (u_data->io->graph_type)
 	{
 		case 0:
+			/* Show both TSN and SACK information 
+			 * Reset the global sack variable 
+			 * for sack and nr sack cases
+			 */
+			gIsSackChunkPresent = 0;
+			gIsNRSackChunkPresent = 0;
 			draw_sack_graph(u_data);
+			draw_nr_sack_graph(u_data);
 			draw_tsn_graph(u_data);
 			break;
 		case 1:
+			/* Show only TSN */
 			draw_tsn_graph(u_data);
 			break;
 		case 2:
+			/* Show only SACK information 
+			 * Reset the global sack variable 
+			 * for sack and nr sack cases
+			 */
+			gIsSackChunkPresent = 0;
+			gIsNRSackChunkPresent = 0;
 			draw_sack_graph(u_data);
+			draw_nr_sack_graph(u_data);
 			break;
 	}
-	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
+	/* Updates the sack / nr sack buttons */
+	updateLabels();
+
+	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 	if(!ios){
 		exit(10);
 	}
@@ -1113,7 +1342,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
-	GtkWidget *bt_close, *sack_bt, *tsn_bt, *both_bt, *zoomin_bt;
+	GtkWidget *bt_close, *tsn_bt, *both_bt, *zoomin_bt;
 	GtkTooltips *tooltip_in, *tooltip_out;
 
 	/* create the main window */
@@ -1137,14 +1366,12 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_box_set_spacing(GTK_BOX (hbox), 0);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
-
-	sack_bt = gtk_button_new_with_label ("Show Sacks");
+	sack_bt = gtk_button_new_with_label ("Show Only Sacks");
 	gtk_box_pack_start(GTK_BOX(hbox), sack_bt, FALSE, FALSE, 0);
 	gtk_widget_show(sack_bt);
 
 	g_signal_connect(sack_bt, "clicked", G_CALLBACK(on_sack_bt), u_data);
-
-	tsn_bt = gtk_button_new_with_label ("Show TSNs");
+	tsn_bt = gtk_button_new_with_label ("Show Only TSNs");
 	gtk_box_pack_start(GTK_BOX(hbox), tsn_bt, FALSE, FALSE, 0);
 	gtk_widget_show(tsn_bt);
 	g_signal_connect(tsn_bt, "clicked", G_CALLBACK(on_tsn_bt), u_data);
