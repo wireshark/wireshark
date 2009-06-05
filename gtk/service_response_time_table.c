@@ -331,13 +331,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	rst->num_procs=num_procs;
 	rst->procedures=g_malloc(sizeof(srt_procedure_t)*num_procs);
 	for(i=0;i<num_procs;i++){
-		rst->procedures[i].stats.num=0;
-		rst->procedures[i].stats.min.secs=0;
-		rst->procedures[i].stats.min.nsecs=0;
-		rst->procedures[i].stats.max.secs=0;
-		rst->procedures[i].stats.max.nsecs=0;
-		rst->procedures[i].stats.tot.secs=0;
-		rst->procedures[i].stats.tot.nsecs=0;
+		time_stat_init(&rst->procedures[i].stats);
 		for(j=0;j<6;j++){
 			rst->procedures[i].entries[j]=NULL;
 		}
