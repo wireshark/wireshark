@@ -260,6 +260,7 @@ stats_tree_reinit(void *p)
 /* register a new stats_tree */
 extern void
 stats_tree_register_with_group(const char *tapname, const char *abbr, const char *name,
+		    guint flags,
 		    stat_tree_packet_cb packet, stat_tree_init_cb init,
 		    stat_tree_cleanup_cb cleanup, register_stat_group_t stat_group)
 {
@@ -272,11 +273,13 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 	cfg->tapname = g_strdup(tapname);
 	cfg->abbr = g_strdup(abbr);
 	cfg->name = name ? g_strdup(name) : g_strdup(abbr);
-    cfg->stat_group = stat_group;
+	cfg->stat_group = stat_group;
 	
 	cfg->packet = packet;
 	cfg->init = init;
 	cfg->cleanup = cleanup;
+
+	cfg->flags = flags;
 	
 	/* these have to be filled in by implementations */
 	cfg->setup_node_pr = NULL;
@@ -297,10 +300,12 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 /* register a new stats_tree with default group REGISTER_STAT_GROUP_UNSORTED */
 extern void
 stats_tree_register(const char *tapname, const char *abbr, const char *name,
+		    guint flags,
 		    stat_tree_packet_cb packet, stat_tree_init_cb init,
 		    stat_tree_cleanup_cb cleanup)
 {
-    stats_tree_register_with_group(tapname, abbr, name,
+	stats_tree_register_with_group(tapname, abbr, name,
+		    flags,
 		    packet, init,
 		    cleanup, REGISTER_STAT_GROUP_UNSORTED);
 }

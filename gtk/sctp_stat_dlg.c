@@ -603,7 +603,7 @@ gtk_sctpstat_dlg(void)
 	g_signal_connect(bt_analyse, "clicked", G_CALLBACK(sctp_stat_on_analyse), NULL);
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(sctp_stat_dlg_w->window);
 
 }

@@ -666,7 +666,7 @@ register_tap_listener_gtkgsm_a_stat(void)
     memset((void *) &gsm_a_stat, 0, sizeof(gsm_a_stat_t));
 
     err_p =
-	register_tap_listener("gsm_a", &gsm_a_stat, NULL,
+	register_tap_listener("gsm_a", &gsm_a_stat, NULL, 0,
 	    gsm_a_stat_reset,
 	    gsm_a_stat_packet,
 	    gsm_a_stat_draw);

@@ -8258,7 +8258,7 @@ proto_register_isup(void)
 
 	/* Register the stats_tree */
 	stats_tree_register_with_group("isup", "isup_msg", "ISUP Messages",
-			    msg_stats_tree_packet, msg_stats_tree_init,
+		0, msg_stats_tree_packet, msg_stats_tree_init,
                 NULL, REGISTER_STAT_GROUP_TELEPHONY);
 }
 

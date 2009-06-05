@@ -580,7 +580,7 @@ iousers_draw(void *arg)
 	printf("================================================================================\n");
 }
 
-void
+static void
 iousers_init(const char *optarg, void* userdata _U_)
 {
 	const char *filter=NULL;
@@ -695,7 +695,7 @@ iousers_init(const char *optarg, void* userdata _U_)
 		iu->filter=NULL;
 	}
 
-	error_string=register_tap_listener(tap_type, iu, filter, NULL, packet_func, iousers_draw);
+	error_string=register_tap_listener(tap_type, iu, filter, 0, NULL, packet_func, iousers_draw);
 	if(error_string){
 		if(iu->items){
 			g_free(iu->items);

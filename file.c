@@ -83,7 +83,8 @@ static guint32 cum_bytes = 0;
 
 static void cf_reset_state(capture_file *cf);
 
-static int read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset);
+static int read_packet(capture_file *cf, dfilter_t *dfcode,
+    gboolean filtering_tap_listeners, guint tap_flags, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
@@ -415,6 +416,8 @@ cf_read(capture_file *cf)
   volatile gint64 progbar_nextstep;
   volatile gint64 progbar_quantum;
   dfilter_t   *dfcode;
+  gboolean    filtering_tap_listeners;
+  guint       tap_flags;
 #ifdef HAVE_LIBPCAP
   volatile int displayed_once = 0;
 #endif
@@ -427,6 +430,12 @@ cf_read(capture_file *cf)
   if(cf->dfilter){
     dfilter_compile(cf->dfilter, &dfcode);
   }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
 
   cum_bytes=0;
 
@@ -522,7 +531,7 @@ cf_read(capture_file *cf)
       break;
     }
     TRY {
-        read_packet(cf, dfcode, data_offset);
+        read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
     }
     CATCH(OutOfMemoryError) {
         gpointer dialog;
@@ -658,6 +667,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar *err_info;
   volatile int newly_displayed_packets = 0;
   dfilter_t   *dfcode;
+  gboolean filtering_tap_listeners;
+  guint tap_flags;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -667,6 +678,12 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   if(cf->dfilter){
     dfilter_compile(cf->dfilter, &dfcode);
   }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
 
   *err = 0;
 
@@ -683,7 +700,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
       break;
     }
     TRY{
-        if (read_packet(cf, dfcode, data_offset) != -1) {
+        if (read_packet(cf, dfcode, filtering_tap_listeners, tap_flags,
+                        data_offset) != -1) {
             newly_displayed_packets++;
         }
     }
@@ -759,6 +777,8 @@ cf_finish_tail(capture_file *cf, int *err)
   gchar *err_info;
   gint64 data_offset;
   dfilter_t   *dfcode;
+  gboolean filtering_tap_listeners;
+  guint tap_flags;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -768,6 +788,12 @@ cf_finish_tail(capture_file *cf, int *err)
   if(cf->dfilter){
     dfilter_compile(cf->dfilter, &dfcode);
   }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
 
   if(cf->wth == NULL) {
     cf_close(cf);
@@ -784,7 +810,7 @@ cf_finish_tail(capture_file *cf, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-        read_packet(cf, dfcode, data_offset);
+    read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
   }
 
   /* Cleanup and release all dfilter resources */
@@ -915,7 +941,8 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-	dfilter_t *dfcode,
+	dfilter_t *dfcode, gboolean filtering_tap_listeners,
+	guint tap_flags,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter)
 {
@@ -967,15 +994,18 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 	we have a list of color filters;
 
-	we have tap listeners;
+	we have tap listeners with filters;
+
+        we have tap listeners that require a protocol tree;
 
 	we have custom columns;
 
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((dfcode != NULL && refilter) || color_filters_used()
-      || num_tap_filters != 0 || have_custom_cols(&cf->cinfo))
+  if ((dfcode != NULL && refilter) || color_filters_used() ||
+      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE) ||
+      have_custom_cols(&cf->cinfo))
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
@@ -1088,7 +1118,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
-read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset)
+read_packet(capture_file *cf, dfilter_t *dfcode,
+            gboolean filtering_tap_listeners, guint tap_flags, gint64 offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
@@ -1147,7 +1178,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset)
     cf->f_datalen = offset + phdr->caplen;
     fdata->num = cf->count;
     if (!cf->redissecting) {
-      row = add_packet_to_packet_list(fdata, cf, dfcode, pseudo_header, buf, TRUE);
+      row = add_packet_to_packet_list(fdata, cf, dfcode,
+                                      filtering_tap_listeners, tap_flags,
+                                      pseudo_header, buf, TRUE);
     }
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
@@ -1512,6 +1545,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   int         progbar_nextstep;
   int         progbar_quantum;
   dfilter_t   *dfcode;
+  gboolean    filtering_tap_listeners;
+  guint       tap_flags;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1521,6 +1556,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   if(cf->dfilter){
     dfilter_compile(cf->dfilter, &dfcode);
   }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
 
   cum_bytes=0;
   reset_tap_listeners();
@@ -1668,8 +1709,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       preceding_row = prev_row;
       preceding_frame = prev_frame;
     }
-    row = add_packet_to_packet_list(fdata, cf, dfcode, &cf->pseudo_header, cf->pd,
-					refilter);
+    row = add_packet_to_packet_list(fdata, cf, dfcode, filtering_tap_listeners,
+                                    tap_flags, &cf->pseudo_header, cf->pd,
+                                    refilter);
 
     /* If this frame is displayed, and this is the first frame we've
        seen displayed after the selected frame, remember this frame -
@@ -1902,20 +1944,22 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   return ret;
 }
 
+typedef struct {
+  gboolean construct_protocol_tree;
+  column_info *cinfo;
+} retap_callback_args_t;
+
 static gboolean
 retap_packet(capture_file *cf _U_, frame_data *fdata,
              union wtap_pseudo_header *pseudo_header, const guint8 *pd,
              void *argsp)
 {
-  column_info *cinfo = argsp;
+  retap_callback_args_t *args = argsp;
   epan_dissect_t *edt;
 
-  /* If we have tap listeners, allocate a protocol tree root node, so that
-     we'll construct a protocol tree against which a filter expression can
-     be evaluated. */
-  edt = epan_dissect_new(num_tap_filters != 0, FALSE);
+  edt = epan_dissect_new(args->construct_protocol_tree, FALSE);
   tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, cinfo);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, args->cinfo);
   tap_push_tapped_queue(edt);
   epan_dissect_free(edt);
 
@@ -1923,9 +1967,25 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
 }
 
 cf_read_status_t
-cf_retap_packets(capture_file *cf, gboolean do_columns)
+cf_retap_packets(capture_file *cf)
 {
   packet_range_t range;
+  retap_callback_args_t callback_args;
+  gboolean filtering_tap_listeners;
+  guint tap_flags;
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  tap_flags = union_of_tap_listener_flags();
+
+  /* If any tap listeners have filters, or require the protocol tree,
+     construct the protocol tree. */
+  callback_args.construct_protocol_tree = filtering_tap_listeners ||
+                                          (tap_flags & TL_REQUIRES_PROTO_TREE);
+
+  /* If any tap listeners require the columns, construct them. */
+  callback_args.cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
   /* Reset the tap listeners. */
   reset_tap_listeners();
@@ -1934,9 +1994,9 @@ cf_retap_packets(capture_file *cf, gboolean do_columns)
      re-running the taps. */
   packet_range_init(&range);
   packet_range_process_init(&range);
-  switch (process_specified_packets(cf, &range, "Refiltering statistics on",
+  switch (process_specified_packets(cf, &range, "Recalculating statistics on",
                                     "all packets", TRUE, retap_packet,
-                                    do_columns ? &cf->cinfo : NULL)) {
+                                    &callback_args)) {
   case PSP_FINISHED:
     /* Completed successfully. */
     return CF_READ_OK;

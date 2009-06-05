@@ -203,7 +203,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     }
 
     /* data will be passed via tap callback*/
-    msg = register_tap_listener("ssl", follow_info, follow_filter,
+    msg = register_tap_listener("ssl", follow_info, follow_filter, 0,
 	NULL, ssl_queue_packet_data, NULL);
     if (msg)
     {

@@ -153,7 +153,6 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
   const char *filter=NULL;
-  const char *emptyfilter="";
   GString *error_string;
   GtkWidget *bbox;
   GtkWidget *close_bt;
@@ -182,17 +181,10 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 
   p_camelcounter->table = create_stat_table(p_camelcounter->scrolled_window, p_camelcounter->vbox, 2, titles);
 
-  if (filter) {
-    error_string=register_tap_listener("CAMEL", p_camelcounter, filter,
+  error_string=register_tap_listener("CAMEL", p_camelcounter, filter, 0,
 				       gtk_camelcounter_reset,
 				       gtk_camelcounter_packet,
 				       gtk_camelcounter_draw);
-  } else {
-    error_string=register_tap_listener("CAMEL", p_camelcounter, emptyfilter,
-				       gtk_camelcounter_reset,
-				       gtk_camelcounter_packet,
-				       gtk_camelcounter_draw);
-  }
 
   if(error_string){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -214,7 +206,7 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   gtk_widget_show_all(p_camelcounter->win);
   window_present(p_camelcounter->win);
 
-  cf_retap_packets(&cfile, FALSE);
+  cf_retap_packets(&cfile);
   gdk_window_raise(p_camelcounter->win->window);
 }
 

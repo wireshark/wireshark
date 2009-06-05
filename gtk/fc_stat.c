@@ -179,7 +179,7 @@ gtk_fcstat_init(const char *optarg, void *userdata _U_)
 	}
 
 
-	error_string=register_tap_listener("fc", fc, filter, fcstat_reset, fcstat_packet, fcstat_draw);
+	error_string=register_tap_listener("fc", fc, filter, 0, fcstat_reset, fcstat_packet, fcstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -200,7 +200,7 @@ gtk_fcstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(fc->win);
 	window_present(fc->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(fc->win->window);
 }
 

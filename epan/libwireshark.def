@@ -539,6 +539,7 @@ h245_set_h223_set_mc_handle
 h248_param_ber_integer 
 h248_register_package 
 have_custom_cols
+have_filtering_tap_listeners
 have_tap_listeners
 heur_dissector_add
 heur_dissector_delete
@@ -596,7 +597,6 @@ nstime_sum
 nstime_to_msec
 nstime_to_sec
 nt_cmd_vals                     DATA
-num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
 oid_add
@@ -1033,6 +1033,7 @@ uat_new
 uat_remove_record_idx
 uat_save
 uat_swap
+union_of_tap_listener_flags
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes

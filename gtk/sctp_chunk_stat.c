@@ -284,19 +284,16 @@ static void
 sctpstat_init(const char *optarg, void *userdata _U_)
 {
 	sctpstat_t *hs;
-	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(strncmp(optarg,"sctp,stat,",10) == 0){
-		filter=optarg+10;
-	} else {
-		filter="";
-	}
-
 	hs=g_malloc(sizeof(sctpstat_t));
-	hs->filter=g_strdup(filter);
+	if(strncmp(optarg,"sctp,stat,",10) == 0){
+		hs->filter=g_strdup(optarg+10);
+	} else {
+		hs->filter=NULL;
+	}
 	hs->ep_list = NULL;
 	hs->number_of_packets = 0;
 	sctpstat_reset(hs);
@@ -307,14 +304,14 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
-	init_main_stat_window(hs->win, hs->vbox, "SCTP Chunk Counter", filter);
+	init_main_stat_window(hs->win, hs->vbox, "SCTP Chunk Counter", hs->filter);
 
 	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 15, titles);
 
-	error_string=register_tap_listener("sctp", hs, filter,
+	error_string=register_tap_listener("sctp", hs, hs->filter, 0,
 	                                   sctpstat_reset,
 	                                   sctpstat_packet,
 	                                   sctpstat_draw);
@@ -339,7 +336,7 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(hs->win);
 	window_present(hs->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 }
 
 void

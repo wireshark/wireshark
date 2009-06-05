@@ -472,7 +472,7 @@ register_tap_listener_gtkgsm_map_stat(void)
     memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
 
     err_p =
-	register_tap_listener("gsm_map", &gsm_map_stat, NULL,
+	register_tap_listener("gsm_map", &gsm_map_stat, NULL, 0,
 	    gsm_map_stat_reset,
 	    gsm_map_stat_packet,
 	    gsm_map_stat_draw);

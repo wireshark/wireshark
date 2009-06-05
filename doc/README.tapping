@@ -63,9 +63,10 @@ Only 3 callbacks and two functions.
 
 The two functions to start or stop tapping are
 
-register_tap_listener(char *tapname, void *tapdata, char *fstring,
-	void (*reset)(void *tapdata), int  (*packet)(void *tapdata,
-	packet_info *pinfo, epan_dissect_t *edt, const void *<pointer>),
+register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
+	guint flags,
+	void (*reset)(void *tapdata),
+	gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *<pointer>),
 	void (*draw)(void *tapdata));
 
 remove_tap_listener(void *tapdata);
@@ -105,20 +106,41 @@ unfiltered data and just filter it yourself in the packet-callback than
 to specify a filter string.
 ONLY use a filter string if no other option exist.
 
+flags
+is a set of flags for the tap listener.  The flags that can be set are:
+
+    TL_REQUIRES_PROTO_TREE
+
+	set if your tap listener "packet" routine requires a protocol
+	tree to be built.  It will require a protocol tree to be
+	built if either
+
+		1) it looks at the protocol tree in edt->tree
+
+	or
+
+		2) the tap-specific data passed to it is constructed only if
+		   the protocol tree is being built.
+
+    TL_REQUIRES_COLUMNS
+
+	set if your tap listener "packet" routine requires the column
+	strings to be constructed.
+
 void (*reset)(void *tapdata)
 This callback is called whenever Wireshark wants to inform your
 listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
 
-int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data)
+gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data)
 This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
-This function returns an int and it should return
- 1, if the data in the packet caused state to be updated
-    (and thus a redraw of the window would later be required)
- 0, if we don't need to redraw the window.
+This function returns an gboolean and it should return
+ TRUE, if the data in the packet caused state to be updated
+       (and thus a redraw of the window would later be required)
+ FALSE, if we don't need to redraw the window.
 NOTE: that (*packet) should be as fast and efficient as possible. Use this
 function ONLY to store data for later and do the CPU-intensive processing
 or GUI updates down in (*draw) instead.

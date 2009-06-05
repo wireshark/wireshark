@@ -369,9 +369,10 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     if (fake_tap) {
         /* a boring tap :-) */
         GString* error = register_tap_listener("frame",
-											   &fake_tap,
-											   fake_tap_filter->str,
-											   NULL, NULL, NULL);
+                                               &fake_tap,
+                                               fake_tap_filter->str,
+                                               0, /* XXX - do we need the protocol tree or columns? */
+                                               NULL, NULL, NULL);
 
         if (error) {
             report_failure("while registering lua_fake_tap:\n%s",error->str);

@@ -104,6 +104,7 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 	error_string = register_tap_listener(st->cfg->tapname,
 					     st,
 					     st->filter,
+					     st->cfg->flags,
 					     stats_tree_reset,
 					     stats_tree_packet,
 					     draw_stats_tree);

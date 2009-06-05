@@ -646,7 +646,7 @@ wlan_filter_toggle_dest(GtkWidget *widget, gpointer data)
 
 	hs->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(wlanstat_dlg_w->window);
 }
 
@@ -1257,8 +1257,9 @@ wlanstat_dlg_create (void)
 	wlan_create_popup_menu(hs);
 	wlan_details_create_popup_menu(hs);
 
-	error_string=register_tap_listener ("wlan", hs, NULL, wlanstat_reset,
-					    wlanstat_packet, wlanstat_draw);
+	error_string=register_tap_listener ("wlan", hs, NULL, 0,
+					    wlanstat_reset, wlanstat_packet,
+					    wlanstat_draw);
 	if (error_string) {
 		simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free (error_string, TRUE);
@@ -1313,7 +1314,7 @@ wlanstat_dlg_create (void)
 	gtk_widget_show_all (wlanstat_dlg_w);
 	window_present (wlanstat_dlg_w);
 
-	cf_retap_packets (&cfile, FALSE);
+	cf_retap_packets (&cfile);
 	gdk_window_raise(wlanstat_dlg_w->window);
 }
 

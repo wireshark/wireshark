@@ -408,6 +408,7 @@ sipstat_init(const char *optarg, void* userdata _U_)
 			"sip",
 			sp,
 			filter,
+			0,
 			sipstat_reset,
 			sipstat_packet,
 			sipstat_draw);

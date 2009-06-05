@@ -1474,8 +1474,8 @@ static gint filter_callback(GtkWidget *widget _U_, dialog_graph_graph_t *dgg)
 		return 0;
         }
 
-		enable_graph(dgg);
-        cf_retap_packets(&cfile, FALSE);
+        enable_graph(dgg);
+        cf_retap_packets(&cfile);
         dialog_graph_redraw(dgg->ud);
 
         return 0;
@@ -1577,7 +1577,7 @@ static void tick_interval_select(GtkWidget *item, gpointer key)
         val=(long)g_object_get_data(G_OBJECT(item), "tick_interval");
 
         user_data->dlg.dialog_graph.interval=val;
-        cf_retap_packets(&cfile, FALSE);
+        cf_retap_packets(&cfile);
         dialog_graph_redraw(user_data);
 }
 
@@ -1809,7 +1809,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	unprotect_thread_critical_region();
 
 	/* register tap listener */
-	error_string = register_tap_listener("rtp", user_data, NULL,
+	error_string = register_tap_listener("rtp", user_data, NULL, 0,
 		rtp_reset, rtp_packet, rtp_draw);
 	if (error_string != NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -1818,7 +1818,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	}
 
 	/* retap all packets */
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 
 	/* draw statistics info */
 	draw_stat(user_data);

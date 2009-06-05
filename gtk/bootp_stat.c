@@ -241,6 +241,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 			"bootp",
 			sp,
 			filter,
+			0,
 			dhcpstat_reset,
 			dhcpstat_packet,
 			dhcpstat_draw);
@@ -267,7 +268,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 
 	window_present(sp->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(sp->win->window);
 }
 

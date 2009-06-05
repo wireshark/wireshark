@@ -798,7 +798,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "Packet_info_tree");
 
-	error_string=register_tap_listener("ip", cs, filter, comparestat_reset, comparestat_packet, comparestat_draw);
+	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -823,7 +823,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	gtk_widget_show_all(cs->win);
 	window_present(cs->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 }
 
 static GtkWidget *dlg=NULL;

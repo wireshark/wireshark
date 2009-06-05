@@ -151,7 +151,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 
 	/* data will be passed via tap callback*/
 	msg = register_tap_listener("udp_follow", follow_info, follow_filter,
-				    NULL, udp_queue_packet_data, NULL);
+				    0, NULL, udp_queue_packet_data, NULL);
 	if (msg) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't register udp_follow tap: %s\n",

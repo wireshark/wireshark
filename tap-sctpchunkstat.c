@@ -223,23 +223,20 @@ static void
 sctpstat_init(const char *optarg, void* userdata _U_)
 {
 	sctpstat_t *hs;
-	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"sctp,stat,",11)){
-		filter=optarg+11;
-	} else {
-		filter="";
-	}
-
 	hs = g_malloc(sizeof(sctpstat_t));
-	hs->filter=g_strdup(filter);
+	if(!strncmp(optarg,"sctp,stat,",11)){
+		hs->filter=g_strdup(optarg+11);
+	} else {
+		hs->filter=NULL;
+	}
 	hs->ep_list = NULL;
 	hs->number_of_packets = 0;
 
 	sctpstat_reset(hs);
 
-	error_string=register_tap_listener("sctp", hs, filter, NULL, sctpstat_packet, sctpstat_draw);
+	error_string=register_tap_listener("sctp", hs, hs->filter, 0, NULL, sctpstat_packet, sctpstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(hs->filter);

@@ -845,7 +845,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hostlist_create_popup_menu(hosttable);
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, hosttable, filter, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
+    error_string=register_tap_listener(tap_name, hosttable, filter, 0, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
@@ -936,7 +936,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     gtk_widget_show_all(hosttable->win);
     window_present(hosttable->win);
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(hosttable->win->window);
 
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
@@ -1093,7 +1093,7 @@ hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
         reset_hostlist_table_data(hosttable);
     }
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     if (hosttable) {
         gdk_window_raise(hosttable->win->window);
     }
@@ -1221,7 +1221,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show_all(win);
     window_present(win);
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(win->window);
 
     /* after retapping, redraw table */

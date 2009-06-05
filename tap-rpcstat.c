@@ -332,7 +332,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
  *
  */
 
-	error_string=register_tap_listener("rpc", rs, filter, rpcstat_reset, rpcstat_packet, rpcstat_draw);
+	error_string=register_tap_listener("rpc", rs, filter, 0, rpcstat_reset, rpcstat_packet, rpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);

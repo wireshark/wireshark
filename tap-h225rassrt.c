@@ -215,21 +215,18 @@ static void
 h225rassrt_init(const char *optarg, void* userdata _U_)
 {
 	h225rassrt_t *hs;
-	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"h225,srt,",9)){
-		filter=optarg+9;
-	} else {
-		filter="";
-	}
-
 	hs = g_malloc(sizeof(h225rassrt_t));
-	hs->filter=g_strdup(filter);
+	if(!strncmp(optarg,"h225,srt,",9)){
+		hs->filter=g_strdup(optarg+9);
+	} else {
+		hs->filter=NULL;
+	}
 
 	h225rassrt_reset(hs);
 
-    	error_string=register_tap_listener("h225", hs, filter, NULL, h225rassrt_packet, h225rassrt_draw);
+    	error_string=register_tap_listener("h225", hs, hs->filter, 0, NULL, h225rassrt_packet, h225rassrt_draw);
     	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(hs->filter);

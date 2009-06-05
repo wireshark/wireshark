@@ -261,6 +261,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 			"wsp",
 			sp,
 			filter,
+			0,
 			wspstat_reset,
 			wspstat_packet,
 			wspstat_draw);

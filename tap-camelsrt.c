@@ -211,40 +211,23 @@ static void camelsrt_draw(void *phs)
 static void camelsrt_init(const char *optarg, void* userdata _U_)
 {
   struct camelsrt_t *p_camelsrt;
-  const char *filter=NULL;
-  const char *emptyfilter=""; 
-
   GString *error_string;
 
-  if(!strncmp(optarg,"camel,srt,",9)){
-    filter=optarg+9;
-  } else {
-    filter=NULL;
-  }
-
   p_camelsrt = g_malloc(sizeof(struct camelsrt_t));
-  if(filter){
-    p_camelsrt->filter=g_strdup(filter);
+  if(!strncmp(optarg,"camel,srt,",9)){
+    p_camelsrt->filter=g_strdup(optarg+9);
   } else {
     p_camelsrt->filter=NULL;
   }
   camelsrt_reset(p_camelsrt);
   
-  if (filter) {
-    error_string=register_tap_listener("CAMEL",
-				       p_camelsrt,
-				       filter,
-				       NULL,
-				       camelsrt_packet,
-				       camelsrt_draw);
-  } else { 
-    error_string=register_tap_listener("CAMEL",
-				       p_camelsrt,
-				       emptyfilter,
-				       NULL,
-				       camelsrt_packet,
-				       camelsrt_draw);
-  }
+  error_string=register_tap_listener("CAMEL",
+				     p_camelsrt,
+				     p_camelsrt->filter,
+				     0,
+				     NULL,
+				     camelsrt_packet,
+				     camelsrt_draw);
   
   if(error_string){
     /* error, we failed to attach to the tap. clean up */

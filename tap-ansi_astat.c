@@ -145,7 +145,7 @@ ansi_a_stat_init(const char *optarg _U_, void* userdata _U_)
     memset(stat_p, 0, sizeof(ansi_a_stat_t));
 
     err_p =
-	register_tap_listener("ansi_a", stat_p, NULL,
+	register_tap_listener("ansi_a", stat_p, NULL, 0,
 	    NULL,
 	    ansi_a_stat_packet,
 	    ansi_a_stat_draw);

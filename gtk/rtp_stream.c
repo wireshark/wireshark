@@ -83,7 +83,7 @@ void rtpstream_scan(void)
 		register_tap_listener_rtp_stream();
 
 	the_tapinfo_struct.mode = TAP_ANALYSE;
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 
 	if (!was_registered)
 		remove_tap_listener_rtp_stream();
@@ -114,7 +114,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 
 	the_tapinfo_struct.mode = TAP_SAVE;
 	the_tapinfo_struct.filter_stream_fwd = stream;
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)
@@ -145,7 +145,7 @@ void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev
 	the_tapinfo_struct.mode = TAP_MARK;
 	the_tapinfo_struct.filter_stream_fwd = stream_fwd;
 	the_tapinfo_struct.filter_stream_rev = stream_rev;
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)
@@ -186,7 +186,7 @@ register_tap_listener_rtp_stream(void)
 
 	if (!the_tapinfo_struct.is_registered) {
 		error_string = register_tap_listener("rtp", &the_tapinfo_struct,
-			NULL, rtpstream_reset_cb, rtpstream_packet,
+			NULL, 0, rtpstream_reset_cb, rtpstream_packet,
 			rtpstream_draw);
 
 		if (error_string != NULL) {

@@ -83,7 +83,6 @@ megacostat_init(const char *optarg, void* userdata _U_)
 {
 	megacostat_t *ms;
 	int i;
-	const char *filter=NULL;
 	GString *error_string;
 	pref_t *megaco_ctx_track,*h248_ctx_track;
 	
@@ -95,14 +94,12 @@ megacostat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 	
-	if(!strncmp(optarg,"megaco,rtd,",11)){
-		filter=optarg+11;
-	} else {
-		filter="";
-	}
-
 	ms=g_malloc(sizeof(megacostat_t));
-	ms->filter=g_strdup(filter);
+	if(!strncmp(optarg,"megaco,rtd,",11)){
+		ms->filter=g_strdup(optarg+11);
+	} else {
+		ms->filter=NULL;
+	}
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		ms->rtd[i].num=0;
@@ -121,7 +118,7 @@ megacostat_init(const char *optarg, void* userdata _U_)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
-	error_string=register_tap_listener("megaco", ms, filter, NULL, megacostat_packet, megacostat_draw);
+	error_string=register_tap_listener("megaco", ms, ms->filter, 0, NULL, megacostat_packet, megacostat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ms->filter);

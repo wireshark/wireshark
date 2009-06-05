@@ -264,7 +264,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	}
 
 
-	error_string=register_tap_listener("scsi", rs, filter, scsistat_reset, scsistat_packet, scsistat_draw);
+	error_string=register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -286,7 +286,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(rs->win->window);
 }
 

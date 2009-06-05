@@ -306,6 +306,7 @@ gtk_httpstat_init(const char *optarg,void* userdata _U_)
 			"http",
 			sp,
 			filter,
+			0,
 			httpstat_reset,
 			httpstat_packet,
 			httpstat_draw);

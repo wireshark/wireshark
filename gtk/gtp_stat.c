@@ -196,7 +196,7 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 	init_srt_table_row(&gtp->gtp_srt_table, 2, "Update PDP context");
 	init_srt_table_row(&gtp->gtp_srt_table, 3, "Delete PDP context");
 
-	error_string=register_tap_listener("gtp", gtp, filter, gtpstat_reset, gtpstat_packet, gtpstat_draw);
+	error_string=register_tap_listener("gtp", gtp, filter, 0, gtpstat_reset, gtpstat_packet, gtpstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -217,7 +217,7 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(gtp->win);
 	window_present(gtp->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(gtp->win->window);
 }
 

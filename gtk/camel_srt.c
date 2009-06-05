@@ -147,7 +147,6 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
 {
   struct camelsrt_t * p_camelsrt;
   const char *filter=NULL; 
-  const char *emptyfilter="";
 
   GtkWidget *cmd_label;
   GtkWidget *main_label;
@@ -199,25 +198,17 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
 		       val_to_str(i,camelSRTtype_naming,"Unknown"));
   }
 
-  if (filter) {
-    error_string=register_tap_listener("CAMEL", 
-				       p_camelsrt,
-				       filter,
-				       camelsrt_reset,
-				       camelsrt_packet, 
-				       camelsrt_draw);
-  } else {
-    error_string=register_tap_listener("CAMEL", 
-				       p_camelsrt,
-				       emptyfilter,
-				       camelsrt_reset,
-				       camelsrt_packet, 
-				       camelsrt_draw);
-  }
+  error_string=register_tap_listener("CAMEL", 
+				     p_camelsrt,
+				     filter,
+				     0,
+				     camelsrt_reset,
+				     camelsrt_packet, 
+				     camelsrt_draw);
   
-    if(error_string){
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-      g_string_free(error_string, TRUE);
+  if(error_string){
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+    g_string_free(error_string, TRUE);
     g_free(p_camelsrt);
     return;
   }
@@ -234,7 +225,7 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
 
   gtk_widget_show_all(p_camelsrt->win);
   window_present(p_camelsrt->win);
-  cf_retap_packets(&cfile, FALSE); 
+  cf_retap_packets(&cfile);
   gdk_window_raise(p_camelsrt->win->window);
 
 }

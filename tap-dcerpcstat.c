@@ -278,7 +278,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 		rs->procedures[i].tot.nsecs=0;
 	}
 
-	error_string=register_tap_listener("dcerpc", rs, filter, NULL, dcerpcstat_packet, dcerpcstat_draw);
+	error_string=register_tap_listener("dcerpc", rs, filter, 0, NULL, dcerpcstat_packet, dcerpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);

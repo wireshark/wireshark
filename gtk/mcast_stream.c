@@ -301,7 +301,7 @@ void mcaststream_scan(void)
 	if (!the_tapinfo_struct.is_registered)
 		register_tap_listener_mcast_stream();
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 
 	if (!was_registered)
 		remove_tap_listener_mcast_stream();
@@ -340,7 +340,7 @@ register_tap_listener_mcast_stream(void)
 	GString *error_string;
 	if (!the_tapinfo_struct.is_registered) {
 		error_string = register_tap_listener("udp", &the_tapinfo_struct,
-			NULL, mcaststream_reset_cb, mcaststream_packet,
+			NULL, 0, mcaststream_reset_cb, mcaststream_packet,
 			mcaststream_draw);
 
 		if (error_string != NULL) {

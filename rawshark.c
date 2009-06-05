@@ -1470,7 +1470,7 @@ protocolinfo_init(char *field)
 	rs->filter=field;
 	rs->cmd_line_index = g_cmd_line_index++;
 
-	error_string=register_tap_listener("frame", rs, rs->filter, NULL, protocolinfo_packet, NULL);
+	error_string=register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. complain and clean up */
 		fprintf(stderr, "rawshark: Couldn't register field extraction tap: %s\n",

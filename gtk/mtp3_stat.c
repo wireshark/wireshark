@@ -435,7 +435,7 @@ register_tap_listener_gtkmtp3_stat(void)
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat_t));
 
     err_p =
-	register_tap_listener("mtp3", &mtp3_stat, NULL,
+	register_tap_listener("mtp3", &mtp3_stat, NULL, 0,
 	    mtp3_stat_reset,
 	    mtp3_stat_packet,
 	    mtp3_stat_draw);

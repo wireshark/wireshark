@@ -2569,9 +2569,9 @@ proto_reg_handoff_http(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
 
-	stats_tree_register("http","http","HTTP/Packet Counter", http_stats_tree_packet, http_stats_tree_init, NULL );
-	stats_tree_register("http","http_req","HTTP/Requests", http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
-	stats_tree_register("http","http_srv","HTTP/Load Distribution",http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
+	stats_tree_register("http","http","HTTP/Packet Counter", 0, http_stats_tree_packet, http_stats_tree_init, NULL );
+	stats_tree_register("http","http_req","HTTP/Requests", 0, http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
+	stats_tree_register("http","http_srv","HTTP/Load Distribution",0,http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
 
 }
 

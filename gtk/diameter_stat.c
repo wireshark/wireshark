@@ -184,7 +184,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	init_srt_table(&diameter->diameter_srt_table, 1, vbox, NULL);
 	init_srt_table_row(&diameter->diameter_srt_table, 0, "Unknown");
 
-	error_string=register_tap_listener("diameter", diameter, filter, diameterstat_reset, diameterstat_packet, diameterstat_draw);
+	error_string=register_tap_listener("diameter", diameter, filter, 0, diameterstat_reset, diameterstat_packet, diameterstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -205,7 +205,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(diameter->win);
 	window_present(diameter->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(diameter->win->window);
 }
 

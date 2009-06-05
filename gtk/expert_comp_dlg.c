@@ -309,6 +309,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     /* Add tap listener functions for expert details, From expert_dlg.c*/
 
     error_string=register_tap_listener("expert", etd, NULL /* fstring */,
+                                       0,
                                        expert_dlg_reset,
                                        expert_dlg_packet,
                                        expert_dlg_draw);
@@ -324,7 +325,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Register the tap listener */
 
-    error_string=register_tap_listener("expert", ss, filter, error_reset, error_packet, NULL);
+    error_string=register_tap_listener("expert", ss, filter, 0, error_reset, error_packet, NULL);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
@@ -361,7 +362,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
      * assumes we didn't change anything that would cause any packets to
      * dissect differently, and thus doesn't redo the packet display.
      */
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
 
     /* This will bring up the progress bar
      * Put our window back in front

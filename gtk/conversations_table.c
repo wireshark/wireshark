@@ -1289,7 +1289,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     ct_create_popup_menu(conversations);
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, conversations, filter, reset_ct_table_data_cb, packet_func, draw_ct_table_data_cb);
+    error_string=register_tap_listener(tap_name, conversations, filter, 0, reset_ct_table_data_cb, packet_func, draw_ct_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
@@ -1356,7 +1356,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     gtk_widget_show_all(conversations->win);
     window_present(conversations->win);
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(conversations->win->window);
 
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
@@ -1490,7 +1490,7 @@ ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
         reset_ct_table_data(conversations);
     }
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     if (conversations) {
         gdk_window_raise(conversations->win->window);
     }
@@ -1601,7 +1601,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show_all(win);
     window_present(win);
 
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(win->window);
 
     /* after retapping, redraw table */

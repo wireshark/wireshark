@@ -166,7 +166,7 @@ static void report_counts_siginfo(int);
 static int load_cap_file(capture_file *, char *, int, int, gint64);
 static gboolean process_packet(capture_file *cf, gint64 offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
-    const guchar *pd);
+    const guchar *pd, gboolean filtering_tap_listeners, guint tap_flags);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -1990,7 +1990,8 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   gchar        *err_info;
   gint64       data_offset;
   capture_file *cf = capture_opts->cf;
-
+  gboolean filtering_tap_listeners;
+  guint tap_flags;
 
 #ifdef SIGINFO
   /*
@@ -2000,6 +2001,12 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
    */
   infodelay = TRUE;
 #endif /* SIGINFO */
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
 
   if(do_dissection) {
     while (to_read-- && cf->wth) {
@@ -2011,7 +2018,8 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
         cf->wth = NULL;
       } else {
         ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
-                             wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
+                             wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                             filtering_tap_listeners, tap_flags);
       }
       if (ret != FALSE) {
         /* packet sucessfully read and gone through the "Read Filter" */
@@ -2175,6 +2183,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   gchar        *err_info;
   gint64       data_offset;
   char         *save_file_string = NULL;
+  gboolean     filtering_tap_listeners;
+  guint        tap_flags;
 
   linktype = wtap_file_encap(cf->wth);
   if (save_file != NULL) {
@@ -2231,9 +2241,17 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     pdh = NULL;
   }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
+
   while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
     if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
-                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth))) {
+                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                       filtering_tap_listeners, tap_flags)) {
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
@@ -2394,10 +2412,12 @@ clear_fdata(frame_data *fdata)
 
 static gboolean
 process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd)
+               union wtap_pseudo_header *pseudo_header, const guchar *pd,
+               gboolean filtering_tap_listeners, guint tap_flags)
 {
   frame_data fdata;
   gboolean create_proto_tree;
+  column_info *cinfo;
   epan_dissect_t *edt;
   gboolean passed;
 
@@ -2419,7 +2439,8 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     }
 
     passed = TRUE;
-    if (cf->rfcode || verbose || num_tap_filters!=0 || have_custom_cols(&cf->cinfo))
+    if (cf->rfcode || verbose || filtering_tap_listeners ||
+        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
       create_proto_tree = FALSE;
@@ -2438,11 +2459,19 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 
     tap_queue_init(edt);
 
-    /* We only need the columns if we're printing packet info but we're
-       *not* verbose; in verbose mode, we print the protocol tree, not
-       the protocol summary. */
-    epan_dissect_run(edt, pseudo_header, pd, &fdata,
-                     (print_packet_info && !verbose) ? &cf->cinfo : NULL);
+    /* We only need the columns if either
+
+         1) some tap needs the columns
+
+       or
+
+         2) we're printing packet info but we're *not* verbose; in verbose
+            mode, we print the protocol tree, not the protocol summary. */
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && !verbose))
+      cinfo = &cf->cinfo;
+    else
+      cinfo = NULL;
+    epan_dissect_run(edt, pseudo_header, pd, &fdata, cinfo);
 
     tap_push_tapped_queue(edt);
 

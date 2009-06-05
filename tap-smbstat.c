@@ -251,7 +251,7 @@ smbstat_init(const char *optarg,void* userdata _U_)
 		ss->nt_trans[i].tot.nsecs=0;
 	}
 
-	error_string=register_tap_listener("smb", ss, filter, NULL, smbstat_packet, smbstat_draw);
+	error_string=register_tap_listener("smb", ss, filter, 0, NULL, smbstat_packet, smbstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ss->filter);

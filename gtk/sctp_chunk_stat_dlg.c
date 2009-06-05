@@ -579,7 +579,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_chunk_stat_on_close), u_data);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 
 }
 

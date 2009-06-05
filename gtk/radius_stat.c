@@ -301,19 +301,17 @@ static void
 gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 {
 	radiusstat_t *rs;
-	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *bt_close;
 	GtkWidget *bbox;
 
-	if(strncmp(optarg,"radius,srt,",11) == 0){
-		filter=optarg+11;
-	} else {
-		filter="";
-	}
-
 	rs=g_malloc(sizeof(radiusstat_t));
-	rs->filter=g_strdup(filter);
+
+	if(strncmp(optarg,"radius,srt,",11) == 0){
+		rs->filter=g_strdup(optarg+11);
+	} else {
+		rs->filter=NULL;
+	}
 
 	radiusstat_reset(rs);
 
@@ -322,14 +320,14 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 
 	rs->vbox=gtk_vbox_new(FALSE, 3);
 
-	init_main_stat_window(rs->win, rs->vbox, "RADIUS Service Response Time (SRT) Statistics", filter);
+	init_main_stat_window(rs->win, rs->vbox, "RADIUS Service Response Time (SRT) Statistics", rs->filter);
 
 	/* init a scrolled window*/
 	rs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	rs->table = create_stat_table(rs->scrolled_window, rs->vbox, NUM_COLUMNS, titles);
 
-	error_string=register_tap_listener("radius", rs, filter, radiusstat_reset, radiusstat_packet, radiusstat_draw);
+	error_string=register_tap_listener("radius", rs, rs->filter, 0, radiusstat_reset, radiusstat_packet, radiusstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -351,7 +349,7 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(rs->win->window);
 }
 

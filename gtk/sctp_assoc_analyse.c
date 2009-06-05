@@ -931,7 +931,7 @@ struct sctp_analyse * u_data;
 	u_data->analyse_nb   = NULL;
 	u_data->window       = NULL;
 	u_data->num_children = 0;
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	sctp_analyse_cb(u_data, TRUE);
 	sctp_set_filter(NULL, u_data);
 }
@@ -954,7 +954,7 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 	u_data->window       = NULL;
 	u_data->num_children = 0;
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	sctp_analyse_cb(u_data, FALSE);
 }
 

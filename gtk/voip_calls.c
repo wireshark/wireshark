@@ -425,6 +425,7 @@ rtp_event_init_tap(void)
 	{
 		error_string = register_tap_listener("rtpevent", &(the_tapinfo_rtp_struct.rtp_event_dummy),
 			NULL,
+			0,
 			NULL,
 			rtp_event_packet,
 			NULL
@@ -659,6 +660,7 @@ rtp_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("rtp", &(the_tapinfo_rtp_struct.rtp_dummy), NULL,
+			0,
 			voip_rtp_reset,
 			RTP_packet,
 			RTP_packet_draw
@@ -823,6 +825,7 @@ t38_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("t38", &(the_tapinfo_struct.t38_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			T38_packet,
 			voip_calls_dlg_draw
@@ -1030,6 +1033,7 @@ sip_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("sip", &(the_tapinfo_struct.sip_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			SIPcalls_packet,
 			voip_calls_dlg_draw
@@ -1255,6 +1259,7 @@ isup_calls_init_tap(void)
 	{
 		error_string = register_tap_listener("isup", &(the_tapinfo_struct.isup_dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			isup_calls_packet,
 			voip_calls_dlg_draw
@@ -1320,6 +1325,7 @@ mtp3_calls_init_tap(void)
 	{
 		error_string = register_tap_listener("mtp3", &(the_tapinfo_struct.mtp3_dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			mtp3_calls_packet,
 			voip_calls_dlg_draw
@@ -1337,11 +1343,12 @@ mtp3_calls_init_tap(void)
 	if(have_m3ua_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("m3ua", &(the_tapinfo_struct.mtp3_dummy),
-											 NULL,
-											 voip_calls_dlg_reset,
-											 mtp3_calls_packet,
-											 voip_calls_dlg_draw
-											 );
+			NULL,
+			0,
+			voip_calls_dlg_reset,
+			mtp3_calls_packet,
+			voip_calls_dlg_draw
+			);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1662,6 +1669,7 @@ q931_calls_init_tap(void)
 	{
 		error_string = register_tap_listener("q931", &(the_tapinfo_struct.q931_dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			q931_calls_packet,
 			voip_calls_dlg_draw
@@ -1957,6 +1965,7 @@ h225_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("h225", &(the_tapinfo_struct.h225_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			H225calls_packet,
 			voip_calls_dlg_draw
@@ -2114,6 +2123,7 @@ h245dg_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("h245dg", &(the_tapinfo_struct.h245dg_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			H245dgcalls_packet,
 			voip_calls_dlg_draw
@@ -2180,6 +2190,7 @@ sdp_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("sdp", &(the_tapinfo_struct.sdp_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			SDPcalls_packet,
 			voip_calls_dlg_draw
@@ -2551,6 +2562,7 @@ mgcp_calls_init_tap(void)
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the mgcp dissector */
 		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), g_strdup(""),
+			0,
 			voip_calls_dlg_reset,
 			MGCPcalls_packet,
 			voip_calls_dlg_draw
@@ -2680,6 +2692,7 @@ actrace_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("actrace", &(the_tapinfo_struct.actrace_dummy), NULL,
+			0,
 			voip_calls_dlg_reset,
 			ACTRACEcalls_packet,
 			voip_calls_dlg_draw
@@ -2828,10 +2841,11 @@ void h248_calls_init_tap(void)
 	if(have_megaco_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("megaco", &(the_tapinfo_struct.megaco_dummy),
-											 NULL,
-											 voip_calls_dlg_reset,
-											 h248_calls_packet,
-											 voip_calls_dlg_draw);
+			NULL,
+			0,
+			voip_calls_dlg_reset,
+			h248_calls_packet,
+			voip_calls_dlg_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -2846,10 +2860,11 @@ void h248_calls_init_tap(void)
 	if(have_h248_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("h248", &(the_tapinfo_struct.h248_dummy),
-											 NULL,
-											 voip_calls_dlg_reset,
-											 h248_calls_packet,
-											 voip_calls_dlg_draw);
+			NULL,
+			0,
+			voip_calls_dlg_reset,
+			h248_calls_packet,
+			voip_calls_dlg_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3013,10 +3028,11 @@ void sccp_calls_init_tap(void)
 	if(have_sccp_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("sccp", &(the_tapinfo_struct.sccp_dummy),
-											 NULL,
-											 voip_calls_dlg_reset,
-											 sccp_calls_packet,
-											 voip_calls_dlg_draw);
+			NULL,
+			0,
+			voip_calls_dlg_reset,
+			sccp_calls_packet,
+			voip_calls_dlg_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3031,10 +3047,11 @@ void sccp_calls_init_tap(void)
 	if(have_sua_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("sua", &(the_tapinfo_struct.sua_dummy),
-											 NULL,
-											 voip_calls_dlg_reset,
-											 sua_calls_packet,
-											 voip_calls_dlg_draw);
+			NULL,
+			0,
+			voip_calls_dlg_reset,
+			sua_calls_packet,
+			voip_calls_dlg_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3538,6 +3555,7 @@ unistim_calls_init_tap(void){
 
 		error_string = register_tap_listener("unistim", &(the_tapinfo_struct.unistim_dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			unistim_calls_packet,
 			voip_calls_dlg_draw
@@ -3701,6 +3719,7 @@ skinny_calls_init_tap(void)
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the SKINNY dissector */
 		error_string = register_tap_listener("skinny", &(the_tapinfo_struct.skinny_dummy), g_strdup(""),
+			0,
 			voip_calls_dlg_reset,
 			skinny_calls_packet,
 			voip_calls_dlg_draw
@@ -3880,6 +3899,7 @@ iax2_calls_init_tap(void)
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the IAX2 dissector */
 		error_string = register_tap_listener("IAX2", &(the_tapinfo_struct.iax2_dummy), g_strdup(""),
+			0,
 			voip_calls_dlg_reset,
 			iax2_calls_packet,
 			voip_calls_dlg_draw
@@ -3991,6 +4011,7 @@ VoIPcalls_init_tap(void)
 	{
 		error_string = register_tap_listener("voip", &(the_tapinfo_struct.voip_dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			VoIPcalls_packet,
 			voip_calls_dlg_draw
@@ -4054,6 +4075,7 @@ prot_calls_init_tap(void)
 	{
 		error_string = register_tap_listener("prot_", &(the_tapinfo_struct.prot__dummy),
 			NULL,
+			0,
 			voip_calls_dlg_reset,
 			prot__calls_packet,
 			voip_calls_dlg_draw

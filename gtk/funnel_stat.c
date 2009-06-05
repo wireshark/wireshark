@@ -476,7 +476,7 @@ static void funnel_logger(const gchar *log_domain _U_,
 }
 
 static void funnel_retap_packets(void) {
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 }
 
 static gboolean funnel_open_file(const char* fname, const char* filter, const char** err_str) {
@@ -578,7 +578,7 @@ typedef struct _menu_cb_t {
 static void our_menu_callback(void* unused _U_, gpointer data) {
     menu_cb_t* mcb = data;
     mcb->callback(mcb->callback_data);
-    if (mcb->retap) cf_retap_packets(&cfile, FALSE);
+    if (mcb->retap) cf_retap_packets(&cfile);
 }
 
 static void register_menu_cb(const char *name,

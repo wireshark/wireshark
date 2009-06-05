@@ -1756,14 +1756,14 @@ static void graph_segment_list_get (struct graph *g)
 	ts.current=&current;
 	ts.g=g;
 	ts.last=NULL;
-	error_string=register_tap_listener("tcp", &ts, "tcp", NULL, tapall_tcpip_packet, NULL);
+	error_string=register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL);
 	if(error_string){
 		fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	remove_tap_listener(&ts);
 }
 
@@ -1817,7 +1817,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	}
 
 
-	error_string=register_tap_listener("tcp", &th, NULL, NULL, tap_tcpip_packet, NULL);
+	error_string=register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
 	if(error_string){
 		fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
 		    error_string->str);

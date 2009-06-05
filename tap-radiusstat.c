@@ -170,17 +170,14 @@ radiusstat_init(const char *optarg, void* userdata _U_)
 {
 	radiusstat_t *rs;
 	int i;
-	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"radius,rtd,",11)){
-		filter=optarg+11;
-	} else {
-		filter="";
-	}
-
 	rs=g_malloc(sizeof(radiusstat_t));
-	rs->filter=g_strdup(filter);
+	if(!strncmp(optarg,"radius,rtd,",11)){
+		rs->filter=g_strdup(optarg+11);
+	} else {
+		rs->filter=NULL;
+	}
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		rs->rtd[i].num=0;
@@ -199,7 +196,7 @@ radiusstat_init(const char *optarg, void* userdata _U_)
 	rs->req_dup_num=0;
 	rs->rsp_dup_num=0;
 
-	error_string=register_tap_listener("radius", rs, filter, NULL, radiusstat_packet, radiusstat_draw);
+	error_string=register_tap_listener("radius", rs, rs->filter, 0, NULL, radiusstat_packet, radiusstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->filter);

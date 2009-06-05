@@ -95,40 +95,24 @@ static void camelcounter_draw(void *phs)
 static void camelcounter_init(const char *optarg, void* userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
-  const char *filter=NULL;
-  const char *emptyfilter=""; 
   GString *error_string;
 
-  if(!strncmp(optarg,"camel,counter,",13)){
-    filter=optarg+13;
-  } else {
-    filter=NULL;
-  }
-
   p_camelcounter = g_malloc(sizeof(struct camelcounter_t));
-  if(filter){
-    p_camelcounter->filter=g_strdup(filter);
+  if(!strncmp(optarg,"camel,counter,",13)){
+    p_camelcounter->filter=g_strdup(optarg+13);
   } else {
     p_camelcounter->filter=NULL;
   }
   
   camelcounter_reset(p_camelcounter);
 
-  if (filter) {
-    error_string=register_tap_listener("CAMEL",
-				       p_camelcounter,
-				       filter,
-				       NULL,
-				       camelcounter_packet,
-				       camelcounter_draw);
-  } else {
-    error_string=register_tap_listener("CAMEL",
-				       p_camelcounter,
-				       emptyfilter,
-				       NULL,
-				       camelcounter_packet,
-				       camelcounter_draw);
-  }
+  error_string=register_tap_listener("CAMEL",
+				     p_camelcounter,
+				     p_camelcounter->filter,
+				     0,
+				     NULL,
+				     camelcounter_packet,
+				     camelcounter_draw);
 
   if(error_string){
     /* error, we failed to attach to the tap. clean up */

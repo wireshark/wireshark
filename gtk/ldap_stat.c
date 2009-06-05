@@ -212,7 +212,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	init_srt_table_row(&ldap->ldap_srt_table, 23, "Extended");
 
 
-	error_string=register_tap_listener("ldap", ldap, filter, ldapstat_reset, ldapstat_packet, ldapstat_draw);
+	error_string=register_tap_listener("ldap", ldap, filter, 0, ldapstat_reset, ldapstat_packet, ldapstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -233,7 +233,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(ldap->win);
 	window_present(ldap->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(ldap->win->window);
 }
 

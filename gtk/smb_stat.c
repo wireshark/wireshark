@@ -214,7 +214,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	}
 
 
-	error_string=register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw);
+	error_string=register_tap_listener("smb", ss, filter, 0, smbstat_reset, smbstat_packet, smbstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -235,7 +235,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(ss->win);
 	window_present(ss->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(ss->win->window);
 }
 

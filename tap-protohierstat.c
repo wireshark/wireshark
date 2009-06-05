@@ -180,17 +180,11 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strcmp("io,phs",optarg)){
-		filter="frame";
+	if(strcmp("io,phs",optarg)==0){
+		/* No arguments */
 	} else if(sscanf(optarg,"io,phs,%n",&pos)==0){
 		if(pos){
 			filter=optarg+pos;
-		} else {
-			/* We must use a filter to guarantee that edt->tree
-			   will be populated. "frame" matches everything so
-			   that one is used instead of no filter.
-			*/
-			filter="frame";
 		}
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z io,phs[,<filter>]\" argument\n");
@@ -205,7 +199,7 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 		rs->filter=NULL;
 	}
 
-	error_string=register_tap_listener("frame", rs, filter, NULL, protohierstat_packet, protohierstat_draw);
+	error_string=register_tap_listener("frame", rs, filter, TL_REQUIRES_PROTO_TREE, NULL, protohierstat_packet, protohierstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->filter);

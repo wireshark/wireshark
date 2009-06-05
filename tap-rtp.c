@@ -142,7 +142,7 @@ rtp_streams_stat_init(const char *optarg _U_, void* userdata _U_)
     GString		*err_p;
 
     err_p =
-	register_tap_listener("rtp", &the_tapinfo_struct, NULL,
+	register_tap_listener("rtp", &the_tapinfo_struct, NULL, 0,
 	    rtpstream_reset_cb,
 	    rtpstream_packet,
 	    rtp_streams_stat_draw);

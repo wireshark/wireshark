@@ -283,7 +283,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	object_list = g_malloc0(sizeof(export_object_list_t));
 
 	/* Data will be gathered via a tap callback */
-	error_msg = register_tap_listener(tapname, object_list, NULL,
+	error_msg = register_tap_listener(tapname, object_list, NULL, 0,
 					  eo_reset,
 					  tap_packet,
 					  eo_draw);
@@ -421,5 +421,5 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_widget_show_all(object_list->dlg);
 	window_present(object_list->dlg);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 }

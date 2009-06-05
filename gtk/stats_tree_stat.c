@@ -301,6 +301,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	error_string = register_tap_listener( cfg->tapname,
 					      st,
 					      st->filter,
+					      cfg->flags,
 					      reset_tap,
 					      stats_tree_packet,
 					      draw_gtk_tree);
@@ -326,7 +327,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_widget_show_all(st->pr->win);
 	window_present(st->pr->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(st->pr->win->window);
 }
 

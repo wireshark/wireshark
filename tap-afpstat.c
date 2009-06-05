@@ -145,7 +145,7 @@ afpstat_init(const char *optarg, void* userdata _U_)
 		ss->proc[i].tot.nsecs=0;
 	}
 
-	error_string=register_tap_listener("afp", ss, filter, NULL, afpstat_packet, afpstat_draw);
+	error_string=register_tap_listener("afp", ss, filter, 0, NULL, afpstat_packet, afpstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ss->filter);

@@ -800,7 +800,7 @@ static void mac_lte_stat_dlg_create(void)
     /* Register the tap listener                  */
     /**********************************************/
 
-    error_string = register_tap_listener("mac-lte", hs, NULL,
+    error_string = register_tap_listener("mac-lte", hs, NULL, 0,
                                          mac_lte_stat_reset,
                                          mac_lte_stat_packet,
                                          mac_lte_stat_draw);
@@ -835,7 +835,7 @@ static void mac_lte_stat_dlg_create(void)
     window_present(mac_lte_stat_dlg_w);
 
     /* Retap */
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(mac_lte_stat_dlg_w->window);
 }
 

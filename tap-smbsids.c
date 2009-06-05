@@ -83,7 +83,7 @@ smbsids_init(const char *optarg _U_, void* userdata _U_)
 	}
 
 
-	error_string=register_tap_listener("smb", NULL, NULL, NULL, smbsids_packet, smbsids_draw);
+	error_string=register_tap_listener("smb", NULL, NULL, 0, NULL, smbsids_packet, smbsids_draw);
 	if(error_string){
 		fprintf(stderr, "tshark: Couldn't register smb,sids tap:%s\n",
 		    error_string->str);

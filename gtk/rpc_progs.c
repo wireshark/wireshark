@@ -382,7 +382,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
-	error_string=register_tap_listener("rpc", win, NULL, rpcprogs_reset, rpcprogs_packet, rpcprogs_draw);
+	error_string=register_tap_listener("rpc", win, NULL, 0, rpcprogs_reset, rpcprogs_packet, rpcprogs_draw);
 	if(error_string){
 		fprintf(stderr, "wireshark: Couldn't register rpc,programs tap: %s\n",
 		    error_string->str);
@@ -403,7 +403,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	gtk_widget_show_all(win);
 	window_present(win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(win->window);
 }
 

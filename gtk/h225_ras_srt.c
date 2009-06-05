@@ -283,19 +283,17 @@ static void
 gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 {
 	h225rassrt_t *hs;
-	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(strncmp(optarg,"h225,srt,",9) == 0){
-		filter=optarg+9;
-	} else {
-		filter="";
-	}
-
 	hs=g_malloc(sizeof(h225rassrt_t));
-	hs->filter=g_strdup(filter);
+
+	if(strncmp(optarg,"h225,srt,",9) == 0){
+		hs->filter=g_strdup(optarg+9);
+	} else {
+		hs->filter=NULL;
+	}
 
 	h225rassrt_reset(hs);
 
@@ -305,14 +303,14 @@ gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
-	init_main_stat_window(hs->win, hs->vbox, "H.225 RAS Service Response Time", filter);
+	init_main_stat_window(hs->win, hs->vbox, "H.225 RAS Service Response Time", hs->filter);
 
         /* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 11, titles);
 
-	error_string=register_tap_listener("h225", hs, filter, h225rassrt_reset, h225rassrt_packet, h225rassrt_draw);
+	error_string=register_tap_listener("h225", hs, hs->filter, 0, h225rassrt_reset, h225rassrt_packet, h225rassrt_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -334,7 +332,7 @@ gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(hs->win);
 	window_present(hs->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(hs->win->window);
 }
 

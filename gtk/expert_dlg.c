@@ -542,6 +542,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	}*/
 
 	error_string=register_tap_listener("expert", etd, NULL /* fstring */,
+		0,
 		expert_dlg_reset,
 		expert_dlg_packet,
 		expert_dlg_draw);
@@ -569,7 +570,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	gtk_widget_show_all(etd->win);
 	window_present(etd->win);
 
-    cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 
 	/* This will bring up the progress bar
 	 * Put our window back in front

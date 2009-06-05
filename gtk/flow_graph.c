@@ -420,6 +420,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 		{
 			/* don't register tap listener, if we have it already */
 			register_tap_listener("frame", &tap_identifier, NULL,
+				TL_REQUIRES_COLUMNS,
 				flow_graph_reset,
 				flow_graph_frame_packet,
 				flow_graph_packet_draw
@@ -427,7 +428,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 			have_frame_tap_listener=TRUE;
 		}
 
-		cf_retap_packets(&cfile, TRUE);
+		cf_retap_packets(&cfile);
 	}
 	else if (type_of_flow == TCP){
 	/* Register the tap listener */
@@ -436,6 +437,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 		{
 			/* don't register tap listener, if we have it already */
 			register_tap_listener("tcp", &tap_identifier, NULL,
+				0,
 				flow_graph_reset,
 				flow_graph_tcp_packet,
 				flow_graph_packet_draw
@@ -443,7 +445,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 			have_tcp_tap_listener=TRUE;
 		}
 
-		cf_retap_packets(&cfile, FALSE);
+		cf_retap_packets(&cfile);
 	}
 
 	if (graph_analysis_data->dlg.window != NULL){ /* if we still have a window */

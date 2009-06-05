@@ -385,7 +385,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	/* Clean up memory used by stream tap */
         mcaststream_reset((mcaststream_tapinfo_t*) mcaststream_get_info());
 	/* retap all packets */
-        cf_retap_packets(&cfile, FALSE);
+        cf_retap_packets(&cfile);
 
 }
 

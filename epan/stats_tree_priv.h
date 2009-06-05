@@ -110,7 +110,7 @@ struct _stats_tree_cfg {
 	gchar*			abbr;
 	gchar*			name;
 	gchar*			tapname;
-    register_stat_group_t stat_group;
+	register_stat_group_t	stat_group;
 	
 	gboolean in_use;
 
@@ -118,6 +118,9 @@ struct _stats_tree_cfg {
 	stat_tree_packet_cb packet;
 	stat_tree_init_cb init;
 	stat_tree_cleanup_cb cleanup;
+
+	/* tap listener flags for the per-packet callback */
+	guint flags;
 	
 	/*
 	 * node presentation callbacks

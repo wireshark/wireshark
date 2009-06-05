@@ -42,7 +42,6 @@
 #include <epan/tap.h>
 
 static gboolean tapping_is_active=FALSE;
-int num_tap_filters=0;
 
 typedef struct _tap_dissector_t {
 	struct _tap_dissector_t *next;
@@ -70,7 +69,8 @@ static guint tap_packet_index;
 typedef struct _tap_listener_t {
 	struct _tap_listener_t *next;
 	int tap_id;
-	int needs_redraw;
+	gboolean needs_redraw;
+	guint flags;
 	dfilter_t *code;
 	void *tapdata;
 	tap_reset_cb reset;
@@ -247,7 +247,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
 			if(tp->tap_id==tl->tap_id){
-				int passed=TRUE;
+				gboolean passed=TRUE;
 				if(tl->code){
 					passed=dfilter_apply_edt(tl->code, edt);
 				}
@@ -315,7 +315,7 @@ reset_tap_listeners(void)
 		if(tl->reset){
 			tl->reset(tl->tapdata);
 		}
-		tl->needs_redraw=1;
+		tl->needs_redraw=TRUE;
 	}
 
 }
@@ -339,7 +339,7 @@ draw_tap_listeners(gboolean draw_all)
 				tl->draw(tl->tapdata);
 			}
 		}
-		tl->needs_redraw=0;
+		tl->needs_redraw=FALSE;
 	}
 }
 
@@ -376,7 +376,8 @@ find_tap_id(const char *name)
  *           message.
  */
 GString *
-register_tap_listener(const char *tapname, void *tapdata, const char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
+register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
+    guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;
@@ -391,7 +392,8 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring, t
 
 	tl=g_malloc(sizeof(tap_listener_t));
 	tl->code=NULL;
-	tl->needs_redraw=1;
+	tl->needs_redraw=TRUE;
+	tl->flags=flags;
 	if(fstring){
 		if(!dfilter_compile(fstring, &tl->code)){
 			error_string = g_string_new("");
@@ -400,8 +402,6 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring, t
 			    fstring, dfilter_error_msg);
 			g_free(tl);
 			return error_string;
-		} else {
-			num_tap_filters++;
 		}
 	}
 
@@ -444,10 +444,9 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 	if(tl){
 		if(tl->code){
 			dfilter_free(tl->code);
-			num_tap_filters--;
 			tl->code=NULL;
 		}
-		tl->needs_redraw=1;
+		tl->needs_redraw=TRUE;
 		if(fstring){
 			if(!dfilter_compile(fstring, &tl->code)){
 				error_string = g_string_new("");
@@ -455,8 +454,6 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 						 "Filter \"%s\" is invalid - %s",
 						 fstring, dfilter_error_msg);
 				return error_string;
-			} else {
-				num_tap_filters++;
 			}
 		}
 	}
@@ -492,7 +489,6 @@ remove_tap_listener(void *tapdata)
 	if(tl){
 		if(tl->code){
 			dfilter_free(tl->code);
-			num_tap_filters--;
 		}
 		g_free(tl);
 	}
@@ -502,11 +498,6 @@ remove_tap_listener(void *tapdata)
 
 /*
  * Return TRUE if we have tap listeners, FALSE otherwise.
- * Checking "num_tap_filters" isn't the right way to check whether we need
- * to do any dissection in order to run taps, as not all taps necessarily
- * have filters, and "num_tap_filters" is the number of tap filters, not
- * the number of tap listeners; it's only the right way to check whether
- * we need to build a protocol tree when doing dissection.
  */
 gboolean
 have_tap_listeners(void)
@@ -528,4 +519,36 @@ have_tap_listener(int tap_id)
 	}
 
 	return FALSE;
+}
+
+/*
+ * Return TRUE if we have any tap listeners with filters, FALSE otherwise.
+ */
+gboolean
+have_filtering_tap_listeners(void)
+{
+	tap_listener_t *tl;
+
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		if(tl->code)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+/*
+ * Get the union of all the flags for all the tap listeners; that gives
+ * an indication of whether the protocol tree, or the columns, are
+ * required by any taps.
+ */
+guint
+union_of_tap_listener_flags(void)
+{
+	tap_listener_t *tl;
+	guint flags = 0;
+
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		flags|=tl->flags;
+	}
+	return flags;
 }

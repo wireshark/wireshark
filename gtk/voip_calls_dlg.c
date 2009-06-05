@@ -950,7 +950,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	gtk_clist_append(GTK_CLIST(clist), data);
 	
 	/* Scan for VoIP calls calls (redissect all packets) */
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(voip_calls_dlg->window);
 	/* Tap listener will be removed and cleaned up in voip_calls_on_destroy */
 }

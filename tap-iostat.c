@@ -69,7 +69,7 @@ typedef struct _io_stat_item_t {
 
 
 static int
-iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
+iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	io_stat_item_t *mit = arg;
 	io_stat_item_t *it;
@@ -488,14 +488,12 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 	io->filters[i]=filter;
 	flt=filter;
 
-	if(!filter){
-		filter="";
-	}
 	field=NULL;
 	hfi=NULL;
 	for(j=0; calc_type_table[j].func_name; j++){
 		namelen=strlen(calc_type_table[j].func_name);
-		if(strncmp(filter, calc_type_table[j].func_name, namelen) == 0
+                if(filter
+		    && strncmp(filter, calc_type_table[j].func_name, namelen) == 0
 		    && *(filter+namelen)=='('){
 			io->items[i].calc_type=calc_type_table[j].calc_type;
 
@@ -600,7 +598,7 @@ CALC_TYPE_MAX	4
 CALC_TYPE_AVG	5
 */
 
-	error_string=register_tap_listener("frame", &io->items[i], flt, NULL, iostat_packet, i?NULL:iostat_draw);
+	error_string=register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL, iostat_packet, i?NULL:iostat_draw);
 	if(error_string){
 		g_free(io->items);
 		g_free(io);

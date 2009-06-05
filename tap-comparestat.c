@@ -560,7 +560,7 @@ comparestat_init(const char *optarg, void* userdata _U_)
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "Packet_info_tree");
 
-	error_string=register_tap_listener("ip", cs, filter, comparestat_reset, comparestat_packet, comparestat_draw);
+	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(cs->filter);

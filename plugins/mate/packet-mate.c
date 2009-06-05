@@ -341,10 +341,11 @@ proto_reg_handoff_mate(void)
 				register_init_routine(initialize_mate_runtime);
 				
 				tap_error = register_tap_listener("frame", &mate_tap_data,
-												  (char*) mc->tap_filter,
-												  (tap_reset_cb) NULL,
-												  mate_packet,
-												  (tap_draw_cb) NULL);
+				    (char*) mc->tap_filter,
+				    0,
+				    (tap_reset_cb) NULL,
+				    mate_packet,
+				    (tap_draw_cb) NULL);
 				
 				if ( tap_error ) {
 					g_warning("mate: couldn't (re)register tap: %s",tap_error->str);

@@ -150,7 +150,6 @@ static void
 gtk_megacostat_init(const char *optarg, void *userdata _U_)
 {
 	megacostat_t *ms;
-	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *bt_close;
 	GtkWidget *bbox;
@@ -164,14 +163,13 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 		return;
 	}
 	
-	if(strncmp(optarg,"megaco,srt,",11) == 0){
-		filter=optarg+11;
-	} else {
-		filter="";
-	}
-
 	ms=g_malloc(sizeof(megacostat_t));
-	ms->filter=g_strdup(filter);
+
+	if(strncmp(optarg,"megaco,srt,",11) == 0){
+		ms->filter=g_strdup(optarg+11);
+	} else {
+		ms->filter=NULL;
+	}
 
 	megacostat_reset(ms);
 
@@ -180,14 +178,14 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 
 	ms->vbox=gtk_vbox_new(FALSE, 3);
 
-	init_main_stat_window(ms->win, ms->vbox, "MEGACO Service Response Time (SRT) Statistics", filter);
+	init_main_stat_window(ms->win, ms->vbox, "MEGACO Service Response Time (SRT) Statistics", ms->filter);
 
 	/* init a scrolled window*/
 	ms->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	ms->table = create_stat_table(ms->scrolled_window, ms->vbox, 7, titles);
 
-	error_string=register_tap_listener("megaco", ms, filter, megacostat_reset, megacostat_packet, megacostat_draw);
+	error_string=register_tap_listener("megaco", ms, ms->filter, 0, megacostat_reset, megacostat_packet, megacostat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
@@ -209,7 +207,7 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 	gtk_widget_show_all(ms->win);
 	window_present(ms->win);
 
-	cf_retap_packets(&cfile, FALSE);
+	cf_retap_packets(&cfile);
 	gdk_window_raise(ms->win->window);
 }
 

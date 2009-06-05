@@ -385,6 +385,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 			"wsp",
 			sp,
 			filter,
+			0,
 			wspstat_reset,
 			wspstat_packet,
 			wspstat_draw);
@@ -411,7 +412,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
         gtk_widget_show_all(sp->win);
         window_present(sp->win);
 
-        cf_retap_packets(&cfile, FALSE);
+        cf_retap_packets(&cfile);
 	gdk_window_raise(sp->win->window);
 }
 

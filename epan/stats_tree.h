@@ -53,6 +53,7 @@ typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
 /* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
  * abbr: protocol abbr
  * name: protocol display name
+ * flags: tap listener flags for per-packet callback
  * packet: per packet callback
  * init: tree initialization callback
  * cleanup: cleanup callback
@@ -60,6 +61,7 @@ typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
 extern void stats_tree_register(const gchar *tapname,
 				const gchar *abbr, 
 				const gchar *name,
+				guint flags,
 				stat_tree_packet_cb packet,
 				stat_tree_init_cb init,
 				stat_tree_cleanup_cb cleanup);
@@ -67,6 +69,7 @@ extern void stats_tree_register(const gchar *tapname,
 /* registers a new stats tree 
  * abbr: protocol abbr
  * name: protocol display name
+ * flags: tap listener flags for per-packet callback
  * packet: per packet callback
  * init: tree initialization callback
  * cleanup: cleanup callback
@@ -75,10 +78,11 @@ extern void stats_tree_register(const gchar *tapname,
 extern void stats_tree_register_with_group(const gchar *tapname,
 				const gchar *abbr, 
 				const gchar *name,
+				guint flags,
 				stat_tree_packet_cb packet,
 				stat_tree_init_cb init,
 				stat_tree_cleanup_cb cleanup,
-                register_stat_group_t stat_group);
+				register_stat_group_t stat_group);
 
 extern int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
 

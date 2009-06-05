@@ -668,6 +668,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     error_string = register_tap_listener("sip",
                                          sp,
                                          filter,
+                                         0,
                                          sipstat_reset,
                                          sipstat_packet,
                                          sipstat_draw);
@@ -696,7 +697,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     window_present(sp->win);
 
     sip_init_hash(sp);
-    cf_retap_packets(&cfile, FALSE);
+    cf_retap_packets(&cfile);
     gdk_window_raise(sp->win->window);
 }
 

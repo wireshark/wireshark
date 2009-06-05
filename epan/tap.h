@@ -27,15 +27,15 @@
 
 #include "epan/epan.h"
 
-/* With MSVC and a libwireshark.dll, we need a 
- * special declaration of num_tap_filters.
- */
-WS_VAR_IMPORT int num_tap_filters;
-
 typedef void (*tap_reset_cb)(void *tapdata);
-typedef int  (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 typedef void (*tap_draw_cb)(void *tapdata);
 
+/*
+ * Flags to indicate what a tap listener's packet routine requires.
+ */
+#define TL_REQUIRES_PROTO_TREE		0x00000001	/* full protocol tree */
+#define TL_REQUIRES_COLUMNS		0x00000002	/* columns */
 
 extern void tap_init(void);
 extern int register_tap(const char *name);
@@ -46,12 +46,14 @@ extern void tap_push_tapped_queue(epan_dissect_t *edt);
 extern void reset_tap_listeners(void);
 extern void draw_tap_listeners(gboolean draw_all);
 extern GString *register_tap_listener(const char *tapname, void *tapdata,
-    const char *fstring, tap_reset_cb tap_reset, tap_packet_cb tap_packet,
-    tap_draw_cb tap_draw);
+    const char *fstring, guint flags, tap_reset_cb tap_reset,
+    tap_packet_cb tap_packet, tap_draw_cb tap_draw);
 extern GString *set_tap_dfilter(void *tapdata, const char *fstring);
 extern void remove_tap_listener(void *tapdata);
 extern gboolean have_tap_listeners(void);
 extern gboolean have_tap_listener(int tap_id);
+extern gboolean have_filtering_tap_listeners(void);
+extern guint union_of_tap_listener_flags(void);
 extern const void *fetch_tapped_data(int tap_id, int idx);
 
 #endif

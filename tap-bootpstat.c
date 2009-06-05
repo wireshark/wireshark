@@ -162,6 +162,7 @@ dhcpstat_init(const char *optarg, void* userdata _U_)
 			"bootp",
 			sp,
 			filter,
+			0,
 			dhcpstat_reset,
 			dhcpstat_packet,
 			dhcpstat_draw);

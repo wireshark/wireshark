@@ -367,7 +367,7 @@ register_tap_listener_gtkansi_map_stat(void)
     memset((void *) &ansi_a_stat, 0, sizeof(ansi_map_stat_t));
 
     err_p =
-	register_tap_listener("ansi_map", &ansi_a_stat, NULL,
+	register_tap_listener("ansi_map", &ansi_a_stat, NULL, 0,
 	    ansi_map_stat_reset,
 	    ansi_map_stat_packet,
 	    ansi_map_stat_draw);
