@@ -380,12 +380,9 @@ cf_close(capture_file *cf)
 
   /* close things, if not already closed before */
   if(cf->state != FILE_CLOSED) {
-
-	  color_filters_cleanup();
-
-	  cf_reset_state(cf);
-
-	  cleanup_dissection();
+    color_filters_cleanup();
+    cf_reset_state(cf);
+    cleanup_dissection();
   }
 
   cf_callback_invoke(cf_cb_file_closed, cf);
@@ -1036,8 +1033,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-  if( (fdata->flags.passed_dfilter)
-   || (edt->pi.fd->flags.ref_time) ){
+  if( (fdata->flags.passed_dfilter) || (edt->pi.fd->flags.ref_time) ){
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
@@ -1096,10 +1092,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      * we do both to make sure that when a packet gets un-marked, the
      * color will be correctly set (fixes bug 2038)
      */
-      fdata->color_filter = color_filters_colorize_packet(row, edt);
-      if (fdata->flags.marked) {
-          packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-      }
+     fdata->color_filter = color_filters_colorize_packet(row, edt);
+     if (fdata->flags.marked) {
+       packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
+     }
 
     /* Set the time of the previous displayed frame to the time of this
        frame. */
