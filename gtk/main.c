@@ -491,7 +491,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 
 static gchar *
-get_text_from_packet_list(gpointer data)
+get_filter_from_packet_list_row_and_column(gpointer data)
 {
     gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
     gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
@@ -511,7 +511,7 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
 {
     match_selected_cb_do(data,
         action,
-        get_text_from_packet_list(data));
+        get_filter_from_packet_list_row_and_column(data));
 }
 
 /* This function allows users to right click in the details window and copy the text
