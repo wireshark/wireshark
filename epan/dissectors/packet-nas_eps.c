@@ -149,6 +149,11 @@ static int hf_nas_eps_emm_apn_ambr_ul_ext = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_ext = -1;
 static int hf_nas_eps_emm_apn_ambr_ul_ext2 = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_ext2 = -1;
+
+static int hf_nas_eps_emm_switch_off = -1;
+static int hf_nas_eps_emm_detach_type_UL = -1;
+static int hf_nas_eps_emm_detach_type_DL = -1;
+
 static int hf_nas_eps_qci = -1;
 static int hf_nas_eps_mbr_ul = -1;
 static int hf_nas_eps_mbr_dl = -1;
@@ -657,42 +662,42 @@ de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  */
 /*
  * 9.9.3.7	Detach type
+ * Coded inline
  */
-/*
-Type of detach (octet 1)
+static const value_string nas_eps_emm_switch_off_vals[] = {
+	{ 0x0,	"Normal detach"},
+	{ 0x1,	"Switch off"},
+	{ 0, NULL }
+};
+/* Type of detach (octet 1)
+ * In the UE to network direction:
+ */
+static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
+	{ 0x1,	"EPS detach"},
+	{ 0x2,	"IMSI detach"},
+	{ 0x3,	"Combined EPS/IMSI detach"},
+	{ 0x4,	"Combined EPS/IMSI detach"}, /* All other values are interpreted as "combined EPS/IMSI detach" in this version of the protocol.*/
+	{ 0x5,	"Combined EPS/IMSI detach"}, /* -"- */
+	{ 0x6,	"Reserved"},
+	{ 0x7,	"Reserved"},
+	{ 0, NULL }
+};
 
-In the UE to network direction:
-Bits
-3	2	1		
-0	0	1		EPS detach
-0	1	0		IMSI detach
-0	1	1		combined EPS/IMSI detach
-1	1	0		reserved
-1	1	1		reserved
+/* 
+ * In the network to UE direction:
+ */
 
-All other values are interpreted as "combined EPS/IMSI detach" in this version of the protocol.
+static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
+	{ 0x1,	"Re-attach required"},
+	{ 0x2,	"Re-attach not required"},
+	{ 0x3,	"IMSI detach"},
+	{ 0x4,	"IMSI detach"}, /* All other values are interpreted as "re-attach not required" in this version of the protocol.*/
+	{ 0x5,	"IMSI detach"}, /* -"- */
+	{ 0x6,	"Reserved"},
+	{ 0x7,	"Reserved"},
+	{ 0, NULL }
+};
 
-In the network to UE direction:
-Bits
-3	2	1		
-0	0	1		re-attach required
-0	1	0		re-attach not required
-0	1	1		IMSI detach
-1	1	0		reserved
-1	1	1		reserved
-
-All other values are interpreted as "re-attach not required" in this version of the protocol.
-
-Switch off (octet 1)
-
-In the UE to network direction:
-Bit
-4				
-0				normal detach
-1				switch off
-
-In the network to UE direction bit 4 is spare. The network shall set this bit to zero.
-*/
 /*
  * 9.9.3.8	DRX parameter
  * See subclause 10.5.5.6 in 3GPP TS 24.008 [13].
@@ -945,6 +950,18 @@ de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * 9.9.3.19	KSI and sequence number
  */
+static guint16
+de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, 1 , "KSI and sequence number");
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
 
 /*
  * 9.9.3.20	MS network capability
@@ -2050,7 +2067,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	NULL,						/* 9.9.3.16	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. (packet-gsm_a_gm.c)*/
 	NULL,						/* 9.9.3.17	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
 	de_emm_nas_imeisv_req,		/* 9.9.3.18	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
-	NULL,						/* 9.9.3.19	KSI and sequence number */
+	de_emm_nas_ksi_and_seq_no,	/* 9.9.3.19	KSI and sequence number */
 	NULL,						/* 9.9.3.20	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6].(packet-gsm_a_gm.c) */
 	de_emm_nas_key_set_id,		/* 9.9.3.21	NAS key set identifier (Coded Inline) */
 	de_emm_nas_msg_cont,		/* 9.9.3.22	NAS message container */
@@ -2420,19 +2437,97 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 8.2.11	Detach request
  * 8.2.11.1	Detach request (UE originating detach)
- * Detach type	Detach type 9.9.3.6	M	V	1/2
- * Spare half octet	Spare half octet 9.9.2.7	M	V	1/2
- * GUTI or IMSI	EPS mobile identity 9.9.3.12	M	LV	5-12
- *ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI or IMSI");
- */
-/*
- * 8.2.11.2	Detach request (UE terminated detach)
- * Detach type	Detach type 9.9.3.6	M	V	1/2
- * Spare half octet	Spare half octet 9.9.2.7	M	V	1/2
- * EMM cause	EMM cause 9.9.3.9	O	TV	2
- * ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, "");
  */
 
+static void
+nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset,bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len,"Up link");
+	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Detach type	Detach type 9.9.3.6	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+
+	/* GUTI or IMSI	EPS mobile identity 9.9.3.12	M	LV	5-12 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI or IMSI");
+
+	return;
+}
+/*
+ * 8.2.11.2	Detach request (UE terminated detach)
+ */
+static void
+nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len,"Down link");
+	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Detach type	Detach type 9.9.3.6	M	V	1/2 */
+	/* In the network to UE direction bit 4 is spare. The network shall set this bit to zero. */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+
+	/* EMM cause	EMM cause 9.9.3.9	O	TV	2 */
+	ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, "");
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+	return;
+}
+static void
+nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	if (gpinfo){
+		if(gpinfo->link_dir==P2P_DIR_UL){
+			nas_emm_detach_req_UL(tvb, tree, offset, len);
+			return;
+		}else if(gpinfo->link_dir==P2P_DIR_DL){
+			nas_emm_detach_req_DL(tvb, tree, offset, len);
+			return;
+		}
+	}
+	proto_tree_add_text(tree, tvb, curr_offset, len,"UL/DL not known, can't properly dissect");
+
+	return;
+
+}
 
 /*
  * 8.2.12	Downlink NAS Transport
@@ -2752,11 +2847,32 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * This message is sent by the UE to the network to request the establishment
  * of a NAS signalling connection and of the radio and S1 bearers. 
  * Its structure does not follow the structure of a standard layer 3 message. See table 8.2.22.1.
- * Protocol discriminator	Protocol discriminator 9.2	M	V	1/2
- * Security header type	Security header type 9.3.1	M	V	1/2
- * KSI and sequence number	KSI and sequence number 9.9.3.17	M	V	1
- * Message authentication code (short)	Short MAC 9.9.3.25	M	V	2
  */
+/* Table 8.2.22.1
+ * Protocol discriminator Protocol discriminator 9.2 M V 1/2
+ * Security header type Security header type 9.3.1 M V 1/2
+ * KSI and sequence number KSI and sequence number 9.9.3.19 M V 1
+ * Message authentication code (short) Short MAC 9.9.3.28 M V 2
+ */
+static void
+nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* KSI and sequence number 9.9.3.19 M V 1	*/
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_KSI_AND_SEQ_NO);
+
+	/* Short MAC 9.9.3.28 M V 2 */
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_SHORT_MAC);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 /*
  * 8.2.26	Tracking area update accept
  */
@@ -3528,8 +3644,8 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	nas_emm_attach_acc,			/* Attach accept */
 	nas_emm_attach_comp,		/* Attach complete */
 	nas_emm_attach_rej,			/* Attach reject */
-	NULL,	/* Detach request */
-	NULL,	/* 8.2.10	Detach accept */
+	nas_emm_detach_req,			/* Detach request */
+	NULL,						/* 8.2.10	Detach accept */
 							
 	nas_emm_trac_area_upd_req,	/* Tracking area update request */
 	nas_emm_trac_area_upd_acc,	/* Tracking area update accept */
@@ -3761,6 +3877,11 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		}
 	}else{
+		/* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
+		if (security_header_type == 12){
+			nas_emm_service_req(tvb, tree, offset, len-offset);
+			return;
+		}
 		/* Message authentication code */
 		proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
 		offset+=4;
@@ -4294,6 +4415,21 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_apn_ambr_dl_ext2,
 		{ "APN-AMBR for downlink(Extended-2)","nas_eps.emm.apn_ambr_dl_ext2",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_switch_off,
+		{ "Switch off","nas_eps.emm.switch_off",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_switch_off_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_detach_type_UL,
+		{ "Detach Type","nas_eps.emm.detach_type_ul",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_dtatch_UL_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_detach_type_DL,
+		{ "Detach Type","nas_eps.emm.detach_type_dl",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_dtatch_DL_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_qci,

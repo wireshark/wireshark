@@ -236,7 +236,18 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		/* IPv6 */
 		 proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, tvb, 0, tvb_len, FALSE);
 	}
+#.FN_HDR InitialUEMessage
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_UL;
 
+#.FN_HDR DownlinkNASTransport
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR UplinkNASTransport
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_UL;
+	
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_ProtocolIE_ID_vals)
 

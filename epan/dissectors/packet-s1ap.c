@@ -2462,7 +2462,6 @@ dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	}
 
 
-
   return offset;
 }
 
@@ -4699,6 +4698,11 @@ static const per_sequence_t DownlinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_DownlinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 244 "s1ap.cnf"
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_DL;
+
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_DownlinkNASTransport, DownlinkNASTransport_sequence);
 
@@ -4713,6 +4717,11 @@ static const per_sequence_t InitialUEMessage_sequence[] = {
 
 static int
 dissect_s1ap_InitialUEMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 240 "s1ap.cnf"
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_UL;
+
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_InitialUEMessage, InitialUEMessage_sequence);
 
@@ -4727,6 +4736,11 @@ static const per_sequence_t UplinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 248 "s1ap.cnf"
+	/* Set the direction of the message */
+	actx->pinfo->link_dir=P2P_DIR_UL;
+	
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_UplinkNASTransport, UplinkNASTransport_sequence);
 

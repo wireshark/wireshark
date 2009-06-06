@@ -320,6 +320,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.sccp_info = NULL;
 	edt->pi.clnp_srcref = 0;
 	edt->pi.clnp_dstref = 0;
+	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 
     EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
     
