@@ -443,6 +443,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	double expected_time;
 	double absskew;
 	guint32 clock_rate;
+	guint32 old_flags;
 
 	/* Store the current time */
 	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
@@ -477,10 +478,70 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		return 0;
 	}
 
-	/* Reset flags */
+	/* Save old flags and reset flags */
+	old_flags = statinfo->flags;
 	statinfo->flags = 0;
 
-	/* check payload type */
+	/* When calculating expected rtp packets the seq number can wrap around
+	 * so we have to count the number of cycles
+	 * Variable cycles counts the wraps around in forwarding connection and
+	 * under is flag that indicates where we are
+	 *
+	 * XXX How to determine number of cycles with all possible lost, late
+	 * and duplicated packets without any doubt? It seems to me, that
+	 * because of all possible combination of late, duplicated or lost
+	 * packets, this can only be more or less good approximation
+	 *
+	 * There are some combinations (rare but theoretically possible),
+	 * where below code won't work correctly - statistic may be wrong then.
+	 */
+
+	/* So if the current sequence number is less than the start one
+	 * we assume, that there is another cycle running
+	 */
+	if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) && (statinfo->under == FALSE)){
+		statinfo->cycles++;
+		statinfo->under = TRUE;
+	}
+	/* what if the start seq nr was 0? Then the above condition will never
+	 * be true, so we add another condition. XXX The problem would arise
+	 * if one of the packets with seq nr 0 or 65535 would be lost or late
+	 */
+	else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
+		(statinfo->under == FALSE)){
+		statinfo->cycles++;
+		statinfo->under = TRUE;
+	}
+	/* the whole round is over, so reset the flag */
+	else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) && (statinfo->under != FALSE)) {
+		statinfo->under = FALSE;
+	}
+
+	/* Since it is difficult to count lost, duplicate or late packets separately,
+	 * we would like to know at least how many times the sequence number was not ok
+	 */
+
+	/* If the current seq number equals the last one or if we are here for
+	 * the first time, then it is ok, we just store the current one as the last one
+	 */
+	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
+		statinfo->seq_num = rtpinfo->info_seq_num;
+	/* If the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
+	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
+		statinfo->seq_num = rtpinfo->info_seq_num;
+	/* Lost packets */
+	else if (statinfo->seq_num+1 < rtpinfo->info_seq_num) {
+		statinfo->seq_num = rtpinfo->info_seq_num;
+		statinfo->sequence++;
+		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
+	}
+	/* Late or duplicated */
+	else if (statinfo->seq_num+1 > rtpinfo->info_seq_num) {
+		statinfo->sequence++;
+		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
+	}
+
+	/* Check payload type */
 	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD)
 		statinfo->flags |= STAT_FLAG_PT_CN;
@@ -497,11 +558,22 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	 */
 	if (statinfo->pt < 96 ){
 		clock_rate = get_clock_rate(statinfo->pt);
-	}else{ /* dynamic PT */
-		if ( rtpinfo->info_payload_type_str != NULL )
-			clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
-		else
+	}else{ /* Dynamic PT */
+		if ( rtpinfo->info_payload_type_str != NULL ){
+			/* Is it a "telephone-event" ?
+			 * Timestamp is not increased for telepone-event packets inpacting
+			 * caluculation of Jitter Skew and clock drift.
+			 * see 2.2.1 of RFC 4733
+			 */
+			if (g_ascii_strncasecmp("telephone-event",rtpinfo->info_payload_type_str,(strlen("telephone-event")))==0){
+				clock_rate = 0;
+				statinfo->flags |= STAT_FLAG_PT_T_EVENT;
+			}else{
+				clock_rate = get_dyn_pt_clock_rate(rtpinfo-> info_payload_type_str);
+			}
+		}else{
 			clock_rate = 0;
+		}
 	}
 
 		/* Handle wraparound ? */
@@ -558,11 +630,11 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->sumtTS += 1.0 * current_time * nominaltime;
 	}
 
-	/* calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP)+8bytes(UDP) = 28bytes */
+	/* Calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP)+8bytes(UDP) = 28bytes */
 	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 
-	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
+	/* Check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
 	while ((statinfo->bw_history[statinfo->bw_start_index].time+1000/* ms */)<current_time){
 	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
 		statinfo->bw_start_index++;
@@ -574,17 +646,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
 
 
-	/*  is this the first packet we got in this direction? */
-	if (statinfo->first_packet) {
-		statinfo->start_seq_nr = rtpinfo->info_seq_num;
-		statinfo->start_time = current_time;
-		statinfo->delta = 0;
-		statinfo->jitter = 0;
-		statinfo->diff = 0;
-		statinfo->flags |= STAT_FLAG_FIRST;
-		statinfo->first_packet = FALSE;
-	}
-	/* is it a packet with the mark bit set? */
+	/* Is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
 		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 		if (rtpinfo->info_timestamp > statinfo->timestamp){
@@ -594,26 +656,26 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
 		}
 	}
-	/* is it a regular packet? */
+	/* Is it a regular packet? */
 	if (!(statinfo->flags & STAT_FLAG_FIRST)
 		&& !(statinfo->flags & STAT_FLAG_MARKER)
 		&& !(statinfo->flags & STAT_FLAG_PT_CN)
 		&& !(statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP)
 		&& !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
-		/* include it in maximum delta calculation */
+		/* Include it in maximum delta calculation */
 		if (statinfo->delta > statinfo->max_delta) {
 			statinfo->max_delta = statinfo->delta;
 			statinfo->max_nr = pinfo->fd->num;
 		}
 		if (clock_rate != 0) { 
-			/* maximum and mean jitter calculation */
+			/* Maximum and mean jitter calculation */
 			if (statinfo->jitter > statinfo->max_jitter) {
 				statinfo->max_jitter = statinfo->jitter;
 			}
 			statinfo->mean_jitter = (statinfo->mean_jitter*statinfo->total_nr + current_diff) / (statinfo->total_nr+1);
 		}
 	}
-	/* regular payload change? (CN ignored) */
+	/* Regular payload change? (CN ignored) */
 	if (!(statinfo->flags & STAT_FLAG_FIRST)
 		&& !(statinfo->flags & STAT_FLAG_PT_CN)) {
 		if ((statinfo->pt != statinfo->reg_pt)
@@ -622,66 +684,11 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		}
 	}
 
-	/* set regular payload*/
+	/* Set regular payload*/
 	if (!(statinfo->flags & STAT_FLAG_PT_CN)) {
 		statinfo->reg_pt = statinfo->pt;
 	}
 
-
-	/* When calculating expected rtp packets the seq number can wrap around
-	* so we have to count the number of cycles
-	* Variable cycles counts the wraps around in forwarding connection and
-	* under is flag that indicates where we are
-	*
-	* XXX how to determine number of cycles with all possible lost, late
-	* and duplicated packets without any doubt? It seems to me, that
-	* because of all possible combination of late, duplicated or lost
-	* packets, this can only be more or less good approximation
-	*
-	* There are some combinations (rare but theoretically possible),
-	* where below code won't work correctly - statistic may be wrong then.
-	*/
-
-	/* so if the current sequence number is less than the start one
-	* we assume, that there is another cycle running */
-	if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) && (statinfo->under == FALSE)){
-		statinfo->cycles++;
-		statinfo->under = TRUE;
-	}
-	/* what if the start seq nr was 0? Then the above condition will never
-	* be true, so we add another condition. XXX The problem would arise
-	* if one of the packets with seq nr 0 or 65535 would be lost or late */
-	else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
-		(statinfo->under == FALSE)){
-		statinfo->cycles++;
-		statinfo->under = TRUE;
-	}
-	/* the whole round is over, so reset the flag */
-	else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) && (statinfo->under != FALSE)) {
-		statinfo->under = FALSE;
-	}
-
-	/* Since it is difficult to count lost, duplicate or late packets separately,
-	* we would like to know at least how many times the sequence number was not ok */
-
-	/* if the current seq number equals the last one or if we are here for
-	* the first time, then it is ok, we just store the current one as the last one */
-	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
-		statinfo->seq_num = rtpinfo->info_seq_num;
-	/* if the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
-	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
-		statinfo->seq_num = rtpinfo->info_seq_num;
-	/* lost packets */
-	else if (statinfo->seq_num+1 < rtpinfo->info_seq_num) {
-		statinfo->seq_num = rtpinfo->info_seq_num;
-		statinfo->sequence++;
-		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
-	}
-	/* late or duplicated */
-	else if (statinfo->seq_num+1 > rtpinfo->info_seq_num) {
-		statinfo->sequence++;
-		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
-	}
 	statinfo->time = current_time;
 	statinfo->timestamp = rtpinfo->info_timestamp;
 	statinfo->stop_seq_nr = rtpinfo->info_seq_num;

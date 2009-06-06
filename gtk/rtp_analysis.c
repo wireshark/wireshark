@@ -85,6 +85,7 @@ enum
 {
    PACKET_COLUMN,
    SEQUENCE_COLUMN,
+   TIMESTAMP_COLUMN,
    DELTA_COLUMN,
    JITTER_COLUMN,
    SKEW_COLUMN,
@@ -239,9 +240,10 @@ typedef struct _user_data_t {
 
 
 /* Column titles. */
-static const gchar *titles[10] =  {
+static const gchar *titles[11] =  {
 	"Packet",
 	"Sequence",
+	"Time stamp",
 	"Delta (ms)",
 	"Jitter (ms)",
 	"Skew(ms)",
@@ -291,6 +293,8 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.max_delta = 0;
 	user_data->forward.statinfo.max_jitter = 0;
 	user_data->reversed.statinfo.max_jitter = 0;
+	user_data->forward.statinfo.max_skew = 0;
+	user_data->reversed.statinfo.max_skew = 0;
 	user_data->forward.statinfo.mean_jitter = 0;
 	user_data->reversed.statinfo.mean_jitter = 0;
 	user_data->forward.statinfo.delta = 0;
@@ -299,6 +303,16 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
 	user_data->reversed.statinfo.jitter = 0;
+	user_data->forward.statinfo.skew = 0;
+	user_data->reversed.statinfo.skew = 0;
+	user_data->forward.statinfo.sumt = 0;
+	user_data->reversed.statinfo.sumt = 0;
+	user_data->forward.statinfo.sumTS = 0;
+	user_data->reversed.statinfo.sumTS = 0;
+	user_data->forward.statinfo.sumt2 = 0;
+	user_data->reversed.statinfo.sumt2 = 0;
+	user_data->forward.statinfo.sumtTS = 0;
+	user_data->reversed.statinfo.sumtTS = 0;
 	user_data->forward.statinfo.bandwidth = 0;
 	user_data->reversed.statinfo.bandwidth = 0;
 	user_data->forward.statinfo.total_bytes = 0;
@@ -431,7 +445,7 @@ static void rtp_draw(void *prs _U_)
 }
 
 /* forward declarations */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
+static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
                          double delta, double jitter, double skew ,double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
 
@@ -508,6 +522,7 @@ static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
+COLOR_T_EVENT g_snprintf(color_str,sizeof(color_str),"#ef8c bfff ffff");
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 */
 /****************************************************************************/
@@ -553,7 +568,11 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(color_str,sizeof(color_str),"#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
-		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+		if (statinfo->flags & STAT_FLAG_PT_T_EVENT){
+			g_snprintf(status,sizeof(status),"Payload changed to PT=%u telephone/event", statinfo->pt);
+		}else{
+			g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+		}
 		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
@@ -570,8 +589,12 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(status,sizeof(status),"Marker missing?");
 		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
-	}
-	else {
+	}else if (statinfo->flags & STAT_FLAG_PT_T_EVENT){
+		g_snprintf(status,sizeof(status),"PT=%u telephone/event", statinfo->pt);
+		/* XXX add color? */
+		/* color = COLOR_T_EVENT; */
+		g_snprintf(color_str,sizeof(color_str),"#ef8cbfffffff");
+	}else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
 			/* color = COLOR_WARNING; */
 			g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
@@ -582,6 +605,7 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_list(list, user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
+			statinfo->timestamp,
 			0,
 			0,
 			0,
@@ -595,6 +619,7 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	else {
 		add_to_list(list, user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
+			statinfo->timestamp,
 			statinfo->delta,
 			statinfo->jitter,
 			statinfo->skew,
@@ -1879,10 +1904,12 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	gboolean more_items = TRUE;
 
 	/* To Hold data from the list row */
-	guint			packet;		/* Packet				*/
-	guint			sequence;	/* Sequence				*/
+	guint32			packet;		/* Packet				*/
+	guint16			sequence;	/* Sequence				*/
+	guint32			timestamp;	/* timestamp			*/
 	gfloat			delta;		/* Delta(ms)			*/
 	gfloat			jitter;		/* Jitter(ms)			*/
+	gfloat			skew;		/* Skew(ms)				*/
 	gfloat			ipbw;		/* IP BW(kbps)			*/
 	gboolean		marker;		/* Marker				*/
 	char *			status_str;	/* Status				*/
@@ -1950,20 +1977,24 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 			 			
 			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
-					 0, &packet,
-					 1, &sequence,
-					 2, &delta,
-					 3, &jitter,
-					 4, &ipbw,
-					 5, &marker,
-					 6, &status_str,
-					 7, &date_str,
-					 8, &length,
+					 PACKET_COLUMN, &packet,
+					 SEQUENCE_COLUMN, &sequence,
+					 TIMESTAMP_COLUMN, &timestamp,
+					 DELTA_COLUMN, &delta,
+					 JITTER_COLUMN, &jitter,
+					 SKEW_COLUMN, &skew,
+					 IPBW_COLUMN, &ipbw,
+					 MARKER_COLUMN, &marker,
+					 STATUS_COLUMN, &status_str,
+					 DATE_COLUMN, &date_str,
+					 LENGTH_COLUMN, &length,
 					 -1);
 				 fprintf(fp, "%u",packet);
 				 fprintf(fp, ",%u", sequence);
+				 fprintf(fp, ",%u", timestamp);
 				 fprintf(fp, ",%.2f", delta);
 				 fprintf(fp, ",%.2f", jitter);
+				 fprintf(fp, ",%.2f", skew);
 				 fprintf(fp, ",%.2f", ipbw);
 				 fprintf(fp, ",%s", marker? "SET" : "");
 				 fprintf(fp, ",%s", status_str);
@@ -2036,20 +2067,24 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 			 
 			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
-					 0, &packet,
-					 1, &sequence,
-					 2, &delta,
-					 3, &jitter,
-					 4, &ipbw,
-					 5, &marker,
-					 6, &status_str,
-					 7, &date_str,
-					 8, &length,
+					 PACKET_COLUMN, &packet,
+					 SEQUENCE_COLUMN, &sequence,
+					 TIMESTAMP_COLUMN, &timestamp,
+					 DELTA_COLUMN, &delta,
+					 JITTER_COLUMN, &jitter,
+					 SKEW_COLUMN, &skew,
+					 IPBW_COLUMN, &ipbw,
+					 MARKER_COLUMN, &marker,
+					 STATUS_COLUMN, &status_str,
+					 DATE_COLUMN, &date_str,
+					 LENGTH_COLUMN, &length,
 					 -1);
 				 fprintf(fp, "%u",packet);
 				 fprintf(fp, ",%u", sequence);
+				 fprintf(fp, ",%u", timestamp);
 				 fprintf(fp, ",%.2f", delta);
 				 fprintf(fp, ",%.2f", jitter);
+				 fprintf(fp, ",%.2f", skew);
 				 fprintf(fp, ",%.2f", ipbw);
 				 fprintf(fp, ",%s", marker? "SET" : "");
 				 fprintf(fp, ",%s", status_str);
@@ -2977,7 +3012,7 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
+static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
                          double delta, double jitter,double skew, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
@@ -3003,6 +3038,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 #endif
                 PACKET_COLUMN, number,
                 SEQUENCE_COLUMN, seq_num,
+				TIMESTAMP_COLUMN, timestamp,
 				DELTA_COLUMN, delta,
 				JITTER_COLUMN, jitter,
 				SKEW_COLUMN, skew,
@@ -3069,6 +3105,7 @@ GtkWidget* create_list(user_data_t* user_data)
     list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
                                G_TYPE_UINT,		/* Packet				*/
                                G_TYPE_UINT,		/* Sequence				*/
+                               G_TYPE_UINT,		/* Time stamp			*/
                                G_TYPE_FLOAT,	/* Delta(ms)			*/
                                G_TYPE_FLOAT,	/* Filtered Jitter(ms)  */
                                G_TYPE_FLOAT,	/* Skew(ms)				*/
@@ -3129,6 +3166,21 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
+#if 0
+	Currently not visible
+    /* Time stamp. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Time stamp", renderer, 
+		"text", TIMESTAMP_COLUMN,
+        "foreground", FOREGROUND_COLOR_COL,
+        "background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, TIMESTAMP_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 75);
+    gtk_tree_view_append_column (list_view, column);
+#endif
     /* Delta(ms). */
     renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Delta(ms)", renderer, 

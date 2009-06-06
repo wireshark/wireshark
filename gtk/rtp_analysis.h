@@ -67,7 +67,8 @@ typedef struct _tap_rtp_stat_t {
 	gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
 	                           /* use (flags & STAT_FLAG_FIRST) instead */
 	/* all of the following fields will be initialized after
-	 rtp_packet_analyse has been called */
+	 * rtp_packet_analyse has been called
+	 */
 	guint32 flags;             /* see STAT_FLAG-defines below */
 	guint16 seq_num;
 	guint32 timestamp;
@@ -108,14 +109,15 @@ typedef struct _tap_rtp_stat_t {
 #define PT_UNDEFINED -1
 
 /* status flags for the flags parameter in tap_rtp_stat_t */
-#define STAT_FLAG_FIRST       0x01
-#define STAT_FLAG_MARKER      0x02
-#define STAT_FLAG_WRONG_SEQ   0x04
-#define STAT_FLAG_PT_CHANGE   0x08
-#define STAT_FLAG_PT_CN       0x10
-#define STAT_FLAG_FOLLOW_PT_CN  0x20
-#define STAT_FLAG_REG_PT_CHANGE  0x40
-#define STAT_FLAG_WRONG_TIMESTAMP  0x80
+#define STAT_FLAG_FIRST				0x001
+#define STAT_FLAG_MARKER			0x002
+#define STAT_FLAG_WRONG_SEQ			0x004
+#define STAT_FLAG_PT_CHANGE			0x008
+#define STAT_FLAG_PT_CN				0x010
+#define STAT_FLAG_FOLLOW_PT_CN		0x020
+#define STAT_FLAG_REG_PT_CHANGE		0x040
+#define STAT_FLAG_WRONG_TIMESTAMP	0x080
+#define STAT_FLAG_PT_T_EVENT		0x100
 
 /* forward */
 struct _rtp_info;
