@@ -42,11 +42,11 @@
  */
 
 /* TODO:
-   - AM sequence analysis/re-assembly
+   - AM sequence analysis/re-assembly?
 */
 
 
-/* By default try to analyse the sequence of messages for UM/AM channels */
+/* By default try to analyse the sequence of messages for UM channels */
 static gboolean global_rlc_lte_sequence_analysis = TRUE;
 
 
@@ -339,10 +339,10 @@ static void show_PDU_in_info(packet_info *pinfo,
 /* Channel key */
 typedef struct
 {
-    guint16 ueId;
+    guint16  ueId;
     guint16  channelType;
     guint16  channelId;
-    guint8  direction;
+    guint8   direction;
 } rlc_channel_hash_key;
 
 /* Conversation-type status for channel */
@@ -744,6 +744,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           packet_info *pinfo,
                                           proto_tree *tree,
+                                          proto_item *status_ti,
                                           int offset)
 {
     guint8     cpt;
@@ -843,6 +844,13 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
         }
     } while (e1 || e2);
 
+    /* Check that we've reached the end of the PDU. If not, show malformed */
+    offset = (bit_offset+7) / 8;
+    if (tvb_length_remaining(tvb, offset) > 0) {
+        expert_add_info_format(pinfo, status_ti, PI_MALFORMED, PI_ERROR,
+                               "%u bytes remaining after Status PDU complete",
+                               tvb_length_remaining(tvb, offset));
+    }
 }
 
 
@@ -887,7 +895,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /**************************************************/
     /* Control PDUs are a completely separate format  */
     if (!is_data) {
-        dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, offset);
+        dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);
         return;
     }
 
