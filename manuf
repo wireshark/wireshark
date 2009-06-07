@@ -9662,7 +9662,7 @@
 00:25:AF	ComfileTec             # COMFILE Technology
 00:25:B0	Schmartz               # Schmartz Inc
 00:25:B1	Maya-Creat             # Maya-Creation Corporation
-00:25:B2	Ope2
+00:25:B2	Lfk-Lenkfl             # LFK-Lenkflugkörpersysteme GmbH
 00:25:B3	HewlettPac             # Hewlett Packard
 00:25:B4	Cisco                  # Cisco Systems
 00:25:B5	Cisco                  # Cisco Systems
@@ -9842,6 +9842,26 @@
 00:26:63	ShenzhenHu             # Shenzhen Huitaiwei Tech. Ltd, co.
 00:26:64	CoreSystem             # Core System Japan
 00:26:65	Protectedl             # ProtectedLogic Corporation
+00:26:66	EfmNetwork             # EFM Networks
+00:26:67	Carecom                # CARECOM CO.,LTD.
+00:26:68	NokiaDanma             # Nokia Danmark A/S
+00:26:69	NokiaDanma             # Nokia Danmark A/S
+00:26:6A	EssensiumN             # ESSENSIUM NV
+00:26:6B	ShineUnion             # SHINE UNION ENTERPRISE LIMITED
+00:26:6C	Inventec
+00:26:6D	Mobileacce             # MobileAccess Networks
+00:26:6E	Nissho-Den             # Nissho-denki Co.,LTD.
+00:26:6F	Coordiwise             # Coordiwise Technology Corp.
+00:26:70	CinchConne             # Cinch Connectors
+00:26:71	Autovision             # AUTOVISION Co., Ltd
+00:26:72	AampOfAmer             # AAMP of America
+00:26:73	Ricoh                  # RICOH COMPANY LTD.
+00:26:74	Electronic             # Electronic Solutions, Inc.
+00:26:75	AztechElec             # Aztech Electronics Pte Ltd
+00:26:76	CommidtAs              # COMMidt AS
+00:26:77	Deif                   # DEIF A/S
+00:26:78	LogicInstr             # Logic Instrument SA
+00:26:79	EuphonicTe             # Euphonic Technologies, Inc.
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -9852,7 +9872,7 @@
 00:30:07	Opti                   # OPTI, INC.
 00:30:08	AvioDigita             # AVIO DIGITAL, INC.
 00:30:09	TachionNet             # Tachion Networks, Inc.
-00:30:0A	Aztech                 # AZTECH SYSTEMS LTD.
+00:30:0A	AztechElec             # AZTECH Electronics Pte Ltd
 00:30:0B	MphaseTech             # mPHASE Technologies, Inc.
 00:30:0C	Congruency             # CONGRUENCY, LTD.
 00:30:0D	MmcTechnol             # MMC Technology, Inc.
@@ -10230,7 +10250,7 @@
 00:40:81	Mannesmann             # MANNESMANN SCANGRAPHIC GMBH
 00:40:82	Laboratory             # LABORATORY EQUIPMENT CORP.
 00:40:83	TdaIndustr             # TDA INDUSTRIA DE PRODUTOS
-00:40:84	Honeywell              # HONEYWELL INC.
+00:40:84	HoneywellA             # HONEYWELL ACS
 00:40:85	SaabInstru             # SAAB INSTRUMENTS AB
 00:40:86	MichelsKle             # MICHELS & KLEBERHOFF COMPUTER
 00:40:87	Ubitrex                # UBITREX CORPORATION
@@ -13297,6 +13317,12 @@
 00:50:C2:AC:E0:00/36	Chronologi             # ChronoLogic Pty. Ltd.
 00:50:C2:AC:F0:00/36	SpControls             # SP Controls, Inc
 00:50:C2:AD:00:00/36	Geonautics             # Geonautics Australia Pty Ltd
+00:50:C2:AD:10:00/36	PhytecMess             # Phytec Messtechnik GmbH
+00:50:C2:AD:20:00/36	Rafael
+00:50:C2:AD:30:00/36	PeekTraffi             # Peek Traffic Corporation
+00:50:C2:AD:40:00/36	GlobalRain             # Global Rainmakers Inc.
+00:50:C2:AD:50:00/36	MightyLube             # Mighty Lube Systematic Lubrication, Inc.
+00:50:C2:AD:60:00/36	Unisensor              # Unisensor A/S
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
