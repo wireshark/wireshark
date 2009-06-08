@@ -577,7 +577,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f = g_malloc(sizeof(wslua_field_t));
-	const gchar* abbr = luaL_checkstring(L,1);
+    const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     base_display_e base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
@@ -591,7 +591,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     }
 
     f->hfid = -2;
-	f->ett = -1;
+    f->ett = -1;
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
@@ -832,10 +832,9 @@ PROTOFIELD_OTHER(bool,FT_BOOLEAN)
 WSLUA_METAMETHOD ProtoField_tostring(lua_State* L) {
 	/* Returns a string w/ info about a protofiled (for debugging purposes) */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
+    gchar* s = ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
     
     lua_pushstring(L,s);
-    g_free(s);
     
     return 1;
 }
@@ -980,9 +979,8 @@ static int Proto_tostring(lua_State* L) {
     
     if (!proto) return 0;
     
-    s = g_strdup_printf("Proto: %s",proto->name);
+    s = ep_strdup_printf("Proto: %s",proto->name);
     lua_pushstring(L,s);
-    g_free(s);
     
     return 1;
 }

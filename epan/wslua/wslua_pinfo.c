@@ -280,7 +280,7 @@ WSLUA_META Address_meta[] = {
 
 
 int Address_register(lua_State *L) {
-	WSLUA_REGISTER_CLASS(Address);
+    WSLUA_REGISTER_CLASS(Address);
     return 1;
 }
 
@@ -409,13 +409,13 @@ WSLUA_METHOD Column_clear(lua_State *L) {
 WSLUA_METHOD Column_set(lua_State *L) {
 	/* Sets the text of a Column */
 #define WSLUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column */
-	Column c = checkColumn(L,1);
+    Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_set_TEXT);
 
     if (!(c && c->cinfo))
-		return 0;
+        return 0;
 
-	if (!s) WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
+    if (!s) WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
 
     if (check_col(c->cinfo, c->col))
         col_set_str(c->cinfo, c->col, s);
@@ -429,11 +429,10 @@ WSLUA_METHOD Column_append(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_append_TEXT);
 
-	if (!(c && c->cinfo))
-		return 0;
+    if (!(c && c->cinfo))
+        return 0;
 
-	if (!s) WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
-
+    if (!s) WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
 
     if (check_col(c->cinfo, c->col))
         col_append_str(c->cinfo, c->col, s);
@@ -447,10 +446,10 @@ WSLUA_METHOD Column_preppend(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_prepend_TEXT);
 
-	if (!(c && c->cinfo))
-		return 0;
+    if (!(c && c->cinfo))
+        return 0;
 
-	if (!s) WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
+    if (!s) WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
 
     if (check_col(c->cinfo, c->col))
         col_prepend_fstr(c->cinfo, c->col, "%s",s);
@@ -475,7 +474,7 @@ WSLUA_META Column_meta[] = {
 
 
 int Column_register(lua_State *L) {
-	WSLUA_REGISTER_CLASS(Column);
+    WSLUA_REGISTER_CLASS(Column);
     return 1;
 }
 
@@ -490,7 +489,7 @@ WSLUA_CLASS_DEFINE(Columns,NOP,NOP);
 WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
     WSLUA_RETURN(1);
-	/* The string "Columns", no real use, just for debugging purposes. */
+    /* The string "Columns", no real use, just for debugging purposes. */
 }
 
 WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
@@ -587,7 +586,7 @@ static const luaL_reg Columns_meta[] = {
 
 
 int Columns_register(lua_State *L) {
-	WSLUA_REGISTER_META(Columns);
+    WSLUA_REGISTER_META(Columns);
     return 1;
 }
 
@@ -830,42 +829,42 @@ typedef struct _pinfo_method_t {
 
 static int Pinfo_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-	Address addr = g_malloc(sizeof(address));
+    Address addr = g_malloc(sizeof(address));
 
-	if (!pinfo) return 0;
-        if (pinfo->expired) {
+    if (!pinfo) return 0;
+    if (pinfo->expired) {
         luaL_error(L,"expired_pinfo");
         return 0;
     }
 
-	if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
-		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
-	} else {
-		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
-	}
+    if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
+        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
+    } else {
+        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
+    }
 
-	pushAddress(L,addr);
-	return 1;
+    pushAddress(L,addr);
+    return 1;
 }
 
 static int Pinfo_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-	Address addr = g_malloc(sizeof(address));
+    Address addr = g_malloc(sizeof(address));
 
-	if (!pinfo) return 0;
-        if (pinfo->expired) {
+    if (!pinfo) return 0;
+    if (pinfo->expired) {
         luaL_error(L,"expired_pinfo");
         return 0;
     }
 
-	if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
-		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
-	} else {
-		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
-	}
+    if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
+        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
+    } else {
+        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
+    }
 
-	pushAddress(L,addr);
-	return 1;
+    pushAddress(L,addr);
+    return 1;
 }
 
 
@@ -955,7 +954,7 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
     {"private_data", Pinfo_private_data, pushnil_param, PARAM_NONE},
 	
-	{NULL,NULL,NULL,PARAM_NONE}
+    {NULL,NULL,NULL,PARAM_NONE}
 };
 
 
@@ -1041,7 +1040,7 @@ static const luaL_reg Pinfo_meta[] = {
 };
 
 int Pinfo_register(lua_State* L) {
-	WSLUA_REGISTER_META(Pinfo);
+    WSLUA_REGISTER_META(Pinfo);
     outstanding_Pinfo = g_ptr_array_new();
     outstanding_Column = g_ptr_array_new();
     outstanding_Columns = g_ptr_array_new();

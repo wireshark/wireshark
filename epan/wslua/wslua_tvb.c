@@ -95,8 +95,8 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
     ByteArray ba = checkByteArray(L,WSLUA_ARG_ByteArray__cat_FIRST);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_SECOND);
 
-	if (! (ba  && ba2) )
-		WSLUA_ERROR(ByteArray__cat,"Both arguments must be ByteArrays");
+    if (! (ba  && ba2) )
+        WSLUA_ERROR(ByteArray__cat,"Both arguments must be ByteArrays");
 
     g_byte_array_append(ba,ba2->data,ba2->len);
 
@@ -110,8 +110,8 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_prepend_PREPENDED);
 
-	if (! (ba  && ba2) )
-		WSLUA_ERROR(ByteArray_prepend,"Both arguments must be ByteArrays");
+    if (! (ba  && ba2) )
+        WSLUA_ERROR(ByteArray_prepend,"Both arguments must be ByteArrays");
 
     g_byte_array_prepend(ba,ba2->data,ba2->len);
 
@@ -125,8 +125,8 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_append_APPENDED);
 
-	if (! (ba  && ba2) )
-		WSLUA_ERROR(ByteArray_append,"Both arguments must be ByteArrays");
+    if (! (ba  && ba2) )
+        WSLUA_ERROR(ByteArray_append,"Both arguments must be ByteArrays");
 
     g_byte_array_append(ba,ba2->data,ba2->len);
 
@@ -308,7 +308,7 @@ static const luaL_reg ByteArray_meta[] = {
 };
 
 int ByteArray_register(lua_State* L) {
-	WSLUA_REGISTER_CLASS(ByteArray);
+    WSLUA_REGISTER_CLASS(ByteArray);
     return 1;
 }
 
@@ -564,7 +564,7 @@ static const luaL_reg Tvb_meta[] = {
 };
 
 int Tvb_register(lua_State* L) {
-	WSLUA_REGISTER_CLASS(Tvb);
+    WSLUA_REGISTER_CLASS(Tvb);
     return 1;
 }
 
@@ -751,7 +751,6 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
 
 WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 	/* Get an IPv4 Address from a TvbRange. */
-
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32* ip_addr;
@@ -778,7 +777,6 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 
 WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
 	/* Get an Little Endian IPv4 Address from a TvbRange. */
-
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32* ip_addr;
@@ -916,7 +914,7 @@ static const luaL_reg TvbRange_methods[] = {
     {"le_float", TvbRange_le_float},
     {"ether", TvbRange_ether},
     {"ipv4", TvbRange_ipv4},
-	{"le_ipv4", TvbRange_le_ipv4},
+    {"le_ipv4", TvbRange_le_ipv4},
     {"string", TvbRange_string},
     {"bytes", TvbRange_bytes},
     {"len", TvbRange_len},
@@ -937,7 +935,7 @@ int TvbRange_register(lua_State* L) {
     return 1;
 }
 
-WSLUA_CLASS_DEFINE(Int64,NOP,NOP);
+WSLUA_CLASS_DEFINE(Int64,FAIL_ON_NULL("null int64"),NOP);
 /*
   Int64 represents a 64 bit integer.
   Lua uses one single number representation which can be chosen at compile time and since
@@ -949,8 +947,18 @@ WSLUA_CLASS_DEFINE(Int64,NOP,NOP);
 WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
 	/* Converts the Int64 into a string */
     Int64 num = checkInt64(L,1);
-    lua_pushstring(L,g_strdup_printf("%ld",(long int)*(num)));
+    lua_pushstring(L,ep_strdup_printf("%" G_GINT64_MODIFIER "d",(gint64)*(num)));
     return 1;
+}
+
+static int Int64__gc(lua_State* L) {
+    Int64 num = checkInt64(L,1);
+
+    if (!num) return 0;
+
+    g_free(num);
+
+    return 0;
 }
 
 static const luaL_reg Int64_methods[] = {
@@ -958,7 +966,8 @@ static const luaL_reg Int64_methods[] = {
 };
 
 static const luaL_reg Int64_meta[] = {
-   {"__tostring", Int64__tostring},
+    {"__tostring", Int64__tostring},
+    {"__gc", Int64__gc},
     { NULL, NULL }
 };
 
@@ -967,14 +976,24 @@ int Int64_register(lua_State* L) {
     return 1;
 }
 
-WSLUA_CLASS_DEFINE(UInt64,NOP,NOP);
-	/* Int64 represents a 64 bit integer. */
+WSLUA_CLASS_DEFINE(UInt64,FAIL_ON_NULL("null uint64"),NOP);
+	/* UInt64 represents a 64 bit unsigned integer. */
 
 WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
 	/* Converts the UInt64 into a string */
     UInt64 num = checkUInt64(L,1);
-    lua_pushstring(L,g_strdup_printf("%ld",(unsigned long int)*(num)));
+    lua_pushstring(L,ep_strdup_printf("%" G_GINT64_MODIFIER "u",(guint64)*(num)));
     return 1;
+}
+
+static int UInt64__gc(lua_State* L) {
+    UInt64 num = checkUInt64(L,1);
+
+    if (!num) return 0;
+
+    g_free(num);
+
+    return 0;
 }
 
 static const luaL_reg UInt64_methods[] = {
@@ -983,6 +1002,7 @@ static const luaL_reg UInt64_methods[] = {
 
 static const luaL_reg UInt64_meta[] = {
     {"__tostring", UInt64__tostring},
+    {"__gc", UInt64__gc},
     { NULL, NULL }
 };
 

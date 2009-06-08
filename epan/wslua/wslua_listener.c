@@ -249,9 +249,8 @@ WSLUA_METAMETHOD Listener_tostring(lua_State* L) {
     
     if (!tap) return 0;
     
-    str = g_strdup_printf("Listener(%s) filter: %s",tap->name, tap->filter ? tap->filter : "NONE");
+    str = ep_strdup_printf("Listener(%s) filter: %s",tap->name, tap->filter ? tap->filter : "NONE");
     lua_pushstring(L,str);
-    g_free(str);
     
     return 1;
 }
