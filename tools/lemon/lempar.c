@@ -743,10 +743,10 @@ void Parse(
     }else if( yyact < YYNSTATE + YYNRULE ){
       yy_reduce(yypParser,yyact-YYNSTATE);
     }else{
-      assert( yyact == YY_ERROR_ACTION );
 #ifdef YYERRORSYMBOL
       int yymx;
 #endif
+      assert( yyact == YY_ERROR_ACTION );
 #ifndef NDEBUG
       if( yyTraceFILE ){
         fprintf(yyTraceFILE,"%sSyntax Error!\n",yyTracePrompt);

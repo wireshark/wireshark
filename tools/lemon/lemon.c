@@ -1493,7 +1493,12 @@ int main(int argc _U_, char **argv)
   lem.basisflag = basisflag;
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
-  lem.errsym->useCnt = 0;
+  /*
+  **  Resetting useCnt in errsym seems to disable some error checking we 
+  **  need to validate the filter syntax.  So we remove this resetting for now.
+  **
+  **  lem.errsym->useCnt = 0;
+  */
   lem.outdirname = outdirname;
   lem.templatename = templatename;
   lem.basename = make_basename(lem.filename);

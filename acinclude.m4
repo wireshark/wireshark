@@ -290,40 +290,54 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	  # XXX need to set a var AC_CHECK_HEADER(pcap.h,,)
 
 	  #
-	  # The user didn't specify a directory in which libpcap resides;
-	  # we assume that the current library search path will work,
-	  # but we may have to look for the header in a "pcap"
-	  # subdirectory of "/usr/include" or "/usr/local/include",
-	  # as some systems apparently put "pcap.h" in a "pcap"
-	  # subdirectory, and we also check "$prefix/include" - and
-	  # "$prefix/include/pcap", in case $prefix is set to
-	  # "/usr/include" or "/usr/local/include".
+	  # The user didn't specify a directory in which libpcap resides.
+	  # First, look for a pcap-config script.
 	  #
-	  # XXX - should we just add "$prefix/include" to the include
-	  # search path and "$prefix/lib" to the library search path?
-	  #
-	  AC_MSG_CHECKING(for extraneous pcap header directories)
-	  found_pcap_dir=""
-	  pcap_dir_list="/usr/include/pcap $prefix/include/pcap $prefix/include"
-	  if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-	    pcap_dir_list="$pcap_dir_list /usr/local/include/pcap"
-	  fi
-	  for pcap_dir in $pcap_dir_list
-	  do
-	    if test -d $pcap_dir ; then
+	  AC_PATH_PROG(PCAP_CONFIG, pcap-config)
+	  if test -n "$PCAP_CONFIG" ; then
+	    #
+	    # Found - use it to get the include flags for
+	    # libpcap.
+	    #
+	    CFLAGS="$CFLAGS `\"$PCAP_CONFIG\" --cflags`"
+	    CPPFLAGS="$CPPFLAGS `\"$PCAP_CONFIG\" --cflags`"
+	  else  
+	    #
+	    # Didn't find it; we have to look for libpcap ourselves.
+	    # We assume that the current library search path will work,
+	    # but we may have to look for the header in a "pcap"
+	    # subdirectory of "/usr/include" or "/usr/local/include",
+	    # as some systems apparently put "pcap.h" in a "pcap"
+	    # subdirectory, and we also check "$prefix/include" - and
+	    # "$prefix/include/pcap", in case $prefix is set to
+	    # "/usr/include" or "/usr/local/include".
+	    #
+	    # XXX - should we just add "$prefix/include" to the include
+	    # search path and "$prefix/lib" to the library search path?
+	    #
+	    AC_MSG_CHECKING(for extraneous pcap header directories)
+	    found_pcap_dir=""
+	    pcap_dir_list="/usr/include/pcap $prefix/include/pcap $prefix/include"
+	    if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+	      pcap_dir_list="$pcap_dir_list /usr/local/include/pcap"
+	    fi
+	    for pcap_dir in $pcap_dir_list
+	    do
+	      if test -d $pcap_dir ; then
 		if test x$pcap_dir != x/usr/include -a x$pcap_dir != x/usr/local/include ; then
 		    CFLAGS="$CFLAGS -I$pcap_dir"
 		    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
 		fi
 		found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
 		break
-	    fi
-	  done
+	      fi
+	    done
 
-	  if test "$found_pcap_dir" != "" ; then
-	    AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
-	  else
-	    AC_MSG_RESULT(not found)
+	    if test "$found_pcap_dir" != "" ; then
+	      AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
+	    else
+	      AC_MSG_RESULT(not found)
+	    fi
 	  fi
 	else
 	  #
@@ -350,20 +364,33 @@ from source, did you also do \"make install-incl\", and if you installed a
 binary package of libpcap, is there also a developer's package of libpcap,
 and did you also install that package?]]))
 
-	#
-	# Check to see if we find "pcap_open_live" in "-lpcap".
-	# Also check for various additional libraries that libpcap might
-	# require.
-	#
-	AC_CHECK_LIB(pcap, pcap_open_live,
-	  [
-	    PCAP_LIBS=-lpcap
-	    AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
-	  ], [
-	    ac_wireshark_extras_found=no
-	    ac_save_LIBS="$LIBS"
-	    for extras in "-lcfg -lodm" "-lpfring"
-	    do
+	if test -n "$PCAP_CONFIG" ; then
+	  #
+	  # We have pcap-config; we assume that means we have libpcap
+	  # installed and that pcap-config will tell us whatever
+	  # libraries libpcap needs.
+	  #
+	  if test x$enable_static = xyes; then
+	    PCAP_LIBS="`\"$PCAP_CONFIG\" --libs --static`"
+	  else
+	    PCAP_LIBS="`\"$PCAP_CONFIG\" --libs`"
+	  fi
+	  AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
+	else
+	  #
+	  # Check to see if we find "pcap_open_live" in "-lpcap".
+	  # Also check for various additional libraries that libpcap might
+	  # require.
+	  #
+	  AC_CHECK_LIB(pcap, pcap_open_live,
+	    [
+	      PCAP_LIBS=-lpcap
+	      AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
+	    ], [
+	      ac_wireshark_extras_found=no
+	      ac_save_LIBS="$LIBS"
+	      for extras in "-lcfg -lodm" "-lpfring"
+	      do
 		AC_MSG_CHECKING([for pcap_open_live in -lpcap with $extras])
 		LIBS="-lpcap $extras"
 		#
@@ -389,13 +416,14 @@ and did you also install that package?]]))
 		then
 		    break
 		fi
-	    done
-	    if test x$ac_wireshark_extras_found = xno
-	    then
+	      done
+	      if test x$ac_wireshark_extras_found = xno
+	      then
 		AC_MSG_ERROR([Can't link with library libpcap.])
-	    fi
-	    LIBS=$ac_save_LIBS
-	  ], $SOCKET_LIBS $NSL_LIBS)
+	      fi
+	      LIBS=$ac_save_LIBS
+	    ], $SOCKET_LIBS $NSL_LIBS)
+	fi
 	AC_SUBST(PCAP_LIBS)
 
 	#
@@ -856,12 +884,71 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			then
 				LUA_INCLUDES="-I$lua_dir/include/lua5.1"
 			else
-				# we found lua5.1/lua.h, but we don't know which include dir contains it
-				AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't use it. Please set the PATH for the --with-lua configure parameter. \n probably it is /usr.)
-			fi
+				#
+				# The user didn't specify a directory in which liblua resides;
+				# we must look for the headers in a "lua5.1" subdirectory of
+				# "/usr/include", "/usr/local/include", or "$prefix/include"
+				# as some systems apparently put the headers in a "lua5.1"
+				# subdirectory.
+				AC_MSG_CHECKING(for extraneous lua header directories)
+				found_lua_dir=""
+				lua_dir_list="/usr/include/lua5.1 $prefix/include/lua5.1"
+				if test "x$ac_cv_enable_usr_local" = "xyes"
+				then
+					lua_dir_list="$lua_dir_list /usr/local/include/lua5.1"
+				fi
+				for lua_dir_ent in $lua_dir_list
+				do
+					if test -d $lua_dir_ent
+					then
+						LUA_INCLUDES="-I$lua_dir_ent"
+						found_lua_dir="$lua_dir_ent"
+						break
+					fi
+				done
 
+				if test "x$found_lua_dir" != "x"
+				then
+					AC_MSG_RESULT(found -- $found_lua_dir)
+				else
+					AC_MSG_RESULT(not found)
+					#
+					# Restore the versions of CFLAGS, CPPFLAGS,
+					# LDFLAGS, and LIBS before we added the
+					# "--with-lua=" directory, as we didn't
+					# actually find lua there.
+					#
+					CFLAGS="$wireshark_save_CFLAGS"
+					CPPFLAGS="$wireshark_save_CPPFLAGS"
+					LDFLAGS="$wireshark_save_LDFLAGS"
+					LIBS="$wireshark_save_LIBS"
+					LUA_LIBS=""
+					if test "x$want_lua" = "xyes"
+					then
+						# we found lua5.1/lua.h, but we don't know which include dir contains it
+						AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
+					else
+						#
+						# We couldn't find the header file; don't use the
+						# library, as it's probably not present.
+						#
+						want_lua=no
+					fi
+	  			fi
+			fi
 		],
 		[
+			#
+			# Restore the versions of CFLAGS, CPPFLAGS,
+			# LDFLAGS, and LIBS before we added the
+			# "--with-lua=" directory, as we didn't
+			# actually find lua there.
+			#
+			CFLAGS="$wireshark_save_CFLAGS"
+			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			LDFLAGS="$wireshark_save_LDFLAGS"
+			LIBS="$wireshark_save_LIBS"
+			LUA_LIBS=""
 			if test "x$lua_dir" != "x"
 			then
 				#
@@ -922,6 +1009,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				LUA_INCLUDES=""
 			fi
 			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			want_lua=yes
 
 		],[
 			#
@@ -935,8 +1023,9 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			    #
 			    #  Lua 5.1 found
 			    #
-			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
 			    LUA_LIBS=" -llua5.1 -lm"
+			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			    want_lua=yes
 			],[
 				#
 				# Restore the versions of CFLAGS, CPPFLAGS,

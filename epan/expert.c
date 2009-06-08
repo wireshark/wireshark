@@ -52,8 +52,9 @@ const value_string expert_group_vals[] = {
 	{ PI_RESPONSE_CODE,	"Response" },
 	{ PI_REQUEST_CODE,	"Request" },
 	{ PI_UNDECODED,		"Undecoded" },
-	{ PI_MALFORMED,		"Malformed" },
 	{ PI_REASSEMBLE,	"Reassemble" },
+	{ PI_MALFORMED,		"Malformed" },
+	{ PI_DEBUG,		"Debug" },
 /*	{ PI_SECURITY,		"Security" },*/
 	{ 0, NULL }
 };

@@ -516,8 +516,6 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
     
-    lua_pop(L, 1);
-    
     ret = (value_string*)vs->data;
     
     g_array_free(vs,FALSE);

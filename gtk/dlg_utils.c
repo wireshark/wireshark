@@ -151,7 +151,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, WIRESHARK_STOCK_SAVE_ALL) == 0) {
             save_all = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_DONT_SAVE) == 0) {
-        	dont_save = stock_id;
+            dont_save = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_QUIT_DONT_SAVE) == 0) {
+       	    dont_save = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {

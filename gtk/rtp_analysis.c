@@ -85,8 +85,10 @@ enum
 {
    PACKET_COLUMN,
    SEQUENCE_COLUMN,
+   TIMESTAMP_COLUMN,
    DELTA_COLUMN,
    JITTER_COLUMN,
+   SKEW_COLUMN,
    IPBW_COLUMN,
    MARKER_COLUMN,
    STATUS_COLUMN,
@@ -238,11 +240,13 @@ typedef struct _user_data_t {
 
 
 /* Column titles. */
-static const gchar *titles[9] =  {
+static const gchar *titles[11] =  {
 	"Packet",
 	"Sequence",
+	"Time stamp",
 	"Delta (ms)",
 	"Jitter (ms)",
+	"Skew(ms)",
 	"IP BW (kbps)",
 	"Marker",
 	"Status",
@@ -261,7 +265,7 @@ static const gchar *titles[9] =  {
 #define SAVE_RAW_FORMAT	4
 
 
-static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_);
+static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data);
 /****************************************************************************/
 static void enable_graph(dialog_graph_graph_t *dgg)
 {
@@ -289,6 +293,8 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.max_delta = 0;
 	user_data->forward.statinfo.max_jitter = 0;
 	user_data->reversed.statinfo.max_jitter = 0;
+	user_data->forward.statinfo.max_skew = 0;
+	user_data->reversed.statinfo.max_skew = 0;
 	user_data->forward.statinfo.mean_jitter = 0;
 	user_data->reversed.statinfo.mean_jitter = 0;
 	user_data->forward.statinfo.delta = 0;
@@ -297,6 +303,16 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
 	user_data->reversed.statinfo.jitter = 0;
+	user_data->forward.statinfo.skew = 0;
+	user_data->reversed.statinfo.skew = 0;
+	user_data->forward.statinfo.sumt = 0;
+	user_data->reversed.statinfo.sumt = 0;
+	user_data->forward.statinfo.sumTS = 0;
+	user_data->reversed.statinfo.sumTS = 0;
+	user_data->forward.statinfo.sumt2 = 0;
+	user_data->reversed.statinfo.sumt2 = 0;
+	user_data->forward.statinfo.sumtTS = 0;
+	user_data->reversed.statinfo.sumtTS = 0;
 	user_data->forward.statinfo.bandwidth = 0;
 	user_data->reversed.statinfo.bandwidth = 0;
 	user_data->forward.statinfo.total_bytes = 0;
@@ -429,8 +445,8 @@ static void rtp_draw(void *prs _U_)
 }
 
 /* forward declarations */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
-                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
+static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
+                         double delta, double jitter, double skew ,double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
 
 static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
@@ -506,6 +522,7 @@ static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
+COLOR_T_EVENT g_snprintf(color_str,sizeof(color_str),"#ef8c bfff ffff");
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 */
 /****************************************************************************/
@@ -551,7 +568,11 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(color_str,sizeof(color_str),"#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
-		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+		if (statinfo->flags & STAT_FLAG_PT_T_EVENT){
+			g_snprintf(status,sizeof(status),"Payload changed to PT=%u telephone/event", statinfo->pt);
+		}else{
+			g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+		}
 		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
@@ -568,8 +589,12 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(status,sizeof(status),"Marker missing?");
 		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
-	}
-	else {
+	}else if (statinfo->flags & STAT_FLAG_PT_T_EVENT){
+		g_snprintf(status,sizeof(status),"PT=%u telephone/event", statinfo->pt);
+		/* XXX add color? */
+		/* color = COLOR_T_EVENT; */
+		g_snprintf(color_str,sizeof(color_str),"#ef8cbfffffff");
+	}else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
 			/* color = COLOR_WARNING; */
 			g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
@@ -580,6 +605,8 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_list(list, user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
+			statinfo->timestamp,
+			0,
 			0,
 			0,
 			statinfo->bandwidth,
@@ -592,8 +619,10 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	else {
 		add_to_list(list, user_data,
 			pinfo->fd->num, rtpinfo->info_seq_num,
-			statinfo->delta*1000,
-			statinfo->jitter*1000,
+			statinfo->timestamp,
+			statinfo->delta,
+			statinfo->jitter,
+			statinfo->skew,
 			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
@@ -714,7 +743,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* close the dialog window and remove the tap listener */
-static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
+static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 {
 	/* remove tap listener */
 	protect_thread_critical_region();
@@ -730,10 +759,11 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	ws_remove(user_data->f_tempname);
 	ws_remove(user_data->r_tempname);
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
 		window_destroy(user_data->dlg.save_voice_as_w);
-
+#endif
 	/* destroy graph window if open */
 	if (user_data->dlg.dialog_graph.window != NULL)
 		window_destroy(user_data->dlg.dialog_graph.window);
@@ -766,7 +796,7 @@ static void on_notebook_switch_page(GtkNotebook *notebook _U_,
 /****************************************************************************/
 
 static void on_list_select_row(GtkTreeSelection *selection, 
-							   user_data_t *user_data _U_/*gpointer data */)
+							   user_data_t *user_data/*gpointer data */)
 {
 	user_data->dlg.selected_list_sel = selection;
 }
@@ -775,7 +805,7 @@ static void on_list_select_row(GtkTreeSelection *selection,
 Note this will not work any more as clist is removed.
 /****************************************************************************/
 /* when the graph window gets destroyed */
-static void on_destroy_graph(GtkWidget *win _U_, user_data_t *user_data _U_)
+static void on_destroy_graph(GtkWidget *win _U_, user_data_t *user_data)
 {
 	/* note that graph window has been destroyed */
 	user_data->dlg.graph_window = NULL;
@@ -1337,14 +1367,9 @@ static void dialog_graph_redraw(user_data_t* user_data)
 }
 
 /****************************************************************************/
-static gint quit(GtkWidget *widget, GdkEventExpose *event _U_)
+static void quit(GtkWidget *widget _U_, user_data_t *user_data)
 {
-	user_data_t *user_data;
-
-	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
-
 	user_data->dlg.dialog_graph.window = NULL;
-	return TRUE;
 }
 
 /****************************************************************************/
@@ -1727,7 +1752,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
     	GtkWidget *bt_close;
 
         /* create the main window */
-        user_data->dlg.dialog_graph.window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
+        user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
 
         vbox=gtk_vbox_new(FALSE, 0);
         gtk_container_add(GTK_CONTAINER(user_data->dlg.dialog_graph.window), vbox);
@@ -1762,7 +1787,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
         if (user_data->dlg.dialog_graph.window != NULL) {
                 /* There's already a graph window; reactivate it. */
@@ -1799,7 +1824,7 @@ static void draw_stat(user_data_t *user_data);
 
 /****************************************************************************/
 /* re-dissects all packets */
-static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GString *error_string;
 
@@ -1867,7 +1892,7 @@ try_again:
 
 /****************************************************************************/
 /* when we want to save the information */
-static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user_data*/ _U_)
+static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 {
 	gchar *g_dest;
 	GtkWidget *rev, *forw, *both;
@@ -1879,10 +1904,12 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	gboolean more_items = TRUE;
 
 	/* To Hold data from the list row */
-	guint			packet;		/* Packet				*/
-	guint			sequence;	/* Sequence				*/
+	guint32			packet;		/* Packet				*/
+	guint16			sequence;	/* Sequence				*/
+	guint32			timestamp;	/* timestamp			*/
 	gfloat			delta;		/* Delta(ms)			*/
 	gfloat			jitter;		/* Jitter(ms)			*/
+	gfloat			skew;		/* Skew(ms)				*/
 	gfloat			ipbw;		/* IP BW(kbps)			*/
 	gboolean		marker;		/* Marker				*/
 	char *			status_str;	/* Status				*/
@@ -1893,7 +1920,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	FILE *fp;
 	int j;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
 	 * Check whether they did.
@@ -1902,20 +1929,22 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(fs, get_last_open_dir());
-		return;
+		file_selection_set_current_folder(fc, get_last_open_dir());
+		gtk_file_chooser_set_current_name(fc, "");
+		return FALSE; /* run the dialog again */
 	}
 
-	rev = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "reversed_rb");
-	forw = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "forward_rb");
-	both = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "both_rb");
-	user_data = (user_data_t*)g_object_get_data(G_OBJECT(bt), "user_data");
+	rev  = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "reversed_rb");
+	forw = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "forward_rb");
+	both = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "both_rb");
+	user_data = (user_data_t*)g_object_get_data(G_OBJECT(fc), "user_data");
 
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		fp = ws_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 
 		if (GTK_TOGGLE_BUTTON(both)->active) {
@@ -1923,7 +1952,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			if (ferror(fp)) {
 				write_failure_alert_box(g_dest, errno);
 				fclose(fp);
-				return;
+				g_free(g_dest);
+				return TRUE; /* we're done */
 			}
 		}
 
@@ -1938,7 +1968,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		if (ferror(fp)) {
 			write_failure_alert_box(g_dest, errno);
 			fclose(fp);
-			return;
+			g_free(g_dest);
+			return TRUE;
 		}
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_fwd));
 		store = GTK_LIST_STORE(model);
@@ -1946,30 +1977,37 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			 			
 			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
-					 0, &packet,
-					 1, &sequence,
-					 2, &delta,
-					 3, &jitter,
-					 4, &ipbw,
-					 5, &marker,
-					 6, &status_str,
-					 7, &date_str,
-					 8, &length,
+					 PACKET_COLUMN, &packet,
+					 SEQUENCE_COLUMN, &sequence,
+					 TIMESTAMP_COLUMN, &timestamp,
+					 DELTA_COLUMN, &delta,
+					 JITTER_COLUMN, &jitter,
+					 SKEW_COLUMN, &skew,
+					 IPBW_COLUMN, &ipbw,
+					 MARKER_COLUMN, &marker,
+					 STATUS_COLUMN, &status_str,
+					 DATE_COLUMN, &date_str,
+					 LENGTH_COLUMN, &length,
 					 -1);
 				 fprintf(fp, "%u",packet);
 				 fprintf(fp, ",%u", sequence);
+				 fprintf(fp, ",%u", timestamp);
 				 fprintf(fp, ",%.2f", delta);
 				 fprintf(fp, ",%.2f", jitter);
+				 fprintf(fp, ",%.2f", skew);
 				 fprintf(fp, ",%.2f", ipbw);
 				 fprintf(fp, ",%s", marker? "SET" : "");
 				 fprintf(fp, ",%s", status_str);
 				 fprintf(fp, ",%s", date_str);
 				 fprintf(fp, ",%u", length);
 				 fprintf(fp,"\n");
+				 g_free(status_str);
+				 g_free(date_str);
 				 if (ferror(fp)) {
 					 write_failure_alert_box(g_dest, errno);
 					 fclose(fp);
-					 return;
+					 g_free(g_dest);
+					 return TRUE; /* we're done */
 				 }
 
 	 			 more_items = gtk_tree_model_iter_next (model,&iter);
@@ -1978,7 +2016,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 
 		if (fclose(fp) == EOF) {
 			write_failure_alert_box(g_dest, errno);
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 	}
 
@@ -1988,19 +2027,22 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			fp = ws_fopen(g_dest, "a");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
-				return;
+				g_free(g_dest);
+				return TRUE; /* we're done */
 			}
 			fprintf(fp, "\nReverse\n");
 			if (ferror(fp)) {
 				write_failure_alert_box(g_dest, errno);
 				fclose(fp);
-				return;
+				g_free(g_dest);
+				return TRUE; /* we're done */
 			}
 		} else {
 			fp = ws_fopen(g_dest, "w");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
-				return;
+				g_free(g_dest);
+				return TRUE; /* we're done */
 			}
 		}
 		for(j = 0; j < NUM_COLS; j++) {
@@ -2014,7 +2056,8 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		if (ferror(fp)) {
 			write_failure_alert_box(g_dest, errno);
 			fclose(fp);
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_rev));
 		store = GTK_LIST_STORE(model);
@@ -2024,30 +2067,37 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			 
 			 while (more_items){
 				 gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
-					 0, &packet,
-					 1, &sequence,
-					 2, &delta,
-					 3, &jitter,
-					 4, &ipbw,
-					 5, &marker,
-					 6, &status_str,
-					 7, &date_str,
-					 8, &length,
+					 PACKET_COLUMN, &packet,
+					 SEQUENCE_COLUMN, &sequence,
+					 TIMESTAMP_COLUMN, &timestamp,
+					 DELTA_COLUMN, &delta,
+					 JITTER_COLUMN, &jitter,
+					 SKEW_COLUMN, &skew,
+					 IPBW_COLUMN, &ipbw,
+					 MARKER_COLUMN, &marker,
+					 STATUS_COLUMN, &status_str,
+					 DATE_COLUMN, &date_str,
+					 LENGTH_COLUMN, &length,
 					 -1);
 				 fprintf(fp, "%u",packet);
 				 fprintf(fp, ",%u", sequence);
+				 fprintf(fp, ",%u", timestamp);
 				 fprintf(fp, ",%.2f", delta);
 				 fprintf(fp, ",%.2f", jitter);
+				 fprintf(fp, ",%.2f", skew);
 				 fprintf(fp, ",%.2f", ipbw);
 				 fprintf(fp, ",%s", marker? "SET" : "");
 				 fprintf(fp, ",%s", status_str);
 				 fprintf(fp, ",%s", date_str);
 				 fprintf(fp, ",%u", length);
 				 fprintf(fp,"\n");
+				 g_free(status_str);
+				 g_free(date_str);
 				 if (ferror(fp)) {
 					 write_failure_alert_box(g_dest, errno);
 					 fclose(fp);
-					 return;
+					 g_free(g_dest);
+					 return TRUE; /* we're done */
 				 }
 
 				 more_items = gtk_tree_model_iter_next (model,&iter);
@@ -2055,20 +2105,22 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		 }
 		if (fclose(fp) == EOF) {
 			write_failure_alert_box(g_dest, errno);
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 	}
 
-	window_destroy(GTK_WIDGET(user_data->dlg.save_csv_as_w));
+	g_free(g_dest);
+	return TRUE; /* we're done */
 }
 
-static void save_csv_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data _U_)
+static void save_csv_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data)
 {
 	user_data->dlg.save_csv_as_w = NULL;
 }
 
 /* when the user wants to save the csv information in a file */
-static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
+static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GtkWidget *vertb;
 	GtkWidget *table1;
@@ -2079,16 +2131,23 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (user_data->dlg.save_csv_as_w != NULL) {
 		/* There's already a Save CSV info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_csv_as_w);
 		return;
 	}
-
-	user_data->dlg.save_csv_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
-                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                    NULL);
+#endif
+	user_data->dlg.save_csv_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV",
+								   GTK_WINDOW(user_data->dlg.notebook), 
+								   GTK_FILE_CHOOSER_ACTION_SAVE,
+								   GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+								   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+								   NULL);
+#if GTK_CHECK_VERSION(2,8,0)
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
+#endif
+	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -2108,8 +2167,10 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
+	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
-	channels_label = gtk_label_new ("Channels:");
+
+	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
@@ -2123,7 +2184,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
-	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
+	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
@@ -2152,17 +2213,30 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
 	window_present(user_data->dlg.save_csv_as_w);
 
-	if (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_csv_as_w)) == GTK_RESPONSE_ACCEPT){
-		save_csv_as_ok_cb(user_data->dlg.save_csv_as_w, user_data->dlg.save_csv_as_w);
-	}else{
-		window_destroy(user_data->dlg.save_csv_as_w);
+	/* "Run" the GtkFileChooserDialog.                                              */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+	/*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_csv_as_w)) == GTK_RESPONSE_ACCEPT) {
+		if (save_csv_as_ok_cb(NULL, user_data->dlg.save_csv_as_w)) {
+			break; /* we're done */
+		}
 	}
-
+	window_destroy(user_data->dlg.save_csv_as_w);
 }
 
 
 /****************************************************************************/
-static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data _U_)
+static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data)
 {
 	/* Note that we no longer have a Save voice info dialog box. */
 	user_data->dlg.save_voice_as_w = NULL;
@@ -2462,35 +2536,39 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 /****************************************************************************/
 /* the user wants to save in a file */
 /* XXX support for different formats is currently commented out */
-static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
+static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 {
 	gchar *g_dest;
 	/*GtkWidget *wav, *sw;*/
 	GtkWidget *au, *raw;
 	GtkWidget *rev, *forw, *both;
 	user_data_t *user_data;
-	gint channels , format;
+	gint channels, format;
 
-	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+	g_dest = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fc));
 
 	/* Perhaps the user specified a directory instead of a file.
-	Check whether they did. */
+	 * Check whether they did.
+	 */
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(fs, get_last_open_dir());
-		return;
+		file_selection_set_current_folder(fc, get_last_open_dir());
+		gtk_file_chooser_set_current_name(fc, "");
+		return FALSE; /* run the dialog again */
 	}
 
-	/*wav = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "wav_rb");
-	sw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "sw_rb");*/
-	au = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "au_rb");
-	raw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "raw_rb");
-	rev = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "reversed_rb");
-	forw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "forward_rb");
-	both = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "both_rb");
-	user_data = (user_data_t *)g_object_get_data(G_OBJECT(ok_bt), "user_data");
+#if 0
+	wav  = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "wav_rb");
+	sw   = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "sw_rb");
+#endif
+	au   = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "au_rb");
+	raw  = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "raw_rb");
+	rev  = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "reversed_rb");
+	forw = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "forward_rb");
+	both = (GtkWidget *)g_object_get_data(G_OBJECT(fc), "both_rb");
+	user_data = (user_data_t *)g_object_get_data(G_OBJECT(fc), "user_data");
 
 	/* XXX user clicks the ok button, but we know we can't save the voice info because f.e.
 	* we don't support that codec. So we pop up a warning. Maybe it would be better to
@@ -2522,7 +2600,8 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
-		return;
+		g_free(g_dest);
+		return TRUE; /* we're done */
 	}
 	/* we can not save forward direction */
 	else if ((user_data->forward.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
@@ -2542,7 +2621,8 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: File I/O problem!");
-		return;
+		g_free(g_dest);
+		return TRUE; /* we're done */
 	}
 	/* we can not save reversed direction */
 	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
@@ -2565,19 +2645,25 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: File I/O problem!");
-		return;
+		g_free(g_dest);
+		return TRUE; /* we're done */
 	}
 
-	/*if (GTK_TOGGLE_BUTTON (wav)->active)
-	format = SAVE_WAV_FORMAT;
-	else */if (GTK_TOGGLE_BUTTON (au)->active)
-	format = SAVE_AU_FORMAT;
-	/*else if (GTK_TOGGLE_BUTTON (sw)->active)
-	format = SAVE_SW_FORMAT;*/
+#if 0
+	if (GTK_TOGGLE_BUTTON (wav)->active)
+		format = SAVE_WAV_FORMAT;
+	else 
+#endif
+	if (GTK_TOGGLE_BUTTON (au)->active)
+		format = SAVE_AU_FORMAT;
+#if 0
+	else if (GTK_TOGGLE_BUTTON (sw)->active)
+		format = SAVE_SW_FORMAT;
+#endif
 	else if (GTK_TOGGLE_BUTTON (raw)->active)
-	format = SAVE_RAW_FORMAT;
+		format = SAVE_RAW_FORMAT;
 	else
-	format = SAVE_NONE_FORMAT;
+		format = SAVE_NONE_FORMAT;
 
 	if (GTK_TOGGLE_BUTTON (rev)->active)
 		channels = SAVE_REVERSE_DIRECTION_MASK;
@@ -2593,18 +2679,21 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		if ((channels & SAVE_FORWARD_DIRECTION_MASK) && (user_data->forward.statinfo.pt != PT_PCMA) && (user_data->forward.statinfo.pt != PT_PCMU)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 		if ((channels & SAVE_REVERSE_DIRECTION_MASK) && (user_data->reversed.statinfo.pt != PT_PCMA) && (user_data->reversed.statinfo.pt != PT_PCMU)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 		/* make sure pt's don't differ */
 		if ((channels == SAVE_BOTH_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Forward and reverse direction differ in type");
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 	}
 	else if (format == SAVE_RAW_FORMAT)
@@ -2613,37 +2702,41 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		if (channels == SAVE_BOTH_DIRECTION_MASK){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Unable to save raw data in both directions");
-			return;
+			g_free(g_dest);
+			return TRUE; /* we're done */
 		}
 	}
 	else
 	{
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Invalid save format");
-		return;
+		g_free(g_dest);
+		return TRUE; /* we're done */
 	}
 
 	if(!copy_file(g_dest, channels, format, user_data)) {
 		/* XXX - report the error type! */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"An error occurred while saving voice in a file!");
-		return;
+		g_free(g_dest);
+		return TRUE; /* we're done */
 	}
 
-	window_destroy(GTK_WIDGET(user_data->dlg.save_voice_as_w));
+	g_free(g_dest);
+	return TRUE; /* we're done */
 }
 
 /****************************************************************************/
 /* when the user wants to save the voice information in a file */
 /* XXX support for different formats is currently commented out */
-static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GtkWidget *vertb;
 	GtkWidget *table1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
-	GSList *format_group = NULL;
-	GSList *channels_group = NULL;
+	GSList	  *format_group = NULL;
+	GSList	  *channels_group = NULL;
 	GtkWidget *forward_rb;
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
@@ -2652,21 +2745,28 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *raw_rb;
 
 	/* if we can't save in a file: wrong codec, cut packets or other errors */
-	/* shold the error arise here or later when you click ok button ?
-	* if we do it here, then we must disable the refresh button, so we don't do it here */
+	/* Should the error arise here or later when you click ok button ?
+	 * if we do it here, then we must disable the refresh button, so we don't do it here
+	 */
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (user_data->dlg.save_voice_as_w != NULL) {
 		/* There's already a Save voice info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_voice_as_w);
 		return;
 	}
-
+#endif
     /* XXX - use file_selection from dlg_utils instead! */
-	user_data->dlg.save_voice_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Payload As ...", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
+	user_data->dlg.save_voice_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Payload As ...",
+									GTK_WINDOW(user_data->dlg.notebook),
+									GTK_FILE_CHOOSER_ACTION_SAVE,
                                     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                     NULL);
-
+#if GTK_CHECK_VERSION(2,8,0)
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
+#endif
+	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -2709,8 +2809,9 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	(GtkAttachOptions) (GTK_FILL),
 	(GtkAttachOptions) (0), 0, 0);
 
+#if 0
 	/* we support .au - ulaw*/
-	/*	wav_rb = gtk_radio_button_new_with_label (format_group, ".wav");
+	wav_rb = gtk_radio_button_new_with_label (format_group, ".wav");
 	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (wav_rb));
 	gtk_widget_show (wav_rb);
 	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
@@ -2729,24 +2830,23 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	  gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 	  (GtkAttachOptions) (GTK_FILL),
 	  (GtkAttachOptions) (0), 0, 0);
-	*/
+#endif
 
-
-	channels_label = gtk_label_new ("Channels:");
+	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
-	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
+	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
-	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
+	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed    ");
 	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
@@ -2760,12 +2860,15 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(forward_rb), TRUE);
+
+#if 0
 	/* if one direction is nok we don't allow saving
 	XXX this is not ok since the user can click the refresh button and cause changes
 	but we can not update this window. So we move all the decision on the time the ok
 	button is clicked
+	*/
 	if (user_data->forward.saved == FALSE) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(reversed_rb), TRUE);
 	gtk_widget_set_sensitive(forward_rb, FALSE);
@@ -2775,30 +2878,44 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_widget_set_sensitive(reversed_rb, FALSE);
 	gtk_widget_set_sensitive(both_rb, FALSE);
 	}
-	*/
+ #endif
 
-	/*g_object_set_data(G_OBJECT(ok_bt), "wav_rb", wav_rb);*/
+	/*g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "wav_rb", wav_rb);*/
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "au_rb", au_rb);
-	/*g_object_set_data(G_OBJECT(ok_bt), "sw_rb", sw_rb);*/
+	/*g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "sw_rb", sw_rb);*/
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "raw_rb", raw_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "forward_rb", forward_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "reversed_rb", reversed_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "both_rb", both_rb);
 	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "user_data", user_data);
 
-    g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
+	g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
                         G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(user_data->dlg.save_voice_as_w, "destroy",
                         G_CALLBACK(save_voice_as_destroy_cb), user_data);
 
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
-    window_present(user_data->dlg.save_voice_as_w);
+	window_present(user_data->dlg.save_voice_as_w);
 
-	if (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_voice_as_w)) == GTK_RESPONSE_ACCEPT){
-		save_voice_as_ok_cb(user_data->dlg.save_voice_as_w, user_data->dlg.save_voice_as_w);
-	}else{
-		window_destroy(user_data->dlg.save_voice_as_w);
+	/* "Run" the GtkFileChooserDialog.                                              */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            Destroy the window.                                               */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+	/*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_voice_as_w)) == GTK_RESPONSE_ACCEPT) {
+		if (save_voice_as_ok_cb(NULL, user_data->dlg.save_voice_as_w)) {
+			break;  /* we're done */
+		}
 	}
+	window_destroy(user_data->dlg.save_voice_as_w);
 
 }
 
@@ -2807,42 +2924,86 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 /* when we are finished with redisection, we add the label for the statistic */
 static void draw_stat(user_data_t *user_data)
 {
-	gchar label_max[200];
+	gchar label_max[300];
 	guint32 f_expected = (user_data->forward.statinfo.stop_seq_nr + user_data->forward.statinfo.cycles*65536)
 		- user_data->forward.statinfo.start_seq_nr + 1;
 	guint32 r_expected = (user_data->reversed.statinfo.stop_seq_nr + user_data->reversed.statinfo.cycles*65536)
 		- user_data->reversed.statinfo.start_seq_nr + 1;
-	gint32 f_lost = f_expected - user_data->forward.statinfo.total_nr;
-	gint32 r_lost = r_expected - user_data->reversed.statinfo.total_nr;
+	guint32 f_total_nr = user_data->forward.statinfo.total_nr;
+	guint32 r_total_nr = user_data->reversed.statinfo.total_nr;
+	gint32 f_lost = f_expected - f_total_nr;
+	gint32 r_lost = r_expected - r_total_nr;
+	double f_sumt = user_data->forward.statinfo.sumt;
+	double f_sumTS = user_data->forward.statinfo.sumTS;
+	double f_sumt2 = user_data->forward.statinfo.sumt2;
+	double f_sumtTS = user_data->forward.statinfo.sumtTS;
+
+	double r_sumt = user_data->reversed.statinfo.sumt;
+	double r_sumTS = user_data->reversed.statinfo.sumTS;
+	double r_sumt2 = user_data->reversed.statinfo.sumt2;
+	double r_sumtTS = user_data->reversed.statinfo.sumtTS;
 	double f_perc, r_perc;
+	double f_clock_drift = 1.0;
+	double r_clock_drift = 1.0;
+	double f_duration = user_data->forward.statinfo.time - user_data->forward.statinfo.start_time;
+	double r_duration = user_data->reversed.statinfo.time - user_data->reversed.statinfo.start_time;
+	guint32 f_clock_rate = user_data->forward.statinfo.clock_rate;
+	guint32 r_clock_rate = user_data->reversed.statinfo.clock_rate;
+
+	if (f_clock_rate == 0){
+		f_clock_rate = 1;
+	}
+
+	if (r_clock_rate == 0){
+		r_clock_rate = 1;
+	}
+
 	if (f_expected){
 		f_perc = (double)(f_lost*100)/(double)f_expected;
 	} else {
 		f_perc = 0;
 	}
-        if (r_expected){
-                r_perc = (double)(r_lost*100)/(double)r_expected;
-        } else {
-                r_perc = 0;
-        }
+    if (r_expected){
+            r_perc = (double)(r_lost*100)/(double)r_expected;
+    } else {
+            r_perc = 0;
+    }
 
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
+	if ((f_total_nr >0)&&(f_sumt2 > 0)){
+		f_clock_drift = (f_total_nr * f_sumtTS - f_sumt * f_sumTS) / (f_total_nr * f_sumt2 - f_sumt * f_sumt);
+	}
+	if ((r_total_nr >0)&&(r_sumt2 > 0)){
+		r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
+	}
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
+		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
+		"Max skew = %.2f ms.\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
-		"   Sequence errors = %u",
+		"   Sequence errors = %u \n"
+		"Duration %.2f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
-		user_data->forward.statinfo.total_nr,
-		f_expected, f_lost, f_perc, user_data->forward.statinfo.sequence);
+		user_data->forward.statinfo.max_jitter,user_data->forward.statinfo.mean_jitter,
+		user_data->forward.statinfo.max_skew,
+		f_expected, f_expected, f_lost, f_perc, 
+		user_data->forward.statinfo.sequence,
+		f_duration/1000,f_duration*(f_clock_drift-1.0),f_clock_drift*f_clock_rate,100.0*(f_clock_drift-1.0));
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_fwd),TRUE);
 
-	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
+		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
-		"   Sequence errors = %u",
+		"   Sequence errors = %u \n"
+		"Duration %.0f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
-		user_data->reversed.statinfo.total_nr,
-		r_expected, r_lost, r_perc, user_data->reversed.statinfo.sequence);
+		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
+		r_expected, r_expected, r_lost, r_perc, 
+		user_data->reversed.statinfo.sequence,
+		r_duration/1000,r_duration*(r_clock_drift-1.0),r_clock_drift*r_clock_rate,100.0*(r_clock_drift-1.0));
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_rev),TRUE);
 
 	return ;
 }
@@ -2851,8 +3012,8 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
-                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
+static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
+                         double delta, double jitter,double skew, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
     GtkListStore *list_store;
@@ -2877,8 +3038,10 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 #endif
                 PACKET_COLUMN, number,
                 SEQUENCE_COLUMN, seq_num,
+				TIMESTAMP_COLUMN, timestamp,
 				DELTA_COLUMN, delta,
 				JITTER_COLUMN, jitter,
+				SKEW_COLUMN, skew,
 				IPBW_COLUMN, bandwidth,
 				MARKER_COLUMN, marker,
 				STATUS_COLUMN, (char *)status,
@@ -2942,8 +3105,10 @@ GtkWidget* create_list(user_data_t* user_data)
     list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
                                G_TYPE_UINT,		/* Packet				*/
                                G_TYPE_UINT,		/* Sequence				*/
+                               G_TYPE_UINT,		/* Time stamp			*/
                                G_TYPE_FLOAT,	/* Delta(ms)			*/
-                               G_TYPE_FLOAT,	/* Jitter(ms)			*/
+                               G_TYPE_FLOAT,	/* Filtered Jitter(ms)  */
+                               G_TYPE_FLOAT,	/* Skew(ms)				*/
                                G_TYPE_FLOAT,	/* IP BW(kbps)			*/
                                G_TYPE_BOOLEAN,  /* Marker				*/
                                G_TYPE_STRING,   /* Status				*/
@@ -2983,12 +3148,12 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, PACKET_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 55);
 
 	/* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
 
-    /* Second column.. Sequence. */
+    /* Sequence. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Sequence", renderer, 
 		"text", SEQUENCE_COLUMN,
@@ -2998,10 +3163,25 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, SEQUENCE_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Third column.. Delta(ms). */
+#if 0
+	Currently not visible
+    /* Time stamp. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Time stamp", renderer, 
+		"text", TIMESTAMP_COLUMN,
+        "foreground", FOREGROUND_COLOR_COL,
+        "background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, TIMESTAMP_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 75);
+    gtk_tree_view_append_column (list_view, column);
+#endif
+    /* Delta(ms). */
     renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Delta(ms)", renderer, 
 		"text", DELTA_COLUMN, 
@@ -3015,12 +3195,12 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, DELTA_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Forth column.. Jitter(ms). */
+    /* Jitter(ms). */
     renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ("Jitter(ms)", renderer, 
+    column = gtk_tree_view_column_new_with_attributes ("Filtered Jitter(ms)", renderer, 
 		"text", JITTER_COLUMN, 
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
@@ -3032,10 +3212,27 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 110);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Fifth column.. IP BW(kbps). */
+    /* Skew(ms). */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Skew(ms)", renderer, 
+		"text", SKEW_COLUMN, 
+        "foreground", FOREGROUND_COLOR_COL,
+        "background", BACKGROUND_COLOR_COL,
+		NULL);
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(SKEW_COLUMN), NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, SKEW_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 110);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* IP BW(kbps). */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("IP BW(kbps)", renderer, 
 		"text", IPBW_COLUMN, 
@@ -3049,10 +3246,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, IPBW_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (list_view, column);
 
-    /* Sixth column.. Marker. */
+    /* Marker. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Marker", renderer, 
 		"text", MARKER_COLUMN, 
@@ -3066,10 +3263,10 @@ GtkWidget* create_list(user_data_t* user_data)
     gtk_tree_view_column_set_sort_column_id(column, MARKER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 75);
+    gtk_tree_view_column_set_min_width(column, 60);
     gtk_tree_view_append_column (list_view, column);
 
-	 /* Seventh column.. Status. */
+	 /* Status. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ( "Status", renderer, 
 		"text", STATUS_COLUMN,
@@ -3122,7 +3319,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gchar str_ip_src[16];
 	gchar str_ip_dst[16];
 
-	window = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: RTP Stream Analysis");
+	window = dlg_window_new("Wireshark: RTP Stream Analysis");  /* transient_for top_level */
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
 	/* Container for each row of widgets */
@@ -3204,7 +3401,8 @@ static void create_rtp_dialog(user_data_t* user_data)
 	label = gtk_label_new("  Reversed Direction  ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_r, label);
 
-	/* page for help&about or future
+	/* page for help&about or future */
+#if 0
 	page_help = gtk_hbox_new(FALSE, 5);
 	label = gtk_label_new("     Future    ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
@@ -3214,7 +3412,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(frame), text);
 	gtk_container_set_border_width(GTK_CONTAINER(frame), 20);
 	gtk_box_pack_start(GTK_BOX(page_help), frame, TRUE, TRUE, 0);
-	*/
+#endif
 
 	/* show all notebooks */
 	gtk_widget_show_all(notebook);

@@ -95,7 +95,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
             const gchar* error = lua_tostring(L,-1);
 
             proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
-            expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
+            expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_ERROR ,"Lua Error");
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
@@ -110,7 +110,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: did not find the %s dissector"
                                              " in the dissectors table",pinfo->current_proto);
 
-        expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
+        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_ERROR ,"Lua Error");
     }
 
     register_frame_end_routine(lua_frame_end);

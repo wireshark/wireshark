@@ -51,7 +51,7 @@ pixbuf_save_destroy_cb(GtkWidget *window _U_, gpointer data _U_)
 	save_as_w = NULL;
 }
 
-static void
+static gboolean
 pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 {
 	gchar *filename, *file_type;
@@ -59,7 +59,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
         GError *error = NULL;
 	gboolean ret;
 
-	filename = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w)));
+	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w));
 	type_cm = g_object_get_data(G_OBJECT(save_as_w), "type_cm");
 	file_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cm));
 	
@@ -73,7 +73,8 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 		g_free(file_type);
 		file_selection_set_current_folder(save_as_w,
 						  get_last_open_dir());
-		return;
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w), "");
+		return FALSE;
 	}
 
 	ret = gdk_pixbuf_save(pixbuf, filename, file_type, &error, NULL);
@@ -89,6 +90,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 		gtk_window_set_transient_for(GTK_WINDOW(simple_w),
 					     GTK_WINDOW(save_as_w));
 	}
+	return TRUE;
 }
 
 void
@@ -112,14 +114,19 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 		return;
 	}
 
+#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if(save_as_w != NULL) {
 		/* If this save as window is already open, re-open it */
 		reactivate_window(save_as_w);
 		return;
 	}
+#endif
 
 	save_as_w = file_selection_new("Wireshark: Save Graph As ...",
 				       FILE_SELECTION_SAVE);
+#if GTK_CHECK_VERSION(2,8,0)
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(save_as_w), TRUE);
+#endif
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 0);
@@ -161,10 +168,32 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	parent = gtk_widget_get_parent_window(w);
 	gdk_window_set_transient_for(save_as_w->window, parent);
 	
+#if 0
 	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT)
 		pixbuf_save_button_cb(save_as_w, pixbuf);
 
 	window_destroy(save_as_w);
+#else
+	/* "Run" the GtkFileChooserDialog.                                              */
+        /* Upon exit: If "Accept" run the OK callback.                                  */
+        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+        /*            If not accept (ie: cancel) destroy the window.                    */
+        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/*      Trying to re-run the dialog after popping up an alert box will not work */
+        /*       since the user will not be able to dismiss the alert box.              */
+	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
+	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
+	/*                                                                              */
+        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*            GtkFileChooserDialog.                                             */
+	while (gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT) {
+		if (pixbuf_save_button_cb(save_as_w, pixbuf)) {
+                    break; /* we're done */
+		}
+	}
+	window_destroy(save_as_w);
+#endif
 }
 
 #endif /* GTK_CHECK_VERSION(2,6,0) */

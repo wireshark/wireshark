@@ -140,7 +140,7 @@ TamoSoft CommView files
 =item *
 Apple PacketLogger files
 
-=back 4
+=back
 
 There is no need to tell B<Wireshark> what type of
 file you are reading; it will determine the file type by itself.
@@ -176,10 +176,10 @@ B<-r> option or can be specified as a command-line argument.
 
 =head1 OPTIONS
 
-=over 4
-
 Most users will want to start B<Wireshark> without options and configure
 it from the menus instead. Those users may just skip this section.
+
+=over 4
 
 =item -a  E<lt>capture autostop conditionE<gt>
 
@@ -1155,7 +1155,7 @@ it;
 whether the data being displayed is to be treated as ASCII or EBCDIC
 text or as raw hex data;
 
-=back 4
+=back
 
 and lets you print what's currently being displayed, using the same
 print options that are used for the I<File:Print Packet> menu item, or

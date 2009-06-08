@@ -98,14 +98,14 @@ typedef struct _tap_iax2_stat_t {
 #define PT_UNDEFINED -1
 
 /* status flags for the flags parameter in tap_iax2_stat_t */
-#define STAT_FLAG_FIRST       0x01
-#define STAT_FLAG_MARKER      0x02
-#define STAT_FLAG_WRONG_SEQ   0x04
-#define STAT_FLAG_PT_CHANGE   0x08
-#define STAT_FLAG_PT_CN       0x10
-#define STAT_FLAG_FOLLOW_PT_CN  0x20
-#define STAT_FLAG_REG_PT_CHANGE  0x40
-#define STAT_FLAG_WRONG_TIMESTAMP  0x80
+#define STAT_FLAG_FIRST				0x001
+#define STAT_FLAG_MARKER			0x002
+#define STAT_FLAG_WRONG_SEQ			0x004
+#define STAT_FLAG_PT_CHANGE			0x008
+#define STAT_FLAG_PT_CN				0x010
+#define STAT_FLAG_FOLLOW_PT_CN		0x020
+#define STAT_FLAG_REG_PT_CHANGE		0x040
+#define STAT_FLAG_WRONG_TIMESTAMP	0x080
 
 /* forward */
 struct _rtp_info;

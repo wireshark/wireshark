@@ -46,6 +46,7 @@
 #define SCTP_ERROR_CHUNK_ID              9
 #define SCTP_COOKIE_ECHO_CHUNK_ID       10
 #define SCTP_COOKIE_ACK_CHUNK_ID        11
+#define SCTP_NR_SACK_CHUNK_ID           16
 
 #define CHUNK_TYPE_LENGTH             1
 #define CHUNK_FLAGS_LENGTH            1
@@ -85,7 +86,40 @@
                                        DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH + \
                                        DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 #define MAX_ADDRESS_LEN                47
-#define NUM_CHUNKS                     13
+
+/* 
+ * The NUM_CHUNKS field is used as the bound on the size of
+ * counter arrays that store the sctp chunk counts for each 
+ * "Chunk Type" in a given association.
+ * UPPER_BOUND_CHUNK_TYPE variable is the upper bound on the 
+ * "Chunk Type" field of an SCTP PDU, which will be
+ * interpreted by the current version of wireshark for
+ * displaying statistical information.
+ * As per RFC 4960 Chunk Types 0 to 14 are in use.
+ * Chunk Type 15 is AUTHENTICATION CHUNK defined in RFC 4895
+ * The Chunk Type 16 is to be assigned to Non Renagable Sacks
+ * This version of wireshark will interpret chunk types from 0
+ * to 16 and information corresponding to all chunk types
+ * > 16 are summed up and stored as "other" chunks at 
+ * an index of 17 in appropriate data structures.
+ */
+#define UPPER_BOUND_CHUNK_TYPE  16
+
+/* The below value is 18 */
+#define NUM_CHUNKS		UPPER_BOUND_CHUNK_TYPE+2 
+
+/* This variable is used as an index into arrays
+ * which store the cumulative information corresponding
+ * all chunks with Chunk Type greater > 16
+ * The value for the below variable is 17
+ */
+#define OTHER_CHUNKS_INDEX	NUM_CHUNKS-1
+
+/* VNB */
+/* This variable stores the maximum chunk type value
+ * that can be associated with a sctp chunk.
+ */
+#define MAX_SCTP_CHUNK_TYPE 256
 
 typedef struct _tsn {
 	guint32 frame_number;
@@ -132,7 +166,11 @@ struct tsn_sort{
 typedef struct _sctp_addr_chunk {
 	guint32  direction;
 	address* addr;
-	guint32  addr_count[13];
+	/* The array is initialized to MAX_SCTP_CHUNK_TYPE
+	 * so that there is no memory overwrite
+	 * when accessed using sctp chunk type as index.
+	 */
+	guint32  addr_count[MAX_SCTP_CHUNK_TYPE];
 } sctp_addr_chunk;
 
 typedef struct _sctp_assoc_info {
@@ -199,9 +237,13 @@ typedef struct _sctp_assoc_info {
 	GList     *sack2;
 	gboolean  check_address;
 	GList*    error_info_list;
-	guint32   chunk_count[NUM_CHUNKS];
-	guint32   ep1_chunk_count[NUM_CHUNKS];
-	guint32   ep2_chunk_count[NUM_CHUNKS];
+	/* The array is initialized to MAX_SCTP_CHUNK_TYPE
+	 * so that there is no memory overwrite
+	 * when accessed using sctp chunk type as index.
+	 */
+	guint32   chunk_count[MAX_SCTP_CHUNK_TYPE];
+	guint32   ep1_chunk_count[MAX_SCTP_CHUNK_TYPE];
+	guint32   ep2_chunk_count[MAX_SCTP_CHUNK_TYPE];
 	GList*    addr_chunk_count;
 } sctp_assoc_info_t;
 

@@ -3148,7 +3148,7 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
 
         if (edonkey_tree) {
-            guint32 remainingLength, extraBytes;
+            int remainingLength, extraBytes;
 
             ti = proto_tree_add_item(edonkey_tree, hf_edonkey_message, tvb, offset, -1, FALSE);
             edonkey_msg_tree = proto_item_add_subtree(ti, ett_edonkey_message);

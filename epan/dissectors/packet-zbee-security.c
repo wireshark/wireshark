@@ -53,10 +53,12 @@
 #include "packet-zbee-security.h"
 
 /* Helper Functions */
-static void        zbee_security_parse_prefs(void);
+#ifdef HAVE_LIBGCRYPT
 static gboolean    zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
-static void        zbee_sec_make_nonce (guint8 *, zbee_security_packet *);
 static guint8 *    zbee_sec_key_hash(guint8 *, guint8, packet_info *);
+static void        zbee_sec_make_nonce (guint8 *, zbee_security_packet *);
+#endif
+static void        zbee_security_parse_prefs(void);
 
 /* Field pointers. */
 static int hf_zbee_sec_level = -1;
@@ -597,6 +599,7 @@ decrypt_failed:
 
 } /* dissect_zbee_secure */
 
+#ifdef HAVE_LIBGCRYPT
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      zbee_sec_make_nonce
@@ -630,6 +633,7 @@ zbee_sec_make_nonce(guint8 *nonce, zbee_security_packet *packet)
     /* Next byte is the security control field. */
     *(nonce++) = packet->control;
 } /* zbee_sec_make_nonce */
+#endif
 
 #ifdef HAVE_LIBGCRYPT
 /*FUNCTION:------------------------------------------------------

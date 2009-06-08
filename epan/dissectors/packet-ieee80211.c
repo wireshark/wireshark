@@ -10010,7 +10010,7 @@ proto_register_ieee80211 (void)
 
     {&ff_delba_param_init,
      {"Initiator", "wlan_mgt.fixed.delba.param.initiator",
-      FT_BOOLEAN, 16, 0, 0x08000, "Initiator", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x0800, "Initiator", HFILL }},
 
     {&ff_delba_param_tid,
      {"TID", "wlan_mgt.fixed.delba.param.tid",

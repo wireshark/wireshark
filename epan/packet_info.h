@@ -34,6 +34,11 @@
 #define P2P_DIR_SENT	0
 #define P2P_DIR_RECV	1
 
+/* Link direction */
+#define LINK_DIR_UNKNOWN	-1
+#define P2P_DIR_UL	0
+#define P2P_DIR_DL	1
+
 #define PINFO_SOF_FIRST_FRAME   0x1
 #define PINFO_SOF_SOFF          0x2
 #define PINFO_EOF_LAST_FRAME    0x80
@@ -211,6 +216,9 @@ typedef struct _packet_info {
   guint8 zbee_stack_vers;   /* ZigBee stack version number, present in the ZigBee network layer, but
                              * impacts the packet format at all layers of the ZigBee stack.
                              */
+  int link_dir;				/* 3GPP messages are sometime different UP link(UL) or Downlink(DL)
+							 *
+							 */
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */

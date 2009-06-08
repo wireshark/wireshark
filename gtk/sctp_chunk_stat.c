@@ -1,6 +1,7 @@
 /* sctp_chunk_stat.c
  * SCTP chunk counter for Wireshark
- * Copyright 2005 Oleg Terletsky oleg.terletsky@comverse.com
+ * Copyright 2005 Oleg Terletsky <oleg.terletsky [AT] comverse.com>
+ * Copyright 2009 Varun Notibala <nbvarun [AT] gmail.com>
  *
  * $Id$
  *
@@ -100,7 +101,8 @@ typedef struct _sctp_info sctp_into_t;
 #define SCTP_ECNE_CHUNK_ID		12
 #define SCTP_CWR_CHUNK_ID		13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_AUTH_CHUNK_ID	      0x16
+#define SCTP_AUTH_CHUNK_ID              15
+#define SCTP_NR_SACK_CHUNK_ID	        16
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID	      0x81
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
@@ -208,10 +210,10 @@ sctpstat_draw(void *phs)
 {
 	sctpstat_t *hs=(sctpstat_t *)phs;
 	sctp_ep_t* list = hs->ep_list, *tmp=0;
-	char *str[14];
+	char *str[15];
 	int i=0;
 
-	for(i=0;i<14;i++) {
+	for(i=0;i<15;i++) {
 		str[i]=g_malloc(sizeof(char[256]));
 	}
 	/* Now print Message and Reason Counter Table */
@@ -235,6 +237,7 @@ sctpstat_draw(void *phs)
 		g_snprintf(str[11], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_COOKIE_ACK_CHUNK_ID]);
 		g_snprintf(str[12], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_ABORT_CHUNK_ID]);
 		g_snprintf(str[13], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_ERROR_CHUNK_ID]);
+		g_snprintf(str[14], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_NR_SACK_CHUNK_ID]);
 
 		gtk_clist_append(hs->table, str);
 	}
@@ -274,7 +277,8 @@ static const gchar *titles[]={
 			"COOKIE",
 			"COOKIE_ACK",
 			"ABORT",
-			"ERROR" };
+			"ERROR",
+			"NR_SACK" };
 
 static void
 sctpstat_init(const char *optarg, void *userdata _U_)
@@ -308,7 +312,7 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
-	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 14, titles);
+	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 15, titles);
 
 	error_string=register_tap_listener("sctp", hs, filter,
 	                                   sctpstat_reset,

@@ -1080,7 +1080,7 @@ AC_MSG_CHECKING(whether to use liblua for the lua scripting plugin)
 
 AC_ARG_WITH(lua,
   AC_HELP_STRING( [--with-lua@<:@=DIR@:>@],
-                  [use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  @<:@default=no@:>@]),
+                  [use liblua (located in directory DIR, if supplied) for the lua scripting plugin.  @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -1094,9 +1094,9 @@ AC_ARG_WITH(lua,
 	fi
 ],[
 	#
-	# Don't use liblua by default (it isn't ready yet)
+	# Use liblua by default
 	#
-	want_lua=no
+	want_lua=ifavailable
 	lua_dir=
 ])
 if test "x$want_lua" = "xno" ; then

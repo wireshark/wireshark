@@ -995,6 +995,19 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
 	h245_pi = saved_h245_pi;
  }
 
+#.FN_BODY DataType VAL_PTR = &choice_index
+gint choice_index;
+
+%(DEFAULT_BODY)s
+
+if (upcoming_channel){
+	if (choice_index==2){
+		upcoming_channel->is_video=TRUE;
+	}else{
+		upcoming_channel->is_video=FALSE;
+	}
+}
+
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 

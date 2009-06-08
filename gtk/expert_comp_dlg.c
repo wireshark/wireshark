@@ -227,6 +227,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
     etd=g_malloc(sizeof(expert_tapdata_t));
+    etd->table = NULL;
     etd->all_events = NULL;
     etd->new_events = NULL;
     etd->disp_events = 0;

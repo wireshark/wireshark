@@ -63,6 +63,8 @@ typedef enum {
 #define ESD_BTN_SAVE   0x20
 /** display a "Continue without Saving" button */
 #define ESD_BTN_DONT_SAVE 0x40 
+/** display a "Quit without Saving" button */
+#define ESD_BTN_QUIT_DONT_SAVE 0x80 
 
 /** Standard button combination "Ok" + "Cancel". */
 #define ESD_BTNS_OK_CANCEL	(ESD_BTN_OK|ESD_BTN_CANCEL)
@@ -72,6 +74,8 @@ typedef enum {
 #define ESD_BTNS_YES_NO_CANCEL	(ESD_BTN_YES|ESD_BTN_NO|ESD_BTN_CANCEL)
 /** Standard button combination "No" + "Cancel" + "Save". */
 #define ESD_BTNS_SAVE_DONTSAVE_CANCEL (ESD_BTN_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
+/** Standard button combination "Quit without saving" + "Cancel" + "Save". */
+#define ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL (ESD_BTN_QUIT_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
 
 #if __GNUC__ >= 2
 /** Create and show a simple dialog.

@@ -865,7 +865,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     gtk_window_present(GTK_WINDOW(top_level));
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL,
                 "%sSave capture file before program quit?%s\n\n"
                 "If you quit the program without saving, your capture data will be discarded.",
                 simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -954,7 +954,7 @@ static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _
         /* save file first */
         file_save_as_cmd(after_save_exit, NULL);
         break;
-    case(ESD_BTN_DONT_SAVE):
+    case(ESD_BTN_QUIT_DONT_SAVE):
         main_do_quit();
         break;
     case(ESD_BTN_CANCEL):
@@ -971,7 +971,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL,
                 "%sSave capture file before program quit?%s\n\n"
                 "If you quit the program without saving, your capture data will be discarded.",
                 simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -1773,6 +1773,9 @@ main(int argc, char *argv[])
   extern char         *optarg;
   gboolean             arg_error = FALSE;
 
+  extern int           splash_register_freq;  /* Found in about_dlg.c */
+  const gchar         *filter;
+
 #ifdef _WIN32
   WSADATA 	       wsaData;
 #endif  /* _WIN32 */
@@ -2078,6 +2081,11 @@ main(int argc, char *argv[])
   /* Initialize whatever we need to allocate colors for GTK+ */
   colors_init();
 
+  /* Non-blank filter means we're remote. Throttle splash screen updates. */
+  filter = get_conn_cfilter();
+  if ( *filter != '\0' )
+    splash_register_freq = 1000;  /* Milliseconds */
+
   /* We won't come till here, if we had a "console only" command line parameter. */
   splash_win = splash_new("Loading Wireshark ...");
   if (init_progfile_dir_error != NULL) {
@@ -2137,7 +2145,7 @@ main(int argc, char *argv[])
   tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
-#if HAVE_GNU_ADNS
+#if HAVE_GNU_ADNS || HAVE_C_ARES
   g_timeout_add(750, host_name_lookup_process, NULL);
 #endif
 

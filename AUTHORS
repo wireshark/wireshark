@@ -2259,7 +2259,7 @@ Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
 	MANOLITO support
 }
 
-Irene Rüngle		<i.ruengeler [AT] fh-muenster.de {
+Irene Rüngler		<i.ruengeler [AT] fh-muenster.de {
 	SCTP analysis
 	Support PPID and SCTP port based selection in Decode as
 }
@@ -2858,6 +2858,10 @@ Benjamin Tse		<benjamin_tse [AT] agilent.com> {
 
 Fred Fierling		<fff [AT] exegin.com> {
 	Daintree's Sensor Network Analyzer file support
+}
+
+Varun Notibala		<nbvarun [AT] gmail.com {
+	SCTP NR-SACK support
 }
 
 and by:
