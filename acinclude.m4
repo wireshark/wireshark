@@ -294,6 +294,32 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	  # First, look for a pcap-config script.
 	  #
 	  AC_PATH_PROG(PCAP_CONFIG, pcap-config)
+
+	  #
+	  # Now check whether it's the libpcap 1.0 version, which
+	  # put a space after "-L" - on some platforms, that doesn't
+	  # work.
+	  #
+	  AC_MSG_CHECKING(for broken pcap-config)
+	  if test -n "$PCAP_CONFIG" ; then
+	    case "`\"$PCAP_CONFIG\" --libs`" in
+
+	    "-L "*)
+	      #
+	      # Space after -L.  Pretend pcap-config doesn't exist.
+	      #
+	      AC_MSG_RESULT(yes)
+	      PCAP_CONFIG=""
+	      ;;
+
+	    *)
+	      #
+	      # No space after -L.
+	      #
+	      AC_MSG_RESULT(no)
+	      ;;
+	    esac
+	  fi
 	  if test -n "$PCAP_CONFIG" ; then
 	    #
 	    # Found - use it to get the include flags for
