@@ -81,13 +81,13 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 			lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
 			return 1;
 		case FT_INT64: {
-			Int64 num = g_malloc(sizeof(Int64));
+			Int64 num = g_malloc(sizeof(gint64));
 			*num = fvalue_get_integer64(&(fi->value));
 			pushInt64(L,num);
 			return 1;
 		}
 		case FT_UINT64: {
-			UInt64 num = g_malloc(sizeof(UInt64));
+			UInt64 num = g_malloc(sizeof(guint64));
 			*num = fvalue_get_integer64(&(fi->value));
 			pushUInt64(L,num);
 			return 1;
