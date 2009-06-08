@@ -5,6 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
+ * (c) 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *
@@ -541,7 +542,7 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
 
     if ((tvbr = new_TvbRange(L,tvb->ws_tvb,offset,len))) {
         PUSH_TVBRANGE(L,tvbr);
-	WSLUA_RETURN(1); /* The TvbRange */
+        WSLUA_RETURN(1); /* The TvbRange */
     }
 
     return 0;
@@ -593,7 +594,7 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
             return 1;
         case 4:
             lua_pushnumber(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
-	    WSLUA_RETURN(1); /* The unsigned integer value */
+            WSLUA_RETURN(1); /* The unsigned integer value */
             /*
              * XXX:
              *    lua uses double so we have 52 bits to play with
@@ -632,7 +633,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
             return 1;
         case 4:
             lua_pushnumber(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
-	    WSLUA_RETURN(1); /* The unsigned integer value */
+            WSLUA_RETURN(1); /* The unsigned integer value */
         default:
             luaL_error(L,"TvbRange:get_le_uint() does not handle %d byte integers",tvbr->len);
             return 0;
@@ -660,9 +661,9 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-	    UInt64 num = g_malloc(sizeof(guint64));
-	    *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-	    pushUInt64(L,num);
+            UInt64 num = g_malloc(sizeof(guint64));
+            *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            pushUInt64(L,num);
             WSLUA_RETURN(1);
         }
         default:
@@ -692,9 +693,9 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-	    UInt64 num = g_malloc(sizeof(guint64));
-	    *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-	    pushUInt64(L,num);
+            UInt64 num = g_malloc(sizeof(guint64));
+            *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            pushUInt64(L,num);
             WSLUA_RETURN(1);
         }
         default:
@@ -721,7 +722,7 @@ WSLUA_METHOD TvbRange_float(lua_State* L) {
             return 1;
         case 8:
             lua_pushnumber(L,tvb_get_ntohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
-			WSLUA_RETURN(1); /* The flaoting point value */
+            WSLUA_RETURN(1); /* The flaoting point value */
         default:
             luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
@@ -742,7 +743,7 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
             return 1;
         case 8:
             lua_pushnumber(L,tvb_get_letohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
-			WSLUA_RETURN(1); /* The flaoting point value */
+            WSLUA_RETURN(1); /* The flaoting point value */
         default:
             luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
@@ -761,8 +762,8 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
         return 0;
     }
 
-	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
+    if (tvbr->len != 4)
+        WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
     addr = g_malloc(sizeof(address));
 
@@ -772,7 +773,7 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
 
-	WSLUA_RETURN(1); /* The IPv4 Address */
+    WSLUA_RETURN(1); /* The IPv4 Address */
 }
 
 WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
@@ -787,8 +788,8 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
         return 0;
     }
 
-	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
+    if (tvbr->len != 4)
+        WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
     addr = g_malloc(sizeof(address));
 
@@ -799,7 +800,7 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
 
-	WSLUA_RETURN(1); /* The IPv4 Address */
+    WSLUA_RETURN(1); /* The IPv4 Address */
 }
 
 WSLUA_METHOD TvbRange_ether(lua_State* L) {
@@ -816,15 +817,15 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
     addr = g_malloc(sizeof(address));
 
-	if (tvbr->len != 6)
-		WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
+    if (tvbr->len != 6)
+        WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
 
     buff = tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     SET_ADDRESS(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);
 
-	WSLUA_RETURN(1); /* The Ethernet Address */
+    WSLUA_RETURN(1); /* The Ethernet Address */
 }
 
 
@@ -840,7 +841,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 
     lua_pushstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len) );
 
-	WSLUA_RETURN(1); /* The string */
+    WSLUA_RETURN(1); /* The string */
 }
 
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
@@ -859,7 +860,75 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 
     pushByteArray(L,ba);
 
-	WSLUA_RETURN(1); /* The ByteArray */
+    WSLUA_RETURN(1); /* The ByteArray */
+}
+
+WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
+	/* Get a bitfield from a TvbRange. */
+#define WSLUA_OPTARG_TvbRange_bitfield_POSITION 2 /* The bit offset from the begining of the TvbRange. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length (in bits) of the field. Defaults to 1. */
+
+    TvbRange tvbr = checkTvbRange(L,1);
+    int pos = luaL_optint(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
+    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_bitfield_LENGTH,1);
+
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if ((pos+len) > (tvbr->len<<3)) {
+        luaL_error(L, "Requested bitfield out of range");
+        return 0;
+    }
+
+    if (len <= 8) {
+        lua_pushnumber(L,(lua_Number)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
+        return 1;
+    } else if (len <= 16) {
+        lua_pushnumber(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        return 1;
+    } else if (len <= 32) {
+        lua_pushnumber(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
+        return 1;
+    } else if (len <= 64) {
+        UInt64 num = g_malloc(sizeof(guint64));
+        *num = tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE);
+        pushUInt64(L,num);
+        WSLUA_RETURN(1); /* The bitfield value */
+    } else {
+        luaL_error(L,"TvbRange:bitfield() does not handle %d bits",len);
+        return 0;
+    }
+}
+
+WSLUA_METHOD TvbRange_range(lua_State* L) {
+	/* Creates a sub-TvbRange from this TvbRange. This is used also as the TvbRange:__call() metamethod. */
+#define WSLUA_OPTARG_TvbRange_range_OFFSET 2 /* The offset (in octets) from the begining of the TvbRange. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the TvbRange. */
+ 
+    TvbRange tvbr = checkTvbRange(L,1);
+    int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
+    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
+
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (offset >= tvbr->len || (len + offset) > tvbr->len) {
+        luaL_error(L,"Range is out of bounds");
+        return 0;
+    }
+
+    if ((tvbr = new_TvbRange(L,tvbr->tvb->ws_tvb,tvbr->offset+offset,len))) {
+        PUSH_TVBRANGE(L,tvbr);
+        WSLUA_RETURN(1); /* The TvbRange */
+    }
+
+    return 0;
 }
 
 WSLUA_METHOD TvbRange_len(lua_State* L) {
@@ -917,6 +986,8 @@ static const luaL_reg TvbRange_methods[] = {
     {"le_ipv4", TvbRange_le_ipv4},
     {"string", TvbRange_string},
     {"bytes", TvbRange_bytes},
+    {"bitfield", TvbRange_bitfield},
+    {"range", TvbRange_range},
     {"len", TvbRange_len},
     {"offset", TvbRange_offset},
     {"tvb", Tvb_tvb},
@@ -925,6 +996,7 @@ static const luaL_reg TvbRange_methods[] = {
 
 static const luaL_reg TvbRange_meta[] = {
     {"__tostring", TvbRange__tostring},
+    {"__call", TvbRange_range},
     { NULL, NULL }
 };
 
