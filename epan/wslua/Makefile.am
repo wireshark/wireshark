@@ -67,13 +67,13 @@ CLEANFILES = \
 DISTCLEANFILES = \
 	$(BUILT_SOURCES) \
 	taps.txt \
-	wslua_register.h
+	wslua_register.h \
+	init.lua
 
 MAINTAINERCLEANFILES = \
 	Makefile.in	\
 	register_wslua.c \
-	declare_wslua.h \
-	init.lua
+	declare_wslua.h
 
 EXTRA_DIST = \
 	declare_wslua.h \
