@@ -398,7 +398,6 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
 void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
     GtkWidget *ask_cb = g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
 
-    /* XXX - find a way to set the GtkButton label in GTK 1.x */
     gtk_button_set_label(GTK_BUTTON(ask_cb), text);
     gtk_widget_show(ask_cb);
 }
