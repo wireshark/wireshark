@@ -774,10 +774,14 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       /* details button */
 #ifdef _WIN32
       if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
-	  g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
           "Open the capture details dialog of this interface.", NULL);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
+      if (capture_if_has_details(if_dlg_data->device)) {
+        g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
+      } else {
+        gtk_widget_set_sensitive(if_dlg_data->details_bt, FALSE);
+      }
 #endif
 
       if_data = g_list_append(if_data, if_dlg_data);

@@ -33,3 +33,8 @@
  */
 extern void capture_if_details_open(char *iface);
 
+/** See if we have a detail-able interface.
+ *
+ * @param iface the interface name to test
+ */
+extern gboolean capture_if_has_details(char *iface);

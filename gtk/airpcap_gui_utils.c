@@ -715,7 +715,7 @@ airpcap_if_is_any(airpcap_if_info_t* if_info)
 void
 airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
 {
-    if(!if_info || airpcap_if_is_any(if_info))
+    if(!if_info || airpcap_if_is_any(if_info) || !airpcap_if_selected)
     {
         gtk_combo_box_set_active(GTK_COMBO_BOX(channel_cb), -1);
         change_airpcap_settings = FALSE;
