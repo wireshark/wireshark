@@ -46,7 +46,7 @@
 #define EQ_SEQ(x, y) ((x) == (y))
 
 /* the tcp header structure, passed to tap listeners */
-struct tcpheader {
+typedef struct tcpheader {
 	guint32 th_seq;
 	guint32 th_ack;
 	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
@@ -58,7 +58,7 @@ struct tcpheader {
 	guint8  th_flags;
 	address ip_src;
 	address ip_dst;
-};
+} tcp_info_t;
 
 /*
  * Private data passed from the TCP dissector to subdissectors. Passed to the

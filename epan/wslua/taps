@@ -73,7 +73,7 @@ eth ../dissectors/packet-eth.h eth_hdr
 #smb2 ../dissectors/packet-smb2.h smb2_info_t
 #ssl ../dissectors/packet-ssl.h ssl_info_t
 #t38 ../dissectors/packet-t38.h t38_info_t
-#tcp ../dissectors/packet-tcp.h tcp_info_t
+tcp ../dissectors/packet-tcp.h tcp_info_t
 #teredo ../dissectors/packet-teredo.h teredo_info_t
 #tr ../dissectors/packet-tr.h tr_info_t
 wlan ../dissectors/packet-ieee80211.h wlan_hdr
