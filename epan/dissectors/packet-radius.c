@@ -90,6 +90,7 @@ typedef struct {
 #define UDP_PORT_RADIUS_NEW	1812
 #define UDP_PORT_RADACCT	1646
 #define UDP_PORT_RADACCT_NEW	1813
+#define UDP_PORT_DAE		3799 /* DAE: rfc3576 */
 
 static radius_dictionary_t* dict = NULL;
 
@@ -2013,6 +2014,7 @@ proto_reg_handoff_radius(void)
 		dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
 		dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
 		dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
+		dissector_add("udp.port", UDP_PORT_DAE, radius_handle);
 
 		eap_handle = find_dissector("eap");
 
