@@ -1,9 +1,10 @@
 /* packet-regrspmp.c
- * $Id$
  * Routines for REG-RSP-MP Message dissection
  * Copyright 2007, Bruno Verstuyft  <bruno.verstuyft@excentis.com>
  *
  * Based on packet-regrsp.c (by Anand V. Narwani <anand[AT]narwani.org>)
+ *
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
