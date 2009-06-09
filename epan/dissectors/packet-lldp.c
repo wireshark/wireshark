@@ -422,6 +422,29 @@ static const value_string operational_mau_type_values[] = {
 #define AUTONEG_1000BASE_T		0x0002 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
 #define AUTONEG_1000BASE_TFD	0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
 
+/* Some vendors interpreted the standard to invert the bitorder:
+ * according to a IEEE ruling, this is now officially wrong.
+ * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1455
+ * for all the gory details
+ */
+
+#define INV_AUTONEG_OTHER		0x0001 /* bOther(0),        -- other or unknown */
+#define INV_AUTONEG_10BASE_T		0x0002 /* b10baseT(1),      -- 10BASE-T  half duplex mode */
+#define INV_AUTONEG_10BASET_FD		0x0004 /* b10baseTFD(2),    -- 10BASE-T  full duplex mode */
+#define INV_AUTONEG_100BASE_T4		0x0008 /* b100baseT4(3),    -- 100BASE-T4 */
+#define INV_AUTONEG_100BASE_TX		0x0010 /* b100baseTX(4),    -- 100BASE-TX half duplex mode */
+#define INV_AUTONEG_100BASE_TXFD	0x0020 /* b100baseTXFD(5),  -- 100BASE-TX full duplex mode */
+#define INV_AUTONEG_100BASE_T2		0x0040 /* b100baseT2(6),    -- 100BASE-T2 half duplex mode */
+#define INV_AUTONEG_100BASE_T2FD	0x0080 /* b100baseT2FD(7),  -- 100BASE-T2 full duplex mode */
+#define INV_AUTONEG_FDX_PAUSE		0x0100 /* bFdxPause(8),     -- PAUSE for full-duplex links */
+#define INV_AUTONEG_FDX_APAUSE		0x0200 /* bFdxAPause(9),    -- Asymmetric PAUSE for full-duplex links */
+#define INV_AUTONEG_FDX_SPAUSE		0x0400 /* bFdxSPause(10),   -- Symmetric PAUSE for full-duplex links */
+#define INV_AUTONEG_FDX_BPAUSE		0x0800 /* bFdxBPause(11),   -- Asymmetric and Symmetric PAUSE for full-duplex links */
+#define INV_AUTONEG_1000BASE_X		0x1000 /* b1000baseX(12),   -- 1000BASE-X, -LX, -SX, -CX half duplex mode */
+#define INV_AUTONEG_1000BASE_XFD	0x2000 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
+#define INV_AUTONEG_1000BASE_T		0x4000 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
+#define INV_AUTONEG_1000BASE_TFD	0x8000 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
+
 #define MAX_MAC_LEN	6
 
 
@@ -1437,6 +1460,89 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			if (tempShort & AUTONEG_OTHER)
 				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
 							decode_boolean_bitfield(tempShort, AUTONEG_OTHER,
+							16, "other or unknown", ""));
+
+			tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "Same in inverse (wrong) bitorder");
+			autoneg_advertised_subtree = proto_item_add_subtree(tf, ett_802_3_autoneg_advertised);
+
+			if (tempShort & INV_AUTONEG_1000BASE_TFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_TFD,
+							16, "1000BASE-T (full duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_1000BASE_T)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_T,
+							16, "1000BASE-T (half duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_1000BASE_XFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_XFD,
+							16, "1000BASE-X (-LX, -SX, -CX full duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_1000BASE_X)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_X,
+							16, "1000BASE-X (-LX, -SX, -CX half duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_FDX_BPAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_BPAUSE,
+							16, "Asymmetric and Symmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & INV_AUTONEG_FDX_SPAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_SPAUSE,
+							16, "Symmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & INV_AUTONEG_FDX_APAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_APAUSE,
+							16, "Asymmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & INV_AUTONEG_FDX_PAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_PAUSE,
+							16, "PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & INV_AUTONEG_100BASE_T2FD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T2FD,
+							16, "100BASE-T2 (full duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_100BASE_T2)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T2,
+							16, "100BASE-T2 (half duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_100BASE_TXFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_TXFD,
+							16, "100BASE-TX (full duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_100BASE_TX)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_TX,
+							16, "100BASE-TX (half duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_100BASE_T4)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T4,
+							16, "100BASE-T4", ""));
+
+			if (tempShort & INV_AUTONEG_10BASET_FD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_10BASET_FD,
+							16, "10BASE-T (full duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_10BASE_T)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_10BASE_T,
+							16, "10BASE-T (half duplex mode)", ""));
+
+			if (tempShort & INV_AUTONEG_OTHER)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, INV_AUTONEG_OTHER,
 							16, "other or unknown", ""));
 
 		}
