@@ -1258,14 +1258,14 @@
 	      </row>
 	      <row>
 		<entry><command>First Packet</command></entry>
-		<entry></entry>
+		<entry>Ctrl+Home</entry>
 		<entry><para>
 		    Jump to the first packet of the capture file.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Last Packet</command></entry>
-		<entry></entry>
+		<entry>Ctrl+End</entry>
 		<entry><para>
 		    Jump to the last packet of the capture file.
 		  </para></entry>
