@@ -45,7 +45,7 @@
  * Added support for decoding the TLVs in a grace-LSA
  *   - (c) 2007 Todd J Martin <todd.martin@acm.org>
  *
- * Added support for draft-ietf-ospf-manet-or-00
+ * Added support for draft-ietf-ospf-manet-or-02
  * Added support for draft-ietf-ospf-af-alt-06
  *   - (c) 2008 Cisco Systems
  *
@@ -58,7 +58,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
@@ -246,12 +245,12 @@ static const value_string lls_tlv_type_vals[] = {
 
 /* OSPFv3 LLS TLV Types */
 #define LLS_V3_EXT_OPT       1
-#define LLS_V3_STATE_CHECK   2
-#define LLS_V3_NBR_DROP      3
-#define LLS_V3_RELAYS        4
-#define LLS_V3_WILLING       5
-#define LLS_V3_RQST_FROM     6
-#define LLS_V3_FULL_STATE    7
+#define LLS_V3_STATE_CHECK   3
+#define LLS_V3_NBR_DROP      4
+#define LLS_V3_RELAYS        7
+#define LLS_V3_WILLING       8
+#define LLS_V3_RQST_FROM     5
+#define LLS_V3_FULL_STATE    6
 
 static const value_string lls_v3_tlv_type_vals[] = {
     {LLS_V3_EXT_OPT,                      "Extended Options TLV"          },
