@@ -363,7 +363,7 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.18.4-1
+GLIB_PKG=2.20.3-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
@@ -375,15 +375,15 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
-GTK_PKG=2.14.7-1
-CAIRO_PKG=1.8.6-1
-ATK_PKG=1.24.0-1
-LIBPNG_PKG=1.2.34-1
+GTK_PKG=2.16.2-1
+CAIRO_PKG=1.8.6-2
+ATK_PKG=1.26.0-1
+LIBPNG_PKG=1.2.37-1
 TIFF_PKG=libtiff_3.8.2-1_win64
 TIFF_DLL=libtiff.dll
 JPEG_PKG=jpeg_6b-2_win64
 JPEG_DLL=libjpeg-62.dll
-PANGO_PKG=1.22.4-1
+PANGO_PKG=1.24.2-1
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -391,9 +391,8 @@ PANGO_PKG=1.22.4-1
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-# GTK 2.12 is the mainline since Wireshark 0.99.7
-GTK_INST_VERSION=2.14
-PANGO_INST_VERSION=1.22
+GTK_INST_VERSION=2.16
+PANGO_INST_VERSION=1.24
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
