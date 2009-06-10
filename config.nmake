@@ -137,7 +137,7 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.1-1
+GLIB_PKG=2.20.3-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
@@ -149,15 +149,15 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
-GTK_PKG=2.16.1-1
+GTK_PKG=2.16.2-1
 CAIRO_PKG=1.8.6-1
-ATK_PKG=1.24.0-1
-LIBPNG_PKG=1.2.34-1
+ATK_PKG=1.26.0-1
+LIBPNG_PKG=1.2.37-1
 TIFF_PKG=libtiff-3.8.2
 TIFF_DLL=libtiff3.dll
 JPEG_PKG=jpeg-6b-4-bin
 JPEG_DLL=jpeg62.dll
-PANGO_PKG=1.24.0-1
+PANGO_PKG=1.24.2-1
 
 #
 # Mandatory: Version numbers of GTK and pango.
