@@ -1573,8 +1573,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
-    if (file_save_as_w)
-      window_destroy(GTK_WIDGET (fs));
+    window_destroy(GTK_WIDGET (fs));
 
     return;
   }
@@ -1648,9 +1647,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
     return;
   }
 
-  /* Default to saving all packets, in the file's current format. */
   color_selected   = FALSE;
-  filetype = cfile.cd_t;
 
   file_color_export_w = file_selection_new("Wireshark: Export Color Filters",
                                            FILE_SELECTION_SAVE);
@@ -1718,8 +1715,7 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
       /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
        * as this will prevent the user from closing the now existing error
        * message, simply close the dialog (this is the best we can do here). */
-      if (file_save_as_w)
-        window_destroy(GTK_WIDGET (fs));
+       window_destroy(GTK_WIDGET (fs));
 
        return;
    }
