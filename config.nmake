@@ -263,7 +263,7 @@ GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.4-1
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.6.5-ws1
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
 
 #
 # Optional: the Nettle library enables ??? decryption.
@@ -489,7 +489,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-#KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.6.5-ws1
+#KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
 
 #
 # Optional: the Nettle library enables ??? decryption.
