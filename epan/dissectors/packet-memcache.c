@@ -619,7 +619,7 @@ get_payload_length (tvbuff_t *tvb, const int token_number, int offset,
 {
   const guchar *next_token;
   const guchar *line, *lineend;
-  gchar        *bytes_val;
+  guchar       *bytes_val;
   int           tokenlen, i = 0, linelen;
   gint          next_offset;
 
@@ -1329,9 +1329,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* CRLF */
     tokenlen = get_token_len (line, lineend, &next_token);
-    if (tokenlen == 0) {
-      return offset;
-    } else {
+    if (tokenlen != 0) {
       /* invalid token */
       return -1;
     }
