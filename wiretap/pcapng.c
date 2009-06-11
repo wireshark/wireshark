@@ -1427,7 +1427,7 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	wdh->bytes_dumped += sizeof bh;
 
 	/* write block fixed content */
-	epb.interface_id	= 1;	/* XXX */
+	epb.interface_id	= 0;	/* XXX */
 	epb.timestamp_high	= wblock->data.packet.ts_high;
 	epb.timestamp_low	= wblock->data.packet.ts_low;
 	epb.captured_len	= wblock->data.packet.cap_len;

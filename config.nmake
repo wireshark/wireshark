@@ -137,7 +137,7 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.1-1
+GLIB_PKG=2.20.3-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
@@ -149,15 +149,15 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
-GTK_PKG=2.16.1-1
+GTK_PKG=2.16.2-1
 CAIRO_PKG=1.8.6-1
-ATK_PKG=1.24.0-1
-LIBPNG_PKG=1.2.34-1
+ATK_PKG=1.26.0-1
+LIBPNG_PKG=1.2.37-1
 TIFF_PKG=libtiff-3.8.2
 TIFF_DLL=libtiff3.dll
 JPEG_PKG=jpeg-6b-4-bin
 JPEG_DLL=jpeg62.dll
-PANGO_PKG=1.24.0-1
+PANGO_PKG=1.24.2-1
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -251,8 +251,7 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.3-1
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.4-1
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -263,7 +262,7 @@ GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.4-1
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
 
 #
 # Optional: the Nettle library enables ??? decryption.
@@ -477,8 +476,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.1-1
-#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.3.8-1
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -489,7 +487,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-#KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
+#KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
 
 #
 # Optional: the Nettle library enables ??? decryption.
@@ -1047,7 +1045,7 @@ ADNS_CONFIG=
 
 !IFDEF KFW_DIR
 KFW_PATH=$(KFW_DIR)\bin
-KFW_CFLAGS=/I$(KFW_DIR)\inc
+KFW_CFLAGS=/I$(KFW_DIR)\include
 KFW_LIBS=$(KFW_DIR)\lib\krb5_32.lib
 # Nmake uses carets to escape special characters
 KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1

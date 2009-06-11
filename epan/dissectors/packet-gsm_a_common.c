@@ -311,6 +311,7 @@ static int hf_gsm_a_extended_measurement_cap = -1;
 static int hf_gsm_a_ms_measurement_capability = -1;
 static int hf_gsm_a_sms_value =-1;
 static int hf_gsm_a_sm_value =-1;
+static int hf_gsm_a_key_seq = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -1347,10 +1348,53 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	return(curr_offset - offset);
 }
+/*
+ * 10.5.1.2 Ciphering Key Sequence Number
+ */
+
+
+/*
+ * Key sequence (octet 1)
+ * Bits
+ * 3 2 1
+ * 0 0 0 
+ * through 
+ * 1 1 0 
+ * Possible values for the ciphering key sequence number
+ * 1 1 1 No key is available (MS to network);Reserved (network to MS)
+ */
+
+static const value_string gsm_a_key_seq_vals[] = {
+	{ 0,		"Cipering key sequence number"},
+	{ 1,		"Cipering key sequence number"},
+	{ 2,		"Cipering key sequence number"},
+	{ 3,		"Cipering key sequence number"},
+	{ 4,		"Cipering key sequence number"},
+	{ 5,		"Cipering key sequence number"},
+	{ 6,		"Cipering key sequence number"},
+	{ 7,		"No key is available (MS to network)"},
+	{ 0,	NULL }
+};
+
+guint16
+de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_key_seq, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
 
 /*
  * [3] 10.5.1.3
  */
+
 guint16
 de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2124,21 +2168,21 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Common Information Elements 10.5.1 */
-	de_cell_id,	/* Cell Identity */
-	NULL /* handled inline */,	/* Ciphering Key Sequence Number */
-	de_lai,	/* Location Area Identification */
-	de_mid,	/* Mobile Identity */
-	de_ms_cm_1,	/* Mobile Station Classmark 1 */
-	de_ms_cm_2,	/* Mobile Station Classmark 2 */
-	de_ms_cm_3,		/* Mobile Station Classmark 3 */
+	de_cell_id,			/* Cell Identity */
+	de_ciph_key_seq_num,/* Ciphering Key Sequence Number */
+	de_lai,				/* Location Area Identification */
+	de_mid,				/* Mobile Identity */
+	de_ms_cm_1,			/* Mobile Station Classmark 1 */
+	de_ms_cm_2,			/* Mobile Station Classmark 2 */
+	de_ms_cm_3,			/* Mobile Station Classmark 3 */
 	de_spare_nibble,	/* Spare Half Octet */
 	de_d_gb_call_ref,	/* Descriptive group or broadcast call reference */
-	NULL /* handled inline */,	/* Group Cipher Key Number */
-	de_pd_sapi,	/* PD and SAPI $(CCBS)$ */
+	NULL				/* handled inline */,	/* Group Cipher Key Number */
+	de_pd_sapi,			/* PD and SAPI $(CCBS)$ */
 	/* Pos 10 */
-	de_prio /* handled inline */,	/* Priority Level */
-	de_plmn_list,	/* PLMN List */
-	NULL,	/* NONE */
+	de_prio				/* handled inline */,	/* Priority Level */
+	de_plmn_list,		/* PLMN List */
+	NULL,				/* NONE */
 };
 
 /* Register the protocol with Wireshark */
@@ -2494,6 +2538,11 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_geo_loc_included_angle,
 		{ "Included angle","gsm_a.gad.included_angle",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_key_seq,
+		{ "key sequence","gsm_a.key_seq",
+		FT_UINT8,BASE_DEC, VALS(gsm_a_key_seq_vals), 0x07,          
 		NULL, HFILL }
 	},
 	};

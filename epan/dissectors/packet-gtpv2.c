@@ -97,14 +97,16 @@ static const value_string gtpv2_message_type_vals[] = {
 	{3, "Version Not Supported Indication"},
 	/* 4-24 Reserved for S101 interface TS 29.276 */
 	/* 25-31 Reserved for Sv interface TS 29.280 */
+	/* SGSN/MME to PGW (S4/S11, S5/S8) */
 	{32, "Create Session Request"},
 	{33, "Create Session Response"},
-	{34, "Update User Plane Request"},
-	{35, "Update User Plane Response"},
-	{36, "Modify Bearer Request"},
-	{37, "Modify Bearer Response"},
-	{38, "Delete Session Request"},
-	{39, "Delete Session Response"},
+	{34, "Modify Bearer Request"},
+	{35, "Modify Bearer Response"},
+	{36, "Delete Session Request"},
+	{37, "Delete Session Response"},
+	/* SGSN to PGW (S4, S5/S8) */
+	{38, "Change Notification Request"},
+	{39, "Change Notification Response"},
 	/* 40-63 For future use */
 	/* Messages without explicit response */
 	{64, "Modify Bearer Command"},							/* (MME/SGSN to PGW -S11/S4, S5/S8) */
@@ -125,7 +127,11 @@ static const value_string gtpv2_message_type_vals[] = {
 	{98, "Update Bearer Response"},
 	{99, "Delete Bearer Request"},
 	{100, "Delete Bearer Response"},
-	/* 101-127 For future use MME to MME, SGSN to MME, MME to SGSN, SGSN to SGSN (S3/10/S16) */
+	/* PGW to MME, MME to PGW, SGW to PGW, SGW to MME (S5/S8, S11) */
+	{101, "Delete PDN Connection Set Request"},
+	{102, "Delete PDN Connection Set Response"},
+	/* 103-127 For future use */
+	/* MME to MME, SGSN to MME, MME to SGSN, SGSN to SGSN (S3/10/S16) */
 	{128, "Identification Request"},
 	{129, "Identification Response"},
 	{130, "Context Request"},
@@ -145,7 +151,7 @@ static const value_string gtpv2_message_type_vals[] = {
 	{149, "Detach Notification"},
 	{150, "Detach Acknowledge"},
 	{151, "CS Paging Indication"},
-	{151, "RAN Information Relay"},
+	{152, "RAN Information Relay"},
 	/* 153-159 For future use */
 	/* MME to SGW (S11) */
 	{160, "Create Forwarding Tunnel Request"},
@@ -161,9 +167,10 @@ static const value_string gtpv2_message_type_vals[] = {
 	{170, "Release Access Bearers Request"},
 	{171, "Release Access Bearers Response"},
 	/* 172-175 For future use */
-	/*SGW to SGSN/MME (S4/S11) */
+	/* SGW to SGSN/MME (S4/S11) */
 	{176, "Downlink Data Notification "},
-	{177, "Downlink Data Notification Acknowledgement "},
+	{177, "Downlink Data Notification Acknowledgement"},
+	/* SGW to SGSN (S4) */
 	{178, "Update Bearer Complete "},
 	/* 179-191 For future use */
 	/* Other */
@@ -260,7 +267,7 @@ static const value_string gtpv2_element_type_vals[] = {
 	{126, "UDP Source Port Number"},											/* Extendable / 8.56 */
 	{127, "APN Restriction"},													/* Extendable / 8.57 */
 	{128, "Selection Mode"},													/* Extendable / 8.58 */
-	{129, "Source Identification Variable"},									/* Length / 8.50 */
+	{129, "Source Identification"},									/* Variable Length / 8.50 */
 	{130, "Bearer Control Mode"},												/* Extendable / 8.60 */
 	{131, "Change Reporting Action"},											/* Variable Length / 8.61 */
 	{132, "Fully Qualified PDN Connection Set Identifier (FQ-CSID)"},			/* Variable Length / 8.62 */
@@ -268,8 +275,8 @@ static const value_string gtpv2_element_type_vals[] = {
 	{134, "eMLPP Priority"},													/* Extendable / 8.64 */
 	{135, "Node Type"},															/* Extendable / 8.65 */
 	{136, "Fully Qualified Domain Name (FQDN)"},								/* Variable Length / 8.66 */
-
-	/* 137-254 "Spare."},	*/													/* For future use. FFS */
+	{137, "Transaction Identifier (TI)"},								/* Variable Length / 8.68 */
+	/* 138-254 "Spare."},	*/													/* For future use. FFS */
 	{255, "Private"},															/* Extension Extendable / 8.71 */
     {0, NULL}
 };
@@ -300,17 +307,21 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 /* Table 8.4-1: Cause values */
 static const value_string gtpv2_cause_vals[] = {
 	{0, "Reserved"},
+	/* Request */
 	{1, "Paging Cause"},
 	{2, "Local Detach"},
 	{3, "Complete Detach"},
 	{4, "RAT changed from 3GPP to Non-3GPP"},
-	/* 5-15 Spare. This value range is reserved for Cause values in a request message */
+	{5, "ISR is activated"},
+	/* 6-15 Spare. This value range is reserved for Cause values in a request message */
+	/* Acceptance Response */
 	{16, "Request accepted"},
 	{17, "Request accepted partially"},
 	{18, "New PDN type due to network preference"},
 	{19, "New PDN type due to single address bearer only"},
 	/* 20-63 Spare. This value range is reserved for Cause values in acceptance response message */
-	{64, "Context Non Existent/Found"},
+	/* Rejection Response */
+	{64, "Context Not Found"},
 	{65, "Invalid Message Format"},
 	{66, "Version not supported by next peer"},
 	{67, "Invalid length"},
@@ -348,7 +359,11 @@ static const value_string gtpv2_cause_vals[] = {
 	{99, "Reserved Message Value Received"},
 	{100, "PGW not responding"},
 	{101, "Collision with network initiated request"},
-	/* 94-255 Spare. This value range is reserved for Cause values in rejection response message */
+	{102, "Unable to page UE due to Suspension"},
+	{103, "Conditional IE missing"},
+	{104, "APN Restriction type Incompatible with currently active PDN connection"},
+	/* 105-219 Spare. This value range is reserved for Cause values in rejection response message */
+	/* 220-255 Reserved for 3GPP Specific PMIPv6 Error Codes as defined in 3GPP TS 29.275 [26] */
     {0, NULL}
 };
 
@@ -693,7 +708,7 @@ dissect_gtpv2_delay_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 /*
- * 8.28 Bearer Context
+ * 8.28 Bearer Context (grouped IE)
  */
 
 static void
@@ -712,10 +727,11 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * 8.36 DRX Parameter 
  * 8.37 UE Network Capability
  * 8.38 MM Context 
- * 8.39 PDN Connection
+ * 8.39 PDN Connection (grouped IE)
  * 8.40 PDU Numbers 
  * 8.41 Packet TMSI (P-TMSI)
- * 8.42 Hop Counter
+ * 8.42 P-TMSI Signature
+ * 8.43 Hop Counter
  * 8.44 UE Time Zone
  * 8.45 Trace Reference
  * 8.56 Complete Request Message

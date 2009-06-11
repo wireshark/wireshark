@@ -312,6 +312,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
 
     g_free (first);
 
+    gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
     gtk_widget_size_request(list, &requisition);
 
     gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
@@ -681,6 +682,22 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
   return TRUE;
 }
 
+static void
+filter_autocomplete_disable_sorting(GtkTreeModel *model)
+{
+#if GTK_CHECK_VERSION(2,6,0)
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+#else
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), -2, GTK_SORT_ASCENDING);
+#endif
+}
+
+static void
+filter_autocomplete_enable_sorting(GtkTreeModel *model)
+{
+  gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), 0, GTK_SORT_ASCENDING);
+}
+
 static GtkWidget *
 filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
 {
@@ -689,7 +706,6 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   GtkWidget *filter_sc;
   gint x_pos, y_pos;
   GtkTreeModel *model;
-  GtkSortType order;
   GtkTreeSelection *selection;
   GtkRequisition requisition;
   GtkWidget *w_toplevel;
@@ -721,9 +737,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 
   /* Sort treeview */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
-  order = GTK_SORT_ASCENDING;
   if(model)
-    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), 0, order);
+    filter_autocomplete_enable_sorting(model);
 
   gtk_container_add (GTK_CONTAINER (filter_sc), treeview);
 
@@ -753,6 +768,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 static void
 filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
 {
+  GtkTreeModel *model;
   GtkListStore *store;
   GtkRequisition requisition;
   size_t prefix_len;
@@ -772,8 +788,12 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   }
 
   /* Empty list */
-  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+  store = GTK_LIST_STORE(model);
   gtk_list_store_clear(store);
+
+  /* Disable sorting */
+  filter_autocomplete_disable_sorting(model);
 
   /* Build new list */
   if (!build_autocompletion_list(filter_te, list, popup_win, prefix, protocols_only, NULL)) {
@@ -782,6 +802,9 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
     return;
   }
 
+  /* Enable sorting */
+  filter_autocomplete_enable_sorting(model);
+  
   gtk_widget_size_request(list, &requisition);
 
   gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));

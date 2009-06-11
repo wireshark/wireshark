@@ -30,15 +30,41 @@ Wireshark Info
     <section id="BugFixes"><title>Bug Fixes</title>
     <para>
 
-    The following bugs have been fixed:
+    Too many bugs have been fixed since the 1.0 release to list here. Some
+    notable fixes are:
 
-      <itemizedlist>
+    <itemizedlist>
 
-        <listitem><para>
-          .
-        </para></listitem>
+      <listitem><para>
+        Type-ahead search now works properly.
+      </para></listitem>
 
-      </itemizedlist>
+      <listitem><para>
+        Several bugs that affected capture from pipes have been fixed.
+      </para></listitem>
+
+      <listitem><para>
+        Many Lua-related bugs have been fixed.
+      </para></listitem>
+
+      <listitem><para>
+        Several memory leaks have been found and fixed.
+      </para></listitem>
+
+      <listitem><para>
+        The "Follow TCP Stream" feature could show two streams at the same time
+        The hex dump view has been narrowed.
+      </para></listitem>
+
+      <listitem><para>
+        WPA and SSL decryption bugs have been fixed.
+      </para></listitem>
+
+      <listitem><para>
+        Readability problems on 256-color displays on Windows have been fixed.
+      </para></listitem>
+
+    </itemizedlist>
 
     </para>
 
@@ -150,6 +176,12 @@ Wireshark Info
         <listitem>
           <para>
             Support for IP packet comparison.
+          </para>
+        </listitem>  
+      
+        <listitem>
+          <para>
+            Capinfos now shows the average packet rate.
           </para>
         </listitem>  
       

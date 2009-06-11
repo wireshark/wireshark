@@ -2330,9 +2330,15 @@ capture_if_details_open_win(char *iface)
     /* open the network adapter */
     adapter = wpcap_packet_open(iface);
     if(adapter == NULL) {
+        /*
+         * We have an adapter that is not exposed through normal APIs (e.g. TurboCap)
+         * or an adapter that isn't plugged in.
+         *
+         * XXX - We should use the TurboCap API to get info about TurboCap adapters.
+         */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "%sCould not open adapter: %s!%s"
-            "\n\nThe adapter might be removed from the system in the meantime!", 
+            "%sCould not open adapter %s!%s"
+            "\n\nHas it been unplugged?", 
             simple_dialog_primary_start(), iface, simple_dialog_primary_end());
         return;
     }
@@ -2496,5 +2502,21 @@ capture_if_details_open(char *iface)
     }
 }
 
+gboolean
+capture_if_has_details(char *iface) {
+    LPADAPTER   adapter;
+
+    if (!iface) {
+	return FALSE;
+    }
+    
+    adapter = wpcap_packet_open(iface);
+    if (adapter) {
+	wpcap_packet_close(adapter);
+	return TRUE;
+    }
+    
+    return FALSE;
+}
 
 #endif /* HAVE_LIBPCAP && _WIN32 */
