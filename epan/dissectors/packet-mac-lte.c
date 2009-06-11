@@ -108,12 +108,13 @@ static int hf_mac_lte_rar_ul_grant_cqi_request = -1;
 static int hf_mac_lte_rar_temporary_crnti = -1;
 
 /* Common channel control values */
-static int hf_mac_lte_control_lcg_id = -1;
-static int hf_mac_lte_control_buffer_size = -1;
-static int hf_mac_lte_control_buffer_size_1 = -1;
-static int hf_mac_lte_control_buffer_size_2 = -1;
-static int hf_mac_lte_control_buffer_size_3 = -1;
-static int hf_mac_lte_control_buffer_size_4 = -1;
+static int hf_mac_lte_control_bsr = -1;
+static int hf_mac_lte_control_bsr_lcg_id = -1;
+static int hf_mac_lte_control_bsr_buffer_size = -1;
+static int hf_mac_lte_control_bsr_buffer_size_1 = -1;
+static int hf_mac_lte_control_bsr_buffer_size_2 = -1;
+static int hf_mac_lte_control_bsr_buffer_size_3 = -1;
+static int hf_mac_lte_control_bsr_buffer_size_4 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
@@ -132,6 +133,7 @@ static int ett_mac_lte_rar_headers = -1;
 static int ett_mac_lte_rar_header = -1;
 static int ett_mac_lte_rar_body = -1;
 static int ett_mac_lte_rar_ul_grant = -1;
+static int ett_mac_lte_bsr = -1;
 static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 
@@ -1114,7 +1116,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Dissect SDU */
             sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
                                                  tvb_get_ptr(tvb, offset, pdu_lengths[n]),
-                                                 "SDU (%s, length = %u bytes)",
+                                                 "SDU (%s, length=%u bytes)",
                                                  val_to_str(lcids[n],
                                                             (direction == DIRECTION_UPLINK) ?
                                                                 ulsch_lcid_vals :
@@ -1177,10 +1179,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                                     tvb, offset, -1, FALSE);
                             }
-                            padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
-                                                                    tvb, offset, 0,
-                                                                    p_mac_lte_info->length - offset);
+                            padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
+                                                                   tvb, offset, 0,
+                                                                   p_mac_lte_info->length - offset);
                             PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+                            /* Make sure the PDU isn't bigger than reported! */
+                            if (offset > p_mac_lte_info->length) {
+                                expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
+                                                       "MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                                       p_mac_lte_info->length, offset);
+                            }
                         }
                         break;
 
@@ -1219,26 +1228,57 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         break;
                     case TRUNCATED_BSR_LCID:
                     case SHORT_BSR_LCID:
-                        /* LCG ID */
-                        proto_tree_add_item(tree, hf_mac_lte_control_lcg_id,
-                                            tvb, offset, 1, FALSE);
-                        /* Buffer Size */
-                        proto_tree_add_item(tree, hf_mac_lte_control_buffer_size,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
+                        {
+                            proto_tree *bsr_tree;
+                            proto_item *bsr_ti;
+                            guint8 lcgid;
+                            guint8 buffer_size;
+
+                            bsr_ti = proto_tree_add_string_format(tree,
+                                                                  hf_mac_lte_control_bsr,
+                                                                  tvb, offset, -1,
+                                                                  "",
+                                                                  "BSR");
+                            bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
+
+                            /* LCG ID */
+                            lcgid = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_lcg_id,
+                                                        tvb, offset, 1, FALSE);
+                            /* Buffer Size */
+                            buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+
+                            proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
+                                                   lcgid,
+                                                   val_to_str(buffer_size, buffer_size_vals, "Unknown"));
+                        }
                         break;
                     case LONG_BSR_LCID:
-                        proto_tree_add_item(tree, hf_mac_lte_control_buffer_size_1,
-                                            tvb, offset, 1, FALSE);
-                        proto_tree_add_item(tree, hf_mac_lte_control_buffer_size_2,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
-                        proto_tree_add_item(tree, hf_mac_lte_control_buffer_size_3,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
-                        proto_tree_add_item(tree, hf_mac_lte_control_buffer_size_4,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
+                        {
+                            proto_tree *bsr_tree;
+                            proto_item *bsr_ti;
+                            bsr_ti = proto_tree_add_string_format(tree,
+                                                                  hf_mac_lte_control_bsr,
+                                                                  tvb, offset, -1,
+                                                                  "",
+                                                                  "Long BSR");
+                            bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
+
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
+                                                tvb, offset, 1, FALSE);
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_4,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+                        }
                         break;
                     case PADDING_LCID:
                         /* No payload, unless its the last subheader, in which case
@@ -1248,10 +1288,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                                     tvb, offset, -1, FALSE);
                             }
-                            padding_length_ti = proto_tree_add_uint(tree, hf_mac_lte_padding_length,
-                                                                    tvb, offset, 0,
-                                                                    p_mac_lte_info->length - offset);
+                            padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
+                                                                   tvb, offset, 0,
+                                                                   p_mac_lte_info->length - offset);
                             PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+                            /* Make sure the PDU isn't bigger than reported! */
+                            if (offset > p_mac_lte_info->length) {
+                                expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
+                                                       "MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                                       p_mac_lte_info->length, offset);
+                            }
                         }
 
                         break;
@@ -1615,7 +1662,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_padding_length,
             { "Padding length",
-              "mac-lte.padding-length", FT_UINT32, BASE_DEC, 0, 0x0,
+              "mac-lte.padding-length", FT_INT32, BASE_DEC, 0, 0x0,
               "Length of padding data not included at end of frame", HFILL
             }
         },
@@ -1742,39 +1789,45 @@ void proto_register_mac_lte(void)
 
         /**********************/
         /* Control PDU fields */
-        { &hf_mac_lte_control_lcg_id,
+        { &hf_mac_lte_control_bsr,
+            { "BSR",
+              "mac-lte.control.bsr", FT_STRING, BASE_NONE, 0, 0x0,
+              "Buffer Status Report", HFILL
+            }
+        },
+        { &hf_mac_lte_control_bsr_lcg_id,
             { "Logical Channel Group ID",
-              "mac-lte.control.lcg-id", FT_UINT8, BASE_DEC, 0, 0xc0,
+              "mac-lte.control.bsr.lcg-id", FT_UINT8, BASE_DEC, 0, 0xc0,
               "Logical Channel Group ID", HFILL
             }
         },
-        { &hf_mac_lte_control_buffer_size,
+        { &hf_mac_lte_control_bsr_buffer_size,
             { "Buffer Size",
-              "mac-lte.control.buffer-size", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
+              "mac-lte.control.bsr.buffer-size", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
               "Buffer Size available in all channels in group", HFILL
             }
         },
-        { &hf_mac_lte_control_buffer_size_1,
+        { &hf_mac_lte_control_bsr_buffer_size_1,
             { "Buffer Size 1",
-              "mac-lte.control.buffer-size-1", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
+              "mac-lte.control.bsr.buffer-size-1", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
               "Buffer Size available in for 1st channel in group", HFILL
             }
         },
-        { &hf_mac_lte_control_buffer_size_2,
+        { &hf_mac_lte_control_bsr_buffer_size_2,
             { "Buffer Size 2",
-              "mac-lte.control.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03c0,
+              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03c0,
               "Buffer Size available in for 2nd channel in group", HFILL
             }
         },
-        { &hf_mac_lte_control_buffer_size_3,
+        { &hf_mac_lte_control_bsr_buffer_size_3,
             { "Buffer Size 3",
-              "mac-lte.control.buffer-size-3", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
+              "mac-lte.control.bsr.buffer-size-3", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
               "Buffer Size available in for 3rd channel in group", HFILL
             }
         },
-        { &hf_mac_lte_control_buffer_size_4,
+        { &hf_mac_lte_control_bsr_buffer_size_4,
             { "Buffer Size 4",
-              "mac-lte.control.buffer-size-4", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
+              "mac-lte.control.bsr.buffer-size-4", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
               "Buffer Size available in for 4th channel in group", HFILL
             }
         },
@@ -1828,6 +1881,7 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_dlsch_header,
         &ett_mac_lte_sch_subheader,
         &ett_mac_lte_bch,
+        &ett_mac_lte_bsr,
         &ett_mac_lte_pch
     };
 
