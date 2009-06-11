@@ -499,7 +499,8 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	etd->error_events = 0;
 	etd->severity_report_level = PI_CHAT;
 
-	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Expert Info");
+	etd->win=dlg_window_new("Wireshark: Expert Info");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(etd->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(etd->win), 650, 600);
 
 	vbox=gtk_vbox_new(FALSE, 3);

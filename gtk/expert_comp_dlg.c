@@ -243,7 +243,8 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->warn_events = 0;
     ss->error_events = 0;
 
-    ss->win=window_new(GTK_WINDOW_TOPLEVEL, "err");
+	ss->win=dlg_window_new("err");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
 
     error_set_title(ss);
