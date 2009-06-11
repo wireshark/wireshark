@@ -1466,7 +1466,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* 5-bit sequence number */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, FALSE);
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ",
                                 tvb_get_guint8(tvb, offset) & 0x1f);
             }
             offset++;
@@ -1558,7 +1558,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 }
 
                 if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u", seqnum);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ", seqnum);
                 }
             }
             else {
