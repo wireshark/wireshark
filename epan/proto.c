@@ -3929,8 +3929,8 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 
 		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
 		/* GLIB 2.x - if it is already present
-         * the previous hfinfo with the same name is saved
-         * to same_name_hfinfo by value destroy callback */
+		 * the previous hfinfo with the same name is saved
+		 * to same_name_hfinfo by value destroy callback */
 		if (same_name_hfinfo) {
 			/* There's already a field with this name.
 			 * Put it after that field in the list of
