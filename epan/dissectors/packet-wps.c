@@ -1722,7 +1722,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_serial_number, 
       { "Serial Number", "wps.serial_number", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_wifi_protected_setup_state, 
       { "Wifi Protected Setup State", "wps.wifi_protected_setup_state", 
