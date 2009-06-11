@@ -627,6 +627,11 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	return len;
 }
 /*
+ * 9.9.3.4A	Ciphering key sequence number
+ * See subclause 9.9.3.19 in 3GPP TS 24.008 [13].
+ */
+
+/*
  * 9.9.3.5	CSFB response
  */
 
@@ -1845,7 +1850,7 @@ static const value_string nas_eps_esm_cause_vals[] = {
 	{ 0x28,	"Feature not supported"},
 	{ 0x29,	"Semantic error in the TFT operation"},
 	{ 0x2a,	"Syntactical error in the TFT operation"},
-	{ 0x2b,	"Unknown EPS bearer context"},
+	{ 0x2b,	"Invalid EPS bearer identity"},
 	{ 0x2c,	"Semantic errors in packet filter(s)"},
 	{ 0x2d,	"Syntactical errors in packet filter(s)"},
 	{ 0x2e,	"EPS bearer context without TFT already activated"}, 
@@ -2921,8 +2926,6 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
 	/* 4A	Equivalent PLMNs	PLMN list 9.9.2.8	O	TLV	5-47 */
 	ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_PLM_LST, " - PLMN list");
-	/* 8-	NAS key set identifierASME	NAS key set identifier 9.9.3.21	O	TV	1 */
-	ELEM_OPT_TV_SHORT(0x80, NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID, "ASME");
 	/* 34	Emergency Number List	Emergency Number List 9.9.3.37	O	TLV	5-50 */
 	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, "");
 
@@ -2979,12 +2982,13 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset++;
 	/* 	Old GUTI 	EPS mobile identity 9.9.3.12	M	LV	12 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Old GUTI");
-	/* 	B-	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	O	TV	1 */
-	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_UE_RA_CAP_INF_UPD_NEED , "SGSN" );
-
 	/* No more Mandatory elements */
 	if (curr_len==0)
 		return;
+	/* 	B-	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	O	TV	1 */
+	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_UE_RA_CAP_INF_UPD_NEED , "SGSN" );
+	/* 8-	GPRS ciphering key sequence number	Ciphering key sequence number 9.9.3.4a	O	TV	1  */
+	ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, "");
 	/* 19	Old P-TMSI signature	P-TMSI signature 9.9.3.26	O	TV	4 */
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
 	/* 50	Additional GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
@@ -3831,6 +3835,29 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	}
 
 }
+/* TS 24.301 8.2.1
+ * 9	General message format and information elements coding
+ * 9.1	Overview
+ * Within the protocols defined in the present document, every message, except the SERVICE REQUEST message,
+ * is a standard L3 message as defined in 3GPP TS 24.007 [12]. This means that the message consists of the following parts:
+ * 1)	if the message is a plain NAS message:
+ *  a)	protocol discriminator;
+ *  b)	EPS bearer identity or security header type;
+ *  c)	procedure transaction identity;
+ *  d)	message type;
+ *  e)	other information elements, as required.
+ * 2)	if the message is a security protected NAS message:
+ *  a)	protocol discriminator;
+ *  b)	security header type;
+ *  c)	message authentication code;
+ *  d)	sequence number;
+ *  e)	plain NAS message, as defined in item 1.
+ *
+ * The EPS bearer identity and the procedure transaction identity are only used in messages 
+ * with protocol discriminator EPS session management. Octet 1a with the procedure transaction
+ * identity shall only be included in these messages.
+ */
+
 /*
  * All messages recived here will have the security header:
  *  Figure 9.1.2: General message organization example for a security protected NAS message

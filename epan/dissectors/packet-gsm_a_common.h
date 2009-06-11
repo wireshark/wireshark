@@ -643,7 +643,7 @@ typedef enum
 	DE_MS_CM_1,				/* Mobile Station Classmark 1 */
 	DE_MS_CM_2,				/* Mobile Station Classmark 2 */
 	DE_MS_CM_3,				/* Mobile Station Classmark 3 */
-	DE_SPARE_NIBBLE,			/* Spare Half Octet */
+	DE_SPARE_NIBBLE,		/* Spare Half Octet */
 	DE_D_GB_CALL_REF,		/* Descriptive group or broadcast call reference */
 	DE_G_CIPH_KEY_NUM,		/* Group Cipher Key Number */
 	DE_PD_SAPI,				/* PD and SAPI $(CCBS)$ */
