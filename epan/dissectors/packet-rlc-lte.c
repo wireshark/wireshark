@@ -851,6 +851,9 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                "%u bytes remaining after Status PDU complete",
                                tvb_length_remaining(tvb, offset));
     }
+
+    /* Set selected length of control tree */
+    proto_item_set_len(status_ti, offset);
 }
 
 
@@ -989,10 +992,12 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Final data element */
-    proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, -1, FALSE);
-    show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
-                     (s_number_of_extensions == 0) ? first_includes_start : TRUE,
-                     last_includes_end);
+    if (tvb_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, -1, FALSE);
+        show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
+                         (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                         last_includes_end);
+    }
 }
 
 
