@@ -4,7 +4,7 @@
 --
 -- (c) 2006 Luis E. Garcia Ontanon <luis@ontanon.org>
 --
--- $Id:$
+-- $Id$
 -- 
 -- Wireshark - Network traffic analyzer
 -- By Gerald Combs <gerald@wireshark.org>
@@ -332,5 +332,5 @@ if gui_enabled() then
 
 	end
 
-	register_menu("DTD Generator",dtd_generator,MENU_TOOLS)
+	register_menu("DTD Generator",dtd_generator,MENU_TOOLS_UNSORTED)
 end

@@ -74,7 +74,7 @@ void lua_menu_callback(gpointer data) {
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
 #define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '/'s. (string) */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
-#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of MENU_STAT (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS (Tools). (number) */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of MENU_STAT_UNSORTED (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS_UNSORTED (Tools). (number) */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
