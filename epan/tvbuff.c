@@ -426,16 +426,14 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		if (exception) {
 			*exception = BoundsError;
 		}
-		return FALSE;
 	}
 	else {
 		if (exception) {
 			*exception = ReportedBoundsError;
 		}
-		return FALSE;
 	}
 
-	DISSECTOR_ASSERT_NOT_REACHED();
+	return FALSE;
 }
 
 /* Checks (+/-) offset and length and throws an exception if
@@ -2774,9 +2772,6 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 
 	if (location) {
 		return (gint) (location - haystack_data);
-	}
-	else {
-		return -1;
 	}
 
 	return -1;
