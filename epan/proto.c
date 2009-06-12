@@ -652,7 +652,8 @@ proto_registrar_get_nth(guint hfindex)
  */
 
 /* compute a hash for the part before the dot of a display filter */
-static guint prefix_hash (gconstpointer key) {
+static guint
+prefix_hash (gconstpointer key) {
 	/* end the string at the dot and compute its hash */
 	gchar* copy = ep_strdup(key);
 	gchar* c = copy;
@@ -668,7 +669,8 @@ static guint prefix_hash (gconstpointer key) {
 }
 
 /* are both strings equal up to the end or the dot? */
-static gboolean prefix_equal (gconstpointer ap,gconstpointer bp) {
+static gboolean
+prefix_equal (gconstpointer ap,gconstpointer bp) {
 	const gchar* a = ap;
 	const gchar* b = bp;
 	
@@ -703,13 +705,15 @@ proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
 }
 
 /* helper to call all prefix initializers */
-static gboolean initialize_prefix(gpointer k, gpointer v, gpointer u _U_) {
+static gboolean
+initialize_prefix(gpointer k, gpointer v, gpointer u _U_) {
 	((prefix_initializer_t)v)(k);
 	return TRUE;
 }
 
 /** Initialize every remaining uninitialized prefix. */
-void proto_initialize_all_prefixes(void) {
+void
+proto_initialize_all_prefixes(void) {
 	g_hash_table_foreach_remove(prefixes, initialize_prefix, NULL);
 }
 
@@ -743,26 +747,28 @@ proto_registrar_get_byname(const char *field_name)
 }
 
 
-void ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
+void
+ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
 {
-  subtree_lvl * pushed_tree;
+	subtree_lvl * pushed_tree;
 
-  DISSECTOR_ASSERT(ptvc->pushed_tree_max <= SUBTREE_MAX_LEVELS-SUBTREE_ONCE_ALLOCATION_NUMBER);
-  ptvc->pushed_tree_max += SUBTREE_ONCE_ALLOCATION_NUMBER;
+	DISSECTOR_ASSERT(ptvc->pushed_tree_max <= SUBTREE_MAX_LEVELS-SUBTREE_ONCE_ALLOCATION_NUMBER);
+	ptvc->pushed_tree_max += SUBTREE_ONCE_ALLOCATION_NUMBER;
 
-  pushed_tree = ep_alloc(sizeof(subtree_lvl) * ptvc->pushed_tree_max);
-  DISSECTOR_ASSERT(pushed_tree != NULL);
-  if (ptvc->pushed_tree)
-    memcpy(pushed_tree, ptvc->pushed_tree, ptvc->pushed_tree_max - SUBTREE_ONCE_ALLOCATION_NUMBER);
-  ptvc->pushed_tree = pushed_tree;
+	pushed_tree = ep_alloc(sizeof(subtree_lvl) * ptvc->pushed_tree_max);
+	DISSECTOR_ASSERT(pushed_tree != NULL);
+	if (ptvc->pushed_tree)
+		memcpy(pushed_tree, ptvc->pushed_tree, ptvc->pushed_tree_max - SUBTREE_ONCE_ALLOCATION_NUMBER);
+	ptvc->pushed_tree = pushed_tree;
 }
 
-void ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
+void
+ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
 {
-  ptvc->pushed_tree = NULL;
-  ptvc->pushed_tree_max = 0;
-  DISSECTOR_ASSERT(ptvc->pushed_tree_index ==0);
-  ptvc->pushed_tree_index = 0;
+	ptvc->pushed_tree = NULL;
+	ptvc->pushed_tree_max = 0;
+	DISSECTOR_ASSERT(ptvc->pushed_tree_index ==0);
+	ptvc->pushed_tree_index = 0;
 }
 
 /* Allocates an initializes a ptvcursor_t with 3 variables:
@@ -808,10 +814,10 @@ ptvcursor_current_offset(ptvcursor_t* ptvc)
 proto_tree*
 ptvcursor_tree(ptvcursor_t* ptvc)
 {
-  if (!ptvc)
-    return NULL;
+	if (!ptvc)
+		return NULL;
 
-  return ptvc->tree;
+	return ptvc->tree;
 }
 
 void
@@ -824,43 +830,44 @@ ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
 proto_tree*
 ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 {
-  subtree_lvl * subtree;
-  if (ptvc->pushed_tree_index >= ptvc->pushed_tree_max)
-    ptvcursor_new_subtree_levels(ptvc);
+	subtree_lvl * subtree;
+	if (ptvc->pushed_tree_index >= ptvc->pushed_tree_max)
+		ptvcursor_new_subtree_levels(ptvc);
 
-  subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
-  subtree->tree = ptvc->tree;
-  subtree->it= NULL;
-  ptvc->pushed_tree_index++;
-  return ptvcursor_set_subtree(ptvc, it, ett_subtree);
+	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
+	subtree->tree = ptvc->tree;
+	subtree->it= NULL;
+	ptvc->pushed_tree_index++;
+	return ptvcursor_set_subtree(ptvc, it, ett_subtree);
 }
 
 /* pops a subtree */
 void
 ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 {
-  subtree_lvl * subtree;
-  if (ptvc->pushed_tree_index <= 0)
-    return;
+	subtree_lvl * subtree;
+	if (ptvc->pushed_tree_index <= 0)
+		return;
 
-  ptvc->pushed_tree_index--;
-  subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
-  if (subtree->it != NULL)
-    proto_item_set_len(subtree->it, ptvcursor_current_offset(ptvc) - subtree->cursor_offset);
-  ptvc->tree = subtree->tree;
+	ptvc->pushed_tree_index--;
+	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
+	if (subtree->it != NULL)
+		proto_item_set_len(subtree->it, ptvcursor_current_offset(ptvc) - subtree->cursor_offset);
+
+	ptvc->tree = subtree->tree;
 }
 
 /* saves the current tvb offset and the item in the current subtree level */
 static void
 ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
 {
-  subtree_lvl * subtree;
+	subtree_lvl * subtree;
 
-  DISSECTOR_ASSERT(ptvc->pushed_tree_index > 0);
+	DISSECTOR_ASSERT(ptvc->pushed_tree_index > 0);
 
-  subtree = ptvc->pushed_tree+ptvc->pushed_tree_index-1;
-  subtree->it = it;
-  subtree->cursor_offset = ptvcursor_current_offset(ptvc);
+	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index-1;
+	subtree->it = it;
+	subtree->cursor_offset = ptvcursor_current_offset(ptvc);
 }
 
 /* Creates a subtree and adds it to the cursor as the working tree but does not
@@ -868,16 +875,17 @@ ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
 proto_tree*
 ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 {
-  ptvc->tree = proto_item_add_subtree(it, ett_subtree);
-  return ptvc->tree;
+	ptvc->tree = proto_item_add_subtree(it, ett_subtree);
+	return ptvc->tree;
 }
 
-proto_tree* ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
+proto_tree*
+ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
 {
-  ptvcursor_push_subtree(ptvc, it, ett_subtree);
-  if (length == SUBTREE_UNDEFINED_LENGTH)
-    ptvcursor_subtree_set_item(ptvc, it);
-  return ptvcursor_tree(ptvc);
+	ptvcursor_push_subtree(ptvc, it, ett_subtree);
+	if (length == SUBTREE_UNDEFINED_LENGTH)
+		ptvcursor_subtree_set_item(ptvc, it);
+	return ptvcursor_tree(ptvc);
 }
 
 /* Add an item to the tree and create a subtree
@@ -885,12 +893,14 @@ proto_tree* ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint
  * In this case, when the subtree will be closed, the parent item length will
  * be equal to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree* ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
-gboolean little_endian, gint ett_subtree)
+proto_tree*
+ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
+			   gboolean little_endian, gint ett_subtree)
 {
-  proto_item * it;
-  it = ptvcursor_add_no_advance(ptvc, hfindex, length, little_endian);
-  return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
+	proto_item * it;
+
+	it = ptvcursor_add_no_advance(ptvc, hfindex, length, little_endian);
+	return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
 }
 
 static proto_item *
@@ -901,20 +911,24 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
  * In this case, when the subtree will be closed, the item length will be equal
  * to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree * ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
-    gint ett_subtree, const char *format, ...)
+proto_tree *
+ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
+				gint ett_subtree, const char *format, ...)
 {
-  proto_item *	it;
-  va_list	ap;
+	proto_item *	it;
+	va_list	ap;
 
-  it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
-      ptvcursor_current_offset(ptvc), length);
+	it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
+				      ptvcursor_current_offset(ptvc), length);
 
-  va_start(ap, format);
-  proto_tree_set_representation(it, format, ap);
-  va_end(ap);
+	if (it == NULL)
+		return(NULL);
 
-  return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
+	va_start(ap, format);
+	proto_tree_set_representation(it, format, ap);
+	va_end(ap);
+
+	return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
 }
 
 /* Add a text-only node, leaving it to our caller to fill the text in */
@@ -933,7 +947,7 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
 /* Add a text-only node to the proto_tree */
 proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
-	const char *format, ...)
+		    const char *format, ...)
 {
 	proto_item	*pi;
 	va_list		ap;
@@ -952,7 +966,7 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 /* Add a text-only node to the proto_tree (va_list version) */
 proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
-	gint length, const char *format, va_list ap)
+			   gint length, const char *format, va_list ap)
 {
 	proto_item	*pi;
 
@@ -1314,7 +1328,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
    and returns proto_item* */
 proto_item*
 ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
-    gboolean little_endian)
+	      gboolean little_endian)
 {
 	field_info		*new_fi;
 	header_field_info	*hfinfo;
@@ -1340,7 +1354,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex);
 
 	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset,
-	    item_length);
+				item_length);
 	if (new_fi == NULL)
 		return NULL;
 
@@ -1399,12 +1413,12 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  * offset, and returns proto_item* */
 proto_item*
 ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
-		gboolean endianness)
+			 gboolean endianness)
 {
 	proto_item	*item;
 
 	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
-			length, endianness);
+				   length, endianness);
 
 	return item;
 }
