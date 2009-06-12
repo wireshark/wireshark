@@ -32,4 +32,4 @@ StopService ()
 
 RestartService () { StartService; }
 
-StartService "$1"
+RunService "$1"
