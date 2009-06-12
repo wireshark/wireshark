@@ -248,6 +248,7 @@ DISSECTOR_SRC = \
 	packet-ayiya.c		\
 	packet-bacapp.c		\
 	packet-bacnet.c		\
+	packet-banana.c		\
 	packet-bat.c		\
 	packet-bctp.c		\
 	packet-beep.c		\
