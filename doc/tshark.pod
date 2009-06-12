@@ -954,7 +954,7 @@ personal preferences file.
 =head1 SEE ALSO
 
 wireshark-filter(4), wireshark(1), editcap(1), pcap-filter(4), tcpdump(8),
-pcap(3), dumpcap(1), text2pcap(1)
+pcap(3), dumpcap(1), text2pcap(1), mergecap(1)
 
 =head1 NOTES
 
