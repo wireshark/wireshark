@@ -695,7 +695,7 @@ HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 # comment this line out, so that UPX isn't defined.
 #
 
-UPX=$(WIRESHARK_LIBS)\upx301w\upx.exe
+UPX=$(WIRESHARK_LIBS)\upx303w\upx.exe
 
 ##### Flags, PATHs and Miscellaneous #####
 

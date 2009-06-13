@@ -867,7 +867,7 @@ process_libs:
 !ENDIF
 !IFDEF UPX
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. upx301w.zip
+		. upx303w.zip
 !ENDIF
 !IFDEF NASM
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -915,7 +915,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
     rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
-    rm -r -f $(WIRESHARK_LIBS)/upx301w
+    rm -r -f $(WIRESHARK_LIBS)/upx303w
     rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
 
 ################################################################################
