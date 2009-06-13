@@ -2778,6 +2778,13 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
     }
 }
 
+void
+menu_prefs_reset(void)
+{
+        g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
+        g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
+}
+
 static void
 menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 {
@@ -2832,9 +2839,7 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 
     if (module->prefs_changed) {
         /* Ensure we reload the sub menu */
-        g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
-        g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
-
+        menu_prefs_reset();
         prefs_apply (module);
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();
