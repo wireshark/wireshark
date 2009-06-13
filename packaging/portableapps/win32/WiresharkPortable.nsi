@@ -30,7 +30,8 @@
 !define WEBSITE "www.wireshark.org"
 !define DEFAULTEXE "wireshark.exe"
 !define DEFAULTAPPDIR "Wireshark"
-!define DEFAULTWINPCAP "WinPcap_4_0_2.exe"
+!define DEFAULTWINPCAP "WinPcap_4_1_beta5.exe"
+!define DEFAULTMSVCREDIST "vcredist_x86.exe"
 
 !addplugindir "${EXTRA_PLUGINS}"
 
@@ -74,6 +75,8 @@ Var INIPATH
 Var DISABLEWINPCAPINSTALL
 Var WINPCAPINSTALLER
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
+Var MSVCREDIST
+Var MSVCREDIST_UNINSTALL ;declare variable for holding the value of a registry key
 Var PDRIVE
 
 Section "Main"
@@ -107,6 +110,7 @@ Section "Main"
 
 		ReadINIStr $DISABLEWINPCAPINSTALL "$INIPATH\${NAME}.ini" "${NAME}" "DisableWinPcapInstall"
 		ReadINIStr $WINPCAPINSTALLER "$INIPATH\${NAME}.ini" "${NAME}" "WinPcapInstaller"
+		ReadINIStr $MSVCREDIST "$INIPATH\${NAME}.ini" "${NAME}" "MSVCRedist"
 
 	;CleanUpAnyErrors:
 		;=== Any missing unrequired INI entries will be an empty string, ignore associated errors
@@ -127,6 +131,7 @@ Section "Main"
 		StrCpy "$ADDITIONALPARAMETERS" ""
 		StrCpy "$PROGRAMEXECUTABLE" "${DEFAULTEXE}"
 		StrCpy "$WINPCAPINSTALLER" "${DEFAULTWINPCAP}"
+		StrCpy "$MSVCREDIST" "${DEFAULTMSVCREDIST}"		
 
 		IfFileExists "$EXEDIR\App\${DEFAULTAPPDIR}\${DEFAULTEXE}" "" CheckPortableProgramDIR
 			StrCpy "$PROGRAMDIRECTORY" "$EXEDIR\App\${DEFAULTAPPDIR}"
@@ -182,13 +187,28 @@ Section "Main"
 
 		StrCpy	$WINPCAP_UNINSTALL ""
 
-		goto EnvironmentVariables
+		goto CheckRedist
 
 	InstallWinPcap: 
-		MessageBox MB_YESNO "If you want to capture packets from the network you will need to install WinPcap.\nIt will be uninstalled when you exit Wireshark.\n\nDo you want to install WinPcap?" /SD IDYES IDNO EnvironmentVariables
+		MessageBox MB_YESNO "If you want to capture packets from the network you will need to install WinPcap.\nIt will be uninstalled when you exit Wireshark.\n\nDo you want to install WinPcap?" /SD IDYES IDNO CheckRedist
 		ExecWait `"$PROGRAMDIRECTORY\$WINPCAPINSTALLER"`
-		; remember the uninstall string for when we are done		
+		;=== remember the uninstall string for when we are done		
 		ReadRegStr $WINPCAP_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
+
+	CheckRedist: 
+
+		ReadRegStr $MSVCREDIST_UNINSTALL HKLM "SOFTWARE\Microsoft\CurrentVersion\Uninstall\{A49F249F-0C91-497F-86DF-B2585E8E76B7}" "UninstallString"
+		IfErrors InstallRedist
+
+		StrCpy	$MSVCREDIST_UNINSTALL ""
+
+		goto EnvironmentVariables
+
+	InstallRedist:
+		ExecWait `"$PROGRAMDIRECTORY\$MSVCREDIST" /q`
+		;=== remember the uninstall string for when we are done		
+
+		ReadRegStr $MSVCREDIST_UNINSTALL HKLM "SOFTWARE\Microsoft\CurrentVersion\Uninstall\{A49F249F-0C91-497F-86DF-B2585E8E76B7}" "UninstallString"
 
 	EnvironmentVariables:
 		; set the U3 environment variables
@@ -213,8 +233,14 @@ Section "Main"
 		FindProcDLL::FindProc "${DEFAULTEXE}"                  
 		StrCmp $R0 "1" CheckRunning
 
-		StrCmp $WINPCAP_UNINSTALL "" TheEnd ;=== if we installed it, uninstall it
+		StrCmp $WINPCAP_UNINSTALL "" UninstallRedist ;=== if we installed it, uninstall it
 		ExecWait $WINPCAP_UNINSTALL	
+
+	UninstallRedist:
+
+		StrCmp $MSVCREDIST_UNINSTALL "" TheEnd ;=== if we installed it, uninstall it
+
+		ExecWait $MSVCREDIST_UNINSTALL
 
 	Goto TheEnd
 	

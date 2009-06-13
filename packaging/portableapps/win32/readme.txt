@@ -19,7 +19,7 @@ A quieter install/de-install for WinPcap would help matters - but ultimately a m
 NSIS
 ====
 
-The Portable Apps packaging uses the NullSoft Scriptable Installer System (NSIS) to create a installation package to install onto the USB drive, and a launcher to launch Wireshak from the USB drive.
+The Portable Apps packaging uses the NullSoft Scriptable Installer System (NSIS) to create a installation package to install onto the USB drive, and a launcher to launch Wireshark from the USB drive.
 
 NSIS is used by the standard Win32 installation mechansim (packaging/nsis) but an additional plug-in is required for the Wireshark Portable launcher. This is now automatically downloaded and installed from the wireshark-win32-libs repository.
 
@@ -34,6 +34,7 @@ WiresharkExecutable
 AdditionalParameters
 DisableWinPcapInstall
 WinPcapInstaller
+MSVCRedist
 
 The WiresharkDirectory entry should be set to the *relative* path to the directory containing the Wireshark Portable Launcher (WiresharkPortable.exe). This entry must be present. 
 
@@ -44,3 +45,5 @@ The AdditionalParameters entry allows you to pass additional commandline paramet
 The DisableWinPcapInstall allows you to disable the installation of WinPcap, even if it it not present on the host system.
 
 The WinPcapInstaller allows you to specify a different WinPcap installer than the default one included in the distribution. For example, if you download a later version.
+
+The MSVCRedist allows you to specify a different redistributable package to be used than the default one included in the distribution.
