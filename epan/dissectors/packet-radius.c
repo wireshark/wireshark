@@ -141,8 +141,6 @@ static guint alt_port_pref = 0;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
-static const value_string* radius_vendors = NULL;
-
 /* http://www.iana.org/assignments/radius-types */
 static const value_string radius_vals[] =
 {
@@ -1358,7 +1356,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-		if(!radius_vendors) register_radius_fields(NULL);
+		/* Forces load of header fields, if not already done so */
+		DISSECTOR_ASSERT(proto_registrar_get_byname("radius.code"));
 
 		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rh.rh_pktlength, FALSE);
 
@@ -1951,8 +1950,6 @@ static void register_radius_fields(const char* unused _U_) {
 	}
 
 	g_free(dir);
-
-	radius_vendors = (value_string*)g_array_data(ri.vend_vs);
 
 	proto_register_field_array(proto_radius,(hf_register_info*)g_array_data(ri.hf),ri.hf->len);
 	proto_register_subtree_array((gint**)g_array_data(ri.ett), ri.ett->len);
