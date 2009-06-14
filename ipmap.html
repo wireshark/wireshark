@@ -26,8 +26,12 @@
             );
 
             map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
+            map_file = "ipmap.txt";
+            if (document.location.hash.length > 1) {
+              map_file = document.location.hash.substr(1);
+            }
             map.addLayer(new OpenLayers.Layer.Text("IP Locations", {
-                location: "ipmap.txt", projection: new OpenLayers.Projection("EPSG:4326")} ) );
+                location: map_file, projection: new OpenLayers.Projection("EPSG:4326")} ) );
 
             var lonlat = (new OpenLayers.LonLat(0.0, 0.0));
             lonlat.transform(map.displayProjection, map.projection);
