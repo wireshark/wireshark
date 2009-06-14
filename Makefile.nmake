@@ -25,7 +25,7 @@ WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 #  2. The $(LIBS_CHECK) target is invoked during the nmake:
 #     If $(CHECK_TAG) is non-null, then a "libraries not up to date" exit will occur.
 #     If $(CHECK_TAG) is null, but either config.nmake or Makefile.nmake
-#      are newer then the $(LIBS_CHECK) target, then a detailed verification
+#      are newer than the $(LIBS_CHECK) target, then a detailed verification
 #      as to the required library package files will be made.
 #    
 LIBS_CHECK=_libs_check_
