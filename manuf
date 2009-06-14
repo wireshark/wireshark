@@ -3435,7 +3435,7 @@
 00:0D:5B	SmartEmpir             # Smart Empire Investments Limited
 00:0D:5C	RobertBosc             # Robert Bosch GmbH, VT-ATMO
 00:0D:5D	RaritanCom             # Raritan Computer, Inc
-00:0D:5E	NecCustomt             # NEC CustomTechnica, Ltd.
+00:0D:5E	NecPersona             # NEC Personal Products
 00:0D:5F	Minds                  # Minds Inc
 00:0D:60	Ibm                    # IBM Corporation
 00:0D:61	Giga-ByteT             # Giga-Byte Technology Co., Ltd.
@@ -9862,6 +9862,17 @@
 00:26:77	Deif                   # DEIF A/S
 00:26:78	LogicInstr             # Logic Instrument SA
 00:26:79	EuphonicTe             # Euphonic Technologies, Inc.
+00:26:7A	WuhanHongx             # wuhan hongxin telecommunication technologies co.,ltd
+00:26:7B	GsiHelmhol             # GSI Helmholtzzentrum für Schwerionenforschung GmbH
+00:26:7C	Metz-Werke             # Metz-Werke GmbH & Co KG
+00:26:7D	A-MaxTechn             # A-Max Technology Macao Commercial Offshore Company Limited
+00:26:7E	ParrotSa               # Parrot SA
+00:26:7F	Zenterio               # Zenterio AB
+00:26:80	LockieInno             # Lockie Innovation Pty Ltd
+00:26:81	Interspiro             # Interspiro AB
+00:26:82	GemtekTech             # Gemtek Technology Co., Ltd.
+00:26:83	AjohoEnter             # Ajoho Enterprise Co., Ltd.
+00:26:84	KisanSyste             # KISAN SYSTEM
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13323,6 +13334,13 @@
 00:50:C2:AD:40:00/36	GlobalRain             # Global Rainmakers Inc.
 00:50:C2:AD:50:00/36	MightyLube             # Mighty Lube Systematic Lubrication, Inc.
 00:50:C2:AD:60:00/36	Unisensor              # Unisensor A/S
+00:50:C2:AD:70:00/36	AirMonitor             # Air Monitors Ltd
+00:50:C2:AD:80:00/36	Incyma
+00:50:C2:AD:90:00/36	Elettronda             # elettrondata srl
+00:50:C2:AD:A0:00/36	EssepieSrl             # Essepie Srl
+00:50:C2:AD:B0:00/36	GoEngineer             # GO engineering GmbH
+00:50:C2:AD:C0:00/36	Synthesech             # Synthesechemie Dr. Penth GmbH
+00:50:C2:AD:D0:00/36	GeneralDyn             # General Dynamics C4 Sysems
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
