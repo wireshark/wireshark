@@ -18,23 +18,21 @@ BSCMAKE= bscmake
 WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 # -------------
-# Check that the Wireshark Libraries are up-to-date (checktag)
-# 1. winxx-setup.sh --checktag is invoked during nmake "preprocessing".
-# 2. If an error status is returned (ie: the libraries are not up-to-date)
-#    then LIBS_CHECK is defined as a non-null string.
-#    When $(LIBS_CHECK) is first referenced as a dependency
-#    during the make, the $(LIBS_CHECK) target will be invoked 
-#    causing an error message and an error exit.
-# 3. If a success status is returned, then LIBS_CHECK is defined as a 
-#    null string and thus any use of $(LIBS_CHECK) as a 
-#    dependency is effectively ignored.
-# The net result: If the Wireshark libraries are not current, a 
-#  "libraries not up to date" error exit will occur for
-#  the specific targets which have $(LIBS_CHECK) as a dependency.  
-!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
+# Checking  that the Wireshark Libraries are up-to-date:
+#  1. winxx-setup.sh --checktag is invoked during nmake "preprocessing".
+#     If an error status is returned (ie: the libraries are not up-to-date)
+#      then CHECK_TAG is defined as a non-null string.
+#  2. The $(LIBS_CHECK) target is invoked during the nmake:
+#     If $(CHECK_TAG) is non-null, then a "libraries not up to date" exit will occur.
+#     If $(CHECK_TAG) is null, but either config.nmake or Makefile.nmake
+#      are newer then the $(LIBS_CHECK) target, then a detailed verification
+#      as to the required library package files will be made.
+#    
 LIBS_CHECK=_libs_check_
+!IF [$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"] != 0
+CHECK_TAG=_check_tag_
 !ELSE
-LIBS_CHECK=
+CHECK_TAG=
 !ENDIF
 # -------------
 
@@ -711,31 +709,30 @@ verify_tools:
 WIN_SETUP_OPT=--download
 !ENDIF
 
-!IF 0  #### The library "tag" is now checked at the beginning of the make
 # Verify that the required library 'package' (zip) files have been downloaded.
 # (It seems reasonable to assume that if the files have been downloaded
 #  then they have been installed).
 check_libs:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
 
-# Verify library packages only if Makefile.nmake has been updated
-#  (or dummy file doesn't exist because of 'make clean' or whatever)
-# (To disable library verification when Makefile.nmake changes,
-#  comment out the commands for the following target).
+# Verify library packages:
+#  If $(CHECK_TAG) is non-null then checktag failed; Exit with an error message. (See beginning of this Makefile).
+#  Otherwise do detailed library package files verification only if Makefile.nmake or config.make have been updated
+#  (or dummy file doesn't exist because of 'make clean' or whatever).
+#  Note that the creation/modification time of a file after an svn update of that file 
+#   is the time of the update (not the time of the file in the repository).
 # touch is only called if libverify succeeds.
-#  (One microsec is added to the makefile.nmake time since the time set by [cygwin ?] 'touch --reference' 
-#   apparently has the nanosecs truncated from the reference file time [at least on Windows Vista]).
-$(LIBS_CHECK): Makefile.nmake
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
-	@touch --reference=Makefile.nmake -d "+0.000001 sec" $@
-!ENDIF ###
+$(LIBS_CHECK):  $(CHECK_TAG) config.nmake Makefile.nmake
+	@echo  Verifying library package files ...
+	@$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN_SETUP_OPT=--libverify process_libs
+	@touch $@
 
-# Target for "libraries not up-to-date"
-# Defined only if "checktag" failed (see beginning of Makefile).
-!IF "$(LIBS_CHECK)" != ""
-$(LIBS_CHECK): FORCE
-	@echo ^? Wireshark Libraries not up-to-date ^?
-	@echo ^? Do you need to run "nmake -f makefile.nmake setup" ^?
+# Target for "checktag failed" (libraries not up to date).
+# Defined only if "checktag" failed (see beginning of this Makefile).
+!IF "$(CHECK_TAG)" != ""
+$(CHECK_TAG): FORCE
+	@echo \? Wireshark Libraries not up-to-date \?
+	@echo \? Do you need to run "nmake -f makefile.nmake setup" \?
 	@echo.
 	@exit 1
 
@@ -752,12 +749,7 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
-!IF 0  #### The library "tag" is now checked at the beginning of the make
-!IF "$(WIN_SETUP_OPT)" == "--libverify"
-	@$(SH) $(WIN_SETUP) --checktag "$(WIRESHARK_LIBS)"
-!ENDIF
-!ENDIF
-    if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
+    @if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk$(GTK_INST_VERSION)/glib_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
