@@ -3358,6 +3358,8 @@ void change_configuration_profile (const gchar *profile_name)
 
    /* Reset current preferences and apply the new */
    prefs_reset();
+   menu_prefs_reset();
+   
    (void) read_configuration_files (&gdp_path, &dp_path);
 
    recent_read_profile_static(&rf_path, &rf_open_errno);
