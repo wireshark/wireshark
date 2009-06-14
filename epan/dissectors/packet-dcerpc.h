@@ -28,6 +28,13 @@
 
 #include <epan/conversation.h>
 
+#ifdef PT_R4
+/* now glib always includes signal.h and on linux PPC 
+ * signal.h defines PT_R4
+*/
+#undef PT_R4
+#endif
+
 typedef struct _e_uuid_t {
     guint32 Data1;
     guint16 Data2;
