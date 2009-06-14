@@ -722,7 +722,7 @@ static void sm_counter_free(struct SMCounterRecord *head) {
   struct SMCounterRecord *ptr;
   while (head != NULL) {
     ptr = head->next;
-    g_free(ptr);
+    g_free(head);
     head = ptr;
   }
 }
