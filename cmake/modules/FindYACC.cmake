@@ -20,12 +20,12 @@ MARK_AS_ADVANCED(
 )
 
 
-# search flex
+# search bison/yacc
 MACRO(FIND_YACC)
     IF(NOT YACC_EXECUTABLE)
         FIND_PROGRAM(YACC_EXECUTABLE bison)
         IF (NOT YACC_EXECUTABLE)
-          MESSAGE(FATAL_ERROR "flex not found - aborting")
+          MESSAGE(FATAL_ERROR "bison/yacc not found - aborting")
         ENDIF (NOT YACC_EXECUTABLE)
     ENDIF(NOT YACC_EXECUTABLE)
 ENDMACRO(FIND_YACC)

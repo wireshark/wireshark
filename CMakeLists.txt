@@ -23,7 +23,10 @@
 
 project(wireshark C)
 
-set(dumpcap_LIBS wiretap)
+set(dumpcap_LIBS
+  wiretap
+  wsutil
+)
 
 cmake_minimum_required(VERSION 2.6)
 
@@ -45,6 +48,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/wiretap
+  ${CMAKE_SOURCE_DIR}/wsutil
 )
 
 #Where to put libraries
@@ -114,9 +118,9 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
 set(CPACK_PACKAGE_VENDOR "wireshark")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "99")
-set(CPACK_PACKAGE_VERSION_PATCH "4")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
@@ -212,7 +216,10 @@ endif(WIN32)
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
-link_directories(wiretap)
+link_directories(
+  wiretap
+  wsutil
+)
 
 ADD_CUSTOM_COMMAND(
    OUTPUT ${CMAKE_BINARY_DIR}/svnversion.h

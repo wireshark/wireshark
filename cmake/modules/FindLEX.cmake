@@ -38,19 +38,18 @@ MACRO(ADD_LEX_FILES _sources )
       GET_FILENAME_COMPONENT(_basename ${_current_FILE} NAME_WE)
 
       SET(_outc ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.c)
-      SET(_outh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.h)
 
       ADD_CUSTOM_COMMAND(
-         OUTPUT ${_outc} ${_outh}
-         COMMAND ${LEX_EXECUTABLE}
+         OUTPUT ${_outc}
+#	COMMAND ${LEX_EXECUTABLE}
+         COMMAND ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE}
          ARGS
          -o${_outc}
-         --header-file=${_outh}
          ${_in}
          DEPENDS ${_in}
       )
 
-      SET(${_sources} ${${_sources}} ${_outc} ${_outh} )
+      SET(${_sources} ${${_sources}} ${_outc} )
    ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_LEX_FILES)
 
