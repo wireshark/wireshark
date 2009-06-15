@@ -52,6 +52,7 @@
 
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"
+#define PCAP_NG_KEY		"pcap_ng"
 #define CAPTURE_REAL_TIME_KEY	"capture_real_time"
 #define AUTO_SCROLL_KEY		"auto_scroll"
 #define SHOW_INFO_KEY           "show_info"
@@ -90,7 +91,7 @@ GtkWidget*
 capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
-	GtkWidget	*if_cb, *if_lb, *promisc_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget	*if_cb, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
@@ -158,6 +159,15 @@ capture_prefs_show(void)
 	    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
+	/* Pcap-NG format */
+	pcap_ng_cb = create_preference_check_button(main_tb, row++,
+	    "Capture packets in pcap-ng format:", NULL,
+	    prefs.capture_pcap_ng);
+	gtk_tooltips_set_tip(tooltips, pcap_ng_cb,
+	     "Capture packets in the next-generation capture file format. "
+	     "This is still experimental.", NULL);
+	g_object_set_data(G_OBJECT(main_vb), PCAP_NG_KEY, pcap_ng_cb);
+
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, row++,
 	    "Update list of packets in real time:", NULL,
@@ -192,11 +202,12 @@ capture_prefs_show(void)
 void
 capture_prefs_fetch(GtkWidget *w)
 {
-	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
+	GtkWidget *if_cb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	gchar	*if_text;
 
 	if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), DEVICE_KEY);
 	promisc_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PROM_MODE_KEY);
+	pcap_ng_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PCAP_NG_KEY);
 	sync_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
 	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
         show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
@@ -218,6 +229,8 @@ capture_prefs_fetch(GtkWidget *w)
 	prefs.capture_device = if_text;
 
 	prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
+
+	prefs.capture_pcap_ng = GTK_TOGGLE_BUTTON (pcap_ng_cb)->active;
 
 	prefs.capture_real_time = GTK_TOGGLE_BUTTON (sync_cb)->active;
 

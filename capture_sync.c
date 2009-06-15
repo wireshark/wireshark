@@ -355,6 +355,8 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
+    if (capture_opts->use_pcapng)
+      argv = sync_pipe_add_arg(argv, &argc, "-n");
 #ifdef HAVE_PCAP_REMOTE
     if (capture_opts->datatx_udp)
       argv = sync_pipe_add_arg(argv, &argc, "-u");

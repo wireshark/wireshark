@@ -94,6 +94,7 @@
 #endif
 #define E_CAP_SNAP_SB_KEY           "cap_snap_sb"
 #define E_CAP_PROMISC_KEY           "cap_promisc"
+#define E_CAP_PCAP_NG_KEY           "cap_pcap_ng"
 #define E_CAP_FILT_KEY              "cap_filter_te"
 #define E_CAP_FILE_TE_KEY           "cap_file_te"
 #define E_CAP_MULTI_FILES_ON_CB_KEY "cap_multi_files_on_cb"
@@ -1441,7 +1442,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *if_ip_hb, *if_ip_lb, *if_ip_eb,
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
-                *promisc_cb,
+                *promisc_cb, *pcap_ng_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
 
                 *file_fr, *file_vb,
@@ -1723,6 +1724,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "If you want to capture all traffic that the network card can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
+
+  /* Pcap-NG row */
+  pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format (experimental)");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
+  gtk_tooltips_set_tip(tooltips, pcap_ng_cb, "Capture packets in the next-generation capture file format. "
+		       "This is still experimental.", NULL);
+  gtk_container_add(GTK_CONTAINER(left_vb), pcap_ng_cb);
 
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
@@ -2184,6 +2192,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
 #endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY, pcap_ng_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_MULTI_FILES_ON_CB_KEY,  multi_files_on_cb);
@@ -2533,7 +2542,7 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 /* convert dialog settings into capture_opts values */
 static gboolean
 capture_dlg_prep(gpointer parent_w) {
-  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te, *filter_cm,
+  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *pcap_ng_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
@@ -2569,6 +2578,7 @@ capture_dlg_prep(gpointer parent_w) {
   buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
   promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PROMISC_KEY);
+  pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PCAP_NG_KEY);
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = GTK_COMBO(filter_cm)->entry;
   file_te   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
@@ -2643,6 +2653,8 @@ capture_dlg_prep(gpointer parent_w) {
 
   global_capture_opts.promisc_mode =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
+  global_capture_opts.use_pcapng =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pcap_ng_cb));
 
   /* XXX - don't try to get clever and set "cfile.filter" to NULL if the
      filter string is empty, as an indication that we don't have a filter

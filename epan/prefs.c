@@ -1184,6 +1184,7 @@ init_prefs(void) {
   prefs.capture_devices_descr    = NULL;
   prefs.capture_devices_hide     = NULL;
   prefs.capture_prom_mode        = TRUE;
+  prefs.capture_pcap_ng          = FALSE;
   prefs.capture_real_time        = TRUE;
   prefs.capture_auto_scroll      = TRUE;
   prefs.capture_show_info        = FALSE;
@@ -1663,6 +1664,7 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_CAP_DEVICES_DESCR "capture.devices_descr"
 #define PRS_CAP_DEVICES_HIDE  "capture.devices_hide"
 #define PRS_CAP_PROM_MODE     "capture.prom_mode"
+#define PRS_CAP_PCAP_NG       "capture.pcap_ng"
 #define PRS_CAP_REAL_TIME     "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL   "capture.auto_scroll"
 #define PRS_CAP_SHOW_INFO     "capture.show_info"
@@ -2064,7 +2066,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.capture_devices_hide = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
     prefs.capture_prom_mode = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
+   } else if (strcmp(pref_name, PRS_CAP_PCAP_NG) == 0) {
+    prefs.capture_pcap_ng = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
+ } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
     prefs.capture_real_time = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
     prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
@@ -2901,6 +2905,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
 		  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Capture in Pcap-NG format?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_CAP_PCAP_NG ": %s\n",
+		  prefs.capture_pcap_ng == TRUE ? "TRUE" : "FALSE");
+
   fprintf(pf, "\n# Update packet list in real time during capture?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
@@ -3040,6 +3049,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
   dest->capture_devices_hide = g_strdup(src->capture_devices_hide);
   dest->capture_prom_mode = src->capture_prom_mode;
+  dest->capture_pcap_ng = src->capture_pcap_ng;
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
   dest->capture_show_info = src->capture_show_info;
