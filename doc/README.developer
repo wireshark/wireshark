@@ -497,6 +497,17 @@ automatically free()d when the dissection of the current packet ends so you
 don't have to worry about free()ing them explicitly in order to not leak memory.
 Please read README.malloc.
 
+Don't use non-ASCII characters in source files; not all compiler
+environments will be using the same encoding for non-ASCII characters,
+and at least one compiler (Microsoft's Visual C) will, in environments
+with double-byte character encodings, such as many Asian environments,
+fail if it sees a byte sequence in a source file that doesn't correspond
+to a valid character.  This causes source files using either an ISO
+8859/n single-byte character encoding or UTF-8 to fail to compile.  Even
+if the compiler doesn't fail, there is no guarantee that the compiler,
+or a developer's text editor, will interpret the characters the way you
+intend them to be interpreted.
+
 1.1.3 Robustness.
 
 Wireshark is not guaranteed to read only network traces that contain correctly-
