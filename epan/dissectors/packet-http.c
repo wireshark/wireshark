@@ -1830,7 +1830,7 @@ get_hf_for_header(char* header_name)
  *
  */
 static void
-add_hf_info_for_headers()
+add_hf_info_for_headers(void)
 {
 	hf_register_info* hf = NULL;
 	gint* hf_id = NULL;

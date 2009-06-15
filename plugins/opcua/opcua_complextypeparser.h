@@ -156,4 +156,4 @@ void parseEUInformation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
 void parseAnnotation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
 void parseProgramDiagnosticDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
 
-void registerComplexTypes();
+void registerComplexTypes(void);

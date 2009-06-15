@@ -74,7 +74,7 @@ typedef struct{
 
 /* Init routine for the Security dissectors. */
 extern void     zbee_security_register  (module_t *module, int proto);
-extern void     zbee_security_handoff   ();
+extern void     zbee_security_handoff   (void);
 
 /* Security Dissector Routine. */
 extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, guint, guint64);

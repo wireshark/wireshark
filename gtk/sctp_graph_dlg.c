@@ -812,7 +812,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
  * If an association has both SAKC and NR_SACK PDU's
  * a warning is popped
  */
-void updateLabels()
+void updateLabels(void)
 {
 	if (gIsSackChunkPresent && gIsNRSackChunkPresent)
 	{

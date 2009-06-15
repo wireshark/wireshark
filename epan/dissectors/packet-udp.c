@@ -105,7 +105,7 @@ static gboolean try_heuristic_first = FALSE;
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
-init_udp_conversation_data()
+init_udp_conversation_data(void)
 {
   struct udp_analysis *udpd=NULL;
 

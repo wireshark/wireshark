@@ -1000,7 +1000,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t             *decr_tvb;
   proto_tree           *decr_tree;
   address               null_addr;
-  void                 *pd_save;
+  void                 *pd_save = NULL;
   gboolean             pd_changed = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 

@@ -58,9 +58,9 @@ typedef enum {
 	HIP_I2,
 	HIP_R2,
 	UPDATE=16,
-	NOTIFY=17, 
-	CLOSE=18, 
-	CLOSE_ACK=19, 
+	NOTIFY=17,
+	CLOSE=18,
+	CLOSE_ACK=19
 } HIP_PACKETS;
 
 /* HIP TLV parameters listed in order of RFCs */
