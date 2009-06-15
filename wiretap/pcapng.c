@@ -1594,9 +1594,9 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
    an error indication otherwise. */
 int pcapng_dump_can_write_encap(int encap)
 {
-	/* Per-packet encapsulations aren't supported. */
+	/* Per-packet encapsulations is supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
-		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return 0;
 
 	/* Make sure we can figure out this DLT type */
 	if (wtap_wtap_encap_to_pcap_encap(encap) == -1)
