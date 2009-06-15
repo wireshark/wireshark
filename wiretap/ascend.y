@@ -482,8 +482,17 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
      as to where to look for the next packet, if any. If we didn't,
      maybe this record was broken. Advance so we don't get into
      an infinite loop reading a broken trace. */
-  if (first_hexbyte)
+  if (first_hexbyte) {
     *start_of_data = first_hexbyte;
+  } else {
+    /* Sometimes, a header will be printed but the data will be omitted, or
+       worse -- two headers will be printed, followed by the data for each. 
+       Because of this, we need to be fairly tolerant of what we accept
+       here.  If we didn't find any hex bytes, skip over what we've read so
+       far so we can try reading a new packet. */
+    *start_of_data = file_tell(*fh_ptr);
+    retval = 0;
+  }
 
   /* if we got at least some data, return success even if the parser
      reported an error. This is because the debug header gives the number
