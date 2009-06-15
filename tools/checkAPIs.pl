@@ -965,9 +965,8 @@ while ($_ = $ARGV[0])
 
 	if ($fileContents =~ m{ [\x80-\xFF] }xo)
 	{
-		print STDERR "Warning: Found non-ASCII characters in " .$filename."\n";
-#		Treat as warning
-#		$errorCount++;
+		print STDERR "Error: Found non-ASCII characters in " .$filename."\n";
+		$errorCount++;
 	}
 
 	if ($fileContents =~ m{ %ll }xo)
