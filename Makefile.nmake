@@ -907,6 +907,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
     rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
+    rm -r -f $(WIRESHARK_LIBS)/upx301w
     rm -r -f $(WIRESHARK_LIBS)/upx303w
     rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
 
