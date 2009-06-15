@@ -42,9 +42,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-/* Forward declaration we need below */
-void proto_reg_handoff_banana(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_banana = -1;
 static int hf_banana_list = -1;
@@ -353,14 +350,7 @@ proto_register_banana(void)
 void
 proto_reg_handoff_banana(void)
 {
-	static gboolean inited = FALSE;
-
-	if (!inited) {
-
-		banana_handle = new_create_dissector_handle(dissect_banana, proto_banana);
-
-		inited = TRUE;
-	}
+	banana_handle = new_create_dissector_handle(dissect_banana, proto_banana);
 }
 
 /*
@@ -369,7 +359,7 @@ proto_reg_handoff_banana(void)
  * Local variables:
  * c-basic-offset: 4
  * tab-width: 4
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=4 tabstop=4 noexpandtab
