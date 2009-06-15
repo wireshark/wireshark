@@ -2080,7 +2080,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
 		tempOffset++;
 
-		/* Power Value: 0 – 102.3 Watts (0.1 W increments) */
+		/* Power Value: 0 to 102.3 Watts (0.1 W increments) */
 		tempShort = tvb_get_ntohs(tvb, tempOffset) * 100;
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Power Value: %u mW", tempShort);
