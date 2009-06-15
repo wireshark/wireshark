@@ -72,16 +72,16 @@ libwiretap_la_LIBADD = libwiretap_generated.la $(GLIB_LIBS) ${top_builddir}/wsut
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
-ascend-scanner_lex.h : ascend-scanner.c
+ascend_scanner_lex.h : ascend_scanner.c
 
 k12text_lex.h : k12text.c
 
-ascend-grammar.c ascend-grammar.h: ascend-grammar.y
+ascend.c ascend.h: ascend.y
 	@if [ -z "$(YACC)" ]; then \
 		echo "Neither bison nor byacc has been found"; \
 		exit 1; \
 	fi
-	$(YACC) -d -p ascend -o ascend-grammar.c $(srcdir)/ascend-grammar.y
+	$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)

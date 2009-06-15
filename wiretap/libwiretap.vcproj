@@ -72,7 +72,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ascend.c"
+				RelativePath=".\ascendtext.c"
 				>
 			</File>
 			<File
@@ -230,7 +230,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ascend.h"
+				RelativePath=".\ascendtext.h"
 				>
 			</File>
 			<File
@@ -379,11 +379,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ascend-grammar.y"
+			RelativePath=".\ascend.y"
 			>
 		</File>
 		<File
-			RelativePath=".\ascend-scanner.l"
+			RelativePath=".\ascend_scanner.l"
 			>
 		</File>
 		<File

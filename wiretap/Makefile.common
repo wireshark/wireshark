@@ -31,7 +31,7 @@
 NONGENERATED_C_FILES = \
 	5views.c		\
 	airopeek9.c		\
-	ascend.c		\
+	ascendtext.c		\
 	atm.c			\
 	ber.c			\
 	btsnoop.c		\
@@ -57,8 +57,8 @@ NONGENERATED_C_FILES = \
 	libpcap.c		\
 	mpeg.c			\
 	netmon.c		\
-	netscreen.c		\
 	netscaler.c		\
+	netscreen.c		\
 	nettl.c			\
 	network_instruments.c	\
 	netxray.c		\
@@ -79,7 +79,7 @@ NONGENERATED_C_FILES = \
 NONGENERATED_HEADER_FILES = \
 	5views.h		\
 	airopeek9.h		\
-	ascend.h		\
+	ascendtext.h		\
 	ascend-int.h		\
 	atm.h			\
 	ber.h			\
@@ -127,20 +127,20 @@ NONGENERATED_HEADER_FILES = \
 
 # Files that generate compileable files
 GENERATOR_FILES = \
-       ascend-grammar.y        \
-       ascend-scanner.l \
+       ascend.y        \
+       ascend_scanner.l \
        k12text.l
 
 # The C source files they generate.
 GENERATED_C_FILES = \
-	ascend-grammar.c	\
-	ascend-scanner.c 	\
+	ascend.c	\
+	ascend_scanner.c 	\
 	k12text.c
 
 # The header files that they generate.
 GENERATED_HEADER_FILES = \
-	ascend-grammar.h	\
-	ascend-scanner_lex.h	\
+	ascend.h	\
+	ascend_scanner_lex.h	\
 	k12text_lex.h
 
 # All the generated files.

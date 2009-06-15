@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef __ASCEND_H__
-#define __ASCEND_H__
+#ifndef __ASCENDTEXT_H__
+#define __ASCENDTEXT_H__
 
 #define ASCEND_MAX_DATA_ROWS 8
 #define ASCEND_MAX_DATA_COLS 16

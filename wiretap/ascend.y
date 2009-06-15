@@ -1,5 +1,5 @@
 %{
-/* ascend-grammar.y
+/* ascend.y
  *
  * $Id$
  *
@@ -138,7 +138,7 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 
 #include "wtap-int.h"
 #include "buffer.h"
-#include "ascend.h"
+#include "ascendtext.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
 
@@ -276,7 +276,7 @@ wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KE
   secs = $7;
   usecs = $8;
   if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend-scanner.l */
+    /* pseudo_header->user is set in ascend_scanner.l */
     pseudo_header->type = $1;
     pseudo_header->sess = $3;
     pseudo_header->call_num[0] = '\0';
@@ -294,7 +294,7 @@ wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum 
   secs = $9;
   usecs = $10;
   if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend-scanner.l */
+    /* pseudo_header->user is set in ascend_scanner.l */
     pseudo_header->type = $1;
     pseudo_header->sess = $3;
     pseudo_header->call_num[0] = '\0';
@@ -312,7 +312,7 @@ wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD 
   secs = $6;
   usecs = $7;
   if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend-scanner.l */
+    /* pseudo_header->user is set in ascend_scanner.l */
     pseudo_header->type = $1;
     pseudo_header->sess = $2;
     pseudo_header->call_num[0] = '\0';
@@ -330,7 +330,7 @@ wdp8_hdr: wds_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum 
   secs = $8;
   usecs = $9;
   if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend-scanner.l */
+    /* pseudo_header->user is set in ascend_scanner.l */
     pseudo_header->type = $1;
     pseudo_header->sess = $2;
     pseudo_header->call_num[0] = '\0';
@@ -375,7 +375,7 @@ wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KE
   secs = $7;
   usecs = $8;
   if (pseudo_header != NULL) {
-    /* pseudo_header->call_num is set in ascend-scanner.l */
+    /* pseudo_header->call_num is set in ascend_scanner.l */
     pseudo_header->type = ASCEND_PFX_WDD;
     pseudo_header->user[0] = '\0';
     pseudo_header->sess = 0;

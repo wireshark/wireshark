@@ -1,4 +1,4 @@
-/* ascend.c
+/* ascendtext.c
  *
  * $Id$
  *
@@ -25,7 +25,7 @@
 #endif
 #include "wtap-int.h"
 #include "buffer.h"
-#include "ascend.h"
+#include "ascendtext.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
@@ -49,7 +49,7 @@
    * wanopening, wandisplay, wannext, wandsess
 			traces PPP or other WAN connections
 
-   Please see ascend-grammar.y for examples.
+   Please see ascend.y for examples.
 
    Detailed documentation on TAOS products is at http://support.lucent.com.
 

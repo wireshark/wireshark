@@ -25,7 +25,7 @@
 set(WIRETAP_FILES
 	5views.c
 	airopeek9.c
-	ascend.c
+	ascendtext.c
 	atm.c
 	ber.c
 	btsnoop.c
@@ -51,6 +51,7 @@ set(WIRETAP_FILES
 	libpcap.c
 	mpeg.c
 	netmon.c
+	netscaler.c
 	netscreen.c
 	nettl.c
 	network_instruments.c
@@ -62,23 +63,26 @@ set(WIRETAP_FILES
 	pppdump.c
 	radcom.c
 	snoop.c
+	tnef.c
 	toshiba.c
 	visual.c
 	vms.c
 	wtap.c
 )
 
-ADD_LEX_FILES(WIRETAP_FILES
-	ascend-scanner.l
+add_lex_files(WIRETAP_FILES
+	ascend_scanner.l
 	k12text.l
 )
 
-ADD_YACC_FILES(WIRETAP_FILES
-	ascend-grammar.y
+add_yacc_files(WIRETAP_FILES
+	ascend.y
 )
 
-ADD_LIBRARY(wiretap SHARED 
+# add_dependency(ascend.c ascend_scanner_lex.h)
+
+add_library(wiretap SHARED 
 	${WIRETAP_FILES}
 )
 
-INSTALL(TARGETS wiretap LIBRARY DESTINATION lib)
+install(TARGETS wiretap LIBRARY DESTINATION lib)

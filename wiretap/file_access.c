@@ -47,7 +47,7 @@
 #include "airopeek9.h"
 #include "ngsniffer.h"
 #include "radcom.h"
-#include "ascend.h"
+#include "ascendtext.h"
 #include "nettl.h"
 #include "libpcap.h"
 #include "snoop.h"

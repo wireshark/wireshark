@@ -10,7 +10,7 @@
 %option prefix="ascend"
 
 %{
-/* ascend-scanner.l
+/* ascend_scanner.l
  *
  * $Id$
  *
@@ -45,11 +45,11 @@
 #endif
 
 #include "wtap-int.h"
+#include "ascendtext.h"
 #include "ascend.h"
-#include "ascend-grammar.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
-#include "ascend-scanner_lex.h"
+#include "ascend_scanner_lex.h"
 
 FILE_T yy_fh;
 extern char *ascend_ra_ptr;

@@ -41,16 +41,16 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 
 RUNLEX = ..\tools\runlex.sh
 
-ascend-scanner_lex.h : ascend-scanner.c
-ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c ascend-scanner.c
+ascend_scanner_lex.h : ascend_scanner.c
+ascend_scanner.obj : ascend_scanner.c ascend.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c ascend_scanner.c
 
 k12text_lex.h : k12text.c
 k12text.obj : k12text.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
-ascend-grammar.c ascend-grammar.h : ascend-grammar.y
-	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
+ascend.c ascend.h : ascend.y
+	$(YACC) $(YACC_OPTS) -d -p ascend ascend.y -o ascend.c
 
 clean :
 	rm -f $(OBJECTS) \
@@ -62,11 +62,11 @@ clean :
 
 #
 # We remove the generated files with "distclean" because one of them,
-# "ascend-scanner.c", needs different #includes for UN*X and Windows
+# "ascend_scanner.c", needs different #includes for UN*X and Windows
 # (UN*X versions of Flex make it include <unistd.h>, but that's a
 # UN*X-only header), so if you're going to build from source, you need
-# to build "ascend-scanner.c" from "ascend-scanner.l" with Flex.
-# This might not be necessary for "ascend-grammar.{c,h}", but as
+# to build "ascend_scanner.c" from "ascend_scanner.l" with Flex.
+# This might not be necessary for "ascend.{c,h}", but as
 # long as you need Flex, you might as well get Bison....
 #
 distclean: clean
