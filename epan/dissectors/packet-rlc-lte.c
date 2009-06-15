@@ -890,18 +890,16 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* First bit is Data/Control flag           */
     is_data = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, FALSE);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, (is_data) ? " [DATA]" : " [CONTROL]");
-    }
-
 
     /**************************************************/
-    /* Control PDUs are a completely separate format  */
     if (!is_data) {
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_str(pinfo->cinfo, COL_INFO, "[CONTROL]");
+        }
+        /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);
         return;
     }
-
 
     /******************************/
     /* Data PDU fixed header      */
@@ -909,6 +907,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Re-segmentation Flag (RF) field */
     is_segment = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_str(pinfo->cinfo, COL_INFO, (is_segment) ? " [DATA-SEGMENT]" : " [DATA]");
+    }
+
 
     /* Polling bit */
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
@@ -945,11 +948,18 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /***************************************/
     /* Dissect extra segment header fields */
     if (is_segment) {
+        guint16 segmentOffset;
+
         /* Last Segment Field (LSF) */
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_lsf, tvb, offset, 1, FALSE);
 
         /* SO */
+        segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
+        }
+
 
         offset += 2;
     }
