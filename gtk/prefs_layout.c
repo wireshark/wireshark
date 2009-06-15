@@ -384,60 +384,49 @@ layout_prefs_show(void)
     gtk_box_pack_start( GTK_BOX(hbox), main_tb, FALSE, FALSE, 0 );
     gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
     gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
+    g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
     /* Scrollbar placement */
     scrollbar_om = create_preference_option_menu(main_tb, pos++,
-        "Vertical scrollbar placement:", NULL, scrollbar_placement_vals,
-        prefs.gui_scrollbar_on_right);
-    gtk_tooltips_set_tip(tooltips, scrollbar_om, 
-        "Select where the vertical scrollbar "
-        "will be displayed in the panes.", NULL);
+        "Vertical scrollbar placement:", 
+        "Select where the vertical scrollbar will be displayed in the panes.",
+        scrollbar_placement_vals, prefs.gui_scrollbar_on_right);
     g_object_set_data(G_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
 
     /* Alternating row colors in list and tree views */
     altern_colors_om = create_preference_option_menu(main_tb, pos++,
-        "Alternating row colors in lists and trees:", NULL,
+        "Alternating row colors in lists and trees:",
+        "Select whether or not the rows of lists and trees have alternating color.",
         altern_colors_vals, prefs.gui_altern_colors);
-    gtk_tooltips_set_tip(tooltips, altern_colors_om, 
-        "Select whether or not the rows of "
-        "lists and trees have alternating color.", NULL);
     g_object_set_data(G_OBJECT(main_vb), ALTERN_COLORS_KEY, altern_colors_om);
 
     /* Hex Dump highlight style */
     highlight_style_om = create_preference_option_menu(main_tb, pos++,
-        "Hex display highlight style:", NULL, highlight_style_vals,
-         prefs.gui_hex_dump_highlight_style);
-    gtk_tooltips_set_tip(tooltips, highlight_style_om, 
-        "Select the style in which the "
-        "hex dump will be displayed.", NULL);
+        "Hex display highlight style:", 
+        "Select the style in which the hex dump will be displayed.",
+        highlight_style_vals, prefs.gui_hex_dump_highlight_style);
     g_object_set_data(G_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
 
     /* Toolbar prefs */
     toolbar_style_om = create_preference_option_menu(main_tb, pos++,
-        "Toolbar style:", NULL, toolbar_style_vals,
-        prefs.gui_toolbar_main_style);
-    gtk_tooltips_set_tip(tooltips, toolbar_style_om, 
-        "Select the style in which the "
-        "toolbar will be displayed.", NULL);
+        "Toolbar style:", 
+        "Select the style in which the toolbar will be displayed.",
+        toolbar_style_vals, prefs.gui_toolbar_main_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
     /* Placement of Filter toolbar */
     filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
-        "Filter toolbar placement:", NULL,
+        "Filter toolbar placement:",
+        "Select where the filter toolbar will be displayed.",
         filter_toolbar_placement_vals, prefs.filter_toolbar_show_in_statusbar);
-    gtk_tooltips_set_tip(tooltips, filter_toolbar_placement_om, 
-        "Select where the filter "
-        "toolbar will be displayed." , NULL);
     g_object_set_data(G_OBJECT(main_vb), FILTER_TOOLBAR_PLACEMENT_KEY, filter_toolbar_placement_om);
 
     /* Window title */
     window_title_te = create_preference_entry(main_tb, pos++,
         "Custom window title (prepended to existing titles):", 
-        NULL, prefs.gui_window_title);
+        "Enter the text to be prepended to the window title.",
+        prefs.gui_window_title);
     gtk_entry_set_text(GTK_ENTRY(window_title_te), prefs.gui_window_title);
-    gtk_tooltips_set_tip(tooltips, window_title_te, 
-        "Enter the text to be prepended to the "
-        "window title.", NULL);
     g_object_set_data(G_OBJECT(main_vb), GUI_WINDOW_TITLE_KEY, window_title_te);
 
     /* Show 'em what we got */
