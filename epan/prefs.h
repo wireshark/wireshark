@@ -149,6 +149,7 @@ typedef struct _e_prefs {
   gchar   *capture_devices_descr;
   gchar   *capture_devices_hide;
   gboolean capture_prom_mode;
+  gboolean capture_pcap_ng;
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
