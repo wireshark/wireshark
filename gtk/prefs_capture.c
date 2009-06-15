@@ -108,6 +108,7 @@ capture_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
+	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Default device */
 	if_lb = gtk_label_new("Default interface:");
@@ -151,46 +152,41 @@ capture_prefs_show(void)
 
 	/* Promiscuous mode */
 	promisc_cb = create_preference_check_button(main_tb, row++,
-	    "Capture packets in promiscuous mode:", NULL,
-	    prefs.capture_prom_mode);
-	gtk_tooltips_set_tip(tooltips, promisc_cb,
+	    "Capture packets in promiscuous mode:",
 	    "Usually a network card will only capture the traffic sent to its own network address. "
 	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
-	    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
+	    "See the FAQ for some more details of capturing packets from a switched network. ",
+	    prefs.capture_prom_mode);
 	g_object_set_data(G_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
 	/* Pcap-NG format */
 	pcap_ng_cb = create_preference_check_button(main_tb, row++,
-	    "Capture packets in pcap-ng format:", NULL,
+	    "Capture packets in pcap-ng format:",
+	    "Capture packets in the next-generation capture file format. "
+	    "This is still experimental.",
 	    prefs.capture_pcap_ng);
-	gtk_tooltips_set_tip(tooltips, pcap_ng_cb,
-	     "Capture packets in the next-generation capture file format. "
-	     "This is still experimental.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), PCAP_NG_KEY, pcap_ng_cb);
 
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, row++,
-	    "Update list of packets in real time:", NULL,
+	    "Update list of packets in real time:",
+	    "Update the list of packets while capture is in progress. "
+	    "Don't use this option if you notice packet drops.",
 	    prefs.capture_real_time);
-	gtk_tooltips_set_tip(tooltips, sync_cb,
-        "Update the list of packets while capture is in progress. "
-        "Don't use this option if you notice packet drops.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
 	auto_scroll_cb = create_preference_check_button(main_tb, row++,
-	    "Automatic scrolling in live capture:", NULL,
+	    "Automatic scrolling in live capture:",
+	    "Automatic scrolling of the packet list while live capture is in progress. ",
 	    prefs.capture_auto_scroll);
-	gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
-        "Automatic scrolling of the packet list while live capture is in progress. ", NULL);
 	g_object_set_data(G_OBJECT(main_vb), AUTO_SCROLL_KEY, auto_scroll_cb);
 
 	/* Show capture info dialog */
 	show_info_cb = create_preference_check_button(main_tb, row++,
-	    "Hide capture info dialog:", NULL,
+	    "Hide capture info dialog:",
+	    "Hide the capture info dialog while capturing. ",
 	    !prefs.capture_show_info);
-	gtk_tooltips_set_tip(tooltips, show_info_cb,
-	    "Hide the capture info dialog while capturing. ", NULL);
 	g_object_set_data(G_OBJECT(main_vb), SHOW_INFO_KEY, show_info_cb);
 
 	/* Show 'em what we got */
