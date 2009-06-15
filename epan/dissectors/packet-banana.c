@@ -73,7 +73,7 @@ dissector_handle_t banana_handle;
 
 #define is_element(b) (b >= BE_LIST && b <= BE_PB)
 
-static value_string type_vals[] = {
+static const value_string type_vals[] = {
 	{ BE_LIST,			"List" },
 	{ BE_INT,			"Integer" },
 	{ BE_STRING,		"String" },
@@ -85,7 +85,7 @@ static value_string type_vals[] = {
 	{ 0, NULL }
 };
 
-static value_string pb_vals[] = {
+static const value_string pb_vals[] = {
 	{ 0x01,	"None" },
 	{ 0x02,	"class" },
 	{ 0x03,	"dereference" },
