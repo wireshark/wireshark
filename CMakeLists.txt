@@ -23,6 +23,11 @@
 
 project(wireshark C)
 
+subdirs(
+  wiretap
+  wsutil
+)
+
 set(dumpcap_LIBS
   wiretap
   wsutil
@@ -80,9 +85,6 @@ else(CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-DHAVE_CONFIG_H -D_U_=\"\")
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-
-subdirs(wiretap)
-
 #The minimum package list
 set(PACKAGELIST GLIB2 ZLIB PCAP LEX YACC ${PACKAGELIST})
 
@@ -137,6 +139,7 @@ check_include_file("dirent.h"            HAVE_DIRENT_H)
 check_include_file("dlfcn.h"             HAVE_DLFCN_H)
 check_include_file("fcntl.h"             HAVE_FCNTL_H)
 check_include_file("getopt.h"            NEED_GETOPT_H)
+check_include_file("grp.h"               HAVE_GRP_H)
 check_include_file("g_ascii_strtoull.h"  NEED_G_ASCII_STRTOULL_H)
 check_include_file("inet/aton.h"         NEED_INET_ATON_H)
 check_include_file("inttypes.h"          HAVE_INTTYPES_H)
@@ -145,6 +148,7 @@ check_include_file("memory.h"            HAVE_MEMORY_H)
 check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
 check_include_file("netdb.h"             HAVE_NETDB_H)
 check_include_file("portaudio.h"         HAVE_PORTAUDIO_H)
+check_include_file("pwd.h"               HAVE_PWD_H)
 check_include_file("stdarg.h"            HAVE_STDARG_H)
 check_include_file("stddef.h"            HAVE_STDDEF_H)
 check_include_file("stdint.h"            HAVE_STDINT_H)
@@ -229,11 +233,13 @@ ADD_CUSTOM_COMMAND(
 )
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
 
-if(BUILD_DUMPCAP)
-
+if(UNIX)
   set(DUMPCAP_PLATFORM_SRC 
       capture-pcap-util-unix.c
   )
+endif(UNIX)
+
+if(BUILD_DUMPCAP)
 
   set(DUMPCAP_FILES
 	svnversion.h

@@ -21,18 +21,23 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+IF(WIN32)
+  set(WSUTIL_PLATFORM_FILES
+    file_util.c
+    unicode-utils.c
+  )
+ENDIF(WIN32)
 
 set(WSUTIL_FILES
-	file_util.c
-	mpeg-audio.c
-	privileges.c
-	str_util.c
-	type_util.c
-	unicode-utils.c
+  mpeg-audio.c
+  privileges.c
+  str_util.c
+  type_util.c
+  ${WSUTIL_PLATFORM_FILES}
 )
 
 add_library(wsutil SHARED 
-	${WUTIL_FILES}
+  ${WSUTIL_FILES}
 )
 
 install(TARGETS wsutil LIBRARY DESTINATION lib)

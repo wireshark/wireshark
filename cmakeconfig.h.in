@@ -270,6 +270,12 @@
 /* Define if we are using version of of the Portaudio library API */
 #cmakedefine PORTAUDIO_API_1 1
 
+/* Define to 1 if you have the <pwd.h> header file. */
+#cmakedefine HAVE_PWD_H 1
+
+/* Define to 1 if you have the <grp.h> header file. */
+#cmakedefine HAVE_GRP_H 1
+
 /* Format for printing 64-bit unsigned hexadecimal numbers (upper-case) */
 #cmakedefine PRIX64 @PRIX64@
 
