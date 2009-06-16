@@ -58,10 +58,12 @@ print H "\n\n";
 
 
 print C '#include "wslua.h"' . "\n\n"; 
+print C "extern int luaopen_bit(lua_State *L);\n";
 print C "void wslua_register_classes(lua_State* L) { \n"; 
 for (@classes) {
 	print C "\t${_}_register(L);\n"
 }
+print C "\tluaopen_bit(L);\n";
 print C "}\n\n";
 
 

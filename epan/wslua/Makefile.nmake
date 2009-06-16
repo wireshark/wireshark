@@ -15,6 +15,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 MODULES = 	\
+	lua_bitop.c \
 	wslua_tvb.c \
 	wslua_proto.c \
 	wslua_tree.c \

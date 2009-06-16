@@ -30,6 +30,7 @@ INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
 noinst_LTLIBRARIES = libwslua.la
 
 wslua_modules = 	\
+	$(srcdir)/lua_bitop.c \
 	$(srcdir)/wslua_tvb.c \
 	$(srcdir)/wslua_proto.c \
 	$(srcdir)/wslua_tree.c \
