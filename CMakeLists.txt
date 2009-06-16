@@ -21,19 +21,15 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+
 project(wireshark C)
+
+cmake_minimum_required(VERSION 2.6)
 
 subdirs(
   wiretap
   wsutil
 )
-
-set(dumpcap_LIBS
-  wiretap
-  wsutil
-)
-
-cmake_minimum_required(VERSION 2.6)
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
@@ -64,9 +60,15 @@ endif(NOT LIBRARY_OUTPUT_PATH)
 
 option(BUILD_WIRESHARK   "Build the GUI version of Wireshark" ON)
 option(BUILD_TSHARK      "Build tshark" ON)
+option(BUILD_RAWSHARK    "Build rawshark" ON)
 option(BUILD_DUMPCAP     "Build dumpcap" ON)
+option(BUILD_TEXT2PCAP   "Build text2pcap" ON)
+option(BUILD_MERGECAP    "Build mergecap" ON)
+option(BUILD_EDITCAP     "Build editcap" ON)
+option(BUILD_CAPINFOS    "Build capinfos" ON)
+option(BUILD_dftest      "Build dftest" ON)
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
-option(ENABLE_ADNS	     "Build with adns support" ON)
+option(ENABLE_ADNS	 "Build with adns support" ON)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 
 if(ENABLE_EXTRA_GCC_CHECKS)
@@ -99,6 +101,8 @@ if(ENABLE_ADNS)
   set(HAVE_GNU_ADNS 1)
 endif(ENABLE_ADNS)
 
+set(PROGLIST TEXT2PCAP MERGECAP CAPINFOS EDITCAP DUMPCAP)
+
 #Let's loop the package list 
 foreach(PACKAGE ${PACKAGELIST})
   find_package(${PACKAGE} REQUIRED)
@@ -107,7 +111,9 @@ foreach(PACKAGE ${PACKAGELIST})
     set(HAVE_LIB${PACKAGE} "1")
     include_directories(${${PACKAGE}_INCLUDE_DIRS})
     message(STATUS "${PACKAGE} include ${${PACKAGE}_INCLUDE_DIRS}")
-    set(dumpcap_LIBS ${dumpcap_LIBS} ${${PACKAGE}_LIBRARIES})
+    foreach(PROG ${PROGLIST})
+#      set(${PROG}_LIBS ${${PROG}_LIBS} ${${PACKAGE}_LIBRARIES})
+    endforeach(PROG)
     message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
   endif (${PACKAGE}_FOUND)
 endforeach(PACKAGE)
@@ -234,13 +240,101 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
 
 if(UNIX)
-  set(DUMPCAP_PLATFORM_SRC 
-      capture-pcap-util-unix.c
+  set(PLATFORM_SRC 
+    capture-pcap-util-unix.c
   )
 endif(UNIX)
 
-if(BUILD_DUMPCAP)
+if(BUILD_WIRESHARK)
+# todo
+endif(BUILD_WIRESHARK)
 
+if(BUILD_TSHARK)
+# todo
+endif(BUILD_TSHARK)
+
+if(BUILD_RAWSHARK)
+# todo
+endif(BUILD_RAWSHARK)
+
+if(BUILD_TEXT2PCAP)
+  set(TEXT2PCAP_LIBS
+    wiretap
+    wsutil
+    ${GLIB2_LIBRARIES}
+  )
+  set(TEXT2PCAP_FILES
+    text2pcap.c
+  )
+  add_lex_files(TEXT2PCAP_FILES
+    text2pcap-scanner.l
+  )
+  add_executable(text2pcap ${TEXT2PCAP_FILES})
+  target_link_libraries(text2pcap ${TEXT2PCAP_LIBS})
+  install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(BUILD_TEXT2PCAP)
+
+if(BUILD_MERGECAP)
+  set(MERGECAP_LIBS
+    wiretap
+    wsutil
+    ${GLIB2_LIBRARIES}
+  )
+  set(MERGECAP_FILES
+    mergecap.c
+    merge.c
+    svnversion.h
+  )
+  add_executable(mergecap ${MERGECAP_FILES})
+  target_link_libraries(mergecap ${MERGECAP_LIBS})
+  install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(BUILD_MERGECAP)
+
+if(BUILD_CAPINFOS)
+  set(CAPINFOS_LIBS
+    wiretap
+    wsutil
+    ${GLIB2_LIBRARIES}
+  )
+  set(CAPINFOS_FILES
+    capinfos.c
+  )
+  add_executable(capinfos ${CAPINFOS_FILES})
+  target_link_libraries(capinfos ${CAPINFOS_LIBS})
+  install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(BUILD_CAPINFOS)
+
+if(BUILD_EDITCAP)
+  set(EDITCAP_LIBS
+    wiretap
+    wsutil
+    ${GLIB2_LIBRARIES}
+  )
+  set(EDITCAP_FILES
+    editcap.c
+    epan/crypt/crypt-md5.c
+    epan/nstime.c
+  )
+  add_executable(editcap ${EDITCAP_FILES})
+  target_link_libraries(editcap ${EDITCAP_LIBS})
+  install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(BUILD_EDITCAP)
+
+if(BUILD_RANDPKT)
+# todo
+endif(BUILD_RANDPKT)
+
+if(BUILD_DFTEST)
+# todo
+endif(BUILD_DFTEST)
+
+if(BUILD_DUMPCAP)
+  set(DUMPCAP_LIBS
+    wiretap
+    wsutil
+    ${GLIB2_LIBRARIES}
+    ${PCAP_LIBRARIES}
+  )
   set(DUMPCAP_FILES
 	svnversion.h
 	capture_opts.c
@@ -254,11 +348,9 @@ if(BUILD_DUMPCAP)
 	sync_pipe_write.c
 	tempfile.c
 	version_info.c
-	${DUMPCAP_PLATFORM_SRC}
+	${PLATFORM_SRC}
   )
-
   add_executable(dumpcap ${DUMPCAP_FILES})
-  target_link_libraries(dumpcap ${dumpcap_LIBS})
-  install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR})
-
+  target_link_libraries(dumpcap ${DUMPCAP_LIBS})
+  install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif(BUILD_DUMPCAP)
