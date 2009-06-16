@@ -1562,10 +1562,10 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	wblock.data.section.section_length = -1;
 
 	/* XXX - options unused */
-	wblock.data.section.opt_comment		= NULL;
-	wblock.data.section.shb_hardware	= NULL;
-	wblock.data.section.shb_os			= NULL;
-	wblock.data.section.shb_user_appl	= NULL;
+	wblock.data.section.opt_comment   = NULL;
+	wblock.data.section.shb_hardware  = NULL;
+	wblock.data.section.shb_os        = NULL;
+	wblock.data.section.shb_user_appl = NULL;
 
 	if (!pcapng_write_block(wdh, &wblock, err)) {
 		return FALSE;
