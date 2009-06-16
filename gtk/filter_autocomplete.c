@@ -805,6 +805,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   /* Enable sorting */
   filter_autocomplete_enable_sorting(model);
   
+  gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
   gtk_widget_size_request(list, &requisition);
 
   gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
