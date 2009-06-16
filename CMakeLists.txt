@@ -61,11 +61,11 @@ endif(NOT LIBRARY_OUTPUT_PATH)
 option(BUILD_WIRESHARK   "Build the GUI version of Wireshark" ON)
 option(BUILD_TSHARK      "Build tshark" ON)
 option(BUILD_RAWSHARK    "Build rawshark" ON)
-option(BUILD_DUMPCAP     "Build dumpcap" ON)
-option(BUILD_TEXT2PCAP   "Build text2pcap" ON)
-option(BUILD_MERGECAP    "Build mergecap" ON)
-option(BUILD_EDITCAP     "Build editcap" ON)
-option(BUILD_CAPINFOS    "Build capinfos" ON)
+option(BUILD_dumpcap     "Build dumpcap" ON)
+option(BUILD_text2pcap   "Build text2pcap" ON)
+option(BUILD_mergecap    "Build mergecap" ON)
+option(BUILD_editcap     "Build editcap" ON)
+option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_dftest      "Build dftest" ON)
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
 option(ENABLE_ADNS	 "Build with adns support" ON)
@@ -88,7 +88,7 @@ else(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 #The minimum package list
-set(PACKAGELIST GLIB2 ZLIB PCAP LEX YACC ${PACKAGELIST})
+set(PACKAGELIST GLIB2 ZLIB PCAP LEX YACC Perl ${PACKAGELIST})
 
 #build the gui ?
 if(BUILD_WIRESHARK)
@@ -101,7 +101,7 @@ if(ENABLE_ADNS)
   set(HAVE_GNU_ADNS 1)
 endif(ENABLE_ADNS)
 
-set(PROGLIST TEXT2PCAP MERGECAP CAPINFOS EDITCAP DUMPCAP)
+set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list 
 foreach(PACKAGE ${PACKAGELIST})
@@ -233,7 +233,7 @@ link_directories(
 
 ADD_CUSTOM_COMMAND(
    OUTPUT ${CMAKE_BINARY_DIR}/svnversion.h
-   COMMAND perl ${CMAKE_SOURCE_DIR}/make-version.pl
+   COMMAND ${PERL} ${CMAKE_SOURCE_DIR}/make-version.pl
    ARGS
    ${CMAKE_SOURCE_DIR}
 )
@@ -257,68 +257,68 @@ if(BUILD_RAWSHARK)
 # todo
 endif(BUILD_RAWSHARK)
 
-if(BUILD_TEXT2PCAP)
-  set(TEXT2PCAP_LIBS
+if(BUILD_text2pcap)
+  set(text2pcap_LIBS
     wiretap
     wsutil
     ${GLIB2_LIBRARIES}
   )
-  set(TEXT2PCAP_FILES
+  set(text2pcap_FILES
     text2pcap.c
   )
-  add_lex_files(TEXT2PCAP_FILES
+  add_lex_files(text2pcap_FILES
     text2pcap-scanner.l
   )
-  add_executable(text2pcap ${TEXT2PCAP_FILES})
-  target_link_libraries(text2pcap ${TEXT2PCAP_LIBS})
+  add_executable(text2pcap ${text2pcap_FILES})
+  target_link_libraries(text2pcap ${text2pcap_LIBS})
   install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_TEXT2PCAP)
+endif(BUILD_text2pcap)
 
-if(BUILD_MERGECAP)
-  set(MERGECAP_LIBS
+if(BUILD_mergecap)
+  set(mergecap_LIBS
     wiretap
     wsutil
     ${GLIB2_LIBRARIES}
   )
-  set(MERGECAP_FILES
+  set(mergecap_FILES
     mergecap.c
     merge.c
     svnversion.h
   )
-  add_executable(mergecap ${MERGECAP_FILES})
-  target_link_libraries(mergecap ${MERGECAP_LIBS})
+  add_executable(mergecap ${mergecap_FILES})
+  target_link_libraries(mergecap ${mergecap_LIBS})
   install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_MERGECAP)
+endif(BUILD_mergecap)
 
-if(BUILD_CAPINFOS)
-  set(CAPINFOS_LIBS
+if(BUILD_capinfos)
+  set(capinfos_LIBS
     wiretap
     wsutil
     ${GLIB2_LIBRARIES}
   )
-  set(CAPINFOS_FILES
+  set(capinfos_FILES
     capinfos.c
   )
-  add_executable(capinfos ${CAPINFOS_FILES})
-  target_link_libraries(capinfos ${CAPINFOS_LIBS})
+  add_executable(capinfos ${capinfos_FILES})
+  target_link_libraries(capinfos ${capinfos_LIBS})
   install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_CAPINFOS)
+endif(BUILD_capinfos)
 
-if(BUILD_EDITCAP)
-  set(EDITCAP_LIBS
+if(BUILD_editcap)
+  set(editcap_LIBS
     wiretap
     wsutil
     ${GLIB2_LIBRARIES}
   )
-  set(EDITCAP_FILES
+  set(editcap_FILES
     editcap.c
     epan/crypt/crypt-md5.c
     epan/nstime.c
   )
-  add_executable(editcap ${EDITCAP_FILES})
-  target_link_libraries(editcap ${EDITCAP_LIBS})
+  add_executable(editcap ${editcap_FILES})
+  target_link_libraries(editcap ${editcap_LIBS})
   install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_EDITCAP)
+endif(BUILD_editcap)
 
 if(BUILD_RANDPKT)
 # todo
@@ -328,14 +328,14 @@ if(BUILD_DFTEST)
 # todo
 endif(BUILD_DFTEST)
 
-if(BUILD_DUMPCAP)
-  set(DUMPCAP_LIBS
+if(BUILD_dumpcap)
+  set(dumpcap_LIBS
     wiretap
     wsutil
     ${GLIB2_LIBRARIES}
     ${PCAP_LIBRARIES}
   )
-  set(DUMPCAP_FILES
+  set(dumpcap_FILES
 	svnversion.h
 	capture_opts.c
 	capture-pcap-util.c
@@ -350,7 +350,7 @@ if(BUILD_DUMPCAP)
 	version_info.c
 	${PLATFORM_SRC}
   )
-  add_executable(dumpcap ${DUMPCAP_FILES})
-  target_link_libraries(dumpcap ${DUMPCAP_LIBS})
+  add_executable(dumpcap ${dumpcap_FILES})
+  target_link_libraries(dumpcap ${dumpcap_LIBS})
   install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_DUMPCAP)
+endif(BUILD_dumpcap)
