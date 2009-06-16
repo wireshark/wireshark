@@ -91,7 +91,7 @@ struct encap_type_info {
 
 static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_UNKNOWN */
-	{ "Unknown", NULL },
+	{ "Unknown", "unknown" },
 
 	/* WTAP_ENCAP_ETHERNET */
 	{ "Ethernet", "ether" },
@@ -489,8 +489,10 @@ int wtap_register_encap_type(char* name, char* short_name) {
 const char
 *wtap_encap_string(int encap)
 {
-	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
-		return NULL;
+	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
+		return "Illegal";
+	else if (encap == WTAP_ENCAP_PER_PACKET)
+		return "Per packet";
 	else
 		return encap_table[encap].name;
 }
@@ -499,8 +501,10 @@ const char
 const char
 *wtap_encap_short_string(int encap)
 {
-	if (encap < 0 || encap >= WTAP_NUM_ENCAP_TYPES)
-		return NULL;
+	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
+		return "illegal";
+	else if (encap == WTAP_ENCAP_PER_PACKET)
+		return "per-packet";
 	else
 		return encap_table[encap].short_name;
 }
