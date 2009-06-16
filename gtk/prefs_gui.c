@@ -193,59 +193,58 @@ gui_prefs_show(void)
         gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
         gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
         gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Packet list selection mode:", NULL, selection_mode_vals,
-	    prefs.gui_plist_sel_browse);
-	gtk_tooltips_set_tip(tooltips, plist_browse_om, "Choose to browse "
-		"or select a packet for detailed dissection.", NULL);
+	    "Packet list selection mode:", 
+	    "Choose to browse or select a packet for detailed dissection.",
+	    selection_mode_vals, prefs.gui_plist_sel_browse);
 	g_object_set_data(G_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY, plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Protocol tree selection mode:", NULL, selection_mode_vals,
-	    prefs.gui_ptree_sel_browse);
-	gtk_tooltips_set_tip(tooltips, ptree_browse_om, "Choose to browse "
-		"or select.", NULL);
+	    "Protocol tree selection mode:", 
+	    "Choose to browse or select.",
+	    selection_mode_vals, prefs.gui_ptree_sel_browse);
 	g_object_set_data(G_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
-	    "Save window position:", NULL, prefs.gui_geometry_save_position);
-	gtk_tooltips_set_tip(tooltips, save_position_cb, "Whether to save the "
-		"position of the main window.", NULL);
+	    "Save window position:", 
+	    "Whether to save the position of the main window.",
+	    prefs.gui_geometry_save_position);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb, pos++,
-	    "Save window size:", NULL, prefs.gui_geometry_save_size);
-	gtk_tooltips_set_tip(tooltips, save_size_cb, "Whether to save the "
-		"size of the main window.", NULL);
+	    "Save window size:", 
+	    "Whether to save the size of the main window.",
+	    prefs.gui_geometry_save_size);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_SIZE_KEY, save_size_cb);
 
 	save_maximized_cb = create_preference_check_button(main_tb, pos++,
-	    "Save maximized state:", NULL, prefs.gui_geometry_save_maximized);
-	gtk_tooltips_set_tip(tooltips, save_maximized_cb, "Whether to save the "
-		"maximized state of the main window.", NULL);
+	    "Save maximized state:", 
+	    "Whether to save the maximized state of the main window.",
+	    prefs.gui_geometry_save_maximized);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
 	macosx_style_cb = create_preference_check_button(main_tb, pos++,
-	    "MacOS X style", NULL, prefs.gui_macosx_style);
-	gtk_tooltips_set_tip(tooltips, macosx_style_cb, "Whether to create a "
-	   "MacOS X look and feel. Checking this box will move the menu bar to "
-           "the top of the screen instead of the top of the Wireshark window. "
-           "Requires a restart of Wireshark to take effect.", NULL);
+	    "MacOS X style", 
+	    "Whether to create a MacOS X look and feel. Checking this box will move the "
+	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
+	    "Requires a restart of Wireshark to take effect.",
+	    prefs.gui_macosx_style);
 	g_object_set_data(G_OBJECT(main_vb), MACOSX_STYLE_KEY, macosx_style_cb);
 #endif
 
 #ifdef _WIN32
 	/* How the console window should be opened */
 	console_open_om = create_preference_option_menu(main_tb, pos++,
-		"Open a console window", NULL, gui_console_open_vals, 
-		prefs.gui_console_open);
-	gtk_tooltips_set_tip(tooltips, console_open_om, "Whether to open a console window "
-		"(Automatic will open a console if messages appear).", NULL);
+	    "Open a console window", 
+	    "Whether to open a console window "
+	    "(Automatic will open a console if messages appear).",
+	    gui_console_open_vals, prefs.gui_console_open);
 	g_object_set_data(G_OBJECT(main_vb), GUI_CONSOLE_OPEN_KEY, console_open_om);
 #endif
 
@@ -253,14 +252,14 @@ gui_prefs_show(void)
 	 * by default */
 	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
 	    "\"File Open\" dialog behavior:", 
-        "Which directory the \"File Open\" dialog should start with.", gui_fileopen_vals,
-	    prefs.gui_fileopen_style);
+	    "Which directory the \"File Open\" dialog should start with.", 
+	    gui_fileopen_vals, prefs.gui_fileopen_style);
 
 	/* Directory to default File Open dialog to */
 	fileopen_dir_te = create_preference_entry(main_tb, pos++, 
-        "Directory:", NULL, prefs.gui_fileopen_dir);
-	gtk_tooltips_set_tip(tooltips, fileopen_dir_te,
-		"The \"File Open\" dialog defaults always to this directory.", NULL);
+	    "Directory:", 
+	    "The \"File Open\" dialog defaults always to this directory.",
+	    prefs.gui_fileopen_dir);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_KEY, fileopen_rb);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
 	g_signal_connect(fileopen_rb, "clicked", G_CALLBACK(fileopen_selected_cb), main_vb);
@@ -269,17 +268,19 @@ gui_prefs_show(void)
 
 	/* File Open dialog preview timeout */
 	fileopen_preview_te = create_preference_entry(main_tb, pos++,
-	    "\"File Open\" preview timeout:", "Timeout, until preview gives up scanning the capture file content.", open_file_preview_str);
+	    "\"File Open\" preview timeout:", 
+	    "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.",
+	    open_file_preview_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_fileopen_preview);
 	gtk_entry_set_text(GTK_ENTRY(fileopen_preview_te), current_val_str);
-	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, 
-        "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
 	g_signal_connect(fileopen_preview_te, "focus_out_event", G_CALLBACK(fileopen_preview_changed_cb), main_vb);
 
 	/* Number of recent entries in the display filter list ... */
 	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
-	    "Filter display max. list entries:", "Maximum number of recent entries in filter display list", recent_df_entries_max_str);
+	    "Filter display max. list entries:", 
+	    "Maximum number of recent entries in filter display list.",
+	    recent_df_entries_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_df_entries_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_df_entries_max_te), current_val_str);
 	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_DF_ENTRIES_KEY, recent_df_entries_max_te);
@@ -287,11 +288,11 @@ gui_prefs_show(void)
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
-	    "\"Open Recent\" max. list entries:", "Maximum number of recent files", recent_files_count_max_str);
+	    "\"Open Recent\" max. list entries:", 
+	    "Maximum number of entries in the \"File/Open Recent\" list.",
+	    recent_files_count_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_files_count_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
-	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, 
-        "Maximum number of entries in the \"File/Open Recent\" list.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	g_signal_connect(recent_files_count_max_te, "focus_out_event", G_CALLBACK(recent_files_count_changed_cb), main_vb);
 
@@ -299,40 +300,40 @@ gui_prefs_show(void)
 
 	/* ask for unsaved capture files? */
 	ask_unsaved_cb = create_preference_check_button(main_tb, pos++,
-	    "Ask for unsaved capture files:", NULL, prefs.gui_ask_unsaved);
-	gtk_tooltips_set_tip(tooltips, ask_unsaved_cb, "Whether a dialog should "
-		"pop up in case of an unsaved capture file.", NULL);
+	    "Ask for unsaved capture files:",
+	    "Whether a dialog should pop up in case of an unsaved capture file.",
+	    prefs.gui_ask_unsaved);
 	g_object_set_data(G_OBJECT(main_vb), GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
 
 	/* do we want to wrap when searching for data? */
 	find_wrap_cb = create_preference_check_button(main_tb, pos++,
-	    "Wrap to end/beginning of file during a find:", NULL, prefs.gui_find_wrap);
-	gtk_tooltips_set_tip(tooltips, find_wrap_cb, "Whether a search should "
-		"wrap in a capture file.", NULL);
+	    "Wrap to end/beginning of file during a find:", 
+	    "Whether a search should wrap in a capture file.",
+	    prefs.gui_find_wrap);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FIND_WRAP_KEY, find_wrap_cb);
 
 	/* show an explicit Save button for settings dialogs (preferences and alike)? */
 	use_pref_save_cb = create_preference_check_button(main_tb, pos++,
-	    "Settings dialogs show a save button:", NULL, prefs.gui_use_pref_save);
-	gtk_tooltips_set_tip(tooltips, use_pref_save_cb, 
-                "Whether the various settings dialogs (e.g. Preferences) should "
-		"use an explicit save button - for advanced users.", NULL);
+	    "Settings dialogs show a save button:",
+	    "Whether the various settings dialogs (e.g. Preferences) should "
+	    "use an explicit save button - for advanced users.",
+	    prefs.gui_use_pref_save);
 	g_object_set_data(G_OBJECT(main_vb), GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
 
 	/* Show version in welcome screen */
 	show_version_cb = create_preference_check_button(main_tb, pos++,
-	    "Welcome screen shows version:", NULL, prefs.gui_version_in_start_page );
-	gtk_tooltips_set_tip(tooltips, show_version_cb, 
-                "Whether version should be shown in the start page or not", NULL);
+	    "Welcome screen shows version:",
+	    "Whether version should be shown in the start page or not.",
+	    prefs.gui_version_in_start_page );
 	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_cb);
 
 	/* Webbrowser */
 	if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++, 
-            "Web browser command:", NULL, prefs.gui_webbrowser);
+                "Web browser command:",
+                "Command line to desired browser.",
+                prefs.gui_webbrowser);
 	    gtk_entry_set_text(GTK_ENTRY(webbrowser_te), prefs.gui_webbrowser);
-	    gtk_tooltips_set_tip(tooltips, webbrowser_te, "Command line to "
-	        "desired browser.", NULL);
 	    g_object_set_data(G_OBJECT(main_vb), GUI_WEBBROWSER_KEY, webbrowser_te);
 	}
 

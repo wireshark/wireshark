@@ -97,6 +97,7 @@ capture_prefs_show(void)
 	int		err;
 	int		row = 0;
 	GtkTooltips	*tooltips = gtk_tooltips_new();
+	gchar           *tooltips_text;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
@@ -131,8 +132,9 @@ capture_prefs_show(void)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, row, row+1);
-	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
-	    "The default interface to be captured from.", NULL);
+	tooltips_text = "The default interface to be captured from.";
+	gtk_tooltips_set_tip(tooltips, if_lb, tooltips_text, NULL);
+	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, tooltips_text, NULL);
 	gtk_widget_show(if_cb);
 	g_object_set_data(G_OBJECT(main_vb), DEVICE_KEY, if_cb);
 	row++;
@@ -144,8 +146,9 @@ capture_prefs_show(void)
 	gtk_widget_show(ifopts_lb);
 
 	ifopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
-	gtk_tooltips_set_tip(tooltips, ifopts_bt,
-	    "Open a dialog box to set various interface options.", NULL);
+	tooltips_text = "Open a dialog box to set various interface options.";
+	gtk_tooltips_set_tip(tooltips, ifopts_lb, tooltips_text, NULL);
+	gtk_tooltips_set_tip(tooltips, ifopts_bt, tooltips_text, NULL);
 	g_signal_connect(ifopts_bt, "clicked", G_CALLBACK(ifopts_edit_cb), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
 	row++;
