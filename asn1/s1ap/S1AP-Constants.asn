@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 version 8.5.1 (2009-04)
+-- 3GPP TS 36.413 V8.6.0 (2009-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -95,18 +95,16 @@ maxProtocolIEs						INTEGER ::= 65535
 
 maxNrOfCSGs								INTEGER ::= 256
 maxNrOfE-RABs							INTEGER ::= 256
-maxNrOfInterfaces						INTEGER ::= 3   --FFS
 maxnoofTAIs								INTEGER ::= 256
 maxnoofTACs								INTEGER ::= 256
 maxNrOfErrors							INTEGER ::= 256
 maxnoofBPLMNs							INTEGER ::= 6
-maxnoofPLMNsPerMME						INTEGER ::= 32 -- FFS
+maxnoofPLMNsPerMME						INTEGER ::= 32
 maxnoofEPLMNs							INTEGER ::= 15
 maxnoofEPLMNsPlusOne					INTEGER ::= 16
 maxnoofForbLACs							INTEGER ::= 4096		
 maxnoofForbTACs							INTEGER ::= 4096		
 maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
-maxnoofGUMMEIs							INTEGER ::= 256 -- FFS
 maxnoofCells							INTEGER ::= 16		
 maxnoofTAIforWarning					INTEGER ::= 65535 
 maxnoofCellID							INTEGER ::= 65535 
@@ -248,5 +246,8 @@ id-RRC-Establishment-Cause						ProtocolIE-ID ::= 134
 id-NASSecurityParametersfromE-UTRAN				ProtocolIE-ID ::= 135
 id-NASSecurityParameterstoE-UTRAN				ProtocolIE-ID ::= 136
 id-DefaultPagingDRX								ProtocolIE-ID ::= 137
+id-Source-ToTarget-TransparentContainer-Secondary			ProtocolIE-ID ::= 138
+id-Target-ToSource-TransparentContainer-Secondary			ProtocolIE-ID ::= 139
 END
+
 

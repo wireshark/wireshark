@@ -29,7 +29,6 @@ ProtocolError-IE-ContainerList
 E-RAB-IE-ContainerPairList
 Presence
 L3-Information
-M-TMSI
 NumberofBroadcast
 OldBSS-ToNewBSS-Information
 SourceBSS-ToTargetBSS-TransparentContainer
@@ -420,6 +419,8 @@ id-RRC-Establishment-Cause							ProtocolIE-ID
 id-NASSecurityParametersfromE-UTRAN					ProtocolIE-ID
 id-NASSecurityParameterstoE-UTRAN					ProtocolIE-ID
 id-DefaultPagingDRX									ProtocolIE-ID
+id-Source-ToTarget-TransparentContainer-Secondary	ProtocolIE-ID
+id-Target-ToSource-TransparentContainer-Secondary	ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -542,13 +543,15 @@ RRC-Establishment-Cause					N s1ap.ies id-RRC-Establishment-Cause
 NASSecurityParametersfromE-UTRAN		N s1ap.ies id-NASSecurityParametersfromE-UTRAN
 NASSecurityParameterstoE-UTRAN			N s1ap.ies id-NASSecurityParameterstoE-UTRAN
 PagingDRX								N s1ap.ies id-DefaultPagingDRX
+Source-ToTarget-TransparentContainer	N s1ap.ies id-Source-ToTarget-TransparentContainer-Secondary
+Target-ToSource-TransparentContainer	N s1ap.ies id-Target-ToSource-TransparentContainer-Secondary
 
 #S1AP-PROTOCOL-IES-PAIR
-#RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
-#RAB-SetupOrModifyItemSecond        N s1ap.ies.pair.second id-RAB-SetupOrModifyItem
+#RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
+#RAB-SetupOrModifyItemSecond			N s1ap.ies.pair.second id-RAB-SetupOrModifyItem
 
 #NBAP-PROTOCOL-EXTENSION
-#RAB-Parameters                     N s1ap.extension id-AlternativeRABConfiguration
+#RAB-Parameters							N s1ap.extension id-AlternativeRABConfiguration
 #Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N s1ap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
 
 #NBAP-ELEMENTARY-PROCEDURE

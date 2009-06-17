@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 version 8.5.1 (2009-04)
+-- 3GPP TS 36.413 V8.6.0 (2009-06)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -205,6 +205,7 @@ FROM S1AP-Containers
 	id-SONConfigurationTransferECT,
 	id-SONConfigurationTransferMCT,
 	id-Source-ToTarget-TransparentContainer,
+	id-Source-ToTarget-TransparentContainer-Secondary,
 	id-SourceMME-UE-S1AP-ID,
 	id-SRVCCOperationPossible,
 	id-SRVCCHOIndication,
@@ -215,6 +216,7 @@ FROM S1AP-Containers
 	id-TAIItem,
 	id-TAIList,
 	id-Target-ToSource-TransparentContainer,
+	id-Target-ToSource-TransparentContainer-Secondary,
 	id-TargetID,
 	id-TimeToWait,
 	id-TraceActivation,
@@ -289,10 +291,9 @@ HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	TYPE Direct-Forwarding-Path-Availability		PRESENCE optional } |
 	{ ID id-SRVCCHOIndication						CRITICALITY reject	TYPE	SRVCCHOIndication							PRESENCE optional }|
 	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer 	PRESENCE mandatory }|
-	{ ID id-Source-ToTarget-TransparentContainer 	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer 	PRESENCE optional }|
+	{ ID id-Source-ToTarget-TransparentContainer-Secondary 	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer 	PRESENCE optional }|
 	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2									PRESENCE  conditional }|
 	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3									PRESENCE conditional },
-
 	...
 }
 
@@ -317,7 +318,7 @@ HandoverCommandIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABSubjecttoDataForwardingList		CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList		 			PRESENCE optional	} |
 	{ ID id-E-RABtoReleaseListHOCmd					CRITICALITY ignore	TYPE E-RABList		 										PRESENCE optional	} |
 	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY	reject	TYPE Target-ToSource-TransparentContainer			PRESENCE mandatory }|
-	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY	reject	TYPE Target-ToSource-TransparentContainer			PRESENCE optional }|
+	{ ID id-Target-ToSource-TransparentContainer-Secondary	CRITICALITY	reject	TYPE Target-ToSource-TransparentContainer			PRESENCE optional }|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional	},
 	...
 }
@@ -366,7 +367,7 @@ HandoverPreparationFailureIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- HANDOVER RESOURCE ALLOCATION ELEMTARY PROCEDURE
+-- HANDOVER RESOURCE ALLOCATION ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -502,7 +503,7 @@ HandoverFailureIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- HANDOVER NOTIFICATION ELEMTARY PROCEDURE
+-- HANDOVER NOTIFICATION ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -527,7 +528,7 @@ HandoverNotifyIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- PATH SWITCH REQUEST ELEMTARY PROCEDURE
+-- PATH SWITCH REQUEST ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -634,7 +635,7 @@ PathSwitchRequestFailureIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- HANDOVER CANCEL ELEMTARY PROCEDURE
+-- HANDOVER CANCEL ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1067,6 +1068,13 @@ InitialContextSetupFailureIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
+-- PAGING ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+
+-- **************************************************************
+--
 -- Paging
 --
 -- **************************************************************
@@ -1270,7 +1278,8 @@ InitialUEMessage-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI						PRESENCE mandatory} |
 	{ ID id-RRC-Establishment-Cause		CRITICALITY ignore	TYPE RRC-Establishment-Cause		PRESENCE mandatory} |
 	{ ID id-S-TMSI						CRITICALITY reject	TYPE S-TMSI							PRESENCE optional} |
-	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional},
+	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional} |
+	{ ID id-GUMMEI-ID					CRITICALITY reject	TYPE GUMMEI							PRESENCE optional},
 	...
 }
 
@@ -1592,7 +1601,7 @@ MMEConfigurationUpdateFailureIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- DOWNLINK S1 CDMA2000 TUNNELING ELEMTARY PROCEDURE
+-- DOWNLINK S1 CDMA2000 TUNNELING ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1619,7 +1628,7 @@ DownlinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- UPLINK S1 CDMA2000 TUNNELING ELEMTARY PROCEDURE
+-- UPLINK S1 CDMA2000 TUNNELING ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1648,7 +1657,7 @@ UplinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- UE CAPABILITY INFO INDICATION PROCEDURE
+-- UE CAPABILITY INFO INDICATION ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1672,7 +1681,7 @@ UECapabilityInfoIndicationIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- eNB STATUS TRANSFER
+-- eNB STATUS TRANSFER ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1697,7 +1706,7 @@ ENBStatusTransferIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- MME STATUS TRANSFER
+-- MME STATUS TRANSFER ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1722,7 +1731,7 @@ MMEStatusTransferIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Trace Procedures
+-- TRACE ELEMENTARY PROCEDURES
 --
 -- **************************************************************
 -- **************************************************************
@@ -1788,7 +1797,7 @@ DeactivateTraceIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- CELL TRAFFIC TRACE PROCEDURE
+-- CELL TRAFFIC TRACE ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1814,7 +1823,7 @@ CellTrafficTraceIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- LOCATION ELEMENTARY PROCEDURE
+-- LOCATION ELEMENTARY PROCEDURES
 --
 -- **************************************************************
 
@@ -1876,7 +1885,7 @@ LocationReportIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- OVERLOAD ELEMENTARY PROCEDURE
+-- OVERLOAD ELEMENTARY PROCEDURES
 --
 -- **************************************************************
 
@@ -2072,5 +2081,6 @@ PrivateMessageIEs S1AP-PRIVATE-IES ::= {
 }
 
 END
+
 
 

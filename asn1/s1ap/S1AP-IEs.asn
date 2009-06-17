@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 version 8.5.1 (2009-04)
+-- 3GPP TS 36.413 V8.6.0 (2009-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -21,7 +21,6 @@ IMPORTS
 	id-Bearers-SubjectToStatusTransfer-Item,
 	maxNrOfCSGs,
 	maxNrOfE-RABs,
-	maxNrOfInterfaces,
 	maxNrOfErrors,
 	maxnoofBPLMNs,
 	maxnoofPLMNsPerMME,
@@ -31,7 +30,6 @@ IMPORTS
 	maxnoofForbLACs,
 	maxnoofForbTACs,
 	maxnoofTACs,
-	maxnoofGUMMEIs,
 	maxnoofCells,
 	maxnoofCellID,
 	maxnoofEmergencyAreaID,
@@ -102,15 +100,10 @@ BitRate	::= INTEGER (0..10000000000)
 
 BPLMNs ::= SEQUENCE (SIZE(1.. maxnoofBPLMNs)) OF PLMNidentity
 
-BroadcastCompletedAreaList ::= SEQUENCE {
+BroadcastCompletedAreaList ::= CHOICE {
 	cellID-Broadcast				CellID-Broadcast,
 	tAI-Broadcast					TAI-Broadcast,
 	emergencyAreaID-Broadcast		EmergencyAreaID-Broadcast,
-	iE-Extensions					ProtocolExtensionContainer { {BroadcastCompletedAreaList-ExtIEs} } OPTIONAL,
-	...
-}
-
-BroadcastCompletedAreaList-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -184,7 +177,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	s1-intra-system-handover-triggered,
 	s1-inter-system-handover-triggered,
 	x2-handover-triggered,
-	...
+	...,
+	redirection-towards-1xRTT
 
 }
 
@@ -292,8 +286,10 @@ CNDomain ::= ENUMERATED {
 }
 
 CSFallbackIndicator ::= ENUMERATED { 
-	cs-fallback-required, 
-	... 
+	cs-fallback-required,
+	cs-fallback-high-priority, 
+	...,
+	cs-fallback-high-priority 
 }
 
 CSG-Id		::= BIT STRING (SIZE (27))
@@ -452,6 +448,60 @@ EventType	::= ENUMERATED {
 	stop-change-of-serve-cell,
 	...
 }
+
+E-RAB-ID		::= INTEGER (0..15, ...)
+
+E-RABInformationList	::= SEQUENCE (SIZE (1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { { E-RABInformationListIEs } }
+
+E-RABInformationListIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABInformationListItem			CRITICALITY ignore	TYPE E-RABInformationListItem			PRESENCE mandatory	},
+	...
+}
+
+E-RABInformationListItem ::= SEQUENCE {
+	e-RAB-ID					E-RAB-ID,
+	dL-Forwarding					DL-Forwarding		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABInformationListItem-ExtIEs} }			OPTIONAL,
+	...
+}
+
+E-RABInformationListItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-RABList ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABItemIEs} }
+
+E-RABItemIEs 	S1AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABItem	 CRITICALITY ignore 	TYPE E-RABItem 	PRESENCE mandatory },
+	...
+}
+
+E-RABItem ::= SEQUENCE {
+	e-RAB-ID				E-RAB-ID,
+	cause						Cause,
+	iE-Extensions				ProtocolExtensionContainer { {E-RABItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+
+E-RABLevelQoSParameters ::= SEQUENCE {
+	qCI			QCI,
+	allocationRetentionPriority			AllocationAndRetentionPriority,
+	gbrQosInformation					GBR-QosInformation			OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {E-RABQoSParameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-RABQoSParameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 EUTRAN-CGI ::= SEQUENCE {
 	pLMNidentity			PLMNidentity,
@@ -736,7 +786,7 @@ ReportArea ::= ENUMERATED {
 	...
 }
 
-RepetitionPeriod ::= INTEGER (1..4096)
+RepetitionPeriod ::= INTEGER (0..4096)
 
 
 RNC-ID					::= INTEGER (0..4095)
@@ -754,71 +804,15 @@ RRC-Establishment-Cause ::= ENUMERATED {
 
 -- S
 
-E-RAB-ID		::= INTEGER (0..15, ...)
-
-E-RABInformationList	::= SEQUENCE (SIZE (1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { { E-RABInformationListIEs } }
-
-E-RABInformationListIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABInformationListItem			CRITICALITY ignore	TYPE E-RABInformationListItem			PRESENCE mandatory	},
-	...
-}
-
-E-RABInformationListItem ::= SEQUENCE {
-	e-RAB-ID					E-RAB-ID,
-	dL-Forwarding					DL-Forwarding		OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {E-RABInformationListItem-ExtIEs} }			OPTIONAL,
-	...
-}
-
-E-RABInformationListItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-E-RABList ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABItemIEs} }
-
-E-RABItemIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABItem	 CRITICALITY ignore 	TYPE E-RABItem 	PRESENCE mandatory },
-	...
-}
-
-E-RABItem ::= SEQUENCE {
-	e-RAB-ID				E-RAB-ID,
-	cause						Cause,
-	iE-Extensions				ProtocolExtensionContainer { {E-RABItem-ExtIEs} } OPTIONAL,
-	...
-}
-
-E-RABItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-
-
-
-E-RABLevelQoSParameters ::= SEQUENCE {
-	qCI			QCI,
-	allocationRetentionPriority			AllocationAndRetentionPriority,
-	gbrQosInformation					GBR-QosInformation			OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {E-RABQoSParameters-ExtIEs} } OPTIONAL,
-	...
-}
-
-E-RABQoSParameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-
-
-
 
 SecurityKey	::= BIT STRING (SIZE(256))
 
 
 
 SecurityContext ::= SEQUENCE {
-	nextHopParameter		INTEGER (0..7),
-	nextHopChainingCount							 SecurityKey,
-	iE-Extensions			ProtocolExtensionContainer { { SecurityContext-ExtIEs} } OPTIONAL,
+	nextHopChainingCount		INTEGER (0..7),
+	nextHopParameter			SecurityKey,
+	iE-Extensions				ProtocolExtensionContainer { { SecurityContext-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -943,6 +937,7 @@ SupportedTAs-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 S-TMSI ::= SEQUENCE {
 	mMEC	MME-Code,
+	m-TMSI	M-TMSI,
 	iE-Extensions		ProtocolExtensionContainer { {S-TMSI-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1182,6 +1177,7 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+
 
 
 
