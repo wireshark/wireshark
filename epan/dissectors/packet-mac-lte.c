@@ -757,8 +757,15 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Hide raw view of bytes */
         PROTO_ITEM_SET_HIDDEN(ti);
 
-        /* Call it */
-        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+        /* Call it (catch exceptions so that stats will be updated) */
+        /* TODO: couldn't avoid warnings for 'ti' by using volatile
+                 (with gcc 3.4.6)                                   */
+/*        TRY {                                                         */
+            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+/*        }                                                             */
+/*        CATCH_ALL {                                                   */
+/*        }                                                             */
+/*        ENDTRY                                                        */
     }
 
     /* Check that this *is* downlink! */
@@ -798,8 +805,13 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Hide raw view of bytes */
         PROTO_ITEM_SET_HIDDEN(ti);
 
-        /* Call it */
-        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+        /* Call it (catch exceptions so that stats will be updated) */
+        TRY {
+            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+        }
+        CATCH_ALL {
+        }
+        ENDTRY
     }
 
     /* Check that this *is* downlink! */
@@ -856,16 +868,16 @@ static int is_bsr_lcid(guint8 lcid)
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   int offset, guint8 direction,
+                                   volatile int offset, guint8 direction,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
-    guint8      extension;
-    guint8      n;
-    proto_item  *truncated_ti;
-    proto_item  *padding_length_ti;
+    guint8          extension;
+    volatile guint8 n;
+    proto_item      *truncated_ti;
+    proto_item      *padding_length_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
-    guint8  number_of_headers = 0;
+    volatile guint8 number_of_headers = 0;
     guint8  lcids[MAX_HEADERS_IN_PDU];
     gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
 
@@ -1109,9 +1121,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Data SDUs treated identically for Uplink or downlink channels */
         if (lcids[n] <= 10) {
             proto_item *sdu_ti;
-            guint16 data_length = (pdu_lengths[n] == -1) ?
-                                            tvb_length_remaining(tvb, offset) :
-                                            pdu_lengths[n];
+            volatile guint16 data_length = (pdu_lengths[n] == -1) ?
+                                                tvb_length_remaining(tvb, offset) :
+                                                pdu_lengths[n];
 
             /* Dissect SDU */
             sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
@@ -1129,7 +1141,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
 
                 /* Get appropriate dissector handle */
-                dissector_handle_t protocol_handle = 0;
+                volatile dissector_handle_t protocol_handle = 0;
                 if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
                     protocol_handle = find_dissector("lte-rrc.ul.ccch");
                 }
@@ -1140,8 +1152,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
 
-                /* Call it */
-                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+                /* Call it (catch exceptions so that stats will be updated) */
+                TRY {
+                    call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+                }
+                CATCH_ALL {
+                }
+                ENDTRY
             }
 
             offset += data_length;
