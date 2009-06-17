@@ -30,6 +30,7 @@ OBJECTS= \
 	init_wslua.obj \
 	register_wslua.obj \
 	taps_wslua.obj \
+	lua_bitop.obj \
 	wslua_dumper.obj \
 	wslua_field.obj \
 	wslua_gui.obj \
