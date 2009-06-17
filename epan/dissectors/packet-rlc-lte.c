@@ -894,7 +894,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /**************************************************/
     if (!is_data) {
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, "[CONTROL]");
+            col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
         }
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);

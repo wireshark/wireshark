@@ -1236,7 +1236,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                             bsr_ti = proto_tree_add_string_format(tree,
                                                                   hf_mac_lte_control_bsr,
-                                                                  tvb, offset, -1,
+                                                                  tvb, offset, 1,
                                                                   "",
                                                                   "BSR");
                             bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
@@ -1262,7 +1262,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_item *bsr_ti;
                             bsr_ti = proto_tree_add_string_format(tree,
                                                                   hf_mac_lte_control_bsr,
-                                                                  tvb, offset, -1,
+                                                                  tvb, offset, 3,
                                                                   "",
                                                                   "Long BSR");
                             bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
