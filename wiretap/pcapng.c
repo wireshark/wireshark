@@ -191,10 +191,11 @@ typedef struct wtapng_packet_s {
 	guint32				packet_len;     /* data length on the wire */
 	guint32				interface_id;   /* identifier of the interface. */
 	guint16				drops_count;    /* drops count, only valid for packet block */
+							/* 0xffff if information no available */
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
-	guint64				drop_count;	/* 0xFFFFFFFF if unknown */
-	guint32             pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
+	guint64				drop_count;
+	guint32				pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
 	/* pack_hash */
 
 	/* XXX - put the packet data / pseudo_header here as well? */
