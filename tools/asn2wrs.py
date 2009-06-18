@@ -4697,7 +4697,7 @@ class OctetStringType (Type):
       return '#' + self.type + '_' + str(id(self))
 
   def eth_ftype(self, ectx):
-    return ('FT_BYTES', 'BASE_HEX')
+    return ('FT_BYTES', 'BASE_NONE')
 
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OCTETSTRING')
@@ -5000,7 +5000,7 @@ class RelativeOIDType (Type):
     return 'RELATIVE_OID'
 
   def eth_ftype(self, ectx):
-    return ('FT_BYTES', 'BASE_HEX')
+    return ('FT_BYTES', 'BASE_NONE')
 
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_RELATIVE_OID')
@@ -5133,7 +5133,7 @@ class BitStringType (Type):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_BITSTRING')
 
   def eth_ftype(self, ectx):
-    return ('FT_BYTES', 'BASE_HEX')
+    return ('FT_BYTES', 'BASE_NONE')
 
   def eth_need_tree(self):
     return self.named_list
