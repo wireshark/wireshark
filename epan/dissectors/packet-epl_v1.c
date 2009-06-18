@@ -373,174 +373,174 @@ proto_register_epl_v1(void)
         { &hf_epl_v1_service,
             { "Service",           "epl_v1.service",
             FT_UINT8, BASE_DEC, VALS(service_vals), 0x7F,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_dest,
             { "Destination",           "epl_v1.dest",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_src,
             { "Source",           "epl_v1.src",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /* SoC data fields*/
         { &hf_epl_v1_soc_ms,
             { "MS (Multiplexed Slot)", "epl_v1.soc.ms",
             FT_UINT8, BASE_DEC, NULL, 0x80,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_soc_ps,
             { "PS (Prescaled Slot)",           "epl_v1.soc.ps",
             FT_UINT8, BASE_DEC, NULL, 0x40,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_soc_net_command,
             { "Net Command",           "epl_v1.soc.netcommand",
             FT_UINT16, BASE_DEC, VALS(soc_net_command_vals), 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_soc_net_time,
             { "Net Time",           "epl_v1.soc.nettime",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_soc_powerlink_cycle_time,
             { "Cycle Time",           "epl_v1.soc.cycletime",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_soc_net_command_parameter,
             { "Net Command Parameter",           "epl_v1.soc.netcommand.parameter",
-            FT_BYTES, BASE_HEX, NULL, 0x0,
-            "", HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         /* PReq data fields*/
         { &hf_epl_v1_preq_ms,
             { "MS (Multiplexed Slot)", "epl_v1.preq.ms",
             FT_UINT8, BASE_DEC, NULL, 0x20,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_preq_rd,
             { "RD (Ready)",           "epl_v1.preq.rd",
             FT_UINT8, BASE_DEC, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_preq_poll_size_out,
             { "Poll Size OUT",           "epl_v1.preq.pollsize",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_preq_out_data,
             { "OUT Data",           "epl_v1.preq.data",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
         },
         /* PRes data fields*/
         { &hf_epl_v1_pres_ms,
             { "MS (Multiplexed)",   "epl_v1.pres.ms",
             FT_UINT8, BASE_DEC, NULL, 0x20,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_ex,
             { "EX (Exception)",     "epl_v1.pres.ex",
             FT_UINT8, BASE_DEC, NULL, 0x10,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_rs,
             { "RS (Request to Send)",  "epl_v1.pres.rs",
             FT_UINT8, BASE_DEC, NULL, 0x08,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_wa,
             { "WA (Warning)",  "epl_v1.pres.wa",
             FT_UINT8, BASE_DEC, NULL, 0x04,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_er,
             { "ER (Error)",    "epl_v1.pres.er",
             FT_UINT8, BASE_DEC, NULL, 0x02,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_rd,
             { "RD (Ready)",    "epl_v1.pres.rd",
             FT_UINT8, BASE_DEC, NULL, 0x01,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_poll_size_in,
             { "Poll Size IN",           "epl_v1.pres.pollsize",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_pres_in_data,
             { "IN Data",           "epl_v1.pres.data",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
         },
         /* EoC data fields*/
         { &hf_epl_v1_eoc_net_command,
             { "Net Command",           "epl_v1.eoc.netcommand",
             FT_UINT16, BASE_DEC, VALS(eoc_net_command_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_eoc_net_command_parameter,
             { "Net Command Parameter",           "epl_v1.soa.netcommand.parameter",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
         },
         /* AInv data fields*/
         { &hf_epl_v1_ainv_channel,
             { "Channel",           "epl_v1.ainv.channel",
             FT_UINT8, BASE_DEC, VALS(ainv_channel_number_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         /* ASnd data fields*/
         { &hf_epl_v1_asnd_channel,
             { "Channel",           "epl_v1.asnd.channel",
             FT_UINT8, BASE_DEC, VALS(asnd_channel_number_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_size,
             { "Size",           "epl_v1.asnd.size",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_data,
             { "Data",           "epl_v1.asnd.data",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
         },
 
         { &hf_epl_v1_asnd_node_id,
             { "NodeID",           "epl_v1.asnd.node_id",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_hardware_revision,
             { "Hardware Revision",           "epl_v1.asnd.hardware.revision",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_firmware_version,
             { "Firmware Version",           "epl_v1.asnd.firmware.version",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_device_variant,
             { "Device Variant",           "epl_v1.asnd.device.variant",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_poll_in_size,
             { "Poll IN Size",           "epl_v1.asnd.poll.in.size",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_epl_v1_asnd_poll_out_size,
             { "Poll OUT Size",           "epl_v1.asnd.poll.out.size",
             FT_UINT32, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
     };
 

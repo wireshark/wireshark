@@ -373,7 +373,7 @@ proto_register_xot(void)
 
 		{ &hf_x25_type,
 			{ "Packet Type", "x.25.type", FT_UINT8, BASE_HEX,
-			VALS(vals_x25_type), 0x0, "Packet Type", HFILL }},
+			VALS(vals_x25_type), 0x0, NULL, HFILL }},
 
 		{ &hf_xot_pvc_version,
 			{ "Version", "xot.pvc.version", FT_UINT8, BASE_HEX,

@@ -88,11 +88,11 @@ proto_register_mesh(void)
   static hf_register_info hf[] = {
     { &hf_mesh_ttl,
       { "Mesh TTL", "mesh.ttl", FT_UINT8, BASE_DEC,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_mesh_e2eseq,
       { "Mesh End-to-end Seq", "mesh.e2eseq", FT_UINT16, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
   };
 
   /* Setup protocol subtree array */

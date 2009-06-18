@@ -92,8 +92,8 @@ void proto_register_echo(void)
   static hf_register_info hf[] = {
     { &hf_echo_data,
       { "Echo data",	"echo.data", 
-	FT_BYTES,	BASE_HEX,	NULL,	0x0,
-      	"Echo data", HFILL }},
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	NULL, HFILL }},
     { &hf_echo_request,
       { "Echo request",	"echo.request", 
 	FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,

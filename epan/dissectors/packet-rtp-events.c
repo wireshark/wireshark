@@ -168,7 +168,7 @@ proto_register_rtp_events(void)
 				BASE_DEC,
 				VALS(rtp_event_type_values),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -180,7 +180,7 @@ proto_register_rtp_events(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -192,7 +192,7 @@ proto_register_rtp_events(void)
 				8,
 				NULL,
 				0x40,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -204,7 +204,7 @@ proto_register_rtp_events(void)
 				BASE_DEC,
 				NULL,
 				0x3F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -217,7 +217,7 @@ proto_register_rtp_events(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 

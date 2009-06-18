@@ -61,7 +61,7 @@ proto_register_mgmt (void)
 	static hf_register_info hf[] = {
 		{ &hf_opnum,
 		  { "Operation", "mgmt.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

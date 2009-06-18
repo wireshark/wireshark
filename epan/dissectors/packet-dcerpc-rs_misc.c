@@ -103,16 +103,16 @@ proto_register_rs_misc (void)
 	static hf_register_info hf[] = {
 	{ &hf_rs_misc_opnum,
 		{ "Operation", "rs_misc.opnum", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Operation", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_misc_login_get_info_rqst_var,
 		{ "Var", "rs_misc.login_get_info_rqst_var", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_misc_login_get_info_rqst_key_size,
 		{ "Key Size", "rs_misc.login_get_info_rqst_key_size", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_misc_login_get_info_rqst_key_t,
 		{ "Key", "rs.misc_login_get_info_rqst_key_t", FT_STRING, BASE_NONE,
-		NULL, 0x0, "", HFILL }}
+		NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -144,52 +144,52 @@ proto_register_idp(void)
 	static hf_register_info hf_idp[] = {
 		{ &hf_idp_checksum,
 		    { "Checksum",	"idp.checksum", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_src,
-		    { "Source Address",	"idp.src", FT_STRING, BASE_DEC,
-			NULL, 0x0, "Source Address", HFILL }},
+		    { "Source Address",	"idp.src", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_dst,
-		    { "Destination Address",	"idp.dst", FT_STRING, BASE_DEC,
-			NULL, 0x0,  "Destination Address", HFILL }},
+		    { "Destination Address",	"idp.dst", FT_STRING, BASE_NONE,
+			NULL, 0x0,  NULL, HFILL }},
 
 		{ &hf_idp_len,
 		    { "Length",		"idp.len", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		/* XXX - does this have separate hop count and time subfields? */
 		{ &hf_idp_hops,
 		    { "Transport Control (Hops)", "idp.hops", FT_UINT8, BASE_DEC,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_packet_type,
 		    { "Packet Type",	"idp.packet_type", FT_UINT8, BASE_DEC,
-			VALS(idp_packet_type_vals), 0x0, "", HFILL }},
+			VALS(idp_packet_type_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_idp_dnet,
 		    { "Destination Network","idp.dst.net", FT_UINT32, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_dnode,
 		    { "Destination Node",	"idp.dst.node", FT_ETHER, BASE_NONE,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_dsocket,
 		    { "Destination Socket",	"idp.dst.socket", FT_UINT16, BASE_HEX,
-			VALS(idp_socket_vals), 0x0, "", HFILL }},
+			VALS(idp_socket_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_idp_snet,
 		    { "Source Network","idp.src.net", FT_UINT32, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_snode,
 		    { "Source Node",	"idp.src.node", FT_ETHER, BASE_NONE,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_idp_ssocket,
 		    { "Source Socket",	"idp.src.socket", FT_UINT16, BASE_HEX,
-			VALS(idp_socket_vals), 0x0, "", HFILL }},
+			VALS(idp_socket_vals), 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

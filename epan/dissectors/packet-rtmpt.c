@@ -468,7 +468,7 @@ proto_register_rtmpt(void)
       { "Caller source", "rtmpt.header.caller", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT Header caller source", HFILL }},
 
    { &hf_rtmpt_handshake_data,
-      { "Handshake data", "rtmpt.header.handshake", FT_BYTES, BASE_HEX, NULL, 0x0, "RTMPT Header handshake data", HFILL }},
+      { "Handshake data", "rtmpt.header.handshake", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Header handshake data", HFILL }},
 
    { &hf_rtmpt_amf_type,
       { "AMF type", "rtmpt.amf.type", FT_UINT8, BASE_DEC, VALS(rtmpt_type_vals), 0x0, "RTMPT AMF type", HFILL }},
@@ -480,7 +480,7 @@ proto_register_rtmpt(void)
       { "AMF boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
    { &hf_rtmpt_amf_string,
-      { "AMF string", "rtmpt.amf.string", FT_STRINGZ, BASE_DEC, NULL, 0x0, "RTMPT AMF string", HFILL }}
+      { "AMF string", "rtmpt.amf.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RTMPT AMF string", HFILL }}
 
 
   };

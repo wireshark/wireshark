@@ -326,7 +326,7 @@ proto_register_bvlc(void)
 		{ &hf_bvlc_type,
 			{ "Type",           "bvlc.type",
 			FT_UINT8, BASE_HEX, VALS(bvlc_types), 0,
-			"Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bvlc_function,
 			{ "Function",           "bvlc.function",
@@ -357,7 +357,7 @@ proto_register_bvlc(void)
 		},
 		{ &hf_bvlc_bdt_mask,
 			{ "Mask",           "bvlc.bdt_mask",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"BDT Broadcast Distribution Mask", HFILL }
 		},
 		{ &hf_bvlc_reg_ttl,

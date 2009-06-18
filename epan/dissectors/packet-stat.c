@@ -283,30 +283,30 @@ proto_register_stat(void)
 	static hf_register_info hf[] = {
 		{ &hf_stat_procedure_v1, {
 			"V1 Procedure", "stat.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(stat1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(stat1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_stat_mon_name, {
-			"Name", "stat.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name", HFILL }},
+			"Name", "stat.name", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_stat_stat_res, {
-			"Status Result", "stat.stat_res", FT_NONE,0,
-			NULL, 0, "Status Result", HFILL }},
+			"Status Result", "stat.stat_res", FT_NONE,BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_stat_stat_res_res, {
 			"Result", "stat.stat_res.res", FT_UINT32, BASE_DEC,
-			VALS(stat_res), 0, "Result", HFILL }},
+			VALS(stat_res), 0, NULL, HFILL }},
 		{ &hf_stat_stat_res_state, {
 			"State", "stat.stat_res.state", FT_UINT32, BASE_DEC,
-			NULL, 0, "State", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_stat_mon, {
-			"Monitor", "stat.mon", FT_NONE, 0,
+			"Monitor", "stat.mon", FT_NONE, BASE_NONE,
 			NULL, 0, "Monitor Host", HFILL }},
 		{ &hf_stat_mon_id_name, {
-			"Monitor ID Name", "stat.mon_id.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Monitor ID Name", HFILL }},
+			"Monitor ID Name", "stat.mon_id.name", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_stat_my_id, {
-			"My ID", "stat.my_id", FT_NONE,0,
+			"My ID", "stat.my_id", FT_NONE,BASE_NONE,
 			NULL, 0, "My_ID structure", HFILL }},
 		{ &hf_stat_my_id_hostname, {
-			"Hostname", "stat.my_id.hostname", FT_STRING, BASE_DEC,
+			"Hostname", "stat.my_id.hostname", FT_STRING, BASE_NONE,
 			NULL, 0, "My_ID Host to callback", HFILL }},
 		{ &hf_stat_my_id_prog, {
 			"Program", "stat.my_id.prog", FT_UINT32, BASE_DEC,
@@ -318,13 +318,13 @@ proto_register_stat(void)
 			"Procedure", "stat.my_id.proc", FT_UINT32, BASE_DEC,
 			NULL, 0, "My_ID Procedure to callback", HFILL }},
 		{ &hf_stat_priv, {
-			"Priv", "stat.priv", FT_BYTES, BASE_HEX,
+			"Priv", "stat.priv", FT_BYTES, BASE_NONE,
 			NULL, 0, "Private client supplied opaque data", HFILL }},
 		{ &hf_stat_state, {
 			"State", "stat.state", FT_UINT32, BASE_DEC,
 			NULL, 0, "State of local NSM", HFILL }},
 		{ &hf_stat_stat_chge, {
-			"Status Change", "stat.stat_chge", FT_NONE, 0,
+			"Status Change", "stat.stat_chge", FT_NONE, BASE_NONE,
 			NULL, 0, "Status Change structure", HFILL }},
 	};
 

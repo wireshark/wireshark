@@ -135,19 +135,19 @@ proto_register_rs_acct (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_acct_opnum,
-		{ "Operation", "rs_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_lookup_rqst_var,
-		{ "Var", "rs_acct.lookup_rqst_var", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Var", "rs_acct.lookup_rqst_var", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_lookup_rqst_key_size,
-		{ "Key Size", "rs_acct.lookup_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Key Size", "rs_acct.lookup_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_lookup_rqst_key_t,
-		{ "Key", "rs_lookup.get_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "Key", "rs_lookup.get_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_var1,
-		{ "Var1", "rs_acct.get_projlist_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Var1", "rs_acct.get_projlist_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_key_size,
-		{ "Var1", "rs_acct.get_projlist_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Var1", "rs_acct.get_projlist_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_key_t,
-		{ "Var1", "rs_acct.get_projlist_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ "Var1", "rs_acct.get_projlist_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -449,7 +449,7 @@ proto_register_rfc2190(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Horizontal motion vector predictor for the first MB in this packet ", HFILL
+				"Horizontal motion vector predictor for the first MB in this packet", HFILL
 			}
 		},
 		{
@@ -461,7 +461,7 @@ proto_register_rfc2190(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Vertical motion vector predictor for the first MB in this packet ", HFILL
+				"Vertical motion vector predictor for the first MB in this packet", HFILL
 			}
 		},
 		{

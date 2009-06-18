@@ -364,7 +364,7 @@ proto_register_lsc(void)
     { &hf_lsc_trans_id,
       { "Transaction ID", "lsc.trans_id",
         FT_UINT8, BASE_DEC, NULL, 0,          
-        "Transaction ID", HFILL }
+        NULL, HFILL }
     },
     { &hf_lsc_op_code,
       { "Op Code", "lsc.op_code",
@@ -374,7 +374,7 @@ proto_register_lsc(void)
     { &hf_lsc_status_code,
       { "Status Code", "lsc.status_code",
         FT_UINT8, BASE_HEX, VALS(status_code_vals), 0,          
-        "Status Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_lsc_stream_handle,
       { "Stream Handle", "lsc.stream_handle",
@@ -399,12 +399,12 @@ proto_register_lsc(void)
     { &hf_lsc_scale_num,
       { "Scale Numerator", "lsc.scale_num",
         FT_INT16, BASE_DEC, NULL, 0,          
-        "Scale Numerator", HFILL }
+        NULL, HFILL }
     },
     { &hf_lsc_scale_denom,
       { "Scale Denominator", "lsc.scale_denum",
         FT_UINT16, BASE_DEC, NULL, 0,          
-        "Scale Denominator", HFILL }
+        NULL, HFILL }
     },
     { &hf_lsc_mode,
       { "Server Mode", "lsc.mode",

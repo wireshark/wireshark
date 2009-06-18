@@ -541,12 +541,12 @@ proto_register_eth(void)
 
 		{ &hf_eth_len,
 		{ "Length",		"eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		/* registered here but handled in packet-ethertype.c */
 		{ &hf_eth_type,
 		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 		{ &hf_eth_addr,
 		{ "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"Source or Destination Hardware Address", HFILL }},

@@ -362,11 +362,11 @@ proto_register_cups(void)
 		/* This one could be split in separate fields. */
 		{ &hf_cups_ptype,
 			{ "Type", 	"cups.ptype", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, "", HFILL }},
+			  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_cups_state,
 			{ "State",	"cups.state", FT_UINT8, BASE_HEX,
-			  VALS(cups_state_values), 0x0, "", HFILL }}
+			  VALS(cups_state_values), 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

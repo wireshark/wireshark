@@ -949,52 +949,52 @@ void
 isis_register_hello(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_hello_circuit_reserved,
-		{ "Circuit type              ", "isis.hello.circuit_type",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "Circuit type", "isis.hello.circuit_type",
+			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_source_id,
-		{ "SystemID{ Sender of PDU } ", "isis.hello.source_id",
-			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "SystemID{ Sender of PDU }", "isis.hello.source_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_holding_timer,
-		{ "Holding timer             ", "isis.hello.holding_timer",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Holding timer", "isis.hello.holding_timer",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_pdu_length,
-		{ "PDU length                ", "isis.hello.pdu_length",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "PDU length", "isis.hello.pdu_length",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_priority_reserved,
-		 { "Priority                 ", "isis.hello.priority",
-			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, "", HFILL }},
+		 { "Priority", "isis.hello.priority",
+			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, NULL, HFILL }},
 
 		{ &hf_isis_hello_lan_id,
-		{ "SystemID{ Designated IS } ", "isis.hello.lan_id",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "SystemID{ Designated IS }", "isis.hello.lan_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_local_circuit_id,
-		{ "Local circuit ID          ", "isis.hello.local_circuit_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Local circuit ID", "isis.hello.local_circuit_id",
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_ipv4_int_addr,
-		{ "IPv4 interface address    ", "isis.hello.clv_ipv4_int_addr",
-			FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "IPv4 interface address", "isis.hello.clv_ipv4_int_addr",
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_ipv6_int_addr,
-		{ "IPv6 interface address    ", "isis.hello.clv_ipv6_int_addr",
-			FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "IPv6 interface address", "isis.hello.clv_ipv6_int_addr",
+			FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_ptp_adj,
-		{ "Point-to-point Adjacency  ", "isis.hello.clv_ptp_adj",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Point-to-point Adjacency", "isis.hello.clv_ptp_adj",
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_mt,
-		{ "MT-ID                     ", "isis.hello.clv_mt",
-			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "MT-ID", "isis.hello.clv_mt",
+			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags,
-		{ "Restart Signaling Flags   ", "isis.hello.clv_restart_flags",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "Restart Signaling Flags", "isis.hello.clv_restart_flags",
+			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags_rr,
 		{ "Restart Request", "isis.hello.clv_restart_flags.rr",
@@ -1018,7 +1018,7 @@ isis_register_hello(int proto_isis) {
 
 		{ &hf_isis_hello_clv_restart_neighbor,
 		{ "Restarting Neighbor ID", "isis.hello.clv_restart.neighbor",
-			FT_BYTES, BASE_DEC, NULL, 0x0, 
+			FT_BYTES, BASE_NONE, NULL, 0x0, 
 			"The System ID of the restarting neighbor", HFILL }}
 	};
 	static gint *ett[] = {

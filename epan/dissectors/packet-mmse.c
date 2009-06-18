@@ -1347,8 +1347,7 @@ proto_register_mmse(void)
 	{   &hf_mmse_transaction_id,
 	    {   "X-Mms-Transaction-ID", "mmse.transaction_id",
 		FT_STRING, BASE_NONE, NULL, 0x00,
-		"A unique identifier for this transaction. "
-		"Identifies request and corresponding response only.",
+		"A unique identifier for this transaction. Identifies request and corresponding response only.",
 		HFILL
 	    }
 	},

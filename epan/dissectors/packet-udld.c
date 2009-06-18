@@ -250,35 +250,35 @@ proto_register_udld(void)
     static hf_register_info hf[] = {
 	{ &hf_udld_version,
 	{ "Version",		"udld.version",  FT_UINT8, BASE_DEC, NULL, 0xE0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_opcode,
 	{ "Opcode",		"udld.opcode", FT_UINT8, BASE_DEC, VALS(opcode_vals), 0x1F,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_flags,
 	{ "Flags",		"udld.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_flags_rt,
 	{ "Recommended timeout",		"udld.flags.rt", FT_UINT8, BASE_HEX, NULL, 0x80,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_flags_rsy,
 	{ "ReSynch",		"udld.flags.rsy", FT_UINT8, BASE_HEX, NULL, 0x40,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_checksum,
 	{ "Checksum",		"udld.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_tlvtype,
 	{ "Type",		"udld.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_udld_tlvlength,
 	{ "Length",		"udld.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "", HFILL }}
+	  NULL, HFILL }}
     };
     static gint *ett[] = {
 	&ett_udld,

@@ -63,7 +63,7 @@ proto_register_nfsauth(void)
 	static hf_register_info hf[] = {
 		{ &hf_nfsauth_procedure_v1, {
 			"V1 Procedure", "nfsauth.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(nfsauth1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(nfsauth1_proc_vals), 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

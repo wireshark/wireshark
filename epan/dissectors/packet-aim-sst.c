@@ -160,22 +160,22 @@ proto_register_aim_sst(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
 	  { &hf_aim_sst_md5_hash,
-		  { "MD5 Hash", "aim_sst.md5", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+		  { "MD5 Hash", "aim_sst.md5", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 	  }, 
 	  { &hf_aim_sst_md5_hash_size,
-		  { "MD5 Hash Size", "aim_sst.md5.size", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL },
+		  { "MD5 Hash Size", "aim_sst.md5.size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_aim_sst_unknown,
-		  { "Unknown Data", "aim_sst.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+		  { "Unknown Data", "aim_sst.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_aim_sst_ref_num,
-		  { "Reference Number", "aim_sst.ref_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		  { "Reference Number", "aim_sst.ref_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_aim_sst_icon_size,
-		  { "Icon Size", "aim_sst.icon_size", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+		  { "Icon Size", "aim_sst.icon_size", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_aim_sst_icon,
-		  { "Icon", "aim_sst.icon", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+		  { "Icon", "aim_sst.icon", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 	  },
   };
 

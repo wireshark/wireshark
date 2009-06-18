@@ -434,14 +434,14 @@ void
 proto_register_sscop(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_sscop_type, { "PDU Type", "sscop.type", FT_UINT8, BASE_HEX,	VALS(sscop_type_vals), SSCOP_TYPE_MASK, "", HFILL }},
-		{ &hf_sscop_sq, { "N(SQ)", "sscop.sq", FT_UINT8, BASE_DEC,	NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_mr, { "N(MR)", "sscop.mr", FT_UINT24, BASE_DEC,	NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_s, { "N(S)", "sscop.s", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }},
-		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }}
+		{ &hf_sscop_type, { "PDU Type", "sscop.type", FT_UINT8, BASE_HEX,	VALS(sscop_type_vals), SSCOP_TYPE_MASK, NULL, HFILL }},
+		{ &hf_sscop_sq, { "N(SQ)", "sscop.sq", FT_UINT8, BASE_DEC,	NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_mr, { "N(MR)", "sscop.mr", FT_UINT24, BASE_DEC,	NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_s, { "N(S)", "sscop.s", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,NULL, HFILL }},
+		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }}
 	};
 
   static gint *ett[] = {

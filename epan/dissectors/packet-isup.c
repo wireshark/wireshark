@@ -8287,7 +8287,7 @@ proto_register_bicc(void)
 		{ &hf_bicc_cic,
 			{ "Call identification Code (CIC)",           "bicc.cic",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
-			  "", HFILL }},
+			  NULL, HFILL }},
 	};
 
 /* Setup protocol subtree array */

@@ -1254,7 +1254,7 @@ void proto_register_synphasor(void)
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_soc,
-		{ "SOC time stamp (UTC)", PROTOCOL_ABBREV ".soc", FT_STRINGZ, BASE_HEX,
+		{ "SOC time stamp (UTC)", PROTOCOL_ABBREV ".soc", FT_STRINGZ, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
 		/* Time quality flags in fracsec */

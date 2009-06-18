@@ -542,27 +542,27 @@ void
 proto_register_m2pa(void)
 {
   static hf_register_info hf[] =
-  { { &hf_version,      { "Version",        "m2pa.version",        FT_UINT8,  BASE_DEC,  VALS(protocol_version_values), 0x0,                 "", HFILL} },
-    { &hf_spare,        { "Spare",          "m2pa.spare",          FT_UINT8,  BASE_HEX,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_v2_type,      { "Message Type",   "m2pa.type",           FT_UINT16, BASE_HEX,  VALS(v2_message_type_values),  0x0,                 "", HFILL} },
-    { &hf_v8_type,      { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v8_message_type_values),  0x0,                 "", HFILL} },
-    { &hf_v12_type,     { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v12_message_type_values), 0x0,                 "", HFILL} },
-    { &hf_class,        { "Message Class",  "m2pa.class",          FT_UINT8,  BASE_DEC,  VALS(message_class_values),    0x0,                 "", HFILL} },
-    { &hf_length,       { "Message length", "m2pa.length",         FT_UINT32, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_unused,       { "Unused",         "m2pa.unused",         FT_UINT8,  BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_bsn,          { "BSN",            "m2pa.bsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_fsn,          { "FSN",            "m2pa.fsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_v2_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_SPARE_MASK,    "", HFILL} },
-    { &hf_v8_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_SPARE_MASK,    "", HFILL} },
-    { &hf_pri_spare,    { "Spare",          "m2pa.priority_spare", FT_UINT8,  BASE_HEX,  NULL,                          SPARE_MASK,          "", HFILL} },
-    { &hf_v2_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_PRIORITY_MASK, "", HFILL} },
-    { &hf_v8_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_PRIORITY_MASK, "", HFILL} },
-    { &hf_pri_prio,     { "Priority",       "m2pa.priority",       FT_UINT8,  BASE_HEX,  NULL,                          PRIORITY_MASK,       "", HFILL} },
-    { &hf_v2_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v2_link_status_values),   0x0,                 "", HFILL} },
-    { &hf_v8_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v8_link_status_values),   0x0,                 "", HFILL} },
-    { &hf_v12_status,   { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v12_link_status_values),  0x0,                 "", HFILL} },
-    { &hf_filler,       { "Filler",         "m2pa.filler",         FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} },
-    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data",   FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} }
+  { { &hf_version,      { "Version",        "m2pa.version",        FT_UINT8,  BASE_DEC,  VALS(protocol_version_values), 0x0,                 NULL, HFILL} },
+    { &hf_spare,        { "Spare",          "m2pa.spare",          FT_UINT8,  BASE_HEX,  NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_v2_type,      { "Message Type",   "m2pa.type",           FT_UINT16, BASE_HEX,  VALS(v2_message_type_values),  0x0,                 NULL, HFILL} },
+    { &hf_v8_type,      { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v8_message_type_values),  0x0,                 NULL, HFILL} },
+    { &hf_v12_type,     { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v12_message_type_values), 0x0,                 NULL, HFILL} },
+    { &hf_class,        { "Message Class",  "m2pa.class",          FT_UINT8,  BASE_DEC,  VALS(message_class_values),    0x0,                 NULL, HFILL} },
+    { &hf_length,       { "Message length", "m2pa.length",         FT_UINT32, BASE_DEC,  NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_unused,       { "Unused",         "m2pa.unused",         FT_UINT8,  BASE_DEC,  NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_bsn,          { "BSN",            "m2pa.bsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_fsn,          { "FSN",            "m2pa.fsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_v2_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_SPARE_MASK,    NULL, HFILL} },
+    { &hf_v8_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_SPARE_MASK,    NULL, HFILL} },
+    { &hf_pri_spare,    { "Spare",          "m2pa.priority_spare", FT_UINT8,  BASE_HEX,  NULL,                          SPARE_MASK,          NULL, HFILL} },
+    { &hf_v2_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_PRIORITY_MASK, NULL, HFILL} },
+    { &hf_v8_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_PRIORITY_MASK, NULL, HFILL} },
+    { &hf_pri_prio,     { "Priority",       "m2pa.priority",       FT_UINT8,  BASE_HEX,  NULL,                          PRIORITY_MASK,       NULL, HFILL} },
+    { &hf_v2_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v2_link_status_values),   0x0,                 NULL, HFILL} },
+    { &hf_v8_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v8_link_status_values),   0x0,                 NULL, HFILL} },
+    { &hf_v12_status,   { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v12_link_status_values),  0x0,                 NULL, HFILL} },
+    { &hf_filler,       { "Filler",         "m2pa.filler",         FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data",   FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} }
   };
 
   static gint *ett[] = {

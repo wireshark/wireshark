@@ -146,38 +146,38 @@ proto_register_wsmp(void)
         static hf_register_info hf[] = {
                 { &hf_wsmp_version,
                         { "Version",           "wsmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_security,
                         { "Security",           "wsmp.security", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_channel,
                         { "Channel", "wsmp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_rate,
                         { "Rate", "wsmp.rate", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_txpower,
                         { "Transmit power", "wsmp.txpower", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_appclass,
                         { "App class", "wsmp.appclass", FT_UINT8, BASE_DEC, NULL, 0x0,          
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_acmlength,
                         { "Acm Length", "wsmp.acmlength", FT_UINT8, BASE_DEC, NULL, 0x0,     
-                                "", HFILL }},
+                                NULL, HFILL }},
 
                 { &hf_wsmp_acm,
                         { "Application Context Data", "wsmp.acm", FT_STRING,
                                 BASE_NONE, NULL, 0x0, "Acm", HFILL }},
                 { &hf_wsmp_wsmlength,
                         { "WSM Length", "wsmp.wsmlength", FT_UINT16, BASE_DEC, NULL, 0x0,     
-                                "", HFILL }},
+                                NULL, HFILL }},
         };
 
         /* Setup protocol subtree array */

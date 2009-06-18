@@ -558,27 +558,27 @@ void proto_register_bfd(void)
         { &hf_bfd_flags,
           { "Message Flags", "bfd.flags",
             FT_UINT8, BASE_HEX, NULL, 0xf0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_flags_h,
           { "I hear you", "bfd.flags.h",
             FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x80,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_flags_d_v0,
           { "Demand", "bfd.flags.d",
             FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x40,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_flags_p_v0,
           { "Poll", "bfd.flags.p",
             FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x20,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_flags_f_v0,
           { "Final", "bfd.flags.f",
             FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x10,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_flags_p,
           { "Poll", "bfd.flags.p",
@@ -625,12 +625,12 @@ void proto_register_bfd(void)
         { &hf_bfd_my_discriminator,
           { "My Discriminator", "bfd.my_discriminator",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_your_discriminator,
           { "Your Discriminator", "bfd.your_discriminator",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_bfd_desired_min_tx_interval,
           { "Desired Min TX Interval", "bfd.desired_min_tx_interval",

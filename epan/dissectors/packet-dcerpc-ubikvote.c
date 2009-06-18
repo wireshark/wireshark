@@ -71,7 +71,7 @@ proto_register_ubikvote (void)
 	static hf_register_info hf[] = {
 	  { &hf_ubikvote_opnum,
 	    { "Operation", "ubikvote.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

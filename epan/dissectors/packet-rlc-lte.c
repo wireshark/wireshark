@@ -1179,7 +1179,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_context_mode,
             { "RLC Mode",
               "rlc-lte.mode", FT_UINT8, BASE_DEC, VALS(rlc_mode_vals), 0x0,
-              "RLC Mode", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_context_direction,
@@ -1191,7 +1191,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_context_priority,
             { "Priority",
               "rlc-lte.priority", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Priority", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_context_ueid,
@@ -1229,7 +1229,7 @@ void proto_register_rlc_lte(void)
         /* Transparent mode fields */
         { &hf_rlc_lte_tm_data,
             { "TM Data",
-              "rlc-lte.tm.data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "rlc-lte.tm.data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Transparent Mode Data", HFILL
             }
         },
@@ -1244,7 +1244,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_um_fi,
             { "Framing Info",
               "rlc-lte.um.fi", FT_UINT8, BASE_HEX, VALS(framing_info_vals), 0x0,
-              "Framing Info", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_um_fixed_e,
@@ -1267,14 +1267,14 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_um_data,
             { "UM Data",
-              "rlc-lte.um.data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "rlc-lte.um.data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Unacknowledged Mode Data", HFILL
             }
         },
         { &hf_rlc_lte_extension_part,
             { "Extension Part",
               "rlc-lte.extension-part", FT_STRING, BASE_NONE, 0, 0x0,
-              "Extension Part", HFILL
+              NULL, HFILL
             }
         },
 
@@ -1288,7 +1288,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_extension_li,
             { "Length Indicator",
               "rlc-lte.extension.li", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Length Indicator", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_extension_padding,
@@ -1320,7 +1320,7 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_p,
             { "Polling Bit",
               "rlc-lte.am.p", FT_UINT8, BASE_HEX, VALS(polling_bit_vals), 0x20,
-              "Polling Bit", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_fi,
@@ -1344,18 +1344,18 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_segment_lsf,
             { "Last Segment Flag",
               "rlc-lte.am.segment.lsf", FT_UINT8, BASE_HEX, VALS(lsf_vals), 0x80,
-              "Last Segment Flag", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_segment_so,
             { "Segment Offset",
               "rlc-lte.am.segment.offset", FT_UINT16, BASE_DEC, 0, 0x7fff,
-              "Segment Offset", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_data,
             { "AM Data",
-              "rlc-lte.am.data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "rlc-lte.am.data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Acknowledged Mode Data", HFILL
             }
         },
@@ -1376,13 +1376,13 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_e1,
             { "Extension bit 1",
               "rlc-lte.am.e1", FT_UINT8, BASE_HEX, VALS(am_e1_vals), 0x0,
-              "Extension bit 1", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_e2,
             { "Extension bit 2",
               "rlc-lte.am.e2", FT_UINT8, BASE_HEX, VALS(am_e2_vals), 0x0,
-              "Extension bit 2", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_nack_sn,
@@ -1394,19 +1394,19 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_so_start,
             { "SO Start",
               "rlc-lte.am.so-start", FT_UINT16, BASE_DEC, 0, 0x0,
-              "SO Start", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_am_so_end,
             { "SO End",
               "rlc-lte.am.so-end", FT_UINT16, BASE_DEC, 0, 0x0,
-              "SO End", HFILL
+              NULL, HFILL
             }
         },
 
         { &hf_rlc_lte_predefined_pdu,
             { "Predefined data",
-              "rlc-lte.predefined-data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "rlc-lte.predefined-data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Predefined test data", HFILL
             }
         },
@@ -1414,25 +1414,25 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis,
             { "Sequence Analysis",
               "rlc-lte.sequence-analysis", FT_STRING, BASE_NONE, 0, 0x0,
-              "Sequence Analysis", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_sequence_analysis_previous_frame,
             { "Previous frame for channel",
               "rlc-lte.sequence-analysis.previous-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
-              "Previous frame for channel", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_sequence_analysis_expected_sn,
             { "Expected SN",
               "rlc-lte.sequence-analysis.expected-sn", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Expected SN", HFILL
+              NULL, HFILL
             }
         },
         { &hf_rlc_lte_sequence_analysis_framing_info_correct,
             { "Frame info continued correctly",
               "rlc-lte.sequence-analysis.framing-info-correct", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Frame info continued correctly", HFILL
+              NULL, HFILL
             }
         },
     };

@@ -1041,7 +1041,7 @@ proto_register_igmp(void)
 
 		{ &hf_version,
 			{ "IGMP Version", "igmp.version", FT_UINT8, BASE_DEC,
-			  NULL, 0, "IGMP Version", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_group_type,
 			{ "Type Of Group", "igmp.group_type", FT_UINT8, BASE_DEC,
@@ -1061,14 +1061,14 @@ proto_register_igmp(void)
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "igmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad IGMP Checksum", HFILL }},
+			  NULL, 0x0, "Bad IGMP Checksum", HFILL }},
 
 		{ &hf_identifier,
 			{ "Identifier", "igmp.identifier", FT_UINT32, BASE_DEC,
 			  NULL, 0, "IGMP V0 Identifier", HFILL }},
 
 		{ &hf_access_key,
-			{ "Access Key", "igmp.access_key", FT_BYTES, BASE_HEX,
+			{ "Access Key", "igmp.access_key", FT_BYTES, BASE_NONE,
 			  NULL, 0, "IGMP V0 Access Key", HFILL }},
 
 		{ &hf_max_resp,
@@ -1093,7 +1093,7 @@ proto_register_igmp(void)
 
 		{ &hf_saddr,
 			{ "Source Address", "igmp.saddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "Source Address", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_num_grp_recs,
 			{ "Num Group Records", "igmp.num_grp_recs", FT_UINT16, BASE_DEC,
@@ -1101,7 +1101,7 @@ proto_register_igmp(void)
 
 		{ &hf_record_type,
 			{ "Record Type", "igmp.record_type", FT_UINT8, BASE_DEC,
-			VALS(vs_record_type), 0, "Record Type", HFILL }},
+			VALS(vs_record_type), 0, NULL, HFILL }},
 
 		{ &hf_aux_data_len,
 			{ "Aux Data Len", "igmp.aux_data_len", FT_UINT8, BASE_DEC,
@@ -1109,10 +1109,10 @@ proto_register_igmp(void)
 
 		{ &hf_maddr,
 			{ "Multicast Address", "igmp.maddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "Multicast Address", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_aux_data,
-			{ "Aux Data", "igmp.aux_data", FT_BYTES, BASE_HEX,
+			{ "Aux Data", "igmp.aux_data", FT_BYTES, BASE_NONE,
 			  NULL, 0, "IGMP V3 Auxiliary Data", HFILL }},
 
 		{ &hf_max_resp_exp,

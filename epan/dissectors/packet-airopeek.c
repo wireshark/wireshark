@@ -92,35 +92,35 @@ proto_register_airopeek(void)
   static hf_register_info hf[] = {
 	{ &hf_airopeek_unknown1,
            { "Unknown1",      "airopeek.unknown1", FT_BYTES, BASE_NONE, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_unknown2,
            { "caplength1",      "airopeek.unknown2", FT_UINT16, BASE_DEC, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_unknown3,
            { "caplength2",      "airopeek.unknown3", FT_UINT16, BASE_DEC, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_unknown4,
            { "Unknown4",      "airopeek.unknown4", FT_BYTES, BASE_NONE, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_unknown5,
            { "Unknown5",      "airopeek.unknown5", FT_BYTES, BASE_NONE, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_unknown6,
            { "Unknown6",      "airopeek.unknown6", FT_BYTES, BASE_NONE, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_timestamp,
            { "Timestamp?",       "airopeek.timestamp", FT_UINT32, BASE_DEC, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
 	{ &hf_airopeek_channel,
            { "Channel",       "airopeek.channel", FT_UINT8, BASE_DEC, NULL,
-             0x0, "", HFILL }},
+             0x0, NULL, HFILL }},
 
   };
   static gint *ett[] = {

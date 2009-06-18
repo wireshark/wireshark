@@ -775,11 +775,11 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 		
 		{ &hf_ismacryp_iv,
-		  { "IV", "ismacryp.iv", FT_BYTES, BASE_HEX, NULL, 0x0, /* variable length */
+		  { "IV", "ismacryp.iv", FT_BYTES, BASE_NONE, NULL, 0x0, /* variable length */
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_delta_iv,
-		  { "Delta IV", "ismacryp.delta_iv", FT_BYTES, BASE_HEX, NULL, 0x0, /* variable length */
+		  { "Delta IV", "ismacryp.delta_iv", FT_BYTES, BASE_NONE, NULL, 0x0, /* variable length */
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_key_indicator,
@@ -807,7 +807,7 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_cts_flag,
-		  { "CTS flag", "ismacryp.cts_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "CTS flag", "ismacryp.cts_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_dts_delta,
@@ -815,11 +815,11 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_dts_flag,
-		  { "DTS flag", "ismacryp.dts_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "DTS flag", "ismacryp.dts_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 				 
 		{ &hf_ismacryp_rap_flag,
-		  { "RAP flag", "ismacryp.rap_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "RAP flag", "ismacryp.rap_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_stream_state,
@@ -827,11 +827,11 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_au_is_encrypted,
-		  { "AU_is_encrypted flag", "ismacryp.au_is_encrypted", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "AU_is_encrypted flag", "ismacryp.au_is_encrypted", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		
 		{ &hf_ismacryp_slice_start,
-		  { "Slice_start flag", "ismacryp.slice_start", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "Slice_start flag", "ismacryp.slice_start", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_slice_end,
@@ -839,7 +839,7 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_padding_bitcount,
-		  { "Padding_bitcount bits", "ismacryp.padding_bitcount", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "Padding_bitcount bits", "ismacryp.padding_bitcount", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_padding,
@@ -847,11 +847,11 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }}, 
 		
 		{ &hf_ismacryp_reserved_bits,
-		  { "Reserved bits", "ismacryp.reserved", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "Reserved bits", "ismacryp.reserved", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		 
 		{ &hf_ismacryp_unused_bits,
-		  { "Unused bits", "ismacryp.unused", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+		  { "Unused bits", "ismacryp.unused", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }}
 	};
 	

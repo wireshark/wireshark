@@ -2475,7 +2475,7 @@ proto_register_mq(void)
 {
   static hf_register_info hf[] = {
    { &hf_mq_tsh_structid,
-      { "TSH structid", "mq.tsh.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "TSH structid", HFILL }},
+      { "TSH structid", "mq.tsh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_tsh_packetlength,
       { "MQ Segment length", "mq.tsh.seglength", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH MQ Segment length", HFILL }},
@@ -2493,7 +2493,7 @@ proto_register_mq(void)
       { "Reserved", "mq.tsh.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Reserved", HFILL }},
 
     { &hf_mq_tsh_luwid,
-      { "Logical unit of work identifier", "mq.tsh.luwid", FT_BYTES, BASE_HEX, NULL, 0x0, "TSH logical unit of work identifier", HFILL }},
+      { "Logical unit of work identifier", "mq.tsh.luwid", FT_BYTES, BASE_NONE, NULL, 0x0, "TSH logical unit of work identifier", HFILL }},
 
     { &hf_mq_tsh_encoding,
       { "Encoding", "mq.tsh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Encoding", HFILL }},
@@ -2559,7 +2559,7 @@ proto_register_mq(void)
       { "Runtime application", "mq.id.icf.runtime", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_RUNTIME, "ID ICF Runtime application", HFILL }},
 
     { &hf_mq_msh_structid,
-      { "MSH structid", "mq.msh.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MSH structid", HFILL }},
+      { "MSH structid", "mq.msh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_msh_seqnum,
       { "Sequence number", "mq.msh.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "MSH sequence number", HFILL }},
@@ -2574,19 +2574,19 @@ proto_register_mq(void)
       { "Message length", "mq.msh.msglength", FT_UINT32, BASE_DEC, NULL, 0x0, "MSH message length", HFILL }},
 
     { &hf_mq_xqh_structid,
-      { "XQH structid", "mq.xqh.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "XQH structid", HFILL }},
+      { "XQH structid", "mq.xqh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_xqh_version,
       { "Version", "mq.xqh.version", FT_UINT32, BASE_DEC, NULL, 0x0, "XQH version", HFILL }},
 
     { &hf_mq_xqh_remoteq,
-      { "Remote queue", "mq.xqh.remoteq", FT_STRINGZ, BASE_DEC, NULL, 0x0, "XQH remote queue", HFILL }},
+      { "Remote queue", "mq.xqh.remoteq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "XQH remote queue", HFILL }},
 
     { &hf_mq_xqh_remoteqmgr,
-      { "Remote queue manager", "mq.xqh.remoteqmgr", FT_STRINGZ, BASE_DEC, NULL, 0x0, "XQH remote queue manager", HFILL }},
+      { "Remote queue manager", "mq.xqh.remoteqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "XQH remote queue manager", HFILL }},
 
     { &hf_mq_id_structid,
-      { "ID structid", "mq.id.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "ID structid", HFILL }},
+      { "ID structid", "mq.id.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_id_level,
       { "FAP level", "mq.id.level", FT_UINT8, BASE_DEC, NULL, 0x0, "ID Formats And Protocols level", HFILL }},
@@ -2616,7 +2616,7 @@ proto_register_mq(void)
       { "Sequence wrap value", "mq.id.seqwrap", FT_UINT32, BASE_DEC, NULL, 0x0, "ID seq wrap value", HFILL }},
 
     { &hf_mq_id_channel,
-      { "Channel name", "mq.id.channelname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "ID channel name", HFILL }},
+      { "Channel name", "mq.id.channelname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID channel name", HFILL }},
 
     { &hf_mq_id_capflags,
       { "Capability flags", "mq.id.capflags", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags", HFILL }},
@@ -2628,7 +2628,7 @@ proto_register_mq(void)
       { "Character set", "mq.id.ccsid", FT_UINT16, BASE_DEC, NULL, 0x0, "ID character set", HFILL }},
 
     { &hf_mq_id_queuemanager,
-      { "Queue manager", "mq.id.qm", FT_STRINGZ, BASE_HEX, NULL, 0x0, "ID Queue manager", HFILL }},
+      { "Queue manager", "mq.id.qm", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID Queue manager", HFILL }},
 
     { &hf_mq_id_heartbeatinterval,
       { "Heartbeat interval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL }},
@@ -2661,31 +2661,31 @@ proto_register_mq(void)
       { "Invalid heartbeat interval", "mq.id.ief.hbint", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_HEARTBEAT_INTERVAL, "ID invalid heartbeat interval", HFILL }},
 
     { &hf_mq_uid_structid,
-      { "UID structid", "mq.uid.structid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "UID structid", HFILL }},
+      { "UID structid", "mq.uid.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_uid_userid,
-      { "User ID", "mq.uid.userid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "UID structid", HFILL }},
+      { "User ID", "mq.uid.userid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "UID structid", HFILL }},
 
     { &hf_mq_uid_password,
-      { "Password", "mq.uid.password", FT_STRINGZ, BASE_HEX, NULL, 0x0, "UID password", HFILL }},
+      { "Password", "mq.uid.password", FT_STRINGZ, BASE_NONE, NULL, 0x0, "UID password", HFILL }},
 
     { &hf_mq_uid_longuserid,
-      { "Long User ID", "mq.uid.longuserid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "UID long user id", HFILL }},
+      { "Long User ID", "mq.uid.longuserid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "UID long user id", HFILL }},
 
     { &hf_mq_uid_securityid,
-      { "Security ID", "mq.uid.securityid", FT_BYTES, BASE_HEX, NULL, 0x0, "UID security id", HFILL }},
+      { "Security ID", "mq.uid.securityid", FT_BYTES, BASE_NONE, NULL, 0x0, "UID security id", HFILL }},
 
     { &hf_mq_conn_queuemanager,
-      { "Queue manager", "mq.conn.qm", FT_STRINGZ, BASE_HEX, NULL, 0x0, "CONN queue manager", HFILL }},
+      { "Queue manager", "mq.conn.qm", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN queue manager", HFILL }},
 
     { &hf_mq_conn_appname,
-      { "Application name", "mq.conn.appname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "CONN application name", HFILL }},
+      { "Application name", "mq.conn.appname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN application name", HFILL }},
 
     { &hf_mq_conn_apptype,
       { "Application type", "mq.conn.apptype", FT_INT32, BASE_DEC, NULL, 0x0, "CONN application type", HFILL }},
 
     { &hf_mq_conn_acttoken,
-      { "Accounting token", "mq.conn.acttoken", FT_BYTES, BASE_HEX, NULL, 0x0, "CONN accounting token", HFILL }},
+      { "Accounting token", "mq.conn.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN accounting token", HFILL }},
 
     { &hf_mq_conn_version,
       { "Version", "mq.conn.version", FT_UINT32, BASE_DEC, VALS(mq_conn_version_vals), 0x0, "CONN version", HFILL }},
@@ -2709,10 +2709,10 @@ proto_register_mq(void)
       { "Integer value", "mq.inq.intvalue", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer value", HFILL }},
 
     { &hf_mq_inq_charvalues,
-      { "Char values", "mq.inq.charvalues", FT_STRINGZ, BASE_HEX, NULL, 0x0, "INQ Character values", HFILL }},
+      { "Char values", "mq.inq.charvalues", FT_STRINGZ, BASE_NONE, NULL, 0x0, "INQ Character values", HFILL }},
 
     { &hf_mq_spi_verb,
-      { "SPI Verb", "mq.spi.verb", FT_UINT32, BASE_DEC, VALS(mq_spi_verbs_vals), 0x0, "SPI Verb", HFILL }},
+      { "SPI Verb", "mq.spi.verb", FT_UINT32, BASE_DEC, VALS(mq_spi_verbs_vals), 0x0, NULL, HFILL }},
 
     { &hf_mq_spi_version,
       { "Version", "mq.spi.version", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Version", HFILL }},
@@ -2721,7 +2721,7 @@ proto_register_mq(void)
       { "Max reply size", "mq.spi.replength", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Max reply size", HFILL }},
 
     { &hf_mq_spi_base_structid,
-      { "SPI Structid", "mq.spib.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SPI Base structid", HFILL }},
+      { "SPI Structid", "mq.spib.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Base structid", HFILL }},
 
     { &hf_mq_spi_base_version,
       { "Version", "mq.spib.version", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Base Version", HFILL }},
@@ -2751,13 +2751,13 @@ proto_register_mq(void)
       { "Mode", "mq.spai.mode", FT_UINT32, BASE_DEC, VALS(mq_spi_activate_vals), 0x0, "SPI Activate Input mode", HFILL }},
 
     { &hf_mq_spi_spai_unknown1,
-      { "Unknown1", "mq.spai.unknown1", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SPI Activate Input unknown1", HFILL }},
+      { "Unknown1", "mq.spai.unknown1", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input unknown1", HFILL }},
 
     { &hf_mq_spi_spai_unknown2,
-      { "Unknown2", "mq.spai.unknown2", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SPI Activate Input unknown2", HFILL }},
+      { "Unknown2", "mq.spai.unknown2", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input unknown2", HFILL }},
 
     { &hf_mq_spi_spai_msgid,
-      { "Message Id", "mq.spai.msgid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SPI Activate Input message id", HFILL }},
+      { "Message Id", "mq.spai.msgid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input message id", HFILL }},
 
     { &hf_mq_spi_spgi_batchsize,
       { "Batch size", "mq.spgi.batchsize", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Get Input batch size", HFILL }},
@@ -2793,7 +2793,7 @@ proto_register_mq(void)
       { "Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "PING length", HFILL }},
 
     { &hf_mq_ping_buffer,
-      { "Buffer", "mq.ping.buffer", FT_BYTES, BASE_DEC, NULL, 0x0, "PING buffer", HFILL }},
+      { "Buffer", "mq.ping.buffer", FT_BYTES, BASE_NONE, NULL, 0x0, "PING buffer", HFILL }},
 
     { &hf_mq_reset_length,
       { "Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET length", HFILL }},
@@ -2811,7 +2811,7 @@ proto_register_mq(void)
       { "Value", "mq.status.value", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS value", HFILL }},
 
     { &hf_mq_od_structid,
-      { "OD structid", "mq.od.structid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD structid", HFILL }},
+      { "OD structid", "mq.od.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_od_version,
       { "Version", "mq.od.version", FT_UINT32, BASE_DEC, NULL, 0x0, "OD version", HFILL }},
@@ -2820,16 +2820,16 @@ proto_register_mq(void)
       { "Object type", "mq.od.objtype", FT_UINT32, BASE_DEC, NULL, 0x0, "OD object type", HFILL }},
 
     { &hf_mq_od_objectname,
-      { "Object name", "mq.od.objname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "OD object name", HFILL }},
+      { "Object name", "mq.od.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object name", HFILL }},
 
     { &hf_mq_od_objectqmgrname,
-      { "Object queue manager name", "mq.od.objqmgrname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "OD object queue manager name", HFILL }},
+      { "Object queue manager name", "mq.od.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object queue manager name", HFILL }},
 
     { &hf_mq_od_dynamicqname,
-      { "Dynamic queue name", "mq.od.dynqname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "OD dynamic queue name", HFILL }},
+      { "Dynamic queue name", "mq.od.dynqname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD dynamic queue name", HFILL }},
 
     { &hf_mq_od_alternateuserid,
-      { "Alternate user id", "mq.od.altuserid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "OD alternate userid", HFILL }},
+      { "Alternate user id", "mq.od.altuserid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD alternate userid", HFILL }},
 
     { &hf_mq_od_recspresent,
       { "Number of records", "mq.od.nbrrec", FT_UINT32, BASE_DEC, NULL, 0x0, "OD number of records", HFILL }},
@@ -2856,19 +2856,19 @@ proto_register_mq(void)
       { "Address of first RR", "mq.od.addrrr", FT_UINT32, BASE_HEX, NULL, 0x0, "OD address of first RR", HFILL }},
 
     { &hf_mq_od_alternatesecurityid,
-      { "Alternate security id", "mq.od.altsecid", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD alternate security id", HFILL }},
+      { "Alternate security id", "mq.od.altsecid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD alternate security id", HFILL }},
 
     { &hf_mq_od_resolvedqname,
-      { "Resolved queue name", "mq.od.resolvq", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD resolved queue name", HFILL }},
+      { "Resolved queue name", "mq.od.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue name", HFILL }},
 
     { &hf_mq_od_resolvedqmgrname,
-      { "Resolved queue manager name", "mq.od.resolvqmgr", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OD resolved queue manager name", HFILL }},
+      { "Resolved queue manager name", "mq.od.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue manager name", HFILL }},
 
     { &hf_mq_or_objname,
-      { "Object name", "mq.od.objname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OR object name", HFILL }},
+      { "Object name", "mq.od.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object name", HFILL }},
 
     { &hf_mq_or_objqmgrname,
-      { "Object queue manager name", "mq.od.objqmgrname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "OR object queue manager name", HFILL }},
+      { "Object queue manager name", "mq.od.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL }},
 
     { &hf_mq_rr_completioncode,
       { "Completion code", "mq.rr.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "OR completion code", HFILL }},
@@ -2877,22 +2877,22 @@ proto_register_mq(void)
       { "Reason code", "mq.rr.reasoncode", FT_UINT32, BASE_DEC, NULL, 0x0, "OR reason code", HFILL }},
 
     { &hf_mq_pmr_msgid,
-      { "Message Id", "mq.pmr.msgid", FT_BYTES, BASE_DEC, NULL, 0x0, "PMR Message Id", HFILL }},
+      { "Message Id", "mq.pmr.msgid", FT_BYTES, BASE_NONE, NULL, 0x0, "PMR Message Id", HFILL }},
 
     { &hf_mq_pmr_correlid,
-      { "Correlation Id", "mq.pmr.correlid", FT_BYTES, BASE_DEC, NULL, 0x0, "PMR Correlation Id", HFILL }},
+      { "Correlation Id", "mq.pmr.correlid", FT_BYTES, BASE_NONE, NULL, 0x0, "PMR Correlation Id", HFILL }},
 
     { &hf_mq_pmr_groupid,
-      { "GroupId", "mq.pmr.groupid", FT_BYTES, BASE_DEC, NULL, 0x0, "PMR GroupId", HFILL }},
+      { "GroupId", "mq.pmr.groupid", FT_BYTES, BASE_NONE, NULL, 0x0, "PMR GroupId", HFILL }},
 
     { &hf_mq_pmr_feedback,
       { "Feedback", "mq.pmr.feedback", FT_UINT32, BASE_DEC, NULL, 0x0, "PMR Feedback", HFILL }},
 
     { &hf_mq_pmr_acttoken,
-      { "Accounting token", "mq.pmr.acttoken", FT_BYTES, BASE_DEC, NULL, 0x0, "PMR accounting token", HFILL }},
+      { "Accounting token", "mq.pmr.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "PMR accounting token", HFILL }},
 
     { &hf_mq_md_structid,
-      { "MD structid", "mq.md.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD structid", HFILL }},
+      { "MD structid", "mq.md.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_md_version,
       { "Version", "mq.md.version", FT_UINT32, BASE_DEC, NULL, 0x0, "MD version", HFILL }},
@@ -2916,7 +2916,7 @@ proto_register_mq(void)
       { "Character set", "mq.md.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "MD character set", HFILL }},
 
     { &hf_mq_md_format,
-      { "Format", "mq.md.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD format", HFILL }},
+      { "Format", "mq.md.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD format", HFILL }},
 
     { &hf_mq_md_priority,
       { "Priority", "mq.md.priority", FT_INT32, BASE_DEC, NULL, 0x0, "MD priority", HFILL }},
@@ -2925,46 +2925,46 @@ proto_register_mq(void)
       { "Persistence", "mq.md.persistence", FT_UINT32, BASE_DEC, NULL, 0x0, "MD persistence", HFILL }},
 
     { &hf_mq_md_msgid,
-      { "MessageId", "mq.md.msgid", FT_BYTES, BASE_DEC, NULL, 0x0, "MD Message Id", HFILL }},
+      { "MessageId", "mq.md.msgid", FT_BYTES, BASE_NONE, NULL, 0x0, "MD Message Id", HFILL }},
 
     { &hf_mq_md_correlid,
-      { "CorrelationId", "mq.md.correlid", FT_BYTES, BASE_DEC, NULL, 0x0, "MD Correlation Id", HFILL }},
+      { "CorrelationId", "mq.md.correlid", FT_BYTES, BASE_NONE, NULL, 0x0, "MD Correlation Id", HFILL }},
 
     { &hf_mq_md_backountcount,
       { "Backount count", "mq.md.backount", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Backount count", HFILL }},
 
     { &hf_mq_md_replytoq,
-      { "ReplyToQ", "mq.md.replytoq", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue", HFILL }},
+      { "ReplyToQ", "mq.md.replytoq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD ReplyTo queue", HFILL }},
 
     { &hf_mq_md_replytoqmgr,
-      { "ReplyToQMgr", "mq.md.replytoqmgr", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue manager", HFILL }},
+      { "ReplyToQMgr", "mq.md.replytoqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD ReplyTo queue manager", HFILL }},
 
     { &hf_mq_md_userid,
-      { "UserId", "mq.md.userid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD UserId", HFILL }},
+      { "UserId", "mq.md.userid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD UserId", HFILL }},
 
     { &hf_mq_md_acttoken,
-      { "Accounting token", "mq.md.acttoken", FT_BYTES, BASE_DEC, NULL, 0x0, "MD accounting token", HFILL }},
+      { "Accounting token", "mq.md.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "MD accounting token", HFILL }},
 
     { &hf_mq_md_appliddata,
-      { "ApplicationId data", "mq.md.appldata", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put applicationId data", HFILL }},
+      { "ApplicationId data", "mq.md.appldata", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put applicationId data", HFILL }},
 
     { &hf_mq_md_putappltype,
       { "Put Application Type", "mq.md.appltype", FT_INT32, BASE_DEC, NULL, 0x0, "MD Put application type", HFILL }},
 
     { &hf_mq_md_putapplname,
-      { "Put Application Name", "mq.md.applname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put application name", HFILL }},
+      { "Put Application Name", "mq.md.applname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put application name", HFILL }},
 
     { &hf_mq_md_putdate,
-      { "Put date", "mq.md.date", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put date", HFILL }},
+      { "Put date", "mq.md.date", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put date", HFILL }},
 
     { &hf_mq_md_puttime,
-      { "Put time", "mq.md.time", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Put time", HFILL }},
+      { "Put time", "mq.md.time", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put time", HFILL }},
 
     { &hf_mq_md_applorigindata,
-      { "Application original data", "mq.md.origdata", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Application original data", HFILL }},
+      { "Application original data", "mq.md.origdata", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Application original data", HFILL }},
 
     { &hf_mq_md_groupid,
-      { "GroupId", "mq.md.groupid", FT_BYTES, BASE_DEC, NULL, 0x0, "MD GroupId", HFILL }},
+      { "GroupId", "mq.md.groupid", FT_BYTES, BASE_NONE, NULL, 0x0, "MD GroupId", HFILL }},
 
     { &hf_mq_md_msgseqnumber,
       { "Message sequence number", "mq.md.msgseqnumber", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Message sequence number", HFILL }},
@@ -2979,10 +2979,10 @@ proto_register_mq(void)
       { "Original length", "mq.md.origdata", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
 
     { &hf_mq_md_hidden_lastformat,
-      { "Last format", "mq.md.lastformat", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD Last format", HFILL }},
+      { "Last format", "mq.md.lastformat", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Last format", HFILL }},
 
     { &hf_mq_dlh_structid,
-      { "DLH structid", "mq.dlh.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH structid", HFILL }},
+      { "DLH structid", "mq.dlh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_dlh_version,
       { "Version", "mq.dlh.version", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH version", HFILL }},
@@ -2991,10 +2991,10 @@ proto_register_mq(void)
       { "Reason", "mq.dlh.reason", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH reason", HFILL }},
 
     { &hf_mq_dlh_destq,
-      { "Destination queue", "mq.dlh.destq", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH destination queue", HFILL }},
+      { "Destination queue", "mq.dlh.destq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH destination queue", HFILL }},
 
     { &hf_mq_dlh_destqmgr,
-      { "Destination queue manager", "mq.dlh.destqmgr", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH destination queue manager", HFILL }},
+      { "Destination queue manager", "mq.dlh.destqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH destination queue manager", HFILL }},
 
     { &hf_mq_dlh_encoding,
       { "Encoding", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL }},
@@ -3003,19 +3003,19 @@ proto_register_mq(void)
       { "Character set", "mq.dlh.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "DLH character set", HFILL }},
 
     { &hf_mq_dlh_format,
-      { "Format", "mq.dlh.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH format", HFILL }},
+      { "Format", "mq.dlh.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH format", HFILL }},
 
     { &hf_mq_dlh_putappltype,
       { "Put application type", "mq.dlh.putappltype", FT_INT32, BASE_DEC, NULL, 0x0, "DLH put application type", HFILL }},
 
     { &hf_mq_dlh_putapplname,
-      { "Put application name", "mq.dlh.putapplname", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH put application name", HFILL }},
+      { "Put application name", "mq.dlh.putapplname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put application name", HFILL }},
 
     { &hf_mq_dlh_putdate,
-      { "Put date", "mq.dlh.putdate", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH put date", HFILL }},
+      { "Put date", "mq.dlh.putdate", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put date", HFILL }},
 
     { &hf_mq_dlh_puttime,
-      { "Put time", "mq.dlh.puttime", FT_STRINGZ, BASE_DEC, NULL, 0x0, "DLH put time", HFILL }},
+      { "Put time", "mq.dlh.puttime", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put time", HFILL }},
 
     { &hf_mq_dh_putmsgrecfields,
       { "Flags PMR", "mq.dh.flagspmr", FT_UINT32, BASE_DEC, NULL, 0x0, "DH flags PMR", HFILL }},
@@ -3030,7 +3030,7 @@ proto_register_mq(void)
       { "Offset of first PMR", "mq.dh.offsetpmr", FT_UINT32, BASE_DEC, NULL, 0x0, "DH offset of first PMR", HFILL }},
 
     { &hf_mq_gmo_structid,
-      { "GMO structid", "mq.gmo.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "GMO structid", HFILL }},
+      { "GMO structid", "mq.gmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_gmo_version,
       { "Version", "mq.gmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "GMO version", HFILL }},
@@ -3048,7 +3048,7 @@ proto_register_mq(void)
       { "Signal 2", "mq.gmo.signal2", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO signal 2", HFILL }},
 
     { &hf_mq_gmo_resolvedqname,
-      { "Resolved queue name", "mq.gmo.resolvq", FT_STRINGZ, BASE_HEX, NULL, 0x0, "GMO resolved queue name", HFILL }},
+      { "Resolved queue name", "mq.gmo.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "GMO resolved queue name", HFILL }},
 
     { &hf_mq_gmo_matchoptions,
       { "Match options", "mq.gmo.matchopt", FT_UINT32, BASE_HEX, NULL, 0x0, "GMO match options", HFILL }},
@@ -3066,13 +3066,13 @@ proto_register_mq(void)
       { "Reserved", "mq.gmo.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, "GMO reserved", HFILL }},
 
     { &hf_mq_gmo_msgtoken,
-      { "Message token", "mq.gmo.msgtoken", FT_BYTES, BASE_HEX, NULL, 0x0, "GMO message token", HFILL }},
+      { "Message token", "mq.gmo.msgtoken", FT_BYTES, BASE_NONE, NULL, 0x0, "GMO message token", HFILL }},
 
     { &hf_mq_gmo_returnedlength,
       { "Returned length", "mq.gmo.retlen", FT_INT32, BASE_DEC, NULL, 0x0, "GMO returned length", HFILL }},
 
     { &hf_mq_pmo_structid,
-      { "PMO structid", "mq.pmo.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "PMO structid", HFILL }},
+      { "PMO structid", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_mq_pmo_version,
       { "Version", "mq.pmo.structid", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
@@ -3096,10 +3096,10 @@ proto_register_mq(void)
       { "Invalid destination count", "mq.pmo.idestcount", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO invalid destination count", HFILL }},
 
     { &hf_mq_pmo_resolvedqname,
-      { "Resolved queue name", "mq.pmo.resolvq", FT_STRINGZ, BASE_DEC, NULL, 0x0, "PMO resolved queue name", HFILL }},
+      { "Resolved queue name", "mq.pmo.resolvq", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue name", HFILL }},
 
     { &hf_mq_pmo_resolvedqmgrname,
-      { "Resolved queue name manager", "mq.pmo.resolvqmgr", FT_STRINGZ, BASE_DEC, NULL, 0x0, "PMO resolved queue manager name", HFILL }},
+      { "Resolved queue name manager", "mq.pmo.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PMO resolved queue manager name", HFILL }},
 
     { &hf_mq_pmo_recspresent,
       { "Number of records", "mq.pmo.nbrrec", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO number of records", HFILL }},
@@ -3120,7 +3120,7 @@ proto_register_mq(void)
       { "Address of first response record", "mq.pmo.addrres", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first response record", HFILL }},
 
     { &hf_mq_head_structid,
-      { "Structid", "mq.head.structid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Header structid", HFILL }},
+      { "Structid", "mq.head.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Header structid", HFILL }},
 
     { &hf_mq_head_version,
       { "Structid", "mq.head.version", FT_UINT32, BASE_DEC, NULL, 0x0, "Header version", HFILL }},
@@ -3135,13 +3135,13 @@ proto_register_mq(void)
       { "Character set", "mq.head.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "Header character set", HFILL }},
 
     { &hf_mq_head_format,
-      { "Format", "mq.head.format", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Header format", HFILL }},
+      { "Format", "mq.head.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Header format", HFILL }},
 
     { &hf_mq_head_flags,
       { "Flags", "mq.head.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "Header flags", HFILL }},
 
     { &hf_mq_head_struct,
-      { "Struct", "mq.head.struct", FT_BYTES, BASE_HEX, NULL, 0x0, "Header struct", HFILL }},
+      { "Struct", "mq.head.struct", FT_BYTES, BASE_NONE, NULL, 0x0, "Header struct", HFILL }},
 
     { &hf_mq_xa_length,
       { "Length", "mq.xa.length", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Length", HFILL }},
@@ -3192,16 +3192,16 @@ proto_register_mq(void)
       { "Branch Qualifier Length", "mq.xa.xid.bql", FT_UINT8, BASE_DEC, NULL, 0x0, "XA Xid Branch Qualifier Length", HFILL }},
 
     { &hf_mq_xa_xid_globalxid,
-      { "Global TransactionId", "mq.xa.xid.gxid", FT_BYTES, BASE_DEC, NULL, 0x0, "XA Xid Global TransactionId", HFILL }},
+      { "Global TransactionId", "mq.xa.xid.gxid", FT_BYTES, BASE_NONE, NULL, 0x0, "XA Xid Global TransactionId", HFILL }},
 
     { &hf_mq_xa_xid_brq,
-      { "Branch Qualifier", "mq.xa.xid.bq", FT_BYTES, BASE_DEC, NULL, 0x0, "XA Xid Branch Qualifier", HFILL }},
+      { "Branch Qualifier", "mq.xa.xid.bq", FT_BYTES, BASE_NONE, NULL, 0x0, "XA Xid Branch Qualifier", HFILL }},
 
     { &hf_mq_xa_xainfo_length,
       { "Length", "mq.xa.xainfo.length", FT_UINT8, BASE_DEC, NULL, 0x0, "XA XA_info Length", HFILL }},
 
     { &hf_mq_xa_xainfo_value,
-      { "Value", "mq.xa.xainfo.value", FT_STRINGZ, BASE_DEC, NULL, 0x0, "XA XA_info Value", HFILL }}
+      { "Value", "mq.xa.xainfo.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "XA XA_info Value", HFILL }}
 
   };
   static gint *ett[] = {

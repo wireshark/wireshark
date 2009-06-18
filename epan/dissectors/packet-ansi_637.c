@@ -2289,7 +2289,7 @@ proto_register_ansi_637(void)
 	    NULL, HFILL }},
 	{ &hf_ansi_637_trans_bin_addr,
 	    { "Binary Address", "ansi_637_trans.bin_addr",
-	    FT_BYTES, BASE_HEX, 0, 0,
+	    FT_BYTES, BASE_NONE, 0, 0,
 	    NULL, HFILL }},
 	};
     static hf_register_info hf_tele[] =

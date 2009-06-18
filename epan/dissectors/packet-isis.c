@@ -267,34 +267,34 @@ proto_register_isis(void) {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
       { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",
-        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "", HFILL }},
+        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_isis_header_length,
-      { "PDU Header Length  ", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "PDU Header Length", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_version,
-      { "Version (==1)      ", "isis.version", FT_UINT8,
-         BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Version (==1)", "isis.version", FT_UINT8,
+         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_system_id_length,
-      { "System ID Length   ", "isis.sysid_len",
-        FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "System ID Length", "isis.sysid_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_type,
-      { "PDU Type           ", "isis.type", FT_UINT8, BASE_DEC,
-        VALS(isis_vals), 0xff, "", HFILL }},
+      { "PDU Type", "isis.type", FT_UINT8, BASE_DEC,
+        VALS(isis_vals), 0xff, NULL, HFILL }},
 
     { &hf_isis_version2,
-      { "Version2 (==1)     ", "isis.version2", FT_UINT8, BASE_DEC, NULL,
-        0x0, "", HFILL }},
+      { "Version2 (==1)", "isis.version2", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
     { &hf_isis_reserved,
-      { "Reserved (==0)     ", "isis.reserved", FT_UINT8, BASE_DEC, NULL,
-        0x0, "", HFILL }},
+      { "Reserved (==0)", "isis.reserved", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
     { &hf_isis_max_area_adr,
-      { "Max.AREAs: (0==3)  ", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
-      0x0, "", HFILL }},
+      { "Max.AREAs: (0==3)", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
+      0x0, NULL, HFILL }},
 
     };
     /*

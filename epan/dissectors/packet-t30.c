@@ -1267,14 +1267,14 @@ proto_register_t30(void)
             { "ITU-T Country code", "t30.fif.country_code", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         {  &hf_t30_fif_non_stand_bytes,
-            { "Non-standard capabilities", "t30.fif.non_standard_cap", FT_BYTES, BASE_HEX,
+            { "Non-standard capabilities", "t30.fif.non_standard_cap", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
 
         {  &hf_t30_t4_frame_num,
             { "T.4 Frame number", "t30.t4.frame_num", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         {  &hf_t30_t4_data,
-            { "T.4 Facsimile data field", "t30.t4.data", FT_BYTES, BASE_HEX,
+            { "T.4 Facsimile data field", "t30.t4.data", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
 
         {  &hf_t30_partial_page_fcf2,

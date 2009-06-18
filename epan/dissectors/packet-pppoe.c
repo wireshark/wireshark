@@ -871,27 +871,27 @@ void proto_register_pppoe(void)
 		/* These fields common to discovery and session protocols */
 		{ &hf_pppoe_version,
 			{ "Version", "pppoe.version", FT_UINT8, BASE_DEC,
-				 NULL, 0xf0, "", HFILL
+				 NULL, 0xf0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoe_type,
 			{ "Type", "pppoe.type", FT_UINT8, BASE_DEC,
-				 NULL, 0x0f, "", HFILL
+				 NULL, 0x0f, NULL, HFILL
 			}
 		},
 		{ &hf_pppoe_code,
 			{ "Code", "pppoe.code", FT_UINT8, BASE_HEX,
-				 VALS(code_vals), 0x0, "", HFILL
+				 VALS(code_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoe_session_id,
 			{ "Session ID", "pppoe.session_id", FT_UINT16, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoe_payload_length,
 			{ "Payload Length", "pppoe.payload_length", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

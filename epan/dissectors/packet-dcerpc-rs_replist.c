@@ -72,7 +72,7 @@ proto_register_rs_replist (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_replist_opnum,
-		{ "Operation", "rs_replist.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_replist.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

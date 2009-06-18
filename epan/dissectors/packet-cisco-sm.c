@@ -302,42 +302,42 @@ proto_register_sm(void)
 		{ &hf_sm_sm_msg_type,
 			{ "SM Message Type",           "sm.sm_msg_type",
 			FT_UINT32, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_protocol,
 			{ "Protocol Type",           "sm.protocol",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_msg_id,
 			{ "Message ID",           "sm.msgid",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_msg_type,
 			{ "Message Type",           "sm.msg_type",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_channel,
 			{ "Channel ID",           "sm.channel",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_bearer,
 			{ "Bearer ID",           "sm.bearer",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_len,
 			{ "Length",           "sm.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_ip_addr,
 			{ "IPv4 address","sm.ip_addr",
 			FT_IPv4,BASE_NONE,  NULL, 0x0,          
-			"IPv4 address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sm_context,
 			{ "Context","sm.context",

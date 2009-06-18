@@ -432,51 +432,51 @@ proto_register_dcc(void)
 	static hf_register_info hf[] = {
 			{ &hf_dcc_len, {
 				"Packet Length", "dcc.len", FT_UINT16, BASE_DEC,
-				NULL, 0, "Packet Length", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_pkt_vers, {
 				"Packet Version", "dcc.pkt_vers", FT_UINT16, BASE_DEC,
-				NULL, 0, "Packet Version", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_op, {
 				"Operation Type", "dcc.op", FT_UINT8, BASE_DEC,
-				VALS(dcc_op_vals), 0, "Operation Type", HFILL }},
+				VALS(dcc_op_vals), 0, NULL, HFILL }},
 
 			{ &hf_dcc_clientid, {
 				"Client ID", "dcc.clientid", FT_UINT32, BASE_DEC,
-				NULL, 0, "Client ID", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_opnums_host, {
 				"Host", "dcc.opnums.host", FT_UINT32, BASE_DEC,
-				NULL, 0, "Host", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_opnums_pid, {
 				"Process ID", "dcc.opnums.pid", FT_UINT32, BASE_DEC,
-				NULL, 0, "Process ID", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_opnums_report, {
 				"Report", "dcc.opnums.report", FT_UINT32, BASE_DEC,
-				NULL, 0, "Report", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_opnums_retrans, {
 				"Retransmission", "dcc.opnums.retrans", FT_UINT32, BASE_DEC,
-				NULL, 0, "Retransmission", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_signature, {
-				"Signature", "dcc.signature", FT_BYTES, BASE_HEX,
-				NULL, 0, "Signature", HFILL }},
+				"Signature", "dcc.signature", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_max_pkt_vers, {
 				"Maximum Packet Version", "dcc.max_pkt_vers", FT_UINT8, BASE_DEC,
-				NULL, 0, "Maximum Packet Version", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_qdelay_ms, {
 				"Client Delay", "dcc.qdelay_ms", FT_UINT16, BASE_DEC,
-				NULL, 0, "Client Delay", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_brand, {
-				"Server Brand", "dcc.brand", FT_STRING, BASE_DEC,
-				NULL, 0, "Server Brand", HFILL }},
+				"Server Brand", "dcc.brand", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_ck_type, {
 				"Type", "dcc.checksum.type", FT_UINT8, BASE_DEC,
@@ -487,60 +487,60 @@ proto_register_dcc(void)
 				NULL, 0, "Checksum Length", HFILL }},
 
 			{ &hf_dcc_ck_sum, {
-				"Sum", "dcc.checksum.sum", FT_BYTES, BASE_HEX,
+				"Sum", "dcc.checksum.sum", FT_BYTES, BASE_NONE,
 				NULL, 0, "Checksum", HFILL }},
 
 			{ &hf_dcc_target, {
 				"Target", "dcc.target", FT_UINT32, BASE_HEX,
-				NULL, 0, "Target", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_date, {
-				"Date", "dcc.date", FT_ABSOLUTE_TIME, BASE_DEC,
-				NULL, 0, "Date", HFILL }},
+				"Date", "dcc.date", FT_ABSOLUTE_TIME, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_adminop, {
 				"Admin Op", "dcc.adminop", FT_UINT8, BASE_DEC,
-				VALS(dcc_adminop_vals), 0, "Admin Op", HFILL }},
+				VALS(dcc_adminop_vals), 0, NULL, HFILL }},
 
 			{ &hf_dcc_adminval, {
 				"Admin Value", "dcc.adminval", FT_UINT32, BASE_DEC,
-				NULL, 0, "Admin Value", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_trace, {
 				"Trace Bits", "dcc.trace", FT_UINT32, BASE_HEX,
-				NULL, 0, "Trace Bits", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_trace_admin, {
 				"Admin Requests", "dcc.trace.admin", FT_BOOLEAN, 32,
-				NULL, 0x00000001, "Admin Requests", HFILL }},
+				NULL, 0x00000001, NULL, HFILL }},
 
 			{ &hf_dcc_trace_anon, {
 				"Anonymous Requests", "dcc.trace.anon", FT_BOOLEAN, 32,
-				NULL, 0x00000002, "Anonymous Requests", HFILL }},
+				NULL, 0x00000002, NULL, HFILL }},
 
 			{ &hf_dcc_trace_client, {
 				"Authenticated Client Requests", "dcc.trace.client", FT_BOOLEAN, 32,
-				NULL, 0x00000004, "Authenticated Client Requests", HFILL }},
+				NULL, 0x00000004, NULL, HFILL }},
 
 			{ &hf_dcc_trace_rlim, {
 				"Rate-Limited Requests", "dcc.trace.rlim", FT_BOOLEAN, 32,
-				NULL, 0x00000008, "Rate-Limited Requests", HFILL }},
+				NULL, 0x00000008, NULL, HFILL }},
 
 			{ &hf_dcc_trace_query, {
 				"Queries and Reports", "dcc.trace.query", FT_BOOLEAN, 32,
-				NULL, 0x00000010, "Queries and Reports", HFILL }},
+				NULL, 0x00000010, NULL, HFILL }},
 
 			{ &hf_dcc_trace_ridc, {
 				"RID Cache Messages", "dcc.trace.ridc", FT_BOOLEAN, 32,
-				NULL, 0x00000020, "RID Cache Messages", HFILL }},
+				NULL, 0x00000020, NULL, HFILL }},
 
 			{ &hf_dcc_trace_flood, {
 				"Input/Output Flooding", "dcc.trace.flood", FT_BOOLEAN, 32,
-				NULL, 0x00000040, "Input/Output Flooding", HFILL }},
+				NULL, 0x00000040, NULL, HFILL }},
 
 			{ &hf_dcc_floodop, {
 				"Flood Control Operation", "dcc.floodop", FT_UINT32, BASE_DEC,
-				VALS(dcc_floodop_vals), 0, "Flood Control Operation", HFILL }},
+				VALS(dcc_floodop_vals), 0, NULL, HFILL }},
 
         };
 	static gint *ett[] = {

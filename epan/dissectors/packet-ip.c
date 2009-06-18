@@ -2832,59 +2832,59 @@ proto_register_icmp(void)
 
     { &hf_icmp_type,
       { "Type",		"icmp.type",		FT_UINT8, BASE_DEC,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_icmp_code,
       { "Code",		"icmp.code",		FT_UINT8, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_icmp_checksum,
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_icmp_checksum_bad,
       { "Bad Checksum",	"icmp.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	"", HFILL }},
+	NULL, HFILL }},
 
     { &hf_icmp_ident,
       {"Identifier", "icmp.ident",              FT_UINT16, BASE_HEX,    NULL, 0x0,
-       "", HFILL }},
+       NULL, HFILL }},
 
     { &hf_icmp_seq_num,
       {"Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
-       "", HFILL }},
+       NULL, HFILL }},
 
     { &hf_icmp_mtu,
       {"MTU of next hop", "icmp.mtu",           FT_UINT16, BASE_DEC,    NULL, 0x0,
-       "", HFILL}},
+       NULL, HFILL}},
 
     { &hf_icmp_redir_gw,
       {"Gateway address", "icmp.redir_gw",      FT_IPv4, BASE_NONE,     NULL, 0x0,
-       "", HFILL }},
+       NULL, HFILL }},
 
     { &hf_icmp_mip_type,
       { "Extension Type", "icmp.mip.type",	FT_UINT8, BASE_DEC,
-	VALS(mip_extensions), 0x0,"", HFILL}},
+	VALS(mip_extensions), 0x0,NULL, HFILL}},
 
     { &hf_icmp_mip_length,
       { "Length", "icmp.mip.length",		FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_prefix_length,
       { "Prefix Length", "icmp.mip.prefixlength",  FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_seq,
       { "Sequence Number", "icmp.mip.seq",	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_life,
       { "Registration Lifetime", "icmp.mip.life",  FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_flags,
       { "Flags", "icmp.mip.flags",            FT_UINT16, BASE_HEX, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_r,
       { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 16, NULL, 32768,
@@ -2929,64 +2929,64 @@ proto_register_icmp(void)
 
     { &hf_icmp_mip_reserved,
       { "Reserved", "icmp.mip.reserved",     FT_UINT16, BASE_HEX, NULL, 0x003f,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_coa,
       { "Care-Of-Address", "icmp.mip.coa",    FT_IPv4, BASE_NONE, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mip_challenge,
       { "Challenge", "icmp.mip.challenge",    FT_BYTES, BASE_NONE, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_icmp_mpls,
       { "ICMP Extensions for MPLS",	"icmp.mpls",	FT_NONE, BASE_NONE,	NULL, 0x0,
-	"", HFILL }},
+	NULL, HFILL }},
 
 	{ &hf_icmp_mpls_version,
 		{ "Version",		"icmp.mpls.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
     { &hf_icmp_mpls_reserved,
       { "Reserved",	"icmp.mpls.res",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
 	{ &hf_icmp_mpls_checksum,
       { "Checksum",	"icmp.mpls.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
 	{ &hf_icmp_mpls_checksum_bad,
       { "Bad Checksum",	"icmp.mpls.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	"", HFILL }},
+	NULL, HFILL }},
 
 	{ &hf_icmp_mpls_length,
       { "Length",	"icmp.mpls.length",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
 	{ &hf_icmp_mpls_class,
 		{ "Class",	"icmp.mpls.class", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_c_type,
 		{ "C-Type",	"icmp.mpls.ctype", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_label,
 		{ "Label",	"icmp.mpls.label", FT_UINT24, BASE_DEC, NULL, 0x00fffff0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_exp,
 		{ "Experimental",	"icmp.mpls.exp", FT_UINT24, BASE_DEC,
 			NULL, 0x0e,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_s,
 		{ "Stack bit",	"icmp.mpls.s", FT_BOOLEAN, 24, TFS(&flags_set_truth), 0x01,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_ttl,
 		{ "Time to live",	"icmp.mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }}
+			NULL, HFILL }}
 
   };
   static gint *ett[] = {

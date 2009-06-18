@@ -566,87 +566,87 @@ proto_register_m2tp(void)
     { &hf_m2tp_version,
       { "Version", "m2tp.version",
         FT_UINT8, BASE_DEC, VALS(m2tp_protocol_version_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_reserved,
       { "Reserved", "m2tp.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_message_class,
       { "Message class", "m2tp.message_class",
         FT_UINT8, BASE_DEC, VALS(m2tp_message_class_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_message_type,
       { "Message Type", "m2tp.message_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_message_length,
       { "Message length", "m2tp.message_length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_parameter_tag,
       { "Parameter Tag", "m2tp.parameter_tag",
         FT_UINT16, BASE_DEC, VALS(m2tp_parameter_tag_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_parameter_length,
       { "Parameter length", "m2tp.parameter_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_parameter_value,
       { "Parameter Value", "m2tp.parameter_value",
 	      FT_BYTES, BASE_NONE, NULL, 0x0,
-	      "", HFILL }
+	      NULL, HFILL }
     },
     { &hf_m2tp_parameter_padding,
       { "Padding", "m2tp.parameter_padding",
 	      FT_BYTES, BASE_NONE, NULL, 0x0,
-	      "", HFILL }
+	      NULL, HFILL }
     },
     { &hf_m2tp_interface_identifier,
       { "Interface Identifier", "m2tp.interface_identifier",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_user,
       { "M2tp User Identifier", "m2tp.user_identifier",
         FT_UINT32, BASE_DEC, VALS(m2tp_user_identifier_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_master_slave,
       { "Master Slave Indicator", "m2tp.master_slave",
         FT_UINT32, BASE_DEC, VALS(m2tp_mode_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_info_string,
       { "Info string", "m2tp.info_string",
-        FT_STRING, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
     },
     { &hf_m2tp_diagnostic_info,
       { "Diagnostic information", "m2tp.diagnostic_info",
 	       FT_BYTES, BASE_NONE, NULL, 0x0,
-	       "", HFILL }
+	       NULL, HFILL }
     },
     { &hf_m2tp_heartbeat_data,
       { "Heartbeat data", "m2tp.heartbeat_data",
 	       FT_BYTES, BASE_NONE, NULL, 0x0,
-	       "", HFILL }
+	       NULL, HFILL }
     },
     { &hf_m2tp_error_code,
       { "Error code", "m2tp.error_code",
         FT_UINT32, BASE_DEC, VALS(m2tp_error_code_values), 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
     { &hf_m2tp_reason,
       { "Reason", "m2tp.reason",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "", HFILL}
+        NULL, HFILL}
     },
   };
 

@@ -120,7 +120,7 @@ proto_register_hci_h1(void)
 	{ &hf_hci_h1_type,
 		{ "HCI Packet Type",           "hci_h1.type",
 		FT_UINT8, BASE_HEX, VALS(hci_h1_type_vals), 0x0,
-		"HCI Packet Type", HFILL }},
+		NULL, HFILL }},
 
 	{ &hf_hci_h1_direction,
 		{ "Direction",           "hci_h1.direction",

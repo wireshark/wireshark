@@ -1009,7 +1009,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_payload,
 			{ "Payload",           "btl2cap.payload",
-				FT_BYTES, BASE_HEX, NULL, 0x0,          
+				FT_BYTES, BASE_NONE, NULL, 0x0,          
 				"L2CAP Payload", HFILL }
 		},
 		{ &hf_btl2cap_command,
@@ -1055,22 +1055,22 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_result,
 			{ "Result",           "btl2cap.result",
 				FT_UINT16, BASE_HEX, VALS(result_vals), 0x0,          
-				"Result", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_status,
 			{ "Status",           "btl2cap.status",
 				FT_UINT16, BASE_HEX, VALS(status_vals), 0x0,          
-				"Status", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_rej_reason,
 			{ "Reason",           "btl2cap.rej_reason",
 				FT_UINT16, BASE_HEX, VALS(reason_vals), 0x0,          
-				"Reason", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_sig_mtu,
 			{ "Maximum Signalling MTU",           "btl2cap.sig_mtu",
 				FT_UINT16, BASE_DEC, NULL, 0x0,          
-				"Maximum Signalling MTU", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_info_mtu,
 			{ "Remote Entity MTU",           "btl2cap.info_mtu",
@@ -1110,7 +1110,7 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_continuation_flag,
 			{ "Continuation Flag",           "btl2cap.continuation",
 				FT_BOOLEAN, 16, NULL, 0x0001,          
-				"Continuation Flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_configuration_result,
 			{ "Result",           "btl2cap.conf_result",
@@ -1125,7 +1125,7 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_option_length,
 			{ "Length",           "btl2cap.option_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,          
-				"Number of octets in option payload ", HFILL }
+				"Number of octets in option payload", HFILL }
 		},
 		{ &hf_btl2cap_option_mtu,
 			{ "MTU",           "btl2cap.option_mtu",
@@ -1205,12 +1205,12 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_option,
 			{ "Configuration Parameter Option",           "btl2cap.conf_param_option",
 				FT_NONE, BASE_NONE, NULL, 0x0,          
-				"Configuration Parameter Option", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_control_sar,
 			{ "Segmentation and reassembly",           "btl2cap.control_sar",
 				FT_UINT16, BASE_HEX, VALS(control_sar_vals), 0xC000,
-				"Segmentation and reassembly", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_control_reqseq,
 			{ "ReqSeq",           "btl2cap.control_reqseq",
@@ -1235,12 +1235,12 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_control_type,
 			{ "Frame Type",           "btl2cap.control_type",
 				FT_UINT16, BASE_HEX, VALS(control_type_vals), 0x0001,
-				"Frame Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_control,
 			{ "Control field",           "btl2cap.control",
 				FT_NONE, BASE_NONE, NULL, 0x0,
-				"Control field", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_fcs,
 			{ "FCS",           "btl2cap.fcs",
@@ -1250,7 +1250,7 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_sdulength,
 			{ "SDU Length",           "btl2cap.sdulength",
 				FT_UINT16, BASE_DEC, NULL, 0,
-				"SDU Length", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_reassembled_in,
 			{ "This SDU is reassembled in frame",           "btl2cap.reassembled_in",

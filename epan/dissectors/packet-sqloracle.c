@@ -669,25 +669,25 @@ proto_register_sqloracle(void)
 	static hf_register_info hf[] =
 	{
 		{ &hf_sqloracle_operation,
-		  { "Basic Operation", "sqloracle.operation", FT_UINT8, BASE_DEC, VALS(sqloracle_operation_type), 0x0, "", HFILL }
+		  { "Basic Operation", "sqloracle.operation", FT_UINT8, BASE_DEC, VALS(sqloracle_operation_type), 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_func_type,
-		  { "Function Type", "sqloracle.type", FT_UINT8, BASE_DEC, VALS(sql_func_type), 0x0, "", HFILL }
+		  { "Function Type", "sqloracle.type", FT_UINT8, BASE_DEC, VALS(sql_func_type), 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_flag,
-		  { "flag", "sqloracle.flag", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+		  { "flag", "sqloracle.flag", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_num_column,
-			{ "Number of Columns", "sqloracle.nocolumn", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Number of Columns", "sqloracle.nocolumn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_itemNum,
-		  { "Iteration Number", "sqloracle.itemNum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		  { "Iteration Number", "sqloracle.itemNum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_numItersThisTime,
-		  { "# of iterations this time", "sqloracle.numItersThisTime", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		  { "# of iterations this time", "sqloracle.numItersThisTime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_sqloracle_uacBufLength,
-		  { "user access buffer length", "sqloracle.uacBufLength", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		  { "user access buffer length", "sqloracle.uacBufLength", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 /*		{ &hf_sqloracle_ttloac_header,
 			{ "TTLOAC Header", "sqloracle.ttloac_header", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
@@ -756,7 +756,7 @@ proto_register_sqloracle(void)
 		{ "SQL Statement Length",	"sqloracle.stmtlength", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 */		{ &hf_sqloracle_stmt,
-			{ "SQL statement", "sqloracle.stmt", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SQL statement", "sqloracle.stmt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		};
 

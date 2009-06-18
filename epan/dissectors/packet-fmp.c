@@ -2081,11 +2081,11 @@ proto_register_fmp(void)
 	static hf_register_info hf[] = {
 		 { &hf_fmp_procedure, {
                         "Procedure", "fmp.procedure", FT_UINT32, BASE_DEC,
-                       VALS(fmp_proc_vals) , 0, "Procedure", HFILL }},        /* New addition */
+                       VALS(fmp_proc_vals) , 0, NULL, HFILL }},        /* New addition */
 
 		{ &hf_fmp_hostID, {
 			"Host ID", "fmp.hostID", FT_STRING, BASE_NONE,
-			NULL, 0, "Host ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_btime, {
 			"Boot Time", "fmp.btime", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -2109,16 +2109,16 @@ proto_register_fmp(void)
 
 		{ &hf_fmp_fmpFHandle, {
 			"FMP File Handle", "fmp.fmpFHandle",
-			FT_BYTES, BASE_NONE, NULL, 0, "FMP File Handle",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL,
 		        HFILL }},
 
 		{ &hf_fmp_nfsFHandle, {
 			"NFS File Handle", "fmp.nfsFHandle", FT_BYTES,
-			BASE_NONE, NULL, 0, "NFS File Handle ", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_fsID, {
 			"File System ID", "fmp.fsID", FT_UINT32, BASE_HEX,
-			NULL, 0, "File System ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_fmp_status, {
 			"Status", "fmp.status", FT_UINT32, BASE_DEC,
 			VALS(fmp_status_vals), 0, "Reply Status", HFILL }},
@@ -2133,24 +2133,24 @@ proto_register_fmp(void)
 
 		{ &hf_fmp_dskSigEnt_val, {
 			"Celerra Signature", "fmp.dsi.ds.dsList.dskSigLst_val.dse.dskSigEnt_val", FT_STRING, BASE_NONE,
-			NULL, 0, "Celerra Signature", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_fmp_devSignature, {
 			"Signature DATA", "fmp.devSig", FT_STRING, BASE_NONE,
-			NULL, 0, "Signature DATA", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_fmp_mount_path, {
                        "Native Protocol: PATH", "fmp.mount_path", FT_STRING, BASE_NONE,
                        NULL, 0, "Absolute path from the root on the server side", HFILL }},
 		{ &hf_fmp_sig_offset, {
 			"Sig Offset", "fmp.dsi.ds.sig_offset", FT_UINT64, BASE_DEC,
-			NULL, 0, "Sig Offset", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_numBlksReq, {
 			"Extent Length", "fmp.numBlksReq", FT_UINT32,
-			BASE_DEC, NULL, 0, "Extent Length", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_minBlks, {
 			"Minimum Blocks to Grant", "fmp.minBlks", FT_UINT32,
-			BASE_DEC, NULL, 0, "Minimum Blocks to Grant", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_msgNum, {
 			"Message Number", "fmp.msgNum", FT_UINT32, BASE_DEC,
@@ -2162,7 +2162,7 @@ proto_register_fmp(void)
 
 		{ &hf_fmp_fileSize, {
 			"File Size", "fmp.fileSize", FT_UINT64, BASE_DEC,
-			NULL, 0, "File Size", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_extentList_len, {
 			"Extent List Length", "fmp.extentList_len", FT_UINT32,
@@ -2211,31 +2211,31 @@ proto_register_fmp(void)
                         NULL, 0, "FMP OS Minor", HFILL }},
                 { &hf_fmp_os_name, {
                         "OS Name", "fmp.os_name", FT_STRING, BASE_NONE,
-                        NULL, 0, "OS Name", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		 { &hf_fmp_path, {
                         "Mount Path", "fmp.Path", FT_STRING, BASE_NONE,
-                        NULL, 0, "Mount Path", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_os_patch, {
                         "OS Path", "fmp.os_patch", FT_UINT32, BASE_DEC,
-                        NULL, 0, "OS Path", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_os_build, {
                         "OS Build", "fmp.os_build", FT_UINT32, BASE_DEC,
-                        NULL, 0, "OS Build", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_server_version_string, {
                         "Server Version String", "fmp.server_version_string", FT_STRING, BASE_NONE,
-                        NULL, 0, "Server Version String", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_description, {
                         "Error Description", "fmp.description", FT_STRING, BASE_NONE,
                         NULL, 0, "Client Error Description", HFILL }},
                 { &hf_fmp_nfsv3Attr_type, {
                         "Type", "fmp.nfsv3Attr_type", FT_UINT32, BASE_DEC,
-                        NULL, 0, "NFSV3 Attr Type ", HFILL }},
+                        NULL, 0, "NFSV3 Attr Type", HFILL }},
 		 { &hf_fmp_nfsv3Attr_mode, {
                         "Mode", "fmp.nfsv3Attr_mod", FT_UINT32, BASE_DEC,
-                        NULL, 0, "Mode", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_nlink, {
                         "nlink", "fmp.nfsv3Attr_nlink", FT_UINT32, BASE_DEC,
-                        NULL, 0, "nlink", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_uid, {
                         "uid", "fmp.nfsv3Attr_uid", FT_UINT32, BASE_DEC,
                         NULL, 0, "UID", HFILL }},
@@ -2248,10 +2248,10 @@ proto_register_fmp(void)
                         NULL, 0, "used", HFILL }},
                 { &hf_fmp_nfsv3Attr_rdev, {
                         "rdev", "fmp.nfsv3Attr_rdev", FT_UINT64, BASE_DEC,
-                        NULL, 0, "rdev", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_fsid, {
                         "fsid", "fmp.nfsv3Attr_fsid", FT_UINT64, BASE_DEC,
-                        NULL, 0, "fsid", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_fileid, {
                         "File ID", "fmp.nfsv3Attr_fileid", FT_UINT64, BASE_DEC,
                         NULL, 0, "fileid", HFILL }},
@@ -2260,25 +2260,25 @@ proto_register_fmp(void)
                         NULL, 0, "command", HFILL }},
 		{ &hf_fmp_topVolumeId, {
 			"Top Volume ID", "fmp.topVolumeId", FT_UINT32, BASE_HEX,
-			NULL, 0, "Top Volume ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
                 { &hf_fmp_cursor, {
                         "number of volumes", "fmp.cursor", FT_UINT32, BASE_DEC,
-                        NULL, 0, "number of volumes", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_offset64, {
                         "offset", "fmp.offset64", FT_UINT64, BASE_DEC,
-                        NULL, 0, "offset", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_slice_size, {
                         "size of the slice", "fmp.slice_size", FT_UINT64, BASE_DEC,
-                        NULL, 0, "size of the slice", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_fmp_volume, {
 			"Volume ID's", "fmp.volume", FT_UINT32, BASE_HEX,
 			NULL, 0, "FMP Volume ID's", HFILL }},
                 { &hf_fmp_stripeSize, {
                         "size of the stripe", "fmp.stripeSize", FT_UINT64, BASE_DEC,
-                        NULL, 0, "size of the stripe", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_firstLogBlk64, {
                         "First Logical Block", "fmp.firstLogBlk64", FT_UINT64, BASE_DEC,
-                        NULL, 0, " ", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 
 	};
 

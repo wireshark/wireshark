@@ -331,75 +331,75 @@ proto_register_trmac(void)
         static hf_register_info hf[] = {
                 { &hf_trmac_mv,
                 { "Major Vector",			"trmac.mvec", FT_UINT8, BASE_HEX, major_vector_vs, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
                 { &hf_trmac_length,
                 { "Total Length",			"trmac.length", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
                 { &hf_trmac_srcclass,
                 { "Source Class",			"trmac.srcclass", FT_UINT8, BASE_HEX, classes_vs, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
                 { &hf_trmac_dstclass,
                 { "Destination Class",			"trmac.dstclass", FT_UINT8, BASE_HEX, classes_vs, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
                 { &hf_trmac_sv,
                 { "Sub-Vector",				"trmac.svec", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_iso,
 		{ "Isolating Errors",			"trmac.errors.iso", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_line,
 		{ "Line Errors",			"trmac.errors.line", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_internal,
 		{ "Internal Errors",			"trmac.errors.internal", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_burst,
 		{ "Burst Errors",			"trmac.errors.burst", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_ac,
 		{ "A/C Errors",				"trmac.errors.ac", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_abort,
 		{ "Abort Delimiter Transmitted Errors",	"trmac.errors.abort", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_noniso,
 		{ "Non-Isolating Errors",		"trmac.errors.noniso", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_lost,
 		{ "Lost Frame Errors",			"trmac.errors.lost", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_congestion,
 		{ "Receiver Congestion Errors",		"trmac.errors.congestion", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_fc,
 		{ "Frame-Copied Errors",		"trmac.errors.fc", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_freq,
 		{ "Frequency Errors",			"trmac.errors.freq", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_errors_token,
 		{ "Token Errors",			"trmac.errors.token", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_trmac_naun,
 		{ "NAUN",				"trmac.naun", FT_ETHER, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_tr_mac,

@@ -288,7 +288,7 @@ proto_register_omapi(void)
       	NULL, HFILL }},
     { &hf_omapi_signature,
       { "Signature", "omapi.signature",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	NULL, HFILL }}
   };
 

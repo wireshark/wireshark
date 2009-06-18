@@ -378,15 +378,15 @@ proto_register_kingfisher( void )
 {
     static hf_register_info hf[] =
     {
-            { &hf_kingfisher_version,       { "Version", "kingfisher.version", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_system,        { "System Identifier", "kingfisher.system", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_length,        { "Length", "kingfisher.length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_from,          { "From RTU", "kingfisher.from", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_target,        { "Target RTU", "kingfisher.target", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_via,           { "Via RTU", "kingfisher.via", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_message,       { "Message Number", "kingfisher.message", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
-            { &hf_kingfisher_function,      { "Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, "", HFILL } },
-            { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+            { &hf_kingfisher_version,       { "Version", "kingfisher.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_system,        { "System Identifier", "kingfisher.system", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_length,        { "Length", "kingfisher.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_from,          { "From RTU", "kingfisher.from", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_target,        { "Target RTU", "kingfisher.target", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_via,           { "Via RTU", "kingfisher.via", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_message,       { "Message Number", "kingfisher.message", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_kingfisher_function,      { "Function Code", "kingfisher.function", FT_UINT8, BASE_DEC, VALS( function_code_vals ), 0x0, NULL, HFILL } },
+            { &hf_kingfisher_checksum,      { "Checksum", "kingfisher.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = { 

@@ -187,7 +187,7 @@ proto_register_isdn(void)
 	static hf_register_info hf[] = {
 		{ &hf_isdn_channel,
 		{ "Channel",	"isdn.channel", FT_UINT8, BASE_DEC,
-		  VALS(channel_vals), 0x0, "", HFILL }},
+		  VALS(channel_vals), 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isdn,

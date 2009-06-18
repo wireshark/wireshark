@@ -325,13 +325,13 @@ proto_register_gprs_ns(void)
 		  VALS(ns_pdu_type), 0x0, "NS Command", HFILL}},
 		{ &hf_gprs_ns_ie_type, {
 		  "IE Type", "gprs_ns.ietype", FT_UINT8, BASE_HEX,
-		  VALS(ns_ie_type), 0x0, "IE Type", HFILL}},
+		  VALS(ns_ie_type), 0x0, NULL, HFILL}},
 		{ &hf_gprs_ns_ie_length, {
 		  "IE Length", "gprs_ns.ielength", FT_UINT16, BASE_DEC,
-		  NULL, 0x0, "IE Length", HFILL}},
+		  NULL, 0x0, NULL, HFILL}},
 		{ &hf_gprs_ns_cause, {
 		  "Cause", "gprs_ns.cause", FT_UINT8, BASE_HEX,
-		  VALS(cause_val), 0x0, "Cause", HFILL}},
+		  VALS(cause_val), 0x0, NULL, HFILL}},
 		{ &hf_gprs_ns_vci, {
 		  "NSVCI", "gprs_ns.nsvci", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, "Network Service Virtual Connection id", HFILL}},
@@ -343,7 +343,7 @@ proto_register_gprs_ns(void)
 		  NULL, 0x0, "Cell ID", HFILL}},
 		{ &hf_gprs_ns_spare, {
 		  "Spare octet", "gprs_ns.spare", FT_UINT8, BASE_HEX,
-		  NULL, 0x0, "", HFILL}},
+		  NULL, 0x0, NULL, HFILL}},
 	};
 
 	/* Setup protocol subtree array */

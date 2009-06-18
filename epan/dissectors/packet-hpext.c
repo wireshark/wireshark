@@ -99,11 +99,11 @@ proto_register_hpext(void)
 	static hf_register_info hf[] = {
 		{ &hf_hpext_dxsap,
 		{ "DXSAP",	"hpext.dxsap", FT_UINT16, BASE_HEX,
-			VALS(xsap_vals), 0x0, "", HFILL }},
+			VALS(xsap_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_hpext_sxsap,
 		{ "SXSAP", "hpext.sxsap", FT_UINT16, BASE_HEX,
-			VALS(xsap_vals), 0x0, "", HFILL }}
+			VALS(xsap_vals), 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_hpext

@@ -394,13 +394,13 @@ void proto_register_pw_cesopsn(void)
 				,FT_UINT16			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_payload	,{"TDM payload"			,"pwcesopsn.payload"	
-				,FT_BYTES			,BASE_HEX		,NULL			
+				,FT_BYTES			,BASE_NONE		,NULL			
 				,0				,NULL			,HFILL }}
 		,{&hf_padding	,{"Padding"			,"pwcesopsn.padding"	
-				,FT_BYTES			,BASE_HEX		,NULL			
+				,FT_BYTES			,BASE_NONE		,NULL			
 				,0				,NULL			,HFILL }}
 		,{&hf_padding_f	,{"Padding (formatted)"		,""
-				,FT_BYTES			,BASE_HEX		,NULL
+				,FT_BYTES			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 	};
 	

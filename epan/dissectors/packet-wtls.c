@@ -1082,182 +1082,182 @@ proto_register_wtls(void)
 			{ 	"Record",
 				"wtls.record",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
-				"Record", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_record_type,
 			{ 	"Record Type",
 				"wtls.rec_type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
-				"Record Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_record_length,
 			{ 	"Record Length",
 				"wtls.rec_length",
 				 FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Record Length", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_record_sequence,
 			{ 	"Record Sequence",
 				"wtls.rec_seq",
 				 FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Record Sequence", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_record_ciphered,
 			{ 	"Record Ciphered",
 				"wtls.rec_cipher",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Record Ciphered", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands,
 			{ 	"Handshake",
 				"wtls.handshake",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
-				"Handshake", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_type,
 			{ 	"Type",
 				"wtls.handshake.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
-				"Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_length,
 			{ 	"Length",
 				"wtls.handshake.length",
 				 FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Length", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello,
 			{ 	"Client Hello",
 				"wtls.handshake.client_hello",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Client Hello", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_version,
 			{ 	"Version",
 				"wtls.handshake.client_hello.version",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Version", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_gmt,
 			{ 	"Time GMT",
 				"wtls.handshake.client_hello.gmt",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-				"Time GMT", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_random,
 			{ 	"Random",
 				"wtls.handshake.client_hello.random",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Random", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_session,
 			{ 	"Session ID",
 				"wtls.handshake.client_hello.sessionid",
 				 FT_UINT64, BASE_HEX_DEC, NULL, 0x00,
-				"Session ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_session_str,
 			{ 	"Session ID",
 				"wtls.handshake.client_hello.session.str",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Session ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cli_key_id,
 			{ 	"Client Keys",
 				"wtls.handshake.client_hello.client_keys_id",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-			 	"Client Keys"     , HFILL
+			 	NULL     , HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cli_key_len,
 			{ 	"Length",
 				"wtls.handshake.client_hello.client_keys_len",
 				 FT_UINT16, BASE_DEC, NULL, 0x00,
-			 	"Length"          , HFILL
+			 	NULL          , HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_trust_key_id,
 			{ 	"Trusted Keys",
 				"wtls.handshake.client_hello.trusted_keys_id",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-			 	"Trusted Keys"          , HFILL
+			 	NULL          , HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_exchange,
 			{ 	"Key Exchange",
 				"wtls.handshake.client_hello.key.key_exchange",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
-				"Key Exchange", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_exchange_suite,
 			{ 	"Suite",
 				"wtls.handshake.client_hello.key.key_exchange.suite",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
-				"Suite", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_parameter_index,
 			{ 	"Parameter Index",
 				"wtls.handshake.client_hello.parameter_index",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Parameter Index", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_parameter_set,
 			{ 	"Parameter Set",
 				"wtls.handshake.client_hello.parameter",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Parameter Set", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_type,
 			{ 	"Identifier Type",
 				"wtls.handshake.client_hello.ident_type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
-				"Identifier Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_charset,
 			{ 	"Identifier CharSet",
 				"wtls.handshake.client_hello.ident_charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Identifier CharSet", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_size,
 			{ 	"Identifier Size",
 				"wtls.handshake.client_hello.ident_size",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Identifier Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier,
 			{ 	"Identifier",
 				"wtls.handshake.client_hello.identifier",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Identifier", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_str,
 			{ 	"Identifier Name",
 				"wtls.handshake.client_hello.ident_name",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Identifier Name", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cipher_suite,
@@ -1271,294 +1271,294 @@ proto_register_wtls(void)
 			{ 	"Cipher",
 				"wtls.handshake.client_hello.cipher",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Cipher", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_compression_methods,
 			{ 	"Compression Methods",
 				"wtls.handshake.client_hello.comp_methods",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Compression Methods", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_compression,
 			{ 	"Compression",
 				"wtls.handshake.client_hello.compression",
 				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_compression ), 0x00,
-				"Compression", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_sequence_mode,
 			{ 	"Sequence Mode",
 				"wtls.handshake.client_hello.sequence_mode",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_sequence_mode ), 0x00,
-				"Sequence Mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_refresh,
 			{ 	"Refresh",
 				"wtls.handshake.client_hello.refresh",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Refresh", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello,
 			{ 	"Server Hello",
 				"wtls.handshake.server_hello",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Server Hello", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_version,
 			{ 	"Version",
 				"wtls.handshake.server_hello.version",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Version", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_gmt,
 			{ 	"Time GMT",
 				"wtls.handshake.server_hello.gmt",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-				"Time GMT", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_random,
 			{ 	"Random",
 				"wtls.handshake.server_hello.random",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Random", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_session,
 			{ 	"Session ID",
 				"wtls.handshake.server_hello.sessionid",
 				 FT_UINT64, BASE_HEX_DEC, NULL, 0x00,
-				"Session ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_session_str,
 			{ 	"Session ID",
 				"wtls.handshake.server_hello.session.str",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Session ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cli_key_id,
 			{ 	"Client Key ID",
 				"wtls.handshake.server_hello.key",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Client Key ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_suite_item,
 			{ 	"Cipher",
 				"wtls.handshake.server_hello.cipher",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Cipher", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_bulk,
 			{ 	"Cipher Bulk",
 				"wtls.handshake.server_hello.cipher.bulk",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_bulk ), 0x00,
-				"Cipher Bulk", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_mac,
 			{ 	"Cipher MAC",
 				"wtls.handshake.server_hello.cipher.mac",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_mac ), 0x00,
-				"Cipher MAC", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_compression,
 			{ 	"Compression",
 				"wtls.handshake.server_hello.compression",
 				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_compression ), 0x00,
-				"Compression", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_sequence_mode,
 			{ 	"Sequence Mode",
 				"wtls.handshake.server_hello.sequence_mode",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_sequence_mode ), 0x00,
-				"Sequence Mode", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_key_refresh,
 			{ 	"Refresh",
 				"wtls.handshake.server_hello.refresh",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Refresh", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificates,
 			{ 	"Certificates",
 				"wtls.handshake.certificates",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Certificates", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate,
 			{ 	"Certificate",
 				"wtls.handshake.certificate",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Certificate", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_type,
 			{ 	"Type",
 				"wtls.handshake.certificate.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_certificate_type ), 0x00,
-				"Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_version,
 			{ 	"Version",
 				"wtls.handshake.certificate.version",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Version", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_signature_type,
 			{ 	"Signature Type",
 				"wtls.handshake.certificate.signature.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_certificate_signature ), 0x00,
-				"Signature Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_signature,
 			{ 	"Signature Size",
 				"wtls.handshake.certificate.signature.signature",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Signature Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_type,
 			{ 	"Issuer",
 				"wtls.handshake.certificate.issuer.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
-				"Issuer", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.issuer.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Charset", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_size,
 			{ 	"Size",
 				"wtls.handshake.certificate.issuer.size",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_name,
 			{ 	"Name",
 				"wtls.handshake.certificate.issuer.name",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Name", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_valid_not_before,
 			{ 	"Valid not before",
 				"wtls.handshake.certificate.before",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-				"Valid not before", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_valid_not_after,
 			{ 	"Valid not after",
 				"wtls.handshake.certificate.after",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-				"Valid not after", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_type,
 			{ 	"Subject",
 				"wtls.handshake.certificate.subject.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
-				"Subject", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.subject.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Charset", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_size,
 			{ 	"Size",
 				"wtls.handshake.certificate.subject.size",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_name,
 			{ 	"Name",
 				"wtls.handshake.certificate.subject.name",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Name", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_public_key_type,
 			{ 	"Public Key Type",
 				"wtls.handshake.certificate.public.type",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_public_key_type ), 0x00,
-				"Public Key Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_key_parameter_index,
 			{ 	"Parameter Index",
 				"wtls.handshake.certificate.parameter_index",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Parameter Index", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_key_parameter_set,
 			{ 	"Parameter Set",
 				"wtls.handshake.certificate.parameter",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Parameter Set", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_exponent,
 			{ 	"RSA Exponent Size",
 				"wtls.handshake.certificate.rsa.exponent",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"RSA Exponent Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_modules,
 			{ 	"RSA Modulus Size",
 				"wtls.handshake.certificate.rsa.modules",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"RSA Modulus Size", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_alert,
 			{ 	"Alert",
 				"wtls.alert",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Alert", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_alert_level,
 			{ 	"Level",
 				"wtls.alert.level",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_alert_level ), 0x00,
-				"Level", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_alert_description,
 			{ 	"Description",
 				"wtls.alert.description",
 				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_alert_description ), 0x00,
-				"Description", HFILL
+				NULL, HFILL
 			}
 		},
 	};

@@ -3248,35 +3248,35 @@ proto_register_pvfs(void)
 	static hf_register_info hf[] = {
 		{ &hf_pvfs_magic_nr, 
 			{ "Magic Number", "pvfs.magic_nr", FT_UINT32, BASE_HEX, 
-				NULL, 0, "Magic Number", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_mode,
 			{ "Mode", "pvfs.mode", FT_UINT32, BASE_DEC, 
-				VALS(names_pvfs_mode), 0, "Mode", HFILL }},
+				VALS(names_pvfs_mode), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_tag,
 			{ "Tag", "pvfs.tag", FT_UINT64, BASE_DEC,
-				NULL, 0, "Tag", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_size,
 			{ "Size", "pvfs.size", FT_UINT64, BASE_DEC,
-				NULL, 0, "Size", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_release_number,
 			{ "Release Number", "pvfs.release_number", FT_UINT32, BASE_DEC,
-				NULL, 0, "Release Number", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_encoding,
 			{ "Encoding", "pvfs.encoding", FT_UINT32, BASE_DEC, 
-				VALS(names_pvfs_encoding), 0, "Encoding", HFILL }},
+				VALS(names_pvfs_encoding), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_server_op,
 			{ "Server Operation", "pvfs.server_op", FT_UINT32, BASE_DEC,
-				VALS(names_pvfs_server_op), 0, "Server Operation", HFILL }},
+				VALS(names_pvfs_server_op), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_handle,
-			{ "Handle", "pvfs.handle", FT_BYTES, BASE_HEX,
-				NULL, 0, "Handle", HFILL }},
+			{ "Handle", "pvfs.handle", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_fs_id,
 			{ "fs_id", "pvfs.fs_id", FT_UINT32, BASE_HEX,
@@ -3296,7 +3296,7 @@ proto_register_pvfs(void)
 
 		{ &hf_pvfs_error,
 			{ "Result", "pvfs.error", FT_UINT32, BASE_HEX,
-				VALS(names_pvfs_error), 0, "Result", HFILL }},
+				VALS(names_pvfs_error), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_atime,
 			{ "atime", "pvfs.atime", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -3376,83 +3376,83 @@ proto_register_pvfs(void)
 
 		{ &hf_pvfs_directory_version,
 			{ "Directory Version", "pvfs.directory_version", FT_UINT64, BASE_HEX,
-				NULL, 0, "Directory Version", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_path,
-			{ "Path", "pvfs.path", FT_STRING, BASE_DEC, 
-				NULL, 0, "Path", HFILL }},
+			{ "Path", "pvfs.path", FT_STRING, BASE_NONE, 
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_total_completed,
 			{ "Bytes Completed", "pvfs.bytes_completed", FT_UINT64, BASE_DEC,
-				NULL, 0, "Bytes Completed", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_io_dist,
-			 { "Name", "pvfs.distribution.name", FT_STRING, BASE_DEC,
+			 { "Name", "pvfs.distribution.name", FT_STRING, BASE_NONE,
 				 NULL, 0, "Distribution Name", HFILL }},
 
 		{ &hf_pvfs_aggregate_size,
 			{ "Aggregate Size", "pvfs.aggregate_size", FT_UINT64, BASE_DEC,
-				NULL, 0, "Aggregate Size", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_io_type,
 			{ "I/O Type", "pvfs.io_type", FT_UINT32, BASE_DEC,
-				VALS(names_pvfs_io_type), 0, "I/O Type", HFILL }},
+				VALS(names_pvfs_io_type), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_flowproto_type,
 			{ "Flow Protocol Type", "pvfs.flowproto_type", FT_UINT32, BASE_DEC,
-				VALS(names_pvfs_flowproto_type), 0, "Flow Protocol Type", HFILL }},
+				VALS(names_pvfs_flowproto_type), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_server_param,
 			{ "Server Parameter", "pvfs.server_param", FT_UINT32, BASE_DEC,
-				VALS(names_pvfs_server_param), 0, "Server Parameter", HFILL }},
+				VALS(names_pvfs_server_param), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_prev_value,
 			{ "Previous Value", "pvfs.prev_value", FT_UINT64, BASE_DEC,
-				NULL, 0, "Previous Value", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_ram_free_bytes,
 			{ "RAM Free Bytes", "pvfs.ram.free_bytes", FT_UINT64, BASE_DEC,
-				NULL, 0, "RAM Free Bytes", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_bytes_available,
 			{ "Bytes Available", "pvfs.bytes_available", FT_UINT64, BASE_DEC,
-				NULL, 0, "Bytes Available", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_bytes_total,
 			{ "Bytes Total", "pvfs.bytes_total", FT_UINT64, BASE_DEC,
-				NULL, 0, "Bytes Total", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_ram_bytes_total,
 			{ "RAM Bytes Total", "pvfs.ram_bytes_total", FT_UINT64, BASE_DEC,
-				NULL, 0, "RAM Bytes Total", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_ram_bytes_free,
 			{ "RAM Bytes Free", "pvfs.ram_bytes_free", FT_UINT64, BASE_DEC,
-				NULL, 0, "RAM Bytes Free", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_load_average_1s,
 			{ "Load Average (1s)", "pvfs.load_average.1s", FT_UINT64, BASE_DEC,
-				NULL, 0, "Load Average (1s)", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_load_average_5s,
 			{ "Load Average (5s)", "pvfs.load_average.5s", FT_UINT64, BASE_DEC,
-				NULL, 0, "Load Average (5s)", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_load_average_15s,
 			{ "Load Average (15s)", "pvfs.load_average.15s", FT_UINT64, BASE_DEC,
-				NULL, 0, "Load Average (15s)", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_uptime_seconds,
 			{ "Uptime (seconds)", "pvfs.uptime", FT_UINT64, BASE_DEC,
-				NULL, 0, "Uptime (seconds)", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_handles_available,
 			{ "Handles Available", "pvfs.handles_available", FT_UINT64, BASE_DEC,
-				NULL, 0, "Handles Available", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_handles_total,
 			{ "Total Handles", "pvfs.total_handles", FT_UINT64, BASE_DEC,
-				NULL, 0, "Total Handles", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		/*
 		 * This is used when the field returns 64-bits but we're only interested
@@ -3460,55 +3460,55 @@ proto_register_pvfs(void)
 		 */
 		{ &hf_pvfs_unused,
 			{ "Unused", "", FT_UINT32, BASE_DEC,
-				NULL, 0, "Unused", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_context_id,
 			{ "Context ID", "pvfs.context_id", FT_UINT32, BASE_DEC,
-				NULL, 0, "Context ID", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_offset,
 			{ "Offset", "pvfs.offset", FT_UINT64, BASE_DEC,
-				NULL, 0, "Offset", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_stride,
 			{ "Stride", "pvfs.stride", FT_UINT64, BASE_DEC,
-				NULL, 0, "Stride", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_ub,
 			{ "ub", "pvfs.ub", FT_UINT64, BASE_DEC,
-				NULL, 0, "ub", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_lb,
 			{ "lb", "pvfs.lb", FT_UINT64, BASE_DEC,
-				NULL, 0, "lb", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_end_time_ms,
 			{ "end_time_ms", "pvfs.end_time_ms", FT_UINT64, BASE_DEC,
-				NULL, 0, "end_time_ms", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_cur_time_ms,
 			{ "cur_time_ms", "pvfs.cur_time_ms", FT_UINT64, BASE_DEC,
-				NULL, 0, "cur_time_ms", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_start_time_ms,
 			{ "start_time_ms", "pvfs.start_time_ms", FT_UINT64, BASE_DEC,
-				NULL, 0, "start_time_ms", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_bytes_written,
 			{ "bytes_written", "pvfs.bytes_written", FT_UINT64, BASE_DEC,
-				NULL, 0, "bytes_written", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_bytes_read,
 			{ "bytes_read", "pvfs.bytes_read", FT_UINT64, BASE_DEC,
-				NULL, 0, "bytes_read", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_metadata_write,
 			{ "metadata_write", "pvfs.metadata_write", FT_UINT64, BASE_DEC,
-				NULL, 0, "metadata_write", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_metadata_read,
 			{ "metadata_read", "pvfs.metadata_read", FT_UINT64, BASE_DEC,
-				NULL, 0, "metadata_read", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_b_size,
 			{ "Size of bstream (if applicable)", "pvfs.b_size", FT_UINT64,
@@ -3520,15 +3520,15 @@ proto_register_pvfs(void)
 
 		{ &hf_pvfs_id_gen_t,
 			{ "id_gen_t", "pvfs.id_gen_t", FT_UINT64, BASE_DEC,
-				NULL, 0, "id_gen_t", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_attribute_key,
-			{ "Attribute key", "pvfs.attribute.key", FT_STRING, BASE_DEC,
-				NULL, 0, "Attribute key", HFILL }},
+			{ "Attribute key", "pvfs.attribute.key", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_attribute_value,
-			{ "Attribute value", "pvfs.attribute.value", FT_STRING, BASE_DEC,
-				NULL, 0, "Attribute value", HFILL }},
+			{ "Attribute value", "pvfs.attribute.value", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_strip_size,
 			{ "Strip size", "pvfs.strip_size", FT_UINT64, BASE_DEC,
@@ -3537,32 +3537,32 @@ proto_register_pvfs(void)
 		/* TODO: need description */
 		{ &hf_pvfs_ereg,
 			{ "ereg", "pvfs.ereg", FT_INT32, BASE_DEC,
-				NULL, 0, "ereg", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		/* TODO: need description */
 		{ &hf_pvfs_sreg,
 			{ "sreg", "pvfs.sreg", FT_INT32, BASE_DEC,
-				NULL, 0, "sreg", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_num_eregs,
 			{ "Number of eregs", "pvfs.num_eregs", FT_UINT32, BASE_DEC,
-				NULL, 0, "Number of eregs", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_num_blocks,
 			{ "Number of blocks", "pvfs.num_blocks", FT_UINT32, BASE_DEC,
-				NULL, 0, "Number of blocks", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_num_contig_chunks,
 			{ "Number of contig_chunks", "pvfs.num_contig_chunks", FT_UINT32, 
-				BASE_DEC, NULL, 0, "Number of contig_chunks", HFILL }},
+				BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_server_nr,
 			{ "Server #", "pvfs.server_nr", FT_UINT32, BASE_DEC,
-				NULL, 0, "Server #", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_server_count,
 			{ "Number of servers", "pvfs.server_count", FT_UINT32, BASE_DEC,
-				NULL, 0, "Number of servers", HFILL }},
+				NULL, 0, NULL, HFILL }},
 
 		{ &hf_pvfs_fh_length,
 			{ "length", "pvfs.fh.length", FT_UINT32, BASE_DEC,

@@ -305,7 +305,7 @@ proto_register_pw_atm(void)
                         {
                                 "ATM PW, N-to-one Cell Mode (with CW)", 
                                 "pw_atm_n2o_cw", FT_BOOLEAN, 
-                                0, NULL, 0x0, NULL, HFILL
+                                BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
                 {
@@ -313,7 +313,7 @@ proto_register_pw_atm(void)
                         {
                                 "ATM PW, N-to-one Cell Mode (no CW)", 
                                 "pw_atm_n2o_nocw", FT_BOOLEAN, 
-                                0, NULL, 0x0, NULL, HFILL
+                                BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
 #if 0

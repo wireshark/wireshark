@@ -542,7 +542,7 @@ proto_register_radiotap(void)
     /* Boolean 'present.flags' flags */
     { &hf_radiotap_flags,
       { "Flags", "radiotap.flags",
-	FT_UINT8, BASE_HEX, NULL,  0x0, "", HFILL } },
+	FT_UINT8, BASE_HEX, NULL,  0x0, NULL, HFILL } },
 
     { &hf_radiotap_flags_cfp,
       { "CFP", "radiotap.flags.cfp",
@@ -588,7 +588,7 @@ proto_register_radiotap(void)
     { &hf_radiotap_mactime,
        { "MAC timestamp", "radiotap.mactime",
 	 FT_UINT64, BASE_DEC, NULL, 0x0,
-	 " Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC.", HFILL } },
+	 "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC.", HFILL } },
 
     { &hf_radiotap_quality,
        { "Signal Quality", "radiotap.quality",
@@ -613,7 +613,7 @@ proto_register_radiotap(void)
     { &hf_radiotap_channel_flags,
       { "Channel type", "radiotap.channel.type",
 	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0,
-	"Channel type", HFILL } },
+	NULL, HFILL } },
 
     { &hf_radiotap_channel_flags_turbo,
        { "Turbo", "radiotap.channel.type.turbo",
@@ -654,7 +654,7 @@ proto_register_radiotap(void)
 
     { &hf_radiotap_rxflags,
       { "RX flags", "radiotap.rxflags",
-	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL } },
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     { &hf_radiotap_rxflags_badplcp,
        { "Bad PLCP", "radiotap.rxflags.badplcp",
@@ -663,13 +663,13 @@ proto_register_radiotap(void)
 
     { &hf_radiotap_xchannel,
       { "Channel number", "radiotap.xchannel",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_radiotap_xchannel_frequency,
       { "Channel frequency", "radiotap.xchannel.freq",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_radiotap_xchannel_flags,
       { "Channel type", "radiotap.xchannel.flags",
-	FT_UINT32, BASE_HEX, VALS(phy_type), 0x0, "", HFILL } },
+	FT_UINT32, BASE_HEX, VALS(phy_type), 0x0, NULL, HFILL } },
 
     { &hf_radiotap_xchannel_flags_turbo,
        { "Turbo", "radiotap.xchannel.type.turbo",

@@ -948,7 +948,7 @@ proto_register_kink(void) {
       	"the reserved of kink", HFILL }},
     { &hf_kink_checkSum,
       { "Checksum",       "kink.checkSum", 
-	FT_BYTES,	BASE_DEC,	NULL,	0x0,
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"the checkSum of kink", HFILL }},
     { &hf_kink_next_payload,
       { "Next Payload",       "kink.nextPayload", 

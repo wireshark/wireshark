@@ -1849,52 +1849,52 @@ proto_register_uma(void)
 		{ &hf_uma_length_indicator,
 			{ "Length Indicator","uma.li",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Length Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_pd,
 			{ "Protocol Discriminator","uma.pd",
 			FT_UINT8, BASE_DEC, VALS(uma_pd_vals), 0x0f,
-			"Protocol Discriminator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_skip_ind,
 			{ "Skip Indicator",           "uma.skip.ind",
 			FT_UINT8, BASE_DEC, NULL, 0xf0,
-			"Skip Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_msg_type,
 			{ "URR Message Type", "uma.urr.msg.type",
 			FT_UINT16, BASE_DEC, VALS(uma_urr_msg_type_vals), 0x0,
-			"URR Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urlc_msg_type,
 			{ "URLC Message Type", "uma.urlc.msg.type",
 			FT_UINT8, BASE_DEC, VALS(uma_urlc_msg_type_vals), 0x0,
-			"URLC Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urlc_TLLI,
 			{ "Temporary Logical Link Identifier","uma.urlc.tlli",
-			FT_BYTES,BASE_DEC,  NULL, 0x0,
-			"Temporary Logical Link Identifier", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urlc_seq_nr,
 			{ "Sequence Number","uma.urlc.seq.nr",
-			FT_BYTES,BASE_DEC,  NULL, 0x0,
-			"Sequence Number", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_IE,
 			{ "URR Information Element","uma.urr.ie.type",
 			FT_UINT8, BASE_DEC, VALS(uma_urr_IE_type_vals), 0x0,
-			"URR Information Element", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_IE_len,
 			{ "URR Information Element length","uma.urr.ie.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"URR Information Element length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_mobile_identity_type,
 			{ "Mobile Identity Type","uma.urr.ie.mobileid.type",
 			FT_UINT8, BASE_DEC, VALS(uma_urr_mobile_identity_type_vals), 0x07,
-			"Mobile Identity Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_odde_even_ind,
 			{ "Odd/even indication","uma.urr.oddevenind",
@@ -1904,22 +1904,22 @@ proto_register_uma(void)
 		{ &hf_uma_urr_imsi,
 			{ "IMSI", "uma_urr.imsi",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"IMSI", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_imei,
 			{ "IMEI", "uma_urr.imei",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"IMEI", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_imeisv,
 			{ "IMEISV", "uma_urr.imeisv",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"IMEISV", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_tmsi_p_tmsi,
 			{ "TMSI/P-TMSI", "uma_urr.tmsi_p_tmsi",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"TMSI/P-TMSI", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uri,
 			{ "GAN Release Indicator","uma.urr.uri",
@@ -1929,49 +1929,49 @@ proto_register_uma(void)
 		{ &hf_uma_urr_radio_type_of_id,
 			{ "Type of identity","uma.urr.radio_type_of_id",
 			FT_UINT8, BASE_DEC, VALS(radio_type_of_id_vals), 0x0f,
-			"Type of identity", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_radio_id,
 			{ "Radio Identity","uma.urr.radio_id",
 			FT_ETHER, BASE_DEC, NULL, 0x00,
-			"Radio Identity", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_uma_urr_cell_id,
 			{ "Cell Identity","uma.urr.cell_id",
 			FT_UINT16, BASE_DEC, NULL, 0x00,
-			"Cell Identity", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_uma_urr_mcc,
 			{ "Mobile Country Code","uma.urr.mcc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Mobile Country Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_mnc,
 			{ "Mobile network code","uma.urr.mnc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Mobile network code ", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_lac,
 			{ "Location area code","uma.urr.lac",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Location area code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gci,
 			{ "GCI, GSM Coverage Indicator","uma.urr.gci",
 			FT_UINT8, BASE_DEC,  VALS(uma_gci_vals), 0x0,
-			"GCI, GSM Coverage Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_tura,
 			{ "TURA, Type of Unlicensed Radio","uma.urr.tura",
 			FT_UINT8,BASE_DEC,  VALS(uma_tura_vals), 0xf,
-			"TURA, Type of Unlicensed Radio", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gc,
 			{ "GC, GERAN Capable","uma.urr.gc",
 			FT_UINT8,BASE_DEC,  VALS(uma_gc_vals), 0x10,
-			"GC, GERAN Capable", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uc,
 			{ "UC, UTRAN Capable","uma.urr.uc",
@@ -1981,7 +1981,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_rrs,
 			{ "RTP Redundancy Support(RRS)","uma.urr.rrs",
 			FT_UINT8,BASE_DEC, VALS(uma_rrs_vals), 0x01,
-			"RTP Redundancy Support(RRS)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gmsi,
 			{ "GMSI, GAN Mode Support Indicator)","uma.urr.gmsi",
@@ -1991,137 +1991,137 @@ proto_register_uma(void)
 		{ &hf_uma_urr_psho,
 			{ "PS HO, PS Handover Capable","uma.urr.psho",
 			FT_UINT8,BASE_DEC, VALS(uma_ps_ho_vals), 0x02,
-			"PS HO, PS Handover Capable", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_IP_Address_type,
 			{ "IP address type number value","uma.urr.ip_type",
 			FT_UINT8,BASE_DEC,  VALS(IP_address_type_vals), 0x0,
-			"IP address type number value", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_FQDN,
 		       { "Fully Qualified Domain/Host Name (FQDN)", "uma.urr.fqdn",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Fully Qualified Domain/Host Name (FQDN)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_sgw_ipv4,
 			{ "SGW IPv4 address","uma.urr.sgwipv4",
 			FT_IPv4,BASE_NONE,  NULL, 0x0,
-			"SGW IPv4 address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_redirection_counter,
 			{ "Redirection Counter","uma.urr.redirection_counter",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Redirection Counter", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_dis_rej_cau,
 			{ "Discovery Reject Cause","uma.urr.is_rej_cau",
 			FT_UINT8,BASE_DEC,  VALS(uma_discovery_reject_cause_vals), 0x0,
-			"Discovery Reject Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ECMC,
 			{ "ECMC, Early Classmark Sending Control","uma.urr.is_rej_cau",
 			FT_UINT8,BASE_DEC,  VALS(ECMC_vals), 0x2,
-			"ECMC, Early Classmark Sending Control", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_NMO,
 			{ "NMO, Network Mode of Operation","uma.urr.NMO",
 			FT_UINT8,BASE_DEC,  VALS(NMO_vals), 0xc,
-			"NMO, Network Mode of Operation", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_GPRS,
 			{ "GPRS, GPRS Availability","uma.urr.is_rej_cau",
 			FT_UINT8,BASE_DEC,  VALS(GPRS_avail_vals), 0x10,
-			"GPRS, GPRS Availability", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_DTM,
 			{ "DTM, Dual Transfer Mode of Operation by network","uma.urr.dtm",
 			FT_UINT8,BASE_DEC,  VALS(DTM_vals), 0x20,
-			"DTM, Dual Transfer Mode of Operation by network", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ATT,
 			{ "ATT, Attach-detach allowed","uma.urr.att",
 			FT_UINT8,BASE_DEC,  VALS(ATT_vals), 0x40,
-			"ATT, Attach-detach allowed", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_MSCR,
 			{ "MSCR, MSC Release","uma.urr.mscr",
 			FT_UINT8,BASE_DEC,  VALS(MSCR_vals), 0x80,
-			"MSCR, MSC Release", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_T3212_timer,
 			{ "T3212 Timer value(seconds)","uma.urr.t3212",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"T3212 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RAC,
 			{ "Routing Area Code","uma.urr.rac",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Routing Area Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ap_location,
 			{ "AP Location","uma.urr.ap_location",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"AP Location", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_SGSNR,
 			{ "SGSN Release","uma.urr.SGSNR",
 			FT_UINT8,BASE_DEC,  VALS(SGSNR_vals), 0x01,
-			"SGSN Release", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ECMP,
 			{ "ECMP, Emergency Call Mode Preference","uma.urr.ECMP",
 			FT_UINT8,BASE_DEC,  VALS(ECMP_vals), 0x02,
-			"ECMP, Emergency Call Mode Preference", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RE,
 			{ "RE, Call reestablishment allowed","uma.urr.RE",
 			FT_UINT8,BASE_DEC,  VALS(RE_vals), 0x04,
-			"RE, Call reestablishment allowed", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_PFCFM,
 			{ "PFCFM, PFC_FEATURE_MODE","uma.urr.PFCFM",
 			FT_UINT8,BASE_DEC,  VALS(PFCFM_vals), 0x08,
-			"PFCFM, PFC_FEATURE_MODE", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_3GECS,
 			{ "3GECS, 3G Early Classmark Sending Restriction","uma.urr.3GECS",
 			FT_UINT8,BASE_DEC,  VALS(Three_GECS_vals), 0x10,
-			"3GECS, 3G Early Classmark Sending Restriction", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_bcc,
 			{ "BCC","uma.urr.bcc",
 			FT_UINT8,BASE_DEC,  NULL, 0x07,
-			"BCC", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ncc,
 			{ "NCC","uma.urr.ncc",
 			FT_UINT8,BASE_DEC,  NULL, 0x38,
-			"NCC", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3907_timer,
 			{ "TU3907 Timer value(seconds)","uma.urr.tu3907",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU3907 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_GSM_RR_state,
 			{ "GSM RR State value","uma.urr.gsmrrstate",
 			FT_UINT8,BASE_DEC,  VALS(uma_GRS_GSM_RR_State_vals), 0x7,
-			"GSM RR State value", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gan_band,
 			{ "UMA Band","uma.urr.umaband",
 			FT_UINT8,BASE_DEC,  VALS(uma_gan_band_vals), 0x0f,
-			"UMA Band", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_URR_state,
 			{ "URR State","uma.urr.state",
 			FT_UINT8,BASE_DEC,  VALS(URR_state_vals), 0x03,
-			"URR State", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_register_reject_cause,
 			{ "Register Reject Cause","uma.urr.state",
 			FT_UINT8,BASE_DEC,  VALS(register_reject_cause_vals), 0x0,
-			"Register Reject Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3906_timer,
 			{ "TU3907 Timer value(seconds)","uma.urr.tu3906",
@@ -2136,27 +2136,27 @@ proto_register_uma(void)
 		{ &hf_uma_urr_TU3902_timer,
 			{ "TU3902 Timer value(seconds)","uma.urr.tu3902",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU3902 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_communication_port,
 			{ "Communication Port","uma.urr.communication_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"Communication Port", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_L3_Message,
 			{ "L3 message contents","uma.urr.l3",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"L3 message contents", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_L3_protocol_discriminator,
 			{ "Protocol discriminator","uma.urr.L3_protocol_discriminator",
 			FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,
-			"Protocol discriminator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_sc,
 			{ "SC","uma.urr.SC",
 			FT_UINT8,BASE_DEC,  VALS(SC_vals), 0x1,
-			"SC", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_algorithm_id,
 			{ "Algorithm identifier","uma.urr.algorithm_identifier",
@@ -2166,12 +2166,12 @@ proto_register_uma(void)
 		{ &hf_uma_urr_GPRS_resumption,
 			{ "GPRS resumption ACK","uma.urr.GPRS_resumption",
 			FT_UINT8,BASE_DEC,  VALS(GPRS_resumption_vals), 0x1,
-			"GPRS resumption ACK", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ULQI,
 			{ "ULQI, UL Quality Indication","uma.urr.ULQI",
 			FT_UINT8,BASE_DEC,  VALS(uma_ulqi_vals), 0x0f,
-			"ULQI, UL Quality Indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3920_timer,
 			{ "TU3920 Timer value(seconds)","uma.urr.tu3920",
@@ -2181,7 +2181,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_peak_tpt_cls,
 			{ "PEAK_THROUGHPUT_CLASS","uma.urr.peak_tpt_cls",
 			FT_UINT8,BASE_DEC,  NULL, 0x0f,
-			"PEAK_THROUGHPUT_CLASS", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_radio_pri,
 			{ "Radio Priority","uma.urr.radio_pri",
@@ -2191,137 +2191,137 @@ proto_register_uma(void)
 		{ &hf_uma_urr_rlc_mode,
 			{ "RLC mode","uma.urr.rrlc_mode",
 			FT_UINT8,BASE_DEC,  VALS(rlc_mode_vals), 0x80,
-			"RLC mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ga_psr_cause,
 			{ "GA-PSR Cause","uma.urr.ga_psr_cause",
 			FT_UINT8,BASE_DEC,  VALS(uma_ga_psr_cause_vals), 0x0,
-			"GA-PSR Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_udr,
 			{ "User Data Rate value (bits/s)","uma.urr.URLCcause",
 			FT_UINT32,BASE_DEC,  NULL, 0x0,
-			"User Data Rate value (bits/s)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU4001_timer,
 			{ "TU4001 Timer value(seconds)","uma.urr.tu4001",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU4001 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_LS,
 			{ "Location Status(LS)","uma.urr.LS",
 			FT_UINT8,BASE_DEC,  VALS(LS_vals), 0x3,
-			"Location Status(LS)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_cipher_res,
 			{ "Cipher Response(CR)","uma.urr.CR",
 			FT_UINT8,BASE_DEC,  VALS(CR_vals), 0x3,
-			"Cipher Response(CR)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_rand_val,
 			{ "Ciphering Command RAND value","uma.rand_val",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"Ciphering Command RAND value", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ciphering_command_mac,
 			{ "Ciphering Command MAC (Message Authentication Code)","uma.ciphering_command_mac",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"Ciphering Command MAC (Message Authentication Code)", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ciphering_key_seq_num,
 			{ "Values for the ciphering key","uma.ciphering_key_seq_num",
 			FT_UINT8,BASE_DEC,  NULL, 0x7,
-			"Values for the ciphering key", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_sapi_id,
 			{ "SAPI ID","uma.sapi_id",
 			FT_UINT8,BASE_DEC,  VALS(sapi_id_vals), 0x7,
-			"SAPI ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_establishment_cause,
 			{ "Establishment Cause","uma.urr.establishment_cause",
 			FT_UINT8,BASE_DEC,  VALS(establishment_cause_vals), 0x0,
-			"Establishment Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_channel,
 			{ "Channel","uma.urr.establishment_cause",
 			FT_UINT8,BASE_DEC,  VALS(channel_vals), 0x3,
-			"Channel", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_PDU_in_error,
 			{ "PDU in Error,","uma.urr.PDU_in_error",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"PDU in Error,", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_sample_size,
 			{ "Sample Size","uma.urr.sample_size",
 			FT_UINT8,BASE_DEC,  VALS(sample_size_vals), 0x0,
-			"Sample Size", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_payload_type,
 			{ "Payload Type","uma.urr.sample_size",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Payload Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_LLC_PDU,
 			{ "LLC-PDU","uma.urr.llc_pdu",
-			FT_BYTES,BASE_HEX,  NULL, 0x0,
-			"LLC-PDU", HFILL }
+			FT_BYTES,BASE_NONE,  NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_LBLI,
 			{ "LBLI, Location Black List indicator","uma.urr.LBLI",
 			FT_UINT8,BASE_DEC,  VALS(LBLI_vals), 0x0,
-			"LBLI, Location Black List indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RI,
 			{ "Reset Indicator(RI)","uma.urr.RI",
 			FT_UINT8,BASE_DEC,  VALS(RI_vals), 0x1,
-			"Reset Indicator(RI)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU4003_timer,
 			{ "TU4003 Timer value(seconds)","uma.urr.tu4003",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"TU4003 Timer value(seconds)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ap_service_name_type,
 			{ "AP Service Name type","uma.urr.ap_service_name_type",
 			FT_UINT8,BASE_DEC,  VALS(ap_service_name_type_vals), 0x0,
-			"AP Service Name type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ap_Service_name_value,
 			{ "AP Service Name Value","uma.urr.ap_service_name_value",
 			FT_STRING,BASE_NONE,  NULL, 0x0,
-			"AP Service Name Value", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_service_zone_icon_ind,
 			{ "UMA Service Zone Icon Indicator","uma.urr.uma_service_zone_icon_ind",
 			FT_UINT8,BASE_DEC,  VALS(uma_service_zone_icon_ind_vals), 0x0,
-			"UMA Service Zone Icon Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_service_zone_str_len,
 			{ "Length of UMA Service Zone string","uma.urr.service_zone_str_len",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Length of UMA Service Zone string", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_window_size,
 			{ "Window Size","uma.urr.uma_window_size",
 			FT_UINT8,BASE_DEC,  VALS(window_size_vals), 0x03,
-			"Window Size", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_codec_mode,
 			{ "GAN A/Gb Mode Codec Mode","uma.urr.uma_codec_mode",
 			FT_UINT8,BASE_DEC,  NULL, 0xc0,
-			"GAN A/Gb Mode Codec Mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_UTRAN_cell_id_disc,
 			{ "UTRAN Cell Identification Discriminator","uma.urr.uma_UTRAN_cell_id_disc",
 			FT_UINT8,BASE_DEC,  VALS(UTRAN_cell_id_disc_vals), 0x0f,
-			"UTRAN Cell Identification Discriminator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_suti,
 			{ "SUTI, Serving GANC table indicator","uma.urr.uma_suti",
 			FT_UINT8,BASE_DEC,  VALS(suti_vals), 0x01,
-			"SUTI, Serving GANC table indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_mps,
 			{ "UMPS, Manual PLMN Selection indicator","uma.urr.mps",
@@ -2331,47 +2331,47 @@ proto_register_uma(void)
 		{ &hf_uma_urr_num_of_plms,
 			{ "Number of PLMN:s","uma.urr.num_of_plms",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Number of PLMN:s", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_cbs,
 			{ "CBS Cell Broadcast Service","uma.urr.cbs",
 			FT_UINT8,BASE_DEC,  VALS(cbs_vals), 0x01,
-			"CBS Cell Broadcast Service", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_num_of_cbs_frms,
 			{ "Number of CBS Frames","uma.urr.num_of_cbs_frms",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"Number of CBS Frames", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ms_radio_id,
 			{ "MS Radio Identity","uma.urr.ms_radio_id",
 			FT_ETHER, BASE_DEC, NULL, 0x00,
-			"MS Radio Identity", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_service_zone_str,
 			{ "UMA Service Zone string,","uma.urr.uma_service_zone_str",
 			FT_STRING,BASE_NONE,  NULL, 0x0,
-			"UMA Service Zone string,", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_unc_ipv4,
 			{ "UNC IPv4 address","uma.urr.uncipv4",
 			FT_IPv4,BASE_NONE,  NULL, 0x0,
-			"UNC IPv4 address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_unc_FQDN,
 		       { "UNC Fully Qualified Domain/Host Name (FQDN)", "uma.urr.unc_fqdn",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"UNC Fully Qualified Domain/Host Name (FQDN)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_GPRS_user_data_transport_ipv4,
 			{ "IP address for GPRS user data transport","uma.urr.gprs_usr_data_ipv4",
 			FT_IPv4,BASE_NONE,  NULL, 0x0,
-			"IP address for GPRS user data transport", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_GPRS_port,
 			{ "UDP Port for GPRS user data transport","uma.urr.gprs_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"UDP Port for GPRS user data transport", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_UNC_tcp_port,
 			{ "UNC TCP port","uma.urr.gprs_port",
@@ -2381,17 +2381,17 @@ proto_register_uma(void)
 		{ &hf_uma_urr_RTP_port,
 			{ "RTP UDP port","uma.urr.rtp_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"RTP UDP port", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RTCP_port,
 			{ "RTCP UDP port","uma.urr.rtcp_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"RTCP UDP port", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RXLEV_NCELL,
 			{ "RX Level","uma.urr.rxlevel",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
-			"RX Level", HFILL }
+			NULL, HFILL }
 		},
 	};
 

@@ -485,7 +485,7 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_sa_rp_addr,
                         { "RP Address",           "msdp.sa.rp_addr",
-                        FT_IPv4, 0, NULL, 0,
+                        FT_IPv4, BASE_NONE, NULL, 0,
                         "Active source's RP address", HFILL }
                 },
                 { &hf_msdp_sa_reserved,
@@ -500,12 +500,12 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_sa_group_addr,
                         { "Group Address",           "msdp.sa.group_addr",
-                        FT_IPv4, 0, NULL, 0,
+                        FT_IPv4, BASE_NONE, NULL, 0,
                         "The group address the active source has sent data to", HFILL }
                 },
                 { &hf_msdp_sa_src_addr,
                         { "Source Address",           "msdp.sa.src_addr",
-                        FT_IPv4, 0, NULL, 0,
+                        FT_IPv4, BASE_NONE, NULL, 0,
                         "The IP address of the active source", HFILL }
                 },
                 { &hf_msdp_sa_req_res,
@@ -515,7 +515,7 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_sa_req_group,
                         { "Group Address",           "msdp.sa_req.group_addr",
-                        FT_IPv4, 0, NULL, 0,
+                        FT_IPv4, BASE_NONE, NULL, 0,
                         "The group address the MSDP peer is requesting", HFILL }
                 },
                 { &hf_msdp_not_o,
@@ -535,7 +535,7 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_not_ipv4,
                         { "IPv4 address",           "msdp.not.ipv4",
-                        FT_IPv4, 0, NULL, 0,
+                        FT_IPv4, BASE_NONE, NULL, 0,
                         "Group/RP/Source address in Notification messages", HFILL }
                 },
                 { &hf_msdp_not_res,

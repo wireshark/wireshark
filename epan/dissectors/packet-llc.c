@@ -799,7 +799,7 @@ proto_register_llc(void)
 			VALS(sap_vals), 0x0, "DSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_dsap_ig,
-		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, 8,
+		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_NONE,
 			TFS(&ig_bit), 0x0, "Individual/Group - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ssap,
@@ -807,7 +807,7 @@ proto_register_llc(void)
 			VALS(sap_vals), 0x0, "SSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_ssap_cr,
-		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, 8,
+		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_NONE,
 			TFS(&cr_bit), 0x0, "Command/Response - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ctrl,

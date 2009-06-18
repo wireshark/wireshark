@@ -11910,82 +11910,82 @@ proto_register_ansi_a(void)
         { &hf_ansi_a_bsmap_msgtype,
             { "BSMAP Message Type",     "ansi_a_bsmap.msgtype",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_dtap_msgtype,
             { "DTAP Message Type",      "ansi_a_bsmap.dtap_msgtype",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_elem_id,
             { "Element ID",     "ansi_a_bsmap.elem_id",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_length,
             { "Length",         "ansi_a_bsmap.len",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_none,
             { "Sub tree",       "ansi_a_bsmap.none",
-            FT_NONE, 0, 0, 0,
-            "", HFILL }
+            FT_NONE, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_esn,
             { "ESN",    "ansi_a_bsmap.esn",
             FT_UINT32, BASE_HEX, 0, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_imsi,
             { "IMSI",   "ansi_a_bsmap.imsi",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_min,
             { "MIN",    "ansi_a_bsmap.min",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_meid,
             { "MEID",   "ansi_a_bsmap.meid",
-            FT_STRING, BASE_HEX, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_cld_party_bcd_num,
             { "Called Party BCD Number",        "ansi_a_bsmap.cld_party_bcd_num",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_bcd_num,
             { "Calling Party BCD Number",       "ansi_a_bsmap.clg_party_bcd_num",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_cld_party_ascii_num,
             { "Called Party ASCII Number",      "ansi_a_bsmap.cld_party_ascii_num",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_ascii_num,
             { "Calling Party ASCII Number",     "ansi_a_bsmap.clg_party_ascii_num",
-            FT_STRING, BASE_DEC, 0, 0,
-            "", HFILL }
+            FT_STRING, BASE_NONE, 0, 0,
+            NULL, HFILL }
         },
         { &hf_ansi_a_cell_ci,
             { "Cell CI",        "ansi_a_bsmap.cell_ci",
             FT_UINT16, BASE_HEX, 0, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_cell_lac,
             { "Cell LAC",       "ansi_a_bsmap.cell_lac",
             FT_UINT16, BASE_HEX, 0, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_cell_mscid,
             { "Cell MSCID",     "ansi_a_bsmap.cell_mscid",
             FT_UINT24, BASE_HEX, 0, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_pdsn_ip_addr,
             { "PDSN IP Address", "ansi_a_bsmap.pdsn_ip_addr",
@@ -12010,37 +12010,37 @@ proto_register_ansi_a(void)
         { &hf_ansi_a_a2p_bearer_ipv4_addr,
             { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv4_addr",
             FT_IPv4, BASE_NONE, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_ipv6_addr,
             { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv6_addr",
             FT_IPv6, BASE_NONE, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_udp_port,
             { "A2p Bearer UDP Port", "ansi_a_bsmap.a2p_bearer_udp_port",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_so,
             { "Service Option", "ansi_a_bsmap.so",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_cause_1,
             { "Cause",  "ansi_a_bsmap.cause_1",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_cause_2,
             { "Cause",  "ansi_a_bsmap.cause_2",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_a_meid_configured,
             { "Is MEID configured",  "ansi_a_bsmap.meid_configured",
-            FT_BOOLEAN, BASE_NONE, NULL, 0,
-            "Is MEID configured", HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 

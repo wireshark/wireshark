@@ -1485,32 +1485,32 @@ void proto_register_isns(void)
 	    "iSNS Flags" ,HFILL}
 	},
 	{ &hf_isns_client,
-	  { "Client    ","isns.flags.client",
+	  { "Client","isns.flags.client",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_client), ISNS_FLAGS_CLIENT,
 	    "iSNS Client" ,HFILL}
 	},
 	{ &hf_isns_server,
-	  { "Server    ","isns.flags.server",
+	  { "Server","isns.flags.server",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_server), ISNS_FLAGS_SERVER,
 	    "iSNS Server" ,HFILL}
 	},
 	{ &hf_isns_auth,
-	  { "Auth      ","isns.flags.authentication_block",
+	  { "Auth","isns.flags.authentication_block",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_auth), ISNS_FLAGS_AUTH,
 	    "is iSNS Authentication Block present?" ,HFILL}
 	},
 	{ &hf_isns_replace,
-	  { "Replace   ","isns.flags.replace",
+	  { "Replace","isns.flags.replace",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_replace), ISNS_FLAGS_REPLACE,
 	    "iSNS Replace" ,HFILL}
 	},
 	{ &hf_isns_last_pdu,
-	  { "Last PDU  ","isns.flags.lastpdu",
+	  { "Last PDU","isns.flags.lastpdu",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_last_pdu), ISNS_FLAGS_LAST_PDU,
 	    "iSNS Last PDU" ,HFILL}
 	},
 	{ &hf_isns_first_pdu,
-	  { "First PDU ","isns.flags.firstpdu",
+	  { "First PDU","isns.flags.firstpdu",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_first_pdu), ISNS_FLAGS_FIRST_PDU,
 	    "iSNS First PDU",HFILL }
 	},
@@ -1543,7 +1543,7 @@ void proto_register_isns(void)
 	{ &hf_isns_iscsi_node_type,
 	  { "iSCSI Node Type","isns.iscsi.node_type",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "iSCSI Node Type", HFILL }
+	    NULL, HFILL }
 	},
 
 	{ &hf_isns_esi_port,
@@ -1573,48 +1573,48 @@ void proto_register_isns(void)
 	{ &hf_isns_port_type,
 	  { "Port Type","isns.port.port_type",
 	    FT_BOOLEAN, 16, TFS(&isns_port_type), 0x01, /* bit 15 (or bit 1 of a 16bit word) */
-	    "Port Type",HFILL }
+	    NULL,HFILL }
 	},
 
 	{ &hf_isns_psb,
 	  { "Portal Security Bitmap","isns.psb",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Portal Security Bitmap", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_tunnel_mode,
-	  { "Tunnel Mode     ","isns.psb.tunnel",
+	  { "Tunnel Mode","isns.psb.tunnel",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_tunnel_mode),     0x0040, /* bit 25 */
 	    "Tunnel Mode Preferred",HFILL }
 	},
 	{ &hf_isns_psb_transport_mode,
-	  { "Transport Mode  ","isns.psb.transport",
+	  { "Transport Mode","isns.psb.transport",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_transport_mode),  0x0020, /* bit 26 */
-	    "Transport Mode",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_pfs,
-	  { "PFS             ","isns.psb.pfs",
+	  { "PFS","isns.psb.pfs",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_pfs),        0x0010, /* bit 27 */
-	    "PFS",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_aggressive_mode,
-	  { "Aggressive Mode ","isns.psb.aggressive_mode",
+	  { "Aggressive Mode","isns.psb.aggressive_mode",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_aggressive_mode), 0x0008, /* bit 28 */
-	    "Aggressive Mode",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_main_mode,
-	  { "Main Mode       ","isns.psb.main_mode",
+	  { "Main Mode","isns.psb.main_mode",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_main_mode),  0x0004, /* bit 29 */
-	    "Main Mode",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_ike_ipsec,
-	  { "IKE/IPSec       ","isns.psb.ike_ipsec",
+	  { "IKE/IPSec","isns.psb.ike_ipsec",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_ike_ipsec),  0x0002, /* bit 30 */
-	    "IKE/IPSec",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_bitmap,
-	  { "Bitmap          ","isns.psb.bitmap",
+	  { "Bitmap","isns.psb.bitmap",
 	    FT_BOOLEAN, 32, TFS(&isns_psb_bitmap),     0x0001, /* bit 31 */
-	    "Bitmap",HFILL }
+	    NULL,HFILL }
 	},
 
 
@@ -1622,64 +1622,64 @@ void proto_register_isns(void)
 	{ &hf_isns_scn_bitmap,
 	  { "iSCSI SCN Bitmap","isns.scn_bitmap",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "iSCSI SCN Bitmap", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_initiator_and_self_information_only,
 	  { "Initiator And Self Information Only","isns.scn_bitmap.initiator_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_initiator_and_self_information_only),     0x0080, /* bit 24 */
-	    "Initiator And Self Information Only",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_target_and_self_information_only,
 	  { "Target And Self Information Only","isns.scn_bitmap.target_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_target_and_self_information_only),     0x0040, /* bit 25 */
-	    "Target And Self Information Only",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_management_registration_scn,
 	  { "Management Registration/SCN","isns.scn_bitmap.management_registration_scn",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_management_registration_scn),     0x0020, /* bit 26 */
-	    "Management Registration/SCN",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_removed,
 	  { "Object Removed","isns.scn_bitmap.object_removed",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_removed),     0x0010, /* bit 27 */
-	    "Object Removed",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_added,
 	  { "Object Added","isns.scn_bitmap.object_added",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_added),     0x0008, /* bit 28 */
-	    "Object Added",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_updated,
 	  { "Object Updated","isns.scn_bitmap.object_updated",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_updated),     0x0004, /* bit 29 */
-	    "Object Updated",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_removed,
 	  { "DD/DDS Member Removed (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_removed",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_dd_dds_member_removed),     0x0002, /* bit 30 */
-	    "DD/DDS Member Removed (Mgmt Reg/SCN only)",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_added,
 	  { "DD/DDS Member Added (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_added",
 	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_dd_dds_member_added),     0x0001, /* bit 31 */
-	    "DD/DDS Member Added (Mgmt Reg/SCN only)",HFILL }
+	    NULL,HFILL }
 	},
 
 
 	{ &hf_isns_isnt_control,
-	  { "Control   ","isns.isnt.control",
+	  { "Control","isns.isnt.control",
 	    FT_BOOLEAN, 32, TFS(&isns_isnt_control),  0x0004, /* bit 29 */
-	    "Control",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_isnt_initiator,
-	  { "Initiator ","isns.isnt.initiator",
+	  { "Initiator","isns.isnt.initiator",
 	    FT_BOOLEAN, 32, TFS(&isns_isnt_initiator),  0x0002, /* bit 30 */
-	    "Initiator",HFILL }
+	    NULL,HFILL }
 	},
 	{ &hf_isns_isnt_target,
-	  { "Target    ","isns.isnt.target",
+	  { "Target","isns.isnt.target",
 	    FT_BOOLEAN, 32, TFS(&isns_isnt_target),     0x0001, /* bit 31 */
-	    "Target",HFILL }
+	    NULL,HFILL }
 	},
 
 
@@ -1757,7 +1757,7 @@ void proto_register_isns(void)
 	{ &hf_isns_proxy_iscsi_name,
 	  { "Proxy iSCSI Name","isns.proxy_iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
-	    "Proxy iSCSI Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_fc4_descriptor,
 	  { "FC4 Descriptor","isns.fc4_descriptor",
@@ -1832,7 +1832,7 @@ void proto_register_isns(void)
 	{ &hf_isns_pg_iscsi_name,
 	  { "PG iSCSI Name","isns.pg_iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
-	    "PG iSCSI Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_pg_portal_ip_addr,
 	  { "PG Portal IP Address","isns.pg_portal.ip_address",
@@ -1842,112 +1842,112 @@ void proto_register_isns(void)
 	{ &hf_isns_pg_index,
 	  { "PG Index","isns.pg_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "PG Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_pg_next_index,
 	  { "PG Next Index","isns.pg_next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "PG Next Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_dd_id_next_id,
 	  { "DD ID Next ID","isns.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "DD ID Next ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_member_iscsi_index,
 	  { "Member iSCSI Index","isns.member_iscsi_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Member iSCSI Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_member_portal_index,
 	  { "Member Portal Index","isns.member_portal_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Member Portal Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_member_fc_port_name,
 	  { "Member FC Port Name","isns.member_fc_port_name",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Member FC Port Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_vendor_oui,
 	  { "Vendor OUI","isns.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Vendor OUI", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_preferred_id,
 	  { "Preferred ID","isns.preferred_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Preferred ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_dd_set_id,
 	  { "DD Set ID","isns.dd_set_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "DD Set ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_dd_id,
 	  { "DD ID","isns.dd_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "DD ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_port_id,
 	  { "Port ID","isns.port_id",
 	    FT_UINT24, BASE_HEX, NULL, 0x0,
-	    "Port ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_hard_address,
 	  { "Hard Address","isns.hard_address",
 	    FT_UINT24, BASE_HEX, NULL, 0x0,
-	    "Hard Address", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_wwnn_token,
 	  { "WWNN Token","isns.wwnn_token",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "WWNN Token", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_fc_port_name_wwpn,
 	  { "FC Port Name WWPN","isns.fc_port_name_wwpn",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "FC Port Name WWPN", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_fc_node_name_wwnn,
 	  { "FC Node Name WWNN","isns.fc_node_name_wwnn",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "FC Node Name WWNN", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_node_ipa,
 	  { "Node IPA","isns.node_ipa",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "Node IPA", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_fabric_port_name,
 	  { "Fabric Port Name","isns.fabric_port_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "Fabric Port Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_permanent_port_name,
 	  { "Permanent Port Name","isns.permanent_port_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "Permanent Port Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_switch_name,
 	  { "Switch Name","isns.switch_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
-	    "Switch Name", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_dd_set_next_id,
 	  { "DD Set Next ID","isns.dd_set_next_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "DD Set Next ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_assigned_id,
 	  { "Assigned ID","isns.assigned_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Assigned ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_node_index,
 	  { "Node Index","isns.node.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Node Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_node_next_index,
 	  { "Node Next Index","isns.node.next_index",
@@ -1957,17 +1957,17 @@ void proto_register_isns(void)
 	{ &hf_isns_portal_index,
 	  { "Portal Index","isns.portal.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Portal Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_portal_next_index,
 	  { "Portal Next Index","isns.portal.next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Portal Next Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_entity_index,
 	  { "Entity Index","isns.entity.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Entity Index", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_entity_next_index,
 	  { "Entity Next Index","isns.entity.next_index",
@@ -1996,8 +1996,8 @@ void proto_register_isns(void)
 
 	{ &hf_isns_payload,
           { "Payload", "isns.payload",
-            FT_BYTES, BASE_HEX, NULL, 0,
-            "Payload" ,HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL ,HFILL}
 	}
     };
 

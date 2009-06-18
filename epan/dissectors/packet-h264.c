@@ -2115,7 +2115,7 @@ proto_register_h264(void)
 		{ &hf_h264_forbidden_bit,
 			{ "Forbidden bit", "h264.forbidden.bit",
 			FT_UINT8, BASE_DEC, NULL, 0x20,
-			"Forbidden bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_h264_profile,
 			{ "Profile",           "h264.profile",
@@ -2125,7 +2125,7 @@ proto_register_h264(void)
 		{ &hf_h264_profile_idc,
 			{ "Profile_idc",           "h264.profile_idc",
 			FT_UINT8, BASE_DEC, VALS(h264_profile_idc_values), 0xff,          
-			"Profile_idc", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_h264_rbsp_stop_bit,
 			{ "rbsp_stop_bit",           "h264.rbsp_stop_bit",
@@ -2295,7 +2295,7 @@ proto_register_h264(void)
 		{ &hf_h264_direct_8x8_inference_flag,
 			{ "direct_8x8_inference_flag",           "h264.direct_8x8_inference_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"direct_8x8_inference_flag", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_h264_frame_cropping_flag,
 			{ "frame_cropping_flag",           "h264.frame_cropping_flag",

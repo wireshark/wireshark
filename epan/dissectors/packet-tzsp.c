@@ -442,16 +442,16 @@ proto_register_tzsp(void)
 	static hf_register_info hf[] = {
 		{ &hf_tzsp_version, {
 			"Version", "tzsp.version", FT_UINT8, BASE_DEC,
-			NULL, 0, "Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_tzsp_type, {
 			"Type", "tzsp.type", FT_UINT8, BASE_DEC,
-			VALS(tzsp_type), 0, "Type", HFILL }},
+			VALS(tzsp_type), 0, NULL, HFILL }},
 		{ &hf_tzsp_encap, {
 			"Encapsulation", "tzsp.encap", FT_UINT16, BASE_DEC,
-			NULL, 0, "Encapsulation", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_status_field, {
 			"Status", "tzsp.wlan.status", FT_UINT16, BASE_HEX,
-				NULL, 0, "Status", HFILL }},
+				NULL, 0, NULL, HFILL }},
 		{ &hf_status_msg_type, {
 			"Type", "tzsp.wlan.status.msg_type", FT_UINT8, BASE_HEX,
 			VALS(msg_type), 0, "Message type", HFILL }},
@@ -460,33 +460,33 @@ proto_register_tzsp(void)
 			NULL, 0, "MAC port", HFILL }},
 		{ &hf_status_pcf, {
 			"PCF", "tzsp.wlan.status.pcf", FT_BOOLEAN, BASE_NONE,
-			TFS (&pcf_flag), 0, "Point Coordination Function", HFILL }},
+			TFS (&pcf_flag), 0x0, "Point Coordination Function", HFILL }},
 		{ &hf_status_undecrypted, {
 			"Undecrypted", "tzsp.wlan.status.undecrypted", FT_BOOLEAN, BASE_NONE,
-			TFS (&undecr_flag), 0, "Undecrypted", HFILL }},
+			TFS (&undecr_flag), 0x0, NULL, HFILL }},
 		{ &hf_status_fcs_error, {
 			"FCS", "tzsp.wlan.status.fcs_err", FT_BOOLEAN, BASE_NONE,
-			TFS (&fcs_err_flag), 0, "Frame check sequence", HFILL }},
+			TFS (&fcs_err_flag), 0x0, "Frame check sequence", HFILL }},
 		{ &hf_time, {
 			"Time", "tzsp.wlan.time", FT_UINT32, BASE_HEX,
-			NULL, 0, "Time", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_silence, {
 			"Silence", "tzsp.wlan.silence", FT_INT8, BASE_DEC,
-			NULL, 0, "Silence", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_original_length, {
 			"Original Length", "tzsp.original_length", FT_INT16, BASE_DEC,
 			NULL, 0, "OrigLength", HFILL }},
 		{ &hf_signal, {
 			"Signal", "tzsp.wlan.signal", FT_INT8, BASE_DEC,
-			NULL, 0, "Signal", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rate, {
 			"Rate", "tzsp.wlan.rate", FT_UINT8, BASE_DEC,
-			VALS(rates), 0, "Rate", HFILL }},
+			VALS(rates), 0, NULL, HFILL }},
 		{ &hf_channel, {
 			"Channel", "tzsp.wlan.channel", FT_UINT8, BASE_DEC,
-			VALS(channels), 0, "Channel", HFILL }},
+			VALS(channels), 0, NULL, HFILL }},
 		{ &hf_unknown, {
-			"Unknown tag", "tzsp.unknown", FT_BYTES, BASE_HEX,
+			"Unknown tag", "tzsp.unknown", FT_BYTES, BASE_NONE,
 			NULL, 0, "Unknown", HFILL }},
 		{ &hf_sensormac, {
 			"Sensor Address", "tzsp.sensormac", FT_ETHER, BASE_HEX,

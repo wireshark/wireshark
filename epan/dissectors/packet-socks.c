@@ -1190,67 +1190,67 @@ proto_register_socks( void){
 
 		{ &hf_socks_ver,
 			{ "Version", "socks.version", FT_UINT8, BASE_DEC, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_ip_dst,
 			{ "Remote Address", "socks.dst", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_ip6_dst,
 			{ "Remote Address(ipv6)", "socks.dstV6", FT_IPv6, BASE_NONE, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_user_name,
 			{ "User Name", "socks.username", FT_STRINGZ, BASE_NONE, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_gssapi_payload,
 			{ "GSSAPI data", "socks.gssapi.data", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_gssapi_command,
 			{ "SOCKS/GSSAPI command", "socks.gssapi.command", FT_UINT8, BASE_DEC,
-				VALS(gssapi_command_table), 0x0, "", HFILL
+				VALS(gssapi_command_table), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_gssapi_length,
 			{ "SOCKS/GSSAPI data length", "socks.gssapi.length", FT_UINT16, BASE_DEC, NULL,
-				0x0, "", HFILL
+				0x0, NULL, HFILL
 			}
 		},
 		{ &hf_v4a_dns_name,
 			{ "SOCKS v4a Remote Domain Name", "socks.v4a_dns_name", FT_STRINGZ, BASE_NONE,
-				NULL, 0x0, "", HFILL
+				NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_dstport,
 			{ "Remote Port", "socks.dstport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, "", HFILL
+				BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_cmd,
 			{ "Command", "socks.command", FT_UINT8,
-				BASE_DEC,  VALS(cmd_strings), 0x0, "", HFILL
+				BASE_DEC,  VALS(cmd_strings), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_results_4,
 			{ "Results(V4)", "socks.results_v4", FT_UINT8,
-				BASE_DEC, VALS(reply_table_v4), 0x0, "", HFILL
+				BASE_DEC, VALS(reply_table_v4), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_results_5,
 			{ "Results(V5)", "socks.results_v5", FT_UINT8,
-				BASE_DEC, VALS(reply_table_v5), 0x0, "", HFILL
+				BASE_DEC, VALS(reply_table_v5), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_socks_results,
 			{ "Results(V5)", "socks.results", FT_UINT8,
-				BASE_DEC, NULL, 0x0, "", HFILL
+				BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		}
 

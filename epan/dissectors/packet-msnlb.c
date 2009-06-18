@@ -139,25 +139,25 @@ proto_register_msnlb(void)
   static hf_register_info hf[] = {
     { &hf_msnlb_unknown,
       { "Unknown", "msnlb.unknown",
-        FT_BYTES, BASE_HEX,
+        FT_BYTES, BASE_NONE,
         NULL, 0,
-        "", HFILL }
+        NULL, HFILL }
     },
     { &hf_msnlb_hpn,
       { "Host Priority Number", "msnlb.hpn",
         FT_UINT32, BASE_DEC,
         NULL, 0,
-        "Host Priority Number", HFILL }
+        NULL, HFILL }
     },
     { &hf_msnlb_host_ip,
       { "Host IP", "msnlb.host_ip",
-        FT_IPv4, BASE_HEX,
+        FT_IPv4, BASE_NONE,
         NULL, 0,
         "Host IP address", HFILL }
     },
     { &hf_msnlb_cls_virt_ip,
       { "Cluster Virtual IP", "msnlb.cluster_virtual_ip",
-        FT_IPv4, BASE_HEX,
+        FT_IPv4, BASE_NONE,
         NULL, 0,
         "Cluster Virtual IP address", HFILL }
     },
@@ -165,13 +165,13 @@ proto_register_msnlb(void)
       { "Count", "msnlb.count",
         FT_UINT32, BASE_HEX,
         NULL, 0,
-        "Count", HFILL }
+        NULL, HFILL }
     },
     { &hf_msnlb_host_name,
       { "Host name", "msnlb.host_name",
         FT_STRING, BASE_NONE,
         NULL, 0,
-        "Host name", HFILL }
+        NULL, HFILL }
     }
   };
 

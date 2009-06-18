@@ -2542,21 +2542,21 @@ proto_register_smpp(void)
     /* Setup list of header fields      */
     static hf_register_info hf[] = {
         {   &hf_smpp_command_length,
-            {   "Length    ", "smpp.command_length",
+            {   "Length", "smpp.command_length",
                 FT_UINT32, BASE_DEC, NULL, 0x00,
                 "Total length of the SMPP PDU.",
                 HFILL
             }
         },
         {   &hf_smpp_command_id,
-            {   "Operation ", "smpp.command_id",
+            {   "Operation", "smpp.command_id",
                 FT_UINT32, BASE_HEX, VALS(vals_command_id), 0x00,
                 "Defines the SMPP PDU.",
                 HFILL
             }
         },
         {   &hf_smpp_command_status,
-            {   "Result    ", "smpp.command_status",
+            {   "Result", "smpp.command_status",
                 FT_UINT32, BASE_HEX, VALS(vals_command_status), 0x00,
                 "Indicates success or failure of the SMPP request.",
                 HFILL
@@ -2675,14 +2675,14 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_esm_submit_msg_type,
-            {   "Message type  ", "smpp.esm.submit.msg_type",
+            {   "Message type", "smpp.esm.submit.msg_type",
                 FT_UINT8, BASE_HEX, VALS(vals_esm_submit_msg_type), 0x3C,
                 "Type attribute for this message.",
                 HFILL
             }
         },
         {   &hf_smpp_esm_submit_features,
-            {   "GSM features  ", "smpp.esm.submit.features",
+            {   "GSM features", "smpp.esm.submit.features",
                 FT_UINT8, BASE_HEX, VALS(vals_esm_submit_features), 0xC0,
                 "GSM network specific features.",
                 HFILL
@@ -2732,14 +2732,14 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_regdel_receipt,
-            {   "Delivery receipt  ", "smpp.regdel.receipt",
+            {   "Delivery receipt", "smpp.regdel.receipt",
                 FT_UINT8, BASE_HEX, VALS(vals_regdel_receipt), 0x03,
                 "SMSC delivery receipt request.",
                 HFILL
             }
         },
         {   &hf_smpp_regdel_acks,
-            {   "Message type      ", "smpp.regdel.acks",
+            {   "Message type", "smpp.regdel.acks",
                 FT_UINT8, BASE_HEX, VALS(vals_regdel_acks), 0x0C,
                 "SME acknowledgement request.",
                 HFILL
@@ -2753,7 +2753,7 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_replace_if_present_flag,
-            {   "Replace           ", "smpp.replace_if_present_flag",
+            {   "Replace", "smpp.replace_if_present_flag",
                 FT_UINT8, BASE_HEX, VALS(vals_replace_if_present_flag), 0x01,
                 "Replace the short message with this one or not.",
                 HFILL
@@ -2964,15 +2964,15 @@ proto_register_smpp(void)
         },
     {   &hf_smpp_source_subaddress,
             {   "Source Subaddress", "smpp.source_subaddress",
-                FT_BYTES, BASE_HEX, NULL, 0x00,
-                "Source Subaddress",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
+                NULL,
                 HFILL
             }
         },
     {   &hf_smpp_dest_subaddress,
             {   "Destination Subaddress", "smpp.dest_subaddress",
-                FT_BYTES, BASE_HEX, NULL, 0x00,
-                "Destination Subaddress",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
+                NULL,
                 HFILL
             }
         },
@@ -3131,7 +3131,7 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_msg_wait_type,
-            {   "Type      ", "smpp.msg_wait.type",
+            {   "Type", "smpp.msg_wait.type",
                 FT_UINT8, BASE_HEX, VALS(vals_msg_wait_type), 0x03,
                 "Indicates type of message that is waiting.",
                 HFILL
@@ -3152,7 +3152,7 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_callback_num_scrn,
-            {   "Screening   ", "smpp.callback_num.scrn",
+            {   "Screening", "smpp.callback_num.scrn",
                 FT_UINT8, BASE_HEX, VALS(vals_callback_num_scrn), 0x03,
                 "Controls screening of the callback-number.",
                 HFILL
@@ -3216,7 +3216,7 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_its_session_sequence,
-            {   "Sequence number  ", "smpp.its_session.sequence",
+            {   "Sequence number", "smpp.its_session.sequence",
                 FT_UINT8, BASE_HEX, NULL, 0xFE,
                 "Sequence number of the dialogue unit.",
                 HFILL
@@ -3239,7 +3239,7 @@ proto_register_smpp(void)
         {   &hf_smpp_opt_param,
             {   "Optional parameter", "smpp.opt_param",
                 FT_NONE, BASE_NONE, NULL, 0x00,
-                "Optional parameter",
+                NULL,
                 HFILL
             }
         },
@@ -3315,22 +3315,19 @@ proto_register_smpp(void)
         {       &hf_smpp_dcs_cbs_class,
                 {       "DCS CBS Message class", "smpp.dcs.cbs_class",
                         FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_class), 0x03,
-                        "Specifies the message class for GSM Cell Broadcast Service, "
-                        "for the Data coding / message handling code group.", HFILL
+                        "Specifies the message class for GSM Cell Broadcast Service, for the Data coding / message handling code group.", HFILL
                 }
         },
         {       &hf_smpp_dcs_wap_charset,
                 {       "DCS Message coding", "smpp.dcs.wap_coding",
                         FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_charset), 0x0C,
-                        "Specifies the used message encoding, "
-                        "as specified by the WAP Forum (WAP over GSM USSD).", HFILL
+                        "Specifies the used message encoding, as specified by the WAP Forum (WAP over GSM USSD).", HFILL
                 }
         },
         {       &hf_smpp_dcs_wap_class,
                 {       "DCS CBS Message class", "smpp.dcs.wap_class",
                         FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_class), 0x03,
-                        "Specifies the message class for GSM Cell Broadcast Service, "
-                        "as specified by the WAP Forum (WAP over GSM USSD).", HFILL
+                        "Specifies the message class for GSM Cell Broadcast Service, as specified by the WAP Forum (WAP over GSM USSD).", HFILL
                 }
         },
         /* Changes in SMPP 5.0 */
@@ -3355,7 +3352,7 @@ proto_register_smpp(void)
         {       &hf_smpp_dest_addr_np_information,
                 {       "Number Portability information", "smpp.dest_addr_np_info",
                         FT_BYTES, BASE_NONE, NULL, 0x00,
-                        "Number Portability information", HFILL
+                        NULL, HFILL
                 }
         },
         {       &hf_smpp_dest_addr_np_resolution,
@@ -3391,7 +3388,7 @@ proto_register_smpp(void)
         {       &hf_smpp_broadcast_channel_indicator,
                 {       "Cell Broadcast channel", "smpp.broadcast_channel_indicator",
                         FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vals_broadcast_channel_indicator), 0x00,
-                        "Cell Broadcast channel", HFILL
+                        NULL, HFILL
                 }
         },
         {       &hf_smpp_broadcast_content_type_nw,

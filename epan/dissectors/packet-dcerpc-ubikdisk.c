@@ -76,7 +76,7 @@ proto_register_ubikdisk (void)
 	static hf_register_info hf[] = {
 	  { &hf_ubikdisk_opnum,
 	    { "Operation", "ubikdisk.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

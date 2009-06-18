@@ -349,11 +349,11 @@ proto_register_rip(void)
 
 		{ &hf_rip_ip,
 			{ "IP Address", "rip.ip", FT_IPv4, BASE_NONE,
-			NULL, 0, "IP Address", HFILL}},
+			NULL, 0, NULL, HFILL}},
 
 		{ &hf_rip_netmask,
 			{ "Netmask", "rip.netmask", FT_IPv4, BASE_NONE,
-			NULL, 0, "Netmask", HFILL}},
+			NULL, 0, NULL, HFILL}},
 
 		{ &hf_rip_next_hop,
 			{ "Next Hop", "rip.next_hop", FT_IPv4, BASE_NONE,
@@ -368,12 +368,12 @@ proto_register_rip(void)
 			VALS(rip_auth_type), 0, "Type of authentication", HFILL }},
 
 		{ &hf_rip_auth_passwd,
-			{ "Password", "rip.auth.passwd", FT_STRING, BASE_DEC,
+			{ "Password", "rip.auth.passwd", FT_STRING, BASE_NONE,
 			NULL, 0, "Authentication password", HFILL }},
 
 		{ &hf_rip_route_tag,
 			{ "Route Tag", "rip.route_tag", FT_UINT16, BASE_DEC,
-			NULL, 0, "Route Tag", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

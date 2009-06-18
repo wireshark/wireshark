@@ -3253,100 +3253,100 @@ proto_register_q931(void)
 	static hf_register_info hf[] = {
 		{ &hf_q931_discriminator,
 		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_call_ref_len,
 		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_call_ref_flag,
 		  { "Call reference flag", "q931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_call_ref,
-		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 
 		{ &hf_q931_message_type,
 		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_maintenance_message_type,
 		  { "Maintenance message type", "q931.maintenance_message_type", FT_UINT8, BASE_HEX, VALS(dms_message_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_segment_type,
 		  { "Segmented message type", "q931.segment_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_coding_standard,
 		  { "Coding standard", "q931.coding_standard", FT_UINT8, BASE_HEX,
-			 VALS(q931_coding_standard_vals), 0x60,"", HFILL }},
+			 VALS(q931_coding_standard_vals), 0x60,NULL, HFILL }},
 
 		{ &hf_q931_information_transfer_capability,
 		  { "Information transfer capability", "q931.information_transfer_capability", FT_UINT8, BASE_HEX,
-			 VALS(q931_information_transfer_capability_vals), 0x1f,"", HFILL }},
+			 VALS(q931_information_transfer_capability_vals), 0x1f,NULL, HFILL }},
 
 		{ &hf_q931_transfer_mode,
 		  { "Transfer mode", "q931.transfer_mode", FT_UINT8, BASE_HEX,
-			 VALS(q931_transfer_mode_vals), 0x60,"", HFILL }},
+			 VALS(q931_transfer_mode_vals), 0x60,NULL, HFILL }},
 
 		{ &hf_q931_information_transfer_rate,
 		  { "Information transfer rate", "q931.information_transfer_rate", FT_UINT8, BASE_HEX,
-			 VALS(q931_information_transfer_rate_vals), 0x1f,"", HFILL }},
+			 VALS(q931_information_transfer_rate_vals), 0x1f,NULL, HFILL }},
 
 		{ &hf_q931_layer_ident,
 		  { "Layer identification", "q931.layer_ident", FT_UINT8, BASE_HEX,
-			 VALS(q931_bearer_capability_layer_ident_vals), 0x60, "", HFILL }},
+			 VALS(q931_bearer_capability_layer_ident_vals), 0x60, NULL, HFILL }},
 
 		{ &hf_q931_uil1,
 		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
-			 VALS(q931_uil1_vals), 0x1f,"", HFILL }},
+			 VALS(q931_uil1_vals), 0x1f,NULL, HFILL }},
 
 		{ &hf_q931_cause_location,
 		  { "Cause location", "q931.cause_location", FT_UINT8, BASE_DEC, VALS(q931_cause_location_vals), 0x0f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_cause_value,
 		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x7f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_number_type,
 		  { "Number type", "q931.number_type", FT_UINT8, BASE_HEX, VALS(q931_number_type_vals), 0x70,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_numbering_plan,
 		  { "Numbering plan", "q931.numbering_plan", FT_UINT8, BASE_HEX, VALS(q931_numbering_plan_vals), 0x0f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_screening_ind,
 		  { "Screening indicator", "q931.screening_ind", FT_UINT8, BASE_HEX, VALS(q931_screening_indicator_vals), 0x03,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_presentation_ind,
 		  { "Presentation indicator", "q931.presentation_ind", FT_UINT8, BASE_HEX, VALS(q931_presentation_indicator_vals), 0x60,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_extension_ind,
 		  { "Extension indicator",  "q931.extension_ind",
 			FT_BOOLEAN, 8, TFS(&q931_extension_ind_value), 0x80,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_calling_party_number,
 		  { "Calling party number digits", "q931.calling_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_called_party_number,
 		  { "Called party number digits", "q931.called_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_connected_number,
 		  { "Connected party number digits", "q931.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_redirecting_number,
 		  { "Redirecting party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
     /* fields for channel identification IE */
 		/* 0x80 is the extension bit */
@@ -3387,7 +3387,7 @@ proto_register_q931(void)
 
 		{ &hf_q931_channel_number,
 		  { "Channel number", "q931.channel.number", FT_UINT8, BASE_DEC, NULL, 0x7F,
-		    "Channel number", HFILL }},
+		    NULL, HFILL }},
 
     /* desegmentation fields */
 		{ &hf_q931_segment_overlap,
@@ -3412,11 +3412,11 @@ proto_register_q931(void)
 
 		{ &hf_q931_segment,
 		  { "Q.931 Segment", "q931.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"Q.931 Segment", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_segments,
 		  { "Q.931 Segments", "q931.segments", FT_NONE, BASE_NONE, NULL, 0x0,
-			"Q.931 Segments", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q931_reassembled_in,
 		  { "Reassembled Q.931 in frame", "q931.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

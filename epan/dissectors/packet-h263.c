@@ -756,7 +756,7 @@ proto_register_h263_data(void)
 				"H.263 Split screen indicator",
 				"h263.split_screen_indicator",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Split screen indicator", HFILL
@@ -768,7 +768,7 @@ proto_register_h263_data(void)
 				"H.263 Document camera indicator",
 				"h263.document_camera_indicator",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Document camera indicator", HFILL
@@ -780,7 +780,7 @@ proto_register_h263_data(void)
 				"H.263 Full Picture Freeze Release",
 				"h263.split_screen_indicator",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Full Picture Freeze Release", HFILL
@@ -840,7 +840,7 @@ proto_register_h263_data(void)
 				"H.263 Picture Coding Type",
 				"h263.picture_coding_type",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&picture_coding_type_flg),
 				0x0,
 				"Picture Coding Type", HFILL
@@ -852,7 +852,7 @@ proto_register_h263_data(void)
 				"H.263 Optional Unrestricted Motion Vector mode",
 				"h263.opt_unres_motion_vector_mode",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Optional Unrestricted Motion Vector mode", HFILL
@@ -864,7 +864,7 @@ proto_register_h263_data(void)
 				"H.263 Optional Syntax-based Arithmetic Coding mode",
 				"h263.syntax_based_arithmetic_coding_mode",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Optional Syntax-based Arithmetic Coding mode", HFILL
@@ -876,7 +876,7 @@ proto_register_h263_data(void)
 				"H.263 Optional Advanced Prediction mode",
 				"h263.optional_advanced_prediction_mode",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&on_off_flg),
 				0x0,
 				"Optional Advanced Prediction mode", HFILL
@@ -888,7 +888,7 @@ proto_register_h263_data(void)
 				"H.263 Optional PB-frames mode",
 				"h263.PB_frames_mode",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&PB_frames_mode_flg),
 				0x0,
 				"Optional PB-frames mode", HFILL
@@ -924,7 +924,7 @@ proto_register_h263_data(void)
 				"H.263 Continuous Presence Multipoint and Video Multiplex (CPM)",
 				"h263.cpm",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&cpm_flg),
 				0x0,
 				"Continuous Presence Multipoint and Video Multiplex (CPM)", HFILL
@@ -960,7 +960,7 @@ proto_register_h263_data(void)
 				"H.263 Custom PCF",
 				"h263.custom_pcf",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				TFS(&custom_pcf_flg),
 				0x0,
 				"Custom PCF", HFILL
@@ -972,7 +972,7 @@ proto_register_h263_data(void)
 				"H.263 Extra Insertion Information (PEI)",
 				"h263.pei",
 				FT_BOOLEAN,
-				8,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"Extra Insertion Information (PEI)", HFILL

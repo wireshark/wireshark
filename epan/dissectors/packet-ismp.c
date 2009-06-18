@@ -557,282 +557,282 @@ proto_register_ismp(void)
 		{ &hf_ismp_version,
 			{ "Version",           "ismp.version",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_message_type,
 			{ "Message Type", "ismp.msgtype",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_seq_num,
 			{ "Sequence Number", "ismp.seqnum",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_code_length,
 			{ "Auth Code Length", "ismp.codelen",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		}, 
 		{ &hf_ismp_auth_data,
 			{ "Auth Data", "ismp.authdata",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_version,
 			{ "Version", "ismp.edp.version",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_module_ip,
 			{ "Module IP Address", "ismp.edp.modip",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_module_mac,
 			{ "Module MAC Address", "ismp.edp.modmac",
 			FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_module_port,
 			{ "Module Port (ifIndex num)", "ismp.edp.modport",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_chassis_mac,
 			{ "Chassis MAC Address", "ismp.edp.chassismac",
 			FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_chassis_ip,
 			{ "Chassis IP Address", "ismp.edp.chassisip",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_device_type,
 			{ "Device Type", "ismp.edp.devtype",
 			FT_UINT16, BASE_DEC, edp_device_types, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_module_rev,
 			{ "Module Firmware Revision", "ismp.edp.rev",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_options,
 			{ "Device Options", "ismp.edp.opts",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_unused1,
 			{ "Unused", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UNUSED1,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_sfssup,
 			{ "SFS Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_SFSSUP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_lsp,
 			{ "LSP Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_LSP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_flood,
 			{ "Flood Path Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_FLOOD,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_resolve,
 			{ "Resolve Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_RESOLVE,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_unused2,
 			{ "Unused", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UNUSED2,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_tagflood,
 			{ "Tagged Flood Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_TAGFLOOD,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_calltap,
 			{ "Call Tap Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_CALLTAP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_conmsg,
 			{ "Connection Message Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_CONMSG,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_redun,
 			{ "Redundant Access Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_REDUN,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_isolated,
 			{ "Isolated Switch", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_ISOLATED,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_switch,
 			{ "Uplink Switch", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_SWITCH,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_core,
 			{ "Uplink Core", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_CORE,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_port,
 			{ "Uplink Port", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_PORT,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_sfs_option_uplink_flood,
 			{ "Uplink Flood Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SFS_OPTION_UPLINK_FLOOD,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_ssr,
 			{ "SSR Type Device", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_SSR,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_igmp,
 			{ "IGMP Active", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_IGMP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_rip,
 			{ "RIP Active", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_RIP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_bgp,
 			{ "BGP Active", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_BGP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_ospf,
 			{ "OSPF Active", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_OSPF,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_dvmrp,
 			{ "DVMRP Active", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_DVMRP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_8021q,
 			{ "802.1Q Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_8021Q,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_gvrp,
 			{ "GVRP Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_GVRP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_gmrp,
 			{ "GMRP Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_GMRP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_igmp_snoop,
 			{ "IGMP Snooping Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_IGMP_SNOOP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_route,
 			{ "Route Bridging", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_ROUTE,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_trans,
 			{ "Transparent Bridging", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_TRANS,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_rtr_option_level1,
 			{ "Level 1 Functionality", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_RTR_OPTION_LEVEL1,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_8021q,
 			{ "802.1Q Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_8021Q,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_gvrp,
 			{ "GVRP Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_GVRP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_gmrp,
 			{ "GMRP Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_GMRP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_igmp,
 			{ "IGMP Snooping Support", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_IGMP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_route,
 			{ "Route Bridging", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_ROUTE,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_trans,
 			{ "Transparent Bridging", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_TRANS,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_switch_option_level1,
 			{ "Level 1 Functionality", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_SWITCH_OPTION_LEVEL1,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_dhcp,
 			{ "DHCP Enabled", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_DHCP,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_dns,
 			{ "DNS Enabled", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_DNS,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_end_station_option_ad,
 			{ "Active Directory Enabled", "ismp.edp.opts",
 			FT_BOOLEAN, 32, TFS(&is_set), EDP_END_STATION_OPTION_AD,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_num_neighbors,
 			{ "Number of Known Neighbors", "ismp.edp.maccount",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_neighbors,
 			{ "Neighbors", "ismp.edp.nbrs",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_num_tuples,
 			{ "Number of Tuples", "ismp.edp.numtups",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_tuples,
 			{ "Number of Tuples", "ismp.edp.tups",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 	};
 

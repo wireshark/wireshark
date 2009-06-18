@@ -785,7 +785,7 @@ proto_register_btrfcomm(void)
 		{&hf_priority,
 			{"Priority", "btrfcomm.priority",
 			FT_UINT8, BASE_DEC, NULL, 0x3f,
-			"Priority", HFILL}
+			NULL, HFILL}
 		},
 		{&hf_max_frame_size,
 			{"Max Frame Size", "btrfcomm.max_frame_size",
@@ -800,7 +800,7 @@ proto_register_btrfcomm(void)
 		{&hf_error_recovery_mode,
 			{"Error Recovery Mode", "btrfcomm.error_recovery_mode",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
-			"Error Recovery Mode", HFILL}
+			NULL, HFILL}
 		},
 		{&hf_ea,
 			{"EA Flag", "btrfcomm.ea",
@@ -891,7 +891,7 @@ proto_register_btrfcomm(void)
 		{&hf_msc_l,
 		         {"Length of break in units of 200ms", "btrfcomm.msc.bl",
 			 FT_UINT8, BASE_DEC, NULL, 0xf0,
-			  "Length of break in units of 200ms", HFILL}
+			  NULL, HFILL}
 		},
 		{&hf_fc_credits,
 		         {"Credits", "btrfcomm.credits",

@@ -231,20 +231,20 @@ proto_register_fw1(void)
   static hf_register_info hf[] = {
 	{ &hf_fw1_direction,
 	{ "Direction",	"fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
-		"Direction", HFILL }},
+		NULL, HFILL }},
 	{ &hf_fw1_chain,
 	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
-		"Chain Position", HFILL }},
+		NULL, HFILL }},
 	{ &hf_fw1_interface,
 	{ "Interface",	"fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
-		"Interface", HFILL }},
+		NULL, HFILL }},
 	{ &hf_fw1_uuid,
 	{ "UUID",	"fw1.uuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"UUID", HFILL }},
+		NULL, HFILL }},
 		/* registered here but handled in ethertype.c */
 	{ &hf_fw1_type,
 	{ "Type",		"fw1.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
   };
   /* Setup protocol subtree array */
   static gint *ett[] = {

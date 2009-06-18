@@ -918,60 +918,60 @@ proto_register_agentx(void)
   static hf_register_info hf[] = {
 
     { &hf_version,
-      { "Version        ", "agentx.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Version", "agentx.version", FT_UINT8, BASE_DEC, NULL, 0x0,
         "header version", HFILL }},
 
     { &hf_type,
-      { "Type           ", "agentx.type", FT_UINT8, BASE_DEC, VALS(type_values), 0x0,
+      { "Type", "agentx.type", FT_UINT8, BASE_DEC, VALS(type_values), 0x0,
         "header type", HFILL }},
 
     { &hf_flags,
-      { "Flags          ", "agentx.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Flags", "agentx.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
         "header type", HFILL }},
 
     { &hf_session_id,
-      { "sessionID      ", "agentx.session_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "sessionID", "agentx.session_id", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Session ID", HFILL }},
 
     { &hf_trans_id,
-      { "TransactionID  ", "agentx.transaction_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "TransactionID", "agentx.transaction_id", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Transaction ID", HFILL }},
 
     { &hf_packet_id,
-      { "PacketID       ", "agentx.packet_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "PacketID", "agentx.packet_id", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Packet ID", HFILL }},
 
     { &hf_payload_len,
-      { "Payload length ", "agentx.payload_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Payload length", HFILL }},
+      { "Payload length", "agentx.payload_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_ostring,
       { "Octet String", "agentx.ostring", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Octet String", HFILL }},
+        NULL, HFILL }},
 
     { &hf_ostring_len,
       { "OString len", "agentx.ostring_len", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Octet String Length", HFILL }},
 
     { &hf_oid_sub,
-      { "Number subids ", "agentx.n_subid", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Number subids", HFILL }},
+      { "Number subids", "agentx.n_subid", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_oid_prefix,
-      { "OID prefix    ", "agentx.oid_prefix", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "OID prefix", HFILL }},
+      { "OID prefix", "agentx.oid_prefix", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_oid_include,
-      { "OID include   ", "agentx.oid_include", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "OID include", HFILL }},
+      { "OID include", "agentx.oid_include", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_oid_str,
-      { "OID", "agentx.oid", FT_STRING, BASE_DEC, NULL, 0x0,
-        "OID", HFILL }},
+      { "OID", "agentx.oid", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_resp_uptime,
       { "sysUpTime", "agentx.r.uptime", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "sysUpTime", HFILL }},
+        NULL, HFILL }},
 
     { &hf_resp_error,
       { "Resp. error", "agentx.r.error", FT_UINT16, BASE_DEC, VALS(resp_errors), 0x0,

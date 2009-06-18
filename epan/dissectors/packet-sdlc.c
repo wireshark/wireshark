@@ -161,39 +161,39 @@ proto_register_sdlc(void)
 
 		{ &hf_sdlc_n_r,
 		    { "N(R)", "sdlc.control.n_r", FT_UINT8, BASE_DEC,
-		      NULL, XDLC_N_R_MASK, "", HFILL }},
+		      NULL, XDLC_N_R_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_n_s,
 		    { "N(S)", "sdlc.control.n_s", FT_UINT8, BASE_DEC,
-		      NULL, XDLC_N_S_MASK, "", HFILL }},
+		      NULL, XDLC_N_S_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_p,
 		    { "Poll", "sdlc.control.p", FT_BOOLEAN, 8,
-		      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+		      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_f,
 		    { "Final", "sdlc.control.f", FT_BOOLEAN, 8,
-		      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+		      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_s_ftype,
 		    { "Supervisory frame type", "sdlc.control.s_ftype", FT_UINT8, BASE_HEX,
-		      VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+		      VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_u_modifier_cmd,
 		    { "Command", "sdlc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-		      VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+		      VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_u_modifier_resp,
 		    { "Response", "sdlc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-		      VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+		      VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_ftype_i,
 		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
-		      VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+		      VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
 		{ &hf_sdlc_ftype_s_u,
 		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
-		      VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+		      VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_sdlc,

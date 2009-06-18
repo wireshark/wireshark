@@ -499,7 +499,7 @@ proto_register_ymsg(void)
 				NULL, 0, "Packet version identifier", HFILL }},
 			{ &hf_ymsg_len, {
 				"Packet Length", "ymsg.len", FT_UINT16, BASE_DEC,
-				NULL, 0, "Packet Length", HFILL }},
+				NULL, 0, NULL, HFILL }},
 			{ &hf_ymsg_service, {
 				"Service", "ymsg.service", FT_UINT16, BASE_DEC,
 				VALS(ymsg_service_vals), 0, "Service Type", HFILL }},

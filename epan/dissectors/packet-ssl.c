@@ -3957,13 +3957,13 @@ proto_register_ssl(void)
         },
         { &hf_ssl_record_appdata,
           { "Encrypted Application Data", "ssl.app_data",
-            FT_BYTES, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Payload is encrypted application data", HFILL }
         },
 
         { &hf_ssl2_record,
           { "SSLv2/PCT Record Header", "ssl.record",
-            FT_NONE, BASE_DEC, NULL, 0x0,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             "SSLv2/PCT record data", HFILL }
         },
         { &hf_ssl2_record_is_escape,
@@ -4023,12 +4023,12 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_random_time,
           { "gmt_unix_time", "ssl.handshake.random_time",
-            FT_ABSOLUTE_TIME, 0, NULL, 0x0,
+            FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
             "Unix time field of random structure", HFILL }
         },
         { &hf_ssl_handshake_random_bytes,
           { "random_bytes", "ssl.handshake.random_bytes",
-            FT_BYTES, 0, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Random challenge used to authenticate server", HFILL }
         },
         { &hf_ssl_handshake_cipher_suites_len,
@@ -4069,7 +4069,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_comp_method,
           { "Compression Method", "ssl.handshake.comp_method",
             FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-            "Compression Method", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_extensions_len,
           { "Extensions Length", "ssl.handshake.extensions_length",
@@ -4104,7 +4104,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_certificate,
           { "Certificate", "ssl.handshake.certificate",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "Certificate", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_certificate_len,
           { "Certificate Length", "ssl.handshake.certificate_length",
@@ -4124,7 +4124,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_cert_type,
           { "Certificate type", "ssl.handshake.cert_type",
             FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-            "Certificate type", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_finished,
           { "Verify Data", "ssl.handshake.verify_data",
@@ -4224,7 +4224,7 @@ proto_register_ssl(void)
         { &hf_ssl2_handshake_cert_type,
           { "Certificate Type", "ssl.handshake.cert_type",
             FT_UINT8, BASE_DEC, VALS(ssl_20_certificate_type), 0x0,
-            "Certificate Type", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl2_handshake_connection_id_len,
           { "Connection ID Length", "ssl.handshake.connection_id_length",
@@ -4284,7 +4284,7 @@ proto_register_ssl(void)
         { &hf_pct_msg_error_type,
           { "PCT Error Code", "pct.msg_error_code",
                 FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
-                "PCT Error Code", HFILL }
+                NULL, HFILL }
         },
         { &hf_pct_handshake_server_cert,
           { "Server Cert", "pct.handshake.server_cert",
@@ -4313,7 +4313,7 @@ proto_register_ssl(void)
 
 		{ &hf_ssl_segment,
 		{ "SSL Segment", "ssl.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"SSL Segment", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ssl_segments,
 		{ "Reassembled SSL Segments", "ssl.segments", FT_NONE, BASE_NONE, NULL, 0x0,

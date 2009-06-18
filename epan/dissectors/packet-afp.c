@@ -4469,7 +4469,7 @@ proto_register_afp(void)
     { &hf_afp_user,
       { "User",         "afp.user",
 		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"User", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_user_type,
       { "Type",         "afp.user_type",
@@ -4487,11 +4487,11 @@ proto_register_afp(void)
     { &hf_afp_passwd,
       { "Password",     "afp.passwd",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"Password", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_random,
       { "Random number",         "afp.random",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"UAM random number", HFILL }},
 
     { &hf_afp_response_to,
@@ -4567,12 +4567,12 @@ proto_register_afp(void)
     { &hf_afp_vol_attribute_NoNetworkUserID,
       { "No Network User ID",         "afp.vol_attribute.network_user_id",
 		 FT_BOOLEAN, 16, NULL, kNoNetworkUserIDs,
-      	"No Network User ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_vol_attribute_DefaultPrivsFromParent,
       { "Inherit parent privileges",         "afp.vol_attribute.inherit_parent_privs",
 		 FT_BOOLEAN, 16, NULL, kDefaultPrivsFromParent,
-      	"Inherit parent privileges", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_vol_attribute_NoExchangeFiles,
       { "No exchange files",         "afp.vol_attribute.no_exchange_files",
@@ -4752,12 +4752,12 @@ proto_register_afp(void)
     { &hf_afp_dir_attribute_RenameInhibit,
       { "Rename inhibit",         "afp.dir_attribute.rename_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
-      	"Rename inhibit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_attribute_DeleteInhibit,
       { "Delete inhibit",         "afp.dir_attribute.delete_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
-      	"Delete inhibit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_attribute_SetClear,
       { "Set",         "afp.dir_attribute.set_clear",
@@ -4873,7 +4873,7 @@ proto_register_afp(void)
     { &hf_afp_file_attribute_WriteInhibit,
       { "Write inhibit",         "afp.file_attribute.write_inhibit",
 	    FT_BOOLEAN, 16, NULL,  kFPWriteInhibitBit,
-      	"Write inhibit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_attribute_BackUpNeeded,
       { "Backup needed",         "afp.file_attribute.backup_needed",
@@ -4919,7 +4919,7 @@ proto_register_afp(void)
     { &hf_afp_vol_id,
       { "Volume id",         "afp.vol_id",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Volume id", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_vol_signature,
       { "Signature",         "afp.vol_signature",
@@ -4979,7 +4979,7 @@ proto_register_afp(void)
     { &hf_afp_dir_bitmap,
       { "Directory bitmap",         "afp.dir_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"Directory bitmap", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_offspring,
       { "Offspring",         "afp.dir_offspring",
@@ -4999,22 +4999,22 @@ proto_register_afp(void)
     { &hf_afp_creation_date,
       { "Creation date",         "afp.creation_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"Creation date", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_modification_date,
       { "Modification date",         "afp.modification_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"Modification date", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_backup_date,
       { "Backup date",         "afp.backup_date",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"Backup date", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_finder_info,
       { "Finder info",         "afp.finder_info",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"Finder info", HFILL }},
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
     { &hf_afp_long_name_offset,
       { "Long name offset",    "afp.long_name_offset",
@@ -5044,12 +5044,12 @@ proto_register_afp(void)
     { &hf_afp_unix_privs_permissions,
       { "Permissions",     "afp.unix_privs.permissions",
 		FT_UINT32, BASE_OCT, NULL, 0x0,
-      	"Permissions", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_unix_privs_ua_permissions,
       { "User's access rights",     "afp.unix_privs.ua_permissions",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"User's access rights", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_id,
       { "File ID",         "afp.file_id",
@@ -5059,12 +5059,12 @@ proto_register_afp(void)
     { &hf_afp_file_DataForkLen,
       { "Data fork size",         "afp.data_fork_len",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Data fork size", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_RsrcForkLen,
       { "Resource fork size",         "afp.resource_fork_len",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Resource fork size", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_ExtDataForkLen,
       { "Extended data fork size",         "afp.ext_data_fork_len",
@@ -5079,7 +5079,7 @@ proto_register_afp(void)
     { &hf_afp_file_bitmap,
       { "File bitmap",         "afp.file_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"File bitmap", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_req_count,
       { "Req count",         "afp.req_count",
@@ -5094,7 +5094,7 @@ proto_register_afp(void)
     { &hf_afp_max_reply_size,
       { "Reply size",         "afp.reply_size",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Reply size", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_start_index32,
       { "Start index",         "afp.start_index32",
@@ -5104,7 +5104,7 @@ proto_register_afp(void)
     { &hf_afp_max_reply_size32,
       { "Reply size",         "afp.reply_size32",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Reply size", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_flag,
       { "Dir",         "afp.file_flag",
@@ -5184,12 +5184,12 @@ proto_register_afp(void)
     { &hf_afp_request_bitmap_PartialNames,
       	{ "Match on partial names",         "afp.request_bitmap.partial_names",
 	    FT_BOOLEAN, 32, NULL,  0x80000000,
-      	"Match on partial names", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_request_bitmap,
       { "Request bitmap",         "afp.request_bitmap",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"Request bitmap", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_struct_size,
       { "Struct size",         "afp.struct_size",
@@ -5219,7 +5219,7 @@ proto_register_afp(void)
     { &hf_afp_offset,
       { "Offset",         "afp.offset",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"Offset", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_rw_count,
       { "Count",         "afp.rw_count",
@@ -5249,7 +5249,7 @@ proto_register_afp(void)
     { &hf_afp_ofork_len,
       { "New length",         "afp.ofork_len",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"New length", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_path_type,
       { "Type",         "afp.path_type",
@@ -5269,7 +5269,7 @@ proto_register_afp(void)
     { &hf_afp_path_unicode_hint,
       { "Unicode hint",  "afp.path_unicode_hint",
 		FT_UINT32, BASE_HEX, VALS(unicode_hint_vals), 0x0,
-      	"Unicode hint", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_path_name,
       { "Name",  "afp.path_name",
@@ -5299,12 +5299,12 @@ proto_register_afp(void)
     { &hf_afp_access_deny_read,
       { "Deny read",         "afp.access.deny_read",
     	FT_BOOLEAN, 8, NULL,  0x10,
-      	"Deny read", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_access_deny_write,
       { "Deny write",         "afp.access.deny_write",
     	FT_BOOLEAN, 8, NULL,  0x20,
-      	"Deny write", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_comment,
       { "Comment",         "afp.comment",
@@ -5314,17 +5314,17 @@ proto_register_afp(void)
     { &hf_afp_file_creator,
       { "File creator",         "afp.file_creator",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"File creator", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_file_type,
       { "File type",         "afp.file_type",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"File type", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_icon_type,
       { "Icon type",         "afp.icon_type",
 		FT_UINT8, BASE_HEX, NULL , 0,
-      	"Icon type", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_icon_length,
       { "Size",         "afp.icon_length",
@@ -5384,67 +5384,67 @@ proto_register_afp(void)
     { &hf_afp_dir_ar_o_search,
       { "Owner has search access",      "afp.dir_ar.o_search",
 		FT_BOOLEAN, 32, NULL, AR_O_SEARCH,
-      	"Owner has search access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_o_read,
       { "Owner has read access",        "afp.dir_ar.o_read",
 		FT_BOOLEAN, 32, NULL, AR_O_READ,
-      	"Owner has read access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_o_write,
       { "Owner has write access",       "afp.dir_ar.o_write",
 		FT_BOOLEAN, 32, NULL, AR_O_WRITE,
-      	"Owner has write access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_g_search,
       { "Group has search access",      "afp.dir_ar.g_search",
 		FT_BOOLEAN, 32, NULL, AR_G_SEARCH,
-      	"Group has search access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_g_read,
       { "Group has read access",        "afp.dir_ar.g_read",
 		FT_BOOLEAN, 32, NULL, AR_G_READ,
-      	"Group has read access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_g_write,
       { "Group has write access",       "afp.dir_ar.g_write",
 		FT_BOOLEAN, 32, NULL, AR_G_WRITE,
-      	"Group has write access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_e_search,
       { "Everyone has search access",   "afp.dir_ar.e_search",
 		FT_BOOLEAN, 32, NULL, AR_E_SEARCH,
-      	"Everyone has search access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_e_read,
       { "Everyone has read access",     "afp.dir_ar.e_read",
 		FT_BOOLEAN, 32, NULL, AR_E_READ,
-      	"Everyone has read access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_e_write,
       { "Everyone has write access",    "afp.dir_ar.e_write",
 		FT_BOOLEAN, 32, NULL, AR_E_WRITE,
-      	"Everyone has write access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_u_search,
       { "User has search access",   "afp.dir_ar.u_search",
 		FT_BOOLEAN, 32, NULL, AR_U_SEARCH,
-      	"User has search access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_u_read,
       { "User has read access",     "afp.dir_ar.u_read",
 		FT_BOOLEAN, 32, NULL, AR_U_READ,
-      	"User has read access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_u_write,
       { "User has write access",     "afp.dir_ar.u_write",
 		FT_BOOLEAN, 32, NULL, AR_U_WRITE,
-      	"User has write access", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_blank,
       { "Blank access right",     "afp.dir_ar.blank",
 		FT_BOOLEAN, 32, NULL, AR_BLANK,
-      	"Blank access right", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_dir_ar_u_own,
       { "User is the owner",     "afp.dir_ar.u_owner",
@@ -5454,7 +5454,7 @@ proto_register_afp(void)
     { &hf_afp_server_time,
       { "Server time",         "afp.server_time",
 		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      	"Server time", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_cat_req_matches,
       { "Max answers",         "afp.cat_req_matches",
@@ -5463,8 +5463,8 @@ proto_register_afp(void)
 
     { &hf_afp_reserved,
       { "Reserved",         "afp.reserved",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"Reserved", HFILL }},
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
     { &hf_afp_cat_count,
       { "Cat count",         "afp.cat_count",
@@ -5473,7 +5473,7 @@ proto_register_afp(void)
 
     { &hf_afp_cat_position,
       { "Position",         "afp.cat_position",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Reserved", HFILL }},
 
     { &hf_afp_map_name_type,
@@ -5555,7 +5555,7 @@ proto_register_afp(void)
 
     { &hf_afp_session_token,
       { "Token",         "afp.session_token",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Session token", HFILL }},
 
     { &hf_afp_user_flag,
@@ -5566,21 +5566,21 @@ proto_register_afp(void)
     { &hf_afp_user_ID,
       { "User ID",         "afp.user_ID",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"User ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_group_ID,
       { "Group ID",         "afp.group_ID",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Group ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_UUID,
       { "UUID",         "afp.uuid",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"UUID", HFILL }},
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
     { &hf_afp_GRPUUID,
       { "GRPUUID",         "afp.grpuuid",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Group UUID", HFILL }},
 
     { &hf_afp_user_bitmap,
@@ -5591,17 +5591,17 @@ proto_register_afp(void)
     { &hf_afp_user_bitmap_UID,
       { "User ID",         "afp.user_bitmap.UID",
 		FT_BOOLEAN, 16, NULL, 0x01,
-      	"User ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_user_bitmap_GID,
       { "Primary group ID",         "afp.user_bitmap.GID",
 		FT_BOOLEAN, 16, NULL, 0x02,
-      	"Primary group ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_user_bitmap_UUID,
       { "UUID",         "afp.user_bitmap.UUID",
 		FT_BOOLEAN, 16, NULL, 0x04,
-      	"UUID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_message_type,
       { "Type",         "afp.message_type",
@@ -5621,7 +5621,7 @@ proto_register_afp(void)
     { &hf_afp_message_bitmap_UTF,
       { "Message is UTF8",         "afp.message_bitmap.utf8",
 		FT_BOOLEAN, 16, NULL, 0x02,
-        "Message is UTF8", HFILL }},
+        NULL, HFILL }},
 
     { &hf_afp_message_len,
       { "Len",         "afp.message_length",
@@ -5631,7 +5631,7 @@ proto_register_afp(void)
     { &hf_afp_message,
       { "Message",  "afp.message",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-      	"Message", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_reqcount64,
       { "Count",         "afp.reqcount64",
@@ -5675,7 +5675,7 @@ proto_register_afp(void)
 
     { &hf_afp_extattr_data,
       { "Data",         "afp.extattr.data",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Extended attribute data", HFILL }},
 
     { &hf_afp_extattr_req_count,
@@ -5691,7 +5691,7 @@ proto_register_afp(void)
     { &hf_afp_extattr_reply_size,
       { "Reply size",         "afp.extattr.reply_size",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Reply size", HFILL }},
+      	NULL, HFILL }},
 
 	/* ACL control list bitmap */
     { &hf_afp_access_bitmap,
@@ -5717,12 +5717,12 @@ proto_register_afp(void)
     { &hf_afp_acl_list_bitmap_ACL,
       { "ACL",         "afp.acl_list_bitmap.ACL",
 		FT_BOOLEAN, 16, NULL, kFileSec_ACL,
-      	"ACL", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_list_bitmap_REMOVEACL,
       { "Remove ACL",         "afp.acl_list_bitmap.REMOVEACL",
 		FT_BOOLEAN, 16, NULL, kFileSec_REMOVEACL,
-      	"Remove ACL", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_list_bitmap_Inherit,
       { "Inherit",         "afp.acl_list_bitmap.Inherit",
@@ -5737,11 +5737,11 @@ proto_register_afp(void)
     { &hf_afp_acl_flags,
       { "ACL flags",         "afp.acl_flags",
 		FT_UINT32, BASE_HEX, NULL, 0,
-      	"ACL flags", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_applicable,
       { "ACE",         "afp.ace_applicable",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
       	"ACE applicable", HFILL }},
 
     { &hf_afp_ace_rights,
@@ -5772,7 +5772,7 @@ proto_register_afp(void)
     { &hf_afp_acl_access_bitmap_delete,
       { "Delete",         "afp.acl_access_bitmap.delete",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_DELETE,
-      	"Delete", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_append_data,
       { "Append data/create subdir",         "afp.acl_access_bitmap.append_data",
@@ -5787,22 +5787,22 @@ proto_register_afp(void)
     { &hf_afp_acl_access_bitmap_read_attrs,
       { "Read attributes",         "afp.acl_access_bitmap.read_attrs",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_READ_ATTRIBUTES,
-      	"Read attributes", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_write_attrs,
       { "Write attributes",         "afp.acl_access_bitmap.write_attrs",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_WRITE_ATTRIBUTES,
-      	"Write attributes", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_read_extattrs,
       { "Read extended attributes", "afp.acl_access_bitmap.read_extattrs",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_READ_EXTATTRIBUTES,
-      	"Read extended attributes", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_write_extattrs,
       { "Write extended attributes", "afp.acl_access_bitmap.write_extattrs",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_WRITE_EXTATTRIBUTES,
-      	"Write extended attributes", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_read_security,
       { "Read security",         "afp.acl_access_bitmap.read_security",
@@ -5817,32 +5817,32 @@ proto_register_afp(void)
     { &hf_afp_acl_access_bitmap_change_owner,
       { "Change owner",         "afp.acl_access_bitmap.change_owner",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_CHANGE_OWNER,
-      	"Change owner", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_synchronize,
       { "Synchronize",         "afp.acl_access_bitmap.synchronize",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_SYNCHRONIZE,
-      	"Synchronize", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_generic_all,
       { "Generic all",         "afp.acl_access_bitmap.generic_all",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_GENERIC_ALL,
-      	"Generic all", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_generic_execute,
       { "Generic execute",         "afp.acl_access_bitmap.generic_execute",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_GENERIC_EXECUTE,
-      	"Generic execute", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_generic_write,
       { "Generic write",         "afp.acl_access_bitmap.generic_write",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_GENERIC_WRITE,
-      	"Generic write", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_acl_access_bitmap_generic_read,
       { "Generic read",         "afp.acl_access_bitmap.generic_read",
 		FT_BOOLEAN, 32, NULL, KAUTH_VNODE_GENERIC_READ,
-      	"Generic read", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_flags,
       { "Flags",         "afp.ace_flags",
@@ -5862,32 +5862,32 @@ proto_register_afp(void)
     { &hf_afp_ace_flags_inherited,
       { "Inherited",         "afp.ace_flags.inherited",
 		FT_BOOLEAN, 32, NULL, ACE_INHERITED,
-      	"Inherited", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_flags_fileinherit,
       { "File inherit",         "afp.ace_flags.file_inherit",
 		FT_BOOLEAN, 32, NULL, ACE_FILE_INHERIT,
-      	"File inherit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_flags_dirinherit,
       { "Dir inherit",         "afp.ace_flags.directory_inherit",
 		FT_BOOLEAN, 32, NULL, ACE_DIR_INHERIT,
-      	"Dir inherit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_flags_limitinherit,
       { "Limit inherit",         "afp.ace_flags.limit_inherit",
 		FT_BOOLEAN, 32, NULL, ACE_LIMIT_INHERIT,
-      	"Limit inherit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_ace_flags_onlyinherit,
       { "Only inherit",         "afp.ace_flags.only_inherit",
 		FT_BOOLEAN, 32, NULL, ACE_ONLY_INHERIT,
-      	"Only inherit", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_afp_unknown,
       { "Unknown parameter",         "afp.unknown",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"Unknown parameter", HFILL }},
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
   };
 
   static gint *ett[] = {

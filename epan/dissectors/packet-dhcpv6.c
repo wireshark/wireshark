@@ -1284,15 +1284,15 @@ proto_register_dhcpv6(void)
     { &hf_dhcpv6_msgtype,
       { "Message type",			"dhcpv6.msgtype",	 FT_UINT8,
          BASE_DEC, 			VALS(msgtype_vals),   0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
     { &hf_fqdn_1,
-      { "Reserved", "dhcpv6.msgtype.reserved", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL}},
+      { "Reserved", "dhcpv6.msgtype.reserved", FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL}},
     { &hf_fqdn_2,
-      { "N", "dhcpv6.msgtype.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "", HFILL}},
+      { "N", "dhcpv6.msgtype.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, NULL, HFILL}},
     { &hf_fqdn_3,
-      { "O", "dhcpv6.msgtype.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, "", HFILL}},
+      { "O", "dhcpv6.msgtype.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, NULL, HFILL}},
     { &hf_fqdn_4,
-      { "S", "dhcpv6.msgtype.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "", HFILL}}
+      { "S", "dhcpv6.msgtype.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, NULL, HFILL}}
     
   };
   static gint *ett[] = {

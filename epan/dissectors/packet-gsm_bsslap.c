@@ -875,22 +875,22 @@ proto_register_gsm_bsslap(void)
 		{ &hf_gsm_bsslap_msg_type,
 			{ "Message Type IE",           "gsm_bsslap.msg_type",
 			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_msg_strings), 0x0,          
-			"Message Type IE", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_a_bsslap_elem_id,
 			{ "Element ID",	"gsm_bsslap.elem_id",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_ta,
 			{ "Timing Advance",           "gsm_bsslap.ta",
 			FT_UINT8, BASE_HEX, NULL, 0x0,          
-			"Timing Advance", HFILL }
+			NULL, HFILL }
 		},
         { &hf_gsm_bsslap_timer_value, 
 			{"Timer Value", "gsm_bsslap.timerValue", 
 			FT_UINT8, BASE_DEC, NULL, 0x0, 
-			"Timer Value", HFILL }
+			NULL, HFILL }
 		},
 
         { &hf_gsm_bsslap_ms_pow, 
@@ -901,7 +901,7 @@ proto_register_gsm_bsslap(void)
 		{ &hf_gsm_bsslap_cause,
 			{"Cause", "gsm_bsslap.cause", 
 			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_cause_vals), 0x0, 
-			"Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_rrlp_flg,
 			{"RRLP Flag", "gsm_bsslap.rrlp_flg", 
@@ -911,22 +911,22 @@ proto_register_gsm_bsslap(void)
 		{ &hf_gsm_bsslap_tfi,
 			{"TFI", "gsm_bsslap.tfi", 
 			FT_UINT8, BASE_DEC, NULL, 0x1f, 
-			"TFI", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_poll_rep,
 			{"Number of polling repetitions", "gsm_bsslap.poll_rep", 
 			FT_UINT8, BASE_DEC, NULL, 0x3F, 
-			"Number of polling repetitions", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_lac,
 			{"Location Area Code", "gsm_bsslap.lac", 
 			FT_UINT8, BASE_DEC, NULL, 0x3f, 
-			"Location Area Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_cell_id_disc,
 			{"Cell identification Discriminator", "gsm_bsslap.cell_id_disc", 
 			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_cell_id_disc_vals), 0xf, 
-			"Cell identification Discriminator", HFILL }
+			NULL, HFILL }
 		},
 	};
 

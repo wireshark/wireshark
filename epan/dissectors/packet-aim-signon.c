@@ -161,13 +161,13 @@ proto_register_aim_signon(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_infotype,
-			{ "Infotype", "aim_signon.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Infotype", "aim_signon.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_signon_challenge_len,
-			{ "Signon challenge length", "aim_signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Signon challenge length", "aim_signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_signon_challenge,
-			{ "Signon challenge", "aim_signon.challenge", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Signon challenge", "aim_signon.challenge", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 

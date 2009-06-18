@@ -236,7 +236,7 @@ proto_register_btacl(void)
 		{ &hf_btacl_chandle,
 			{ "Connection Handle",           "btacl.chandle",
 				FT_UINT16, BASE_HEX, NULL, 0x0FFF,
-				"Connection Handle", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btacl_pb_flag,
 			{ "PB Flag",           "btacl.pb_flag",
@@ -251,12 +251,12 @@ proto_register_btacl(void)
 		{ &hf_btacl_length,
 			{ "Data Total Length",           "btacl.length",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Data Total Length", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btacl_data,
 			{ "Data",           "btacl.data",
 				FT_NONE, BASE_NONE, NULL, 0x0,
-				"Data", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_btacl_continuation_to,
 			{ "This is a continuation to the PDU in frame",		"btacl.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

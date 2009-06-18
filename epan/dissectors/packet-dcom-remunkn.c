@@ -333,24 +333,24 @@ proto_register_remunk (void)
 {
 	static hf_register_info hf_remunk_rqi_array[] = {
         { &hf_remunk_opnum,
-	    { "Operation", "remunk_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+	    { "Operation", "remunk_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_remunk_refs,
-		{ "Refs", "remunk_refs", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Refs", "remunk_refs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_iids,
-		{ "IIDs", "remunk_iids", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "IIDs", "remunk_iids", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_qiresult,
-		{ "QIResult", "remunk_qiresult", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "QIResult", "remunk_qiresult", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_flags,
-		{ "Flags", "remunk_flags",  FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "Flags", "remunk_flags",  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_public_refs,
-		{ "PublicRefs", "remunk_public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "PublicRefs", "remunk_public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_reminterfaceref,
-		{ "RemInterfaceRef", "remunk_reminterfaceref",  FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "RemInterfaceRef", "remunk_reminterfaceref",  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_interface_refs,
-		{ "InterfaceRefs", "remunk_int_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "InterfaceRefs", "remunk_int_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remunk_private_refs,
-		{ "PrivateRefs", "remunk_private_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
+		{ "PrivateRefs", "remunk_private_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett_remunk_array[] = {

@@ -265,33 +265,33 @@ proto_register_yhoo(void)
 	static hf_register_info hf[] = {
 			{ &hf_yhoo_service, {
 				"Service Type", "yhoo.service", FT_UINT32, BASE_DEC,
-				VALS(yhoo_service_vals), 0, "Service Type", HFILL }},
+				VALS(yhoo_service_vals), 0, NULL, HFILL }},
 			{ &hf_yhoo_msgtype, {
 				"Message Type", "yhoo.msgtype", FT_UINT32, BASE_DEC,
 				VALS(yhoo_msgtype_vals), 0, "Message Type Flags", HFILL }},
 			{ &hf_yhoo_connection_id, {
 				"Connection ID", "yhoo.connection_id", FT_UINT32, BASE_HEX,
-				NULL, 0, "Connection ID", HFILL }},
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_magic_id, {
 				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
-				NULL, 0, "Magic ID", HFILL }},
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_unknown1, {
 				"Unknown 1", "yhoo.unknown1", FT_UINT32, BASE_HEX,
-				NULL, 0, "Unknown 1", HFILL }},
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_len, {
 				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,
-				NULL, 0, "Packet Length", HFILL }},
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_nick1, {
-				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, 0,
-				NULL, 0, "Real Nick (nick1)", HFILL }},
+				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_nick2, {
-				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, 0,
-				NULL, 0, "Active Nick (nick2)", HFILL }},
+				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }},
 			{ &hf_yhoo_content, {
-				"Content", "yhoo.content", FT_STRING, 0,
+				"Content", "yhoo.content", FT_STRING, BASE_NONE,
 				NULL, 0, "Data portion of the packet", HFILL }},
 			{ &hf_yhoo_version, {
-				"Version", "yhoo.version", FT_STRING, 0,
+				"Version", "yhoo.version", FT_STRING, BASE_NONE,
 				NULL, 0, "Packet version identifier", HFILL }},
         };
 	static gint *ett[] = {

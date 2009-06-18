@@ -578,7 +578,7 @@ isis_register_psnp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_psnp_pdu_length,
 		{ "PDU length",		"isis.psnp.pdu_length", FT_UINT16,
-		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_psnp,

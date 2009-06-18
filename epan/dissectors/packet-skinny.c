@@ -3092,119 +3092,119 @@ proto_register_skinny(void)
     { &hf_skinny_softKeyMap,
       { "SoftKeyMap","skinny.softKeyMap",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey0,
       { "SoftKey0", "skinny.softKeyMap.0",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY0,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey1,
       { "SoftKey1", "skinny.softKeyMap.1",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY1,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey2,
       { "SoftKey2", "skinny.softKeyMap.2",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY2,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey3,
       { "SoftKey3", "skinny.softKeyMap.3",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY3,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey4,
       { "SoftKey4", "skinny.softKeyMap.4",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY4,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey5,
       { "SoftKey5", "skinny.softKeyMap.5",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY5,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey6,
       { "SoftKey6", "skinny.softKeyMap.6",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY6,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey7,
       { "SoftKey7", "skinny.softKeyMap.7",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY7,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey8,
       { "SoftKey8", "skinny.softKeyMap.8",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY8,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey9,
       { "SoftKey9", "skinny.softKeyMap.9",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY9,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey10,
       { "SoftKey10", "skinny.softKeyMap.10",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY10,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey11,
       { "SoftKey11", "skinny.softKeyMap.11",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY11,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey12,
       { "SoftKey12", "skinny.softKeyMap.12",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY12,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey13,
       { "SoftKey13", "skinny.softKeyMap.13",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY13,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey14,
       { "SoftKey14", "skinny.softKeyMap.14",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY14,
-	"",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_softKey15,
       { "SoftKey15", "skinny.softKeyMap.15",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY15,
-	"",
+	NULL,
 	HFILL }
     },
 
@@ -3295,21 +3295,21 @@ proto_register_skinny(void)
     { &hf_skinny_dateMinute,
       { "Minute", "skinny.minute",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Minute",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_dateSeconds,
       { "Seconds", "skinny.dateSeconds",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Seconds",
+	NULL,
 	HFILL }
     },
 
     { &hf_skinny_dateMilliseconds,
       { "Milliseconds", "skinny.dateMilliseconds",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Milliseconds",
+	NULL,
 	HFILL }
     },
 
@@ -3917,7 +3917,7 @@ proto_register_skinny(void)
     { &hf_skinny_layout,
       { "Layout", "skinny.layout",
 	FT_UINT32, BASE_DEC, VALS(skinny_Layouts), 0x0,
-	"Layout",
+	NULL,
 	HFILL }
     },
 
@@ -3938,7 +3938,7 @@ proto_register_skinny(void)
     { &hf_skinny_transmitOrReceive,
       { "TransmitOrReceive", "skinny.transmitOrReceive",
 	FT_UINT32, BASE_DEC, VALS(skinny_transmitOrReceive), 0x0,
-	"TransmitOrReceive",
+	NULL,
 	HFILL }
     },
 
@@ -4085,7 +4085,7 @@ proto_register_skinny(void)
     { &hf_skinny_endOfAnnAck,
       { "EndOfAnnAck", "skinny.endOfAnnAck",
 	FT_UINT32, BASE_DEC, VALS(skinny_endOfAnnAck), 0x0,
-	"EndOfAnnAck",
+	NULL,
 	HFILL }
     },
 
@@ -4099,7 +4099,7 @@ proto_register_skinny(void)
     { &hf_skinny_annPlayStatus,
       { "AnnPlayStatus", "skinny.annPlayStatus",
 	FT_UINT32, BASE_DEC, VALS(skinny_annPlayStatus), 0x0,
-	"AnnPlayStatus",
+	NULL,
 	HFILL }
     },
 
@@ -4204,7 +4204,7 @@ proto_register_skinny(void)
     { &hf_skinny_miscCommandType,
       { "MiscCommandType", "skinny.miscCommandType",
 	FT_UINT32, BASE_DEC, VALS(skinny_miscCommandType), 0x0,
-	"MiscCommandType",
+	NULL,
 	HFILL }
     },
 

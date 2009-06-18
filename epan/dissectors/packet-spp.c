@@ -215,62 +215,62 @@ proto_register_spp(void)
 		{ &hf_spp_connection_control,
 		{ "Connection Control",		"spp.ctl",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_connection_control_sys,
 		{ "System Packet",		"spp.ctl.sys",
 		  FT_BOOLEAN,	8,	NULL,	SPP_SYS_PACKET,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_connection_control_send_ack,
 		{ "Send Ack",		"spp.ctl.send_ack",
 		  FT_BOOLEAN,	8,	NULL,	SPP_SEND_ACK,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_connection_control_attn,
 		{ "Attention",		"spp.ctl.attn",
 		  FT_BOOLEAN,	8,	NULL,	SPP_ATTN,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_connection_control_eom,
 		{ "End of Message",	"spp.ctl.eom",
 		  FT_BOOLEAN,	8,	NULL,	SPP_EOM,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_datastream_type,
 		{ "Datastream type",	       	"spp.type",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_src_id,
 		{ "Source Connection ID",	"spp.src",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_dst_id,
 		{ "Destination Connection ID",	"spp.dst",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_seq_nr,
 		{ "Sequence Number",		"spp.seq",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_ack_nr,
 		{ "Acknowledgment Number",	"spp.ack",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_all_nr,
 		{ "Allocation Number",		"spp.alloc",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spp_rexmt_frame,
 		{ "Retransmitted Frame Number",	"spp.rexmt_frame",
 		  FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

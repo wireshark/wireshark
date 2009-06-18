@@ -85,7 +85,7 @@ proto_register_ftserver (void)
 	static hf_register_info hf[] = {
 	  { &hf_ftserver_opnum,
 	    { "Operation", "ftserver.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -1925,19 +1925,19 @@ proto_register_atm(void)
 	static hf_register_info hf[] = {
 		{ &hf_atm_aal,
 		{ "AAL",		"atm.aal", FT_UINT8, BASE_DEC, VALS(aal_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_atm_vpi,
 		{ "VPI",		"atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_atm_vci,
 		{ "VCI",		"atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_atm_cid,
 		{ "CID",		"atm.cid", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

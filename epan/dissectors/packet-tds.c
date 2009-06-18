@@ -2007,12 +2007,12 @@ proto_register_tds(void)
 		{ &hf_tds_packet_number,
 			{ "Packet Number",  "tds.packet_number",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Packet Number", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_tds_window,
 			{ "Window",         "tds.window",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Window", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_tds_fragment_overlap,
 			{ "Segment overlap",	"tds.fragment.overlap",
@@ -2042,12 +2042,12 @@ proto_register_tds(void)
 		{ &hf_tds_fragment,
 			{ "TDS Fragment",	"tds.fragment",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"TDS Fragment", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_tds_fragments,
 			{ "TDS Fragments",	"tds.fragments",
 			FT_NONE, BASE_NONE, NULL, 0x0,
-			"TDS Fragments", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_tds_reassembled_in,
 			{ "Reassembled TDS in frame", "tds.reassembled_in",
@@ -2062,7 +2062,7 @@ proto_register_tds(void)
 		{ &hf_tds7_version,
                         { "TDS version", "tds7login.version",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
-                        "TDS version", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_packet_size,
                         { "Packet Size", "tds7login.packet_size",
@@ -2072,32 +2072,32 @@ proto_register_tds(void)
 		{ &hf_tds7_client_version,
                         { "Client version", "tds7login.client_version",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "Client version", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_client_pid,
                         { "Client PID", "tds7login.client_pid",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "Client PID", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_connection_id,
                         { "Connection ID", "tds7login.connection_id",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "Connection ID", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_option_flags1,
                         { "Option Flags 1", "tds7login.option_flags1",
                         FT_UINT8, BASE_HEX, NULL, 0x0,
-                        "Option Flags 1", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_option_flags2,
                         { "Option Flags 2", "tds7login.option_flags2",
                         FT_UINT8, BASE_HEX, NULL, 0x0,
-                        "Option Flags 2", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_sql_type_flags,
                         { "SQL Type Flags", "tds7login.sql_type_flags",
                         FT_UINT8, BASE_HEX, NULL, 0x0,
-                        "SQL Type Flags", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_reserved_flags,
                         { "Reserved Flags", "tds7login.reserved_flags",
@@ -2107,17 +2107,17 @@ proto_register_tds(void)
 		{ &hf_tds7_time_zone,
                         { "Time Zone", "tds7login.time_zone",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
-                        "Time Zone", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_collation,
                         { "Collation", "tds7login.collation",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
-                        "Collation", HFILL }
+                        NULL, HFILL }
                 },
 		{ &hf_tds7_message,
 			{ "Message", "tds7.message",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 	};
 

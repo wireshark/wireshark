@@ -1384,7 +1384,7 @@ void proto_register_h223 (void)
 
 	{ &hf_h223_mux_pdu,
 	  { "H.223 MUX-PDU", "h223.mux", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 MUX-PDU", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_h223_mux_header,
 	  { "Header", "h223.mux.header", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1415,7 +1415,7 @@ void proto_register_h223 (void)
 	    "H.223 Virtual Circuit", HFILL }},
 	
 	{ &hf_h223_mux_extra,
-	  { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_DEC, NULL, 0x0,
+	  { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_NONE, NULL, 0x0,
 	    "data beyond mpl", HFILL }},
 	
 	{ &hf_h223_mux_hdlc2,
@@ -1445,11 +1445,11 @@ void proto_register_h223 (void)
 	
 	{ &hf_h223_mux_fragment,
 	  { "H.223 MUX-PDU Fragment", "h223.mux.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "H.223 MUX-PDU Fragment", HFILL }},
+	    NULL, HFILL }},
 	
 	{ &hf_h223_mux_fragments,
 	  { "H.223 MUX-PDU Fragments", "h223.mux.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 MUX-PDU Fragments", HFILL }},
+	    NULL, HFILL }},
 	
 	{ &hf_h223_mux_reassembled_in,
 	  { "MUX-PDU fragment, reassembled in frame", "h223.mux.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -1478,11 +1478,11 @@ void proto_register_h223 (void)
 	
 	{ &hf_h223_al_fragment,
 	  { "H.223 AL-PDU Fragment", "h223.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU Fragment", HFILL }},
+	    NULL, HFILL }},
 	
 	{ &hf_h223_al_fragments,
 	  { "H.223 AL-PDU Fragments", "h223.al.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU Fragments", HFILL }},
+	    NULL, HFILL }},
 	
 	{ &hf_h223_al_reassembled_in,
 	  { "AL-PDU fragment, reassembled in frame", "h223.al.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -1496,7 +1496,7 @@ void proto_register_h223 (void)
 
 	{ &hf_h223_al1_framed,
 	  { "H.223 AL1 framing", "h223.al1.framed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_h223_al2,
 	  { "H.223 AL2", "h223.al2", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -1516,11 +1516,11 @@ void proto_register_h223 (void)
 
 	{ &hf_h223_al2_crc,
 	  { "CRC", "h223.al2.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
-	    "CRC", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_h223_al2_crc_bad,
 	  { "Bad CRC","h223.al2.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_h223_al_payload,
 	  { "H.223 AL Payload", "h223.al.payload", FT_NONE, BASE_NONE, NULL, 0x0,

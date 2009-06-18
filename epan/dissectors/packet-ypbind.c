@@ -171,12 +171,12 @@ proto_register_ypbind(void)
 	static hf_register_info hf[] = {
 		{ &hf_ypbind_procedure_v1, {
 			"V1 Procedure", "ypbind.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(ypbind1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(ypbind1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypbind_procedure_v2, {
 			"V2 Procedure", "ypbind.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(ypbind2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(ypbind2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypbind_domain, {
-			"Domain", "ypbind.domain", FT_STRING, BASE_DEC,
+			"Domain", "ypbind.domain", FT_STRING, BASE_NONE,
 			NULL, 0, "Name of the NIS/YP Domain", HFILL }},
 
 		{ &hf_ypbind_resp_type, {
@@ -188,7 +188,7 @@ proto_register_ypbind(void)
 			VALS(error_vals), 0, "YPBIND Error code", HFILL }},
 
 		{ &hf_ypbind_addr, {
-			"IP Addr", "ypbind.addr", FT_IPv4, BASE_DEC,
+			"IP Addr", "ypbind.addr", FT_IPv4, BASE_NONE,
 			NULL, 0, "IP Address of server", HFILL }},
 
 		{ &hf_ypbind_port, {

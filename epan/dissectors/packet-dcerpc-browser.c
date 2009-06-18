@@ -1147,7 +1147,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_browser_opnum, { 
 		"Operation", "rpc_browser.opnum", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Operation", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_browser_rc, {
 		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX,
@@ -1162,11 +1162,11 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown hyper. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_browser_unknown_bytes, {
-		"Unknown bytes", "rpc_browser.unknown.bytes", FT_BYTES, BASE_HEX,
+		"Unknown bytes", "rpc_browser.unknown.bytes", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_browser_unknown_string, {
-		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_HEX,
+		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }}
 
 	};

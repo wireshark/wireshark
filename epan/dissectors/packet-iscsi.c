@@ -2399,7 +2399,7 @@ proto_register_iscsi(void)
 
 	{ &hf_iscsi_AHS,
 	  { "AHS", "iscsi.ahs",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Additional header segment", HFILL }
 	},
 	{ &hf_iscsi_AHS_length,
@@ -2410,7 +2410,7 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_AHS_read_data_length,
 	  { "Bidirectional Read Data Length", "iscsi.ahs.bidir.length",
 	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_AHS_type,
 	  { "AHS Type", "iscsi.ahs.type",
@@ -2419,52 +2419,52 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_AHS_extended_cdb,
 	  { "AHS Extended CDB", "iscsi.ahs.extended_cdb",
-	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "", HFILL }
+	    FT_BYTES, BASE_NONE, NULL, 0,
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_AHS_blob,
 	  { "Unknown AHS blob", "iscsi.ahs.unknown_blob",
-	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "", HFILL }
+	    FT_BYTES, BASE_NONE, NULL, 0,
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_Padding,
 	  { "Padding", "iscsi.padding",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Padding to 4 byte boundary", HFILL }
 	},
 	{ &hf_iscsi_ping_data,
 	  { "PingData", "iscsi.pingdata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Ping Data", HFILL }
 	},
 	{ &hf_iscsi_immediate_data,
 	  { "ImmediateData", "iscsi.immediatedata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Immediate Data", HFILL }
 	},
 	{ &hf_iscsi_write_data,
 	  { "WriteData", "iscsi.writedata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Write Data", HFILL }
 	},
 	{ &hf_iscsi_read_data,
 	  { "ReadData", "iscsi.readdata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Read Data", HFILL }
 	},
 	{ &hf_iscsi_error_pdu_data,
 	  { "ErrorPDUData", "iscsi.errorpdudata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Error PDU Data", HFILL }
 	},
 	{ &hf_iscsi_async_event_data,
 	  { "AsyncEventData", "iscsi.asynceventdata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Async Event Data", HFILL }
 	},
 	{ &hf_iscsi_vendor_specific_data,
 	  { "VendorSpecificData", "iscsi.vendorspecificdata",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Vendor Specific Data", HFILL }
 	},
 	{ &hf_iscsi_HeaderDigest32,
@@ -2474,7 +2474,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_DataDigest,
 	  { "DataDigest", "iscsi.datadigest",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Data Digest", HFILL }
 	},
 	{ &hf_iscsi_DataDigest32,
@@ -2485,7 +2485,7 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_Opcode,
 	  { "Opcode", "iscsi.opcode",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,
-	    "Opcode", HFILL }
+	    NULL, HFILL }
 	},
 /* #ifdef DRAFT08 */
 	{ &hf_iscsi_X,
@@ -2546,7 +2546,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_LUN,
 	  { "LUN", "iscsi.lun",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Logical Unit Number", HFILL }
 	},
 	{ &hf_iscsi_InitiatorTaskTag,
@@ -2703,7 +2703,7 @@ proto_register_iscsi(void)
 /* #else */
 	{ &hf_iscsi_ISID,
 	  { "ISID", "iscsi.isid",
-	    FT_BYTES, BASE_HEX, NULL, 0,
+	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Initiator part of session identifier", HFILL }
 	},
 /* #ifdef DRAFT09 */
@@ -2804,7 +2804,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_KeyValue,
 	  { "KeyValue", "iscsi.keyvalue",
-	    FT_STRING, 0, NULL, 0,
+	    FT_STRING, BASE_NONE, NULL, 0,
 	    "Key/value pair", HFILL }
 	},
 	{ &hf_iscsi_Text_F,
@@ -2830,7 +2830,7 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_TaskManagementFunction_Response,
 	  { "Response", "iscsi.taskmanfun.response",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_task_management_responses), 0,
-	    "Response", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_TaskManagementFunction_ReferencedTaskTag,
 	  { "ReferencedTaskTag", "iscsi.taskmanfun.referencedtasktag",
@@ -2860,12 +2860,12 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_Time2Wait,
 	  { "Time2Wait", "iscsi.time2wait",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Time2Wait", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_Time2Retain,
 	  { "Time2Retain", "iscsi.time2retain",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Time2Retain", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_iscsi_DesiredDataLength,
 	  { "DesiredDataLength", "iscsi.desireddatalength",

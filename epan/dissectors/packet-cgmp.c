@@ -104,23 +104,23 @@ proto_register_cgmp(void)
 	static hf_register_info hf[] = {
 		{ &hf_cgmp_version,
 		{ "Version",	"cgmp.version",	FT_UINT8, BASE_DEC, NULL, 0xF0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_cgmp_type,
 		{ "Type",	"cgmp.type",	FT_UINT8, BASE_DEC, VALS(type_vals), 0x0F,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_cgmp_count,
 		{ "Count",	"cgmp.count", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_cgmp_gda,
 		{ "Group Destination Address",	"cgmp.gda", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Group Destination Address", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_cgmp_usa,
 		{ "Unicast Source Address",	"cgmp.usa", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Unicast Source Address", HFILL }},
+			NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_cgmp,

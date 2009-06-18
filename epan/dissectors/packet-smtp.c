@@ -826,26 +826,26 @@ proto_register_smtp(void)
 {
   static hf_register_info hf[] = {
     { &hf_smtp_req,
-      { "Request", "smtp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Request", "smtp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_rsp,
-      { "Response", "smtp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Response", "smtp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_req_command,
       { "Command", "smtp.req.command", FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_smtp_req_parameter,
       { "Request parameter", "smtp.req.parameter", FT_STRING, BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_smtp_rsp_code,
       { "Response code", "smtp.response.code", FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_smtp_rsp_parameter,
       { "Response parameter", "smtp.rsp.parameter", FT_STRING, BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     /* Fragment entries */
     { &hf_smtp_data_fragments,
@@ -856,18 +856,18 @@ proto_register_smtp(void)
 	NULL, 0x00, "Message fragment", HFILL } },
     { &hf_smtp_data_fragment_overlap,
       { "DATA fragment overlap", "smtp.data.fragment.overlap", FT_BOOLEAN,
-	BASE_NONE, NULL, 0x00, "Message fragment overlap", HFILL } },
+	BASE_NONE, NULL, 0x0, "Message fragment overlap", HFILL } },
     { &hf_smtp_data_fragment_overlap_conflicts,
       { "DATA fragment overlapping with conflicting data",
 	"smtp.data.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
-	0x00, "Message fragment overlapping with conflicting data", HFILL } },
+	0x0, "Message fragment overlapping with conflicting data", HFILL } },
     { &hf_smtp_data_fragment_multiple_tails,
       { "DATA has multiple tail fragments",
 	"smtp.data.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
-	NULL, 0x00, "Message has multiple tail fragments", HFILL } },
+	NULL, 0x0, "Message has multiple tail fragments", HFILL } },
     { &hf_smtp_data_fragment_too_long_fragment,
       { "DATA fragment too long", "smtp.data.fragment.too_long_fragment",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Message fragment too long",
 	HFILL } },
     { &hf_smtp_data_fragment_error,
       { "DATA defragmentation error", "smtp.data.fragment.error", FT_FRAMENUM,

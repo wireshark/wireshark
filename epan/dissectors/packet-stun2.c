@@ -1115,45 +1115,45 @@ proto_register_stun2(void)
 
 		{ &hf_stun2_channel,
 		{ "Channel Number",	"stun2.channel",	FT_UINT16,
-		BASE_HEX, 	NULL, 	0x0, 	"",	HFILL }
+		BASE_HEX, 	NULL, 	0x0, 	NULL,	HFILL }
 		},
 
 		/* ////////////////////////////////////// */
 		{ &hf_stun2_type,
 			{ "Message Type",	"stun2.type", 	FT_UINT16,
-			BASE_HEX, 	NULL,	0, 	"", 	HFILL }
+			BASE_HEX, 	NULL,	0, 	NULL, 	HFILL }
 		},
 		{ &hf_stun2_type_class,
 			{ "Message Class",	"stun2.type.class", 	FT_UINT16,
-			BASE_HEX, 	NULL,	0x0110, 	"", 	HFILL }
+			BASE_HEX, 	NULL,	0x0110, 	NULL, 	HFILL }
 		},
 		{ &hf_stun2_type_method,
 			{ "Message Method",	"stun2.type.method", 	FT_UINT16,
-			BASE_HEX, 	NULL,	0x3EEF, 	"", 	HFILL }
+			BASE_HEX, 	NULL,	0x3EEF, 	NULL, 	HFILL }
 		},
 		{ &hf_stun2_type_method_assignment,
 			{ "Message Method Assignment",	"stun2.type.method-assignment", 	FT_UINT16,
-			BASE_HEX, 	NULL,	0x2000, 	"", 	HFILL }
+			BASE_HEX, 	NULL,	0x2000, 	NULL, 	HFILL }
                 },
 		{ &hf_stun2_length,
 		{ "Message Length",	"stun2.length",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun2_cookie,
 		{ "Message Cookie",	"stun2.cookie",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun2_id,
 		{ "Message Transaction ID",	"stun2.id",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun2_attributes,
 			{ "Attributes",		"stun2.attributes",	FT_NONE,
-		BASE_NONE,	NULL, 	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL, 	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun2_attr,
 			{ "Attribute Type",	"stun2.attribute", 	FT_UINT16,
-			BASE_HEX, 	NULL,	0, 	"", 	HFILL }
+			BASE_HEX, 	NULL,	0, 	NULL, 	HFILL }
 		},
 		{ &hf_stun2_response_in,
 			{ "Response In",	"stun2.response-in", FT_FRAMENUM, 
@@ -1169,156 +1169,156 @@ proto_register_stun2(void)
 		},
 		{ &hf_stun2_duplicate,
 			{ "Duplicated original message in", "stun2.reqduplicate", FT_FRAMENUM, 
-			BASE_DEC, NULL, 0x0, "This is a duplicate of STUN2 message in this frame ", HFILL }
+			BASE_DEC, NULL, 0x0, "This is a duplicate of STUN2 message in this frame", HFILL }
 		},
 		/* ////////////////////////////////////// */
 		{ &stun2_att_type,
 		{ "Attribute Type",	"stun2.att.type",	FT_UINT16,
-		BASE_HEX,	VALS(attributes),	0x0, 	"",	HFILL }
+		BASE_HEX,	VALS(attributes),	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_type_comprehension,
 			{ "Attribute Type Comprehension",	"stun2.att.type.comprehension",	FT_UINT16,
-			BASE_HEX,	NULL,	0x8000, 	"",	HFILL }
+			BASE_HEX,	NULL,	0x8000, 	NULL,	HFILL }
 		},
 		{ &stun2_att_type_assignment,
 			{ "Attribute Type Assignment",	"stun2.att.type.assignment",	FT_UINT16,
-			BASE_HEX,	NULL,	0x4000, 	"",	HFILL }
+			BASE_HEX,	NULL,	0x4000, 	NULL,	HFILL }
 		},
 		{ &stun2_att_length,
 		{ "Attribute Length",	"stun2.att.length",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_family,
 		{ "Protocol Family",	"stun2.att.family",	FT_UINT8,
-		BASE_HEX,	VALS(attributes_family),	0x0, 	"",	HFILL }
+		BASE_HEX,	VALS(attributes_family),	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_ipv4,
 		{ "IP",		"stun2.att.ipv4",	FT_IPv4,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_ipv6,
 		{ "IP",		"stun2.att.ipv6",	FT_IPv6,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_port,
 		{ "Port",	"stun2.att.port",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_username,
 		{ "Username",	"stun2.att.username",	FT_STRING,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_padding,
 		{ "Padding",	"stun2.att.padding",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_hmac,
 		{ "HMAC-SHA1",	"stun2.att.hmac",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_crc32,
 		{ "CRC-32",	"stun2.att.crc32",	FT_UINT32,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_HEX,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_error_class,
 		{ "Error Class","stun2.att.error.class",	FT_UINT8,
-		BASE_DEC, 	NULL,	0x07,	"",	HFILL}
+		BASE_DEC, 	NULL,	0x07,	NULL,	HFILL}
 		},
 		{ &stun2_att_error_number,
 		{ "Error Code","stun2.att.error",	FT_UINT8,
-		BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+		BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun2_att_error_reason,
 		{ "Error Reason Phrase","stun2.att.error.reason",	FT_STRING,
-		BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+		BASE_NONE, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun2_att_realm,
 		{ "Realm",	"stun2.att.realm",	FT_STRING,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_nonce,
 		{ "Nonce",	"stun2.att.nonce",	FT_STRING,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_unknown,
 		{ "Unknown Attribute","stun2.att.unknown",	FT_UINT16,
-		BASE_HEX, 	NULL,	0x0,	"",	HFILL}
+		BASE_HEX, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun2_att_xor_ipv4,
 		{ "IP (XOR-d)",		"stun2.att.ipv4-xord",	FT_BYTES,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_xor_ipv6,
 		{ "IP (XOR-d)",		"stun2.att.ipv6-xord",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_xor_port,
 		{ "Port (XOR-d)",	"stun2.att.port-xord",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_icmp_type,
 			{ "ICMP type",		"stun2.att.icmp.type",	FT_UINT8,
-                         BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+                         BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun2_att_icmp_code,
 			{ "ICMP code",		"stun2.att.icmp.code",	FT_UINT8,
-			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun2_att_software,
 			{ "Software","stun2.att.software",	FT_STRING,
-		BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+		BASE_NONE, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun2_att_priority,
 			{ "Priority",		"stun2.att.priority",	FT_UINT32,
-			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun2_att_tie_breaker,
 			{ "Tie breaker",	"stun2.att.tie-breaker",	FT_BYTES,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_lifetime,
 			{ "Lifetime",		"stun2.att.lifetime",	FT_UINT32,
-			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun2_att_change_ip,
 			{ "Change IP","stun2.att.change-ip",	FT_BOOLEAN,
-		16, 	TFS(&set_flag),	0x0004,	"",	HFILL}
+		16, 	TFS(&set_flag),	0x0004,	NULL,	HFILL}
 		},
 		{ &stun2_att_change_port,
 			{ "Change Port","stun2.att.change-port",	FT_BOOLEAN,
-			16, 	TFS(&set_flag),	0x0002,	"",	HFILL}
+			16, 	TFS(&set_flag),	0x0002,	NULL,	HFILL}
 		},		
 		{ &stun2_att_reserve_next,
 			{ "Reserve next","stun2.att.even-port.reserve-next",	FT_UINT8,
-			BASE_DEC, 	VALS(attributes_reserve_next),	0x80,	"",	HFILL}
+			BASE_DEC, 	VALS(attributes_reserve_next),	0x80,	NULL,	HFILL}
 		},		
 		{ &stun2_att_cache_timeout,
 			{ "Cache timeout",		"stun2.att.cache-timeout",	FT_UINT32,
-			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun2_att_token,
 			{ "Token",	"stun2.att.token",	FT_BYTES,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_value,
 		{ "Value",	"stun2.value",	FT_BYTES,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_reserved,
 		{ "Reserved",	"stun2.att.reserved",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_transp,
 		{ "Transport",	"stun2.att.transp",	FT_UINT8,
-		BASE_HEX,	VALS(transportnames),	0x0, 	"",	HFILL }
+		BASE_HEX,	VALS(transportnames),	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_channelnum,
 		{ "Channel-Number",	"stun2.att.channelnum",	FT_UINT16,
-		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		BASE_HEX,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun2_att_bandwidth,
 		{ "Bandwidth",	"stun2.port.bandwidth", 	FT_UINT32,
-		BASE_DEC, 	NULL,	0x0, 	"", HFILL }
+		BASE_DEC, 	NULL,	0x0, 	NULL, HFILL }
 		},
 	};
 

@@ -974,7 +974,7 @@ proto_register_nsip(void)
     { &hf_nsip_cause,
       { "Cause", "nsip.cause",
 	FT_UINT8, BASE_OCT, VALS(tab_nsip_cause_values), 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ns_vci,
       { "NS-VCI", "nsip.ns_vci",
@@ -1009,82 +1009,82 @@ proto_register_nsip(void)
     { &hf_nsip_max_num_ns_vc,
       { "Maximum number of NS-VCs", "nsip.max_num_ns_vc",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_num_ip4_endpoints,
       { "Number of IP4 endpoints", "nsip.num_ip4_endpoints",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_num_ip6_endpoints,
       { "Number of IP6 endpoints", "nsip.num_ip6_endpoints",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_reset_flag,
       { "Reset flag", "nsip.reset_flag",
 	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_RESET_FLAG,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_address_type,
       { "IP Address Type", "nsip.ip_address_type",
 	FT_UINT8, BASE_DEC, VALS(ip_address_type_vals), 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_address_ipv4,
       { "IP Address", "nsip.ip_address",
 	FT_IPv4, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_address_ipv6,
       { "IP Address", "nsip.ip_address",
 	FT_IPv6, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_end_flag,
       { "End flag", "nsip.end_flag",
 	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_END_FLAG,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_control_bits_r,
       { "Request change flow", "nsip.control_bits.r",
 	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_CONTROL_BITS_R,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_control_bits_c,
       { "Confirm change flow", "nsip.control_bits.c",
 	FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_CONTROL_BITS_C,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_transaction_id,
       { "Transaction ID", "nsip.transaction_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
     },
     { &hf_nsip_ip_element_ip_address_ipv4,
       { "IP Address", "nsip.ip_element.ip_address",
 	FT_IPv4, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_element_ip_address_ipv6,
       { "IP Address", "nsip.ip_element.ip_address",
 	FT_IPv6, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_element_udp_port,
       { "UDP Port", "nsip.ip_element.udp_port",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_element_signalling_weight,
       { "Signalling Weight", "nsip.ip_element.signalling_weight",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_nsip_ip_element_data_weight,
       { "Data Weight", "nsip.ip_element.data_weight",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
+	NULL, HFILL }
     },
   };
 

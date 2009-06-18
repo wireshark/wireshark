@@ -301,41 +301,41 @@ proto_register_oxid (void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_oxid_opnum,
-		  { "Operation", "oxid.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		  { "Operation", "oxid.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_setid,
-		{ "SetId", "oxid_setid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "SetId", "oxid_setid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_seqnum,
-		{ "SeqNum", "oxid_seqnum",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "SeqNum", "oxid_seqnum",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_addtoset,
-		{ "AddToSet", "oxid_addtoset",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "AddToSet", "oxid_addtoset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_delfromset,
-		{ "DelFromSet", "oxid_delfromset",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "DelFromSet", "oxid_delfromset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_oid,
-		{ "OID", "oxid_oid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "OID", "oxid_oid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_ping_backoff_factor,
-		{ "PingBackoffFactor", "oxid_ping_backoff_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "PingBackoffFactor", "oxid_ping_backoff_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_oxid,
-		{ "OXID", "oxid_oxid",  FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "OXID", "oxid_oxid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_requested_protseqs,
-		{ "RequestedProtSeq", "oxid_requested_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "RequestedProtSeq", "oxid_requested_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_protseqs,
-		{ "ProtSeq", "oxid_protseqs",  FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, "", HFILL }},
+		{ "ProtSeq", "oxid_protseqs",  FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_bindings,
-		{ "OxidBindings", "oxid_bindings", FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "OxidBindings", "oxid_bindings", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_oxid_ipid,
-        { "IPID", "oxid_ipid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "IPID", "oxid_ipid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_authn_hint,
-		{ "AuthnHint", "oxid_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "AuthnHint", "oxid_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_ds_array,
-		  { "Address", "dcom.oxid.address", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		  { "Address", "dcom.oxid.address", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_Unknown1,
-		  { "unknown 8 bytes 1", "oxid5.unknown1", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }},
+		  { "unknown 8 bytes 1", "oxid5.unknown1", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_Unknown2,
-                  { "unknown 8 bytes 2", "oxid5.unknown2", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }}
+                  { "unknown 8 bytes 2", "oxid5.unknown2", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_oxid

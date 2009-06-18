@@ -1398,24 +1398,24 @@ void
 proto_register_ipmi(void)
 {
 	static hf_register_info	hf[] = {
-		{ &hf_ipmi_message, { "Message", "ipmi.message", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_session_handle, { "Session handle", "ipmi.session_handle", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_broadcast, { "Broadcast message", "ipmi.header.broadcast", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_trg, { "Target Address", "ipmi.header.target", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-		{ &hf_ipmi_header_trg_lun, { "Target LUN", "ipmi.header.trg_lun", FT_UINT8, BASE_HEX, NULL, 0x03, "", HFILL }},
-		{ &hf_ipmi_header_netfn, { "NetFN", "ipmi.header.netfn", FT_UINT8, BASE_HEX, NULL, 0xfc, "", HFILL }},
-		{ &hf_ipmi_header_crc, { "Header Checksum", "ipmi.header.crc", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_src, { "Source Address", "ipmi.header.source", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_src_lun, { "Source LUN", "ipmi.header.src_lun", FT_UINT8, BASE_HEX, NULL, 0x03, "", HFILL }},
-		{ &hf_ipmi_header_sequence, { "Sequence Number", "ipmi.header.sequence", FT_UINT8, BASE_HEX, NULL, 0xfc, "", HFILL }},
-		{ &hf_ipmi_header_command, { "Command", "ipmi.header.command", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_completion, { "Completion Code", "ipmi.header.completion", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_header_sig, { "Signature", "ipmi.header.signature", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_data_crc, { "Data checksum", "ipmi.data.crc", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_response_to, { "Response to", "ipmi.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_response_in, { "Response in", "ipmi.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_response_time, { "Responded in", "ipmi.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_ipmi_bad_checksum, { "Bad checksum", "ipmi.bad_checksum", FT_BOOLEAN, 8, NULL, 0, "", HFILL }}
+		{ &hf_ipmi_message, { "Message", "ipmi.message", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_session_handle, { "Session handle", "ipmi.session_handle", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_broadcast, { "Broadcast message", "ipmi.header.broadcast", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_trg, { "Target Address", "ipmi.header.target", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ipmi_header_trg_lun, { "Target LUN", "ipmi.header.trg_lun", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+		{ &hf_ipmi_header_netfn, { "NetFN", "ipmi.header.netfn", FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
+		{ &hf_ipmi_header_crc, { "Header Checksum", "ipmi.header.crc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_src, { "Source Address", "ipmi.header.source", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_src_lun, { "Source LUN", "ipmi.header.src_lun", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+		{ &hf_ipmi_header_sequence, { "Sequence Number", "ipmi.header.sequence", FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
+		{ &hf_ipmi_header_command, { "Command", "ipmi.header.command", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_completion, { "Completion Code", "ipmi.header.completion", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_header_sig, { "Signature", "ipmi.header.signature", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_data_crc, { "Data checksum", "ipmi.data.crc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_response_to, { "Response to", "ipmi.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_response_in, { "Response in", "ipmi.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_response_time, { "Responded in", "ipmi.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_bad_checksum, { "Bad checksum", "ipmi.bad_checksum", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ipmi,

@@ -16806,7 +16806,7 @@ proto_register_smb(void)
 	static hf_register_info hf[] = {
 	{ &hf_smb_cmd,
 		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX,
-		VALS(smb_cmd_vals), 0x0, "SMB Command", HFILL }},
+		VALS(smb_cmd_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_smb_trans2_subcmd,
 		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX,
@@ -16853,11 +16853,11 @@ proto_register_smb(void)
 		NULL, 0, "DOS Error Code", HFILL }},
 
 	{ &hf_smb_reserved,
-		{ "Reserved", "smb.reserved", FT_BYTES, BASE_HEX,
+		{ "Reserved", "smb.reserved", FT_BYTES, BASE_NONE,
 		NULL, 0, "Reserved bytes, must be zero", HFILL }},
 
 	{ &hf_smb_sig,
-		{ "Signature", "smb.signature", FT_BYTES, BASE_HEX,
+		{ "Signature", "smb.signature", FT_BYTES, BASE_NONE,
 		NULL, 0, "Signature bytes", HFILL }},
 
 	{ &hf_smb_key,
@@ -16878,7 +16878,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_pid,
 		{ "Process ID", "smb.pid", FT_UINT16, BASE_DEC,
-		NULL, 0, "Process ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_pid_high,
 		{ "Process ID High", "smb.pid.high", FT_UINT16, BASE_DEC,
@@ -16886,15 +16886,15 @@ proto_register_smb(void)
 
 	{ &hf_smb_tid,
 		{ "Tree ID", "smb.tid", FT_UINT16, BASE_DEC,
-		NULL, 0, "Tree ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_uid,
 		{ "User ID", "smb.uid", FT_UINT16, BASE_DEC,
-		NULL, 0, "User ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_mid,
 		{ "Multiplex ID", "smb.mid", FT_UINT16, BASE_DEC,
-		NULL, 0, "Multiplex ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_flags_lock,
 		{ "Lock and Read", "smb.flags.lock", FT_BOOLEAN, 8,
@@ -16997,7 +16997,7 @@ proto_register_smb(void)
 		NULL, 0, "Encryption key length (must be 0 if not LM2.1 dialect)", HFILL }},
 
 	{ &hf_smb_encryption_key,
-		{ "Encryption Key", "smb.encryption_key", FT_BYTES, BASE_HEX,
+		{ "Encryption Key", "smb.encryption_key", FT_BYTES, BASE_NONE,
 		NULL, 0, "Challenge/Response Encryption Key (for LM2.1 dialect)", HFILL }},
 
 	{ &hf_smb_primary_domain,
@@ -17013,7 +17013,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum raw buffer size", HFILL }},
 
 	{ &hf_smb_server_guid,
-		{ "Server GUID", "smb.server_guid", FT_BYTES, BASE_HEX,
+		{ "Server GUID", "smb.server_guid", FT_BYTES, BASE_NONE,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_security_blob_len,
@@ -17021,7 +17021,7 @@ proto_register_smb(void)
 		NULL, 0, "Security blob length", HFILL }},
 
 	{ &hf_smb_security_blob,
-		{ "Security Blob", "smb.security_blob", FT_BYTES, BASE_HEX,
+		{ "Security Blob", "smb.security_blob", FT_BYTES, BASE_NONE,
 		NULL, 0, "Security blob", HFILL }},
 
 	{ &hf_smb_sm_mode16,
@@ -17146,10 +17146,10 @@ proto_register_smb(void)
 
 	{ &hf_smb_system_time,
 		{ "System Time", "smb.system.time", FT_ABSOLUTE_TIME, BASE_NONE,
-		NULL, 0, "System Time", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unknown,
-		{ "Unknown Data", "smb.unknown", FT_BYTES, BASE_HEX,
+		{ "Unknown Data", "smb.unknown", FT_BYTES, BASE_NONE,
 		NULL, 0, "Unknown Data. Should be implemented by someone", HFILL }},
 
 	{ &hf_smb_dir_name,
@@ -17161,7 +17161,7 @@ proto_register_smb(void)
 		NULL, 0, "Number of times to echo data back", HFILL }},
 
 	{ &hf_smb_echo_data,
-		{ "Echo Data", "smb.echo.data", FT_BYTES, BASE_HEX,
+		{ "Echo Data", "smb.echo.data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data for SMB Echo Request/Response", HFILL }},
 
 	{ &hf_smb_echo_seq_num,
@@ -17182,15 +17182,15 @@ proto_register_smb(void)
 
 	{ &hf_smb_password,
 		{ "Password", "smb.password", FT_BYTES, BASE_NONE,
-		NULL, 0, "Password", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ansi_password,
 		{ "ANSI Password", "smb.ansi_password", FT_BYTES, BASE_NONE,
-		NULL, 0, "ANSI Password", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unicode_password,
 		{ "Unicode Password", "smb.unicode_password", FT_BYTES, BASE_NONE,
-		NULL, 0, "Unicode Password", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_move_flags_file,
 		{ "Must be file", "smb.move.flags.file", FT_BOOLEAN, 16,
@@ -17250,7 +17250,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_name,
 		{ "File Name", "smb.file", FT_STRING, BASE_NONE,
-		NULL, 0, "File Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_open_function_create,
 		{ "Create", "smb.open.function.create", FT_BOOLEAN, 16,
@@ -17350,7 +17350,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_size,
 		{ "File Size", "smb.file_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "File Size", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_search_attribute_read_only,
 		{ "Read Only", "smb.search.attribute.read_only", FT_BOOLEAN, 16,
@@ -17378,11 +17378,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_access_mode,
 		{ "Access Mode", "smb.access.mode", FT_UINT16, BASE_DEC,
-		VALS(da_access_vals), 0x0007, "Access Mode", HFILL }},
+		VALS(da_access_vals), 0x0007, NULL, HFILL }},
 
 	{ &hf_smb_access_sharing,
 		{ "Sharing Mode", "smb.access.sharing", FT_UINT16, BASE_DEC,
-		VALS(da_sharing_vals), 0x0070, "Sharing Mode", HFILL }},
+		VALS(da_sharing_vals), 0x0070, NULL, HFILL }},
 
 	{ &hf_smb_access_locality,
 		{ "Locality", "smb.access.locality", FT_UINT16, BASE_DEC,
@@ -17410,7 +17410,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_mac_alloc_block_count,
 	        { "Allocation Block Count", "smb.alloc.count", FT_UINT32, BASE_DEC,
-		  NULL, 0, "Allocation Block Count", HFILL}},
+		  NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_alloc_block_size,
 	        { "Allocation Block Count", "smb.alloc.size", FT_UINT32, BASE_DEC,
@@ -17418,15 +17418,15 @@ proto_register_smb(void)
 
 	{ &hf_smb_mac_free_block_count,
 	        { "Free Block Count", "smb.free_block.count", FT_UINT32, BASE_DEC,
-		  NULL, 0, "Free Block Count", HFILL}},
+		  NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_root_file_count,
 	        { "Root File Count", "smb.root.file.count", FT_UINT32, BASE_DEC,
-	        NULL, 0, "Root File Count", HFILL}},
+	        NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_root_dir_count,
 	  { "Root Directory Count", "smb.root.dir.count", FT_UINT32, BASE_DEC,
-	    NULL, 0, "Root Directory Count", HFILL}},
+	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_file_count,
 	  { "Root File Count", "smb.file.count", FT_UINT32, BASE_DEC,
@@ -17438,7 +17438,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_mac_support_flags,
 	  { "Mac Support Flags", "smb.mac.support.flags", FT_UINT32, BASE_DEC,
-	    NULL, 0, "Mac Support Flags", HFILL}},
+	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_sup_access_ctrl,
 	  { "Mac Access Control", "smb.mac.access_control", FT_BOOLEAN, 32,
@@ -17493,16 +17493,16 @@ proto_register_smb(void)
 		NULL, 0, "Remaining number of bytes", HFILL }},
 
 	{ &hf_smb_padding,
-		{ "Padding", "smb.padding", FT_BYTES, BASE_HEX,
+		{ "Padding", "smb.padding", FT_BYTES, BASE_NONE,
 		NULL, 0, "Padding or unknown data", HFILL }},
 
 	{ &hf_smb_file_data,
-		{ "File Data", "smb.file_data", FT_BYTES, BASE_HEX,
+		{ "File Data", "smb.file_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data read/written to the file", HFILL }},
 
 	{ &hf_smb_mac_fndrinfo,
-	        { "Finder Info", "smb.mac.finderinfo", FT_BYTES, BASE_HEX,
-		  NULL, 0, "Finder Info", HFILL}},
+	        { "Finder Info", "smb.mac.finderinfo", FT_BYTES, BASE_NONE,
+		  NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_total_data_len,
 		{ "Total Data Length", "smb.total_data_len", FT_UINT16, BASE_DEC,
@@ -17538,7 +17538,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_data_size,
 		{ "Data Size", "smb.data_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "Data Size", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_alloc_size,
 		{ "Allocation Size", "smb.alloc_size", FT_UINT32, BASE_DEC,
@@ -17586,11 +17586,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_data_offset,
 		{ "Data Offset", "smb.data_offset", FT_UINT16, BASE_DEC,
-		NULL, 0, "Data Offset", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_dcm,
 		{ "Data Compaction Mode", "smb.dcm", FT_UINT16, BASE_DEC,
-		NULL, 0, "Data Compaction Mode", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_request_mask,
 		{ "Request Mask", "smb.request.mask", FT_UINT32, BASE_HEX,
@@ -17633,11 +17633,11 @@ proto_register_smb(void)
 		NULL, 0, "Handle for Find operation", HFILL }},
 
 	{ &hf_smb_resume_server_cookie,
-		{ "Server Cookie", "smb.resume.server.cookie", FT_BYTES, BASE_HEX,
+		{ "Server Cookie", "smb.resume.server.cookie", FT_BYTES, BASE_NONE,
 		NULL, 0, "Cookie, must not be modified by the client", HFILL }},
 
 	{ &hf_smb_resume_client_cookie,
-		{ "Client Cookie", "smb.resume.client.cookie", FT_BYTES, BASE_HEX,
+		{ "Client Cookie", "smb.resume.client.cookie", FT_BYTES, BASE_NONE,
 		NULL, 0, "Cookie, must not be modified by the server", HFILL }},
 
 	{ &hf_smb_andxoffset,
@@ -17738,7 +17738,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_vc_num,
 		{ "VC Number", "smb.vc", FT_UINT16, BASE_DEC,
-		NULL, 0, "VC Number", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_password_len,
 		{ "Password Length", "smb.pwlen", FT_UINT16, BASE_DEC,
@@ -17770,7 +17770,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_fs,
 		{ "Native File System", "smb.native_fs", FT_STRING, BASE_NONE,
-		NULL, 0, "Native File System", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_connect_flags_dtid,
 		{ "Disconnect TID", "smb.connect.flags.dtid", FT_BOOLEAN, 16,
@@ -17834,11 +17834,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_data_disp16,
 		{ "Data Displacement", "smb.data_disp", FT_UINT16, BASE_DEC,
-		NULL, 0, "Data Displacement", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_data_offset16,
 		{ "Data Offset", "smb.data_offset", FT_UINT16, BASE_DEC,
-		NULL, 0, "Data Offset", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_data_count32,
 		{ "Data Count", "smb.dc", FT_UINT32, BASE_DEC,
@@ -17846,11 +17846,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_data_disp32,
 		{ "Data Displacement", "smb.data_disp", FT_UINT32, BASE_DEC,
-		NULL, 0, "Data Displacement", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_data_offset32,
 		{ "Data Offset", "smb.data_offset", FT_UINT32, BASE_DEC,
-		NULL, 0, "Data Offset", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_setup_count,
 		{ "Setup Count", "smb.sc", FT_UINT8, BASE_DEC,
@@ -17942,23 +17942,23 @@ proto_register_smb(void)
 
 	{ &hf_smb_ea_flags,
 		{ "EA Flags", "smb.ea.flags", FT_UINT8, BASE_HEX,
-		NULL, 0, "EA Flags", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_name_length,
 		{ "EA Name Length", "smb.ea.name_length", FT_UINT8, BASE_DEC,
-		NULL, 0, "EA Name Length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_data_length,
 		{ "EA Data Length", "smb.ea.data_length", FT_UINT16, BASE_DEC,
-		NULL, 0, "EA Data Length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_name,
 		{ "EA Name", "smb.ea.name", FT_STRING, BASE_NONE,
-		NULL, 0, "EA Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_data,
 		{ "EA Data", "smb.ea.data", FT_BYTES, BASE_NONE,
-		NULL, 0, "EA Data", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_name_len,
 		{ "File Name Len", "smb.file_name_len", FT_UINT32, BASE_DEC,
@@ -18174,7 +18174,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_share_access_delete,
 		{ "Delete", "smb.share.access.delete", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_share_access_delete), SHARE_ACCESS_DELETE, "", HFILL }},
+		TFS(&tfs_nt_share_access_delete), SHARE_ACCESS_DELETE, NULL, HFILL }},
 
 	{ &hf_smb_file_eattr_read_only,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 32,
@@ -18257,8 +18257,8 @@ proto_register_smb(void)
 		TFS(&tfs_nt_qsd_sacl), NT_QSD_SACL, "Is SACL security informaton being queried?", HFILL }},
 
 	{ &hf_smb_extended_attributes,
-		{ "Extended Attributes", "smb.ext_attr", FT_BYTES, BASE_HEX,
-		NULL, 0, "Extended Attributes", HFILL }},
+		{ "Extended Attributes", "smb.ext_attr", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_oplock_level,
 		{ "Oplock level", "smb.oplock.level", FT_UINT8, BASE_DEC,
@@ -18270,7 +18270,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_id,
 		{ "Server unique file ID", "smb.create.file_id", FT_UINT32, BASE_HEX,
-		NULL, 0, "Server unique file ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_error_offset,
 		{ "EA Error offset", "smb.ea.error_offset", FT_UINT32, BASE_DEC,
@@ -18410,7 +18410,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_search_pattern,
 		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
-		NULL, 0, "Search Pattern", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ff2_backup,
 		{ "Backup Intent", "smb.find_first2.flags.backup", FT_BOOLEAN, 16,
@@ -18460,7 +18460,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_resume,
 		{ "Resume Key", "smb.resume", FT_UINT32, BASE_DEC,
-		NULL, 0, "Resume Key", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_max_referral_level,
 		{ "Max Referral Level", "smb.max_referral_level", FT_UINT16, BASE_DEC,
@@ -18663,7 +18663,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of volume label", HFILL }},
 
 	{ &hf_smb_volume_label,
-		{ "Label", "smb.volume.label", FT_STRING, BASE_DEC,
+		{ "Label", "smb.volume.label", FT_STRING, BASE_NONE,
 		NULL, 0, "Volume label", HFILL }},
 
 	{ &hf_smb_free_alloc_units64,
@@ -18699,7 +18699,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of filesystem name in bytes", HFILL }},
 
 	{ &hf_smb_fs_name,
-		{ "FS Name", "smb.fs_name", FT_STRING, BASE_DEC,
+		{ "FS Name", "smb.fs_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of filesystem", HFILL }},
 
 	{ &hf_smb_device_char_removable,
@@ -18852,11 +18852,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_segment,
 		{ "SMB Segment", "smb.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"SMB Segment", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_smb_segments,
 		{ "SMB Segments", "smb.segment.segments", FT_NONE, BASE_NONE, NULL, 0x0,
-			"SMB Segments", HFILL }},
+			NULL, HFILL }},
 
 	{ &hf_smb_unix_major_version,
 	  { "Major Version", "smb.unix.major_version", FT_UINT16, BASE_DEC,
@@ -18868,83 +18868,83 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_capability_fcntl,
 	  { "FCNTL Capability", "smb.unix.capability.fcntl", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_unix_capability_posix_acl,
 	  { "POSIX ACL Capability", "smb.unix.capability.posix_acl", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_data,
 	  { "Read Data", "smb.file.accessmask.read_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_data,
 	  { "Write Data", "smb.file.accessmask.write_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_append_data,
 	  { "Append Data", "smb.file.accessmask.append_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000004, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000004, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_ea,
 	  { "Read EA", "smb.file.accessmask.read_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000008, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000008, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_ea,
 	  { "Write EA", "smb.file.accessmask.write_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000010, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000010, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_execute,
 	  { "Execute", "smb.file.accessmask.execute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000020, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000020, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_attribute,
 	  { "Read Attribute", "smb.file.accessmask.read_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000080, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000080, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_attribute,
 	  { "Write Attribute", "smb.file.accessmask.write_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000100, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000100, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_list,
 	  { "List", "smb.dir.accessmask.list", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_add_file,
 	  { "Add File", "smb.dir.accessmask.add_file", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_add_subdir,
 	  { "Add Subdir", "smb.dir.accessmask.add_subdir", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000004, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000004, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_read_ea,
 	  { "Read EA", "smb.dir.accessmask.read_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000008, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000008, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_write_ea,
 	  { "Write EA", "smb.dir.accessmask.write_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000010, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000010, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_traverse,
 	  { "Traverse", "smb.dir.accessmask.traverse", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000020, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000020, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_delete_child,
 	  { "Delete Child", "smb.dir.accessmask.delete_child", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000040, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000040, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_read_attribute,
 	  { "Read Attribute", "smb.dir.accessmask.read_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000080, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000080, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_write_attribute,
 	  { "Write Attribute", "smb.dir.accessmask.write_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000100, "", HFILL }},
+		TFS(&flags_set_truth), 0x00000100, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_size,
 	  { "File size", "smb.unix.file.size", FT_UINT64, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_num_bytes,
 	  { "Number of bytes", "smb.unix.file.num_bytes", FT_UINT64, BASE_DEC,
@@ -18952,163 +18952,163 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_file_last_status,
 	  { "Last status change", "smb.unix.file.stime", FT_ABSOLUTE_TIME, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_last_access,
 	  { "Last access", "smb.unix.file.atime", FT_ABSOLUTE_TIME, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_last_change,
 	  { "Last modification", "smb.unix.file.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_uid,
 	  { "UID", "smb.unix.file.uid", FT_UINT64, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_gid,
 	  { "GID", "smb.unix.file.gid", FT_UINT64, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_type,
 	  { "File type", "smb.unix.file.file_type", FT_UINT32, BASE_DEC,
-	    VALS(unix_file_type_vals), 0, "", HFILL }},
+	    VALS(unix_file_type_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_dev_major,
 	  { "Major device", "smb.unix.file.dev_major", FT_UINT64, BASE_HEX,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_dev_minor,
 	  { "Minor device", "smb.unix.file.dev_minor", FT_UINT64, BASE_HEX,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_unique_id,
 	  { "Unique ID", "smb.unix.file.unique_id", FT_UINT64, BASE_HEX,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_permissions,
 	  { "File permissions", "smb.unix.file.perms", FT_UINT64, BASE_HEX,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_nlinks,
 	  { "Num links", "smb.unix.file.num_links", FT_UINT64, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_link_dest,
 	  { "Link destination", "smb.unix.file.link_dest", FT_STRING,
-	    BASE_NONE, NULL, 0, "", HFILL }},
+	    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_find_file_nextoffset,
 	  { "Next entry offset", "smb.unix.find_file.next_offset", FT_UINT32, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_find_file_resumekey,
 	  { "Resume key", "smb.unix.find_file.resume_key", FT_UINT32, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
         { &hf_smb_network_unknown,
           { "Unknown field", "smb.unknown", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_create_flags,
           { "Create Flags", "smb.create_flags", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_create_options,
           { "Create Options", "smb.create_options", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_share_access,
           { "Share Access", "smb.share_access", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_access_mask,
           { "Access Mask", "smb.access_mask", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_mode,
           { "Mode", "smb.mode", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_attribute,
           { "Attribute", "smb.attribute", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_smb_reparse_tag,
           { "Reparse Tag", "smb.reparse_tag", FT_UINT32, BASE_HEX,
-            NULL, 0, "", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_disposition_delete_on_close,
 	  { "Delete on close", "smb.disposition.delete_on_close", FT_BOOLEAN, 8,
-		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
+		TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_pipe_info_flag,
 	  { "Pipe Info", "smb.pipe_info_flag", FT_BOOLEAN, 8,
-		TFS(&tfs_pipe_info_flag), 0x01, "", HFILL }},
+		TFS(&tfs_pipe_info_flag), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_logged_in,
 	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_logged_out,
 	  { "Logged Out", "smb.logged_out", FT_FRAMENUM, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_offset,
 	  { "File Offset", "smb.file.rw.offset", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_length,
 	  { "File RW Length", "smb.file.rw.length", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_acl_version,
 	  { "Posix ACL version", "smb.posix_acl.version", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_num_file_aces,
 	  { "Number of file ACEs", "smb.posix_acl.num_file_aces", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_num_def_aces,
 	  { "Number of default ACEs", "smb.posix_acl.num_def_aces", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_type,
 	  { "ACE Type", "smb.posix_acl.ace_type", FT_UINT8, BASE_DEC,
-		VALS(&ace_type_vals), 0, "", HFILL }},
+		VALS(&ace_type_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_flags,
 	  { "Permissions", "smb.posix_acl.ace_perms", FT_UINT8, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_read,
           {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8,
-		NULL, 0x04, "", HFILL}},
+		NULL, 0x04, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_write,
           {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8,
-		NULL, 0x02, "", HFILL}},
+		NULL, 0x02, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_execute,
           {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8,
-		NULL, 0x01, "", HFILL}},
+		NULL, 0x01, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_owner_uid,
 	  { "Owner UID", "smb.posix_acl.ace_perms.owner_uid", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_owner_gid,
 	  { "Owner GID", "smb.posix_acl.ace_perms.owner_gid", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_uid,
 	  { "UID", "smb.posix_acl.ace_perms.uid", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_gid,
 	  { "GID", "smb.posix_acl.ace_perms.gid", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	};
 

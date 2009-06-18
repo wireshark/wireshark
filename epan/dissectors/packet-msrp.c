@@ -801,122 +801,122 @@ proto_register_msrp(void)
 		{ &hf_msrp_request_line,
 			{ "Request Line", 		"msrp.request.line",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Request Line", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_response_line,
 			{ "Response Line", 		"msrp.response.line",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Response Line", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_transactionID,
 			{ "Transaction Id", 		"msrp.transaction.id",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Transaction Id", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_method,
 			{ "Method", 				"msrp.method",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Method", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_status_code,
 			{ "Status code", 		"msrp.status.code",
 			FT_UINT16, BASE_DEC,NULL,0x0,
-			"Status code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_msg_hdr,
 			{ "Message Header", 		"msrp.msg.hdr",
-			FT_NONE, 0,NULL,0x0,
-			"Message Header", HFILL }
+			FT_NONE, BASE_NONE,NULL,0x0,
+			NULL, HFILL }
 		},
 		{ &hf_msrp_end_line,
 			{ "End Line", 		"msrp.end.line",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"End Line", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_cnt_flg,
 			{ "Continuation-flag", 		"msrp.cnt.flg",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Continuation-flag", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_FROM_PATH],
 			{ "From Path", 		"msrp.from.path",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"From Path", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_TO_PATH],
 			{ "To Path", 		"msrp.to.path",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"To Path", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_MESSAGE_ID],
 			{ "Message ID", 		"msrp.messageid",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Message ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_SUCCESS_REPORT],
 			{ "Success Report", 		"msrp.success.report",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Success Report", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_FAILURE_REPORT],
 			{ "Failure Report", 		"msrp.failure.report",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Failure Report", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_BYTE_RANGE],
 			{ "Byte Range", 		"msrp.byte.range",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Byte Range", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_STATUS],
 			{ "Status", 		"msrp.status",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Status", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_CONTENT_TYPE],
 			{ "Content-Type", 		"msrp.content.type",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Content-Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_CONTENT_ID],
 			{ "Content-ID", 		"msrp.content.id",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Content-ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_CONTENT_DISCRIPTION],
 			{ "Content-Description", 		"msrp.content.description",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Content-Description", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_CONTENT_DISPOSITION],
 			{ "Content-Disposition", 		"msrp.content.disposition",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Content-Disposition", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_USE_PATH],
 			{ "Use-Path", 		"msrp.use.path",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Use-Path", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_WWW_AUTHENTICATE],
 			{ "WWW-Authenticate", 		"msrp.www.authenticate",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"WWW-Authenticate", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_AUTHORIZATION],
 			{ "Authorization", 		"msrp.authorization",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Authorization", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[MSRP_AUTHENTICATION_INFO],
 			{ "Authentication-Info", 		"msrp.authentication.info",
 			FT_STRING, BASE_NONE,NULL,0x0,
-			"Authentication-Info", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_msrp_data,
 			{ "Data", "msrp.data",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Data", HFILL}
+			NULL, HFILL}
         },
 		{ &hf_msrp_setup,
 			{ "Stream setup", "msrp.setup",

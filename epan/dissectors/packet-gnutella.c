@@ -602,11 +602,11 @@ void proto_register_gnutella(void) {
 		{ &hf_gnutella_stream,
 			{ "Gnutella Upload / Download Stream", "gnutella.stream",
 			FT_NONE, BASE_NONE, NULL, 0,
-			"Gnutella Upload / Download Stream", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gnutella_header_id,
 			{ "ID", "gnutella.header.id",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Gnutella Descriptor ID", HFILL }
 		},
 		{ &hf_gnutella_header_payload,
@@ -636,7 +636,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_pong_ip,
 			{ "IP", "gnutella.pong.ip",
-			FT_IPv4, BASE_DEC, NULL, 0,
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Gnutella Pong IP Address", HFILL }
 		},
 		{ &hf_gnutella_pong_files,
@@ -681,7 +681,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_queryhit_hit_extra,
 			{ "Extra", "gnutella.queryhit.hit.extra",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Gnutella Query Extra", HFILL }
 		},
 		{ &hf_gnutella_queryhit_count,
@@ -696,7 +696,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_queryhit_ip,
 			{ "IP", "gnutella.queryhit.ip",
-			FT_IPv4, BASE_DEC, NULL, 0,
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Gnutella QueryHit IP Address", HFILL }
 		},
 		{ &hf_gnutella_queryhit_speed,
@@ -706,22 +706,22 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_queryhit_extra,
 			{ "Extra", "gnutella.queryhit.extra",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Gnutella QueryHit Extra", HFILL }
 		},
 		{ &hf_gnutella_queryhit_servent_id,
 			{ "Servent ID", "gnutella.queryhit.servent_id",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Gnutella QueryHit Servent ID", HFILL }
 		},
 		{ &hf_gnutella_push_servent_id,
 			{ "Servent ID", "gnutella.push.servent_id",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Gnutella Push Servent ID", HFILL }
 		},
 		{ &hf_gnutella_push_ip,
 			{ "IP", "gnutella.push.ip",
-			FT_IPv4, BASE_DEC, NULL, 0,
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Gnutella Push IP Address", HFILL }
 		},
 		{ &hf_gnutella_push_index,

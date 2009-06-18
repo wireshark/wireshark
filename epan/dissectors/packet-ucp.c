@@ -2006,7 +2006,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_oper_section,
 	    { "Data", "ucp.parm",
-	      FT_NONE, BASE_DEC, NULL, 0x00,
+	      FT_NONE, BASE_NONE, NULL, 0x00,
 	      "The actual content of the operation.",
 	      HFILL
 	    }
@@ -2223,7 +2223,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_LRP,
 	    { "LRP", "ucp.parm.LRP",
-	      FT_STRING, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "Legitimisation code for repetition.",
 	      HFILL
 	    }
@@ -2237,7 +2237,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_LPR,
 	    { "LPR", "ucp.parm.LPR",
-	      FT_STRING, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "Legitimisation code for priority requested.",
 	      HFILL
 	    }
@@ -2251,7 +2251,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_LUM,
 	    { "LUM", "ucp.parm.LUM",
-	      FT_STRING, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "Legitimisation code for urgent message.",
 	      HFILL
 	    }
@@ -2265,7 +2265,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_LRC,
 	    { "LRC", "ucp.parm.LRC",
-	      FT_STRING, BASE_DEC, NULL, 0x00,
+	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "Legitimisation code for reverse charging.",
 	      HFILL
 	    }
@@ -2488,14 +2488,14 @@ proto_register_ucp(void)
 	    }
 	},
 	{ &hf_ucp_parm_NB,
-	    { "  NB", "ucp.parm.NB",
+	    { "NB", "ucp.parm.NB",
 	      FT_STRING, BASE_NONE, NULL, 0x00,
 	      "No. of bits in Transparent Data (TD) message.",
 	      HFILL
 	    }
 	},
 	{ &hf_ucp_data_section,
-	    { "  Data", "ucp.message",
+	    { "Data", "ucp.message",
 	      FT_NONE, BASE_NONE, NULL, 0x00,
 	      "The actual message or data.",
 	      HFILL
@@ -2559,7 +2559,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_XSer,
 	    { "Extra services:", "ucp.parm.XSer",
-	      FT_NONE, BASE_DEC, NULL, 0x00,
+	      FT_NONE, BASE_NONE, NULL, 0x00,
 	      "Extra services.",
 	      HFILL
 	    }

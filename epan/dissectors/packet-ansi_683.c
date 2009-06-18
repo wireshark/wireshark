@@ -4833,21 +4833,21 @@ proto_register_ansi_683(void)
 	  { "Forward Link Message Type",
 	    "ansi_683.for_msg_type",
 	    FT_UINT8, BASE_DEC, VALS(for_msg_type_strings), 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_683_rev_msg_type,
 	  { "Reverse Link Message Type",
 	    "ansi_683.rev_msg_type",
 	    FT_UINT8, BASE_DEC, VALS(rev_msg_type_strings), 0,
-	    "", HFILL }},
+	    NULL, HFILL }},
 	{ &hf_ansi_683_length,
 	    { "Length",		"ansi_683.len",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_ansi_683_none,
 	    { "Sub tree",	"ansi_683.none",
-	    FT_NONE, 0, 0, 0,
-	    "", HFILL }
+	    FT_NONE, BASE_NONE, 0, 0,
+	    NULL, HFILL }
 	},
     };
 

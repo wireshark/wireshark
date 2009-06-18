@@ -162,28 +162,28 @@ proto_register_diameter_3gpp(void)
 	static hf_register_info hf[] = {
 		{ &hf_diameter_3gpp_msisdn,
 			{ "MSISDN",           "diameter.3gpp.msisdn",
-			FT_BYTES, BASE_HEX, NULL, 0x0,          
-			"MSISDN", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_ipaddr,
 			{ "IPv4 Address",           "diameter.3gpp.ipaddr",
-			FT_IPv4, BASE_DEC, NULL, 0x0,          
-			"IPv4 Address", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x0,          
+			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_mbms_required_qos_prio,
 			{ "Allocation/Retention Priority",           "diameter.3gpp.mbms_required_qos_prio",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Allocation/Retention Priority", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_tmgi,
 			{ "TMGI",           "diameter.3gpp.tmgi",
-			FT_BYTES, BASE_HEX, NULL, 0x0,          
-			"TMGI", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			NULL, HFILL }
 		},
 		{ &hf_diameter_mbms_service_id,
 			{ "MBMS Service ID",           "diameter.3gpp.mbms_service_id",
 			FT_UINT24, BASE_HEX, NULL, 0x0,          
-			"MBMS Service ID", HFILL }
+			NULL, HFILL }
 		},
 	};
 

@@ -126,7 +126,7 @@ void proto_register_wlancertextn(void) {
         "wlancertextn.SSIDList", HFILL }},
     { &hf_wlancertextn_SSIDList_item,
       { "SSID", "wlancertextn.SSID",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "wlancertextn.SSID", HFILL }},
 
 /*--- End of included file: packet-wlancertextn-hfarr.c ---*/

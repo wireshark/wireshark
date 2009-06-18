@@ -1971,12 +1971,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_param_length,
 			{ "Parameter Total Length",           "bthci_cmd.param_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,          
-				"Parameter Total Length", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_params,
 			{ "Command Parameters",           "bthci_cmd.params",
-				FT_BYTES, BASE_HEX, NULL, 0x0,          
-				"Command Parameters", HFILL }
+				FT_BYTES, BASE_NONE, NULL, 0x0,          
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_lap,
 			{ "LAP",           "bthci_cmd.lap",
@@ -1996,87 +1996,87 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_encrypt_mode,
 			{ "Encryption Mode",           "bthci_cmd.encrypt_mode",
 				FT_UINT8, BASE_HEX, VALS(encrypt_mode_vals), 0x0,          
-				"Encryption Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_bd_addr,
-			{ "BD_ADDR: ",          "bthci_cmd.bd_addr",
+			{ "BD_ADDR:",          "bthci_cmd.bd_addr",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Bluetooth Device Address", HFILL}
 		},
 		{ &hf_bthci_cmd_packet_type_2dh1,
 			{ "Packet Type 2-DH1",        "bthci_cmd.packet_type_2dh1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0002,
-				"Packet Type 2-DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_3dh1,
 			{ "Packet Type 3-DH1",        "bthci_cmd.packet_type_3dh1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0004,
-				"Packet Type 3-DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dm1,
 			{ "Packet Type DM1",        "bthci_cmd.packet_type_dm1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0008,
-				"Packet Type DM1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dh1,
 			{ "Packet Type DH1",        "bthci_cmd.packet_type_dh1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0010,
-				"Packet Type DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_2dh3,
 			{ "Packet Type 2-DH3",        "bthci_cmd.packet_type_2dh3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0100,
-				"Packet Type 2-DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_3dh3,
 			{ "Packet Type 3-DH3",        "bthci_cmd.packet_type_3dh3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0200,
-				"Packet Type 3-DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dm3,
 			{ "Packet Type DM3",        "bthci_cmd.packet_type_dm3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0400,
-				"Packet Type DM3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dh3,
 			{ "Packet Type DH3",        "bthci_cmd.packet_type_dh3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0800,
-				"Packet Type DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_2dh5,
 			{ "Packet Type 2-DH5",        "bthci_cmd.packet_type_2dh5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x1000,
-				"Packet Type 2-DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_3dh5,
 			{ "Packet Type 3-DH5",        "bthci_cmd.packet_type_3dh5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x2000,
-				"Packet Type 3-DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dm5,
 			{ "Packet Type DM5",        "bthci_cmd.packet_type_dm5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x4000,
-				"Packet Type DM5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dh5,
 			{ "Packet Type DH5",        "bthci_cmd.packet_type_dh5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x8000,
-				"Packet Type DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_page_scan_mode,
 			{ "Page Scan Mode",        "bthci_cmd.page_scan_mode",
 				FT_UINT8, BASE_HEX, VALS(cmd_page_scan_modes), 0x0,
-				"Page Scan Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_page_scan_repetition_mode,
 			{ "Page Scan Repetition Mode",        "bthci_cmd.page_scan_repetition_mode",
 				FT_UINT8, BASE_HEX, VALS(cmd_page_scan_repetition_modes), 0x0,
-				"Page Scan Repetition Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_page_scan_period_mode,
 			{ "Page Scan Period Mode",        "bthci_cmd.page_scan_period_mode",
 				FT_UINT8, BASE_HEX, VALS(cmd_page_scan_period_modes), 0x0,
-				"Page Scan Period Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_clock_offset,
 			{ "Clock Offset",        "bthci_cmd.clock_offset",
@@ -2091,12 +2091,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_allow_role_switch,
 			{ "Allow Role Switch",         "bthci_cmd.allow_role_switch",
 				FT_UINT8, BASE_HEX, VALS(cmd_role_switch_modes), 0x0,
-				"Allow Role Switch", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_status,
 			{ "Status",           "bthci_cmd.status",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
-				"Status", HFILL }
+				NULL, HFILL }
 		},
 
 		{ &hf_bthci_cmd_max_period_length,       
@@ -2112,52 +2112,52 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_connection_handle,
 			{ "Connection Handle",             "bthci_cmd.connection_handle",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
-				"Connection Handle", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_reason,
 			{ "Reason",           "bthci_cmd.reason",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
-				"Reason", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_num_link_keys,
 			{ "Number of Link Keys", "bthci_cmd_num_link_keys",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Number of Link Keys", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_link_key,
 			{ "Link Key",        "bthci_cmd.link_key",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"Link Key for the associated BD_ADDR", HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_hv1,
 			{ "Packet Type HV1",        "bthci_cmd.packet_type_hv1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0020,
-				"Packet Type HV1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_hv2,
 			{ "Packet Type HV2",        "bthci_cmd.packet_type_hv2",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0040,
-				"Packet Type HV2", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_hv3,
 			{ "Packet Type HV3",        "bthci_cmd.packet_type_hv3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0080,
-				"Packet Type HV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_role,
 			{ "Role",        "bthci_cmd.role",
 				FT_UINT8, BASE_HEX, VALS(cmd_role_vals), 0x0,
-				"Role", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_pin_code_length,
 			{ "PIN Code Length",        "bthci_cmd.pin_code_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"PIN Code Length", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_pin_code,
 			{ "PIN Code",        "bthci_cmd.pin_code",
-				FT_STRING, BASE_HEX, NULL, 0x0,
-				"PIN Code", HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_pin_type,
 			{ "PIN Type", "bthci_cmd.pin_type",
@@ -2167,12 +2167,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_encryption_enable,
 			{ "Encryption Enable",        "bthci_cmd.encryption_enable",
 				FT_UINT8, BASE_HEX, VALS(cmd_encryption_enable), 0x0,
-				"Encryption Enable", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_key_flag,
 			{ "Key Flag",        "bthci_cmd.key_flag",
 				FT_UINT8, BASE_HEX, VALS(cmd_key_flag), 0x0,
-				"Key Flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_max_interval_hold,
 			{ "Hold Mode Max Interval",        "bthci_cmd.hold_mode_max_int",
@@ -2217,12 +2217,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_flags,
 			{ "Flags",        "bthci_cmd.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"Flags", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_service_type,
 			{ "Service Type",        "bthci_cmd.service_type",
 				FT_UINT8, BASE_HEX, VALS(cmd_service_types), 0x0,
-				"Service Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_token_rate,
 			{ "Available Token Rate",        "bthci_cmd.token_rate",
@@ -2252,42 +2252,42 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_link_policy_setting_switch,
 			{ "Enable Master Slave Switch", "bthci_cmd.link_policy_switch",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0001,
-				"Enable Master Slave Switch", HFILL }
+				NULL, HFILL }
 		}, 
 		{ &hf_bthci_cmd_link_policy_setting_hold,
 			{ "Enable Hold Mode", "bthci_cmd.link_policy_hold",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0002,
-				"Enable Hold Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_link_policy_setting_sniff,
 			{ "Enable Sniff Mode", "bthci_cmd.link_policy_sniff",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0004,
-				"Enable Sniff Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_link_policy_setting_park,
 			{ "Enable Park Mode", "bthci_cmd.link_policy_park",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0008,
-				"Enable Park Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_filter_type,
 			{ "Filter Type", "bthci_cmd.filter_type",
 				FT_UINT8, BASE_HEX, VALS(cmd_filter_types), 0x0,
-				"Filter Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_inquiry_result_filter_condition_type,
 			{ "Filter Condition Type", "bthci_cmd.filter_condition_type",
 				FT_UINT8, BASE_HEX, VALS(cmd_inquiry_result_filter_condition_types), 0x0,
-				"Filter Condition Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_connection_setup_filter_condition_type,
 			{ "Filter Condition Type", "bthci_cmd.filter_condition_type",
 				FT_UINT8, BASE_HEX, VALS(cmd_connection_setup_filter_condition_types), 0x0,
-				"Filter Condition Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_class_of_device,
 			{ "Class of Device", "bthci_cmd.class_of_device",
 				FT_UINT24, BASE_HEX, NULL, 0x0,
-				"Class of Device", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_class_of_device_mask,
 			{ "Class of Device Mask", "bthci_cmd.class_of_device_mask",
@@ -2302,17 +2302,17 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_read_all_flag,
 			{ "Read All Flag", "bthci_cmd.read_all_flag",
 				FT_UINT8, BASE_HEX, VALS(cmd_read_all_flag_values), 0x0,
-				"Read All Flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_delete_all_flag,
 			{ "Delete All Flag", "bthci_cmd.delete_all_flag",
 				FT_UINT8, BASE_HEX, VALS(cmd_delete_all_flag_values), 0x0,
-				"Delete All Flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_authentication_enable,
 			{ "Authentication Enable", "bthci_cmd.auth_enable",
 				FT_UINT8, BASE_HEX, VALS(cmd_authentication_enable_values), 0x0,
-				"Authentication Enable", HFILL }
+				NULL, HFILL }
 		},  
 		{ &hf_bthci_cmd_input_coding,
 			{ "Input Coding", "bthci_cmd.input_coding",
@@ -2322,12 +2322,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_input_data_format,
 			{ "Input Data Format", "bthci_cmd.input_data_format",
 				FT_UINT16, BASE_DEC, VALS(cmd_input_data_format_values), 0x00c0,
-				"Input Data Format", HFILL }
+				NULL, HFILL }
 		},  
 		{ &hf_bthci_cmd_input_sample_size,
 			{ "Input Sample Size", "bthci_cmd.input_sample_size",
 				FT_UINT16, BASE_DEC, VALS(cmd_input_sample_size_values), 0x0020,
-				"Input Sample Size", HFILL }
+				NULL, HFILL }
 		}, 
 		{ &hf_bthci_cmd_linear_pcm_bit_pos,
 			{ "Linear PCM Bit Pos", "bthci_cmd.lin_pcm_bit_pos",
@@ -2337,7 +2337,7 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_air_coding_format,
 			{ "Air Coding Format", "bthci_cmd.air_coding_format",
 				FT_UINT16, BASE_DEC, VALS(cmd_air_coding_format_values), 0x0003,
-				"Air Coding Format", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_num_broadcast_retransmissions,
 			{ "Num Broadcast Retran", "bthci_cmd.num_broad_retran",
@@ -2362,12 +2362,12 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_scan_enable,
 			{ "Scan Enable", "bthci_cmd.scan_enable",
 				FT_UINT8, BASE_HEX, VALS(cmd_scan_enable_values), 0x0,
-				"Scan Enable", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_interval,
 			{ "Interval", "bthci_cmd.interval",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Interval", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_window,
 			{ "Interval", "bthci_cmd.window",
@@ -2390,42 +2390,42 @@ proto_register_bthci_cmd(void)
 				"LAP(s)used to create IAC", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_00,
-			{ "Inquiry Complete                   ", "bthci_cmd.evt_mask_00",
+			{ "Inquiry Complete", "bthci_cmd.evt_mask_00",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Inquiry Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_01,
-			{ "Inquiry Result                     ", "bthci_cmd.evt_mask_01",
+			{ "Inquiry Result", "bthci_cmd.evt_mask_01",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Inquiry Result Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_02,
-			{ "Connect Complete                   ", "bthci_cmd.evt_mask_02",
+			{ "Connect Complete", "bthci_cmd.evt_mask_02",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Connection Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_03,
-			{ "Connect Request                    ", "bthci_cmd.evt_mask_03",
+			{ "Connect Request", "bthci_cmd.evt_mask_03",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Connect Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_04,
-			{ "Disconnect Complete                ", "bthci_cmd.evt_mask_04",
+			{ "Disconnect Complete", "bthci_cmd.evt_mask_04",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Disconnect Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_05,
-			{ "Auth Complete                      ", "bthci_cmd.evt_mask_05",
+			{ "Auth Complete", "bthci_cmd.evt_mask_05",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"Auth Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_06,
-			{ "Remote Name Req Complete           ", "bthci_cmd.evt_mask_06",
+			{ "Remote Name Req Complete", "bthci_cmd.evt_mask_06",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Remote Name Req Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_07,
-			{ "Encrypt Change                     ", "bthci_cmd.evt_mask_07",
+			{ "Encrypt Change", "bthci_cmd.evt_mask_07",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Encrypt Change Bit", HFILL }
 		},
@@ -2435,204 +2435,204 @@ proto_register_bthci_cmd(void)
 				"Change Connection Link Key Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_11,
-			{ "Master Link Key Complete           ", "bthci_cmd.evt_mask_11",
+			{ "Master Link Key Complete", "bthci_cmd.evt_mask_11",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Master Link Key Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_12,
-			{ "Read Remote Supported Features     ", "bthci_cmd.evt_mask_12",
+			{ "Read Remote Supported Features", "bthci_cmd.evt_mask_12",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Read Remote Supported Features Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_13,
-			{ "Read Remote Ver Info Complete      ", "bthci_cmd.evt_mask_13",
+			{ "Read Remote Ver Info Complete", "bthci_cmd.evt_mask_13",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Read Remote Ver Info Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_14,
-			{ "QoS Setup Complete                 ", "bthci_cmd.evt_mask_14",
+			{ "QoS Setup Complete", "bthci_cmd.evt_mask_14",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"QoS Setup Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_17,
-			{ "Hardware Error                     ", "bthci_cmd.evt_mask_17",
+			{ "Hardware Error", "bthci_cmd.evt_mask_17",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Hardware Error Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_20,
-			{ "Flush Occurred                     ", "bthci_cmd.evt_mask_20",
+			{ "Flush Occurred", "bthci_cmd.evt_mask_20",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Flush Occurred Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_21,
-			{ "Role Change                        ", "bthci_cmd.evt_mask_21",
+			{ "Role Change", "bthci_cmd.evt_mask_21",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Role Change Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_23,
-			{ "Mode Change                        ", "bthci_cmd.evt_mask_23",
+			{ "Mode Change", "bthci_cmd.evt_mask_23",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Mode Change Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_24,
-			{ "Return Link Keys                   ", "bthci_cmd.evt_mask_24",
+			{ "Return Link Keys", "bthci_cmd.evt_mask_24",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Return Link Keys Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_25,
-			{ "PIN Code Request                   ", "bthci_cmd.evt_mask_25",
+			{ "PIN Code Request", "bthci_cmd.evt_mask_25",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"PIN Code Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_26,
-			{ "Link Key Request                   ", "bthci_cmd.evt_mask_26",
+			{ "Link Key Request", "bthci_cmd.evt_mask_26",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Link Key Request Bit", HFILL }
 		},  
 		{ &hf_bthci_cmd_evt_mask_27,
-			{ "Link Key Notification              ", "bthci_cmd.evt_mask_27",
+			{ "Link Key Notification", "bthci_cmd.evt_mask_27",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Link Key Notification Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_30,
-			{ "Loopback Command                   ", "bthci_cmd.evt_mask_30",
+			{ "Loopback Command", "bthci_cmd.evt_mask_30",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Loopback Command Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_31,
-			{ "Data Buffer Overflow               " , "bthci_cmd.evt_mask_31",
+			{ "Data Buffer Overflow" , "bthci_cmd.evt_mask_31",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Data Buffer Overflow Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_32,
-			{ "Max Slots Change                   ", "bthci_cmd.evt_mask_32",
+			{ "Max Slots Change", "bthci_cmd.evt_mask_32",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Max Slots Change Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_33,
-			{ "Read Clock Offset Complete         ", "bthci_cmd.evt_mask_33",
+			{ "Read Clock Offset Complete", "bthci_cmd.evt_mask_33",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Read Clock Offset Complete Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_34,
-			{ "Connection Packet Type Changed     ", "bthci_cmd.evt_mask_34",
+			{ "Connection Packet Type Changed", "bthci_cmd.evt_mask_34",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Connection Packet Type Changed Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_35,
-			{ "QoS Violation                      ", "bthci_cmd.evt_mask_35",
+			{ "QoS Violation", "bthci_cmd.evt_mask_35",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"QoS Violation Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_36,
-			{ "Page Scan Mode Change              ", "bthci_cmd.evt_mask_36",
+			{ "Page Scan Mode Change", "bthci_cmd.evt_mask_36",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Page Scan Mode Change Bit", HFILL }
 		}, 
 		{ &hf_bthci_cmd_evt_mask_37,
-			{ "Page Scan Repetition Mode Change   ", "bthci_cmd.evt_mask_37",
+			{ "Page Scan Repetition Mode Change", "bthci_cmd.evt_mask_37",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Page Scan Repetition Mode Change Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_40,
-			{ "Flow Specification Complete        ", "bthci_cmd.evt_mask_40",
+			{ "Flow Specification Complete", "bthci_cmd.evt_mask_40",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Flow Specification Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_41,
-			{ "Inquiry Result With RSSI           ", "bthci_cmd.evt_mask_41",
+			{ "Inquiry Result With RSSI", "bthci_cmd.evt_mask_41",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Inquiry Result With RSSI Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_42,
-			{ "Read Remote Ext. Features Complete ", "bthci_cmd.evt_mask_42",
+			{ "Read Remote Ext. Features Complete", "bthci_cmd.evt_mask_42",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Read Remote Ext. Features Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_53,
-			{ "Synchronous Connection Complete    ", "bthci_cmd.evt_mask_53",
+			{ "Synchronous Connection Complete", "bthci_cmd.evt_mask_53",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Synchronous Connection Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_54,
-			{ "Synchronous Connection Changed     ", "bthci_cmd.evt_mask_54",
+			{ "Synchronous Connection Changed", "bthci_cmd.evt_mask_54",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Synchronous Connection Changed Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_55,
-			{ "Sniff Subrate                      ", "bthci_cmd.evt_mask_55",
+			{ "Sniff Subrate", "bthci_cmd.evt_mask_55",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"Sniff Subrate Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_56,
-			{ "Extended Inquiry Result            ", "bthci_cmd.evt_mask_56",
+			{ "Extended Inquiry Result", "bthci_cmd.evt_mask_56",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Extended Inquiry Result Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_57,
-			{ "Encryption Key Refresh Complete    ", "bthci_cmd.evt_mask_57",
+			{ "Encryption Key Refresh Complete", "bthci_cmd.evt_mask_57",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Encryption Key Refresh Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_60,
-			{ "IO Capability Request              ", "bthci_cmd.evt_mask_60",
+			{ "IO Capability Request", "bthci_cmd.evt_mask_60",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"IO Capability Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_61,
-			{ "IO Capability Response             ", "bthci_cmd.evt_mask_61",
+			{ "IO Capability Response", "bthci_cmd.evt_mask_61",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"IO Capability Response Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_62,
-			{ "User Confirmation Request          ", "bthci_cmd.evt_mask_62",
+			{ "User Confirmation Request", "bthci_cmd.evt_mask_62",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"User Confirmation Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_63,
-			{ "User Passkey Request               ", "bthci_cmd.evt_mask_63",
+			{ "User Passkey Request", "bthci_cmd.evt_mask_63",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"User Passkey Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_64,
-			{ "Remote OOB Data Request            ", "bthci_cmd.evt_mask_64",
+			{ "Remote OOB Data Request", "bthci_cmd.evt_mask_64",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Remote OOB Data Request Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_65,
-			{ "Simple Pairing Complete            ", "bthci_cmd.evt_mask_65",
+			{ "Simple Pairing Complete", "bthci_cmd.evt_mask_65",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"Simple Pairing Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_67,
-			{ "Link Supervision Timeout Changed   ", "bthci_cmd.evt_mask_67",
+			{ "Link Supervision Timeout Changed", "bthci_cmd.evt_mask_67",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Link Supervision Timeout Changed Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_70,
-			{ "Enhanced Flush Complete            ", "bthci_cmd.evt_mask_70",
+			{ "Enhanced Flush Complete", "bthci_cmd.evt_mask_70",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Enhanced Flush Complete Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_72,
-			{ "User Passkey Notification          ", "bthci_cmd.evt_mask_72",
+			{ "User Passkey Notification", "bthci_cmd.evt_mask_72",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"User Passkey Notification Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_evt_mask_73,
-			{ "Keypress Notification              ", "bthci_cmd.evt_mask_73",
+			{ "Keypress Notification", "bthci_cmd.evt_mask_73",
 				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Keypress Notification Bit", HFILL }
 		},
 		{ &hf_bthci_cmd_sco_flow_control,
 			{ "SCO Flow Control","bthci_cmd.flow_control",
 				FT_UINT8, BASE_HEX, VALS(cmd_en_disabled), 0x0,
-				"SCO Flow Control", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_num_handles,
 			{ "Number of Handles", "bthci_cmd.num_handles",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Number of Handles", HFILL }
+				NULL, HFILL }
 		},
 
 		{ &hf_bthci_cmd_num_compl_packets,
@@ -2643,7 +2643,7 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_flow_contr_enable,
 			{ "Flow Control Enable", "bthci_cmd.flow_contr_enable",
 				FT_UINT8, BASE_HEX, VALS(cmd_flow_contr_enable), 0x0,
-				"Flow Control Enable", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_host_data_packet_length_acl,
 			{"Host ACL Data Packet Length (bytes)", "bthci_cmd.max_data_length_acl",
@@ -2668,17 +2668,17 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_power_level_type,
 			{"Type", "bthci_cmd.power_level_type",
 				FT_UINT8, BASE_HEX, VALS(cmd_power_level_types), 0x0,
-				"Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_loopback_mode,
 			{"Loopback Mode", "bthci_cmd.loopback_mode",
 				FT_UINT8, BASE_HEX, VALS(cmd_loopback_modes), 0x0,
-				"Loopback Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_page_number,
 			{"Page Number", "bthci_cmd.page_number",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Page Number", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_transmit_bandwidth,
 			{"Tx Bandwidth (bytes/s)", "bthci_cmd.tx_bandwidth",
@@ -2693,7 +2693,7 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_max_latency_ms,
 			{"Max. Latency (ms)", "bthci_cmd.max_latency_ms",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Max. Latency (ms)", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_max_latency,
 			{"Max. Latency", "bthci_cmd.max_latency",
@@ -2703,82 +2703,82 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_retransmission_effort,
 			{"Retransmission Effort", "bthci_cmd.retransmission_effort",
 				FT_UINT8, BASE_DEC, VALS(cmd_rtx_effort), 0x0,
-				"Retransmission Effort", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_scan_type,
 			{"Scan Type", "bthci_cmd.inq_scan_type",
 				FT_UINT8, BASE_DEC, VALS(cmd_scan_types), 0x0,
-				"Scan Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_inq_mode,
 			{"Inquiry Mode", "bthci_cmd.inq_scan_type",
 				FT_UINT8, BASE_DEC, VALS(cmd_inq_modes), 0x0,
-				"Inquiry Mode", HFILL}
+				NULL, HFILL}
 		},	
 		{ &hf_bthci_cmd_fec_required,
 			{"FEC Required", "bthci_cmd.fec_required",
 				FT_UINT8, BASE_DEC, VALS(cmd_boolean), 0x0,
-				"FEC Required", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_err_data_reporting,
 			{"Erroneous Data Reporting", "bthci_cmd.err_data_reporting",
 				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
-				"Erroneous Data Reporting", HFILL}
+				NULL, HFILL}
 		},	
 		{ &hf_bthci_cmd_tx_power,
 			{"Power Level (dBm)", "bthci_cmd.power_level",
 				FT_INT8, BASE_DEC, NULL, 0x0,
-				"Power Level (dBm)", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_sco_packet_type_hv1,
 			{ "Packet Type HV1",        "bthci_cmd.sco_packet_type_hv1",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0001,
-				"Packet Type HV1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_hv2,
 			{ "Packet Type HV2",        "bthci_cmd.sco_packet_type_hv2",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0002,
-				"Packet Type HV2", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_hv3,
 			{ "Packet Type HV3",        "bthci_cmd.sco_packet_type_hv3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0004,
-				"Packet Type HV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_ev3,
 			{ "Packet Type EV3",        "bthci_cmd.sco_packet_type_ev3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0008,
-				"Packet Type EV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_ev4,
 			{ "Packet Type EV4",        "bthci_cmd.sco_packet_type_ev4",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0010,
-				"Packet Type EV4", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_ev5,
 			{ "Packet Type EV5",        "bthci_cmd.sco_packet_type_ev5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0020,
-				"Packet Type EV5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_2ev3,
 			{ "Packet Type 2-EV3",        "bthci_cmd.sco_packet_type_2ev3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0040,
-				"Packet Type 2-EV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_3ev3,
 			{ "Packet Type 3-EV3",        "bthci_cmd.sco_packet_type_3ev3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0080,
-				"Packet Type 3-EV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_2ev5,
 			{ "Packet Type 2-EV5",        "bthci_cmd.sco_packet_type_2ev5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0100,
-				"Packet Type 2-EV5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_sco_packet_type_3ev5,
 			{ "Packet Type 3-EV5",        "bthci_cmd.sco_packet_type_3ev5",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0200,
-				"Packet Type 3-EV5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_min_remote_timeout,
 			{"Min. Remote Timeout", "bthci_cmd.min_remote_timeout",
@@ -2793,71 +2793,71 @@ proto_register_bthci_cmd(void)
 		{ &hf_bthci_cmd_flush_packet_type,
 			{"Packet Type", "bthci_cmd.flush_packet_type",
 				FT_UINT8, BASE_DEC, VALS(cmd_flush_pkt_type), 0x0,
-				"Packet Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_afh_ch_assessment_mode,
 			{"AFH Channel Assessment Mode", "bthci_cmd.afh_ch_assessment_mode",
 				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
-				"AFH Channel Assessment Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_afh_ch_classification,
 			{ "Channel Classification",           "bthci_cmd.afh_ch_classification",
 				FT_NONE, BASE_NONE, NULL, 0x0,
-				"Channel Classification", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_which_clock,
 			{"Which Clock", "bthci_cmd.which_clock",
 				FT_UINT8, BASE_DEC, VALS(cmd_which_clock), 0x0,
-				"Which Clock", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_io_capability,
 			{"IO Capability", "bthci_cmd.io_capability",
 				FT_UINT8, BASE_DEC, VALS(bthci_cmd_io_capability_vals), 0x0,
-				"IO Capability", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_oob_data_present,
 			{"OOB Data Present", "bthci_cmd.oob_data_present",
 				FT_UINT8, BASE_DEC, VALS(bthci_cmd_oob_data_present_vals), 0x0,
-				"OOB Data Present", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_auth_requirements,
 			{"Authentication Requirements", "bthci_cmd.auth_requirements",
 				FT_UINT8, BASE_DEC, VALS(bthci_cmd_auth_req_vals), 0x0,
-				"Authentication Requirements", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_passkey,
 			{"Passkey", "bthci_cmd.passkey",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
-				"Passkey", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_hash_c,
 			{"Hash C", "bthci_cmd.hash_c",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Hash C", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_randomizer_r,
 			{"Randomizer R", "bthci_cmd.randomizer_r",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Randomizer R", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_simple_pairing_mode,
 			{"Simple Pairing Mode", "bthci_cmd.simple_pairing_mode",
 				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
-				"Simple Pairing Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_simple_pairing_debug_mode,
 			{"Simple Pairing Debug Mode", "bthci_cmd.simple_pairing_debug_mode",
 				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
-				"Simple Pairing Debug Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_notification_type,
 			{"Notification Type", "bthci_cmd.notification_type",
 				FT_UINT8, BASE_DEC, VALS(cmd_notification_types), 0x0,
-				"Notification Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_eir_data,
 			{"Data", "bthci_cmd.eir_data",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"EIR Data", HFILL}
 		},
 		{ &hf_bthci_cmd_eir_struct_length,
@@ -2882,7 +2882,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_sc_uuid128,
 			{ "UUID",           "bthci_cmd.service_class_uuid128",
-				FT_BYTES, BASE_HEX, NULL, 0x0,          
+				FT_BYTES, BASE_NONE, NULL, 0x0,          
 				"128-bit Service Class UUID", HFILL }
 		}
 	};

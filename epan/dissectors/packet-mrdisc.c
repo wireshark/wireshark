@@ -250,7 +250,7 @@ proto_register_mrdisc(void)
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "mrdisc.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad MRDISC Checksum", HFILL }},
+			  NULL, 0x0, "Bad MRDISC Checksum", HFILL }},
 
 		{ &hf_advint,
 			{ "Advertising Interval", "mrdisc.adv_int", FT_UINT8, BASE_DEC,

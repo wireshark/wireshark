@@ -782,11 +782,11 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_cc_drop, {
 			"Continuity Counter Drops", "mp2t.cc.drop",
-			FT_NONE, BASE_DEC, NULL, 0x0, NULL, HFILL
+			FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af, {
 			"Adaption field", "mp2t.af",
-			FT_NONE, BASE_HEX, NULL, 0, NULL, HFILL
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_length, {
 			"Adaptation Field Length", "mp2t.af.length",
@@ -826,11 +826,11 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_af_pcr, {
 			"Program Clock Reference", "mp2t.af.pcr",
-			FT_NONE, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_opcr, {
 			"Original Program Clock Reference", "mp2t.af.opcr",
-			FT_NONE, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_sc, {
 			"Splice Countdown", "mp2t.af.sc",
@@ -842,7 +842,7 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_af_tpd, {
 			"Transport Private Data", "mp2t.af.tpd",
-			FT_BYTES, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_length, {
 			"Adaptation Field Extension Length", "mp2t.af.e_length",
@@ -866,11 +866,11 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_af_e_reserved_bytes, {
 			"Reserved", "mp2t.af.e.reserved_bytes",
-			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_stuffing_bytes, {
 			"Stuffing", "mp2t.af.stuffing_bytes",
-			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_ltwv_flag, {
 			"LTW Valid Flag", "mp2t.af.e.ltwv_flag",
@@ -918,11 +918,11 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_payload, {
 			"Payload", "mp2t.payload",
-			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_malformed_payload, {
 			"Malformed Payload", "mp2t.malformed_payload",
-			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} }
 	};
 

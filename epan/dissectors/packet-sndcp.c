@@ -414,7 +414,7 @@ proto_register_sndcp(void)
       { "First segment indicator bit", 
 	"sndcp.f", 
 	FT_BOOLEAN,8, TFS(&f_bit), MASK_F, 
-	"First segment indicator bit", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_sndcp_t, 
@@ -428,7 +428,7 @@ proto_register_sndcp(void)
       { "More bit", 
 	"sndcp.m", 
 	FT_BOOLEAN,8, TFS(&m_bit), MASK_M, 
-	"More bit", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_sndcp_dcomp, 
@@ -449,7 +449,7 @@ proto_register_sndcp(void)
       { "NSAPI", 
 	"sndcp.nsapib", 
 	FT_UINT8, BASE_DEC , VALS(nsapi_t), 0xf, 
-	"Network Layer Service Access Point Identifier ",HFILL 
+	"Network Layer Service Access Point Identifier",HFILL 
       }
     },	
     { &hf_sndcp_segment, 
@@ -463,14 +463,14 @@ proto_register_sndcp(void)
       { "N-PDU", 
 	"sndcp.npdu", 
 	FT_UINT8, BASE_DEC, NULL, 0, 
-	"N-PDU", HFILL 
+	NULL, HFILL 
       }
     },
     { &hf_sndcp_npdu2, 
       { "N-PDU", 
 	"sndcp.npdu", 
 	FT_UINT16, BASE_DEC, NULL, 0x0FFF, 
-	"N-PDU", HFILL 
+	NULL, HFILL 
       }
     },
 
@@ -522,14 +522,14 @@ proto_register_sndcp(void)
       {	"N-PDU Fragment",
 	"npdu.fragment",
 	FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	"N-PDU Fragment", HFILL
+	NULL, HFILL
       }
     },
     { &hf_npdu_fragments,
       {	"N-PDU Fragments",
 	"npdu.fragments",
 	FT_NONE, BASE_NONE, NULL, 0x0,
-	"N-PDU Fragments", HFILL
+	NULL, HFILL
       }
     }
   };

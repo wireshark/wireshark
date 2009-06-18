@@ -131,7 +131,7 @@ proto_register_aruba_adp(void)
 
     { &hf_adp_mac,
     { "MAC address", "adp.mac", FT_ETHER, BASE_NONE, NULL, 0x0,
-    "MAC address", HFILL}},
+    NULL, HFILL}},
 
     { &hf_adp_switchip,
     { "Switch IP", "adp.switch", FT_IPv4, BASE_NONE, NULL, 0x0,

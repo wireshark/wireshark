@@ -428,23 +428,23 @@ proto_register_fddi(void)
 		 */
 		{ &hf_fddi_fc,
 		{ "Frame Control",	"fddi.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_fc_clf,
 		{ "Class/Length/Format", "fddi.fc.clf", FT_UINT8, BASE_HEX, VALS(clf_vals), FDDI_FC_CLFF,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_fc_prio,
 		{ "Priority", "fddi.fc.prio", FT_UINT8, BASE_DEC, NULL, FDDI_FC_ASYNC_PRI,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_fc_smt_subtype,
 		{ "SMT Subtype", "fddi.fc.smt_subtype", FT_UINT8, BASE_DEC, VALS(smt_subtype_vals), FDDI_FC_ZZZZ,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_fc_mac_subtype,
 		{ "MAC Subtype", "fddi.fc.mac_subtype", FT_UINT8, BASE_DEC, VALS(mac_subtype_vals), FDDI_FC_ZZZZ,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_dst,
 		{ "Destination",	"fddi.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
@@ -452,7 +452,7 @@ proto_register_fddi(void)
 
 		{ &hf_fddi_src,
 		{ "Source",		"fddi.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_fddi_addr,
 		{ "Source or Destination Address", "fddi.addr", FT_ETHER, BASE_NONE, NULL, 0x0,

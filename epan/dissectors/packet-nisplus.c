@@ -1927,7 +1927,7 @@ proto_register_niscb(void)
 	static hf_register_info hf[] = {
 		{ &hf_nispluscb_procedure_v1, {
 			"V1 Procedure", "nispluscb.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(nispluscb1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(nispluscb1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nispluscb_entries, {
 			"entries", "nispluscb.entries", FT_NONE, BASE_NONE,
 			NULL, 0, "NIS Callback Entries", HFILL }},

@@ -154,11 +154,11 @@ proto_register_ieee802a(void)
 	static hf_register_info hf[] = {
 		{ &hf_ieee802a_oui,
 		{ "Organization Code",	"ieee802a.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, "", HFILL }},
+			VALS(oui_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_ieee802a_pid,
 		{ "Protocol ID", "ieee802a.pid", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "", HFILL }}
+			NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_ieee802a,

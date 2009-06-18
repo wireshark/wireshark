@@ -345,18 +345,18 @@ proto_register_slarp(void)
   static hf_register_info hf[] = {
     { &hf_slarp_ptype,
       { "Packet type", "slarp.ptype", FT_UINT32, BASE_DEC,
-        VALS(slarp_ptype_vals), 0x0, "", HFILL }},
+        VALS(slarp_ptype_vals), 0x0, NULL, HFILL }},
     { &hf_slarp_address,
       { "Address", "slarp.address", FT_IPv4, BASE_NONE,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
     /* XXX - need an FT_ for netmasks, which is like FT_IPV4 but doesn't
        get translated to a host name. */
     { &hf_slarp_mysequence,
       { "Outgoing sequence number", "slarp.mysequence", FT_UINT32, BASE_DEC,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
     { &hf_slarp_yoursequence,
       { "Returned sequence number", "slarp.yoursequence", FT_UINT32, BASE_DEC,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_chdlc,

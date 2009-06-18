@@ -384,13 +384,13 @@ proto_register_mstp(void)
 			"MS/TP Data CRC", HFILL }
 		},
 		{ &hf_mstp_frame_checksum_bad,
-			{ "Bad ", "mstp.checksum_bad",
-			FT_BOOLEAN, BASE_NONE,	NULL, 0,
+			{ "Bad", "mstp.checksum_bad",
+			FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
 			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }
 		},
 		{ &hf_mstp_frame_checksum_good,
 			{ "Good", "mstp.checksum_good",
-			FT_BOOLEAN, BASE_NONE,	NULL, 0,
+			FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
 			"True: checksum matches packet content; False: doesn't match content or not checked", HFILL }
 		}
 	};

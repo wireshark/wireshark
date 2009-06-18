@@ -139,7 +139,7 @@ void proto_register_packetlogger (void)
     { &hf_type,
       { "Type", "packetlogger.type", FT_UINT8, BASE_HEX, VALS(type_vals), 0x0, NULL, HFILL } },
     { &hf_info,
-      { "Info", "packetlogger.info", FT_STRING, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { "Info", "packetlogger.info", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
   };
 
   static gint *ett[] = {

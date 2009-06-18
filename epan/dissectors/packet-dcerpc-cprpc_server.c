@@ -63,7 +63,7 @@ proto_register_cprpc_server (void)
 	static hf_register_info hf[] = {
 	  { &hf_cprpc_server_opnum,
 	    { "Operation", "cprpc_server.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -3107,8 +3107,8 @@ proto_register_ndmp(void)
 
   static hf_register_info hf_ndmp[] = {
 	{ &hf_ndmp_header, {
-		"NDMP Header", "ndmp.header", FT_NONE, 0,
-		NULL, 0, "NDMP Header", HFILL }},
+		"NDMP Header", "ndmp.header", FT_NONE, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
         { &hf_ndmp_response_frame, {
 		"Response In", "ndmp.response_frame", FT_FRAMENUM, BASE_NONE,
@@ -3152,19 +3152,19 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_hostname, {
 		"Hostname", "ndmp.hostname", FT_STRING, BASE_NONE,
-		NULL, 0, "Hostname", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_hostid, {
 		"HostID", "ndmp.hostid", FT_STRING, BASE_NONE,
-		NULL, 0, "HostID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_os_type, {
 		"OS Type", "ndmp.os.type", FT_STRING, BASE_NONE,
-		NULL, 0, "OS Type", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_os_vers, {
 		"OS Version", "ndmp.os.version", FT_STRING, BASE_NONE,
-		NULL, 0, "OS Version", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_addr_types, {
 		"Addr Types", "ndmp.addr_types", FT_NONE, BASE_NONE,
@@ -3179,16 +3179,16 @@ proto_register_ndmp(void)
 		VALS(auth_type_vals), 0, "Authentication Type", HFILL }},
 
 	{ &hf_ndmp_auth_challenge, {
-		"Challenge", "ndmp.auth.challenge", FT_BYTES, BASE_HEX,
+		"Challenge", "ndmp.auth.challenge", FT_BYTES, BASE_NONE,
 		NULL, 0, "Authentication Challenge", HFILL }},
 
 	{ &hf_ndmp_auth_digest, {
-		"Digest", "ndmp.auth.digest", FT_BYTES, BASE_HEX,
+		"Digest", "ndmp.auth.digest", FT_BYTES, BASE_NONE,
 		NULL, 0, "Authentication Digest", HFILL }},
 
 	{ &hf_ndmp_butype_info, {
 		"Butype Info", "ndmp.butype.info", FT_NONE, BASE_NONE,
-		NULL, 0, "Butype Info", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_butype_name, {
 		"Butype Name", "ndmp.butype.name", FT_STRING, BASE_NONE,
@@ -3260,7 +3260,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_fs_info, {
 		"FS Info", "ndmp.fs.info", FT_NONE, BASE_NONE,
-		NULL, 0, "FS Info", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_fs_invalid_total_size, {
 		"Total size invalid", "ndmp.fs.invalid.total_size", FT_BOOLEAN, 32,
@@ -3332,7 +3332,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_tape_info, {
 		"Tape Info", "ndmp.tape.info", FT_NONE, BASE_NONE,
-		NULL, 0, "Tape Info", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_model, {
 		"Model", "ndmp.tape.model", FT_STRING, BASE_NONE,
@@ -3356,7 +3356,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_tape_capability, {
 		"Tape Capabilities", "ndmp.tape.capability", FT_NONE, BASE_NONE,
-		NULL, 0, "Tape Capabilities", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_capability_name, {
 		"Name", "ndmp.tape.cap.name", FT_STRING, BASE_NONE,
@@ -3368,7 +3368,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_scsi_info, {
 		"SCSI Info", "ndmp.scsi.info", FT_NONE, BASE_NONE,
-		NULL, 0, "SCSI Info", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_scsi_model, {
 		"Model", "ndmp.scsi.model", FT_STRING, BASE_NONE,
@@ -3388,7 +3388,7 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_auth_types, {
 		"Auth types", "ndmp.auth.types", FT_NONE, BASE_NONE,
-		NULL, 0, "Auth types", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_scsi_device, {
 		"Device", "ndmp.scsi.device", FT_STRING, BASE_NONE,
@@ -3408,11 +3408,11 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_execute_cdb_flags_data_in, {
 		"DATA_IN", "ndmp.execute_cdb.flags.data_in", FT_BOOLEAN, 32,
-		NULL, 0x00000001, "DATA_IN", HFILL }},
+		NULL, 0x00000001, NULL, HFILL }},
 
 	{ &hf_ndmp_execute_cdb_flags_data_out, {
 		"DATA_OUT", "ndmp.execute_cdb.flags.data_out", FT_BOOLEAN, 32,
-		NULL, 0x00000002, "DATA_OUT", HFILL }},
+		NULL, 0x00000002, NULL, HFILL }},
 
 	{ &hf_ndmp_execute_cdb_timeout, {
 		"Timeout", "ndmp.execute_cdb.timeout", FT_UINT32, BASE_DEC,
@@ -3496,31 +3496,31 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_tape_file_num, {
 		"file_num", "ndmp.tape.status.file_num", FT_UINT32, BASE_DEC,
-		NULL, 0, "file_num", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_soft_errors, {
 		"soft_errors", "ndmp.tape.status.soft_errors", FT_UINT32, BASE_DEC,
-		NULL, 0, "soft_errors", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_block_size, {
 		"block_size", "ndmp.tape.status.block_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "block_size", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_block_no, {
 		"block_no", "ndmp.tape.status.block_no", FT_UINT32, BASE_DEC,
-		NULL, 0, "block_no", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_total_space, {
 		"total_space", "ndmp.tape.status.total_space", FT_UINT64, BASE_DEC,
-		NULL, 0, "total_space", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_space_remain, {
 		"space_remain", "ndmp.tape.status.space_remain", FT_UINT64, BASE_DEC,
-		NULL, 0, "space_remain", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_partition, {
 		"partition", "ndmp.tape.status.partition", FT_UINT32, BASE_DEC,
-		NULL, 0, "partition", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_tape_mtio_op, {
 		"Operation", "ndmp.tape.mtio.op", FT_UINT32, BASE_DEC,
@@ -3575,19 +3575,19 @@ proto_register_ndmp(void)
 		NULL, 0, "Size of window in bytes", HFILL }},
 
 	{ &hf_ndmp_addr_ip, {
-		"IP Address", "ndmp.addr.ip", FT_IPv4, BASE_DEC,
-		NULL, 0, "IP Address", HFILL }},
+		"IP Address", "ndmp.addr.ip", FT_IPv4, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_addr_tcp, {
 		"TCP Port", "ndmp.addr.tcp_port", FT_UINT32, BASE_DEC,
-		NULL, 0, "TCP Port", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_addr_fcal_loop_id, {
 		"Loop ID", "ndmp.addr.loop_id", FT_UINT32, BASE_HEX,
 		NULL, 0, "FCAL Loop ID", HFILL }},
 
 	{ &hf_ndmp_addr_ipc, {
-		"IPC", "ndmp.addr.ipc", FT_BYTES, BASE_HEX,
+		"IPC", "ndmp.addr.ipc", FT_BYTES, BASE_NONE,
 		NULL, 0, "IPC identifier", HFILL }},
 
 	{ &hf_ndmp_mover_mode, {
@@ -3639,15 +3639,15 @@ proto_register_ndmp(void)
 		NULL, 0, "Password of client authenticating", HFILL }},
 
 	{ &hf_ndmp_data, {
-		"Data", "ndmp.data", FT_BYTES, BASE_HEX,
+		"Data", "ndmp.data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data written/read", HFILL }},
 
 	{ &hf_ndmp_files, {
-		"Files", "ndmp.files", FT_NONE, 0,
+		"Files", "ndmp.files", FT_NONE, BASE_NONE,
 		NULL, 0, "List of files", HFILL }},
 
 	{ &hf_ndmp_file_names, {
-		"File Names", "ndmp.file.names", FT_NONE, 0,
+		"File Names", "ndmp.file.names", FT_NONE, BASE_NONE,
 		NULL, 0, "List of file names", HFILL }},
 
 	{ &hf_ndmp_file_fs_type, {
@@ -3659,7 +3659,7 @@ proto_register_ndmp(void)
 		VALS(file_type_vals), 0, "Type of file", HFILL }},
 
 	{ &hf_ndmp_file_stats, {
-		"File Stats", "ndmp.file.stats", FT_NONE, 0,
+		"File Stats", "ndmp.file.stats", FT_NONE, BASE_NONE,
 		NULL, 0, "List of file stats", HFILL }},
 
 	{ &hf_ndmp_file_node, {
@@ -3719,15 +3719,15 @@ proto_register_ndmp(void)
 		NULL, 0, "Number of links to this file", HFILL }},
 
 	{ &hf_ndmp_dirs, {
-		"Dirs", "ndmp.dirs", FT_NONE, 0,
+		"Dirs", "ndmp.dirs", FT_NONE, BASE_NONE,
 		NULL, 0, "List of directories", HFILL }},
 
 	{ &hf_ndmp_nodes, {
-		"Nodes", "ndmp.nodes", FT_NONE, 0,
+		"Nodes", "ndmp.nodes", FT_NONE, BASE_NONE,
 		NULL, 0, "List of nodes", HFILL }},
 
 	{ &hf_ndmp_nlist, {
-		"Nlist", "ndmp.nlist", FT_NONE, 0,
+		"Nlist", "ndmp.nlist", FT_NONE, BASE_NONE,
 		NULL, 0, "List of names", HFILL }},
 
 	{ &hf_ndmp_bu_original_path, {
@@ -3740,11 +3740,11 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_bu_new_name, {
 		"New Name", "ndmp.bu.new_name", FT_STRING, BASE_NONE,
-		NULL, 0, "New Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_bu_other_name, {
 		"Other Name", "ndmp.bu.other_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Other Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_ndmp_state_invalid_ebr, {
 		"EstimatedBytesLeft valid", "ndmp.bu.state.invalid_ebr", FT_BOOLEAN, 32,
@@ -3775,14 +3775,14 @@ proto_register_ndmp(void)
 		NULL, 0, "Estimated number of bytes remaining", HFILL }},
 
 	{ &hf_ndmp_data_est_time_remain, {
-		"Est Time Remain", "ndmp.data.est_time_remain", FT_RELATIVE_TIME, BASE_DEC,
+		"Est Time Remain", "ndmp.data.est_time_remain", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "Estimated time remaining", HFILL }},
 	{ &hf_ndmp_lastfrag, {
 		"Last Fragment", "ndmp.lastfrag", FT_BOOLEAN, 32,
-		TFS(&tfs_yes_no), RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
+		TFS(&tfs_yes_no), RPC_RM_LASTFRAG, NULL, HFILL }},
 	{ &hf_ndmp_fraglen, {
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
-		NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
+		NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
   };
 
   static gint *ett[] = {

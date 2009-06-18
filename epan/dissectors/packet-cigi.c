@@ -6414,17 +6414,17 @@ proto_register_cigi(void)
         { &hf_cigi_src_port,
             { "Source Port", "cigi.srcport",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Source Port", HFILL }
+                NULL, HFILL }
         },
         { &hf_cigi_dest_port,
             { "Destination Port", "cigi.destport",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Destination Port", HFILL }
+                NULL, HFILL }
         },
         { &hf_cigi_port,
             { "Source or Destination Port", "cigi.port",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Source or Destination Port", HFILL }
+                NULL, HFILL }
         },
 
         { &hf_cigi_frame_size,

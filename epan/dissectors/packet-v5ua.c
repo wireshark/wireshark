@@ -1987,7 +1987,7 @@ proto_register_v5ua(void)
 		{ &hf_version,
 			{ "Version",                "v5ua.version",
 			   FT_UINT8,    BASE_DEC, VALS(v5ua_protocol_version_values),0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_reserved,
 			{ "Reserved",               "v5ua.reserved",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,

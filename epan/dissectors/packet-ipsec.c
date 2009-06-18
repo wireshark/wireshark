@@ -2624,7 +2624,7 @@ proto_register_ipsec(void)
       { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
         "IP Authentication Header Security Parameters Index", HFILL }},
     { &hf_ah_iv,
-      { "AH ICV", "ah.icv", FT_BYTES, BASE_HEX, NULL, 0x0,
+      { "AH ICV", "ah.icv", FT_BYTES, BASE_NONE, NULL, 0x0,
         "IP Authentication Header Integrity Check Value", HFILL }},
     { &hf_ah_sequence,
       { "AH Sequence", "ah.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2645,8 +2645,8 @@ proto_register_ipsec(void)
       { "ESP Next Header", "esp.protocol", FT_UINT8, BASE_HEX, NULL, 0x0,
         "IP Encapsulating Security Payload Next Header", HFILL }},
     { &hf_esp_iv,
-      { "ESP IV", "esp.iv", FT_BYTES, BASE_HEX, NULL, 0x0,
-        "IP Encapsulating Security Payload ", HFILL }}
+      { "ESP IV", "esp.iv", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "IP Encapsulating Security Payload", HFILL }}
   };
 
   static hf_register_info hf_ipcomp[] = {

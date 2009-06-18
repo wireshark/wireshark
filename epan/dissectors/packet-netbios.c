@@ -1274,99 +1274,99 @@ void proto_register_netbios(void)
 	static hf_register_info hf_netb[] = {
 		{ &hf_netb_cmd,
 		{ "Command", "netbios.command", FT_UINT8, BASE_HEX, VALS(cmd_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_hdr_len,
 		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_xmit_corrl,
 		{ "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_resp_corrl,
 		{ "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_call_name_type,
 		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX, VALS(name_types), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_nb_name_type,
 		{ "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX, VALS(nb_name_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_nb_name,
 		{ "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_ack,
 		{ "Acknowledge", "netbios.ack", FT_BOOLEAN, 8, TFS( &tfs_set_notset), 0x08,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_ack_with_data,
 		{ "Acknowledge with data", "netbios.ack_with_data", FT_BOOLEAN, 8, TFS( &flags_allowed), 0x04,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_ack_expected,
 		{ "Acknowledge expected", "netbios.ack_expected", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x02, "", HFILL }},
+			TFS( &tfs_yes_no), 0x02, NULL, HFILL }},
 
 		{ &hf_netb_recv_cont_req,
 		{ "RECEIVE_CONTINUE requested", "netbios.recv_cont_req", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x01, "", HFILL }},
+			TFS( &tfs_yes_no), 0x01, NULL, HFILL }},
 
 		{ &hf_netb_send_no_ack,
 		{ "Handle SEND.NO.ACK", "netbios.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x80, "", HFILL }},
+			TFS( &tfs_yes_no), 0x80, NULL, HFILL }},
 
 		{ &hf_netb_version,
 		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
-			TFS( &netb_version_str), 0x01, "", HFILL }},
+			TFS( &netb_version_str), 0x01, NULL, HFILL }},
 
 		{ &hf_netb_largest_frame,
 		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals), 0x0E,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_status_buffer_len,
 		{ "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_status,
 		{ "Status", "netbios.status", FT_UINT8, BASE_DEC, VALS(status_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_name_type,
 		{ "Name type", "netbios.name_type", FT_UINT16, BASE_DEC, VALS(name_types), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_max_data_recv_size,
 		{ "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_termination_indicator,
 		{ "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX, VALS(termination_indicator_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_num_data_bytes_accepted,
 		{ "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_local_ses_no,
 		{ "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_remote_ses_no,
 		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_data1,
 		{ "DATA1 value", "netbios.data1", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_data2,
 		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_netb_fragment_overlap,
 		{ "Fragment overlap",	"netbios.fragment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -1392,11 +1392,11 @@ void proto_register_netbios(void)
 
 		{ &hf_netb_fragment,
 		{ "NetBIOS Fragment",		"netbios.fragment", FT_FRAMENUM, BASE_NONE,
-			NULL, 0x0, "NetBIOS Fragment", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragments,
 		{ "NetBIOS Fragments",	"netbios.fragments", FT_NONE, BASE_NONE,
-			NULL, 0x0, "NetBIOS Fragments", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 	};
 	module_t *netbios_module;
 

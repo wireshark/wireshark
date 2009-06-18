@@ -8955,7 +8955,7 @@ proto_register_ieee80211 (void)
 
     {&hf_hosttime,
      {"Host timestamp", "wlan.hosttime", FT_UINT64, BASE_DEC, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     {&hf_data_rate,
      {"Data Rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
@@ -9063,7 +9063,7 @@ proto_register_ieee80211 (void)
 
     {&hf_fc_protected,
      {"Protected flag", "wlan.fc.protected", FT_BOOLEAN, 8, TFS (&protected_flags), FLAG_PROTECTED,
-      "Protected flag", HFILL }},
+      NULL, HFILL }},
 
     {&hf_fc_order,
      {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), FLAG_ORDER,
@@ -9099,7 +9099,7 @@ proto_register_ieee80211 (void)
 
     {&hf_addr_addr1,
      {"First Address of Contained Frame", "wlan.controlwrap.addr1", FT_ETHER, BASE_NONE, NULL, 0,
-      "First Address of Contained Frame", HFILL }},
+      NULL, HFILL }},
 
     {&hf_addr_bssid,
      {"BSS Id", "wlan.bssid", FT_ETHER, BASE_NONE, NULL, 0,
@@ -9107,11 +9107,11 @@ proto_register_ieee80211 (void)
 
     {&hf_frag_number,
      {"Fragment number", "wlan.frag", FT_UINT16, BASE_DEC, NULL, 0,
-      "Fragment number", HFILL }},
+      NULL, HFILL }},
 
     {&hf_seq_number,
      {"Sequence number", "wlan.seq", FT_UINT16, BASE_DEC, NULL, 0,
-      "Sequence number", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_priority,
      {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
@@ -9123,42 +9123,42 @@ proto_register_ieee80211 (void)
 
     {&hf_qos_bit4,
      {"QoS bit 4", "wlan.qos.bit4", FT_BOOLEAN, 8, TFS (&bit4_flag), QOS_FLAG_EOSP,
-      "QoS bit 4", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_ack_policy,
      {"Ack Policy", "wlan.qos.ack", FT_UINT8, BASE_HEX,  VALS (&ack_policy), 0,
-      "Ack Policy", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_amsdu_present,
      {"Payload Type", "wlan.qos.amsdupresent", FT_BOOLEAN, BASE_NONE,
-      TFS (&hf_qos_amsdu_present_flag), 0, "Payload Type", HFILL }},
+      TFS (&hf_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
 
     {&hf_qos_txop_limit,
      {"TXOP Limit", "wlan.qos.txop_limit", FT_UINT16, BASE_DEC, NULL, 0,
-      "TXOP Limit", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_buf_state_indicated,
      {"Buffer State Indicated", "wlan.qos.buf_state_indicated",
        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
-      "Buffer State Indicated", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_highest_pri_buf_ac,
      {"Highest-Priority Buffered AC", "wlan.qos.highest_pri_buf_ac",
        FT_UINT8, BASE_DEC, VALS(wme_acs), 0x0C,
-      "Highest-Priority Buffered AC", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_qap_buf_load,
      {"QAP Buffered Load", "wlan.qos.qap_buf_load",
        FT_UINT8, BASE_DEC, NULL, 0xF0,
-      "QAP Buffered Load", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_txop_dur_req,
      {"TXOP Duration Requested", "wlan.qos.txop_dur_req", FT_UINT16, BASE_DEC, NULL, 0,
-      "TXOP Duration Requested", HFILL }},
+      NULL, HFILL }},
 
     {&hf_qos_queue_size,
      {"Queue Size", "wlan.qos.queue_size", FT_UINT16, BASE_DEC, NULL, 0,
-      "Queue Size", HFILL }},
+      NULL, HFILL }},
 
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
@@ -9166,11 +9166,11 @@ proto_register_ieee80211 (void)
 
     {&hf_fcs_good,
      {"Good", "wlan.fcs_good", FT_BOOLEAN, BASE_NONE,
-      NULL, 0, "True if the FCS is correct", HFILL }},
+      NULL, 0x0, "True if the FCS is correct", HFILL }},
 
     {&hf_fcs_bad,
      {"Bad", "wlan.fcs_bad", FT_BOOLEAN, BASE_NONE,
-      NULL, 0, "True if the FCS is incorrect", HFILL }},
+      NULL, 0x0, "True if the FCS is incorrect", HFILL }},
 
     {&hf_fragment_overlap,
       {"Fragment overlap", "wlan.fragment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -9198,11 +9198,11 @@ proto_register_ieee80211 (void)
 
     {&hf_fragment,
       {"802.11 Fragment", "wlan.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-       "802.11 Fragment", HFILL }},
+       NULL, HFILL }},
 
     {&hf_fragments,
       {"802.11 Fragments", "wlan.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-       "802.11 Fragments", HFILL }},
+       NULL, HFILL }},
 
     {&hf_reassembled_in,
       {"Reassembled 802.11 in frame", "wlan.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -9210,27 +9210,27 @@ proto_register_ieee80211 (void)
 
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
-      "Initialization Vector", HFILL }},
+      NULL, HFILL }},
 
     {&hf_wep_iv_weak,
      {"Weak IV", "wlan.wep.weakiv", FT_BOOLEAN,BASE_NONE, NULL,0x0,
-       "Weak IV",HFILL}},
+       NULL,HFILL}},
 
     {&hf_tkip_extiv,
      {"TKIP Ext. Initialization Vector", "wlan.tkip.extiv", FT_STRING,
-      BASE_HEX, NULL, 0, "TKIP Extended Initialization Vector", HFILL }},
+      BASE_NONE, NULL, 0, "TKIP Extended Initialization Vector", HFILL }},
 
     {&hf_ccmp_extiv,
      {"CCMP Ext. Initialization Vector", "wlan.ccmp.extiv", FT_STRING,
-      BASE_HEX, NULL, 0, "CCMP Extended Initialization Vector", HFILL }},
+      BASE_NONE, NULL, 0, "CCMP Extended Initialization Vector", HFILL }},
 
     {&hf_wep_key,
      {"Key Index", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
-      "Key Index", HFILL }},
+      NULL, HFILL }},
 
     {&hf_wep_icv,
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
-      "WEP ICV", HFILL }},
+      NULL, HFILL }},
 	/***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
     {&hf_pst_timingquality,
      {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
@@ -9241,15 +9241,15 @@ proto_register_ieee80211 (void)
       "Provider Count", HFILL }},
 
     {&hf_pst_length,
-     {"Provider Service Table Length ", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Provider Service Table Length", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Length", HFILL }},
 
     {&hf_pst_contents,
-     {"Provider Service Table Contents ", "pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
+     {"Provider Service Table Contents", "pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
       "PST Contents", HFILL }},
 
     {&hf_pst_acid,
-     {"Application Class ID (ACID) ", "pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Application Class ID (ACID)", "pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACID", HFILL }},
 
     {&hf_pst_acm_length,
@@ -9281,11 +9281,11 @@ proto_register_ieee80211 (void)
       "MAC Address", HFILL }},
 
     {&hf_pst_serviceport,
-     {"Service Port ", "pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Service Port", "pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Service Port", HFILL }},
 
     {&hf_pst_addressing,
-     {"Addressing ", "pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Addressing", "pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Addressing", HFILL }},
 
     {&hf_pst_channel,
@@ -9294,40 +9294,40 @@ proto_register_ieee80211 (void)
 
     {&hf_chan_noc,
      {"Number of Channels", "chan.chan_uknown", FT_UINT8, BASE_DEC, NULL, 0,
-      "Number of Channels", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_length,
      {"Length", "chan.chan_length", FT_UINT8, BASE_DEC, NULL, 0,
-      "Length", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_content,
      {"Contents", "chan.chan_content", FT_UINT8, BASE_DEC, NULL, 0,
-      "Contents", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_channel,
      {"channel", "chan.chan_channel", FT_UINT8, BASE_DEC, NULL, 0,
-      "channel", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_adapt,
      {"Adaptable", "chan.chan_adapt", FT_UINT8, BASE_DEC, NULL, 0,
-      "Adaptable", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_rate,
      {"Rate", "chan.chan_rate", FT_UINT8, BASE_DEC, NULL, 0,
-      "Rate", HFILL }},
+      NULL, HFILL }},
 
     {&hf_chan_tx_pow,
      {"Tx Power", "chan.chan_tx_pow", FT_UINT8, BASE_DEC, NULL, 0,
-      "Tx Power", HFILL }},
+      NULL, HFILL }},
 
     /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
     {&hf_block_ack_request_control,
      {"Block Ack Request (BAR) Control", "wlan.bar.control",
-      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request (BAR) Control", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_block_ack_control,
      {"Block Ack Request Control", "wlan.ba.control",
-      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request Control", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_block_ack_control_ack_policy,
      {"BAR Ack Policy", "wlan.ba.control.ackpolicy",
@@ -9339,11 +9339,11 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_control_compressed_bitmap,
      {"Compressed Bitmap", "wlan.ba.control.cbitmap",
-      FT_BOOLEAN, 16, 0, 0x04, "Compressed Bitmap", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x04, NULL, HFILL }},
 
     {&hf_block_ack_control_reserved,
      {"Reserved", "wlan.ba.control.cbitmap",
-      FT_UINT16, BASE_HEX, NULL, 0x0ff8, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0ff8, NULL, HFILL }},
 
     {&hf_block_ack_control_basic_tid_info,
      {"TID for which a Basic BlockAck frame is requested", "wlan.ba.basic.tidinfo",
@@ -9359,15 +9359,15 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_multi_tid_info,
      {"Traffic Identifier (TID) Info", "wlan.ba.mtid.tid",
-      FT_UINT8, BASE_DEC, 0, 0, "Traffic Identifier (TID) Info", HFILL }},
+      FT_UINT8, BASE_DEC, 0, 0, NULL, HFILL }},
 
     {&hf_block_ack_multi_tid_reserved,
      {"Reserved", "wlan.bar.mtid.tidinfo.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x0fff, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x0fff, NULL, HFILL }},
 
     {&hf_block_ack_multi_tid_value,
      {"Multi-TID Value", "wlan.bar.mtid.tidinfo.value",
-      FT_UINT16, BASE_HEX, 0, 0xf000, "Multi-TID Value", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0xf000, NULL, HFILL }},
 
     {&hf_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
@@ -9375,7 +9375,7 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_type,
      {"Block Ack Request Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }}
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, NULL, HFILL }}
     /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
   };
 
@@ -9384,74 +9384,74 @@ proto_register_ieee80211 (void)
        XXX - make as many of these generic as possible. */
     { &hf_prism_msgcode,
      {"Message Code", "prism.msgcode", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_msglen,
      {"Message Length", "prism.msglen", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_rssi_data,
      {"RSSI Field", "prism.rssi.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_sq_data,
      {"SQ Field", "prism.sq.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_signal_data,
      {"Signal Field", "prism.signal.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_noise_data,
      {"Noise Field", "prism.noise.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_rate_data,
      {"Rate Field", "prism.rate.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_istx_data,
      {"IsTX Field", "prism.istx.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      NULL, HFILL }},
 
     { &hf_prism_frmlen_data,
      {"Frame Length Field", "prism.frmlen.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }}
+      NULL, HFILL }}
   };
 
   static hf_register_info hf_wlancap[] = {
     /* AVS-specific header fields.
        XXX - make as many of these generic as possible. */
     {&hf_wlan_magic,
-     {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0, "", HFILL } },
+     {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0, NULL, HFILL } },
     { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32,
-			  BASE_DEC, NULL, 0xF, "", HFILL } },
+			  BASE_DEC, NULL, 0xF, NULL, HFILL } },
     { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32,
-			 BASE_DEC, NULL, 0x0, "", HFILL } },
+			 BASE_DEC, NULL, 0x0, NULL, HFILL } },
     {&hf_wlan_phytype,
      {"PHY type", "wlan.phytype", FT_UINT32, BASE_DEC, VALS(phy_type), 0x0,
-      "", HFILL } },
+      NULL, HFILL } },
 
     { &hf_wlan_priority, { "Priority", "wlancap.priority", FT_UINT32, BASE_DEC,
-			   NULL, 0x0, "", HFILL } },
+			   NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
-			   VALS(ssi_type), 0x0, "", HFILL } },
+			   VALS(ssi_type), 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
-			   BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
-			   BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
-			   BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
+			   BASE_DEC, VALS(preamble_type), 0x0, NULL, HFILL } },
     { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
-			   BASE_DEC, VALS(encoding_type), 0x0, "", HFILL } },
+			   BASE_DEC, VALS(encoding_type), 0x0, NULL, HFILL } },
     { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32,
-			   BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
-			   BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
 			   BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
     { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
-			   BASE_NONE, NULL, 0x0, "", HFILL } }
+			   BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -9935,32 +9935,32 @@ proto_register_ieee80211 (void)
 
     {&ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
-      NULL, 0, "Timestamp", HFILL }},
+      NULL, 0, NULL, HFILL }},
 
     {&ff_auth_alg,
      {"Authentication Algorithm", "wlan_mgt.fixed.auth.alg",
-      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "Authentication Algorithm", HFILL }},
+      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, NULL, HFILL }},
 
     {&ff_beacon_interval,
      {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
-      "Beacon Interval", HFILL }},
+      NULL, HFILL }},
 
     {&hf_fixed_parameters,
      {"Fixed parameters", "wlan_mgt.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "Fixed parameters", HFILL }},
+      NULL, HFILL }},
 
     {&hf_tagged_parameters,
      {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "Tagged parameters", HFILL }},
+      NULL, HFILL }},
 
     {&hf_tagged_ssid,
-     {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_DEC, NULL, 0, 
-      "SSID", HFILL }},
+     {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0, 
+      NULL, HFILL }},
 
     /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_params,
       {"Block Ack Parameters", "wlan_mgt.fixed.baparams",
-      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Parameters", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_block_ack_params_amsdu_permitted,
       {"A-MSDUs", "wlan_mgt.fixed.baparams.amsdu",
@@ -9968,11 +9968,11 @@ proto_register_ieee80211 (void)
 
     {&ff_block_ack_params_policy,
       {"Block Ack Policy", "wlan_mgt.fixed.baparams.policy",
-      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_policy_flag), 0x0002, "Block Ack Policy", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_policy_flag), 0x0002, NULL, HFILL }},
 
     {&ff_block_ack_params_tid,
       {"Traffic Identifier", "wlan_mgt.fixed.baparams.tid",
-      FT_UINT8, BASE_HEX, NULL, 0x003C, "Traffic Identifier", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x003C, NULL, HFILL }},
 
     {&ff_block_ack_params_buffer_size,
       {"Number of Buffers (1 Buffer = 2304 Bytes)", "wlan_mgt.fixed.baparams.buffersize",
@@ -9982,35 +9982,35 @@ proto_register_ieee80211 (void)
     /*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_timeout,
       {"Block Ack Timeout", "wlan_mgt.fixed.batimeout",
-      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Timeout", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_ssc,
      {"Block Ack Starting Sequence Control (SSC)", "wlan_mgt.fixed.ssc",
-      FT_UINT16, BASE_HEX, 0, 0, "Block Ack Starting Sequence Control (SSC)", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_block_ack_ssc_fragment,
      {"Fragment", "wlan_mgt.fixed.fragment",
-      FT_UINT16, BASE_DEC, 0, 0x000f, "Fragment", HFILL }},
+      FT_UINT16, BASE_DEC, 0, 0x000f, NULL, HFILL }},
 
     {&ff_block_ack_ssc_sequence,
      {"Starting Sequence Number", "wlan_mgt.fixed.sequence",
-      FT_UINT16, BASE_DEC, 0, 0xfff0, "Starting Sequence Number", HFILL }},
+      FT_UINT16, BASE_DEC, 0, 0xfff0, NULL, HFILL }},
     /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_delba_param,
      {"Delete Block Ack (DELBA) Parameter Set", "wlan_mgt.fixed.delba.param",
-      FT_UINT16, BASE_HEX, 0, 0, "Delete Block Ack (DELBA) Parameter Set", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_delba_param_reserved,
      {"Reserved", "wlan_mgt.fixed.delba.param.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x07ff, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x07ff, NULL, HFILL }},
 
     {&ff_delba_param_init,
      {"Initiator", "wlan_mgt.fixed.delba.param.initiator",
-      FT_BOOLEAN, 16, 0, 0x0800, "Initiator", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x0800, NULL, HFILL }},
 
     {&ff_delba_param_tid,
      {"TID", "wlan_mgt.fixed.delba.param.tid",
@@ -10020,7 +10020,7 @@ proto_register_ieee80211 (void)
     /*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
     {&ff_max_reg_pwr,
      {"Maximum Regulation Power", "wlan_mgt.fixed.maxregpwr",
-      FT_UINT16, BASE_HEX, 0, 0, "Maximum Regulation Power", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
@@ -10032,37 +10032,37 @@ proto_register_ieee80211 (void)
     /*** Begin: Country String Fixed Field - Dustin Johnson ***/
     {&ff_country_str,
      {"Country String", "wlan_mgt.fixed.country",
-      FT_STRING, BASE_NONE, 0, 0, "Country String", HFILL }},
+      FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
     /*** End: Country String Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     {&ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan_mgt.fixed.maxtxpwr",
-      FT_UINT8, BASE_HEX, 0, 0, "Maximum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_tx_pwr_used,
      {"Transmit Power Used", "wlan_mgt.fixed.txpwr",
-      FT_UINT8, BASE_HEX, 0, 0, "Transmit Power Used", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan_mgt.fixed.tnoisefloor",
-      FT_UINT8, BASE_HEX, 0, 0, "Transceiver Noise Floor", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     {&ff_channel_width,
      {"Supported Channel Width", "wlan_mgt.fixed.chanwidth",
-      FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, "Supported Channel Width", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, NULL, HFILL }},
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_ap,
      {"QoS Information (AP)", "wlan_mgt.fixed.qosinfo.ap",
-      FT_UINT8, BASE_HEX, NULL, 0, "QoS Information (AP)", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_qos_info_ap_edca_param_set_counter,
      {"EDCA Parameter Set Update Count", "wlan_mgt.fixed.qosinfo.ap.edcaupdate",
@@ -10074,7 +10074,7 @@ proto_register_ieee80211 (void)
 
     {&ff_qos_info_ap_queue_req,
      {"Queue Request", "wlan_mgt.fixed.qosinfo.ap",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20, "Queue Request", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20, NULL, HFILL }},
 
     {&ff_qos_info_ap_txop_request,
      {"TXOP Request", "wlan_mgt.fixed.qosinfo.ap.txopreq",
@@ -10082,29 +10082,29 @@ proto_register_ieee80211 (void)
 
     {&ff_qos_info_ap_reserved,
      {"Reserved", "wlan_mgt.fixed.qosinfo.ap.reserved",
-      FT_BOOLEAN, 8, NULL, 0x80, "Reserved", HFILL }},
+      FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
     /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_sta,
      {"QoS Information (STA)", "wlan_mgt.fixed.qosinfo.sta",
-      FT_UINT8, BASE_HEX, NULL, 0, "QoS Information (STA)", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_qos_info_sta_ac_vo,
      {"AC_VO", "wlan_mgt.fixed.qosinfo.sta.ac.vo",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01, "AC_VO", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01, NULL, HFILL }},
 
     {&ff_qos_info_sta_ac_vi,
      {"AC_VI", "wlan_mgt.fixed.qosinfo.sta.ac.vi",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02, "AC_VI", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02, NULL, HFILL }},
 
     {&ff_qos_info_sta_ac_bk,
      {"AC_BK", "wlan_mgt.fixed.qosinfo.sta.ac.bk",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04, "AC_BK", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04, NULL, HFILL }},
 
     {&ff_qos_info_sta_ac_be,
      {"AC_BE", "wlan_mgt.fixed.qosinfo.sta.ac.be",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08, "AC_BE", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08, NULL, HFILL }},
 
     {&ff_qos_info_sta_q_ack,
      {"Q-Ack", "wlan_mgt.fixed.qosinfo.sta.qack",
@@ -10112,17 +10112,17 @@ proto_register_ieee80211 (void)
 
     {&ff_qos_info_sta_max_sp_len,
      {"Service Period (SP) Length", "wlan_mgt.fixed.qosinfo.sta.splen",
-      FT_UINT8, BASE_HEX, VALS (&ff_qos_info_sta_max_sp_len_flags) , 0x60, "Service Period (SP) Length", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ff_qos_info_sta_max_sp_len_flags) , 0x60, NULL, HFILL }},
 
     {&ff_qos_info_sta_more_data_ack,
      {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, "More Data Ack", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, NULL, HFILL }},
     /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     {&ff_sm_pwr_save,
      {"Spatial Multiplexing (SM) Power Control", "wlan_mgt.fixed.sm.powercontrol",
-      FT_UINT8, BASE_HEX, NULL, 0, "Spatial Multiplexing (SM) Power Control", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_sm_pwr_save_enabled,
      {"SM Power Save", "wlan_mgt.fixed.sm.powercontrol.enabled",
@@ -10134,27 +10134,27 @@ proto_register_ieee80211 (void)
 
     {&ff_sm_pwr_save_reserved,
      {"Reserved", "wlan_mgt.fixed.sm.powercontrol.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xFC, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
     /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
     /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
     {&ff_pco_phase_cntrl,
      {"Phased Coexistence Operation (PCO) Phase Control", "wlan_mgt.fixed.pco.phasecntrl",
-      FT_BOOLEAN, 0, TFS (&ff_pco_phase_cntrl_flag), 0, "Phased Coexistence Operation (PCO) Phase Control", HFILL }},
+      FT_BOOLEAN, BASE_NONE, TFS (&ff_pco_phase_cntrl_flag), 0x0, NULL, HFILL }},
     /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_psmp_param_set,
      {"Power Save Multi-Poll (PSMP) Parameter Set", "wlan_mgt.fixed.psmp.paramset",
-      FT_UINT16, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Parameter Set", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_param_set_n_sta,
      {"Number of STA Info Fields Present", "wlan_mgt.fixed.psmp.paramset.nsta",
-      FT_UINT8, BASE_HEX, 0, 0, "Number of STA Info Fields Present", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_param_set_more_psmp,
      {"More PSMP", "wlan_mgt.fixed.psmp.paramset.more",
-      FT_BOOLEAN, 0, TFS(&ff_psmp_param_set_more_psmp_flag), 0, "More Power Save Multi-Poll (PSMP)", HFILL }},
+      FT_BOOLEAN, BASE_NONE, TFS(&ff_psmp_param_set_more_psmp_flag), 0x0, "More Power Save Multi-Poll (PSMP)", HFILL }},
 
     {&ff_psmp_param_set_psmp_sequence_duration,
      {"PSMP Sequence Duration", "wlan_mgt.fixed.psmp.paramset.seqduration",
@@ -10172,113 +10172,113 @@ proto_register_ieee80211 (void)
 
     {&ff_mimo_cntrl_channel_width,
      {"Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
-      FT_BOOLEAN, 16, TFS(&ff_mimo_cntrl_channel_width_flag), 0x0010, "Channel Width", HFILL }},
+      FT_BOOLEAN, 16, TFS(&ff_mimo_cntrl_channel_width_flag), 0x0010, NULL, HFILL }},
 
     {&ff_mimo_cntrl_grouping,
      {"Grouping (Ng)", "wlan_mgt.fixed.mimo.control.grouping",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, "Grouping (Ng)", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
 
     {&ff_mimo_cntrl_coefficient_size,
      {"Coefficient Size (Nb)", "wlan_mgt.fixed.mimo.control.cosize",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, "Coefficient Size (Nb)", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
 
     {&ff_mimo_cntrl_codebook_info,
      {"Codebook Information", "wlan_mgt.fixed.mimo.control.codebookinfo",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, "Codebook Information", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
 
     {&ff_mimo_cntrl_remaining_matrix_segment,
      {"Remaining Matrix Segment", "wlan_mgt.fixed.mimo.control.matrixseg",
-      FT_UINT16, BASE_HEX, 0, 0x3800, "Remaining Matrix Segment", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x3800, NULL, HFILL }},
 
     {&ff_mimo_cntrl_reserved,
      {"Reserved", "wlan_mgt.fixed.mimo.control.reserved",
-      FT_UINT16, BASE_HEX, 0, 0xC000, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0xC000, NULL, HFILL }},
 
     {&ff_mimo_cntrl_sounding_timestamp,
      {"Sounding Timestamp", "wlan_mgt.fixed.mimo.control.soundingtime",
-      FT_UINT32, BASE_HEX, 0, 0, "Sounding Timestamp", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
     {&ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan_mgt.fixed.psmp.stainfo",
-      FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, "Power Save Multi-Poll (PSMP) Station Information", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_dtt_start_offset,
      {"DTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.dttstart",
-      FT_UINT16, BASE_HEX, 0, 0, "DTT Start Offset", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_dtt_duration,
      {"DTT Duration", "wlan_mgt.fixed.psmp.stainfo.dttduration",
-      FT_UINT8, BASE_HEX, 0, 0, "DTT Duration", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_sta_id,
      {"Target Station ID", "wlan_mgt.fixed.psmp.stainfo.staid",
-      FT_UINT16, BASE_HEX, 0, 0, "Target Station ID", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_utt_start_offset,
      {"UTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.uttstart",
-      FT_UINT16, BASE_HEX, 0, 0, "UTT Start Offset", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_utt_duration,
      {"UTT Duration", "wlan_mgt.fixed.psmp.stainfo.uttduration",
-      FT_UINT16, BASE_HEX, 0, 0, "UTT Duration", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_reserved_small,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
-      FT_UINT16, BASE_HEX, 0, 0, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_reserved_large,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
-      FT_UINT64, BASE_HEX, 0, 0, "Reserved", HFILL }},
+      FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_psmp_sta_info_psmp_multicast_id,
      {"Power Save Multi-Poll (PSMP) Multicast ID", "wlan_mgt.fixed.psmp.stainfo.multicastid",
-      FT_UINT64, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Multicast ID", HFILL }},
+      FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
     {&ff_ant_selection,
      {"Antenna Selection", "wlan_mgt.fixed.antsel",
-      FT_UINT8, BASE_HEX, 0, 0, "Antenna Selection", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&ff_ant_selection_0,
      {"Antenna 0", "wlan_mgt.fixed.antsel.ant0",
-      FT_UINT8, BASE_HEX, 0, 0x01, "Antenna 0", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
 
     {&ff_ant_selection_1,
      {"Antenna 1", "wlan_mgt.fixed.antsel.ant1",
-      FT_UINT8, BASE_HEX, 0, 0x02, "Antenna 1", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
 
     {&ff_ant_selection_2,
      {"Antenna 2", "wlan_mgt.fixed.antsel.ant2",
-      FT_UINT8, BASE_HEX, 0, 0x04, "Antenna 2", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
 
     {&ff_ant_selection_3,
      {"Antenna 3", "wlan_mgt.fixed.antsel.ant3",
-      FT_UINT8, BASE_HEX, 0, 0x08, "Antenna 3", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
 
     {&ff_ant_selection_4,
      {"Antenna 4", "wlan_mgt.fixed.antsel.ant4",
-      FT_UINT8, BASE_HEX, 0, 0x10, "Antenna 4", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x10, NULL, HFILL }},
 
     {&ff_ant_selection_5,
      {"Antenna 5", "wlan_mgt.fixed.antsel.ant5",
-      FT_UINT8, BASE_HEX, 0, 0x20, "Antenna 5", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
 
     {&ff_ant_selection_6,
      {"Antenna 6", "wlan_mgt.fixed.antsel.ant6",
-      FT_UINT8, BASE_HEX, 0, 0x40, "Antenna 6", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x40, NULL, HFILL }},
 
     {&ff_ant_selection_7,
      {"Antenna 7", "wlan_mgt.fixed.antsel.ant7",
-      FT_UINT8, BASE_HEX, 0, 0x80, "Antenna 7", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0x80, NULL, HFILL }},
     /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
     {&ff_ext_channel_switch_announcement,
      {"Extended Channel Switch Announcement", "wlan_mgt.fixed.extchansw",
-      FT_UINT32, BASE_HEX, 0, 0, "", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
     /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
     /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
@@ -10288,15 +10288,15 @@ proto_register_ieee80211 (void)
 
     {&ff_ht_info_information_request,
      {"Information Request", "wlan_mgt.fixed.mimo.control.chanwidth",
-      FT_BOOLEAN, 8, TFS(&ff_ht_info_information_request_flag), 0x01, "Information Request", HFILL }},
+      FT_BOOLEAN, 8, TFS(&ff_ht_info_information_request_flag), 0x01, NULL, HFILL }},
 
     {&ff_ht_info_40_mhz_intolerant,
      {"40 MHz Intolerant", "wlan_mgt.fixed.mimo.control.chanwidth",
-      FT_BOOLEAN, 8, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02, "40 MHz Intolerant", HFILL }},
+      FT_BOOLEAN, 8, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02, NULL, HFILL }},
 
     {&ff_ht_info_sta_chan_width,
      {"Station Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
-      FT_BOOLEAN, 8, TFS(&ff_ht_info_sta_chan_width_flag), 0x04, "Station Channel Width", HFILL }},
+      FT_BOOLEAN, 8, TFS(&ff_ht_info_sta_chan_width_flag), 0x04, NULL, HFILL }},
 
     {&ff_ht_info_reserved,
      {"Reserved", "wlan_mgt.fixed.extchansw",
@@ -10312,7 +10312,7 @@ proto_register_ieee80211 (void)
     /*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
     {&ff_mimo_csi_snr,
      {"Signal to Noise Ratio (SNR)", "wlan_mgt.mimo.csimatrices.snr",
-      FT_UINT8, BASE_HEX, NULL, 0, "Signal to Noise Ratio (SNR)", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
 
     {&ff_capture,
@@ -10321,7 +10321,7 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_ess,
      {"ESS capabilities", "wlan_mgt.fixed.capabilities.ess",
-      FT_BOOLEAN, 16, TFS (&cf_ess_flags), 0x0001, "ESS capabilities", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_ess_flags), 0x0001, NULL, HFILL }},
 
     {&ff_cf_ibss,
      {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
@@ -10343,7 +10343,7 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_preamble,
      {"Short Preamble", "wlan_mgt.fixed.capabilities.preamble",
-      FT_BOOLEAN, 16, TFS (&cf_preamble_flags), 0x0020, "Short Preamble", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_preamble_flags), 0x0020, NULL, HFILL }},
 
     {&ff_cf_pbcc,
      {"PBCC", "wlan_mgt.fixed.capabilities.pbcc",
@@ -10351,20 +10351,20 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_agility,
      {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
-      FT_BOOLEAN, 16, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_agility_flags), 0x0080, NULL, HFILL }},
 
     {&ff_cf_spec_man,
      {"Spectrum Management", "wlan_mgt.fixed.capabilities.spec_man",
-      FT_BOOLEAN, 16, TFS (&cf_spec_man_flags), 0x0100, "Spectrum Management", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_spec_man_flags), 0x0100, NULL, HFILL }},
 
     {&ff_short_slot_time,
      {"Short Slot Time", "wlan_mgt.fixed.capabilities.short_slot_time",
-      FT_BOOLEAN, 16, TFS (&short_slot_time_flags), 0x0400, "Short Slot Time",
+      FT_BOOLEAN, 16, TFS (&short_slot_time_flags), 0x0400, NULL,
       HFILL }},
 
     {&ff_cf_apsd,
      {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
-      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, "Automatic Power Save Delivery", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, NULL, HFILL }},
 
     {&ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
@@ -10373,11 +10373,11 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_del_blk_ack,
      {"Delayed Block Ack", "wlan_mgt.fixed.capabilities.del_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, "Delayed Block Ack", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, NULL, HFILL }},
 
     {&ff_cf_imm_blk_ack,
      {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, "Immediate Block Ack", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, NULL, HFILL }},
 
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
@@ -10385,11 +10385,11 @@ proto_register_ieee80211 (void)
 
     {&ff_assoc_id,
      {"Association ID", "wlan_mgt.fixed.aid",
-      FT_UINT16, BASE_HEX, NULL, 0, "Association ID", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_listen_ival,
      {"Listen Interval", "wlan_mgt.fixed.listen_ival",
-      FT_UINT16, BASE_HEX, NULL, 0, "Listen Interval", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_current_ap,
      {"Current AP", "wlan_mgt.fixed.current_ap",
@@ -10431,27 +10431,27 @@ proto_register_ieee80211 (void)
 
     {&ff_mesh_mgt_length,
      {"Message Length", "wlan_mgt.fixed.length",
-      FT_UINT8, BASE_DEC, NULL, 0, "Message Length", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_mode,
      {"Message Mode", "wlan_mgt.fixed.mode",
-      FT_UINT8, BASE_HEX, NULL, 0, "Message Mode", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_ttl,
      {"Message TTL", "wlan_mgt.fixed.ttl",
-      FT_UINT8, BASE_DEC, NULL, 0, "Message TTL", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_dstcount,
      {"Destination Count", "wlan_mgt.fixed.dstcount",
-      FT_UINT8, BASE_DEC, NULL, 0, "Destination Count", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_hopcount,
      {"Hop Count", "wlan_mgt.fixed.hopcount",
-      FT_UINT8, BASE_DEC, NULL, 0, "Hop Count", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_rreqid,
      {"RREQ ID", "wlan_mgt.fixed.rreqid",
-      FT_UINT32, BASE_DEC, NULL, 0, "RREQ ID", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_sa,
      {"Source Address", "wlan_mgt.fixed.sa",
@@ -10467,7 +10467,7 @@ proto_register_ieee80211 (void)
 
     {&ff_mesh_mgt_flags,
      {"RREQ Flags", "wlan_mgt.fixed.hopcount",
-      FT_UINT8, BASE_HEX, NULL, 0, "RREQ Flags", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_da,
      {"Destination Address", "wlan_mgt.fixed.da",
@@ -10545,17 +10545,17 @@ proto_register_ieee80211 (void)
     {&tim_dtim_count,
      {"DTIM count", "wlan_mgt.tim.dtim_count",
       FT_UINT8, BASE_DEC, NULL, 0,
-      "DTIM count", HFILL }},
+      NULL, HFILL }},
 
     {&tim_dtim_period,
      {"DTIM period", "wlan_mgt.tim.dtim_period",
       FT_UINT8, BASE_DEC, NULL, 0,
-      "DTIM period", HFILL }},
+      NULL, HFILL }},
 
     {&tim_bmapctl,
      {"Bitmap control", "wlan_mgt.tim.bmapctl",
       FT_UINT8, BASE_HEX, NULL, 0,
-      "Bitmap control", HFILL }},
+      NULL, HFILL }},
 
     {&rsn_cap,
      {"RSN Capabilities", "wlan_mgt.rsn.capabilities", FT_UINT16, BASE_HEX,
@@ -10564,24 +10564,24 @@ proto_register_ieee80211 (void)
     {&rsn_cap_preauth,
      {"RSN Pre-Auth capabilities", "wlan_mgt.rsn.capabilities.preauth",
       FT_BOOLEAN, 16, TFS (&rsn_preauth_flags), 0x0001,
-      "RSN Pre-Auth capabilities", HFILL }},
+      NULL, HFILL }},
 
     {&rsn_cap_no_pairwise,
      {"RSN No Pairwise capabilities", "wlan_mgt.rsn.capabilities.no_pairwise",
       FT_BOOLEAN, 16, TFS (&rsn_no_pairwise_flags), 0x0002,
-      "RSN No Pairwise capabilities", HFILL }},
+      NULL, HFILL }},
 
     {&rsn_cap_ptksa_replay_counter,
      {"RSN PTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.ptksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x000C,
-      "RSN PTKSA Replay Counter capabilities", HFILL }},
+      NULL, HFILL }},
 
     {&rsn_cap_gtksa_replay_counter,
      {"RSN GTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
-      "RSN GTKSA Replay Counter capabilities", HFILL }},
+      NULL, HFILL }},
 
     {&ht_cap,
      {"HT Capabilities Info", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
@@ -10594,37 +10594,37 @@ proto_register_ieee80211 (void)
     {&ht_ldpc_coding,
      {"HT LDPC coding capability", "wlan_mgt.ht.capabilities.ldpccoding",
       FT_BOOLEAN, 16, TFS (&ht_ldpc_coding_flag), 0x0001,
-      "HT LDPC coding capability", HFILL }},
+      NULL, HFILL }},
 
     {&ht_chan_width,
      {"HT Support channel width", "wlan_mgt.ht.capabilities.width",
       FT_BOOLEAN, 16, TFS (&ht_chan_width_flag), 0x0002,
-      "HT Support channel width", HFILL }},
+      NULL, HFILL }},
 
     {&ht_sm_pwsave,
      {"HT SM Power Save", "wlan_mgt.ht.capabilities.sm",
       FT_UINT16, BASE_HEX, VALS (&ht_sm_pwsave_flag), 0x000c,
-      "HT SM Power Save", HFILL }},
+      NULL, HFILL }},
 
     {&ht_green,
      {"HT Green Field", "wlan_mgt.ht.capabilities.green",
       FT_BOOLEAN, 16, TFS (&ht_green_flag), 0x0010,
-      "HT Green Field", HFILL }},
+      NULL, HFILL }},
 
     {&ht_short20,
      {"HT Short GI for 20MHz", "wlan_mgt.ht.capabilities.short20",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0020,
-      "HT Short GI for 20MHz", HFILL }},
+      NULL, HFILL }},
 
     {&ht_short40,
      {"HT Short GI for 40MHz", "wlan_mgt.ht.capabilities.short40",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0040,
-      "HT Short GI for 40MHz", HFILL }},
+      NULL, HFILL }},
 
     {&ht_tx_stbc,
      {"HT Tx STBC", "wlan_mgt.ht.capabilities.txstbc",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0080,
-      "HT Tx STBC", HFILL }},
+      NULL, HFILL }},
 
     {&ht_rx_stbc,
      {"HT Rx STBC", "wlan_mgt.ht.capabilities.rxstbc",
@@ -10634,12 +10634,12 @@ proto_register_ieee80211 (void)
     {&ht_delayed_block_ack,
      {"HT Delayed Block ACK", "wlan_mgt.ht.capabilities.delayedblockack",
       FT_BOOLEAN, 16, TFS (&ht_delayed_block_ack_flag), 0x0400,
-      "HT Delayed Block ACK", HFILL }},
+      NULL, HFILL }},
 
     {&ht_max_amsdu,
      {"HT Max A-MSDU length", "wlan_mgt.ht.capabilities.amsdu",
       FT_BOOLEAN, 16, TFS (&ht_max_amsdu_flag), 0x0800,
-      "HT Max A-MSDU length", HFILL }},
+      NULL, HFILL }},
 
     {&ht_dss_cck_40,
      {"HT DSSS/CCK mode in 40MHz", "wlan_mgt.ht.capabilities.dsscck",
@@ -10649,21 +10649,21 @@ proto_register_ieee80211 (void)
     {&ht_psmp,
      {"HT PSMP Support", "wlan_mgt.ht.capabilities.psmp",
       FT_BOOLEAN, 16, TFS (&ht_psmp_flag), 0x2000,
-      "HT PSMP Support", HFILL }},
+      NULL, HFILL }},
 
     {&ht_40_mhz_intolerant,
      {"HT Forty MHz Intolerant", "wlan_mgt.ht.capabilities.40mhzintolerant",
       FT_BOOLEAN, 16, TFS (&ht_40_mhz_intolerant_flag), 0x4000,
-      "HT Forty MHz Intolerant", HFILL }},
+      NULL, HFILL }},
 
     {&ht_l_sig,
      {"HT L-SIG TXOP Protection support", "wlan_mgt.ht.capabilities.lsig",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x8000,
-      "HT L-SIG TXOP Protection support", HFILL }},
+      NULL, HFILL }},
 
     {&ampduparam,
      {"A-MPDU Parameters", "wlan_mgt.ht.ampduparam", FT_UINT16, BASE_HEX,
-      NULL, 0, "A-MPDU Parameters", HFILL }},
+      NULL, 0, NULL, HFILL }},
 
     {&ampduparam_vs,
      {"A-MPDU Parameters (VS)", "wlan_mgt.vs.ht.ampduparam", FT_UINT16, BASE_HEX,
@@ -10672,21 +10672,21 @@ proto_register_ieee80211 (void)
     {&ampduparam_mpdu,
      {"Maximum Rx A-MPDU Length", "wlan_mgt.ht.ampduparam.maxlength",
       FT_UINT8, BASE_HEX, 0 , 0x03,
-      "Maximum Rx A-MPDU Length", HFILL }},
+      NULL, HFILL }},
 
     {&ampduparam_mpdu_start_spacing,
      {"MPDU Density", "wlan_mgt.ht.ampduparam.mpdudensity",
       FT_UINT8, BASE_HEX, VALS (&ampduparam_mpdu_start_spacing_flags) , 0x1c,
-      "MPDU Density", HFILL }},
+      NULL, HFILL }},
 
     {&ampduparam_reserved,
      {"Reserved", "wlan_mgt.ht.ampduparam.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xE0,
-      "Reserved", HFILL }},
+      NULL, HFILL }},
 
     {&mcsset,
      {"Rx Supported Modulation and Coding Scheme Set", "wlan_mgt.ht.mcsset",
-      FT_STRING, BASE_NONE, NULL, 0, "Rx Supported Modulation and Coding Scheme Set", HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&mcsset_vs,
      {"Rx Supported Modulation and Coding Scheme Set (VS)", "wlan_mgt.vs.ht.mcsset",
@@ -10694,59 +10694,59 @@ proto_register_ieee80211 (void)
 
     {&mcsset_rx_bitmask_0to7,
      {"Rx Bitmask Bits 0-7", "wlan_mgt.ht.mcsset.rxbitmask.0to7",
-      FT_UINT32, BASE_HEX, 0, 0x000000ff, "Rx Bitmask Bits 0-7", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x000000ff, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_8to15,
      {"Rx Bitmask Bits 8-15", "wlan_mgt.ht.mcsset.rxbitmask.8to15",
-      FT_UINT32, BASE_HEX, 0, 0x0000ff00, "Rx Bitmask Bits 8-15", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x0000ff00, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_16to23,
      {"Rx Bitmask Bits 16-23", "wlan_mgt.ht.mcsset.rxbitmask.16to23",
-      FT_UINT32, BASE_HEX, 0, 0x00ff0000, "Rx Bitmask Bits 16-23", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x00ff0000, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_24to31,
      {"Rx Bitmask Bits 24-31", "wlan_mgt.ht.mcsset.rxbitmask.24to31",
-      FT_UINT32, BASE_HEX, 0, 0xff000000, "Rx Bitmask Bits 24-31", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0xff000000, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_32,
      {"Rx Bitmask Bit 32", "wlan_mgt.ht.mcsset.rxbitmask.32",
-      FT_UINT32, BASE_HEX, 0, 0x000001, "Rx Bitmask Bit 32", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x000001, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_33to38,
      {"Rx Bitmask Bits 33-38", "wlan_mgt.ht.mcsset.rxbitmask.33to38",
-      FT_UINT32, BASE_HEX, 0, 0x00007e, "Rx Bitmask Bits 33-38", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x00007e, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_39to52,
      {"Rx Bitmask Bits 39-52", "wlan_mgt.ht.mcsset.rxbitmask.39to52",
-      FT_UINT32, BASE_HEX, 0, 0x1fff80, "Rx Bitmask Bits 39-52", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x1fff80, NULL, HFILL }},
 
     {&mcsset_rx_bitmask_53to76,
      {"Rx Bitmask Bits 53-76", "wlan_mgt.ht.mcsset.rxbitmask.53to76",
-      FT_UINT32, BASE_HEX, 0, 0x1fffffe0, "Rx Bitmask Bits 53-76", HFILL }},
+      FT_UINT32, BASE_HEX, 0, 0x1fffffe0, NULL, HFILL }},
 
     {&mcsset_highest_data_rate,
      {"Highest Supported Data Rate", "wlan_mgt.ht.mcsset.highestdatarate",
-      FT_UINT16, BASE_HEX, 0, 0x03ff, "Highest Supported Data Rate", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x03ff, NULL, HFILL }},
 
     {&mcsset_tx_mcs_set_defined,
      {"Tx Supported MCS Set", "wlan_mgt.ht.mcsset.txsetdefined",
       FT_BOOLEAN, 16, TFS (&mcsset_tx_mcs_set_defined_flag), 0x0001,
-      "Tx Supported MCS Set", HFILL }},
+      NULL, HFILL }},
 
     {&mcsset_tx_rx_mcs_set_not_equal,
      {"Tx and Rx MCS Set", "wlan_mgt.ht.mcsset.txrxmcsnotequal",
       FT_BOOLEAN, 16, TFS (&mcsset_tx_rx_mcs_set_not_equal_flag), 0x0002,
-      "Tx and Rx MCS Set", HFILL }},
+      NULL, HFILL }},
 
     {&mcsset_tx_max_spatial_streams,
      {"Tx Maximum Number of Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
       FT_UINT16, BASE_HEX, VALS (&mcsset_tx_max_spatial_streams_flags) , 0x000c,
-      "Tx Maximum Number of Spatial Streams Supported", HFILL }},
+      NULL, HFILL }},
 
     {&mcsset_tx_unequal_modulation,
      {"Unequal Modulation", "wlan_mgt.ht.mcsset.txunequalmod",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0010,
-      "Unequal Modulation", HFILL }},
+      NULL, HFILL }},
 
     {&htex_cap,
      {"HT Extended Capabilities", "wlan_mgt.htex.capabilities", FT_UINT16, BASE_HEX,
@@ -10759,31 +10759,31 @@ proto_register_ieee80211 (void)
     {&htex_pco,
      {"Transmitter supports PCO", "wlan_mgt.htex.capabilities.pco",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0001,
-      "Transmitter supports PCO", HFILL }},
+      NULL, HFILL }},
 
     {&htex_transtime,
      {"Time needed to transition between 20MHz and 40MHz", "wlan_mgt.htex.capabilities.transtime",
       FT_UINT16, BASE_HEX, VALS (&htex_transtime_flags), 0x0006,
-      "Time needed to transition between 20MHz and 40MHz", HFILL }},
+      NULL, HFILL }},
 
     {&htex_mcs,
      {"MCS Feedback capability", "wlan_mgt.htex.capabilities.mcs",
       FT_UINT16, BASE_HEX, VALS (&htex_mcs_flags), 0x0300,
-      "MCS Feedback capability", HFILL }},
+      NULL, HFILL }},
 
     {&htex_htc_support,
      {"High Throughput", "wlan_mgt.htex.capabilities.htc",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0400,
-      "High Throughput", HFILL }},
+      NULL, HFILL }},
 
     {&htex_rd_responder,
      {"Reverse Direction Responder", "wlan_mgt.htex.capabilities.rdresponder",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0800,
-      "Reverse Direction Responder", HFILL }},
+      NULL, HFILL }},
 
     {&txbf,
      {"Transmit Beam Forming (TxBF) Capabilities", "wlan_mgt.txbf", FT_UINT16, BASE_HEX,
-      NULL, 0, "Transmit Beam Forming (TxBF) Capabilities", HFILL }},
+      NULL, 0, NULL, HFILL }},
 
     {&txbf_vs,
      {"Transmit Beam Forming (TxBF) Capabilities (VS)", "wlan_mgt.vs.txbf", FT_UINT16, BASE_HEX,
@@ -10792,12 +10792,12 @@ proto_register_ieee80211 (void)
     {&txbf_cap,
      {"Transmit Beamforming", "wlan_mgt.txbf.txbf",
       FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000001,
-      "Transmit Beamforming", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_rcv_ssc,
      {"Receive Staggered Sounding", "wlan_mgt.txbf.rxss",
       FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000002,
-      "Receive Staggered Sounding", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_tx_ssc,
      {"Transmit Staggered Sounding", "wlan_mgt.txbf.txss",
@@ -10807,12 +10807,12 @@ proto_register_ieee80211 (void)
     {&txbf_rcv_ndp,
      {"Receive Null Data packet (NDP)", "wlan_mgt.txbf.rxndp",
       FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000008,
-      "Receive Null Data packet (NDP)", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_tx_ndp,
      {"Transmit Null Data packet (NDP)", "wlan_mgt.txbf.txndp",
       FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000010,
-      "Transmit Null Data packet (NDP)", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_impl_txbf,
      {"Implicit TxBF capable", "wlan_mgt.txbf.impltxbf",
@@ -10822,7 +10822,7 @@ proto_register_ieee80211 (void)
     {&txbf_calib,
      {"Calibration", "wlan_mgt.txbf.calibration",
       FT_UINT32, BASE_HEX, VALS (&txbf_calib_flag), 0x000000c0,
-      "Calibration", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_expl_csi,
      {"STA can apply TxBF using CSI explicit feedback", "wlan_mgt.txbf.csi",
@@ -10842,12 +10842,12 @@ proto_register_ieee80211 (void)
     {&txbf_expl_bf_csi,
      {"Receiver can return explicit CSI feedback", "wlan_mgt.txbf.rcsi",
       FT_UINT32, BASE_HEX, VALS (&txbf_feedback_flags), 0x00001800,
-      "Receiver can return explicit CSI feedback", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_expl_uncomp_fm_feed,
      {"Receiver can return explicit uncompressed Beamforming Feedback Matrix", "wlan_mgt.txbf.fm.uncompressed.rbf",
       FT_UINT32, BASE_HEX, VALS (&txbf_feedback_flags), 0x00006000,
-      "Receiver can return explicit uncompressed Beamforming Feedback Matrix", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_expl_comp_fm_feed,
      {"STA can compress and use compressed Beamforming Feedback Matrix", "wlan_mgt.txbf.fm.compressed.bf",
@@ -10857,7 +10857,7 @@ proto_register_ieee80211 (void)
     {&txbf_min_group,
      {"Minimal grouping used for explicit feedback reports", "wlan_mgt.txbf.mingroup",
       FT_UINT32, BASE_HEX, VALS (&txbf_min_group_flags), 0x00060000,
-      "Minimal grouping used for explicit feedback reports", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_csi_num_bf_ant,
      {"Max antennae STA can support when CSI feedback required", "wlan_mgt.txbf.csinumant",
@@ -10877,17 +10877,17 @@ proto_register_ieee80211 (void)
     {&txbf_csi_max_rows_bf,
      {"Maximum number of rows of CSI explicit feedback", "wlan_mgt.txbf.csi.maxrows",
       FT_UINT32, BASE_HEX, VALS (&txbf_csi_max_rows_bf_flags), 0x06000000,
-      "Maximum number of rows of CSI explicit feedback", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_chan_est,
      {"Maximum number of space time streams for which channel dimensions can be simultaneously estimated", "wlan_mgt.txbf.channelest",
       FT_UINT32, BASE_HEX, VALS (&txbf_chan_est_flags), 0x18000000,
-      "Maximum number of space time streams for which channel dimensions can be simultaneously estimated", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_resrv,
      {"Reserved", "wlan_mgt.txbf.reserved",
       FT_UINT32, BASE_HEX, NULL, 0xe0000000,
-      "Reserved", HFILL }},
+      NULL, HFILL }},
 
     {&hta_cap,
      {"HT Additional Capabilities", "wlan_mgt.hta.capabilities", FT_UINT16, BASE_HEX,
@@ -10896,7 +10896,7 @@ proto_register_ieee80211 (void)
     {&hta_ext_chan_offset,
      {"Extension Channel Offset", "wlan_mgt.hta.capabilities.extchan",
       FT_UINT16, BASE_HEX, VALS (&hta_ext_chan_offset_flag), 0x0003,
-      "Extension Channel Offset", HFILL }},
+      NULL, HFILL }},
 
     {&hta_rec_tx_width,
      {"Recommended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
@@ -10906,22 +10906,22 @@ proto_register_ieee80211 (void)
     {&hta_rifs_mode,
      {"Reduced Interframe Spacing (RIFS) Mode", "wlan_mgt.hta.capabilities.rifsmode",
       FT_BOOLEAN, 16, TFS (&hta_rifs_mode_flag), 0x0008,
-      "Reduced Interframe Spacing (RIFS) Mode", HFILL }},
+      NULL, HFILL }},
 
     {&hta_controlled_access,
      {"Controlled Access Only", "wlan_mgt.hta.capabilities.controlledaccess",
       FT_BOOLEAN, 16, TFS (&hta_controlled_access_flag), 0x0010,
-      "Controlled Access Only", HFILL }},
+      NULL, HFILL }},
 
     {&hta_service_interval,
      {"Service Interval Granularity", "wlan_mgt.hta.capabilities.serviceinterval",
       FT_UINT16, BASE_HEX, VALS (&hta_service_interval_flag), 0x00E0,
-      "Service Interval Granularity", HFILL }},
+      NULL, HFILL }},
 
     {&hta_operating_mode,
      {"Operating Mode", "wlan_mgt.hta.capabilities.operatingmode",
       FT_UINT16, BASE_HEX, VALS (&hta_operating_mode_flag), 0x0003,
-      "Operating Mode", HFILL }},
+      NULL, HFILL }},
 
     {&hta_non_gf_devices,
      {"Non Greenfield (GF) devices Present", "wlan_mgt.hta.capabilities.nongfdevices",
@@ -10931,36 +10931,36 @@ proto_register_ieee80211 (void)
     {&hta_basic_stbc_mcs,
      {"Basic STB Modulation and Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.",
       FT_UINT16, BASE_HEX, NULL , 0x007f,
-      "Basic STB Modulation and Coding Scheme (MCS)", HFILL }},
+      NULL, HFILL }},
 
     {&hta_dual_stbc_protection,
      {"Dual Clear To Send (CTS) Protection", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_dual_stbc_protection_flag), 0x0080,
-      "Dual Clear To Send (CTS) Protection", HFILL }},
+      NULL, HFILL }},
 
     {&hta_secondary_beacon,
      {"Secondary Beacon", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_secondary_beacon_flag), 0x0100,
-      "Secondary Beacon", HFILL }},
+      NULL, HFILL }},
 
     {&hta_lsig_txop_protection,
      {"L-SIG TXOP Protection Support", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_lsig_txop_protection_flag), 0x0200,
-      "L-SIG TXOP Protection Support", HFILL }},
+      NULL, HFILL }},
 
     {&hta_pco_active,
      {"Phased Coexistence Operation (PCO) Active", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_pco_active_flag), 0x0400,
-      "Phased Coexistence Operation (PCO) Active", HFILL }},
+      NULL, HFILL }},
 
     {&hta_pco_phase,
      {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_pco_phase_flag), 0x0800,
-      "Phased Coexistence Operation (PCO) Phase", HFILL }},
+      NULL, HFILL }},
 
     {&antsel,
      {"Antenna Selection (ASEL) Capabilities", "wlan_mgt.asel",
-      FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection (ASEL) Capabilities", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&antsel_vs,
      {"Antenna Selection (ASEL) Capabilities (VS)", "wlan_mgt.vs.asel",
@@ -10968,316 +10968,316 @@ proto_register_ieee80211 (void)
 
     {&antsel_b0,
      {"Antenna Selection Capable", "wlan_mgt.asel.capable",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x01, "Antenna Selection Capable", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x01, NULL, HFILL }},
 
     {&antsel_b1,
      {"Explicit CSI Feedback Based Tx ASEL", "wlan_mgt.asel.txcsi",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x02, "Explicit CSI Feedback Based Tx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x02, NULL, HFILL }},
 
     {&antsel_b2,
      {"Antenna Indices Feedback Based Tx ASEL", "wlan_mgt.asel.txif",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x04, "Antenna Indices Feedback Based Tx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x04, NULL, HFILL }},
 
     {&antsel_b3,
      {"Explicit CSI Feedback", "wlan_mgt.asel.csi",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x08, "Explicit CSI Feedback", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x08, NULL, HFILL }},
 
     {&antsel_b4,
      {"Antenna Indices Feedback", "wlan_mgt.asel.if",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x10, "Antenna Indices Feedback", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x10, NULL, HFILL }},
 
     {&antsel_b5,
      {"Rx ASEL", "wlan_mgt.asel.rx",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x20, "Rx ASEL", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x20, NULL, HFILL }},
 
     {&antsel_b6,
      {"Tx Sounding PPDUs", "wlan_mgt.asel.sppdu",
-      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x40, "Tx Sounding PPDUs", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_supported_not_supported), 0x40, NULL, HFILL }},
 
     {&antsel_b7,
      {"Reserved", "wlan_mgt.asel.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0x80, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
 
     {&ht_info_delimiter1,
      {"HT Information Delimiter #1", "wlan_mgt.ht.info.delim1",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "HT Information Delimiter #1", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
 
     {&ht_info_primary_channel,
      {"Primary Channel", "wlan_mgt.ht.info.primarychannel",
-      FT_UINT8, BASE_DEC, NULL, 0, "Primary Channel", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ht_info_secondary_channel_offset,
      {"Secondary channel offset", "wlan_mgt.ht.info.secchanoffset",
-      FT_UINT8, BASE_HEX, VALS (&ht_info_secondary_channel_offset_flags), 0x03, "Secondary channel offset", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ht_info_secondary_channel_offset_flags), 0x03, NULL, HFILL }},
 
     {&ht_info_channel_width,
      {"Supported channel width", "wlan_mgt.ht.info.chanwidth",
-      FT_BOOLEAN, 8, TFS (&ht_info_channel_width_flag), 0x04, "Supported channel width", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_info_channel_width_flag), 0x04, NULL, HFILL }},
 
     {&ht_info_rifs_mode,
      {"Reduced Interframe Spacing (RIFS)", "wlan_mgt.ht.info.rifs",
-      FT_BOOLEAN, 8, TFS (&ht_info_rifs_mode_flag), 0x08, "Reduced Interframe Spacing (RIFS)", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_info_rifs_mode_flag), 0x08, NULL, HFILL }},
 
     {&ht_info_psmp_stas_only,
      {"Power Save Multi-Poll (PSMP) stations only", "wlan_mgt.ht.info.psmponly",
-      FT_BOOLEAN, 8, TFS (&ht_info_psmp_stas_only_flag), 0x10, "Power Save Multi-Poll (PSMP) stations only", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_info_psmp_stas_only_flag), 0x10, NULL, HFILL }},
 
     {&ht_info_service_interval_granularity,
      {"Shortest service interval", "wlan_mgt.ht.info.",
-      FT_UINT8, BASE_HEX, VALS (&ht_info_service_interval_granularity_flags), 0xe0, "Shortest service interval", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ht_info_service_interval_granularity_flags), 0xe0, NULL, HFILL }},
 
     {&ht_info_delimiter2,
      {"HT Information Delimiter #2", "wlan_mgt.ht.info.delim2",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "HT Information Delimiter #2", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
 
     {&ht_info_operating_mode,
      {"Operating mode of BSS", "wlan_mgt.ht.info.operatingmode",
-      FT_UINT16, BASE_HEX, VALS (&ht_info_operating_mode_flags), 0x0003, "Operating mode of BSS", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ht_info_operating_mode_flags), 0x0003, NULL, HFILL }},
 
     {&ht_info_non_greenfield_sta_present,
      {"Non-greenfield STAs present", "wlan_mgt.ht.info.greenfield",
-      FT_BOOLEAN, 16, TFS (&ht_info_non_greenfield_sta_present_flag), 0x0004, "Non-greenfield STAs present", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_non_greenfield_sta_present_flag), 0x0004, NULL, HFILL }},
 
     {&ht_info_transmit_burst_limit,
      {"Transmit burst limit", "wlan_mgt.ht.info.burstlim",
-      FT_BOOLEAN, 16, TFS (&ht_info_transmit_burst_limit_flag), 0x0008, "Transmit burst limit", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_transmit_burst_limit_flag), 0x0008, NULL, HFILL }},
 
     {&ht_info_obss_non_ht_stas_present,
      {"OBSS non-HT STAs present", "wlan_mgt.ht.info.obssnonht",
-      FT_BOOLEAN, 16, TFS (&ht_info_obss_non_ht_stas_present_flag), 0x0010, "OBSS non-HT STAs present", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_obss_non_ht_stas_present_flag), 0x0010, NULL, HFILL }},
 
     {&ht_info_reserved_1,
      {"Reserved", "wlan_mgt.ht.info.reserved1",
-      FT_UINT16, BASE_HEX, NULL, 0xffe0, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffe0, NULL, HFILL }},
 
     {&ht_info_delimiter3,
      {"HT Information Delimiter #3", "wlan_mgt.ht.info.delim3",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "HT Information Delimiter #3", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
 
     {&ht_info_reserved_2,
      {"Reserved", "wlan_mgt.ht.info.reserved2",
-      FT_UINT16, BASE_HEX, NULL, 0x003f, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x003f, NULL, HFILL }},
 
     {&ht_info_dual_beacon,
      {"Dual beacon", "wlan_mgt.ht.info.dualbeacon",
-      FT_BOOLEAN, 16, TFS (&ht_info_dual_beacon_flag), 0x0040, "Dual beacon", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_dual_beacon_flag), 0x0040, NULL, HFILL }},
 
     {&ht_info_dual_cts_protection,
      {"Dual Clear To Send (CTS) protection", "wlan_mgt.ht.info.dualcts",
-      FT_BOOLEAN, 16, TFS (&ht_info_dual_cts_protection_flag), 0x0080, "Dual Clear To Send (CTS) protection", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_dual_cts_protection_flag), 0x0080, NULL, HFILL }},
 
     {&ht_info_secondary_beacon,
      {"Beacon ID", "wlan_mgt.ht.info.secondarybeacon",
-      FT_BOOLEAN, 16, TFS (&ht_info_secondary_beacon_flag), 0x0100, "Beacon ID", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_secondary_beacon_flag), 0x0100, NULL, HFILL }},
 
     {&ht_info_lsig_txop_protection_full_support,
      {"L-SIG TXOP Protection Full Support", "wlan_mgt.ht.info.lsigprotsupport",
-      FT_BOOLEAN, 16, TFS (&ht_info_lsig_txop_protection_full_support_flag), 0x0200, "L-SIG TXOP Protection Full Support", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_lsig_txop_protection_full_support_flag), 0x0200, NULL, HFILL }},
 
     {&ht_info_pco_active,
      {"Phased Coexistence Operation (PCO)", "wlan_mgt.ht.info.pco.active",
-      FT_BOOLEAN, 16, TFS (&tfs_active_inactive), 0x0400, "Phased Coexistence Operation (PCO)", HFILL }},
+      FT_BOOLEAN, 16, TFS (&tfs_active_inactive), 0x0400, NULL, HFILL }},
 
     {&ht_info_pco_phase,
      {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.ht.info.pco.phase",
-      FT_BOOLEAN, 16, TFS (&ht_info_pco_phase_flag), 0x0800, "Phased Coexistence Operation (PCO) Phase", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_pco_phase_flag), 0x0800, NULL, HFILL }},
 
     {&ht_info_reserved_3,
      {"Reserved", "wlan_mgt.ht.info.reserved3",
-      FT_UINT16, BASE_HEX, NULL, 0xf000, "Reserved", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xf000, NULL, HFILL }},
 
     {&hf_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
       FT_UINT8, BASE_HEX, VALS (&hf_tag_secondary_channel_offset_flags), 0,
-      "Secondary Channel Offset", HFILL }},
+      NULL, HFILL }},
 
     /*** Begin: Power Capability Tag - Dustin Johnson ***/
     {&hf_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan_mgt.powercap.min",
-      FT_UINT8, BASE_HEX, NULL, 0, "Minimum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
-      FT_UINT8, BASE_HEX, NULL, 0, "Maximum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Power Capability Tag - Dustin Johnson ***/
     {&hf_tag_tpc_report_trsmt_pow,
      {"Transmit Power", "wlan_mgt.tcprep.trsmt_pow",
-      FT_INT8, BASE_DEC, NULL, 0, "Transmit Power", HFILL }},
+      FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     {&hf_tag_tpc_report_link_mrg,
      {"Link Margin", "wlan_mgt.tcprep.link_mrg",
-      FT_INT8, BASE_DEC, NULL, 0, "Link Margin", HFILL }},
+      FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     {&hf_tag_supported_channels,
      {"Supported Channels Set", "wlan_mgt.supchan",
-      FT_UINT8, BASE_DEC, NULL, 0, "Supported Channels Set", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_supported_channels_first,
      {"First Supported Channel", "wlan_mgt.supchan.first",
-      FT_UINT8, BASE_HEX, NULL, 0, "First Supported Channel", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_supported_channels_range,
      {"Supported Channel Range", "wlan_mgt.supchan.range",
-      FT_UINT8, BASE_HEX, NULL, 0, "Supported Channel Range", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Supported Channels Tag - Dustin Johnson ***/
 
     /*** Start: Measurement Request Tag  - Dustin Johnson***/
     {&hf_tag_measure_request_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Token", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode,
      {"Measurement Request Mode", "wlan_mgt.measure.req.reqmode",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Request Mode", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_reserved1,
      {"Reserved", "wlan_mgt.measure.req.reqmode.reserved1",
-      FT_UINT8, BASE_HEX, NULL, 0x01, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_enable,
      {"Measurement Request Mode Field", "wlan_mgt.measure.req.reqmode.enable",
-      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x02, "Measurement Request Mode Field", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x02, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_request,
      {"Measurement Reports", "wlan_mgt.measure.req.reqmode.request",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "Measurement Reports", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_report,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.req.reqmode.report",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x08, "Autonomous Measurement Reports", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x08, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_reserved2,
      {"Reserved", "wlan_mgt.measure.req.reqmode.reserved2",
-      FT_UINT8, BASE_HEX, NULL, 0xf0, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
 
     {&hf_tag_measure_request_type,
      {"Measurement Request Type", "wlan_mgt.measure.req.reqtype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_request_type_flags), 0x00, "Measurement Request Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_request_type_flags), 0x00, NULL, HFILL }},
 
     {&hf_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.req.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0, "Measurement Start Time", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_duration,
      {"Measurement Duration", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0, "Measurement Duration", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_regulatory_class,
      {"Measurement Channel Number", "wlan_mgt.measure.req.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_randomization_interval,
      {"Randomization Interval", "wlan_mgt.measure.req.randint",
-      FT_UINT16, BASE_HEX, NULL, 0, "Randomization Interval", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0, "Measurement Mode", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_bssid,
      {"BSSID", "wlan_mgt.measure.req.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "BSSID", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_reporting_condition,
      {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0, "Reporting Condition", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_unsigned,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_signed,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_report_mac,
      {"MAC on wich to gather data", "wlan_mgt.measure.req.reportmac",
-      FT_ETHER, BASE_NONE, NULL, 0, "MAC on wich to gather data", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, "Group ID", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
     /*** End: Measurement Request Tag  - Dustin Johnson***/
 
     /*** Start: Measurement Report Tag  - Dustin Johnson***/
     {&hf_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Token", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode,
      {"Measurement Report Mode", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Report Mode", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_late,
      {"Measurement Report Mode Field", "wlan_mgt.measure.rep.repmode.late",
-      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x01, "Measurement Report Mode Field", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x01, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_incapable,
      {"Measurement Reports", "wlan_mgt.measure.rep.repmode.incapable",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x02, "Measurement Reports", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x02, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_refused,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.rep.repmode.refused",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "Autonomous Measurement Reports", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xf8, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL }},
 
     {&hf_tag_measure_report_type,
      {"Measurement Report Type", "wlan_mgt.measure.rep.reptype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_report_type_flags), 0x00, "Measurement Report Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_report_type_flags), 0x00, NULL, HFILL }},
 
     {&hf_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.rep.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0, "Measurement Start Time", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_duration,
      {"Measurement Duration", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0, "Measurement Duration", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_cca_busy_fraction,
      {"CCA Busy Fraction", "wlan_mgt.measure.rep.ccabusy",
-      FT_UINT8, BASE_HEX, NULL, 0, "CCA Busy Fraction", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_basic_map_field,
      {"Map Field", "wlan_mgt.measure.rep.mapfield",
-      FT_UINT8, BASE_HEX, NULL, 0, "Map Field", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_bss,
      {"BSS", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, "BSS", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_odfm,
      {"Orthogonal Frequency Division Multiplexing (ODFM) Preamble", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, "Orthogonal Frequency Division Multiplexing (ODFM) Preamble", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_unident_signal,
      {"Unidentified Signal", "wlan_mgt.measure.rep.repmode.mapfield.unidentsig",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x04, "Unidentified Signal", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_radar,
      {"Radar", "wlan_mgt.measure.rep.repmode.mapfield.radar",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x08, "Radar", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x08, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_unmeasured,
      {"Unmeasured", "wlan_mgt.measure.rep.repmode.mapfield.unmeasured",
-      FT_BOOLEAN, 8, TFS (&tfs_true_false), 0x10, "Unmeasured", HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_true_false), 0x10, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.mapfield.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xe0, "Reserved", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL }},
 
     {&hf_tag_measure_rpi_histogram_report,
      {"Receive Power Indicator (RPI) Histogram Report", "wlan_mgt.measure.rep.rpi.histogram_report",
-      FT_STRING, BASE_NONE, NULL, 0, "Receive Power Indicator (RPI) Histogram Report", HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_rpi_histogram_report_0,
      {"RPI 0 Density", "wlan_mgt.measure.rep.rpi.rpi0density",
@@ -11313,50 +11313,50 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_regulatory_class,
      {"Regulatory Class", "wlan_mgt.measure.rep.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "Regulatory Class", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_channel_load,
      {"Channel Load", "wlan_mgt.measure.rep.chanload",
-      FT_UINT8, BASE_HEX, NULL, 0, "Channel Load", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_frame_info,
      {"Reported Frame Information", "wlan_mgt.measure.rep.frameinfo",
-      FT_UINT8, BASE_HEX, NULL, 0, "Reported Frame Information", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_frame_info_phy_type,
      {"Condensed PHY", "wlan_mgt.measure.rep.frameinfo.phytype",
-      FT_UINT8, BASE_HEX, NULL, 0x7F, "Condensed PHY", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
 
     {&hf_tag_measure_report_frame_info_frame_type,
      {"Reported Frame Type", "wlan_mgt.measure.rep.frameinfo.frametype",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, "Reported Frame Type", HFILL }},
+      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, NULL, HFILL }},
 
     {&hf_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
-      FT_UINT8, BASE_HEX, NULL, 0, "Received Channel Power Indicator (RCPI)", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_rsni,
      {"Received Signal to Noise Indicator (RSNI)", "wlan_mgt.measure.rep.rsni",
-      FT_UINT8, BASE_HEX, NULL, 0, "Received Signal to Noise Indicator (RSNI)", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_bssid,
      {"BSSID Being Reported", "wlan_mgt.measure.rep.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "BSSID Being Reported", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_ant_id,
      {"Antenna ID", "wlan_mgt.measure.rep.antid",
-      FT_UINT8, BASE_HEX, NULL, 0, "Antenna ID", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_parent_tsf,
      {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
-      FT_UINT32, BASE_HEX, NULL, 0, "Parent Timing Synchronization Function (TSF)", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Measurement Report Tag  - Dustin Johnson***/
 
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     /* Table 7-35a-Capabilities field */
     {&hf_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
-      FT_UINT8, BASE_HEX, NULL, 0, "Extended Capabilities", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     /* P802.11n/D6.0 */
     {&hf_tag_extended_capabilities_b0,
@@ -11366,15 +11366,15 @@ proto_register_ieee80211 (void)
     /* P802.11p/D4.0 */
     {&hf_tag_extended_capabilities_b1,
      {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0002, "On-demand beacon", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0002, NULL, HFILL }},
 
     {&hf_tag_extended_capabilities_b2,
      {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0004, "Extended Channel Switching", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0004, NULL, HFILL }},
 
     {&hf_tag_extended_capabilities_b3,
      {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008, "WAVE indication", HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL }},
     /*End: P802.11p/D4.0 */
 
     /*** End: Extended Capabilities Tag - Dustin Johnson ***/
@@ -11382,184 +11382,184 @@ proto_register_ieee80211 (void)
     /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
     {&hf_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "BSSID", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info,
      {"BSSID Information", "wlan_mgt.nreport.bssid.info",
-      FT_UINT32, BASE_HEX, NULL, 0, "BSSID Information", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_reachability,
      {"AP Reachability", "wlan_mgt.nreport.bssid.info.reachability",
-      FT_UINT16, BASE_HEX, NULL, 0x0003, "AP Reachability", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0003, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_security,
      {"Security", "wlan_mgt.nreport.bssid.info.security",
-      FT_UINT16, BASE_HEX, NULL, 0x0004, "Security", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0004, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_key_scope,
      {"Key Scope", "wlan_mgt.nreport.bssid.info.keyscope",
-      FT_UINT16, BASE_HEX, NULL, 0x0008, "Key Scope", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0008, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_spec_mng,
      {"Capability: Spectrum Management", "wlan_mgt.nreport.bssid.info.capability.specmngt",
-      FT_UINT16, BASE_HEX, NULL, 0x0010, "Capability: Spectrum Management", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0010, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_qos,
      {"Capability: QoS", "wlan_mgt.nreport.bssid.info.capability.qos",
-      FT_UINT16, BASE_HEX, NULL, 0x0020, "Capability: QoS", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0020, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_apsd,
      {"Capability: APSD", "wlan_mgt.nreport.bssid.info.capability.apsd",
-      FT_UINT16, BASE_HEX, NULL, 0x0040, "Capability: APSD", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0040, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_radio_msnt,
      {"Capability: Radio Measurement", "wlan_mgt.nreport.bssid.info.capability.radiomsnt",
-      FT_UINT16, BASE_HEX, NULL, 0x0080, "Capability: Radio Measurement", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0080, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_dback,
      {"Capability: Delayed Block Ack", "wlan_mgt.nreport.bssid.info.capability.dback",
-      FT_UINT16, BASE_HEX, NULL, 0x0100, "Capability: Delayed Block Ack", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0100, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_capability_iback,
      {"Capability: Immediate Block Ack", "wlan_mgt.nreport.bssid.info.capability.iback",
-      FT_UINT16, BASE_HEX, NULL, 0x0200, "Capability: Immediate Block Ack", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0200, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_mobility_domain,
      {"Mobility Domain", "wlan_mgt.nreport.bssid.info.mobilitydomain",
-      FT_UINT16, BASE_HEX, NULL, 0x0400, "Mobility Domain", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_high_throughput,
      {"High Throughput", "wlan_mgt.nreport.bssid.info.hthoughput",
-      FT_UINT16, BASE_HEX, NULL, 0x0800, "High Throughput", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0800, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid_info_reserved,
      {"Reserved", "wlan_mgt.nreport.bssid.info.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0, "Reserved", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_reg_class,
      {"Regulatory Class", "wlan_mgt.nreport.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "Regulatory Class", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_channel_number,
      {"Channel Number", "wlan_mgt.nreport.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_neighbor_report_phy_type,
      {"PHY Type", "wlan_mgt.nreport.phytype",
-      FT_UINT8, BASE_HEX, NULL, 0, "PHY Type", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Neighbor Report Tag - Dustin Johnson ***/
 
     /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
     {&hf_tag_ext_channel_switch_announcement_switch_mode,
      {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, "Channel Switch Mode", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, NULL, HFILL }},
 
     {&hf_tag_ext_channel_switch_announcement_new_reg_class,
      {"New Regulatory Class", "wlan_mgt.extchanswitch.new.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "New Regulatory Class", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_ext_channel_switch_announcement_new_chan_number,
      {"New Channel Number", "wlan_mgt.extchanswitch.new.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "New Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_ext_channel_switch_announcement_switch_count,
      {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
-      FT_UINT8, BASE_HEX, NULL, 0, "Channel Switch Count", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
     /*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
     {&hf_tag_supported_reg_classes_current,
      {"Current Regulatory Class", "wlan_mgt.supregclass.current",
-      FT_UINT8, BASE_HEX, NULL, 0, "Current Regulatory Class", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_supported_reg_classes_alternate,
      {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
-      FT_STRING, BASE_NONE, NULL, 0, "Alternate Regulatory Classes", HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
     /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
     {&hf_marvell_ie_type,
      {"Type", "wlan_mgt.marvell.ie.type",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_marvell_ie_mesh_subtype,
      {"Subtype", "wlan_mgt.marvell.ie.subtype",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_marvell_ie_mesh_version,
      {"Version", "wlan_mgt.marvell.ie.version",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_marvell_ie_mesh_active_proto_id,
      {"Path Selection Protocol", "wlan_mgt.marvell.ie.proto_id",
-      FT_UINT8, BASE_HEX, VALS(mesh_path_selection_codes), 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(mesh_path_selection_codes), 0, NULL, HFILL }},
 
     {&hf_marvell_ie_mesh_active_metric_id,
      {"Path Selection Metric", "wlan_mgt.marvell.ie.metric_id",
-      FT_UINT8, BASE_HEX, VALS(mesh_metric_codes), 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(mesh_metric_codes), 0, NULL, HFILL }},
 
     {&hf_marvell_ie_mesh_cap,
      {"Mesh Capabilities", "wlan_mgt.marvell.ie.cap",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_marvell_ie_data,
       { "Marvell IE data", "wlan_mgt.marvell.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0, "Marvell IE data", HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
-      FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, "Aironet IE type", HFILL }},
+      FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, NULL, HFILL }},
 
     {&hf_aironet_ie_version,
      {"Aironet IE CCX version?", "wlan_mgt.aironet.version",
-      FT_UINT8, BASE_DEC, NULL, 0, "Aironet IE CCX version?", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_aironet_ie_data,
       { "Aironet IE data", "wlan_mgt.aironet.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0, "Aironet IE data", HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_qbss_version,
      {"QBSS Version", "wlan_mgt.qbss.version",
-      FT_UINT8, BASE_DEC, NULL, 0, "QBSS Version", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss_scount,
      {"Station Count", "wlan_mgt.qbss.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "Station Count", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
-       FT_UINT8, BASE_DEC, NULL, 0, "Channel Utilization", HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss_adc,
      {"Available Admission Capabilities", "wlan_mgt.qbss.adc",
-     FT_UINT8, BASE_DEC, NULL, 0, "Available Admission Capabilities", HFILL }},
+     FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss2_cu,
      {"Channel Utilization", "wlan_mgt.qbss2.cu",
-       FT_UINT8, BASE_DEC, NULL, 0, "Channel Utilization", HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss2_gl,
      {"G.711 CU Quantum", "wlan_mgt.qbss2.glimit",
-      FT_UINT8, BASE_DEC, NULL, 0, "G.711 CU Quantum", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss2_cal,
      {"Call Admission Limit", "wlan_mgt.qbss2.cal",
-      FT_UINT8, BASE_DEC, NULL, 0, "Call Admission Limit", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_qbss2_scount,
      {"Station Count", "wlan_mgt.qbss2.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "Station Count", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
      {"Aironet IE QoS unknown 1", "wlan_mgt.aironet.qos.unk1",
-      FT_UINT8, BASE_HEX, NULL, 0, "Aironet IE QoS unknown 1", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_aironet_ie_qos_paramset,
      {"Aironet IE QoS paramset", "wlan_mgt.aironet.qos.paramset",
-      FT_UINT8, BASE_DEC, NULL, 0, "Aironet IE QoS paramset", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_aironet_ie_qos_val,
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
-      FT_BYTES, BASE_NONE, NULL, 0, "Aironet IE QoS valueset", HFILL }},
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ts_info,
      {"Traffic Stream (TS) Info", "wlan_mgt.ts_info",
@@ -11603,75 +11603,75 @@ proto_register_ieee80211 (void)
 
     {&tspec_nor_msdu,
      {"Normal MSDU Size", "wlan_mgt.tspec.nor_msdu",
-      FT_UINT16, BASE_DEC, NULL, 0, "Normal MSDU Size", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_max_msdu,
      {"Maximum MSDU Size", "wlan_mgt.tspec.max_msdu",
-      FT_UINT16, BASE_DEC, NULL, 0, "Maximum MSDU Size", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_min_srv,
      {"Minimum Service Interval", "wlan_mgt.tspec.min_srv",
-      FT_UINT32, BASE_DEC, NULL, 0, "Minimum Service Interval", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_max_srv,
      {"Maximum Service Interval", "wlan_mgt.tspec.max_srv",
-      FT_UINT32, BASE_DEC, NULL, 0, "Maximum Service Interval", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_inact_int,
      {"Inactivity Interval", "wlan_mgt.tspec.inact_int",
-      FT_UINT32, BASE_DEC, NULL, 0, "Inactivity Interval", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_susp_int,
      {"Suspension Interval", "wlan_mgt.tspec.susp_int",
-      FT_UINT32, BASE_DEC, NULL, 0, "Suspension Interval", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_srv_start,
      {"Service Start Time", "wlan_mgt.tspec.srv_start",
-      FT_UINT32, BASE_DEC, NULL, 0, "Service Start Time", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_min_data,
      {"Minimum Data Rate", "wlan_mgt.tspec.min_data",
-      FT_UINT32, BASE_DEC, NULL, 0, "Minimum Data Rate", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_mean_data,
      {"Mean Data Rate", "wlan_mgt.tspec.mean_data",
-      FT_UINT32, BASE_DEC, NULL, 0, "Mean Data Rate", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_peak_data,
      {"Peak Data Rate", "wlan_mgt.tspec.peak_data",
-      FT_UINT32, BASE_DEC, NULL, 0, "Peak Data Rate", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_burst_size,
      {"Burst Size", "wlan_mgt.tspec.burst_size",
-      FT_UINT32, BASE_DEC, NULL, 0, "Burst Size", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_delay_bound,
      {"Delay Bound", "wlan_mgt.tspec.delay_bound",
-      FT_UINT32, BASE_DEC, NULL, 0, "Delay Bound", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_min_phy,
      {"Minimum PHY Rate", "wlan_mgt.tspec.min_phy",
-      FT_UINT32, BASE_DEC, NULL, 0, "Minimum PHY Rate", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_surplus,
      {"Surplus Bandwidth Allowance", "wlan_mgt.tspec.surplus",
-      FT_UINT16, BASE_DEC, NULL, 0, "Surplus Bandwidth Allowance", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tspec_medium,
      {"Medium Time", "wlan_mgt.tspec.medium",
-      FT_UINT16, BASE_DEC, NULL, 0, "Medium Time", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&ts_delay,
      {"Traffic Stream (TS) Delay", "wlan_mgt.ts_delay",
-      FT_UINT32, BASE_DEC, NULL, 0, "Traffic Stream (TS) Delay", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_class_type,
      {"Classifier Type", "wlan_mgt.tclas.class_type", FT_UINT8, BASE_DEC,
-      VALS (classifier_type), 0, "Classifier Type", HFILL }},
+      VALS (classifier_type), 0, NULL, HFILL }},
 
     {&hf_class_mask,
      {"Classifier Mask", "wlan_mgt.tclas.class_mask", FT_UINT8, BASE_HEX,
-      NULL, 0, "Classifier Mask", HFILL }},
+      NULL, 0, NULL, HFILL }},
 
     {&hf_ether_type,
      {"Ethernet Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
@@ -11687,39 +11687,39 @@ proto_register_ieee80211 (void)
 
     {&hf_sched_srv_start,
      {"Service Start Time", "wlan_mgt.sched.srv_start",
-      FT_UINT32, BASE_HEX, NULL, 0, "Service Start Time", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_sched_srv_int,
      {"Service Interval", "wlan_mgt.sched.srv_int",
-      FT_UINT32, BASE_HEX, NULL, 0, "Service Interval", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_sched_spec_int,
      {"Specification Interval", "wlan_mgt.sched.spec_int",
-      FT_UINT16, BASE_HEX, NULL, 0, "Specification Interval", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_action,
      {"Action", "wlan_mgt.fixed.action",
-      FT_UINT8, BASE_HEX, NULL, 0, "Action", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&cf_version,
      {"IP Version", "wlan_mgt.tclas.params.version",
-      FT_UINT8, BASE_DEC, NULL, 0, "IP Version", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&cf_ipv4_src,
      {"IPv4 Src Addr", "wlan_mgt.tclas.params.ipv4_src",
-      FT_IPv4, BASE_NONE, NULL, 0, "IPv4 Src Addr", HFILL }},
+      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&cf_ipv4_dst,
      {"IPv4 Dst Addr", "wlan_mgt.tclas.params.ipv4_dst",
-      FT_IPv4, BASE_NONE, NULL, 0, "IPv4 Dst Addr", HFILL }},
+      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&cf_src_port,
      {"Source Port", "wlan_mgt.tclas.params.src_port",
-      FT_UINT16, BASE_DEC, NULL, 0, "Source Port", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&cf_dst_port,
      {"Destination Port", "wlan_mgt.tclas.params.dst_port",
-      FT_UINT16, BASE_DEC, NULL, 0, "Destination Port", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&cf_dscp,
      {"IPv4 DSCP", "wlan_mgt.tclas.params.dscp",
@@ -11731,11 +11731,11 @@ proto_register_ieee80211 (void)
 
     {&cf_ipv6_src,
      {"IPv6 Src Addr", "wlan_mgt.tclas.params.ipv6_src",
-      FT_IPv6, BASE_NONE, NULL, 0, "IPv6 Src Addr", HFILL }},
+      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&cf_ipv6_dst,
      {"IPv6 Dst Addr", "wlan_mgt.tclas.params.ipv6_dst",
-      FT_IPv6, BASE_NONE, NULL, 0, "IPv6 Dst Addr", HFILL }},
+      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&cf_flow,
      {"Flow Label", "wlan_mgt.tclas.params.flow",
@@ -11743,7 +11743,7 @@ proto_register_ieee80211 (void)
 
     {&cf_tag_type,
      {"802.1Q Tag Type", "wlan_mgt.tclas.params.tag_type",
-      FT_UINT16, BASE_HEX, NULL, 0, "802.1Q Tag Type", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&cf_aruba,
      {"Aruba Type", "wlan_mgt.aruba_type",
@@ -11751,11 +11751,11 @@ proto_register_ieee80211 (void)
 
     {&cf_aruba_hb_seq,
      {"Aruba Heartbeat Sequence", "wlan_mgt.aruba_heartbeat_sequence",
-      FT_UINT64, BASE_DEC, NULL, 0, "Aruba Heartbeat Sequence", HFILL }},
+      FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&cf_aruba_mtu,
      {"Aruba MTU Size", "wlan_mgt.aruba_mtu_size",
-      FT_UINT16, BASE_DEC, NULL, 0, "Aruba MTU Size", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     /* Start: HT Control (+HTC) */
     {&hf_htc,
@@ -11824,7 +11824,7 @@ proto_register_ieee80211 (void)
   static hf_register_info aggregate_fields[] = {
     {&amsdu_msdu_header_text,
      {"MAC Service Data Unit (MSDU)",	"wlan_aggregate.msduheader", FT_UINT16,
-      BASE_DEC, 0, 0x0000, "MAC Service Data Unit (MSDU)", HFILL }}
+      BASE_DEC, 0, 0x0000, NULL, HFILL }}
   };
 
   static gint *tree_array[] = {

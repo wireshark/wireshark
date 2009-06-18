@@ -696,132 +696,132 @@ void proto_register_bat(void)
 		{ &hf_bat_batman_version,
 		  { "Version", "bat.batman.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_flags,
 		  { "Flags", "bat.batman.flags",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_ttl,
 		  { "Time to Live", "bat.batman.ttl",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_gwflags,
 		  { "Gateway Flags", "bat.batman.gwflags",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_seqno,
 		  { "Sequence number", "bat.batman.seq",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_gwport,
 		  { "Gateway Port", "bat.batman.gwport",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_orig,
 		  { "Originator", "bat.batman.orig",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_old_orig,
 		  { "Received from", "bat.batman.old_orig",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_tq,
 		  { "Transmission Quality", "bat.batman.tq",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_hna_len,
 		  { "Number of HNAs", "bat.batman.hna_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_flags_unidirectional,
 		  { "Unidirectional", "bat.batman.flags.unidirectional",
 		    FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x80,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_flags_directlink,
 		  { "DirectLink", "bat.batman.flags.directlink",
 		    FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x40,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_hna_network,
 		  { "HNA Network", "bat.batman.hna_network",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_hna_netmask,
 		  { "HNA Netmask", "bat.batman.hna_netmask",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_gw_type,
 		  { "Type", "bat.gw.type",
 		    FT_UINT8, BASE_DEC, VALS(gw_packettypenames), 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_gw_ip,
 		  { "IP", "bat.gw.ip",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_vis_vis_orig,
 		  { "Originator", "bat.vis.sender_ip",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_vis_version,
 		  { "Version", "bat.vis.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_vis_gwflags,
 		  { "Gateway Flags", "bat.vis.gwflags",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_max_tq_v22,
 		  { "Maximum Transmission Quality", "bat.vis.tq_max",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_max_tq_v23,
 		  { "Maximum Transmission Quality", "bat.vis.tq_max",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_vis_data_type,
 		  { "Type", "bat.vis.data_type",
 		    FT_UINT8, BASE_DEC, VALS(vis_packettypenames), 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_bat_vis_tq_v22,
 		  { "Transmission Quality", "bat.vis.tq",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_bat_vis_tq_v23,
 		  { "Transmission Quality", "bat.vis.tq",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_bat_vis_netmask,
 		  { "Netmask", "bat.vis.netmask",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_bat_vis_data_ip,
 		  { "IP", "bat.vis.data_ip",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		}
 	};
 

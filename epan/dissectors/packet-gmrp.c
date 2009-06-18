@@ -347,32 +347,32 @@ proto_register_gmrp(void)
 	{ &hf_gmrp_proto_id,
 	    { "Protocol ID", "gmrp.protocol_id",
 	    FT_UINT16,      BASE_HEX,      NULL,  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_type,
 	    { "Type",        "gmrp.attribute_type",
 	    FT_UINT8,        BASE_HEX,      VALS(attribute_type_vals),  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_length,
 	    { "Length",      "gmrp.attribute_length",
 	    FT_UINT8,        BASE_DEC,      NULL,  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_event,
 	    { "Event",       "gmrp.attribute_event",
 	    FT_UINT8,        BASE_DEC,      VALS(event_vals),  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_value_group_membership,
 	    { "Value",       "gmrp.attribute_value_group_membership",
 	    FT_ETHER,        BASE_HEX,      NULL,  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_value_service_requirement,
 	    { "Value",       "gmrp.attribute_value_service_requirement",
 	    FT_UINT8,        BASE_HEX,      NULL,  0x0,
-	    "" , HFILL }
+	    NULL , HFILL }
 	}
 
     };

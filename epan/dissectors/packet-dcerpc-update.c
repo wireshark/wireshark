@@ -68,7 +68,7 @@ proto_register_dce_update (void)
   static hf_register_info hf[] = {
     {&hf_dce_update_opnum,
      {"Operation", "dce_update.opnum", FT_UINT16, BASE_DEC,
-      NULL, 0x0, "Operation", HFILL}}
+      NULL, 0x0, NULL, HFILL}}
 
   };
 

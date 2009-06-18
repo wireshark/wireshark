@@ -1358,7 +1358,7 @@ proto_register_lwres(void)
   	"lwres namelen", HFILL }},
 
     { &hf_req_name,
-      { "Domain name" , "lwres.reqdname" , FT_STRING, BASE_DEC, NULL, 0x0,
+      { "Domain name" , "lwres.reqdname" , FT_STRING, BASE_NONE, NULL, 0x0,
 	"lwres reqdname", HFILL }},
 
     { &hf_ttl,
@@ -1378,7 +1378,7 @@ proto_register_lwres(void)
    	"lwres realnamelen", HFILL }},
 
     { &hf_realname,
-      { "Real doname name", "lwres.realname", FT_STRING, BASE_DEC, NULL, 0x0,
+      { "Real doname name", "lwres.realname", FT_STRING, BASE_NONE, NULL, 0x0,
 	"lwres realname", HFILL }},
 
 	{ &hf_a_record,
@@ -1414,7 +1414,7 @@ proto_register_lwres(void)
 	  "lwres adn namelen", HFILL }},
 
 	{ &hf_adn_name,
-        { "Name", "lwres.adn.name", FT_STRING, BASE_DEC, NULL, 0x0,
+        { "Name", "lwres.adn.name", FT_STRING, BASE_NONE, NULL, 0x0,
 	  "lwres adn name", HFILL }}, 
 
 	 { &hf_adn_naliases,
@@ -1426,11 +1426,11 @@ proto_register_lwres(void)
 	  "lwres adn naddrs", HFILL }}, 
 
 	  	{ &hf_adn_realname,
-        { "Real name", "lwres.adn.realname", FT_STRING, BASE_DEC, NULL, 0x0,
+        { "Real name", "lwres.adn.realname", FT_STRING, BASE_NONE, NULL, 0x0,
 	  "lwres adn realname", HFILL }}, 
 
 	  	{ &hf_adn_aliasname,
-        { "Alias name", "lwres.adn.aliasname", FT_STRING, BASE_DEC, NULL, 0x0,
+        { "Alias name", "lwres.adn.aliasname", FT_STRING, BASE_NONE, NULL, 0x0,
 	  "lwres adn aliasname", HFILL }}, 
 
 	{ &hf_adn_family,
@@ -1442,7 +1442,7 @@ proto_register_lwres(void)
 	"lwres adn addr length", HFILL }},
 
 	{ &hf_adn_addr_addr,
-    { "IP Address", "lwres.adn.addr.addr", FT_STRING, BASE_DEC, NULL, 0x0,
+    { "IP Address", "lwres.adn.addr.addr", FT_STRING, BASE_NONE, NULL, 0x0,
 	  "lwres adn addr addr", HFILL }},
 
     /* Add more fields here */

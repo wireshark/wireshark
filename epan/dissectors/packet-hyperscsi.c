@@ -166,26 +166,26 @@ proto_register_hyperscsi(void)
   static hf_register_info hf[] = {
     { &hf_hs_res, 
       { "Reserved", "hyperscsi.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, 
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_hs_tagno,
       { "Tag No", "hyperscsi.tagno", FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL }},
+	NULL, HFILL }},
 
     { &hf_hs_lastfrag,
-      { "Last Fragment", "hyperscsi.lastfrag", FT_BOOLEAN, 8, TFS(&tfs_lastfrag), 0x04, "", HFILL}},
+      { "Last Fragment", "hyperscsi.lastfrag", FT_BOOLEAN, 8, TFS(&tfs_lastfrag), 0x04, NULL, HFILL}},
 
     { &hf_hs_fragno, 
       { "Fragment No", "hyperscsi.fragno", FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL}},
+	NULL, HFILL}},
 
     { &hf_hs_ver,
       { "HyperSCSI Version", "hyperscsi.version", FT_UINT8, BASE_DEC, NULL, 
-	0x0, "", HFILL}},
+	0x0, NULL, HFILL}},
 
     { &hf_hs_cmd,
       { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, VALS(hscsi_opcodes), 0x0, 
-	"", HFILL}},
+	NULL, HFILL}},
   };
 
   static gint *ett[] = {

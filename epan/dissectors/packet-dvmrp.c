@@ -730,7 +730,7 @@ proto_register_dvmrp(void)
 	static hf_register_info hf[] = {
 		{ &hf_version,
 			{ "DVMRP Version", "dvmrp.version", FT_UINT8, BASE_DEC,
-			  NULL, 0, "DVMRP Version", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_type,
 			{ "Type", "dvmrp.type", FT_UINT8, BASE_HEX,
@@ -746,7 +746,7 @@ proto_register_dvmrp(void)
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "dvmrp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad DVMRP Checksum", HFILL }},
+			  NULL, 0x0, "Bad DVMRP Checksum", HFILL }},
 
 		{ &hf_commands,
 			{ "Commands", "dvmrp.commands", FT_NONE, BASE_NONE,
@@ -762,7 +762,7 @@ proto_register_dvmrp(void)
 
 		{ &hf_count,
 			{ "Count", "dvmrp.count", FT_UINT8, BASE_HEX,
-			  NULL, 0, "Count", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_netmask,
 			{ "Netmask", "dvmrp.netmask", FT_IPv4, BASE_NONE,
@@ -774,7 +774,7 @@ proto_register_dvmrp(void)
 
 		{&hf_dest_unr,
 			{ "Destination Unreachable", "dvmrp.dest_unreach", FT_BOOLEAN, 8,
-			TFS(&tfs_dest_unreach), 0x01, "Destination Unreachable", HFILL }},
+			TFS(&tfs_dest_unreach), 0x01, NULL, HFILL }},
 
 		{&hf_split_horiz,
 			{ "Split Horizon", "dvmrp.split_horiz", FT_BOOLEAN, 8,
@@ -806,7 +806,7 @@ proto_register_dvmrp(void)
 
 		{&hf_cap_leaf,
 			{ "Leaf", "dvmrp.cap.leaf", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_leaf), DVMRP_V3_CAP_LEAF, "Leaf", HFILL }},
+			TFS(&tfs_cap_leaf), DVMRP_V3_CAP_LEAF, NULL, HFILL }},
 
 		{&hf_cap_prune,
 			{ "Prune", "dvmrp.cap.prune", FT_BOOLEAN, 8,

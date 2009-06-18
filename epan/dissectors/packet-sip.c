@@ -4082,7 +4082,7 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_P_CHARGING_FUNCTION_ADDRESSES],
 		       { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Charging-Function-Addresses", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_header_array[POS_P_CHARGING_VECTOR],
@@ -4177,7 +4177,7 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_PRIV_ANSWER_MODE],
 		       { "Priv-Answer-mode", 	"sip.Priv-Answer-mode",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Priv-Answer-mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[POS_PRIVACY],
 		       { "Privacy", 			"sip.Privacy",
@@ -4398,7 +4398,7 @@ void proto_register_sip(void)
 		{ &hf_sip_resend,
 			{ "Resent Packet", "sip.resend",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sip_original_frame,
 			{ "Suspected resend of frame",  "sip.resend-original",
@@ -4408,7 +4408,7 @@ void proto_register_sip(void)
 		{ &hf_sip_matching_request_frame,
 			{ "Request Frame",  "sip.response-request",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		    	"Request Frame", HFILL}
+		    	NULL, HFILL}
 		},
 		{ &hf_sip_response_time,
 			{ "Response Time (ms)",  "sip.response-time",
@@ -4433,7 +4433,7 @@ void proto_register_sip(void)
 		{ &hf_sip_auth_digest_response,
 			{ "Digest Authentication Response",  "sip.auth.digest.response",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Digest Authentication Response Value ", HFILL}
+		    	"SIP Digest Authentication Response Value", HFILL}
 		},
 		{ &hf_sip_auth_nc,
 			{ "Nonce Count",  "sip.auth.nc",
@@ -4602,7 +4602,7 @@ void proto_register_sip(void)
 		{ &hf_raw_sip_line,
 				{ "Raw SIP Line",                "raw_sip.line",
 					FT_STRING, BASE_NONE,NULL,0x0,
-				"Raw SIP Line", HFILL }
+				NULL, HFILL }
         }};
 
 	/* Setup protocol subtree array */

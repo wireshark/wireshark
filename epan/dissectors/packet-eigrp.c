@@ -481,12 +481,12 @@ proto_register_eigrp(void)
      "Opcode number", HFILL }
      },
    { &hf_eigrp_as,
-    { "Autonomous System  ", "eigrp.as",
+    { "Autonomous System", "eigrp.as",
       FT_UINT16, BASE_DEC, NULL, 0x0 ,
      "Autonomous System number", HFILL }
     },
    { &hf_eigrp_tlv,
-    { "Entry  ",           "eigrp.tlv",
+    { "Entry",           "eigrp.tlv",
       FT_UINT16, BASE_DEC, NULL, 0x0 ,
      "Type/Length/Value", HFILL }
     },

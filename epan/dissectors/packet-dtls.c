@@ -1973,12 +1973,12 @@ proto_register_dtls(void)
     { &hf_dtls_record_epoch,
       { "Epoch", "dtls.record.epoch",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Epoch", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_record_sequence_number,
       { "Sequence Number", "dtls.record.sequence_number",
 	FT_DOUBLE, BASE_DEC, NULL, 0x0,
-	"Sequence Number", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_record_length,
       { "Length", "dtls.record.length",
@@ -1987,7 +1987,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_record_appdata,
       { "Encrypted Application Data", "dtls.app_data",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Payload is encrypted application data", HFILL }
     },
     { &hf_dtls_change_cipher_spec,
@@ -2083,7 +2083,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_cookie,
       { "Cookie", "dtls.handshake.cookie",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Cookie", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_session_id,
       { "Session ID", "dtls.handshake.session_id",
@@ -2103,7 +2103,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_comp_method,
       { "Compression Method", "dtls.handshake.comp_method",
 	FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-	"Compression Method", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_extensions_len,
       { "Extensions Length", "dtls.handshake.extensions_length",
@@ -2138,7 +2138,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_certificate,
       { "Certificate", "dtls.handshake.certificate",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Certificate", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_certificate_len,
       { "Certificate Length", "dtls.handshake.certificate_length",
@@ -2158,7 +2158,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_cert_type,
       { "Certificate type", "dtls.handshake.cert_type",
 	FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-	"Certificate type", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
@@ -2210,21 +2210,21 @@ proto_register_dtls(void)
     },
     { &hf_dtls_fragment_overlap,
       { "Message fragment overlap", "dtls.fragment.overlap",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_overlap_conflicts,
       { "Message fragment overlapping with conflicting data",
 	"dtls.fragment.overlap.conflicts",
-       FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_multiple_tails,
       { "Message has multiple tail fragments",
 	"dtls.fragment.multiple_tails", 
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_too_long_fragment,
       { "Message fragment too long", "dtls.fragment.too_long_fragment",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_error,
       { "Message defragmentation error", "dtls.fragment.error",

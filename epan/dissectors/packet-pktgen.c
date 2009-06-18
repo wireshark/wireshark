@@ -152,7 +152,7 @@ void proto_register_pktgen(void)
 	  { 
 	      "Sequence number", "pktgen.seqnum", 
 	      FT_UINT32, BASE_DEC, NULL, 0x0, 
-	      "Sequence number", HFILL
+	      NULL, HFILL
 	  }
 	},
 
@@ -175,8 +175,8 @@ void proto_register_pktgen(void)
 	{ &hf_pktgen_timestamp,
 	  { 
 	      "Timestamp", "pktgen.timestamp", 
-	      FT_ABSOLUTE_TIME, BASE_HEX, NULL, 0x0,
-	      "Timestamp", HFILL
+	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL
 	  }
 	}		
     };

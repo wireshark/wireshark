@@ -103,10 +103,10 @@ proto_register_aim_bos(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_bos_data,
-			{ "Data", "aim_bos.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Data", "aim_bos.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_bos_class,
-			{ "User class", "aim_bos.userclass", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+			{ "User class", "aim_bos.userclass", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
 		},
 	};
 

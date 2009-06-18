@@ -945,12 +945,12 @@ void proto_register_gtpv2(void)
 		{&hf_gtpv2_flags,
 		{"Flags", "gtpv2.flags",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Flags", HFILL}
+		NULL, HFILL}
 		},
 		{&hf_gtpv2_version,
 		{"Version", "gtpv2.version",
 		FT_UINT8, BASE_DEC, NULL, 0xe0,
-		"Version", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_t,
 		{"T", "gtpv2.t",
@@ -960,12 +960,12 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_message_type,
 		{"Message Type", "gtpv2.message_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_message_type_vals), 0x0,
-		"Message Type", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_msg_length,
 		{"Message Length", "gtpv2.msg_lengt",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Message Length", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_teid,
 		{"Tunnel Endpoint Identifier", "gtpv2.teid",
@@ -980,12 +980,12 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_spare,
 		{"Spare", "gtpv2.spare",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"Spare", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_ie,
 		{"IE Type", "gtpv2.ie_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_element_type_vals), 0x0,
-		"IE Type", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_ie_len,
 		{"IE Length", "gtpv2.ie_len",
@@ -995,12 +995,12 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_cr,
 		{"CR flag", "gtpv2.cr",
 		FT_UINT8, BASE_DEC, NULL, 0xe0,
-		"CR flag", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_instance,
 		{"Instance", "gtpv2.instance",
 		FT_UINT8, BASE_DEC, NULL, 0x0f,
-		"Instance", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_cause,
 		{"Cause", "gtpv2.cause",
@@ -1010,17 +1010,17 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_rec,
 		{"Restart Counter", "gtpv2.rec",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Restart Counter", HFILL}
+		NULL, HFILL}
 		},
 		{&hf_gtpv2_apn,
 		{"APN", "gtp.apn", 
-		FT_STRING, BASE_DEC, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"Access Point Name", HFILL}
 		},
 		{&hf_gtpv2_ebi,
 		{"EPS Bearer ID (EBI)", "gtpv2.ebi",
 		FT_UINT8, BASE_DEC, NULL, 0x0f,
-		"EPS Bearer ID (EBI)", HFILL}
+		NULL, HFILL}
 		},
 		{&hf_gtpv2_daf,	
 		{"DAF (Dual Address Bearer Flag)", "gtpv2.daf",	
@@ -1073,27 +1073,27 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_pdn_type,
 		{"PDN Type", "gtpv2.pdn_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
-		"PDN Type", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_pdn_ipv4,
 		{"PDN IPv4", "gtpv2.pdn_ipv4",
-		FT_IPv4, BASE_DEC, NULL, 0x0,
-		"PDN IPv4", HFILL}
+		FT_IPv4, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_pdn_ipv6_len,
 		{"IPv6 Prefix Length", "gtpv2.pdn_ipv6_len",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"IPv6 Prefix Length", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_pdn_ipv6,
 		{"PDN IPv6", "gtpv2.pdn_ipv6",
-		FT_IPv6, BASE_HEX, NULL, 0x0,
-		"PDN IPv6", HFILL}
+		FT_IPv6, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_rat_type,
 		{"RAT Type", "gtpv2.rat_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_rat_type_vals), 0x0,
-		"RAT Type", HFILL}
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_uli_ecgi_flg,
 		{"ECGI Present Flag)", "gtpv2.uli_ecgi_flg",	
@@ -1123,7 +1123,7 @@ void proto_register_gtpv2(void)
 		{ &hf_gtpv2_cng_rep_act,
 		{"Change Reporting Action", "gtpv2.cng_rep_act",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_cng_rep_act_vals), 0x0,
-		"Change Reporting Action", HFILL}
+		NULL, HFILL}
 		},
 	 };
 

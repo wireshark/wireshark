@@ -101,7 +101,7 @@ proto_register_etherip(void)
   static hf_register_info hf_etherip[] = {
     { &hf_etherip_ver,
       { "Version",	"etherip.ver",	FT_UINT8,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_etherip,

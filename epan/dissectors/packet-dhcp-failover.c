@@ -979,208 +979,208 @@ proto_register_dhcpfo(void)
 		{ &hf_dhcpfo_length,
 			{ "Message length",	   "dhcpfo.length",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_dhcpfo_type,
 			{ "Message Type",	   "dhcpfo.type",
 			FT_UINT8, BASE_DEC, VALS(failover_vals), 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_poffset,
 			{ "Payload Offset",	   "dhcpfo.poffset",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_time,
 			{ "Time",	   "dhcpfo.time",
 			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_xid,
 			{ "Xid",	   "dhcpfo.xid",
 			FT_UINT32, BASE_HEX, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_additional_HB,
 			{"Additional Header Bytes",	"dhcpfo.additionalheaderbytes",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_payload_data,
 			{"Payload Data",	"dhcpfo.payloaddata",
 			FT_NONE, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_dhcp_style_option,
 			{"DHCP Style Option",	"dhcpfo.dhcpstyleoption",
 			FT_NONE, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_dhcpfo_option_code,
 			{"Option Code",		"dhcpfo.optioncode",
 			FT_UINT16, BASE_DEC, VALS(option_code_vals), 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_option_length,
 			{"Length",		"dhcpfo.optionlength",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_binding_status,
 			{"Type", "dhcpfo.bindingstatus",
 			FT_UINT32, BASE_DEC, VALS(binding_status_vals), 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 
 		{&hf_dhcpfo_server_state,
 			{"server status", "dhcpfo.serverstatus",
 			FT_UINT8, BASE_DEC, VALS(server_state_vals), 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 
 		{&hf_dhcpfo_assigned_ip_address,
 			{"assigned ip address", "dhcpfo.assignedipaddress",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_sending_server_ip_address,
 			{"sending server ip-address", "dhcpfo.sendingserveripaddress",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 
 		{&hf_dhcpfo_addresses_transferred,
 			{"addresses transferred", "dhcpfo.addressestransferred",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 
 		{&hf_dhcpfo_client_identifier,
 			{"Client Identifier", "dhcpfo.clientidentifier",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_client_hw_type,
 			{"Client Hardware Type", "dhcpfo.clienthardwaretype",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{&hf_dhcpfo_client_hardware_address,
 			{"Client Hardware Address", "dhcpfo.clienthardwareaddress",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_ftddns,
 			{"FTDDNS", "dhcpfo.ftddns",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_reject_reason,
 			{"Reject reason", "dhcpfo.rejectreason",
 			FT_UINT8, BASE_DEC, VALS(reject_reason_vals), 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_message,
 			{"Message", "dhcpfo.message",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 
 		{&hf_dhcpfo_mclt,
 			{"MCLT", "dhcpfo.mclt",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_vendor_class,
 			{"Vendor class", "dhcpfo.vendorclass",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_lease_expiration_time,
 			{"Lease expiration time", "dhcpfo.leaseexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_grace_expiration_time,
 			{"Grace expiration time", "dhcpfo.graceexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_potential_expiration_time,
 			{"Potential expiration time", "dhcpfo.potentialexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_client_last_transaction_time,
 			{"Client last transaction time", "dhcpfo.clientlasttransactiontime",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_start_time_of_state,
 			{"Start time of state", "dhcpfo.starttimeofstate",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_vendor_option,
 			{"Vendor option", "dhcpfo.vendoroption",
 			FT_NONE, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_max_unacked_bndupd,
 			{"Max unacked BNDUPD", "dhcpfo.maxunackedbndupd",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_protocol_version,
 			{"Protocol version", "dhcpfo.protocolversion",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_receive_timer,
 			{"Receive timer", "dhcpfo.receivetimer",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_message_digest,
 			{"Message digest", "dhcpfo.messagedigest",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 		{&hf_dhcpfo_hash_bucket_assignment,
 			{"Hash bucket assignment", "dhcpfo.hashbucketassignment",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 	};
 

@@ -929,11 +929,11 @@ void proto_register_mpa(void)
 					NULL, HFILL } },
 			{ &hf_mpa_key_req, {
 					"ID Req frame", "iwarp_mpa.key.req",
-					FT_BYTES, BASE_HEX, NULL, 0x0,
+					FT_BYTES, BASE_NONE, NULL, 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_key_rep, {
 					"ID Rep frame", "iwarp_mpa.key.rep",
-					FT_BYTES, BASE_HEX, NULL, 0x0,
+					FT_BYTES, BASE_NONE, NULL, 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_flag_m, {
 					"Marker flag", "iwarp_mpa.marker_flag",
@@ -961,7 +961,7 @@ void proto_register_mpa(void)
 					NULL, HFILL } },
 			{ &hf_mpa_private_data, {
 					"Private data", "iwarp_mpa.privatedata",
-					FT_BYTES, BASE_HEX, NULL, 0x0,
+					FT_BYTES, BASE_NONE, NULL, 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_ulpdu_length, {
 					"ULPDU length", "iwarp_mpa.ulpdulength",
@@ -969,7 +969,7 @@ void proto_register_mpa(void)
 					NULL, HFILL } },
 			{ &hf_mpa_pad, {
 					"Padding", "iwarp_mpa.pad",
-					FT_BYTES, BASE_HEX, NULL, 0x0,
+					FT_BYTES, BASE_NONE, NULL, 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_crc, {
 					"CRC", "iwarp_mpa.crc",

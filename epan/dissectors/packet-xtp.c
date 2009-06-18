@@ -1029,262 +1029,262 @@ proto_register_xtp(void)
 		{ &hf_xtp_key,
 			{ "Key",           "xtp.key",
 			FT_UINT64, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_xtp_cmd,
 			{ "Command", "xtp.cmd",
-			FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options,
 			{ "Options", "xtp.cmd.options",
-			FT_UINT24, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_nocheck,
 			{ "NOCHECK", "xtp.cmd.options.nocheck",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_NOCHECK, "", HFILL }
+			XTP_CMD_OPTIONS_NOCHECK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_edge,
 			{ "EDGE", "xtp.cmd.options.edge",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_EDGE, "", HFILL }
+			XTP_CMD_OPTIONS_EDGE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noerr,
 			{ "NOERR", "xtp.cmd.options.noerr",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_NOERR, "", HFILL }
+			XTP_CMD_OPTIONS_NOERR, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_multi,
 			{ "MULTI", "xtp.cmd.options.multi",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_MULTI, "", HFILL }
+			XTP_CMD_OPTIONS_MULTI, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_res,
 			{ "RES", "xtp.cmd.options.res",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_RES, "", HFILL }
+			XTP_CMD_OPTIONS_RES, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sort,
 			{ "SORT", "xtp.cmd.options.sort",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_SORT, "", HFILL }
+			XTP_CMD_OPTIONS_SORT, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noflow,
 			{ "NOFLOW", "xtp.cmd.options.noflow",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_NOFLOW, "", HFILL }
+			XTP_CMD_OPTIONS_NOFLOW, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_fastnak,
 			{ "FASTNAK", "xtp.cmd.options.fastnak",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_FASTNAK, "", HFILL }
+			XTP_CMD_OPTIONS_FASTNAK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sreq,
 			{ "SREQ", "xtp.cmd.options.sreq",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_SREQ, "", HFILL }
+			XTP_CMD_OPTIONS_SREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_dreq,
 			{ "DREQ", "xtp.cmd.options.dreq",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_DREQ, "", HFILL }
+			XTP_CMD_OPTIONS_DREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_rclose,
 			{ "RCLOSE", "xtp.cmd.options.rclose",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_RCLOSE, "", HFILL }
+			XTP_CMD_OPTIONS_RCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_wclose,
 			{ "WCLOSE", "xtp.cmd.options.wclose",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_WCLOSE, "", HFILL }
+			XTP_CMD_OPTIONS_WCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_eom,
 			{ "EOM", "xtp.cmd.options.eom",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_EOM, "", HFILL }
+			XTP_CMD_OPTIONS_EOM, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_end,
 			{ "END", "xtp.cmd.options.end",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_END, "", HFILL }
+			XTP_CMD_OPTIONS_END, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_btag,
 			{ "BTAG", "xtp.cmd.options.btag",
 			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
-			XTP_CMD_OPTIONS_BTAG, "", HFILL }
+			XTP_CMD_OPTIONS_BTAG, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype,
 			{ "Packet type", "xtp.cmd.ptype",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype_ver,
 			{ "Version", "xtp.cmd.ptype.ver",
-			FT_UINT8, BASE_DEC, VALS(version_vals), 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, VALS(version_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype_pformat,
 			{ "Format", "xtp.cmd.ptype.pformat",
-			FT_UINT8, BASE_DEC, VALS(pformat_vals), 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, VALS(pformat_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_dlen,
 			{ "Data length", "xtp.dlen",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_sort,
 			{ "Sort", "xtp.sort",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_sync,
 			{ "Synchronizing handshake", "xtp.sync",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_seq,
 			{ "Sequence number", "xtp.seq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* control segment */
 		{ &hf_xtp_cntl_rseq,
 			{ "Received sequence number", "xtp.cntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cntl_alloc,
 			{ "Allocation", "xtp.cntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_cntl_echo,
 			{ "Synchronizing handshake echo", "xtp.cntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_rseq,
 			{ "Received sequence number", "xtp.ecntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_alloc,
 			{ "Allocation", "xtp.ecntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_echo,
 			{ "Synchronizing handshake echo", "xtp.ecntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_nspan,
 			{ "Number of spans", "xtp.ecntl.nspan",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_span_left,
 			{ "Span left edge", "xtp.ecntl.span_le",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_ecntl_span_right,
 			{ "Span right edge", "xtp.ecntl.span_re",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_rseq,
 			{ "Received sequence number", "xtp.tcntl.rseq",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_alloc,
 			{ "Allocation", "xtp.tcntl.alloc",
-			FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_echo,
 			{ "Synchronizing handshake echo", "xtp.tcntl.echo",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_rsvd,
 			{ "Reserved", "xtp.tcntl.rsvd",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tcntl_xkey,
 			{ "Exchange key", "xtp.tcntl.xkey",
-			FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		/* traffic specifier */
 		{ &hf_xtp_tspec_tlen,
 			{ "Length", "xtp.tspec.tlen",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_service,
 			{ "Service", "xtp.tspec.service",
-			FT_UINT8, BASE_DEC, VALS(service_vals), 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, VALS(service_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_tformat,
 			{ "Format", "xtp.tspec.format",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_traffic,
 			{ "Traffic", "xtp.tspec.traffic",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_maxdata,
 			{ "Maxdata", "xtp.tspec.maxdata",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_inrate,
 			{ "Incoming rate", "xtp.tspec.inrate",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_inburst,
 			{ "Incoming burst size", "xtp.tspec.inburst",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_outrate,
 			{ "Outgoing rate", "xtp.tspec.outrate",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_tspec_outburst,
 			{ "Outgoing burst size", "xtp.tspec.outburst",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* address segment */
 		{ &hf_xtp_aseg_alen,
 			{ "Length", "xtp.aseg.alen",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_adomain,
 			{ "Domain", "xtp.aseg.alen",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_aformat,
 			{ "Format", "xtp.aseg.aformat",
-			FT_UINT8, BASE_DEC, VALS(aformat_vals), 0x0, "", HFILL }
+			FT_UINT8, BASE_DEC, VALS(aformat_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_address,
 			{ "Traffic", "xtp.aseg.address",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_dsthost,
 			{ "Destination host", "xtp.aseg.dsthost",
-			FT_IPv4, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_srchost,
 			{ "Source host", "xtp.aseg.srchost",
-			FT_IPv4, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_dstport,
 			{ "Destination port", "xtp.aseg.dstport",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_srcport,
 			{ "Source port", "xtp.aseg.srcport",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* others */
 		{ &hf_xtp_btag,
 			{ "Beginning tag", "xtp.data.btag",
-			FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL }
+			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_code,
 			{ "Diagnostic code", "xtp.diag.code",
-			FT_UINT32, BASE_DEC, VALS(diag_code_vals), 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, VALS(diag_code_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_val,
 			{ "Diagnostic value", "xtp.diag.val",
-			FT_UINT32, BASE_DEC, VALS(diag_val_vals), 0x0, "", HFILL }
+			FT_UINT32, BASE_DEC, VALS(diag_val_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_diag_msg,
 			{ "Message", "xtp.diag.msg",
-			FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 

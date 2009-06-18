@@ -266,7 +266,7 @@ proto_register_dcerpc_frsrpc(void)
 
 		{ &hf_frsrpc_opnum, 
 		  { "Operation", "frsrpc.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, "Operation", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_unknown32, 
 		  { "unknown32", "frsrpc.unknown32", FT_UINT32, BASE_HEX,
@@ -286,47 +286,47 @@ proto_register_dcerpc_frsrpc(void)
 
 		{ &hf_frsrpc_tlv_tag, 
 		  { "TLV Tag", "frsrpc.tlv.tag", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, "", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_tlv_size, 
 		  { "TLV Size", "frsrpc.tlv.size", FT_UINT32, BASE_DEC,
-		   NULL, 0x0, "", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_tlv_data, 
-		  { "TLV Data", "frsrpc.tlv.data", FT_BYTES, BASE_HEX,
-		   NULL, 0x0, "", HFILL }},	
+		  { "TLV Data", "frsrpc.tlv.data", FT_BYTES, BASE_NONE,
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_unknownbytes, 
-		  { "unknown", "frsrpc.unknownbytes", FT_BYTES, BASE_HEX,
+		  { "unknown", "frsrpc.unknownbytes", FT_BYTES, BASE_NONE,
 		   NULL, 0x0, "unknown bytes", HFILL }},	
 
 		{ &hf_frsrpc_guid_size, 
 		  { "Guid Size", "frsrpc.guid.size", FT_UINT32, BASE_DEC,
-		   NULL, 0x0, "", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_ssrv_guid,
 		  { "SSRV GUID", "frsrpc.ssrv.guid", FT_GUID, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_frsrpc_dsrv_guid,
 		  { "DSRV GUID", "frsrpc.dsrv.guid", FT_GUID, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_frsrpc_str_size, 
 		  { "String Size", "frsrpc.str.size", FT_UINT32, BASE_DEC,
-		   NULL, 0x0, "", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 
 		{ &hf_frsrpc_ssrv,
 		  { "SSRV", "frsrpc.ssrv", FT_STRING, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_frsrpc_dsrv,
 		  { "DSRV", "frsrpc.dsrv", FT_STRING, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_frsrpc_timestamp,
 		  { "Timestamp", "frsrpc.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 	};
 
 

@@ -1117,10 +1117,10 @@ proto_register_ctdb(void)
 	  NULL, 0x0, "Size of CTDB PDU", HFILL }},
 	{ &hf_ctdb_dst, { 
 	  "Destination", "ctdb.dst", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_src, { 
 	  "Source", "ctdb.src", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_id, { 
 	  "Id", "ctdb.id", FT_UINT32, BASE_DEC, 
 	  NULL, 0x0, "Transaction ID", HFILL }},
@@ -1138,91 +1138,91 @@ proto_register_ctdb(void)
 	  NULL, 0x0, "Call ID", HFILL }},
 	{ &hf_ctdb_status, { 
 	  "Status", "ctdb.status", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_datalen, { 
 	  "Data Length", "ctdb.datalen", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_errorlen, { 
 	  "Error Length", "ctdb.errorlen", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_keylen, { 
 	  "Key Length", "ctdb.keylen", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_magic, { 
 	  "Magic", "ctdb.magic", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_version, { 
 	  "Version", "ctdb.version", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_dmaster, { 
 	  "Dmaster", "ctdb.dmaster", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_generation, { 
 	  "Generation", "ctdb.generation", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_key, { 
-	  "Key", "ctdb.key", FT_BYTES, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  "Key", "ctdb.key", FT_BYTES, BASE_NONE, 
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_keyhash, { 
 	  "KeyHash", "ctdb.keyhash", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_data, { 
-	  "Data", "ctdb.data", FT_BYTES, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  "Data", "ctdb.data", FT_BYTES, BASE_NONE, 
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_error, { 
-	  "Error", "ctdb.error", FT_BYTES, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  "Error", "ctdb.error", FT_BYTES, BASE_NONE, 
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_request_in, { 
 	  "Request In", "ctdb.request_in", FT_FRAMENUM, BASE_NONE, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_response_in, { 
 	  "Response In", "ctdb.response_in", FT_FRAMENUM, BASE_NONE, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_time, { 
 	  "Time since request", "ctdb.time", FT_RELATIVE_TIME, BASE_NONE, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_hopcount, { 
 	  "Hopcount", "ctdb.hopcount", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_rsn, { 
 	  "RSN", "ctdb.rsn", FT_UINT64, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_ctrl_opcode, { 
 	  "CTRL Opcode", "ctdb.ctrl_opcode", FT_UINT32, BASE_DEC, 
-	  VALS(ctrl_opcode_vals), 0x0, "", HFILL }},
+	  VALS(ctrl_opcode_vals), 0x0, NULL, HFILL }},
 	{ &hf_ctdb_srvid, { 
 	  "SrvId", "ctdb.srvid", FT_UINT64, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_clientid, { 
 	  "ClientId", "ctdb.clientid", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_ctrl_flags, { 
 	  "CTRL Flags", "ctdb.ctrl_flags", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_recmaster, { 
 	  "Recovery Master", "ctdb.recmaster", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_recmode, { 
 	  "Recovery Mode", "ctdb.recmode", FT_UINT32, BASE_DEC, 
-	  VALS(recmode_vals), 0x0, "", HFILL }},
+	  VALS(recmode_vals), 0x0, NULL, HFILL }},
 	{ &hf_ctdb_num_nodes, { 
 	  "Num Nodes", "ctdb.num_nodes", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_vnn, { 
 	  "VNN", "ctdb.vnn", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_node_flags, { 
 	  "Node Flags", "ctdb.node_flags", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_node_ip, { 
 	  "Node IP", "ctdb.node_ip", FT_IPv4, BASE_NONE, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_pid, { 
 	  "PID", "ctdb.pid", FT_UINT32, BASE_DEC, 
-	  NULL, 0x0, "", HFILL }},
+	  NULL, 0x0, NULL, HFILL }},
 	{ &hf_ctdb_process_exists, { 
 	  "Process Exists", "ctdb.process_exists", FT_BOOLEAN, 32, 
-	  TFS(&process_exists_tfs), 0x01, "", HFILL }},
+	  TFS(&process_exists_tfs), 0x01, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */

@@ -206,7 +206,7 @@ proto_register_dcerpc_tapi(void)
 static hf_register_info hf[] = {
 	{ &hf_tapi_opnum, { 
 		"Operation", "tapi.opnum", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_tapi_rc, {
 		"Return code", "tapi.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "TAPI return code", HFILL }},
@@ -217,10 +217,10 @@ static hf_register_info hf[] = {
 		"Unknown long", "tapi.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_tapi_unknown_string, {
-		"Unknown string", "tapi.unknown.string", FT_STRING, BASE_HEX,
+		"Unknown string", "tapi.unknown.string", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_tapi_unknown_bytes, {
-		"Unknown bytes", "tapi.unknown.bytes", FT_BYTES, BASE_HEX,
+		"Unknown bytes", "tapi.unknown.bytes", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }}
 	};
 

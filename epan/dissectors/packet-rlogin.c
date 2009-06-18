@@ -515,77 +515,77 @@ void proto_register_rlogin(void)
 	{
 		{ &hf_user_info,
 			{ "User Info", "rlogin.user_info", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_client_startup_flag,
 			{ "Client startup flag", "rlogin.client_startup_flag", FT_UINT8, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_startup_info_received_flag,
 			{ "Startup info received flag", "rlogin.startup_info_received_flag", FT_UINT8, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_user_info_client_user_name,
 			{ "Client-user-name", "rlogin.client_user_name", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_user_info_server_user_name,
 			{ "Server-user-name", "rlogin.server_user_name", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_user_info_terminal_type,
 			{ "Terminal-type", "rlogin.terminal_type", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_user_info_terminal_speed,
 			{ "Terminal-speed", "rlogin.terminal_speed", FT_UINT32, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_control_message,
 			{ "Control message", "rlogin.control_message", FT_UINT8, BASE_HEX,
-				 VALS(control_message_vals), 0x0, "", HFILL
+				 VALS(control_message_vals), 0x0, NULL, HFILL
 			}
 		},		
 		{ &hf_window_info,
 			{ "Window Info", "rlogin.window_size", FT_NONE, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_window_info_ss,
 			{ "Window size marker", "rlogin.window_size.ss", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},		
 		{ &hf_window_info_rows,
 			{ "Rows", "rlogin.window_size.rows", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_window_info_cols,
 			{ "Columns", "rlogin.window_size.cols", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_window_info_x_pixels,
 			{ "X Pixels", "rlogin.window_size.x_pixels", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_window_info_y_pixels,
 			{ "Y Pixels", "rlogin.window_size.y_pixels", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_data,
 			{ "Data", "rlogin.data", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

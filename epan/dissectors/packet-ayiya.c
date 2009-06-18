@@ -147,52 +147,52 @@ proto_register_ayiya(void)
   static hf_register_info hf[] = {
   	{ &hf_id_len,
 		{ "Identity field length", "ayiya.idlen", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_HEX, NULL, 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_id_type,
 		{ "Identity field type", "ayiya.idtype", FT_UINT8, 
-			BASE_HEX, VALS(identity_types), 0x0, "", HFILL
+			BASE_HEX, VALS(identity_types), 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_sig_len,
 		{ "Signature Length", "ayiya.siglen", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_HEX, NULL, 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_hash_method,
 		{ "Hash method", "ayiya.hashmethod", FT_UINT8, 
-			BASE_HEX, VALS(hash_methods), 0x0, "", HFILL
+			BASE_HEX, VALS(hash_methods), 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_auth_method,
 		{ "Authentication method", "ayiya.authmethod", FT_UINT8, 
-			BASE_HEX, VALS(auth_methods), 0x0, "", HFILL
+			BASE_HEX, VALS(auth_methods), 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_opcode,
 		{ "Operation Code", "ayiya.opcode", FT_UINT8, 
-			BASE_HEX, VALS(opcodes), 0x0, "", HFILL
+			BASE_HEX, VALS(opcodes), 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_next_header,
 		{ "Next Header", "ayiya.nextheader", FT_UINT8, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_HEX, NULL, 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_epoch,
 		{ "Epoch", "ayiya.epoch", FT_ABSOLUTE_TIME, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_NONE, NULL, 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_identity,
 		{ "Identity", "ayiya.identity", FT_BYTES, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_NONE, NULL, 0x0, NULL, HFILL
 		}
 	},
 	{ &hf_signature,
 		{ "Signature", "ayiya.signature", FT_BYTES, 
-			BASE_HEX, NULL, 0x0, "", HFILL
+			BASE_NONE, NULL, 0x0, NULL, HFILL
 		}
 	},
   };

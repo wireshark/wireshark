@@ -337,49 +337,49 @@ proto_register_aim_ssi(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_fnac_subtype_ssi_version,
-			{ "SSI Version", "aim_ssi.fnac.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Version", "aim_ssi.fnac.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_numitems,
-			{ "SSI Object count", "aim_ssi.fnac.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Object count", "aim_ssi.fnac.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_last_change_time,
-			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }
+			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_buddyname_len,
-			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_buddyname,
-			{ "Buddy Name", "aim_ssi.fnac.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+			{ "Buddy Name", "aim_ssi.fnac.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_gid,
-			{ "SSI Buddy Group ID", "aim_ssi.fnac.gid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Buddy Group ID", "aim_ssi.fnac.gid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_bid,
-			{ "SSI Buddy ID", "aim_ssi.fnac.bid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Buddy ID", "aim_ssi.fnac.bid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_type,
-			{ "SSI Buddy type", "aim_ssi.fnac.type", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi_types), 0x0, "", HFILL }
+			{ "SSI Buddy type", "aim_ssi.fnac.type", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi_types), 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_tlvlen,
-			{ "SSI TLV Len", "aim_ssi.fnac.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI TLV Len", "aim_ssi.fnac.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_data,
-			{ "SSI Buddy Data", "aim_ssi.fnac.data", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Buddy Data", "aim_ssi.fnac.data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_buddyname_len8,
-			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len8", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len8", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_reason_str_len,
-			{ "Reason Message length", "aim_ssi.fnac.reason_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Reason Message length", "aim_ssi.fnac.reason_len", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_reason_str,
-			{ "Reason Message", "aim_ssi.fnac.reason", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+			{ "Reason Message", "aim_ssi.fnac.reason", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_grant_auth_unkn,
-			{ "Unknown", "aim_ssi.fnac.auth_unkn", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Unknown", "aim_ssi.fnac.auth_unkn", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_allow_auth,
-			{ "Allow flag", "aim_ssi.fnac.allow_auth_flag", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Allow flag", "aim_ssi.fnac.allow_auth_flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 	};
 

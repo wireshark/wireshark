@@ -3709,11 +3709,11 @@ proto_register_isakmp(void)
   static hf_register_info hf[] = {
     { &hf_isakmp_icookie,
       { "Initiator cookie", "isakmp.icookie",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "ISAKMP Initiator Cookie", HFILL }},
     { &hf_isakmp_rcookie,
       { "Responder cookie", "isakmp.rcookie",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "ISAKMP Responder Cookie", HFILL }},
     { &hf_isakmp_nextpayload,
       { "Next payload", "isakmp.nextpayload",
@@ -3749,7 +3749,7 @@ proto_register_isakmp(void)
         "ISAKMP Domain of Interpretation", HFILL }},
     { &hf_isakmp_sa_situation,
       { "Situation", "isakmp.sa.situation",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "ISAKMP SA Situation", HFILL }},
     { &hf_isakmp_prop_number,
       { "Proposal number", "isakmp.prop.number",
@@ -3823,18 +3823,18 @@ proto_register_isakmp(void)
             FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
     { &hf_isakmp_fragment_overlap,
             {"Message fragment overlap", "msg.fragment.overlap",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_isakmp_fragment_overlap_conflicts,
             {"Message fragment overlapping with conflicting data",
             "msg.fragment.overlap.conflicts",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_isakmp_fragment_multiple_tails,
             {"Message has multiple tail fragments",
             "msg.fragment.multiple_tails",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_isakmp_fragment_too_long_fragment,
             {"Message fragment too long", "msg.fragment.too_long_fragment",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_isakmp_fragment_error,
             {"Message defragmentation error", "msg.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -3842,13 +3842,13 @@ proto_register_isakmp(void)
             {"Reassembled in", "msg.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
     { &hf_isakmp_certificate_authority,
-      { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, "Certificate Authority Distinguished Name", HFILL }
+      { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_isakmp_v2_certificate_authority,
-      { "Certificate Authority", "ike.cert_authority", FT_BYTES, BASE_HEX, NULL, 0x0, "SHA-1 hash of the Certificate Authority", HFILL }
+      { "Certificate Authority", "ike.cert_authority", FT_BYTES, BASE_NONE, NULL, 0x0, "SHA-1 hash of the Certificate Authority", HFILL }
     },
     { &hf_isakmp_nat_keepalive,
-      { "NAT Keepalive", "ike.nat_keepalive", FT_NONE, BASE_HEX, NULL, 0x0, "NAT Keepalive packet", HFILL }
+      { "NAT Keepalive", "ike.nat_keepalive", FT_NONE, BASE_NONE, NULL, 0x0, "NAT Keepalive packet", HFILL }
     },
   };
 

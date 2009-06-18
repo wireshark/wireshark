@@ -204,15 +204,15 @@ proto_register_dtp(void)
 	static hf_register_info hf[] = {
 	{ &hf_dtp_version,
 		{ "Version",	"dtp.version", FT_UINT8, BASE_HEX, 
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_tlvtype,
 		{ "Type",	"dtp.tlv_type", FT_UINT16, BASE_HEX, 
-		VALS(dtp_tlv_type_vals), 0x0, "", HFILL }},
+		VALS(dtp_tlv_type_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_tlvlength,
 		{ "Length",	"dtp.tlv_len", FT_UINT16, BASE_DEC, 
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_some_mac,
 		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE, 

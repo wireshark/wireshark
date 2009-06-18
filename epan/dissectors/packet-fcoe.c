@@ -290,25 +290,23 @@ proto_register_fcoe(void)
     static hf_register_info hf[] = {
         { &hf_fcoe_sof,
           {"SOF", "fcoe.sof", FT_UINT8, BASE_HEX, VALS(&fcoe_sof_vals), 0,
-           "", HFILL}},
+           NULL, HFILL}},
         { &hf_fcoe_eof,
           {"EOF", "fcoe.eof", FT_UINT8, BASE_HEX, VALS(&fcoe_eof_vals), 0,
-           "", HFILL}},
+           NULL, HFILL}},
         { &hf_fcoe_ver,
-          {"Version", "fcoe.ver", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL}},
+          {"Version", "fcoe.ver", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_fcoe_len,
           {"Frame length", "fcoe.len", FT_UINT32,
-            BASE_DEC, NULL, 0, "", HFILL}},
+            BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_fcoe_crc,
-          {"CRC", "fcoe.crc", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL}},
+          {"CRC", "fcoe.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
         { &hf_fcoe_crc_good,
-          {"CRC good", "fcoe.crc_good", FT_BOOLEAN, BASE_NONE, NULL, 0,
-            "True: CRC matches packet content; "
-            "False: doesn't match or not checked.", HFILL }},
+          {"CRC good", "fcoe.crc_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: CRC matches packet content; False: doesn't match or not checked.", HFILL }},
         { &hf_fcoe_crc_bad,
-          {"CRC bad", "fcoe.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0,
-            "True: CRC doesn't match packet content; "
-            "False: matches or not checked.", HFILL }}
+          {"CRC bad", "fcoe.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: CRC doesn't match packet content; False: matches or not checked.", HFILL }}
     };
     static gint *ett[] = {
         &ett_fcoe,

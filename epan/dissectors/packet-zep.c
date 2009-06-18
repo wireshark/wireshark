@@ -291,7 +291,7 @@ void proto_register_zep(void)
 
         { &hf_zep_type,
         { "Type",                       "zep.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_zep_channel_id,
         { "Channel ID",                 "zep.channel_id", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -302,7 +302,7 @@ void proto_register_zep(void)
             "The ID of the device that detected this packet.", HFILL }},
 
         { &hf_zep_lqi_mode,
-        { "LQI/CRC Mode",               "zep.lqi_mode", FT_BOOLEAN, 8, NULL, 0x0,
+        { "LQI/CRC Mode",               "zep.lqi_mode", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Determines what format the last two bytes of the MAC frame use.", HFILL }},
 
         { &hf_zep_lqi,
@@ -310,7 +310,7 @@ void proto_register_zep(void)
             NULL, HFILL }},
 
         { &hf_zep_timestamp,
-        { "Timestamp",                  "zep.time", FT_ABSOLUTE_TIME, BASE_DEC, NULL, 0x0,
+        { "Timestamp",                  "zep.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zep_seqno,

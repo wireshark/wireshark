@@ -67,7 +67,7 @@ proto_register_llb (void)
 {
   static hf_register_info hf[] = {
     {&hf_llb_opnum,
-     {"Operation", "llb.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation",
+     {"Operation", "llb.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
   };
 

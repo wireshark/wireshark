@@ -3052,7 +3052,7 @@ void proto_register_fp(void)
         { &hf_fp_channel_type,
             { "Channel Type",
               "fp.channel-type", FT_UINT8, BASE_HEX, VALS(channel_type_vals), 0x0,
-              "Channel Type", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_division,
@@ -3070,13 +3070,13 @@ void proto_register_fp(void)
         { &hf_fp_header_crc,
             { "Header CRC",
               "fp.header-crc", FT_UINT8, BASE_HEX, NULL, 0xfe,
-              "Header CRC", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_ft,
             { "Frame Type",
               "fp.ft", FT_UINT8, BASE_HEX, VALS(data_control_vals), 0x01,
-              "Frame Type", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_cfn,
@@ -3111,7 +3111,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_tb,
             { "TB",
-              "fp.tb", FT_BYTES, BASE_HEX, NULL, 0x0,
+              "fp.tb", FT_BYTES, BASE_NONE, NULL, 0x0,
               "Transport Block", HFILL
             }
         },
@@ -3142,7 +3142,7 @@ void proto_register_fp(void)
         { &hf_fp_propagation_delay,
             { "Propagation Delay",
               "fp.propagation-delay", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Propagation Delay", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_dch_control_frame_type,
@@ -3160,13 +3160,13 @@ void proto_register_fp(void)
         { &hf_fp_quality_estimate,
             { "Quality Estimate",
               "fp.dch.quality-estimate", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Quality Estimate", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_payload_crc,
             { "Payload CRC",
               "fp.payload-crc", FT_UINT16, BASE_HEX, 0, 0x0,
-              "Payload CRC", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_common_control_frame_type,
@@ -3226,7 +3226,7 @@ void proto_register_fp(void)
         { &hf_fp_received_sync_ul_timing_deviation,
             { "Received SYNC UL Timing Deviation",
               "fp.rx-sync-ul-timing-deviation", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Received SYNC UL Timing Deviation", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_pch_pi,
@@ -3274,13 +3274,13 @@ void proto_register_fp(void)
         { &hf_fp_dch_e_rucch_flag,
             { "E-RUCCH Flag",
               "fp.common.control.e-rucch-flag", FT_UINT8, BASE_DEC, VALS(e_rucch_flag_vals), 0x0,
-              "E-RUCCH Flag", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_edch_header_crc,
             { "E-DCH Header CRC",
               "fp.edch.header-crc", FT_UINT16, BASE_HEX, 0, 0xfef,
-              "E-DCH Header CRC", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_edch_fsn,
@@ -3310,7 +3310,7 @@ void proto_register_fp(void)
         { &hf_fp_edch_number_of_mac_es_pdus,
             { "Number of Mac-es PDUs",
               "fp.edch.number-of-mac-es-pdus", FT_UINT8, BASE_DEC, 0, 0xf0,
-              "Number of Mac-es PDUs", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_edch_ddi,
@@ -3334,7 +3334,7 @@ void proto_register_fp(void)
         { &hf_fp_edch_number_of_mac_d_pdus,
             { "Number of Mac-d PDUs",
               "fp.edch.number-of-mac-d-pdus", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Number of Mac-d PDUs", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_edch_pdu_padding,
@@ -3352,7 +3352,7 @@ void proto_register_fp(void)
         { &hf_fp_edch_mac_es_pdu,
             { "MAC-es PDU",
               "fp.edch.mac-es-pdu", FT_NONE, BASE_NONE, NULL, 0x0,
-              "MAC-es PDU", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_frame_seq_nr,
@@ -3388,13 +3388,13 @@ void proto_register_fp(void)
         { &hf_fp_drt_indicator,
             { "DRT Indicator",
               "fp.drt-indicator", FT_UINT8, BASE_DEC, 0, 0x01,
-              "DRT Indicator", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_fach_indicator,
             { "FACH Indicator",
               "fp.fach-indicator", FT_UINT8, BASE_DEC, 0, 0x80,
-              "FACH Indicator", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_total_pdu_blocks,
@@ -3406,25 +3406,25 @@ void proto_register_fp(void)
         { &hf_fp_drt,
             { "DRT",
               "fp.drt", FT_UINT16, BASE_DEC, 0, 0x0,
-              "DRT", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hrnti,
             { "HRNTI",
               "fp.hrnti", FT_UINT16, BASE_DEC, 0, 0x0,
-              "HRNTI", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_measurement_result,
             { "RACH Measurement Result",
               "fp.rach-measurement-result", FT_UINT16, BASE_DEC, 0, 0x0,
-              "RACH Measurement Result", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_lchid,
             { "Logical Channel ID",
               "fp.lchid", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Logical Channel ID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_pdu_length_in_block,
@@ -3454,7 +3454,7 @@ void proto_register_fp(void)
         { &hf_fp_hsdsch_credits,
             { "HS-DSCH Credits",
               "fp.hsdsch-credits", FT_UINT16, BASE_DEC, 0, 0x0,
-              "HS-DSCH Credits", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_max_macd_pdu_len,
@@ -3472,7 +3472,7 @@ void proto_register_fp(void)
         { &hf_fp_hsdsch_interval,
             { "HS-DSCH Interval in milliseconds",
               "fp.hsdsch-interval", FT_UINT8, BASE_DEC, 0, 0x0,
-              "HS-DSCH Interval in milliseconds", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_calculated_rate,
@@ -3502,49 +3502,49 @@ void proto_register_fp(void)
         { &hf_fp_hsdsch_new_ie_flags,
             { "New IEs flags",
               "fp.hsdsch.new-ie-flags", FT_STRING, BASE_NONE, 0, 0x0,
-              "New IEs flags", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[0],
             { "DRT IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x80,
-              "DRT IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[1],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x40,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[2],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x20,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[3],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x10,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[4],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x08,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[5],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x04,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[6],
             { "New IE present",
               "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_hsdsch_new_ie_flag[7],
@@ -3585,19 +3585,19 @@ void proto_register_fp(void)
         },
         { &hf_fp_mac_d_pdu,
             { "MAC-d PDU",
-              "fp.mac-d-pdu", FT_BYTES, BASE_HEX, NULL, 0x0,
-              "MAC-d PDU", HFILL
+              "fp.mac-d-pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_fp_data,
             { "Data",
-              "fp.data", FT_BYTES, BASE_HEX, NULL, 0x0,
-              "Data", HFILL
+              "fp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_fp_crcis,
             { "CRCIs",
-              "fp.crcis", FT_BYTES, BASE_HEX, NULL, 0x0,
+              "fp.crcis", FT_BYTES, BASE_NONE, NULL, 0x0,
               "CRC Indicators for uplink TBs", HFILL
             }
         },
@@ -3652,37 +3652,37 @@ void proto_register_fp(void)
         { &hf_fp_code_number,
             { "Code number",
               "fp.code-number", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Code number", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_spreading_factor,
             { "Spreading factor",
               "fp.spreading-factor", FT_UINT8, BASE_DEC, VALS(spreading_factor_vals), 0xf0,
-              "Spreading factor", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_mc_info,
             { "MC info",
               "fp.mc-info", FT_UINT8, BASE_DEC, NULL, 0x0e,
-              "MC info", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_new_ie_flags,
             { "New IEs flags",
               "fp.rach.new-ie-flags", FT_STRING, BASE_NONE, 0, 0x0,
-              "New IEs flags", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_new_ie_flag_unused[0],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x80,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_new_ie_flag_unused[1],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x40,
-              "New IE present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_new_ie_flag_unused[2],
@@ -3718,55 +3718,55 @@ void proto_register_fp(void)
         { &hf_fp_rach_cell_portion_id_present,
             { "Cell portion ID present",
               "fp.rach.cell-portion-id-present", FT_UINT8, BASE_DEC, 0, 0x01,
-              "Cell portion ID present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_angle_of_arrival_present,
             { "Angle of arrival present",
               "fp.rach.angle-of-arrival-present", FT_UINT8, BASE_DEC, 0, 0x01,
-              "Angle of arrival present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_ext_propagation_delay_present,
             { "Ext Propagation Delay Present",
               "fp.rach.ext-propagation-delay-present", FT_UINT8, BASE_DEC, 0, 0x02,
-              "Ext Propagation Delay Present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
             { "Ext Received Sync UL Timing Deviation present",
               "fp.rach.ext-rx-sync-ul-timing-deviation-present", FT_UINT8, BASE_DEC, 0, 0x02,
-              "Ext Received Sync UL Timing Deviation present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_rach_ext_rx_timing_deviation_present,
             { "Ext Rx Timing Deviation present",
               "fp.rach.ext-rx-timing-deviation-present", FT_UINT8, BASE_DEC, 0, 0x01,
-              "Ext Rx Timing Deviation present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_cell_portion_id,
             { "Cell Portion ID",
               "fp.cell-portion-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              "Cell Portion ID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_ext_propagation_delay,
             { "Ext Propagation Delay",
               "fp.ext-propagation-delay", FT_UINT16, BASE_DEC, NULL, 0x03ff,
-              "Ext Propagation Delay", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_angle_of_arrival,
             { "Angle of Arrival",
               "fp.angle-of-arrival", FT_UINT16, BASE_DEC, NULL, 0x03ff,
-              "Angle of Arrival", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_ext_received_sync_ul_timing_deviation,
             { "Ext Received SYNC UL Timing Deviation",
               "fp.ext-received-sync-ul-timing-deviation", FT_UINT16, BASE_DEC, NULL, 0x1fff,
-              "Ext Received SYNC UL Timing Deviation", HFILL
+              NULL, HFILL
             }
         },
 
@@ -3774,25 +3774,25 @@ void proto_register_fp(void)
         { &hf_fp_radio_interface_parameter_update_flag[0],
             { "CFN valid",
               "fp.radio-interface-param.cfn-valid", FT_UINT16, BASE_DEC, 0, 0x0001,
-              "CFN valid", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[1],
             { "TPC PO valid",
               "fp.radio-interface-param.tpc-po-valid", FT_UINT16, BASE_DEC, 0, 0x0002,
-              "TPC PO valid", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[2],
             { "DPC mode valid",
               "fp.radio-interface-param.dpc-mode-valid", FT_UINT16, BASE_DEC, 0, 0x0004,
-              "DPC mode valid", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[3],
             { "RL sets indicator valid",
               "fp.radio-interface_param.rl-sets-indicator-valid", FT_UINT16, BASE_DEC, 0, 0x0020,
-              "RL sets indicator valid", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[4],
@@ -3810,13 +3810,13 @@ void proto_register_fp(void)
         { &hf_fp_tpc_po,
             { "TPC PO",
               "fp.tpc-po", FT_UINT8, BASE_DEC, NULL, 0x1f,
-              "TPC PO", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_multiple_rl_set_indicator,
             { "Multiple RL sets indicator",
               "fp.multiple-rl-sets-indicator", FT_UINT8, BASE_DEC, NULL, 0x80,
-              "Multiple RL sets indicator", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_max_ue_tx_pow,
@@ -3828,31 +3828,31 @@ void proto_register_fp(void)
         { &hf_fp_congestion_status,
             { "Congestion Status",
               "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x0,
-              "Congestion Status", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_e_rucch_present,
             { "E-RUCCH Present",
               "fp.erucch-present", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "E-RUCCH Present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_extended_bits_present,
             { "Extended Bits Present",
               "fp.extended-bits-present", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Extended Bits Present", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_extended_bits,
             { "Extended Bits",
               "fp.extended-bits", FT_UINT8, BASE_HEX, NULL, 0x0,
-              "Extended Bits", HFILL
+              NULL, HFILL
             }
         },
         { &hf_fp_spare_extension,
             { "Spare Extension",
               "fp.spare-extension", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Spare Extension", HFILL
+              NULL, HFILL
             }
         },
 

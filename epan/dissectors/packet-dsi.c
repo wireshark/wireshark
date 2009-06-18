@@ -651,12 +651,12 @@ proto_register_dsi(void)
     { &hf_dsi_offset,
       { "Data offset",      "dsi.data_offset",
 	FT_INT32, BASE_DEC, NULL, 0x0,
-      	"Data offset", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_error,
       { "Error code",       "dsi.error_code",
 	FT_INT32, BASE_DEC, VALS(asp_error_vals), 0x0,
-      	"Error code", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_length,
       { "Length",           "dsi.length",
@@ -675,31 +675,31 @@ proto_register_dsi(void)
     { &hf_dsi_utf8_server_name,
       { "UTF8 Server name",         "dsi.utf8_server_name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-      	"UTF8 Server name", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_server_name,
       { "Server name",         "dsi.server_name",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"Server name", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_server_type,
       { "Server type",         "dsi.server_type",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"Server type", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_server_vers,
       { "AFP version",         "dsi.server_vers",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"AFP version", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_server_uams,
       { "UAM",         "dsi.server_uams",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"UAM", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_dsi_server_icon,
       { "Icon bitmap",         "dsi.server_icon",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Server icon bitmap", HFILL }},
 
     { &hf_dsi_server_directory,
@@ -709,8 +709,8 @@ proto_register_dsi(void)
 
     { &hf_dsi_server_signature,
       { "Server signature",         "dsi.server_signature",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"Server signature", HFILL }},
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
     { &hf_dsi_server_flag,
       { "Flag",         "dsi.server_flag",
@@ -727,15 +727,15 @@ proto_register_dsi(void)
     { &hf_dsi_server_flag_no_save_passwd,
       { "Don't allow save password",      "dsi.server_flag.no_save_passwd",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_NOSAVEPASSWD,
-      	"Don't allow save password", HFILL }},
+      	NULL, HFILL }},
     { &hf_dsi_server_flag_srv_msg,
       { "Support server message",      "dsi.server_flag.srv_msg",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVMSGS,
-      	"Support server message", HFILL }},
+      	NULL, HFILL }},
     { &hf_dsi_server_flag_srv_sig,
       { "Support server signature",      "dsi.server_flag.srv_sig",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVSIGNATURE,
-      	"Support server signature", HFILL }},
+      	NULL, HFILL }},
     { &hf_dsi_server_flag_tcpip,
       { "Support TCP/IP",      "dsi.server_flag.tcpip",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
@@ -778,7 +778,7 @@ proto_register_dsi(void)
 
     { &hf_dsi_server_addr_value,
       { "Value",          "dsi.server_addr.value",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Address value", HFILL }},
 
     { &hf_dsi_open_type,
@@ -798,7 +798,7 @@ proto_register_dsi(void)
 
     { &hf_dsi_open_option,
       { "Option",          "dsi.open_option",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"Open session options (undecoded)", HFILL }},
 
     { &hf_dsi_attn_flag,

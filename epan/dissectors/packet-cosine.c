@@ -152,15 +152,15 @@ proto_register_cosine(void)
 {
   static hf_register_info hf[] = {
     { &hf_pro,
-      { "Protocol", "cosine.pro", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Protocol", "cosine.pro", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_off,
-      { "Offset", "cosine.off", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Offset", "cosine.off", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_pri,
-      { "Priority", "cosine.pri", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Priority", "cosine.pri", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_rm,
-      { "Rate Marking",	"cosine.rm",  FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Rate Marking",	"cosine.rm",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_err,
-      { "Error Code", "cosine.err", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+      { "Error Code", "cosine.err", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
   };
 
   static gint *ett[] = {

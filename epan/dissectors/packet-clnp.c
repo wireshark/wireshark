@@ -566,37 +566,37 @@ void proto_register_clnp(void)
   static hf_register_info hf[] = {
     { &hf_clnp_id,
       { "Network Layer Protocol Identifier", "clnp.nlpi", FT_UINT8, BASE_HEX,
-        VALS(nlpid_vals), 0x0, "", HFILL }},
+        VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_clnp_length,
-      { "HDR Length   ", "clnp.len",	   FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "HDR Length", "clnp.len",	   FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_version,
-      { "Version      ", "clnp.version",  FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Version", "clnp.version",  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_ttl,
-      { "Holding Time ", "clnp.ttl",	   FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Holding Time", "clnp.ttl",	   FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_type,
-      { "PDU Type     ", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "PDU Type", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_pdu_length,
-      { "PDU length   ", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "PDU length", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_checksum,
-      { "Checksum     ", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Checksum", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_dest_length,
-      { "DAL ", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "DAL", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_dest,
-      { " DA ", "clnp.dsap",     FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "DA", "clnp.dsap",     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_src_length,
-      { "SAL ", "clnp.ssap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "SAL", "clnp.ssap.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_src,
-      { " SA ", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "SA", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_clnp_segment_overlap,
       { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -620,11 +620,11 @@ void proto_register_clnp(void)
 
     { &hf_clnp_segment,
       { "CLNP Segment", "clnp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	"CLNP Segment", HFILL }},
+	NULL, HFILL }},
 
     { &hf_clnp_segments,
-      { "CLNP Segments", "clnp.segments", FT_NONE, BASE_DEC, NULL, 0x0,
-	"CLNP Segments", HFILL }},
+      { "CLNP Segments", "clnp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
 
     { &hf_clnp_reassembled_in,
       { "Reassembled CLNP in frame", "clnp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

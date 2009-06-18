@@ -118,21 +118,21 @@ proto_register_rpriv (void)
 {
 	static hf_register_info hf[] = {
       { &hf_rpriv_opnum,
-         { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+         { "Operation", "rpriv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_authn_svc,
-         { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+         { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_authz_svc,
-         { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+         { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_key_size,
-         { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+         { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_var1,
-         { "Var1", "rpriv.get_eptgt_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+         { "Var1", "rpriv.get_eptgt_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_key_size2,
-         { "Key_Size", "rpriv.get_eptgt_rqst_key_size2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+         { "Key_Size", "rpriv.get_eptgt_rqst_key_size2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_key_t,
-         { "Key_t", "rpriv.get_eptgt_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+         { "Key_t", "rpriv.get_eptgt_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rpriv_get_eptgt_rqst_key_t2,
-         { "Key_t2", "rpriv.get_eptgt_rqst_key_t2", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+         { "Key_t2", "rpriv.get_eptgt_rqst_key_t2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 					 
 	};
 

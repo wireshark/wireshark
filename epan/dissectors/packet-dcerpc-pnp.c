@@ -199,7 +199,7 @@ proto_register_dcerpc_pnp(void)
 
 		{ &hf_pnp_opnum, 
 		  { "Operation", "pnp.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, "Operation", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 	};
 
 

@@ -709,12 +709,12 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_electronic_surveillance_indication_df_cdc_address,
 		{ "DF_CDC_Address","radius.vendor.pkt.esi.dfcdca",
-			FT_IPv4, BASE_DEC, NULL, 0x0,
+			FT_IPv4, BASE_NONE, NULL, 0x0,
 			"PacketCable Electronic-Surveillance-Indication DF_CDC_Address", HFILL }
 		},
 		{ &hf_packetcable_electronic_surveillance_indication_df_ccc_address,
 		{ "DF_CDC_Address","radius.vendor.pkt.esi.dfccca",
-			FT_IPv4, BASE_DEC, NULL, 0x0,
+			FT_IPv4, BASE_NONE, NULL, 0x0,
 			"PacketCable Electronic-Surveillance-Indication DF_CCC_Address", HFILL }
 		},
 		{ &hf_packetcable_electronic_surveillance_indication_cdc_port,

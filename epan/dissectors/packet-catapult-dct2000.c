@@ -2326,7 +2326,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_sctpprim_addresses,
             { "SCTPPrim Addresses",
               "dct2000.sctpprim", FT_STRING, BASE_NONE, NULL, 0x0,
-              "SCTPPrim Addresses", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_sctpprim_dst_addr_v4,
@@ -2363,7 +2363,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_tty,
             { "tty contents",
               "dct2000.tty", FT_NONE, BASE_NONE, NULL, 0x0,
-              "tty contents", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_tty_line,
@@ -2412,7 +2412,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_lte_rlc_channel_type,
             { "RLC Logical Channel Type",
               "dct2000.lte.rlc-logchan-type", FT_UINT8, BASE_DEC, VALS(rlc_logical_channel_vals), 0x0,
-              "RLC Logical Channel Type", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_lte_rlc_mui,

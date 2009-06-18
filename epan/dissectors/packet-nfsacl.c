@@ -556,39 +556,39 @@ proto_register_nfsacl(void)
 	static hf_register_info hf[] = {
 		{ &hf_nfsacl_procedure_v1, {
 			"V1 Procedure", "nfsacl.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(nfsacl1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(nfsacl1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nfsacl_procedure_v2, {
 			"V2 Procedure", "nfsacl.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(nfsacl2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(nfsacl2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nfsacl_procedure_v3, {
 			"V3 Procedure", "nfsacl.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(nfsacl3_proc_vals), 0, "V3 Procedure", HFILL }},
+			VALS(nfsacl3_proc_vals), 0, NULL, HFILL }},
 			/* generic */
 		{ &hf_nfsacl_entry, {
-			"ACL", "nfsacl.acl", FT_NONE, 0,
-			NULL, 0, "ACL", HFILL }},
+			"ACL", "nfsacl.acl", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclcnt, {
 			"ACL count", "nfsacl.aclcnt", FT_UINT32, BASE_DEC,
-			NULL, 0, "ACL count", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_dfaclcnt, {
 			"Default ACL count", "nfsacl.dfaclcnt", FT_UINT32, BASE_DEC,
-			NULL, 0, "Default ACL count", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclent, {
-			"ACL Entry", "nfsacl.aclent", FT_NONE, 0,
+			"ACL Entry", "nfsacl.aclent", FT_NONE, BASE_NONE,
 			NULL, 0, "ACL", HFILL }},
 		{ &hf_nfsacl_aclent_type, {
 			"Type", "nfsacl.aclent.type", FT_UINT32, BASE_DEC,
-			VALS(names_nfsacl_aclent_type), 0, "Type", HFILL }},
+			VALS(names_nfsacl_aclent_type), 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclent_uid, {
 			"UID", "nfsacl.aclent.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "UID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfsacl_aclent_perm, {
 			"Permissions", "nfsacl.aclent.perm", FT_UINT32, BASE_DEC,
-			NULL, 0, "Permissions", HFILL }},
+			NULL, 0, NULL, HFILL }},
 			/* V2 */
 		{ &hf_nfsacl_create, {
 			"create", "nfsacl.create", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "Create?", HFILL }},
+			TFS(&tfs_yes_no), 0x0, "Create?", HFILL }},
 	};
 
 	static gint *ett[] = {

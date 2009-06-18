@@ -71,7 +71,7 @@ proto_register_dcerpc_rs_plcy(void)
 
 		{ &hf_rs_plcy_opnum,
 		  { "Operation", "rs_plcy.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Operation", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 	};
 

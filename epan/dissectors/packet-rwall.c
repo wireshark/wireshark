@@ -61,10 +61,10 @@ proto_register_rwall(void)
 	static hf_register_info hf[] = {
 		{ &hf_rwall_procedure_v1, {
 			"V1 Procedure", "rwall.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(rwall1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(rwall1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rwall_message, {
-			"Message", "rwall.message", FT_STRING, BASE_DEC,
-			NULL, 0, "Message", HFILL }}
+			"Message", "rwall.message", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

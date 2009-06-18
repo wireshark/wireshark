@@ -222,22 +222,22 @@ proto_register_aim_icq(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
 	  { &hf_icq_tlv_data_chunk_size,
-	    { "Data chunk size", "aim_icq.chunk_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	    { "Data chunk size", "aim_icq.chunk_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_icq_tlv_request_owner_uid,
-	    { "Owner UID", "aim_icq.owner_uid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL},
+	    { "Owner UID", "aim_icq.owner_uid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL},
 	  },
 	  { &hf_icq_tlv_request_type,
-	    {"Request Type", "aim_icq.request_type", FT_UINT16, BASE_DEC, VALS(aim_icq_data_types), 0x0, "", HFILL},
+	    {"Request Type", "aim_icq.request_type", FT_UINT16, BASE_DEC, VALS(aim_icq_data_types), 0x0, NULL, HFILL},
 	  },
 	  { &hf_icq_tlv_request_seq_num,
-	    {"Request Sequence Number", "aim_icq.request_seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL},
+	    {"Request Sequence Number", "aim_icq.request_seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL},
 	  },
 	  { &hf_icq_dropped_msg_flag,
-		{"Dropped messages flag", "aim_icq.offline_msgs.dropped_flag", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL },
+		{"Dropped messages flag", "aim_icq.offline_msgs.dropped_flag", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_icq_meta_subtype,
-		{"Meta Request Subtype", "aim_icq.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+		{"Meta Request Subtype", "aim_icq.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	  },
   };
 

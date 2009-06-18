@@ -332,7 +332,7 @@ proto_register_arcnet (void)
     {&hf_arcnet_offset,
      {"Offset", "arcnet.offset",
       FT_BYTES, BASE_NONE, NULL, 0,
-      "Offset", HFILL}
+      NULL, HFILL}
      },
     {&hf_arcnet_protID,
      {"Protocol ID", "arcnet.protID",

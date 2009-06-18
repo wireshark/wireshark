@@ -354,7 +354,7 @@ proto_register_distcc(void)
     static hf_register_info hf[] = {
 	{&hf_distcc_version,
 	 {"DISTCC Version", "distcc.version",
-	  FT_UINT32, BASE_DEC, NULL, 0x0, "DISTCC Version", HFILL }
+	  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_distcc_argc,
 	 {"ARGC", "distcc.argc",
@@ -382,7 +382,7 @@ proto_register_distcc(void)
 	},
 	{&hf_distcc_doto_object,
 	 {"Object", "distcc.doto_object",
-	  FT_BYTES, BASE_HEX, NULL, 0x0, "DOTO Compiled object file (.o)", HFILL }
+	  FT_BYTES, BASE_NONE, NULL, 0x0, "DOTO Compiled object file (.o)", HFILL }
 	}
 
 	};

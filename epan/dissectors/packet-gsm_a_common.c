@@ -2202,7 +2202,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_imsi,
 		{ "IMSI",	"gsm_a.imsi",
-		FT_STRING, BASE_DEC, 0, 0,
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tmsi,
@@ -2212,12 +2212,12 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_imei,
 		{ "IMEI",	"gsm_a.imei",
-		FT_STRING, BASE_DEC, 0, 0,
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_imeisv,
 		{ "IMEISV",	"gsm_a.imeisv",
-		FT_STRING, BASE_DEC, 0, 0,
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_MSC_rev,
@@ -2256,12 +2256,12 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VBS_notification_rec,
-		{ "VBS notification reception ","gsm_a.VBS_notification_rec",
+		{ "VBS notification reception","gsm_a.VBS_notification_rec",
 		FT_UINT8,BASE_DEC, VALS(VBS_notification_rec_vals), 0x04,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_VGCS_notification_rec,
-		{ "VGCS notification reception ","gsm_a.VGCS_notification_rec",
+		{ "VGCS notification reception","gsm_a.VGCS_notification_rec",
 		FT_UINT8,BASE_DEC, VALS(VGCS_notification_rec_vals), 0x02,
 		NULL, HFILL }
 	},
@@ -2347,7 +2347,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_mbs_service_id,
 		{ "MBMS Service ID", "gsm_a.mbs_service_id",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_L3_protocol_discriminator,

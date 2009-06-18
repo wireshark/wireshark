@@ -2557,22 +2557,22 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_code,
 			{ "Event Code",           "bthci_evt.code",
 				FT_UINT8, BASE_HEX, VALS(evt_code_vals), 0x0,          
-				"Event Code", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_param_length,
 			{ "Parameter Total Length",           "bthci_evt.param_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,          
-				"Parameter Total Length", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_params,
 			{ "Event Parameter",           "bthci_evt.params",
 				FT_NONE, BASE_NONE, NULL, 0x0,          
-				"Event Parameter", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_command_packets,
 			{ "Number of Allowed Command Packets",           "bthci_evt.num_command_packets",
 				FT_UINT8, BASE_DEC, NULL, 0x0,          
-				"Number of Allowed Command Packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_handles,
 			{ "Number of Connection Handles",           "bthci_evt.num_handles",
@@ -2582,7 +2582,7 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_connection_handle,
 			{ "Connection Handle",             "bthci_evt.connection_handle",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
-				"Connection Handle", HFILL }
+				NULL, HFILL }
 		},
 
 		{ &hf_bthci_evt_num_compl_packets,
@@ -2594,7 +2594,7 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_com_opcode,
 			{ "Command Opcode",           "bthci_evt.com_opcode",
 				FT_UINT16, BASE_HEX, VALS(bthci_cmd_opcode_vals), 0x0,          
-				"Command Opcode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_ogf,
 			{ "ogf",           "bthci_evt.ogf",
@@ -2609,42 +2609,42 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_ret_params,
 			{ "Return Parameter",           "bthci_evt.ret_params",
 				FT_NONE, BASE_NONE, NULL, 0x0,          
-				"Return Parameter", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_status,
 			{ "Status",           "bthci_evt.status",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
-				"Status", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_status_pending,
 			{ "Status", "bthci_evt.status",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_pending_vals), 0x0,          
-				"Status", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_bd_addr,
-			{ "BD_ADDR: ",          "bthci_evt.bd_addr",
+			{ "BD_ADDR:",          "bthci_evt.bd_addr",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Bluetooth Device Address", HFILL}
 		},
 		{ &hf_bthci_evt_class_of_device,
 			{ "Class of Device", "bthci_evt.class_of_device",
 				FT_UINT24, BASE_HEX, NULL, 0x0,
-				"Class of Device", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type,
 			{ "Link Type",        "bthci_evt.link_type",
 				FT_UINT8, BASE_HEX, VALS(evt_link_types), 0x0,
-				"Link Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_encryption_mode,
 			{ "Encryption Mode",  "bthci_evt.encryption_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_encryption_modes), 0x0,
-				"Encryption Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_reason,
 			{ "Reason",           "bthci_evt.reason",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
-				"Reason", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_remote_name,
 			{ "Remote Name",           "bthci_evt.remote_name",
@@ -2654,12 +2654,12 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_encryption_enable,
 			{ "Encryption Enable",        "bthci_evt.encryption_enable",
 				FT_UINT8, BASE_HEX, VALS(evt_encryption_enable), 0x0,
-				"Encryption Enable", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_key_flag,
 			{ "Key Flag",        "bthci_evt.key_flag",
 				FT_UINT8, BASE_HEX, VALS(evt_key_flag), 0x0,
-				"Key Flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_vers_nr,
 			{ "LMP Version",        "bthci_evt.lmp_vers_nr",
@@ -2689,12 +2689,12 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_flags,
 			{ "Flags",        "bthci_evt.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"Flags", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_service_type,
 			{ "Service Type",        "bthci_evt.service_type",
 				FT_UINT8, BASE_HEX, VALS(evt_service_types), 0x0,
-				"Service Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_token_rate,
 			{ "Available Token Rate",        "bthci_evt.token_rate",
@@ -2724,12 +2724,12 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_role,
 			{ "Role",        "bthci_evt.role",
 				FT_UINT8, BASE_HEX, VALS(evt_role_vals), 0x0,
-				"Role", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_curr_mode,
 			{ "Current Mode",        "bthci_evt.current_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_modes), 0x0,
-				"Current Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_interval,
 			{ "Interval",        "bthci_evt.interval",
@@ -2738,13 +2738,13 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_link_key,
 			{ "Link Key",        "bthci_evt.link_key",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"Link Key for the associated BD_ADDR", HFILL }
 		},
 		{ &hf_bthci_evt_key_type,
 			{ "Key Type",        "bthci_evt.key_type",
 				FT_UINT8, BASE_HEX, VALS(evt_key_types), 0x0,
-				"Key Type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_max_slots,
 			{ "Maximum Number of Slots",        "bthci_evt.max_slots",
@@ -2759,342 +2759,342 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_page_scan_mode,
 			{ "Page Scan Mode",        "bthci_evt.page_scan_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_page_scan_modes), 0x0,
-				"Page Scan Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_page_scan_repetition_mode,
 			{ "Page Scan Repetition Mode",        "bthci_evt.page_scan_repetition_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_page_scan_repetition_modes), 0x0,
-				"Page Scan Repetition Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_page_scan_period_mode,
 			{ "Page Scan Period Mode",        "bthci_evt.page_scan_period_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_page_scan_period_modes), 0x0,
-				"Page Scan Period Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_2dh1,
 			{ "ACL Link Type 2-DH1",        "bthci_evt.link_type_2dh1",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0002,
-				"ACL Link Type 2-DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_3dh1,
 			{ "ACL Link Type 3-DH1",        "bthci_evt.link_type_3dh1",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0004,
-				"ACL Link Type 3-DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dm1,
 			{ "ACL Link Type DM1",        "bthci_evt.link_type_dm1",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0008,
-				"ACL Link Type DM1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dh1,
 			{ "ACL Link Type DH1",        "bthci_evt.link_type_dh1",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0010,
-				"ACL Link Type DH1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_2dh3,
 			{ "ACL Link Type 2-DH3",        "bthci_evt.link_type_2dh3",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0100,
-				"ACL Link Type 2-DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_3dh3,
 			{ "ACL Link Type 3-DH3",        "bthci_evt.link_type_3dh3",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0200,
-				"ACL Link Type 3-DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dm3,
 			{ "ACL Link Type DM3",        "bthci_evt.link_type_dm3",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0400,
-				"ACL Link Type DM3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dh3,
 			{ "ACL Link Type DH3",        "bthci_evt.link_type_dh3",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0800,
-				"ACL Link Type DH3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_2dh5,
 			{ "ACL Link Type 2-DH5",        "bthci_evt.link_type_2dh5",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x1000,
-				"ACL Link Type 2-DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_3dh5,
 			{ "ACL Link Type 3-DH5",        "bthci_evt.link_type_3dh5",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x2000,
-				"ACL Link Type 3-DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dm5,
 			{ "ACL Link Type DM5",        "bthci_evt.link_type_dm5",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x4000,
-				"ACL Link Type DM5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_dh5,
 			{ "ACL Link Type DH5",        "bthci_evt.link_type_dh5",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x8000,
-				"ACL Link Type DH5", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_hv1,
 			{ "SCO Link Type HV1",        "bthci_evt.link_type_hv1",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0020,
-				"SCO Link Type HV1", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_hv2,
 			{ "SCO Link Type HV2",        "bthci_evt.link_type_hv2",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0040,
-				"SCO Link Type HV2", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type_hv3,
 			{ "SCO Link Type HV3",        "bthci_evt.link_type_hv3",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0080,
-				"SCO Link Type HV3", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_00,
 			{ "3-slot packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"3-slot packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_01,
 			{ "5-slot packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"5-slot packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_02,
 			{ "encryption",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
-				"encryption", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_03,
 			{ "slot offset",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"slot offset", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_04,
 			{ "timing accuracy",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"timing accuracy", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_05,
 			{ "master/slave switch",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
-				"master/slave switch", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_06,
 			{ "hold mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
-				"hold mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_07,
 			{ "sniff mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"sniff mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_10,
 			{ "park mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"park mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_11,
 			{ "RSSI",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"RSSI", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_12,
 			{ "channel quality driven data rate",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
-				"channel quality driven data rate", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_13,
 			{ "SCO link",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"SCO link", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_14,
 			{ "HV2 packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"HV2 packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_15,
 			{ "HV3 packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
-				"HV3 packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_16,
 			{ "u-law log",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
-				"u-law log", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_17,
 			{ "A-law log",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"A-law log", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_20,
 			{ "CVSD",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"CVSD", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_21,
 			{ "paging scheme",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"paging scheme", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_22,
 			{ "power control",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
-				"power control", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_23,
 			{ "transparent SCO data",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"transparent SCO data", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_24,
 			{ "Flow control lag",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, NULL, 0x70,
-				"Flow control lag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_27,
 			{ "broadband encryption",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"broadband encryption", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_31,
 			{ "EDR ACL 2 Mbps mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"EDR ACL 2 Mbps mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_32,
 			{ "EDR ACL 3 Mbps mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
-				"EDR ACL 3 Mbps mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_33,
 			{ "enhanced inquiry scan",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"enhanced inquiry scan", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_34,
 			{ "interlaced inquiry scan",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"interlaced inquiry scan", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_35,
 			{ "interlaced page scan",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
-				"interlaced page scan", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_36,
 			{ "RSSI with inquiry results",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
-				"RSSI with inquiry results", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_37,
 			{ "eSCO EV3 packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"eSCO EV3 packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_40,
 			{ "eSCO EV4 packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"eSCO EV4 packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_41,
 			{ "eSCO EV5 packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"eSCO EV5 packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_43,
 			{ "AFH capable slave",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"AFH capable slave", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_44,
 			{ "AFH classification slave",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"AFH classification slave", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_47,
 			{ "3-slot EDR ACL packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"3-slot EDR ACL packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_50,
 			{ "5-slot EDR ACL packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"5-slot EDR ACL packets", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_51,
 			{ "sniff subrating",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"sniff subrating", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_52,
 			{ "pause encryption",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
-				"pause encryption", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_53,
 			{ "AFH capable master",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"AFH capable master", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_54,
 			{ "AFH classification master",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"AFH classification master", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_55,
 			{ "EDR eSCO 2 Mbps mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
-				"EDR eSCO 2 Mbps mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_56,
 			{ "EDR eSCO 3 Mbps mode",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
-				"EDR eSCO 3 Mbps mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_57,
 			{ "3-slot EDR eSCO packets",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_60,
 			{ "extended inquiry response",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"extended inquiry response", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_63,
 			{ "secure simple pairing",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
-				"secure simple pairing", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_64,
 			{ "encapsulated PDU",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
-				"encapsulated PDU", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_65,
 			{ "erroneous data reporting",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
-				"erroneous data reporting", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_66,
 			{ "non-flushable packet boundary flag",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
-				"non-flushable packet boundary flag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_70,
 			{ "link supervision timeout changed event",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
-				"link supervision timeout changed event", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_71,
 			{ "inquiry response TX power level",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
-				"inquiry response TX power level", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_lmp_feature_77,
 			{ "extended features",        "bthci_evt.lmp_feature",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
-				"extended features", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_keys,
 			{ "Number of Link Keys",        "bthci_evt.num_keys",
@@ -3104,17 +3104,17 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_num_keys_read,
 			{ "Number of Link Keys Read",        "bthci_evt.num_keys_read",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Number of Link Keys Read", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_keys_deleted,
 			{ "Number of Link Keys Deleted",        "bthci_evt.num_keys_deleted",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Number of Link Keys Deleted", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_keys_written,
 			{ "Number of Link Keys Written",        "bthci_evt.num_keys_written",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Number of Link Keys Written", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_max_num_keys,
 			{ "Max Num Keys",        "bthci_evt.max_num_keys",
@@ -3124,27 +3124,27 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_num_responses,
 			{ "Number of responses",        "bthci_evt.num_responses",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Number of Responses from Inquiry ", HFILL }
+				"Number of Responses from Inquiry", HFILL }
 		},
 		{ &hf_bthci_evt_link_policy_setting_switch,
 			{ "Enable Master Slave Switch", "bthci_evt.link_policy_switch",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0001,
-				"Enable Master Slave Switch", HFILL }
+				NULL, HFILL }
 		}, 
 		{ &hf_bthci_evt_link_policy_setting_hold,
 			{ "Enable Hold Mode", "bthci_evt.link_policy_hold",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0002,
-				"Enable Hold Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_policy_setting_sniff,
 			{ "Enable Sniff Mode", "bthci_evt.link_policy_sniff",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0004,
-				"Enable Sniff Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_policy_setting_park,
 			{ "Enable Park Mode", "bthci_evt.link_policy_park",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0008,
-				"Enable Park Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_curr_role,
 			{ "Current Role", "bthci_evt_curr_role",
@@ -3194,12 +3194,12 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_input_data_format,
 			{ "Input Data Format", "bthci_evt.input_data_format",
 				FT_UINT16, BASE_DEC, VALS(evt_input_data_format_values), 0x00c0,
-				"Input Data Format", HFILL }
+				NULL, HFILL }
 		},  
 		{ &hf_bthci_evt_input_sample_size,
 			{ "Input Sample Size", "bthci_evt.input_sample_size",
 				FT_UINT16, BASE_DEC, VALS(evt_input_sample_size_values), 0x0020,
-				"Input Sample Size", HFILL }
+				NULL, HFILL }
 		}, 
 		{ &hf_bthci_evt_num_broadcast_retransm,
 			{ "Num Broadcast Retran", "bthci_evt.num_broad_retran",
@@ -3224,15 +3224,15 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_transmit_power_level,
 			{ "Transmit Power Level (dBm)", "bthci_evt.transmit_power_level",
 				FT_INT8, BASE_DEC, NULL, 0x0,
-				"Transmit Power Level (dBm)", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_supp_iac,
-			{" Num Support IAC", "bthci_evt.num_supp_iac",
+			{"Num Support IAC", "bthci_evt.num_supp_iac",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Num of supported IAC the device can simultaneously listen", HFILL }
 		},
 		{ &hf_bthci_evt_num_curr_iac,
-			{" Num Current IAC", "bthci_evt.num_curr_iac",
+			{"Num Current IAC", "bthci_evt.num_curr_iac",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Num of IACs currently in use to simultaneously listen", HFILL }
 		},
@@ -3244,17 +3244,17 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_loopback_mode,
 			{"Loopback Mode", "bthci_evt.loopback_mode",
 				FT_UINT8, BASE_HEX, VALS(evt_loopback_modes), 0x0,
-				"Loopback Mode", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_country_code,
 			{"Country Code", "bthci_evt.country_code",
 				FT_UINT8, BASE_HEX, VALS(evt_country_code_values), 0x0,
-				"Country Code", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_failed_contact_counter,
 			{"Failed Contact Counter", "bthci_evt.failed_contact_counter",
 				FT_UINT16, BASE_DEC, NULL, 0x0,  
-				"Failed Contact Counter", HFILL }
+				NULL, HFILL }
 		},   
 		{ &hf_bthci_evt_link_quality,
 			{"Link Quality", "bthci_evt.link_quality",
@@ -3264,7 +3264,7 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_rssi,
 			{ "RSSI (dB)", "bthci_evt.rssi",
 				FT_INT8, BASE_DEC, NULL, 0x0,
-				"RSSI (dB)", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_host_data_packet_length_acl,
 			{"Host ACL Data Packet Length (bytes)", "bthci_evt.max_data_length_acl",
@@ -3289,42 +3289,42 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_page_number,
 			{"Page Number", "bthci_evt.page_number",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Page Number", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_max_page_number,
 			{"Max. Page Number", "bthci_evt.max_page_number",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Max. Page Number", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_local_supported_cmds,
 			{ "Local Supported Commands",        "bthci_evt.local_supported_cmds",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"Local Supported Commands", HFILL }
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_fec_required,
 			{"FEC Required", "bthci_evt.fec_required",
 				FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x0,
-				"FEC Required", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_err_data_reporting,
 			{"Erroneous Data Reporting", "bthci_evt.err_data_reporting",
 				FT_UINT8, BASE_DEC, VALS(evt_enable_values), 0x0,
-				"Erroneous Data Reporting", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_scan_type,
 			{"Scan Type", "bthci_evt.inq_scan_type",
 				FT_UINT8, BASE_DEC, VALS(evt_scan_types), 0x0,
-				"Scan Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_inq_mode,
 			{"Inquiry Mode", "bthci_evt.inq_scan_type",
 				FT_UINT8, BASE_DEC, VALS(evt_inq_modes), 0x0,
-				"Inquiry Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_power_level_type,
 			{"Type", "bthci_evt.power_level_type",
 				FT_UINT8, BASE_HEX, VALS(evt_power_level_types), 0x0,
-				"Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_ext_lmp_features,
 			{"Ext. LMP Features", "bthci_evt.page_number",
@@ -3334,57 +3334,57 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_sync_link_type,
 			{"Link Type", "bthci_evt.sync_link_type",
 				FT_UINT8, BASE_HEX, VALS(evt_sync_link_types), 0x0,
-				"Link Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_sync_tx_interval,
 			{"Transmit Interval", "bthci_evt.sync_tx_interval",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Transmit Interval", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_sync_rtx_window,
 			{"Retransmit Window", "bthci_evt.sync_rtx_window",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Retransmit Window", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_sync_rx_packet_length,
 			{"Rx Packet Length", "bthci_evt.sync_rx_pkt_len",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Rx Packet Length", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_sync_tx_packet_length,
 			{"Tx Packet Length", "bthci_evt.sync_tx_pkt_len",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Tx Packet Length", HFILL}
+				NULL, HFILL}
 		},	
 		{ &hf_bthci_evt_air_mode,
 			{"Air Mode", "bthci_evt.air_mode",
 				FT_UINT8, BASE_DEC, VALS(evt_air_mode_values), 0x0,
-				"Air Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_max_tx_latency,
 			{"Max. Tx Latency", "bthci_evt.max_tx_latency",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Max. Tx Latency", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_max_rx_latency,
 			{"Max. Rx Latency", "bthci_evt.max_rx_latency",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Max. Rx Latency", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_min_remote_timeout,
 			{"Min. Remote Timeout", "bthci_evt.min_remote_timeout",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Min. Remote Timeout", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_min_local_timeout,
 			{"Min. Local Timeout", "bthci_evt.min_local_timeout",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Min. Local Timeout", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_link_supervision_timeout,
 			{"Link Supervision Timeout", "bthci_evt.link_supervision_timeout",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Link Supervision Timeout", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_token_bucket_size,
 			{ "Token Bucket Size",        "bthci_evt.token_bucket_size",
@@ -3394,86 +3394,86 @@ proto_register_bthci_evt(void)
 		{ &hf_bthci_evt_flow_direction,
 			{"Flow Direction", "bthci_evt.flow_direction",
 				FT_UINT8, BASE_DEC, VALS(evt_flow_direction_values), 0x0,
-				"Flow Direction", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_afh_ch_assessment_mode,
 			{"AFH Channel Assessment Mode", "bthci_evt.afh_ch_assessment_mode",
 				FT_UINT8, BASE_DEC, VALS(evt_enable_values), 0x0,
-				"AFH Channel Assessment Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_lmp_handle,
 			{ "LMP Handle",             "bthci_evt.lmp_handle",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
-				"LMP Handle", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_clock,
 			{ "Clock",        "bthci_evt.clock",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
-				"Clock", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_clock_accuracy,
 			{ "Clock",        "bthci_evt.clock_accuracy",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
-				"Clock", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_afh_mode,
 			{"AFH Mode", "bthci_evt.afh_mode",
 				FT_UINT8, BASE_DEC, VALS(evt_enable_values), 0x0,
-				"AFH Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_afh_channel_map,
 			{"AFH Channel Map", "bthci_evt.afh_channel_map",
 				FT_UINT_BYTES, BASE_HEX, NULL, 0x0,
-				"AFH Channel Map", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_simple_pairing_mode,
 			{"Simple Pairing Mode", "bthci_evt.simple_pairing_mode",
 				FT_UINT8, BASE_DEC, VALS(evt_enable_values), 0x0,
-				"Simple Pairing Mode", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_hash_c,
 			{"Hash C", "bthci_evt.hash_c",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Hash C", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_randomizer_r,
 			{"Randomizer R", "bthci_evt.randomizer_r",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Randomizer R", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_io_capability,
 			{"IO Capability", "bthci_evt.io_capability",
 				FT_UINT8, BASE_HEX, VALS(bthci_cmd_io_capability_vals), 0x0,
-				"IO Capability", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_oob_data_present,
 			{"OOB Data Present", "bthci_evt.oob_data_present",
 				FT_UINT8, BASE_DEC, VALS(bthci_cmd_oob_data_present_vals), 0x0,
-				"OOB Data Present", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_auth_requirements,
 			{"Authentication Requirements", "bthci_evt.auth_requirements",
 				FT_UINT8, BASE_DEC, VALS(bthci_cmd_auth_req_vals), 0x0,
-				"Authentication Requirements", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_numeric_value,
 			{"Numeric Value", "bthci_evt.numeric_value",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
-				"Numeric Value", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_passkey,
 			{"Passkey", "bthci_evt.passkey",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
-				"Passkey", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_notification_type,
 			{"Notification Type", "bthci_evt.notification_type",
 				FT_UINT8, BASE_DEC, VALS(evt_notification_type_vals), 0x0,
-				"Notification Type", HFILL}
+				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_eir_data,
 			{"Data", "bthci_cmd.eir_data",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"EIR Data", HFILL}
 		},
 		{ &hf_bthci_evt_eir_struct_length,
@@ -3498,7 +3498,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_sc_uuid128,
 			{ "UUID",           "bthci_cmd.service_class_uuid128",
-				FT_BYTES, BASE_HEX, NULL, 0x0,          
+				FT_BYTES, BASE_NONE, NULL, 0x0,          
 				"128-bit Service Class UUID", HFILL }
 		}
 	};

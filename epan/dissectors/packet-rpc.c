@@ -3562,160 +3562,160 @@ proto_register_rpc(void)
 	static hf_register_info hf[] = {
 		{ &hf_rpc_reqframe, {
 			"Request Frame", "rpc.reqframe", FT_FRAMENUM, BASE_NONE,
-			NULL, 0, "Request Frame", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_repframe, {
 			"Reply Frame", "rpc.repframe", FT_FRAMENUM, BASE_NONE,
-			NULL, 0, "Reply Frame", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_lastfrag, {
 			"Last Fragment", "rpc.lastfrag", FT_BOOLEAN, 32,
-			TFS(&tfs_yes_no), RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
+			TFS(&tfs_yes_no), RPC_RM_LASTFRAG, NULL, HFILL }},
 		{ &hf_rpc_fraglen, {
 			"Fragment Length", "rpc.fraglen", FT_UINT32, BASE_DEC,
-			NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
+			NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
 		{ &hf_rpc_xid, {
 			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
-			NULL, 0, "XID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_msgtype, {
 			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_DEC,
-			VALS(rpc_msg_type), 0, "Message Type", HFILL }},
+			VALS(rpc_msg_type), 0, NULL, HFILL }},
 		{ &hf_rpc_state_reply, {
 			"Reply State", "rpc.replystat", FT_UINT32, BASE_DEC,
-			VALS(rpc_reply_state), 0, "Reply State", HFILL }},
+			VALS(rpc_reply_state), 0, NULL, HFILL }},
 		{ &hf_rpc_state_accept, {
 			"Accept State", "rpc.state_accept", FT_UINT32, BASE_DEC,
-			VALS(rpc_accept_state), 0, "Accept State", HFILL }},
+			VALS(rpc_accept_state), 0, NULL, HFILL }},
 		{ &hf_rpc_state_reject, {
 			"Reject State", "rpc.state_reject", FT_UINT32, BASE_DEC,
-			VALS(rpc_reject_state), 0, "Reject State", HFILL }},
+			VALS(rpc_reject_state), 0, NULL, HFILL }},
 		{ &hf_rpc_state_auth, {
 			"Auth State", "rpc.state_auth", FT_UINT32, BASE_DEC,
-			VALS(rpc_auth_state), 0, "Auth State", HFILL }},
+			VALS(rpc_auth_state), 0, NULL, HFILL }},
 		{ &hf_rpc_version, {
 			"RPC Version", "rpc.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "RPC Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_version_min, {
 			"RPC Version (Minimum)", "rpc.version.min", FT_UINT32,
 			BASE_DEC, NULL, 0, "Program Version (Minimum)", HFILL }},
 		{ &hf_rpc_version_max, {
 			"RPC Version (Maximum)", "rpc.version.max", FT_UINT32,
-			BASE_DEC, NULL, 0, "RPC Version (Maximum)", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_program, {
 			"Program", "rpc.program", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_programversion, {
 			"Program Version", "rpc.programversion", FT_UINT32,
-			BASE_DEC, NULL, 0, "Program Version", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_programversion_min, {
 			"Program Version (Minimum)", "rpc.programversion.min", FT_UINT32,
-			BASE_DEC, NULL, 0, "Program Version (Minimum)", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_programversion_max, {
 			"Program Version (Maximum)", "rpc.programversion.max", FT_UINT32,
-			BASE_DEC, NULL, 0, "Program Version (Maximum)", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_procedure, {
 			"Procedure", "rpc.procedure", FT_UINT32, BASE_DEC,
-			NULL, 0, "Procedure", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_flavor, {
 			"Flavor", "rpc.auth.flavor", FT_UINT32, BASE_DEC,
-			VALS(rpc_auth_flavor), 0, "Flavor", HFILL }},
+			VALS(rpc_auth_flavor), 0, NULL, HFILL }},
 		{ &hf_rpc_auth_length, {
 			"Length", "rpc.auth.length", FT_UINT32, BASE_DEC,
-			NULL, 0, "Length", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_stamp, {
 			"Stamp", "rpc.auth.stamp", FT_UINT32, BASE_HEX,
-			NULL, 0, "Stamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_uid, {
 			"UID", "rpc.auth.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "UID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_gid, {
 			"GID", "rpc.auth.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "GID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_v, {
 			"GSS Version", "rpc.authgss.version", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Version", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_proc, {
 			"GSS Procedure", "rpc.authgss.procedure", FT_UINT32,
-			BASE_DEC, VALS(rpc_authgss_proc), 0, "GSS Procedure", HFILL }},
+			BASE_DEC, VALS(rpc_authgss_proc), 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_seq, {
 			"GSS Sequence Number", "rpc.authgss.seqnum", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Sequence Number", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_svc, {
 			"GSS Service", "rpc.authgss.service", FT_UINT32,
-			BASE_DEC, VALS(rpc_authgss_svc), 0, "GSS Service", HFILL }},
+			BASE_DEC, VALS(rpc_authgss_svc), 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_ctx, {
 			"GSS Context", "rpc.authgss.context", FT_BYTES,
-			BASE_HEX, NULL, 0, "GSS Context", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_major, {
 			"GSS Major Status", "rpc.authgss.major", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Major Status", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_minor, {
 			"GSS Minor Status", "rpc.authgss.minor", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Minor Status", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_window, {
 			"GSS Sequence Window", "rpc.authgss.window", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Sequence Window", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_token_length, {
 			"GSS Token Length", "rpc.authgss.token_length", FT_UINT32,
-			BASE_DEC, NULL, 0, "GSS Token Length", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_data_length, {
 			"Length", "rpc.authgss.data.length", FT_UINT32,
-			BASE_DEC, NULL, 0, "Length", HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_data, {
 			"GSS Data", "rpc.authgss.data", FT_BYTES,
-			BASE_HEX, NULL, 0, "GSS Data", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_checksum, {
 			"GSS Checksum", "rpc.authgss.checksum", FT_BYTES,
-			BASE_HEX, NULL, 0, "GSS Checksum", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_token, {
 			"GSS Token", "rpc.authgss.token", FT_BYTES,
-			BASE_HEX, NULL, 0, "GSS Token", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgssapi_v, {
 			"AUTH_GSSAPI Version", "rpc.authgssapi.version",
-			FT_UINT32, BASE_DEC, NULL, 0, "AUTH_GSSAPI Version",
+			FT_UINT32, BASE_DEC, NULL, 0, NULL,
 			HFILL }},
 		{ &hf_rpc_authgssapi_msg, {
 			"AUTH_GSSAPI Message", "rpc.authgssapi.message",
-			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0, "AUTH_GSSAPI Message",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0, NULL,
 			HFILL }},
 		{ &hf_rpc_authgssapi_msgv, {
 			"Msg Version", "rpc.authgssapi.msgversion",
-			FT_UINT32, BASE_DEC, NULL, 0, "Msg Version",
+			FT_UINT32, BASE_DEC, NULL, 0, NULL,
 			HFILL }},
 		{ &hf_rpc_authgssapi_handle, {
 			"Client Handle", "rpc.authgssapi.handle",
-			FT_BYTES, BASE_HEX, NULL, 0, "Client Handle", HFILL }},
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgssapi_isn, {
 			"Signed ISN", "rpc.authgssapi.isn",
-			FT_BYTES, BASE_HEX, NULL, 0, "Signed ISN", HFILL }},
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_namekind, {
 			"Namekind", "rpc.authdes.namekind", FT_UINT32, BASE_DEC,
-			VALS(rpc_authdes_namekind), 0, "Namekind", HFILL }},
+			VALS(rpc_authdes_namekind), 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_netname, {
 			"Netname", "rpc.authdes.netname", FT_STRING,
-			BASE_DEC, NULL, 0, "Netname", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_convkey, {
 			"Conversation Key (encrypted)", "rpc.authdes.convkey", FT_UINT32,
-			BASE_HEX, NULL, 0, "Conversation Key (encrypted)", HFILL }},
+			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_window, {
 			"Window (encrypted)", "rpc.authdes.window", FT_UINT32,
 			BASE_HEX, NULL, 0, "Windows (encrypted)", HFILL }},
 		{ &hf_rpc_authdes_nickname, {
 			"Nickname", "rpc.authdes.nickname", FT_UINT32,
-			BASE_HEX, NULL, 0, "Nickname", HFILL }},
+			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_timestamp, {
 			"Timestamp (encrypted)", "rpc.authdes.timestamp", FT_UINT32,
-			BASE_HEX, NULL, 0, "Timestamp (encrypted)", HFILL }},
+			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_windowverf, {
 			"Window verifier (encrypted)", "rpc.authdes.windowverf", FT_UINT32,
-			BASE_HEX, NULL, 0, "Window verifier (encrypted)", HFILL }},
+			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authdes_timeverf, {
 			"Timestamp verifier (encrypted)", "rpc.authdes.timeverf", FT_UINT32,
-			BASE_HEX, NULL, 0, "Timestamp verifier (encrypted)", HFILL }},
+			BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_machinename, {
 			"Machine Name", "rpc.auth.machinename", FT_STRING,
-			BASE_DEC, NULL, 0, "Machine Name", HFILL }},
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_dup, {
 			"Duplicate Call/Reply", "rpc.dup", FT_NONE, BASE_NONE,
-			NULL, 0, "Duplicate Call/Reply", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_call_dup, {
 			"Duplicate to the call in", "rpc.call.dup", FT_FRAMENUM, BASE_DEC,
 			NULL, 0, "This is a duplicate to the call in frame", HFILL }},
@@ -3724,7 +3724,7 @@ proto_register_rpc(void)
 			NULL, 0, "This is a duplicate to the reply in frame", HFILL }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "Value Follows", HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_rpc_array_len, {
 			"num", "rpc.array.len", FT_UINT32, BASE_DEC,
 			NULL, 0, "Length of RPC array", HFILL }},
@@ -3755,11 +3755,11 @@ proto_register_rpc(void)
 
 		{ &hf_rpc_fragment,
 		{ "RPC Fragment", "rpc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"RPC Fragment", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_rpc_fragments,
 		{ "RPC Fragments", "rpc.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-			"RPC Fragments", HFILL }},
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_rpc,

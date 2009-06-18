@@ -666,8 +666,8 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_toc_f,
 			{ "F bit",           "amr.toc.f",
-			FT_BOOLEAN, 8, TFS(&toc_f_bit_vals), 0x0,          
-			"F bit", HFILL }
+			FT_BOOLEAN, BASE_NONE, TFS(&toc_f_bit_vals), 0x0,          
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_toc_ft,
 			{ "FT bits",           "amr.nb.toc.ft",
@@ -681,78 +681,78 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_toc_q,
 			{ "Q bit",           "amr.toc.q",
-			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x00,          
+			FT_BOOLEAN, BASE_NONE, TFS(&toc_q_bit_vals), 0x0,          
 			"Frame quality indicator bit", HFILL }
 		},
 		{ &hf_amr_nb_if1_ft,
 			{ "Frame Type",           "amr.nb.if1.ft",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_vals), 0xf0,          
-			"Frame Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_ft,
 			{ "Frame Type",           "amr.wb.if1.ft",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_vals), 0xf0,          
-			"Frame Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if1_mode_req,
 			{ "Mode Type request",           "amr.nb.if1.modereq",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_request_vals), 0xe0,
-			"Mode Type request", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_mode_req,
 			{ "Mode Type request",           "amr.wb.if1.modereq",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_request_vals), 0x0f,
-			"Mode Type request", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_if1_sti,
 			{ "SID Type Indicator",           "amr.if1.sti",
 			FT_BOOLEAN, 8, TFS(&amr_sti_vals), 0x10,          
-			"SID Type Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if1_sti_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if1.stimodeind",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_vals), 0x0e,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_sti_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if1.stimodeind",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_vals), 0x0f,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if1_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if1.modeind",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_vals), 0x07,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if1.modeind",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_vals), 0xf0,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if2_ft,
 			{ "Frame Type",           "amr.nb.if2.ft",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_vals), 0x0f,
-			"Frame Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if2_ft,
 			{ "Frame Type",           "amr.wb.if2.ft",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_vals), 0xf0,
-			"Frame Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_if2_sti,
 			{ "SID Type Indicator",           "amr.if2.sti",
 			FT_BOOLEAN, 8, TFS(&amr_sti_vals), 0x80,          
-			"SID Type Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if2_sti_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if2.stimodeind",
 			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_vals), 0x07,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if2_sti_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if2.stimodeind",
 			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_vals), 0x78,
-			"Mode Type indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_amr_if1_fqi,
 			{ "FQI",           "amr.fqi",

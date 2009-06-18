@@ -233,15 +233,15 @@ void proto_register_lanforge(void)
 	  { 
 	      "Timestamp nsecs", "LANforge.ts-nsecs", 
 	      FT_UINT32, BASE_DEC, NULL, 0x0, 
-	      "Timestamp nsecs", HFILL
+	      NULL, HFILL
 	  }
 	},
 
 	{ &hf_lanforge_timestamp,
 	  { 
 	      "Timestamp", "LANforge.timestamp", 
-	      FT_ABSOLUTE_TIME, BASE_HEX, NULL, 0x0,
-	      "Timestamp", HFILL
+	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL
 	  }
 	}
     };

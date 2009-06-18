@@ -4087,7 +4087,7 @@ void proto_register_nas_eps(void) {
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_tsc,
-		{ "Type of security context flag (TSC) ","nas_eps.emm.tsc",
+		{ "Type of security context flag (TSC)","nas_eps.emm.tsc",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_tsc_vals), 0x0,
 		NULL, HFILL }
 	},
@@ -4129,7 +4129,7 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_esm_msg_cont,
 		{ "ESM message container contents","nas_eps.emm.esm_msg_cont",
 		FT_BYTES, BASE_NONE, NULL, 0x0,
-		"ESM message container contents", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_esm_imeisv_req,
 		{ "IMEISV request","nas_eps.emm.imeisv_req",
@@ -4158,8 +4158,8 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_res,
 		{ "RES","nas_eps.emm.res",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"RES", HFILL }
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_csfb_resp,
 		{ "CSFB response","nas_eps.emm.csfb_resp",
@@ -4178,7 +4178,7 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_short_mac,
 		{ "Short MAC value","nas_eps.emm.short_mac",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_tai_tol,
@@ -4395,12 +4395,12 @@ void proto_register_nas_eps(void) {
 	},
 
 	{ &hf_nas_eps_emm_1xsrvcc_cap,
-		{ "1xSRVCC capability ","nas_eps.emm.1xsrvcc_cap",
+		{ "1xSRVCC capability","nas_eps.emm.1xsrvcc_cap",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_1xsrvcc_cap_flg), 0x02,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg,
-		{ "1xSRVCC capability ","nas_eps.emm.ue_ra_cap_inf_upd_need_flg",
+		{ "1xSRVCC capability","nas_eps.emm.ue_ra_cap_inf_upd_need_flg",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ue_ra_cap_inf_upd_need_flg), 0x01,
 		NULL, HFILL }
 	},
@@ -4521,27 +4521,27 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_esm_pdn_ipv4,
 		{"PDN IPv4", "nas_eps.esm.pdn_ipv4",
-		FT_IPv4, BASE_DEC, NULL, 0x0,
-		"PDN IPv4", HFILL}
+		FT_IPv4, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_nas_eps_esm_pdn_ipv6_len,
 		{"IPv6 Prefix Length", "nas_eps.esm.pdn_ipv6_len",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"IPv6 Prefix Length", HFILL}
+		NULL, HFILL}
 	},
 	{ &hf_nas_eps_esm_pdn_ipv6,
 		{"PDN IPv6", "nas_eps.esm.pdn_ipv6",
-		FT_IPv6, BASE_HEX, NULL, 0x0,
-		"PDN IPv6", HFILL}
+		FT_IPv6, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 	},
 	{ &hf_nas_eps_esm_linked_bearer_id,
-		{ "Linked EPS bearer identity ","nas_eps.esm.linked_bearer_id",
+		{ "Linked EPS bearer identity","nas_eps.esm.linked_bearer_id",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_esm_linked_bearer_id_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_active_flg,
 		{ "Active flag", "nas_eps.emm.active_flg",
-		FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_active_flg_value), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_eps_update_result_value,

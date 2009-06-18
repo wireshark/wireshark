@@ -97,9 +97,9 @@ proto_register_ISystemActivator (void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_opnum,
-		  { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		  { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sysact_unknown,
-		{ "IUnknown", "isystemactivator.unknown", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "IUnknown", "isystemactivator.unknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ISystemActivator

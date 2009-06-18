@@ -2041,7 +2041,7 @@ proto_register_memcache (void)
 
     { &hf_extras_unknown,
       { "Unknown", "memcache.extras.unknown", 
-        FT_BYTES, BASE_DEC, NULL, 0x0, 
+        FT_BYTES, BASE_NONE, NULL, 0x0, 
         "Unknown Extras", HFILL } },
 
     { &hf_extras_missing,
@@ -2051,7 +2051,7 @@ proto_register_memcache (void)
 
     { &hf_key,
       { "Key", "memcache.key", 
-        FT_STRING, BASE_DEC, NULL, 0x0, 
+        FT_STRING, BASE_NONE, NULL, 0x0, 
         NULL, HFILL } },
 
     { &hf_key_missing,
@@ -2061,7 +2061,7 @@ proto_register_memcache (void)
 
     { &hf_value,
       { "Value", "memcache.value", 
-        FT_STRING, BASE_DEC, NULL, 0x0, 
+        FT_STRING, BASE_NONE, NULL, 0x0, 
         NULL, HFILL } },
 
     { &hf_value_missing,

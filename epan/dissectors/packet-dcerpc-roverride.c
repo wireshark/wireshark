@@ -69,7 +69,7 @@ proto_register_roverride (void)
 {
 	static hf_register_info hf[] = {
       { &hf_roverride_opnum,
-         { "Operation", "roverride.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+         { "Operation", "roverride.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

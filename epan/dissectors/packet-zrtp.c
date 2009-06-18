@@ -870,7 +870,7 @@ proto_register_zrtp(void)
     {&hf_zrtp_msg_zid,
      {
        "ZID", "zrtp.zid",
-       FT_BYTES, BASE_DEC,
+       FT_BYTES, BASE_NONE,
        NULL, 0x0,
        NULL, HFILL
      }

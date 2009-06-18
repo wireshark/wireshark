@@ -6313,15 +6313,15 @@ proto_register_bacapp(void)
 	static hf_register_info hf[] = {
 		{ &hf_bacapp_type,
 			{ "APDU Type",           "bacapp.type",
-			FT_UINT8, BASE_DEC, VALS(BACnetTypeName), 0xf0, "APDU Type", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetTypeName), 0xf0, NULL, HFILL }
 		},
 		{ &hf_bacapp_pduflags,
 			{ "PDU Flags",			"bacapp.pduflags",
-			FT_UINT8, BASE_HEX, NULL, 0x0f,	"PDU Flags", HFILL }
+			FT_UINT8, BASE_HEX, NULL, 0x0f,	NULL, HFILL }
 		},
 		{ &hf_bacapp_SEG,
 			{ "Segmented Request",           "bacapp.segmented_request",
-			FT_BOOLEAN, 8, TFS(&segments_follow), 0x08, "Segmented Request", HFILL }
+			FT_BOOLEAN, 8, TFS(&segments_follow), 0x08, NULL, HFILL }
 		},
 		{ &hf_bacapp_MOR,
 			{ "More Segments",           "bacapp.more_segments",
@@ -6333,47 +6333,47 @@ proto_register_bacapp(void)
 		},
 		{ &hf_bacapp_max_adpu_size,
 			{ "Size of Maximum ADPU accepted",           "bacapp.max_adpu_size",
-			FT_UINT8, BASE_DEC, VALS(BACnetMaxAPDULengthAccepted), 0x0f, "Size of Maximum ADPU accepted", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetMaxAPDULengthAccepted), 0x0f, NULL, HFILL }
 		},
 		{ &hf_bacapp_response_segments,
 			{ "Max Response Segments accepted",           "bacapp.response_segments",
-			FT_UINT8, BASE_DEC, VALS(BACnetMaxSegmentsAccepted), 0x70, "Max Response Segments accepted", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetMaxSegmentsAccepted), 0x70, NULL, HFILL }
 		},
 		{ &hf_bacapp_objectType,
 			{ "Object Type",           "bacapp.objectType",
-			FT_UINT32, BASE_DEC, VALS(BACnetObjectType), 0xffc00000, "Object Type", HFILL }
+			FT_UINT32, BASE_DEC, VALS(BACnetObjectType), 0xffc00000, NULL, HFILL }
 		},
 		{ &hf_bacapp_instanceNumber,
 			{ "Instance Number",           "bacapp.instance_number",
-			FT_UINT32, BASE_DEC, NULL, 0x003fffff, "Instance Number", HFILL }
+			FT_UINT32, BASE_DEC, NULL, 0x003fffff, NULL, HFILL }
 		},
 		{ &hf_BACnetPropertyIdentifier,
 			{ "Property Identifier", "bacapp.property_identifier",
-			FT_UINT32, BASE_DEC, VALS(BACnetPropertyIdentifier), 0, "Property Identifier", HFILL }
+			FT_UINT32, BASE_DEC, VALS(BACnetPropertyIdentifier), 0, NULL, HFILL }
 		},
 		{ &hf_BACnetVendorIdentifier,
 			{ "Vendor Identifier", "bacapp.vendor_identifier",
-			FT_UINT16, BASE_DEC, VALS(BACnetVendorIdentifiers), 0, "Vendor Identifier", HFILL }
+			FT_UINT16, BASE_DEC, VALS(BACnetVendorIdentifiers), 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_invoke_id,
 			{ "Invoke ID",           "bacapp.invoke_id",
-			FT_UINT8, BASE_DEC, NULL, 0, "Invoke ID", HFILL }
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_sequence_number,
 			{ "Sequence Number",           "bacapp.sequence_number",
-			FT_UINT8, BASE_DEC, NULL, 0, "Sequence Number", HFILL }
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_window_size,
 			{ "Proposed Window Size",           "bacapp.window_size",
-			FT_UINT8, BASE_DEC, NULL, 0, "Proposed Window Size", HFILL }
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_service,
 			{ "Service Choice",           "bacapp.confirmed_service",
-			FT_UINT8, BASE_DEC, VALS(BACnetConfirmedServiceChoice), 0x00, "Service Choice", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetConfirmedServiceChoice), 0x00, NULL, HFILL }
 		},
 		{ &hf_bacapp_uservice,
 			{ "Unconfirmed Service Choice",           "bacapp.unconfirmed_service",
-			FT_UINT8, BASE_DEC, VALS(BACnetUnconfirmedServiceChoice), 0x00, "Unconfirmed Service Choice", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetUnconfirmedServiceChoice), 0x00, NULL, HFILL }
 		},
 		{ &hf_bacapp_NAK,
 			{ "NAK",           "bacapp.NAK",
@@ -6385,79 +6385,79 @@ proto_register_bacapp(void)
 		},
 		{ &hf_BACnetRejectReason,
 			{ "Reject Reason",           "bacapp.reject_reason",
-			FT_UINT8, BASE_DEC, VALS(BACnetRejectReason), 0x00, "Reject Reason", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetRejectReason), 0x00, NULL, HFILL }
 		},
 		{ &hf_BACnetAbortReason,
 			{ "Abort Reason",           "bacapp.abort_reason",
-			FT_UINT8, BASE_DEC, VALS(BACnetAbortReason), 0x00, "Abort Reason", HFILL }
+			FT_UINT8, BASE_DEC, VALS(BACnetAbortReason), 0x00, NULL, HFILL }
 		},
 		{ &hf_bacapp_vpart,
 			{ "BACnet APDU variable part:",           "bacapp.variable_part",
-			FT_NONE, 0, NULL, 0, "BACnet APDU variable part", HFILL }
+			FT_NONE, BASE_NONE, NULL, 0, "BACnet APDU variable part", HFILL }
 		},
 		{ &hf_bacapp_tag,
 			{ "BACnet Tag",
 			"bacapp.tag",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"BACnet Tag", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 		{ &hf_BACnetApplicationTagNumber,
 			{ "Application Tag Number",
 			"bacapp.application_tag_number",
 			FT_UINT8, BASE_DEC, VALS(&BACnetApplicationTagNumber), 0xF0,
-			"Application Tag Number", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_BACnetContextTagNumber,
 			{ "Context Tag Number",
 			"bacapp.context_tag_number",
 			FT_UINT8, BASE_DEC, NULL, 0xF0,
-			"Context Tag Number", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_BACnetExtendedTagNumber,
 			{ "Extended Tag Number",
 			"bacapp.extended_tag_number",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Extended Tag Number", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_BACnetNamedTag,
 			{ "Named Tag",
 			"bacapp.named_tag",
 			FT_UINT8, BASE_DEC, VALS(&BACnetTagNames), 0x07,
-			"Named Tag", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_BACnetCharacterSet,
 			{ "String Character Set",
 			"bacapp.string_character_set",
 			FT_UINT8, BASE_DEC, VALS(&BACnetCharacterSet),0,
-			"String Character Set", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_BACnetTagClass,
 			{ "Tag Class",           "bacapp.tag_class",
-			FT_BOOLEAN, 8, TFS(&BACnetTagClass), 0x08, "Tag Class", HFILL }
+			FT_BOOLEAN, 8, TFS(&BACnetTagClass), 0x08, NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_lvt,
 			{ "Length Value Type",
 			"bacapp.LVT",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Length Value Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_value8,
 			{ "Tag Value",
 			"bacapp.tag_value8",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Tag Value", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_value16,
 			{ "Tag Value 16-bit",
 			"bacapp.tag_value16",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Tag Value 16-bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_value32,
 			{ "Tag Value 32-bit",
 			"bacapp.tag_value32",
 			FT_UINT32, BASE_DEC, NULL, 0,
-			"Tag Value 32-bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_ProcessId,
 			{ "ProcessIdentifier",           "bacapp.processId",

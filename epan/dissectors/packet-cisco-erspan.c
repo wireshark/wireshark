@@ -141,35 +141,35 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_unknown1,
 		{ "Unknown1",	"erspan.unknown1", FT_UINT16, BASE_HEX, NULL,
-			0xf000, "", HFILL }},
+			0xf000, NULL, HFILL }},
 
 		{ &hf_erspan_vlan,
 		{ "Vlan",	"erspan.vlan", FT_UINT16, BASE_DEC, NULL,
-			0x0fff, "", HFILL }},
+			0x0fff, NULL, HFILL }},
 
 		{ &hf_erspan_priority,
 		{ "Priority",	"erspan.priority", FT_UINT16, BASE_DEC, NULL,
-			0xe000, "", HFILL }},
+			0xe000, NULL, HFILL }},
 
 		{ &hf_erspan_unknown2,
 		{ "Unknown2",	"erspan.unknown2", FT_UINT16, BASE_DEC, NULL,
-			0x1000, "", HFILL }},
+			0x1000, NULL, HFILL }},
 
 		{ &hf_erspan_direction,
 		{ "Direction",	"erspan.direction", FT_UINT16, BASE_DEC, VALS(erspan_direction_vals),
-			0x0800, "", HFILL }},
+			0x0800, NULL, HFILL }},
 
 		{ &hf_erspan_unknown3,
 		{ "Unknown3",	"erspan.unknown3", FT_UINT16, BASE_DEC, NULL,
-			0x0400, "", HFILL }},
+			0x0400, NULL, HFILL }},
 
 		{ &hf_erspan_spanid,
 		{ "SpanID",	"erspan.spanid", FT_UINT16, BASE_DEC, NULL,
-			0x03ff, "", HFILL }},
+			0x03ff, NULL, HFILL }},
 
 		{ &hf_erspan_unknown4,
 		{ "Unknown4",	"erspan.unknown4", FT_BYTES, BASE_NONE, NULL,
-			0, "", HFILL }},
+			0, NULL, HFILL }},
 
         };
 	static gint *ett[] = {

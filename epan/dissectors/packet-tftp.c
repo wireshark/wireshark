@@ -472,17 +472,17 @@ proto_register_tftp(void)
 
     { &hf_tftp_source_file,
       { "Source File",	      "tftp.source_file",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	"TFTP source file name", HFILL }},
 
     { &hf_tftp_destination_file,
       { "DESTINATION File",   "tftp.destination_file",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	"TFTP source file name", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",	              "tftp.type",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	"TFTP transfer type", HFILL }},
 
     { &hf_tftp_blocknum,
@@ -497,18 +497,18 @@ proto_register_tftp(void)
 
     { &hf_tftp_error_string,
       { "Error message",      "tftp.error.message",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	"Error string in case of TFTP error message", HFILL }},
 
     { &hf_tftp_option_name,
       { "Option name",              "tftp.option.name",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"", HFILL }},
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
     { &hf_tftp_option_value,
       { "Option value",              "tftp.option.value",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"", HFILL }},
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      	NULL, HFILL }},
 
   };
   static gint *ett[] = {

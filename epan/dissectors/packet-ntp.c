@@ -835,130 +835,130 @@ proto_register_ntp(void)
 			NULL, 0, "Flags (Leap/Version/Mode)", HFILL }},
 		{ &hf_ntp_flags_li, {
 			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
-			VALS(li_types), NTP_LI_MASK, "Leap Indicator", HFILL }},
+			VALS(li_types), NTP_LI_MASK, NULL, HFILL }},
 		{ &hf_ntp_flags_vn, {
 			"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
-			VALS(ver_nums), NTP_VN_MASK, "Version number", HFILL }},
+			VALS(ver_nums), NTP_VN_MASK, NULL, HFILL }},
 		{ &hf_ntp_flags_mode, {
 			"Mode", "ntp.flags.mode", FT_UINT8, BASE_DEC,
-			VALS(mode_types), NTP_MODE_MASK, "Mode", HFILL }},
+			VALS(mode_types), NTP_MODE_MASK, NULL, HFILL }},
 		{ &hf_ntp_stratum, {
 			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
-			NULL, 0, "Peer Clock Stratum", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ppoll, {
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
-			NULL, 0, "Peer Polling Interval", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_precision, {
 			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
-			NULL, 0, "Peer Clock Precision", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
-			NULL, 0, "Root Delay", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rootdispersion, {
 			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC,
-			NULL, 0, "Root Dispersion", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_refid, {
 			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,
-			NULL, 0, "Reference Clock ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_reftime, {
 			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE,
-			NULL, 0, "Reference Clock Update Time", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_org, {
 			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE,
-			NULL, 0, "Originate Time Stamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rec, {
 			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE,
-			NULL, 0, "Receive Time Stamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_xmt, {
 			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE,
-			NULL, 0, "Transmit Time Stamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_keyid, {
-			"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX,
-			NULL, 0, "Key ID", HFILL }},
+			"Key ID", "ntp.keyid", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_mac, {
-			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX,
-			NULL, 0, "Message Authentication Code", HFILL }},
+			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntp_ext, {
 			"Extension", "ntp.ext", FT_NONE, BASE_NONE,
-			NULL, 0, "Extension", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_flags, {
 			"Flags", "ntp.ext.flags", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags (Response/Error/Version)", HFILL }},
 		{ &hf_ntp_ext_flags_r, {
 			"Response bit", "ntp.ext.flags.r", FT_UINT8, BASE_DEC,
-			VALS(ext_r_types), NTP_EXT_R_MASK, "Response bit", HFILL }},
+			VALS(ext_r_types), NTP_EXT_R_MASK, NULL, HFILL }},
 		{ &hf_ntp_ext_flags_error, {
 			"Error bit", "ntp.ext.flags.error", FT_UINT8, BASE_DEC,
-			NULL, NTP_EXT_ERROR_MASK, "Error bit", HFILL }},
+			NULL, NTP_EXT_ERROR_MASK, NULL, HFILL }},
 		{ &hf_ntp_ext_flags_vn, {
 			"Version", "ntp.ext.flags.vn", FT_UINT8, BASE_DEC,
-			NULL, NTP_EXT_VN_MASK, "Version", HFILL }},
+			NULL, NTP_EXT_VN_MASK, NULL, HFILL }},
 		{ &hf_ntp_ext_op, {
 			"Opcode", "ntp.ext.op", FT_UINT8, BASE_DEC,
-			VALS(ext_op_types), 0, "Opcode", HFILL }},
+			VALS(ext_op_types), 0, NULL, HFILL }},
 		{ &hf_ntp_ext_len, {
 			"Extension length", "ntp.ext.len", FT_UINT16, BASE_DEC,
-			NULL, 0, "Extension length", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_associd, {
 			"Association ID", "ntp.ext.associd", FT_UINT32, BASE_DEC,
-			NULL, 0, "Association ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_tstamp, {
 			"Timestamp", "ntp.ext.tstamp", FT_UINT32, BASE_HEX,
-			NULL, 0, "Timestamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_fstamp, {
 			"File Timestamp", "ntp.ext.fstamp", FT_UINT32, BASE_HEX,
-			NULL, 0, "File Timestamp", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_vallen, {
 			"Value length", "ntp.ext.vallen", FT_UINT32, BASE_DEC,
-			NULL, 0, "Value length", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_val, {
-			"Value", "ntp.ext.val", FT_BYTES, BASE_HEX,
-			NULL, 0, "Value", HFILL }},
+			"Value", "ntp.ext.val", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_siglen, {
 			"Signature length", "ntp.ext.siglen", FT_UINT32, BASE_DEC,
-			NULL, 0, "Signature length", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_ext_sig, {
-			"Signature", "ntp.ext.sig", FT_BYTES, BASE_HEX,
-			NULL, 0, "Signature", HFILL }},
+			"Signature", "ntp.ext.sig", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntpctrl_flags2, {
 			"Flags 2", "ntpctrl.flags2", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags (Response/Error/More/Opcode)", HFILL }},
 		{ &hf_ntpctrl_flags2_r, {
 			"Response bit", "ntpctrl.flags2.r", FT_UINT8, BASE_DEC,
-			VALS(ctrl_r_types), NTPCTRL_R_MASK, "Response bit", HFILL }},
+			VALS(ctrl_r_types), NTPCTRL_R_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_error, {
 			"Error bit", "ntpctrl.flags2.error", FT_UINT8, BASE_DEC,
-			NULL, NTPCTRL_ERROR_MASK, "Error bit", HFILL }},
+			NULL, NTPCTRL_ERROR_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_more, {
 			"More bit", "ntpctrl.flags2.more", FT_UINT8, BASE_DEC,
-			NULL, NTPCTRL_MORE_MASK, "More bit", HFILL }},
+			NULL, NTPCTRL_MORE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_opcode, {
 			"Opcode", "ntpctrl.flags2.opcode", FT_UINT8, BASE_DEC,
-			VALS(ctrl_op_types), NTPCTRL_OP_MASK, "Opcode", HFILL }},
+			VALS(ctrl_op_types), NTPCTRL_OP_MASK, NULL, HFILL }},
 
 		{ &hf_ntppriv_flags_r, {
 			"Response bit", "ntppriv.flags.r", FT_UINT8, BASE_DEC,
-			VALS(priv_r_types), NTPPRIV_R_MASK, "Response bit", HFILL }},
+			VALS(priv_r_types), NTPPRIV_R_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_flags_more, {
 			"More bit", "ntppriv.flags.more", FT_UINT8, BASE_DEC,
-			NULL, NTPPRIV_MORE_MASK, "More bit", HFILL }},
+			NULL, NTPPRIV_MORE_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_auth_seq, {
 			"Auth, sequence", "ntppriv.auth_seq", FT_UINT8, BASE_DEC,
 			NULL, 0, "Auth bit, sequence number", HFILL }},
 		{ &hf_ntppriv_auth, {
 			"Auth bit", "ntppriv.auth", FT_UINT8, BASE_DEC,
-			NULL, NTPPRIV_AUTH_MASK, "Auth bit", HFILL }},
+			NULL, NTPPRIV_AUTH_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_seq, {
 			"Sequence number", "ntppriv.seq", FT_UINT8, BASE_DEC,
-			NULL, NTPPRIV_SEQ_MASK, "Sequence number", HFILL }},
+			NULL, NTPPRIV_SEQ_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_impl, {
 			"Implementation", "ntppriv.impl", FT_UINT8, BASE_DEC,
-			VALS(priv_impl_types), 0, "Implementation", HFILL }},
+			VALS(priv_impl_types), 0, NULL, HFILL }},
 		{ &hf_ntppriv_reqcode, {
 			"Request code", "ntppriv.reqcode", FT_UINT8, BASE_DEC,
-			VALS(priv_rc_types), 0, "Request code", HFILL }}
+			VALS(priv_rc_types), 0, NULL, HFILL }}
         };
 	static gint *ett[] = {
 		&ett_ntp,

@@ -199,18 +199,18 @@ proto_register_tsp(void)
     { &hf_tsp_hopcnt,
       { "Hop Count", "tsp.hopcnt",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Hop Count", HFILL }},
+	NULL, HFILL }},
     { &hf_tsp_time_sec,
       { "Seconds", "tsp.sec",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Seconds", HFILL }},
+	NULL, HFILL }},
     { &hf_tsp_time_usec,
       { "Microseconds", "tsp.usec",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Microseconds", HFILL }},
+	NULL, HFILL }},
     { &hf_tsp_name,
       { "Machine Name", "tsp.name",
-	FT_STRINGZ, BASE_DEC, NULL, 0x0,
+	FT_STRINGZ, BASE_NONE, NULL, 0x0,
 	"Sender Machine Name", HFILL }}
   };
 	static gint *ett[] = {

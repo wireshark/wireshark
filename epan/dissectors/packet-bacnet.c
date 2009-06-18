@@ -526,17 +526,17 @@ proto_register_bacnet(void)
 		{ &hf_bacnet_dnet,
 			{ "Destination Network Address", "bacnet.dnet",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Destination Network Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_dlen,
 			{ "Destination MAC Layer Address Length", "bacnet.dlen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Destination MAC Layer Address Length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_dadr_eth,
 			{ "Destination ISO 8802-3 MAC Address", "bacnet.dadr_eth",
 			FT_ETHER, BASE_HEX, NULL, 0,
-			"Destination ISO 8802-3 MAC Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_dadr_mstp,
 			{ "DADR", "bacnet.dadr_mstp",
@@ -545,18 +545,18 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_dadr_tmp,
 			{ "Unknown Destination MAC", "bacnet.dadr_tmp",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"Unknown Destination MAC", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_snet,
 			{ "Source Network Address", "bacnet.snet",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Source Network Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_slen,
 			{ "Source MAC Layer Address Length", "bacnet.slen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Source MAC Layer Address Length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_sadr_eth,
 			{ "SADR", "bacnet.sadr_eth",
@@ -570,48 +570,48 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_sadr_tmp,
 			{ "Unknown Source MAC", "bacnet.sadr_tmp",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"Unknown Source MAC", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_hopc,
 			{ "Hop Count", "bacnet.hopc",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Hop Count", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_mesgtyp,
 			{ "Network Layer Message Type", "bacnet.mesgtyp",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Network Layer Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_vendor,
 			{ "Vendor ID", "bacnet.vendor",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Vendor ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_perf,
 			{ "Performance Index", "bacnet.perf",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Performance Index", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_rejectreason,
 			{ "Reject Reason", "bacnet.rejectreason",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Reject Reason", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_rportnum,
 			{ "Number of Port Mappings", "bacnet.rportnum",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Number of Port Mappings", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_pinfolen,
 			{ "Port Info Length", "bacnet.pinfolen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Port Info Length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_portid,
 			{ "Port ID", "bacnet.portid",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Port ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_bacnet_term_time_value,
 			{ "Termination Time Value (seconds)", "bacnet.term_time_value",

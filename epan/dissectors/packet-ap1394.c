@@ -114,7 +114,7 @@ proto_register_ap1394(void)
     /* registered here but handled in ethertype.c */
     { &hf_ap1394_type,
       { "Type",	"ap1394.type", FT_UINT16, BASE_HEX,
-        VALS(etype_vals), 0x0, "", HFILL }},
+        VALS(etype_vals), 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_ap1394,

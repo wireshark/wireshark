@@ -2452,7 +2452,7 @@ proto_register_slow_protocols(void)
     { &hf_lacpdu_actor_reserved,
       { "Reserved",        "slow.lacp.reserved",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
     { &hf_lacpdu_partner_type,
       { "Partner Information",    "slow.lacp.partnerInfo",
@@ -2537,7 +2537,7 @@ proto_register_slow_protocols(void)
     { &hf_lacpdu_partner_reserved,
       { "Reserved",        "slow.lacp.reserved",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
     { &hf_lacpdu_coll_type,
       { "Collector Information",    "slow.lacp.collectorInfo",
@@ -2557,7 +2557,7 @@ proto_register_slow_protocols(void)
     { &hf_lacpdu_coll_reserved,
       { "Reserved",        "slow.lacp.coll_reserved",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
     { &hf_lacpdu_term_type,
       { "Terminator Information",    "slow.lacp.termInfo",
@@ -2572,7 +2572,7 @@ proto_register_slow_protocols(void)
     { &hf_lacpdu_term_reserved,
       { "Reserved",        "slow.lacp.term_reserved",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
 
 /*
@@ -2685,37 +2685,37 @@ proto_register_slow_protocols(void)
     { &hf_oampdu_info_state_parser,
       { "Parser Action",        "slow.oam.info.state.parser",
         FT_UINT8,    BASE_HEX,    VALS(&parser_vals),    0x03,
-        "Parser Action", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_state_mux,
       { "Muxiplexer Action",        "slow.oam.info.state.muxiplexer",
         FT_BOOLEAN,    8,        TFS(&mux),    0x04,
-        "Muxiplexer Action", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig,
       { "OAM Configuration",    "slow.oam.info.oamConfig",
         FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "OAM Configuration", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig_mode,
       { "OAM Mode",        "slow.oam.info.oamConfig.mode",
         FT_BOOLEAN,    8,        TFS(&oam_mode),    OAMPDU_INFO_CONFIG_MODE,
-        "", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig_uni,
       { "Unidirectional support",        "slow.oam.flags.dyingGasp",
         FT_BOOLEAN,    8,        TFS(&oam_uni),    OAMPDU_INFO_CONFIG_UNI,
-        "Unidirectional support", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig_lpbk,
       { "Loopback support",        "slow.oam.flags.criticalEvent",
         FT_BOOLEAN,    8,        TFS(&oam_lpbk),    OAMPDU_INFO_CONFIG_LPBK,
-        "Loopback support", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig_event,
       { "Link Events support",        "slow.oam.flags.localEvaluating",
         FT_BOOLEAN,    8,        TFS(&oam_event),    OAMPDU_INFO_CONFIG_EVENT,
-        "Link Events support", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_oamConfig_var,
       { "Variable Retrieval",        "slow.oam.flags.localStable",
@@ -2730,12 +2730,12 @@ proto_register_slow_protocols(void)
     { &hf_oampdu_info_oui,
       { "Organizationally Unique Identifier", "slow.oam.info.oui",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_info_vendor,
       { "Vendor Specific Information", "slow.oam.info.vendor",
         FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "", HFILL }},
+        NULL, HFILL }},
 
     /*
      * Event notification definitions
@@ -2898,11 +2898,11 @@ proto_register_slow_protocols(void)
     { &hf_oampdu_variable_indication,
       { "Variable indication",    "slow.oam.variable.indication",
         FT_UINT8,    BASE_HEX,    VALS(indication_vals),    0x0,
-        "Variable indication", HFILL }},
+        NULL, HFILL }},
 
     { &hf_oampdu_variable_value,
       { "Variable Value",    "slow.oam.variable.value",
-        FT_BYTES,    BASE_HEX,    NULL,    0x0,
+        FT_BYTES,    BASE_NONE,    NULL,    0x0,
         "Value", HFILL }},
 
     /* Loopback Control definitions*/

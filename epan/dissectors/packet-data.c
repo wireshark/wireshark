@@ -68,7 +68,7 @@ proto_register_data(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_data_data,
-		  { "Data", "data.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_data_len,
 		  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
 	};

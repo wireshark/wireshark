@@ -693,11 +693,11 @@ proto_register_iec104asdu(void)
 		    "Common Address of Asdu", HFILL }},
 
 		{ &hf_oa,
-		  { "OA  ", "104asdu.oa", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  { "OA", "104asdu.oa", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Originator Address", HFILL }},
 
 		{ &hf_typeid,
-		  { "TypeId ", "104asdu.typeid", FT_UINT8, BASE_DEC, VALS(asdu_types), 0x0,
+		  { "TypeId", "104asdu.typeid", FT_UINT8, BASE_DEC, VALS(asdu_types), 0x0,
 		    "Asdu Type Id", HFILL }},
 
 		{ &hf_causetx,
@@ -706,15 +706,15 @@ proto_register_iec104asdu(void)
 
 		{ &hf_nega,
 		  { "Negative", "104asdu.nega", FT_BOOLEAN, 8, NULL, F_NEGA,
-		    "Negative", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_test,
 		  { "Test", "104asdu.test", FT_BOOLEAN, 8, NULL, F_TEST,
-		    "Test", HFILL }},
+		    NULL, HFILL }},
 
 
 		{ &hf_ioa,
-		  { "IOA  ", "104asdu.ioa", FT_UINT24, BASE_DEC, NULL, 0x0,
+		  { "IOA", "104asdu.ioa", FT_UINT24, BASE_DEC, NULL, 0x0,
 		    "Information Object Address", HFILL }},
 
 		{ &hf_numix,

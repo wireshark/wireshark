@@ -869,7 +869,7 @@ proto_register_ldss (void) {
 		{   &hf_ldss_digest,
 		    {	"Digest",
 			"ldss.digest",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"Digest of file padded with 0x00", HFILL
 		    }
 		},
@@ -932,14 +932,14 @@ proto_register_ldss (void) {
 		{   &hf_ldss_properties,
 		    {	"Properties",
 			"ldss.properties",
-			FT_BYTES, BASE_HEX, NULL, 0x0,		
+			FT_BYTES, BASE_NONE, NULL, 0x0,		
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_file_data,
 		    {	"File data",
 			"ldss.file_data",
-			FT_BYTES, BASE_HEX, NULL, 0x0,		
+			FT_BYTES, BASE_NONE, NULL, 0x0,		
 			NULL, HFILL
 		    }
 		},

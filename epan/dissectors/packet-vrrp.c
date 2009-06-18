@@ -271,12 +271,12 @@ void proto_register_vrrp(void)
 
                 { &hf_vrrp_ip,
                   {"IP Address", "vrrp.ip_addr",
-                   FT_IPv4, 0, NULL, 0x0,
+                   FT_IPv4, BASE_NONE, NULL, 0x0,
                    "IP address associated with the virtual router", HFILL }},
 
                 { &hf_vrrp_ip6,
                   {"IPv6 Address", "vrrp.ipv6_addr",
-                   FT_IPv6, 0, NULL, 0x0,
+                   FT_IPv6, BASE_NONE, NULL, 0x0,
                    "IPv6 address associated with the virtual router", HFILL }},
         };
 

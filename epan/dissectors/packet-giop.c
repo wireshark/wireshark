@@ -4135,146 +4135,146 @@ proto_register_giop (void)
   static hf_register_info hf[] = {
     { &hf_giop_message_type,
      { "Message type", "giop.type",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_message_size,
       { "Message size", "giop.len",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_repoid,
      { "Repository ID", "giop.repoid",
-       FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_string_length,
      { "String Length", "giop.strlen",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_sequence_length,
      { "Sequence Length", "giop.seqlen",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_profile_id,
      { "Profile ID", "giop.profid",
-       FT_UINT32, BASE_DEC, VALS(profile_id_vals), 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL }
     },
 
 
     { &hf_giop_type_id,
      { "IOR::type_id", "giop.typeid",
-       FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_iiop_v_maj,
      { "IIOP Major Version", "giop.iiop_vmaj",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     }
     ,
     { &hf_giop_iiop_v_min,
      { "IIOP Minor Version", "giop.iiop_vmin",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_compressed,
      { "ZIOP", "giop.compressed",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_endianness,
      { "Endianness", "giop.endianness",
-       FT_UINT8, BASE_DEC, VALS(giop_endianness_vals), 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, VALS(giop_endianness_vals), 0x0, NULL, HFILL }
     },
 
     { &hf_giop_IIOP_tag,
      { "IIOP Component TAG", "giop.iioptag",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_IOR_tag,
      { "IOR Profile TAG", "giop.iortag",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_TCKind,
      { "TypeCode enum", "giop.TCKind",
-       FT_UINT32, BASE_DEC, VALS(tckind_vals), 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, VALS(tckind_vals), 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_count,
      { "TypeCode count", "giop.tccount",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_default_used,
      { "default_used", "giop.tcdefault_used",
-       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_digits,
      { "Digits", "giop.tcdigits",
-       FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
 
     { &hf_giop_typecode_length,
      { "Length", "giop.tclength",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_max_length,
      { "Maximum length", "giop.tcmaxlen",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_member_name,
      { "TypeCode member name", "giop.tcmemname",
-       FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_name,
      { "TypeCode name", "giop.tcname",
-       FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_scale,
      { "Scale", "giop.tcscale",
-       FT_INT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_ValueModifier,
      { "ValueModifier", "giop.tcValueModifier",
-       FT_INT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_typecode_Visibility,
      { "Visibility", "giop.tcVisibility",
-       FT_INT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
 
 
     { &hf_giop_type_boolean,
       { "TypeCode boolean data", "giop.tcboolean",
-	FT_BOOLEAN, BASE_NONE,  NULL, 0x0, "", HFILL }
+	FT_BOOLEAN, BASE_NONE,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_char,
       { "TypeCode char data", "giop.tcchar",
-	FT_UINT8, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_UINT8, BASE_DEC,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_double,
       { "TypeCode double data", "giop.tcdouble",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_DOUBLE, BASE_DEC,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_enum,
      { "TypeCode enum data", "giop.tcenumdata",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /*
@@ -4283,37 +4283,37 @@ proto_register_giop (void)
 
     { &hf_giop_type_float,
       { "TypeCode float data", "giop.tcfloat",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_DOUBLE, BASE_DEC,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_long,
      { "TypeCode long data", "giop.tclongdata",
-       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_octet,
       { "TypeCode octet data", "giop.tcoctet",
-	FT_UINT8, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_UINT8, BASE_DEC,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_short,
      { "TypeCode short data", "giop.tcshortdata",
-       FT_INT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_string,
       { "TypeCode string data", "giop.tcstring",
-	FT_STRING, BASE_DEC,  NULL, 0x0, "", HFILL }
+	FT_STRING, BASE_NONE,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_ulong,
      { "TypeCode ulong data", "giop.tculongdata",
-       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_ushort,
      { "TypeCode ushort data", "giop.tcushortdata",
-       FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /*
@@ -4322,13 +4322,13 @@ proto_register_giop (void)
 
     { &hf_giop_iiop_host,
      { "IIOP::Profile_host", "giop.iiop.host",
-       FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     }
     ,
 
     { &hf_giop_iiop_port,
      { "IIOP::Profile_port", "giop.iiop.port",
-       FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     }
     ,
 
@@ -4338,36 +4338,36 @@ proto_register_giop (void)
 
     { &hf_giop_iop_vscid,
      { "VSCID", "giop.iiop.vscid",
-       FT_UINT32, BASE_HEX, NULL, 0xffffff00, "", HFILL }
+       FT_UINT32, BASE_HEX, NULL, 0xffffff00, NULL, HFILL }
     }
     ,
 
     { &hf_giop_iop_scid,
      { "SCID", "giop.iiop.scid",
-       FT_UINT32, BASE_HEX, NULL, 0x000000ff, "", HFILL }
+       FT_UINT32, BASE_HEX, NULL, 0x000000ff, NULL, HFILL }
     }
     ,
 
   { &hf_giop_req_id,
   { "Request id", "giop.request_id",
-	  FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }
+	  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
   },
 
   { &hf_giop_req_operation,
   { "Request operation", "giop.request_op",
-	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
   },
   { &hf_giop_reply_status,
   { "Reply status", "giop.replystatus",
-	  FT_UINT32, BASE_DEC, VALS(reply_status_types), 0x0, "", HFILL }
+	  FT_UINT32, BASE_DEC, VALS(reply_status_types), 0x0, NULL, HFILL }
   },
   { &hf_giop_exception_id,
   { "Exception id", "giop.exceptionid",
-	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
   },
   { &hf_giop_objekt_key,
   { "Object Key", "giop.objektkey",
-	  FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+	  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
   },
 
   };

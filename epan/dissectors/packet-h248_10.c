@@ -83,7 +83,7 @@ static const h248_package_t h248_pkg_CHP = {
 void proto_register_h248_dot10(void) {
 	static hf_register_info hf[] = {
 		/* H.248.1 E.1  Generic Package */
-		{ &hf_h248_CHP_mgcon, { "MGCon ", "h248.chp.mgcon", FT_BYTES, BASE_HEX, NULL, 0, "This event occurs when the MG requires that the MGC start or finish load reduction.", HFILL }},
+		{ &hf_h248_CHP_mgcon, { "MGCon", "h248.chp.mgcon", FT_BYTES, BASE_NONE, NULL, 0, "This event occurs when the MG requires that the MGC start or finish load reduction.", HFILL }},
 		{ &hf_h248_CHP_mgcon_reduction, { "Reduction", "h248.chp.mgcon.reduction", FT_UINT32, BASE_DEC, NULL, 0, "Percentage of the load that the MGC is requested to block", HFILL }}, 
 	};
 	

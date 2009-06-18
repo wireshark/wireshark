@@ -721,7 +721,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsr_message,
       { "Message", "olsr.message",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
@@ -805,7 +805,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsr_neighbor,
       { "Neighbor Address", "olsr.neighbor",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
@@ -847,7 +847,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsr_neighbor6,
       { "Neighbor Address", "olsr.neighbor6",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
@@ -889,7 +889,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsr_data,
       { "Data", "olsr.data",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
@@ -909,7 +909,7 @@ void proto_register_olsr(void) {
 
     { &hf_olsrorg_ns,
       { "Nameservice message", "olsr.ns",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },

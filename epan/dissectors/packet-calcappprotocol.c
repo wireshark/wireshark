@@ -141,12 +141,12 @@ proto_register_calcappprotocol(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,      { "Type",      "calcappprotocol.message_type",      FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, "", HFILL } },
-    { &hf_message_flags,     { "Flags",     "calcappprotocol.message_flags",     FT_UINT8,  BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_length,    { "Length",    "calcappprotocol.message_length",    FT_UINT16, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_jobid,     { "JobID",     "calcappprotocol.message_jobid",     FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_jobsize,   { "JobSize",   "calcappprotocol.message_jobsize",   FT_UINT64, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_completed, { "Completed", "calcappprotocol.message_completed", FT_UINT64, BASE_DEC, NULL,                      0x0, "", HFILL } },
+    { &hf_message_type,      { "Type",      "calcappprotocol.message_type",      FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, NULL, HFILL } },
+    { &hf_message_flags,     { "Flags",     "calcappprotocol.message_flags",     FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_length,    { "Length",    "calcappprotocol.message_length",    FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_jobid,     { "JobID",     "calcappprotocol.message_jobid",     FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_jobsize,   { "JobSize",   "calcappprotocol.message_jobsize",   FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_completed, { "Completed", "calcappprotocol.message_completed", FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
   };
 
   /* Setup protocol subtree array */

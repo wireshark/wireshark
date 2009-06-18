@@ -2641,7 +2641,7 @@ proto_register_sna(void)
         static hf_register_info hf[] = {
                 { &hf_sna_th,
                 { "Transmission Header", "sna.th", FT_NONE, BASE_NONE,
-		     NULL, 0x0, "", HFILL }},
+		     NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_0,
                 { "Transmission Header Byte 0", "sna.th.0", FT_UINT8, BASE_HEX,
@@ -2650,94 +2650,94 @@ proto_register_sna(void)
 
                 { &hf_sna_th_fid,
                 { "Format Identifier", "sna.th.fid", FT_UINT8, BASE_HEX,
-		    VALS(sna_th_fid_vals), 0xf0, "", HFILL }},
+		    VALS(sna_th_fid_vals), 0xf0, NULL, HFILL }},
 
                 { &hf_sna_th_mpf,
                 { "Mapping Field", "sna.th.mpf", FT_UINT8,
-		    BASE_DEC, VALS(sna_th_mpf_vals), 0x0c, "", HFILL }},
+		    BASE_DEC, VALS(sna_th_mpf_vals), 0x0c, NULL, HFILL }},
 
 		{ &hf_sna_th_odai,
 		{ "ODAI Assignment Indicator", "sna.th.odai", FT_UINT8,
-		    BASE_DEC, NULL, 0x02, "", HFILL }},
+		    BASE_DEC, NULL, 0x02, NULL, HFILL }},
 
                 { &hf_sna_th_efi,
                 { "Expedited Flow Indicator", "sna.th.efi", FT_UINT8,
-		    BASE_DEC, VALS(sna_th_efi_vals), 0x01, "", HFILL }},
+		    BASE_DEC, VALS(sna_th_efi_vals), 0x01, NULL, HFILL }},
 
                 { &hf_sna_th_daf,
                 { "Destination Address Field", "sna.th.daf", FT_UINT16,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_oaf,
                 { "Origin Address Field", "sna.th.oaf", FT_UINT16, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_snf,
                 { "Sequence Number Field", "sna.th.snf", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_dcf,
                 { "Data Count Field", "sna.th.dcf", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_lsid,
                 { "Local Session Identification", "sna.th.lsid", FT_UINT8,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_tg_sweep,
                 { "Transmission Group Sweep", "sna.th.tg_sweep", FT_UINT8,
-		    BASE_DEC, VALS(sna_th_tg_sweep_vals), 0x08, "", HFILL }},
+		    BASE_DEC, VALS(sna_th_tg_sweep_vals), 0x08, NULL, HFILL }},
 
                 { &hf_sna_th_er_vr_supp_ind,
                 { "ER and VR Support Indicator", "sna.th.er_vr_supp_ind",
 		    FT_UINT8, BASE_DEC, VALS(sna_th_er_vr_supp_ind_vals),
-		    0x04, "", HFILL }},
+		    0x04, NULL, HFILL }},
 
                 { &hf_sna_th_vr_pac_cnt_ind,
                 { "Virtual Route Pacing Count Indicator",
 		    "sna.th.vr_pac_cnt_ind", FT_UINT8, BASE_DEC,
-		    VALS(sna_th_vr_pac_cnt_ind_vals), 0x02, "", HFILL }},
+		    VALS(sna_th_vr_pac_cnt_ind_vals), 0x02, NULL, HFILL }},
 
                 { &hf_sna_th_ntwk_prty,
                 { "Network Priority", "sna.th.ntwk_prty", FT_UINT8, BASE_DEC,
-		    VALS(sna_th_ntwk_prty_vals), 0x01, "", HFILL }},
+		    VALS(sna_th_ntwk_prty_vals), 0x01, NULL, HFILL }},
 
                 { &hf_sna_th_tgsf,
                 { "Transmission Group Segmenting Field", "sna.th.tgsf",
 		    FT_UINT8, BASE_HEX, VALS(sna_th_tgsf_vals), 0xc0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
                 { &hf_sna_th_mft,
                 { "MPR FID4 Type", "sna.th.mft", FT_BOOLEAN, 8,
-		    NULL, 0x04, "", HFILL }},
+		    NULL, 0x04, NULL, HFILL }},
 
                 { &hf_sna_th_piubf,
                 { "PIU Blocking Field", "sna.th.piubf", FT_UINT8, BASE_HEX,
-		    VALS(sna_th_piubf_vals), 0x03, "", HFILL }},
+		    VALS(sna_th_piubf_vals), 0x03, NULL, HFILL }},
 
                 { &hf_sna_th_iern,
                 { "Initial Explicit Route Number", "sna.th.iern", FT_UINT8,
-		    BASE_DEC, NULL, 0xf0, "", HFILL }},
+		    BASE_DEC, NULL, 0xf0, NULL, HFILL }},
 
                 { &hf_sna_th_nlpoi,
                 { "NLP Offset Indicator", "sna.th.nlpoi", FT_UINT8, BASE_DEC,
-		    VALS(sna_th_nlpoi_vals), 0x80, "", HFILL }},
+		    VALS(sna_th_nlpoi_vals), 0x80, NULL, HFILL }},
 
                 { &hf_sna_th_nlp_cp,
                 { "NLP Count or Padding", "sna.th.nlp_cp", FT_UINT8, BASE_DEC,
-		    NULL, 0x70, "", HFILL }},
+		    NULL, 0x70, NULL, HFILL }},
 
                 { &hf_sna_th_ern,
                 { "Explicit Route Number", "sna.th.ern", FT_UINT8, BASE_DEC,
-		    NULL, 0x0f, "", HFILL }},
+		    NULL, 0x0f, NULL, HFILL }},
 
                 { &hf_sna_th_vrn,
                 { "Virtual Route Number", "sna.th.vrn", FT_UINT8, BASE_DEC,
-		    NULL, 0xf0, "", HFILL }},
+		    NULL, 0xf0, NULL, HFILL }},
 
                 { &hf_sna_th_tpf,
                 { "Transmission Priority Field", "sna.th.tpf", FT_UINT8,
-		    BASE_HEX, VALS(sna_th_tpf_vals), 0x03, "", HFILL }},
+		    BASE_HEX, VALS(sna_th_tpf_vals), 0x03, NULL, HFILL }},
 
                 { &hf_sna_th_vr_cwi,
                 { "Virtual Route Change Window Indicator", "sna.th.vr_cwi",
@@ -2747,7 +2747,7 @@ proto_register_sna(void)
                 { &hf_sna_th_tg_nonfifo_ind,
                 { "Transmission Group Non-FIFO Indicator",
 		    "sna.th.tg_nonfifo_ind", FT_BOOLEAN, 16,
-		    TFS(&sna_th_tg_nonfifo_ind_truth), 0x4000, "", HFILL }},
+		    TFS(&sna_th_tg_nonfifo_ind_truth), 0x4000, NULL, HFILL }},
 
                 { &hf_sna_th_vr_sqti,
                 { "Virtual Route Sequence and Type Indicator", "sna.th.vr_sqti",
@@ -2756,25 +2756,25 @@ proto_register_sna(void)
 
                 { &hf_sna_th_tg_snf,
                 { "Transmission Group Sequence Number Field", "sna.th.tg_snf",
-		    FT_UINT16, BASE_DEC, NULL, 0x0fff, "", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL }},
 
                 { &hf_sna_th_vrprq,
                 { "Virtual Route Pacing Request", "sna.th.vrprq", FT_BOOLEAN,
-		    16, TFS(&sna_th_vrprq_truth), 0x8000, "", HFILL }},
+		    16, TFS(&sna_th_vrprq_truth), 0x8000, NULL, HFILL }},
 
                 { &hf_sna_th_vrprs,
                 { "Virtual Route Pacing Response", "sna.th.vrprs", FT_BOOLEAN,
-		    16, TFS(&sna_th_vrprs_truth), 0x4000, "", HFILL }},
+		    16, TFS(&sna_th_vrprs_truth), 0x4000, NULL, HFILL }},
 
                 { &hf_sna_th_vr_cwri,
                 { "Virtual Route Change Window Reply Indicator",
 		    "sna.th.vr_cwri", FT_UINT16, BASE_DEC,
-		    VALS(sna_th_vr_cwri_vals), 0x2000, "", HFILL }},
+		    VALS(sna_th_vr_cwri_vals), 0x2000, NULL, HFILL }},
 
                 { &hf_sna_th_vr_rwi,
                 { "Virtual Route Reset Window Indicator", "sna.th.vr_rwi",
 		    FT_BOOLEAN, 16, TFS(&sna_th_vr_rwi_truth), 0x1000,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
                 { &hf_sna_th_vr_snf_send,
                 { "Virtual Route Send Sequence Number Field",
@@ -2783,40 +2783,39 @@ proto_register_sna(void)
 
                 { &hf_sna_th_dsaf,
                 { "Destination Subarea Address Field", "sna.th.dsaf",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_osaf,
                 { "Origin Subarea Address Field", "sna.th.osaf", FT_UINT32,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_snai,
                 { "SNA Indicator", "sna.th.snai", FT_BOOLEAN, 8, NULL, 0x10,
-		    "Used to identify whether the PIU originated or is destined"
-		    " for an SNA or non-SNA device.", HFILL }},
+		    "Used to identify whether the PIU originated or is destined for an SNA or non-SNA device.", HFILL }},
 
                 { &hf_sna_th_def,
                 { "Destination Element Field", "sna.th.def", FT_UINT16,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_oef,
                 { "Origin Element Field", "sna.th.oef", FT_UINT16, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_sa,
-                { "Session Address", "sna.th.sa", FT_BYTES, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+                { "Session Address", "sna.th.sa", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_cmd_fmt,
                 { "Command Format", "sna.th.cmd_fmt", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_cmd_type,
                 { "Command Type", "sna.th.cmd_type", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_th_cmd_sn,
                 { "Command Sequence Number", "sna.th.cmd_sn", FT_UINT16,
-		    BASE_DEC, NULL, 0x0, "", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_nhdr,
                 { "Network Layer Packet Header", "sna.nlp.nhdr", FT_NONE,
@@ -2824,47 +2823,47 @@ proto_register_sna(void)
 
                 { &hf_sna_nlp_nhdr_0,
                 { "Network Layer Packet Header Byte 0",	"sna.nlp.nhdr.0",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_nhdr_1,
                 { "Network Layer Packet Header Byte 1", "sna.nlp.nhdr.1",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_sm,
                 { "Switching Mode Field", "sna.nlp.nhdr.sm", FT_UINT8,
-		    BASE_HEX, VALS(sna_nlp_sm_vals), 0xe0, "", HFILL }},
+		    BASE_HEX, VALS(sna_nlp_sm_vals), 0xe0, NULL, HFILL }},
 
                 { &hf_sna_nlp_tpf,
                 { "Transmission Priority Field", "sna.nlp.nhdr.tpf", FT_UINT8,
-		    BASE_HEX, VALS(sna_th_tpf_vals), 0x06, "", HFILL }},
+		    BASE_HEX, VALS(sna_th_tpf_vals), 0x06, NULL, HFILL }},
 
                 { &hf_sna_nlp_ft,
                 { "Function Type", "sna.nlp.nhdr.ft", FT_UINT8, BASE_HEX,
-		    VALS(sna_nlp_ft_vals), 0xF0, "", HFILL }},
+		    VALS(sna_nlp_ft_vals), 0xF0, NULL, HFILL }},
 
                 { &hf_sna_nlp_tspi,
                 { "Time Sensitive Packet Indicator", "sna.nlp.nhdr.tspi",
-		    FT_BOOLEAN, 8, TFS(&sna_nlp_tspi_truth), 0x08, "", HFILL }},
+		    FT_BOOLEAN, 8, TFS(&sna_nlp_tspi_truth), 0x08, NULL, HFILL }},
 
                 { &hf_sna_nlp_slowdn1,
                 { "Slowdown 1", "sna.nlp.nhdr.slowdn1", FT_BOOLEAN, 8,
-		    TFS(&sna_nlp_slowdn1_truth), 0x04, "", HFILL }},
+		    TFS(&sna_nlp_slowdn1_truth), 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_slowdn2,
                 { "Slowdown 2", "sna.nlp.nhdr.slowdn2", FT_BOOLEAN, 8,
-		    TFS(&sna_nlp_slowdn2_truth), 0x02, "", HFILL }},
+		    TFS(&sna_nlp_slowdn2_truth), 0x02, NULL, HFILL }},
 
                 { &hf_sna_nlp_fra,
                 { "Function Routing Address Entry", "sna.nlp.nhdr.fra",
-		    FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
                 { &hf_sna_nlp_anr,
                 { "Automatic Network Routing Entry", "sna.nlp.nhdr.anr",
-		    FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
                 { &hf_sna_nlp_frh,
                 { "Transmission Priority Field", "sna.nlp.frh", FT_UINT8,
-		    BASE_HEX, VALS(sna_nlp_frh_vals), 0, "", HFILL }},
+		    BASE_HEX, VALS(sna_nlp_frh_vals), 0, NULL, HFILL }},
 
                 { &hf_sna_nlp_thdr,
                 { "RTP Transport Header", "sna.nlp.thdr", FT_NONE, BASE_NONE,
@@ -2872,51 +2871,51 @@ proto_register_sna(void)
 
                 { &hf_sna_nlp_tcid,
                 { "Transport Connection Identifier", "sna.nlp.thdr.tcid",
-		    FT_BYTES, BASE_HEX, NULL, 0x0, "TCID", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0x0, "TCID", HFILL }},
 
                 { &hf_sna_nlp_thdr_8,
                 { "RTP Transport Packet Header Byte 8", "sna.nlp.thdr.8",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_setupi,
                 { "Setup Indicator", "sna.nlp.thdr.setupi", FT_BOOLEAN, 8,
-		    TFS(&sna_nlp_setupi_truth), 0x40, "", HFILL }},
+		    TFS(&sna_nlp_setupi_truth), 0x40, NULL, HFILL }},
 
                 { &hf_sna_nlp_somi,
                 { "Start Of Message Indicator", "sna.nlp.thdr.somi",
-		    FT_BOOLEAN, 8, TFS(&sna_nlp_somi_truth), 0x20, "", HFILL }},
+		    FT_BOOLEAN, 8, TFS(&sna_nlp_somi_truth), 0x20, NULL, HFILL }},
 
                 { &hf_sna_nlp_eomi,
                 { "End Of Message Indicator", "sna.nlp.thdr.eomi", FT_BOOLEAN,
-		    8, TFS(&sna_nlp_eomi_truth), 0x10, "", HFILL }},
+		    8, TFS(&sna_nlp_eomi_truth), 0x10, NULL, HFILL }},
 
                 { &hf_sna_nlp_sri,
                 { "Session Request Indicator", "sna.nlp.thdr.sri", FT_BOOLEAN,
-		    8, TFS(&sna_nlp_sri_truth), 0x08, "", HFILL }},
+		    8, TFS(&sna_nlp_sri_truth), 0x08, NULL, HFILL }},
 
                 { &hf_sna_nlp_rasapi,
                 { "Reply ASAP Indicator", "sna.nlp.thdr.rasapi", FT_BOOLEAN,
-		    8, TFS(&sna_nlp_rasapi_truth), 0x04, "", HFILL }},
+		    8, TFS(&sna_nlp_rasapi_truth), 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_retryi,
                 { "Retry Indicator", "sna.nlp.thdr.retryi", FT_BOOLEAN,
-		    8, TFS(&sna_nlp_retryi_truth), 0x02, "", HFILL }},
+		    8, TFS(&sna_nlp_retryi_truth), 0x02, NULL, HFILL }},
 
                 { &hf_sna_nlp_thdr_9,
                 { "RTP Transport Packet Header Byte 9", "sna.nlp.thdr.9",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_lmi,
                 { "Last Message Indicator", "sna.nlp.thdr.lmi", FT_BOOLEAN,
-		    8, TFS(&sna_nlp_lmi_truth), 0x80, "", HFILL }},
+		    8, TFS(&sna_nlp_lmi_truth), 0x80, NULL, HFILL }},
 
                 { &hf_sna_nlp_cqfi,
                 { "Connection Qualifier Field Indicator", "sna.nlp.thdr.cqfi",
-		    FT_BOOLEAN, 8, TFS(&sna_nlp_cqfi_truth), 0x08, "", HFILL }},
+		    FT_BOOLEAN, 8, TFS(&sna_nlp_cqfi_truth), 0x08, NULL, HFILL }},
 
                 { &hf_sna_nlp_osi,
                 { "Optional Segments Present Indicator", "sna.nlp.thdr.osi",
-		    FT_BOOLEAN, 8, TFS(&sna_nlp_osi_truth), 0x04, "", HFILL }},
+		    FT_BOOLEAN, 8, TFS(&sna_nlp_osi_truth), 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_offset,
                 { "Data Offset/4", "sna.nlp.thdr.offset", FT_UINT16, BASE_HEX,
@@ -2924,336 +2923,336 @@ proto_register_sna(void)
 
                 { &hf_sna_nlp_dlf,
                 { "Data Length Field", "sna.nlp.thdr.dlf", FT_UINT32, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_bsn,
                 { "Byte Sequence Number", "sna.nlp.thdr.bsn", FT_UINT32,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_len,
                 { "Optional Segment Length/4", "sna.nlp.thdr.optional.len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_type,
                 { "Optional Segment Type", "sna.nlp.thdr.optional.type",
-		    FT_UINT8, BASE_HEX, VALS(sna_nlp_opti_vals), 0x0, "",
+		    FT_UINT8, BASE_HEX, VALS(sna_nlp_opti_vals), 0x0, NULL,
 		    HFILL }},
 
                 { &hf_sna_nlp_opti_0d_version,
                 { "Version", "sna.nlp.thdr.optional.0d.version",
 		    FT_UINT16, BASE_HEX, VALS(sna_nlp_opti_0d_version_vals),
-		    0, "", HFILL }},
+		    0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0d_4,
                 { "Connection Setup Byte 4", "sna.nlp.thdr.optional.0e.4",
-		    FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0d_target,
                 { "Target Resource ID Present",
 		    "sna.nlp.thdr.optional.0d.target",
-		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0d_arb,
                 { "ARB Flow Control", "sna.nlp.thdr.optional.0d.arb",
-		    FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0d_reliable,
                 { "Reliable Connection", "sna.nlp.thdr.optional.0d.reliable",
-		    FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0d_dedicated,
                 { "Dedicated RTP Connection",
 		    "sna.nlp.thdr.optional.0d.dedicated",
-		    FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_stat,
                 { "Status", "sna.nlp.thdr.optional.0e.stat",
-		    FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_gap,
                 { "Gap Detected", "sna.nlp.thdr.optional.0e.gap",
-		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_idle,
                 { "RTP Idle Packet", "sna.nlp.thdr.optional.0e.idle",
-		    FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_nabsp,
                 { "Number Of ABSP", "sna.nlp.thdr.optional.0e.nabsp",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_sync,
                 { "Status Report Number", "sna.nlp.thdr.optional.0e.sync",
-		    FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_echo,
                 { "Status Acknowledge Number", "sna.nlp.thdr.optional.0e.echo",
-		    FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_rseq,
                 { "Received Sequence Number", "sna.nlp.thdr.optional.0e.rseq",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_abspbeg,
                 { "ABSP Begin", "sna.nlp.thdr.optional.0e.abspbeg",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0e_abspend,
                 { "ABSP End", "sna.nlp.thdr.optional.0e.abspend",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_0f_bits,
                 { "Client Bits", "sna.nlp.thdr.optional.0f.bits",
 		    FT_UINT8, BASE_HEX, VALS(sna_nlp_opti_0f_bits_vals),
-		    0x0, "", HFILL }},
+		    0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_10_tcid,
                 { "Transport Connection Identifier",
 		    "sna.nlp.thdr.optional.10.tcid",
-		    FT_BYTES, BASE_HEX, NULL, 0x0, "TCID", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0x0, "TCID", HFILL }},
 
                 { &hf_sna_nlp_opti_12_sense,
                 { "Sense Data", "sna.nlp.thdr.optional.12.sense",
-		    FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_len,
                 { "Length", "sna.nlp.thdr.optional.14.si.len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_key,
                 { "Key", "sna.nlp.thdr.optional.14.si.key",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_2,
                 { "Switching Information Byte 2",
 		    "sna.nlp.thdr.optional.14.si.2",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_refifo,
                 { "Resequencing (REFIFO) Indicator",
 		    "sna.nlp.thdr.optional.14.si.refifo",
-		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_mobility,
                 { "Mobility Indicator",
 		    "sna.nlp.thdr.optional.14.si.mobility",
-		    FT_BOOLEAN, 8, NULL, 0x40, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_dirsearch,
                 { "Directory Search Required on Path Switch Indicator",
 		    "sna.nlp.thdr.optional.14.si.dirsearch",
-		    FT_BOOLEAN, 8, NULL, 0x20, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_limitres,
                 { "Limited Resource Link Indicator",
 		    "sna.nlp.thdr.optional.14.si.limitres",
-		    FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_ncescope,
                 { "NCE Scope Indicator",
 		    "sna.nlp.thdr.optional.14.si.ncescope",
-		    FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_mnpsrscv,
                 { "MNPS RSCV Retention Indicator",
 		    "sna.nlp.thdr.optional.14.si.mnpsrscv",
-		    FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_maxpsize,
                 { "Maximum Packet Size On Return Path",
 		    "sna.nlp.thdr.optional.14.si.maxpsize",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_switch,
                 { "Path Switch Time", "sna.nlp.thdr.optional.14.si.switch",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_si_alive,
                 { "RTP Alive Timer", "sna.nlp.thdr.optional.14.si.alive",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_rr_len,
                 { "Length", "sna.nlp.thdr.optional.14.rr.len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_rr_key,
                 { "Key", "sna.nlp.thdr.optional.14.rr.key",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_rr_2,
                 { "Return Route TG Descriptor Byte 2",
 		    "sna.nlp.thdr.optional.14.rr.2",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_rr_bfe,
                 { "BF Entry Indicator",
 		    "sna.nlp.thdr.optional.14.rr.bfe",
-		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_14_rr_num,
                 { "Number Of TG Control Vectors",
 		    "sna.nlp.thdr.optional.14.rr.num",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_2,
                 { "Adaptive Rate Based Segment Byte 2",
 		    "sna.nlp.thdr.optional.22.2",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_type,
                 { "Message Type",
 		    "sna.nlp.thdr.optional.22.type",
 		    FT_UINT8, BASE_HEX,
-		    VALS(sna_nlp_opti_22_type_vals), 0xc0, "", HFILL }},
+		    VALS(sna_nlp_opti_22_type_vals), 0xc0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_raa,
                 { "Rate Adjustment Action",
 		    "sna.nlp.thdr.optional.22.raa",
 		    FT_UINT8, BASE_HEX,
-		    VALS(sna_nlp_opti_22_raa_vals), 0x38, "", HFILL }},
+		    VALS(sna_nlp_opti_22_raa_vals), 0x38, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_parity,
                 { "Parity Indicator",
 		    "sna.nlp.thdr.optional.22.parity",
-		    FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_arb,
                 { "ARB Mode",
 		    "sna.nlp.thdr.optional.22.arb",
 		    FT_UINT8, BASE_HEX,
-		    VALS(sna_nlp_opti_22_arb_vals), 0x03, "", HFILL }},
+		    VALS(sna_nlp_opti_22_arb_vals), 0x03, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_3,
                 { "Adaptive Rate Based Segment Byte 3",
 		    "sna.nlp.thdr.optional.22.3",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_ratereq,
                 { "Rate Request Correlator",
 		    "sna.nlp.thdr.optional.22.ratereq",
-		    FT_UINT8, BASE_DEC, NULL, 0xf0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_raterep,
                 { "Rate Reply Correlator",
 		    "sna.nlp.thdr.optional.22.raterep",
-		    FT_UINT8, BASE_DEC, NULL, 0x0f, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_field1,
                 { "Field 1", "sna.nlp.thdr.optional.22.field1",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_field2,
                 { "Field 2", "sna.nlp.thdr.optional.22.field2",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_field3,
                 { "Field 3", "sna.nlp.thdr.optional.22.field3",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_nlp_opti_22_field4,
                 { "Field 4", "sna.nlp.thdr.optional.22.field4",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_rh,
                 { "Request/Response Header", "sna.rh", FT_NONE, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_rh_0,
                 { "Request/Response Header Byte 0", "sna.rh.0", FT_UINT8,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_rh_1,
                 { "Request/Response Header Byte 1", "sna.rh.1", FT_UINT8,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_rh_2,
                 { "Request/Response Header Byte 2", "sna.rh.2", FT_UINT8,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_rh_rri,
                 { "Request/Response Indicator", "sna.rh.rri", FT_UINT8,
-		    BASE_DEC, VALS(sna_rh_rri_vals), 0x80, "", HFILL }},
+		    BASE_DEC, VALS(sna_rh_rri_vals), 0x80, NULL, HFILL }},
 
                 { &hf_sna_rh_ru_category,
                 { "Request/Response Unit Category", "sna.rh.ru_category",
 		    FT_UINT8, BASE_HEX, VALS(sna_rh_ru_category_vals), 0x60,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_rh_fi,
 		{ "Format Indicator", "sna.rh.fi", FT_BOOLEAN, 8,
-		    TFS(&sna_rh_fi_truth), 0x08, "", HFILL }},
+		    TFS(&sna_rh_fi_truth), 0x08, NULL, HFILL }},
 
 		{ &hf_sna_rh_sdi,
 		{ "Sense Data Included", "sna.rh.sdi", FT_BOOLEAN, 8,
-		    TFS(&sna_rh_sdi_truth), 0x04, "", HFILL }},
+		    TFS(&sna_rh_sdi_truth), 0x04, NULL, HFILL }},
 
 		{ &hf_sna_rh_bci,
 		{ "Begin Chain Indicator", "sna.rh.bci", FT_BOOLEAN, 8,
-		    TFS(&sna_rh_bci_truth), 0x02, "", HFILL }},
+		    TFS(&sna_rh_bci_truth), 0x02, NULL, HFILL }},
 
 		{ &hf_sna_rh_eci,
 		{ "End Chain Indicator", "sna.rh.eci", FT_BOOLEAN, 8,
-		    TFS(&sna_rh_eci_truth), 0x01, "", HFILL }},
+		    TFS(&sna_rh_eci_truth), 0x01, NULL, HFILL }},
 
 		{ &hf_sna_rh_dr1,
 		{ "Definite Response 1 Indicator", "sna.rh.dr1", FT_BOOLEAN,
-		    8, NULL, 0x80, "", HFILL }},
+		    8, NULL, 0x80, NULL, HFILL }},
 
 		{ &hf_sna_rh_lcci,
 		{ "Length-Checked Compression Indicator", "sna.rh.lcci",
-		    FT_BOOLEAN, 8, TFS(&sna_rh_lcci_truth), 0x40, "", HFILL }},
+		    FT_BOOLEAN, 8, TFS(&sna_rh_lcci_truth), 0x40, NULL, HFILL }},
 
 		{ &hf_sna_rh_dr2,
 		{ "Definite Response 2 Indicator", "sna.rh.dr2", FT_BOOLEAN,
-		    8, NULL, 0x20, "", HFILL }},
+		    8, NULL, 0x20, NULL, HFILL }},
 
 		{ &hf_sna_rh_eri,
 		{ "Exception Response Indicator", "sna.rh.eri", FT_BOOLEAN,
-		    8, NULL, 0x10, "", HFILL }},
+		    8, NULL, 0x10, NULL, HFILL }},
 
 		{ &hf_sna_rh_rti,
 		{ "Response Type Indicator", "sna.rh.rti", FT_BOOLEAN,
-		    8, TFS(&sna_rh_rti_truth), 0x10, "", HFILL }},
+		    8, TFS(&sna_rh_rti_truth), 0x10, NULL, HFILL }},
 
 		{ &hf_sna_rh_rlwi,
 		{ "Request Larger Window Indicator", "sna.rh.rlwi", FT_BOOLEAN,
-		    8, NULL, 0x04, "", HFILL }},
+		    8, NULL, 0x04, NULL, HFILL }},
 
 		{ &hf_sna_rh_qri,
 		{ "Queued Response Indicator", "sna.rh.qri", FT_BOOLEAN,
-		    8, TFS(&sna_rh_qri_truth), 0x02, "", HFILL }},
+		    8, TFS(&sna_rh_qri_truth), 0x02, NULL, HFILL }},
 
 		{ &hf_sna_rh_pi,
 		{ "Pacing Indicator", "sna.rh.pi", FT_BOOLEAN,
-		    8, NULL, 0x01, "", HFILL }},
+		    8, NULL, 0x01, NULL, HFILL }},
 
 		{ &hf_sna_rh_bbi,
 		{ "Begin Bracket Indicator", "sna.rh.bbi", FT_BOOLEAN,
-		    8, NULL, 0x80, "", HFILL }},
+		    8, NULL, 0x80, NULL, HFILL }},
 
 		{ &hf_sna_rh_ebi,
 		{ "End Bracket Indicator", "sna.rh.ebi", FT_BOOLEAN,
-		    8, NULL, 0x40, "", HFILL }},
+		    8, NULL, 0x40, NULL, HFILL }},
 
 		{ &hf_sna_rh_cdi,
 		{ "Change Direction Indicator", "sna.rh.cdi", FT_BOOLEAN,
-		    8, NULL, 0x20, "", HFILL }},
+		    8, NULL, 0x20, NULL, HFILL }},
 
 		{ &hf_sna_rh_csi,
 		{ "Code Selection Indicator", "sna.rh.csi", FT_UINT8, BASE_DEC,
-		    VALS(sna_rh_csi_vals), 0x08, "", HFILL }},
+		    VALS(sna_rh_csi_vals), 0x08, NULL, HFILL }},
 
 		{ &hf_sna_rh_edi,
 		{ "Enciphered Data Indicator", "sna.rh.edi", FT_BOOLEAN, 8,
-		    NULL, 0x04, "", HFILL }},
+		    NULL, 0x04, NULL, HFILL }},
 
 		{ &hf_sna_rh_pdi,
 		{ "Padded Data Indicator", "sna.rh.pdi", FT_BOOLEAN, 8, NULL,
-		    0x02, "", HFILL }},
+		    0x02, NULL, HFILL }},
 
 		{ &hf_sna_rh_cebi,
 		{ "Conditional End Bracket Indicator", "sna.rh.cebi",
-		    FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
 /*		{ &hf_sna_ru,
 		{ "Request/Response Unit", "sna.ru", FT_NONE, BASE_NONE,
@@ -3261,19 +3260,19 @@ proto_register_sna(void)
 
 		{ &hf_sna_gds,
 		{ "GDS Variable", "sna.gds", FT_NONE, BASE_NONE, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_gds_len,
 		{ "GDS Variable Length", "sna.gds.len", FT_UINT16, BASE_DEC,
-		    NULL, 0x7fff, "", HFILL }},
+		    NULL, 0x7fff, NULL, HFILL }},
 
 		{ &hf_sna_gds_cont,
 		{ "Continuation Flag", "sna.gds.cont", FT_BOOLEAN, 16, NULL,
-		    0x8000, "", HFILL }},
+		    0x8000, NULL, HFILL }},
 
 		{ &hf_sna_gds_type,
 		{ "Type of Variable", "sna.gds.type", FT_UINT16, BASE_HEX,
-		    VALS(sna_gds_var_vals), 0x0, "", HFILL }},
+		    VALS(sna_gds_var_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid,
 		{ "XID", "sna.xid", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3281,43 +3280,43 @@ proto_register_sna(void)
 
 		{ &hf_sna_xid_0,
 		{ "XID Byte 0", "sna.xid.0", FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_format,
 		{ "XID Format", "sna.xid.format", FT_UINT8, BASE_DEC, NULL,
-		    0xf0, "", HFILL }},
+		    0xf0, NULL, HFILL }},
 
 		{ &hf_sna_xid_type,
 		{ "XID Type", "sna.xid.type", FT_UINT8, BASE_DEC,
-		    VALS(sna_xid_type_vals), 0x0f, "", HFILL }},
+		    VALS(sna_xid_type_vals), 0x0f, NULL, HFILL }},
 
 		{ &hf_sna_xid_len,
 		{ "XID Length", "sna.xid.len", FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_id,
 		{ "Node Identification", "sna.xid.id", FT_UINT32, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_idblock,
 		{ "ID Block", "sna.xid.idblock", FT_UINT32, BASE_HEX, NULL,
-		    0xfff00000, "", HFILL }},
+		    0xfff00000, NULL, HFILL }},
 
 		{ &hf_sna_xid_idnum,
 		{ "ID Number", "sna.xid.idnum", FT_UINT32, BASE_HEX, NULL,
-		    0x0fffff, "", HFILL }},
+		    0x0fffff, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_8,
 		{ "Characteristics of XID sender", "sna.xid.type3.8", FT_UINT16,
-		    BASE_HEX, NULL, 0x0, "", HFILL }},
+		    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_init_self,
 		{ "INIT-SELF support", "sna.xid.type3.initself",
-		    FT_BOOLEAN, 16, NULL, 0x8000, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_stand_bind,
 		{ "Stand-Alone BIND Support", "sna.xid.type3.stand_bind",
-		    FT_BOOLEAN, 16, NULL, 0x4000, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_gener_bind,
 		{ "Whole BIND PIU generated indicator",
@@ -3331,36 +3330,36 @@ proto_register_sna(void)
 
 		{ &hf_sna_xid_3_actpu,
 		{ "ACTPU suppression indicator", "sna.xid.type3.actpu",
-		    FT_BOOLEAN, 16, NULL, 0x0080, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_nwnode,
 		{ "Sender is network node", "sna.xid.type3.nwnode",
-		    FT_BOOLEAN, 16, NULL, 0x0040, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_cp,
 		{ "Control Point Services", "sna.xid.type3.cp",
-		    FT_BOOLEAN, 16, NULL, 0x0020, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_cpcp,
 		{ "CP-CP session support", "sna.xid.type3.cpcp",
-		    FT_BOOLEAN, 16, NULL, 0x0010, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_state,
 		{ "XID exchange state indicator", "sna.xid.type3.state",
 		    FT_UINT16, BASE_HEX, VALS(sna_xid_3_state_vals),
-		    0x000c, "", HFILL }},
+		    0x000c, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_nonact,
 		{ "Nonactivation Exchange", "sna.xid.type3.nonact",
-		    FT_BOOLEAN, 16, NULL, 0x0002, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_cpchange,
 		{ "CP name change support", "sna.xid.type3.cpchange",
-		    FT_BOOLEAN, 16, NULL, 0x0001, "", HFILL }},
+		    FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_10,
 		{ "XID Type 3 Byte 10", "sna.xid.type3.10", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_asend_bind,
 		{ "Adaptive BIND pacing support as sender",
@@ -3375,136 +3374,136 @@ proto_register_sna(void)
 		{ &hf_sna_xid_3_quiesce,
 		{ "Quiesce TG Request",
 		    "sna.xid.type3.quiesce", FT_BOOLEAN, 8, NULL, 0x20,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_pucap,
 		{ "PU Capabilities",
 		    "sna.xid.type3.pucap", FT_BOOLEAN, 8, NULL, 0x10,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_pbn,
 		{ "Peripheral Border Node",
 		    "sna.xid.type3.pbn", FT_BOOLEAN, 8, NULL, 0x08,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_pacing,
 		{ "Qualifier for adaptive BIND pacing support",
 		    "sna.xid.type3.pacing", FT_UINT8, BASE_HEX, NULL, 0x03,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_11,
 		{ "XID Type 3 Byte 11", "sna.xid.type3.11", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_tgshare,
 		{ "TG Sharing Prohibited Indicator",
 		    "sna.xid.type3.tgshare", FT_BOOLEAN, 8, NULL, 0x40,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_dedsvc,
 		{ "Dedicated SVC Indicator",
 		    "sna.xid.type3.dedsvc", FT_BOOLEAN, 8, NULL, 0x20,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_12,
 		{ "XID Type 3 Byte 12", "sna.xid.type3.12", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_negcsup,
 		{ "Negotiation Complete Supported",
 		    "sna.xid.type3.negcsup", FT_BOOLEAN, 8, NULL, 0x80,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_negcomp,
 		{ "Negotiation Complete",
 		    "sna.xid.type3.negcomp", FT_BOOLEAN, 8, NULL, 0x40,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_15,
 		{ "XID Type 3 Byte 15", "sna.xid.type3.15", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_partg,
 		{ "Parallel TG Support",
 		    "sna.xid.type3.partg", FT_BOOLEAN, 8, NULL, 0x80,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_dlur,
 		{ "Dependent LU Requester Indicator",
 		    "sna.xid.type3.dlur", FT_BOOLEAN, 8, NULL, 0x40,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_dlus,
 		{ "DLUS Served LU Registration Indicator",
 		    "sna.xid.type3.dlus", FT_BOOLEAN, 8, NULL, 0x20,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_exbn,
 		{ "Extended HPR Border Node",
 		    "sna.xid.type3.exbn", FT_BOOLEAN, 8, NULL, 0x10,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_genodai,
 		{ "Generalized ODAI Usage Option",
 		    "sna.xid.type3.genodai", FT_BOOLEAN, 8, NULL, 0x08,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_branch,
 		{ "Branch Indicator", "sna.xid.type3.branch",
 		    FT_UINT8, BASE_HEX, VALS(sna_xid_3_branch_vals),
-		    0x06, "", HFILL }},
+		    0x06, NULL, HFILL }},
 
 		{ &hf_sna_xid_3_brnn,
 		{ "Option Set 1123 Indicator",
 		    "sna.xid.type3.brnn", FT_BOOLEAN, 8, NULL, 0x01,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_tg,
 		{ "XID TG", "sna.xid.type3.tg", FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_dlc,
 		{ "XID DLC", "sna.xid.type3.dlc", FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_sna_xid_3_dlen,
 		{ "DLC Dependent Section Length", "sna.xid.type3.dlen",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_control_len,
                 { "Control Vector Length", "sna.control.len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_control_key,
                 { "Control Vector Key", "sna.control.key",
-		    FT_UINT8, BASE_HEX, VALS(sna_control_vals), 0x0, "",
+		    FT_UINT8, BASE_HEX, VALS(sna_control_vals), 0x0, NULL,
 		    HFILL }},
 
                 { &hf_sna_control_hprkey,
                 { "Control Vector HPR Key", "sna.control.hprkey",
-		    FT_UINT8, BASE_HEX, VALS(sna_control_hpr_vals), 0x0, "",
+		    FT_UINT8, BASE_HEX, VALS(sna_control_hpr_vals), 0x0, NULL,
 		    HFILL }},
 
                 { &hf_sna_control_05_delay,
                 { "Channel Delay", "sna.control.05.delay",
-		    FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_control_05_type,
                 { "Network Address Type", "sna.control.05.type",
-		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_sna_control_05_ptp,
                 { "Point-to-point", "sna.control.05.ptp",
-		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+		    FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
                 { &hf_sna_control_0e_type,
                 { "Type", "sna.control.0e.type",
 		    FT_UINT8, BASE_HEX, VALS(sna_control_0e_type_vals),
-		    0, "", HFILL }},
+		    0, NULL, HFILL }},
 
                 { &hf_sna_control_0e_value,
                 { "Value", "sna.control.0e.value",
-		    FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_sna,

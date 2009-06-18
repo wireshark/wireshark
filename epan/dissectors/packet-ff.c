@@ -13890,7 +13890,7 @@ proto_register_ff(void)
 
 		{ &hf_ff_sm_find_tag_reply_req_ip_addr,
 			{ "Queried Object IP Address", "ff.sm.find_tag_reply.req.ip_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_sm_find_tag_reply_req_od_ver,
 			{ "Queried Object OD Version", "ff.sm.find_tag_reply.req.od_ver",
@@ -13954,7 +13954,7 @@ proto_register_ff(void)
 
 		{ &hf_ff_sm_id_rsp_operational_ip_addr,
 			{ "Operational IP Address", "ff.sm.id.rsp.operational_ip_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_sm_id_rsp_dev_id,
 			{ "Device ID", "ff.sm.id.rsp.dev_id",
@@ -14149,7 +14149,7 @@ proto_register_ff(void)
 		{ &hf_ff_sm_set_assign_info_req_operational_ip_addr,
 			{ "Operational IP Address",
 				"ff.sm.set_assign_info.req.operational_ip_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
 
@@ -14289,7 +14289,7 @@ proto_register_ff(void)
 		{ &hf_ff_sm_dev_annunc_req_operational_ip_addr,
 			{ "Operational IP Address",
 				"ff.sm.dev_annunc.req.operational_ip_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_sm_dev_annunc_req_dev_id,
 			{ "Device ID", "ff.sm.dev_annunc.req.dev_id",
@@ -16702,22 +16702,22 @@ proto_register_ff(void)
 		{ &hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_send_addr,
 			{ "Diagnostic Message Interface A Send Address",
 				"ff.lr.get_info.rsp.diagnostic_msg_if_a_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_recv_addr,
 			{ "Diagnostic Message Interface A Receive Address",
 				"ff.lr.get_info.rsp.diagnostic_msg_if_a_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_send_addr,
 			{ "Diagnostic Message Interface B Send Address",
 				"ff.lr.get_info.rsp.diagnostic_msg_if_b_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_recv_addr,
 			{ "Diagnostic Message Interface B Receive Address",
 				"ff.lr.get_info.rsp.diagnostic_msg_if_b_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
 
@@ -16793,22 +16793,22 @@ proto_register_ff(void)
 		{ &hf_ff_lr_put_info_req_diagnostic_msg_if_a_send_addr,
 			{ "Diagnostic Message Interface A Send Address",
 				"ff.lr.put_info.req.diagnostic_msg_if_a_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_req_diagnostic_msg_if_a_recv_addr,
 			{ "Diagnostic Message Interface A Receive Address",
 				"ff.lr.put_info.req.diagnostic_msg_if_a_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_req_diagnostic_msg_if_b_send_addr,
 			{ "Diagnostic Message Interface B Send Address",
 				"ff.lr.put_info.req.diagnostic_msg_if_b_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_req_diagnostic_msg_if_b_recv_addr,
 			{ "Diagnostic Message Interface B Receive Address",
 				"ff.lr.put_info.req.diagnostic_msg_if_b_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
 
@@ -16848,22 +16848,22 @@ proto_register_ff(void)
 		{ &hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_send_addr,
 			{ "Diagnostic Message Interface A Send Address",
 				"ff.lr.put_info.rsp.diagnostic_msg_if_a_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_recv_addr,
 			{ "Diagnostic Message Interface A Receive Address",
 				"ff.lr.put_info.rsp.diagnostic_msg_if_a_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_send_addr,
 			{ "Diagnostic Message Interface B Send Address",
 				"ff.lr.put_info.rsp.diagnostic_msg_if_b_send_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_recv_addr,
 			{ "Diagnostic Message Interface B Receive Address",
 				"ff.lr.put_info.rsp.diagnostic_msg_if_b_recv_addr",
-				FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
 

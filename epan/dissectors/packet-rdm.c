@@ -195,12 +195,12 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_dest_uid,
 			{ "Destination UID", "rdm.dst",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_src_uid,
 			{ "Source UID", "rdm.src",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_transaction_number,
@@ -240,12 +240,12 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_parameter_data,
 			{ "Parameter data", "rdm.pd",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_intron,
 			{ "Intron", "rdm.intron",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_checksum,
@@ -255,7 +255,7 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_trailer,
 			{ "Trailer", "rdm.trailer",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }}
 	};
 

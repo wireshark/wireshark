@@ -274,17 +274,17 @@ proto_register_igap(void)
 
 	{ &hf_checksum,
 	  { "Checksum", "igap.checksum", FT_UINT16, BASE_HEX,
-	    NULL, 0, "Checksum", HFILL }
+	    NULL, 0, NULL, HFILL }
 	},
 
 	{ &hf_checksum_bad,
 	  { "Bad Checksum", "igap.checksum_bad", FT_BOOLEAN, BASE_NONE,
-	    NULL, 0, "Bad Checksum", HFILL }
+	    NULL, 0x0, NULL, HFILL }
 	},
 
 	{ &hf_maddr,
 	  { "Multicast group address", "igap.maddr", FT_IPv4, BASE_NONE,
-	    NULL, 0, "Multicast group address", HFILL }
+	    NULL, 0, NULL, HFILL }
 	},
 
 	{ &hf_version,
@@ -294,12 +294,12 @@ proto_register_igap(void)
 
 	{ &hf_subtype,
 	  { "Subtype", "igap.subtype", FT_UINT8, BASE_HEX,
-	    VALS(igap_subtypes), 0, "Subtype", HFILL }
+	    VALS(igap_subtypes), 0, NULL, HFILL }
 	},
 
 	{ &hf_challengeid,
 	  { "Challenge ID", "igap.challengeid", FT_UINT8, BASE_HEX,
-	    NULL, 0, "Challenge ID", HFILL }
+	    NULL, 0, NULL, HFILL }
 	},
 
 	{ &hf_asize,

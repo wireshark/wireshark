@@ -2679,10 +2679,10 @@ proto_register_ldp(void)
   static hf_register_info hf[] = {
     { &hf_ldp_req,
       /* Change the following to the type you need */
-      { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_rsp,
-      { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_version,
       { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Version Number", HFILL }},
@@ -2691,7 +2691,7 @@ proto_register_ldp(void)
       { "PDU Length", "ldp.hdr.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP PDU Length", HFILL }},
 
     { &hf_ldp_lsr,
-      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_IPv4, BASE_HEX, NULL, 0x0, "LDP Label Space Router ID", HFILL }},
+      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_IPv4, BASE_NONE, NULL, 0x0, "LDP Label Space Router ID", HFILL }},
 
     { &hf_ldp_ls_id,
       { "Label Space ID", "ldp.hdr.ldpid.lsid", FT_UINT16, BASE_DEC, NULL, 0, "LDP Label Space ID", HFILL }},
@@ -2739,13 +2739,13 @@ proto_register_ldp(void)
       { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},
 
     { &hf_ldp_tlv_ipv4_taddr,
-      { "IPv4 Transport Address", "ldp.msg.tlv.ipv4.taddr", FT_IPv4, BASE_DEC, NULL, 0x0, "IPv4 Transport Address", HFILL }},
+      { "IPv4 Transport Address", "ldp.msg.tlv.ipv4.taddr", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_config_seqno,
       { "Configuration Sequence Number", "ldp.msg.tlv.hello.cnf_seqno", FT_UINT32, BASE_DEC, NULL, 0x0, "Hello Configuration Sequence Number", HFILL }},
 
     { &hf_ldp_tlv_ipv6_taddr,
-      { "IPv6 Transport Address", "ldp.msg.tlv.ipv6.taddr", FT_IPv6, BASE_DEC, NULL, 0x0, "IPv6 Transport Address", HFILL }},
+      { "IPv6 Transport Address", "ldp.msg.tlv.ipv6.taddr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_fec_wc,
       { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC, VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types", HFILL }},
@@ -2766,13 +2766,13 @@ proto_register_ldp(void)
       { "Address Family", "ldp.msg.tlv.addrl.addr_family", FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, "Address Family List", HFILL }},
 
     { &hf_ldp_tlv_addrl_addr,
-      { "Address", "ldp.msg.tlv.addrl.addr", FT_STRING, BASE_NONE, NULL, 0x0, "Address", HFILL }},
+      { "Address", "ldp.msg.tlv.addrl.addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_hc_value,
       { "Hop Count Value", "ldp.msg.tlv.hc.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Hop Count", HFILL }},
 
     { &hf_ldp_tlv_pv_lsrid,
-      { "LSR Id", "ldp.msg.tlv.pv.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Path Vector LSR Id", HFILL }},
+      { "LSR Id", "ldp.msg.tlv.pv.lsrid", FT_IPv4, BASE_NONE, NULL, 0x0, "Path Vector LSR Id", HFILL }},
 
     { &hf_ldp_tlv_sess_ver,
       { "Session Protocol Version", "ldp.msg.tlv.sess.ver", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters Protocol Version", HFILL }},
@@ -2794,7 +2794,7 @@ proto_register_ldp(void)
       { "Session Max PDU Length", "ldp.msg.tlv.sess.mxpdu", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters Max PDU Length", HFILL }},
 
     { &hf_ldp_tlv_sess_rxlsr,
-      { "Session Receiver LSR Identifier", "ldp.msg.tlv.sess.rxlsr", FT_IPv4, BASE_DEC, NULL, 0x0, "Common Session Parameters LSR Identifier", HFILL }},
+      { "Session Receiver LSR Identifier", "ldp.msg.tlv.sess.rxlsr", FT_IPv4, BASE_NONE, NULL, 0x0, "Common Session Parameters LSR Identifier", HFILL }},
 
     { &hf_ldp_tlv_sess_rxls,
       { "Session Receiver Label Space Identifier", "ldp.msg.tlv.sess.rxlsr", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters Receiver Label Space Identifier", HFILL }},
@@ -2809,16 +2809,16 @@ proto_register_ldp(void)
       { "Directionality", "ldp.msg.tlv.sess.atm.dir", FT_BOOLEAN, 8, TFS(&tlv_atm_dirbit), 0x02, "Label Directionality", HFILL }},
 
     { &hf_ldp_tlv_sess_atm_minvpi,
-      { "Minimum VPI", "ldp.msg.tlv.sess.atm.minvpi", FT_UINT16, BASE_DEC, NULL, 0x0FFF, "Minimum VPI", HFILL }},
+      { "Minimum VPI", "ldp.msg.tlv.sess.atm.minvpi", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_sess_atm_minvci,
-      { "Minimum VCI", "ldp.msg.tlv.sess.atm.minvci", FT_UINT16, BASE_DEC, NULL, 0x0, "Minimum VCI", HFILL }},
+      { "Minimum VCI", "ldp.msg.tlv.sess.atm.minvci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_sess_atm_maxvpi,
-      { "Maximum VPI", "ldp.msg.tlv.sess.atm.maxvpi", FT_UINT16, BASE_DEC, NULL, 0x0FFF, "Maximum VPI", HFILL }},
+      { "Maximum VPI", "ldp.msg.tlv.sess.atm.maxvpi", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_sess_atm_maxvci,
-      { "Maximum VCI", "ldp.msg.tlv.sess.atm.maxvci", FT_UINT16, BASE_DEC, NULL, 0x0, "Maximum VCI", HFILL }},
+      { "Maximum VCI", "ldp.msg.tlv.sess.atm.maxvci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_sess_fr_merge,
       { "Session Frame Relay Merge Parameter", "ldp.msg.tlv.sess.fr.merge", FT_UINT8, BASE_DEC, VALS(tlv_fr_merge_vals), 0xC0, "Merge Frame Relay Session Parameters", HFILL }},
@@ -2833,10 +2833,10 @@ proto_register_ldp(void)
       { "Number of DLCI bits", "ldp.msg.tlv.sess.fr.len", FT_UINT16, BASE_DEC, VALS(tlv_fr_len_vals), 0x0180, "DLCI Number of bits", HFILL }},
 
     { &hf_ldp_tlv_sess_fr_mindlci,
-      { "Minimum DLCI", "ldp.msg.tlv.sess.fr.mindlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "Minimum DLCI", HFILL }},
+      { "Minimum DLCI", "ldp.msg.tlv.sess.fr.mindlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_sess_fr_maxdlci,
-      { "Maximum DLCI", "ldp.msg.tlv.sess.fr.maxdlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "Maximum DLCI", HFILL }},
+      { "Maximum DLCI", "ldp.msg.tlv.sess.fr.maxdlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_ft_sess_flags,
       { "Flags", "ldp.msg.tlv.ft_sess.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "FT Session Flags", HFILL }},
@@ -2860,16 +2860,16 @@ proto_register_ldp(void)
       { "L bit", "ldp.msg.tlv.ft_sess.flag_l", FT_BOOLEAN, 16, TFS(&tlv_ft_l), 0x1, "Learn From network Flag", HFILL }},
 
     { &hf_ldp_tlv_ft_sess_res,
-      { "Reserved", "ldp.msg.tlv.ft_sess.res", FT_UINT16, BASE_HEX, NULL, 0x0, "Reserved", HFILL }},
+      { "Reserved", "ldp.msg.tlv.ft_sess.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_ft_sess_reconn_to,
       { "Reconnect Timeout", "ldp.msg.tlv.ft_sess.reconn_to", FT_UINT32, BASE_DEC, NULL, 0x0, "FT Reconnect Timeout", HFILL }},
 
     { &hf_ldp_tlv_ft_sess_recovery_time,
-      { "Recovery Time", "ldp.msg.tlv.ft_sess.recovery_time", FT_UINT32, BASE_DEC, NULL, 0x0, "Recovery Time", HFILL }},
+      { "Recovery Time", "ldp.msg.tlv.ft_sess.recovery_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_ft_ack_sequence_num,
-      { "FT ACK Sequence Number", "ldp.msg.tlv.ft_ack.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, "FT ACK Sequence Number", HFILL }},
+      { "FT ACK Sequence Number", "ldp.msg.tlv.ft_ack.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_lbl_req_msg_id,
       { "Label Request Message ID", "ldp.tlv.lbl_req_msg_id", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Request Message to be aborted", HFILL }},
@@ -2878,10 +2878,10 @@ proto_register_ldp(void)
       { "Vendor ID", "ldp.msg.tlv.vendor_id", FT_UINT32, BASE_HEX, NULL, 0, "IEEE 802 Assigned Vendor ID", HFILL }},
 
     { &hf_ldp_tlv_experiment_id,
-      { "Experiment ID", "ldp.msg.tlv.experiment_id", FT_UINT32, BASE_HEX, NULL, 0, "Experiment ID", HFILL }},
+      { "Experiment ID", "ldp.msg.tlv.experiment_id", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     { &hf_ldp_tlv_generic_label,
-      { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_HEX, NULL, 0x000FFFFF, "Generic Label", HFILL }},
+      { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_HEX, NULL, 0x000FFFFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_atm_label_vbits,
       { "V-bits", "ldp.msg.tlv.atm.label.vbits", FT_UINT8, BASE_HEX, VALS(tlv_atm_vbits_vals), 0x30, "ATM Label V Bits", HFILL }},
@@ -2899,7 +2899,7 @@ proto_register_ldp(void)
       { "DLCI", "ldp.msg.tlv.fr.label.dlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "FRAME RELAY Label DLCI", HFILL }},
 
     { &hf_ldp_tlv_ft_protect_sequence_num,
-      { "FT Sequence Number", "ldp.msg.tlv.ft_protect.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, "FT Sequence Number", HFILL }},
+      { "FT Sequence Number", "ldp.msg.tlv.ft_protect.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_status_ebit,
       { "E Bit", "ldp.msg.tlv.status.ebit", FT_BOOLEAN, 8, TFS(&tlv_status_ebit), 0x80, "Fatal Error Bit", HFILL }},
@@ -2908,7 +2908,7 @@ proto_register_ldp(void)
       { "F Bit", "ldp.msg.tlv.status.fbit", FT_BOOLEAN, 8, TFS(&tlv_status_fbit), 0x40, "Forward Bit", HFILL }},
 
     { &hf_ldp_tlv_status_data,
-      { "Status Data", "ldp.msg.tlv.status.data", FT_UINT32, BASE_HEX, VALS(tlv_status_data), 0x3FFFFFFF, "Status Data", HFILL }},
+      { "Status Data", "ldp.msg.tlv.status.data", FT_UINT32, BASE_HEX, VALS(tlv_status_data), 0x3FFFFFFF, NULL, HFILL }},
 
     { &hf_ldp_tlv_status_msg_id,
       { "Message ID", "ldp.msg.tlv.status.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "Identifies peer message to which Status TLV refers", HFILL }},
@@ -2917,7 +2917,7 @@ proto_register_ldp(void)
       { "Message Type", "ldp.msg.tlv.status.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x0, "Type of peer message to which Status TLV refers", HFILL }},
 
     { &hf_ldp_tlv_extstatus_data,
-      { "Extended Status Data", "ldp.msg.tlv.extstatus.data", FT_UINT32, BASE_HEX, NULL, 0x0, "Extended Status Data", HFILL }},
+      { "Extended Status Data", "ldp.msg.tlv.extstatus.data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_ldp_tlv_returned_version,
       { "Returned PDU Version", "ldp.msg.tlv.returned.version", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Version Number", HFILL }},
@@ -2926,7 +2926,7 @@ proto_register_ldp(void)
       { "Returned PDU Length", "ldp.msg.tlv.returned.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP PDU Length", HFILL }},
 
     { &hf_ldp_tlv_returned_lsr,
-      { "Returned PDU LSR ID", "ldp.msg.tlv.returned.ldpid.lsr", FT_IPv4, BASE_DEC, NULL, 0x0, "LDP Label Space Router ID", HFILL }},
+      { "Returned PDU LSR ID", "ldp.msg.tlv.returned.ldpid.lsr", FT_IPv4, BASE_NONE, NULL, 0x0, "LDP Label Space Router ID", HFILL }},
 
     { &hf_ldp_tlv_returned_ls_id,
       { "Returned PDU Label Space ID", "ldp.msg.tlv.returned.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID", HFILL }},
@@ -2944,7 +2944,7 @@ proto_register_ldp(void)
       { "Returned Message ID", "ldp.msg.tlv.returned.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
 
     { &hf_ldp_tlv_mac,
-      { "MAC address", "ldp.msg.tlv.mac", FT_ETHER, BASE_NONE, NULL, 0x0, "MAC address", HFILL}},
+      { "MAC address", "ldp.msg.tlv.mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_ldp_tlv_fec_vc_controlword,
      {"C-bit", "ldp.msg.tlv.fec.vc.controlword", FT_BOOLEAN, 8, TFS(&fec_vc_cbit), 0x80, "Control Word Present", HFILL }},
@@ -2977,7 +2977,7 @@ proto_register_ldp(void)
      {"Number of Cells", "ldp.msg.tlv.fec.vc.intparam.maxatm", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param Max ATM Concat Cells", HFILL }},
 
     { &hf_ldp_tlv_fec_vc_intparam_desc,
-      { "Description", "ldp.msg.tlv.fec.vc.intparam.desc", FT_STRING, BASE_DEC, NULL, 0, "VC FEC Interface Description", HFILL }},
+      { "Description", "ldp.msg.tlv.fec.vc.intparam.desc", FT_STRING, BASE_NONE, NULL, 0, "VC FEC Interface Description", HFILL }},
 
     { &hf_ldp_tlv_fec_vc_intparam_cepbytes,
      {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cepbytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEP/TDM Payload Bytes", HFILL }},
@@ -3062,36 +3062,36 @@ proto_register_ldp(void)
 
 
     { &hf_ldp_tlv_lspid_act_flg,
-      { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX, VALS(ldp_act_flg_vals), 0x000F, "Action Indicator Flag", HFILL}},
+      { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX, VALS(ldp_act_flg_vals), 0x000F, NULL, HFILL}},
 
     { &hf_ldp_tlv_lspid_cr_lsp,
-      { "Local CR-LSP ID", "ldp.msg.tlv.lspid.locallspid", FT_UINT16, BASE_HEX, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+      { "Local CR-LSP ID", "ldp.msg.tlv.lspid.locallspid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_lspid_ldpid,
-      { "Ingress LSR Router ID", "ldp.msg.tlv.lspid.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Ingress LSR Router ID", HFILL}},
+      { "Ingress LSR Router ID", "ldp.msg.tlv.lspid.lsrid", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_er_hop_loose,
-      { "Loose route bit", "ldp.msg.tlv.er_hop.loose", FT_UINT24, BASE_HEX, VALS(ldp_loose_vals), 0x800000, "Loose route bit", HFILL}},
+      { "Loose route bit", "ldp.msg.tlv.er_hop.loose", FT_UINT24, BASE_HEX, VALS(ldp_loose_vals), 0x800000, NULL, HFILL}},
 
     { &hf_ldp_tlv_er_hop_prelen,
       { "Prefix length", "ldp.msg.tlv.er_hop.prefixlen", FT_UINT8, BASE_DEC, NULL, 0x0, "Prefix len", HFILL}},
 
     { &hf_ldp_tlv_er_hop_prefix4,
-      { "IPv4 Address", "ldp.msg.tlv.er_hop.prefix4", FT_IPv4, BASE_DEC, NULL, 0x0, "IPv4 Address", HFILL}},
+      { "IPv4 Address", "ldp.msg.tlv.er_hop.prefix4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
    { &hf_ldp_tlv_er_hop_prefix6,
-     { "IPv6 Address", "ldp.msg.tlv.er_hop.prefix6", FT_IPv6, BASE_DEC, NULL, 0x0, "IPv6 Address", HFILL}},
+     { "IPv6 Address", "ldp.msg.tlv.er_hop.prefix6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_er_hop_as,
-      { "AS Number", "ldp.msg.tlv.er_hop.as", FT_UINT16, BASE_DEC, NULL, 0x0, "AS Number", HFILL}},
+      { "AS Number", "ldp.msg.tlv.er_hop.as", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_er_hop_cr_lsp,
-      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.locallspid", FT_UINT16, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.locallspid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_er_hop_ldpid,
-      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.lsrid", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     { &hf_ldp_tlv_flags_reserv,
-      { "Reserved", "ldp.msg.tlv.flags_reserv", FT_UINT8, BASE_HEX, NULL, 0xC0, "Reserved", HFILL}},
+      { "Reserved", "ldp.msg.tlv.flags_reserv", FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL}},
 
     { &hf_ldp_tlv_flags_pdr,
       { "PDR", "ldp.msg.tlv.flags_pdr", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x1, "PDR negotiability flag", HFILL}},
@@ -3112,7 +3112,7 @@ proto_register_ldp(void)
       { "Weight", "ldp.msg.tlv.flags_weight", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x20, "Weight negotiability flag", HFILL}},
 
     { &hf_ldp_tlv_frequency,
-      { "Frequency", "ldp.msg.tlv.frequency", FT_UINT8, BASE_DEC, VALS(freq_values), 0, "Frequency", HFILL}},
+      { "Frequency", "ldp.msg.tlv.frequency", FT_UINT8, BASE_DEC, VALS(freq_values), 0, NULL, HFILL}},
 
     { &hf_ldp_tlv_weight,
       { "Weight", "ldp.msg.tlv.weight", FT_UINT8, BASE_DEC, NULL, 0, "Weight of the CR-LSP", HFILL}},
@@ -3139,7 +3139,7 @@ proto_register_ldp(void)
       { "Hold Prio", "ldp.msg.tlv.hold_prio", FT_UINT8, BASE_DEC, NULL, 0, "LSP hold priority", HFILL}},
 
     { &hf_ldp_tlv_route_pinning,
-      { "Route Pinning", "ldp.msg.tlv.route_pinning", FT_UINT32, BASE_DEC, VALS(route_pinning_vals), 0x80000000, "Route Pinning", HFILL}},
+      { "Route Pinning", "ldp.msg.tlv.route_pinning", FT_UINT32, BASE_DEC, VALS(route_pinning_vals), 0x80000000, NULL, HFILL}},
 
     { &hf_ldp_tlv_resource_class,
       { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX, NULL, 0, "Resource Class (Color)", HFILL}},
@@ -3150,7 +3150,7 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_diffserv_type,
       { "LSP Type", "ldp.msg.tlv.diffserv.type", FT_UINT8, BASE_DEC,
-	VALS(diffserv_type_vals), 0x80, "LSP Type", HFILL}},
+	VALS(diffserv_type_vals), 0x80, NULL, HFILL}},
 
     { &hf_ldp_tlv_diffserv_mapnb,
       { "MAPnb", "ldp.msg.tlv.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL,

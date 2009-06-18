@@ -2504,7 +2504,7 @@ proto_register_vnc(void)
 		{ &hf_vnc_auth_result,
 		  { "Authentication result", "vnc.auth_result",
 		    FT_UINT32, BASE_DEC, VALS(auth_result_vs), 0x0,
-		    "Authentication result", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_vnc_auth_error,
 		  { "Authentication error", "vnc.auth_error",
@@ -2850,7 +2850,7 @@ proto_register_vnc(void)
 		{ &hf_vnc_rre_bg_pixel,
 		  { "Background pixel value", "vnc.rre_bg_pixel",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Background pixel value", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_vnc_rre_subrect_pixel,
@@ -2998,7 +2998,7 @@ proto_register_vnc(void)
 		{ &hf_vnc_zrle_palette_size,
 		  { "Palette size", "vnc.zrle_palette_size",
 		    FT_UINT8, BASE_DEC, NULL, 0x7F, /* Lower 7 bits */
-		    "Palette size", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_vnc_zrle_data,

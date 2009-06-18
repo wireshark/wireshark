@@ -295,22 +295,22 @@ proto_register_eapol(void)
   static hf_register_info hf[] = {
 	{ &hf_eapol_version, {
 		"Version", "eapol.version", FT_UINT8, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_type, {
 		"Type", "eapol.type", FT_UINT8, BASE_DEC,
-		VALS(eapol_type_vals), 0x0, "", HFILL }},
+		VALS(eapol_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_eapol_len, {
 		"Length", "eapol.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Length", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_type, {
 		"Descriptor Type", "eapol.keydes.type", FT_UINT8, BASE_DEC,
 		VALS(eapol_keydes_type_vals), 0x0, "Key Descriptor Type", HFILL }},
 	{ &hf_eapol_keydes_keylen, {
 		"Key Length", "eapol.keydes.keylen", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Key Length", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_replay_counter, {
 		"Replay Counter", "eapol.keydes.replay_counter", FT_UINT64, BASE_DEC,
-		NULL, 0x0, "Replay Counter", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_key_iv, {
 		"Key IV", "eapol.keydes.key_iv", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Key Initialization Vector", HFILL }},
@@ -322,10 +322,10 @@ proto_register_eapol(void)
 		NULL, 0x7F, "Key Index number", HFILL }},
 	{ &hf_eapol_keydes_key_signature, {
 		"Key Signature", "eapol.keydes.key_signature", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "Key Signature", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_key, {
 		"Key", "eapol.keydes.key", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "Key", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_eapol_wpa_keydes_keyinfo, {
 		"Key Information", "eapol.keydes.key_info", FT_UINT16,
@@ -354,43 +354,43 @@ proto_register_eapol(void)
 		"eapol.keydes.key_info.install",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_INSTALL_MASK,
-		"Install flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_ack, {
 		"Key Ack flag",
 		"eapol.keydes.key_info.key_ack",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_KEY_ACK_MASK,
-		"Key Ack flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_mic, {
 		"Key MIC flag",
 		"eapol.keydes.key_info.key_mic",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_KEY_MIC_MASK,
-		"Key MIC flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_secure, {
 		"Secure flag",
 		"eapol.keydes.key_info.secure",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_SECURE_MASK,
-		"Secure flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_error, {
 		"Error flag",
 		"eapol.keydes.key_info.error",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_ERROR_MASK,
-		"Error flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_request, {
 		"Request flag",
 		"eapol.keydes.key_info.request",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_REQUEST_MASK,
-		"Request flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_encr_key_data, {
 		"Encrypted Key Data flag",
 		"eapol.keydes.key_info.encr_key_data",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth),
 		KEY_INFO_ENCR_KEY_DATA_MASK,
-		"Encrypted Key Data flag", HFILL }},
+		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_nonce, {
 		"Nonce", "eapol.keydes.nonce", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "WPA Key Nonce", HFILL }},

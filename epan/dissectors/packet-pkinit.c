@@ -394,7 +394,7 @@ void proto_register_pkinit(void) {
         "cms.ContentInfo", HFILL }},
     { &hf_pkinit_subjectPublicKey,
       { "subjectPublicKey", "pkinit.subjectPublicKey",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "pkinit.BIT_STRING", HFILL }},
     { &hf_pkinit_dhNonce,
       { "nonce", "pkinit.nonce",

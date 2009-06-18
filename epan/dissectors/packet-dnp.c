@@ -2665,7 +2665,7 @@ proto_register_dnp3(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_dnp3_start,
-    { "Start Bytes", "dnp3.start", FT_UINT16, BASE_HEX, NULL, 0x0, "Start Bytes", HFILL }},
+    { "Start Bytes", "dnp3.start", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_len,
     { "Length", "dnp3.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Frame Data Length", HFILL }},
@@ -2682,19 +2682,19 @@ proto_register_dnp3(void)
       VALS(dnp3_ctl_func_sec_vals), DNP3_CTL_FUNC, "Frame Control Function Code", HFILL }},
 
     { &hf_dnp3_ctl_dir,
-    { "Direction", "dnp3.ctl.dir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_DIR, "", HFILL }},
+    { "Direction", "dnp3.ctl.dir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_DIR, NULL, HFILL }},
 
     { &hf_dnp3_ctl_prm,
-    { "Primary", "dnp3.ctl.prm", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_PRM, "", HFILL }},
+    { "Primary", "dnp3.ctl.prm", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_PRM, NULL, HFILL }},
 
     { &hf_dnp3_ctl_fcb,
-    { "Frame Count Bit", "dnp3.ctl.fcb", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_FCB, "", HFILL }},
+    { "Frame Count Bit", "dnp3.ctl.fcb", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_FCB, NULL, HFILL }},
 
     { &hf_dnp3_ctl_fcv,
-    { "Frame Count Valid", "dnp3.ctl.fcv", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_FCV, "", HFILL }},
+    { "Frame Count Valid", "dnp3.ctl.fcv", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_FCV, NULL, HFILL }},
 
     { &hf_dnp3_ctl_dfc,
-    { "Data Flow Control", "dnp3.ctl.dfc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_DFC, "", HFILL }},
+    { "Data Flow Control", "dnp3.ctl.dfc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_DFC, NULL, HFILL }},
 
     { &hf_dnp3_dst,
     { "Destination", "dnp3.dst", FT_UINT16, BASE_DEC, NULL, 0x0, "Destination Address", HFILL }},
@@ -2703,19 +2703,19 @@ proto_register_dnp3(void)
     { "Source", "dnp3.src", FT_UINT16, BASE_DEC, NULL, 0x0, "Source Address", HFILL }},
 
     { &hf_dnp_hdr_CRC,
-    { "CRC", "dnp3.hdr.CRC", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "CRC", "dnp3.hdr.CRC", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp_hdr_CRC_bad,
-    { "Bad CRC", "dnp3.hdr.CRC_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { "Bad CRC", "dnp3.hdr.CRC_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_tr_ctl,
     { "Transport Control", "dnp3.tr.ctl", FT_UINT8, BASE_HEX, NULL, 0x0, "Transport Layer Control Byte", HFILL }},
 
     { &hf_dnp3_tr_fin,
-    { "Final", "dnp3.tr.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_TR_FIN, "", HFILL }},
+    { "Final", "dnp3.tr.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_TR_FIN, NULL, HFILL }},
 
     { &hf_dnp3_tr_fir,
-    { "First", "dnp3.tr.fir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_TR_FIR, "", HFILL }},
+    { "First", "dnp3.tr.fir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_TR_FIR, NULL, HFILL }},
 
     { &hf_dnp3_tr_seq,
     { "Sequence", "dnp3.tr.seq", FT_UINT8, BASE_DEC, NULL, DNP3_TR_SEQ, "Frame Sequence Number", HFILL }},
@@ -2724,13 +2724,13 @@ proto_register_dnp3(void)
     { "Application Control", "dnp3.al.ctl", FT_UINT8, BASE_HEX, NULL, 0x0, "Application Layer Control Byte", HFILL }},
 
     { &hf_dnp3_al_fir,
-    { "First", "dnp3.al.fir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_FIR, "", HFILL }},
+    { "First", "dnp3.al.fir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_FIR, NULL, HFILL }},
 
     { &hf_dnp3_al_fin,
-    { "Final", "dnp3.al.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_FIN, "", HFILL }},
+    { "Final", "dnp3.al.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_FIN, NULL, HFILL }},
 
     { &hf_dnp3_al_con,
-    { "Confirm", "dnp3.al.con", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_CON, "", HFILL }},
+    { "Confirm", "dnp3.al.con", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_CON, NULL, HFILL }},
 
     { &hf_dnp3_al_seq,
     { "Sequence", "dnp3.al.seq", FT_UINT8, BASE_DEC, NULL, DNP3_AL_SEQ, "Frame Sequence Number", HFILL }},
@@ -2743,43 +2743,43 @@ proto_register_dnp3(void)
     { "Application Layer IIN bits", "dnp3.al.iin", FT_UINT16, BASE_DEC, NULL, 0x0, "Application Layer IIN", HFILL }},
 
     { &hf_dnp3_al_iin_bmsg,
-    { "Broadcast Msg Rx", "dnp3.al.iin.bmsg", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_BMSG, "", HFILL }},
+    { "Broadcast Msg Rx", "dnp3.al.iin.bmsg", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_BMSG, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_cls1d,
-    { "Class 1 Data Available", "dnp3.al.iin.cls1d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS1D, "", HFILL }},
+    { "Class 1 Data Available", "dnp3.al.iin.cls1d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS1D, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_cls2d,
-    { "Class 2 Data Available", "dnp3.al.iin.cls2d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS2D, "", HFILL }},
+    { "Class 2 Data Available", "dnp3.al.iin.cls2d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS2D, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_cls3d,
-    { "Class 3 Data Available", "dnp3.al.iin.cls3d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS3D, "", HFILL }},
+    { "Class 3 Data Available", "dnp3.al.iin.cls3d", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CLS3D, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_tsr,
-    { "Time Sync Required", "dnp3.al.iin.tsr", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_TSR, "", HFILL }},
+    { "Time Sync Required", "dnp3.al.iin.tsr", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_TSR, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_dol,
-    { "Digital Outputs in Local", "dnp3.al.iin.dol", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_DOL, "", HFILL }},
+    { "Digital Outputs in Local", "dnp3.al.iin.dol", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_DOL, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_dt,
-    { "Device Trouble", "dnp3.al.iin.dt", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_DT, "", HFILL }},
+    { "Device Trouble", "dnp3.al.iin.dt", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_DT, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_rst,
-    { "Device Restart", "dnp3.al.iin.rst", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_RST, "", HFILL }},
+    { "Device Restart", "dnp3.al.iin.rst", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_RST, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_obju,
-    { "Requested Objects Unknown", "dnp3.al.iin.obju", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_OBJU, "", HFILL }},
+    { "Requested Objects Unknown", "dnp3.al.iin.obju", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_OBJU, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_pioor,
-    { "Parameters Invalid or Out of Range", "dnp3.al.iin.pioor", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_PIOOR, "", HFILL }},
+    { "Parameters Invalid or Out of Range", "dnp3.al.iin.pioor", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_PIOOR, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_ebo,
-    { "Event Buffer Overflow", "dnp3.al.iin.ebo", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_EBO, "", HFILL }},
+    { "Event Buffer Overflow", "dnp3.al.iin.ebo", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_EBO, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_oae,
-    { "Operation Already Executing", "dnp3.al.iin.oae", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_OAE, "", HFILL }},
+    { "Operation Already Executing", "dnp3.al.iin.oae", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_OAE, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_cc,
-    { "Configuration Corrupt", "dnp3.al.iin.cc", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CC, "", HFILL }},
+    { "Configuration Corrupt", "dnp3.al.iin.cc", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CC, NULL, HFILL }},
 
     { &hf_dnp3_al_obj,
     { "Object", "dnp3.al.obj", FT_UINT16, BASE_HEX, VALS(dnp3_al_obj_vals), 0x0, "Application Layer Object", HFILL }},
@@ -2836,7 +2836,7 @@ proto_register_dnp3(void)
     { "Index (32 bit)", "dnp3.al.index", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Index", HFILL }},
 
     { &hf_dnp3_al_ptnum,
-    { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Point Number", HFILL }},
+    { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_bit,
     { "Value (bit)", "dnp3.al.bit", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x1, "Digital Value (1 bit)", HFILL }},
@@ -2857,13 +2857,13 @@ proto_register_dnp3(void)
     { "Value (double)", "dnp3.al.ana", FT_DOUBLE, BASE_DEC, NULL, 0x0, "Analog Value (double)", HFILL }},
 
     { &hf_dnp3_al_anaout16,
-    { "Output Value (16 bit)", "dnp3.al.anaout", FT_UINT16, BASE_DEC, NULL, 0x0, "Output Value (16 bit)", HFILL }},
+    { "Output Value (16 bit)", "dnp3.al.anaout", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_anaout32,
-    { "Output Value (32 bit)", "dnp3.al.anaout", FT_UINT32, BASE_DEC, NULL, 0x0, "Output Value (32 bit)", HFILL }},
+    { "Output Value (32 bit)", "dnp3.al.anaout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_anaoutflt,
-    { "Output Value (float)", "dnp3.al.anaout", FT_FLOAT, BASE_DEC, NULL, 0x0, "Output Value (float)", HFILL }},
+    { "Output Value (float)", "dnp3.al.anaout", FT_FLOAT, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_anaoutdbl,
     { "Output (double)", "dnp3.al.anaout", FT_DOUBLE, BASE_DEC, NULL, 0x0, "Output Value (double)", HFILL }},
@@ -2875,127 +2875,127 @@ proto_register_dnp3(void)
     { "Counter (32 bit)", "dnp3.al.cnt", FT_UINT32, BASE_DEC, NULL, 0x0, "Counter Value (32 bit)", HFILL }},
 
     { &hf_dnp3_al_ctrlstatus,
-    { "Control Status", "dnp3.al.ctrlstatus", FT_UINT8, BASE_DEC, dnp3_al_ctl_status_vals, 0xff, "Control Status", HFILL }},
+    { "Control Status", "dnp3.al.ctrlstatus", FT_UINT8, BASE_DEC, dnp3_al_ctl_status_vals, 0xff, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b0,
-    { "Online", "dnp3.al.biq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG0, "", HFILL }},
+    { "Online", "dnp3.al.biq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG0, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b1,
-    { "Restart", "dnp3.al.biq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG1, "", HFILL }},
+    { "Restart", "dnp3.al.biq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG1, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b2,
-    { "Comm Fail", "dnp3.al.biq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG2, "", HFILL }},
+    { "Comm Fail", "dnp3.al.biq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG2, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b3,
-    { "Remote Force", "dnp3.al.biq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG3, "", HFILL }},
+    { "Remote Force", "dnp3.al.biq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG3, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b4,
-    { "Local Force", "dnp3.al.biq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG4, "", HFILL }},
+    { "Local Force", "dnp3.al.biq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG4, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b5,
-    { "Chatter Filter", "dnp3.al.biq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG5, "", HFILL }},
+    { "Chatter Filter", "dnp3.al.biq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG5, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b6,
-    { "Reserved", "dnp3.al.biq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG6, "", HFILL }},
+    { "Reserved", "dnp3.al.biq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG6, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b7,
-    { "Point Value", "dnp3.al.biq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG7, "", HFILL }},
+    { "Point Value", "dnp3.al.biq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b0,
-    { "Online", "dnp3.al.boq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG0, "", HFILL }},
+    { "Online", "dnp3.al.boq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG0, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b1,
-    { "Restart", "dnp3.al.boq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG1, "", HFILL }},
+    { "Restart", "dnp3.al.boq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG1, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b2,
-    { "Comm Fail", "dnp3.al.boq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG2, "", HFILL }},
+    { "Comm Fail", "dnp3.al.boq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG2, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b3,
-    { "Remote Force", "dnp3.al.boq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG3, "", HFILL }},
+    { "Remote Force", "dnp3.al.boq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG3, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b4,
-    { "Local Force", "dnp3.al.boq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG4, "", HFILL }},
+    { "Local Force", "dnp3.al.boq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG4, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b5,
-    { "Reserved", "dnp3.al.boq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG5, "", HFILL }},
+    { "Reserved", "dnp3.al.boq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG5, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b6,
-    { "Reserved", "dnp3.al.boq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG6, "", HFILL }},
+    { "Reserved", "dnp3.al.boq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG6, NULL, HFILL }},
 
     { &hf_dnp3_al_boq_b7,
-    { "Point Value", "dnp3.al.boq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG7, "", HFILL }},
+    { "Point Value", "dnp3.al.boq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BO_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b0,
-    { "Online", "dnp3.al.ctrq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG0, "", HFILL }},
+    { "Online", "dnp3.al.ctrq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG0, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b1,
-    { "Restart", "dnp3.al.ctrq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG1, "", HFILL }},
+    { "Restart", "dnp3.al.ctrq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG1, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b2,
-    { "Comm Fail", "dnp3.al.ctrq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG2, "", HFILL }},
+    { "Comm Fail", "dnp3.al.ctrq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG2, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b3,
-    { "Remote Force", "dnp3.al.ctrq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG3, "", HFILL }},
+    { "Remote Force", "dnp3.al.ctrq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG3, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b4,
-    { "Local Force", "dnp3.al.ctrq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG4, "", HFILL }},
+    { "Local Force", "dnp3.al.ctrq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG4, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b5,
-    { "Roll-Over", "dnp3.al.ctrq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG5, "", HFILL }},
+    { "Roll-Over", "dnp3.al.ctrq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG5, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b6,
-    { "Discontinuity", "dnp3.al.ctrq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG6, "", HFILL }},
+    { "Discontinuity", "dnp3.al.ctrq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG6, NULL, HFILL }},
 
     { &hf_dnp3_al_ctrq_b7,
-    { "Reserved", "dnp3.al.ctrq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG7, "", HFILL }},
+    { "Reserved", "dnp3.al.ctrq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_CTR_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b0,
-    { "Online", "dnp3.al.aiq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG0, "", HFILL }},
+    { "Online", "dnp3.al.aiq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG0, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b1,
-    { "Restart", "dnp3.al.aiq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG1, "", HFILL }},
+    { "Restart", "dnp3.al.aiq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG1, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b2,
-    { "Comm Fail", "dnp3.al.aiq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG2, "", HFILL }},
+    { "Comm Fail", "dnp3.al.aiq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG2, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b3,
-    { "Remote Force", "dnp3.al.aiq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG3, "", HFILL }},
+    { "Remote Force", "dnp3.al.aiq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG3, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b4,
-    { "Local Force", "dnp3.al.aiq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG4, "", HFILL }},
+    { "Local Force", "dnp3.al.aiq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG4, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b5,
-    { "Over-Range", "dnp3.al.aiq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG5, "", HFILL }},
+    { "Over-Range", "dnp3.al.aiq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG5, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b6,
-    { "Reference Check", "dnp3.al.aiq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG6, "", HFILL }},
+    { "Reference Check", "dnp3.al.aiq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG6, NULL, HFILL }},
 
     { &hf_dnp3_al_aiq_b7,
-    { "Reserved", "dnp3.al.aiq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG7, "", HFILL }},
+    { "Reserved", "dnp3.al.aiq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AI_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b0,
-    { "Online", "dnp3.al.aoq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG0, "", HFILL }},
+    { "Online", "dnp3.al.aoq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG0, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b1,
-    { "Restart", "dnp3.al.aoq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG1, "", HFILL }},
+    { "Restart", "dnp3.al.aoq.b1", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG1, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b2,
-    { "Comm Fail", "dnp3.al.aoq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG2, "", HFILL }},
+    { "Comm Fail", "dnp3.al.aoq.b2", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG2, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b3,
-    { "Remote Force", "dnp3.al.aoq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG3, "", HFILL }},
+    { "Remote Force", "dnp3.al.aoq.b3", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG3, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b4,
-    { "Local Force", "dnp3.al.aoq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG4, "", HFILL }},
+    { "Local Force", "dnp3.al.aoq.b4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG4, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b5,
-    { "Reserved", "dnp3.al.aoq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG5, "", HFILL }},
+    { "Reserved", "dnp3.al.aoq.b5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG5, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b6,
-    { "Reserved", "dnp3.al.aoq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG6, "", HFILL }},
+    { "Reserved", "dnp3.al.aoq.b6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG6, NULL, HFILL }},
 
     { &hf_dnp3_al_aoq_b7,
-    { "Reserved", "dnp3.al.aoq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG7, "", HFILL }},
+    { "Reserved", "dnp3.al.aoq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_timestamp,
     { "Timestamp", "dnp3.al.timestamp", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "Object Timestamp", HFILL }},

@@ -8864,7 +8864,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_dtx_used,
               { "DTX-USED","gsm_a.rr.dtx_used",
-		FT_BOOLEAN, 8,  TFS(&gsm_a_rr_dtx_vals), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_dtx_vals), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_ba_used,
@@ -9119,7 +9119,7 @@ proto_register_gsm_a_rr(void)
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_cdma200_cm_cng_msg_req,
-              { "CDMA2000 CLASSMARK CHANGE ","gsm_a.rr_cdma200_cm_cng_msg_req",
+              { "CDMA2000 CLASSMARK CHANGE","gsm_a.rr_cdma200_cm_cng_msg_req",
 		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x08,
 		NULL, HFILL }
             },
@@ -9230,7 +9230,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_pwrc,
               { "PWRC", "gsm_a.rr.pwrc",
-		FT_BOOLEAN, BASE_NONE,  NULL, 0x00,
+		FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
 		"Power Control Indicator (PWRC)", HFILL }
             },
             { &hf_gsm_a_rr_dtx_bcch,
@@ -9500,7 +9500,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_gsm_report_type,
               { "Report Type", "gsm_a.rr.gsm_report_type",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x0,
 		"Report type the MS shall use (Report Type)", HFILL }
             },
             { &hf_gsm_a_rr_serving_band_reporting,
@@ -9510,27 +9510,27 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_frequency_scrolling,
               { "Frequency Scrolling", "gsm_a.rr.frequency_scrolling",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_frequency_scrolling_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_frequency_scrolling_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_rep_priority,
               { "Rep Priority", "gsm_a.rr.rep_priority",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_rep_priority_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_rep_priority_value), 0x0,
 		"Reporting Priority", HFILL }
             },
             { &hf_gsm_a_rr_report_type,
               { "Report Type", "gsm_a.rr.report_type",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_report_type_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_report_type_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_reporting_rate,
               { "Reporting Rate", "gsm_a.rr.reporting_rate",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reporting_rate_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reporting_rate_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_invalid_bsic_reporting,
               { "Invalid BSIC Reporting", "gsm_a.rr.invalid_bsic_reporting",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_invalid_bsic_reporting_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale_ord,
@@ -9620,12 +9620,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_qsearch_c_initial,
               { "QSearch C Initial", "gsm_a.rr.qsearch_c_initial",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_qsearch_c_initial_value), 0x0,
 		"Qsearch value to be used in connected mode before Qsearch C is received (QSearch C Initial)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_rep_quant,
               { "FDD Rep Quant", "gsm_a.rr.fdd_rep_quant",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x0,
 		"FDD Reporting Quantity (FDD Rep Quant)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_multirat_reporting,
@@ -9645,7 +9645,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_search_prio,
               { "3G Search Prio", "gsm_a.rr.3g_search_prio",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_offset,
@@ -9675,7 +9675,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_ccn_active,
               { "3G CCN Active", "gsm_a.rr.3g_ccn_active",
-		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x00,
+		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_ccn_active_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_700_reporting_offset,
@@ -9991,12 +9991,12 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_t_avg_w,
               { "T Avg W", "gsm_a.rr.t_avg_w",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
-		"Signal strength filter period for power control in packet idle mode ", HFILL }
+		"Signal strength filter period for power control in packet idle mode", HFILL }
             },
             { &hf_gsm_a_rr_t_avg_t,
               { "T Avg T", "gsm_a.rr.t_avg_t",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_t_avg_x_vals), 0x0,
-		"Signal strength filter period for power control in packet transfer mode ", HFILL }
+		"Signal strength filter period for power control in packet transfer mode", HFILL }
             },
             { &hf_gsm_a_rr_pc_meas_chan,
               { "PC Meas Chan", "gsm_a.rr.pc_meas_chan",
@@ -10050,12 +10050,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_bsic_seen,
               { "BSIC Seen", "gsm_a.rr.bsic_seen",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bsic_seen_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_bsic_seen_value), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_scale,
               { "Scale", "gsm_a.rr.scale",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_scale_value), 0x00,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_scale_value), 0x0,
 		"Offset applied for the reported RXLEV values (Scale)", HFILL }
             },
             { &hf_gsm_a_rr_mean_bep_gmsk,

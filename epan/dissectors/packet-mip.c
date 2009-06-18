@@ -807,7 +807,7 @@ void proto_register_mip(void)
 	  { &hf_mip_flags,
 		{"Flags", "mip.flags",
 		 FT_UINT8, BASE_HEX, NULL, 0x0,
-		 "", HFILL}
+		 NULL, HFILL}
 	  },
 	  { &hf_mip_s,
 		 {"Simultaneous Bindings",           "mip.s",
@@ -838,7 +838,7 @@ void proto_register_mip(void)
 	  { &hf_mip_v,
 		 { "Van Jacobson",           "mip.v",
 		   FT_BOOLEAN, 8, NULL, 4,
-		   "Van Jacobson", HFILL }
+		   NULL, HFILL }
 	  },
 	  { &hf_mip_t,
 		 { "Reverse Tunneling",           "mip.t",
@@ -848,7 +848,7 @@ void proto_register_mip(void)
 	  { &hf_mip_x,
 		 { "Reserved",           "mip.x",
 		   FT_BOOLEAN, 8, NULL, 1,
-		   "Reserved", HFILL }
+		   NULL, HFILL }
 	  },
 	  { &hf_mip_code,
 		 { "Reply Code",           "mip.code",
@@ -898,8 +898,8 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_ext,
 		 { "Extension",                      "mip.extension",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"Extension", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_mip_aext_spi,
 		 { "SPI",                      "mip.auth.spi",
@@ -914,7 +914,7 @@ void proto_register_mip(void)
 	  { &hf_mip_next_nai,
 		 { "NAI",                      "mip.nai",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"NAI", HFILL }
+			NULL, HFILL }
 	  },
           { &hf_mip_rext_flags,
 	    	 {"Rev Ext Flags",             "mip.ext.rev.flags",
@@ -929,7 +929,7 @@ void proto_register_mip(void)
           { &hf_mip_rext_reserved,
 		 { "Reserved",                 "mip.ext.rev.reserved",
 			FT_UINT16, BASE_HEX, NULL, 0x7fff,
-			"", HFILL }
+			NULL, HFILL }
           },
           { &hf_mip_rext_tstamp,
 		 { "Timestamp",                "mip.ext.rev.tstamp",
@@ -939,7 +939,7 @@ void proto_register_mip(void)
 	  { &hf_mip_rev_reserved,
 		 { "Reserved",                 "mip.rev.reserved", 
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL}
+			NULL, HFILL}
 	  },
           { &hf_mip_rev_a,
 		 { "Home Agent",               "mip.rev.a",
@@ -954,7 +954,7 @@ void proto_register_mip(void)
 	  { &hf_mip_rev_reserved2,
 		 { "Reserved",                 "mip.rev.reserved2", 
 			FT_UINT16, BASE_HEX, NULL, 0x3fff,
-			"", HFILL}},
+			NULL, HFILL}},
           { &hf_mip_hda,
 		 { "Home Domain Address",      "mip.rev.hda",
 			FT_IPv4, BASE_NONE, NULL, 0,
@@ -973,7 +973,7 @@ void proto_register_mip(void)
 	  { &hf_mip_ack_reserved,
 		 { "Reserved",                 "mip.ack.reserved", 
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL}
+			NULL, HFILL}
 	  },
           { &hf_mip_ack_i,
 		 { "Inform",                   "mip.ack.i",
@@ -983,7 +983,7 @@ void proto_register_mip(void)
 	  { &hf_mip_ack_reserved2,
 		 { "Reserved",                 "mip.ack.reserved2", 
 			FT_UINT16, BASE_HEX, NULL, 0x7fff,
-			"", HFILL}},
+			NULL, HFILL}},
 	  { &hf_mip_dhaext_stype,
 		 { "DynHA Ext SubType",        "mip.ext.dynha.subtype",
 			FT_UINT8, BASE_DEC, VALS(mip_dhaext_stypes), 0,
@@ -1012,7 +1012,7 @@ void proto_register_mip(void)
 	  { &hf_mip_nattt_reserved,
 		 { "Reserved",                 "mip.nattt.reserved",
 			FT_UINT16, BASE_HEX, NULL , 0x0,
-			"", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_utrqext_stype,
 		 { "UDP TunReq Ext SubType",   "mip.ext.utrq.subtype",
@@ -1022,7 +1022,7 @@ void proto_register_mip(void)
 	  { &hf_mip_utrqext_reserved1,
 		 { "Reserved 1",                "mip.ext.utrq.reserved1",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_utrqext_flags,
 		 { "UDP TunReq Ext Flags",     "mip.ext.utrq.flags",
@@ -1042,7 +1042,7 @@ void proto_register_mip(void)
 	  { &hf_mip_utrqext_reserved2,
 		 { "Reserved 2",                "mip.ext.utrq.reserved2",
 			FT_UINT8, BASE_HEX, NULL, 0x3f,
-			"", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_utrqext_encap_type,
 		 { "UDP Encap Type",           "mip.ext.utrq.encaptype",
@@ -1052,7 +1052,7 @@ void proto_register_mip(void)
 	  { &hf_mip_utrqext_reserved3,
 		 { "Reserved 3",                "mip.ext.utrq.reserved3",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_utrpext_stype,
 		 { "UDP TunRep Ext SubType",   "mip.ext.utrp.subtype",
@@ -1077,7 +1077,7 @@ void proto_register_mip(void)
 	  { &hf_mip_utrpext_reserved,
 		 { "Reserved",           "mip.ext.utrp.reserved",
  			FT_UINT16, BASE_HEX, NULL, 0x7fff,
-			"", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_utrpext_keepalive,
 		 { "Keepalive Interval",            "mip.ext.utrp.keepalive",
@@ -1092,7 +1092,7 @@ void proto_register_mip(void)
 	  { &hf_mip_pmipv4nonskipext_pernodeauthmethod,
 		 { "Per-Node Authentication Method",		"mip.ext.pmipv4nonskipext.pernodeauthmethod",
 			FT_UINT8, BASE_DEC, VALS(mip_pmipv4nonskipext_pernodeauthmethod_types), 0,
-			"Per-Node Authentication Method", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_mip_pmipv4skipext_stype,
 		 { "Sub-type",	"mip.ext.pmipv4skipext.subtype",
@@ -1101,8 +1101,8 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_pmipv4skipext_interfaceid,
 		 { "Interface ID",		"mip.ext.pmipv4skipext.interfaceid",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"Interface ID", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_mip_pmipv4skipext_deviceid_type,
 		 { "ID-Type",		"mip.ext.pmipv4skipext.deviceid_type",
@@ -1111,7 +1111,7 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_pmipv4skipext_deviceid_id,
 		 { "Identifier",	"mip.ext.pmipv4skipext.deviceid_id",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Device ID Identifier", HFILL }
 	  },
 	  { &hf_mip_pmipv4skipext_subscriberid_type,
@@ -1121,13 +1121,13 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_pmipv4skipext_subscriberid_id,
 		 { "Identifier",	"mip.ext.pmipv4skipext.subscriberid_id",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Subscriber ID Identifier", HFILL }
 	  },
 	  { &hf_mip_pmipv4skipext_accesstechnology_type,
 		 { "Access Technology Type",	"mip.ext.pmipv4skipext.accesstechnology_type",
 			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_accesstechnology_types), 0,
-			"Access Technology Type", HFILL }
+			NULL, HFILL }
 	  },
 	};
 

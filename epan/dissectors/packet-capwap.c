@@ -1198,7 +1198,7 @@ proto_register_capwap_control(void)
 
 		{ &hf_capwap_msg_element_type_wtp_board_data_wtp_model_number,
 		{ "WTP Model Number",	"capwap.control.message_element.wtp_board_data.wtp_model_number",
-			FT_STRING, BASE_DEC, NULL, 0x00,
+			FT_STRING, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_wtp_board_data_wtp_serial_number,
 		{ "WTP Serial Number",	"capwap.control.message_element.wtp_board_data.wtp_serial_number",

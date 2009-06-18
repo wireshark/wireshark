@@ -1593,7 +1593,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				VALS(rtp_version_vals),
 				0xC0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1605,7 +1605,7 @@ proto_register_rtp(void)
 				8,
 				NULL,
 				0x20,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1617,7 +1617,7 @@ proto_register_rtp(void)
 				8,
 				NULL,
 				0x10,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1629,7 +1629,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1641,7 +1641,7 @@ proto_register_rtp(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1653,7 +1653,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x7F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1665,7 +1665,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1677,7 +1677,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1689,7 +1689,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1701,7 +1701,7 @@ proto_register_rtp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1713,7 +1713,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1725,7 +1725,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1737,7 +1737,7 @@ proto_register_rtp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1749,7 +1749,7 @@ proto_register_rtp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1761,7 +1761,7 @@ proto_register_rtp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1773,7 +1773,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1782,10 +1782,10 @@ proto_register_rtp(void)
 				"Payload",
 				"rtp.payload",
 				FT_BYTES,
-				BASE_HEX,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1794,10 +1794,10 @@ proto_register_rtp(void)
 				"Padding data",
 				"rtp.padding.data",
 				FT_BYTES,
-				BASE_HEX,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1809,7 +1809,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1888,12 +1888,12 @@ proto_register_rtp(void)
 		/* reassembly stuff */
 		{&hf_rtp_fragments,
 		 {"RTP Fragments", "rtp.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-		  "RTP Fragments", HFILL }
+		  NULL, HFILL }
 		},
 
 		{&hf_rtp_fragment,
 		 {"RTP Fragment data", "rtp.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		  "RTP Fragment data", HFILL }
+		  NULL, HFILL }
 		},
 
 		{&hf_rtp_fragment_overlap,
@@ -1933,7 +1933,7 @@ proto_register_rtp(void)
 		{&hf_srtp_encrypted_payload,
 		 {"SRTP Encrypted Payload", "srtp.enc_payload",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "SRTP Encrypted Payload", HFILL }
+		  NULL, HFILL }
 		},
 		{&hf_srtp_mki,
 		 {"SRTP MKI", "srtp.mki",

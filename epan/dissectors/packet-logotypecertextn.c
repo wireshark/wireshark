@@ -694,7 +694,7 @@ void proto_register_logotypecertextn(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
     { &hf_logotypecertextn_hashValue,
       { "hashValue", "logotypecertextn.hashValue",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "logotypecertextn.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-logotypecertextn-hfarr.c ---*/

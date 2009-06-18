@@ -145,7 +145,7 @@ void proto_register_bjnp (void)
 {
   static hf_register_info hf[] = {
     { &hf_bjnp_id,
-      { "Id", "bjnp.id", FT_STRING, BASE_DEC,
+      { "Id", "bjnp.id", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_dev_type,
       { "Type", "bjnp.type", FT_UINT8, BASE_DEC,
@@ -163,7 +163,7 @@ void proto_register_bjnp (void)
       { "Payload Length", "bjnp.payload_len", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_payload,
-      { "Payload", "bjnp.payload", FT_BYTES, BASE_DEC,
+      { "Payload", "bjnp.payload", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
   };
 

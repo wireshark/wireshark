@@ -468,7 +468,7 @@ proto_register_gif(void)
 			{	"Screen width",
 				IMG_GIF ".screen.width",
 				FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Screen width",
+				NULL,
 				HFILL
 			}
 		},
@@ -476,7 +476,7 @@ proto_register_gif(void)
 			{	"Screen height",
 				IMG_GIF ".screen.height",
 				FT_UINT16, BASE_DEC, NULL, 0x00,
-				"Screen height",
+				NULL,
 				HFILL
 			}
 		},

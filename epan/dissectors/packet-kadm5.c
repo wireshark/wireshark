@@ -122,7 +122,7 @@ proto_register_kadm5(void)
 	static hf_register_info hf[] = {
 		{ &hf_kadm5_procedure_v2, {
 		    "V2 Procedure", "kadm5.procedure_v2", FT_UINT32, BASE_DEC,
-		    VALS(kadm5_v2_proc_vals), 0, "V2 Procedure", HFILL }},
+		    VALS(kadm5_v2_proc_vals), 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

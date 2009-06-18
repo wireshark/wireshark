@@ -1664,12 +1664,12 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_nt_policy_open_frame,
 		  { "Frame handle opened", "dcerpc.nt.open_frame",
 		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		    "Frame handle opened", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_nt_policy_close_frame,
 		  { "Frame handle closed", "dcerpc.nt.close_frame",
 		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		    "Frame handle closed", HFILL }},
+		    NULL, HFILL }},
 
 		/* ACBs */
 
@@ -1705,22 +1705,22 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_nt_acb_mns,
 		  { "MNS logon user account", "dcerpc.nt.acb.mns", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_mns), 0x0020,
-		    "MNS logon user account", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_nt_acb_domtrust,
 		  { "Interdomain trust account", "dcerpc.nt.acb.domtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_domtrust), 0x0040,
-		    "Interdomain trust account", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_nt_acb_wstrust,
 		  { "Workstation trust account", "dcerpc.nt.acb.wstrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_wstrust), 0x0080,
-		    "Workstation trust account", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_nt_acb_svrtrust,
 		  { "Server trust account", "dcerpc.nt.acb.svrtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_svrtrust), 0x0100,
-		    "Server trust account", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_nt_acb_pwnoexp,
 		  { "Password expires", "dcerpc.nt.acb.pwnoexp", FT_BOOLEAN, 32,
@@ -1754,14 +1754,13 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_logonhours_unknown_char,
 		  { "Unknown char", "dcerpc.nt.unknown.char",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "Unknown char. If you know what this is, contact "
-		    "wireshark developers.", HFILL }},
+		    "Unknown char. If you know what this is, contact wireshark developers.", HFILL }},
 
 		/* Misc */
 
                 { &hf_nt_attrib,
 		  { "Attributes", "dcerpc.nt.attr",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

@@ -2054,17 +2054,17 @@ proto_register_usb(void)
         { &hf_usb_urb_id,
         { "URB id", "usb.urb_id", FT_UINT64, BASE_HEX,
                 NULL, 0x0,
-                "URB id", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_urb_type,
         { "URB type", "usb.urb_type", FT_STRING, BASE_NONE,
                 NULL, 0x0,
-                "URB type", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_transfer_type,
         { "URB transfer type", "usb.transfer_type", FT_UINT8, BASE_DEC,
                 VALS(usb_transfer_type_vals), 0x0,
-                "URB transfer type", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_endpoint_number,
         { "Endpoint", "usb.endpoint_number", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -2077,7 +2077,7 @@ proto_register_usb(void)
         { &hf_usb_bus_id,
         { "URB bus id", "usb.bus_id", FT_UINT16, BASE_DEC,
                 NULL, 0x0,
-                "URB bus id", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_setup_flag,
         { "Device setup request", "usb.setup_flag", FT_STRING, BASE_NONE,
@@ -2092,7 +2092,7 @@ proto_register_usb(void)
         { &hf_usb_urb_status,
         { "URB status", "usb.urb_status", FT_INT32, BASE_DEC,
                 VALS(usb_urb_status_vals), 0x0,
-                "URB status", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_urb_len,
         { "URB length [bytes]", "usb.urb_len", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2114,209 +2114,209 @@ proto_register_usb(void)
     /* Fields from usb20.pdf, Table 9-2 'Format of Setup Data' */
         { &hf_usb_bmRequestType,
         { "bmRequestType", "usb.bmRequestType", FT_UINT8, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_request,
         { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_DEC, VALS(setup_request_names_vals), 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_value,
         { "wValue", "usb.setup.wValue", FT_UINT16, BASE_HEX, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_index,
         { "wIndex", "usb.setup.wIndex", FT_UINT16, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_length,
         { "wLength", "usb.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 
         { &hf_usb_wFeatureSelector,
         { "wFeatureSelector", "usb.setup.wFeatureSelector", FT_UINT16, BASE_DEC,
-	   VALS(usb_feature_selector_vals), 0x0, "", HFILL }},
+	   VALS(usb_feature_selector_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_wInterface,
         { "wInterface", "usb.setup.wInterface", FT_UINT16, BASE_DEC,
-	   NULL, 0x0, "", HFILL }},
+	   NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wStatus,
         { "wStatus", "usb.setup.wStatus", FT_UINT16, BASE_HEX,
-	   NULL, 0x0, "", HFILL }},
+	   NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wFrameNumber,
         { "wFrameNumber", "usb.setup.wFrameNumber", FT_UINT16, BASE_DEC,
-	   NULL, 0x0, "", HFILL }},
+	   NULL, 0x0, NULL, HFILL }},
 
     /* --------------------------------- */
         { &hf_usb_data,
         {"Application Data", "usb.data",
-            FT_BYTES, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Payload is application data", HFILL }},
 
         { &hf_usb_bmRequestType_direction,
         { "Direction", "usb.bmRequestType.direction", FT_BOOLEAN, 8,
-          TFS(&tfs_bmrequesttype_direction), USB_DIR_IN, "", HFILL }},
+          TFS(&tfs_bmrequesttype_direction), USB_DIR_IN, NULL, HFILL }},
 
         { &hf_usb_bmRequestType_type,
         { "Type", "usb.bmRequestType.type", FT_UINT8, BASE_HEX,
-          VALS(bmrequesttype_type_vals), USB_TYPE_MASK, "", HFILL }},
+          VALS(bmrequesttype_type_vals), USB_TYPE_MASK, NULL, HFILL }},
 
         { &hf_usb_bmRequestType_recipient,
         { "Recipient", "usb.bmRequestType.recipient", FT_UINT8, BASE_HEX,
-          VALS(bmrequesttype_recipient_vals), 0x1f, "", HFILL }},
+          VALS(bmrequesttype_recipient_vals), 0x1f, NULL, HFILL }},
 
         { &hf_usb_bDescriptorType,
         { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_DEC,
-          VALS(descriptor_type_vals), 0x0, "", HFILL }},
+          VALS(descriptor_type_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_descriptor_index,
         { "Descriptor Index", "usb.DescriptorIndex", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_language_id,
         { "Language Id", "usb.LanguageId", FT_UINT16, BASE_HEX,
-          VALS(usb_langid_vals), 0x0, "", HFILL }},
+          VALS(usb_langid_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_bLength,
         { "bLength", "usb.bLength", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bcdUSB,
         { "bcdUSB", "usb.bcdUSB", FT_UINT16, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bDeviceClass,
         { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bDeviceSubClass,
         { "bDeviceSubClass", "usb.bDeviceSubClass", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bDeviceProtocol,
         { "bDeviceProtocol", "usb.bDeviceProtocol", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bMaxPacketSize0,
         { "bMaxPacketSize0", "usb.bMaxPacketSize0", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_idVendor,
         { "idVendor", "usb.idVendor", FT_UINT16, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_idProduct,
         { "idProduct", "usb.idProduct", FT_UINT16, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bcdDevice,
         { "bcdDevice", "usb.bcdDevice", FT_UINT16, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_iManufacturer,
         { "iManufacturer", "usb.iManufacturer", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_iProduct,
         { "iProduct", "usb.iProduct", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_iSerialNumber,
         { "iSerialNumber", "usb.iSerialNumber", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bNumConfigurations,
         { "bNumConfigurations", "usb.bNumConfigurations", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wLANGID,
         { "wLANGID", "usb.wLANGID", FT_UINT16, BASE_HEX,
-          VALS(usb_langid_vals), 0x0, "", HFILL }},
+          VALS(usb_langid_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_bString,
         { "bString", "usb.bString", FT_STRING, BASE_NONE,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterfaceNumber,
         { "bInterfaceNumber", "usb.bInterfaceNumber", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bAlternateSetting,
         { "bAlternateSetting","usb.bAlternateSetting", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bNumEndpoints,
         { "bNumEndpoints","usb.bNumEndpoints", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterfaceClass,
         { "bInterfaceClass", "usb.bInterfaceClass", FT_UINT8, BASE_HEX,
-          VALS(usb_interfaceclass_vals), 0x0, "", HFILL }},
+          VALS(usb_interfaceclass_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass,
         { "bInterfaceSubClass", "usb.bInterfaceSubClass", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterfaceProtocol,
         { "bInterfaceProtocol", "usb.bInterfaceProtocol", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_iInterface,
         { "iInterface", "usb.iInterface", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bEndpointAddress,
         { "bEndpointAddress", "usb.bEndpointAddress", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_configuration_bmAttributes,
         { "Configuration bmAttributes", "usb.configuration.bmAttributes", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bmAttributes,
         { "bmAttributes", "usb.bmAttributes", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bEndpointAttributeTransfer,
         { "Transfertype", "usb.bmAttributes.transfer", FT_UINT8, BASE_HEX,
-          VALS(usb_bmAttributes_transfer_vals), 0x03, "", HFILL }},
+          VALS(usb_bmAttributes_transfer_vals), 0x03, NULL, HFILL }},
 
         { &hf_usb_bEndpointAttributeSynchonisation,
         { "Synchronisationtype", "usb.bmAttributes.sync", FT_UINT8, BASE_HEX,
-          VALS(usb_bmAttributes_sync_vals), 0x0c, "", HFILL }},
+          VALS(usb_bmAttributes_sync_vals), 0x0c, NULL, HFILL }},
 
         { &hf_usb_bEndpointAttributeBehaviour,
         { "Behaviourtype", "usb.bmAttributes.behaviour", FT_UINT8, BASE_HEX,
-          VALS(usb_bmAttributes_behaviour_vals), 0x30, "", HFILL }},
+          VALS(usb_bmAttributes_behaviour_vals), 0x30, NULL, HFILL }},
 
         { &hf_usb_wMaxPacketSize,
         { "wMaxPacketSize", "usb.wMaxPacketSize", FT_UINT16, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterval,
         { "bInterval", "usb.bInterval", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_wTotalLength,
         { "wTotalLength", "usb.wTotalLength", FT_UINT16, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bNumInterfaces,
         { "bNumInterfaces", "usb.bNumInterfaces", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bConfigurationValue,
         { "bConfigurationValue", "usb.bConfigurationValue", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_iConfiguration,
         { "iConfiguration", "usb.iConfiguration", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bMaxPower,
         { "bMaxPower", "usb.bMaxPower", FT_UINT8, BASE_DEC,
-          NULL, 0x0, "", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_configuration_legacy10buspowered,
         { "Must be 1", "usb.configuration.legacy10buspowered", FT_BOOLEAN, 8,
@@ -2324,19 +2324,19 @@ proto_register_usb(void)
 
         { &hf_usb_configuration_selfpowered,
         { "Self-Powered", "usb.configuration.selfpowered", FT_BOOLEAN, 8,
-          TFS(&tfs_selfpowered), 0x40, "", HFILL }},
+          TFS(&tfs_selfpowered), 0x40, NULL, HFILL }},
 
         { &hf_usb_configuration_remotewakeup,
         { "Remote Wakeup", "usb.configuration.remotewakeup", FT_BOOLEAN, 8,
-          TFS(&tfs_remotewakeup), 0x20, "", HFILL }},
+          TFS(&tfs_remotewakeup), 0x20, NULL, HFILL }},
 
         { &hf_usb_bEndpointAddress_number,
         { "Endpoint Number", "usb.bEndpointAddress.number", FT_UINT8, BASE_HEX,
-          NULL, 0x0f, "", HFILL }},
+          NULL, 0x0f, NULL, HFILL }},
 
         { &hf_usb_bEndpointAddress_direction,
         { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8,
-          TFS(&tfs_endpoint_direction), 0x80, "", HFILL }},
+          TFS(&tfs_endpoint_direction), 0x80, NULL, HFILL }},
 
 	{ &hf_usb_request_in,
 		{ "Request in", "usb.request_in", FT_FRAMENUM, BASE_NONE,

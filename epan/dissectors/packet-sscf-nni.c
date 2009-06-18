@@ -115,9 +115,9 @@ proto_register_sscf(void)
 {
   static hf_register_info hf[] = 
   { { &hf_status, { "Status", "sscf-nni.status", FT_UINT8, BASE_HEX,
-		    VALS(sscf_status_vals), 0x0, "", HFILL} },
+		    VALS(sscf_status_vals), 0x0, NULL, HFILL} },
     { &hf_spare, { "Spare", "sscf-nni.spare", FT_UINT24, BASE_HEX,
-		    NULL, 0x0, "", HFILL} }
+		    NULL, 0x0, NULL, HFILL} }
   };
 
   static gint *ett[] = {

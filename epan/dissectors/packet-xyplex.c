@@ -188,7 +188,7 @@ proto_register_xyplex(void)
     { &hf_xyplex_reserved,
       { "Reserved field",  "xyplex.reserved",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Reserved field", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_xyplex_reply,
       { "Registration Reply",  "xyplex.reply",

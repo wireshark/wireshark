@@ -1857,7 +1857,7 @@ void proto_register_cltp(void)
         "Length Indicator, length of this header", HFILL}},
     { &hf_cltp_type,
       { "PDU Type", "cltp.type", FT_UINT8, BASE_HEX, VALS(cltp_tpdu_type_abbrev_vals), 0x0,
-        "PDU Type", HFILL}},
+        NULL, HFILL}},
   };
   static gint *ett[] = {
 	&ett_cltp,

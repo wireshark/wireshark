@@ -70,11 +70,11 @@ proto_register_ncs(void)
 
     { &hf_panning_id,
       { "Panning ID",		"ncs.pan_id",		FT_UINT32, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_incarnation,
       { "Incarnation",		"ncs.incarnation",		FT_UINT32, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
   };
   static gint *ett[] = {

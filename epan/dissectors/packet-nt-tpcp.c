@@ -203,35 +203,35 @@ proto_register_tpcp(void)
 		
 		{ &hf_tpcp_flags_xon,
 		{ "XON",		"tpcp.flags.xon", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_XON,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_flags_xoff,
 		{ "XOFF",		"tpcp.flags.xoff", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_XOFF,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_id,
 		{ "Client indent",	"tpcp.cid", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_cport,
 		{ "Client Source Port",	"tpcp.cport", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_caddr,
 		{ "Client Source IP address",	"tpcp.caddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_saddr,
 		{ "Server IP address",	"tpcp.saddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_vaddr,
 		{ "Virtual Server IP address", "tpcp.vaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 		{ &hf_tpcp_rasaddr,
 		{ "RAS server IP address", "tpcp.rasaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
+		NULL, HFILL }},
 		
 	};
 	

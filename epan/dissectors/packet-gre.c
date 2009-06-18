@@ -525,15 +525,15 @@ proto_register_gre(void)
 		},
 		{ &hf_gre_key,
 		  { "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_attrib_id,
 		  { "Type", "gre.ggp2_attrib_id", FT_UINT8, BASE_HEX, VALS(gre_3ggp2_attrib_id_vals), 0x7f,
-			"Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_attrib_length,
 		  { "Length", "gre.ggp2_attrib_length", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_sdi,
 		  { "SDI/DOS", "gre.3ggp2_sdi", FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
@@ -541,19 +541,19 @@ proto_register_gre(void)
 		},
 		{ &hf_gre_3ggp2_fci,
 		  { "Flow Control Indicator", "gre.3ggp2_fci", FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
-			"Flow Control Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_di,
 		  { "Duration Indicator", "gre.3ggp2_di", FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
-			"Duration Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_flow_disc,
 		  { "Flow ID", "gre.ggp2_flow_disc", FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Flow ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_gre_3ggp2_seg,
 		  { "Type", "gre.ggp2_3ggp2_seg", FT_UINT16, BASE_HEX, VALS(gre_3ggp2_seg_vals), 0xc000,
-			"Type", HFILL }
+			NULL, HFILL }
 		},
 	};
 	static gint *ett[] = {

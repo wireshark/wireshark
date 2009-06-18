@@ -479,124 +479,124 @@ proto_register_tapa(void)
 	/* TAPA discover header */
 		{ &hf_tapa_discover_type,
 		{ "Type",	"tapa.discover.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_type_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_flags,
 		{ "Flags",	"tapa.discover.flags", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_length,
 		{ "Length",	"tapa.discover.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* TAPA discover request */
 		{ &hf_tapa_discover_req_type,
 		{ "Req type",	"tapa.discover.req.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_req_pad,
 		{ "Req padding",	"tapa.discover.req.pad", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_req_length,
 		{ "Req length",	"tapa.discover.req.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
                 { &hf_tapa_discover_req_value,
                 { "Req value",   "tapa.discover.req.value", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA discover reply */
                 { &hf_tapa_discover_reply_switchip,
                 { "Switch Ip",   "tapa.discover.reply.switchip", FT_IPv4, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_reply_unused,
-		{ "Reply unused ",	"tapa.discover.reply.unused", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+		{ "Reply unused",	"tapa.discover.reply.unused", FT_UINT8, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_reply_bias,
 		{ "Reply bias",	"tapa.discover.reply.bias", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
                 { &hf_tapa_discover_reply_pad,
                 { "Reply pad",   "tapa.discover.reply.pad", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA discover new request/reply tlv */
 		{ &hf_tapa_discover_newtlv_type,
 		{ "New tlv type",	"tapa.discover.newtlv.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_newtlv_pad,
 		{ "New tlv padding",	"tapa.discover.newtlv.pad", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tapa_discover_newtlv_length,
 		{ "New tlv length",	"tapa.discover.newtlv.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
                 { &hf_tapa_discover_newtlv_valuetext,
-                { "New tlv value",   "tapa.discover.newtlv.valuetext", FT_STRING, BASE_DEC, NULL,
-                        0x0, "", HFILL }},
+                { "New tlv value",   "tapa.discover.newtlv.valuetext", FT_STRING, BASE_NONE, NULL,
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_discover_newtlv_valuehex,
                 { "New tlv value",   "tapa.discover.newtlv.valuehex", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA discover unknown packet */
                 { &hf_tapa_discover_unknown,
                 { "Tapa unknown packet",   "tapa.discover.unknown", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA tunnel */
                 { &hf_tapa_tunnel_version,
                 { "Tapa tunnel version",   "tapa.tunnel.version", FT_UINT8, BASE_HEX, NULL,
-                        0xF0, "", HFILL }},
+                        0xF0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_five,
                 { "Tapa tunnel five",   "tapa.tunnel.five", FT_UINT8, BASE_HEX, NULL,
-                        0x0F, "", HFILL }},
+                        0x0F, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_type,
                 { "Tapa tunnel type",   "tapa.tunnel.type", FT_UINT8, BASE_HEX, VALS(tapa_tunnel_type_vals),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_zero,
                 { "Tapa tunnel zeroes",   "tapa.tunnel.zero", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_dmac,
                 { "Tapa tunnel dest mac",   "tapa.tunnel.dmac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_smac,
                 { "Tapa tunnel src mac",   "tapa.tunnel.smac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA tunnel type 0 */
                 { &hf_tapa_tunnel_0804,
                 { "Tapa tunnel 0804",   "tapa.tunnel.0804", FT_UINT16, BASE_HEX, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_tagsetc,
                 { "Tapa tunnel tags, seqno, pad",   "tapa.tunnel.tags", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* TAPA tunnel type 1 */
                 { &hf_tapa_tunnel_seqno,
                 { "Tapa tunnel seqno",   "tapa.tunnel.seqno", FT_UINT16, BASE_DEC, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_tapa_tunnel_length,
                 { "Tapa tunnel length",   "tapa.tunnel.length", FT_UINT16, BASE_DEC, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 
 	/* TAPA tunnel remaining stuff */
                 { &hf_tapa_tunnel_remaining,
                 { "Tapa tunnel all data",   "tapa.tunnel.remaining", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
         };
 	static gint *ett[] = {

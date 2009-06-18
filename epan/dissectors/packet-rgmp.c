@@ -117,17 +117,17 @@ proto_register_rgmp(void)
 
 	{ &hf_checksum,
 	  { "Checksum", "rgmp.checksum", FT_UINT16, BASE_HEX,
-	    NULL, 0, "Checksum", HFILL }
+	    NULL, 0, NULL, HFILL }
 	},
 
 	{ &hf_checksum_bad,
 	  { "Bad Checksum", "rgmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-	    NULL, 0, "Bad Checksum", HFILL }
+	    NULL, 0x0, NULL, HFILL }
 	},
 
 	{ &hf_maddr,
 	  { "Multicast group address", "rgmp.maddr", FT_IPv4, BASE_NONE,
-	    NULL, 0, "Multicast group address", HFILL }
+	    NULL, 0, NULL, HFILL }
 	}
     };
 

@@ -219,19 +219,19 @@ proto_register_icp(void)
 	static hf_register_info hf[] = {
 		{ &hf_icp_opcode,
 		{ "Opcode", "icp.opcode", FT_UINT8, BASE_HEX, VALS(opcode_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_icp_version,
 		{ "Version", "icp.version", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_icp_length,
 		{ "Length", "icp.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_icp_request_nr,
 		{ "Request Number", "icp.nr", FT_UINT32, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_icp,

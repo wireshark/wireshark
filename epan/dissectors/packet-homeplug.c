@@ -358,131 +358,131 @@ proto_register_homeplug(void)
     /* MAC Control Field */
     { &hf_homeplug_mctrl,
       { "MAC Control Field", "homeplug.mctrl",
-      FT_NONE, BASE_NONE, NULL, 0x0, "MAC Control Field", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_mctrl_reserved,
       { "Reserved", "homeplug.mctrl.rsvd",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MCTRL_RSVD, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MCTRL_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_mctrl_ne,
       { "Number of MAC Data Entries", "homeplug.mctrl.ne",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MCTRL_NE, "Number of MAC Data Entries", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MCTRL_NE, NULL, HFILL }
     },
 
     /* MAC Entry Header */
     { &hf_homeplug_mehdr,
       { "MAC Management Entry Header", "homeplug.mehdr",
-      FT_NONE, BASE_NONE, NULL, 0x0, "MAC Management Entry Header", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_mehdr_mev,
       { "MAC Entry Version", "homeplug.mehdr.mev",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MEHDR_MEV, "MAC Entry Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MEHDR_MEV, NULL, HFILL }
     },
 
     { &hf_homeplug_mehdr_metype,
       { "MAC Entry Type", "homeplug.mehdr.metype",
-      FT_UINT8, BASE_HEX, VALS(homeplug_metype_vals), HOMEPLUG_MEHDR_METYPE, "MAC Entry Type", HFILL }
+      FT_UINT8, BASE_HEX, VALS(homeplug_metype_vals), HOMEPLUG_MEHDR_METYPE, NULL, HFILL }
     },
 
     /* MAC Entry Len */
     { &hf_homeplug_melen,
       { "MAC Management Entry Length", "homeplug.melen",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "MAC Management Entry Length", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* MAC Management Entry */
     { &hf_homeplug_mme,
       { "MAC Management Entry Data", "homeplug.mmentry",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "MAC Management Entry Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* Request Channel Estimation */
     { &hf_homeplug_rce,
       { "Request Channel Estimation", "homeplug.rce",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Request Channel Estimation", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_rce_cev,
       { "Channel Estimation Version", "homeplug.rce.cev",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_RCE_CEV, "Channel Estimation Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_RCE_CEV, NULL, HFILL }
     },
 
     { &hf_homeplug_rce_rsvd,
       { "Reserved", "homeplug.rce.rsvd",
-      FT_NONE, BASE_NONE, NULL, HOMEPLUG_RCE_RSVD, "Reserved", HFILL }
+      FT_NONE, BASE_NONE, NULL, HOMEPLUG_RCE_RSVD, NULL, HFILL }
     },
 
     /* Channel Estimation Response */
     { &hf_homeplug_cer,
       { "Channel Estimation Response", "homeplug.cer",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Channel Estimation Response", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_cerv,
       { "Channel Estimation Response Version", "homeplug.cer.cerv",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_CERV, "Channel Estimation Response Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_CERV, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rsvd1,
       { "Reserved", "homeplug.cer.rsvd1",
-      FT_NONE, BASE_NONE, NULL, HOMEPLUG_CER_RSVD, "Reserved", HFILL }
+      FT_NONE, BASE_NONE, NULL, HOMEPLUG_CER_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rxtmi,
       { "Receive Tone Map Index", "homeplug.cer.rxtmi",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RXTMI, "Receive Tone Map Index", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RXTMI, NULL, HFILL }
     },
 
     /* TODO must append vt[79-0] */
 
     { &hf_homeplug_cer_vt,
       {"Valid Tone Flags", "homeplug.cer.vt",
-      FT_UINT8, BASE_HEX, NULL, 0x0, "Valid Tone Flags", HFILL }
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rate,
       { "FEC Rate", "homeplug.cer.rate",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RATE, "FEC Rate", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RATE, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_bp,
       { "Bridge Proxy", "homeplug.cer.bp",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_BP, "Bridge Proxy", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_BP, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_mod,
       { "Modulation Method", "homeplug.cer.mod",
       FT_UINT8, BASE_DEC, VALS(homeplug_cer_mod_vals), HOMEPLUG_CER_MOD_MASK,
-      "Modulation Method", HFILL }
+      NULL, HFILL }
     },
 
     { &hf_homeplug_cer_vt11,
       { "Valid Tone Flags [83-80]", "homeplug.cer.vt11",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_VT11, "Valid Tone Flags [83-80]", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_VT11, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rsvd2,
       { "Reserved", "homeplug.cer.rsvd2",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RSVD2, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RSVD2, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_nbdas,
       { "Number Bridged Destination Addresses", "homeplug.cer.nbdas",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_NBDAS, "Number Bridged Destination Addresses", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_NBDAS, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_bda,
       { "Bridged Destination Address", "homeplug.cer.bda",
-      FT_ETHER, BASE_NONE, NULL, 0x0, "Bridged Destination Address", HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Vendor Specific */
     { &hf_homeplug_vs,
       { "Vendor Specific", "homeplug.vs",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Vendor Specific", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_vs_oui,
@@ -493,156 +493,156 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_vs_vd,
       { "Vendor Defined", "homeplug.vs.vd",
-      FT_BYTES, BASE_NONE, NULL, 0x0, "Vendor Defined", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Set Network Encryption Key */
     { &hf_homeplug_snk,
       { "Set Network Encryption Key", "homeplug.snk",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Set Network Encryption Key", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_snk_eks,
       { "Encryption Key Select", "homeplug.snk.eks",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Encryption Key Select", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_snk_nek,
       { "Network Encryption Key", "homeplug.snk.nek",
-      FT_BYTES, BASE_NONE, NULL, 0x0, "Network Encryption Key", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Request Parameters and Statistics */
     { &hf_homeplug_rps,
       { "Request Parameters and Statistics", "homeplug.rps",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Request Parameters and Statistics", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Parameters and Statistics Response */
     { &hf_homeplug_psr,
       { "Parameters and Statistics Response", "homeplug.psr",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Parameters and Statistics Response", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txack,
       { "Transmit ACK Counter", "homeplug.psr.txack",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit ACK Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txnack,
       { "Transmit NACK Counter", "homeplug.psr.txnack",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit NACK Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txfail,
       { "Transmit FAIL Counter", "homeplug.psr.txfail",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit FAIL Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txcloss,
       { "Transmit Contention Loss Counter", "homeplug.psr.txcloss",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit Contention Loss Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txcoll,
       { "Transmit Collision Counter", "homeplug.psr.txcoll",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit Collision Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txca3lat,
       { "Transmit CA3 Latency Counter", "homeplug.psr.txca3lat",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit CA3 Latency Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_txca2lat,
       { "Transmit CA2 Latency Counter", "homeplug.psr.txca2lat",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit CA2 Latency Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_homeplug_psr_txca1lat,
       { "Transmit CA1 Latency Counter", "homeplug.psr.txca1lat",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit CA1 Latency Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_homeplug_psr_txca0lat,
       { "Transmit CA0 Latency Counter", "homeplug.psr.txca0lat",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Transmit CA0 Latency Counter", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_psr_rxbp40,
       { "Receive Cumulative Bytes per 40-symbol", "homeplug.psr.rxbp40",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Receive Cumulative Bytes per 40-symbol", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* Set Local Parameters */
     { &hf_homeplug_slp,
       { "Set Local Parameters", "homeplug.slp",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Set Local Parameters", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_slp_ma,
       { "MAC Address", "homeplug.slp.ma",
-      FT_ETHER, BASE_NONE, NULL, 0x0, "MAC Address", HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Network Statistics */
     { &hf_homeplug_ns,
       { "Network Statistics", "homeplug.ns",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Network Statistics", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_extended,
       { "Network Statistics is Extended", "homeplug.ns.extended",
-      FT_BOOLEAN, 8, NULL, 0x0, "Network Statistics is Extended (MELEN >= 199)", HFILL }
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Network Statistics is Extended (MELEN >= 199)", HFILL }
     },
 
     { &hf_homeplug_ns_netw_ctrl_ac,
       { "Action Control", "homeplug.ns.ac",
-      FT_BOOLEAN, 8, TFS(&homeplug_ns_ac_vals), HOMEPLUG_NS_AC, "Action Control", HFILL }
+      FT_BOOLEAN, 8, TFS(&homeplug_ns_ac_vals), HOMEPLUG_NS_AC, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_netw_ctrl_icid,
       { "IC_ID", "homeplug.ns.icid",
-      FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(homeplug_ns_icid_vals), HOMEPLUG_NS_ICID, "IC_ID", HFILL }
+      FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(homeplug_ns_icid_vals), HOMEPLUG_NS_ICID, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_bytes40_robo,
       { "Bytes in 40 symbols in ROBO", "homeplug.ns.bytes40_robo",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Bytes in 40 symbols in ROBO", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_fails_robo,
       { "Fails Received in ROBO", "homeplug.ns.fails_robo",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Fails Received in ROBO", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_drops_robo,
       { "Frame Drops in ROBO", "homeplug.ns.drops_robo",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Frame Drops in ROBO", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_netw_da,
       { "Address of Network DA", "homeplug.ns.netw_da",
-      FT_ETHER, BASE_NONE, NULL, 0x0, "Address of Network DA", HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_bytes40,
       { "Bytes in 40 symbols", "homeplug.ns.bytes40",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Bytes in 40 symbols", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_fails,
       { "Fails Received", "homeplug.ns.fails",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Fails Received", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_drops,
       { "Frame Drops", "homeplug.ns.drops",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Frame Drops", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* ... Extended */
     { &hf_homeplug_ns_tx_bfr_state,
       { "Transmit Buffer State", "homeplug.ns.tx_bfr_state",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Transmit Buffer State", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_buf_in_use,
@@ -654,17 +654,17 @@ proto_register_homeplug(void)
     { &hf_homeplug_ns_prio,
       { "Priority", "homeplug.ns.prio",
       FT_UINT8, BASE_DEC, VALS(homeplug_txprio_vals), HOMEPLUG_NS_PRIO,
-      "Priority", HFILL }
+      NULL, HFILL }
     },
 
     { &hf_homeplug_ns_msdu_len,
       { "MSDU Length", "homeplug.ns.msdu_len",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_MSDU_LEN, "MSDU Length", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_MSDU_LEN, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_seqn,
       { "Sequence Number", "homeplug.ns.seqn",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_SEQN, "Sequence Number", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_SEQN, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_toneidx,
@@ -676,7 +676,7 @@ proto_register_homeplug(void)
     /* Bridging Characteristics Network */
     { &hf_homeplug_bcn,
       { "Bridging Characteristics Network", "homeplug.bcn",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Bridging Characteristics Network", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_bcn_network,
@@ -693,17 +693,17 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_bcn_rsvd,
       { "Reserved", "homeplug.bcn.rsvd",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_RSVD, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_bcn_fbn,
       { "First Bridge Number", "homeplug.bcn.fbn",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_FBN, "First Bridge Number", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_FBN, NULL, HFILL }
     },
 
     { &hf_homeplug_bcn_brda,
       { "Address of Bridge", "homeplug.bcn.brda",
-      FT_ETHER, BASE_HEX, NULL, 0x0, "Address of Bridge", HFILL }
+      FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_bcn_bp_das,
@@ -720,7 +720,7 @@ proto_register_homeplug(void)
     /* Bridging Characteristics Local */
     { &hf_homeplug_bcl,
       { "Bridging Characteristics Local", "homeplug.bcl",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Bridging Characteristics Local", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_bcl_network,
@@ -737,7 +737,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_bcl_rsvd,
       { "Reserved", "homeplug.bcl.rsvd",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCL_RSVD, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCL_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_bcl_hprox_das,
@@ -754,7 +754,7 @@ proto_register_homeplug(void)
     /* Set Transmit Characteristics */
     { &hf_homeplug_stc,
       { "Set Transmit Characteristics", "homeplug.stc",
-      FT_NONE, BASE_NONE, NULL, 0x0, "Set Transmit Characteristics", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_lco,
@@ -771,7 +771,7 @@ proto_register_homeplug(void)
     { &hf_homeplug_stc_txprio,
       { "Transmit Priority", "homeplug.stc.txprio",
       FT_UINT8, BASE_DEC, VALS(homeplug_txprio_vals), HOMEPLUG_STC_TXPRIO,
-      "Transmit Priority", HFILL }
+      NULL, HFILL }
     },
 
     { &hf_homeplug_stc_rexp,
@@ -794,50 +794,50 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_stc_rsvd1,
       { "Reserved", "homeplug.stc.rsvd1",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD1, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD1, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_retry,
       { "Retry Control", "homeplug.stc.retry",
       FT_UINT8, BASE_DEC, VALS(homeplug_stc_retry_vals), HOMEPLUG_STC_RETRY,
-      "Retry Control", HFILL }
+      NULL, HFILL }
     },
 
     { &hf_homeplug_stc_rsvd2,
       { "Reserved", "homeplug.stc.rsvd2",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD2, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD2, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_dder,
       { "Disable Default Encryption Receive", "homeplug.stc.dder",
-      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DDER, "Disable Default Encryption Receive", HFILL }
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DDER, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_dur,
       { "Disable Unencrypted Receive", "homeplug.stc.dur",
-      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DUR, "Disable Unencrypted Receive", HFILL }
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DUR, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_ebp,
       { "INT51X1 (Host/DTE Option) Enable Backpressure", "homeplug.stc.ebp",
       FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_EBP,
-      "INT51X1 (Host/DTE Option) Enable Backpressure", HFILL }
+      NULL, HFILL }
     },
 
     { &hf_homeplug_stc_dees,
       { "Disable EEPROM Save", "homeplug.stc.dees",
-      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DEES, "Disable EEPROM Save", HFILL }
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DEES, NULL, HFILL }
     },
 
     { &hf_homeplug_stc_txeks,
       { "EKS to be used for encryption", "homeplug.stc.txeks",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "EKS to be used for encryption", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* Undecoded data */
     { &hf_homeplug_data,
       { "Data", "homeplug.data",
-      FT_BYTES, BASE_NONE, NULL, 0x0, "Data", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     }
   };
 

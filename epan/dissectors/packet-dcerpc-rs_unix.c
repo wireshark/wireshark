@@ -63,7 +63,7 @@ proto_register_rs_unix (void)
 	static hf_register_info hf[] = {
 	  { &hf_rs_unix_opnum,
 	    { "Operation", "rs_unix.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

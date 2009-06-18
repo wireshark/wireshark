@@ -674,22 +674,22 @@ proto_register_ftp(void)
     { &hf_ftp_request_command,
       { "Request command",    "ftp.request.command",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_ftp_request_arg,
       { "Request arg",	      "ftp.request.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_ftp_response_code,
       { "Response code",      "ftp.response.code",
       	FT_UINT32,   BASE_DEC, VALS(response_table), 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_ftp_response_arg,
       { "Response arg",      "ftp.response.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_ftp_pasv_ip,
       { "Passive IP address", "ftp.passive.ip",

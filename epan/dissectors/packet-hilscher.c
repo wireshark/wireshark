@@ -185,15 +185,15 @@ void proto_register_hilscher(void)
     static hf_register_info hf[] = {
 	{ &hf_information_type,
 	  { "Hilscher information block type", "hilscher.information_type",
-	    FT_UINT8, BASE_HEX, VALS(information_type), 0x0, "", HFILL }
+	    FT_UINT8, BASE_HEX, VALS(information_type), 0x0, NULL, HFILL }
 	},
 	{ &hf_gpio_number,
 	  { "Event on", "hilscher.net_analyzer.gpio_number", FT_UINT8,
-	    BASE_HEX, VALS(gpio_number), 0x0, "", HFILL }
+	    BASE_HEX, VALS(gpio_number), 0x0, NULL, HFILL }
 	},
 	{ &hf_gpio_edge,
 		{ "Event type", "hilscher.net_analyzer.gpio_edge", FT_UINT8,
-		  BASE_HEX, VALS(gpio_edge), 0x0, "", HFILL }
+		  BASE_HEX, VALS(gpio_edge), 0x0, NULL, HFILL }
 	},
     };
 

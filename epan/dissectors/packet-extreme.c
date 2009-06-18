@@ -1120,52 +1120,52 @@ proto_register_edp(void)
 	/* EDP header */
 		{ &hf_edp_version,
 		{ "Version",	"edp.version", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_reserved,
 		{ "Reserved",	"edp.reserved", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_length,
 		{ "Data length",	"edp.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_checksum,
 		{ "EDP checksum",	"edp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_edp_checksum_good,
 		{ "Good",	"edp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
 		{ &hf_edp_checksum_bad,
-		{ "Bad ",	"edp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		{ "Bad",	"edp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
 
 		{ &hf_edp_seqno,
 		{ "Sequence number",	"edp.seqno", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_midtype,
 		{ "Machine ID type",	"edp.midtype", FT_UINT16, BASE_DEC, VALS(edp_midtype_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_midmac,
 		{ "Machine MAC",	"edp.midmac", FT_ETHER, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* TLV header */
 		{ &hf_edp_tlv_marker,
 		{ "TLV Marker",	"edp.tlv.marker", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_tlv_type,
 		{ "TLV type",	"edp.tlv.type", FT_UINT8, BASE_DEC, VALS(edp_type_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_tlv_length,
 		{ "TLV length",	"edp.tlv.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* Display element */
 		{ &hf_edp_display,
@@ -1195,7 +1195,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_info_reserved,
 		{ "Reserved",	"edp.info.reserved", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_info_version,
 		{ "Version",	"edp.info.version", FT_UINT32, BASE_HEX, NULL,
@@ -1228,7 +1228,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_vlan_flags,
 		{ "Flags",	"edp.vlan.flags", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_vlan_flags_ip,
 		{ "Flags-IP",	"edp.vlan.flags.ip", FT_BOOLEAN, 8, TFS(&flags_set_truth),
@@ -1236,23 +1236,23 @@ proto_register_edp(void)
 
 		{ &hf_edp_vlan_flags_reserved,
 		{ "Flags-reserved",	"edp.vlan.flags.reserved", FT_UINT8, BASE_HEX, NULL,
-			0x7e, "", HFILL }},
+			0x7e, NULL, HFILL }},
 
 		{ &hf_edp_vlan_flags_unknown,
 		{ "Flags-Unknown",	"edp.vlan.flags.unknown", FT_BOOLEAN, 8, TFS(&flags_set_truth),
-			0x01, "", HFILL }},
+			0x01, NULL, HFILL }},
 
 		{ &hf_edp_vlan_reserved1,
 		{ "Reserved1",	"edp.vlan.reserved1", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_vlan_id,
 		{ "Vlan ID",	"edp.vlan.id", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_vlan_reserved2,
 		{ "Reserved2",	"edp.vlan.reserved2", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_vlan_ip,
 		{ "IP addr",	"edp.vlan.ip", FT_IPv4, BASE_NONE, NULL,
@@ -1269,19 +1269,19 @@ proto_register_edp(void)
 
 		{ &hf_edp_esrp_proto,
 		{ "Protocol",	"edp.esrp.proto", FT_UINT8, BASE_DEC, VALS(esrp_proto_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esrp_group,
 		{ "Group",	"edp.esrp.group", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esrp_prio,
 		{ "Prio",	"edp.esrp.prio", FT_UINT16, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esrp_state,
 		{ "State",	"edp.esrp.state", FT_UINT16, BASE_DEC, VALS(esrp_state_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esrp_ports,
 		{ "Ports",	"edp.esrp.ports", FT_UINT16, BASE_DEC, NULL,
@@ -1301,7 +1301,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_esrp_reserved,
 		{ "Reserved",	"edp.esrp.reserved", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* EAPS element */
 		{ &hf_edp_eaps,
@@ -1310,11 +1310,11 @@ proto_register_edp(void)
 
 		{ &hf_edp_eaps_ver,
 		{ "Version",	"edp.eaps.ver", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_eaps_type,
 		{ "Type",	"edp.eaps.type", FT_UINT8, BASE_DEC, VALS(eaps_type_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_eaps_ctrlvlanid,
 		{ "Vlan ID",	"edp.eaps.vlanid", FT_UINT16, BASE_DEC, NULL,
@@ -1322,7 +1322,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_eaps_reserved0,
 		{ "Reserved0",	"edp.eaps.reserved0", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_eaps_sysmac,
 		{ "Sys MAC",	"edp.eaps.sysmac", FT_ETHER, BASE_NONE, NULL,
@@ -1338,11 +1338,11 @@ proto_register_edp(void)
 
 		{ &hf_edp_eaps_state,
 		{ "State",	"edp.eaps.state", FT_UINT8, BASE_DEC, VALS(eaps_state_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_eaps_reserved1,
 		{ "Reserved1",	"edp.eaps.reserved1", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_eaps_helloseq,
 		{ "Helloseq",	"edp.eaps.helloseq", FT_UINT16, BASE_DEC, NULL,
@@ -1350,7 +1350,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_eaps_reserved2,
 		{ "Reserved2",	"edp.eaps.reserved2", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* ESL element (EAPS shared link) */
 		{ &hf_edp_esl,
@@ -1359,11 +1359,11 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_ver,
 		{ "Version",	"edp.esl.ver", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_type,
 		{ "Type",	"edp.esl.type", FT_UINT8, BASE_DEC, VALS(esl_type_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_ctrlvlanid,
 		{ "Vlan ID",	"edp.esl.vlanid", FT_UINT16, BASE_DEC, NULL,
@@ -1371,7 +1371,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_reserved0,
 		{ "Reserved0",	"edp.esl.reserved0", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_sysmac,
 		{ "Sys MAC",	"edp.esl.sysmac", FT_ETHER, BASE_NONE, NULL,
@@ -1379,15 +1379,15 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_reserved1,
 		{ "Reserved1",	"edp.esl.reserved1", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_state,
 		{ "State",	"edp.esl.state", FT_UINT8, BASE_DEC, VALS(esl_state_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_linkrole,
 		{ "Role",	"edp.esl.role", FT_UINT8, BASE_DEC, VALS(esl_role_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_linkid1,
 		{ "Link ID 1",	"edp.esl.linkid1", FT_UINT16, BASE_DEC, NULL,
@@ -1403,7 +1403,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_reserved4,
 		{ "Reserved4",	"edp.esl.reserved4", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_linkid2,
 		{ "Link ID 2",	"edp.esl.linkid2", FT_UINT16, BASE_DEC, NULL,
@@ -1411,7 +1411,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_reserved5,
 		{ "Reserved5",	"edp.esl.reserved5", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_esl_numlinks,
 		{ "Num Shared Links",	"edp.esl.numlinks", FT_UINT16, BASE_DEC, NULL,
@@ -1423,7 +1423,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_esl_rest,
 		{ "Rest",	"edp.esl.rest", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* ELSM element */
 		{ &hf_edp_elsm,
@@ -1432,15 +1432,15 @@ proto_register_edp(void)
 
 		{ &hf_edp_elsm_type,
 		{ "Type",	"edp.elsm.type", FT_UINT8, BASE_DEC, VALS(elsm_type_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_elsm_subtype,
 		{ "Subtype",	"edp.elsm.unknown", FT_UINT8, BASE_DEC, VALS(elsm_subtype_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_edp_elsm_magic,
 		{ "Magic",	"edp.elsm.unknown", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* ELRP element */
 		{ &hf_edp_elrp,
@@ -1449,7 +1449,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_elrp_unknown,
 		{ "Unknown",	"edp.elrp.unknown", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* Unknown element */
 		{ &hf_edp_unknown,
@@ -1458,7 +1458,7 @@ proto_register_edp(void)
 
 		{ &hf_edp_unknown_data,
 		{ "Unknown",	"edp.unknown.data", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* Null element */
 		{ &hf_edp_null,

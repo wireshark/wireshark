@@ -310,98 +310,98 @@ proto_register_png(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_png_signature, {
-	  "PNG Signature", "png.signature", FT_BYTES, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  "PNG Signature", "png.signature", FT_BYTES, BASE_NONE,
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_chunk_type, {
 	  "Chunk", "png.chunk.type", FT_STRING, BASE_NONE,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_chunk_data, {
 	  "Data", "png.chunk.data", FT_NONE, BASE_NONE,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_chunk_len, {
 	  "Len", "png.chunk.len", FT_UINT32, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_chunk_crc, {
 	  "CRC", "png.chunk.crc", FT_UINT32, BASE_HEX,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_chunk_flag_anc, {
 	  "Ancillary", "png.chunk.flag.ancillary", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_anc), 0x20000000, "", HFILL }},
+	  TFS(&png_chunk_anc), 0x20000000, NULL, HFILL }},
 	{ &hf_png_chunk_flag_priv, {
 	  "Private", "png.chunk.flag.private", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_priv), 0x00200000, "", HFILL }},
+	  TFS(&png_chunk_priv), 0x00200000, NULL, HFILL }},
 	{ &hf_png_chunk_flag_stc, {
 	  "Safe To Copy", "png.chunk.flag.stc", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_stc), 0x00000020, "", HFILL }},
+	  TFS(&png_chunk_stc), 0x00000020, NULL, HFILL }},
 	{ &hf_png_ihdr_width, {
 	  "Width", "png.ihdr.width", FT_UINT32, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_ihdr_height, {
 	  "Height", "png.ihdr.height", FT_UINT32, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_ihdr_bitdepth, {
 	  "Bit Depth", "png.ihdr.bitdepth", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_ihdr_colour_type, {
 	  "Colour Type", "png.ihdr.colour_type", FT_UINT8, BASE_DEC,
-	  VALS(colour_type_vals), 0, "", HFILL }},
+	  VALS(colour_type_vals), 0, NULL, HFILL }},
 	{ &hf_png_ihdr_compression_method, {
 	  "Compression Method", "png.ihdr.compression_method", FT_UINT8, BASE_DEC,
-	  VALS(compression_method_vals), 0, "", HFILL }},
+	  VALS(compression_method_vals), 0, NULL, HFILL }},
 	{ &hf_png_ihdr_filter_method, {
 	  "Filter Method", "png.ihdr.filter_method", FT_UINT8, BASE_DEC,
-	  VALS(filter_method_vals), 0, "", HFILL }},
+	  VALS(filter_method_vals), 0, NULL, HFILL }},
 	{ &hf_png_ihdr_interlace_method, {
 	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC,
-	  VALS(interlace_method_vals), 0, "", HFILL }},
+	  VALS(interlace_method_vals), 0, NULL, HFILL }},
 	{ &hf_png_text_keyword, {
 	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_text_string, {
 	  "String", "png.text.string", FT_STRING, BASE_NONE,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_year, {
 	  "Year", "png.time.year", FT_UINT16, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_month, {
 	  "Month", "png.time.month", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_day, {
 	  "Day", "png.time.day", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_hour, {
 	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_minute, {
 	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_time_second, {
 	  "Second", "png.time.second", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_phys_horiz, {
 	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_phys_vert, {
 	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_phys_unit, {
 	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC,
-	  VALS(phys_unit_vals), 0, "", HFILL }},
+	  VALS(phys_unit_vals), 0, NULL, HFILL }},
 	{ &hf_png_bkgd_palette_index, {
 	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_bkgd_greyscale, {
 	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_bkgd_red, {
 	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_bkgd_green, {
 	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	{ &hf_png_bkgd_blue, {
 	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX,
-	  NULL, 0, "", HFILL }},
+	  NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] =

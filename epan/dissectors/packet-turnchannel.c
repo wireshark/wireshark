@@ -185,11 +185,11 @@ proto_register_turnchannel(void)
 	static hf_register_info hf[] = {
 		{ &hf_turnchannel_id,
 			{ "TURN Channel ID",	"turnchannel.id",	FT_UINT16,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_HEX,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_turnchannel_len,
 			{ "Data Length",  "turnchannel.length",	FT_UINT16,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 	};
 

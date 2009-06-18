@@ -846,62 +846,62 @@ proto_register_aodv(void)
 	{ &hf_aodv_flags,
 	  { "Flags", "aodv.flags",
 	    FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Flags", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rreq_join,
 	  { "RREQ Join", "aodv.flags.rreq_join",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_JOIN,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rreq_repair,
 	  { "RREQ Repair", "aodv.flags.rreq_repair",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_REP,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rreq_gratuitous,
 	  { "RREQ Gratuitous RREP", "aodv.flags.rreq_gratuitous",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRATRREP,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rreq_destinationonly,
 	  { "RREQ Destination only", "aodv.flags.rreq_destinationonly",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_DESTONLY,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rreq_unknown,
 	  { "RREQ Unknown Sequence Number", "aodv.flags.rreq_unknown",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_UNKNSEQ,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rrep_repair,
 	  { "RREP Repair", "aodv.flags.rrep_repair",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_REP,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rrep_ack,
 	  { "RREP Acknowledgement", "aodv.flags.rrep_ack",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_ACK_REQ,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_flags_rerr_nodelete,
 	  { "RERR No Delete", "aodv.flags.rerr_nodelete",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RERR_NODEL,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_prefix_sz,
 	  { "Prefix Size", "aodv.prefix_sz",
 	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Prefix Size", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_hopcount,
 	  { "Hop Count", "aodv.hopcount",
 	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "Hop Count", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_rreq_id,
 	  { "RREQ Id", "aodv.rreq_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "RREQ Id", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_dest_ip,
 	  { "Destination IP", "aodv.dest_ip",
@@ -916,7 +916,7 @@ proto_register_aodv(void)
 	{ &hf_aodv_dest_seqno,
 	  { "Destination Sequence Number", "aodv.dest_seqno",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Destination Sequence Number", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_orig_ip,
 	  { "Originator IP", "aodv.orig_ip",
@@ -931,12 +931,12 @@ proto_register_aodv(void)
 	{ &hf_aodv_orig_seqno,
 	  { "Originator Sequence Number", "aodv.orig_seqno",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Originator Sequence Number", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_lifetime,
 	  { "Lifetime", "aodv.lifetime",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Lifetime", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_destcount,
 	  { "Destination Count", "aodv.destcount",
@@ -956,7 +956,7 @@ proto_register_aodv(void)
 	{ &hf_aodv_unreach_dest_seqno,
 	  { "Unreachable Destination Sequence Number", "aodv.unreach_dest_seqno",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Unreachable Destination Sequence Number", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_aodv_ext_type,
 	  { "Extension Type", "aodv.ext_type",

@@ -617,7 +617,7 @@ proto_register_dcerpc_svcctl(void)
         static hf_register_info hf[] = {
 	  { &hf_svcctl_opnum,
 	    { "Operation", "svcctl.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }},
+	      NULL, 0x0, NULL, HFILL }},
 	  { &hf_svcctl_machinename,
 	    { "MachineName", "svcctl.machinename", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "Name of the host we want to open the database on", HFILL }},

@@ -464,11 +464,11 @@ proto_register_null(void)
 		/* registered here but handled in ethertype.c */
 		{ &hf_null_etype,
 		{ "Type",		"null.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_null_family,
 		{ "Family",		"null.family",	FT_UINT32, BASE_DEC, VALS(family_vals), 0x0,
-			"", HFILL }}
+			NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_null,

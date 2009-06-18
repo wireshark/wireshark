@@ -293,28 +293,28 @@ proto_register_sebek(void)
 			NULL, 0, "Version Number", HFILL }},
 		{ &hf_sebek_type, {
 			"Type", "sebek.type", FT_UINT16, BASE_DEC,
-			NULL, 0, "Type", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_counter, {
 			"Counter", "sebek.counter", FT_UINT32, BASE_DEC,
-			NULL, 0, "Counter", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_time, {
 			"Time", "sebek.time.sec", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "Time", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_pid, {
 			"Process ID", "sebek.pid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Process ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_uid, {
 			"User ID", "sebek.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "User ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_fd, {
 			"File Descriptor", "sebek.fd", FT_UINT32, BASE_DEC,
 			NULL, 0, "File Descriptor Number", HFILL }},
 		{ &hf_sebek_cmd, {
-			"Command Name", "sebek.cmd", FT_STRING, 0,
-			NULL, 0, "Command Name", HFILL }},
+			"Command Name", "sebek.cmd", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_len, {
 			"Data Length", "sebek.len", FT_UINT32, BASE_DEC,
-			NULL, 0, "Data Length", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_ppid, {
 			"Parent Process ID", "sebek.ppid", FT_UINT32, BASE_DEC,
 			NULL, 0, "Process ID", HFILL }},
@@ -322,16 +322,16 @@ proto_register_sebek(void)
 			"Inode ID", "sebek.inode", FT_UINT32, BASE_DEC,
 			NULL, 0, "Process ID", HFILL }},
 		{ &hf_sebek_data, {
-			"Data", "sebek.data", FT_STRING, 0,
-			NULL, 0, "Data", HFILL }},
+			"Data", "sebek.data", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_socket_src_ip, {
-			"Socket.local_ip", "sebek.socket.src_ip", FT_IPv4, 0,
+			"Socket.local_ip", "sebek.socket.src_ip", FT_IPv4, BASE_NONE,
 			NULL, 0, "Socket.src_ip", HFILL }},
 		{ &hf_sebek_socket_src_port, {
 			"Socket.local_port", "sebek.socket.src_port", FT_UINT16, BASE_DEC,
 			NULL, 0, "Socket.src_port", HFILL }},
 		{ &hf_sebek_socket_dst_ip, {
-			"Socket.remote_ip", "sebek.socket.dst_ip", FT_IPv4, 0,
+			"Socket.remote_ip", "sebek.socket.dst_ip", FT_IPv4, BASE_NONE,
 			NULL, 0, "Socket.dst_ip", HFILL }},
 		{ &hf_sebek_socket_dst_port, {
 			"Socket.remote_port", "sebek.socket.dst_port", FT_UINT16, BASE_DEC,
@@ -341,7 +341,7 @@ proto_register_sebek(void)
 			NULL, 0, "Socket.call", HFILL }},
 		{ &hf_sebek_socket_proto, {
 			"Socket.ip_proto", "sebek.socket.ip_proto", FT_UINT8, BASE_DEC,
-			NULL, 0, "Socket.ip_proto", HFILL }}
+			NULL, 0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_sebek

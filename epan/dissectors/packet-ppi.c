@@ -1224,13 +1224,13 @@ proto_register_ppi(void)
 
     { &hf_spectrum_map,
        { "Radio spectrum map", "ppi.spectrum-map",
-            FT_BYTES, 0, NULL, 0x0, "PPI Radio spectrum map", HFILL } },
+            FT_BYTES, BASE_NONE, NULL, 0x0, "PPI Radio spectrum map", HFILL } },
     { &hf_process_info,
        { "Process information", "ppi.proc-info",
-            FT_BYTES, 0, NULL, 0x0, "PPI Process information", HFILL } },
+            FT_BYTES, BASE_NONE, NULL, 0x0, "PPI Process information", HFILL } },
     { &hf_capture_info,
        { "Capture information", "ppi.cap-info",
-            FT_BYTES, 0, NULL, 0x0, "PPI Capture information", HFILL } },
+            FT_BYTES, BASE_NONE, NULL, 0x0, "PPI Capture information", HFILL } },
 
     /* Aggregtion Extension */
     { &hf_aggregation_extension_interface_id,

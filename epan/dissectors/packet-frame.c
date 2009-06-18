@@ -554,7 +554,7 @@ proto_register_frame(void)
 			"Time relative to time reference or first frame", HFILL }},
 
 		{ &hf_frame_time_reference,
-		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
+		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame is a Time Reference frame", HFILL }},
 
 		{ &hf_frame_number,
@@ -570,7 +570,7 @@ proto_register_frame(void)
 			NULL, HFILL }},
 
 		{ &hf_frame_md5_hash,
-		{ "Frame MD5 Hash",	"frame.md5_hash", FT_STRING, 0, NULL, 0x0,
+		{ "Frame MD5 Hash",	"frame.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_frame_p2p_dir,
@@ -586,19 +586,19 @@ proto_register_frame(void)
 			NULL, HFILL }},
 
 		{ &hf_frame_marked,
-		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, 8, NULL, 0x0,
+		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Frame is marked in the GUI", HFILL }},
 
 		{ &hf_frame_protocols,
-		{ "Protocols in frame",	"frame.protocols", FT_STRING, 0, NULL, 0x0,
+		{ "Protocols in frame",	"frame.protocols", FT_STRING, BASE_NONE, NULL, 0x0,
 			"Protocols carried by this frame", HFILL }},
 
 		{ &hf_frame_color_filter_name,
-		{ "Coloring Rule Name",	"frame.coloring_rule.name", FT_STRING, 0, NULL, 0x0,
+		{ "Coloring Rule Name",	"frame.coloring_rule.name", FT_STRING, BASE_NONE, NULL, 0x0,
 			"The frame matched the coloring rule with this name", HFILL }},
 
 		{ &hf_frame_color_filter_text,
-		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, 0, NULL, 0x0,
+		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, BASE_NONE, NULL, 0x0,
 			"The frame matched this coloring rule string", HFILL }}
 	};
 	static gint *ett[] = {

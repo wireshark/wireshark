@@ -108,25 +108,25 @@ proto_register_yppasswd(void)
 	static hf_register_info hf[] = {
 		{ &hf_yppasswd_procedure_v1, {
 			"V1 Procedure", "yppasswd.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(yppasswd1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(yppasswd1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_yppasswd_status, {
 			"status", "yppasswd.status", FT_UINT32, BASE_DEC,
 			NULL, 0, "YPPasswd update status", HFILL }},
 
 		{ &hf_yppasswd_oldpass, {
-			"oldpass", "yppasswd.oldpass", FT_STRING, BASE_DEC,
+			"oldpass", "yppasswd.oldpass", FT_STRING, BASE_NONE,
 			NULL, 0, "Old encrypted password", HFILL }},
 
 		{ &hf_yppasswd_newpw, {
-			"newpw", "yppasswd.newpw", FT_NONE, 0,
+			"newpw", "yppasswd.newpw", FT_NONE, BASE_NONE,
 			NULL, 0, "New passwd entry", HFILL }},
 
 		{ &hf_yppasswd_newpw_name, {
-			"name", "yppasswd.newpw.name", FT_STRING, BASE_DEC,
+			"name", "yppasswd.newpw.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Username", HFILL }},
 
 		{ &hf_yppasswd_newpw_passwd, {
-			"passwd", "yppasswd.newpw.passwd", FT_STRING, BASE_DEC,
+			"passwd", "yppasswd.newpw.passwd", FT_STRING, BASE_NONE,
 			NULL, 0, "Encrypted passwd", HFILL }},
 
 		{ &hf_yppasswd_newpw_uid, {
@@ -138,15 +138,15 @@ proto_register_yppasswd(void)
 			NULL, 0, "GroupID", HFILL }},
 
 		{ &hf_yppasswd_newpw_gecos, {
-			"gecos", "yppasswd.newpw.gecos", FT_STRING, BASE_DEC,
+			"gecos", "yppasswd.newpw.gecos", FT_STRING, BASE_NONE,
 			NULL, 0, "In real life name", HFILL }},
 
 		{ &hf_yppasswd_newpw_dir, {
-			"dir", "yppasswd.newpw.dir", FT_STRING, BASE_DEC,
+			"dir", "yppasswd.newpw.dir", FT_STRING, BASE_NONE,
 			NULL, 0, "Home Directory", HFILL }},
 
 		{ &hf_yppasswd_newpw_shell, {
-			"shell", "yppasswd.newpw.shell", FT_STRING, BASE_DEC,
+			"shell", "yppasswd.newpw.shell", FT_STRING, BASE_NONE,
 			NULL, 0, "Default shell", HFILL }},
 
 	};

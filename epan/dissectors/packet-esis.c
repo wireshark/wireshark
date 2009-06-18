@@ -412,20 +412,20 @@ proto_register_esis(void) {
   static hf_register_info hf[] = {
     { &hf_esis_nlpi,
       { "Network Layer Protocol Identifier", "esis.nlpi",
-        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "", HFILL }},
+        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
     { &hf_esis_length,
-      { "PDU Length    ", "esis.length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "PDU Length", "esis.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_esis_version,
-      { "Version (==1) ", "esis.ver",    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Version (==1)", "esis.ver",    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_esis_reserved,
-      { "Reserved(==0) ", "esis.res",    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Reserved(==0)", "esis.res",    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_esis_type,
-      { "PDU Type      ", "esis.type",   FT_UINT8, BASE_DEC, VALS(esis_vals),
-         0xff, "", HFILL }},
+      { "PDU Type", "esis.type",   FT_UINT8, BASE_DEC, VALS(esis_vals),
+         0xff, NULL, HFILL }},
     { &hf_esis_holdtime,
-      { "Holding Time  ", "esis.htime",  FT_UINT16, BASE_DEC, NULL, 0x0, " s", HFILL }},
+      { "Holding Time", "esis.htime",  FT_UINT16, BASE_DEC, NULL, 0x0, "s", HFILL }},
     { &hf_esis_checksum,
-      { "Checksum      ", "esis.chksum", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }}
+      { "Checksum", "esis.chksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
   };
   /*
    *

@@ -240,7 +240,7 @@ void proto_register_ipsictl(void)
       	"IPSICTL Field1", HFILL }},
     { &hf_ipsictl_data,
       { "Data",	"ipsictl.data", 
-	FT_BYTES,	BASE_HEX,	NULL,	0x0,
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"IPSICTL data", HFILL }},
   };
 

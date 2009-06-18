@@ -181,7 +181,7 @@ proto_register_ddtp(void)
     static hf_register_info hf_ddtp[] = {
 	{ &hf_ddtp_version,
 	    { "Version", "ddtp.version", FT_UINT32, BASE_DEC, VALS(vals_ddtp_version), 0x0,
-		"Version", HFILL }},
+		NULL, HFILL }},
 	{ &hf_ddtp_encrypt,
 	    { "Encryption", "ddtp.encrypt", FT_UINT32, BASE_DEC, VALS(vals_ddtp_encrypt), 0x0,
 		"Encryption type", HFILL }},
@@ -196,7 +196,7 @@ proto_register_ddtp(void)
 		"Update query opcode", HFILL }},
 	{ &hf_ddtp_ipaddr,
 	    { "IP address", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IP address", HFILL }},
+		NULL, HFILL }},
 	{ &hf_ddtp_status,
 	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,
 		"Update reply status", HFILL }}

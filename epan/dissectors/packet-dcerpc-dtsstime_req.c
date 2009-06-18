@@ -63,7 +63,7 @@ proto_register_dtsstime_req (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dtsstime_req_opnum,
-		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }}
+		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

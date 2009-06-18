@@ -546,12 +546,12 @@ proto_register_gsm_a_rp(void)
 	{ &hf_gsm_a_rp_msg_type,
 		{ "RP Message Type",	"gsm_a.rp_msg_type",
 		FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_gsm_a_rp_elem_id,
 		{ "Element ID",	"gsm_a_rp.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	};
 

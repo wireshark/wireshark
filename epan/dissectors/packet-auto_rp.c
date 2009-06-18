@@ -197,7 +197,7 @@ void proto_register_auto_rp(void)
 
                 { &hf_auto_rp_rp_addr,
                   {"RP address", "auto_rp.rp_addr",
-                   FT_IPv4, 0, NULL, 0,
+                   FT_IPv4, BASE_NONE, NULL, 0,
                    "The unicast IP address of the RP", HFILL }},
 
                 { &hf_auto_rp_prefix_sgn,
@@ -212,7 +212,7 @@ void proto_register_auto_rp(void)
 
                 { &hf_auto_rp_group_prefix,
                   {"Prefix", "auto_rp.group_prefix",
-                   FT_IPv4, 0, NULL, 0,
+                   FT_IPv4, BASE_NONE, NULL, 0,
                    "Group prefix", HFILL }}
         };
 

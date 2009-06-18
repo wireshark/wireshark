@@ -1033,186 +1033,186 @@ void proto_register_tns(void)
 
 		{ &hf_tns_version, {
 			"Version", "tns.version", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Version", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_compat_version, {
 			"Version (Compatible)", "tns.compat_version", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Version (Compatible)", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_service_options, {
 			"Service Options", "tns.service_options", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "Service Options", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_sopt_flag_bconn, {
 			"Broken Connect Notify", "tns.so_flag.bconn", FT_BOOLEAN, 16,
-			NULL, 0x2000, "Broken Connect Notify", HFILL }},
+			NULL, 0x2000, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_pc, {
 			"Packet Checksum", "tns.so_flag.pc", FT_BOOLEAN, 16,
-			NULL, 0x1000, "Packet Checksum", HFILL }},
+			NULL, 0x1000, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_hc, {
 			"Header Checksum", "tns.so_flag.hc", FT_BOOLEAN, 16,
-			NULL, 0x0800, "Header Checksum", HFILL }},
+			NULL, 0x0800, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_fd, {
 			"Full Duplex", "tns.so_flag.fd", FT_BOOLEAN, 16,
-			NULL, 0x0400, "Full Duplex", HFILL }},
+			NULL, 0x0400, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_hd, {
 			"Half Duplex", "tns.so_flag.hd", FT_BOOLEAN, 16,
-			NULL, 0x0200, "Half Duplex", HFILL }},
+			NULL, 0x0200, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_dc1, {
 			"Don't Care", "tns.so_flag.dc1", FT_BOOLEAN, 16,
-			NULL, 0x0100, "Don't Care", HFILL }},
+			NULL, 0x0100, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_dc2, {
 			"Don't Care", "tns.so_flag.dc2", FT_BOOLEAN, 16,
-			NULL, 0x0080, "Don't Care", HFILL }},
+			NULL, 0x0080, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_dio, {
 			"Direct IO to Transport", "tns.so_flag.dio", FT_BOOLEAN, 16,
-			NULL, 0x0010, "Direct IO to Transport", HFILL }},
+			NULL, 0x0010, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_ap, {
 			"Attention Processing", "tns.so_flag.ap", FT_BOOLEAN, 16,
-			NULL, 0x0008, "Attention Processing", HFILL }},
+			NULL, 0x0008, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_ra, {
 			"Can Receive Attention", "tns.so_flag.ra", FT_BOOLEAN, 16,
-			NULL, 0x0004, "Can Receive Attention", HFILL }},
+			NULL, 0x0004, NULL, HFILL }},
 		{ &hf_tns_sopt_flag_sa, {
 			"Can Send Attention", "tns.so_flag.sa", FT_BOOLEAN, 16,
-			NULL, 0x0002, "Can Send Attention", HFILL }},
+			NULL, 0x0002, NULL, HFILL }},
 
 
 		{ &hf_tns_sdu_size, {
 			"Session Data Unit Size", "tns.sdu_size", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Session Data Unit Size", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_max_tdu_size, {
 			"Maximum Transmission Data Unit Size", "tns.max_tdu_size", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Maximum Transmission Data Unit Size", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_nt_proto_characteristics, {
 			"NT Protocol Characteristics", "tns.nt_proto_characteristics", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "NT Protocol Characteristics", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_hangon, {
 			"Hangon to listener connect", "tns.ntp_flag.hangon", FT_BOOLEAN, 16,
-			NULL, 0x8000, "Hangon to listener connect", HFILL }},
+			NULL, 0x8000, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_crel, {
 			"Confirmed release", "tns.ntp_flag.crel", FT_BOOLEAN, 16,
-			NULL, 0x4000, "Confirmed release", HFILL }},
+			NULL, 0x4000, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_tduio, {
 			"TDU based IO", "tns.ntp_flag.tduio", FT_BOOLEAN, 16,
-			NULL, 0x2000, "TDU based IO", HFILL }},
+			NULL, 0x2000, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_srun, {
 			"Spawner running", "tns.ntp_flag.srun", FT_BOOLEAN, 16,
-			NULL, 0x1000, "Spawner running", HFILL }},
+			NULL, 0x1000, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_dtest, {
 			"Data test", "tns.ntp_flag.dtest", FT_BOOLEAN, 16,
 			NULL, 0x0800, "Data Test", HFILL }},
 		{ &hf_tns_ntp_flag_cbio, {
 			"Callback IO supported", "tns.ntp_flag.cbio", FT_BOOLEAN, 16,
-			NULL, 0x0400, "Callback IO supported", HFILL }},
+			NULL, 0x0400, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_asio, {
 			"ASync IO Supported", "tns.ntp_flag.asio", FT_BOOLEAN, 16,
-			NULL, 0x0200, "ASync IO Supported", HFILL }},
+			NULL, 0x0200, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_pio, {
 			"Packet oriented IO", "tns.ntp_flag.pio", FT_BOOLEAN, 16,
-			NULL, 0x0100, "Packet oriented IO", HFILL }},
+			NULL, 0x0100, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_grant, {
 			"Can grant connection to another", "tns.ntp_flag.grant", FT_BOOLEAN, 16,
-			NULL, 0x0080, "Can grant connection to another", HFILL }},
+			NULL, 0x0080, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_handoff, {
 			"Can handoff connection to another", "tns.ntp_flag.handoff", FT_BOOLEAN, 16,
-			NULL, 0x0040, "Can handoff connection to another", HFILL }},
+			NULL, 0x0040, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_sigio, {
 			"Generate SIGIO signal", "tns.ntp_flag.sigio", FT_BOOLEAN, 16,
-			NULL, 0x0020, "Generate SIGIO signal", HFILL }},
+			NULL, 0x0020, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_sigpipe, {
 			"Generate SIGPIPE signal", "tns.ntp_flag.sigpipe", FT_BOOLEAN, 16,
-			NULL, 0x0010, "Generate SIGPIPE signal", HFILL }},
+			NULL, 0x0010, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_sigurg, {
 			"Generate SIGURG signal", "tns.ntp_flag.sigurg", FT_BOOLEAN, 16,
-			NULL, 0x0008, "Generate SIGURG signal", HFILL }},
+			NULL, 0x0008, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_urgentio, {
 			"Urgent IO supported", "tns.ntp_flag.urgentio", FT_BOOLEAN, 16,
-			NULL, 0x0004, "Urgent IO supported", HFILL }},
+			NULL, 0x0004, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_fdio, {
 			"Full duplex IO supported", "tns.ntp_flag.dfio", FT_BOOLEAN, 16,
-			NULL, 0x0002, "Full duplex IO supported", HFILL }},
+			NULL, 0x0002, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_testop, {
 			"Test operation", "tns.ntp_flag.testop", FT_BOOLEAN, 16,
-			NULL, 0x0001, "Test operation", HFILL }},
+			NULL, 0x0001, NULL, HFILL }},
 
 
 
 
 		{ &hf_tns_line_turnaround, {
 			"Line Turnaround Value", "tns.line_turnaround", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Line Turnaround Value", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_value_of_one, {
 			"Value of 1 in Hardware", "tns.value_of_one", FT_BYTES, BASE_NONE,
-			NULL, 0x0, "Value of 1 in Hardware", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_connect, {
 			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Connect", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data_length, {
 			"Length of Connect Data", "tns.connect_data_length", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Length of Connect Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data_offset, {
 			"Offset to Connect Data", "tns.connect_data_offset", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Offset to Connect Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data_max, {
 			"Maximum Receivable Connect Data", "tns.connect_data_max", FT_UINT32, BASE_DEC,
-			NULL, 0x0, "Maximum Receivable Connect Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_connect_flags0, {
 			"Connect Flags 0", "tns.connect_flags0", FT_UINT8, BASE_HEX,
-			NULL, 0x0, "Connect Flags 0", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_flags1, {
 			"Connect Flags 1", "tns.connect_flags1", FT_UINT8, BASE_HEX,
-			NULL, 0x0, "Connect Flags 1", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_conn_flag_nareq, {
 			"NA services required", "tns.connect_flags.nareq", FT_BOOLEAN, 8,
-			NULL, 0x10, "NA services required", HFILL }},
+			NULL, 0x10, NULL, HFILL }},
 		{ &hf_tns_conn_flag_nalink, {
 			"NA services linked in", "tns.connect_flags.nalink", FT_BOOLEAN, 8,
-			NULL, 0x08, "NA services linked in", HFILL }},
+			NULL, 0x08, NULL, HFILL }},
 		{ &hf_tns_conn_flag_enablena, {
 			"NA services enabled", "tns.connect_flags.enablena", FT_BOOLEAN, 8,
-			NULL, 0x04, "NA services enabled", HFILL }},
+			NULL, 0x04, NULL, HFILL }},
 		{ &hf_tns_conn_flag_ichg, {
 			"Interchange is involved", "tns.connect_flags.ichg", FT_BOOLEAN, 8,
-			NULL, 0x02, "Interchange is involved", HFILL }},
+			NULL, 0x02, NULL, HFILL }},
 		{ &hf_tns_conn_flag_wantna, {
 			"NA services wanted", "tns.connect_flags.wantna", FT_BOOLEAN, 8,
-			NULL, 0x01, "NA services wanted", HFILL }},
+			NULL, 0x01, NULL, HFILL }},
 
 
 		{ &hf_tns_trace_cf1, {
 			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT32, BASE_HEX,
-			NULL, 0x0, "Trace Cross Facility Item 1", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_trace_cf2, {
 			"Trace Cross Facility Item 2", "tns.trace_cf2", FT_UINT32, BASE_HEX,
-			NULL, 0x0, "Trace Cross Facility Item 2", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_trace_cid, {
 			"Trace Unique Connection ID", "tns.trace_cid", FT_UINT64, BASE_HEX,
-			NULL, 0x0, "Trace Unique Connection ID", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data, {
 			"Connect Data", "tns.connect_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, "Connect Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_accept, {
 			"Accept", "tns.accept", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Accept", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_accept_data_length, {
 			"Accept Data Length", "tns.accept_data_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "Length of Accept Data", HFILL }},
 		{ &hf_tns_accept_data, {
 			"Accept Data", "tns.accept_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, "Accept Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_accept_data_offset, {
 			"Offset to Accept Data", "tns.accept_data_offset", FT_UINT16, BASE_DEC,
-			NULL, 0x0, "Offset to Accept Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 
 		{ &hf_tns_refuse, {
 			"Refuse", "tns.refuse", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Refuse", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_refuse_reason_user, {
 			"Refuse Reason (User)", "tns.refuse_reason_user", FT_UINT8, BASE_HEX,
 			NULL, 0x0, "Refuse Reason from Application", HFILL }},
@@ -1224,11 +1224,11 @@ void proto_register_tns(void)
 			NULL, 0x0, "Length of Refuse Data", HFILL }},
 		{ &hf_tns_refuse_data, {
 			"Refuse Data", "tns.refuse_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, "Refuse Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_abort, {
 			"Abort", "tns.abort", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Abort", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_abort_reason_user, {
 			"Abort Reason (User)", "tns.abort_reason_user", FT_UINT8, BASE_HEX,
 			NULL, 0x0, "Abort Reason from Application", HFILL }},
@@ -1237,80 +1237,80 @@ void proto_register_tns(void)
 			NULL, 0x0, "Abort Reason from System", HFILL }},
 		{ &hf_tns_abort_data, {
 			"Abort Data", "tns.abort_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, "Abort Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_marker, {
 			"Marker", "tns.marker", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Marker", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_marker_type, {
 			"Marker Type", "tns.marker.type", FT_UINT8, BASE_HEX,
-			VALS(tns_marker_types), 0x0, "Marker Type", HFILL }},
+			VALS(tns_marker_types), 0x0, NULL, HFILL }},
 		{ &hf_tns_marker_data_byte, {
 			"Marker Data Byte", "tns.marker.databyte", FT_UINT8, BASE_HEX,
-			NULL, 0x0, "Marker Data Byte", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_marker_data, {
 			"Marker Data", "tns.marker.data", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "Marker Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_control, {
 			"Control", "tns.control", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Control", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_control_cmd, {
 			"Control Command", "tns.control.cmd", FT_UINT16, BASE_HEX,
-			VALS(tns_control_cmds), 0x0, "Control Command", HFILL }},
+			VALS(tns_control_cmds), 0x0, NULL, HFILL }},
 		{ &hf_tns_control_data, {
-			"Control Data", "tns.control.data", FT_BYTES, BASE_HEX,
-			NULL, 0x0, "Control Data", HFILL }},
+			"Control Data", "tns.control.data", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_redirect, {
 			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Redirect", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_redirect_data_length, {
 			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "Length of Redirect Data", HFILL }},
 		{ &hf_tns_redirect_data, {
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, "Redirect Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data, {
 			"Data", "tns.data", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "Data", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_flag, {
 			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX,
-			NULL, 0x0, "Data Flag", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_flag_send, {
 			"Send Token", "tns.data_flag.send", FT_BOOLEAN, 16,
-			NULL, 0x1, "Send Token", HFILL }},
+			NULL, 0x1, NULL, HFILL }},
 		{ &hf_tns_data_flag_rc, {
 			"Request Confirmation", "tns.data_flag.rc", FT_BOOLEAN, 16,
-			NULL, 0x2, "Request Confirmation", HFILL }},
+			NULL, 0x2, NULL, HFILL }},
 		{ &hf_tns_data_flag_c, {
 			"Confirmation", "tns.data_flag.c", FT_BOOLEAN, 16,
-			NULL, 0x4, "Confirmation", HFILL }},
+			NULL, 0x4, NULL, HFILL }},
 		{ &hf_tns_data_flag_reserved, {
 			"Reserved", "tns.data_flag.reserved", FT_BOOLEAN, 16,
-			NULL, 0x8, "Reserved", HFILL }},
+			NULL, 0x8, NULL, HFILL }},
 		{ &hf_tns_data_flag_more, {
 			"More Data to Come", "tns.data_flag.more", FT_BOOLEAN, 16,
-			NULL, 0x20, "More Data to Come", HFILL }},
+			NULL, 0x20, NULL, HFILL }},
 		{ &hf_tns_data_flag_eof, {
 			"End of File", "tns.data_flag.eof", FT_BOOLEAN, 16,
-			NULL, 0x40, "End of File", HFILL }},
+			NULL, 0x40, NULL, HFILL }},
 		{ &hf_tns_data_flag_dic, {
 			"Do Immediate Confirmation", "tns.data_flag.dic", FT_BOOLEAN, 16,
-			NULL, 0x80, "Do Immediate Confirmation", HFILL }},
+			NULL, 0x80, NULL, HFILL }},
 		{ &hf_tns_data_flag_rts, {
 			"Request To Send", "tns.data_flag.rts", FT_BOOLEAN, 16,
-			NULL, 0x100, "Request To Send", HFILL }},
+			NULL, 0x100, NULL, HFILL }},
 		{ &hf_tns_data_flag_sntt, {
 			"Send NT Trailer", "tns.data_flag.sntt", FT_BOOLEAN, 16,
-			NULL, 0x200, "Send NT Trailer", HFILL }},
+			NULL, 0x200, NULL, HFILL }},
 
 
 		{ &hf_tns_reserved_byte, {
-			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_HEX,
-			NULL, 0x0, "Reserved Byte", HFILL }},
+			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_packet_type, {
 			"Packet Type", "tns.type", FT_UINT8, BASE_DEC,
 			VALS(tns_type_vals), 0x0, "Type of TNS packet", HFILL }}

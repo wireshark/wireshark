@@ -1541,36 +1541,36 @@ proto_register_nlsp(void)
 	static hf_register_info hf[] = {
 	    { &hf_nlsp_irpd,
 	      { "NetWare Link Services Protocol Discriminator",	"nlsp.irpd",
-		FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_header_length,
 	      { "PDU Header Length", "nlsp.header_length",
-	        FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_minor_version,
 	      { "Minor Version", "nlsp.minor_version", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, "", HFILL }},
+	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_nr,
 	      { "Multi-homed Non-routing Server", "nlsp.nr", FT_BOOLEAN, 8,
-	        NULL, 0x80, "", HFILL }},
+	        NULL, 0x80, NULL, HFILL }},
 
 	    { &hf_nlsp_type,
 	      { "Packet Type", "nlsp.type", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_packet_type_vals), PACKET_TYPE_MASK, "", HFILL }},
+	        VALS(nlsp_packet_type_vals), PACKET_TYPE_MASK, NULL, HFILL }},
 
 	    { &hf_nlsp_major_version,
 	      { "Major Version", "nlsp.major_version", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, "", HFILL }},
+	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_packet_length,
 	      { "Packet Length", "nlsp.packet_length",
-	        FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_hello_state,
 	      { "State", "nlsp.hello.state", FT_UINT8, BASE_DEC,
 	        VALS(nlsp_hello_state_vals), NLSP_HELLO_STATE_MASK,
-		"", HFILL }},
+		NULL, HFILL }},
 
 	    { &hf_nlsp_hello_multicast,
 	      { "Multicast Routing", "nlsp.hello.multicast", FT_BOOLEAN, 8,
@@ -1580,24 +1580,24 @@ proto_register_nlsp(void)
 	    { &hf_nlsp_hello_circuit_type,
 	      { "Circuit Type", "nlsp.hello.circuit_type", FT_UINT8, BASE_DEC,
 	        VALS(nlsp_hello_circuit_type_vals), NLSP_HELLO_CTYPE_MASK,
-		"", HFILL }},
+		NULL, HFILL }},
 
 	    { &hf_nlsp_hello_holding_timer,
 	      { "Holding Timer", "nlsp.hello.holding_timer", FT_UINT8, BASE_DEC,
-	        NULL, 0x0, "", HFILL }},
+	        NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_hello_priority,
 	      { "Priority", "nlsp.hello.priority", FT_UINT8, BASE_DEC,
 	        NULL, NLSP_HELLO_PRIORITY_MASK,
-		"", HFILL }},
+		NULL, HFILL }},
 
 	    { &hf_nlsp_lsp_sequence_number,
 	      { "Sequence Number", "nlsp.sequence_number",
-	        FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_lsp_checksum,
 	      { "Checksum", "nlsp.lsp.checksum",
-	        FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_nlsp_lsp_p,
 	      { "Partition Repair", "nlsp.lsp.partition_repair", FT_BOOLEAN, 8,
@@ -1606,16 +1606,16 @@ proto_register_nlsp(void)
 
 	    { &hf_nlsp_lsp_attached_flag,
 	      { "Attached Flag", "nlsp.lsp.attached_flag", FT_UINT8, BASE_DEC,
-	        VALS(nlsp_attached_flag_vals), NLSP_LSP_ATT_MASK, "", HFILL }},
+	        VALS(nlsp_attached_flag_vals), NLSP_LSP_ATT_MASK, NULL, HFILL }},
 
 	    { &hf_nlsp_lsp_lspdbol,
 	      { "LSP Database Overloaded", "nlsp.lsp.lspdbol", FT_BOOLEAN, 8,
-	        NULL, NLSP_LSP_OVERFLOW_MASK, "", HFILL }},
+	        NULL, NLSP_LSP_OVERFLOW_MASK, NULL, HFILL }},
 
 	    { &hf_nlsp_lsp_router_type,
 	      { "Router Type", "nlsp.lsp.router_type", FT_UINT8, BASE_DEC,
 	        VALS(nlsp_router_type_vals), NLSP_LSP_ROUTER_TYPE_MASK,
-	        "", HFILL }},
+	        NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_nlsp,

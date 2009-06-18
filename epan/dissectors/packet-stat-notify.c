@@ -77,15 +77,15 @@ proto_register_statnotify(void)
 	static hf_register_info hf[] = {
 		{ &hf_statnotify_procedure_v1, {
 			"V1 Procedure", "statnotify.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(statnotify1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(statnotify1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_statnotify_name, {
-			"Name", "statnotify.name", FT_STRING, BASE_DEC,
+			"Name", "statnotify.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Name of client that changed", HFILL }},
 		{ &hf_statnotify_state, {
 			"State", "statnotify.state", FT_UINT32, BASE_DEC,
 			NULL, 0, "New state of client that changed", HFILL }},
 		{ &hf_statnotify_priv, {
-			"Priv", "statnotify.priv", FT_BYTES, BASE_HEX,
+			"Priv", "statnotify.priv", FT_BYTES, BASE_NONE,
 			NULL, 0, "Client supplied opaque data", HFILL }},
 	};
 

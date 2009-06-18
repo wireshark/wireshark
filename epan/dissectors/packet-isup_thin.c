@@ -225,7 +225,7 @@ proto_register_isup_thin(void)
 		{ &hf_isup_thin_count_type,
 			{ "Count Type", 		"isup_thin.count.type",
 			FT_UINT8, BASE_DEC,VALS(isup_thin_count_type_vals), 0x80,
-			"Count Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_count,
 			{ "Message length (counted according to bit 0) including the Message Header","isup_thin.count",
@@ -235,47 +235,47 @@ proto_register_isup_thin(void)
 		{ &hf_isup_thin_message_class,
 			{ "Message Class","isup_thin.message.class",
 			FT_UINT8, BASE_DEC,NULL, 0xfc,
-			"Message Class", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_version,
 			{ "Version","isup_thin.count.version",
 			FT_UINT16, BASE_DEC,NULL, 0x0380,
-			"Version", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_message_type,
 			{ "Message Type", 		"isup_thin.message.type",
 			FT_UINT8, BASE_DEC,VALS(isup_thin_message_type_vals), 0x7f,
-			"Message Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_serv_ind,
 			{ "Service Indicator","isup_thin.servind",
 			FT_UINT8, BASE_DEC,NULL, 0xf0,
-			"Service Indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_subservind,
 			{ "Sub Service Field (Network Indicator)","isup_thin.subservind",
 			FT_UINT8, BASE_DEC,NULL, 0x0c,
-			"Sub Service Field (Network Indicator)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_priority,
 			{ "Priority","isup_thin.priority",
 			FT_UINT8, BASE_DEC,NULL, 0x03,
-			"Priority", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_sls,
 			{ "Signalling Link Selection","isup_thin.sls",
 			FT_UINT8, BASE_DEC,NULL, 0x0,
-			"Signalling Link Selection", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_opc,
 			{ "Originating Point Code","isup_thin.opc",
 			FT_UINT32, BASE_DEC,NULL, 0x0,
-			"Originating Point Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_dpc,
 			{ "Destination Point Code","isup_thin.dpc",
 			FT_UINT32, BASE_DEC,NULL, 0x0,
-			"Destination Point Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_isup_thin_oam_message_name_code,
 			{ "Message Name Code","isup_thin.oam.message.name",
@@ -290,7 +290,7 @@ proto_register_isup_thin(void)
 		{ &hf_isup_thin_isup_length,
 			{ "ISUP message length","isup_thin.isup.message.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"ISUP message length", HFILL }
+			NULL, HFILL }
 		},
 	};
 

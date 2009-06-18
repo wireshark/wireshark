@@ -72,7 +72,7 @@ proto_register_rdaclif (void)
   static hf_register_info hf[] = {
     {&hf_rdaclif_opnum,
      {"Operation", "rdaclif.opnum", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Operation", HFILL}},
+      NULL, HFILL}},
   };
 
   static gint *ett[] = {

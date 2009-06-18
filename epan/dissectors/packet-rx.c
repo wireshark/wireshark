@@ -600,70 +600,70 @@ proto_register_rx(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rx_epoch, {
-			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_DEC,
-			NULL, 0, "Epoch", HFILL }},
+			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_cid, {
 			"CID", "rx.cid", FT_UINT32, BASE_DEC,
-			NULL, 0, "CID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_callnumber, {
 			"Call Number", "rx.callnumber", FT_UINT32, BASE_DEC,
-			NULL, 0, "Call Number", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_seq, {
 			"Sequence Number", "rx.seq", FT_UINT32, BASE_DEC,
-			NULL, 0, "Sequence Number", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_serial, {
 			"Serial", "rx.serial", FT_UINT32, BASE_DEC,
-			NULL, 0, "Serial", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_type, {
 			"Type", "rx.type", FT_UINT8, BASE_DEC,
-			VALS(rx_types), 0, "Type", HFILL }},
+			VALS(rx_types), 0, NULL, HFILL }},
 
 		{ &hf_rx_flags, {
 			"Flags", "rx.flags", FT_UINT8, BASE_HEX,
-			NULL, 0, "Flags", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_flags_clientinit, {
 			"Client Initiated", "rx.flags.client_init", FT_BOOLEAN, 8,
-			NULL, RX_CLIENT_INITIATED, "Client Initiated", HFILL }},
+			NULL, RX_CLIENT_INITIATED, NULL, HFILL }},
 
 		{ &hf_rx_flags_request_ack, {
 			"Request Ack", "rx.flags.request_ack", FT_BOOLEAN, 8,
-			NULL, RX_REQUEST_ACK, "Request Ack", HFILL }},
+			NULL, RX_REQUEST_ACK, NULL, HFILL }},
 
 		{ &hf_rx_flags_last_packet, {
 			"Last Packet", "rx.flags.last_packet", FT_BOOLEAN, 8,
-			NULL, RX_LAST_PACKET, "Last Packet", HFILL }},
+			NULL, RX_LAST_PACKET, NULL, HFILL }},
 
 		{ &hf_rx_flags_more_packets, {
 			"More Packets", "rx.flags.more_packets", FT_BOOLEAN, 8,
-			NULL, RX_MORE_PACKETS, "More Packets", HFILL }},
+			NULL, RX_MORE_PACKETS, NULL, HFILL }},
 
 		{ &hf_rx_flags_free_packet, {
 			"Free Packet", "rx.flags.free_packet", FT_BOOLEAN, 8,
-			NULL, RX_FREE_PACKET, "Free Packet", HFILL }},
+			NULL, RX_FREE_PACKET, NULL, HFILL }},
 
 		/* XXX - what about RX_SLOW_START_OR_JUMBO? */
 
 		{ &hf_rx_userstatus, {
 			"User Status", "rx.userstatus", FT_UINT32, BASE_DEC,
-			NULL, 0, "User Status", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_securityindex, {
 			"Security Index", "rx.securityindex", FT_UINT32, BASE_DEC,
-			NULL, 0, "Security Index", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_spare, {
 			"Spare/Checksum", "rx.spare", FT_UINT16, BASE_DEC,
-			NULL, 0, "Spare/Checksum", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_serviceid, {
 			"Service ID", "rx.serviceid", FT_UINT16, BASE_DEC,
-			NULL, 0, "Service ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_bufferspace, {
 			"Bufferspace", "rx.bufferspace", FT_UINT16, BASE_DEC,
@@ -671,11 +671,11 @@ proto_register_rx(void)
 
 		{ &hf_rx_maxskew, {
 			"Max Skew", "rx.maxskew", FT_UINT16, BASE_DEC,
-			NULL, 0, "Max Skew", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_first_packet, {
 			"First Packet", "rx.first", FT_UINT32, BASE_DEC,
-			NULL, 0, "First Packet", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_prev_packet, {
 			"Prev Packet", "rx.prev", FT_UINT32, BASE_DEC,
@@ -695,11 +695,11 @@ proto_register_rx(void)
 
 		{ &hf_rx_ack, {
 			"ACK Packet", "rx.ack", FT_NONE, BASE_NONE,
-			NULL, 0, "ACK Packet", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_challenge, {
 			"CHALLENGE Packet", "rx.challenge", FT_NONE, BASE_NONE,
-			NULL, 0, "CHALLENGE Packet", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_version, {
 			"Version", "rx.version", FT_UINT32, BASE_DEC,
@@ -707,7 +707,7 @@ proto_register_rx(void)
 
 		{ &hf_rx_nonce, {
 			"Nonce", "rx.nonce", FT_UINT32, BASE_HEX,
-			NULL, 0, "Nonce", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_inc_nonce, {
 			"Inc Nonce", "rx.inc_nonce", FT_UINT32, BASE_HEX,
@@ -715,19 +715,19 @@ proto_register_rx(void)
 
 		{ &hf_rx_min_level, {
 			"Min Level", "rx.min_level", FT_UINT32, BASE_DEC,
-			NULL, 0, "Min Level", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_level, {
 			"Level", "rx.level", FT_UINT32, BASE_DEC,
-			NULL, 0, "Level", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_response, {
 			"RESPONSE Packet", "rx.response", FT_NONE, BASE_NONE,
-			NULL, 0, "RESPONSE Packet", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_abort, {
 			"ABORT Packet", "rx.abort", FT_NONE, BASE_NONE,
-			NULL, 0, "ABORT Packet", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_encrypted, {
 			"Encrypted", "rx.encrypted", FT_NONE, BASE_NONE,
@@ -735,35 +735,35 @@ proto_register_rx(void)
 
 		{ &hf_rx_kvno, {
 			"kvno", "rx.kvno", FT_UINT32, BASE_DEC,
-			NULL, 0, "kvno", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_ticket_len, {
 			"Ticket len", "rx.ticket_len", FT_UINT32, BASE_DEC,
 			NULL, 0, "Ticket Length", HFILL }},
 
 		{ &hf_rx_ticket, {
-			"ticket", "rx.ticket", FT_BYTES, BASE_HEX,
+			"ticket", "rx.ticket", FT_BYTES, BASE_NONE,
 			NULL, 0, "Ticket", HFILL }},
 
 		{ &hf_rx_ifmtu, {
 			"Interface MTU", "rx.if_mtu", FT_UINT32, BASE_DEC,
-			NULL, 0, "Interface MTU", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_maxmtu, {
 			"Max MTU", "rx.max_mtu", FT_UINT32, BASE_DEC,
-			NULL, 0, "Max MTU", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_rwind, {
 			"rwind", "rx.rwind", FT_UINT32, BASE_DEC,
-			NULL, 0, "rwind", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_maxpackets, {
 			"Max Packets", "rx.max_packets", FT_UINT32, BASE_DEC,
-			NULL, 0, "Max Packets", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_abortcode, {
 			"Abort Code", "rx.abort_code", FT_UINT32, BASE_DEC,
-			NULL, 0, "Abort Code", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

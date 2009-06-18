@@ -307,7 +307,7 @@ static hf_register_info hf[] = {
 		{  "FEC Payload",
 			"2dparityfec.payload",
 			FT_BYTES,
-			BASE_HEX,
+			BASE_NONE,
 			NULL,
 			0x0,
 			NULL,

@@ -184,7 +184,7 @@ void proto_register_netdump(void)
 		},
 		{ &hf_netdump_payload,
 			{"Netdump payload", "netdump.payload",
-			FT_BYTES, BASE_HEX,
+			FT_BYTES, BASE_NONE,
 			NULL, 0x0,
 			NULL, HFILL}
 		},

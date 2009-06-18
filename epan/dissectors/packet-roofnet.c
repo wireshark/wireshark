@@ -291,7 +291,7 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_query_dst,
       { "Query Dst", "roofnet.querydst",
-	FT_IPv4, BASE_HEX, NULL, 0x0, "Roofnet Query Destination", HFILL }
+	FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Query Destination", HFILL }
     },
 
     { &hf_roofnet_seq,
@@ -301,17 +301,17 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_links,
       { "Links", "roofnet.links",
-      FT_NONE, BASE_DEC, NULL, 0x0, "", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_roofnet_link_src,
       { "Source IP", "roofnet.link.src",
-      FT_IPv4, BASE_HEX, NULL, 0x0, "Roofnet Message Source", HFILL }
+      FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Message Source", HFILL }
     },
 
     { &hf_roofnet_link_forward,
       { "Forward", "roofnet.link.forward",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "Forward", HFILL }
+	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_roofnet_link_rev,
@@ -331,7 +331,7 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_link_dst,
       { "Dst IP", "roofnet.link.dst",
-	FT_IPv4, BASE_HEX, NULL, 0x0, "Roofnet Message Destination", HFILL }
+	FT_IPv4, BASE_NONE, NULL, 0x0, "Roofnet Message Destination", HFILL }
     }
   };
 

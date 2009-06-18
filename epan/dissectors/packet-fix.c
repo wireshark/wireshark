@@ -483,8 +483,8 @@ proto_register_fix(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fix_data,
-            { "Continuation Data", "fix.data", FT_BYTES, BASE_HEX, NULL, 0x00,
-            "Continuation Data", HFILL }
+            { "Continuation Data", "fix.data", FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
         },
         
         { &hf_fix_field_tag,

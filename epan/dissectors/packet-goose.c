@@ -710,16 +710,16 @@ void proto_register_goose(void) {
   static hf_register_info hf[] =
   {
   	{ &hf_goose_appid,
-	{ "APPID",	"goose.appid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "APPID",	"goose.appid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_length,
-	{ "Length",	"goose.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Length",	"goose.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_reserve1,
-	{ "Reserved 1",	"goose.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "Reserved 1",	"goose.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_reserve2,
-	{ "Reserved 2",	"goose.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "Reserved 2",	"goose.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
 
 /*--- Included file: packet-goose-hfarr.c ---*/
@@ -858,7 +858,7 @@ void proto_register_goose(void) {
         "goose.VisibleString", HFILL }},
     { &hf_goose_t,
       { "t", "goose.t",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.UtcTime", HFILL }},
     { &hf_goose_stNum,
       { "stNum", "goose.stNum",
@@ -870,11 +870,11 @@ void proto_register_goose(void) {
         "goose.INTEGER", HFILL }},
     { &hf_goose_test,
       { "test", "goose.test",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "goose.BOOLEAN", HFILL }},
     { &hf_goose_ndsCom,
       { "ndsCom", "goose.ndsCom",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "goose.BOOLEAN", HFILL }},
     { &hf_goose_numDatSetEntries,
       { "numDatSetEntries", "goose.numDatSetEntries",
@@ -906,11 +906,11 @@ void proto_register_goose(void) {
         "goose.Data", HFILL }},
     { &hf_goose_boolean,
       { "boolean", "goose.boolean",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "goose.BOOLEAN", HFILL }},
     { &hf_goose_bit_string,
       { "bit-string", "goose.bit_string",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.BIT_STRING", HFILL }},
     { &hf_goose_integer,
       { "integer", "goose.integer",
@@ -922,7 +922,7 @@ void proto_register_goose(void) {
         "goose.INTEGER", HFILL }},
     { &hf_goose_floating_point,
       { "floating-point", "goose.floating_point",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.FloatingPoint", HFILL }},
     { &hf_goose_real,
       { "real", "goose.real",
@@ -930,7 +930,7 @@ void proto_register_goose(void) {
         "goose.REAL", HFILL }},
     { &hf_goose_octet_string,
       { "octet-string", "goose.octet_string",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.OCTET_STRING", HFILL }},
     { &hf_goose_visible_string,
       { "visible-string", "goose.visible_string",
@@ -938,7 +938,7 @@ void proto_register_goose(void) {
         "goose.VisibleString", HFILL }},
     { &hf_goose_binary_time,
       { "binary-time", "goose.binary_time",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.TimeOfDay", HFILL }},
     { &hf_goose_bcd,
       { "bcd", "goose.bcd",
@@ -946,7 +946,7 @@ void proto_register_goose(void) {
         "goose.INTEGER", HFILL }},
     { &hf_goose_booleanArray,
       { "booleanArray", "goose.booleanArray",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "goose.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/

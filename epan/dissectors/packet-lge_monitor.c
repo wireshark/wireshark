@@ -161,17 +161,17 @@ proto_register_lge_monitor(void)
 		{ &hf_lge_monitor_dir,
 			{ "Direction",           "lge_monitor.dir",
 			FT_UINT32, BASE_DEC, VALS(lge_monitor_dir_vals), 0x0,          
-			"Direction", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_lge_monitor_prot,
 			{ "Protocol Identifier",           "lge_monitor.prot",
 			FT_UINT32, BASE_DEC, VALS(lge_monitor_prot_vals), 0x0,          
-			"Protocol Identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_lge_monitor_length,
 			{ "Payload Length",           "lge_monitor.length",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
-			"Payload Length", HFILL }
+			NULL, HFILL }
 		},
 	};
 

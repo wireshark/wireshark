@@ -2663,7 +2663,7 @@ void proto_register_acn(void)
     /* DMP data */
     { &hf_acn_data,
       { "Data", "acn.dmp_data",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_acn_data8,
@@ -2689,7 +2689,7 @@ void proto_register_acn(void)
 
     { &hf_acn_dmp_address_data_pairs,
       { "Address-Data Pairs", "acn.dmp_address_data_pairs",
-        FT_BYTES, BASE_DEC, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "More address-data pairs", HFILL }
     },
 

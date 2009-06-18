@@ -118,16 +118,16 @@ proto_register_rstat(void)
 	static hf_register_info hf[] = {
 		{ &hf_rstat_procedure_v1, {
 			"V1 Procedure", "rstat.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(rstat1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(rstat1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v2, {
 			"V2 Procedure", "rstat.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(rstat2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(rstat2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v3, {
 			"V3 Procedure", "rstat.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(rstat3_proc_vals), 0, "V3 Procedure", HFILL }},
+			VALS(rstat3_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v4, {
 			"V4 Procedure", "rstat.procedure_v4", FT_UINT32, BASE_DEC,
-			VALS(rstat4_proc_vals), 0, "V4 Procedure", HFILL }}
+			VALS(rstat4_proc_vals), 0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

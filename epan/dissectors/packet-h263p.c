@@ -322,7 +322,7 @@ proto_register_h263P(void)
 				BASE_DEC,
 				NULL,
 				0xe0,
-				"Thread ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -358,7 +358,7 @@ proto_register_h263P(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Extra picture header", HFILL
+				NULL, HFILL
 			}
 		},
 		{

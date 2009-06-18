@@ -190,35 +190,35 @@ proto_register_tcpencap(void)
 
 		{ &hf_tcpencap_unknown,
 		{ "Unknown trailer",      "tcpencap.unknown", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_zero,
 		{ "All zero",      "tcpencap.zero", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_seq,
 		{ "Sequence number",      "tcpencap.seq", FT_UINT16, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_esp_zero,
 		{ "ESP zero",      "tcpencap.espzero", FT_UINT16, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_ike_direction,
 		{ "ISAKMP traffic direction",      "tcpencap.ikedirection", FT_UINT16, BASE_HEX, VALS(tcpencap_ikedir_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_magic,
 		{ "Magic number",      "tcpencap.magic", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_proto,
 		{ "Protocol",      "tcpencap.proto", FT_UINT8, BASE_HEX, VALS(tcpencap_proto_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_tcpencap_magic2,
 		{ "Magic 2",      "tcpencap.magic2", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	};
 

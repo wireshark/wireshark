@@ -935,7 +935,7 @@ proto_register_multipart(void)
 			{	"Encapsulated multipart part",
 				"mime_multipart.part",
 				FT_STRING, BASE_NONE, NULL, 0x00,
-				"Encapsulated multipart part", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_header_array[POS_CONTENT_DISPOSITION],

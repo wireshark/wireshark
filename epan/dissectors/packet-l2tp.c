@@ -1947,7 +1947,7 @@ proto_register_l2tp(void)
 
 		{ &hf_l2tp_offset_bit,
 		{ "Offset bit", "l2tp.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
-			"Offset bit", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_priority,
 		{ "Priority", "l2tp.priority", FT_BOOLEAN, 16, TFS(&l2tp_priority_truth), 0x0100,
@@ -1955,39 +1955,38 @@ proto_register_l2tp(void)
 
 		{ &hf_l2tp_version,
 		{ "Version", "l2tp.version", FT_UINT16, BASE_DEC, NULL, 0x000f,
-			"Version", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_length,
 		{ "Length","l2tp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_tunnel,
 		{ "Tunnel ID","l2tp.tunnel", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
-			"Tunnel ID", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_session,
 		{ "Session ID","l2tp.session", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
-			"Session ID", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_Ns,
 		{ "Ns","l2tp.Ns", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_Nr,
 		{ "Nr","l2tp.Nr", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_offset,
 		{ "Offset","l2tp.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Number of octest past the L2TP header at which the"
-				"payload data starts.", HFILL }},
+			"Number of octest past the L2TP header at which thepayload data starts.", HFILL }},
 
 		{ &hf_l2tp_avp_mandatory,
-		{ "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0,
+		{ "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Mandatory AVP", HFILL }},
 
 		{ &hf_l2tp_avp_hidden,
-		{ "Hidden", "l2tp.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0,
+		{ "Hidden", "l2tp.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Hidden AVP", HFILL }},
 
 		{ &hf_l2tp_avp_length,
@@ -2004,31 +2003,31 @@ proto_register_l2tp(void)
 
 		{ &hf_l2tp_tie_breaker,
 		{ "Tie Breaker", "l2tp.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
-			"Tie Breaker", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_sid,
 		{ "Session ID","l2tp.sid", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Session ID", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_ccid,
 		{ "Control Connection ID","l2tp.ccid", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Control Connection ID", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_res,
 		{ "Reserved","l2tp.res", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"Reserved", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_cookie,
-		{ "Cookie","lt2p.cookie", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"Cookie", HFILL }},
+		{ "Cookie","lt2p.cookie", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_def,
 		{ "Default L2-Specific Sublayer","lt2p.l2_spec_def", FT_NONE, BASE_NONE, NULL, 0x0,
-			"Default L2-Specific Sublayer", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_atm,
 		{ "ATM-Specific Sublayer","lt2p.l2_spec_atm", FT_NONE, BASE_NONE, NULL, 0x0,
-			"ATM-Specific Sublayer", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_s,
 		{ "S-bit","lt2p.l2_spec_s", FT_BOOLEAN, 8, NULL, 0x40,
@@ -2052,7 +2051,7 @@ proto_register_l2tp(void)
 
 		{ &hf_l2tp_l2_spec_sequence,
 		{ "Sequence Number","lt2p.l2_spec_sequence", FT_UINT24, BASE_DEC, NULL, 0x0,
-			"Sequence Number", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_cisco_avp_type,
 		{ "Type", "l2tp.avp.ciscotype", FT_UINT16, BASE_DEC, VALS(cisco_avp_type_vals), 0,

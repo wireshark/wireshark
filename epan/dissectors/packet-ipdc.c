@@ -367,25 +367,25 @@ proto_register_ipdc(void)
 		{ &hf_ipdc_payload_len,
 			{ "Payload length",	"ipdc.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Payload length", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_ipdc_protocol_id,
 			{ "Protocol ID",	"ipdc.protocol_id",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Protocol ID", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_ipdc_trans_id_size,
 			{ "Transaction ID size",	"ipdc.trans_id_size",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Transaction ID size", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_ipdc_trans_id,
 			{ "Transaction ID",	"ipdc.trans_id",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"Transaction ID", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
 		},
 
 		{ &hf_ipdc_message_code,

@@ -107,7 +107,7 @@ void proto_register_sipfrag(void)
     {
         { &hf_sipfrag_line,
             { "Line",
-              "sipfrag.line",FT_STRING, BASE_NONE, NULL, 0x0, "Line", HFILL
+              "sipfrag.line",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL
             }
         },
     };

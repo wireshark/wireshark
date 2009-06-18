@@ -274,16 +274,16 @@ proto_register_hpsw(void)
 	static hf_register_info hf[] = {
 		{ &hf_hpsw_version,
 		{ "Version", "hpsw.version", FT_UINT8, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_hpsw_type,
 		{ "Type", "hpsw.type", FT_UINT8, BASE_HEX,
-			NULL, 0x0, "", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_hpsw_tlvtype,
 		{ "Type", "hpsw.tlv_type", FT_UINT8, BASE_HEX,
-			VALS(hpsw_tlv_type_vals), 0x0, "", HFILL }},
+			VALS(hpsw_tlv_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_hpsw_tlvlength,
 		{ "Length", "hpsw.tlv_len", FT_UINT8, BASE_DEC,
-			NULL, 0x0, "", HFILL }}
+			NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

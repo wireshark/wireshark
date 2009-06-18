@@ -1778,19 +1778,19 @@ proto_register_icq(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_icq_type,
-	  {"Type", "icq.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	  {"Type", "icq.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_icq_uin,
-	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_icq_sessionid,
-	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	{ &hf_icq_client_cmd,
-	  {"Client command", "icq.client_cmd", FT_UINT16, BASE_HEX, VALS(clientCmdCode), 0x0, "", HFILL }},
+	  {"Client command", "icq.client_cmd", FT_UINT16, BASE_HEX, VALS(clientCmdCode), 0x0, NULL, HFILL }},
 	{ &hf_icq_server_cmd,
-	  {"Server command", "icq.server_cmd", FT_UINT16, BASE_DEC, VALS(serverCmdCode), 0x0, "", HFILL }},
+	  {"Server command", "icq.server_cmd", FT_UINT16, BASE_DEC, VALS(serverCmdCode), 0x0, NULL, HFILL }},
 	{ &hf_icq_checkcode,
-	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	{ &hf_icq_decode,
-	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
     static gint *ett[] = {
         &ett_icq,

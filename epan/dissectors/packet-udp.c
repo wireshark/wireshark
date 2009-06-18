@@ -618,19 +618,19 @@ proto_register_udp(void)
 	static hf_register_info hf[] = {
 		{ &hf_udp_srcport,
 		{ "Source Port",	"udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_udp_dstport,
 		{ "Destination Port",	"udp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_udp_port,
 		{ "Source or Destination Port",	"udp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_udp_length,
 		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_udp_checksum,
 		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -646,15 +646,15 @@ proto_register_udp(void)
 
 		{ &hf_udp_proc_src_uid,
 		  { "Source process user ID", "udp.proc.srcuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Source process user ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_src_pid,
 		  { "Source process ID", "udp.proc.srcpid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Source process ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_src_uname,
 		  { "Source process user name", "udp.proc.srcuname", FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Source process user name", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_src_cmd,
 		  { "Source process name", "udp.proc.srccmd", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -662,15 +662,15 @@ proto_register_udp(void)
 
 		{ &hf_udp_proc_dst_uid,
 		  { "Destination process user ID", "udp.proc.dstuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Destination process user ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_dst_pid,
 		  { "Destination process ID", "udp.proc.dstpid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Destination process ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_dst_uname,
 		  { "Destination process user name", "udp.proc.dstuname", FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Destination process user name", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_udp_proc_dst_cmd,
 		  { "Destination process name", "udp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -680,11 +680,11 @@ proto_register_udp(void)
 	static hf_register_info hf_lite[] = {
 		{ &hf_udplite_checksum_coverage_bad,
 		{ "Bad Checksum coverage",	"udp.checksum_coverage_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_udplite_checksum_coverage,
 		{ "Checksum coverage",	"udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }}
+			NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

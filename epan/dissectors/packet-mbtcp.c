@@ -594,98 +594,98 @@ proto_register_modbus(void)
 		{ &hf_mbtcp_transid,
 			{ "transaction identifier",			"modbus_tcp.trans_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_mbtcp_protid,
 			{ "protocol identifier",			"modbus_tcp.prot_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_mbtcp_len,
 			{ "length",							"modbus_tcp.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		/* Modbus header fields */
 		{ &hf_mbtcp_unitid,
 			{ "unit identifier",           		"modbus_tcp.unit_id",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_mbtcp_functioncode,
 			{ "function code",            		"modbus_tcp.func_code",
 			FT_UINT8, BASE_DEC, VALS(function_code_vals), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_reference,
 			{ "reference number",            	"modbus_tcp.reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_lreference,
 			{ "reference number (32 bit)",   	"modbus_tcp.reference_num_32",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_reftype,
 			{ "reference type",   				"modbus_tcp.reference_type",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_readref,
 			{ "read reference number",   		"modbus_tcp.read_reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_writeref,
 			{ "write reference number",   		"modbus_tcp.write_reference_num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_wordcnt,
 			{ "word count",            			"modbus_tcp.word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_readwordcnt,
 			{ "read word count",       			"modbus_tcp.read_word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_writewordcnt,
 			{ "write word count",       		"modbus_tcp.write_word_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_bitcnt,
 			{ "bit count",            			"modbus_tcp.bit_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_bytecnt,
 			{ "byte count",            			"modbus_tcp.byte_cnt",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_lbytecnt,
 			{ "byte count (16-bit)",   			"modbus_tcp.byte_cnt_16",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_exceptioncode,
 			{ "exception code",            		"modbus_tcp.exception_code",
 			FT_UINT8, BASE_DEC, VALS(exception_code_vals), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_andmask,
 			{ "AND mask",            			"modbus_tcp.and_mask",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_modbus_ormask,
 			{ "OR mask",            			"modbus_tcp.or_mask",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		}
 	};
 

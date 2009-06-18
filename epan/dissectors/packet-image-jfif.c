@@ -901,7 +901,7 @@ proto_register_jfif(void)
 			{	"Marker segment",
 				IMG_JFIF "marker_segment",
 				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Marker segment",
+				NULL,
 				HFILL
 			}
 		},
@@ -1009,7 +1009,7 @@ proto_register_jfif(void)
 			{	"Start of Frame header",
 				IMG_JFIF ".sof",
 				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Start of Frame header",
+				NULL,
 				HFILL
 			}
 		},
@@ -1049,8 +1049,7 @@ proto_register_jfif(void)
 			{	"Component identifier",
 				IMG_JFIF ".sof.c_i",
 				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Assigns a unique label to the ith component in the sequence "
-				"of frame component specification parameters.",
+				"Assigns a unique label to the ith component in the sequence of frame component specification parameters.",
 				HFILL
 			}
 		},
@@ -1058,8 +1057,7 @@ proto_register_jfif(void)
 			{	"Horizontal sampling factor",
 				IMG_JFIF ".sof.h_i",
 				FT_UINT8, BASE_DEC, NULL, 0xF0,
-				"Specifies the relationship between the component horizontal "
-				"dimension and maximum image dimension X.",
+				"Specifies the relationship between the component horizontal dimension and maximum image dimension X.",
 				HFILL
 			}
 		},
@@ -1067,8 +1065,7 @@ proto_register_jfif(void)
 			{	"Vertical sampling factor",
 				IMG_JFIF ".sof.v_i",
 				FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"Specifies the relationship between the component vertical "
-				"dimension and maximum image dimension Y.",				
+				"Specifies the relationship between the component vertical dimension and maximum image dimension Y.",				
 				HFILL
 			}
 		},
@@ -1076,10 +1073,7 @@ proto_register_jfif(void)
 			{	"Quantization table destination selector",
 				IMG_JFIF ".sof.tq_i",
 				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Specifies one of four possible quantization table "
-				"destinations from which the quantization table to use "
-				"for dequantization of DCT coefficients of component Ci "
-				"is retrieved.",
+				"Specifies one of four possible quantization table destinations from which the quantization table to use for dequantization of DCT coefficients of component Ci is retrieved.",
 				HFILL
 			}
 		},
@@ -1089,7 +1083,7 @@ proto_register_jfif(void)
 			{	"Start of Segment header",
 				IMG_JFIF ".header.sos",
 				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Start of Segment header",
+				NULL,
 				HFILL
 			}
 		},
@@ -1105,8 +1099,7 @@ proto_register_jfif(void)
 			{	"Scan component selector",
 				IMG_JFIF ".sos.component_selector",
 				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Selects which of the Nf image components specified in the "
-				"frame parameters shall be the jth component in the scan.",
+				"Selects which of the Nf image components specified in the frame parameters shall be the jth component in the scan.",
 				HFILL
 			}
 		},
@@ -1114,10 +1107,7 @@ proto_register_jfif(void)
 			{	"DC entropy coding table destination selector",
 				IMG_JFIF ".sos.dc_entropy_selector",
 				FT_UINT8, BASE_DEC, NULL, 0xF0,
-				"Specifies one of four possible DC entropy coding table "
-				"destinations from which the entropy table needed "
-				"for decoding of the DC coefficients of component Csj "
-				"is retrieved.",
+				"Specifies one of four possible DC entropy coding table destinations from which the entropy table needed for decoding of the DC coefficients of component Csj is retrieved.",
 				HFILL
 			}
 		},
@@ -1125,10 +1115,7 @@ proto_register_jfif(void)
 			{	"AC entropy coding table destination selector",
 				IMG_JFIF ".sos.ac_entropy_selector",
 				FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"Specifies one of four possible AC entropy coding table "
-				"destinations from which the entropy table needed "
-				"for decoding of the AC coefficients of component Csj "
-				"is retrieved.",
+				"Specifies one of four possible AC entropy coding table destinations from which the entropy table needed for decoding of the AC coefficients of component Csj is retrieved.",
 				HFILL
 			}
 		},
@@ -1136,12 +1123,7 @@ proto_register_jfif(void)
 			{	"Start of spectral or predictor selection",
 				IMG_JFIF ".sos.ss",
 				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"In the DCT modes of operation, this parameter specifies the "
-				"first DCT coefficient in each block in zig-zag order which "
-				"shall be coded in the scan. This parameter shall be set to "
-				"zero for the sequential DCT processes. "
-				"In the lossless mode of operations this parameter is used "
-				"to select the predictor.",
+				"In the DCT modes of operation, this parameter specifies the first DCT coefficient in each block in zig-zag order which shall be coded in the scan. This parameter shall be set to zero for the sequential DCT processes. In the lossless mode of operations this parameter is used to select the predictor.",
 				HFILL
 			}
 		},
@@ -1149,11 +1131,7 @@ proto_register_jfif(void)
 			{	"End of spectral selection",
 				IMG_JFIF ".sos.se",
 				FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Specifies the last DCT coefficient in each block in zig-zag "
-				"order which shall be coded in the scan. This parameter shall "
-				"be set to 63 for the sequential DCT processes. "
-				"In the lossless mode of operations this parameter has no "
-				"meaning. It shall be set to zero.",
+				"Specifies the last DCT coefficient in each block in zig-zag order which shall be coded in the scan. This parameter shall be set to 63 for the sequential DCT processes. In the lossless mode of operations this parameter has no meaning. It shall be set to zero.",
 				HFILL
 			}
 		},
@@ -1161,13 +1139,7 @@ proto_register_jfif(void)
 			{	"Successive approximation bit position high",
 				IMG_JFIF ".sos.ah",
 				FT_UINT8, BASE_DEC, NULL, 0xF0,
-				"This parameter specifies the point transform used in the "
-				"preceding scan (i.e. successive approximation bit position "
-				"low in the preceding scan) for the band of coefficients "
-				"specified by Ss and Se. This parameter shall be set to zero "
-				"for the first scan of each band of coefficients. "
-				"In the lossless mode of operations this parameter has no "
-				"meaning. It shall be set to zero.",
+				"This parameter specifies the point transform used in the preceding scan (i.e. successive approximation bit position low in the preceding scan) for the band of coefficients specified by Ss and Se. This parameter shall be set to zero for the first scan of each band of coefficients. In the lossless mode of operations this parameter has no meaning. It shall be set to zero.",
 				HFILL
 			}
 		},
@@ -1175,12 +1147,7 @@ proto_register_jfif(void)
 			{	"Successive approximation bit position low or point transform",
 				IMG_JFIF ".sos.al",
 				FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"In the DCT modes of operation this parameter specifies the "
-				"point transform, i.e. bit position low, used before coding "
-				"the band of coefficients specified by Ss and Se. "
-				"This parameter shall be set to zero for the sequential DCT "
-				"processes. In the lossless mode of operations, this "
-				"parameter specifies the point transform, Pt.",
+				"In the DCT modes of operation this parameter specifies the point transform, i.e. bit position low, used before coding the band of coefficients specified by Ss and Se. This parameter shall be set to zero for the sequential DCT processes. In the lossless mode of operations, this parameter specifies the point transform, Pt.",
 				HFILL
 			}
 		},

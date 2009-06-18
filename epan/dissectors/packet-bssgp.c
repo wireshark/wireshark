@@ -6030,12 +6030,12 @@ proto_register_bssgp(void)
     { &hf_bssgp_pdu_type,
       { "PDU Type", "bssgp.pdu_type",
 	FT_UINT8, BASE_HEX, VALS(tab_bssgp_pdu_types), 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_iei_nacc_cause,
       { "NACC Cause", "bssgp.iei.nacc_cause",
 	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,
-	"NACC Cause", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_ie_type,
       { "IE Type", "bssgp.ie_type",
@@ -6045,37 +6045,37 @@ proto_register_bssgp(void)
     { &hf_bssgp_bvci,
       { "BVCI", "bssgp.bvci",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_tlli,
       { "TLLI", "bssgp.tlli",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_nsei,
       { "NSEI", "bssgp.nsei",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_mcc,
       { "MCC", "bssgp.mcc",
 	FT_UINT8, BASE_DEC, VALS(E212_codes), 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_mnc,
       { "MNC", "bssgp.mnc",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_lac,
       { "LAC", "bssgp.lac",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_rac,
       { "RAC", "bssgp.rac",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_ci,
       { "CI", "bssgp.ci",
@@ -6085,57 +6085,57 @@ proto_register_bssgp(void)
     { &hf_bssgp_ra_discriminator,
       { "Routing Address Discriminator", "bssgp.rad",
 	FT_UINT8, BASE_DEC, VALS(ra_discriminator_vals), 0x0f,
-	"Routing Address Discriminator", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_appid,
       { "Application ID", "bssgp.appid",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
-	"Application ID", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_rcid,
       { "Reporting Cell Identity", "bssgp.rcid",
 	FT_UINT64, BASE_HEX, NULL, 0x0,
-	"Reporting Cell Identity", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_rrc_si_msg_type,
       { "RRC SI type", "bssgp.rrc_si_type",
 	FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
-	"RRC SI type", HFILL }
+	NULL, HFILL }
     },
     { &hf_ran_inf_req_pdu_type_ext,
       { "PDU Type Extension", "bssgp.ran_inf_req_pdu_type_ext",
 	FT_UINT8, BASE_DEC, VALS(ran_inf_req_pdu_type_ext_vals), 0x0e,
-	"PDU Type Extension", HFILL }
+	NULL, HFILL }
     },
     { &hf_ran_inf_pdu_type_ext,
       { "PDU Type Extension", "bssgp.ran_req_pdu_type_ext",
 	FT_UINT8, BASE_DEC, VALS(ran_inf_pdu_type_ext_vals), 0x0e,
-	"PDU Type Extension", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_tmsi_ptmsi,
       { "TMSI/PTMSI", "bssgp.tmsi_ptmsi",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_imsi,
       { "IMSI", "bssgp.imsi",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_imei,
       { "IMEI", "bssgp.imei",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_imeisv,
       { "IMEISV", "bssgp.imeisv",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
     { &hf_bssgp_nri,
       { "NRI", "bssgp.nri",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL }
+	NULL, HFILL }
     },
   };
 

@@ -129,11 +129,11 @@ proto_register_ripng(void)
       { &hf_ripng_cmd,
 	{ "Command",		"ripng.cmd",
 				FT_UINT8, BASE_DEC, VALS(cmdvals),
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
       { &hf_ripng_version,
 	{ "Version",		"ripng.version",
 				FT_UINT8, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
       &ett_ripng,

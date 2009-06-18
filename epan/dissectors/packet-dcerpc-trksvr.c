@@ -69,7 +69,7 @@ proto_register_dcerpc_trksvr(void)
 static hf_register_info hf[] = {
 	{ &hf_trksvr_opnum, { 
 		"Operation", "trksvr.opnum", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_trksvr_rc, {
 		"Return code", "trksvr.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "TRKSVR return code", HFILL }},

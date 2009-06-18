@@ -1311,132 +1311,132 @@ proto_register_ipx(void)
 	static hf_register_info hf_ipx[] = {
 		{ &hf_ipx_checksum,
 		{ "Checksum",		"ipx.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_src,
-		{ "Source Address",	"ipx.src", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Source Address",	"ipx.src", FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Source IPX Address  \"network.node\"", HFILL }},
 
 		{ &hf_ipx_dst,
-		{ "Destination Address",	"ipx.dst", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Destination Address",	"ipx.dst", FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Destination IPX Address  \"network.node\"", HFILL }},
 		{ &hf_ipx_addr,
-		{ "Src/Dst Address",	"ipx.addr", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Src/Dst Address",	"ipx.addr", FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Source or Destination IPX Address  \"network.node\"", HFILL }},
 
 		{ &hf_ipx_len,
 		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_hops,
 		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_packet_type,
 		{ "Packet Type",	"ipx.packet_type", FT_UINT8, BASE_HEX, VALS(ipx_packet_type_vals),
 			0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_dnet,
 		{ "Destination Network","ipx.dst.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_dnode,
 		{ "Destination Node",	"ipx.dst.node", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_dsocket,
 		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX,
 			VALS(ipx_socket_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_snet,
 		{ "Source Network","ipx.src.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_snode,
 		{ "Source Node",	"ipx.src.node", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_ssocket,
 		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX,
 			VALS(ipx_socket_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_net,
 		{ "Source or Destination Network","ipx.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_node,
 		{ "Source or Destination Node", "ipx.node", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ipx_socket,
 		{ "Source or Destination Socket", "ipx.socket", FT_UINT16, BASE_HEX,
 			VALS(ipx_socket_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 	};
 
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
 		{ "Connection Control",		"spx.ctl",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_sys,
 		{ "System Packet",		"spx.ctl.sys",
 		  FT_BOOLEAN,	8,	NULL,	SPX_SYS_PACKET,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_send_ack,
 		{ "Send Ack",		"spx.ctl.send_ack",
 		  FT_BOOLEAN,	8,	NULL,	SPX_SEND_ACK,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_attn,
 		{ "Attention",		"spx.ctl.attn",
 		  FT_BOOLEAN,	8,	NULL,	SPX_ATTN,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_eom,
 		{ "End of Message",	"spx.ctl.eom",
 		  FT_BOOLEAN,	8,	NULL,	SPX_EOM,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_datastream_type,
 		{ "Datastream type",	       	"spx.type",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_src_id,
 		{ "Source Connection ID",	"spx.src",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_dst_id,
 		{ "Destination Connection ID",	"spx.dst",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_seq_nr,
 		{ "Sequence Number",		"spx.seq",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_ack_nr,
 		{ "Acknowledgment Number",	"spx.ack",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_all_nr,
 		{ "Allocation Number",		"spx.alloc",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_spx_rexmt_frame,
 		{ "Retransmitted Frame Number",	"spx.rexmt_frame",
 		  FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 	};
 
 	static hf_register_info hf_ipxrip[] = {
@@ -1467,12 +1467,12 @@ proto_register_ipx(void)
 		{ &hf_msg_conn,
 		{ "Connection Number",			"ipxmsg.conn",
 		  FT_UINT8,	BASE_DEC,	NULL,	0x0,
-		  "Connection Number", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_msg_sigchar,
 		{ "Signature Char",			"ipxmsg.sigchar",
 		  FT_UINT8,	BASE_DEC,	VALS(ipxmsg_sigchar_vals),	0x0,
-		  "Signature Char", HFILL }}
+		  NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

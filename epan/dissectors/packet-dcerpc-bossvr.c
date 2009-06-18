@@ -97,7 +97,7 @@ proto_register_bossvr (void)
 	static hf_register_info hf[] = {
 	  { &hf_bossvr_opnum,
 	    { "Operation", "bossvr.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

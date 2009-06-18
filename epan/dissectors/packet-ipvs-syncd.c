@@ -249,79 +249,79 @@ proto_register_ipvs_syncd(void)
 	static hf_register_info hf[] = {
 		{ &hf_conn_count,
 			{ "Connection Count", "ipvs.conncount", FT_UINT8, BASE_DEC,
-			  NULL, 0, "Connection Count", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_syncid,
 			{ "Synchronization ID", "ipvs.syncid", FT_UINT8, BASE_DEC,
-			  NULL, 0, "Synchronization ID", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_size,
 			{ "Size", "ipvs.size", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Size", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_resv8,
 			{ "Reserved", "ipvs.resv8", FT_UINT8, BASE_HEX,
-			  NULL, 0, "Reserved", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_proto,
 			{ "Protocol", "ipvs.proto", FT_UINT8, BASE_HEX,
-			  VALS(&proto_strings), 0, "Protocol", HFILL }},
+			  VALS(&proto_strings), 0, NULL, HFILL }},
 
 		{ &hf_cport,
 			{ "Client Port", "ipvs.cport", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Client Port", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_vport,
 			{ "Virtual Port", "ipvs.vport", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Virtual Port", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_dport,
 			{ "Destination Port", "ipvs.dport", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Destination Port", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_caddr,
-			{ "Client Address", "ipvs.caddr", FT_IPv4, BASE_HEX,
-			  NULL, 0, "Client Address", HFILL }},
+			{ "Client Address", "ipvs.caddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_vaddr,
-			{ "Virtual Address", "ipvs.vaddr", FT_IPv4, BASE_HEX,
-			  NULL, 0, "Virtual Address", HFILL }},
+			{ "Virtual Address", "ipvs.vaddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_daddr,
-			{ "Destination Address", "ipvs.daddr", FT_IPv4, BASE_HEX,
-			  NULL, 0, "Destination Address", HFILL }},
+			{ "Destination Address", "ipvs.daddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_flags,
 			{ "Flags", "ipvs.flags", FT_UINT16, BASE_HEX,
-			  NULL, 0, "Flags", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_state,
 			{ "State", "ipvs.state", FT_UINT16, BASE_HEX,
-			  VALS(&state_strings), 0, "State", HFILL }},
+			  VALS(&state_strings), 0, NULL, HFILL }},
 	
 		{ &hf_in_seq_init,
 			{ "Input Sequence (Initial)", "ipvs.in_seq.initial", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Input Sequence (Initial)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 		{ &hf_in_seq_delta,
 			{ "Input Sequence (Delta)", "ipvs.in_seq.delta", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Input Sequence (Delta)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 		{ &hf_in_seq_pdelta,
 			{ "Input Sequence (Previous Delta)", "ipvs.in_seq.pdelta", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Input Sequence (Previous Delta)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 		{ &hf_out_seq_init,
 			{ "Output Sequence (Initial)", "ipvs.out_seq.initial", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Output Sequence (Initial)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 		{ &hf_out_seq_delta,
 			{ "Output Sequence (Delta)", "ipvs.out_seq.delta", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Output Sequence (Delta)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 		{ &hf_out_seq_pdelta,
 			{ "Output Sequence (Previous Delta)", "ipvs.out_seq.pdelta", FT_UINT32, 
-				BASE_HEX, NULL, 0, "Output Sequence (Previous Delta)", HFILL }},
+				BASE_HEX, NULL, 0, NULL, HFILL }},
 	
 
 

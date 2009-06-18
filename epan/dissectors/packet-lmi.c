@@ -205,7 +205,7 @@ proto_register_lmi(void)
 
 	{ &hf_lmi_msg_type,
 	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0,
-	  	"Message Type", HFILL }},
+	  	NULL, HFILL }},
 
 	{ &hf_lmi_inf_ele,
 	  { "Type", "lmi.inf_ele_type", FT_UINT8, BASE_DEC, VALS(element_type_str), 0,
@@ -216,7 +216,7 @@ proto_register_lmi(void)
 
 	{ &hf_lmi_rcd_type,
 	  { "Record Type", "lmi.ele_rcd_type", FT_UINT8, BASE_DEC, VALS(record_type_str), 0,
-	  	"Record Type", HFILL }},
+	  	NULL, HFILL }},
 	{ &hf_lmi_send_seq,
 	  { "Send Seq", "lmi.send_seq", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Send Sequence", HFILL }},

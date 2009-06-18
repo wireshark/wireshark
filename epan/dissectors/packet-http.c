@@ -2281,7 +2281,7 @@ proto_register_http(void)
 		"TRUE if HTTP request", HFILL }},
 	    { &hf_http_basic,
 	      { "Credentials",		"http.authbasic",
-		FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	    { &hf_http_request_method,
 	      { "Request Method",	"http.request.method",
 		FT_STRING, BASE_NONE, NULL, 0x0,

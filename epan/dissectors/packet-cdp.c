@@ -1252,31 +1252,31 @@ proto_register_cdp(void)
     static hf_register_info hf[] = {
 	{ &hf_cdp_version,
 	{ "Version",		"cdp.version",  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_cdp_ttl,
 	{ "TTL",		"cdp.ttl", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_cdp_checksum,
 	{ "Checksum",		"cdp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_cdp_checksum_good,
 	  { "Good",       "cdp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 	
 	{ &hf_cdp_checksum_bad,
-	  { "Bad ",       "cdp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	  { "Bad",       "cdp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
 	
 	{ &hf_cdp_tlvtype,
 	{ "Type",		"cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
-	  "", HFILL }},
+	  NULL, HFILL }},
 
 	{ &hf_cdp_tlvlength,
 	{ "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "", HFILL }}
+	  NULL, HFILL }}
     };
     static gint *ett[] = {
 	&ett_cdp,

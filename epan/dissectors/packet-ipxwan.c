@@ -368,81 +368,81 @@ proto_register_ipxwan(void)
 	static hf_register_info hf[] = {
 	    { &hf_ipxwan_identifier,
 	      { "Identifier",	"ipxwan.identifier",
-		FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_packet_type,
 	      { "Packet Type", "ipxwan.packet_type",
-	        FT_UINT8, BASE_DEC, VALS(ipxwan_packet_type_vals), 0x0, "",
+	        FT_UINT8, BASE_DEC, VALS(ipxwan_packet_type_vals), 0x0, NULL,
 	        HFILL }},
 
 	    { &hf_ipxwan_node_id,
 	      { "Node ID", "ipxwan.node_id", FT_UINT32,
-	         BASE_HEX, NULL, 0x0, "", HFILL }},
+	         BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_sequence_number,
 	      { "Sequence Number", "ipxwan.sequence_number", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, "", HFILL }},
+	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_num_options,
 	      { "Number of Options", "ipxwan.num_options", FT_UINT8,
-	         BASE_DEC, NULL, 0x0, "", HFILL }},
+	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_option_num,
 	      { "Option Number", "ipxwan.option_num", FT_UINT8,
-	         BASE_HEX, VALS(ipxwan_option_num_vals), 0x0, "", HFILL }},
+	         BASE_HEX, VALS(ipxwan_option_num_vals), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_accept_option,
 	      { "Accept Option", "ipxwan.accept_option", FT_UINT8,
-	         BASE_DEC, VALS(ipxwan_accept_option_vals), 0x0, "", HFILL }},
+	         BASE_DEC, VALS(ipxwan_accept_option_vals), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_option_data_len,
 	      { "Option Data Length", "ipxwan.option_data_len", FT_UINT16,
-	         BASE_DEC, NULL, 0x0, "", HFILL }},
+	         BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_routing_type,
 	      { "Routing Type", "ipxwan.routing_type", FT_UINT8,
-	         BASE_DEC, VALS(ipxwan_routing_type_vals), 0x0, "", HFILL }},
+	         BASE_DEC, VALS(ipxwan_routing_type_vals), 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_wan_link_delay,
 	      { "WAN Link Delay", "ipxwan.rip_sap_info_exchange.wan_link_delay",
-	         FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_common_network_number,
 	      { "Common Network Number", "ipxwan.rip_sap_info_exchange.common_network_number",
-	         FT_IPXNET, BASE_NONE, NULL, 0x0, "", HFILL }},
+	         FT_IPXNET, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_router_name,
 	      { "Router Name", "ipxwan.rip_sap_info_exchange.router_name",
-	         FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_delay,
 	      { "Delay", "ipxwan.nlsp_information.delay",
-	         FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_throughput,
 	      { "Throughput", "ipxwan.nlsp_information.throughput",
-	         FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_request_size,
 	      { "Request Size", "ipxwan.nlsp_raw_throughput_data.request_size",
-	         FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_delta_time,
 	      { "Delta Time", "ipxwan.nlsp_raw_throughput_data.delta_time",
-	         FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_extended_node_id,
 	      { "Extended Node ID", "ipxwan.extended_node_id",
-	         FT_IPXNET, BASE_NONE, NULL, 0x0, "", HFILL }},
+	         FT_IPXNET, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_node_number,
 	      { "Node Number", "ipxwan.node_number",
-	         FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL }},
+	         FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	    { &hf_ipxwan_compression_type,
 	      { "Compression Type", "ipxwan.compression.type",
 	         FT_UINT8, BASE_DEC, VALS(ipxwan_compression_type_vals), 0x0,
-	         "", HFILL }},
+	         NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ipxwan,

@@ -1092,7 +1092,7 @@ proto_register_dlm3(void)
         NULL, HFILL}},
     { &hf_dlm3_m_extra,
       { "Extra Message", "dlm3.m.extra",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}},
 
     /* dlm_rcom */
@@ -1118,7 +1118,7 @@ proto_register_dlm3(void)
         NULL, HFILL}},
     { &hf_dlm3_rc_buf,
       { "Recovery Buffer", "dlm3.rc.buf",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}},
 
     /* rcom_config */
@@ -1178,7 +1178,7 @@ proto_register_dlm3(void)
         NULL, HFILL }},
     { &hf_dlm3_rl_name,
       { "Name of Resource", "dlm.rl.name",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_dlm3_rl_name_contents,
       { "Contents actually occupying `name' field", "dlm.rl.name_contents",
@@ -1186,11 +1186,11 @@ proto_register_dlm3(void)
         NULL, HFILL }},
     { &hf_dlm3_rl_name_padding,
       { "Padding", "dlm.rl.name_padding",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_dlm3_rl_lvb,
       { "Lock Value Block", "dlm.rl.lvb",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }}
   };
 

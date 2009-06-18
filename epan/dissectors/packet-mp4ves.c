@@ -897,17 +897,17 @@ proto_register_mp4ves(void)
 		{ &hf_mp4ves_config,
 		  { "Configuration",        "mp4ves.configuration", 
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Configuration", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_start_code_prefix,
 		  { "start code prefix",		"mp4ves.start_code_prefix", 
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "start code prefix", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_start_code,
 		  { "Start code",		"mp4ves.start_code", 
 		    FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&mp4ves_startcode_vals), 0x0,
-		    "Start code", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_vop_coding_type,
 		  { "vop_coding_type",		"mp4ves.vop_coding_type", 
@@ -917,32 +917,32 @@ proto_register_mp4ves(void)
 		{&hf_mp4ves_profile_and_level_indication,
 		 { "profile_and_level_indication",		"mp4ves.profile_and_level_indication",
 		   FT_UINT8, BASE_DEC,VALS(mp4ves_level_indication_vals), 0x0,
-		   "profile_and_level_indication", HFILL }
+		   NULL, HFILL }
 		},
 		{ &hf_mp4ves_is_visual_object_identifier,
 		  { "visual_object_identifier",		"mp4ves.visual_object_identifier",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "visual_object_identifier", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_visual_object_type,
 		  { "visual_object_type",		"mp4ves.visual_object_type",
 		    FT_UINT32, BASE_DEC, VALS(mp4ves_visual_object_type_vals), 0x0,
-		    "visual_object_type", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_video_signal_type,
 		  { "video_signal_type",		"mp4ves.video_signal_type",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "video_signal_type", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_stuffing,
 		  { "Stuffing",		"mp4ves.stuffing",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Stuffing", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_video_object_type_indication,
 		  { "video_object_type_indication",		"mp4ves.video_object_type_indication",
 		    FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_type_indication_vals), 0x0,
-		    "video_object_type_indication", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_random_accessible_vol,
 		  { "random_accessible_vol",		"mp4ves.random_accessible_vol",
@@ -952,22 +952,22 @@ proto_register_mp4ves(void)
 		{ &hf_mp4ves_is_object_layer_identifier,
 		  { "is_object_layer_identifier",		"mp4ves.is_object_layer_identifier",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "is_object_layer_identifier", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_aspect_ratio_info,
 		  { "aspect_ratio_info",		"mp4ves.aspect_ratio_info",
 		    FT_UINT8, BASE_DEC, VALS(mp4ves_aspect_ratio_info_vals), 0x0,
-		    "aspect_ratio_info", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_vol_control_parameters,
 		  { "vol_control_parameters",		"mp4ves.vol_control_parameters",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "vol_control_parameters", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_video_object_layer_shape,
 		  { "video_object_layer_shape",		"mp4ves.video_object_layer_shape",
 		    FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_layer_shape_vals), 0x0,
-		    "video_object_layer_shape", HFILL }
+		    NULL, HFILL }
 		},
 	};
 

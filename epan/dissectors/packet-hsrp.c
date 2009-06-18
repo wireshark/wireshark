@@ -648,16 +648,16 @@ void proto_register_hsrp(void)
                 { &hf_hsrp_reserved,
                   { "Reserved", "hsrp.reserved",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Reserved", HFILL }},
+                    NULL, HFILL }},
 
                 { &hf_hsrp_auth_data,
                   { "Authentication Data", "hsrp.auth_data",
-                    FT_STRING, 0, NULL, 0x0,
+                    FT_STRING, BASE_NONE, NULL, 0x0,
                     "Contains a clear-text 8 character reused password", HFILL }},
 
                 { &hf_hsrp_virt_ip_addr,
                   { "Virtual IP Address", "hsrp.virt_ip",
-                    FT_IPv4, 0, NULL, 0x0,
+                    FT_IPv4, BASE_NONE, NULL, 0x0,
                     "The virtual IP address used by this group", HFILL }},
 
 		{ &hf_hsrp_adv_type,
@@ -713,22 +713,22 @@ void proto_register_hsrp(void)
                 { &hf_hsrp2_group_state_tlv,
                   { "Group State TLV", "hsrp2.group_state_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Group State TLV", HFILL }},
+                    NULL, HFILL }},
 
                 { &hf_hsrp2_interface_state_tlv,
                   { "Interface State TLV", "hsrp2.interface_state_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Interface State TLV", HFILL }},
+                    NULL, HFILL }},
 
                 { &hf_hsrp2_text_auth_tlv,
                   { "Text Authentication TLV", "hsrp2.text_auth_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Text Authentication TLV", HFILL }},
+                    NULL, HFILL }},
 
                 { &hf_hsrp2_md5_auth_tlv,
                   { "MD5 Authentication TLV", "hsrp2.md5_auth_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "MD5 Authentication TLV", HFILL }},
+                    NULL, HFILL }},
 
                 { &hf_hsrp2_ipversion,
                   { "IP Ver.", "hsrp2.ipversion",
@@ -762,17 +762,17 @@ void proto_register_hsrp(void)
 
                 { &hf_hsrp2_auth_data,
                   { "Authentication Data", "hsrp2.auth_data",
-                    FT_STRING, 0, NULL, 0x0,
+                    FT_STRING, BASE_NONE, NULL, 0x0,
                     "Contains a clear-text 8 character reused password", HFILL }},
 
                 { &hf_hsrp2_virt_ip_addr,
                   { "Virtual IP Address", "hsrp2.virt_ip",
-                    FT_IPv4, 0, NULL, 0x0,
+                    FT_IPv4, BASE_NONE, NULL, 0x0,
                     "The virtual IP address used by this group", HFILL }},
 
                 { &hf_hsrp2_virt_ip_addr_v6,
                   { "Virtual IPv6 Address", "hsrp2.virt_ip_v6",
-                    FT_IPv6, 0, NULL, 0x0,
+                    FT_IPv6, BASE_NONE, NULL, 0x0,
                     "The virtual IPv6 address used by this group", HFILL }},
 
                 { &hf_hsrp2_active_group,
@@ -797,7 +797,7 @@ void proto_register_hsrp(void)
 
                 { &hf_hsrp2_md5_ip_address,
                   { "Sender's IP Address", "hsrp.md5_ip_address",
-                    FT_IPv4, 0, NULL, 0x0,
+                    FT_IPv4, BASE_NONE, NULL, 0x0,
                     "IP Address of the sender interface", HFILL }},
 
                 { &hf_hsrp2_md5_key_id,

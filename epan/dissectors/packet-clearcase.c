@@ -56,7 +56,7 @@ proto_register_clearcase(void)
 	static hf_register_info hf[] = {
 		{ &hf_clearcase_procedure_v3, {
 			"V3 Procedure", "clearcase.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(clearcase3_proc_vals), 0, "V3 Procedure", HFILL }}
+			VALS(clearcase3_proc_vals), 0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

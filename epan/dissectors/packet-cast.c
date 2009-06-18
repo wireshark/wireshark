@@ -1294,7 +1294,7 @@ proto_register_cast(void)
     { &hf_cast_layout,
       { "Layout", "cast.layout",
 	FT_UINT32, BASE_DEC, VALS(cast_Layouts), 0x0,
-	"Layout",
+	NULL,
 	HFILL }
     },
 
@@ -1315,7 +1315,7 @@ proto_register_cast(void)
     { &hf_cast_transmitOrReceive,
       { "TransmitOrReceive", "cast.transmitOrReceive",
 	FT_UINT32, BASE_DEC, VALS(cast_transmitOrReceive), 0x0,
-	"TransmitOrReceive",
+	NULL,
 	HFILL }
     },
 
@@ -1483,7 +1483,7 @@ proto_register_cast(void)
     { &hf_cast_miscCommandType,
       { "MiscCommandType", "cast.miscCommandType",
 	FT_UINT32, BASE_DEC, VALS(cast_miscCommandType), 0x0,
-	"MiscCommandType",
+	NULL,
 	HFILL }
     },
 
@@ -1700,14 +1700,14 @@ proto_register_cast(void)
     { &hf_cast_requestorIpAddress,
       { "RequestorIpAddress", "cast.requestorIpAddress",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"RequestorIpAddress",
+	NULL,
 	HFILL }
     },
 
     { &hf_cast_stationIpAddress,
       { "StationIpAddress", "cast.stationIpAddress",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"StationIpAddress",
+	NULL,
 	HFILL }
     },
 

@@ -1206,7 +1206,7 @@ proto_register_mpls_echo(void)
 		},
                 { &hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
                         { "Extended Tunnel ID", "mpls_echo.tlv.fec.rsvp_ipv6_ext_tun_id",
-                        FT_BYTES, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv6 Extended Tunnel ID", HFILL}
+                        FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP IPv6 Extended Tunnel ID", HFILL}
                 },
                 { &hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
                         { "IPv6 Tunnel sender address", "mpls_echo.tlv.fec.rsvp_ipv6_sender",
@@ -1336,7 +1336,7 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_tlv_ds_map_mp_mask,
                         { "Mask", "mpls_echo.tlv.ds_map_mp.mask",
-                        FT_BYTES, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV Downstream Map Multipath Mask", HFILL}
+                        FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Downstream Map Multipath Mask", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ds_map_mp_ip_low,
                         { "IP Address Low", "mpls_echo.tlv.ds_map_mp.ip_low",

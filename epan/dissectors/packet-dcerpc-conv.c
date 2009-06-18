@@ -176,23 +176,23 @@ proto_register_conv (void)
 {
 	static hf_register_info hf[] = {
         { &hf_conv_opnum,
-            { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+            { "Operation", "conv.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_conv_rc,
-            {"Status", "conv.status", FT_UINT32, BASE_DEC, VALS(dce_error_vals), 0x0, "", HFILL }},
+            {"Status", "conv.status", FT_UINT32, BASE_DEC, VALS(dce_error_vals), 0x0, NULL, HFILL }},
 
         { &hf_conv_who_are_you_rqst_actuid,
             {"Activity UID", "conv.who_are_you_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you_rqst_boot_time,
-            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_conv_who_are_you2_rqst_actuid,
             {"Activity UID", "conv.who_are_you2_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you2_rqst_boot_time,
-            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_conv_who_are_you_resp_seq,
-            {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+            {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_conv_who_are_you2_resp_seq,
-            {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+            {"Sequence Number", "conv.who_are_you2_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_conv_who_are_you2_resp_casuuid,
             {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }}
 	};

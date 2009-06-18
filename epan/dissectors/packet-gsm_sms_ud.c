@@ -500,14 +500,14 @@ proto_register_gsm_sms_ud(void)
 	{   &hf_gsm_sms_udh_ports_src,
 	    {	"Source port", "gsm-sms-ud.udh.ports.src",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Source port",
+		NULL,
 		HFILL
 	    }
 	},
 	{   &hf_gsm_sms_udh_ports_dst,
 	    {	"Destination port", "gsm-sms-ud.udh.ports.dst",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Destination port",
+		NULL,
 		HFILL
 	    }
 	},
@@ -530,7 +530,7 @@ proto_register_gsm_sms_ud(void)
 	},
 	{	&hf_gsm_sms_ud_fragment_overlap,
 		{	"Short Message fragment overlap", "gsm-sms-ud.fragment.overlap",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"GSM Short Message fragment overlaps with other fragment(s)",
 			HFILL
 		}
@@ -538,7 +538,7 @@ proto_register_gsm_sms_ud(void)
 	{	&hf_gsm_sms_ud_fragment_overlap_conflicts,
 		{	"Short Message fragment overlapping with conflicting data",
 			"gsm-sms-ud.fragment.overlap.conflicts",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"GSM Short Message fragment overlaps with conflicting data",
 			HFILL
 		}
@@ -546,7 +546,7 @@ proto_register_gsm_sms_ud(void)
 	{	&hf_gsm_sms_ud_fragment_multiple_tails,
 		{	"Short Message has multiple tail fragments",
 			"gsm-sms-ud.fragment.multiple_tails",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"GSM Short Message fragment has multiple tail fragments",
 			HFILL
 		}
@@ -554,7 +554,7 @@ proto_register_gsm_sms_ud(void)
 	{	&hf_gsm_sms_ud_fragment_too_long_fragment,
 		{	"Short Message fragment too long",
 			"gsm-sms-ud.fragment.too_long_fragment",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"GSM Short Message fragment data goes beyond the packet end",
 			HFILL
 		}

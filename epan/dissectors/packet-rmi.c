@@ -334,7 +334,7 @@ proto_register_rmi(void)
 	    "RMI Endpointidentifier Length", HFILL }},
 	{ &hf_rmi_epid_hostname,
 	  { "Hostname", "rmi.endpoint_id.hostname",
-	    FT_STRING, BASE_HEX, NULL, 0x0,
+	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "RMI Endpointidentifier Hostname", HFILL }},
 	{ &hf_rmi_epid_port,
 	  { "Port", "rmi.endpoint_id.port",

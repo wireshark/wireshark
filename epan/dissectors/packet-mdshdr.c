@@ -288,22 +288,22 @@ proto_register_mdshdr(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_mdshdr_sof,
-          {"SOF", "mdshdr.sof", FT_UINT8, BASE_DEC, VALS(sof_vals), 0x0, "", HFILL}},
+          {"SOF", "mdshdr.sof", FT_UINT8, BASE_DEC, VALS(sof_vals), 0x0, NULL, HFILL}},
         { &hf_mdshdr_pkt_len,
-          {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x1FFF, "", HFILL}},
+          {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL}},
         { &hf_mdshdr_dstidx,
-          {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0xFFC, "", HFILL}},
+          {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0xFFC, NULL, HFILL}},
         { &hf_mdshdr_srcidx,
-          {"Src Index", "mdshdr.srcidx", FT_UINT16, BASE_HEX, NULL, 0x3FF, "", HFILL}},
+          {"Src Index", "mdshdr.srcidx", FT_UINT16, BASE_HEX, NULL, 0x3FF, NULL, HFILL}},
         { &hf_mdshdr_vsan,
-          {"VSAN", "mdshdr.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, "", HFILL}},
+          {"VSAN", "mdshdr.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL}},
         { &hf_mdshdr_eof,
-          {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, "", HFILL}},
+          {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, NULL, HFILL}},
         { &hf_mdshdr_span,
           {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
-           "", HFILL}},
+           NULL, HFILL}},
         { &hf_mdshdr_fccrc,
-          {"CRC", "mdshdr.crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+          {"CRC", "mdshdr.crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     };
 
 /* Setup protocol subtree array */

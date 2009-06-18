@@ -283,31 +283,31 @@ proto_register_x224(void)
 	{
 	{ &hf_x224_length, {
 	"Length", "x224.length", FT_UINT8, BASE_DEC,
-	NULL, 0, "", HFILL }},
+	NULL, 0, NULL, HFILL }},
 
 	{ &hf_x224_code, {
 	"Code", "x224.code", FT_UINT8, BASE_HEX,
-	VALS(code_vals), 0xf0, "", HFILL }},
+	VALS(code_vals), 0xf0, NULL, HFILL }},
 
 	{ &hf_x224_src_ref, {
 	"SRC-REF", "x224.src_ref", FT_UINT16, BASE_HEX,
-	NULL, 0, "", HFILL }},
+	NULL, 0, NULL, HFILL }},
 
 	{ &hf_x224_dst_ref, {
 	"DST-REF", "x224.dst_ref", FT_UINT16, BASE_HEX,
-	NULL, 0, "", HFILL }},
+	NULL, 0, NULL, HFILL }},
 
 	{ &hf_x224_class, {
 	"Class", "x224.class", FT_UINT8, BASE_HEX,
-	VALS(class_option_vals), 0xf0, "", HFILL }},
+	VALS(class_option_vals), 0xf0, NULL, HFILL }},
 
 	{ &hf_x224_nr, {
 	"NR", "x224.nr", FT_UINT8, BASE_HEX,
-	NULL, 0x7f, "", HFILL }},
+	NULL, 0x7f, NULL, HFILL }},
 
 	{ &hf_x224_eot, {
 	"EOT", "x224.eot", FT_BOOLEAN, 8,
-	NULL, 0x80, "", HFILL }},
+	NULL, 0x80, NULL, HFILL }},
 
 	};
 

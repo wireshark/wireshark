@@ -173,11 +173,11 @@ proto_register_qllc(void)
 	static hf_register_info hf[] = {
 	    { &hf_qllc_address,
 		{ "Address Field",	"qllc.address", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_qllc_control,
 		{ "Control Field",	"qllc.control", FT_UINT8, BASE_HEX,
-		  VALS(qllc_control_vals), 0x0, "", HFILL }},
+		  VALS(qllc_control_vals), 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

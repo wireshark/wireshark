@@ -674,7 +674,7 @@ proto_register_pgsql(void)
 {
     static hf_register_info hf[] = {
         { &hf_frontend,
-          { "Frontend", "pgsql.frontend", FT_BOOLEAN, BASE_NONE, NULL, 0,
+          { "Frontend", "pgsql.frontend", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "True for messages from the frontend, false otherwise.",
             HFILL }
         },
@@ -711,7 +711,7 @@ proto_register_pgsql(void)
             "The type of authentication requested by the backend.", HFILL }
         },
         { &hf_salt,
-          { "Salt value", "pgsql.salt", FT_BYTES, BASE_HEX, NULL, 0,
+          { "Salt value", "pgsql.salt", FT_BYTES, BASE_NONE, NULL, 0,
             "The salt to use while encrypting a password.", HFILL }
         },
         { &hf_statement,

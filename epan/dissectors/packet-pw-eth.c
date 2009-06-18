@@ -146,7 +146,7 @@ proto_register_pw_eth(void)
                         {
                                 "PW (ethernet)", 
                                 "pweth", FT_BOOLEAN, 
-                                0, NULL, 0x0, NULL, HFILL
+                                BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
                 {
@@ -154,7 +154,7 @@ proto_register_pw_eth(void)
                         {
                                 "PW Control Word (ethernet)", 
                                 "pweth.cw", FT_BOOLEAN, 
-                                0, NULL, 0x0, NULL, HFILL
+                                BASE_NONE, NULL, 0x0, NULL, HFILL
                         }
                 },
                 {

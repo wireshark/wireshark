@@ -295,7 +295,7 @@ void proto_register_armagetronad(void)
 		 },
 		{&hf_armagetronad_data,
 		 {"Data", "armagetronad.data",
-		  FT_STRING, BASE_HEX, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  "The actual data (array of shorts in network order)", HFILL}
 		 },
 		{&hf_armagetronad_sender_id,
@@ -305,7 +305,7 @@ void proto_register_armagetronad(void)
 		 },
 		{&hf_armagetronad_msg_subtree,
 		 {"Message", "armagetronad.message",
-		  FT_NONE, 0, NULL, 0x0,
+		  FT_NONE, BASE_NONE, NULL, 0x0,
 		  "A message", HFILL}
 		 }
 	};

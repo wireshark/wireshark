@@ -207,7 +207,7 @@ proto_register_laplink(void)
 		},
 		{ &hf_laplink_tcp_data,
 			{ "Unknown TCP data", "laplink.tcp_data",
-			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			FT_BYTES, BASE_NONE, NULL, 0x0,          
 			"TCP data", HFILL }
 		},
 	};

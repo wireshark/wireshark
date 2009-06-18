@@ -1920,51 +1920,51 @@ isis_register_lsp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_lsp_pdu_length,
 		{ "PDU length",		"isis.lsp.pdu_length", FT_UINT16,
-		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_remaining_life,
 		{ "Remaining lifetime",	"isis.lsp.remaining_life", FT_UINT16,
-		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_lsp_id,
 		{ "LSP-ID", "isis.lsp.lsp_id", FT_STRING,
-		  BASE_NONE, NULL, 0x0, "", HFILL }},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_hostname,
 		{ "Hostname", "isis.lsp.hostname", FT_STRING,
-		  BASE_NONE, NULL, 0x0, "", HFILL }},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_sequence_number,
 		{ "Sequence number",           "isis.lsp.sequence_number",
-		  FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_checksum,
 		{ "Checksum",		"isis.lsp.checksum",FT_UINT16,
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		  
 		{ &hf_isis_lsp_checksum_good,
 		{ "Good Checksum", "isis.lsp.checksum_good", FT_BOOLEAN, BASE_NONE,
-			NULL, 0, "Good IS-IS LSP Checksum", HFILL }},
+			NULL, 0x0, "Good IS-IS LSP Checksum", HFILL }},
 
 		{ &hf_isis_lsp_checksum_bad,
 		{ "Bad Checksum", "isis.lsp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			NULL, 0, "Bad IS-IS LSP Checksum", HFILL }},
+			NULL, 0x0, "Bad IS-IS LSP Checksum", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
 		{ "IPv4 interface address", "isis.lsp.clv_ipv4_int_addr", FT_IPv4,
-		   BASE_NONE, NULL, 0x0, "", HFILL }},
+		   BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv6_int_addr,
 		{ "IPv6 interface address", "isis.lsp.clv_ipv6_int_addr", FT_IPv6,
-		   BASE_NONE, NULL, 0x0, "", HFILL }},
+		   BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_clv_te_router_id,
 		{ "Traffic Engineering Router ID", "isis.lsp.clv_te_router_id", FT_IPv4,
-		   BASE_NONE, NULL, 0x0, "", HFILL }},
+		   BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_clv_mt,
-		{ "MT-ID                     ", "isis.lsp.clv_mt",
-			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "MT-ID", "isis.lsp.clv_mt",
+			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
@@ -1974,7 +1974,7 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_att,
 		{ "Attachment",	"isis.lsp.att", FT_UINT8, BASE_DEC,
 			NULL, ISIS_LSP_ATT_MASK,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_isis_lsp_hippity,
 		{ "Overload bit",	"isis.lsp.overload", FT_BOOLEAN, 8,
@@ -1984,7 +1984,7 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_is_type,
 		{ "Type of Intermediate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
 			VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
-			"", HFILL }}
+			NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,

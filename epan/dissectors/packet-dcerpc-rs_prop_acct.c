@@ -64,7 +64,7 @@ proto_register_rs_prop_acct (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_prop_acct_opnum,
-		{ "Operation", "rs_prop_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_prop_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

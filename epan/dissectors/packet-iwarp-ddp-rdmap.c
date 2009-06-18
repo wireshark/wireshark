@@ -690,15 +690,15 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_rsvdulp, {
 				"Reserved for use by the ULP", "iwarp_ddp.rsvdulp",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_stag, {
 				"(Data Sink) Steering Tag", "iwarp_ddp.stag",
-				FT_BYTES, BASE_DEC, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_to, {
 				"(Data Sink) Tagged offset", "iwarp_ddp.tagged_offset",
-				FT_BYTES, BASE_DEC, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_qn, {
 				"Queue number", "iwarp_ddp.qn",
@@ -737,7 +737,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				"RDMA OpCode Field", HFILL} },
 		{ &hf_iwarp_rdma_reserved, {
 				"Reserved", "iwarp_rdma.reserved",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_inval_stag, {
 				"Invalidate STag", "iwarp_rdma.inval_stag",
@@ -769,7 +769,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_srcto, {
 				"Data Source Tagged Offset", "iwarp_rdma.srcto",
-				FT_BYTES, BASE_DEC, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_term_ctrl, {
 				"Terminate Control", "iwarp_rdma.term_ctrl",
@@ -840,15 +840,15 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_term_ddp_seg_len, {
 				"DDP Segment Length", "iwarp_rdma.term_ddp_seg_len",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_term_ddp_h, {
 				"Terminated DDP Header", "iwarp_rdma.term_ddp_h",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_term_rdma_h, {
 				"Terminated RDMA Header", "iwarp_rdma.term_rdma_h",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL} }
 	};
 

@@ -3432,7 +3432,7 @@ proto_register_netflow(void)
 		{&hf_cflow_flowset_id,
 		 {"FlowSet Id", "cflow.flowset_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "FlowSet Id", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_data_flowset_id,
 		 {"Data FlowSet (Template Id)", "cflow.data_flowset_id",
@@ -3447,12 +3447,12 @@ proto_register_netflow(void)
 		{&hf_cflow_options_flowset_id,
 		 {"Options FlowSet", "cflow.options_flowset_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Options FlowSet", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_template_flowset_id,
 		 {"Template FlowSet", "cflow.template_flowset_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Template FlowSet", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_flowset_length,
 		 {"FlowSet Length", "cflow.flowset_length",
@@ -3462,7 +3462,7 @@ proto_register_netflow(void)
 		{&hf_cflow_template_id,
 		 {"Template Id", "cflow.template_id",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Template Id", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_template_field_count,
 		 {"Field Count", "cflow.template_field_count",
@@ -3514,22 +3514,22 @@ proto_register_netflow(void)
 		{&hf_cflow_sampling_interval,
 		 {"Sampling interval", "cflow.sampling_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Sampling interval", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_algorithm,
 		 {"Sampling algorithm", "cflow.sampling_algorithm",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Sampling algorithm", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_flow_active_timeout,
 		 {"Flow active timeout", "cflow.flow_active_timeout",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Flow active timeout", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_flow_inactive_timeout,
 		 {"Flow inactive timeout", "cflow.flow_inactive_timeout",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Flow inactive timeout", HFILL}
+		  NULL, HFILL}
 		},
 
 		/*
@@ -3673,7 +3673,7 @@ proto_register_netflow(void)
 		{&hf_cflow_tcpflags,
 		 {"TCP Flags", "cflow.tcpflags",
 		  FT_UINT8, BASE_HEX, NULL, 0x0,
-		  "TCP Flags", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_srcas,
 		 {"SrcAS", "cflow.srcas",
@@ -3726,7 +3726,7 @@ proto_register_netflow(void)
 		  "Octets exported", HFILL}
 		 },
 		{&hf_cflow_octets_exp64,
-		 {"OctetsExp ", "cflow.octetsexp",
+		 {"OctetsExp", "cflow.octetsexp",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Octets exported", HFILL}
 		 },
@@ -3741,12 +3741,12 @@ proto_register_netflow(void)
 		  "Packets exported", HFILL}
 		 },
 		{&hf_cflow_flows_exp,
-		 {"FlowsExp  ", "cflow.flowsexp",
+		 {"FlowsExp", "cflow.flowsexp",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Flows exported", HFILL}
 		},
 		{&hf_cflow_flows_exp64,
-		 {"FlowsExp  ", "cflow.flowsexp",
+		 {"FlowsExp", "cflow.flowsexp",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Flows exported", HFILL}
 		},
@@ -3802,27 +3802,27 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_ip_version ,
 		 {"IPVersion", "cflow.ip_version",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "IP Version", HFILL}
 		 },
 		{&hf_cflow_direction ,
 		 {"Direction", "cflow.direction",
 		  FT_UINT8, BASE_DEC, VALS(v9_direction), 0x0,
-		  "Direction", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_if_name ,
 		 {"IfName", "cflow.if_name",
-		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  FT_STRINGZ/*FT_BYTES*/, BASE_NONE, NULL, 0x0,
 		  "SNMP Interface Name", HFILL}
 		 },
 		{&hf_cflow_if_descr ,
 		 {"IfDescr", "cflow.if_descr",
-		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  FT_STRINGZ/*FT_BYTES*/, BASE_NONE, NULL, 0x0,
 		  "SNMP Interface Description", HFILL}
 		 },
 		{&hf_cflow_sampler_name ,
 		 {"SamplerName", "cflow.sampler_name",
-		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  FT_STRINGZ/*FT_BYTES*/, BASE_NONE, NULL, 0x0,
 		  "Sampler Name", HFILL}
 		 },
 		{&hf_cflow_forwarding_status ,
@@ -3847,7 +3847,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_flow_exporter,
 		 {"FlowExporter", "cflow.flow_exporter",
-		  FT_BYTES/*FT_IPv4*/, BASE_HEX, NULL, 0x0,
+		  FT_BYTES/*FT_IPv4*/, BASE_NONE, NULL, 0x0,
 		  "Flow Exporter", HFILL}
 		 },
 		{&hf_cflow_icmp_ipv4_type,
@@ -3896,7 +3896,7 @@ proto_register_netflow(void)
 		  "IP DSCP", HFILL}
 		},
 		{&hf_cflow_octets_squared64,
-		 {"OctetsSquared  ", "cflow.octets_squared",
+		 {"OctetsSquared", "cflow.octets_squared",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Octets Squared", HFILL}
 		},
@@ -3913,21 +3913,21 @@ proto_register_netflow(void)
 		{&hf_cflow_ip_header_words,
 		 {"IPHeaderLen", "cflow.ip_header_words",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "IPHeaderLen", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_option_map,
 		 {"OptionMap", "cflow.option_map",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Map", HFILL}
 		},
 		{&hf_cflow_section_header ,
 		 {"SectionHeader", "cflow.section_header",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Header of Packet", HFILL}
 		 },
 		{&hf_cflow_section_payload ,
 		 {"SectionPayload", "cflow.section_payload",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Payload of Packet", HFILL}
 		 },
 		/* IPFIX Information Elements */
@@ -3969,46 +3969,46 @@ proto_register_netflow(void)
 		{&hf_cflow_srcmac,
 		 {"Source Mac Address", "cflow.srcmac",
 		  FT_ETHER, BASE_DEC, NULL, 0x0,
-		  "Source Mac Address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_dstmac,
 		 {"Post Destination Mac Address", "cflow.post_dstmac",
 		  FT_ETHER, BASE_DEC, NULL, 0x0,
-		  "Post Destination Mac Address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_vlanid,
 		 {"Vlan Id", "cflow.vlanid",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_vlanid,
 		 {"Post Vlan Id", "cflow.post_vlanid",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Post Vlan Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ipv6_exthdr,
 		 {"IPv6 Extension Headers", "cflow.ipv6_exthdr",
 		  FT_UINT32, BASE_HEX, NULL, 0x0,
-		  "IPv6 Extension Headers", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_dstmac,
 		 {"Destination Mac Address", "cflow.dstmac",
 		  FT_ETHER, BASE_DEC, NULL, 0x0,
-		  "Destination Mac Address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_post_srcmac,
 		 {"Post Source Mac Address", "cflow.post_srcmac",
 		  FT_ETHER, BASE_DEC, NULL, 0x0,
-		  "Post Source Mac Address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_fragment_offset,
 		 {"Fragment Offset", "cflow.fragment_offset",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Fragment Offset", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_mpls_vpn_rd,
 		 {"MPLS VPN RD", "cflow.mpls_vpn_rd",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "MPLS VPN Route Distinguisher", HFILL}
 		},
 		{&hf_cflow_exporter_addr,
@@ -4044,17 +4044,17 @@ proto_register_netflow(void)
 		{&hf_cflow_flow_end_reason,
 		 {"Flow End Reason", "cflow.flow_end_reason",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Flow End Reason", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_common_properties_id,
 		 {"Common Properties Id", "cflow.common_properties_id",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Common Properties Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_observation_point_id,
 		 {"Observation Point Id", "cflow.observation_point_id",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Observation Point Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_mpls_pe_addr_v6,
 		 {"TopLabelAddr", "cflow.toplabeladdr",
@@ -4064,27 +4064,27 @@ proto_register_netflow(void)
 		{&hf_cflow_port_id,
 		 {"Port Id", "cflow.port_id",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Port Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_mp_id,
 		 {"Metering Process Id", "cflow.mp_id",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Metering Process Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_wlan_channel_id,
 		 {"Wireless LAN Channel Id", "cflow.wlan_channel_id",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Wireless LAN Channel Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_wlan_ssid,
 		 {"Wireless LAN SSId", "cflow.wlan_ssid",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "Wireless LAN SSId", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_flow_id,
 		 {"Flow Id", "cflow.flow_id",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Flow Id", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_od_id,
 		 {"Observation Domain Id", "cflow.od_id",
@@ -4209,17 +4209,17 @@ proto_register_netflow(void)
 		{&hf_cflow_tcp_seq_num,
 		 {"TCP Sequence Number", "cflow.tcp_seq_num",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "TCP Sequence Number", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_tcp_ack_num,
 		 {"TCP Acknowledgement Number", "cflow.tcp_seq_num",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "TCP Acknowledgement Number", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_tcp_urg_ptr,
 		 {"TCP Urgent Pointer", "cflow.tcp_urg_ptr",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "TCP Urgent Pointer", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_tcp_header_length,
 		 {"TCP Header Length", "cflow.tcp_header_length",
@@ -4278,7 +4278,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_tcp_option_map,
 		 {"TCP OptionMap", "cflow.tcp_option_map",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "TCP Option Map", HFILL}
 		},
 		{&hf_cflow_collector_addr,
@@ -4354,14 +4354,14 @@ proto_register_netflow(void)
 		{&hf_cflow_biflow_direction,
 		 {"Biflow Direction", "cflow.biflow_direction",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Biflow Direction", HFILL}
+		  NULL, HFILL}
 		},
 		/*
 		 * end pdu content storage
 		 */
 		{&hf_cflow_scope_system ,
 		 {"ScopeSystem", "cflow.scope_system",
-		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Option Scope System", HFILL}
 		 },
 		{&hf_cflow_scope_interface ,
@@ -4371,17 +4371,17 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_scope_linecard ,
 		 {"ScopeLinecard", "cflow.scope_linecard",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope Linecard", HFILL}
 		 },
 		{&hf_cflow_scope_cache ,
 		 {"ScopeCache", "cflow.scope_cache",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope Cache", HFILL}
 		 },
 		{&hf_cflow_scope_template ,
 		 {"ScopeTemplate", "cflow.scope_template",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope Template", HFILL}
 		 },
 		/* IPFIX */
@@ -4398,7 +4398,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_scope_unknown ,
 		 {"Scope Unknown", "cflow.scope",
-		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope Unknown", HFILL}
 		 },
 
@@ -4407,25 +4407,25 @@ proto_register_netflow(void)
 		/* CACE Technologies, 32622 / 0 */
 		{&hf_pie_cace_local_ipv4_address,
 		 {"Local IPv4 Address", "cflow.pie.cace.localaddr4",
-		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Local IPv4 Address (caceLocalIPv4Address)", HFILL}
 		},
 		/* CACE Technologies, 32622 / 1 */
 		{&hf_pie_cace_remote_ipv4_address,
 		 {"Remote IPv4 Address", "cflow.pie.cace.remoteaddr4",
-		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Remote IPv4 Address (caceRemoteIPv4Address)", HFILL}
 		},
 		/* CACE Technologies, 32622 / 2 */
 		{&hf_pie_cace_local_ipv6_address,
 		 {"Local IPv6 Address", "cflow.pie.cace.localaddr6",
-		  FT_IPv6, BASE_HEX, NULL, 0x0,
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		  "Local IPv6 Address (caceLocalIPv6Address)", HFILL}
 		},
 		/* CACE Technologies, 32622 / 3 */
 		{&hf_pie_cace_remote_ipv6_address,
 		 {"Remote IPv6 Address", "cflow.pie.cace.remoteaddr6",
-		  FT_IPv6, BASE_HEX, NULL, 0x0,
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		  "Remote IPv6 Address (caceRemoteIPv6Address)", HFILL}
 		},
 		/* CACE Technologies, 32622 / 4 */

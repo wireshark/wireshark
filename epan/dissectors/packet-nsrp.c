@@ -450,12 +450,12 @@ proto_register_nsrp(void)
 		{ &hf_nsrp_ns,
 	  { "Ns", "nsrp.ns",
 	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "Ns", HFILL }
+	    NULL, HFILL }
 	},
 		{ &hf_nsrp_nr,
 	  { "Nr", "nsrp.nr",
 	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "Nr", HFILL }
+	    NULL, HFILL }
 	},
 		{ &hf_nsrp_no_used,
 	  { "Reserved", "nsrp.reserved",
@@ -494,7 +494,7 @@ proto_register_nsrp(void)
 	},
 	{ &hf_nsrp_data,
 	  { "Data", "nsrp.data",
-	    FT_STRING, 0, NULL, 0,
+	    FT_STRING, BASE_NONE, NULL, 0,
 	    "PADDING", HFILL }
 	}
     };

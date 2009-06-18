@@ -462,7 +462,7 @@ void proto_register_xdmcp(void)
     { &hf_xdmcp_opcode,
       { "Opcode",              "xdmcp.opcode",
       FT_UINT16, BASE_HEX, VALS(opcode_vals), 0,
-      "Opcode", HFILL }
+      NULL, HFILL }
     },
     { &hf_xdmcp_length,
       { "Message length",     "xdmcp.length",
@@ -471,23 +471,23 @@ void proto_register_xdmcp(void)
     },
     { &hf_xdmcp_authentication_name,
       { "Authentication name",     "xdmcp.authentication_name",
-      FT_STRING, BASE_DEC, NULL, 0,
-      "Authentication name", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }
     },
     { &hf_xdmcp_authorization_name,
       { "Authorization name",     "xdmcp.authorization_name",
-      FT_STRING, BASE_DEC, NULL, 0,
-      "Authorization name", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }
     },
     { &hf_xdmcp_hostname,
       { "Hostname",     "xdmcp.hostname",
-      FT_STRING, BASE_DEC, NULL, 0,
-      "Hostname", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }
     },
     { &hf_xdmcp_status,
       { "Status",     "xdmcp.status",
-      FT_STRING, BASE_DEC, NULL, 0,
-      "Status", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }
     },
     { &hf_xdmcp_session_id,
       { "Session ID",     "xdmcp.session_id",
@@ -497,7 +497,7 @@ void proto_register_xdmcp(void)
     { &hf_xdmcp_display_number,
       { "Display number",     "xdmcp.display_number",
       FT_UINT16, BASE_DEC, NULL, 0,
-      "Display number", HFILL }
+      NULL, HFILL }
     },
   };
 

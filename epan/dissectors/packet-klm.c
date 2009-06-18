@@ -206,10 +206,10 @@ proto_register_klm(void)
 	static hf_register_info hf[] = {
 		{ &hf_klm_procedure_v1, {
 			"V1 Procedure", "klm.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(klm1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(klm1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_klm_exclusive, {
 			"exclusive", "klm.exclusive", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_exclusive), 0, "Exclusive lock", HFILL }},
+			TFS(&tfs_exclusive), 0x0, "Exclusive lock", HFILL }},
 
 		{ &hf_klm_lock, {
 			"lock", "klm.lock", FT_NONE, BASE_NONE,
@@ -233,7 +233,7 @@ proto_register_klm(void)
 
 		{ &hf_klm_stats, {
 			"stats", "klm.stats", FT_UINT32, BASE_DEC,
-			VALS(names_klm_stats), 0, "stats", HFILL }},
+			VALS(names_klm_stats), 0, NULL, HFILL }},
 
 		{ &hf_klm_holder, {
 			"holder", "klm.holder", FT_NONE, BASE_NONE,
@@ -241,7 +241,7 @@ proto_register_klm(void)
 
 		{ &hf_klm_block, {
 			"block", "klm.block", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_block), 0, "Block", HFILL }},
+			TFS(&tfs_block), 0x0, "Block", HFILL }},
 
 	};
 

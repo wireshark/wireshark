@@ -74,7 +74,7 @@ proto_register_rep_proc (void)
 	static hf_register_info hf[] = {
 	  { &hf_rep_proc_opnum,
 	    { "Operation", "rep_proc.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

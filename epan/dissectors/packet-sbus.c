@@ -1584,7 +1584,7 @@ proto_register_sbus(void)
               { &hf_sbus_web_size,
                      { "Web server packet size",      "sbus.web.size",
                      FT_UINT8, BASE_HEX, NULL, 0,           
-                     "Web server packet size", HFILL }
+                     NULL, HFILL }
               },
                      
               { &hf_sbus_web_aid,

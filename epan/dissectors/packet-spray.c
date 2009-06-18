@@ -102,9 +102,9 @@ proto_register_spray(void)
 	static hf_register_info hf[] = {
 		{ &hf_spray_procedure_v1, {
 			"V1 Procedure", "spray.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(spray1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(spray1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_spray_sprayarr, {
-			"Data", "spray.sprayarr", FT_BYTES, BASE_DEC,
+			"Data", "spray.sprayarr", FT_BYTES, BASE_NONE,
 			NULL, 0, "Sprayarr data", HFILL }},
 
 		{ &hf_spray_counter, {

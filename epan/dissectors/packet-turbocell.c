@@ -290,7 +290,7 @@ void proto_register_turbocell(void)
 
         { &hf_turbocell_ip,
             { "IP", "turbocell.ip",
-            FT_IPv4, BASE_DEC, NULL, 0,
+            FT_IPv4, BASE_NONE, NULL, 0,
             "IP adress of base station ?", HFILL }
         },
 
@@ -308,7 +308,7 @@ void proto_register_turbocell(void)
         { &hf_turbocell_name,
             { "Network Name", "turbocell.name",
             FT_STRINGZ, BASE_NONE, NULL, 0,
-            "Network Name", HFILL }
+            NULL, HFILL }
         },
         STATION(0),STATION(1),STATION(2),STATION(3),STATION(4),STATION(5),STATION(6),STATION(7),STATION(8),STATION(9),
         STATION(10),STATION(11),STATION(12),STATION(13),STATION(14),STATION(15),STATION(16),STATION(17),STATION(18),STATION(19),
@@ -319,11 +319,11 @@ void proto_register_turbocell(void)
   static hf_register_info aggregate_fields[] = {
         { &hf_turbocell_aggregate_msdu_header_text,
             {"MAC Service Data Unit (MSDU)",	"turbocell_aggregate.msduheader",
-            FT_UINT16, BASE_DEC, 0, 0x0000, "MAC Service Data Unit (MSDU)", HFILL }
+            FT_UINT16, BASE_DEC, 0, 0x0000, NULL, HFILL }
         },
         { &hf_turbocell_aggregate_msdu_len,
             {"MSDU length", "turbocell_aggregate.msdulen",
-            FT_UINT16, BASE_DEC_HEX, 0, 0x0FFF, "MSDU length", HFILL }
+            FT_UINT16, BASE_DEC_HEX, 0, 0x0FFF, NULL, HFILL }
         },
         { &hf_turbocell_aggregate_len,
             { "Total Length", "turbocell_aggregate.len",
@@ -338,7 +338,7 @@ void proto_register_turbocell(void)
         { &hf_turbocell_aggregate_unknown2,
             { "Unknown", "turbocell_aggregate.unknown2",
             FT_UINT8, BASE_HEX, NULL, 0xF0,
-            "have the values 0x4,0xC or 0x8 ", HFILL }
+            "have the values 0x4,0xC or 0x8", HFILL }
         },
   };
 

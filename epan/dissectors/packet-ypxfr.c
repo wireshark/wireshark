@@ -58,7 +58,7 @@ proto_register_ypxfr(void)
 	static hf_register_info hf[] = {
 		{ &hf_ypxfr_procedure_v1, {
 			"V1 Procedure", "ypxfr.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(ypxfr1_proc_vals), 0, "V1 Procedure", HFILL }}
+			VALS(ypxfr1_proc_vals), 0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

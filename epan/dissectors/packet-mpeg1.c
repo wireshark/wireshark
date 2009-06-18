@@ -203,7 +203,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -215,7 +215,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -227,7 +227,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -239,7 +239,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -252,7 +252,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -262,10 +262,10 @@ proto_register_mpeg1(void)
 				"Sequence Header",
 				"rtp.payload_mpeg_s",
 				FT_BOOLEAN,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -275,10 +275,10 @@ proto_register_mpeg1(void)
 				"Beginning-of-slice",
 				"rtp.payload_mpeg_b",
 				FT_BOOLEAN,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -288,10 +288,10 @@ proto_register_mpeg1(void)
 				"End-of-slice",
 				"rtp.payload_mpeg_an",
 				FT_BOOLEAN,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -304,7 +304,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				VALS(rtp_mpg_picture_types_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -317,7 +317,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -330,7 +330,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -342,7 +342,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -355,7 +355,7 @@ proto_register_mpeg1(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -367,7 +367,7 @@ proto_register_mpeg1(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 

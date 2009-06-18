@@ -73,7 +73,7 @@ proto_register_tkn4int (void)
 	static hf_register_info hf[] = {
 	  { &hf_tkn4int_opnum,
 	    { "Operation", "tkn4int.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

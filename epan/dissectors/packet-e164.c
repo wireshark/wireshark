@@ -592,12 +592,12 @@ proto_register_e164(void)
 		{ &hf_E164_calling_party_number,
 		  { "E.164 Calling party number digits", "e164.calling_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_E164_called_party_number,
 		  { "E.164 Called party number digits", "e164.called_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }}
+			NULL, HFILL }}
 	};
 
 	/*

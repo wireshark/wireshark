@@ -71,7 +71,7 @@ proto_register_rs_attr (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rs_attr_opnum,
-		{ "Operation", "rs_attr.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }},
+		{ "Operation", "rs_attr.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

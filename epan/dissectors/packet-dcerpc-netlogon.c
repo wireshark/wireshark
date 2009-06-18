@@ -6762,7 +6762,7 @@ proto_register_dcerpc_netlogon(void)
 static hf_register_info hf[] = {
 	{ &hf_netlogon_opnum,
 	  { "Operation", "netlogon.opnum", FT_UINT16, BASE_DEC,
-	    NULL, 0x0, "Operation", HFILL }},
+	    NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_rc, {
 		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX,
@@ -6782,7 +6782,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_logon_id, {
 		"Logon ID", "netlogon.logon_id", FT_UINT64, BASE_DEC,
-		NULL, 0x0, "Logon ID", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_modify_count, {
 		"Modify Count", "netlogon.modify_count", FT_UINT64, BASE_DEC,
@@ -6790,43 +6790,43 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_security_information, {
 		"Security Information", "netlogon.security_information", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "Security Information", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_count, {
 		"Count", "netlogon.count", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_entries, {
 		"Entries", "netlogon.entries", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_credential, {
-		"Credential", "netlogon.credential", FT_BYTES, BASE_HEX,
+		"Credential", "netlogon.credential", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Netlogon Credential", HFILL }},
 
 	{ &hf_netlogon_challenge, {
-		"Challenge", "netlogon.challenge", FT_BYTES, BASE_HEX,
+		"Challenge", "netlogon.challenge", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Netlogon challenge", HFILL }},
 
 	{ &hf_netlogon_lm_owf_password, {
-		"LM Pwd", "netlogon.lm_owf_pwd", FT_BYTES, BASE_HEX,
+		"LM Pwd", "netlogon.lm_owf_pwd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "LanManager OWF Password", HFILL }},
 
 	{ &hf_netlogon_user_session_key, {
-		"User Session Key", "netlogon.user_session_key", FT_BYTES, BASE_HEX,
-		NULL, 0x0, "User Session Key", HFILL }},
+		"User Session Key", "netlogon.user_session_key", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_encrypted_lm_owf_password, {
-		"Encrypted LM Pwd", "netlogon.lm_owf_pwd.encrypted", FT_BYTES, BASE_HEX,
+		"Encrypted LM Pwd", "netlogon.lm_owf_pwd.encrypted", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Encrypted LanManager OWF Password", HFILL }},
 
 	{ &hf_netlogon_nt_owf_password, {
-		"NT Pwd", "netlogon.nt_owf_pwd", FT_BYTES, BASE_HEX,
+		"NT Pwd", "netlogon.nt_owf_pwd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "NT OWF Password", HFILL }},
 
 	{ &hf_netlogon_blob, {
-		"BLOB", "netlogon.blob", FT_BYTES, BASE_HEX,
-		NULL, 0x0, "BLOB", HFILL }},
+		"BLOB", "netlogon.blob", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_len, {
 		"Len", "netlogon.len", FT_UINT32, BASE_DEC,
@@ -6834,31 +6834,31 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_priv, {
 		"Priv", "netlogon.priv", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_privilege_entries, {
 		"Privilege Entries", "netlogon.privilege_entries", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_privilege_control, {
 		"Privilege Control", "netlogon.privilege_control", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_privilege_name, {
-		"Privilege Name", "netlogon.privilege_name", FT_STRING, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		"Privilege Name", "netlogon.privilege_name", FT_STRING, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_pdc_connection_status, {
 		"PDC Connection Status", "netlogon.pdc_connection_status", FT_UINT32, BASE_DEC,
-		NULL, 0, "PDC Connection Status", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_tc_connection_status, {
 		"TC Connection Status", "netlogon.tc_connection_status", FT_UINT32, BASE_DEC,
-		NULL, 0, "TC Connection Status", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_attrs, {
 		"Attributes", "netlogon.attrs", FT_UINT32, BASE_HEX,
-		NULL, 0, "Attributes", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_unknown_string,
 		{ "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
@@ -6868,7 +6868,7 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},
 	{ &hf_netlogon_reserved,
 		{ "Reserved", "netlogon.reserved", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Reserved", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_netlogon_unknown_short,
 		{ "Unknown short", "netlogon.unknown.short", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Unknown short. If you know what this is, contact wireshark developers.", HFILL }},
@@ -6895,7 +6895,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_authoritative,
 		{ "Authoritative", "netlogon.authoritative", FT_UINT8, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_sensitive_data_flag,
 		{ "Sensitive Data", "netlogon.sensitive_data_flag", FT_UINT8, BASE_DEC,
@@ -6903,7 +6903,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_auditing_mode,
 		{ "Auditing Mode", "netlogon.auditing_mode", FT_UINT8, BASE_DEC,
-		NULL, 0x0, "Auditing Mode", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_max_audit_event_count,
 		{ "Max Audit Event Count", "netlogon.max_audit_event_count", FT_UINT32, BASE_DEC,
@@ -6918,40 +6918,40 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Length of sensitive data", HFILL }},
 
 	{ &hf_netlogon_nt_chal_resp,
-		{ "NT Chal resp", "netlogon.nt_chal_resp", FT_BYTES, BASE_HEX,
+		{ "NT Chal resp", "netlogon.nt_chal_resp", FT_BYTES, BASE_NONE,
 		NULL, 0, "Challenge response for NT authentication", HFILL }},
 
 	{ &hf_netlogon_lm_chal_resp,
-		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_HEX,
+		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_NONE,
 		NULL, 0, "Challenge response for LM authentication", HFILL }},
 
 	{ &hf_netlogon_cipher_len,
 		{ "Cipher Len", "netlogon.cipher_len", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_cipher_maxlen,
 		{ "Cipher Max Len", "netlogon.cipher_maxlen", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_pac_data,
-		{ "Pac Data", "netlogon.pac.data", FT_BYTES, BASE_HEX,
-		NULL, 0, "Pac Data", HFILL }},
+		{ "Pac Data", "netlogon.pac.data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_sensitive_data,
-		{ "Data", "netlogon.sensitive_data", FT_BYTES, BASE_HEX,
+		{ "Data", "netlogon.sensitive_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Sensitive Data", HFILL }},
 
 	{ &hf_netlogon_auth_data,
-		{ "Auth Data", "netlogon.auth.data", FT_BYTES, BASE_HEX,
-		NULL, 0, "Auth Data", HFILL }},
+		{ "Auth Data", "netlogon.auth.data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_cipher_current_data,
-		{ "Cipher Current Data", "netlogon.cipher_current_data", FT_BYTES, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		{ "Cipher Current Data", "netlogon.cipher_current_data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_cipher_old_data,
-		{ "Cipher Old Data", "netlogon.cipher_old_data", FT_BYTES, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		{ "Cipher Old Data", "netlogon.cipher_old_data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_acct_name,
 		{ "Acct Name", "netlogon.acct_name", FT_STRING, BASE_NONE,
@@ -6967,23 +6967,23 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_full_name,
 		{ "Full Name", "netlogon.full_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Full Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_comment,
 		{ "Comment", "netlogon.comment", FT_STRING, BASE_NONE,
-		NULL, 0, "Comment", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_parameters,
 		{ "Parameters", "netlogon.parameters", FT_STRING, BASE_NONE,
-		NULL, 0, "Parameters", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_logon_script,
 		{ "Logon Script", "netlogon.logon_script", FT_STRING, BASE_NONE,
-		NULL, 0, "Logon Script", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_profile_path,
 		{ "Profile Path", "netlogon.profile_path", FT_STRING, BASE_NONE,
-		NULL, 0, "Profile Path", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_home_dir,
 		{ "Home Dir", "netlogon.home_dir", FT_STRING, BASE_NONE,
@@ -6995,15 +6995,15 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_logon_srv,
 		{ "Server", "netlogon.server", FT_STRING, BASE_NONE,
-		NULL, 0, "Server", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_principal,
 		{ "Principal", "netlogon.principal", FT_STRING, BASE_NONE,
-		NULL, 0, "Principal", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_logon_dom,
 		{ "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
-		NULL, 0, "Domain", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_resourcegroupcount,
 		{ "ResourceGroup count", "netlogon.resourcegroupcount", FT_UINT32, BASE_DEC,
@@ -7011,35 +7011,35 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_computer_name,
 		{ "Computer Name", "netlogon.computer_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Computer Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_site_name,
 		{ "Site Name", "netlogon.site_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Site Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dc_name,
 		{ "DC Name", "netlogon.dc.name", FT_STRING, BASE_NONE,
-		NULL, 0, "DC Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dc_site_name,
 		{ "DC Site Name", "netlogon.dc.site_name", FT_STRING, BASE_NONE,
-		NULL, 0, "DC Site Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dns_forest_name,
 		{ "DNS Forest Name", "netlogon.dns.forest_name", FT_STRING, BASE_NONE,
-		NULL, 0, "DNS Forest Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dc_address,
 		{ "DC Address", "netlogon.dc.address", FT_STRING, BASE_NONE,
-		NULL, 0, "DC Address", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dc_address_type,
 		{ "DC Address Type", "netlogon.dc.address_type", FT_UINT32, BASE_DEC,
-		VALS(dc_address_types), 0, "DC Address Type", HFILL }},
+		VALS(dc_address_types), 0, NULL, HFILL }},
 
 	{ &hf_netlogon_client_site_name,
 		{ "Client Site Name", "netlogon.client.site_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Client Site Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_workstation_site_name,
 		{ "Wkst Site Name", "netlogon.wkst.site_name", FT_STRING, BASE_NONE,
@@ -7055,7 +7055,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_workstations,
 		{ "Workstations", "netlogon.wksts", FT_STRING, BASE_NONE,
-		NULL, 0, "Workstations", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_workstation_fqdn,
 		{ "Wkst FQDN", "netlogon.wkst.fqdn", FT_STRING, BASE_NONE,
@@ -7063,15 +7063,15 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_group_name,
 		{ "Group Name", "netlogon.group_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Group Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_alias_name,
 		{ "Alias Name", "netlogon.alias_name", FT_STRING, BASE_NONE,
-		NULL, 0, "Alias Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_dns_host,
 		{ "DNS Host", "netlogon.dns_host", FT_STRING, BASE_NONE,
-		NULL, 0, "DNS Host", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_downlevel_domain_name,
 		{ "Downlevel Domain", "netlogon.downlevel_domain", FT_STRING, BASE_NONE,
@@ -7087,11 +7087,11 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_oem_info,
 		{ "OEM Info", "netlogon.oem_info", FT_STRING, BASE_NONE,
-		NULL, 0, "OEM Info", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_trusted_dc_name,
 		{ "Trusted DC", "netlogon.trusted_dc", FT_STRING, BASE_NONE,
-		NULL, 0, "Trusted DC", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_logonsrv_handle,
 		{ "Handle", "netlogon.handle", FT_STRING, BASE_NONE,
@@ -7147,11 +7147,11 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_restart_state,
 		{ "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Restart State", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_delta_type,
 		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC,
-		VALS(delta_type_vals), 0x0, "Delta Type", HFILL }},
+		VALS(delta_type_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_blob_size,
 		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC,
@@ -7159,7 +7159,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_code,
 		{ "Code", "netlogon.code", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Code", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_level,
 		{ "Level", "netlogon.level", FT_UINT32, BASE_DEC,
@@ -7167,27 +7167,27 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_reference,
 		{ "Reference", "netlogon.reference", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_next_reference,
 		{ "Next Reference", "netlogon.next_reference", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_timestamp,
 		{ "Timestamp", "netlogon.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_user_rid,
 		{ "User RID", "netlogon.rid", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_alias_rid,
 		{ "Alias RID", "netlogon.alias_rid", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_group_rid,
 		{ "Group RID", "netlogon.group_rid", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_num_rids,
 		{ "Num RIDs", "netlogon.num_rids", FT_UINT32, BASE_DEC,
@@ -7199,11 +7199,11 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_num_other_groups,
 		{ "Num Other Groups", "netlogon.num_other_groups", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_flags,
 		{ "Flags", "netlogon.flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_user_account_control,
 		{ "User Account Control", "netlogon.user_account_control", FT_UINT32, BASE_HEX,
@@ -7215,19 +7215,19 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_auth_flags,
 		{ "Auth Flags", "netlogon.auth_flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_systemflags,
 		{ "System Flags", "netlogon.system_flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_database_id,
 		{ "Database Id", "netlogon.database_id", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "Database Id", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_sync_context,
 		{ "Sync Context", "netlogon.sync_context", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "Sync Context", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_max_size,
 		{ "Max Size", "netlogon.max_size", FT_UINT32, BASE_DEC,
@@ -7251,7 +7251,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_num_trusts,
 		{ "Num Trusts", "netlogon.num_trusts", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_logon_attempts,
 		{ "Logon Attempts", "netlogon.logon_attempts", FT_UINT32, BASE_DEC,
@@ -7259,27 +7259,27 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_pagefilelimit,
 		{ "Page File Limit", "netlogon.page_file_limit", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_pagedpoollimit,
 		{ "Paged Pool Limit", "netlogon.paged_pool_limit", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_nonpagedpoollimit,
 		{ "Non-Paged Pool Limit", "netlogon.nonpaged_pool_limit", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_minworkingsetsize,
 		{ "Min Working Set Size", "netlogon.min_working_set_size", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_maxworkingsetsize,
 		{ "Max Working Set Size", "netlogon.max_working_set_size", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_serial_number,
 		{ "Serial Number", "netlogon.serial_number", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_neg_flags,
 		{ "Neg Flags", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
@@ -7287,7 +7287,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_dc_flags,
 		{ "Domain Controller Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Domain Controller Flags", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_dc_flags_pdc_flag,
 	        { "PDC", "netlogon.dc.flags.pdc",
@@ -7347,12 +7347,12 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_dc_flags_dns_domain_flag,
 	        { "DNS Domain", "netlogon.dc.flags.dns_domain",
 		  FT_BOOLEAN, 32, TFS(&dc_flags_dns_domain_flag), DS_DNS_DOMAIN_FLAG,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 	{ &hf_netlogon_dc_flags_dns_forest_flag,
 	        { "DNS Forest", "netlogon.dc.flags.dns_forest",
 		  FT_BOOLEAN, 32, TFS(&dc_flags_dns_forest_flag), DS_DNS_FOREST_FLAG,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 	{ &hf_netlogon_get_dcname_request_flags,
 		{ "Flags", "netlogon.get_dcname.request.flags", FT_UINT32, BASE_HEX,
@@ -7445,43 +7445,43 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_trust_attribs,
 		{ "Trust Attributes", "netlogon.trust_attribs", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Trust Attributes", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_non_transitive,
 	        { "Non Transitive", "netlogon.trust.attribs.non_transitive", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_non_transitive), 0x00000001, "", HFILL }},
+		TFS(&trust_attribs_non_transitive), 0x00000001, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_uplevel_only,
 	        { "Uplevel Only", "netlogon.trust.attribs.uplevel_only", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_uplevel_only), 0x00000002, "", HFILL }},
+		TFS(&trust_attribs_uplevel_only), 0x00000002, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_quarantined_domain,
 	        { "Quarantined Domain", "netlogon.trust.attribs.quarantined_domain", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_quarantined_domain), 0x00000004, "", HFILL }},
+		TFS(&trust_attribs_quarantined_domain), 0x00000004, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_forest_transitive,
 	        { "Forest Transitive", "netlogon.trust.attribs.forest_transitive", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_forest_transitive), 0x00000008, "", HFILL }},
+		TFS(&trust_attribs_forest_transitive), 0x00000008, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_cross_organization,
 	        { "Cross Organization", "netlogon.trust.attribs.cross_organization", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_cross_organization), 0x00000010, "", HFILL }},
+		TFS(&trust_attribs_cross_organization), 0x00000010, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_within_forest,
 	        { "Within Forest", "netlogon.trust.attribs.within_forest", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_within_forest), 0x00000020, "", HFILL }},
+		TFS(&trust_attribs_within_forest), 0x00000020, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_attribs_treat_as_external,
 	        { "Treat As External", "netlogon.trust.attribs.treat_as_external", FT_BOOLEAN, 32, 
-		TFS(&trust_attribs_treat_as_external), 0x00000040, "", HFILL }},
+		TFS(&trust_attribs_treat_as_external), 0x00000040, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_type,
 		{ "Trust Type", "netlogon.trust_type", FT_UINT32, BASE_DEC,
-		VALS(trust_type_vals), 0x0, "Trust Type", HFILL }},
+		VALS(trust_type_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_flags,
 		{ "Trust Flags", "netlogon.trust_flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Trust Flags", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_trust_flags_inbound,
 	        { "Inbound Trust", "netlogon.trust.flags.inbound",
@@ -7515,7 +7515,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_trust_parent_index,
 		{ "Parent Index", "netlogon.parent_index", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "Parent Index", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_logon_time,
 		{ "Logon Time", "netlogon.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -7579,57 +7579,57 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_timelimit,
 		{ "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	/* Secure channel dissection */
 
 	{ &hf_netlogon_secchan_bind_unknown1,
 	  { "Unknown1", "netlogon.secchan.bind.unknown1", FT_UINT32, BASE_HEX,
-	    NULL, 0x0, "", HFILL }},
+	    NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_bind_unknown2,
 	  { "Unknown2", "netlogon.secchan.bind.unknown2", FT_UINT32, BASE_HEX,
-	    NULL, 0x0, "", HFILL }},
+	    NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_domain,
 	  { "Domain", "netlogon.secchan.domain", FT_STRING, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_host,
 	  { "Host", "netlogon.secchan.host", FT_STRING, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_bind_ack_unknown1,
 	  { "Unknown1", "netlogon.secchan.bind_ack.unknown1", FT_UINT32, 
-	    BASE_HEX, NULL, 0x0, "", HFILL }},
+	    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_bind_ack_unknown2,
 	  { "Unknown2", "netlogon.secchan.bind_ack.unknown2", FT_UINT32, 
-	    BASE_HEX, NULL, 0x0, "", HFILL }},
+	    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_bind_ack_unknown3,
 	  { "Unknown3", "netlogon.secchan.bind_ack.unknown3", FT_UINT32, 
-	    BASE_HEX, NULL, 0x0, "", HFILL }},
+	    BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_secchan_verf,
           { "Secure Channel Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE, 
 	    NULL, 0x0, "Verifier", HFILL }},
 
         { &hf_netlogon_secchan_verf_sig,
-          { "Signature", "netlogon.secchan.sig", FT_BYTES, BASE_HEX, NULL, 
-	    0x0, "Signature", HFILL }}, 
+          { "Signature", "netlogon.secchan.sig", FT_BYTES, BASE_NONE, NULL, 
+	    0x0, NULL, HFILL }}, 
 
         { &hf_netlogon_secchan_verf_digest,
-          { "Packet Digest", "netlogon.secchan.digest", FT_BYTES, BASE_HEX, NULL, 
-          0x0, "Packet Digest", HFILL }}, 
+          { "Packet Digest", "netlogon.secchan.digest", FT_BYTES, BASE_NONE, NULL, 
+          0x0, NULL, HFILL }}, 
 
         { &hf_netlogon_secchan_verf_seq,
-          { "Sequence No", "netlogon.secchan.seq", FT_BYTES, BASE_HEX, NULL, 
-          0x0, "Sequence No", HFILL }}, 
+          { "Sequence No", "netlogon.secchan.seq", FT_BYTES, BASE_NONE, NULL, 
+          0x0, NULL, HFILL }}, 
 
         { &hf_netlogon_secchan_verf_nonce,
-          { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_HEX, NULL, 
-          0x0, "Nonce", HFILL }}, 
+          { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_NONE, NULL, 
+          0x0, NULL, HFILL }}, 
 
 	{ &hf_netlogon_group_attrs_mandatory,
 	        { "Mandatory", "netlogon.groups.attrs.mandatory",
@@ -7659,91 +7659,91 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_user_account_control_dont_require_preauth,
 	        { "Don't Require PreAuth", "netlogon.user.account_control.dont_require_preauth",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_require_preauth), 0x00010000,
-		  "The user account control DONT_REQUIRE_PREAUTH flag ", HFILL }},
+		  "The user account control DONT_REQUIRE_PREAUTH flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_use_des_key_only,
 	        { "Use DES Key Only", "netlogon.user.account_control.use_des_key_only",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_use_des_key_only), 0x00008000,
-		  "The user account control use_des_key_only flag ", HFILL }},
+		  "The user account control use_des_key_only flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_not_delegated,
 	        { "Not Delegated", "netlogon.user.account_control.not_delegated",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_not_delegated), 0x00004000,
-		  "The user account control not_delegated flag ", HFILL }},
+		  "The user account control not_delegated flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_trusted_for_delegation,
 	        { "Trusted For Delegation", "netlogon.user.account_control.trusted_for_delegation",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_trusted_for_delegation), 0x00002000,
-		  "The user account control trusted_for_delegation flag ", HFILL }},
+		  "The user account control trusted_for_delegation flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_smartcard_required,
 	        { "SmartCard Required", "netlogon.user.account_control.smartcard_required",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_smartcard_required), 0x00001000,
-		  "The user account control smartcard_required flag ", HFILL }},
+		  "The user account control smartcard_required flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_encrypted_text_password_allowed,
 	        { "Encrypted Text Password Allowed", "netlogon.user.account_control.encrypted_text_password_allowed",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_encrypted_text_password_allowed), 0x00000800,
-		  "The user account control encrypted_text_password_allowed flag ", HFILL }},
+		  "The user account control encrypted_text_password_allowed flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_account_auto_locked,
 	        { "Account Auto Locked", "netlogon.user.account_control.account_auto_locked",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_account_auto_locked), 0x00000400,
-		  "The user account control account_auto_locked flag ", HFILL }},
+		  "The user account control account_auto_locked flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_dont_expire_password,
 	        { "Don't Expire Password", "netlogon.user.account_control.dont_expire_password",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_expire_password), 0x00000200,
-		  "The user account control dont_expire_password flag ", HFILL }},
+		  "The user account control dont_expire_password flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_server_trust_account,
 	        { "Server Trust Account", "netlogon.user.account_control.server_trust_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_server_trust_account), 0x00000100,
-		  "The user account control server_trust_account flag ", HFILL }},
+		  "The user account control server_trust_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_workstation_trust_account,
 	        { "Workstation Trust Account", "netlogon.user.account_control.workstation_trust_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_workstation_trust_account), 0x00000080,
-		  "The user account control workstation_trust_account flag ", HFILL }},
+		  "The user account control workstation_trust_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_interdomain_trust_account,
 	        { "Interdomain trust Account", "netlogon.user.account_control.interdomain_trust_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_interdomain_trust_account), 0x00000040,
-		  "The user account control interdomain_trust_account flag ", HFILL }},
+		  "The user account control interdomain_trust_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_mns_logon_account,
 	        { "MNS Logon Account", "netlogon.user.account_control.mns_logon_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_mns_logon_account), 0x00000020,
-		  "The user account control mns_logon_account flag ", HFILL }},
+		  "The user account control mns_logon_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_normal_account,
 	        { "Normal Account", "netlogon.user.account_control.normal_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_normal_account), 0x00000010,
-		  "The user account control normal_account flag ", HFILL }},
+		  "The user account control normal_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_temp_duplicate_account,
 	        { "Temp Duplicate Account", "netlogon.user.account_control.temp_duplicate_account",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_temp_duplicate_account), 0x00000008,
-		  "The user account control temp_duplicate_account flag ", HFILL }},
+		  "The user account control temp_duplicate_account flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_password_not_required,
 	        { "Password Not Required", "netlogon.user.account_control.password_not_required",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_password_not_required), 0x00000004,
-		  "The user account control password_not_required flag ", HFILL }},
+		  "The user account control password_not_required flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_home_directory_required,
 	        { "Home Directory Required", "netlogon.user.account_control.home_directory_required",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_home_directory_required), 0x00000002,
-		  "The user account control home_directory_required flag ", HFILL }},
+		  "The user account control home_directory_required flag", HFILL }},
 
 	{ &hf_netlogon_user_account_control_account_disabled,
 	        { "Account Disabled", "netlogon.user.account_control.account_disabled",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_account_disabled), 0x00000001,
-		  "The user account control account_disabled flag ", HFILL }},
+		  "The user account control account_disabled flag", HFILL }},
 
         { &hf_netlogon_dnsdomaininfo,
           { "DnsDomainInfo", "netlogon.dnsdomaininfo", FT_NONE, BASE_NONE, 
-	    NULL, 0x0, "", HFILL }},
+	    NULL, 0x0, NULL, HFILL }},
 
 	};
 

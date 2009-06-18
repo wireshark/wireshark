@@ -177,7 +177,7 @@ void zbee_security_register(module_t *prefs, int proto)
                 NULL, HFILL }},
 
             { &hf_zbee_sec_mic,
-            { "Message Integrity Code", "zbee.sec.mic", FT_BYTES, BASE_HEX, NULL, 0x0,
+            { "Message Integrity Code", "zbee.sec.mic", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }}
     };
 

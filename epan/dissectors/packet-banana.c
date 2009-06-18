@@ -310,12 +310,12 @@ proto_register_banana(void)
 		},
 		{ &hf_banana_lg_int,
 			{ "Float", "banana.lg_int",
-				FT_BYTES, BASE_DEC, NULL, 0,
+				FT_BYTES, BASE_NONE, NULL, 0,
 				"Banana large integer", HFILL }
 		},
 		{ &hf_banana_lg_neg_int,
 			{ "Float", "banana.lg_neg_int",
-				FT_BYTES, BASE_DEC, NULL, 0,
+				FT_BYTES, BASE_NONE, NULL, 0,
 				"Banana large negative integer", HFILL }
 		},
 		{ &hf_banana_pb,

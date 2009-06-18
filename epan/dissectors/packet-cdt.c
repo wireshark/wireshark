@@ -413,7 +413,7 @@ void proto_register_cdt (void) {
         "cdt.T_contentType_OID", HFILL }},
     { &hf_cdt_compressedContent,
       { "compressedContent", "cdt.compressedContent",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "cdt.CompressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/

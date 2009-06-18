@@ -3521,10 +3521,10 @@ proto_register_smux(void)
 	static hf_register_info hf[] = {
 		{ &hf_smux_version,
 		{ "Version", "smux.version", FT_UINT8, BASE_DEC, NULL,
-		    0x0, "", HFILL }},
+		    0x0, NULL, HFILL }},
 		{ &hf_smux_pdutype,
 		{ "PDU type", "smux.pdutype", FT_UINT8, BASE_DEC, VALS(smux_types),
-		    0x0, "", HFILL }},
+		    0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smux,

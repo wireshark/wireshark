@@ -370,48 +370,48 @@ proto_register_pcnfsd(void)
 	static hf_register_info hf[] = {
 		{ &hf_pcnfsd_procedure_v1, {
 			"V1 Procedure", "pcnfsd.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(pcnfsd1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(pcnfsd1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_pcnfsd_procedure_v2, {
 			"V2 Procedure", "pcnfsd.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(pcnfsd2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(pcnfsd2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_pcnfsd_auth_client, {
-			"Authentication Client", "pcnfsd.auth.client", FT_STRING, BASE_DEC,
-			NULL, 0, "Authentication Client", HFILL }},
+			"Authentication Client", "pcnfsd.auth.client", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_auth_ident_obscure, {
-			"Obscure Ident", "pcnfsd.auth.ident.obscure", FT_STRING, BASE_DEC,
+			"Obscure Ident", "pcnfsd.auth.ident.obscure", FT_STRING, BASE_NONE,
 			NULL, 0, "Authentication Obscure Ident", HFILL }},
 		{ &hf_pcnfsd_auth_ident_clear, {
-			"Clear Ident", "pcnfsd.auth.ident.clear", FT_STRING, BASE_DEC,
+			"Clear Ident", "pcnfsd.auth.ident.clear", FT_STRING, BASE_NONE,
 			NULL, 0, "Authentication Clear Ident", HFILL }},
 		{ &hf_pcnfsd_auth_password_obscure, {
-			"Obscure Password", "pcnfsd.auth.password.obscure", FT_STRING, BASE_DEC,
+			"Obscure Password", "pcnfsd.auth.password.obscure", FT_STRING, BASE_NONE,
 			NULL, 0, "Authentication Obscure Password", HFILL }},
 		{ &hf_pcnfsd_auth_password_clear, {
-			"Clear Password", "pcnfsd.auth.password.clear", FT_STRING, BASE_DEC,
+			"Clear Password", "pcnfsd.auth.password.clear", FT_STRING, BASE_NONE,
 			NULL, 0, "Authentication Clear Password", HFILL }},
 		{ &hf_pcnfsd_comment, {
-			"Comment", "pcnfsd.comment", FT_STRING, BASE_DEC,
-			NULL, 0, "Comment", HFILL }},
+			"Comment", "pcnfsd.comment", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_status, {
                         "Reply Status", "pcnfsd.status", FT_UINT32, BASE_DEC,
                         NULL, 0, "Status", HFILL }},
 		{ &hf_pcnfsd_uid, {
                         "User ID", "pcnfsd.uid", FT_UINT32, BASE_DEC,
-                        NULL, 0, "User ID", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_gid, {
                         "Group ID", "pcnfsd.gid", FT_UINT32, BASE_DEC,
-                        NULL, 0, "Group ID", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_gids_count, {
                         "Group ID Count", "pcnfsd.gids.count", FT_UINT32, BASE_DEC,
-                        NULL, 0, "Group ID Count", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_homedir, {
-			"Home Directory", "pcnfsd.homedir", FT_STRING, BASE_DEC,
-			NULL, 0, "Home Directory", HFILL }},
+			"Home Directory", "pcnfsd.homedir", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_def_umask, {
                         "def_umask", "pcnfsd.def_umask", FT_UINT32, BASE_OCT,
-                        NULL, 0, "def_umask", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_pcnfsd_username, {
-			"User name", "pcnfsd.username", FT_STRING, BASE_DEC,
+			"User name", "pcnfsd.username", FT_STRING, BASE_NONE,
 			NULL, 0, "pcnfsd.username", HFILL }},
 	};
 

@@ -567,7 +567,7 @@ proto_register_wow(void)
 		{ &hf_wow_srp_m1,
 		  { "SRP M1", "wow.srp.m1",
 		    FT_BYTES, BASE_NONE, 0, 0,
-		    "Secure Remote Password protocol 'M1' value ", HFILL }
+		    "Secure Remote Password protocol 'M1' value", HFILL }
 		},
 		{ &hf_wow_crc_hash,
 		  { "CRC hash", "wow.crc_hash",

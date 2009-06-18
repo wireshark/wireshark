@@ -346,7 +346,7 @@ proto_register_ieee8021ah(void)
     static hf_register_info hf[] = {
 	{ &hf_ieee8021ah_priority, {
 	    "Priority", "ieee8021ah.priority", FT_UINT32, BASE_DEC,
-	    0, 0xE0000000, "Priority", HFILL }},
+	    0, 0xE0000000, NULL, HFILL }},
 	{ &hf_ieee8021ah_drop, {
 	    "DROP", "ieee8021ah.drop", FT_UINT32, BASE_DEC,
 	    0, 0x10000000, "Drop", HFILL }},
@@ -361,7 +361,7 @@ proto_register_ieee8021ah(void)
 	    0, 0x03000000, "Reserved2", HFILL }},
 	{ &hf_ieee8021ah_isid, {
 	    "I-SID", "ieee8021ah.isid", FT_UINT32, BASE_DEC,
-	    0, 0x00FFFFFF, "I-SID", HFILL }},
+	    0, 0x00FFFFFF, NULL, HFILL }},
 	{ &hf_ieee8021ah_c_daddr, {
 	    "C-Destination", "ieee8021ah.cdst", FT_ETHER, BASE_NONE,
 	    NULL, 0x0, "Customer Destination Address", HFILL }},
@@ -370,10 +370,10 @@ proto_register_ieee8021ah(void)
 	    NULL, 0x0, "Customer Source Address", HFILL }},
 	{ &hf_ieee8021ah_etype, {
 		"Type", "ieee8021ah.etype", FT_UINT16, BASE_HEX,
-		VALS(etype_vals), 0x0, "Type", HFILL }},
+		VALS(etype_vals), 0x0, NULL, HFILL }},
 	{ &hf_ieee8021ah_len, {
 		"Length", "ieee8021ah.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Length", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_ieee8021ah_trailer, {
 		"Trailer", "ieee8021ah.trailer", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "802.1ah Trailer", HFILL }}
@@ -382,7 +382,7 @@ proto_register_ieee8021ah(void)
     static hf_register_info hf_1ad[] = {
 	{ &hf_ieee8021ad_priority, {
 		"Priority", "ieee8021ad.priority", FT_UINT16, BASE_DEC,
-		0, 0xE000, "Priority", HFILL }},
+		0, 0xE000, NULL, HFILL }},
 	{ &hf_ieee8021ad_cfi, {
 		"DEI", "ieee8021ad.dei", FT_UINT16, BASE_DEC,
 		0, 0x1000, "Drop Eligibility", HFILL }},

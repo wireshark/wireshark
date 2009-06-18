@@ -1539,22 +1539,22 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_nonask_phy_preamble,
         { "Preamble",                       "wpan-nonask-phy.preamble", FT_UINT32, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_nonask_phy_sfd,
         { "Start of Frame Delimiter",       "wpan-nonask-phy.sfd", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_nonask_phy_length,
         { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL, IEEE802154_PHY_LENGTH_MASK,
-            "", HFILL }},
+            NULL, HFILL }},
     };
 
 
     static hf_register_info hf[] = {
         { &hf_ieee802154_frame_type,
         { "Frame Type",                     "wpan.frame_type", FT_UINT16, BASE_HEX, VALS(ieee802154_frame_types), IEEE802154_FCF_TYPE_MASK,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_security,
         { "Security Enabled",               "wpan.security", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_SEC_EN,
@@ -1574,66 +1574,66 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_seqno,
         { "Sequence Number",                "wpan.seq_no", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_dst_addr_mode,
         { "Destination Addressing Mode",    "wpan.dst_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes), IEEE802154_FCF_DADDR_MASK,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_src_addr_mode,
         { "Source Addressing Mode",         "wpan.src_addr_mode", FT_UINT16, BASE_HEX, VALS(ieee802154_addr_modes), IEEE802154_FCF_SADDR_MASK,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_version,
         { "Frame Version",                  "wpan.version", FT_UINT16, BASE_DEC, NULL, IEEE802154_FCF_VERSION,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_dst_pan,
         { "Destination PAN",                "wpan.dst_pan", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_dst_addr16,
         { "Destination",                    "wpan.dst_addr16", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_dst_addr64,
         { "Destination",                    "wpan.dst_addr64", FT_UINT64, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_src_panID,
         { "Source PAN",                     "wpan.src_pan", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_src_addr16,
         { "Source",                         "wpan.src_addr16", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_src_addr64,
         { "Source",                         "wpan.src_addr64", FT_UINT64, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_fcs,
         { "FCS",                            "wpan.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_rssi,
         { "RSSI",                           "wpan.rssi", FT_INT8, BASE_DEC, NULL, 0x0,
             "Received Signal Strength", HFILL }},
 
         { &hf_ieee802154_fcs_ok,
-        { "FCS Valid",                      "wpan.fcs_ok", FT_BOOLEAN, 8, NULL, 0x0,
-            "", HFILL }},
+        { "FCS Valid",                      "wpan.fcs_ok", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ieee802154_correlation,
         { "LQI Correlation Value",          "wpan.correlation", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
             /*  Command Frame Specific Fields */
             /*--------------------------------*/
 
         { &hf_ieee802154_cmd_id,
         { "Command Identifier",         "wpan.cmd.id", FT_UINT8, BASE_HEX, VALS(ieee802154_cmd_names), 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
             /*  Capability Information Fields */
         { &hf_ieee802154_cmd_cinfo_alt_coord,
@@ -1667,11 +1667,11 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_cmd_asrsp_status,
         { "Association Status",         "wpan.cmd.asrsp.status", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_cmd_disas_reason,
         { "Disassociation Reason",      "wpan.cmd.disas.reason", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "", HFILL }},
+            NULL, HFILL }},
 
             /*  Coordinator Realignment fields */
         { &hf_ieee802154_cmd_coord_pan,
@@ -1737,11 +1737,11 @@ void proto_register_ieee802154(void)
             "The number of GTS descriptors present in this beacon frame.", HFILL }},
 
         { &hf_ieee802154_bcn_gts_permit,
-        { "GTS Permit",                 "wpan.bcn.gts.permit", FT_BOOLEAN, 8, NULL, 0x0,
+        { "GTS Permit",                 "wpan.bcn.gts.permit", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Whether the PAN coordinator is accepting GTS requests or not.", HFILL }},
 
         { &hf_ieee802154_bcn_gts_direction,
-        { "Direction",                  "wpan.bcn.gts.direction", FT_BOOLEAN, 8, NULL, 0x0,
+        { "Direction",                  "wpan.bcn.gts.direction", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "A flag defining the direction of the GTS Slot.", HFILL }},
 
         { &hf_ieee802154_bcn_pending16,

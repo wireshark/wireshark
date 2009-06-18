@@ -2581,87 +2581,87 @@ proto_register_lldp(void)
 	static hf_register_info hf[] = {
 		{ &hf_lldp_tlv_type,
 			{ "TLV Type", "lldp.tlv.type", FT_UINT16, BASE_DEC,
-			VALS(tlv_types), TLV_TYPE_MASK, "", HFILL }
+			VALS(tlv_types), TLV_TYPE_MASK, NULL, HFILL }
 		},
 		{ &hf_lldp_tlv_len,
 			{ "TLV Length", "lldp.tlv.len", FT_UINT16, BASE_DEC,
-			NULL, TLV_INFO_LEN_MASK, "", HFILL }
+			NULL, TLV_INFO_LEN_MASK, NULL, HFILL }
 		},
 		{ &hf_chassis_id_subtype,
 			{ "Chassis Id Subtype", "lldp.chassis.subtype", FT_UINT8, BASE_DEC,
-			VALS(chassis_id_subtypes), 0, "", HFILL }
+			VALS(chassis_id_subtypes), 0, NULL, HFILL }
 		},
 		{ &hf_chassis_id,
-			{ "Chassis Id", "lldp.chassis.id", FT_BYTES, BASE_HEX,
-			NULL, 0, "", HFILL }
+			{ "Chassis Id", "lldp.chassis.id", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_chassis_id_mac,
 			{ "Chassis Id", "lldp.chassis.id.mac", FT_ETHER, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_chassis_id_ip4,
 			{ "Chassis Id", "lldp.chassis.id.ip4", FT_IPv4, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_chassis_id_ip6,
 			{ "Chassis Id", "lldp.chassis.id.ip6", FT_IPv6, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_port_id_subtype,
 			{ "Port Id Subtype", "lldp.port.subtype", FT_UINT8, BASE_DEC,
-			VALS(port_id_subtypes), 0, "", HFILL }
+			VALS(port_id_subtypes), 0, NULL, HFILL }
 		},
 		{ &hf_port_id_mac,
 			{ "Port Id", "lldp.port.id.mac", FT_ETHER, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_lldp_network_address_family,
 			{ "Network Address family", "lldp.network_address.subtype", FT_UINT8, BASE_DEC,
-			VALS(afn_vals), 0, "Network Address family", HFILL }
+			VALS(afn_vals), 0, NULL, HFILL }
 		},
 		{ &hf_port_id_ip4,
 			{ "Port Id", "lldp.port.id.ip4", FT_IPv4, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_port_id_ip6,
 			{ "Port Id", "lldp.port.id.ip6", FT_IPv6, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_time_to_live,
 			{ "Seconds", "lldp.time_to_live", FT_UINT16, BASE_DEC,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_addr_ipv4,
 			{ "Management Address", "lldp.mgn.addr.ip4", FT_IPv4, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_addr_ipv6,
 			{ "Management Address", "lldp.mgn.addr.ip6", FT_IPv6, BASE_NONE,
-			NULL, 0, "", HFILL }
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_addr_hex,
-			{ "Management Address", "lldp.mgn.addr.hex", FT_BYTES, BASE_HEX,
-			NULL, 0, "", HFILL }
+			{ "Management Address", "lldp.mgn.addr.hex", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_obj_id,
-			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_HEX,
-			NULL, 0, "", HFILL }
+			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_org_spc_oui,
 			{ "Organization Unique Code",	"lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-	   		VALS(tlv_oui_subtype_vals), 0x0, "", HFILL }
+	   		VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_subtype,
 			{ "IEEE 802.1 Subtype",	"lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(ieee_802_1_subtypes), 0x0, "", HFILL }
+	   		VALS(ieee_802_1_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_subtype,
 			{ "IEEE 802.3 Subtype",	"lldp.ieee.802_3.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(ieee_802_3_subtypes), 0x0, "", HFILL }
+	   		VALS(ieee_802_3_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(media_subtypes), 0x0, "", HFILL }
+	   		VALS(media_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_tlv_subtype,
 			{ "Subtype",	"lldp.profinet.subtype", FT_UINT8, BASE_HEX,
@@ -2669,39 +2669,39 @@ proto_register_lldp(void)
 		},
 		{ &hf_profinet_port_rx_delay_local,
 			{ "Port RX Delay Local",	"lldp.profinet.port_rx_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_rx_delay_remote,
 			{ "Port RX Delay Remote",	"lldp.profinet.port_rx_delay_remote", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_tx_delay_local,
 			{ "Port TX Delay Local",	"lldp.profinet.port_tx_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_tx_delay_remote,
 			{ "Port TX Delay Remote",	"lldp.profinet.port_tx_delay_remote", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_cable_delay_local,
 			{ "Port Cable Delay Local",	"lldp.profinet.cable_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_class2_port_status,
 			{ "RTClass2 Port Status",	"lldp.profinet.rtc2_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port2_status_vals), 0x0, "", HFILL }
+	   		VALS(profinet_port2_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_class3_port_status,
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port3_status_vals), 0x0, "", HFILL }
+	   		VALS(profinet_port3_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_mrp_domain_uuid,
 			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_mrrt_port_status,
 			{ "MRRT PortStatus",	"lldp.profinet.mrrt_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_mrrt_port_status_vals), 0x0, "", HFILL }
+	   		VALS(profinet_mrrt_port_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_cm_mac,
 			{ "CMMacAdd",	"lldp.profinet.cm_mac_add", FT_ETHER, BASE_NONE,
@@ -2709,15 +2709,15 @@ proto_register_lldp(void)
 		},
 		{ &hf_profinet_master_source_address,
 			{ "MasterSourceAddress",	"lldp.profinet.master_source_address", FT_ETHER, BASE_NONE,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_subdomain_uuid,
 			{ "SubdomainUUID",	"lldp.profinet.subdomain_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_ir_data_uuid,
 			{ "IRDataUUID",	"lldp.profinet.ir_data_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, "", HFILL }
+	   		NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_length_of_period_valid,
 			{ "LengthOfPeriod.Valid",	"lldp.profinet.length_of_period_valid", FT_UINT32, BASE_DEC,
@@ -2752,8 +2752,8 @@ proto_register_lldp(void)
 	   		NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
 		},
 		{ &hf_unknown_subtype,
-			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
-	   		NULL, 0x0, "", HFILL }
+			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_NONE,
+	   		NULL, 0x0, NULL, HFILL }
 		},
 	};
 

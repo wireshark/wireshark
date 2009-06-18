@@ -341,7 +341,7 @@ proto_register_e212(void)
 	{ &hf_E212_mnc,
 		{ "Mobile network code (MNC)","e212.mnc",
 		FT_UINT16, BASE_DEC, NULL, 0x0,          
-		"Mobile network code ", HFILL }
+		"Mobile network code", HFILL }
 	},
 	{ &hf_E212_msin,
       { "Mobile Subscriber Identification Number (MSIN)", "e212.msin",

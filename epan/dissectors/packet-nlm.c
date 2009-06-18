@@ -1137,82 +1137,82 @@ proto_register_nlm(void)
 	static hf_register_info hf[] = {
 		{ &hf_nlm_procedure_v1, {
 			"V1 Procedure", "nlm.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(nlm1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(nlm1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v2, {
 			"V2 Procedure", "nlm.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(nlm2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(nlm2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v3, {
 			"V3 Procedure", "nlm.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(nlm3_proc_vals), 0, "V3 Procedure", HFILL }},
+			VALS(nlm3_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v4, {
 			"V4 Procedure", "nlm.procedure_v4", FT_UINT32, BASE_DEC,
-			VALS(nlm4_proc_vals), 0, "V4 Procedure", HFILL }},
+			VALS(nlm4_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_cookie, {
-			"cookie", "nlm.cookie", FT_BYTES, BASE_DEC,
-			NULL, 0, "cookie", HFILL }},
+			"cookie", "nlm.cookie", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_block, {
 			"block", "nlm.block", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "block", HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_nlm_exclusive, {
 			"exclusive", "nlm.exclusive", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "exclusive", HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_nlm_lock, {
-			"lock", "nlm.lock", FT_NONE, 0,
-			NULL, 0, "lock", HFILL }},
+			"lock", "nlm.lock", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_caller_name, {
 			"caller_name", "nlm.lock.caller_name", FT_STRING, BASE_NONE,
-			NULL, 0, "caller_name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_owner, {
-			"owner", "nlm.lock.owner", FT_BYTES, BASE_DEC,
-			NULL, 0, "owner", HFILL }},
+			"owner", "nlm.lock.owner", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_svid, {
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,
-			NULL, 0, "svid", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_offset64, {
 			"l_offset", "nlm.lock.l_offset", FT_UINT64, BASE_DEC,
-			NULL, 0, "l_offset", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_offset, {
 			"l_offset", "nlm.lock.l_offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "l_offset", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_len64, {
 			"l_len", "nlm.lock.l_len", FT_UINT64, BASE_DEC,
-			NULL, 0, "l_len", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_len, {
 			"l_len", "nlm.lock.l_len", FT_UINT32, BASE_DEC,
-			NULL, 0, "l_len", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_reclaim, {
 			"reclaim", "nlm.reclaim", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "reclaim", HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_nlm_state, {
 			"state", "nlm.state", FT_UINT32, BASE_DEC,
 			NULL, 0, "STATD state", HFILL }},
 		{ &hf_nlm_stat, {
 			"stat", "nlm.stat", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_stats), 0, "stat", HFILL }},
+			VALS(names_nlm_stats), 0, NULL, HFILL }},
 		{ &hf_nlm_test_stat, {
-			"test_stat", "nlm.test_stat", FT_NONE, 0,
-			NULL, 0, "test_stat", HFILL }},
+			"test_stat", "nlm.test_stat", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_test_stat_stat, {
 			"stat", "nlm.test_stat.stat", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_stats), 0, "stat", HFILL }},
+			VALS(names_nlm_stats), 0, NULL, HFILL }},
 		{ &hf_nlm_holder, {
-			"holder", "nlm.holder", FT_NONE, 0,
-			NULL, 0, "holder", HFILL }},
+			"holder", "nlm.holder", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_share, {
-			"share", "nlm.share", FT_NONE, 0,
-			NULL, 0, "share", HFILL }},
+			"share", "nlm.share", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_share_mode, {
 			"mode", "nlm.share.mode", FT_UINT32, BASE_DEC,
-			VALS(names_fsh_mode), 0, "mode", HFILL }},
+			VALS(names_fsh_mode), 0, NULL, HFILL }},
 		{ &hf_nlm_share_access, {
 			"access", "nlm.share.access", FT_UINT32, BASE_DEC,
-			VALS(names_fsh_access), 0, "access", HFILL }},
+			VALS(names_fsh_access), 0, NULL, HFILL }},
 		{ &hf_nlm_share_name, {
 			"name", "nlm.share.name", FT_STRING, BASE_NONE,
-			NULL, 0, "name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_sequence, {
 			"sequence", "nlm.sequence", FT_INT32, BASE_DEC,
-			NULL, 0, "sequence", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_request_in, {
 			"Request MSG in", "nlm.msg_in", FT_UINT32, BASE_DEC,
 			NULL, 0, "The RES packet is a response to the MSG in this packet", HFILL }},

@@ -132,7 +132,7 @@ proto_register_g723(void)
 		{ &hf_g723_lpc_B5_B0,
 			{ "LPC_B5...LPC_B0",           "g723.lpc.b5b0",
 			FT_UINT8, BASE_HEX, NULL, 0xfc,          
-			"LPC_B5...LPC_B0", HFILL }
+			NULL, HFILL }
 		},
 
 	};

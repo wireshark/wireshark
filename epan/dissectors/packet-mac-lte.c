@@ -1517,7 +1517,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_context_radio_type,
             { "Radio Type",
               "mac-lte.radio-type", FT_UINT8, BASE_DEC, VALS(radio_type_vals), 0x0,
-              "Radio Type", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_context_direction,
@@ -1587,25 +1587,25 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_ulsch_header,
             { "UL-SCH Header",
               "mac-lte.ulsch.header", FT_STRING, BASE_NONE, NULL, 0x0,
-              "UL-SCH Header", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_dlsch_header,
             { "DL-SCH Header",
               "mac-lte.dlsch.header", FT_STRING, BASE_NONE, NULL, 0x0,
-              "DL-SCH Header", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_subheader,
             { "SCH sub-header",
               "mac-lte.sch.subheader", FT_STRING, BASE_NONE, NULL, 0x0,
-              "SCH sub-header", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_reserved,
             { "SCH reserved bits",
               "mac-lte.sch.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
-              "SCH reserved bits", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_extended,
@@ -1629,7 +1629,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_sch_format,
             { "Format",
               "mac-lte.sch.format", FT_UINT8, BASE_HEX, VALS(format_vals), 0x80,
-              "Format", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_sch_length,
@@ -1641,7 +1641,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_sch_header_only,
             { "MAC PDU Header only",
               "mac-lte.sch.header-only", FT_UINT8, BASE_DEC, VALS(header_only_vals), 0x0,
-              "MAC PDU Header only", HFILL
+              NULL, HFILL
             }
         },
 
@@ -1649,32 +1649,32 @@ void proto_register_mac_lte(void)
         /* Data                         */
         { &hf_mac_lte_sch_sdu,
             { "SDU",
-              "mac-lte.sch.sdu", FT_BYTES, BASE_HEX, 0, 0x0,
+              "mac-lte.sch.sdu", FT_BYTES, BASE_NONE, 0, 0x0,
               "Shared channel SDU", HFILL
             }
         },
         { &hf_mac_lte_bch_pdu,
             { "BCH PDU",
-              "mac-lte.bch.pdu", FT_BYTES, BASE_HEX, 0, 0x0,
-              "BCH PDU", HFILL
+              "mac-lte.bch.pdu", FT_BYTES, BASE_NONE, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_pch_pdu,
             { "PCH PDU",
-              "mac-lte.pch.pdu", FT_BYTES, BASE_HEX, 0, 0x0,
-              "PCH PDU", HFILL
+              "mac-lte.pch.pdu", FT_BYTES, BASE_NONE, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_predefined_pdu,
             { "Predefined data",
-              "mac-lte.predefined-data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "mac-lte.predefined-data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Predefined test data", HFILL
             }
         },
         { &hf_mac_lte_padding_data,
             { "Padding data",
-              "mac-lte.padding-data", FT_BYTES, BASE_HEX, 0, 0x0,
-              "Padding data", HFILL
+              "mac-lte.padding-data", FT_BYTES, BASE_NONE, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_padding_length,
@@ -1691,19 +1691,19 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar,
             { "RAR",
               "mac-lte.rar", FT_NONE, BASE_NONE, NULL, 0x0,
-              "RAR", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_headers,
             { "RAR Headers",
               "mac-lte.rar.headers", FT_STRING, BASE_NONE, NULL, 0x0,
-              "RAR Headers", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_header,
             { "RAR Header",
               "mac-lte.rar.header", FT_STRING, BASE_NONE, NULL, 0x0,
-              "RAR Header", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_extension,
@@ -1740,7 +1740,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar_body,
             { "RAR Body",
               "mac-lte.rar.body", FT_STRING, BASE_NONE, NULL, 0x0,
-              "RAR Body", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_reserved2,
@@ -1770,37 +1770,37 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar_ul_grant_fsrba,
             { "Fixed sized resource block assignment",
               "mac-lte.rar.ul-grant.fsrba", FT_UINT16, BASE_DEC, 0, 0x07fe,
-              "Fixed sized resource block assignment", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_tmcs,
             { "Truncated Modulation and coding scheme",
               "mac-lte.rar.ul-grant.tmcs", FT_UINT16, BASE_DEC, 0, 0x01e0,
-              "Truncated Modulation and coding scheme", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_tcsp,
             { "TPC command for scheduled PUSCH",
               "mac-lte.rar.ul-grant.tcsp", FT_UINT8, BASE_DEC, 0, 0x01c,
-              "TPC command for scheduled PUSCH", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_ul_delay,
             { "UL Delay",
               "mac-lte.rar.ul-grant.ul-delay", FT_UINT8, BASE_DEC, 0, 0x02,
-              "UL Delay", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_cqi_request,
             { "CQI Request",
               "mac-lte.rar.ul-grant.cqi-request", FT_UINT8, BASE_DEC, 0, 0x01,
-              "CQI Request", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_temporary_crnti,
             { "Temporary C-RNTI",
               "mac-lte.rar.temporary-crnti", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Temporary C-RNTI", HFILL
+              NULL, HFILL
             }
         },
 
@@ -1815,7 +1815,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_bsr_lcg_id,
             { "Logical Channel Group ID",
               "mac-lte.control.bsr.lcg-id", FT_UINT8, BASE_DEC, 0, 0xc0,
-              "Logical Channel Group ID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_control_bsr_buffer_size,
@@ -1862,8 +1862,8 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_ue_contention_resolution_identity,
             { "UE Contention Resolution Identity",
-              "mac-lte.control.ue-contention-resolution-identity", FT_BYTES, BASE_HEX, 0, 0x0,
-              "UE Contention Resolution Identity", HFILL
+              "mac-lte.control.ue-contention-resolution-identity", FT_BYTES, BASE_NONE, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_control_power_headroom_reserved,
@@ -1875,13 +1875,13 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_power_headroom,
             { "Power Headroom",
               "mac-lte.control.power-headroom", FT_UINT8, BASE_DEC, 0, 0x3f,
-              "Power Headroom", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_control_padding,
             { "Padding",
               "mac-lte.control.padding", FT_NONE, BASE_NONE, 0, 0x0,
-              "Padding", HFILL
+              NULL, HFILL
             }
         },
     };

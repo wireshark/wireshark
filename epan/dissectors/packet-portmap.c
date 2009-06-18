@@ -582,61 +582,61 @@ proto_register_portmap(void)
 	static hf_register_info hf[] = {
 		{ &hf_portmap_procedure_v1, {
 			"V1 Procedure", "portmap.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(portmap1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(portmap1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_procedure_v2, {
 			"V2 Procedure", "portmap.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(portmap2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(portmap2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_procedure_v3, {
 			"V3 Procedure", "portmap.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(portmap3_proc_vals), 0, "V3 Procedure", HFILL }},
+			VALS(portmap3_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_procedure_v4, {
 			"V4 Procedure", "portmap.procedure_v4", FT_UINT32, BASE_DEC,
-			VALS(portmap4_proc_vals), 0, "V4 Procedure", HFILL }},
+			VALS(portmap4_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_prog, {
 			"Program", "portmap.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_port, {
 			"Port", "portmap.port", FT_UINT32, BASE_DEC,
-			NULL, 0, "Port", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_proc, {
 			"Procedure", "portmap.proc", FT_UINT32, BASE_DEC,
-			NULL, 0, "Procedure", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_proto, {
 			"Protocol", "portmap.proto", FT_UINT32, BASE_DEC,
-			NULL, 0, "Protocol", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_version, {
 			"Version", "portmap.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_answer, {
 			"Answer", "portmap.answer", FT_BOOLEAN, BASE_NONE,
-			NULL, 0, "Answer", HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_portmap_args, {
-			"Arguments", "portmap.args", FT_BYTES, BASE_HEX,
-			NULL, 0, "Arguments", HFILL }},
+			"Arguments", "portmap.args", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_result, {
-			"Result", "portmap.result", FT_BYTES, BASE_HEX,
-			NULL, 0, "Result", HFILL }},
+			"Result", "portmap.result", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb, {
-			"RPCB", "portmap.rpcb", FT_NONE, 0,
-			NULL, 0, "RPCB", HFILL }},
+			"RPCB", "portmap.rpcb", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb_prog, {
 			"Program", "portmap.rpcb.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb_version, {
 			"Version", "portmap.rpcb.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb_netid, {
-			"Network Id", "portmap.rpcb.netid", FT_STRING, BASE_DEC,
-			NULL, 0, "Network Id", HFILL }},
+			"Network Id", "portmap.rpcb.netid", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb_addr, {	/* address in rpcb structure in request */
-			"Universal Address", "portmap.rpcb.addr", FT_STRING, BASE_DEC,
-			NULL, 0, "Universal Address", HFILL }},
+			"Universal Address", "portmap.rpcb.addr", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_rpcb_owner, {
-			"Owner of this Service", "portmap.rpcb.owner", FT_STRING, BASE_DEC,
-			NULL, 0, "Owner of this Service", HFILL }},
+			"Owner of this Service", "portmap.rpcb.owner", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_portmap_uaddr, {	/* address in RPCBPROC_GETADDR reply */
-			"Universal Address", "portmap.uaddr", FT_STRING, BASE_DEC,
-			NULL, 0, "Universal Address", HFILL }},
+			"Universal Address", "portmap.uaddr", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_portmap,

@@ -772,7 +772,7 @@ proto_register_btsdp(void)
 		{&hf_plen,
 			{"ParameterLength", "btsdp.len",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"ParameterLength", HFILL}
+			NULL, HFILL}
 		},
 		{&hf_error_code,
 		        {"ErrorCode", "btsdp.error_code",

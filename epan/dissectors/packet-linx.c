@@ -584,7 +584,7 @@ proto_register_linx(void)
 
 	static hf_register_info hf[] = {
 		{ &hf_linx_nexthdr,
-			{ "Next Header", "linx.nexthdr", FT_UINT32, BASE_DEC, VALS(linx_long_header_names), 0xf0000000, "Next Header", HFILL },
+			{ "Next Header", "linx.nexthdr", FT_UINT32, BASE_DEC, VALS(linx_long_header_names), 0xf0000000, NULL, HFILL },
 		},
 		{ &hf_linx_main_version, /* in ETHCM_MAIN */
 			{ "Version", "linx.version", FT_UINT32, BASE_DEC, NULL, 0x0e000000, "LINX Version", HFILL },
@@ -593,13 +593,13 @@ proto_register_linx(void)
 			{ "Reserved", "linx.reserved1", FT_UINT32, BASE_DEC, NULL, 0x01800000, "Main Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_main_connection, /* in ETHCM_MAIN */
-			{ "Connection", "linx.connection", FT_UINT32, BASE_DEC, NULL, 0x007f8000, "Connection", HFILL },
+			{ "Connection", "linx.connection", FT_UINT32, BASE_DEC, NULL, 0x007f8000, NULL, HFILL },
 		},
 		{ &hf_linx_main_bundle, /* in ETHCM_MAIN */
-			{ "Bundle", "linx.bundle", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00004000, "Bundle", HFILL },
+			{ "Bundle", "linx.bundle", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00004000, NULL, HFILL },
 		},
 		{ &hf_linx_main_pkgsize, /* in ETHCM_MAIN */
-			{ "Package Size", "linx.pcksize", FT_UINT32, BASE_DEC, NULL, 0x00003fff, "Package Size", HFILL },
+			{ "Package Size", "linx.pcksize", FT_UINT32, BASE_DEC, NULL, 0x00003fff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_reserved, /* in ETHCM_UDATA */
 			{ "Reserved", "linx.reserved5", FT_UINT32, BASE_DEC, NULL, 0x0fff0000, "Udata Hdr Reserved", HFILL },
@@ -608,40 +608,40 @@ proto_register_linx(void)
 			{ "More Fragments", "linx.morefra", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00008000, "More fragments follow", HFILL },
 		},
 		{ &hf_linx_udata_fragno, /* in ETHCM_UDATA */
-			{ "Fragment Number", "linx.fragno", FT_UINT32, BASE_DEC, VALS(linx_nofragment), 0x00007fff, "Fragment Number", HFILL },
+			{ "Fragment Number", "linx.fragno", FT_UINT32, BASE_DEC, VALS(linx_nofragment), 0x00007fff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_signo, /* in ETHCM_UDATA */
-			{ "Signal Number", "linx.signo", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "Signal Number", HFILL },
+			{ "Signal Number", "linx.signo", FT_UINT32, BASE_DEC, NULL, 0xffffffff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_dstaddr16, /* in ETHCM_UDATA - protocol version 2 */
-			{ "Receiver Address", "linx.dstaddr", FT_UINT32, BASE_DEC, NULL, 0xffff0000, "Receiver Address", HFILL },
+			{ "Receiver Address", "linx.dstaddr", FT_UINT32, BASE_DEC, NULL, 0xffff0000, NULL, HFILL },
 		},
 		{ &hf_linx_udata_dstaddr32, /* in ETHCM_UDATA - protocol version 3 */
-			{ "Receiver Address", "linx.dstaddr32", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "Receiver Address", HFILL },
+			{ "Receiver Address", "linx.dstaddr32", FT_UINT32, BASE_DEC, NULL, 0xffffffff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_srcaddr16, /* in ETHCM_UDATA - protocol version 2 */
-			{ "Sender Address", "linx.srcaddr", FT_UINT32, BASE_DEC, NULL, 0x0000ffff, "Sender Address", HFILL },
+			{ "Sender Address", "linx.srcaddr", FT_UINT32, BASE_DEC, NULL, 0x0000ffff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_srcaddr32, /* in ETHCM_UDATA - protocol version 3 */
-			{ "Sender Address", "linx.srcaddr32", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "Sender Address", HFILL },
+			{ "Sender Address", "linx.srcaddr32", FT_UINT32, BASE_DEC, NULL, 0xffffffff, NULL, HFILL },
 		},
 		{ &hf_linx_ack_request, /* in ETHCM_ACK */
-			{ "ACK-request", "linx.ackreq", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x08000000, "ACK-request", HFILL },
+			{ "ACK-request", "linx.ackreq", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x08000000, NULL, HFILL },
 		},
 		{ &hf_linx_ack_reserved, /* in ETHCM_ACK */
 			{ "Reserved", "linx.reserved7", FT_UINT32, BASE_DEC, NULL, 0x07000000, "ACK Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_ack_ackno, /* in ETHCM_ACK */
-			{ "ACK Number", "linx.ackno", FT_UINT32, BASE_DEC, NULL, 0x00fff000, "ACK Number", HFILL },
+			{ "ACK Number", "linx.ackno", FT_UINT32, BASE_DEC, NULL, 0x00fff000, NULL, HFILL },
 		},
 		{ &hf_linx_ack_seqno, /* in ETHCM_ACK */
-			{ "Sequence Number", "linx.seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, "Sequence Number", HFILL },
+			{ "Sequence Number", "linx.seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, NULL, HFILL },
 		},
 		{ &hf_linx_conn_cmd, /* in ETHCM_CONN */
-			{ "Command", "linx.cmd", FT_UINT32, BASE_DEC, VALS(linx_conn_cmd), 0x0f000000, "Command", HFILL },
+			{ "Command", "linx.cmd", FT_UINT32, BASE_DEC, VALS(linx_conn_cmd), 0x0f000000, NULL, HFILL },
 		},
 		{ &hf_linx_conn_size, /* in ETHCM_CONN */
-			{ "Size", "linx.size", FT_UINT32, BASE_DEC, NULL, 0x00e00000, "Size", HFILL },
+			{ "Size", "linx.size", FT_UINT32, BASE_DEC, NULL, 0x00e00000, NULL, HFILL },
 		},
 		{ &hf_linx_conn_winsize, /* in ETHCM_CONN */
 			{ "WinSize", "linx.winsize", FT_UINT32, BASE_DEC, NULL, 0x001e0000, "Window Size", HFILL },
@@ -650,7 +650,7 @@ proto_register_linx(void)
 			{ "Reserved", "linx.reserved3", FT_UINT32, BASE_DEC, NULL, 0x0001ff00, "Conn Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_conn_publcid, /* in ETHCM_CONN */
-			{ "Publish Conn ID", "linx.publcid", FT_UINT32, BASE_DEC, NULL, 0x000000ff, "Publish Conn ID", HFILL },
+			{ "Publish Conn ID", "linx.publcid", FT_UINT32, BASE_DEC, NULL, 0x000000ff, NULL, HFILL },
 		},
 		{ &hf_linx_conn_srcmac, /* in ETHCM_CONN */
 			{ "Source", "linx.srcmaddr_ether", FT_ETHER, BASE_DEC, NULL, 0x0, "Source Media Address (ethernet)", HFILL },
@@ -659,28 +659,28 @@ proto_register_linx(void)
 			{ "Destination", "linx.destmaddr_ether", FT_ETHER, BASE_DEC, NULL, 0x0, "Destination Media Address (ethernet)", HFILL },
 		},
 		{ &hf_linx_conn_feat_neg_str, /* in ETHCM_CONN */
-		        { "Feature Negotiation String", "linx.feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Feature Negotiation String", HFILL },
+		        { "Feature Negotiation String", "linx.feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_linx_frag_reserved, /* in ETHCM_FRAG */
 			{ "Reserved", "linx.reserved6", FT_UINT32, BASE_DEC, NULL, 0x0fff0000, "Frag Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_frag_morefrags, /* in ETHCM_FRAG */
-			{ "More Fragments", "linx.morefr2", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00008000, "More Fragments", HFILL },
+			{ "More Fragments", "linx.morefr2", FT_UINT32, BASE_DEC, VALS(linx_boolean), 0x00008000, NULL, HFILL },
 		},
 		{ &hf_linx_frag_fragno, /* in ETHCM_FRAG */
-			{ "Fragment Number", "linx.fragno2", FT_UINT32, BASE_DEC, NULL, 0x00007fff, "Fragment Number", HFILL },
+			{ "Fragment Number", "linx.fragno2", FT_UINT32, BASE_DEC, NULL, 0x00007fff, NULL, HFILL },
 		},
 		{ &hf_linx_nack_reserv1, /* in ETHCM_NACK */
 			{ "Reserved", "linx.nack_reserv", FT_UINT32, BASE_DEC, NULL, 0x0f000000, "Nack Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_nack_count, /* in ETHCM_NACK */
-			{ "Count", "linx.nack_count", FT_UINT32, BASE_DEC, NULL, 0x00ff0000, "Count", HFILL },
+			{ "Count", "linx.nack_count", FT_UINT32, BASE_DEC, NULL, 0x00ff0000, NULL, HFILL },
 		},
 		{ &hf_linx_nack_reserv2, /* in ETHCM_NACK */
 			{ "Reserved", "linx.nack_reserv", FT_UINT32, BASE_DEC, NULL, 0x0000f000, "Nack Hdr Reserved", HFILL },
 		},
 		{ &hf_linx_nack_seqno, /* in ETHCM_NACK */
-			{ "Sequence Number", "linx.nack_seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, "Sequence Number", HFILL },
+			{ "Sequence Number", "linx.nack_seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, NULL, HFILL },
 		},
 	
 	  /* RLNH */
@@ -703,16 +703,16 @@ proto_register_linx(void)
 			{ "RLNH peer linkaddr", "linx.rlnh_peer_linkaddr", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH peer linkaddress", HFILL },
 		},
 		{ &hf_linx_rlnh_version, /* in RLNH */
-			{ "RLNH version", "linx.rlnh_version", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH version", HFILL },
+			{ "RLNH version", "linx.rlnh_version", FT_UINT32, BASE_DEC, NULL, 0xffffffff, NULL, HFILL },
 		},
 		{ &hf_linx_rlnh_status, /* in RLNH */
-			{ "RLNH reply", "linx.rlnh_status", FT_UINT32, BASE_DEC, VALS(linx_rlnh_reply), 0xffffffff, "RLNH reply", HFILL },
+			{ "RLNH reply", "linx.rlnh_status", FT_UINT32, BASE_DEC, VALS(linx_rlnh_reply), 0xffffffff, NULL, HFILL },
 		},
 		{ &hf_linx_rlnh_name, /* in RLNH */
-			{ "RLNH name", "linx.rlnh_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RLNH name", HFILL },
+			{ "RLNH name", "linx.rlnh_name", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_linx_rlnh_feat_neg_str, /* in RLNH */
-		        { "RLNH Feature Negotiation String", "linx.rlnh_feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RLNH Feature Negotiation String", HFILL },
+		        { "RLNH Feature Negotiation String", "linx.rlnh_feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		}
 	};
 

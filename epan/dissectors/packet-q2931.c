@@ -2139,39 +2139,39 @@ proto_register_q2931(void)
 	static hf_register_info hf[] = {
 		{ &hf_q2931_discriminator,
 		  { "Protocol discriminator", "q2931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_call_ref_len,
 		  { "Call reference value length", "q2931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_call_ref_flag,
 		  { "Call reference flag", "q2931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_call_ref,
-		  { "Call reference value", "q2931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
-		  	"", HFILL }},
+		  { "Call reference value", "q2931.call_ref", FT_BYTES, BASE_NONE, NULL, 0x0,
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_message_type,
 		  { "Message type", "q2931.message_type", FT_UINT8, BASE_HEX, VALS(q2931_message_type_vals), 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_message_type_ext,
 		  { "Message type extension", "q2931.message_type_ext", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_message_flag,
 		  { "Flag", "q2931.message_flag", FT_BOOLEAN, 8, TFS(&tos_msg_flag), Q2931_MSG_TYPE_EXT_FOLLOW_INST,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_message_action_indicator,
 		  { "Action indicator", "q2931.message_action_indicator", FT_UINT8, BASE_DEC, VALS(msg_action_ind_vals), Q2931_MSG_TYPE_EXT_ACTION_IND,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 		{ &hf_q2931_message_len,
 		  { "Message length", "q2931.message_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-		  	"", HFILL }},
+		  	NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

@@ -729,11 +729,11 @@ proto_register_dcp_etsi (void)
     {&hf_edcp_crc,
      {"CRC", "dcp-af.crc",
       FT_UINT16, BASE_HEX, NULL, 0,
-      "CRC", HFILL}
+      NULL, HFILL}
      },
     {&hf_edcp_crc_ok,
      {"CRC OK", "dcp-af.crc_ok",
-      FT_BOOLEAN, BASE_NONE, NULL, 0,
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "AF CRC OK", HFILL}
      }
     };
@@ -801,7 +801,7 @@ proto_register_dcp_etsi (void)
      },
     {&hf_edcp_hcrc_ok,
      {"PFT CRC OK", "dcp-pft.crc_ok",
-      FT_BOOLEAN, BASE_NONE, NULL, 0,
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "PFT Header CRC OK", HFILL}
      },
     {&hf_edcp_fragments,
@@ -812,18 +812,18 @@ proto_register_dcp_etsi (void)
       FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL}},
     {&hf_edcp_fragment_overlap,
      {"Message fragment overlap", "dcp-pft.fragment.overlap",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_edcp_fragment_overlap_conflicts,
      {"Message fragment overlapping with conflicting data",
       "dcp-pft.fragment.overlap.conflicts",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_edcp_fragment_multiple_tails,
      {"Message has multiple tail fragments",
       "dcp-pft.fragment.multiple_tails",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_edcp_fragment_too_long_fragment,
      {"Message fragment too long", "dcp-pft.fragment.too_long_fragment",
-      FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_edcp_fragment_error,
      {"Message defragmentation error", "dcp-pft.fragment.error",
       FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL}},
@@ -847,12 +847,12 @@ proto_register_dcp_etsi (void)
      },
     {&hf_edcp_rs_ok,
      {"RS decode OK", "dcp-pft.rs_ok",
-      FT_BOOLEAN, BASE_NONE, NULL, 0,
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "successfully decoded RS blocks", HFILL}
      },
     {&hf_edcp_pft_payload,
      {"payload", "dcp-pft.payload",
-      FT_BYTES, BASE_HEX, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       "PFT Payload", HFILL}
     }
   };
@@ -860,7 +860,7 @@ proto_register_dcp_etsi (void)
   static hf_register_info hf_tpl[] = {
     {&hf_tpl_tlv,
      {"tag", "dcp-tpl.tlv",
-      FT_BYTES, BASE_HEX, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       "Tag Packet", HFILL}
      },
     {&hf_tpl_ptr,

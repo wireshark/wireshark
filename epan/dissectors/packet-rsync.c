@@ -283,35 +283,35 @@ proto_register_rsync(void)
     static hf_register_info hf[] = {
 	{&hf_rsync_hdr_magic,
 	 {"Magic Header", "rsync.hdr_magic",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_hdr_version,
 	 {"Header Version", "rsync.hdr_version",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_query_string,
 	 {"Client Query String", "rsync.query",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_response_string,
 	 {"Server Response String", "rsync.response",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_motd_string,
 	 {"Server MOTD String", "rsync.motd",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_rsyncdok_string,
 	 {"RSYNCD Response String", "rsync.response",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_command_string,
 	 {"Command String", "rsync.command",
-	  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 	{&hf_rsync_data,
 	 {"rsync data", "rsync.data",
-	  FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
+	  FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 	},
 
     };

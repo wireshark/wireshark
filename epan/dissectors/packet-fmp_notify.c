@@ -481,7 +481,7 @@ proto_register_fmp_notify(void)
 	static hf_register_info hf[] = {
 		{ &hf_fmp_notify_procedure, {
                         "Procedure", "fmp_notify.fmp_notify_procedure", FT_UINT32, BASE_DEC,
-                        VALS(fmp_notify_proc_vals) , 0, "Procedure", HFILL }},        /* New addition */
+                        VALS(fmp_notify_proc_vals) , 0, NULL, HFILL }},        /* New addition */
 	
 		{ &hf_fmp_status, {
                         "Status", "fmp_notify.status", FT_UINT32, BASE_DEC,
@@ -501,7 +501,7 @@ proto_register_fmp_notify(void)
 
                 { &hf_fmp_fsID, {
                         "File System ID", "fmp_notify.fsID", FT_UINT32, BASE_HEX,
-                        NULL, 0, "File System ID", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 
                 { &hf_fmp_fsBlkSz, {
                         "FS Block Size", "fmp_notify.fsBlkSz", FT_UINT32, BASE_DEC,
@@ -510,7 +510,7 @@ proto_register_fmp_notify(void)
 
                 { &hf_fmp_numBlksReq, {
                         "Number Blocks Requested", "fmp_notify.numBlksReq", FT_UINT32,
-                        BASE_DEC, NULL, 0, "Number Blocks Requested", HFILL }},
+                        BASE_DEC, NULL, 0, NULL, HFILL }},
 	
 
                 { &hf_fmp_msgNum, {
@@ -529,11 +529,11 @@ proto_register_fmp_notify(void)
 		
                 { &hf_fmp_fileSize, {
                         "File Size", "fmp_notify.fileSize", FT_UINT64, BASE_DEC,
-                        NULL, 0, "File Size", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 
 		 { &hf_fmp_fmpFHandle, {
                         "FMP File Handle", "fmp_notify.fmpFHandle",
-                        FT_BYTES, BASE_NONE, NULL, 0, "FMP File Handle",
+                        FT_BYTES, BASE_NONE, NULL, 0, NULL,
                         HFILL }},
 
 

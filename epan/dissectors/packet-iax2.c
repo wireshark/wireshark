@@ -2105,8 +2105,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_callno,
      {"Call identifier", "iax2.call", FT_UINT32, BASE_DEC, NULL, 0,
-      "This is the identifier Wireshark assigns to identify this call. It does "
-      "not correspond to any real field in the protocol", HFILL }},
+      "This is the identifier Wireshark assigns to identify this call. It does not correspond to any real field in the protocol", HFILL }},
 
     {&hf_iax2_scallno,
      {"Source call", "iax2.src_call", FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -2122,31 +2121,26 @@ proto_register_iax2 (void)
     {&hf_iax2_retransmission,
      {"Retransmission", "iax2.retransmission", FT_BOOLEAN, 16,
       NULL, 0x8000,
-      "retransmission is set if this packet is a retransmission of an earlier "
-      "failed packet", HFILL}},
+      "retransmission is set if this packet is a retransmission of an earlier failed packet", HFILL}},
 
     {&hf_iax2_ts,
      {"Timestamp", "iax2.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "timestamp is the time, in ms after the start of this call, at which "
-      "this packet was transmitted",
+      "timestamp is the time, in ms after the start of this call, at which this packet was transmitted",
       HFILL}},
 
     {&hf_iax2_minits,
      {"Timestamp", "iax2.timestamp", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "timestamp is the time, in ms after the start of this call, at which "
-      "this packet was transmitted",
+      "timestamp is the time, in ms after the start of this call, at which this packet was transmitted",
       HFILL}},
 
     {&hf_iax2_minividts,
      {"Timestamp", "iax2.timestamp", FT_UINT16, BASE_DEC, NULL, 0x7FFF,
-      "timestamp is the time, in ms after the start of this call, at which "
-      "this packet was transmitted",
+      "timestamp is the time, in ms after the start of this call, at which this packet was transmitted",
       HFILL}},
 
     {&hf_iax2_absts,
      {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      "The absoulte time of this packet (calculated by adding the IAX timestamp to "
-      " the start time of this call)",
+      "The absoulte time of this packet (calculated by adding the IAX timestamp to  the start time of this call)",
       HFILL}},
 
     {&hf_iax2_lateness,
@@ -2162,8 +2156,7 @@ proto_register_iax2 (void)
     {&hf_iax2_oseqno,
      {"Outbound seq.no.", "iax2.oseqno", FT_UINT16, BASE_DEC, NULL,
       0x0, 
-      "oseqno is the sequence no of this packet. The first packet has "
-      "oseqno==0, and subsequent packets increment the oseqno by 1",
+      "oseqno is the sequence no of this packet. The first packet has oseqno==0, and subsequent packets increment the oseqno by 1",
       HFILL}},
 
     {&hf_iax2_iseqno,
@@ -2200,7 +2193,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_voice_csub,
      {"Voice Subclass (compressed codec no)", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "Voice Subclass (compressed codec no)",
+      NULL,
       HFILL}},
 
     {&hf_iax2_voice_codec,
@@ -2210,7 +2203,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_video_csub,
      {"Video Subclass (compressed codec no)", "iax2.video.subclass", FT_UINT8, BASE_DEC, NULL, 0xBF, 
-      "Video Subclass (compressed codec no)",
+      NULL,
       HFILL}},
     
     {&hf_iax2_marker,
@@ -2233,222 +2226,222 @@ proto_register_iax2 (void)
      */
 
     {&hf_IAX_IE_APPARENTADDR_SINFAMILY,
-     {"Family", "iax2.iax.app_addr.sinfamily", FT_UINT16, BASE_DEC, NULL, 0, "Family", HFILL }},
+     {"Family", "iax2.iax.app_addr.sinfamily", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     {&hf_IAX_IE_APPARENTADDR_SINPORT,
-     {"Port", "iax2.iax.app_addr.sinport", FT_UINT16, BASE_DEC, NULL, 0, "Port", HFILL }},
+     {"Port", "iax2.iax.app_addr.sinport", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     {&hf_IAX_IE_APPARENTADDR_SINADDR,
-     {"Address", "iax2.iax.app_addr.sinaddr", FT_IPv4, BASE_HEX, NULL, 0, "Address", HFILL }},
+     {"Address", "iax2.iax.app_addr.sinaddr", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
     
     {&hf_iax2_ies[IAX_IE_CALLED_NUMBER],
      {"Number/extension being called", "iax2.iax.called_number",
       FT_STRING,
-      BASE_NONE, NULL, 0x0, "", HFILL}},
+      BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLING_NUMBER],
      {"Calling number", "iax2.iax.calling_number", FT_STRING,
       BASE_NONE, NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLING_ANI],
      {"Calling number ANI for billing", "iax2.iax.calling_ani",
       FT_STRING,
-      BASE_NONE, NULL, 0x0, "", HFILL}},
+      BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLING_NAME],
      {"Name of caller", "iax2.iax.calling_name", FT_STRING, BASE_NONE,
       NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLED_CONTEXT],
      {"Context for number", "iax2.iax.called_context", FT_STRING,
       BASE_NONE,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_USERNAME],
      {"Username (peer or user) for authentication",
       "iax2.iax.username",
-      FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_PASSWORD],
      {"Password for authentication", "iax2.iax.password", FT_STRING,
-      BASE_NONE, NULL, 0x0, "", HFILL}},
+      BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CAPABILITY],
      {"Actual codec capability", "iax2.iax.capability", FT_UINT32,
       BASE_HEX,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_FORMAT],
      {"Desired codec format", "iax2.iax.format", FT_UINT32, BASE_HEX,
-      VALS (codec_types), 0x0, "", HFILL}},
+      VALS (codec_types), 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_LANGUAGE],
      {"Desired language", "iax2.iax.language", FT_STRING, BASE_NONE,
       NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_VERSION],
      {"Protocol version", "iax2.iax.version", FT_UINT16, BASE_HEX, NULL,
       0x0,
-      "", HFILL}},
+      NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_ADSICPE],
      {"CPE ADSI capability", "iax2.iax.cpe_adsi", FT_UINT16, BASE_HEX,
       NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_DNID],
      {"Originally dialed DNID", "iax2.iax.dnid", FT_STRING, BASE_NONE,
       NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_AUTHMETHODS],
      {"Authentication method(s)", "iax2.iax.auth.methods", FT_UINT16,
       BASE_HEX,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CHALLENGE],
      {"Challenge data for MD5/RSA", "iax2.iax.auth.challenge",
       FT_STRING,
-      BASE_NONE, NULL, 0x0, "", HFILL}},
+      BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_MD5_RESULT],
      {"MD5 challenge result", "iax2.iax.auth.md5", FT_STRING,
       BASE_NONE, NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RSA_RESULT],
      {"RSA challenge result", "iax2.iax.auth.rsa", FT_STRING,
       BASE_NONE, NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_REFRESH],
      {"When to refresh registration", "iax2.iax.refresh", FT_INT16,
       BASE_DEC,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_DPSTATUS],
      {"Dialplan status", "iax2.iax.dialplan_status", FT_UINT16,
       BASE_HEX, NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLNO],
      {"Call number of peer", "iax2.iax.call_no", FT_UINT16, BASE_DEC,
       NULL,
-      0x0, "", HFILL}},
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CAUSE],
-     {"Cause", "iax2.iax.cause", FT_STRING, BASE_NONE, NULL, 0x0, "",
+     {"Cause", "iax2.iax.cause", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
       HFILL}},
 
     {&hf_iax2_ies[IAX_IE_IAX_UNKNOWN],
      {"Unknown IAX command", "iax2.iax.iax_unknown", FT_BYTES,
-      BASE_HEX, NULL,
-      0x0, "", HFILL}},
+      BASE_NONE, NULL,
+      0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_MSGCOUNT],
      {"How many messages waiting", "iax2.iax.msg_count", FT_INT16,
       BASE_DEC,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_AUTOANSWER],
      {"Request auto-answering", "iax2.iax.autoanswer", FT_NONE,
       BASE_NONE,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_MUSICONHOLD],
      {"Request musiconhold with QUELCH", "iax2.iax.moh", FT_NONE,
       BASE_NONE,
-      NULL, 0x0, "", HFILL}},
+      NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_TRANSFERID],
      {"Transfer Request Identifier", "iax2.iax.transferid", FT_UINT32,
-      BASE_HEX, NULL, 0x0, "", HFILL}},
+      BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RDNIS],
      {"Referring DNIS", "iax2.iax.rdnis", FT_STRING, BASE_NONE, NULL,
-      0x0, "",
+      0x0, NULL,
       HFILL}},
 
     {&hf_iax2_ies[IAX_IE_PROVISIONING],
      {"Provisioning info","iax2.iax.provisioning", FT_STRING, BASE_NONE,
-       NULL, 0x0, "", HFILL}},
+       NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_AESPROVISIONING],
      {"AES Provisioning info","iax2.iax.aesprovisioning", FT_STRING, BASE_NONE,
-       NULL, 0x0, "", HFILL}},
+       NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_DATETIME],
-     {"Date/Time", "iax2.iax.datetime.raw", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+     {"Date/Time", "iax2.iax.datetime.raw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ie_datetime,
-     {"Date/Time", "iax2.iax.datetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+     {"Date/Time", "iax2.iax.datetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_iax2_ies[IAX_IE_DEVICETYPE],
-     {"Device type", "iax2.iax.devicetype", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+     {"Device type", "iax2.iax.devicetype", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_SERVICEIDENT],
-     {"Service identifier", "iax2.iax.serviceident", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+     {"Service identifier", "iax2.iax.serviceident", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_FIRMWAREVER],
-     {"Firmware version", "iax2.iax.firmwarever", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Firmware version", "iax2.iax.firmwarever", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_FWBLOCKDESC],
-     {"Firmware block description", "iax2.iax.fwblockdesc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Firmware block description", "iax2.iax.fwblockdesc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_FWBLOCKDATA],
-     {"Firmware block of data", "iax2.iax.fwblockdata", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+     {"Firmware block of data", "iax2.iax.fwblockdata", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_PROVVER],
-     {"Provisioning version", "iax2.iax.provver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Provisioning version", "iax2.iax.provver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLINGPRES],
-     {"Calling presentation", "iax2.iax.callingpres", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Calling presentation", "iax2.iax.callingpres", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLINGTON],
-     {"Calling type of number", "iax2.iax.callington", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Calling type of number", "iax2.iax.callington", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CALLINGTNS],
-     {"Calling transit network select", "iax2.iax.callingtns", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Calling transit network select", "iax2.iax.callingtns", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_SAMPLINGRATE],
-     {"Supported sampling rates", "iax2.iax.samplingrate", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Supported sampling rates", "iax2.iax.samplingrate", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CAUSECODE],
      {"Hangup cause", "iax2.iax.causecode", FT_UINT8, BASE_HEX, VALS(iax_causecodes),
-       0x0, "", HFILL}},
+       0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_ENCRYPTION],
-     {"Encryption format", "iax2.iax.encryption", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Encryption format", "iax2.iax.encryption", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_ENCKEY],
-     {"Encryption key", "iax2.iax.enckey", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+     {"Encryption key", "iax2.iax.enckey", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_CODEC_PREFS],
-     {"Codec negotiation", "iax2.iax.codecprefs", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+     {"Codec negotiation", "iax2.iax.codecprefs", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_JITTER],
-     {"Received jitter (as in RFC1889)", "iax2.iax.rrjitter", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Received jitter (as in RFC1889)", "iax2.iax.rrjitter", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_LOSS],
      {"Received loss (high byte loss pct, low 24 bits loss count, as in rfc1889)", "iax2.iax.rrloss",
-       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+       FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_PKTS],
-     {"Total frames received", "iax2.iax.rrpkts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Total frames received", "iax2.iax.rrpkts", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_DELAY],
-     {"Max playout delay in ms for received frames", "iax2.iax.rrdelay", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Max playout delay in ms for received frames", "iax2.iax.rrdelay", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_DROPPED],
-     {"Dropped frames (presumably by jitterbuffer)", "iax2.iax.rrdropped", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Dropped frames (presumably by jitterbuffer)", "iax2.iax.rrdropped", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_RR_OOO],
-     {"Frame received out of order", "iax2.iax.rrooo", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+     {"Frame received out of order", "iax2.iax.rrooo", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_DATAFORMAT],
      {"Data call format", "iax2.iax.dataformat", FT_UINT32, BASE_HEX,
-      VALS(iax_dataformats), 0x0, "", HFILL}},
+      VALS(iax_dataformats), 0x0, NULL, HFILL}},
 
     {&hf_IAX_IE_UNKNOWN_BYTE,
      {"Unknown", "iax2.iax.unknownbyte", FT_UINT8, BASE_HEX, NULL,
@@ -2471,86 +2464,86 @@ proto_register_iax2 (void)
     {&hf_iax2_cap_g723_1,
      {"G.723.1 compression", "iax2.cap.g723_1", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_G723_1,
-      "G.723.1 compression", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_gsm,
      {"GSM compression", "iax2.cap.gsm", FT_BOOLEAN, 32,
        TFS(&tfs_supported_not_supported), AST_FORMAT_GSM, 
-      "GSM compression", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_ulaw,
      {"Raw mu-law data (G.711)", "iax2.cap.ulaw",FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_ULAW,
-      "Raw mu-law data (G.711)", HFILL }},
+      NULL, HFILL }},
 
      {&hf_iax2_cap_alaw,
       {"Raw A-law data (G.711)", "iax2.cap.alaw",FT_BOOLEAN, 32,
        TFS(&tfs_supported_not_supported), AST_FORMAT_ALAW,
-       "Raw A-law data (G.711)", HFILL }},
+       NULL, HFILL }},
 
     {&hf_iax2_cap_g726,
      {"G.726 compression", "iax2.cap.g726",FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_G726,
-      "G.726 compression", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_adpcm,
      {"ADPCM", "iax2.cap.adpcm", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_ADPCM,
-      "ADPCM", HFILL }},
+      NULL, HFILL }},
     
     {&hf_iax2_cap_slinear,
      {"Raw 16-bit Signed Linear (8000 Hz) PCM", "iax2.cap.slinear", 
       FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR, 
-      "Raw 16-bit Signed Linear (8000 Hz) PCM", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_lpc10,
      {"LPC10, 180 samples/frame", "iax2.cap.lpc10", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_LPC10,
-      "LPC10, 180 samples/frame", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_g729a,
      {"G.729a Audio", "iax2.cap.g729a", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_G729A,
-      "G.729a Audio", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_speex,
      {"SPEEX Audio", "iax2.cap.speex", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_SPEEX,
-      "SPEEX Audio", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_ilbc,
      {"iLBC Free compressed Audio", "iax2.cap.ilbc", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_ILBC,
-      "iLBC Free compressed Audio", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_jpeg,
      {"JPEG images", "iax2.cap.jpeg", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_JPEG,
-      "JPEG images", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_png,
      {"PNG images", "iax2.cap.png", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_PNG,
-      "PNG images", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_h261,
      {"H.261 video", "iax2.cap.h261", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_H261,
-      "H.261 video", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_cap_h263,
      {"H.263 video", "iax2.cap.h263", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_H263,
-      "H.263 video", HFILL }},
+      NULL, HFILL }},
 
     /* reassembly stuff */
     {&hf_iax2_fragments,
      {"IAX2 Fragments", "iax2.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-      "IAX2 Fragments", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_fragment,
      {"IAX2 Fragment data", "iax2.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-      "IAX2 Fragment data", HFILL }},
+      NULL, HFILL }},
 
     {&hf_iax2_fragment_overlap,
      {"Fragment overlap", "iax2.fragment.overlap", FT_BOOLEAN, BASE_NONE,

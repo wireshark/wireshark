@@ -601,7 +601,7 @@ void proto_register_simulcrypt (void)
 
 		{ &hf_simulcrypt_transition_delay_start,	
 		{ "Transition delay start", "simulcrypt.transition_delay_start", FT_INT16, BASE_DEC, NULL, 0x0,
-		 "Transition delay start", HFILL }},
+		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_transition_delay_stop,	
 		{ "Transition delay stop", "simulcrypt.transition_delay_stop", FT_INT16, BASE_DEC, NULL, 0x0,
@@ -632,7 +632,7 @@ void proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_access_criteria,
-		{ "Access criteria", "simulcrypt.access_criteria", FT_BYTES, BASE_HEX, NULL, 0x0,
+		{ "Access criteria", "simulcrypt.access_criteria", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_ecm_stream_id,
@@ -644,7 +644,7 @@ void proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_access_criteria_transfer_mode,
-		{ "AC transfer mode", "simulcrypt.access_criteria_transfer_mode", FT_BOOLEAN, 8, NULL, 0x0,
+		{ "AC transfer mode", "simulcrypt.access_criteria_transfer_mode", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_cp_number,
@@ -656,11 +656,11 @@ void proto_register_simulcrypt (void)
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_cp_cw_combination,
-		{ "CP CW combination", "simulcrypt.cp_cw_combination", FT_BYTES, BASE_HEX, NULL, 0x0,
+		{ "CP CW combination", "simulcrypt.cp_cw_combination", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }},
 		 
 		{ &hf_simulcrypt_ecm_datagram,
-		{ "ECM datagram", "simulcrypt.ecm_datagram", FT_BYTES, BASE_HEX, NULL, 0x0,
+		{ "ECM datagram", "simulcrypt.ecm_datagram", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_cw_encryption,

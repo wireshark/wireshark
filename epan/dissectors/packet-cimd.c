@@ -748,7 +748,7 @@ proto_register_cimd(void)
     { &hf_cimd_packet_number_indicator,
       { "Packet Number", "cimd.pnumber", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD Packet Number", HFILL }},
     { &hf_cimd_pcode_indicator,
-      { "Code ", "cimd.pcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Parameter Code", HFILL }},
+      { "Code", "cimd.pcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Parameter Code", HFILL }},
     { &hf_cimd_checksum_indicator,
       { "Checksum", "cimd.chksum", FT_UINT8, BASE_HEX, NULL, 0x00, "CIMD Checksum", HFILL }},
     { &hf_cimd_dcs_coding_group_indicator,

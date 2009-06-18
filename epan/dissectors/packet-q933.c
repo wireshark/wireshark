@@ -2173,94 +2173,94 @@ proto_register_q933(void)
 	static hf_register_info hf[] = {
 		{ &hf_q933_discriminator,
 		  { "Protocol discriminator", "q933.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_call_ref_flag,
 		  { "Call reference flag", "q933.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_call_ref,
-		  { "Call reference value", "q933.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+		  { "Call reference value", "q933.call_ref", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 
 
 		{ &hf_q933_coding_standard,
 		  { "Coding standard", "q933.coding_standard", FT_UINT8, BASE_HEX,
-			 VALS(q933_coding_standard_vals), 0x60,"", HFILL }},
+			 VALS(q933_coding_standard_vals), 0x60,NULL, HFILL }},
 
 		{ &hf_q933_information_transfer_capability,
 		  { "Information transfer capability", "q933.information_transfer_capability", FT_UINT8, BASE_HEX,
-			 VALS(q933_information_transfer_capability_vals), 0x1f,"", HFILL }},
+			 VALS(q933_information_transfer_capability_vals), 0x1f,NULL, HFILL }},
 
 		{ &hf_q933_transfer_mode,
 		  { "Transfer mode", "q933.transfer_mode", FT_UINT8, BASE_HEX,
-			 VALS(q933_transfer_mode_vals), 0x60,"", HFILL }},
+			 VALS(q933_transfer_mode_vals), 0x60,NULL, HFILL }},
 
 		{ &hf_q933_uil1,
 		  { "User information layer 1 protocol", "q933.uil1", FT_UINT8, BASE_HEX,
-			 VALS(q933_uil1_vals), 0x1f,"", HFILL }},
+			 VALS(q933_uil1_vals), 0x1f,NULL, HFILL }},
 
 		{ &hf_q933_call_ref_len,
 		  { "Call reference value length", "q933.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_message_type,
 		  { "Message type", "q933.message_type", FT_UINT8, BASE_HEX, VALS(q933_message_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_cause_location,
 		  { "Cause location", "q933.cause_location", FT_UINT8, BASE_DEC, VALS(q933_cause_location_vals), 0x0f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_cause_value,
 		  { "Cause value", "q933.cause_value", FT_UINT8, BASE_DEC, VALS(q933_cause_code_vals), 0x7f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_number_type,
 		  { "Number type", "q933.number_type", FT_UINT8, BASE_HEX, VALS(q933_number_type_vals), 0x70,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_numbering_plan,
 		  { "numbering plan", "q933.numbering_plan", FT_UINT8, BASE_HEX, VALS(q933_numbering_plan_vals), 0x0f,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_screening_ind,
 		  { "Screening indicator", "q933.screening_ind", FT_UINT8, BASE_HEX, VALS(q933_screening_indicator_vals), 0x03,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_presentation_ind,
 		  { "Presentation indicator", "q933.presentation_ind", FT_UINT8, BASE_HEX, VALS(q933_presentation_indicator_vals), 0x60,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_extension_ind,
 		  { "Extension indicator",  "q933.extension_ind",
 			FT_BOOLEAN, 8, TFS(&q933_extension_ind_value), 0x80,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_calling_party_number,
 		  { "Calling party number digits", "q933.calling_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_called_party_number,
 		  { "Called party number digits", "q933.called_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_connected_number,
 		  { "Connected party number digits", "q933.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_q933_redirecting_number,
 		  { "Redirecting party number digits", "q933.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 		{ &hf_q933_report_type,
 		  { "Report type", "q933.report_type", FT_UINT8, BASE_DEC, VALS(q933_report_type_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 		{ &hf_q933_link_verf_txseq,
 		  { "TX Sequence", "q933.link_verification.txseq", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 		{ &hf_q933_link_verf_rxseq,
 		  { "RX Sequence", "q933.link_verification.rxseq", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

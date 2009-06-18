@@ -777,88 +777,88 @@ proto_register_bittorrent(void)
 {
    static hf_register_info hf[] = {
       { &hf_bittorrent_field_length,
-      { "Field Length", "bittorrent.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Field Length", "bittorrent.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_prot_name_len,
-      { "Protocol Name Length", "bittorrent.protocol.name.length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Protocol Name Length", "bittorrent.protocol.name.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_prot_name,
-      { "Protocol Name", "bittorrent.protocol.name", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Protocol Name", "bittorrent.protocol.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_reserved,
-      { "Reserved Extension Bytes", "bittorrent.reserved", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Reserved Extension Bytes", "bittorrent.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_sha1_hash,
-      { "SHA1 Hash of info dictionary", "bittorrent.info_hash", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "SHA1 Hash of info dictionary", "bittorrent.info_hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_peer_id,
-      { "Peer ID", "bittorrent.peer_id", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Peer ID", "bittorrent.peer_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_msg,
-      { "Message", "bittorrent.msg", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
+      { "Message", "bittorrent.msg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_msg_len,
-      { "Message Length", "bittorrent.msg.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Message Length", "bittorrent.msg.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_msg_type,
-      { "Message Type", "bittorrent.msg.type", FT_UINT8, BASE_DEC, VALS(bittorrent_messages), 0x0, "", HFILL }
+      { "Message Type", "bittorrent.msg.type", FT_UINT8, BASE_DEC, VALS(bittorrent_messages), 0x0, NULL, HFILL }
       },
       { &hf_azureus_msg,
-      { "Azureus Message", "bittorrent.azureus_msg", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
+      { "Azureus Message", "bittorrent.azureus_msg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_msg_type_len,
-      { "Message Type Length", "bittorrent.msg.typelen", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Message Type Length", "bittorrent.msg.typelen", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_msg_type,
-      { "Message Type", "bittorrent.msg.aztype", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+      { "Message Type", "bittorrent.msg.aztype", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_msg_prio,
-      { "Message Priority", "bittorrent.msg.prio", FT_UINT8, BASE_DEC, VALS(azureus_priorities), 0x0, "", HFILL }
+      { "Message Priority", "bittorrent.msg.prio", FT_UINT8, BASE_DEC, VALS(azureus_priorities), 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bitfield_data,
-     { "Bitfield data", "bittorrent.msg.bitfield", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+     { "Bitfield data", "bittorrent.msg.bitfield", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_piece_index,
-      { "Piece index", "bittorrent.piece.index", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Piece index", "bittorrent.piece.index", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_piece_begin,
-      { "Begin offset of piece", "bittorrent.piece.begin", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Begin offset of piece", "bittorrent.piece.begin", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_piece_data,
-      { "Data in a piece", "bittorrent.piece.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Data in a piece", "bittorrent.piece.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_piece_length,
-         { "Piece Length", "bittorrent.piece.length", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+         { "Piece Length", "bittorrent.piece.length", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bstr_length,
-	{ "String Length", "bittorrent.bstr.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "String Length", "bittorrent.bstr.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bstr,
-	{ "String", "bittorrent.bstr", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "String", "bittorrent.bstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bint,
-	{ "Integer", "bittorrent.bint", FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "Integer", "bittorrent.bint", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bdict,
-	{ "Dictionary", "bittorrent.bdict", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
+	{ "Dictionary", "bittorrent.bdict", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_bdict_entry,
-	{ "Entry", "bittorrent.bdict.entry", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
+	{ "Entry", "bittorrent.bdict.entry", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_blist,
-	{ "List", "bittorrent.blist", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
+	{ "List", "bittorrent.blist", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_jpc_addrlen,
-	{ "Cache Address Length", "bittorrent.jpc.addr.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "Cache Address Length", "bittorrent.jpc.addr.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_jpc_addr,
-	{ "Cache Address", "bittorrent.jpc.addr", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "Cache Address", "bittorrent.jpc.addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_jpc_port,
-	{ "Port", "bittorrent.jpc.port", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+	{ "Port", "bittorrent.jpc.port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_azureus_jpc_session,
-	{ "Session ID", "bittorrent.jpc.session", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+	{ "Session ID", "bittorrent.jpc.session", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
       }
   };
 

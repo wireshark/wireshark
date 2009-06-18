@@ -4760,13 +4760,13 @@ proto_register_kerberos(void)
 	    "Type", "kerberos.transited.type", FT_UINT32, BASE_DEC,
 	    VALS(krb5_transited_types), 0, "Transited Type", HFILL }},
 	{ &hf_krb_transitedcontents, {
-	    "Contents", "kerberos.transited.contents", FT_BYTES, BASE_HEX,
+	    "Contents", "kerberos.transited.contents", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Transited Contents string", HFILL }},
 	{ &hf_krb_keytype, {
 	    "Key type", "kerberos.keytype", FT_UINT32, BASE_DEC,
 	    VALS(krb5_encryption_types), 0, "Key Type", HFILL }},
 	{ &hf_krb_keyvalue, {
-	    "Key value", "kerberos.keyvalue", FT_BYTES, BASE_HEX,
+	    "Key value", "kerberos.keyvalue", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Key value (encryption key)", HFILL }},
 	{ &hf_krb_adtype, {
 	    "Type", "kerberos.adtype", FT_UINT32, BASE_DEC,
@@ -4775,10 +4775,10 @@ proto_register_kerberos(void)
 	    "Type", "kerberos.IF_RELEVANT.type", FT_UINT32, BASE_DEC,
 	    VALS(krb5_ad_types), 0, "IF-RELEVANT Data Type", HFILL }},
 	{ &hf_krb_advalue, {
-	    "Data", "kerberos.advalue", FT_BYTES, BASE_HEX,
+	    "Data", "kerberos.advalue", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Authentication Data", HFILL }},
 	{ &hf_krb_IF_RELEVANT_value, {
-	    "Data", "kerberos.IF_RELEVANT.value", FT_BYTES, BASE_HEX,
+	    "Data", "kerberos.IF_RELEVANT.value", FT_BYTES, BASE_NONE,
 	    NULL, 0, "IF_RELEVANT Data", HFILL }},
 	{ &hf_krb_etype, {
 	    "Encryption type", "kerberos.etype", FT_INT32, BASE_DEC,
@@ -4797,10 +4797,10 @@ proto_register_kerberos(void)
 	    VALS(krb5_lr_types), 0, "Type of lastreq value", HFILL }},
 	{ &hf_krb_address_ip, {
 	    "IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
-	    NULL, 0, "IP Address", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ipv6, {
 	    "IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
-	    NULL, 0, "IPv6 Address", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_netbios, {
 	    "NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
 	    NULL, 0, "NetBIOS Address and type", HFILL }},
@@ -4889,16 +4889,16 @@ proto_register_kerberos(void)
 	    "MSG Type", "kerberos.msg.type", FT_UINT32, BASE_DEC,
 	    VALS(krb5_msg_types), 0, "Kerberos Message Type", HFILL }},
 	{ &hf_krb_APOptions, {
-	    "APOptions", "kerberos.apoptions", FT_BYTES, BASE_HEX,
+	    "APOptions", "kerberos.apoptions", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Kerberos APOptions bitstring", HFILL }},
 	{ &hf_krb_APOptions_use_session_key, {
 	    "Use Session Key", "kerberos.apoptions.use_session_key", FT_BOOLEAN, 32,
-	    TFS(&krb5_apoptions_use_session_key), 0x40000000, "", HFILL }},
+	    TFS(&krb5_apoptions_use_session_key), 0x40000000, NULL, HFILL }},
 	{ &hf_krb_APOptions_mutual_required, {
 	    "Mutual required", "kerberos.apoptions.mutual_required", FT_BOOLEAN, 32,
-	    TFS(&krb5_apoptions_mutual_required), 0x20000000, "", HFILL }},
+	    TFS(&krb5_apoptions_mutual_required), 0x20000000, NULL, HFILL }},
 	{ &hf_krb_KDCOptions, {
-	    "KDCOptions", "kerberos.kdcoptions", FT_BYTES, BASE_HEX,
+	    "KDCOptions", "kerberos.kdcoptions", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Kerberos KDCOptions bitstring", HFILL }},
 	{ &hf_krb_TicketFlags, {
 	    "Ticket Flags", "kerberos.ticketflags", FT_NONE, BASE_NONE,
@@ -5012,73 +5012,73 @@ proto_register_kerberos(void)
 	    "Authenticator vno", "kerberos.authenticator_vno", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Version Number for the Authenticator", HFILL }},
 	{ &hf_krb_encrypted_authenticator_data, {
-	    "Authenticator data", "kerberos.authenticator.data", FT_BYTES, BASE_HEX,
+	    "Authenticator data", "kerberos.authenticator.data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Data content of an encrypted authenticator", HFILL }},
 	{ &hf_krb_encrypted_EncKrbCredPart, {
-	    "enc EncKrbCredPart", "kerberos.EncKrbCredPart.encrypted", FT_BYTES, BASE_HEX,
+	    "enc EncKrbCredPart", "kerberos.EncKrbCredPart.encrypted", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Encrypted EncKrbCredPart blob", HFILL }},
 	{ &hf_krb_encrypted_PA_ENC_TIMESTAMP, {
-	    "enc PA_ENC_TIMESTAMP", "kerberos.PA_ENC_TIMESTAMP.encrypted", FT_BYTES, BASE_HEX,
+	    "enc PA_ENC_TIMESTAMP", "kerberos.PA_ENC_TIMESTAMP.encrypted", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Encrypted PA-ENC-TIMESTAMP blob", HFILL }},
 	{ &hf_krb_encrypted_enc_authorization_data, {
-	    "enc-authorization-data", "kerberos.enc_authorization_data.encrypted", FT_BYTES, BASE_HEX,
-	    NULL, 0, "", HFILL }},
+	    "enc-authorization-data", "kerberos.enc_authorization_data.encrypted", FT_BYTES, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_PAC_LOGON_INFO, {
-	    "PAC_LOGON_INFO", "kerberos.PAC_LOGON_INFO", FT_BYTES, BASE_HEX,
+	    "PAC_LOGON_INFO", "kerberos.PAC_LOGON_INFO", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_LOGON_INFO structure", HFILL }},
 	{ &hf_krb_PAC_CREDENTIAL_TYPE, {
-	    "PAC_CREDENTIAL_TYPE", "kerberos.PAC_CREDENTIAL_TYPE", FT_BYTES, BASE_HEX,
+	    "PAC_CREDENTIAL_TYPE", "kerberos.PAC_CREDENTIAL_TYPE", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_CREDENTIAL_TYPE structure", HFILL }},
 	{ &hf_krb_PAC_SERVER_CHECKSUM, {
-	    "PAC_SERVER_CHECKSUM", "kerberos.PAC_SERVER_CHECKSUM", FT_BYTES, BASE_HEX,
+	    "PAC_SERVER_CHECKSUM", "kerberos.PAC_SERVER_CHECKSUM", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_SERVER_CHECKSUM structure", HFILL }},
 	{ &hf_krb_PAC_PRIVSVR_CHECKSUM, {
-	    "PAC_PRIVSVR_CHECKSUM", "kerberos.PAC_PRIVSVR_CHECKSUM", FT_BYTES, BASE_HEX,
+	    "PAC_PRIVSVR_CHECKSUM", "kerberos.PAC_PRIVSVR_CHECKSUM", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_PRIVSVR_CHECKSUM structure", HFILL }},
 	{ &hf_krb_PAC_CLIENT_INFO_TYPE, {
-	    "PAC_CLIENT_INFO_TYPE", "kerberos.PAC_CLIENT_INFO_TYPE", FT_BYTES, BASE_HEX,
+	    "PAC_CLIENT_INFO_TYPE", "kerberos.PAC_CLIENT_INFO_TYPE", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_CLIENT_INFO_TYPE structure", HFILL }},
 	{ &hf_krb_PAC_CONSTRAINED_DELEGATION, {
-	    "PAC_CONSTRAINED_DELEGATION", "kerberos.PAC_CONSTRAINED_DELEGATION", FT_BYTES, BASE_HEX,
+	    "PAC_CONSTRAINED_DELEGATION", "kerberos.PAC_CONSTRAINED_DELEGATION", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PAC_CONSTRAINED_DELEGATION structure", HFILL }},
 	{ &hf_krb_PAC_UPN_DNS_INFO, {
-	    "UPN_DNS_INFO", "kerberos.PAC_UPN_DNS_INFO", FT_BYTES, BASE_HEX,
+	    "UPN_DNS_INFO", "kerberos.PAC_UPN_DNS_INFO", FT_BYTES, BASE_NONE,
 	    NULL, 0, "UPN_DNS_INFO structure", HFILL }},
 	{ &hf_krb_checksum_checksum, {
-	    "checksum", "kerberos.checksum.checksum", FT_BYTES, BASE_HEX,
+	    "checksum", "kerberos.checksum.checksum", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Kerberos Checksum", HFILL }},
 	{ &hf_krb_ENC_PRIV, {
-	    "enc PRIV", "kerberos.ENC_PRIV", FT_BYTES, BASE_HEX,
+	    "enc PRIV", "kerberos.ENC_PRIV", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Encrypted PRIV blob", HFILL }},
 	{ &hf_krb_encrypted_Ticket_data, {
-	    "enc-part", "kerberos.ticket.data", FT_BYTES, BASE_HEX,
+	    "enc-part", "kerberos.ticket.data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "The encrypted part of a ticket", HFILL }},
 	{ &hf_krb_encrypted_AP_REP_data, {
-	    "enc-part", "kerberos.aprep.data", FT_BYTES, BASE_HEX,
+	    "enc-part", "kerberos.aprep.data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "The encrypted part of AP-REP", HFILL }},
 	{ &hf_krb_encrypted_KDC_REP_data, {
-	    "enc-part", "kerberos.kdcrep.data", FT_BYTES, BASE_HEX,
+	    "enc-part", "kerberos.kdcrep.data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "The encrypted part of KDC-REP", HFILL }},
 	{ &hf_krb_PA_DATA_value, {
-	    "Value", "kerberos.padata.value", FT_BYTES, BASE_HEX,
+	    "Value", "kerberos.padata.value", FT_BYTES, BASE_NONE,
 	    NULL, 0, "Content of the PADATA blob", HFILL }},
 	{ &hf_krb_etype_info_salt, {
-	    "Salt", "kerberos.etype_info.salt", FT_BYTES, BASE_HEX,
-	    NULL, 0, "Salt", HFILL }},
+	    "Salt", "kerberos.etype_info.salt", FT_BYTES, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_etype_info2_salt, {
-	    "Salt", "kerberos.etype_info2.salt", FT_BYTES, BASE_HEX,
-	    NULL, 0, "Salt", HFILL }},
+	    "Salt", "kerberos.etype_info2.salt", FT_BYTES, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_etype_info2_s2kparams, {
-	    "Salt", "kerberos.etype_info.s2kparams", FT_BYTES, BASE_HEX,
+	    "Salt", "kerberos.etype_info.s2kparams", FT_BYTES, BASE_NONE,
 	    NULL, 0, "S2kparams", HFILL }},
 	{ &hf_krb_SAFE_BODY_user_data, {
-	    "User Data", "kerberos.SAFE_BODY.user_data", FT_BYTES, BASE_HEX,
+	    "User Data", "kerberos.SAFE_BODY.user_data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "SAFE BODY userdata field", HFILL }},
 	{ &hf_krb_PRIV_BODY_user_data, {
-	    "User Data", "kerberos.PRIV_BODY.user_data", FT_BYTES, BASE_HEX,
+	    "User Data", "kerberos.PRIV_BODY.user_data", FT_BYTES, BASE_NONE,
 	    NULL, 0, "PRIV BODY userdata field", HFILL }},
 	{ &hf_krb_pac_signature_signature, {
-	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_HEX,
+	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_NONE,
 	    NULL, 0, "A PAC signature blob", HFILL }},
 	{ &hf_krb_PA_DATA_type, {
 	    "Type", "kerberos.padata.type", FT_UINT32, BASE_DEC,
@@ -5090,106 +5090,106 @@ proto_register_kerberos(void)
 	    "Tkt-vno", "kerberos.tkt_vno", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Version number for the Ticket format", HFILL }},
 	{ &hf_krb_KrbCredInfo, {
-	    "KrbCredInfo", "kerberos.KrbCredInfo", FT_NONE, BASE_DEC,
+	    "KrbCredInfo", "kerberos.KrbCredInfo", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos KrbCredInfo", HFILL }},
 	{ &hf_krb_HostAddress, {
-	    "HostAddress", "kerberos.hostaddress", FT_NONE, BASE_DEC,
+	    "HostAddress", "kerberos.hostaddress", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos HostAddress sequence", HFILL }},
 	{ &hf_krb_s_address, {
-	    "S-Address", "kerberos.s_address", FT_NONE, BASE_DEC,
+	    "S-Address", "kerberos.s_address", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is the Senders address", HFILL }},
 	{ &hf_krb_r_address, {
-	    "R-Address", "kerberos.r_address", FT_NONE, BASE_DEC,
+	    "R-Address", "kerberos.r_address", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is the Recipient address", HFILL }},
 	{ &hf_krb_key, {
-	    "key", "kerberos.key", FT_NONE, BASE_DEC,
+	    "key", "kerberos.key", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos EncryptionKey sequence", HFILL }},
 	{ &hf_krb_subkey, {
-	    "Subkey", "kerberos.subkey", FT_NONE, BASE_DEC,
+	    "Subkey", "kerberos.subkey", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos subkey", HFILL }},
 	{ &hf_krb_seq_number, {
 	    "Seq Number", "kerberos.seq_number", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is a Kerberos sequence number", HFILL }},
 	{ &hf_krb_AuthorizationData, {
-	    "AuthorizationData", "kerberos.AuthorizationData", FT_NONE, BASE_DEC,
+	    "AuthorizationData", "kerberos.AuthorizationData", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos AuthorizationData sequence", HFILL }},
 	{ &hf_krb_EncTicketPart, {
-	    "EncTicketPart", "kerberos.EncTicketPart", FT_NONE, BASE_DEC,
+	    "EncTicketPart", "kerberos.EncTicketPart", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos EncTicketPart sequence", HFILL }},
 	{ &hf_krb_EncAPRepPart, {
-	    "EncAPRepPart", "kerberos.EncAPRepPart", FT_NONE, BASE_DEC,
+	    "EncAPRepPart", "kerberos.EncAPRepPart", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos EncAPRepPart sequence", HFILL }},
 	{ &hf_krb_EncKrbPrivPart, {
-	    "EncKrbPrivPart", "kerberos.EncKrbPrivPart", FT_NONE, BASE_DEC,
+	    "EncKrbPrivPart", "kerberos.EncKrbPrivPart", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos EncKrbPrivPart sequence", HFILL }},
 	{ &hf_krb_EncKrbCredPart, {
-	    "EncKrbCredPart", "kerberos.EncKrbCredPart", FT_NONE, BASE_DEC,
+	    "EncKrbCredPart", "kerberos.EncKrbCredPart", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos EncKrbCredPart sequence", HFILL }},
 	{ &hf_krb_EncKDCRepPart, {
-	    "EncKDCRepPart", "kerberos.EncKDCRepPart", FT_NONE, BASE_DEC,
+	    "EncKDCRepPart", "kerberos.EncKDCRepPart", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos EncKDCRepPart sequence", HFILL }},
 	{ &hf_krb_LastReq, {
-	    "LastReq", "kerberos.LastReq", FT_NONE, BASE_DEC,
+	    "LastReq", "kerberos.LastReq", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a LastReq sequence", HFILL }},
 	{ &hf_krb_Authenticator, {
-	    "Authenticator", "kerberos.Authenticator", FT_NONE, BASE_DEC,
+	    "Authenticator", "kerberos.Authenticator", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a decrypted Kerberos Authenticator sequence", HFILL }},
 	{ &hf_krb_Checksum, {
-	    "Checksum", "kerberos.Checksum", FT_NONE, BASE_DEC,
+	    "Checksum", "kerberos.Checksum", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos Checksum sequence", HFILL }},
 	{ &hf_krb_HostAddresses, {
-	    "HostAddresses", "kerberos.hostaddresses", FT_NONE, BASE_DEC,
+	    "HostAddresses", "kerberos.hostaddresses", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of Kerberos HostAddress sequences", HFILL }},
 	{ &hf_krb_IF_RELEVANT, {
-	    "IF_RELEVANT", "kerberos.if_relevant", FT_NONE, BASE_DEC,
+	    "IF_RELEVANT", "kerberos.if_relevant", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of IF-RELEVANT sequences", HFILL }},
 	{ &hf_krb_etypes, {
-	    "Encryption Types", "kerberos.etypes", FT_NONE, BASE_DEC,
+	    "Encryption Types", "kerberos.etypes", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of Kerberos encryption types", HFILL }},
 	{ &hf_krb_KrbCredInfos, {
-	    "Sequence of KrbCredInfo", "kerberos.KrbCredInfos", FT_NONE, BASE_DEC,
+	    "Sequence of KrbCredInfo", "kerberos.KrbCredInfos", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of KrbCredInfo", HFILL }},
 	{ &hf_krb_sq_tickets, {
-	    "Tickets", "kerberos.sq.tickets", FT_NONE, BASE_DEC,
+	    "Tickets", "kerberos.sq.tickets", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of Kerberos Tickets", HFILL }},
 	{ &hf_krb_LastReqs, {
-	    "LastReqs", "kerberos.LastReqs", FT_NONE, BASE_DEC,
+	    "LastReqs", "kerberos.LastReqs", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a list of LastReq structures", HFILL }},
 	{ &hf_krb_sname, {
-	    "Server Name", "kerberos.sname", FT_NONE, BASE_DEC,
+	    "Server Name", "kerberos.sname", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is the name part server's identity", HFILL }},
 	{ &hf_krb_pname, {
-	    "Delegated Principal Name", "kerberos.pname", FT_NONE, BASE_DEC,
+	    "Delegated Principal Name", "kerberos.pname", FT_NONE, BASE_NONE,
 	    NULL, 0, "Identity of the delegated principal", HFILL }},
 	{ &hf_krb_cname, {
-	    "Client Name", "kerberos.cname", FT_NONE, BASE_DEC,
+	    "Client Name", "kerberos.cname", FT_NONE, BASE_NONE,
 	    NULL, 0, "The name part of the client principal identifier", HFILL }},
 	{ &hf_krb_authenticator_enc, {
-	    "Authenticator", "kerberos.authenticator", FT_NONE, BASE_DEC,
+	    "Authenticator", "kerberos.authenticator", FT_NONE, BASE_NONE,
 	    NULL, 0, "Encrypted authenticator blob", HFILL }},
 	{ &hf_krb_CRED_enc, {
-	    "EncKrbCredPart", "kerberos.encrypted_cred", FT_NONE, BASE_DEC,
+	    "EncKrbCredPart", "kerberos.encrypted_cred", FT_NONE, BASE_NONE,
 	    NULL, 0, "Encrypted Cred blob", HFILL }},
 	{ &hf_krb_ticket_enc, {
-	    "enc-part", "kerberos.ticket.enc_part", FT_NONE, BASE_DEC,
+	    "enc-part", "kerberos.ticket.enc_part", FT_NONE, BASE_NONE,
 	    NULL, 0, "The structure holding the encrypted part of a ticket", HFILL }},
 	{ &hf_krb_AP_REP_enc, {
-	    "enc-part", "kerberos.aprep.enc_part", FT_NONE, BASE_DEC,
+	    "enc-part", "kerberos.aprep.enc_part", FT_NONE, BASE_NONE,
 	    NULL, 0, "The structure holding the encrypted part of AP-REP", HFILL }},
 	{ &hf_krb_KDC_REP_enc, {
-	    "enc-part", "kerberos.kdcrep.enc_part", FT_NONE, BASE_DEC,
+	    "enc-part", "kerberos.kdcrep.enc_part", FT_NONE, BASE_NONE,
 	    NULL, 0, "The structure holding the encrypted part of KDC-REP", HFILL }},
 	{ &hf_krb_e_data, {
-	    "e-data", "kerberos.e_data", FT_NONE, BASE_DEC,
+	    "e-data", "kerberos.e_data", FT_NONE, BASE_NONE,
 	    NULL, 0, "The e-data blob", HFILL }},
 	{ &hf_krb_padata, {
-	    "padata", "kerberos.padata", FT_NONE, BASE_DEC,
+	    "padata", "kerberos.padata", FT_NONE, BASE_NONE,
 	    NULL, 0, "Sequence of preauthentication data", HFILL }},
 	{ &hf_krb_ticket, {
-	    "Ticket", "kerberos.ticket", FT_NONE, BASE_DEC,
+	    "Ticket", "kerberos.ticket", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos Ticket", HFILL }},
 	{ &hf_krb_TransitedEncoding, {
-	    "TransitedEncoding", "kerberos.TransitedEncoding", FT_NONE, BASE_DEC,
+	    "TransitedEncoding", "kerberos.TransitedEncoding", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos TransitedEncoding sequence", HFILL }},
 	{ &hf_krb_PA_PAC_REQUEST_flag, {
 	    "PAC Request", "kerberos.pac_request.flag", FT_UINT32, BASE_DEC,
@@ -5220,52 +5220,52 @@ proto_register_kerberos(void)
 	    NULL, 0, "UPN flags", HFILL }},
 	{ &hf_krb_pac_upn_dns_offset, {
 	    "DNS Offset", "kerberos.pac.upn.dns_offset", FT_UINT16, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_upn_dns_len, {
 	    "DNS Len", "kerberos.pac.upn.dns_len", FT_UINT16, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_upn_upn_offset, {
 	    "UPN Offset", "kerberos.pac.upn.upn_offset", FT_UINT16, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_upn_upn_len, {
 	    "UPN Len", "kerberos.pac.upn.upn_len", FT_UINT16, BASE_DEC,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_upn_upn_name, {
 	    "UPN Name", "kerberos.pac.upn.upn_name", FT_STRING, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_upn_dns_name, {
 	    "DNS Name", "kerberos.pac.upn.dns_name", FT_STRING, BASE_NONE,
-	    NULL, 0, "", HFILL }},
+	    NULL, 0, NULL, HFILL }},
 	{ &hf_krb_e_checksum, {
-	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_DEC,
+	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is a Kerberos e-checksum", HFILL }},
 	{ &hf_krb_gssapi_len, {
 	    "Length", "kerberos.gssapi.len", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Length of GSSAPI Bnd field", HFILL }},
 	{ &hf_krb_gssapi_bnd, {
-	    "Bnd", "kerberos.gssapi.bdn", FT_BYTES, BASE_HEX,
+	    "Bnd", "kerberos.gssapi.bdn", FT_BYTES, BASE_NONE,
 	    NULL, 0, "GSSAPI Bnd field", HFILL }},
 	{ &hf_krb_gssapi_c_flag_deleg, {
 	    "Deleg", "kerberos.gssapi.checksum.flags.deleg", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_mutual, {
 	    "Mutual", "kerberos.gssapi.checksum.flags.mutual", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_replay, {
 	    "Replay", "kerberos.gssapi.checksum.flags.replay", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_sequence, {
 	    "Sequence", "kerberos.gssapi.checksum.flags.sequence", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_conf, {
 	    "Conf", "kerberos.gssapi.checksum.flags.conf", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_integ, {
 	    "Integ", "kerberos.gssapi.checksum.flags.integ", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, "", HFILL }},
+	    TFS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, NULL, HFILL }},
 	{ &hf_krb_gssapi_c_flag_dce_style, {
 	    "DCE-style", "kerberos.gssapi.checksum.flags.dce-style", FT_BOOLEAN, 32,
-	    TFS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, "", HFILL }},
+	    TFS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, NULL, HFILL }},
 	{ &hf_krb_gssapi_dlgopt, {
 	    "DlgOpt", "kerberos.gssapi.dlgopt", FT_UINT16, BASE_DEC,
 	    NULL, 0, "GSSAPI DlgOpt", HFILL }},

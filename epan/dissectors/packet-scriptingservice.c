@@ -144,11 +144,11 @@ proto_register_ssprotocol(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,      { "Type",       "ssprotocol.message_type",   FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, "", HFILL } },
-    { &hf_message_flags,     { "Flags",      "ssprotocol.message_flags",  FT_UINT8,  BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_length,    { "Length",     "ssprotocol.message_length", FT_UINT16, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_status,    { "Status",     "ssprotocol.message_status", FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_data,      { "Data",       "ssprotocol.message_data",   FT_BYTES,  BASE_HEX, NULL,                      0x0, "", HFILL } }
+    { &hf_message_type,      { "Type",       "ssprotocol.message_type",   FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, NULL, HFILL } },
+    { &hf_message_flags,     { "Flags",      "ssprotocol.message_flags",  FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_length,    { "Length",     "ssprotocol.message_length", FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_status,    { "Status",     "ssprotocol.message_status", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_data,      { "Data",       "ssprotocol.message_data",   FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } }
   };
 
   /* Setup protocol subtree array */

@@ -430,19 +430,19 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_fragment_overlap,
         { "Message fragment overlap", "lapdm.fragment.overlap", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragment overlaps with other fragment(s)", HFILL }},
+        NULL, 0x0, "LAPDm Message fragment overlaps with other fragment(s)", HFILL }},
 
         { &hf_lapdm_fragment_overlap_conflicts,
         { "Message fragment overlapping with conflicting data", "lapdm.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragment overlaps with conflicting data", HFILL }},
+        NULL, 0x0, "LAPDm Message fragment overlaps with conflicting data", HFILL }},
 
         { &hf_lapdm_fragment_multiple_tails,
         { "Message has multiple tail fragments", "lapdm.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragment has multiple tail fragments", HFILL }},
+        NULL, 0x0, "LAPDm Message fragment has multiple tail fragments", HFILL }},
 
         { &hf_lapdm_fragment_too_long_fragment,
         { "Message fragment too long", "lapdm.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE,
-        NULL, 0x00, "LAPDm Message fragment data goes beyond the packet end", HFILL }},
+        NULL, 0x0, "LAPDm Message fragment data goes beyond the packet end", HFILL }},
 
         { &hf_lapdm_fragment_error,
         { "Message defragmentation error", "lapdm.fragment.error", FT_FRAMENUM, BASE_NONE,

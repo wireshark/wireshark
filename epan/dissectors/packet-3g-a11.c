@@ -1743,7 +1743,7 @@ proto_register_a11(void)
 	  { &hf_a11_flags,
 		{"Flags", "a11.flags",
 		 FT_UINT8, BASE_HEX, NULL, 0x0,
-		 "", HFILL}
+		 NULL, HFILL}
 	  },
 	  { &hf_a11_s,
 		 {"Simultaneous Bindings",           "a11.s",
@@ -1774,7 +1774,7 @@ proto_register_a11(void)
 	  { &hf_a11_v,
 		 { "Van Jacobson",           "a11.v",
 		   FT_BOOLEAN, 8, NULL, 4,
-		   "Van Jacobson", HFILL }
+		   NULL, HFILL }
 	  },
 	  { &hf_a11_t,
 		 { "Reverse Tunneling",           "a11.t",
@@ -1834,8 +1834,8 @@ proto_register_a11(void)
 	  },
 	  { &hf_a11_ext,
 		 { "Extension",                      "a11.extension",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"Extension", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_a11_aext_spi,
 		 { "SPI",                      "a11.auth.spi",
@@ -1850,7 +1850,7 @@ proto_register_a11(void)
 	  { &hf_a11_next_nai,
 		 { "NAI",                      "a11.nai",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"NAI", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_a11_ses_key,
 		 { "Key",                      "a11.ext.key",
@@ -1860,12 +1860,12 @@ proto_register_a11(void)
 	  { &hf_a11_ses_sidver,
 		{ "Session ID Version",         "a11.ext.sidver",
 			FT_UINT8, BASE_DEC, NULL, 3,
-			"Session ID Version", HFILL}
+			NULL, HFILL}
 	  },
 	  { &hf_a11_ses_mnsrid,
 		 { "MNSR-ID",                      "a11.ext.mnsrid",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"MNSR-ID", HFILL }
+			NULL, HFILL }
 	  },
 	  { &hf_a11_ses_msid_type,
 		 { "MSID Type",                      "a11.ext.msid_type",
@@ -1924,13 +1924,13 @@ proto_register_a11(void)
 	  },
 	  { &hf_a11_vse_panid,
 		 { "PANID",                      "a11.ext.panid",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"PANID", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_a11_vse_canid,
 		 { "CANID",                      "a11.ext.canid",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"CANID", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_a11_vse_qosmode,
 		 { "QoS Mode",       "a11.ext.qosmode",

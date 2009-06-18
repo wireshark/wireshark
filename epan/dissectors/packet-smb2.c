@@ -5561,10 +5561,10 @@ proto_register_smb2(void)
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
 	{ &hf_smb2_flags_async_cmd,
 		{ "Async command", "smb2.flags.async", FT_BOOLEAN, 32,
-		TFS(&tfs_flags_async_cmd), SMB2_FLAGS_ASYNC_CMD, "", HFILL }},
+		TFS(&tfs_flags_async_cmd), SMB2_FLAGS_ASYNC_CMD, NULL, HFILL }},
 	{ &hf_smb2_flags_dfs_op,
 		{ "DFS operation", "smb2.flags.dfs", FT_BOOLEAN, 32,
-		TFS(&tfs_flags_dfs_op), SMB2_FLAGS_DFS_OP, "", HFILL }},
+		TFS(&tfs_flags_dfs_op), SMB2_FLAGS_DFS_OP, NULL, HFILL }},
 	{ &hf_smb2_flags_chained,
 		{ "Chained", "smb2.flags.chained", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_chained), SMB2_FLAGS_CHAINED, "Whether the pdu continues a chain or not", HFILL }},
@@ -5602,14 +5602,14 @@ proto_register_smb2(void)
 		VALS(smb2_find_info_levels), 0, "Find_Info Infolevel", HFILL }},
 	{ &hf_smb2_find_flags,
 		{ "Find Flags", "smb2.find.flags", FT_UINT8, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_find_pattern,
 		{ "Search Pattern", "smb2.find.pattern", FT_STRING, BASE_NONE,
 		NULL, 0, "Find pattern", HFILL }},
 
 	{ &hf_smb2_find_info_blob,
-		{ "Info", "smb2.security_blob", FT_BYTES, BASE_HEX,
+		{ "Info", "smb2.security_blob", FT_BYTES, BASE_NONE,
 		NULL, 0, "Find Info", HFILL }},
 
 	{ &hf_smb2_ea_size,
@@ -5646,18 +5646,18 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_read_remaining,
 		{ "Read Remaining", "smb2.read_remaining", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_create_flags,
 		{ "Create Flags", "smb2.create_flags", FT_UINT64, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_file_offset,
 		{ "File Offset", "smb2.file_offset", FT_UINT64, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_security_blob,
-		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
+		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_NONE,
 		NULL, 0, "Security blob", HFILL }},
 
 	{ &hf_smb2_ioctl_out_data,
@@ -5690,7 +5690,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_domain_id,
 	  { "DomainId", "smb2.domain_id", FT_GUID, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_create_timestamp,
 		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -5701,11 +5701,11 @@ proto_register_smb2(void)
 		NULL, 0, "SMB2 File Id", HFILL }},
 
 	{ &hf_smb2_write_data,
-		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_HEX,
+		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "SMB2 Data to be written", HFILL }},
 
 	{ &hf_smb2_read_data,
-		{ "Read Data", "smb2.read_data", FT_BYTES, BASE_HEX,
+		{ "Read Data", "smb2.read_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "SMB2 Data that is read", HFILL }},
 
 	{ &hf_smb2_last_access_timestamp,
@@ -5834,7 +5834,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_disposition_delete_on_close,
 	  { "Delete on close", "smb2.disposition.delete_on_close", FT_BOOLEAN, 8,
-		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
+		TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }},
 
 
 	{ &hf_smb2_create_disposition,
@@ -5843,7 +5843,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_create_action,
 		{ "Create Action", "smb2.create.action", FT_UINT32, BASE_DEC,
-		VALS(oa_open_vals), 0, "Create Action", HFILL }},
+		VALS(oa_open_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb2_extrainfo,
 		{ "ExtraInfo", "smb2.create.extrainfo", FT_NONE, BASE_NONE,
@@ -5879,19 +5879,19 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_ea_flags,
 		{ "EA Flags", "smb2.ea.flags", FT_UINT8, BASE_HEX,
-		NULL, 0, "EA Flags", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ea_name_len,
 		{ "EA Name Length", "smb2.ea.name_len", FT_UINT8, BASE_DEC,
-		NULL, 0, "EA Name Length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ea_data_len,
 		{ "EA Data Length", "smb2.ea.data_len", FT_UINT8, BASE_DEC,
-		NULL, 0, "EA Data Length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_delete_pending,
 		{ "Delete Pending", "smb2.delete_pending", FT_UINT8, BASE_DEC,
-		NULL, 0, "Delete Pending", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_is_directory,
 		{ "Is Directory", "smb2.is_directory", FT_UINT8, BASE_DEC,
@@ -5907,7 +5907,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_notify_flags,
 		{ "Notify Flags", "smb2.notify.flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_buffer_code_len,
 		{ "Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
@@ -5927,11 +5927,11 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_ea_data,
 		{ "EA Data", "smb2.ea.data", FT_STRING, BASE_NONE,
-		NULL, 0, "EA Data", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ea_name,
 		{ "EA Name", "smb2.ea.name", FT_STRING, BASE_NONE,
-		NULL, 0, "EA Name", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_impersonation_level,
 		{ "Impersonation", "smb2.impersonation.level", FT_UINT32, BASE_DEC,
@@ -5979,39 +5979,39 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_epoch,
 		{ "Epoch", "smb2.epoch", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_credits_requested,
 		{ "Credits requested", "smb2.credits.requested", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_credits_granted,
 		{ "Credits granted", "smb2.credits.granted", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_dialect_count,
 		{ "Dialect count", "smb2.dialect_count", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_dialect,
 		{ "Dialect", "smb2.dialect", FT_UINT16, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_security_mode,
 		{ "Security mode", "smb2.sec_mode", FT_UINT8, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_session_flags,
 		{ "Session Flags", "smb2.session_flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_count,
 		{ "Lock Count", "smb2.lock_count", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_capabilities,
 		{ "Capabilities", "smb2.capabilities", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ioctl_shadow_copy_count,
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
@@ -6042,11 +6042,11 @@ proto_register_smb2(void)
 		NULL, 0, "Host Name", HFILL }},
 
 	{ &hf_smb2_signature,
-		{ "Signature", "smb2.signature", FT_BYTES, BASE_HEX,
-		NULL, 0, "Signature", HFILL }},
+		{ "Signature", "smb2.signature", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_unknown,
-		{ "unknown", "smb2.unknown", FT_BYTES, BASE_HEX,
+		{ "unknown", "smb2.unknown", FT_BYTES, BASE_NONE,
 		NULL, 0, "Unknown bytes", HFILL }},
 
 	{ &hf_smb2_unknown_timestamp,
@@ -6055,11 +6055,11 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_ses_flags_guest,
 		{ "Guest", "smb2.ses_flags.guest", FT_BOOLEAN, 16,
-		NULL, SES_FLAGS_GUEST, "", HFILL }},
+		NULL, SES_FLAGS_GUEST, NULL, HFILL }},
 
 	{ &hf_smb2_ses_flags_null,
 		{ "Null", "smb2.ses_flags.null", FT_BOOLEAN, 16,
-		NULL, SES_FLAGS_NULL, "", HFILL }},
+		NULL, SES_FLAGS_NULL, NULL, HFILL }},
 
 	{ &hf_smb2_secmode_flags_sign_required,
 		{ "Signing required", "smb2.sec_mode.sign_required", FT_BOOLEAN, 8,
@@ -6091,7 +6091,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_channel,
 		{ "Channel", "smb2.channel", FT_UINT32, BASE_DEC,
-		NULL, 0, "Channel", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags,
 		{ "Share flags", "smb2.share_flags", FT_UINT32, BASE_HEX,
@@ -6099,153 +6099,153 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_share_flags_dfs,
 		{ "dfs", "smb2.share_flags.dfs", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_dfs, "", HFILL }},
+		NULL, SHARE_FLAGS_dfs, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_dfs_root,
 		{ "dfs_root", "smb2.share_flags.dfs_root", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_dfs_root, "", HFILL }},
+		NULL, SHARE_FLAGS_dfs_root, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_restrict_exclusive_opens,
 		{ "restrict_exclusive_opens", "smb2.share_flags.restrict_exclusive_opens", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_restrict_exclusive_opens, "", HFILL }},
+		NULL, SHARE_FLAGS_restrict_exclusive_opens, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_force_shared_delete,
 		{ "force_shared_delete", "smb2.share_flags.force_shared_delete", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_force_shared_delete, "", HFILL }},
+		NULL, SHARE_FLAGS_force_shared_delete, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_allow_namespace_caching,
 		{ "allow_namespace_caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_allow_namespace_caching, "", HFILL }},
+		NULL, SHARE_FLAGS_allow_namespace_caching, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_access_based_dir_enum,
 		{ "access_based_dir_enum", "smb2.share_flags.access_based_dir_enum", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_access_based_dir_enum, "", HFILL }},
+		NULL, SHARE_FLAGS_access_based_dir_enum, NULL, HFILL }},
 
 	{ &hf_smb2_share_caching,
 		{ "Caching policy", "smb2.share.caching", FT_UINT32, BASE_HEX,
-		VALS(share_cache_vals), 0, "", HFILL }},
+		VALS(share_cache_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb2_share_caps,
 		{ "Share Capabilities", "smb2.share_caps", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ioctl_flags,
 		{ "Flags", "smb2.ioctl.flags", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_min_count,
 		{ "Min Count", "smb2.min_count", FT_UINT32, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_remaining_bytes,
-		{ "Remaining Bytes", "smb2.remaining_bytes", FT_UINT32, BASE_DEC,		NULL, 0, "", HFILL }},
+		{ "Remaining Bytes", "smb2.remaining_bytes", FT_UINT32, BASE_DEC,		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_channel_info_offset,
 		{ "Channel Info Offset", "smb2.channel_info_offset", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_channel_info_length,
 		{ "Channel Info Length", "smb2.channel_info_length", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_share_caps_dfs,
 		{ "dfs", "smb2.share_caps.dfs", FT_BOOLEAN, 32,
-		NULL, SHARE_CAPS_DFS, "", HFILL }},
+		NULL, SHARE_CAPS_DFS, NULL, HFILL }},
 
 	{ &hf_smb2_ioctl_is_fsctl,
 		{ "Is FSCTL", "smb2.ioctl.is_fsctl", FT_BOOLEAN, 32,
-		NULL, 0x00000001, "", HFILL }},
+		NULL, 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb2_output_buffer_len,
 		{ "Output Buffer Length", "smb2.output_buffer_len", FT_UINT16, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_close_pq_attrib,
 		{ "PostQuery Attrib", "smb2.close.pq_attrib", FT_BOOLEAN, 16,
-		NULL, 0x0001, "", HFILL }},
+		NULL, 0x0001, NULL, HFILL }},
 
 	{ &hf_smb2_notify_watch_tree,
 		{ "Watch Tree", "smb2.notify.watch_tree", FT_BOOLEAN, 16,
-		NULL, 0x0001, "", HFILL }},
+		NULL, 0x0001, NULL, HFILL }},
 
 	{ &hf_smb2_notify_out_data,
 		{ "Out Data", "smb2.notify.out", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_find_flags_restart_scans,
 		{ "Restart Scans", "smb2.find.restart_scans", FT_BOOLEAN, 8,
-		NULL, SMB2_FIND_FLAG_RESTART_SCANS, "", HFILL }},
+		NULL, SMB2_FIND_FLAG_RESTART_SCANS, NULL, HFILL }},
 
 	{ &hf_smb2_find_flags_single_entry,
 		{ "Single Entry", "smb2.find.single_entry", FT_BOOLEAN, 8,
-		NULL, SMB2_FIND_FLAG_SINGLE_ENTRY, "", HFILL }},
+		NULL, SMB2_FIND_FLAG_SINGLE_ENTRY, NULL, HFILL }},
 
 	{ &hf_smb2_find_flags_index_specified,
 		{ "Index Specified", "smb2.find.index_specified", FT_BOOLEAN, 8,
-		NULL, SMB2_FIND_FLAG_INDEX_SPECIFIED, "", HFILL }},
+		NULL, SMB2_FIND_FLAG_INDEX_SPECIFIED, NULL, HFILL }},
 
 	{ &hf_smb2_find_flags_reopen,
 		{ "Reopen", "smb2.find.reopen", FT_BOOLEAN, 8,
-		NULL, SMB2_FIND_FLAG_REOPEN, "", HFILL }},
+		NULL, SMB2_FIND_FLAG_REOPEN, NULL, HFILL }},
 
 	{ &hf_smb2_file_index,
 		{ "File Index", "smb2.file_index", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_file_directory_info,
 		{ "FileDirectoryInfo", "smb2.find.file_directory_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_full_directory_info,
 		{ "FullDirectoryInfo", "smb2.find.full_directory_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_both_directory_info,
 		{ "FileBothDirectoryInfo", "smb2.find.both_directory_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_id_both_directory_info,
 		{ "FileIdBothDirectoryInfo", "smb2.find.id_both_directory_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_short_name_len,
 		{ "Short Name Length", "smb2.short_name_len", FT_UINT8, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
  
 	{ &hf_smb2_short_name,
 		{ "Short Name", "smb2.shortname", FT_STRING, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 	{ &hf_smb2_file_name_info,
 		{ "FileNameInfo", "smb2.find.name_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_info,
 		{ "Lock Info", "smb2.lock_info", FT_NONE, BASE_NONE,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_length,
 		{ "Length", "smb2.lock_length", FT_UINT64, BASE_DEC,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_flags,
 		{ "Flags", "smb2.lock_flags", FT_UINT32, BASE_HEX,
-		NULL, 0, "", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_flags_shared,
 		{ "Shared", "smb2.lock_flags.shared", FT_BOOLEAN, 32,
-		NULL, 0x00000001, "", HFILL }},
+		NULL, 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb2_lock_flags_exclusive,
 		{ "Exclusive", "smb2.lock_flags.exclusive", FT_BOOLEAN, 32,
-		NULL, 0x00000002, "", HFILL }},
+		NULL, 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb2_lock_flags_unlock,
 		{ "Unlock", "smb2.lock_flags.unlock", FT_BOOLEAN, 32,
-		NULL, 0x00000004, "", HFILL }},
+		NULL, 0x00000004, NULL, HFILL }},
 
 	{ &hf_smb2_lock_flags_fail_immediately,
 		{ "Fail Immediately", "smb2.lock_flags.fail_immediately", FT_BOOLEAN, 32,
-		NULL, 0x00000010, "", HFILL }},
+		NULL, 0x00000010, NULL, HFILL }},
 
 	};
 

@@ -472,10 +472,10 @@ proto_register_iapp(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_iapp_version,
-			{ "Version", "iapp.version", FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL }
+			{ "Version", "iapp.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_iapp_type,
-			{ "type", "iapp.type", FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL }
+			{ "type", "iapp.type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 	};
 

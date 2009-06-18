@@ -520,7 +520,7 @@ proto_register_cpha(void)
     { &hf_is_if_trusted,
     { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_ip,
-    { "IP Address", "cpha.ip", FT_IPv4, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { "IP Address", "cpha.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_slot_num,
     { "Slot Number", "cpha.slot_num", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_machine_num,

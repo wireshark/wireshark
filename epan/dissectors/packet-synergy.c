@@ -367,187 +367,187 @@ proto_register_synergy(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_synergy_unknown,
-			{ "unknown","synergy.unknown",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "unknown","synergy.unknown",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_handshake,
-			{ "Handshake","synergy.handshake",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Handshake","synergy.handshake",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_handshake_majorversion,
-			{ "Major Version","synergy.handshake.majorversion",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Major Version","synergy.handshake.majorversion",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_handshake_minorversion,
-			{ "Minor Version","synergy.handshake.minorversion",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Minor Version","synergy.handshake.minorversion",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_handshake_clientname,
-			{ "Client Name","synergy.handshake.client",FT_STRING, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Client Name","synergy.handshake.client",FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cnop,
-			{ "No Operation","synergy.cnop",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "No Operation","synergy.cnop",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cbye,
-			{ "Close Connection","synergy.cbye",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Close Connection","synergy.cbye",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cinn,
-			{ "Enter Screen","synergy.cinn",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Enter Screen","synergy.cinn",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cinn_x,
-			{ "Screen X","synergy.cinn.x",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Screen X","synergy.cinn.x",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cinn_y,
-			{ "Screen Y","synergy.cinn.y",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Screen Y","synergy.cinn.y",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cinn_sequence,
-			{ "Sequence Number","synergy.cinn.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Sequence Number","synergy.cinn.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cinn_modifiermask,
-			{ "Modifier Key Mask","synergy.cinn.mask",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Modifier Key Mask","synergy.cinn.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cout,
-			{ "Leave Screen","synergy.cout",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Leave Screen","synergy.cout",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cclp,
-			{ "Grab Clipboard","synergy.clipboard",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Grab Clipboard","synergy.clipboard",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cclp_clipboardidentifier,
-			{ "Identifier","synergy.clipboard.identifier",FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Identifier","synergy.clipboard.identifier",FT_UINT8, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_cclp_sequencenumber,
-			{ "Sequence Number","synergy.clipboard.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Sequence Number","synergy.clipboard.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_csec,
-			{ "Screen Saver Change","synergy.screensaver",FT_BOOLEAN, BASE_NONE, NULL, 0x0,"", HFILL }
+			{ "Screen Saver Change","synergy.screensaver",FT_BOOLEAN, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_crop,
-			{ "Reset Options","synergy.resetoptions",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Reset Options","synergy.resetoptions",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_ciak,
-			{ "resolution change acknowledgment","synergy.ack",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "resolution change acknowledgment","synergy.ack",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkdn,
-			{ "Key Pressed","synergy.keypressed",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Pressed","synergy.keypressed",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkdn_keyid,
-			{ "Key Id","synergy.keypressed.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Id","synergy.keypressed.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkdn_keymodifiermask,
-			{ "Key Modifier Mask","synergy.keypressed.mask",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Modifier Mask","synergy.keypressed.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkdn_keybutton,
-			{ "Key Button","synergy.keypressed.key",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Button","synergy.keypressed.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkrp,
-			{ "key auto-repeat","synergy.keyautorepeat",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "key auto-repeat","synergy.keyautorepeat",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkrp_keyid,
-			{ "Key ID","synergy.keyautorepeat.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key ID","synergy.keyautorepeat.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkrp_keymodifiermask,
-			{ "Key modifier Mask","synergy.keyautorepeat.mask",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key modifier Mask","synergy.keyautorepeat.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkrp_numberofrepeats,
-			{ "Number of Repeats","synergy.keyautorepeat.repeat",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Number of Repeats","synergy.keyautorepeat.repeat",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkrp_keybutton,
-			{ "Key Button","synergy.keyautorepeat.key",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Button","synergy.keyautorepeat.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup,
-			{ "key released","synergy.keyreleased",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "key released","synergy.keyreleased",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup_keyid,
-			{ "Key Id","synergy.keyreleased.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Id","synergy.keyreleased.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup_keymodifiermask,
-			{ "Key Modifier Mask","synergykeyreleased.mask",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Modifier Mask","synergykeyreleased.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup_keybutton,
-			{ "Key Button","synergy.keyreleased.key",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Key Button","synergy.keyreleased.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmdn,
-			{ "Mouse Button Pressed","synergy.mousebuttonpressed",FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Mouse Button Pressed","synergy.mousebuttonpressed",FT_UINT8, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmup,
-			{ "Mouse Button Released","synergy.mousebuttonreleased",FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Mouse Button Released","synergy.mousebuttonreleased",FT_UINT8, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmmv,
-			{ "Mouse Moved","synergy.mousemoved",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Mouse Moved","synergy.mousemoved",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmmv_x,
-			{ "X Axis","synergy.mousemoved.x",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "X Axis","synergy.mousemoved.x",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmmv_y,
-			{ "Y Axis","synergy.mousemoved.y",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Y Axis","synergy.mousemoved.y",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmrm,
-			{ "Relative Mouse Move","synergy.relativemousemove",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Relative Mouse Move","synergy.relativemousemove",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmrm_x,
-			{ "X Axis","synergy.relativemousemove.x",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "X Axis","synergy.relativemousemove.x",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmrm_y,
-			{ "Y Axis","synergy.relativemousemove.y",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Y Axis","synergy.relativemousemove.y",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dmwm,
-			{ "Mouse Button Pressed","synergy.mousebuttonpressed",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Mouse Button Pressed","synergy.mousebuttonpressed",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dclp,
-			{ "Clipboard Data","synergy.clipboarddata",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Clipboard Data","synergy.clipboarddata",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dclp_clipboardidentifier,
-			{ "Clipboard Identifier","synergy.clipboarddata.identifier",FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Clipboard Identifier","synergy.clipboarddata.identifier",FT_UINT8, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dclp_sequencenumber,
-			{ "Sequence Number","synergy.clipboarddata.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Sequence Number","synergy.clipboarddata.sequence",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dclp_clipboarddata,
-			{ "Clipboard Data","synergy.clipboarddata.data",FT_STRING, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Clipboard Data","synergy.clipboarddata.data",FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf,
-			{ "Client Data","synergy.clientdata",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Client Data","synergy.clientdata",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_clp,
-			{ "coordinate of leftmost pixel on secondary screen","synergy.clps",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "coordinate of leftmost pixel on secondary screen","synergy.clps",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_ctp,
-			{ "coordinate of topmost pixel on secondary screen","synergy.clps.ctp",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "coordinate of topmost pixel on secondary screen","synergy.clps.ctp",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_wsp,
-			{ "width of secondary screen in pixels","synergy.clps.wsp",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "width of secondary screen in pixels","synergy.clps.wsp",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_hsp,
-			{ "height of secondary screen in pixels","synergy.clps.hsp",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "height of secondary screen in pixels","synergy.clps.hsp",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_swz,
-			{ "size of warp zone","synergy.clps.swz",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "size of warp zone","synergy.clps.swz",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_x,
-			{ "x position of the mouse on the secondary screen","synergy.clps.x",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "x position of the mouse on the secondary screen","synergy.clps.x",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dinf_y,
-			{ "y position of the mouse on the secondary screen","synergy.clps.y",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "y position of the mouse on the secondary screen","synergy.clps.y",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dsop,
-			{ "Set Options","synergy.setoptions",FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Set Options","synergy.setoptions",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_qinf,
-			{ "Query Screen Info","synergy.qinf",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Query Screen Info","synergy.qinf",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_eicv,
-			{ "incompatible versions","synergy.eicv",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "incompatible versions","synergy.eicv",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_eicv_majorversion,
-			{ "Major Version Number","synergy.eicv.major",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Major Version Number","synergy.eicv.major",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_eicv_minorversion,
-			{ "Minor Version Number","synergy.eicv.minor",FT_UINT16, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Minor Version Number","synergy.eicv.minor",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_ebsy,
-			{ "Connection Already in Use","synergy.ebsy",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Connection Already in Use","synergy.ebsy",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_eunk,
-			{ "Unknown Client","synergy.unknown",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "Unknown Client","synergy.unknown",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_ebad,
-			{ "protocol violation","synergy.violation",FT_NONE, BASE_DEC, NULL, 0x0,"", HFILL }
+			{ "protocol violation","synergy.violation",FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }
 		},
 	};
 

@@ -918,16 +918,16 @@ proto_register_smb_browse(void)
 		{ &hf_mb_reset_command,
 		  { "ResetBrowserState Command", "browser.reset_cmd", FT_UINT8,
 		    BASE_HEX, VALS(&resetbrowserstate_command_names), 0,
-		    "ResetBrowserState Command", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mb_reset_demote,
 		  { "Demote LMB", "browser.reset_cmd.demote", FT_BOOLEAN, 
-		    8, TFS(&tfs_demote_to_backup), 0x01, "Demote LMB", HFILL}}, 
+		    8, TFS(&tfs_demote_to_backup), 0x01, NULL, HFILL}}, 
 		{ &hf_mb_reset_flush,
 		  { "Flush Browse List", "browser.reset_cmd.flush", FT_BOOLEAN,
-		    8, TFS(&tfs_flush_browse_list), 0x02, "Flush Browse List", HFILL}},
+		    8, TFS(&tfs_flush_browse_list), 0x02, NULL, HFILL}},
 		{ &hf_mb_reset_stop,
 		  { "Stop Being LMB", "browser.reset_cmd.stop_lmb", FT_BOOLEAN,
-		    8, TFS(&tfs_stop_being_lmb), 0x04, "Stop Being LMB", HFILL}},
+		    8, TFS(&tfs_stop_being_lmb), 0x04, NULL, HFILL}},
 		{ &hf_os_major,
 			{ "OS Major Version", "browser.os_major", FT_UINT8, BASE_DEC,
 			NULL, 0, "Operating System Major Version", HFILL }},
@@ -1042,15 +1042,15 @@ proto_register_smb_browse(void)
 
 		{ &hf_election_version,
 			{ "Election Version", "browser.election.version", FT_UINT8, BASE_DEC,
-			NULL, 0, "Election Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_proto_major,
 			{ "Browser Protocol Major Version", "browser.proto_major", FT_UINT8, BASE_DEC,
-			NULL, 0, "Browser Protocol Major Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_proto_minor,
 			{ "Browser Protocol Minor Version", "browser.proto_minor", FT_UINT8, BASE_DEC,
-			NULL, 0, "Browser Protocol Minor Version", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_sig_const,
 			{ "Signature", "browser.sig", FT_UINT16, BASE_HEX,
@@ -1066,15 +1066,15 @@ proto_register_smb_browse(void)
 
 		{ &hf_response_computer_name,
 			{ "Response Computer Name", "browser.response_computer_name", FT_STRINGZ, BASE_NONE,
-			NULL, 0, "Response Computer Name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_election_criteria,
 			{ "Election Criteria", "browser.election.criteria", FT_UINT32, BASE_HEX,
-			NULL, 0, "Election Criteria", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_election_desire,
 			{ "Election Desire", "browser.election.desire", FT_UINT8, BASE_HEX,
-			NULL, 0, "Election Desire", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_election_desire_flags_backup,
 			{ "Backup", "browser.election.desire.backup", FT_BOOLEAN, 8,
@@ -1102,11 +1102,11 @@ proto_register_smb_browse(void)
 
 		{ &hf_election_revision,
 			{ "Election Revision", "browser.election.revision", FT_UINT16, BASE_DEC,
-			NULL, 0, "Election Revision", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_election_os,
 			{ "Election OS", "browser.election.os", FT_UINT8, BASE_HEX,
-			NULL, 0, "Election OS", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_election_os_wfw,
 			{ "WfW", "browser.election.os.wfw", FT_BOOLEAN, 8,
@@ -1138,7 +1138,7 @@ proto_register_smb_browse(void)
 
 		{ &hf_browser_to_promote,
 			{ "Browser to Promote", "browser.browser_to_promote", FT_STRINGZ, BASE_NONE,
-			NULL, 0, "Browser to Promote", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 	};
 

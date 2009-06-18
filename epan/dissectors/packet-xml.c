@@ -1336,14 +1336,14 @@ proto_register_xml(void) {
 	};
 
 	static hf_register_info hf_base[] = {
-		{ &hf_xmlpi, {"XMLPI", "xml.xmlpi", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_comment, {"Comment", "xml.comment", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_unknowwn_attrib, {"Attribute", "xml.attribute", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_doctype, {"Doctype", "xml.doctype", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_dtd_tag, {"DTD Tag", "xml.dtdtag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &unknown_ns.hf_cdata, {"CDATA", "xml.cdata", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &unknown_ns.hf_tag, {"Tag", "xml.tag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &xml_ns.hf_cdata, {"Unknown", "xml.unknown", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}
+		{ &hf_xmlpi, {"XMLPI", "xml.xmlpi", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_comment, {"Comment", "xml.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_unknowwn_attrib, {"Attribute", "xml.attribute", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_doctype, {"Doctype", "xml.doctype", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_dtd_tag, {"DTD Tag", "xml.dtdtag", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &unknown_ns.hf_cdata, {"CDATA", "xml.cdata", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &unknown_ns.hf_tag, {"Tag", "xml.tag", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &xml_ns.hf_cdata, {"Unknown", "xml.unknown", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}
     };
 	module_t* xml_module;
 

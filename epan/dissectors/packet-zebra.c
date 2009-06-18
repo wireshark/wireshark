@@ -586,7 +586,7 @@ proto_register_zebra(void)
     { &hf_zebra_prefixlen,
       { "Prefix length",	"zebra.prefixlen",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Prefix length", HFILL }},
+	NULL, HFILL }},
     { &hf_zebra_prefix4,
       { "Prefix",		"zebra.prefix4",
 	FT_IPv4, BASE_NONE, NULL, 0x0,

@@ -774,14 +774,14 @@ proto_register_cmpp(void) {
 		},
 		{ &hf_cmpp_submit_Registered_Delivery,
 			{ "Registered Delivery", "cmpp.submit.Registered_Delivery",
-			  FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			  "Registered Delivery flag",
 			  HFILL }
 		},
 		{ &hf_cmpp_submit_Msg_level,
 			{ "Message Level", "cmpp.submit.Msg_level",
 			  FT_UINT8, BASE_DEC, NULL, 0x00,
-			  "Message Level",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_Service_Id,
@@ -804,7 +804,7 @@ proto_register_cmpp(void) {
 		},
 		{ &hf_cmpp_submit_Fee_terminal_type,
 			{ "Fake Fee Terminal", "cmpp.submit.Fee_terminal_type",
-			  FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			  "Fee terminal type, 0 is real, 1 is fake",
 			  HFILL }
 		},
@@ -823,7 +823,7 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_Msg_Fmt,
 			{ "Message Format", "cmpp.Msg_Fmt",
 			  FT_UINT8, BASE_DEC, VALS(vals_Msg_Fmt), 0x00,
-			  "Message Format",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_submit_Msg_src,
@@ -835,13 +835,13 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_submit_FeeType, /* TODO Replace this with a vals_string*/
 			{ "Fee Type", "cmpp.submit.FeeType",
 			  FT_STRING, BASE_NONE, NULL, 0x00,
-			  "Fee Type",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_submit_FeeCode,
 			{ "Fee Code", "cmpp.submit.FeeCode",
 			  FT_STRING, BASE_NONE, NULL, 0x00,
-			  "Fee Code",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_submit_Valld_Time,
@@ -876,7 +876,7 @@ proto_register_cmpp(void) {
 		},
 		{ &hf_cmpp_submit_Dest_terminal_type,
 			{ "Fake Destination Terminal", "cmpp.submit.Dest_terminal_type",
-			  FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			  "destination terminal type, 0 is real, 1 is fake",
 			  HFILL }
 		},
@@ -889,13 +889,13 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_Msg_Content,
 			{ "Message Content", "cmpp.Msg_Content",
 			  FT_STRING, BASE_NONE, NULL, 0x00,
-			  "Message Content",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_LinkID,
 			{ "Link ID", "cmpp.LinkID",
 			  FT_STRING, BASE_NONE, NULL, 0x00,
-			  "Link ID",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_submit_resp_Result,
@@ -918,13 +918,13 @@ proto_register_cmpp(void) {
 		},
 		{ &hf_cmpp_deliver_Src_terminal_type,
 			{ "Fake source terminal type", "cmpp.deliver.Src_terminal_type",
-			  FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			  "Type of the source terminal, can be 0 (real) or 1 (fake)",
 			  HFILL }
 		},
 		{ &hf_cmpp_deliver_Registered_Delivery,
 			{ "Deliver Report", "cmpp.deliver.Registered_Delivery",
-			  FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			  "The message is a deliver report if this value = 1",
 			  HFILL }
 		},
@@ -937,7 +937,7 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_deliver_Report_Stat,
 			{ "Deliver Status", "cmpp.deliver.Report.Status",
 			  FT_STRING, BASE_NONE, NULL, 0x00,
-			  "Deliver Status",
+			  NULL,
 			  HFILL }
 		},
 		{ &hf_cmpp_deliver_Report_Submit_time,

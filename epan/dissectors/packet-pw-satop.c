@@ -419,13 +419,13 @@ void proto_register_pw_satop(void)
 				,FT_UINT16			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_payload	,{"TDM payload"			,"pwsatop.payload"	
-				,FT_BYTES			,BASE_HEX		,NULL			
+				,FT_BYTES			,BASE_NONE		,NULL			
 				,0				,NULL			,HFILL }}
 		,{&hf_padding	,{"Padding"			,"pwsatop.padding"	
-				,FT_BYTES			,BASE_HEX		,NULL			
+				,FT_BYTES			,BASE_NONE		,NULL			
 				,0				,NULL			,HFILL }}
 		,{&hf_padding_f	,{"Padding (formatted)"		,""
-				,FT_BYTES			,BASE_HEX		,NULL
+				,FT_BYTES			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 	};
 	

@@ -241,95 +241,95 @@ void proto_register_kdp(void) {
   static hf_register_info hf[] = {
     { &hf_kdp_version,
       {"KDP version", "kdp.version",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_headerlen,
       {"KDP header len", "kdp.headerlen",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_flags,
       {"KDP flags", "kdp.flags",
-       FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_drop_flag,
       {"KDP DROP Flag", "kdp.flags.drop",
-       FT_BOOLEAN, 8, NULL, KDP_DROP_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_DROP_FLAG, NULL, HFILL}
     },
     { &hf_kdp_syn_flag,
       {"KDP SYN Flag", "kdp.flags.syn",
-       FT_BOOLEAN, 8, NULL, KDP_SYN_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_SYN_FLAG, NULL, HFILL}
     },
     { &hf_kdp_ack_flag,
       {"KDP ACK Flag", "kdp.flags.ack",
-       FT_BOOLEAN, 8, NULL, KDP_ACK_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_ACK_FLAG, NULL, HFILL}
     },
     { &hf_kdp_rst_flag,
       {"KDP RST Flag", "kdp.flags.rst",
-       FT_BOOLEAN, 8, NULL, KDP_RST_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_RST_FLAG, NULL, HFILL}
     },
     { &hf_kdp_bcst_flag,
       {"KDP BCST Flag", "kdp.flags.bcst",
-       FT_BOOLEAN, 8, NULL, KDP_BCST_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_BCST_FLAG, NULL, HFILL}
     },
     { &hf_kdp_dup_flag,
       {"KDP DUP Flag", "kdp.flags.dup",
-       FT_BOOLEAN, 8, NULL, KDP_DUP_FLAG, "", HFILL}
+       FT_BOOLEAN, 8, NULL, KDP_DUP_FLAG, NULL, HFILL}
     },
     { &hf_kdp_errors,
       {"KDP errors", "kdp.errors",
-       FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_destflowid,
       { "DestFlowID", "kdp.destflowid",
-	FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_srcflowid,
       { "SrcFlowID", "kdp.srcflowid",
-	FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_sequence,
       { "Sequence", "kdp.sequence",
-	FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_ack,
       { "Ack", "kdp.ack",
-	FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_maxsegmentsize,
       { "MaxSegmentSize", "kdp.maxsegmentsize",
-	FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_optionnumber,
       { "Option Number", "kdp.optionnumber",
-	FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_optionlen,
       { "Option Len", "kdp.option",
-	FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option1,
       { "Option1 - Max Window", "kdp.option1",
-	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_option2,
       { "Option2 - TCP Fraction", "kdp.option2",
-	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragment,
       { "Fragment", "kdp.fragment",
-	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_fragtotal,
       { "FragTotal", "kdp.fragtotal",
-	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_body,
       { "Encrypted Body", "kdp.body",
-	FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_xml_body,
       { "XML Body", "kdp.body",
-	FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}
+	FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     }
   };
 

@@ -5834,12 +5834,12 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_cld_party_bcd_num,
 		{ "Called Party BCD Number", "gsm_a.cld_party_bcd_num",
-		FT_STRING, BASE_DEC, 0, 0,
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_clg_party_bcd_num,
 		{ "Calling Party BCD Number", "gsm_a.clg_party_bcd_num",
-		FT_STRING, BASE_DEC, 0, 0,
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_cause,

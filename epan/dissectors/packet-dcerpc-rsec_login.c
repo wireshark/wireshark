@@ -62,7 +62,7 @@ proto_register_rsec_login (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rsec_login_opnum,
-		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL }}
+		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

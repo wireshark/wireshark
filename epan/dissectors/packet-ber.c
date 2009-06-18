@@ -4265,16 +4265,16 @@ proto_register_ber(void)
 	    "Length", "ber.length", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Length of contents", HFILL }},
 	{ &hf_ber_unknown_OCTETSTRING, {
-	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_HEX,
+	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
 	{ &hf_ber_unknown_BER_OCTETSTRING, {
-	    "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_NONE, BASE_HEX,
+	    "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_NONE, BASE_NONE,
 	    NULL, 0, "This is an BER encoded OCTETSTRING", HFILL }},
 	{ &hf_ber_unknown_OID, {
 	    "OID", "ber.unknown.OID", FT_OID, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
 	{ &hf_ber_unknown_GraphicString, {
-	    "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_HEX,
+	    "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown GRAPHICSTRING", HFILL }},
 	{ &hf_ber_unknown_NumericString, {
 	    "NumericString", "ber.unknown.NumericString", FT_STRING, BASE_NONE,
@@ -4313,7 +4313,7 @@ proto_register_ber(void)
 	    "INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown INTEGER", HFILL }},
 	{ &hf_ber_unknown_BITSTRING, {
-	    "BITSTRING", "ber.unknown.BITSTRING", FT_BYTES, BASE_DEC,
+	    "BITSTRING", "ber.unknown.BITSTRING", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is an unknown BITSTRING", HFILL }},
 	{ &hf_ber_unknown_BOOLEAN, {
 	    "BOOLEAN", "ber.unknown.BOOLEAN", FT_UINT8, BASE_HEX,
@@ -4322,7 +4322,7 @@ proto_register_ber(void)
 	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
 	{ &hf_ber_constructed_OCTETSTRING, {
-	    "OCTETSTRING", "ber.constructed.OCTETSTRING", FT_BYTES, BASE_HEX,
+	    "OCTETSTRING", "ber.constructed.OCTETSTRING", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is a component of an constructed OCTETSTRING", HFILL }},
 	{ &hf_ber_no_oid, {
 	    "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
@@ -4348,11 +4348,11 @@ proto_register_ber(void)
         "ber.T_encoding", HFILL }},
     { &hf_ber_octet_aligned,
       { "octet-aligned", "ber.octet_aligned",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "ber.T_octet_aligned", HFILL }},
     { &hf_ber_arbitrary,
       { "arbitrary", "ber.arbitrary",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "ber.T_arbitrary", HFILL }},
     { &hf_ber_single_ASN1_type,
       { "single-ASN1-type", "ber.single_ASN1_type",

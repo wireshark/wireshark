@@ -137,7 +137,7 @@ proto_register_dcerpc_rras(void)
 
 		{ &hf_rras_opnum, 
 		  { "Operation", "rras.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, "Operation", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 	};
 
 

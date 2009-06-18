@@ -135,22 +135,22 @@ proto_register_loop(void)
     { &hf_loop_skipcount,
       { "skipCount",		"loop.skipcount",
 	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_loop_function,
       { "Function",		"loop.function",
 	FT_UINT16,	BASE_DEC,	VALS(function_vals),	0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_loop_receipt_number,
       { "Receipt number",	"loop.receipt_number",
 	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_loop_forwarding_address,
       { "Forwarding address",	"loop.forwarding_address",
 	FT_ETHER,	BASE_NONE,	NULL,	0x0,
-      	"", HFILL }},
+      	NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_loop,

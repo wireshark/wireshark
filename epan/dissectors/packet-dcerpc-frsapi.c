@@ -76,7 +76,7 @@ proto_register_dcerpc_frsapi(void)
 
 		{ &hf_frsapi_opnum, 
 		  { "Operation", "frsapi.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, "Operation", HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},	
 	};
 
 

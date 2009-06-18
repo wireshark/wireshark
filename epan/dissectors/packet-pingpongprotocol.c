@@ -173,14 +173,14 @@ proto_register_pingpongprotocol(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,     { "Type",      "pingpongprotocol.message_type",   FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, "", HFILL } },
-    { &hf_message_flags,    { "Flags",     "pingpongprotocol.message_flags",  FT_UINT8,  BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_length,   { "Length",    "pingpongprotocol.message_length", FT_UINT16, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_ping_messageno,   { "MessageNo", "pingpongprotocol.ping_messageno", FT_UINT64, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_ping_data,        { "Ping_Data", "pingpongprotocol.ping_data",      FT_BYTES,  BASE_HEX, NULL,                      0x0, "", HFILL } },
-    { &hf_pong_messageno,   { "MessageNo", "pingpongprotocol.pong_messageno", FT_UINT64, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_pong_replyno,     { "ReplyNo",   "pingpongprotocol.pong_replyno",   FT_UINT64, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_pong_data,        { "Pong_Data", "pingpongprotocol.pong_data",      FT_BYTES,  BASE_HEX, NULL,                      0x0, "", HFILL } },
+    { &hf_message_type,     { "Type",      "pingpongprotocol.message_type",   FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, NULL, HFILL } },
+    { &hf_message_flags,    { "Flags",     "pingpongprotocol.message_flags",  FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_length,   { "Length",    "pingpongprotocol.message_length", FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_ping_messageno,   { "MessageNo", "pingpongprotocol.ping_messageno", FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_ping_data,        { "Ping_Data", "pingpongprotocol.ping_data",      FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_pong_messageno,   { "MessageNo", "pingpongprotocol.pong_messageno", FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_pong_replyno,     { "ReplyNo",   "pingpongprotocol.pong_replyno",   FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_pong_data,        { "Pong_Data", "pingpongprotocol.pong_data",      FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
   };
 
   /* Setup protocol subtree array */

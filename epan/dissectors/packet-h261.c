@@ -129,7 +129,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -141,7 +141,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -153,7 +153,7 @@ proto_register_h261(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -165,7 +165,7 @@ proto_register_h261(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -177,7 +177,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -189,7 +189,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -201,7 +201,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -213,7 +213,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -225,7 +225,7 @@ proto_register_h261(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -237,7 +237,7 @@ proto_register_h261(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 };

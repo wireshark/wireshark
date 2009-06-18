@@ -201,22 +201,22 @@ proto_register_fractalgeneratorprotocol(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,            { "Type",          "fractalgeneratorprotocol.message_type",            FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, "", HFILL } },
-    { &hf_message_flags,           { "Flags",         "fractalgeneratorprotocol.message_flags",           FT_UINT8,  BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_message_length,          { "Length",        "fractalgeneratorprotocol.message_length",          FT_UINT16, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_data_start_x,            { "StartX",        "fractalgeneratorprotocol.data_start_x",            FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_data_start_y,            { "StartY",        "fractalgeneratorprotocol.data_start_y",            FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_data_points,             { "Points",        "fractalgeneratorprotocol.data_points",             FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_width,         { "Width",         "fractalgeneratorprotocol.parameter_width",         FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_height,        { "Height",        "fractalgeneratorprotocol.parameter_height",        FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_maxiterations, { "MaxIterations", "fractalgeneratorprotocol.parameter_maxiterations", FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_algorithmid,   { "AlgorithmID",   "fractalgeneratorprotocol.parameter_algorithmid",   FT_UINT32, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_DEC, NULL,                      0x0, "", HFILL } },
-    { &hf_buffer,                  { "Buffer",        "fractalgeneratorprotocol.buffer",                  FT_BYTES,  BASE_HEX, NULL,                      0x0, "", HFILL } },
+    { &hf_message_type,            { "Type",          "fractalgeneratorprotocol.message_type",            FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, NULL, HFILL } },
+    { &hf_message_flags,           { "Flags",         "fractalgeneratorprotocol.message_flags",           FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_length,          { "Length",        "fractalgeneratorprotocol.message_length",          FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_data_start_x,            { "StartX",        "fractalgeneratorprotocol.data_start_x",            FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_data_start_y,            { "StartY",        "fractalgeneratorprotocol.data_start_y",            FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_data_points,             { "Points",        "fractalgeneratorprotocol.data_points",             FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_width,         { "Width",         "fractalgeneratorprotocol.parameter_width",         FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_height,        { "Height",        "fractalgeneratorprotocol.parameter_height",        FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_maxiterations, { "MaxIterations", "fractalgeneratorprotocol.parameter_maxiterations", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_algorithmid,   { "AlgorithmID",   "fractalgeneratorprotocol.parameter_algorithmid",   FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_buffer,                  { "Buffer",        "fractalgeneratorprotocol.buffer",                  FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
   };
 
   /* Setup protocol subtree array */

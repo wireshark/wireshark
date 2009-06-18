@@ -1656,22 +1656,22 @@ void proto_register_cops(void)
     },
     { &hf_cops_in_int_ipv4,
       { "IPv4 address",           "cops.in-int.ipv4",
-      FT_IPv4, 0, NULL, 0,
+      FT_IPv4, BASE_NONE, NULL, 0,
       "IPv4 address in COPS IN-Int object", HFILL }
     },
     { &hf_cops_in_int_ipv6,
       { "IPv6 address",           "cops.in-int.ipv6",
-      FT_IPv6, 0, NULL, 0,
+      FT_IPv6, BASE_NONE, NULL, 0,
       "IPv6 address in COPS IN-Int object", HFILL }
     },
     { &hf_cops_out_int_ipv4,
       { "IPv4 address",           "cops.out-int.ipv4",
-      FT_IPv4, 0, NULL, 0,
+      FT_IPv4, BASE_NONE, NULL, 0,
       "IPv4 address in COPS OUT-Int object", HFILL }
     },
     { &hf_cops_out_int_ipv6,
       { "IPv6 address",           "cops.out-int.ipv6",
-      FT_IPv6, 0, NULL, 0,
+      FT_IPv6, BASE_NONE, NULL, 0,
       "IPv6 address in COPS OUT-Int", HFILL }
     },
     { &hf_cops_int_ifindex,
@@ -1726,22 +1726,22 @@ void proto_register_cops(void)
     },
     { &hf_cops_pdprediraddr_ipv4,
       { "IPv4 address",           "cops.pdprediraddr.ipv4",
-      FT_IPv4, 0, NULL, 0,
+      FT_IPv4, BASE_NONE, NULL, 0,
       "IPv4 address in COPS PDPRedirAddr object", HFILL }
     },
     { &hf_cops_pdprediraddr_ipv6,
       { "IPv6 address",           "cops.pdprediraddr.ipv6",
-      FT_IPv6, 0, NULL, 0,
+      FT_IPv6, BASE_NONE, NULL, 0,
       "IPv6 address in COPS PDPRedirAddr object", HFILL }
     },
     { &hf_cops_lastpdpaddr_ipv4,
       { "IPv4 address",           "cops.lastpdpaddr.ipv4",
-      FT_IPv4, 0, NULL, 0,
+      FT_IPv4, BASE_NONE, NULL, 0,
       "IPv4 address in COPS LastPDPAddr object", HFILL }
     },
     { &hf_cops_lastpdpaddr_ipv6,
       { "IPv6 address",           "cops.lastpdpaddr.ipv6",
-      FT_IPv6, 0, NULL, 0,
+      FT_IPv6, BASE_NONE, NULL, 0,
       "IPv6 address in COPS LastPDPAddr object", HFILL }
     },
     { &hf_cops_pdp_tcp_port,
@@ -1784,262 +1784,262 @@ void proto_register_cops(void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Error Sub-code in Error object", HFILL }
     },
-  { &hf_cops_prid_oid, { "PRID Instance Identifier", "cops.prid.instance_id", FT_OID, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_pprid_oid, { "Prefix Identifier", "cops.pprid.prefix_id", FT_OID, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_errprid_oid, { "ErrorPRID Instance Identifier", "cops.errprid.instance_id", FT_OID, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_unknown, { "EPD Unknown Data", "cops.epd.unknown", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_null, { "EPD Null Data", "cops.epd.null", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_int, { "EPD Integer Data", "cops.epd.int", FT_INT64, BASE_DEC, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_octets, { "EPD Octet String Data", "cops.epd.octets", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_oid, { "EPD OID Data", "cops.epd.oid", FT_OID, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_ipv4, { "EPD IPAddress Data", "cops.epd.ipv4", FT_IPv4, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_u32, { "EPD Unsigned32 Data", "cops.epd.unsigned32", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_ticks, { "EPD TimeTicks Data", "cops.epd.timeticks", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_opaque, { "EPD Opaque Data", "cops.epd.opaque", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_i64, { "EPD Inetger64 Data", "cops.epd.integer64", FT_INT64, BASE_DEC, NULL, 0, "", HFILL } },
-  { &hf_cops_epd_u64, { "EPD Unsigned64 Data", "cops.epd.unsigned64", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL } },
+  { &hf_cops_prid_oid, { "PRID Instance Identifier", "cops.prid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_pprid_oid, { "Prefix Identifier", "cops.pprid.prefix_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_errprid_oid, { "ErrorPRID Instance Identifier", "cops.errprid.instance_id", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_unknown, { "EPD Unknown Data", "cops.epd.unknown", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_null, { "EPD Null Data", "cops.epd.null", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_int, { "EPD Integer Data", "cops.epd.int", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_octets, { "EPD Octet String Data", "cops.epd.octets", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_oid, { "EPD OID Data", "cops.epd.oid", FT_OID, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_ipv4, { "EPD IPAddress Data", "cops.epd.ipv4", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_u32, { "EPD Unsigned32 Data", "cops.epd.unsigned32", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_ticks, { "EPD TimeTicks Data", "cops.epd.timeticks", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_opaque, { "EPD Opaque Data", "cops.epd.opaque", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_i64, { "EPD Inetger64 Data", "cops.epd.integer64", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+  { &hf_cops_epd_u64, { "EPD Unsigned64 Data", "cops.epd.unsigned64", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
 
     /* Added for PacketCable */
 
     { &hf_cops_subtree,
       { "Object Subtree", "cops.pc_subtree",
         FT_NONE, BASE_NONE, NULL, 0,
-        "Object Subtree", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_ds_field,
       { "DS Field (DSCP or TOS)", "cops.pc_ds_field",
         FT_UINT8, BASE_HEX, NULL, 0x00,
-        "DS Field (DSCP or TOS)", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_direction,
       { "Direction", "cops.pc_direction",
         FT_UINT8, BASE_HEX, NULL, 0x00,
-        "Direction", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_gate_spec_flags,
       { "Flags", "cops.pc_gate_spec_flags",
         FT_UINT8, BASE_HEX, NULL, 0x00,
-        "Flags", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_protocol_id,
       { "Protocol ID", "cops.pc_protocol_id",
         FT_UINT8, BASE_HEX, NULL, 0x00,
-        "Protocol ID", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_session_class,
       { "Session Class", "cops.pc_session_class",
         FT_UINT8, BASE_HEX, NULL, 0x00,
-        "Session Class", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_algorithm,
       { "Algorithm", "cops.pc_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Algorithm", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_cmts_ip_port,
       { "CMTS IP Port", "cops.pc_cmts_ip_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "CMTS IP Port", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_prks_ip_port,
       { "PRKS IP Port", "cops.pc_prks_ip_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "PRKS IP Port", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_srks_ip_port,
       { "SRKS IP Port", "cops.pc_srks_ip_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "SRKS IP Port", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_dest_port,
       { "Destination IP Port", "cops.pc_dest_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Destination IP Port", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_packetcable_err_code,
       { "Error Code", "cops.pc_packetcable_err_code",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Error Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_packetcable_sub_code,
       { "Error Sub Code", "cops.pc_packetcable_sub_code",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Error Sub Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_remote_flags,
       { "Flags", "cops.pc_remote_flags",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Flags", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_close_subcode,
       { "Reason Sub Code", "cops.pc_close_subcode",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Reason Sub Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_gate_command_type,
       { "Gate Command Type", "cops.pc_gate_command_type",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Gate Command Type", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_reason_code,
       { "Reason Code", "cops.pc_reason_code",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Reason Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_delete_subcode,
       { "Reason Sub Code", "cops.pc_delete_subcode",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Reason Sub Code", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_src_port,
       { "Source IP Port", "cops.pc_src_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Source IP Port", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_t1_value,
       { "Timer T1 Value (sec)", "cops.pc_t1_value",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Timer T1 Value (sec)", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_t7_value,
       { "Timer T7 Value (sec)", "cops.pc_t7_value",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Timer T7 Value (sec)", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_t8_value,
       { "Timer T8 Value (sec)", "cops.pc_t8_value",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Timer T8 Value (sec)", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_transaction_id,
       { "Transaction Identifier", "cops.pc_transaction_id",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "Transaction Identifier", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_cmts_ip,
       { "CMTS IP Address", "cops.pc_cmts_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "CMTS IP Address", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_prks_ip,
       { "PRKS IP Address", "cops.pc_prks_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "PRKS IP Address", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_srks_ip,
       { "SRKS IP Address", "cops.pc_srks_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "SRKS IP Address", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_dfcdc_ip,
       { "DF IP Address CDC", "cops.pc_dfcdc_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "DF IP Address CDC", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_dfccc_ip,
       { "DF IP Address CCC", "cops.pc_dfccc_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "DF IP Address CCC", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_dfcdc_ip_port,
       { "DF IP Port CDC", "cops.pc_dfcdc_ip_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "DF IP Port CDC", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_dfccc_ip_port,
       { "DF IP Port CCC", "cops.pc_dfccc_ip_port",
         FT_UINT16, BASE_HEX, NULL, 0x00,
-        "DF IP Port CCC", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_dfccc_id,
       { "CCC ID", "cops.pc_dfccc_id",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "CCC ID", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_activity_count,
       { "Count", "cops.pc_activity_count",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Count", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_dest_ip,
       { "Destination IP Address", "cops.pc_dest_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "Destination IP Address", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_gate_id,
       { "Gate Identifier", "cops.pc_gate_id",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Gate Identifier", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_max_packet_size,
       { "Maximum Packet Size", "cops.pc_max_packet_size",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Maximum Packet Size", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_min_policed_unit,
       { "Minimum Policed Unit", "cops.pc_min_policed_unit",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Minimum Policed Unit", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_peak_data_rate,
       { "Peak Data Rate", "cops.pc_peak_data_rate",
         FT_FLOAT, BASE_NONE, NULL, 0x00,
-        "Peak Data Rate", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_spec_rate,
       { "Rate", "cops.pc_spec_rate",
         FT_FLOAT, BASE_NONE, NULL, 0x00,
-        "Rate", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_remote_gate_id,
       { "Remote Gate ID", "cops.pc_remote_gate_id",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Remote Gate ID", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_reserved,
       { "Reserved", "cops.pc_reserved",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Reserved", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_key,
       { "Security Key", "cops.pc_key",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Security Key", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_slack_term,
       { "Slack Term", "cops.pc_slack_term",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Slack Term", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_src_ip,
       { "Source IP Address", "cops.pc_src_ip",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "Source IP Address", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_subscriber_id_ipv4,
       { "Subscriber Identifier (IPv4)", "cops.pc_subscriber_id4",
-        FT_IPv4, BASE_HEX, NULL, 0x00,
-        "Subscriber Identifier (IPv4)", HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_subscriber_id_ipv6,
       { "Subscriber Identifier (IPv6)", "cops.pc_subscriber_id6",
-        FT_IPv6, BASE_HEX, NULL, 0x00,
-        "Subscriber Identifier (IPv6)", HFILL }
+        FT_IPv6, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
     },
     { &hf_cops_pc_token_bucket_rate,
       { "Token Bucket Rate", "cops.pc_token_bucket_rate",
         FT_FLOAT, BASE_NONE, NULL, 0x00,
-        "Token Bucket Rate", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_token_bucket_size,
       { "Token Bucket Size", "cops.pc_token_bucket_size",
         FT_FLOAT, BASE_NONE, NULL, 0x00,
-        "Token Bucket Size", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_bcid,
       { "Billing Correlation ID", "cops.pc_bcid",
         FT_UINT32, BASE_HEX, NULL, 0x00,
-        "Billing Correlation ID", HFILL }
+        NULL, HFILL }
     },
     { &hf_cops_pc_bcid_ts,
       { "BDID Timestamp", "cops.pc_bcid_ts",
@@ -2136,22 +2136,22 @@ void proto_register_cops(void)
     },
     { &hf_cops_pcmm_classifier_src_addr,
 	    { "Source address", "cops.pc_mm_classifier_src_addr",
-	    FT_IPv4, 0, NULL, 0,
+	    FT_IPv4, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia Classifier Source IP Address", HFILL }
     },
     { &hf_cops_pcmm_classifier_src_mask,
 	    { "Source mask", "cops.pc_mm_classifier_src_mask",
-	    FT_IPv4, 0, NULL, 0,
+	    FT_IPv4, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia Classifier Source Mask", HFILL }
     },
     { &hf_cops_pcmm_classifier_dst_addr,
 	    { "Destination address", "cops.pc_mm_classifier_dst_addr",
-	    FT_IPv4, 0, NULL, 0,
+	    FT_IPv4, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia Classifier Destination IP Address", HFILL }
     },
     { &hf_cops_pcmm_classifier_dst_mask,
 	    { "Destination address", "cops.pc_mm_classifier_dst_mask",
-	    FT_IPv4, 0, NULL, 0,
+	    FT_IPv4, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia Classifier Destination Mask", HFILL }
     },
     { &hf_cops_pcmm_classifier_src_port,
@@ -2208,7 +2208,7 @@ void proto_register_cops(void)
 
     { &hf_cops_pcmm_docsis_scn,
 	    { "Service Class Name", "cops.pc_mm_docsis_scn",
-	    FT_STRINGZ, BASE_DEC, NULL, 0,
+	    FT_STRINGZ, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia DOCSIS Service Class Name", HFILL }
     },
 
@@ -2396,7 +2396,7 @@ void proto_register_cops(void)
 
     { &hf_cops_pcmm_userid,
     	{ "UserID", "cops.pc_mm_userid",
-    	FT_STRING, BASE_CUSTOM, NULL, 0,
+    	FT_STRING, BASE_NONE, NULL, 0,
     	"PacketCable Multimedia UserID", HFILL }
     },
 

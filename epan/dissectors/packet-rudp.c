@@ -151,17 +151,17 @@ proto_register_rudp(void)
 		{ &hf_rudp_flags,
 			{ "RUDP Header flags",           "rudp.flags",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rudp_flags_syn,
 			{ "Syn",           "rudp.flags.syn",
 			FT_BOOLEAN, 8, NULL, 0x80,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rudp_flags_ack,
 			{ "Ack",           "rudp.flags.ack",
 			FT_BOOLEAN, 8, NULL, 0x40,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rudp_flags_eak,
 			{ "Eak",           "rudp.flags.eak",
@@ -191,12 +191,12 @@ proto_register_rudp(void)
 		{ &hf_rudp_flags_0,
 			{ "0",           "rudp.flags.0",
 			FT_BOOLEAN, 8, NULL, 0x01,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rudp_hlen,
 			{ "Header Length",           "rudp.hlen",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rudp_seq,
 			{ "Seq",           "rudp.seq",
@@ -211,7 +211,7 @@ proto_register_rudp(void)
 		{ &hf_rudp_cksum,
 			{ "Checksum",           "rudp.cksum",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 	};
 

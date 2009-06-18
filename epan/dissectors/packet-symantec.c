@@ -131,10 +131,10 @@ proto_register_symantec(void)
 	static hf_register_info hf[] = {
 		{ &hf_symantec_if,
 		    { "Interface", "symantec.if", FT_IPv4,  BASE_NONE, NULL, 0x0,
-			"Interface", HFILL }},
+			NULL, HFILL }},
 		{ &hf_symantec_etype,
 		    { "Type",    "symantec.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_symantec,

@@ -8747,7 +8747,7 @@ void proto_register_rtps2(void) {
         "guidPrefix",
         "rtps2.guidPrefix",
         FT_BYTES,
-        BASE_HEX,
+        BASE_NONE,
         NULL,
         0,
         "GuidPrefix of the RTPS packet",
@@ -8832,11 +8832,10 @@ void proto_register_rtps2(void) {
         "guidPrefix",
         "rtps2.sm.guidPrefix",
         FT_BYTES,
-        BASE_HEX,
+        BASE_NONE,
         NULL,
         0,
-        "a generic guidPrefix that is transmitted inside the submessage "
-        "(this is NOT the guidPrefix described in the packet header",
+        "a generic guidPrefix that is transmitted inside the submessage (this is NOT the guidPrefix described in the packet header",
         HFILL }
     },
 
@@ -9033,8 +9032,7 @@ void proto_register_rtps2(void) {
         BASE_HEX, 
         NULL,
         0,
-        "State information of the data object to which the message apply"
-        " (i.e. lifecycle)", 
+        "State information of the data object to which the message apply (i.e. lifecycle)", 
         HFILL }
     },
 
@@ -9104,8 +9102,7 @@ void proto_register_rtps2(void) {
         BASE_DEC, 
         NULL,
         0,
-        "Decimal value representing the value of a PID_OWNERSHIP_STRENGTH "
-        "parameter", 
+        "Decimal value representing the value of a PID_OWNERSHIP_STRENGTH parameter", 
         HFILL }
     },
 
@@ -9126,7 +9123,7 @@ void proto_register_rtps2(void) {
         "userData", 
         "rtps2.param.userData",
         FT_BYTES, 
-        BASE_HEX, 
+        BASE_NONE, 
         NULL, 
         0,
         "The user data sent in a PID_USER_DATA parameter", 
@@ -9138,7 +9135,7 @@ void proto_register_rtps2(void) {
         "groupData", 
         "rtps2.param.groupData",
         FT_BYTES, 
-        BASE_HEX, 
+        BASE_NONE, 
         NULL, 
         0,
         "The user data sent in a PID_GROUP_DATA parameter", 
@@ -9150,7 +9147,7 @@ void proto_register_rtps2(void) {
         "topicData", 
         "rtps2.param.topicData",
         FT_BYTES, 
-        BASE_HEX, 
+        BASE_NONE, 
         NULL, 
         0,
         "The user data sent in a PID_TOPIC_DATA parameter", 
@@ -9195,7 +9192,7 @@ void proto_register_rtps2(void) {
         "serializedData", 
         "rtps2.serializedData",
         FT_BYTES, 
-        BASE_HEX, 
+        BASE_NONE, 
         NULL, 
         0,
         "The user data transferred in a ISSUE submessage", 

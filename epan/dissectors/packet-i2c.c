@@ -266,10 +266,10 @@ void
 proto_register_i2c(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_i2c_bus, { "Bus ID", "i2c.bus", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-		{ &hf_i2c_addr, { "Target address", "i2c.addr", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_i2c_event, { "Event", "i2c.event", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_i2c_flags, { "Flags", "i2c.flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+		{ &hf_i2c_bus, { "Bus ID", "i2c.bus", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_i2c_addr, { "Target address", "i2c.addr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_i2c_event, { "Event", "i2c.event", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_i2c_flags, { "Flags", "i2c.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_i2c

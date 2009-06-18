@@ -519,207 +519,207 @@ proto_register_opsi(void)
 		{ &hf_opsi_major_version,
 			{ "Major version",           "opsi.major",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_minor_version,
 			{ "Minor version",           "opsi.minor",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_opcode,
 		        { "Operation code",		"opsi.opcode",
 		        FT_UINT8, BASE_DEC, VALS(opsi_opcode), 0x0,
-		        "", HFILL }
+		        NULL, HFILL }
 		},
 		{ &hf_opsi_hook_id,
 			{ "Hook ID",			"opsi.hook",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_length,
 			{ "Message length",		"opsi.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_session_id,
 			{ "Session ID",			"opsi.session_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_user_name_att,
 			{ "User name",			"opsi.attr.user_name",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_password_att,
 			{ "User password",		"opsi.attr.password",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_chap_password_att,
 			{ "CHAP password attribute",	"opsi.attr.chap_password",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nas_ip_add_att,
 			{ "NAS IP address",		"opsi.attr.nas_ip_addr",
-			FT_IPv4, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
 		},
 		{ &hf_nas_port_att,
 			{ "NAS port",			"opsi.attr.nas_port",
 			FT_UINT32, BASE_HEX, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_service_type_att,
 		        { "Service type",		"opsi.attr.service_type",
 			FT_UINT32, BASE_DEC, VALS(opsi_service_type_code), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_framed_protocol_att,
 			{ "Framed protocol",		"opsi.attr.framed_protocol",
 			FT_UINT32, BASE_DEC, VALS(opsi_framed_protocol_code), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_framed_address_att,
 			{ "Framed address",		"opsi.attr.framed_address",
-			FT_IPv4, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
 		},
 		{ &hf_framed_netmask_att,
 			{ "Framed netmask",		"opsi.attr.framed_netmask",
-			FT_IPv4, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
 		},
 		{ &hf_framed_routing_att,
 			{ "Framed routing",		"opsi.attr.framed_routing",
 			FT_UINT32, BASE_DEC, VALS(opsi_framed_routing_code), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_framed_filter_att,
 			{ "Framed filter",		"opsi.attr.framed_filter",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_framed_mtu_att,
 			{ "Framed MTU",		"opsi.attr.framed_mtu",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_framed_compression_att,
 			{ "Framed compression",		"opsi.attr.framed_compression",
 			FT_UINT32, BASE_DEC, VALS(opsi_framed_compression_code), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_called_station_att,
 			{ "Called station ID",		"opsi.attr.called_station_id",
 			FT_STRING, BASE_NONE, NULL, 0x00,	
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_calling_station_att,
 			{ "Calling station ID",		"opsi.attr.calling_station_id",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nas_identifier_att,
 			{ "NAS ID",			"opsi.attr.nas_id",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_accounting_att,
 			{ "Accounting",			"opsi.attr.accounting",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_acct_session_id_att,
 			{ "Accounting session ID",	"opsi.attr.acct.session_id",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_chap_challenge_att,
 			{ "CHAP challenge",		"opsi.attr.chap_challenge",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nas_port_type_att,
 			{ "NAS port type",		"opsi.attr.nas_port_type",
 			FT_UINT32, BASE_DEC, VALS(opsi_nas_port_type_code), 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_designation_num_att,
 			{ "Designation number",		"opsi.attr.designation_number",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_nas_port_id_att,
 			{ "NAS port ID", 		"opsi.attr.nas_port_id",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_aaa_id_att,
 			{ "SMC AAA ID",			"opsi.attr.smc_aaa_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_vpn_id_att,	
 			{ "SMC VPN ID",			"opsi.attr.smc_vpn_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_vpn_name_att,
 			{ "SMC VPN name",		"opsi.attr.smc_vpn_name",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_ran_id_att,
 			{ "SMC RAN ID",			"opsi.attr.smc_ran_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_ran_ip_att,	
 			{ "SMC RAN IP address",		"opsi.attr.smc_ran_ip",
-			FT_IPv4, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			FT_IPv4, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
 		},
 		{ &hf_smc_ran_name_att,
 			{ "SMC RAN name",		"opsi.attr.smc_ran_name",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_pop_id_att,
 			{ "SMC POP id",			"opsi.attr.smc_pop_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_pop_name_att,
 			{ "SMC POP name",		"opsi.attr.smc_pop_name",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_id_att,        
 			{ "SMC ID",			"opsi.attr.smc_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_receive_time_att,
 			{ "SMC receive time",		"opsi.attr.smc_receive_time",
 			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_smc_stat_time_att,
 			{ "SMC stat time",		"opsi.attr.smc_stat_time",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_flags_att,
 			{ "OPSI flags",			"opsi.attr.flags",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_opsi_application_name_att,
 			{ "OPSI application name",	"opsi.attr.application_name",
 			FT_STRING, BASE_NONE, NULL, 0x00,
-			"", HFILL }
+			NULL, HFILL }
 		},
 	};
 

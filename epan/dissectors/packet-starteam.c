@@ -648,7 +648,7 @@ proto_register_starteam(void)
       { "Reserved", "starteam.mdh.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, "MDH reserved", HFILL }},
 
    { &hf_starteam_ph_signature,
-      { "Signature", "starteam.ph.signature", FT_STRINGZ, BASE_HEX, NULL, 0x0, "PH signature", HFILL }},
+      { "Signature", "starteam.ph.signature", FT_STRINGZ, BASE_NONE, NULL, 0x0, "PH signature", HFILL }},
 
    { &hf_starteam_ph_packet_size,
       { "Packet size", "starteam.ph.psize", FT_UINT32, BASE_DEC, NULL, 0x0, "PH packet size", HFILL }},
@@ -663,7 +663,7 @@ proto_register_starteam(void)
       { "Revision level", "starteam.id.level", FT_UINT16, BASE_DEC, NULL, 0x0, "ID revision level", HFILL }},
 
    { &hf_starteam_id_client,
-      { "Client ID", "starteam.id.client", FT_STRINGZ, BASE_HEX, NULL, 0x0, "ID client ID", HFILL }},
+      { "Client ID", "starteam.id.client", FT_STRINGZ, BASE_NONE, NULL, 0x0, "ID client ID", HFILL }},
 
    { &hf_starteam_id_connect,
       { "Connect ID", "starteam.id.connect", FT_UINT32, BASE_HEX, NULL, 0x0, "ID connect ID", HFILL }},
@@ -681,7 +681,7 @@ proto_register_starteam(void)
       { "Command user ID", "starteam.id.commanduserid", FT_UINT32, BASE_HEX, NULL, 0x0, "ID command user ID", HFILL }},
 
    { &hf_starteam_data_data,
-      { "Data", "starteam.data", FT_STRINGZ, BASE_HEX, NULL, 0x0, "Data", HFILL }}
+      { "Data", "starteam.data", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }}
   };
   static gint *ett[] = {
     &ett_starteam,

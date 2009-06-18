@@ -3475,7 +3475,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_subdomain,
             { "subdomain",           "ptp.subdomain",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_messagetype,
@@ -3604,7 +3604,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_grandmasterclockidentifier,
             { "grandmasterClockIdentifier",           "ptp.sdr.grandmasterclockidentifier",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterclockvariance,
@@ -3644,7 +3644,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_localclockidentifier,
             { "localClockIdentifier",           "ptp.sdr.localclockidentifier",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_sdr_parentcommunicationtechnology,
@@ -3674,7 +3674,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_utcreasonable,
             { "utcReasonable",           "ptp.sdr.utcreasonable",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         /*offsets for follow_up (=fu) messages*/
@@ -3773,7 +3773,7 @@ proto_register_ptp(void)
         /*parameterlength > 0*/
         { &hf_ptp_mm_messageparameters,
             { "messageParameters",           "ptp.mm.messageparameters",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /*ptp_mm_clock_identity (parameterlength = 64)*/
@@ -3794,7 +3794,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_clock_identity_manufactureridentity,
             { "manufacturerIdentity",           "ptp.mm.clock.identity.manufactureridentity",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 
@@ -3807,7 +3807,7 @@ proto_register_ptp(void)
         /*ptp_mm_set_subdomain (parameterlength = 16)*/
         { &hf_ptp_mm_set_subdomain_subdomainname,
             { "subdomainName",           "ptp.mm.set.subdomain.subdomainname",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /*ptp_mm_default_data_set (parameterlength = 76)*/
@@ -3833,7 +3833,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_default_data_set_clockidentifier,
             { "clockIdentifier",           "ptp.mm.default.data.set.clockidentifier",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockvariance,
@@ -3843,27 +3843,27 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_default_data_set_clockfollowupcapable,
             { "clockFollowupCapable",           "ptp.mm.default.data.set.clockfollowupcapable",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_preferred,
             { "preferred",           "ptp.mm.default.data.set.preferred",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_initializable,
             { "initializable",           "ptp.mm.default.data.set.initializable",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_externaltiming,
             { "externalTiming",           "ptp.mm.default.data.set.externaltiming",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_isboundaryclock,
             { "isBoundaryClock",           "ptp.mm.default.data.set.isboundaryclock",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_syncinterval,
@@ -3873,7 +3873,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_default_data_set_subdomainname,
             { "subDomainName",           "ptp.mm.default.data.set.subdomainname",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_numberports,
@@ -3894,7 +3894,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_default_data_set_clockidentifier,
             { "clockIdentifier",           "ptp.mm.update.default.data.set.clockidentifier",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_clockvariance,
@@ -3904,7 +3904,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_default_data_set_preferred,
             { "preferred",           "ptp.mm.update.default.data.set.preferred",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_update_default_data_set_syncinterval,
@@ -3914,7 +3914,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_default_data_set_subdomainname,
             { "subdomainName",           "ptp.mm.update.default.data.set.subdomainname",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /*ptp_mm_current_data_set (parameterlength = 20)*/
@@ -3976,12 +3976,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_parentfollowupcapable,
             { "parentFollowupCapable",           "ptp.mm.parent.data.set.parentfollowupcapable",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentexternaltiming,
             { "parentExternalTiming",           "ptp.mm.parent.data.set.parentexternaltiming",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentvariance,
@@ -3991,7 +3991,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_parentstats,
             { "parentStats",           "ptp.mm.parent.data.set.parentstats",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_observedvariance,
@@ -4006,7 +4006,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_utcreasonable,
             { "utcReasonable",           "ptp.mm.parent.data.set.utcreasonable",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastercommunicationtechnology,
@@ -4031,7 +4031,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_grandmasteridentifier,
             { "grandmasterIdentifier",           "ptp.mm.parent.data.set.grandmasteridentifier",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastervariance,
@@ -4041,12 +4041,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_grandmasterpreferred,
             { "grandmasterPreferred",           "ptp.mm.parent.data.set.grandmasterpreferred",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterisboundaryclock,
             { "grandmasterIsBoundaryClock",           "ptp.mm.parent.data.set.grandmasterisboundaryclock",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmastersequencenumber,
@@ -4092,7 +4092,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_port_data_set_burstenabled,
             { "burstEnabled",           "ptp.mm.port.data.set.burstenabled",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_subdomainaddressoctets,
@@ -4112,17 +4112,17 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_port_data_set_subdomainaddress,
             { "subdomainAddress",           "ptp.mm.port.data.set.subdomainaddress",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_eventportaddress,
             { "eventPortAddress",           "ptp.mm.port.data.set.eventportaddress",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_generalportaddress,
             { "generalPortAddress",           "ptp.mm.port.data.set.generalportaddress",
-            FT_BYTES, BASE_DEC, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /*ptp_mm_global_time_data_set (parameterlength = 24)*/
@@ -4148,12 +4148,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_global_time_data_set_leap59,
             { "leap59",           "ptp.mm.global.time.data.set.leap59",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_leap61,
             { "leap61",           "ptp.mm.global.time.data.set.leap61",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_global_time_data_set_epochnumber,
@@ -4169,12 +4169,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_update_global_time_properties_leap59,
             { "leap59",           "ptp.mm.update.global.time.properties.leap59",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_leap61,
             { "leap61",           "ptp.mm.update.global.time.properties.leap61",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_mm_update_global_time_properties_epochnumber,
@@ -4684,7 +4684,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_data,
             { "data",           "ptp.v2.mm.data",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         /* Management TLV dataField */
@@ -4726,7 +4726,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_physicalLayerProtocol,
             { "physicalLayerProtocol",           "ptp.v2.mm.physicalLayerProtocol",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_physicalLayerProtocol_length,
@@ -4741,12 +4741,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_physicalAddress,
             { "physical address",  "ptp.v2.mm.physicalAddress",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress,
             { "protocol address",  "ptp.v2.mm.protocolAddress",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_protocolAddress_networkProtocol,
@@ -4761,17 +4761,17 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_manufacturerIdentity,
             { "manufacturer identity",  "ptp.v2.mm.manufacturerIdentity",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_reserved,
             { "reserved",  "ptp.v2.mm.reserved",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_productDescription,
             { "product description",  "ptp.v2.mm.productDescription",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_productDescription_length,
@@ -4781,7 +4781,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_revisionData,
             { "revision data",  "ptp.v2.mm.revisionData",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_revisionData_length,
@@ -4791,7 +4791,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_userDescription,
             { "user description",  "ptp.v2.mm.userDescription",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_userDescription_length,
@@ -4801,12 +4801,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_profileIdentity,
             { "profileIdentity",           "ptp.v2.mm.profileIdentity",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pad,
             { "Pad",           "ptp.v2.mm.pad",
-            FT_BYTES, BASE_HEX, NULL, 0x01,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_initializationKey,
@@ -4821,7 +4821,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_faultRecord,
             { "fault record",  "ptp.v2.mm.faultRecord",
-            FT_BYTES, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultRecordLength,
@@ -4836,7 +4836,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_faultName,
             { "faultName",  "ptp.v2.mm.faultName",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultName_length,
@@ -4846,7 +4846,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_faultValue,
             { "faultValue",  "ptp.v2.mm.faultValue",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultValue_length,
@@ -4856,7 +4856,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_faultDescription,
             { "faultDescription",  "ptp.v2.mm.faultDescription",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_faultDescription_length,
@@ -5143,7 +5143,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_displayData,
                 { "Display data",           "ptp.v2.mm.displayData",
-                FT_STRING, BASE_DEC, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayData_length,
@@ -5173,7 +5173,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_displayName,
             { "Display name",           "ptp.v2.mm.displayName",
-            FT_STRING, BASE_DEC, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_displayName_length,

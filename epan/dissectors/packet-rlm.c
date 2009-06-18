@@ -208,27 +208,27 @@ proto_register_rlm(void)
 		{ &hf_rlm_version,
 			{ "Version",           "rlm.version",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rlm_type,
 			{ "Type",           "rlm.type",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rlm_unknown,
 			{ "Unknown",           "rlm.unknown",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rlm_tid,
 			{ "Transaction ID",           "rlm.tid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rlm_unknown2,
 			{ "Unknown",           "rlm.unknown2",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"", HFILL }
+			NULL, HFILL }
 		},
 	};
 

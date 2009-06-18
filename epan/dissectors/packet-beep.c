@@ -998,61 +998,61 @@ proto_register_beep(void)
 {
   static hf_register_info hf[] = {
     { &hf_beep_proto_viol,
-      { "Protocol Violation", "beep.violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Protocol Violation", "beep.violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_req,
-      { "Request", "beep.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Request", "beep.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_req_chan,
-      { "Request Channel Number", "beep.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Request Channel Number", "beep.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_rsp,
-      { "Response", "beep.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Response", "beep.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_rsp_chan,
-      { "Response Channel Number", "beep.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Response Channel Number", "beep.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_seq,
-      { "Sequence", "beep.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Sequence", "beep.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_seq_chan,
-      { "Sequence Channel Number", "beep.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Sequence Channel Number", "beep.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_end,
-      { "End", "beep.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "End", "beep.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_complete,
-      { "Complete", "beep.more.complete", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Complete", "beep.more.complete", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_intermediate,
-      { "Intermediate", "beep.more.intermediate", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Intermediate", "beep.more.intermediate", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_msgno,
-      { "Msgno", "beep.msgno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Msgno", "beep.msgno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_ansno,
-      { "Ansno", "beep.ansno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Ansno", "beep.ansno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_seqno,
-      { "Seqno", "beep.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Seqno", "beep.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_size,
-      { "Size", "beep.size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Size", "beep.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_channel,
-      { "Channel", "beep.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Channel", "beep.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_negative,
-      { "Negative", "beep.status.negative", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Negative", "beep.status.negative", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_positive,
-      { "Positive", "beep.status.positive", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+      { "Positive", "beep.status.positive", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_ackno,
-      { "Ackno", "beep.seq.ackno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Ackno", "beep.seq.ackno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_window,
-      { "Window", "beep.seq.window", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Window", "beep.seq.window", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
   };
   static gint *ett[] = {

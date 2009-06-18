@@ -286,7 +286,7 @@ proto_register_msnip(void)
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "msnip.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad MSNIP Checksum", HFILL }},
+			  NULL, 0x0, "Bad MSNIP Checksum", HFILL }},
 
 		{ &hf_count,
 			{ "Count", "msnip.count", FT_UINT8, BASE_DEC,

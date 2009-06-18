@@ -254,10 +254,10 @@ void proto_register_redbackli(void) {
 			{ "Acctid", "redbackli.acctid", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_redbackli_eohpad,
-			{ "End of Header Padding", "redbackli.eohpad", FT_BYTES, BASE_HEX, NULL, 0x0,
+			{ "End of Header Padding", "redbackli.eohpad", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_redbackli_unknownavp,
-			{ "Unknown AVP", "redbackli.unknownavp", FT_BYTES, BASE_HEX, NULL, 0x0,
+			{ "Unknown AVP", "redbackli.unknownavp", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }}
 		};
 

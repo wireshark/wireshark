@@ -2625,13 +2625,13 @@ proto_register_x25(void)
 	  	"Logical Channel Number", HFILL }},
 	{ &hf_x25_type,
 	  { "Packet Type", "x25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
-	  	"Packet Type", HFILL }},
+	  	NULL, HFILL }},
 	{ &hf_x25_type_fc_mod8,
 	  { "Packet Type", "x25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x1F,
-	  	"Packet Type", HFILL }},
+	  	NULL, HFILL }},
 	{ &hf_x25_type_data,
 	  { "Packet Type", "x25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x01,
-	  	"Packet Type", HFILL }},
+	  	NULL, HFILL }},
 	{ &hf_x25_p_r_mod8,
 	  { "P(R)", "x25.p_r", FT_UINT8, BASE_DEC, NULL, 0xE0,
 	  	"Packet Receive Sequence Number", HFILL }},
@@ -2676,7 +2676,7 @@ proto_register_x25(void)
 	
 	{ &hf_x25_segments,
 	  { "X.25 Fragments", "x25.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "X.25 Fragments", HFILL }},
+	    NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_x25,

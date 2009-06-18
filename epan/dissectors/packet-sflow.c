@@ -1695,7 +1695,7 @@ proto_register_sflow(void)
 		},
 		{ &hf_sflow_fs_rawheader,
 		  { "Header of sampled packet", "sflow.fs.rawheader",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"Data from sampled header", HFILL }
 		},
 
@@ -1765,7 +1765,7 @@ proto_register_sflow(void)
 		{ &hf_sflow_fs_ip_tcpflags,
 		  { "TCP Flags", "sflow.ip_flags",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
-			"TCP Flags", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_fs_ip_tos, /* IPv4 */
 		  { "ToS", "sflow.tos",
@@ -1775,7 +1775,7 @@ proto_register_sflow(void)
 		{ &hf_sflow_fs_ip_priority, /* IPv6 */
 		  { "Priority", "sflow.priority",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
-			"Priority", HFILL }
+			NULL, HFILL }
 		},
 
 		/* XXX Fix naming for everything between here and hf_sflow_eth_... */
@@ -1797,21 +1797,21 @@ proto_register_sflow(void)
 		{ &hf_sflow_pri_in,
 		  { "Incoming 802.1p priority", "sflow.pri.in",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Incoming 802.1p priority", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_pri_out,
 		  { "Outgoing 802.1p priority", "sflow.pri.out",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Outgoing 802.1p priority", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_nexthop_v4,
 		  { "Next hop", "sflow.nexthop",
-			FT_IPv4, BASE_DEC, NULL, 0x0,
+			FT_IPv4, BASE_NONE, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
 		{ &hf_sflow_nexthop_v6,
 		  { "Next hop", "sflow.nexthop",
-			FT_IPv6, BASE_HEX, NULL, 0x0,
+			FT_IPv6, BASE_NONE, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
 		{ &hf_sflow_nexthop_src_mask,
@@ -1858,7 +1858,7 @@ proto_register_sflow(void)
 		{ &hf_sflow_community_entries,
 		  { "Gateway Communities", "sflow.communityEntries",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Gateway Communities", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_localpref,
 		  { "localpref", "sflow.localpref",
@@ -1869,17 +1869,17 @@ proto_register_sflow(void)
 		{ &hf_sflow_iftype,
 		  { "Interface Type", "sflow.iftype",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Interface Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_ifspeed,
 		  { "Interface Speed", "sflow.ifspeed",
 			FT_UINT64, BASE_DEC, NULL, 0x0,
-			"Interface Speed", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_ifdirection,
 		  { "Interface Direction", "sflow.ifdirection",
 			FT_UINT32, BASE_DEC, VALS(if_direction_vals), 0x0,
-			"Interface Direction", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_sflow_ifstatus_unused,
 		  { "If status (unused)", "sflow.ifstatus.unused",

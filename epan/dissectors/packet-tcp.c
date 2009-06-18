@@ -3666,76 +3666,76 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_srcport,
 		{ "Source Port",		"tcp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_dstport,
 		{ "Destination Port",		"tcp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_port,
 		{ "Source or Destination Port",	"tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_stream,
 		{ "Stream index",		"tcp.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_seq,
 		{ "Sequence number",		"tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_nxtseq,
 		{ "Next sequence number",	"tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_ack,
 		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_hdr_len,
 		{ "Header Length",		"tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags,
 		{ "Flags",			"tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_cwr,
 		{ "Congestion Window Reduced (CWR)",			"tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_CWR,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_ecn,
 		{ "ECN-Echo",			"tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ECN,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_urg,
 		{ "Urgent",			"tcp.flags.urg", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_URG,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_ack,
 		{ "Acknowledgement",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_push,
 		{ "Push",			"tcp.flags.push", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_PUSH,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_reset,
 		{ "Reset",			"tcp.flags.reset", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_RST,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_syn,
 		{ "Syn",			"tcp.flags.syn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_SYN,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_flags_fin,
 		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_FIN,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		/* 32 bits so we can present some values adjusted to window scaling */
 		{ &hf_tcp_window_size,
 		{ "Window size",		"tcp.window_size", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_checksum,
 		{ "Checksum",			"tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -3823,7 +3823,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_len,
 		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_analysis_acks_frame,
 		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -3847,7 +3847,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_segment_overlap,
 		{ "Segment overlap",	"tcp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -3871,7 +3871,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_segment,
 		{ "TCP Segment", "tcp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"TCP Segment", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_tcp_segments,
 		{ "Reassembled TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3883,15 +3883,15 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_options,
 		  { "TCP Options", "tcp.options", FT_BYTES,
-		    BASE_HEX, NULL, 0x0, "TCP Options", HFILL }},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP MSS Option", HFILL }},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tcp_option_mss_val,
 		  { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
-		    BASE_DEC, NULL, 0x0, "TCP MSS Option Value", HFILL}},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_wscale,
 		  { "TCP Window Scale Option", "tcp.options.wscale",
@@ -3906,19 +3906,19 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_sack_perm,
 		  { "TCP Sack Perm Option", "tcp.options.sack_perm",
 		    FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP Sack Perm Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack,
 		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP Sack Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack_sle,
 		  {"TCP Sack Left Edge", "tcp.options.sack_le", FT_UINT32,
-		   BASE_DEC, NULL, 0x0, "TCP Sack Left Edge", HFILL}},
+		   BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_sack_sre,
 		  {"TCP Sack Right Edge", "tcp.options.sack_re", FT_UINT32,
-		   BASE_DEC, NULL, 0x0, "TCP Sack Right Edge", HFILL}},
+		   BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_echo,
 		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN,
@@ -3927,42 +3927,42 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_echo_reply,
 		  { "TCP Echo Reply Option", "tcp.options.echo_reply",
 		    FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP Echo Reply Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_time_stamp,
 		  { "TCP Time Stamp Option", "tcp.options.time_stamp",
 		    FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP Time Stamp Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_cc,
 		  { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, "TCP CC Option", HFILL}},
+		    NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_ccnew,
 		  { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP CC New Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_ccecho,
 		  { "TCP CC Echo Option", "tcp.options.ccecho", FT_BOOLEAN,
-		    BASE_NONE, NULL, 0x0, "TCP CC Echo Option", HFILL}},
+		    BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_md5,
 		  { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, "TCP MD5 Option", HFILL}},
+		    NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_qs,
 		  { "TCP QS Option", "tcp.options.qs", FT_BOOLEAN, BASE_NONE,
-		    NULL, 0x0, "TCP QS Option", HFILL}},
+		    NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_tcp_option_scps,
 		  { "TCP SCPS Capabilities Option", "tcp.options.scps",
 		    FT_BOOLEAN, BASE_NONE, NULL,  0x0,
-		    "TCP SCPS Capabilities Option", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_scps_vector,
 		  { "TCP SCPS Capabilities Vector", "tcp.options.scps.vector",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "TCP SCPS Capabilities Vector", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_scps_binding,
 		  { "TCP SCPS Extended Binding Spacce",
@@ -3974,67 +3974,67 @@ proto_register_tcp(void)
 		  { "TCP Selective Negative Acknowledgement Option",
 		    "tcp.options.snack",
 		    FT_BOOLEAN, BASE_NONE, NULL,  0x0,
-		    "TCP Selective Negative Acknowledgement Option", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_snack_offset,
 		  { "TCP SNACK Offset", "tcp.options.snack.offset",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "TCP SNACK Offset", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_snack_size,
 		  { "TCP SNACK Size", "tcp.options.snack.size",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "TCP SNACK Size", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_snack_le,
 		  { "TCP SNACK Left Edge", "tcp.options.snack.le",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "TCP SNACK Left Edge", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_option_snack_re,
 		  { "TCP SNACK Right Edge", "tcp.options.snack.re",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "TCP SNACK Right Edge", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_scpsoption_flags_bets,
 		  { "Partial Reliability Capable (BETS)",
 		    "tcp.options.scpsflags.bets", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x80, "", HFILL }},
+		    TFS(&flags_set_truth), 0x80, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_snack1,
 		  { "Short Form SNACK Capable (SNACK1)",
 		    "tcp.options.scpsflags.snack1", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x40, "", HFILL }},
+		    TFS(&flags_set_truth), 0x40, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_snack2,
 		  { "Long Form SNACK Capable (SNACK2)",
 		    "tcp.options.scpsflags.snack2", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x20, "", HFILL }},
+		    TFS(&flags_set_truth), 0x20, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_compress,
 		  { "Lossless Header Compression (COMP)",
 		    "tcp.options.scpsflags.compress", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x10, "", HFILL }},
+		    TFS(&flags_set_truth), 0x10, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_nlts,
 		  { "Network Layer Timestamp (NLTS)",
 		    "tcp.options.scpsflags.nlts", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x8, "", HFILL }},
+		    TFS(&flags_set_truth), 0x8, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv1,
 		  { "Reserved Bit 1",
 		    "tcp.options.scpsflags.reserved1", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x4, "", HFILL }},
+		    TFS(&flags_set_truth), 0x4, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv2,
 		  { "Reserved Bit 2",
 		    "tcp.options.scpsflags.reserved2", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x2, "", HFILL }},
+		    TFS(&flags_set_truth), 0x2, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv3,
 		  { "Reserved Bit 3",
 		    "tcp.options.scpsflags.reserved3", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x1, "", HFILL }},
+		    TFS(&flags_set_truth), 0x1, NULL, HFILL }},
 
 		{ &hf_tcp_pdu_time,
 		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -4058,15 +4058,15 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_proc_src_uid,
 		  { "Source process user ID", "tcp.proc.srcuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Source process user ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_src_pid,
 		  { "Source process ID", "tcp.proc.srcpid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Source process ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_src_uname,
 		  { "Source process user name", "tcp.proc.srcuname", FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Source process user name", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_src_cmd,
 		  { "Source process name", "tcp.proc.srccmd", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4074,15 +4074,15 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_proc_dst_uid,
 		  { "Destination process user ID", "tcp.proc.dstuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Destination process user ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_dst_pid,
 		  { "Destination process ID", "tcp.proc.dstpid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Destination process ID", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_dst_uname,
 		  { "Destination process user name", "tcp.proc.dstuname", FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Destination process user name", HFILL}},
+		    NULL, HFILL}},
 
 		{ &hf_tcp_proc_dst_cmd,
 		  { "Destination process name", "tcp.proc.dstcmd", FT_STRING, BASE_NONE, NULL, 0x0,

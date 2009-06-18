@@ -429,166 +429,166 @@ proto_register_s5066(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_s5066_sync_word,
-			{ "Sync preamble", "s5066.sync", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Sync preamble", "s5066.sync", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_version,
-			{ "S5066 version", "s5066.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "S5066 version", "s5066.version", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_size,
-			{ "S_Primitive size", "s5066.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "S_Primitive size", "s5066.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_type,
-			{ "PDU Type", "s5066.type", FT_UINT8, BASE_DEC, VALS(s5066_pdu_type), 0x0, "", HFILL }
+			{ "PDU Type", "s5066.type", FT_UINT8, BASE_DEC, VALS(s5066_pdu_type), 0x0, NULL, HFILL }
 		},
 		/* STANAG 5066 Address */
 		{ &hf_s5066_ad_size,
-			{ "Address size (1/2 Bytes)", "s5066.address.size", FT_UINT8, BASE_HEX, NULL, 0xE0, "", HFILL }
+			{ "Address size (1/2 Bytes)", "s5066.address.size", FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_s5066_ad_group,
-			{ "Group address", "s5066.address.group", FT_UINT8, BASE_HEX, NULL, 0x10, "", HFILL }
+			{ "Group address", "s5066.address.group", FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }
 		},
 		{ &hf_s5066_ad_address,
-			{ "Address", "s5066.address.address", FT_IPv4, BASE_NONE, NULL, 0, "", HFILL }
+			{ "Address", "s5066.address.address", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		/* Service type */
 		{ &hf_s5066_st_txmode,
-			{ "Transmission mode", "s5066.st.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, "", HFILL }
+			{ "Transmission mode", "s5066.st.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_st_delivery_confirmation,
-			{ "Delivery confirmation", "s5066.st.confirm", FT_UINT8, BASE_HEX, VALS(s5066_st_delivery_confirmation),  0x0C, "", HFILL }
+			{ "Delivery confirmation", "s5066.st.confirm", FT_UINT8, BASE_HEX, VALS(s5066_st_delivery_confirmation),  0x0C, NULL, HFILL }
 		},
 		{ &hf_s5066_st_delivery_order,
-			{ "Delivery order", "s5066.st.order", FT_UINT8, BASE_HEX, VALS(s5066_st_delivery_order), 0x02, "", HFILL }
+			{ "Delivery order", "s5066.st.order", FT_UINT8, BASE_HEX, VALS(s5066_st_delivery_order), 0x02, NULL, HFILL }
 		},
 		{ &hf_s5066_st_extended,
-			{ "Extended field", "s5066.st.extended", FT_UINT8, BASE_HEX, VALS(s5066_st_extended), 0x01, "", HFILL }
+			{ "Extended field", "s5066.st.extended", FT_UINT8, BASE_HEX, VALS(s5066_st_extended), 0x01, NULL, HFILL }
 		},
 		{ &hf_s5066_st_retries,
-			{ "Minimum number of retransmissions", "s5066.st.retries", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "Minimum number of retransmissions", "s5066.st.retries", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		/* PDU Type 01: S_BIND_REQUEST */
 		{ &hf_s5066_01_sapid,
-			{ "Sap ID", "s5066.01.sapid", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "Sap ID", "s5066.01.sapid", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_01_rank,
-			{ "Rank", "s5066.01.rank", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Rank", "s5066.01.rank", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_01_unused,
-			{ "(Unused)", "s5066.01.unused", FT_UINT8, BASE_HEX, NULL, 0x0F, "", HFILL }
+			{ "(Unused)", "s5066.01.unused", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
 		},
 		/* PDU Type 02: S_UNBIND_REQUEST */
 		/*     --- no subfields ---     */
 		/* PDU Type 03: S_BIND_ACCEPTED */
 		{ &hf_s5066_03_sapid,
-			{ "Sap ID", "s5066.03.sapid", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "Sap ID", "s5066.03.sapid", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_03_unused,
-			{ "(Unused)", "s5066.03.unused", FT_UINT8, BASE_HEX, NULL, 0x0F, "", HFILL }
+			{ "(Unused)", "s5066.03.unused", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_03_mtu,
-			{ "MTU", "s5066.03.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "MTU", "s5066.03.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* PDU Type 04: S_BIND_REJECTED */
 		{ &hf_s5066_04_reason,
-			{ "Reason", "s5066.04.reason", FT_UINT8, BASE_DEC, VALS(s5066_04_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.04.reason", FT_UINT8, BASE_DEC, VALS(s5066_04_reason), 0x0, NULL, HFILL }
 		},
 		/* PDU Type 05: S_UNBIND_INDICATION */
 		{ &hf_s5066_05_reason,
-			{ "Reason", "s5066.05.reason", FT_UINT8, BASE_DEC, VALS(s5066_05_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.05.reason", FT_UINT8, BASE_DEC, VALS(s5066_05_reason), 0x0, NULL, HFILL }
 		},
 		/* Type  6: S_HARD_LINK_ESTABLISH */
 		{ &hf_s5066_06_link_type,
-			{ "Hardlink type", "s5066.06.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.06.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_06_link_priority,
-			{ "Priority", "s5066.06.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.06.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_06_sapid,
-			{ "Remote Sap ID", "s5066.06.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.06.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type  7: S_HARD_LINK_TERMINATE */
 		/* --- Only remote node address --- */
 		/* Type  8: S_HARD_LINK_ESTABLISHED */
 		{ &hf_s5066_08_remote_status,
-			{ "Remote node status", "s5066.08.status", FT_UINT8, BASE_DEC, VALS(s5066_08_remote_status), 0x0, "", HFILL }
+			{ "Remote node status", "s5066.08.status", FT_UINT8, BASE_DEC, VALS(s5066_08_remote_status), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_08_link_type,
-			{ "Hardlink type", "s5066.08.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.08.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_08_link_priority,
-			{ "Priority", "s5066.08.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.08.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_08_sapid,
-			{ "Remote Sap ID", "s5066.08.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.08.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type  9: S_HARD_LINK_REJECTED */
 		{ &hf_s5066_09_reason,
-			{ "Reason", "s5066.09.reason", FT_UINT8, BASE_DEC, VALS(s5066_09_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.09.reason", FT_UINT8, BASE_DEC, VALS(s5066_09_reason), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_09_link_type,
-			{ "Hardlink type", "s5066.09.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.09.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_09_link_priority,
-			{ "Priority", "s5066.09.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.09.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_09_sapid,
-			{ "Remote Sap ID", "s5066.09.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.09.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type 10: S_HARD_LINK_TERMINATED */
 		{ &hf_s5066_10_reason,
-			{ "Reason", "s5066.10.reason", FT_UINT8, BASE_DEC, VALS(s5066_10_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.10.reason", FT_UINT8, BASE_DEC, VALS(s5066_10_reason), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_10_link_type,
-			{ "Hardlink type", "s5066.10.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.10.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_10_link_priority,
-			{ "Priority", "s5066.10.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.10.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_10_sapid,
-			{ "Remote Sap ID", "s5066.10.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.10.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type 11: S_HARD_LINK_INDICATION */
 		{ &hf_s5066_11_remote_status,
-			{ "Remote node status", "s5066.11.status", FT_UINT8, BASE_DEC, VALS(s5066_11_remote_status), 0x0, "", HFILL }
+			{ "Remote node status", "s5066.11.status", FT_UINT8, BASE_DEC, VALS(s5066_11_remote_status), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_11_link_type,
-			{ "Hardlink type", "s5066.11.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.11.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_11_link_priority,
-			{ "Priority", "s5066.11.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.11.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_11_sapid,
-			{ "Remote Sap ID", "s5066.11.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.11.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type 12: S_HARD_LINK_ACCEPT */
 		{ &hf_s5066_12_link_type,
-			{ "Hardlink type", "s5066.12.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.12.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_12_link_priority,
-			{ "Priority", "s5066.12.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.12.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_12_sapid,
-			{ "Remote Sap ID", "s5066.12.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.12.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type 13: S_HARD_LINK_REJECT */
 		{ &hf_s5066_13_reason,
-			{ "Reason", "s5066.13.reason", FT_UINT8, BASE_DEC, VALS(s5066_13_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.13.reason", FT_UINT8, BASE_DEC, VALS(s5066_13_reason), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_13_link_type,
-			{ "Hardlink type", "s5066.13.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, "", HFILL }
+			{ "Hardlink type", "s5066.13.type", FT_UINT8, BASE_DEC, VALS(s5066_hard_link_type), 0xC0, NULL, HFILL }
 		},
 		{ &hf_s5066_13_link_priority,
-			{ "Priority", "s5066.13.priority", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL }
+			{ "Priority", "s5066.13.priority", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL }
 		},
 		{ &hf_s5066_13_sapid,
-			{ "Remote Sap ID", "s5066.13.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Remote Sap ID", "s5066.13.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		/* Type 14: S_SUBNET_AVAILABILITY */
 		{ &hf_s5066_14_status,
-			{ "Status", "s5066.14.status", FT_UINT8, BASE_DEC, VALS(s5066_14_status), 0x0, "", HFILL }
+			{ "Status", "s5066.14.status", FT_UINT8, BASE_DEC, VALS(s5066_14_status), 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_14_reason,
-			{ "Reason", "s5066.14.reason", FT_UINT8, BASE_DEC, VALS(s5066_14_reason), 0x0, "", HFILL }
+			{ "Reason", "s5066.14.reason", FT_UINT8, BASE_DEC, VALS(s5066_14_reason), 0x0, NULL, HFILL }
 		},
 		/* Type 15: S_DATAFLOW_ON */
 		/*   --- no subfields ---   */
@@ -598,163 +598,163 @@ proto_register_s5066(void)
 		/*   --- no subfields ---   */
 		/* Type 18: S_MANAGEMENT_MESSAGE_REQUEST */
 		{ &hf_s5066_18_type,
-			{ "Message Type", "s5066.18.type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Message Type", "s5066.18.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_18_body,
-			{ "Message Body", "s5066.18.body", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Message Body", "s5066.18.body", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 19: S_MANAGEMENT_MESSAGE_INDICATION */
 		{ &hf_s5066_19_type,
-			{ "Message Type", "s5066.19.type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Message Type", "s5066.19.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_19_body,
-			{ "Message Body", "s5066.19.body", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Message Body", "s5066.19.body", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 20: S_UNIDATA_REQUEST */
 		{ &hf_s5066_20_priority,
-			{ "Priority", "s5066.20.priority", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "Priority", "s5066.20.priority", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_20_sapid,
-			{ "Destination Sap ID", "s5066.20.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.20.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_20_ttl,
-			{ "Time-To-Live (x2 seconds)", "s5066.20.ttl", FT_UINT24, BASE_DEC, NULL, 0x0FFFFF, "", HFILL }
+			{ "Time-To-Live (x2 seconds)", "s5066.20.ttl", FT_UINT24, BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL }
 		},
 		{ &hf_s5066_20_size,
-			{ "U_PDU Size", "s5066.20.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.20.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 21: S_UNIDATA_INDICATION */
 		{ &hf_s5066_21_priority,
-			{ "Priority", "s5066.21.priority", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "Priority", "s5066.21.priority", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_dest_sapid,
-			{ "Destination Sap ID", "s5066.21.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.21.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_21_tx_mode,
-			{ "Transmission Mode", "s5066.21.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, "", HFILL }
+			{ "Transmission Mode", "s5066.21.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_src_sapid,
-			{ "Source Sap ID", "s5066.21.src_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Source Sap ID", "s5066.21.src_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_21_size,
-			{ "U_PDU Size", "s5066.21.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.21.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_err_blocks,
-			{ "Number of errored blocks", "s5066.21.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Number of errored blocks", "s5066.21.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_err_ptr,
-			{ "Pointer to error block", "s5066.21.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Pointer to error block", "s5066.21.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_err_size,
-			{ "Size of error block", "s5066.21.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Size of error block", "s5066.21.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_nrx_blocks,
-			{ "Number of non-received blocks", "s5066.21.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Number of non-received blocks", "s5066.21.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_nrx_ptr,
-			{ "Pointer to non-received block", "s5066.21.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Pointer to non-received block", "s5066.21.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_nrx_size,
-			{ "Size of non-received block", "s5066.21.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Size of non-received block", "s5066.21.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 22: S_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_22_unused,
-			{ "(Unused)", "s5066.22.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "(Unused)", "s5066.22.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_22_sapid,
-			{ "Destination Sap ID", "s5066.22.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.22.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_22_size,
-			{ "U_PDU Size", "s5066.22.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.22.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_22_data,
-			{ "(Part of) Confirmed data", "s5066.22.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "(Part of) Confirmed data", "s5066.22.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 23: S_UNIDATA_REQUEST_REJECTED */
 		{ &hf_s5066_23_reason,
-			{ "Reason", "s5066.23.reason", FT_UINT8, BASE_DEC, VALS(s5066_23_reason), 0xF0, "", HFILL }
+			{ "Reason", "s5066.23.reason", FT_UINT8, BASE_DEC, VALS(s5066_23_reason), 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_23_sapid,
-			{ "Destination Sap ID", "s5066.23.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.23.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_23_size,
-			{ "U_PDU Size", "s5066.23.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.23.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_23_data,
-			{ "(Part of) Rejected data", "s5066.23.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "(Part of) Rejected data", "s5066.23.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 24: S_EXPEDITED_UNIDATA_REQUEST */
 		{ &hf_s5066_24_unused,
-			{ "(Unused)", "s5066.24.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "(Unused)", "s5066.24.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_24_sapid,
-			{ "Destination Sap ID", "s5066.24.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.24.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_24_ttl,
-			{ "Time-To-Live (x2 seconds)", "s5066.24.ttl", FT_UINT24, BASE_DEC, NULL, 0x0FFFFF, "", HFILL }
+			{ "Time-To-Live (x2 seconds)", "s5066.24.ttl", FT_UINT24, BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL }
 		},
 		{ &hf_s5066_24_size,
-			{ "U_PDU Size", "s5066.24.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.24.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 25: S_EXPEDITED_UNIDATA_INDICATION */
 		{ &hf_s5066_25_unused,
-			{ "(Unused)", "s5066.25.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "(Unused)", "s5066.25.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_dest_sapid,
-			{ "Destination Sap ID", "s5066.25.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.25.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_25_tx_mode,
-			{ "Transmission Mode", "s5066.25.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, "", HFILL }
+			{ "Transmission Mode", "s5066.25.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_src_sapid,
-			{ "Source Sap ID", "s5066.25.src_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Source Sap ID", "s5066.25.src_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_25_size,
-			{ "U_PDU Size", "s5066.25.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.25.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_err_blocks,
-			{ "Number of errored blocks", "s5066.25.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Number of errored blocks", "s5066.25.err_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_err_ptr,
-			{ "Pointer to error block", "s5066.25.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Pointer to error block", "s5066.25.err_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_err_size,
-			{ "Size of error block", "s5066.25.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Size of error block", "s5066.25.err_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_nrx_blocks,
-			{ "Number of non-received blocks", "s5066.25.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Number of non-received blocks", "s5066.25.nrx_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_nrx_ptr,
-			{ "Pointer to non-received block", "s5066.25.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Pointer to non-received block", "s5066.25.nrx_ptr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_nrx_size,
-			{ "Size of non-received block", "s5066.25.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Size of non-received block", "s5066.25.nrx_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 26: S_EXPEDITED_UNIDATA_REQUEST_CONFIRM */
 		{ &hf_s5066_26_unused,
-			{ "(Unused)", "s5066.26.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }
+			{ "(Unused)", "s5066.26.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_26_sapid,
-			{ "Destination Sap ID", "s5066.26.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.26.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_26_size,
-			{ "U_PDU Size", "s5066.26.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.26.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_26_data,
-			{ "(Part of) Confirmed data", "s5066.26.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "(Part of) Confirmed data", "s5066.26.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Type 27: S_EXPEDITED_UNIDATA_REQUEST_REJECTED */
 		{ &hf_s5066_27_reason,
-			{ "Reason", "s5066.27.reason", FT_UINT8, BASE_DEC, VALS(s5066_27_reason), 0xF0, "", HFILL }
+			{ "Reason", "s5066.27.reason", FT_UINT8, BASE_DEC, VALS(s5066_27_reason), 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_27_sapid,
-			{ "Destination Sap ID", "s5066.27.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL }
+			{ "Destination Sap ID", "s5066.27.sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_27_size,
-			{ "U_PDU Size", "s5066.27.size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "U_PDU Size", "s5066.27.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_s5066_27_data,
-			{ "(Part of) Rejected data", "s5066.27.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "(Part of) Rejected data", "s5066.27.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
 	};

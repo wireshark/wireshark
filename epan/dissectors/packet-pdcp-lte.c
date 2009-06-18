@@ -1914,7 +1914,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_no_header_pdu,
             { "No Header PDU",
               "pdcp-lte.no-header_pdu", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "No Header PDU", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_plane,
@@ -1934,13 +1934,13 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_cid_inclusion_info,
             { "CID Inclusion Info",
               "pdcp-lte.cid-inclusion-info", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "CID Inclusion Info", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_large_cid_present,
             { "Large CID Present",
               "pdcp-lte.large-cid-present", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Large CID Present", HFILL
+              NULL, HFILL
             }
         },
 
@@ -1970,14 +1970,14 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_signalling_data,
             { "Signalling Data",
-              "pdcp-lte.signalling-data", FT_BYTES, BASE_HEX, NULL, 0x0,
-              "Signalling Data", HFILL
+              "pdcp-lte.signalling-data", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_mac,
             { "MAC",
               "pdcp-lte.mac", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
-              "MAC", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_data_control,
@@ -1988,8 +1988,8 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_user_plane_data,
             { "User-Plane Data",
-              "pdcp-lte.user-data", FT_BYTES, BASE_HEX, NULL, 0x0,
-              "User-Plane Data", HFILL
+              "pdcp-lte.user-data", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_control_pdu_type,
@@ -2020,7 +2020,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc,
             { "ROHC Message",
               "pdcp-lte.rohc", FT_NONE, BASE_NONE, NULL, 0,
-              "ROHC Message", HFILL
+              NULL, HFILL
             }
         },
 
@@ -2033,7 +2033,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_r_0_crc,
             { "R-0-CRC Packet",
               "pdcp-lte.r-0-crc", FT_NONE, BASE_NONE, NULL, 0,
-              "R-0-CRC Packet", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_feedback,
@@ -2078,51 +2078,51 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_static_ipv4,
             { "Static IPv4 chain",
               "pdcp-lte.rohc.static.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Static IPv4 chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_version,
             { "IP Version",
               "pdcp-lte.rohc.ip-version", FT_UINT8, BASE_HEX, NULL, 0xf0,
-              "IP Version", HFILL
+              NULL, HFILL
             }
         },
         /* TODO: create/use value_string */
         { &hf_pdcp_lte_rohc_ip_protocol,
             { "IP Protocol",
               "pdcp-lte.rohc.ip-protocol", FT_UINT8, BASE_DEC, VALS(ip_protocol_vals), 0x0,
-              "IP Protocol", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_src,
             { "IP Source address",
-              "pdcp-lte.rohc.ip-src", FT_IPv4, BASE_DEC, NULL, 0x0,
-              "IP Source address", HFILL
+              "pdcp-lte.rohc.ip-src", FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_ip_dst,
             { "IP Destination address",
-              "pdcp-lte.rohc.ip-dst", FT_IPv4, BASE_DEC, NULL, 0x0,
-              "IP Destination address", HFILL
+              "pdcp-lte.rohc.ip-dst", FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_static_udp,
             { "Static UDP chain",
               "pdcp-lte.rohc.static.udp", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Static UDP chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_udp_src_port,
             { "Static UDP source port",
               "pdcp-lte.rohc.static.udp.src-port", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Static UDP source port", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_udp_dst_port,
             { "Static UDP destination port",
               "pdcp-lte.rohc.static.udp.dst-port", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Static UDP destination port", HFILL
+              NULL, HFILL
             }
         },
 
@@ -2130,7 +2130,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_static_rtp,
             { "Static RTP chain",
               "pdcp-lte.rohc.static.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Static RTP chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_static_rtp_ssrc,
@@ -2143,7 +2143,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_dynamic_ipv4,
             { "Dynamic IPv4 chain",
               "pdcp-lte.rohc.dynamic.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Dynamic IPv4 chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_tos,
@@ -2173,45 +2173,45 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_dynamic_ipv4_rnd,
             { "Random IP-ID field",
               "pdcp-lte.rohc.ip.rnd", FT_UINT8, BASE_HEX, NULL, 0x40,
-              "Random IP-ID field", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_nbo,
             { "Network Byte Order IP-ID field",
               "pdcp-lte.rohc.ip.nbo", FT_UINT8, BASE_HEX, NULL, 0x20,
-              "Network Byte Order IP-ID field", HFILL
+              NULL, HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_udp,
             { "Dynamic UDP chain",
               "pdcp-lte.rohc.dynamic.udp", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Dynamic UDP chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_udp_checksum,
             { "UDP Checksum",
               "pdcp-lte.rohc.dynamic.udp.checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              "UDP Checksum", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_udp_seqnum,
             { "UDP Sequence Number",
               "pdcp-lte.rohc.dynamic.udp.seqnum", FT_UINT16, BASE_HEX, NULL, 0x0,
-              "UDP Sequence Number", HFILL
+              NULL, HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_dynamic_rtp,
             { "Dynamic RTP chain",
               "pdcp-lte.rohc.dynamic.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Dynamic RTP chain", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_rx,
             { "RX",
               "pdcp-lte.rohc.dynamic.rtp.rx", FT_UINT8, BASE_DEC, NULL, 0x10,
-              "RX", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_cc,
@@ -2242,13 +2242,13 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_dynamic_rtp_x,
             { "X",
               "pdcp-lte.rohc.dynamic.rtp.x", FT_UINT8, BASE_DEC, NULL, 0x10,
-              "X", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_mode,
             { "Mode",
               "pdcp-lte.rohc.dynamic.rtp.mode", FT_UINT8, BASE_HEX, VALS(rohc_mode_vals), 0x0c,
-              "Mode", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_dynamic_rtp_tis,
@@ -2272,44 +2272,44 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_ts,
             { "TS",
               "pdcp-lte.rohc.ts", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "TS", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_m,
             { "M",
               "pdcp-lte.rohc.m", FT_UINT8, BASE_DEC, NULL, 0x40,
-              "M", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_uor2_sn,
             { "SN",
               "pdcp-lte.rohc.uor2.sn", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              "SN", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_uor2_x,
             { "X",
               "pdcp-lte.rohc.uor2.x", FT_UINT8, BASE_DEC, NULL, 0x80,
-              "X", HFILL
+              NULL, HFILL
             }
         },
 
         { &hf_pdcp_lte_rohc_add_cid,
             { "Add-CID",
               "pdcp-lte.rohc.add-cid", FT_UINT8, BASE_DEC, NULL, 0x0f,
-              "Add-CID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_large_cid,
             { "Large-CID",
               "pdcp-lte.rohc.large-cid", FT_UINT16, BASE_DEC, NULL, 0x07ff,
-              "Large-CID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_uo0_sn,
             { "SN",
               "pdcp-lte.rohc.uo0.sn", FT_UINT8, BASE_DEC, NULL, 0x78,
-              "SN", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_uo0_crc,
@@ -2321,13 +2321,13 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_r0_sn,
             { "SN",
               "pdcp-lte.rohc.r0.sn", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              "SN", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_r0_crc_sn,
             { "SN",
               "pdcp-lte.rohc.r0-crc.sn", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "SN", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_r0_crc_crc,
@@ -2415,19 +2415,19 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_ip_id,
             { "IP-ID",
               "pdcp-lte.rohc.ip-id", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              "IP-ID", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_udp_checksum,
             { "UDP Checksum",
               "pdcp-lte.rohc.udp-checksum", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
-              "UDP Checksum", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_payload,
             { "Payload",
-              "pdcp-lte.rohc.payload", FT_BYTES, BASE_HEX, NULL, 0x0,
-              "Payload", HFILL
+              "pdcp-lte.rohc.payload", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
             }
         },
 

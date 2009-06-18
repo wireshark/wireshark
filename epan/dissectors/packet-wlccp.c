@@ -4143,7 +4143,7 @@ proto_register_wlccp_oui(void)
 		{ &hf_llc_wlccp_pid,
 		  { "PID", "llc.wlccp_pid",
 		    FT_UINT16, BASE_HEX, VALS(cisco_pid_vals),
-		    0x0, "", HFILL }
+		    0x0, NULL, HFILL }
 		}
 	};
 	

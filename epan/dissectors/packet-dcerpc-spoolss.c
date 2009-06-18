@@ -6986,36 +6986,36 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "Server printer driver minor version", HFILL }},
 		{ &hf_driverpath,
 		  { "Driver path", "spoolss.driverpath", FT_STRING, BASE_NONE,
-		    NULL, 0, "Driver path", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 		{ &hf_datafile,
 		  { "Data file", "spoolss.datafile", FT_STRING, BASE_NONE,
-		    NULL, 0, "Data file", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 		{ &hf_configfile,
 		  { "Config file", "spoolss.configfile", FT_STRING, BASE_NONE,
 		    NULL, 0, "Printer name", HFILL }},
 		{ &hf_helpfile,
 		  { "Help file", "spoolss.helpfile", FT_STRING, BASE_NONE,
-		    NULL, 0, "Help file", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 		{ &hf_monitorname,
 		  { "Monitor name", "spoolss.monitorname", FT_STRING, BASE_NONE,
-		    NULL, 0, "Monitor name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 		{ &hf_defaultdatatype,
 		  { "Default data type", "spoolss.defaultdatatype", FT_STRING, BASE_NONE,
-		    NULL, 0, "Default data type", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 		{ &hf_driverinfo_cversion,
 		  { "Driver version", "spoolss.driverversion", FT_UINT32, BASE_DEC,
 		    VALS(driverinfo_cversion_vals), 0, "Printer name", HFILL }},
 		{ &hf_dependentfiles,
 		  { "Dependent files", "spoolss.dependentfiles", FT_STRING, BASE_NONE,
-		    NULL, 0, "Dependent files", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_status,
 		  { "Status", "spoolss.printer_status", FT_UINT32, BASE_DEC,
-		    VALS(printer_status_vals), 0, "Status", HFILL }},
+		    VALS(printer_status_vals), 0, NULL, HFILL }},
 
 		{ &hf_previousdrivernames,
 		  { "Previous Driver Names", "spoolss.previousdrivernames", FT_STRING, BASE_NONE,
-		    NULL, 0, "Previous Driver Names", HFILL }},		   
+		    NULL, 0, NULL, HFILL }},		   
 
 		{ &hf_driverdate,
 		  { "Driver Date", "spoolss.driverdate", FT_ABSOLUTE_TIME, BASE_NONE,
@@ -7053,62 +7053,62 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_setprinter_cmd,
 		  { "Command", "spoolss.setprinter_cmd", FT_UINT32, BASE_DEC,
-		   VALS(setprinter_cmd_vals), 0, "Command", HFILL }},
+		   VALS(setprinter_cmd_vals), 0, NULL, HFILL }},
 
 		/* Enumprinters */
 
 		{ &hf_enumprinters_flags,
 		  { "Flags", "spoolss.enumprinters.flags",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Flags", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_local,
 		  { "Enum local", "spoolss.enumprinters.flags.enum_local",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_LOCAL, "Enum local", HFILL }},
+		    PRINTER_ENUM_LOCAL, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_name,
 		  { "Enum name", "spoolss.enumprinters.flags.enum_name",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_NAME, "Enum name", HFILL }},
+		    PRINTER_ENUM_NAME, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_shared,
 		  { "Enum shared", "spoolss.enumprinters.flags.enum_shared",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_SHARED, "Enum shared", HFILL }},
+		    PRINTER_ENUM_SHARED, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_default,
 		  { "Enum default", "spoolss.enumprinters.flags.enum_default",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_DEFAULT, "Enum default", HFILL }},
+		    PRINTER_ENUM_DEFAULT, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_connections,
 		  { "Enum connections", "spoolss.enumprinters.flags.enum_connections",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_CONNECTIONS, "Enum connections", HFILL }},
+		    PRINTER_ENUM_CONNECTIONS, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_network,
 		  { "Enum network", "spoolss.enumprinters.flags.enum_network",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_NETWORK, "Enum network", HFILL }},
+		    PRINTER_ENUM_NETWORK, NULL, HFILL }},
 
 		{ &hf_enumprinters_flags_remote,
 		  { "Enum remote", "spoolss.enumprinters.flags.enum_remote",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ENUM_REMOTE, "Enum remote", HFILL }},
+		    PRINTER_ENUM_REMOTE, NULL, HFILL }},
 
 		/* GetPrinter */
 
 		{ &hf_start_time,
 		  { "Start time", "spoolss.start_time",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Start time", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_end_time,
 		  { "End time", "spoolss.end_time",
-		    FT_UINT32, BASE_DEC, NULL, 0, "End time", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_elapsed_time,
 		  { "Elapsed time", "spoolss.elapsed_time",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Elapsed time", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* 
                  * New hf index values 
@@ -7116,7 +7116,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_opnum,
 		  { "Operation", "spoolss.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Operation", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_hnd,
 		  { "Context handle", "spoolss.hnd", FT_BYTES, BASE_NONE,
@@ -7144,7 +7144,7 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "Size of buffer", HFILL }},
 
 		{ &hf_buffer_data,
-		  { "Buffer data", "spoolss.buffer.data", FT_BYTES, BASE_HEX,
+		  { "Buffer data", "spoolss.buffer.data", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "Contents of buffer", HFILL }},
 
 		{ &hf_offset,
@@ -7153,60 +7153,60 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_level,
 		  { "Info level", "spoolss.enumjobs.level", FT_UINT32, 
-		    BASE_DEC, NULL, 0x0, "Info level", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 
 		{ &hf_printername,
 		  { "Printer name", "spoolss.printername", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Printer name", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_machinename,
 		  { "Machine name", "spoolss.machinename", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Machine name", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notifyname,
 		  { "Notify name", "spoolss.notifyname", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Notify name", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printerdesc,
 		  { "Printer description", "spoolss.printerdesc", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Printer description", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printercomment,
 		  { "Printer comment", "spoolss.printercomment", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Printer comment", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_servername,
 		  { "Server name", "spoolss.servername", FT_STRING, BASE_NONE,
-		    NULL, 0, "Server name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_sharename,
 		  { "Share name", "spoolss.sharename", FT_STRING, BASE_NONE,
-		    NULL, 0, "Share name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_portname,
 		  { "Port name", "spoolss.portname", FT_STRING, BASE_NONE,
-		    NULL, 0, "Port name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_printerlocation,
 		  { "Printer location", "spoolss.printerlocation", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Printer location", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_architecture,
 		  { "Architecture name", "spoolss.architecture", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Architecture name", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_drivername,
 		  { "Driver name", "spoolss.drivername", FT_STRING, BASE_NONE,
-		    NULL, 0, "Driver name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_username,
 		  { "User name", "spoolss.username", FT_STRING, BASE_NONE,
-		    NULL, 0, "User name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_documentname,
 		  { "Document name", "spoolss.document", FT_STRING, BASE_NONE,
-		    NULL, 0, "Document name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_outputfile,
 		  { "Output file", "spoolss.outputfile", FT_STRING, BASE_NONE,
@@ -7214,29 +7214,29 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_datatype,
 		  { "Datatype", "spoolss.Datatype", FT_STRING, BASE_NONE,
-		    NULL, 0, "Datatype", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_textstatus,
 		  { "Text status", "spoolss.textstatus", FT_STRING, BASE_NONE,
-		    NULL, 0, "Text status", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
  		{ &hf_sepfile,
 		  { "Separator file", "spoolss.setpfile", FT_STRING, BASE_NONE,
-		    NULL, 0, "Separator file", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
  		{ &hf_parameters,
 		  { "Parameters", "spoolss.parameters", FT_STRING, BASE_NONE,
-		    NULL, 0, "Parameters", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_printprocessor,
 		  { "Print processor", "spoolss.printprocessor", FT_STRING, 
-		    BASE_NONE, NULL, 0, "Print processor", HFILL }},
+		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* Printer data */
 
 		{ &hf_printerdata,
 		  { "Data", "spoolss.printerdata", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Data", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printerdata_key,
 		  { "Key", "spoolss.printerdata.key", FT_STRING, 
@@ -7258,324 +7258,324 @@ proto_register_dcerpc_spoolss(void)
 		    HFILL }},
 
 		{ &hf_printerdata_data,
-		  { "Data", "spoolss.printerdata.data", FT_BYTES, BASE_HEX,
+		  { "Data", "spoolss.printerdata.data", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "Printer data", HFILL }},
 
 		{ &hf_printerdata_data_dword,
 		  { "DWORD data", "spoolss.printerdata.data.dword", 
-		    FT_UINT32, BASE_HEX, NULL, 0, "DWORD data", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printerdata_data_sz,
 		  { "String data", "spoolss.printerdata.data.sz", 
-		    FT_STRING, BASE_NONE, NULL, 0, "String data", 
+		    FT_STRING, BASE_NONE, NULL, 0, NULL, 
 		    HFILL }},
 
 		/* Devicemode */
 
 		{ &hf_devmodectr_size,
 		  { "Devicemode ctr size", "spoolss.devicemodectr.size",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Devicemode ctr size", 
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, 
 		    HFILL }},
 
 		{ &hf_devmode,
 		  { "Devicemode", "spoolss.devmode", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Devicemode", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_size,
 		  { "Size", "spoolss.devmode.size",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_spec_version,
 		  { "Spec version", "spoolss.devmode.spec_version",
 		    FT_UINT16, BASE_DEC, VALS(devmode_specversion_vals), 
-		    0, "Spec version", HFILL }},
+		    0, NULL, HFILL }},
 
 		{ &hf_devmode_driver_version,
 		  { "Driver version", "spoolss.devmode.driver_version",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Driver version", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_size2,
 		  { "Size2", "spoolss.devmode.size2",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Size2", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_fields,
 		  { "Fields", "spoolss.devmode.fields",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Fields", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_orientation,
 		  { "Orientation", "spoolss.devmode.orientation",
 		    FT_UINT16, BASE_DEC, VALS(devmode_orientation_vals), 
-		    0, "Orientation", HFILL }},
+		    0, NULL, HFILL }},
 
 		{ &hf_devmode_paper_size,
 		  { "Paper size", "spoolss.devmode.paper_size",
 		    FT_UINT16, BASE_DEC, VALS(devmode_papersize_vals), 
-		    0, "Paper size", HFILL }},
+		    0, NULL, HFILL }},
 
 		{ &hf_devmode_paper_width,
 		  { "Paper width", "spoolss.devmode.paper_width",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Paper width", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_paper_length,
 		  { "Paper length", "spoolss.devmode.paper_length",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Paper length", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_scale,
 		  { "Scale", "spoolss.devmode.scale",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Scale", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_copies,
 		  { "Copies", "spoolss.devmode.copies",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Copies", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_default_source,
 		  { "Default source", "spoolss.devmode.default_source",
 		    FT_UINT16, BASE_DEC, VALS(devmode_papersource_vals), 
-		    0, "Default source", HFILL }},
+		    0, NULL, HFILL }},
 
 		{ &hf_devmode_print_quality,
 		  { "Print quality", "spoolss.devmode.print_quality",
 		    FT_UINT16, BASE_DEC, VALS(devmode_printquality_vals), 
-		    0, "Print quality", HFILL }},
+		    0, NULL, HFILL }},
 
 		{ &hf_devmode_color,
 		  { "Color", "spoolss.devmode.color",
 		    FT_UINT16, BASE_DEC, VALS(devmode_colour_vals), 0, 
-		    "Color", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_duplex,
 		  { "Duplex", "spoolss.devmode.duplex",
 		    FT_UINT16, BASE_DEC, VALS(devmode_duplex_vals), 0, 
-		    "Duplex", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_y_resolution,
 		  { "Y resolution", "spoolss.devmode.y_resolution",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Y resolution", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_tt_option,
 		  { "TT option", "spoolss.devmode.tt_option",
 		    FT_UINT16, BASE_DEC, VALS(devmode_ttoption_vals), 0, 
-		    "TT option", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_collate,
 		  { "Collate", "spoolss.devmode.collate",
 		    FT_UINT16, BASE_DEC, VALS(devmode_collate_vals), 0, 
-		    "Collate", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_log_pixels,
 		  { "Log pixels", "spoolss.devmode.log_pixels",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Log pixels", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_bits_per_pel,
 		  { "Bits per pel", "spoolss.devmode.bits_per_pel",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Bits per pel", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_pels_width,
 		  { "Pels width", "spoolss.devmode.pels_width",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Pels width", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_pels_height,
 		  { "Pels height", "spoolss.devmode.pels_height",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Pels height", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_display_flags,
 		  { "Display flags", "spoolss.devmode.display_flags",
 		    FT_UINT32, BASE_DEC, VALS(devmode_displayflags_vals), 0, 
-		    "Display flags", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_display_freq,
 		  { "Display frequency", "spoolss.devmode.display_freq",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Display frequency", 
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, 
 		    HFILL }},
 
 		{ &hf_devmode_icm_method,
 		  { "ICM method", "spoolss.devmode.icm_method",
 		    FT_UINT32, BASE_DEC, VALS(devmode_icmmethod_vals), 0, 
-		    "ICM method", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_icm_intent,
 		  { "ICM intent", "spoolss.devmode.icm_intent",
 		    FT_UINT32, BASE_DEC, VALS(devmode_icmintent_vals), 0, 
-		    "ICM intent", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_media_type,
 		  { "Media type", "spoolss.devmode.media_type",
 		    FT_UINT32, BASE_DEC, VALS(devmode_mediatype_vals), 0, 
-		    "Media type", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_dither_type,
 		  { "Dither type", "spoolss.devmode.dither_type",
 		    FT_UINT32, BASE_DEC, VALS(devmode_dithertype_vals), 0, 
-		    "Dither type", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_devmode_reserved1,
 		  { "Reserved1", "spoolss.devmode.reserved1",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Reserved1", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_reserved2,
 		  { "Reserved2", "spoolss.devmode.reserved2",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Reserved2", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_panning_width,
 		  { "Panning width", "spoolss.devmode.panning_width",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Panning width", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_panning_height,
 		  { "Panning height", "spoolss.devmode.panning_height",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Panning height", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_devmode_driver_extra_len,
 		  { "Driver extra length", 
 		    "spoolss.devmode.driver_extra_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Driver extra length", 
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, 
 		    HFILL }},
 
 		{ &hf_devmode_driver_extra,
 		  { "Driver extra", "spoolss.devmode.driver_extra",
-		    FT_BYTES, BASE_NONE, NULL, 0, "Driver extra", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* Devicemode fields */
 
 		{ &hf_devmode_fields_orientation,
 		  { "Orientation", "spoolss.devmode.fields.orientation",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_ORIENTATION, "Orientation", HFILL }},
+		    DEVMODE_ORIENTATION, NULL, HFILL }},
 
 		{ &hf_devmode_fields_papersize,
 		  { "Paper size", "spoolss.devmode.fields.paper_size",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PAPERSIZE, "Paper size", HFILL }},
+		    DEVMODE_PAPERSIZE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_paperlength,
 		  { "Paper length", "spoolss.devmode.fields.paper_length",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PAPERLENGTH, "Paper length", HFILL }},
+		    DEVMODE_PAPERLENGTH, NULL, HFILL }},
 
 		{ &hf_devmode_fields_paperwidth,
 		  { "Paper width", "spoolss.devmode.fields.paper_width",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PAPERWIDTH, "Paper width", HFILL }},
+		    DEVMODE_PAPERWIDTH, NULL, HFILL }},
 
 		{ &hf_devmode_fields_scale,
 		  { "Scale", "spoolss.devmode.fields.scale",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_SCALE, "Scale", HFILL }},
+		    DEVMODE_SCALE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_position,
 		  { "Position", "spoolss.devmode.fields.position",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_POSITION, "Position", HFILL }},
+		    DEVMODE_POSITION, NULL, HFILL }},
 
 		{ &hf_devmode_fields_nup,
 		  { "N-up", "spoolss.devmode.fields.nup",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_NUP, "N-up", HFILL }},
+		    DEVMODE_NUP, NULL, HFILL }},
 
 		{ &hf_devmode_fields_copies,
 		  { "Copies", "spoolss.devmode.fields.copies",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_COPIES, "Copies", HFILL }},
+		    DEVMODE_COPIES, NULL, HFILL }},
 
 		{ &hf_devmode_fields_defaultsource,
 		  { "Default source", "spoolss.devmode.fields.default_source",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_DEFAULTSOURCE, "Default source", HFILL }},
+		    DEVMODE_DEFAULTSOURCE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_printquality,
 		  { "Print quality", "spoolss.devmode.fields.print_quality",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PRINTQUALITY, "Print quality", HFILL }},
+		    DEVMODE_PRINTQUALITY, NULL, HFILL }},
 
 		{ &hf_devmode_fields_color,
 		  { "Color", "spoolss.devmode.fields.color",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_COLOR, "Color", HFILL }},
+		    DEVMODE_COLOR, NULL, HFILL }},
 
 		{ &hf_devmode_fields_duplex,
 		  { "Duplex", "spoolss.devmode.fields.duplex",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_DUPLEX, "Duplex", HFILL }},
+		    DEVMODE_DUPLEX, NULL, HFILL }},
 
 		{ &hf_devmode_fields_yresolution,
 		  { "Y resolution", "spoolss.devmode.fields.y_resolution",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_YRESOLUTION, "Y resolution", HFILL }},
+		    DEVMODE_YRESOLUTION, NULL, HFILL }},
 
 		{ &hf_devmode_fields_ttoption,
 		  { "TT option", "spoolss.devmode.fields.tt_option",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_TTOPTION, "TT option", HFILL }},
+		    DEVMODE_TTOPTION, NULL, HFILL }},
 
 		{ &hf_devmode_fields_collate,
 		  { "Collate", "spoolss.devmode.fields.collate",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_COLLATE, "Collate", HFILL }},
+		    DEVMODE_COLLATE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_formname,
 		  { "Form name", "spoolss.devmode.fields.form_name",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_FORMNAME, "Form name", HFILL }},
+		    DEVMODE_FORMNAME, NULL, HFILL }},
 
 		{ &hf_devmode_fields_logpixels,
 		  { "Log pixels", "spoolss.devmode.fields.log_pixels",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_LOGPIXELS, "Log pixels", HFILL }},
+		    DEVMODE_LOGPIXELS, NULL, HFILL }},
 
 		{ &hf_devmode_fields_bitsperpel,
 		  { "Bits per pel", "spoolss.devmode.fields.bits_per_pel",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_BITSPERPEL, "Bits per pel", HFILL }},
+		    DEVMODE_BITSPERPEL, NULL, HFILL }},
 
 		{ &hf_devmode_fields_pelswidth,
 		  { "Pels width", "spoolss.devmode.fields.pels_width",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PELSWIDTH, "Pels width", HFILL }},
+		    DEVMODE_PELSWIDTH, NULL, HFILL }},
 
 		{ &hf_devmode_fields_pelsheight,
 		  { "Pels height", "spoolss.devmode.fields.pels_height",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PELSHEIGHT, "Pels height", HFILL }},
+		    DEVMODE_PELSHEIGHT, NULL, HFILL }},
 
 		{ &hf_devmode_fields_displayflags,
 		  { "Display flags", "spoolss.devmode.fields.display_flags",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_DISPLAYFLAGS, "Display flags", HFILL }},
+		    DEVMODE_DISPLAYFLAGS, NULL, HFILL }},
 
 		{ &hf_devmode_fields_displayfrequency,
 		  { "Display frequency", 
 		    "spoolss.devmode.fields.display_frequency",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_DISPLAYFREQUENCY, "Display frequency", HFILL }},
+		    DEVMODE_DISPLAYFREQUENCY, NULL, HFILL }},
 
 		{ &hf_devmode_fields_icmmethod,
 		  { "ICM method", "spoolss.devmode.fields.icm_method",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_ICMMETHOD, "ICM method", HFILL }},
+		    DEVMODE_ICMMETHOD, NULL, HFILL }},
 
 		{ &hf_devmode_fields_icmintent,
 		  { "ICM intent", "spoolss.devmode.fields.icm_intent",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_ICMINTENT, "ICM intent", HFILL }},
+		    DEVMODE_ICMINTENT, NULL, HFILL }},
 
 		{ &hf_devmode_fields_mediatype,
 		  { "Media type", "spoolss.devmode.fields.media_type",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_MEDIATYPE, "Media type", HFILL }},
+		    DEVMODE_MEDIATYPE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_dithertype,
 		  { "Dither type", "spoolss.devmode.fields.dither_type",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_DITHERTYPE, "Dither type", HFILL }},
+		    DEVMODE_DITHERTYPE, NULL, HFILL }},
 
 		{ &hf_devmode_fields_panningwidth,
 		  { "Panning width", "spoolss.devmode.fields.panning_width",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PANNINGWIDTH, "Panning width", HFILL }},
+		    DEVMODE_PANNINGWIDTH, NULL, HFILL }},
 
 		{ &hf_devmode_fields_panningheight,
 		  { "Panning height", "spoolss.devmode.fields.panning_height",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    DEVMODE_PANNINGHEIGHT, "Panning height", HFILL }},
+		    DEVMODE_PANNINGHEIGHT, NULL, HFILL }},
 
 		/* EnumPrinterData RPC */
 
@@ -7622,124 +7622,124 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_job_status,
 		  { "Job status", "spoolss.job.status", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job status", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_job_status_paused,
 		  { "Paused", "spoolss.job.status.paused", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_paused), JOB_STATUS_PAUSED,
-		    "Paused", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_error,
 		  { "Error", "spoolss.job.status.error", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_error), JOB_STATUS_ERROR,
-		    "Error", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_deleting,
 		  { "Deleting", "spoolss.job.status.deleting", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_deleting), JOB_STATUS_DELETING,
-		    "Deleting", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_spooling,
 		  { "Spooling", "spoolss.job.status.spooling", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_spooling), JOB_STATUS_SPOOLING,
-		    "Spooling", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_printing,
 		  { "Printing", "spoolss.job.status.printing", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_printing), JOB_STATUS_PRINTING,
-		    "Printing", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_offline,
 		  { "Offline", "spoolss.job.status.offline", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_offline), JOB_STATUS_OFFLINE,
-		    "Offline", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_paperout,
 		  { "Paperout", "spoolss.job.status.paperout", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_paperout), JOB_STATUS_PAPEROUT,
-		    "Paperout", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_printed,
 		  { "Printed", "spoolss.job.status.printed", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_printed), JOB_STATUS_PRINTED,
-		    "Printed", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_deleted,
 		  { "Deleted", "spoolss.job.status.deleted", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_deleted), JOB_STATUS_DELETED,
-		    "Deleted", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_blocked,
 		  { "Blocked", "spoolss.job.status.blocked", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_blocked), JOB_STATUS_BLOCKED,
-		    "Blocked", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_job_status_user_intervention,
 		  { "User intervention", 
 		    "spoolss.job.status.user_intervention", FT_BOOLEAN, 32,
 		    TFS(&tfs_job_status_user_intervention), 
-		    JOB_STATUS_USER_INTERVENTION, "User intervention", 
+		    JOB_STATUS_USER_INTERVENTION, NULL, 
 		    HFILL }},
 
 		{ &hf_job_priority,
 		  { "Job priority", "spoolss.job.priority", FT_UINT32, 
-		    BASE_DEC, NULL, 0x0, "Job priority", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_job_position,
 		  { "Job position", "spoolss.job.position", FT_UINT32, 
-		    BASE_DEC, NULL, 0x0, "Job position", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_job_totalpages,
 		  { "Job total pages", "spoolss.job.totalpages", FT_UINT32, 
-		    BASE_DEC, NULL, 0x0, "Job total pages", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_job_totalbytes,
 		  { "Job total bytes", "spoolss.job.totalbytes", FT_UINT32, 
-		    BASE_DEC, NULL, 0x0, "Job total bytes", HFILL }},
+		    BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_job_bytesprinted,
 		  { "Job bytes printed", "spoolss.job.bytesprinted", 
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "Job bytes printed", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, 
 		    HFILL }},
 
 		{ &hf_job_pagesprinted,
 		  { "Job pages printed", "spoolss.job.pagesprinted", 
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "Job pages printed", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL, 
 		    HFILL }},
 
 		{ &hf_job_size,
 		  { "Job size", "spoolss.job.size", FT_UINT32, BASE_DEC, 
-		    NULL, 0x0, "Job size", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		/* Forms */
 
 		{ &hf_form,
 		  { "Data", "spoolss.form", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Data", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_level,
 		  { "Level", "spoolss.form.level", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Level", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_name,
 		  { "Name", "spoolss.form.name", FT_STRING, BASE_NONE,
-		    NULL, 0, "Name", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_flags,
 		  { "Flags", "spoolss.form.flags", FT_UINT32,
-		    BASE_DEC, VALS(form_type_vals), 0, "Flags", HFILL }},
+		    BASE_DEC, VALS(form_type_vals), 0, NULL, HFILL }},
 
 		{ &hf_form_unknown,
 		  { "Unknown", "spoolss.form.unknown", FT_UINT32,
-		    BASE_HEX, NULL, 0, "Unknown", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_width,
 		  { "Width", "spoolss.form.width", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Width", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_height,
 		  { "Height", "spoolss.form.height", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Height", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_left_margin,
 		  { "Left margin", "spoolss.form.left", FT_UINT32,
@@ -7747,114 +7747,114 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_form_top_margin,
 		  { "Top", "spoolss.form.top", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Top", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_horiz_len,
 		  { "Horizontal", "spoolss.form.horiz", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Horizontal", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_form_vert_len,
 		  { "Vertical", "spoolss.form.vert", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Vertical", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_enumforms_num,
 		  { "Num", "spoolss.enumforms.num", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Num", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* Print notify */
 
 		{ &hf_notify_options_version,
 		  { "Version", "spoolss.notify_options.version", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Version", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_options_flags,
 		  { "Flags", "spoolss.notify_options.flags", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Flags", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_options_count,
 		  { "Count", "spoolss.notify_options.count", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Count", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_option_type,
 		  { "Type", "spoolss.notify_option.type", FT_UINT16, BASE_DEC,
-		    VALS(printer_notify_types), 0, "Type", HFILL }},
+		    VALS(printer_notify_types), 0, NULL, HFILL }},
 
 		{ &hf_notify_option_reserved1,
 		  { "Reserved1", "spoolss.notify_option.reserved1", FT_UINT16, 
-		    BASE_DEC, NULL, 0, "Reserved1", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_option_reserved2,
 		  { "Reserved2", "spoolss.notify_option.reserved2", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Reserved2", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_option_reserved3,
 		  { "Reserved3", "spoolss.notify_option.reserved3", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Reserved3", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_option_count,
 		  { "Count", "spoolss.notify_option.count", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Count", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_option_data_count,
 		  { "Count", "spoolss.notify_option_data.count", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Count", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_options_flags_refresh,
 		  { "Refresh", "spoolss.notify_options.flags", FT_BOOLEAN, 32,
 		    TFS(&tfs_notify_options_flags_refresh), 
-		    PRINTER_NOTIFY_OPTIONS_REFRESH, "Refresh", HFILL }},
+		    PRINTER_NOTIFY_OPTIONS_REFRESH, NULL, HFILL }},
 
 		{ &hf_notify_info_count,
 		  { "Count", "spoolss.notify_info.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_version,
 		  { "Version", "spoolss.notify_info.version", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Version", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_flags,
 		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Flags", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_type,
 		  { "Type", "spoolss.notify_info_data.type", FT_UINT16, 
-		    BASE_DEC, VALS(printer_notify_types), 0, "Type", HFILL }},
+		    BASE_DEC, VALS(printer_notify_types), 0, NULL, HFILL }},
 
 		{ &hf_notify_field,
 		  { "Field", "spoolss.notify_field", FT_UINT16, BASE_DEC,
-		    NULL, 0, "Field", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_count,
 		  { "Count", "spoolss.notify_info_data.count", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Count", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_id,
 		  { "Job Id", "spoolss.notify_info_data.jobid", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Job Id", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_value1,
 		  { "Value1", "spoolss.notify_info_data.value1", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Value1", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_value2,
 		  { "Value2", "spoolss.notify_info_data.value2", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Value2", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_bufsize,
 		  { "Buffer size", "spoolss.notify_info_data.bufsize", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Buffer size", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_buffer,
 		  { "Buffer", "spoolss.notify_info_data.buffer", FT_UINT32, 
-		    BASE_HEX, NULL, 0, "Buffer", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_buffer_len,
 		  { "Buffer length", "spoolss.notify_info_data.buffer.len", 
-		    FT_UINT32, BASE_HEX, NULL, 0, "Buffer length", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_notify_info_data_buffer_data,
 		  { "Buffer data", "spoolss.notify_info_data.buffer.data", 
-		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer data", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* RffpCNex RPC */
 
@@ -7864,81 +7864,81 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_printerlocal, /* XXX: move me */
 		  { "Printer local", "spoolss.printer_local", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Printer local", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags,
 		  { "RFFPCNEX flags", "spoolss.rffpcnex.flags", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "RFFPCNEX flags", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_add_printer,
 		  { "Add printer", "spoolss.rffpcnex.flags.add_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_printer),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER, "Add printer", 
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_set_printer,
 		  { "Set printer", "spoolss.rffpcnex.flags.set_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_printer),
-		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER, "Set printer", 
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_printer,
 		  { "Delete printer", "spoolss.rffpcnex.flags.delete_printer",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_printer),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER, "Delete printer", 
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_add_job,
 		  { "Add job", "spoolss.rffpcnex.flags.add_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_job),
-		    SPOOLSS_PRINTER_CHANGE_ADD_JOB, "Add job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_JOB, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_set_job,
 		  { "Set job", "spoolss.rffpcnex.flags.set_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_job),
-		    SPOOLSS_PRINTER_CHANGE_SET_JOB, "Set job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_JOB, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_job,
 		  { "Delete job", "spoolss.rffpcnex.flags.delete_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_job),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_JOB, "Delete job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_DELETE_JOB, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_write_job,
 		  { "Write job", "spoolss.rffpcnex.flags.write_job",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_write_job),
-		    SPOOLSS_PRINTER_CHANGE_WRITE_JOB, "Write job", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_WRITE_JOB, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_add_form,
 		  { "Add form", "spoolss.rffpcnex.flags.add_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_form),
-		    SPOOLSS_PRINTER_CHANGE_ADD_FORM, "Add form", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_FORM, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_set_form,
 		  { "Set form", "spoolss.rffpcnex.flags.set_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_form),
-		    SPOOLSS_PRINTER_CHANGE_SET_FORM, "Set form", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_SET_FORM, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_form,
 		  { "Delete form", "spoolss.rffpcnex.flags.delete_form",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_form),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_FORM, "Delete form", 
+		    SPOOLSS_PRINTER_CHANGE_DELETE_FORM, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_add_port,
 		  { "Add port", "spoolss.rffpcnex.flags.add_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_port),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PORT, "Add port", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_ADD_PORT, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_configure_port,
 		  { "Configure port", "spoolss.rffpcnex.flags.configure_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_configure_port),
-		    SPOOLSS_PRINTER_CHANGE_CONFIGURE_PORT, "Configure port", 
+		    SPOOLSS_PRINTER_CHANGE_CONFIGURE_PORT, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_port,
 		  { "Delete port", "spoolss.rffpcnex.flags.delete_port",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_port),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PORT, "Delete port", 
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PORT, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_add_print_processor,
@@ -7946,37 +7946,37 @@ proto_register_dcerpc_spoolss(void)
 		    FT_BOOLEAN, 32, 
 		    TFS(&tfs_rffpcnex_flags_add_print_processor),
 		    SPOOLSS_PRINTER_CHANGE_ADD_PRINT_PROCESSOR, 
-		    "Add processor", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_print_processor,
 		  { "Delete processor", 
 		    "spoolss.rffpcnex.flags.delete_processor", FT_BOOLEAN, 32, 
 		    TFS(&tfs_rffpcnex_flags_delete_print_processor),
 		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINT_PROCESSOR, 
-		    "Delete processor", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_add_driver,
 		  { "Add driver", "spoolss.rffpcnex.flags.add_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_driver),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER_DRIVER, "Add driver", 
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER_DRIVER, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_set_driver,
 		  { "Set driver", "spoolss.rffpcnex.flags.set_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_driver),
-		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER_DRIVER, "Set driver", 
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER_DRIVER, NULL, 
 		    HFILL }},
 
 		{ &hf_rffpcnex_flags_delete_driver,
 		  { "Delete driver", "spoolss.rffpcnex.flags.delete_driver",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_driver),
 		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER_DRIVER, 
-		    "Delete driver", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_timeout,
 		  { "Timeout", "spoolss.rffpcnex.flags.timeout",
 		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_timeout),
-		    SPOOLSS_PRINTER_CHANGE_TIMEOUT, "Timeout", HFILL }},
+		    SPOOLSS_PRINTER_CHANGE_TIMEOUT, NULL, HFILL }},
 
 		{ &hf_rffpcnex_flags_failed_printer_connection,
 		  { "Failed printer connection", 
@@ -7984,51 +7984,51 @@ proto_register_dcerpc_spoolss(void)
 		    FT_BOOLEAN, 32, 
 		    TFS(&tfs_rffpcnex_flags_failed_connection_printer),
 		    SPOOLSS_PRINTER_CHANGE_FAILED_CONNECTION_PRINTER, 
-		    "Failed printer connection", HFILL }},
+		    NULL, HFILL }},
 
 		/* RRPCN RPC */
 
 		{ &hf_rrpcn_changelow,
 		  { "Change low", "spoolss.rrpcn.changelow", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Change low", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_rrpcn_changehigh,
 		  { "Change high", "spoolss.rrpcn.changehigh", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Change high", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_rrpcn_unk0,
 		  { "Unknown 0", "spoolss.rrpcn.unk0", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 0", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_rrpcn_unk1,
 		  { "Unknown 1", "spoolss.rrpcn.unk1", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 1", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		/* ReplyOpenPrinter RPC */
 
 		{ &hf_replyopenprinter_unk0,
 		  { "Unknown 0", "spoolss.replyopenprinter.unk0", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Unknown 0", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_replyopenprinter_unk1,
 		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, 
-		    BASE_DEC, NULL, 0, "Unknown 1", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* Printer attributes */
 
 		{ &hf_printer_attributes,
 		  { "Attributes", "spoolss.printer_attributes", FT_UINT32,
-		    BASE_HEX, NULL, 0, "Attributes", HFILL }},
+		    BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_attributes_queued,
 		  { "Queued", "spoolss.printer_attributes.queued", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_queued),
-		    PRINTER_ATTRIBUTE_QUEUED, "Queued", HFILL }},
+		    PRINTER_ATTRIBUTE_QUEUED, NULL, HFILL }},
 
 		{ &hf_printer_attributes_direct,
 		  { "Direct", "spoolss.printer_attributes.direct", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_direct),
-		    PRINTER_ATTRIBUTE_DIRECT, "Direct", HFILL }},
+		    PRINTER_ATTRIBUTE_DIRECT, NULL, HFILL }},
 
 		{ &hf_printer_attributes_default,
 		  { "Default (9x/ME only)", 
@@ -8039,22 +8039,22 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_printer_attributes_shared,
 		  { "Shared", "spoolss.printer_attributes.shared", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_shared),
-		    PRINTER_ATTRIBUTE_SHARED, "Shared", HFILL }},
+		    PRINTER_ATTRIBUTE_SHARED, NULL, HFILL }},
 
 		{ &hf_printer_attributes_network,
 		  { "Network", "spoolss.printer_attributes.network", 
 		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_network),
-		    PRINTER_ATTRIBUTE_NETWORK, "Network", HFILL }},
+		    PRINTER_ATTRIBUTE_NETWORK, NULL, HFILL }},
 
 		{ &hf_printer_attributes_hidden,
 		  { "Hidden", "spoolss.printer_attributes.hidden", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_hidden),
-		    PRINTER_ATTRIBUTE_HIDDEN, "Hidden", HFILL }},
+		    PRINTER_ATTRIBUTE_HIDDEN, NULL, HFILL }},
 
 		{ &hf_printer_attributes_local,
 		  { "Local", "spoolss.printer_attributes.local", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_local),
-		    PRINTER_ATTRIBUTE_LOCAL, "Local", HFILL }},
+		    PRINTER_ATTRIBUTE_LOCAL, NULL, HFILL }},
 
 		{ &hf_printer_attributes_enable_devq,
 		  { "Enable devq", "spoolss.printer_attributes.enable_devq", 
@@ -8065,14 +8065,14 @@ proto_register_dcerpc_spoolss(void)
 		  { "Keep printed jobs", 
 		    "spoolss.printer_attributes.keep_printed_jobs", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_keep_printed_jobs),
-		    PRINTER_ATTRIBUTE_KEEPPRINTEDJOBS, "Keep printed jobs", 
+		    PRINTER_ATTRIBUTE_KEEPPRINTEDJOBS, NULL, 
 		    HFILL }},
 
 		{ &hf_printer_attributes_do_complete_first,
 		  { "Do complete first", 
 		    "spoolss.printer_attributes.do_complete_first", FT_BOOLEAN,
 		    32, TFS(&tfs_printer_attributes_do_complete_first),
-		    PRINTER_ATTRIBUTE_DO_COMPLETE_FIRST, "Do complete first", 
+		    PRINTER_ATTRIBUTE_DO_COMPLETE_FIRST, NULL, 
 		    HFILL }},
 
 		{ &hf_printer_attributes_work_offline,
@@ -8090,76 +8090,76 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_printer_attributes_raw_only,
 		  { "Raw only", "spoolss.printer_attributes.raw_only", 
 		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_raw_only),
-		    PRINTER_ATTRIBUTE_RAW_ONLY, "Raw only", HFILL }},
+		    PRINTER_ATTRIBUTE_RAW_ONLY, NULL, HFILL }},
 
 		{ &hf_printer_attributes_published,
 		  { "Published", "spoolss.printer_attributes.published", 
 		    FT_BOOLEAN, 32, TFS(&tfs_printer_attributes_published),
-		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
+		    PRINTER_ATTRIBUTE_PUBLISHED, NULL, HFILL }},
 
 		/* Timestamps */
 
 		{ &hf_time_year,
 		  { "Year", "spoolss.time.year", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Year", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_month,
 		  { "Month", "spoolss.time.month", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Month", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_dow,
 		  { "Day of week", "spoolss.time.dow", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Day of week", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_day,
 		  { "Day", "spoolss.time.day", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Day", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_hour,
 		  { "Hour", "spoolss.time.hour", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Hour", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_minute,
 		  { "Minute", "spoolss.time.minute", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Minute", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_second,
 		  { "Second", "spoolss.time.second", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Second", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_time_msec,
 		  { "Millisecond", "spoolss.time.msec", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Millisecond", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 /* Userlevel */
 
                 { &hf_userlevel_size,
                   { "Size", "spoolss.userlevel.size",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Size", HFILL }},
+                    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_client,
                   { "Client", "spoolss.userlevel.client", FT_STRING, 
-                    BASE_NONE, NULL, 0, "Client", HFILL }},
+                    BASE_NONE, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_user,
                   { "User", "spoolss.userlevel.user", FT_STRING, 
-                    BASE_NONE, NULL, 0, "User", HFILL }},
+                    BASE_NONE, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_build,
                   { "Build", "spoolss.userlevel.build",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Build", HFILL }},
+                    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_major,
                   { "Major", "spoolss.userlevel.major",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Major", HFILL }},
+                    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_minor,
                   { "Minor", "spoolss.userlevel.minor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Minor", HFILL }},
+                    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
                 { &hf_userlevel_processor,
                   { "Processor", "spoolss.userlevel.processor",
-                    FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
+                    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* EnumprinterdataEx RPC */
 
@@ -8171,61 +8171,61 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_enumprinterdataex_name_offset,
 		  { "Name offset", "spoolss.enumprinterdataex.name_offset",
 		    FT_UINT32, BASE_DEC, NULL, 0x0, 
-		    "Name offset", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_name_len,
 		  { "Name len", "spoolss.enumprinterdataex.name_len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0, 
-		    "Name len", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_name,
 		  { "Name", "spoolss.enumprinterdataex.name", 
-		    FT_STRING, BASE_NONE, NULL, 0, "Name", HFILL }},
+		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_type,
 		  { "Value type", "spoolss.enumprinterdataex.value_type",
 		    FT_UINT32, BASE_DEC, NULL, 0x0, 
-		    "Value type", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_offset,
 		  { "Value offset", "spoolss.enumprinterdataex.value_offset",
 		    FT_UINT32, BASE_DEC, NULL, 0x0, 
-		    "Value offset", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_len,
 		  { "Value len", "spoolss.enumprinterdataex.value_len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0, 
-		    "Value len", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_dword_high,
 		  { "DWORD value (high)", 
 		    "spoolss.enumprinterdataex.val_dword.high",
 		    FT_UINT16, BASE_DEC, NULL, 0x0, 
-		    "DWORD value (high)", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_dword_low,
 		  { "DWORD value (low)", 
 		    "spoolss.enumprinterdataex.val_dword.low",
 		    FT_UINT16, BASE_DEC, NULL, 0x0, 
-		    "DWORD value (low)", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_enumprinterdataex_val_sz,
 		  { "SZ value", "spoolss.printerdata.val_sz", 
-		    FT_STRING, BASE_NONE, NULL, 0, "SZ value", HFILL }},
+		    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* RouterReplyPrinter RPC */
 
 		{ &hf_routerreplyprinter_condition,
 		  { "Condition", "spoolss.routerreplyprinter.condition", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Condition", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_routerreplyprinter_unknown1,
 		  { "Unknown1", "spoolss.routerreplyprinter.unknown1", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Unknown1", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_routerreplyprinter_changeid,
 		  { "Change id", "spoolss.routerreplyprinter.changeid", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Change id", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* EnumPrinterKey RPC */
 
@@ -8235,7 +8235,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_keybuffer_data,
 		  { "Key Buffer data", "spoolss.keybuffer.data", FT_BYTES, 
-		    BASE_HEX, NULL, 0x0, "Contents of buffer", HFILL }},
+		    BASE_NONE, NULL, 0x0, "Contents of buffer", HFILL }},
 
 		/* SetJob RPC */
 
@@ -8259,25 +8259,25 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_secdescbuf_maxlen,
 		  { "Max len", "secdescbuf.max_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_secdescbuf_undoc,
 		  { "Undocumented", "secdescbuf.undoc",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Undocumented", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_secdescbuf_len,
 		  { "Length", "secdescbuf.len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Length", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		/* Spool printer info */
 
 		{ &hf_spool_printer_info_devmode_ptr,
 		  { "Devmode pointer", "spoolprinterinfo.devmode_ptr",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Devmode pointer", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_spool_printer_info_secdesc_ptr,
 		  { "Secdesc pointer", "spoolprinterinfo.secdesc_ptr",
-		    FT_UINT32, BASE_HEX, NULL, 0, "Secdesc pointer", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		/* WritePrinter RPC */
 
@@ -8290,89 +8290,89 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_setprinterdataex_max_len,
 		  { "Max len", "setprinterdataex.max_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_setprinterdataex_real_len,
 		  { "Real len", "setprinterdataex.real_len",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Real len", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_setprinterdataex_data,
 		  { "Data", "setprinterdataex.data",
-		    FT_BYTES, BASE_HEX, NULL, 0, "Data", HFILL }},
+		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		/* Specific access rights */
 
 		{ &hf_access_required,
 		  { "Access required", "spoolss.access_required",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "Access required",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
 		    HFILL }},
 
 		{ &hf_server_access_admin,
 		  { "Server admin", "spoolss.access_mask.server_admin",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    SERVER_ACCESS_ADMINISTER, "Server admin", HFILL }},
+		    SERVER_ACCESS_ADMINISTER, NULL, HFILL }},
 
 		{ &hf_server_access_enum,
 		  { "Server enum", "spoolss.access_mask.server_enum",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    SERVER_ACCESS_ENUMERATE, "Server enum", HFILL }},
+		    SERVER_ACCESS_ENUMERATE, NULL, HFILL }},
 
 		{ &hf_printer_access_admin,
 		  { "Printer admin", "spoolss.access_mask.printer_admin",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ACCESS_ADMINISTER, "Printer admin", HFILL }},
+		    PRINTER_ACCESS_ADMINISTER, NULL, HFILL }},
 
 		{ &hf_printer_access_use,
 		  { "Printer use", "spoolss.access_mask.printer_use",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    PRINTER_ACCESS_USE, "Printer use", HFILL }},
+		    PRINTER_ACCESS_USE, NULL, HFILL }},
 
 		{ &hf_job_access_admin,
 		  { "Job admin", "spoolss.access_mask.job_admin",
 		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
-		    JOB_ACCESS_ADMINISTER, "Job admin", HFILL }},
+		    JOB_ACCESS_ADMINISTER, NULL, HFILL }},
 
 		/* Printer information */
 
 		{ &hf_printer_cjobs,
 		  { "CJobs", "spoolss.printer.cjobs", FT_UINT32,
-		    BASE_DEC, NULL, 0, "CJobs", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_total_jobs,
 		  { "Total jobs", "spoolss.printer.total_jobs", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Total jobs", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_total_bytes,
 		  { "Total bytes", "spoolss.printer.total_bytes", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Total bytes", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_global_counter,
 		  { "Global counter", "spoolss.printer.global_counter", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Global counter", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_total_pages,
 		  { "Total pages", "spoolss.printer.total_pages", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Total pages", HFILL }},
+		    BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_major_version,
 		  { "Major version", "spoolss.printer.major_version", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Major version", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_build_version,
 		  { "Build version", "spoolss.printer.build_version", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Build version", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk7,
 		  { "Unknown 7", "spoolss.printer.unknown7", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 7", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk8,
 		  { "Unknown 8", "spoolss.printer.unknown8", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 8", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk9,
 		  { "Unknown 9", "spoolss.printer.unknown9", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 9", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_session_ctr,
 		  { "Session counter", "spoolss.printer.session_ctr", 
@@ -8380,103 +8380,103 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_printer_unk11,
 		  { "Unknown 11", "spoolss.printer.unknown11", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 11", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_printer_errors,
 		  { "Printer errors", "spoolss.printer.printer_errors", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Printer errors", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk13,
 		  { "Unknown 13", "spoolss.printer.unknown13", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 13", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk14,
 		  { "Unknown 14", "spoolss.printer.unknown14", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 14", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk15,
 		  { "Unknown 15", "spoolss.printer.unknown15", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 15", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk16,
 		  { "Unknown 16", "spoolss.printer.unknown16", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 16", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_changeid,
 		  { "Change id", "spoolss.printer.changeid", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Change id", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk18,
 		  { "Unknown 18", "spoolss.printer.unknown18", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 18", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_unk20,
 		  { "Unknown 20", "spoolss.printer.unknown20", FT_UINT32,
-		    BASE_DEC, NULL, 0, "Unknown 20", HFILL }},		
+		    BASE_DEC, NULL, 0, NULL, HFILL }},		
 
 		{ &hf_printer_c_setprinter,
 		  { "Csetprinter", "spoolss.printer.c_setprinter", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Csetprinter", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk22,
 		  { "Unknown 22", "spoolss.printer.unknown22", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 22", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk23,
 		  { "Unknown 23", "spoolss.printer.unknown23", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 23", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk24,
 		  { "Unknown 24", "spoolss.printer.unknown24", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 24", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk25,
 		  { "Unknown 25", "spoolss.printer.unknown25", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 25", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk26,
 		  { "Unknown 26", "spoolss.printer.unknown26", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 26", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk27,
 		  { "Unknown 27", "spoolss.printer.unknown27", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 27", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk28,
 		  { "Unknown 28", "spoolss.printer.unknown28", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 28", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_unk29,
 		  { "Unknown 29", "spoolss.printer.unknown29", 
-		    FT_UINT16, BASE_DEC, NULL, 0, "Unknown 29", HFILL }},
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_flags,
 		  { "Flags", "spoolss.printer.flags", 
-		    FT_UINT32, BASE_HEX, NULL, 0, "Flags", HFILL }},
+		    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_priority,
 		  { "Priority", "spoolss.printer.priority", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Priority", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_default_priority,
 		  { "Default Priority", "spoolss.printer.default_priority", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Default Priority", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_averageppm,
 		  { "Average PPM", "spoolss.printer.averageppm", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Average PPM", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_jobs,
 		  { "Jobs", "spoolss.printer.jobs", 
-		    FT_UINT32, BASE_DEC, NULL, 0, "Jobs", HFILL }},
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
                 { &hf_printer_guid,
                   { "GUID", "spoolss.printer.guid", FT_STRING, 
-                    BASE_NONE, NULL, 0, "GUID", HFILL }},
+                    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_printer_action,
 		  { "Action", "spoolss.printer.action", FT_UINT32, BASE_DEC,
-		   VALS(getprinter_action_vals), 0, "Action", HFILL }},
+		   VALS(getprinter_action_vals), 0, NULL, HFILL }},
 	};
 
         static gint *ett[] = {

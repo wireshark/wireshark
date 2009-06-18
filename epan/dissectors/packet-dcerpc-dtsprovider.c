@@ -65,7 +65,7 @@ proto_register_dtsprovider (void)
 	static hf_register_info hf[] = {
 	  { &hf_dtsprovider_opnum,
 	    { "Operation", "dtsprovider.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }},
+	      NULL, 0x0, NULL, HFILL }},
 	  { &hf_dtsprovider_status,
 	    { "Status", "dtsprovider.status", FT_UINT32, BASE_DEC,
 	      VALS(dce_error_vals), 0x0, "Return code, status of executed command", HFILL }}

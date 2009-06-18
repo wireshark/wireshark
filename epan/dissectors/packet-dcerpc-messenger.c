@@ -105,10 +105,10 @@ proto_register_dcerpc_messenger(void)
 
 		{ &hf_messenger_opnum,
 		  { "Operation", "messenger.opnum", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Operation", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
                 { &hf_messenger_rc,
-                  { "Return code", "messenger.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, "", HFILL }},
+                  { "Return code", "messenger.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, NULL, HFILL }},
 
 		{ &hf_messenger_server, {
 		"Server", "messenger.server", 

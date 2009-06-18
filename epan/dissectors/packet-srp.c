@@ -201,13 +201,13 @@ void proto_register_srp (void)
 	   "SRP header octet", HFILL }},
 	{&hf_srp_seqno,
 	 { "Sequence Number", "srp.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-	   "Sequence Number", HFILL }},
+	   NULL, HFILL }},
 	{&hf_srp_crc,
 	 { "CRC", "srp.crc", FT_UINT16, BASE_HEX, NULL, 0x0,
-	   "CRC", HFILL }},
+	   NULL, HFILL }},
 	{ &hf_srp_crc_bad,
 	  { "Bad CRC","srp.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "", HFILL }},
+	    NULL, HFILL }},
     };
 
     static gint *ett[] = {

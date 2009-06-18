@@ -81,13 +81,13 @@ proto_register_sadmind(void)
 	static hf_register_info hf[] = {
 		{ &hf_sadmind_procedure_v1, {
 			"V1 Procedure", "sadmind.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(sadmind1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(sadmind1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_sadmind_procedure_v2, {
 			"V2 Procedure", "sadmind.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(sadmind2_proc_vals), 0, "V2 Procedure", HFILL }},
+			VALS(sadmind2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_sadmind_procedure_v3, {
 			"V3 Procedure", "sadmind.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(sadmind3_proc_vals), 0, "V3 Procedure", HFILL }}
+			VALS(sadmind3_proc_vals), 0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

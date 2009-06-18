@@ -343,7 +343,7 @@ proto_register_teredo(void)
 		{ &hf_teredo_auth,
 		{ "Teredo Authentication header", "teredo.auth",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
-		  "Teredo Authentication header", HFILL }},
+		  NULL, HFILL }},
   
 		{ &hf_teredo_auth_idlen,
 		{ "Client identifier length", "teredo.auth.idlen",
@@ -386,12 +386,12 @@ proto_register_teredo(void)
 		{ &hf_teredo_orig_port,
 		{ "Origin UDP port", "teredo.orig.port",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Origin UDP port", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_teredo_orig_addr,
 		{ "Origin IPv4 address", "teredo.orig.addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Origin IPv4 address", HFILL }},
+		  NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

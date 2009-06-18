@@ -168,13 +168,13 @@ proto_register_rquota(void)
 	static hf_register_info hf[] = {
 		{ &hf_rquota_procedure_v1, {
 			"V1 Procedure", "rquota.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(rquota1_proc_vals), 0, "V1 Procedure", HFILL }},
+			VALS(rquota1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rquota_uid, {
 			"uid", "rquota.uid", FT_UINT32, BASE_DEC,
 			NULL, 0, "User ID", HFILL }},
 
 		{ &hf_rquota_pathp, {
-			"pathp", "rquota.pathp", FT_STRING, BASE_DEC,
+			"pathp", "rquota.pathp", FT_STRING, BASE_NONE,
 			NULL, 0, "Filesystem of interest", HFILL }},
 
 		{ &hf_rquota_status, {
@@ -191,7 +191,7 @@ proto_register_rquota(void)
 
 		{ &hf_rquota_active, {
 			"active", "rquota.active", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_active), 0, "Indicates whether quota is active", HFILL }},
+			TFS(&tfs_active), 0x0, "Indicates whether quota is active", HFILL }},
 
 		{ &hf_rquota_bhardlimit, {
 			"bhardlimit", "rquota.bhardlimit", FT_UINT32, BASE_DEC,

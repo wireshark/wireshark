@@ -3546,342 +3546,342 @@ void proto_register_rsl(void)
 		{ &hf_rsl_msg_dsc,
 			{ "Message discriminator",           "rsl.msg_dsc",
 			FT_UINT8, BASE_DEC, VALS(rsl_msg_disc_vals), 0xfe,
-			"Message discriminator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_T_bit,
 			{ "T bit",           "rsl.T_bit",
 			FT_BOOLEAN, 8, TFS(&rsl_t_bit_vals), 0x01,
-			"T bit", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_msg_type,
 			{ "Message type",           "rsl.msg_type",
 			FT_UINT8, BASE_HEX_DEC, VALS(rsl_msg_type_vals), 0x7f,
-			"Message type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ie_id,
 			{ "Element identifier",           "rsl.ie_id",
 			FT_UINT8, BASE_HEX_DEC, VALS(rsl_ie_type_vals), 0x0,
-			"Element identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ie_length,
 			{ "Length",           "rsl.ie_length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Length", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_no_Cbits,
 			{ "C-bits",           "rsl.ch_no_Cbits",
 			FT_UINT8, BASE_DEC, VALS(rsl_ch_no_Cbits_vals), 0xf8,
-			"C-bits", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_no_TN,
 			{ "Time slot number (TN)",  "rsl.ch_no_TN",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
-			"Time slot number (TN)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rtd,
 			{ "Round Trip Delay (RTD)",  "rsl.rtd",
 			FT_UINT8, BASE_DEC, NULL, 0xfe,
-			"Round Trip Delay (RTD)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_delay_ind,
 			{ "Delay IND",  "rsl.delay_ind",
 			FT_UINT8, BASE_DEC, rsl_delay_ind_vals, 0x01,
-			"Delay IND", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_tfo,
 			{ "TFO",           "rsl.tfo",
 			FT_BOOLEAN, 8, TFS(&rsl_tfo_vals), 0x01,
-			"TFO", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_req_ref_ra,
 			{ "Random Access Information (RA)", "rsl.req_ref_ra",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Random Access Information (RA)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_req_ref_T1prim,
 			{ "T1'",           "rsl.req_ref_T1prim",
 			FT_UINT8, BASE_DEC, NULL, 0xf8,
-			"T1'", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_req_ref_T3,
 			{ "T3",           "rsl.req_ref_T3",
 			FT_UINT16, BASE_DEC, NULL, 0x07e0,
-			"T3", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_req_ref_T2,
 			{ "T2",           "rsl.req_ref_T2",
 			FT_UINT8, BASE_DEC, NULL, 0x1f,
-			"T2", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_timing_adv,
 			{ "Timing Advance",           "rsl.timing_adv",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Timing Advance", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ho_ref,
 			{ "Hand-over reference",           "rsl.ho_ref",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Hand-over reference", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ms_power_lev,
 			{ "MS power level",           "rsl.ms_power_lev",
 			FT_UINT8, BASE_DEC, NULL, 0xf8,
-			"MS power level", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ms_fpc,
 			{ "FPC/EPC",           "rsl.ms_fpc",
 			FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x04,
-			"FPC/EPC", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_act_timing_adv,
 			{ "Actual Timing Advance",           "rsl.act_timing_adv",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Actual Timing Advance", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_power_lev,
 			{ "Power level",           "rsl.power_lev",
 			FT_UINT8, BASE_DEC, NULL, 0x1f,
-			"Power level", HFILL }
+			NULL, HFILL }
 		},
 
 		{ &hf_rsl_dtxd,
 			{ "DTXd",           "rsl.dtxd",
 			FT_BOOLEAN, 8, TFS(&rsl_dtxd_vals), 0x40,
-			"DTXd", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rxlev_full_up,
 			{ "RXLEV.FULL.up",           "rsl.rxlev_full_up",
 			FT_UINT8, BASE_DEC, NULL, 0x3f,
-			"RXLEV.FULL.up", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rxlev_sub_up,
 			{ "RXLEV.SUB.up",           "rsl.rxlev_sub_up",
 			FT_UINT8, BASE_DEC, NULL, 0x3f,
-			"RXLEV.SUB.up", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rxqual_full_up,
 			{ "RXQUAL.FULL.up",           "rsl.rxqual_full_up",
 			FT_UINT8, BASE_DEC, NULL, 0x38,
-			"RXQUAL.FULL.up", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rxqual_sub_up,
 			{ "RXQUAL.SUB.up",           "rsl.rxqual_sub_up",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
-			"RXQUAL.SUB.up", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_acc_delay,
 			{ "Access Delay",           "rsl.acc_del",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Access Delay", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rach_slot_cnt,
 			{ "RACH Slot Count",           "rsl.rach_slot_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"RACH Slot Count", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rach_busy_cnt,
 			{ "RACH Busy Count",           "rsl.rach_busy_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"RACH Busy Count", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rach_acc_cnt,
 			{ "RACH Access Count",           "rsl.rach_acc_cnt",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"RACH Access Count", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_phy_ctx,
 			{ "Physical Context",           "rsl.phy_ctx",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Physical Context", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_na,
 			{ "Not applicable (NA)",           "rsl.na",
 			FT_BOOLEAN, 8, TFS(&rsl_na_vals), 0x20,
-			"Not applicable (NA)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_type,
 			{ "channel type",           "rsl.ch_type",
 			FT_UINT8, BASE_DEC, VALS(rsl_ch_type_vals), 0xc0,
-			"channel type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_prio,
 			{ "Priority",           "rsl.prio",
 			FT_UINT8, BASE_DEC, VALS(rsl_prio_vals), 0x18,
-			"Priority", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_sapi,
 			{ "SAPI",           "rsl.sapi",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
-			"SAPI", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rbit,
 			{ "R",           "rsl.rbit",
 			FT_BOOLEAN, 8, TFS(&rsl_rbit_vals), 0x80,
-			"R", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_a3a2,
 			{ "A3A2",           "rsl.a3a2",
 			FT_UINT8, BASE_DEC, VALS(rsl_a3a2_vals), 0x06,
-			"A3A2", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_a1_0,
 			{ "A1",           "rsl.a1_0",
 			FT_BOOLEAN, 8, TFS(&rsl_a1_0_vals), 0x01,
-			"A1", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_a1_1,
 			{ "A1",           "rsl.a1_1",
 			FT_BOOLEAN, 8, TFS(&rsl_a1_1_vals), 0x01,
-			"A1", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_a1_2,
 			{ "A1",           "rsl.a2_0",
 			FT_BOOLEAN, 8, TFS(&rsl_a1_2_vals), 0x01,
-			"A1", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_epc_mode,
 			{ "EPC mode", "rsl.epc_mode",
 			FT_BOOLEAN, 8, TFS(&rsl_epc_mode_vals), 0x20,
-			"EPC mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_bs_fpc_epc_mode,
 			{ "FPC-EPC mode", "rsl.fpc_epc_mode",
 			FT_BOOLEAN, 8, TFS(&rsl_fpc_epc_mode_vals), 0x10,
-			"FPC-EPC mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_bs_power,
 			{ "Power Level",           "rsl.bs_power",
 			FT_UINT8, BASE_DEC, VALS(rsl_rlm_bs_power_vals), 0x0f,
-			"Power Level", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_cm_dtxd,
 			{ "DTXd", "rsl.cm_dtxd",
 			FT_BOOLEAN, 8, TFS(&rsl_dtx_vals), 0x02,
-			"DTXd", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_cm_dtxu,
 			{ "DTXu", "rsl.cm_dtxu",
 			FT_BOOLEAN, 8, TFS(&rsl_dtx_vals), 0x01,
-			"DTXu", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_speech_or_data,
 			{ "Speech or data indicator",           "rsl.speech_or_data",
 			FT_UINT8, BASE_DEC, VALS(rsl_speech_or_data_vals), 0x0,
-			"Speech or data indicator", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_rate_and_type,
 			{ "Channel rate and type",           "rsl.speech_or_data",
 			FT_UINT8, BASE_DEC, VALS(rsl_ch_rate_and_type_vals), 0x0,
-			"Channel rate and type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_speech_coding_alg,
 			{ "Speech coding algorithm",           "rsl.speech_coding_alg",
 			FT_UINT8, BASE_DEC, VALS(rsl_speech_coding_alg_vals), 0x0,
-			"Speech coding algorithm", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_t_nt_bit,
 			{ "Transparent indication", "rsl.t_nt_bit",
 			FT_BOOLEAN, 8, TFS(&t_nt_bit_vals), 0x40,
-			"Transparent indication", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ra_if_data_rte,
 			{ "Radio interface data rate",           "rsl.ra_if_data_rte",
 			FT_UINT8, BASE_DEC, VALS(rsl_ra_if_data_rte_vals), 0x3f,
-			"Radio interface data rate", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_data_rte,
 			{ "Data rate",           "rsl.data_rte",
 			FT_UINT8, BASE_DEC, VALS(rsl_ra_if_data_rte_vals), 0x3f,
-			"Data rate", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_alg_id,
 			{ "Algorithm Identifier",           "rsl.alg_id",
 			FT_UINT8, BASE_DEC, VALS(rsl_algorithm_id_vals), 0x0,
-			"Algorithm Identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_key,
 			{ "KEY",           "rsl.key",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			"KEY", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_cause,
 			{ "Cause",           "rsl.cause",
 			FT_UINT8, BASE_DEC, VALS(rsl_rlm_cause_vals), 0x7f,
-			"Cause", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_rel_mode,
 			{ "Release Mode",           "rsl.rel_mode",
 			FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,
-			"Release Mode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_interf_band,
 			{ "Interf Band",           "rsl.interf_band",
 			FT_UINT8, BASE_DEC, NULL, 0xe0,
-			"Interf Band", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_meas_res_no,
 			{ "Measurement result number",           "rsl.meas_res_no",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Measurement result number", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_extension_bit,
 			{ "Extension", "rsl.extension_bit",
 			FT_BOOLEAN, 8, TFS(&rsl_extension_bit_value), 0x80,
-			"Extension", HFILL }},
+			NULL, HFILL }},
 		{ &hf_rsl_class,
 			{ "Class",           "rsl.class",
 			FT_UINT8, BASE_DEC, VALS(rsl_class_vals), 0x70,
-			"Class", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_paging_grp,
 			{ "Paging Group",           "rsl.paging_grp",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Paging Group", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_paging_load,
 			{ "Paging Buffer Space",           "rsl.paging_load",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Paging Buffer Space", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_sys_info_type,
 			{ "System Info Type",           "rsl.sys_info_type",
 			FT_UINT8, BASE_DEC, VALS(rsl_sys_info_type_vals), 0x0,
-			"System Info Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_timing_offset,
 			{ "Timing Offset",           "rsl.timing_offset",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Timing Offset", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_needed,
 			{ "Channel Needed",           "rsl.ch_needed",
 			FT_UINT8, BASE_DEC, VALS(rsl_ch_needed_vals), 0x03,
-			"Channel Needed", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_cbch_load_type,
 			{ "CBCH Load Type", "rsl.cbch_load_type",
 			FT_BOOLEAN, 8, TFS(&rsl_cbch_load_type_vals), 0x80,
-			"CBCH Load Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_msg_slt_cnt,
 			{ "Message Slot Count", "rsl.sg_slt_cnt",
 			FT_UINT8, BASE_DEC, NULL, 0x0f,
-			"Message Slot Count", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_ch_ind,
 			{ "Channel Ind",           "rsl.ch_ind",
 			FT_UINT8, BASE_DEC, VALS(rsl_ch_ind_vals), 0x0f,
-			"Channel Ind", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_command,
 			{ "Command",           "rsl.cmd",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Command", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_rsl_emlpp_prio,
 			{ "eMLPP Priority",           "rsl.emlpp_prio",
 			FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x03,
-			"eMLPP Priority", HFILL }
+			NULL, HFILL }
 		},
 	};
 	static gint *ett[] = {

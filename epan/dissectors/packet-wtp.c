@@ -831,56 +831,56 @@ proto_register_wtp(void)
 	    { 	"Continue Flag",
 		"wtp.continue_flag",
 		FT_BOOLEAN, 8, TFS( &continue_truth ), 0x80,
-		"Continue Flag", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_pdu_type,
 	    { 	"PDU Type",
 		"wtp.pdu_type",
 		FT_UINT8, BASE_HEX, VALS( vals_wtp_pdu_type ), 0x78,
-		"PDU Type", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_Trailer,
 	    { 	"Trailer Flags",
 		"wtp.trailer_flags",
 		FT_UINT8, BASE_HEX, VALS( vals_transaction_trailer ), 0x06,
-		"Trailer Flags", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_RID,
 	    { 	"Re-transmission Indicator",
 		"wtp.RID",
 		FT_BOOLEAN, 8, TFS( &RID_truth ), 0x01,
-		"Re-transmission Indicator", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_TID_response,
 	    { 	"TID Response",
 		"wtp.TID.response",
 		FT_BOOLEAN, 16, TFS( &tid_response_truth ), 0x8000,
-		"TID Response", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_TID,
 	    { 	"Transaction ID",
 		"wtp.TID",
 		FT_UINT16, BASE_HEX, NULL, 0x7FFF,
-		"Transaction ID", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_version,
 	    { 	"Version",
 		"wtp.header.version",
 		FT_UINT8, BASE_HEX, VALS( vals_version ), 0xC0,
-		"Version", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_flag_TIDNew,
 	    { 	"TIDNew",
 		"wtp.header.TIDNew",
 		FT_BOOLEAN, 8, TFS( &TIDNew_truth ), 0x20,
-		"TIDNew", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_flag_UP,
@@ -894,35 +894,35 @@ proto_register_wtp(void)
 	    { 	"Reserved",
 		"wtp.inv.reserved",
 		FT_UINT8, BASE_HEX, NULL, 0x0C,
-		"Reserved", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_TransactionClass,
 	    { 	"Transaction Class",
 		"wtp.inv.transaction_class",
 		FT_UINT8, BASE_HEX, VALS( vals_transaction_classes ), 0x03,
-		"Transaction Class", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Ack_flag_TVETOK,
 	    { 	"Tve/Tok flag",
 		"wtp.ack.tvetok",
 		FT_BOOLEAN, 8, TFS( &TVETOK_truth ), 0x04,
-		"Tve/Tok flag", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Abort_type,
 	    { 	"Abort Type",
 		"wtp.abort.type",
 		FT_UINT8, BASE_HEX, VALS ( vals_abort_type ), 0x07,
-		"Abort Type", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Abort_reason_provider,
 	    { 	"Abort Reason",
 		"wtp.abort.reason.provider",
 		FT_UINT8, BASE_HEX, VALS ( vals_abort_reason_provider ), 0x00,
-		"Abort Reason", HFILL
+		NULL, HFILL
 	    }
 	},
 	/* Assume WSP is the user and use its reason codes */
@@ -930,35 +930,35 @@ proto_register_wtp(void)
 	    { 	"Abort Reason",
 		"wtp.abort.reason.user",
 		FT_UINT8, BASE_HEX, VALS ( vals_wsp_reason_codes ), 0x00,
-		"Abort Reason", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_sequence_number,
 	    { 	"Packet Sequence Number",
 		"wtp.header.sequence",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Packet Sequence Number", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_missing_packets,
 	    { 	"Missing Packets",
 		"wtp.header.missing_packets",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Missing Packets", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_variable_part,
 	    { 	"Header: Variable part",
 		"wtp.header_variable_part",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		"Variable part of the header", HFILL
 	    }
 	},
 	{ &hf_wtp_data,
 	    { 	"Data",
 		"wtp.header_data",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"Data", HFILL
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_type,
@@ -1044,14 +1044,14 @@ proto_register_wtp(void)
 	    {	"WTP Fragment",
 		"wtp.fragment",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-		"WTP Fragment", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_fragments,
 	    {	"WTP Fragments",
 		"wtp.fragments",
 		FT_NONE, BASE_NONE, NULL, 0x0,
-		"WTP Fragments", HFILL
+		NULL, HFILL
 	    }
 	},
     };

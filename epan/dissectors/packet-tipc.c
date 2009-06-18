@@ -2330,19 +2330,19 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_msg_fragment_overlap,
 			{ "Message fragment overlap", "tipc.msg.fragment.overlap",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tipc_msg_fragment_overlap_conflicts,
 			{ "Message fragment overlapping with conflicting data", "tipc.msg.fragment.overlap.conflicts",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tipc_msg_fragment_multiple_tails,
 			{ "Message has multiple tail fragments", "tipc.msg.fragment.multiple_tails",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tipc_msg_fragment_too_long_fragment,
 			{ "Message fragment too long", "tipc.msg.fragment.too_long_fragment",
-				FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_tipc_msg_fragment_error,
 			{ "Message defragmentation error", "tipc.msg.fragment.error",
@@ -2630,42 +2630,42 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_errorcode,
 			{ "Error code", "tipcv2.errorcode",
 				FT_UINT32, BASE_DEC, VALS(tipcv2_error_code_strings), 0x1e000000,
-				"Error code", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_rer_cnt,
 			{ "Reroute Counter", "tipcv2.rer_cnt",
 				FT_UINT32, BASE_DEC, NULL, 0x01e00000,
-				"Reroute Counter", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_lookup_scope,
 			{ "Lookup Scope", "tipcv2.lookup_scope",
 				FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_scope_strings), 0x00180000,
-				"Lookup Scope", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_opt_p,
 			{ "Options Position", "tipcv2.opt_p",
 				FT_UINT32, BASE_DEC, NULL, 0x00070000,
-				"Options Position", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_broadcast_ack_no,
 			{ "Broadcast Acknowledge Number", "tipcv2.broadcast_ack_no",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
-				"Broadcast Acknowledge Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_link_level_ack_no,
 			{ "Link Level Acknowledge Number", "tipcv2.link_level_ack_no",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Link Level Acknowledge Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_link_level_seq_no,
 			{ "Link Level Sequence Number", "tipcv2.link_level_seq_no",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
-				"Link Level Sequence Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_bcast_seq_no,
 			{ "Broadcast Sequence Number", "tipcv2.bcast_seq_no",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
-				"Broadcast Sequence Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_prev_node,
 			{ "Previous Node", "tipcv2.prev_node",
@@ -2685,12 +2685,12 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_port_name_type,
 			{ "Port name type", "tipcv2.port_name_type",
 				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
-				"Port name type", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_port_name_instance,
 			{ "Port name instance", "tipcv2.port_name_instance",
 				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
-				"Port name instance", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_multicast_lower,
 			{ "Multicast lower bound", "tipcv2.multicast_lower",
@@ -2705,47 +2705,47 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_bcast_seq_gap,
 			{ "Broadcast Sequence Gap", "tipcv2.bcast_seq_gap",
 				FT_UINT32, BASE_DEC, NULL, 0x1F000000,
-				"Broadcast Sequence Gap", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_sequence_gap,
 			{ "Sequence Gap", "tipcv2.seq_gap",
 				FT_UINT32, BASE_DEC, NULL, 0x00FF0000,
-				"Sequence Gap", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_next_sent_broadcast,
 			{ "Next Sent Broadcast", "tipcv2.next_sent_broadcast",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Next Sent Broadcast", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_fragment_number,
 			{ "Fragment Number", "tipcv2.fragment_number",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Fragment Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_fragment_msg_number,
 			{ "Fragment Message Number", "tipcv2.fragment_msg_number",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
-				"Fragment Message Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_next_sent_packet,
 			{ "Next Sent Packet", "tipcv2.next_sent_packet",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
-				"Next Sent Packet", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_session_no,
 			{ "Session Number", "tipcv2.session_no",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Session Number", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_link_prio,
 			{ "Link Priority", "tipcv2.link_prio",
 				FT_UINT32, BASE_DEC, NULL, 0x000001F0,
-				"Link Priority", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_network_plane,
 			{ "Network Plane", "tipcv2.network_plane",
 				FT_UINT32, BASE_DEC, VALS(tipcv2_networkplane_strings), 0x0000000E,
-				"Network Plane", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_probe,
 			{ "Probe", "tipcv2.probe",
@@ -2764,8 +2764,8 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_bearer_level_orig_addr,
 			{ "Bearer Level Originating Address", "tipcv2.bearer_level_orig_addr",
-				FT_BYTES, BASE_HEX, NULL, 0,
-				"Bearer Level Originating Address", HFILL }
+				FT_BYTES, BASE_NONE, NULL, 0,
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_cluster_address,
 			{ "Cluster Address", "tipcv2.cluster_address",
@@ -2774,7 +2774,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_bitmap,
 			{ "Bitmap", "tipcv2.bitmap",
-				FT_BYTES, BASE_HEX, NULL, 0,
+				FT_BYTES, BASE_NONE, NULL, 0,
 				"Bitmap, indicating to which nodes within that cluster the sending node has direct links", HFILL }
 		},
 		{ &hf_tipcv2_node_address,
@@ -2795,17 +2795,17 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_bcast_tag,
 			{ "Broadcast Tag", "tipcv2.bcast_tag",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Broadcast Tag", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_msg_count,
 			{ "Message Count", "tipcv2.msg_count",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Message Count", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_max_packet,
 			{ "Max Packet", "tipcv2.max_packet",
 				FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
-				"Max Packet", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_transport_seq_no,
 			{ "Transport Sequence No", "tipcv2.tseq_no",
@@ -2815,22 +2815,22 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_redundant_link,
 			{ "Redundant Link", "tipcv2.redundant_link",
 				FT_UINT32, BASE_DEC, NULL, 0x00001000,
-				"Redundant Link", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_bearer_id,
 			{ "Bearer identity", "tipcv2.bearer_id",
 				FT_UINT32, BASE_DEC, NULL, 0x00000e00,
-				"Bearer identity", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_conn_mgr_msg_ack, /* special CONN_MANAGER payload */
 			{ "Number of Messages Acknowledged", "tipcv2.conn_mgr_msg_ack",
 				FT_UINT32, BASE_DEC, NULL, 0xffff0000,
-				"Number of Messages Acknowledged", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_req_links,
 			{ "Requested Links", "tipcv2.req_links",
 				FT_UINT32, BASE_DEC, NULL, 0x0fff0000,
-				"Requested Links", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_timestamp,
 			{ "Timestamp", "tipcv2.timestamp",
@@ -2840,42 +2840,42 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_item_size,
 			{ "Item Size", "tipcv2.item_size",
 				FT_UINT32, BASE_DEC, NULL, 0xFF000000,
-				"Item Size", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_network_region,
 			{ "Network Region", "tipcv2.network_region",
 				FT_STRING, BASE_NONE, NULL, 0x0,
-				"Network Region", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_local_router,
 			{ "Local Router", "tipcv2.local_router",
 				FT_STRING, BASE_NONE, NULL, 0x0,
-				"Local Router", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_remote_router,
 			{ "Remote Router", "tipcv2.remote_router",
 				FT_STRING, BASE_NONE, NULL, 0x0,
-				"Remote Router", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_dist_dist,
 			{ "Route Distributor Dist", "tipcv2.dist_dist",
 				FT_UINT32, BASE_DEC, VALS(tipcv2_dist_dist_strings), 0x000000f0,
-				"Route Distributor Dist", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_dist_scope,
 			{ "Route Distributor Scope", "tipcv2.dist_scope",
 				FT_UINT32, BASE_DEC, VALS(tipcv2_dist_scope_strings), 0x0000000f,
-				"Route Distributor Scope", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_name_dist_port_id_node,
 			{ "Port Id Node", "tipcv2.port_id_node",
 				FT_STRING, BASE_NONE, NULL, 0x0,
-				"Port Id Node", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_media_id,
 			{ "Media Id", "tipcv2.media_id",
 				FT_UINT32, BASE_DEC, NULL, 0x000000ff,
-				"Media Id", HFILL }
+				NULL, HFILL }
 		}
 	};
 

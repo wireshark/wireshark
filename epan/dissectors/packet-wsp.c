@@ -7508,7 +7508,7 @@ proto_register_sir(void)
 		{ &hf_sir_cpi_tag,
 			{	"CPITag",
 				"wap.sir.cpi_tag",
-				FT_BYTES, BASE_HEX, NULL, 0x00,
+				FT_BYTES, BASE_NONE, NULL, 0x00,
 				"CPITag (OTA-HTTP)", HFILL
 			}
 		}

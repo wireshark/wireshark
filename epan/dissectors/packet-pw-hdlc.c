@@ -189,7 +189,7 @@ void proto_register_pw_hdlc(void)
 		{
 			&hf_pw_hdlc,
 			{
-				"PW HDLC", "pw_hdlc", FT_NONE, 0, NULL, 0x0, NULL, HFILL
+				"PW HDLC", "pw_hdlc", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

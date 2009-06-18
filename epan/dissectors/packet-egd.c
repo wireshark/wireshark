@@ -188,7 +188,7 @@ void proto_register_egd(void)
         { "ProducerID", "egd.pid",
           FT_IPv4, BASE_NONE,
           NULL, 0x0,
-          "", HFILL }
+          NULL, HFILL }
       },
       { &hf_egd_exid,
         { "ExchangeID", "egd.exid",
@@ -198,7 +198,7 @@ void proto_register_egd(void)
       },
       { &hf_egd_time,
         { "Timestamp", "egd.time",
-          FT_ABSOLUTE_TIME, BASE_DEC,
+          FT_ABSOLUTE_TIME, BASE_NONE,
           NULL, 0x0,
           NULL, HFILL }
       },
@@ -212,7 +212,7 @@ void proto_register_egd(void)
         { "Status", "egd.stat",
           FT_UINT32, BASE_DEC,
           VALS(egd_stat_vals), 0x0,
-          "Status", HFILL }
+          NULL, HFILL }
       },
       { &hf_egd_csig,
         { "ConfigSignature", "egd.csig",

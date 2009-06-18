@@ -1006,11 +1006,11 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_soft_version,
-		{ "RU-SOFT-VERSION", "wassp.ru.soft.version", FT_STRING, BASE_DEC, NULL,
+		{ "RU-SOFT-VERSION", "wassp.ru.soft.version", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_serial_number,
-		{ "RU-SERIAL-NUMBER", "wassp.ru.serial.number", FT_STRING, BASE_DEC, NULL,
+		{ "RU-SERIAL-NUMBER", "wassp.ru.serial.number", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_challenge,
@@ -1034,7 +1034,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_image_path,
-		{ "IMAGE-PATH", "wassp.image.path", FT_STRING, BASE_DEC, NULL,
+		{ "IMAGE-PATH", "wassp.image.path", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_config,
@@ -1046,7 +1046,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_session_key,
-		{ "RU-SESSION-KEY", "wassp.ru.session.key", FT_STRING, BASE_DEC, NULL,
+		{ "RU-SESSION-KEY", "wassp.ru.session.key", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_message_type,
@@ -1066,7 +1066,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_model,
-		{ "RU-MODEL", "wassp.ru.model", FT_STRING, BASE_DEC, NULL,
+		{ "RU-MODEL", "wassp.ru.model", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_mode,
@@ -1094,7 +1094,7 @@ proto_register_wassp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_trap,
-		{ "RU-TRAP", "wassp.ru.trap", FT_STRING, BASE_DEC, NULL,
+		{ "RU-TRAP", "wassp.ru.trap", FT_STRING, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_times,
@@ -1666,7 +1666,7 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_disc_retry_delay,
-		{ "DISC_RETRY_DELAY",	"wassp.config.disc.retry.delay", FT_BYTES, BASE_HEX, NULL,
+		{ "DISC_RETRY_DELAY",	"wassp.config.disc.retry.delay", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_logging_alarm_sev,
@@ -1763,7 +1763,7 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_vns_qos_up_value,
-		{ "V_QOS_UP_VALUE",	"wassp.config.vns.qos.up.value", FT_BYTES, BASE_HEX, NULL,
+		{ "V_QOS_UP_VALUE",	"wassp.config.vns.qos.up.value", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_vns_priority_override,
@@ -1988,7 +1988,7 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_radio_acs_ch_list,
-		{ "R_ACS_CH_LIST",	"wassp.config.radio.acs.ch.list", FT_BYTES, BASE_HEX, NULL,
+		{ "R_ACS_CH_LIST",	"wassp.config.radio.acs.ch.list", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_config_radio_tx_power_adj,

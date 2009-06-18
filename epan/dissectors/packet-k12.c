@@ -418,14 +418,14 @@ void
 proto_register_k12(void)
 {
     static hf_register_info hf[] = {
-	{ &hf_k12_port_id, { "Port Id", "k12.port_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-	{ &hf_k12_port_name, { "Port Name", "k12.port_name", FT_STRING, BASE_NONE, NULL, 0x0,"", HFILL }},
-	{ &hf_k12_stack_file, { "Stack file used", "k12.stack_file", FT_STRING, BASE_NONE, NULL, 0x0,"", HFILL }},
-	{ &hf_k12_port_type, { "Port type", "k12.input_type", FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,"", HFILL }},
-	{ &hf_k12_ts, { "Timeslot mask", "k12.ds0.ts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-	{ &hf_k12_atm_vp, { "ATM VPI", "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        { &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-        { &hf_k12_atm_cid, { "AAL2 CID", "aal2.cid", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}
+	{ &hf_k12_port_id, { "Port Id", "k12.port_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	{ &hf_k12_port_name, { "Port Name", "k12.port_name", FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }},
+	{ &hf_k12_stack_file, { "Stack file used", "k12.stack_file", FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL }},
+	{ &hf_k12_port_type, { "Port type", "k12.input_type", FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,NULL, HFILL }},
+	{ &hf_k12_ts, { "Timeslot mask", "k12.ds0.ts", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	{ &hf_k12_atm_vp, { "ATM VPI", "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_k12_atm_cid, { "AAL2 CID", "aal2.cid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
   static gint *ett[] = {

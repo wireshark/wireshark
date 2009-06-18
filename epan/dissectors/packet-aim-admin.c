@@ -106,13 +106,13 @@ proto_register_aim_admin(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
 	  { &hf_admin_acctinfo_code,
-		  { "Account Information Request Code", "aim_admin.acctinfo.code", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+		  { "Account Information Request Code", "aim_admin.acctinfo.code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	  },
 	  { &hf_admin_acctinfo_permissions,
-		  { "Account Permissions", "aim_admin.acctinfo.permissions", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+		  { "Account Permissions", "aim_admin.acctinfo.permissions", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
 	  }, 
 	  { &hf_admin_confirm_status,
-		  { "Confirmation status", "aim_admin.confirm_status", FT_UINT16, BASE_HEX, VALS(confirm_statusses), 0x0, "", HFILL },
+		  { "Confirmation status", "aim_admin.confirm_status", FT_UINT16, BASE_HEX, VALS(confirm_statusses), 0x0, NULL, HFILL },
 																					 },
   };
 

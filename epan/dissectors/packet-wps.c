@@ -1484,7 +1484,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_authenticator, 
       { "Authenticator", "wps.authenticator", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_config_methods, 
       { "Configuration Methods", "wps.config_methods", 
@@ -1523,10 +1523,10 @@ proto_register_wps(void)
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_configuration_error_vals), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_confirmation_url4, 
       { "Confirmation URL4", "wps.confirmation_url4", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_confirmation_url6, 
       { "Confirmation URL6", "wps.confirmation_url6", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_connection_type, 
       { "Connection Type", "wps.connection_type", 
@@ -1543,31 +1543,31 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_credential,  /* Encrypted  */
       { "Credential", "wps.credential", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_device_name, 
       { "Device Name", "wps.device_name", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_device_password_id, 
       { "Device Password ID", "wps.device_password_id", 
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_device_password_id_vals), 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_e_hash1, 
       { "Enrollee Hash 1", "wps.e_hash1", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_e_hash2, 
       { "Enrollee Hash 2", "wps.e_hash2", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_e_snonce1, 
       { "Enrollee SNounce 1", "wps.e_snonce1", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_e_snonce2, 
       { "Enrollee SNounce 2", "wps.e_snonce2", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_encrypted_settings, /* Encrypted !  */
       { "Encrypted Settings", "wps.encrypted_settings", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_encryption_type, 
       { "Encryption Type", "wps.encryption_type", 
@@ -1590,7 +1590,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_enrollee_nonce, 
       { "Enrollee Nonce", "wps.enrollee_nonce", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_feature_id, 
       { "Feature ID", "wps.feature_id", 
@@ -1598,17 +1598,17 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_identity, 
       { "Identity", "wps.identity", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_identity_proof, /* Encrypted !  */
       { "Identity Proof", "wps.identity_proof", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_key_wrap_authenticator, 
       { "Key Wrap Authenticator", "wps.key_wrap_authenticator", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_key_identifier, 
       { "Key Identifier", "wps.key_identifier", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_mac_address, 
       { "MAC", "wps.mac_address", 
@@ -1616,7 +1616,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_manufacturer, 
       { "Manufacturer", "wps.manufacturer", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_message_type, 
       { "Message Type", "wps.message_type", 
@@ -1624,10 +1624,10 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_model_name, 
       { "Model Name", "wps.model_name", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_model_number, 
       { "Model Number", "wps.model_number", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_network_index, 
       { "Network Index", "wps.network_index", 
@@ -1635,20 +1635,20 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_network_key, 
       { "Network Key", "wps.network_key", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_network_key_index, 
       { "Network Key Index", "wps.network_key_index", 
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_new_device_name, 
       { "New Device Name", "wps.new_device_name", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_new_password, 
       { "New Password", "wps.new_password", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_oob_device_password, 
       { "OOB Device Password", "wps.oob_device_password", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_os_version, 
       { "OS Version", "wps.os_version", 
@@ -1667,7 +1667,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_public_key, 
       { "Public Key", "wps.public_key", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_radio_enabled, /* Add info  */
       { "Radio Enabled", "wps.radio_enabled", 
@@ -1684,13 +1684,13 @@ proto_register_wps(void)
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_list, 
       { "Registrar list", "wps.registrar_list", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_max, 
       { "Registrar max", "wps.registrar_max", 
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_nonce, 
       { "Registrar Nonce", "wps.registrar_nonce", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_request_type, 
       { "Request Type", "wps.request_type", 
@@ -1705,16 +1705,16 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_r_hash1, 
       { "Registrar Hash 1", "wps.r_hash1", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_r_hash2, 
       { "Registrar Hash 2", "wps.r_hash2", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_r_snonce1, 
       { "Registrar Snonce1", "wps.r_snonce1", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_r_snonce2, 
       { "Registrar Snonce 2", "wps.r_snonce2", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_selected_registrar, 
       { "Selected Registrar", "wps.selected_registrar", 
@@ -1722,7 +1722,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_serial_number, 
       { "Serial Number", "wps.serial_number", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_wifi_protected_setup_state, 
       { "Wifi Protected Setup State", "wps.wifi_protected_setup_state", 
@@ -1730,7 +1730,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_ssid, 
       { "SSID", "wps.ssid", 
-        FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_total_networks, 
       { "Total Networks", "wps.total_networks", 
@@ -1738,14 +1738,14 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_uuid_e, 
       { "UUID Enrollee", "wps.uuid_e", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_uuid_r, 
       { "UUID Registrar", "wps.uuid_r", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_vendor_extension, 
       { "Vendor Extension", "wps.vendor_extension", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_version, 
       { "Version", "wps.version", 
@@ -1753,14 +1753,14 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_x509_certificate_request, 
       { "X509 Certificate Request", "wps.x509_certificate_request", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_x509_certificate, 
       { "X509 Certificate", "wps.x509_certificate", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_eap_identity, 
       { "EAP Identity", "wps.eap_identity", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_message_counter, 
       { "Message Counter", "wps.message_counter", 
@@ -1768,11 +1768,11 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_public_key_hash, 
       { "Public Key Hash", "wps.public_key_hash", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_rekey_key, 
       { "Rekey Key", "wps.rekey_key", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_key_lifetime, 
       { "Key Lifetime", "wps.key_lifetime", 
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1787,20 +1787,20 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_primary_device_type, 
       { "Primary Device Type", "wps.primary_device_type", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_category, 
       { "Category", "wps.primary_device_type.category", 
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_oui, 
       { "OUI", "wps.primary_device_type.oui", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory, 
       { "Subcategory", "wps.primary_device_type.subcategory", 
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_secondary_device_type_list, 
       { "Secondary Device Type List", "wps.secondary_device_type_list", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_portable_device, /* Add info  */
       { "Portable Device", "wps.portable_device", 
@@ -1811,14 +1811,14 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_application_extension, 
       { "Application Extension", "wps.application_extension", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_eap_type, 
       { "EAP Type", "wps.eap_type", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_initialization_vector, 
       { "Initialization Vector", "wps.initialization_vector", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_key_provided_automatically, /* Add info  */
       { "Key Provided Automatically", "wps.key_provided_automatically", 
@@ -1829,7 +1829,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_appsessionkey, 
       { "AppSessionKey", "wps.appsessionkey", 
-        FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_weptransmitkey, 
       { "WEP Transmit Key", "wps.weptransmitkey", 
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},

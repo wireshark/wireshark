@@ -822,156 +822,156 @@ proto_register_sss(void)
 	static hf_register_info hf_sss[] = {
 		{ &hf_buffer_size,
 		{ "Buffer Size",		"sss.buffer", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Buffer Size", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ping_version,
 		{ "Ping Version",		"sss.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"Ping Version", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_flags,
 		{ "Flags",		"sss.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"Flags", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_context,
 		{ "Context",		"sss.context", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"Context", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frag_handle,
 		{ "Fragment Handle",		"sss.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"Fragment Handle", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_length,
 		{ "Length",		"sss.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Length", HFILL }},
+			NULL, HFILL }},
 
         { &hf_verb,
         { "Verb",    "sss.verb",
           FT_UINT32,    BASE_HEX,   VALS(sss_verb_enum),   0x0,
-          "Verb", HFILL }},
+          NULL, HFILL }},
 
         { &hf_user,
         { "User",    "sss.user",
           FT_STRING,    BASE_NONE,   NULL,   0x0,
-          "User", HFILL }},
+          NULL, HFILL }},
 
         { &hf_secret,
         { "Secret ID",    "sss.secret",
           FT_STRING,    BASE_NONE,   NULL,   0x0,
-          "Secret ID", HFILL }},
+          NULL, HFILL }},
 
 		{ &hf_sss_version,
 		{ "SecretStore Protocol Version",		"sss.version", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"SecretStore Protocol Version", HFILL }},
+			NULL, HFILL }},
 
         { &hf_return_code,
 		{ "Return Code",		"sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0,
-			"Return Code", HFILL }},
+			NULL, HFILL }},
 
         { &hf_enc_cred,
         { "Encrypted Credential",    "sss.enc_cred",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          "Encrypted Credential", HFILL }},
+          NULL, HFILL }},
 
         { &hf_enc_data,
         { "Encrypted Data",    "sss.enc_data",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          "Encrypted Data", HFILL }},
+          NULL, HFILL }},
 
         { &hfbit1,
-        { "Enhanced Protection", "ncp.sss_bit1", FT_BOOLEAN, 32, NULL, 0x00000001, "", HFILL }},
+        { "Enhanced Protection", "ncp.sss_bit1", FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
 
         { &hfbit2,
-        { "Create ID", "ncp.sss_bit2", FT_BOOLEAN, 32, NULL, 0x00000002, "", HFILL }},
+        { "Create ID", "ncp.sss_bit2", FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }},
 
         { &hfbit3,
-        { "Remove Lock", "ncp.sss_bit3", FT_BOOLEAN, 32, NULL, 0x00000004, "", HFILL }},
+        { "Remove Lock", "ncp.sss_bit3", FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }},
 
         { &hfbit4,
-        { "Repair", "ncp.sss_bit4", FT_BOOLEAN, 32, NULL, 0x00000008, "", HFILL }},
+        { "Repair", "ncp.sss_bit4", FT_BOOLEAN, 32, NULL, 0x00000008, NULL, HFILL }},
 
         { &hfbit5,
-        { "Unicode", "ncp.sss_bit5", FT_BOOLEAN, 32, NULL, 0x00000010, "", HFILL }},
+        { "Unicode", "ncp.sss_bit5", FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL }},
 
         { &hfbit6,
-        { "EP Master Password Used", "ncp.sss_bit6", FT_BOOLEAN, 32, NULL, 0x00000020, "", HFILL }},
+        { "EP Master Password Used", "ncp.sss_bit6", FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
 
         { &hfbit7,
-        { "EP Password Used", "ncp.sss_bit7", FT_BOOLEAN, 32, NULL, 0x00000040, "", HFILL }},
+        { "EP Password Used", "ncp.sss_bit7", FT_BOOLEAN, 32, NULL, 0x00000040, NULL, HFILL }},
 
         { &hfbit8,
-        { "Set Tree Name", "ncp.sss_bit8", FT_BOOLEAN, 32, NULL, 0x00000080, "", HFILL }},
+        { "Set Tree Name", "ncp.sss_bit8", FT_BOOLEAN, 32, NULL, 0x00000080, NULL, HFILL }},
 
         { &hfbit9,
-        { "Get Context", "ncp.sss_bit9", FT_BOOLEAN, 32, NULL, 0x00000100, "", HFILL }},
+        { "Get Context", "ncp.sss_bit9", FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL }},
 
         { &hfbit10,
-        { "Destroy Context", "ncp.sss_bit10", FT_BOOLEAN, 32, NULL, 0x00000200, "", HFILL }},
+        { "Destroy Context", "ncp.sss_bit10", FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL }},
 
         { &hfbit11,
-        { "Not Defined", "ncp.sss_bit11", FT_BOOLEAN, 32, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit11", FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL }},
 
         { &hfbit12,
-        { "Not Defined", "ncp.sss_bit12", FT_BOOLEAN, 32, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit12", FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL }},
 
         { &hfbit13,
-        { "Not Defined", "ncp.sss_bit13", FT_BOOLEAN, 32, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit13", FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL }},
 
         { &hfbit14,
-        { "Not Defined", "ncp.sss_bit14", FT_BOOLEAN, 32, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit14", FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL }},
 
         { &hfbit15,
-        { "Not Defined", "ncp.sss_bit15", FT_BOOLEAN, 32, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit15", FT_BOOLEAN, 32, NULL, 0x00004000, NULL, HFILL }},
 
         { &hfbit16,
-        { "Not Defined", "ncp.sss_bit16", FT_BOOLEAN, 32, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit16", FT_BOOLEAN, 32, NULL, 0x00008000, NULL, HFILL }},
 
         { &hfbit17,
-        { "EP Lock", "ncp.sss_bit17", FT_BOOLEAN, 32, NULL, 0x00010000, "", HFILL }},
+        { "EP Lock", "ncp.sss_bit17", FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL }},
 
         { &hfbit18,
-        { "Not Initialized", "ncp.sss_bit18", FT_BOOLEAN, 32, NULL, 0x00020000, "", HFILL }},
+        { "Not Initialized", "ncp.sss_bit18", FT_BOOLEAN, 32, NULL, 0x00020000, NULL, HFILL }},
 
         { &hfbit19,
-        { "Enhanced Protection", "ncp.sss_bit19", FT_BOOLEAN, 32, NULL, 0x00040000, "", HFILL }},
+        { "Enhanced Protection", "ncp.sss_bit19", FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL }},
 
         { &hfbit20,
-        { "Store Not Synced", "ncp.sss_bit20", FT_BOOLEAN, 32, NULL, 0x00080000, "", HFILL }},
+        { "Store Not Synced", "ncp.sss_bit20", FT_BOOLEAN, 32, NULL, 0x00080000, NULL, HFILL }},
 
         { &hfbit21,
-        { "Admin Last Modified", "ncp.sss_bit21", FT_BOOLEAN, 32, NULL, 0x00100000, "", HFILL }},
+        { "Admin Last Modified", "ncp.sss_bit21", FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }},
 
         { &hfbit22,
-        { "EP Password Present", "ncp.sss_bit22", FT_BOOLEAN, 32, NULL, 0x00200000, "", HFILL }},
+        { "EP Password Present", "ncp.sss_bit22", FT_BOOLEAN, 32, NULL, 0x00200000, NULL, HFILL }},
 
         { &hfbit23,
-        { "EP Master Password Present", "ncp.sss_bit23", FT_BOOLEAN, 32, NULL, 0x00400000, "", HFILL }},
+        { "EP Master Password Present", "ncp.sss_bit23", FT_BOOLEAN, 32, NULL, 0x00400000, NULL, HFILL }},
 
         { &hfbit24,
-        { "MP Disabled", "ncp.sss_bit24", FT_BOOLEAN, 32, NULL, 0x00800000, "", HFILL }},
+        { "MP Disabled", "ncp.sss_bit24", FT_BOOLEAN, 32, NULL, 0x00800000, NULL, HFILL }},
 
         { &hfbit25,
-        { "Not Defined", "ncp.sss_bit25", FT_BOOLEAN, 32, NULL, 0x01000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit25", FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }},
 
         { &hfbit26,
-        { "Not Defined", "ncp.sss_bit26", FT_BOOLEAN, 32, NULL, 0x02000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit26", FT_BOOLEAN, 32, NULL, 0x02000000, NULL, HFILL }},
 
         { &hfbit27,
-        { "Not Defined", "ncp.sss_bit27", FT_BOOLEAN, 32, NULL, 0x04000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit27", FT_BOOLEAN, 32, NULL, 0x04000000, NULL, HFILL }},
 
         { &hfbit28,
-        { "Not Defined", "ncp.sss_bit28", FT_BOOLEAN, 32, NULL, 0x08000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit28", FT_BOOLEAN, 32, NULL, 0x08000000, NULL, HFILL }},
 
         { &hfbit29,
-        { "Not Defined", "ncp.sss_bit29", FT_BOOLEAN, 32, NULL, 0x10000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit29", FT_BOOLEAN, 32, NULL, 0x10000000, NULL, HFILL }},
 
         { &hfbit30,
-        { "Not Defined", "ncp.sss_bit30", FT_BOOLEAN, 32, NULL, 0x20000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit30", FT_BOOLEAN, 32, NULL, 0x20000000, NULL, HFILL }},
 
         { &hfbit31,
-        { "Not Defined", "ncp.sss_bit31", FT_BOOLEAN, 32, NULL, 0x40000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit31", FT_BOOLEAN, 32, NULL, 0x40000000, NULL, HFILL }},
 
         { &hfbit32,
-        { "Not Defined", "ncp.sss_bit32", FT_BOOLEAN, 32, NULL, 0x80000000, "", HFILL }},
+        { "Not Defined", "ncp.sss_bit32", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }},
 
     };
 

@@ -9771,18 +9771,18 @@ proto_register_nfs(void)
 			NULL, 0, "file handle flag", HFILL }},
 		{ &hf_nfs_fh_endianness, {
 			"endianness", "nfs.fh.endianness", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_endianness), 0, "server native endianness", HFILL }},
+			TFS(&tfs_endianness), 0x0, "server native endianness", HFILL }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.stat", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
 		{ &hf_nfs_full_name, {
-			"Full Name", "nfs.full_name", FT_STRING, BASE_DEC,
+			"Full Name", "nfs.full_name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_name, {
-			"Name", "nfs.name", FT_STRING, BASE_DEC,
+			"Name", "nfs.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_readlink_data, {
-			"Data", "nfs.readlink.data", FT_STRING, BASE_DEC,
+			"Data", "nfs.readlink.data", FT_STRING, BASE_NONE,
 			NULL, 0, "Symbolic Link Data", HFILL }},
 		{ &hf_nfs_read_offset, {
 			"Offset", "nfs.read.offset", FT_UINT32, BASE_DEC,
@@ -9794,7 +9794,7 @@ proto_register_nfs(void)
 			"Total Count", "nfs.read.totalcount", FT_UINT32, BASE_DEC,
 			NULL, 0, "Total Count (obsolete)", HFILL }},
 		{ &hf_nfs_data, {
-			"Data", "nfs.data", FT_BYTES, BASE_DEC,
+			"Data", "nfs.data", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_write_beginoffset, {
 			"Begin Offset", "nfs.write.beginoffset", FT_UINT32, BASE_DEC,
@@ -9806,7 +9806,7 @@ proto_register_nfs(void)
 			"Total Count", "nfs.write.totalcount", FT_UINT32, BASE_DEC,
 			NULL, 0, "Total Count (obsolete)", HFILL }},
 		{ &hf_nfs_symlink_to, {
-			"To", "nfs.symlink.to", FT_STRING, BASE_DEC,
+			"To", "nfs.symlink.to", FT_STRING, BASE_NONE,
 			NULL, 0, "Symbolic link destination name", HFILL }},
 		{ &hf_nfs_readdir_cookie, {
 			"Cookie", "nfs.readdir.cookie", FT_UINT32, BASE_DEC,
@@ -9816,7 +9816,7 @@ proto_register_nfs(void)
 			NULL, 0, "Directory Count", HFILL }},
 
 		{ &hf_nfs_readdir_entry, {
-			"Entry", "nfs.readdir.entry", FT_NONE, 0,
+			"Entry", "nfs.readdir.entry", FT_NONE, BASE_NONE,
 			NULL, 0, "Directory Entry", HFILL }},
 
 		{ &hf_nfs_readdir_entry_fileid, {
@@ -9824,7 +9824,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdir_entry_name, {
-			"Name", "nfs.readdir.entry.name", FT_STRING, BASE_DEC,
+			"Name", "nfs.readdir.entry.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdir_entry_cookie, {
@@ -9836,7 +9836,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdir_entry3_name, {
-			"Name", "nfs.readdir.entry3.name", FT_STRING, BASE_DEC,
+			"Name", "nfs.readdir.entry3.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdir_entry3_cookie, {
@@ -9848,7 +9848,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_name, {
-			"Name", "nfs.readdirplus.entry.name", FT_STRING, BASE_DEC,
+			"Name", "nfs.readdirplus.entry.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_cookie, {
@@ -9882,7 +9882,7 @@ proto_register_nfs(void)
 			VALS(names_nfs_nfsstat3), 0, "Reply status", HFILL }},
 		{ &hf_nfs_read_eof, {
 			"EOF", "nfs.read.eof", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 		{ &hf_nfs_write_stable, {
 			"Stable", "nfs.write.stable", FT_UINT32, BASE_DEC,
 			VALS(names_stable_how), 0, NULL, HFILL }},
@@ -9930,16 +9930,16 @@ proto_register_nfs(void)
 			NULL, 0, "Maximum file name length", HFILL }},
 		{ &hf_nfs_pathconf_no_trunc, {
 			"no_trunc", "nfs.pathconf.no_trunc", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "No long file name truncation", HFILL }},
+			TFS(&tfs_yes_no), 0x0, "No long file name truncation", HFILL }},
 		{ &hf_nfs_pathconf_chown_restricted, {
 			"chown_restricted", "nfs.pathconf.chown_restricted", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "chown is restricted to root", HFILL }},
+			TFS(&tfs_yes_no), 0x0, "chown is restricted to root", HFILL }},
 		{ &hf_nfs_pathconf_case_insensitive, {
 			"case_insensitive", "nfs.pathconf.case_insensitive", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "file names are treated case insensitive", HFILL }},
+			TFS(&tfs_yes_no), 0x0, "file names are treated case insensitive", HFILL }},
 		{ &hf_nfs_pathconf_case_preserving, {
 			"case_preserving", "nfs.pathconf.case_preserving", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, "file name cases are preserved", HFILL }},
+			TFS(&tfs_yes_no), 0x0, "file name cases are preserved", HFILL }},
 
 		{ &hf_nfs_fattr_type, {
 			"type", "nfs.fattr.type", FT_UINT32, BASE_DEC,
@@ -10092,15 +10092,15 @@ proto_register_nfs(void)
 			VALS(names_nfsv4_operation), 0, NULL, HFILL }},
 
 		{ &hf_nfs_linktext4, {
-			"Name", "nfs.symlink.linktext", FT_STRING, BASE_DEC,
+			"Name", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
 			NULL, 0, "Symbolic link contents", HFILL }},
 
 		{ &hf_nfs_component4, {
-			"Filename", "nfs.pathname.component", FT_STRING, BASE_DEC,
+			"Filename", "nfs.pathname.component", FT_STRING, BASE_NONE,
 			NULL, 0, "Pathname component", HFILL }},
 
 		{ &hf_nfs_tag4, {
-			"Tag", "nfs.tag", FT_STRING, BASE_DEC,
+			"Tag", "nfs.tag", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_clientid4, {
@@ -10108,12 +10108,12 @@ proto_register_nfs(void)
 			NULL, 0, "Client ID", HFILL }},
 
 		{ &hf_nfs_ace4, {
-			"ace", "nfs.ace", FT_STRING, BASE_DEC,
+			"ace", "nfs.ace", FT_STRING, BASE_NONE,
 			NULL, 0, "Access Control Entry", HFILL }},
 
 		{ &hf_nfs_recall, {
 			"Recall", "nfs.recall", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_open_claim_type4, {
 			"Claim Type", "nfs.open.claim_type", FT_UINT32, BASE_DEC,
@@ -10141,7 +10141,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_change_info4_atomic, {
 			"Atomic", "nfs.change_info.atomic", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_open4_share_access, {
 			"share_access", "nfs.open4.share_access", FT_UINT32, BASE_DEC,
@@ -10172,83 +10172,83 @@ proto_register_nfs(void)
 			VALS(names_time_how4), 0, "How To Set Time", HFILL }},
 
 		{ &hf_nfs_attrlist4, {
-			"attr_vals", "nfs.fattr4.attr_vals", FT_BYTES, BASE_DEC,
+			"attr_vals", "nfs.fattr4.attr_vals", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_link_support, {
 			"fattr4_link_support", "nfs.fattr4_link_support", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_symlink_support, {
 			"fattr4_symlink_support", "nfs.fattr4_symlink_support", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_named_attr, {
 			"fattr4_named_attr", "nfs.fattr4_named_attr", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_unique_handles, {
 			"fattr4_unique_handles", "nfs.fattr4_unique_handles", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_archive, {
 			"fattr4_archive", "nfs.fattr4_archive", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_cansettime, {
 			"fattr4_cansettime", "nfs.fattr4_cansettime", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_case_insensitive, {
 			"fattr4_case_insensitive", "nfs.fattr4_case_insensitive", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_case_preserving, {
 			"fattr4_case_preserving", "nfs.fattr4_case_preserving", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_chown_restricted, {
 			"fattr4_chown_restricted", "nfs.fattr4_chown_restricted", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_hidden, {
 			"fattr4_hidden", "nfs.fattr4_hidden", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_homogeneous, {
 			"fattr4_homogeneous", "nfs.fattr4_homogeneous", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_mimetype, {
-			"fattr4_mimetype", "nfs.fattr4_mimetype", FT_STRING, BASE_DEC,
+			"fattr4_mimetype", "nfs.fattr4_mimetype", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_no_trunc, {
 			"fattr4_no_trunc", "nfs.fattr4_no_trunc", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_system, {
 			"fattr4_system", "nfs.fattr4_system", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_who, {
-			"who", "nfs.who", FT_STRING, BASE_DEC,
+			"who", "nfs.who", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_server, {
-			"server", "nfs.server", FT_STRING, BASE_DEC,
+			"server", "nfs.server", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fslocation4, {
-			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_DEC,
+			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_owner, {
-			"fattr4_owner", "nfs.fattr4_owner", FT_STRING, BASE_DEC,
+			"fattr4_owner", "nfs.fattr4_owner", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_owner_group, {
-			"fattr4_owner_group", "nfs.fattr4_owner_group", FT_STRING, BASE_DEC,
+			"fattr4_owner_group", "nfs.fattr4_owner_group", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_stable_how4, {
@@ -10257,7 +10257,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_dirlist4_eof, {
 			"eof", "nfs.dirlist4.eof", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_stateid4, {
 			"stateid", "nfs.stateid4", FT_UINT64, BASE_DEC,
@@ -10281,7 +10281,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_reclaim4, {
 			"reclaim", "nfs.reclaim4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_length4, {
 			"length", "nfs.length4", FT_UINT64, BASE_DEC,
@@ -10457,7 +10457,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_recall4, {
 			"recall", "nfs.recall4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_filesize, {
 			"filesize", "nfs.filesize", FT_UINT64, BASE_DEC,
@@ -10540,11 +10540,11 @@ proto_register_nfs(void)
 			NULL, 0, "Time Delta, Nano-seconds", HFILL }},
 
 		{ &hf_nfs_open_owner4, {
-			"owner", "nfs.open_owner4", FT_BYTES, BASE_DEC,
+			"owner", "nfs.open_owner4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_lock_owner4, {
-			"owner", "nfs.lock_owner4", FT_BYTES, BASE_DEC,
+			"owner", "nfs.lock_owner4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_createmode4, {
@@ -10557,18 +10557,18 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_attrdircreate, {
 			"attribute dir create", "nfs.openattr4.createdir", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_new_lock_owner, {
 			"new lock owner?", "nfs.lock.locker.new_lock_owner", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_lock4_reclaim, {
 			"reclaim?", "nfs.lock.reclaim", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_sec_oid4, {
-			"oid", "nfs.secinfo.flavor_info.rpcsec_gss_info.oid", FT_BYTES, BASE_DEC,
+			"oid", "nfs.secinfo.flavor_info.rpcsec_gss_info.oid", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_qop4, {
@@ -10576,11 +10576,11 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_client_id4_id, {
-			"id", "nfs.nfs_client_id4.id", FT_BYTES, BASE_DEC,
+			"id", "nfs.nfs_client_id4.id", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_stateid4_other, {
-			"Data", "nfs.stateid4.other", FT_BYTES, BASE_HEX,
+			"Data", "nfs.stateid4.other", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_acl4, {
@@ -10592,19 +10592,19 @@ proto_register_nfs(void)
 			NULL, 0, "Callback Identifier", HFILL }},
 
 		{ &hf_nfs_gsshandle4, {
-			"gsshandle4", "nfs.gsshandle4", FT_BYTES, BASE_DEC,
+			"gsshandle4", "nfs.gsshandle4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_r_netid, {
-			"r_netid", "nfs.r_netid", FT_STRING, BASE_DEC,
+			"r_netid", "nfs.r_netid", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_r_addr, {
-			"r_addr", "nfs.r_addr", FT_STRING, BASE_DEC,
+			"r_addr", "nfs.r_addr", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fh_fhandle_data, {
-			"filehandle", "nfs.fhandle", FT_BYTES, BASE_HEX,
+			"filehandle", "nfs.fhandle", FT_BYTES, BASE_NONE,
 			NULL, 0, "Opaque nfs filehandle", HFILL }},
 
 		{ &hf_nfs_secinfo_arr4, {
@@ -10644,19 +10644,19 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_gxfh3_ldsid, {
-			"  local dsid", "nfs.gxfh3.ldsid", FT_UINT32, BASE_HEX,
+			"local dsid", "nfs.gxfh3.ldsid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_gxfh3_cid, {
-			"  cluster id", "nfs.gxfh3.cid", FT_UINT16, BASE_HEX,
+			"cluster id", "nfs.gxfh3.cid", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_gxfh3_resv, {
-			"  reserved", "nfs.gxfh3.reserved", FT_UINT16, BASE_HEX,
+			"reserved", "nfs.gxfh3.reserved", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags, {
-			"  flags", "nfs.gxfh3.sfhflags", FT_UINT8, BASE_HEX,
+			"flags", "nfs.gxfh3.sfhflags", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags_resv1, {
@@ -10724,7 +10724,7 @@ proto_register_nfs(void)
 			VALS(layoutreturn_names), 0, NULL, HFILL }},
 
 		{ &hf_nfs_lrf_body_content, {
-			"lrf_body_content", "nfs.lrf_body_content", FT_BYTES, BASE_HEX,
+			"lrf_body_content", "nfs.lrf_body_content", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_iomode4, {
@@ -10749,39 +10749,39 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_pattern_offset, {
 			"layout pattern offset", "nfs.patternoffset", FT_UINT64, BASE_DEC,
-			NULL, 0, "layout pattern offset", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_notification_bitmap4, {
 			"notification bitmap", "nfs.notificationbitmap", FT_UINT32, BASE_DEC,
-			NULL, 0, "notification bitmap", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_newtime4, {
 			"new time?", "nfs.newtime", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_newoffset4, {
 			"new offset?", "nfs.newoffset", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_newsize4, {
 			"new size?", "nfs.newsize", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_layout_avail4, {
 			"layout available?", "nfs.layoutavail", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_mdscommit4, {
 			"MDS commit?", "nfs.mdscommit", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_layoutupdate4, {
-			"layout update", "nfs.layoutupdate", FT_BYTES, BASE_DEC,
+			"layout update", "nfs.layoutupdate", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_deviceid4, {
-			"device ID", "nfs.deviceid", FT_BYTES, BASE_HEX,
-			NULL, 0, "device ID", HFILL }},
+			"device ID", "nfs.deviceid", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_devicenum4, {
 			"num devices", "nfs.devicenum4", FT_UINT32, BASE_DEC,
@@ -10792,7 +10792,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_layout4, {
-			"layout", "nfs.layout", FT_BYTES, BASE_DEC,
+			"layout", "nfs.layout", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_layout_count, {
@@ -10805,12 +10805,12 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_devaddr4, {
-			"device addr", "nfs.devaddr", FT_BYTES, BASE_DEC,
+			"device addr", "nfs.devaddr", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_return_on_close4, {
 			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_nfl_util, {
 			"nfl_util", "nfs.nfl_util", FT_UINT32, BASE_HEX,
@@ -10829,7 +10829,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_serverscope4, {
-			"server scope", "nfs.scope", FT_BYTES, BASE_DEC,
+			"server scope", "nfs.scope", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_minorid4, {
@@ -10837,7 +10837,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_majorid4, {
-			"major ID", "nfs.majorid4", FT_BYTES, BASE_DEC,
+			"major ID", "nfs.majorid4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_padsize4, {
@@ -10846,7 +10846,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_cbrenforce4, {
 			"binding enforce?", "nfs.cbrenforce4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_hashalg4, {
 			"hash alg", "nfs.hashalg4", FT_UINT32, BASE_DEC,
@@ -10881,7 +10881,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_machinename4, {
-			"machine name", "nfs.machinename4", FT_STRING, BASE_DEC,
+			"machine name", "nfs.machinename4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_flavor4, {
@@ -10905,7 +10905,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_sessionid4, {
-			"sessionid", "nfs.session_id4", FT_BYTES, BASE_HEX,
+			"sessionid", "nfs.session_id4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_exch_id_flags4, {
 			"EXCHANGE_ID flags", "nfs.exch_id_flags", FT_UINT32, BASE_HEX,
@@ -10929,21 +10929,21 @@ proto_register_nfs(void)
 			"State Protect num gss handles", "nfs.state_protect_num_gss_handles", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_nii_domain4, {
-			"Implementer Domain name", "nfs.nii_domain4", FT_STRING, BASE_DEC,
+			"Implementer Domain name", "nfs.nii_domain4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_nii_name4, {
-			"Implementation name", "nfs.nii_name4", FT_STRING, BASE_DEC,
+			"Implementation name", "nfs.nii_name4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_create_session_flags4, {
 			"CREATE_SESSION flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_cachethis4, {
 			"Cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs_lrs_present, {
 			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {

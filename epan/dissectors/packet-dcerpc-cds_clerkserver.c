@@ -92,7 +92,7 @@ proto_register_cds_clerkserver (void)
 	static hf_register_info hf[] = {
 	  { &hf_cds_clerkserver_opnum,
 	    { "Operation", "cds_clerkserver.opnum", FT_UINT16, BASE_DEC,
-	      NULL, 0x0, "Operation", HFILL }}
+	      NULL, 0x0, NULL, HFILL }}
 	};
 
 	static gint *ett[] = {

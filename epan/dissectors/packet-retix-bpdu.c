@@ -101,23 +101,23 @@ proto_register_retix_bpdu(void)
   static hf_register_info hf[] = {
     { &hf_retix_bpdu_root_mac,
     { "Root MAC",  "rstp.root.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
-    "", HFILL}},
+    NULL, HFILL}},
 
     { &hf_retix_bpdu_bridge_mac,
     { "Bridge MAC", "rstp.bridge.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
-    "", HFILL}},
+    NULL, HFILL}},
 
     { &hf_retix_bpdu_max_age,
     { "Max Age", "rstp.maxage", FT_UINT16, BASE_DEC, NULL, 0x0,
-    "", HFILL}},
+    NULL, HFILL}},
 
     { &hf_retix_bpdu_hello_time,
     { "Hello Time", "rstp.hello", FT_UINT16, BASE_DEC, NULL, 0x0,
-    "", HFILL}},
+    NULL, HFILL}},
 
     { &hf_retix_bpdu_forward_delay,
     { "Forward Delay", "rstp.forward", FT_UINT16, BASE_DEC, NULL, 0x0,
-    "", HFILL}},
+    NULL, HFILL}},
   };
 
   static gint *ett[] ={

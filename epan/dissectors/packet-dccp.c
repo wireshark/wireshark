@@ -1010,118 +1010,118 @@ void proto_register_dccp(void)
 	static hf_register_info hf[] = {
 		{ &hf_dccp_srcport,
 		{ "Source Port",	"dccp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_dstport,
 		{ "Destination Port",	"dccp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
                 { &hf_dccp_port,
 		{ "Source or Destination Port", "dccp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_data_offset,
 		{ "Data Offset",        "dccp.data_offset", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_ccval,
 		{ "CCVal",	        "dccp.ccval", FT_UINT8, BASE_DEC,  NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_cscov,
 		{ "Checksum Coverage",	"dccp.cscov", FT_UINT8, BASE_DEC,  NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_checksum_bad,
 		{ "Bad Checksum",	"dccp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_checksum,
 		{ "Checksum",		"dccp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_res1,
 		{ "Reserved",		"dccp.res1", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_res2,
 		{ "Reserved",		"dccp.res2", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_type,
 		{ "Type",	        "dccp.type", FT_UINT8, BASE_DEC, VALS(dccp_packet_type_vals), 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_x,
 		{ "Extended Sequence Numbers", "dccp.x", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_seq,
 		{ "Sequence Number",    "dccp.seq", FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_ack_res,
 		{ "Reserved",		"dccp.ack_res", FT_UINT16, BASE_HEX, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_ack,
 		{ "Acknowledgement Number", "dccp.ack", FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_service_code,
 		{ "Service Code", "dccp.service_code", FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_reset_code,
 		{ "Reset Code", "dccp.reset_code", FT_UINT8, BASE_DEC, VALS(dccp_reset_code_vals), 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_data1,
 		{ "Data 1",     "dccp.data1", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_data2,
 		{ "Data 2",     "dccp.data2", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_data3,
 		{ "Data 3",     "dccp.data3", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_option_type,
 		{ "Option Type",     "dccp.option_type", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_feature_number,
 		{ "Feature Number",   "dccp.feature_number", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_ndp_count,
 		{ "NDP Count",   "dccp.ndp_count", FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_timestamp,
 		{ "Timestamp",   "dccp.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_timestamp_echo,
 		{ "Timestamp Echo",   "dccp.timestamp_echo", FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_elapsed_time,
 		{ "Elapsed Time",   "dccp.elapsed_time", FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_data_checksum,
 		{ "Data Checksum",  "dccp.checksum_data", FT_UINT32, BASE_HEX, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_malformed,
 		{ "Malformed", "dccp.malformed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{ &hf_dccp_options,
-		{ "Options", "dccp.options", FT_NONE, BASE_DEC, NULL, 0x0,
+		{ "Options", "dccp.options", FT_NONE, BASE_NONE, NULL, 0x0,
 		  "DCCP Options fields", HFILL }}
 
 	};

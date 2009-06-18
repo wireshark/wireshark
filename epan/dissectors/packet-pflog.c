@@ -360,7 +360,7 @@ proto_register_old_pflog(void)
         "Protocol (IPv4 vs IPv6)", HFILL }},
     { &hf_old_pflog_ifname,
       { "Interface", "pflog.ifname", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Interface", HFILL }},
+        NULL, HFILL }},
     { &hf_old_pflog_rnr,
       { "Rule Number", "pflog.rnr", FT_INT16, BASE_DEC, NULL, 0x0,
         "Last matched firewall rule number", HFILL }},

@@ -1143,7 +1143,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				VALS(ses_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1155,7 +1155,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				VALS(ses_category0_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1167,7 +1167,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -1180,7 +1180,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1192,7 +1192,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1203,7 +1203,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Called SS User Reference",
+				NULL,
 				HFILL
 			}
 		},
@@ -1215,7 +1215,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Calling SS User Reference",
+				NULL,
 				HFILL
 			}
 		},
@@ -1227,7 +1227,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Common Reference",
+				NULL,
 				HFILL
 			}
 		},
@@ -1239,7 +1239,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Additional Reference Information",
+				NULL,
 				HFILL
 			}
 		},
@@ -1251,7 +1251,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				RELEASE_TOKEN,
-				"release token",
+				NULL,
 				HFILL
 			}
 		},
@@ -1263,7 +1263,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				MAJOR_ACTIVITY_TOKEN,
-				"major/activity token",
+				NULL,
 				HFILL
 			}
 		},
@@ -1275,7 +1275,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				SYNCHRONIZE_MINOR_TOKEN,
-				"synchronize minor token",
+				NULL,
 				HFILL
 			}
 		},
@@ -1299,7 +1299,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				SES_EXT_CONT,
-				"Able to receive extended concatenated SPDU",
+				NULL,
 				HFILL
 			}
 		},
@@ -1312,7 +1312,7 @@ proto_register_ses(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"",
+				NULL,
 				HFILL
 			}
 		},
@@ -1324,7 +1324,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				SES_EXCEPTION_REPORT,
-				"Session exception report",
+				NULL,
 				HFILL
 			}
 		},
@@ -1336,7 +1336,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				DATA_SEPARATION_FUNCTION_UNIT,
-				"Data separation function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1348,7 +1348,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				SYMMETRIC_SYNCHRONIZE_FUNCTION_UNIT,
-				"Symmetric synchronize function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1360,7 +1360,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				TYPED_DATA_FUNCTION_UNIT,
-				"Typed data function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1372,7 +1372,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				EXCEPTION_FUNCTION_UNIT,
-				"Exception function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1384,7 +1384,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				CAPABILITY_DATA_FUNCTION_UNIT,
-				"Capability function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1396,7 +1396,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				NEGOTIATED_RELEASE_FUNCTION_UNIT,
-				"Negotiated release function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1408,7 +1408,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				ACTIVITY_MANAGEMENT_FUNCTION_UNIT,
-				"Activity management function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1420,7 +1420,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				RESYNCHRONIZE_FUNCTION_UNIT,
-				"Resynchronize function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1432,7 +1432,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				MAJOR_SYNCHRONIZE_FUNCTION_UNIT,
-				"Major resynchronize function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1444,7 +1444,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				MINOR_SYNCHRONIZE_FUNCTION_UNIT,
-				"Minor resynchronize function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1456,7 +1456,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				EXPEDITED_DATA_FUNCTION_UNIT,
-				"Expedited data function unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1468,7 +1468,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				DUPLEX_FUNCTION_UNIT,
-				"Duplex functional unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1480,7 +1480,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 16,
 				NULL,
 				HALF_DUPLEX_FUNCTION_UNIT,
-				"Half-duplex functional unit",
+				NULL,
 				HFILL
 			}
 		},
@@ -1493,7 +1493,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Proposed TSDU Maximum Size, Initiator to Responder",
+				NULL,
 				HFILL
 			}
 		},
@@ -1506,7 +1506,7 @@ proto_register_ses(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Proposed TSDU Maximum Size, Responder to Initiator",
+				NULL,
 				HFILL
 			}
 		},
@@ -1518,7 +1518,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				PROTOCOL_VERSION_1,
-				"Protocol Version 1",
+				NULL,
 				HFILL
 			}
 		},
@@ -1530,7 +1530,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				PROTOCOL_VERSION_2,
-				"Protocol Version 2",
+				NULL,
 				HFILL
 			}
 		},
@@ -1542,7 +1542,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Initial Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1554,7 +1554,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				BEGINNING_SPDU,
-				"beginning of SSDU",
+				NULL,
 				HFILL
 			}
 		},
@@ -1566,7 +1566,7 @@ proto_register_ses(void)
 				FT_BOOLEAN, 8,
 				NULL,
 				END_SPDU,
-				"end of SSDU",
+				NULL,
 				HFILL
 			}
 		},
@@ -1578,7 +1578,7 @@ proto_register_ses(void)
 				FT_UINT8, BASE_HEX,
 				VALS(token_setting_vals),
 				0xC0,
-				"release token setting",
+				NULL,
 				HFILL
 			}
 		},
@@ -1602,7 +1602,7 @@ proto_register_ses(void)
 				FT_UINT8, BASE_HEX,
 				VALS(token_setting_vals),
 				0x0C,
-				"synchronize-minor token setting",
+				NULL,
 				HFILL
 			}
 		},
@@ -1614,7 +1614,7 @@ proto_register_ses(void)
 				FT_UINT8, BASE_HEX,
 				VALS(token_setting_vals),
 				0x03,
-				"data token setting",
+				NULL,
 				HFILL
 			}
 		},
@@ -1626,7 +1626,7 @@ proto_register_ses(void)
 				FT_UINT32, BASE_DEC,
 				NULL,
 				0x0,
-				"Activity Identifier",
+				NULL,
 				HFILL
 			}
 		},
@@ -1638,7 +1638,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1650,7 +1650,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Calling Session Selector",
+				NULL,
 				HFILL
 			}
 		},
@@ -1662,7 +1662,7 @@ proto_register_ses(void)
 				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
-				"Called Session Selector",
+				NULL,
 				HFILL
 			}
 		},
@@ -1674,7 +1674,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Second Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1686,7 +1686,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Second Initial Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1698,7 +1698,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Large Initial Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1710,7 +1710,7 @@ proto_register_ses(void)
 				FT_STRING, BASE_NONE,
 				NULL,
 				0x0,
-				"Large Second Initial Serial Number",
+				NULL,
 				HFILL
 			}
 		},
@@ -1723,7 +1723,7 @@ proto_register_ses(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"",
+				NULL,
 				HFILL
 			}
 		},
@@ -1737,7 +1737,7 @@ proto_register_ses(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"",
+				NULL,
 				HFILL
 			}
 		},
@@ -1752,7 +1752,7 @@ proto_register_ses(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"",
+				NULL,
 				HFILL
 			}
 		},
@@ -1767,7 +1767,7 @@ proto_register_ses(void)
 				BASE_HEX,
 				NULL,
 				0x0,
-				"",
+				NULL,
 				HFILL
 			}
 		},

@@ -1533,7 +1533,7 @@ proto_register_mikey(void)
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_TS_NTP],
 		  { "NTP timestamp", "mikey.t.ntp",
-		    FT_STRING, BASE_HEX, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_mikey[POS_PAYLOAD_STR],

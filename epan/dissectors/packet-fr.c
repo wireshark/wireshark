@@ -855,49 +855,49 @@ void proto_register_fr(void)
           NULL, 0x0, "Control field", HFILL }},
 	{ &hf_fr_n_r, {
 	  "N(R)", "fr.control.n_r", FT_UINT16, BASE_DEC,
-	  NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+	  NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
 	{ &hf_fr_n_s, {
 	  "N(S)", "fr.control.n_s", FT_UINT16, BASE_DEC,
-	  NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+	  NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 	{ &hf_fr_p, {
 	  "Poll", "fr.control.p", FT_BOOLEAN, 8,
-	  TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	  TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 	{ &hf_fr_p_ext, {
 	  "Poll", "fr.control.p", FT_BOOLEAN, 16,
-	  TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	  TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 	{ &hf_fr_f, {
 	  "Final", "fr.control.f", FT_BOOLEAN, 8,
-	  TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	  TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 	{ &hf_fr_f_ext, {
 	  "Final", "fr.control.f", FT_BOOLEAN, 16,
-	  TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	  TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 	{ &hf_fr_s_ftype, {
 	  "Supervisory frame type", "fr.control.s_ftype", FT_UINT16, BASE_HEX,
-	  VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+	  VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 	{ &hf_fr_u_modifier_cmd, {
 	  "Command", "fr.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-	  VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	  VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 	{ &hf_fr_u_modifier_resp, {
 	  "Response", "fr.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-	    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 	{ &hf_fr_ftype_i, {
 	  "Frame type", "fr.control.ftype", FT_UINT16, BASE_HEX,
-	  VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+	  VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 	{ &hf_fr_ftype_s_u, {
 	  "Frame type", "fr.control.ftype", FT_UINT8, BASE_HEX,
-	  VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+	  VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 	{ &hf_fr_ftype_s_u_ext, {
 	  "Frame type", "fr.control.ftype", FT_UINT16, BASE_HEX,
-	  VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+	  VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
         { &hf_fr_nlpid, {
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX,
             VALS(fr_nlpid_vals), 0x0, "Frame Relay Encapsulated Protocol NLPID", HFILL }},
 	{ &hf_fr_oui, {
 	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX,
-	   VALS(oui_vals), 0x0, "", HFILL }},
+	   VALS(oui_vals), 0x0, NULL, HFILL }},
 	{ &hf_fr_pid, {
 	   "Protocol ID", "fr.snap.pid", FT_UINT16, BASE_HEX,
-	   NULL, 0x0, "", HFILL }},
+	   NULL, 0x0, NULL, HFILL }},
         { &hf_fr_snaptype, {
            "Type", "fr.snaptype", FT_UINT16, BASE_HEX,
             VALS(etype_vals), 0x0, "Frame Relay SNAP Encapsulated Protocol", HFILL }},

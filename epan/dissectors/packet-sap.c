@@ -300,7 +300,7 @@ void proto_register_sap(void)
     { &hf_sap_flags_r,
       { "Reserved",               "sap.flags.r",
 	FT_BOOLEAN, 8, TFS(&flags_set_truth), MCAST_SAP_BIT_R,
-      	"Reserved", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_sap_flags_t,
       { "Message Type",           "sap.flags.t",

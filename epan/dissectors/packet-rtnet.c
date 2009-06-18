@@ -1216,13 +1216,13 @@ proto_register_rtcfg(void) {
     { &hf_rtcfg_client_ip_address,
       { "Client IP Address",
         "rtcfg.client_ip_address",
-        FT_IPv4, BASE_DEC, NULL, 0x0,
+        FT_IPv4, BASE_NONE, NULL, 0x0,
         "RTcfg Client IP Address", HFILL }},
 
     { &hf_rtcfg_server_ip_address,
       { "Server IP Address",
         "rtcfg.server_ip_address",
-        FT_IPv4, BASE_DEC, NULL, 0x0,
+        FT_IPv4, BASE_NONE, NULL, 0x0,
         "RTcfg Server IP Address", HFILL }},
 
     { &hf_rtcfg_burst_rate,
@@ -1240,7 +1240,7 @@ proto_register_rtcfg(void) {
     { &hf_rtcfg_config_data,
       { "Config Data",
         "rtcfg.config_data",
-        FT_BYTES, BASE_DEC, NULL, 0x00,
+        FT_BYTES, BASE_NONE, NULL, 0x00,
         "RTcfg Config Data", HFILL }},
 
     { &hf_rtcfg_padding,
@@ -1265,13 +1265,13 @@ proto_register_rtcfg(void) {
       { "Client Ready",
         "rtcfg.client_flags.ready",
         FT_UINT8, BASE_DEC, NULL, 0x02,
-        "Client Ready", HFILL }},
+        NULL, HFILL }},
 
     { &hf_rtcfg_client_flags_res,
       { "Reserved",
         "rtcfg.client_flags.res",
         FT_UINT8, BASE_HEX, NULL, 0xfc,
-        "Reserved", HFILL }},
+        NULL, HFILL }},
 
     { &hf_rtcfg_server_flags,
       { "Flags",
@@ -1283,19 +1283,19 @@ proto_register_rtcfg(void) {
       { "Reserved",
         "rtcfg.server_flags.res0",
         FT_UINT8, BASE_HEX, NULL, 0x01,
-        "Reserved", HFILL }},
+        NULL, HFILL }},
 
     { &hf_rtcfg_server_flags_ready,
       { "Server Ready",
         "rtcfg.server_flags.ready",
         FT_UINT8, BASE_DEC, NULL, 0x02,
-        "Server Ready", HFILL }},
+        NULL, HFILL }},
 
     { &hf_rtcfg_server_flags_res2,
       { "Reserved",
         "rtcfg.server_flags.res2",
         FT_UINT8, BASE_HEX, NULL, 0xfc,
-        "Reserved", HFILL }},
+        NULL, HFILL }},
 
     { &hf_rtcfg_active_stations,
       { "Active Stations",

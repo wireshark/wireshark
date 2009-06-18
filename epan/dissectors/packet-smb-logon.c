@@ -1129,15 +1129,15 @@ proto_register_smb_logon( void)
 
 		{ &hf_unknown8,
 			{ "Unknown", "smb_netlogon.unknown", FT_UINT8, BASE_HEX,
-			  NULL, 0, "Unknown", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_unknown32,
 			{ "Unknown", "smb_netlogon.unknown", FT_UINT32, BASE_HEX,
-			  NULL, 0, "Unknown", HFILL }},
+			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_domain_guid,
-			{ "Domain GUID", "smb_netlogon.domain.guid", FT_BYTES, BASE_HEX,
-			   NULL, 0x0, "Domain GUID", HFILL }},
+			{ "Domain GUID", "smb_netlogon.domain.guid", FT_BYTES, BASE_NONE,
+			   NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_server_ip, {
 			"Server IP", "smb_netlogon.server_ip", FT_IPv4, BASE_NONE,

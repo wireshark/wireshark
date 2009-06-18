@@ -179,16 +179,16 @@ proto_register_oicq(void)
 			NULL, 0, "Version-zz", HFILL }},
 		{ &hf_oicq_command, {
 			"Command", "oicq.command", FT_UINT16, BASE_DEC,
-			VALS(oicq_command_vals), 0, "Command", HFILL }},
+			VALS(oicq_command_vals), 0, NULL, HFILL }},
 		{ &hf_oicq_seq, {
 			"Sequence", "oicq.seq", FT_UINT16, BASE_DEC,
-			NULL, 0, "Sequence", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_oicq_qqid, {
 			"Data(OICQ Number,if sender is client)", "oicq.qqid", FT_UINT32, BASE_DEC,
-			NULL, 0, "", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_oicq_data, {
-			"Data", "oicq.data", FT_STRING, 0,
-			NULL, 0, "Data", HFILL }},
+			"Data", "oicq.data", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_oicq,

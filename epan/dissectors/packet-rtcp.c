@@ -2794,7 +2794,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_version_vals),
 				0xC0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2806,7 +2806,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x20,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2818,7 +2818,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x1F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2830,7 +2830,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x1F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2842,7 +2842,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS( rtcp_packet_type_vals ),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2866,7 +2866,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2878,7 +2878,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2890,7 +2890,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2902,7 +2902,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2914,7 +2914,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2926,7 +2926,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2938,7 +2938,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2950,7 +2950,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2962,7 +2962,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2974,7 +2974,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2986,7 +2986,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2998,7 +2998,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3010,7 +3010,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3022,7 +3022,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3034,7 +3034,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3046,7 +3046,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3058,7 +3058,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3070,7 +3070,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS( rtcp_sdes_type_vals ),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3082,7 +3082,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3094,7 +3094,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3106,7 +3106,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3118,7 +3118,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3130,7 +3130,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3142,7 +3142,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3154,7 +3154,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3166,7 +3166,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3178,7 +3178,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_floor_cnt_type_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3190,7 +3190,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3202,7 +3202,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3214,7 +3214,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_qsresp_priority_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3226,7 +3226,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3238,7 +3238,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3250,7 +3250,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3262,7 +3262,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3274,7 +3274,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3286,7 +3286,7 @@ proto_register_rtcp(void)
 				BASE_HEX,
 				NULL,
 				0x8000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3298,7 +3298,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code1_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3310,7 +3310,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3322,7 +3322,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code2_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3346,7 +3346,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_floor_cnt_type_vals),
 				0xf8,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3358,7 +3358,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code_ack_vals),
 				0x07ff,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3370,7 +3370,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_qsresp_priority_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3382,7 +3382,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3394,7 +3394,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x8000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3406,7 +3406,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x4000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3418,7 +3418,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x2000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3430,7 +3430,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x1000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3442,7 +3442,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x0800,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3454,7 +3454,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_conn_sess_type_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3466,7 +3466,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3478,7 +3478,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3490,7 +3490,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3502,7 +3502,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3514,7 +3514,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3526,7 +3526,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3538,7 +3538,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3550,7 +3550,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3562,7 +3562,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3574,7 +3574,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3586,7 +3586,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Profile-specific extension", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3718,7 +3718,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3730,7 +3730,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3742,7 +3742,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3754,7 +3754,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3766,7 +3766,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3778,7 +3778,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3814,7 +3814,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3826,7 +3826,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3886,7 +3886,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_plc_algo_vals),
 				0xC0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3898,7 +3898,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_jb_adaptive_vals),
 				0x30,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3910,7 +3910,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3922,7 +3922,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3934,7 +3934,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3946,7 +3946,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3958,7 +3958,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
                                 NULL,
 				0x0F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3970,7 +3970,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3982,7 +3982,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x40,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3994,7 +3994,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x20,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4006,7 +4006,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_ip_ttl_vals),
 				0x18,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4018,7 +4018,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4030,7 +4030,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4042,7 +4042,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4054,7 +4054,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4066,7 +4066,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4078,7 +4078,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4090,7 +4090,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4102,7 +4102,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4114,7 +4114,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4126,7 +4126,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4138,7 +4138,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4150,7 +4150,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4162,7 +4162,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4174,7 +4174,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4186,7 +4186,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"RTCP frame length check", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4210,7 +4210,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_rtpfb_fmt_vals),
 				0x1f,
-				"RTCP Feedback message type (FMT)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4222,7 +4222,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_psfb_fmt_vals),
 				0x1f,
-				"RTCP Feedback message type (FMT)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4234,7 +4234,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"RTCP Transport Feedback NACK", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4246,7 +4246,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"RTCP Transport Feedback NACK BLP", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4258,7 +4258,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Feedback Control Information (FCI)", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -4283,7 +4283,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x7fffffff,
-				"SRTCP Index", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4320,7 +4320,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4332,7 +4332,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4344,7 +4344,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4356,7 +4356,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4368,7 +4368,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4380,7 +4380,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4392,7 +4392,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4401,10 +4401,10 @@ proto_register_rtcp(void)
 				"Spare/reserved bits",
 				"rtcp.xr.btxnq.spare",
 				FT_STRING,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4416,7 +4416,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4428,7 +4428,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4440,7 +4440,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4452,7 +4452,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 	};

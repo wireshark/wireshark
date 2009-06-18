@@ -1600,15 +1600,15 @@ void proto_register_zbee_aps(void)
                 "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_challenge,
-            { "Challenge",              "zbee.aps.cmd.challenge", FT_BYTES, BASE_HEX, NULL, 0x0,
+            { "Challenge",              "zbee.aps.cmd.challenge", FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Random challenge value used during SKKE and authentication.", HFILL }},
 
             { &hf_zbee_aps_cmd_mac,
-            { "Message Authentication Code",    "zbee.aps.cmd.mac", FT_BYTES, BASE_HEX, NULL, 0x0,
+            { "Message Authentication Code",    "zbee.aps.cmd.mac", FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Message authentication values used during SKKE and authentication.", HFILL }},
 
             { &hf_zbee_aps_cmd_key,
-            { "Key",                    "zbee.aps.cmd.key", FT_BYTES, BASE_HEX, NULL, 0x0,
+            { "Key",                    "zbee.aps.cmd.key", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_key_type,
@@ -1640,7 +1640,7 @@ void proto_register_zbee_aps(void)
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_ea_data,
-            { "Data",                   "zbee.aps.cmd.ea.data", FT_BYTES, BASE_HEX, NULL, 0x0,
+            { "Data",                   "zbee.aps.cmd.ea.data", FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Additional data used in entity authentication. Typically this will be the outgoing frame counter associated with the key used for entity authentication.", HFILL }},
 
             { &hf_zbee_aps_fragments,

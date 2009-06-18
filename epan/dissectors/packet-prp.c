@@ -274,66 +274,66 @@ void proto_register_prp(void)
         { &hf_prp_supervision_frame_version,
             { "version", "prp.supervision_frame.version",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_type,
             { "type", "prp.supervision_frame.type",
             FT_UINT8, BASE_DEC, VALS(prp_type_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_length,
             { "length", "prp.supervision_frame.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_source_mac_address_A,
             { "sourceMacAddressA", "prp.supervision_frame.prp_source_mac_address_A",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_source_mac_address_B,
             { "sourceMacAddressB", "prp.supervision_frame.prp_source_mac_address_B",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 	{ &hf_prp_supervision_frame_type2,
             { "type2", "prp.supervision_frame.type2",
             FT_UINT8, BASE_DEC, VALS(prp_type_vals), 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_length2,
             { "length2", "prp.supervision_frame.length2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_red_box_mac_address,
             { "redBoxMacAddress", "prp.supervision_frame.prp_red_box_mac_address",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_prp_supervision_frame_vdan_mac_address,
             { "vdanMacAddress", "prp.supervision_frame.prp_vdan_mac_address",
             FT_ETHER, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         /*trailer*/
         { &hf_prp_redundancy_control_trailer_sequence_nr,
             { "sequenceNr", "prp.trailer.prp_sequence_nr",
             FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_prp_redundancy_control_trailer_lan,
             { "lan", "prp.trailer.prp_lan",
             FT_UINT16, BASE_DEC, VALS(prp_lan_vals), 0xf000,
-            "", HFILL }
+            NULL, HFILL }
         },
 
         { &hf_prp_redundancy_control_trailer_size,
             { "size", "prp.trailer.prp_size",
             FT_UINT16, BASE_DEC, NULL, 0x0fff,
-            "", HFILL }
+            NULL, HFILL }
         }
     };
 

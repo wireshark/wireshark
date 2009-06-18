@@ -683,7 +683,7 @@ proto_register_njack(void)
 
 	/* NJACK header */
 		{ &hf_njack_magic,
-		{ "Magic",	"njack.magic", FT_STRING, BASE_DEC, NULL,
+		{ "Magic",	"njack.magic", FT_STRING, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
 		{ &hf_njack_type,
@@ -725,7 +725,7 @@ proto_register_njack(void)
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_typestring,
-                { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_DEC, NULL,
+                { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_NONE, NULL,
                         0x0, NULL, HFILL }},
 
 		/* 1st tab */

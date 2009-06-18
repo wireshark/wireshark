@@ -977,12 +977,12 @@ proto_register_gsm_bssmap_le(void)
 		{ &hf_gsm_bssmap_le_msg_type,
 		  { "BSSMAP LE Message Type",	"bssmap_le.msgtype",
 		    FT_UINT8, BASE_HEX, VALS(gsm_bssmap_le_msg_strings), 0x0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_elem_id,
 		  { "Element ID",	"bssmap_le.elem_id",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_apdu_protocol_id,
 		  { "Protocol ID", "bssmap_le.apdu_protocol_id",
@@ -992,77 +992,77 @@ proto_register_gsm_bssmap_le(void)
 		{ &hf_gsm_bssmap_le_spare,
 		  { "Spare", "gsm_bssmap_le.spare", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "Spare", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_ciphering_key_flag,
 		  { "Ciphering Key Flag", "gsm_bssmap_le.decipheringKeys.flag", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, 
-		    "Ciphering Key Flag", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_current_deciphering_key_value,
 		  { "Current Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.current", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "Current Deciphering Key Value", 
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, 
 		    HFILL}
 		},
 		{ &hf_gsm_bssmap_le_next_deciphering_key_value,
 		  { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, 
-		    "Next Deciphering Key Value", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_lcs_cause_value,
 		  { "Cause Value", "gsm_bssmap_le.lcsCauseValue", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_lcs_cause_values), 0x0,
-		    "Cause Value", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_diagnostic_value,
 		  { "Diagnostic Value", "gsm_bssmap_le.diagnosticValue", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_position_method_failure_diagnostic_vals), 0x0,
-		    "Diagnostic Value", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_client_category,
 		  { "Client Category", "gsm_bssmap_le.lcsClientType.clientCategory", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_client_category), 0x0,
-		    "Client Category", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_client_subtype,
 		  { "Client Subtype", "gsm_bssmap_le.lcsClientType.clientSubtype", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_client_subtype), 0x0,
-		    "Client Subtype", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_velocity_requested,
 		  { "Velocity Requested", "gsm_bssmap_le.lcsQos.velocityRequested", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_velocity_requested_vals), 0x0,
-		    "Velocity Requested", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_coordinate_indicator,
 		  { "Vertical Coordinate Indicator", "gsm_bssmap_le.lcsQos.verticalCoordinateIndicator", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_coordinate_indicator_vals), 0x0,
-		    "Vertical Coordinate Indicator", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_horizontal_accuracy_indicator,
 		  { "Horizontal Accuracy Indicator", "gsm_bssmap_le.lcsQos.horizontalAccuracyIndicator", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_horizontal_accuracy_indicator_vals), 0x0,
-		    "Horizontal Accuracy Indicator", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_horizontal_accuracy,
 		  { "Horizontal Accuracy", "gsm_bssmap_le.lcsQos.horizontalAccuracy", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "Horizontal Accuracy", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_accuracy,
 		  { "Vertical Accuracy", "gsm_bssmap_le.lcsQos.verticalAccuracy", 
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "Vertical Accuracy", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_accuracy_indicator,
 		  { "Vertical Accuracy Indicator", "gsm_bssmap_le.lcsQos.verticalAccuracyIndicator", 
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_accuracy_indicator_vals), 0x0,
-		    "Vertical Accuracy Indicator", HFILL}
+		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_response_time_category,
 		  { "Response Time Category", "gsm_bssmap_le.lcsQos.responseTimeCategory",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_response_time_definitions_vals), 0x0,
-		    "Response Time Category", HFILL}
+		    NULL, HFILL}
 		},
 
 	};

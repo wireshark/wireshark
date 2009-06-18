@@ -586,19 +586,19 @@ proto_register_stun(void)
 	static hf_register_info hf[] = {
 		{ &hf_stun_type,
 			{ "Message Type",	"stun.type", 	FT_UINT16, 
-			BASE_HEX, 	VALS(messages),	0x0, 	"", 	HFILL }
+			BASE_HEX, 	VALS(messages),	0x0, 	NULL, 	HFILL }
 		},
 		{ &hf_stun_length,
 			{ "Message Length",	"stun.length",	FT_UINT16, 
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_HEX,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun_id,
 			{ "Message Transaction ID",	"stun.id",	FT_BYTES,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun_att,
 			{ "Attributes",		"stun.att",	FT_NONE,
-			0, 		NULL, 	0x0, 	"",	HFILL }
+			BASE_NONE, 		NULL, 	0x0, 	NULL,	HFILL }
 		},
 		{ &hf_stun_response_in,
 		  { "Response In", "stun.response_in",
@@ -616,91 +616,91 @@ proto_register_stun(void)
 		/* ////////////////////////////////////// */
 		{ &stun_att_type,
 			{ "Attribute Type",	"stun.att.type",	FT_UINT16,
-			BASE_HEX,	VALS(attributes),	0x0, 	"",	HFILL }
+			BASE_HEX,	VALS(attributes),	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_length,
 			{ "Attribute Length",	"stun.att.length",	FT_UINT16,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_value,
 			{ "Value",	"stun.att.value",	FT_BYTES,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_family,
 			{ "Protocol Family",	"stun.att.family",	FT_UINT16,
-			BASE_HEX,	VALS(attributes_family),	0x0, 	"",	HFILL }
+			BASE_HEX,	VALS(attributes_family),	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_ipv4,
 			{ "IP",		"stun.att.ipv4",	FT_IPv4,
-			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_ipv6,
 			{ "IP",		"stun.att.ipv6",	FT_IPv6,
-			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_port,
 			{ "Port",	"stun.att.port",	FT_UINT16,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_change_ip,
 			{ "Change IP","stun.att.change.ip",	FT_BOOLEAN,
-			16, 	TFS(&set_flag),	0x0004,	"",	HFILL}
+			16, 	TFS(&set_flag),	0x0004,	NULL,	HFILL}
 		},
 		{ &stun_att_change_port,
 			{ "Change Port","stun.att.change.port",	FT_BOOLEAN,
-			16, 	TFS(&set_flag),	0x0002,	"",	HFILL}
+			16, 	TFS(&set_flag),	0x0002,	NULL,	HFILL}
 		},		
 		{ &stun_att_unknown,
 			{ "Unknown Attribute","stun.att.unknown",	FT_UINT16,
-			BASE_HEX, 	NULL,	0x0,	"",	HFILL}
+			BASE_HEX, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun_att_error_class,
 			{ "Error Class","stun.att.error.class",	FT_UINT8,
-			BASE_DEC, 	NULL,	0x07,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x07,	NULL,	HFILL}
 		},
 		{ &stun_att_error_number,
 			{ "Error Code","stun.att.error",	FT_UINT8,
-			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+			BASE_DEC, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun_att_error_reason,
 			{ "Error Reason Phase","stun.att.error.reason",	FT_STRING,
-			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+			BASE_NONE, 	NULL,	0x0,	NULL,	HFILL}
 		},
 		{ &stun_att_xor_ipv4,
 			{ "IP (XOR-d)",		"stun.att.ipv4-xord",	FT_IPv4,
-			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_xor_ipv6,
 			{ "IP (XOR-d)",		"stun.att.ipv6-xord",	FT_IPv6,
-			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_xor_port,
 			{ "Port (XOR-d)",	"stun.att.port-xord",	FT_UINT16,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_server_string,
 			{ "Server version","stun.att.server",	FT_STRING,
-			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+			BASE_NONE, 	NULL,	0x0,	NULL,	HFILL}
  		},
 		{ &stun_att_lifetime,
 			{ "Lifetime",	"stun.att.lifetime",	FT_UINT32,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_magic_cookie,
 			{ "Magic Cookie",	"stun.att.magic.cookie",	FT_UINT32,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_HEX,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_bandwidth,
 			{ "Bandwidth",	"stun.att.bandwidth",	FT_UINT32,
-			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+			BASE_DEC,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_data,
 			{ "Data",	"stun.att.data",	FT_BYTES,
-			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+			BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_connection_request_binding,
 		        { "Connection Request Binding", "stun.att.connection_request_binding", FT_STRING,
-			  BASE_NONE,      NULL, 0x0,    "",     HFILL }
+			  BASE_NONE,      NULL, 0x0,    NULL,     HFILL }
 		},
 	};
 

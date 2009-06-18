@@ -1233,16 +1233,16 @@ proto_register_pim(void)
     static hf_register_info hf[] = {
       { &hf_pim_version,
 	{ "Version",		"pim.version",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_pim_type,
 	{ "Type",		"pim.type",
-				FT_UINT8, BASE_DEC, VALS(type2vals), 0x0, "", HFILL }},
+				FT_UINT8, BASE_DEC, VALS(type2vals), 0x0, NULL, HFILL }},
       { &hf_pim_code,
 	{ "Code",		"pim.code",
-				FT_UINT8, BASE_DEC, VALS(type1vals), 0x0, "", HFILL }},
+				FT_UINT8, BASE_DEC, VALS(type1vals), 0x0, NULL, HFILL }},
       { &hf_pim_cksum,
 	{ "Checksum",		"pim.cksum",
-				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_pim,

@@ -250,13 +250,13 @@ void proto_register_alc(void)
 	static hf_register_info hf_ptr[] = {
 		
 		{ &hf.version,
-			{ "Version", "alc.version", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+			{ "Version", "alc.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		
 		LCT_FIELD_ARRAY(hf.lct, "alc"),
 		FEC_FIELD_ARRAY(hf.fec, "alc"),
 
 		{ &hf.payload,
-			{ "Payload", "alc.payload", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }}
+			{ "Payload", "alc.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
 	/* Setup protocol subtree array */

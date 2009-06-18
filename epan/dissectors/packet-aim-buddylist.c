@@ -149,7 +149,7 @@ proto_register_aim_buddylist(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_userinfo_warninglevel,
-			{ "Warning Level", "aim_buddylist.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+			{ "Warning Level", "aim_buddylist.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 		},
 	};
 

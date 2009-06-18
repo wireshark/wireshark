@@ -106,11 +106,11 @@ proto_register_ipfc (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_ipfc_network_da,
-          {"Network DA", "ipfc.nh.da", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Network DA", "ipfc.nh.da", FT_STRING, BASE_NONE, NULL,
+           0x0, NULL, HFILL}},
         { &hf_ipfc_network_sa,
-          {"Network SA", "ipfc.nh.sa", FT_STRING, BASE_HEX, NULL,
-           0x0, "", HFILL}},
+          {"Network SA", "ipfc.nh.sa", FT_STRING, BASE_NONE, NULL,
+           0x0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */

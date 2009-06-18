@@ -1372,7 +1372,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT packet", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1384,7 +1384,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT data flags 1", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1396,7 +1396,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x80,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1408,7 +1408,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x40,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1420,7 +1420,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x3e,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1432,7 +1432,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x01,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1456,7 +1456,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x80,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1468,7 +1468,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x40,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1480,7 +1480,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x3f,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1504,7 +1504,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x7c,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1516,7 +1516,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1528,7 +1528,7 @@ void proto_register_rdt(void)
                 BASE_HEX,
                 VALS(packet_type_vals),
                 0x0,
-                "Packet type", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1540,7 +1540,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT ack flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1552,7 +1552,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x40,
-                "Lost high", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1564,7 +1564,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT latency report flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1576,7 +1576,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT bandwidth report flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1588,7 +1588,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT stream end flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1624,7 +1624,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT congestion flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1636,7 +1636,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT report flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1648,7 +1648,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT transport info request flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1660,7 +1660,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT transport info response flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1672,7 +1672,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT bw probing flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1684,7 +1684,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1696,7 +1696,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Timestamp", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1708,7 +1708,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Stream-id expansion", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1720,7 +1720,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Asm rule expansion", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1732,7 +1732,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Total reliable", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1744,7 +1744,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-               "", HFILL
+               NULL, HFILL
             }
         },
         {
@@ -1756,7 +1756,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1768,7 +1768,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1780,7 +1780,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1792,7 +1792,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1804,7 +1804,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1816,7 +1816,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1828,7 +1828,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1840,7 +1840,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1852,7 +1852,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x80,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1864,7 +1864,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x7c,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1876,7 +1876,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x02,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1888,7 +1888,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x01,
-                "", HFILL
+                NULL, HFILL
             }
         },
 
@@ -1901,7 +1901,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1913,7 +1913,7 @@ void proto_register_rdt(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1925,7 +1925,7 @@ void proto_register_rdt(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1937,7 +1937,7 @@ void proto_register_rdt(void)
                 BASE_HEX,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1949,7 +1949,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1961,7 +1961,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x2,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1973,7 +1973,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x1,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1985,7 +1985,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1997,7 +1997,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x4,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2009,7 +2009,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x2,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2021,7 +2021,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x1,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2033,7 +2033,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2045,7 +2045,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2057,7 +2057,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2069,7 +2069,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT buffer info", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2081,7 +2081,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2093,7 +2093,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2105,7 +2105,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2117,7 +2117,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2129,7 +2129,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2141,7 +2141,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -2189,7 +2189,7 @@ void proto_register_rdt(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
     };

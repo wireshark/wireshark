@@ -779,7 +779,7 @@ proto_register_ajp13(void)
 {
   static hf_register_info hf[] = {
     { &hf_ajp13_magic,
-      { "Magic",  "ajp13.magic", FT_BYTES, BASE_HEX, NULL, 0x0, "Magic Number",
+      { "Magic",  "ajp13.magic", FT_BYTES, BASE_NONE, NULL, 0x0, "Magic Number",
         HFILL }
     },
     { &hf_ajp13_len,
@@ -787,31 +787,31 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_code,
-      { "Code",  "ajp13.code", FT_STRING, BASE_DEC, NULL, 0x0, "Type Code",
+      { "Code",  "ajp13.code", FT_STRING, BASE_NONE, NULL, 0x0, "Type Code",
          HFILL }
     },
     { &hf_ajp13_method,
-      { "Method",  "ajp13.method", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Method",
+      { "Method",  "ajp13.method", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Method",
         HFILL }
     },
     { &hf_ajp13_ver,
-      { "Version",  "ajp13.ver", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Version",
+      { "Version",  "ajp13.ver", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Version",
         HFILL }
     },
     { &hf_ajp13_uri,
-      { "URI",  "ajp13.uri", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP URI",
+      { "URI",  "ajp13.uri", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP URI",
         HFILL }
     },
     { &hf_ajp13_raddr,
-      { "RADDR",  "ajp13.raddr", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Address",
+      { "RADDR",  "ajp13.raddr", FT_STRING, BASE_NONE, NULL, 0x0, "Remote Address",
         HFILL }
     },
     { &hf_ajp13_rhost,
-      { "RHOST",  "ajp13.rhost", FT_STRING, BASE_DEC, NULL, 0x0, "Remote Host",
+      { "RHOST",  "ajp13.rhost", FT_STRING, BASE_NONE, NULL, 0x0, "Remote Host",
         HFILL }
     },
     { &hf_ajp13_srv,
-      { "SRV",  "ajp13.srv", FT_STRING, BASE_DEC, NULL, 0x0, "Server",
+      { "SRV",  "ajp13.srv", FT_STRING, BASE_NONE, NULL, 0x0, "Server",
         HFILL }
     },
     { &hf_ajp13_port,
@@ -827,11 +827,11 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_hname,
-      { "HNAME",  "ajp13.hname", FT_STRING, BASE_DEC, NULL, 0x0, "Header Name",
+      { "HNAME",  "ajp13.hname", FT_STRING, BASE_NONE, NULL, 0x0, "Header Name",
         HFILL }
     },
     { &hf_ajp13_hval,
-      { "HVAL",  "ajp13.hval", FT_STRING, BASE_DEC, NULL, 0x0, "Header Value",
+      { "HVAL",  "ajp13.hval", FT_STRING, BASE_NONE, NULL, 0x0, "Header Value",
         HFILL }
     },
     { &hf_ajp13_rlen,
@@ -847,11 +847,11 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_rsmsg,
-      { "RSMSG",  "ajp13.rmsg", FT_STRING, BASE_DEC, NULL, 0x0, "HTTP Status Message",
+      { "RSMSG",  "ajp13.rmsg", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Status Message",
         HFILL }
     },
     { &hf_ajp13_data,
-      { "Data",  "ajp13.data", FT_STRING, BASE_DEC, NULL, 0x0, "Data",
+      { "Data",  "ajp13.data", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
         HFILL }
     },
   };

@@ -72,7 +72,7 @@ proto_register_rs_pwd_mgmt (void)
   static hf_register_info hf[] = {
     {&hf_rs_pwd_mgmt_opnum,
      {"Operation", "rs_pwd_mgmt.opnum", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Operation", HFILL}},
+      NULL, HFILL}},
   };
 
   static gint *ett[] = {
