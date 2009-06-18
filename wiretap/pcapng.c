@@ -178,7 +178,7 @@ typedef struct wtapng_if_descr_s {
 	guint8				if_tsresol;	/* default is 6 for microsecond resolution */
 	gchar				*if_filter;	/* NULL if not available */
 	gchar				*if_os;		/* NULL if not available */
-	gchar				if_fcslen;	/* -1 if unknown or changes between packets */
+	gint8				if_fcslen;	/* -1 if unknown or changes between packets */
 	/* XXX: guint64	if_tsoffset; */
 } wtapng_if_descr_t;
 
@@ -526,7 +526,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	wblock->data.if_descr.if_tsresol	= 6;		/* default is 6 for microsecond resolution */
 	wblock->data.if_descr.if_filter		= NULL;
 	wblock->data.if_descr.if_os		= NULL;
-	wblock->data.if_descr.if_fcslen		= (gchar) -1;	/* unknown or changes between packets */
+	wblock->data.if_descr.if_fcslen		= -1;		/* unknown or changes between packets */
 	/* XXX: guint64	if_tsoffset; */
 
 
