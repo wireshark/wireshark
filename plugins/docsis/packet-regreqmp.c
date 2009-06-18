@@ -98,8 +98,8 @@ proto_register_docsis_regreqmp (void)
 	static hf_register_info hf[] = {
 		{&hf_docsis_regreqmp,
 		{"REG-REQ-MP Message", "docsis_regreqmp",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"REG-REQ-MP Message", HFILL}
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 		},
 		{&hf_docsis_regreqmp_sid,
 		{"Sid", "docsis_regreqmp.sid",

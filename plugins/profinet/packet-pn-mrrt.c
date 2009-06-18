@@ -213,17 +213,17 @@ proto_register_pn_mrrt (void)
 	static hf_register_info hf[] = {
 
 	{ &hf_pn_mrrt_type,
-		{ "Type", "pn_mrrt.type", FT_UINT8, BASE_HEX, VALS(pn_mrrt_block_type_vals), 0x0, "", HFILL }},
+		{ "Type", "pn_mrrt.type", FT_UINT8, BASE_HEX, VALS(pn_mrrt_block_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrrt_length,
-		{ "Length", "pn_mrrt.length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Length", "pn_mrrt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrrt_version,
-		{ "Version", "pn_mrrt.version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ "Version", "pn_mrrt.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrrt_sequence_id,
 		{ "SequenceID", "pn_mrrt.sequence_id", FT_UINT16, BASE_HEX, NULL, 0x0, "Unique sequence number to each outstanding service request", HFILL }},
 	{ &hf_pn_mrrt_sa,
-        { "SA", "pn_mrrt.sa", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
+        { "SA", "pn_mrrt.sa", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrrt_domain_uuid,
-		{ "DomainUUID", "pn_mrrt.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "DomainUUID", "pn_mrrt.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
 

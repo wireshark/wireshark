@@ -105,18 +105,18 @@ proto_register_docsis_regrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_regrsp,
      {"Registration Response", "docsis_regrsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Registration Request", HFILL}
      },
     {&hf_docsis_regrsp_sid,
      {"Service Identifier", "docsis_regrsp.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Identifier", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_regrsp_response,
      {"Response Code", "docsis_regrsp.respnse",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Response Code", HFILL}
+      NULL, HFILL}
      },
   };
 

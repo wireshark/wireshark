@@ -875,327 +875,327 @@ void proto_register_ams(void)
       { &hf_ams_sendernetid,
       { "AMS Sender Net Id", "ams.sendernetid",
       FT_STRING, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_senderport,
       { "AMS Sender port", "ams.senderport",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_targetnetid,
       { "AMS Target Net Id", "ams.targetnetid",
       FT_STRING, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_targetport,
       { "AMS Target port", "ams.targetport",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_cmdid,
       { "CmdId", "ams.cmdid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_stateflags,
       { "StateFlags", "ams.stateflags",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_stateresponse,
       { "RESPONSE", "ams.state_response",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_RESPONSE,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_statenoreturn,
       { "NO RETURN", "ams.state_noreturn",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_NORETURN,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_stateadscmd,
       { "ADS COMMAND", "ams.state_adscmd",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_ADSCMD,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_statesyscmd,
       { "SYSTEM COMMAND", "ams.state_syscmd",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_SYSCMD,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_statehighprio,
       { "HIGH PRIORITY COMMAND", "ams.state_highprio",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_HIGHPRIO,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_statetimestampadded,
       { "TIMESTAMP ADDED", "ams.state_timestampadded",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_TIMESTAMPADDED,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_stateudp,
       { "UDP COMMAND", "ams.state_udp",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_UDP,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_stateinitcmd,
       { "INIT COMMAND", "ams.state_initcmd",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_INITCMD,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_statebroadcast,
       { "BROADCAST", "ams.state_broadcast",
       FT_BOOLEAN, 16, TFS(&flags_set_truth), AMSCMDSF_BROADCAST,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_cbdata,
       { "cbData", "ams.cbdata",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_errorcode,
       { "ErrorCode", "ams.errorcode",
       FT_UINT32, BASE_HEX, VALS(ErrorCode), 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_invokeid,
       { "InvokeId", "ams.invokeid",
       FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdata,
       { "Data", "ams.ads_data",
-      FT_NONE, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
       { &hf_ams_data,
       { "Data", "ams.data",
-      FT_NONE, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
       { &hf_ams_adsindexgroup,
       { "IndexGroup", "ams.ads_indexgroup",
       FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsindexoffset,
       { "IndexOffset", "ams.ads_indexoffset",
       FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscblength,
       { "CbLength", "ams.ads_cblength",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadrequest,
       { "ADS Read Request", "ams.ads_read_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadresponse,
       { "ADS Read Response", "ams.ads_read_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsinvokeid,
       { "InvokeId", "ams.ads_invokeid",
       FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsresult,
       { "Result", "ams.adsresult",
       FT_UINT32, BASE_HEX, VALS(AdsErrorMode), 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adswriterequest,
       { "ADS Write Request", "ams.ads_write_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adswriteresponse,
       { "ADS Write Response", "ams.ads_write_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadwriterequest,
       { "ADS ReadWrite Request", "ams.ads_readwrite_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadwriteresponse,
       { "ADS ReadWrite Response", "ams.ads_readwrite_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscbreadlength,
       { "CBReadLength", "ams.ads_cbreadlength",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscbwritelength,
       { "CBWriteLength", "ams.ads_cbwritelength",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsstate,
       { "AdsState", "ams.ads_state",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdevicestate,
       { "DeviceState", "ams.ads_devicestate",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnotificationhandle,
       { "NotificationHandle", "ams.ads_notificationhandle",
       FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadstaterequest,
       { "ADS Read State Request", "ams.ads_readstate_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreadstateresponse,
       { "ADS Read State Response", "ams.ads_readstate_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adswritectrlrequest,
       { "ADS Write Ctrl Request", "ams.ads_writectrl_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adswritectrlresponse,
       { "ADS Write Ctrl Response", "ams.ads_writectrl_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreaddinforequest,
       { "ADS Read Device Info Request", "ams.ads_readdinfo_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsreaddinforesponse,
       { "ADS Read Device Info Response", "ams.ads_readdinfo_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsadddnrequest,
       { "ADS Add Device Notification Request", "ams.ads_adddn_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsadddnresponse,
       { "ADS Add Device Notification Response", "ams.ads_adddn_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdeldnrequest,
       { "ADS Delete Device Notification Request", "ams.ads_deldn_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdeldnresponse,
       { "ADS Delete Device Notification Response", "ams.ads_deldn_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdnrequest,
       { "ADS Device Notification Request", "ams.ads_dn_req",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdnresponse,
       { "ADS Device Notification Response", "ams.ads_dn_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnoteattrib,
       { "InvokeId", "ams.ads_noteattrib",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnoteblocks,
       { "InvokeId", "ams.ads_noteblocks",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsversion,
       { "ADS Version", "ams.ads_version",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsdevicename,
       { "Device Name","ams.ads_devicename",
       FT_STRING, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsversionversion,
       { "ADS Major Version", "ams.ads_versionversion",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsversionrevision,
       { "ADS Minor Version", "ams.ads_versionrevision",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsversionbuild,
       { "ADS Version Build", "ams.ads_versionbuild",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnoteblocksstamps,
       { "Count of Stamps", "ams.ads_noteblocksstamps",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnoteblocksstamp,
       { "Notification Stamp", "ams.ads_noteblocksstamp",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adstimestamp,
       { "Time Stamp", "ams.ads_timestamp",
       FT_UINT64, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adssamplecnt,
       { "Count of Stamps", "ams.ads_samplecnt",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsnoteblockssample,
       { "Notification Sample", "ams.ads_noteblockssample",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adstransmode,
       { "Trans Mode", "ams.ads_transmode",
       FT_UINT32, BASE_DEC, VALS(TransMode), 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adsmaxdelay,
       { "Max Delay", "ams.ads_maxdelay",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscycletime,
       { "Cycle Time", "ams.ads_cycletime",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscmpmax,
       { "Cmp Mad", "ams.ads_cmpmax",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ams_adscmpmin,
       { "Cmp Min", "ams.ads_cmpmin",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       }
    };
 

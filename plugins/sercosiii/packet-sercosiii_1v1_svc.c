@@ -599,12 +599,12 @@ void dissect_siii_svc_init(gint proto_siii)
     },
     { &hf_siii_mdt_svch_info,
       {"Svc Info", "siii.mdt.svch.info",
-      FT_BYTES, BASE_HEX, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }
     },
     { &hf_siii_at_svch_info,
       {"Svc Info", "siii.at.svch.info",
-      FT_BYTES, BASE_HEX, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }
     },
     { &hf_siii_mdt_svch_idn,

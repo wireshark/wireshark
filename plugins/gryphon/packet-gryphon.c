@@ -2238,22 +2238,22 @@ proto_register_gryphon(void)
     static hf_register_info hf[] = {
 	{ &hf_gryphon_src,
 	{ "Source",           "gryphon.src", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
 	{ &hf_gryphon_srcchan,
 	{ "Source channel",   "gryphon.srcchan", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
 	{ &hf_gryphon_dest,
 	{ "Destination",      "gryphon.dest", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
 	{ &hf_gryphon_destchan,
 	{ "Destination channel", "gryphon.destchan", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
 	{ &hf_gryphon_type,
 	{ "Frame type",       "gryphon.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
 	{ &hf_gryphon_cmd,
 	{ "Command",          "gryphon.cmd", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"", HFILL }},
+	    	NULL, HFILL }},
     };
 
     static gint *ett[] = {

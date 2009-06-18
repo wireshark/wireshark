@@ -2682,7 +2682,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,                /* FIELDBASE */
                     NULL,                    /* FIELDCONVERT */
                     0x0,                     /* BITMASK */
-                    "",                      /* FIELDDESCR */
+                    NULL,                      /* FIELDDESCR */
                     HFILL                    /* HFILL */
                 }
             },
@@ -2695,7 +2695,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0xff,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2708,7 +2708,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     VALS(wimaxasncp_function_type_vals),
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2721,7 +2721,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_op_id_vals),
                     0xE0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2734,7 +2734,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2747,7 +2747,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_qos_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2760,7 +2760,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_ho_control_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2773,7 +2773,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_data_path_control_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2786,7 +2786,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_context_delivery_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2799,7 +2799,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_r3_mobility_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2812,7 +2812,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_paging_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2825,7 +2825,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_rrm_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2838,7 +2838,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_authentication_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2851,7 +2851,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_ms_state_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2864,7 +2864,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_reauthentication_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2877,7 +2877,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     VALS(wimaxasncp_session_msg_vals),
                     0x1F,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2890,7 +2890,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2903,7 +2903,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_NONE,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2916,7 +2916,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2929,7 +2929,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2942,7 +2942,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2952,10 +2952,10 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "TLV",
                     "wimaxasncp.tlv",
                     FT_BYTES,
-                    BASE_HEX,
+                    BASE_NONE,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2968,7 +2968,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2981,7 +2981,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -2991,10 +2991,10 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "Value",
                     "wimaxasncp.tlv_value_bytes",
                     FT_BYTES,
-                    BASE_HEX,
+                    BASE_NONE,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -3007,7 +3007,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0xffff,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -3020,7 +3020,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_HEX,
                     NULL,
                     0xffffffff,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -3033,7 +3033,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             },
@@ -3046,7 +3046,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     BASE_DEC,
                     NULL,
                     0x0,
-                    "",
+                    NULL,
                     HFILL
                 }
             }

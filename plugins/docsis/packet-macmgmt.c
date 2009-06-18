@@ -204,18 +204,18 @@ proto_register_docsis_mgmt (void)
   static hf_register_info hf[] = {
     {&hf_docsis_mgt_hdr,
      {"Mac Management Header", "docsis_mgmt",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Mac Management Header", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_mgt_dst_addr,
      {"Destination Address", "docsis_mgmt.dst",
       FT_ETHER, BASE_HEX, NULL, 0x0,
-      "Destination Address", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_mgt_src_addr,
      {"Source Address", "docsis_mgmt.src",
       FT_ETHER, BASE_HEX, NULL, 0x0,
-      "Source Address", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_mgt_msg_len,
      {"Message Length - DSAP to End (Bytes)", "docsis_mgmt.msglen",
@@ -240,12 +240,12 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mgt_version,
      {"Version", "docsis_mgmt.version",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Version", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_mgt_type,
      {"Type", "docsis_mgmt.type",
       FT_UINT8, BASE_DEC, VALS (mgmt_type_vals), 0x0,
-      "Type", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_mgt_rsvd,
      {"Reserved [0x00]", "docsis_mgmt.rsvd",

@@ -160,7 +160,7 @@ void dissect_siii_hp_init(gint proto_siii)
     },
     { &hf_siii_mdt_hp_info,
       {"HP info", "siii.mdt.hp.info",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
     { &hf_siii_at_hotplug_address,
@@ -175,7 +175,7 @@ void dissect_siii_hp_init(gint proto_siii)
     },
     { &hf_siii_at_hp_info,
       {"HP info", "siii.at.hp.info",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
     { &hf_siii_mdt_hotplug_control_param,

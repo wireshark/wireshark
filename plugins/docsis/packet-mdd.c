@@ -551,7 +551,7 @@ void proto_register_docsis_mdd (void)
 	static hf_register_info hf[] = {
 		{&hf_docsis_mdd,
 		{"Map Message", "docsis_mdd",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		"MAP Message", HFILL}
 		},
 		{&hf_docsis_mdd_ccc,

@@ -107,18 +107,18 @@ proto_register_docsis_regack (void)
   static hf_register_info hf[] = {
     {&hf_docsis_regack,
      {"Registration Request", "docsis_regack",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Registration Request", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_regack_sid,
      {"Service Identifier", "docsis_regack.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Identifier", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_regack_response,
      {"Response Code", "docsis_regack.respnse",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Response Code", HFILL}
+      NULL, HFILL}
      },
   };
 

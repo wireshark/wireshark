@@ -838,7 +838,7 @@ proto_register_docsis_type29ucd (void)
     {&hf_docsis_type29ucd_upstream_chid,
      {"Upstream Channel ID", "docsis_type29ucd.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel ID", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_type29ucd_config_ch_cnt,
      {"Config Change Count", "docsis_type29ucd.confcngcnt",
@@ -848,7 +848,7 @@ proto_register_docsis_type29ucd (void)
     {&hf_docsis_type29ucd_mini_slot_size,
      {"Mini Slot Size (6.25us TimeTicks)", "docsis_type29ucd.mslotsize",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mini Slot Size (6.25us TimeTicks)", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_type29ucd_down_chid,
      {"Downstream Channel ID", "docsis_type29ucd.downchid",
@@ -867,13 +867,13 @@ proto_register_docsis_type29ucd (void)
      },
     {&hf_docsis_type29ucd_preamble_pat,
      {"3 Preamble Pattern", "docsis_type29ucd.preamble",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Preamble Superstring", HFILL}
      },
     {&hf_docsis_type29ucd_iuc,
      {"Interval Usage Code", "docsis_type29ucd.iuc",
       FT_UINT8, BASE_DEC, VALS (iuc_vals2), 0x0,
-      "Interval Usage Code", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_burst_mod_type,
      {"1 Modulation Type", "docsis_type29ucd.burst.modtype",
@@ -945,57 +945,57 @@ proto_register_docsis_type29ucd (void)
  *  */
     {&hf_docsis_type29ucd_ext_preamble,
      {"6 Extended Preamble Pattern", "docsis_type29ucd.extpreamble",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Extended Preamble Pattern", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_mode_enable,
      {"7 SCDMA Mode Enable", "docsis_type29ucd.scdmaenable",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Mode Enable", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_spreading_interval,
      {"8 SCDMA Spreading Interval", "docsis_type29ucd.scdmaspreadinginterval",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Spreading Interval", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_codes_per_mini_slot,
      {"9 SCDMA Codes per mini slot", "docsis_type29ucd.scdmacodesperminislot",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Codes per mini slot", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_active_codes,
      {"10 SCDMA Active Codes", "docsis_type29ucd.scdmaactivecodes",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Active Codes", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_code_hopping_seed,
      {"11 SCDMA Code Hopping Seed", "docsis_type29ucd.scdmacodehoppingseed",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Code Hopping Seed", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_us_ratio_num,
      {"12 SCDMA US Ratio Numerator", "docsis_type29ucd.scdmausrationum",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA US Ratio Numerator", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_us_ratio_denom,
      {"13 SCDMA US Ratio Denominator", "docsis_type29ucd.scdmausratiodenom",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA US Ratio Denominator", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_timestamp_snapshot,
      {"14 SCDMA Timestamp Snapshot", "docsis_type29ucd.scdmatimestamp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SCDMA Timestamp Snapshot", HFILL}
      },
     {&hf_docsis_type29ucd_maintain_power_spectral_density,
      {"15 Maintain power spectral density", "docsis_type29ucd.maintainpowerspectraldensity",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Maintain power spectral density", HFILL}
      },
     {&hf_docsis_type29ucd_ranging_required,
      {"16 Ranging Required", "docsis_type29ucd.rangingrequired",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Ranging Required", HFILL}
      },
 /* #define type29ucd_RS_INT_DEPTH 12

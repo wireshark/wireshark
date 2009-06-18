@@ -100,15 +100,15 @@ void proto_register_ioraw(void)
       { &hf_ioraw_summary,
       { "Summary of the IoRaw Packet", "ioraw.summary",
       FT_STRING, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ioraw_header, { "Header", "ioraw.header",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_ioraw_data, { "VarData", "ioraw.data",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       }
    };
 

@@ -212,18 +212,18 @@ proto_register_docsis_rngrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_rngrsp,
      {"RNG-RSP Message", "docsis_rngrsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Ranging Response Message", HFILL}
      },
     {&hf_docsis_rngrsp_sid,
      {"Service Identifier", "docsis_rngrsp.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Identifier", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_upstream_chid,
      {"Upstream Channel ID", "docsis_rngrsp.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel ID", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_timing_adj,
      {"Timing Adjust (6.25us/64)", "docsis_rngrsp.timingadj",
@@ -242,13 +242,13 @@ proto_register_docsis_rngrsp (void)
      },
     {&hf_docsis_rngrsp_xmit_eq_adj,
      {"Transmit Equalisation Adjust", "docsis_rngrsp.xmit_eq_adj",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Timing Equalisation Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_ranging_status,
      {"Ranging Status", "docsis_rngrsp.rng_stat",
       FT_UINT8, BASE_DEC, VALS (rng_stat_vals), 0x0,
-      "Ranging Status", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_down_freq_over,
      {"Downstream Frequency Override (Hz)", "docsis_rngrsp.freq_over",
@@ -258,7 +258,7 @@ proto_register_docsis_rngrsp (void)
     {&hf_docsis_rngrsp_upstream_ch_over,
      {"Upstream Channel ID Override", "docsis_rngrsp.chid_override",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel ID Override", HFILL}
+      NULL, HFILL}
      },
 
   };

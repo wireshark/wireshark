@@ -105,18 +105,18 @@ proto_register_docsis_rngreq (void)
   static hf_register_info hf[] = {
     {&hf_docsis_rngreq,
      {"RNG-REQ Message", "docsis_rngreq",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Ranging Request Message", HFILL}
      },
     {&hf_docsis_rngreq_sid,
      {"Service Identifier", "docsis_rngreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Identifier", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngreq_down_chid,
      {"Downstream Channel ID", "docsis_rngreq.downchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Downstream Channel ID", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngreq_pend_compl,
      {"Pending Till Complete", "docsis_rngreq.pendcomp",

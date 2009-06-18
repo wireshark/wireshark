@@ -664,7 +664,7 @@ proto_register_docsis_ucd (void)
     {&hf_docsis_ucd_upstream_chid,
      {"Upstream Channel ID", "docsis_ucd.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel ID", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ucd_config_ch_cnt,
      {"Config Change Count", "docsis_ucd.confcngcnt",
@@ -674,7 +674,7 @@ proto_register_docsis_ucd (void)
     {&hf_docsis_ucd_mini_slot_size,
      {"Mini Slot Size (6.25us TimeTicks)", "docsis_ucd.mslotsize",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mini Slot Size (6.25us TimeTicks)", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ucd_down_chid,
      {"Downstream Channel ID", "docsis_ucd.downchid",
@@ -703,13 +703,13 @@ proto_register_docsis_ucd (void)
      },
     {&hf_docsis_ucd_preamble_pat,
      {"Preamble Pattern", "docsis_ucd.preamble",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Preamble Superstring", HFILL}
      },
     {&hf_docsis_ucd_iuc,
      {"Interval Usage Code", "docsis_ucd.iuc",
       FT_UINT8, BASE_DEC, VALS (iuc_vals), 0x0,
-      "Interval Usage Code", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_burst_mod_type,
      {"1 Modulation Type", "docsis_ucd.burst.modtype",

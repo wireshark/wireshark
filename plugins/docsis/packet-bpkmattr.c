@@ -399,17 +399,17 @@ proto_register_docsis_bpkmattr (void)
   static hf_register_info hf[] = {
     {&hf_docsis_bpkmattr,
      {"BPKM Attributes", "docsis_bpkmattr",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "BPKM Attributes", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_bpkmattr_serial_num,
      {"1 Serial Number", "docsis_bpkmattr.serialnum",
-      FT_STRING, BASE_DEC, NULL, 0x0,
+      FT_STRING, BASE_NONE, NULL, 0x0,
       "Serial Number", HFILL}
      },
     {&hf_docsis_bpkmattr_manf_id,
      {"2 Manufacturer Id", "docsis_bpkmattr.manfid",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Manufacturer Id", HFILL}
      },
     {&hf_docsis_bpkmattr_mac_addr,
@@ -419,27 +419,27 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_rsa_pub_key,
      {"4 RSA Public Key", "docsis_bpkmattr.rsa_pub_key",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "RSA Public Key", HFILL}
      },
     {&hf_docsis_bpkmattr_cm_id,
      {"5 CM Identification", "docsis_bpkmattr.cmid",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Identification", HFILL}
      },
     {&hf_docsis_bpkmattr_display_str,
      {"6 Display String", "docsis_bpkmattr.dispstr",
-      FT_STRING, BASE_DEC, NULL, 0x0,
+      FT_STRING, BASE_NONE, NULL, 0x0,
       "Display String", HFILL}
      },
     {&hf_docsis_bpkmattr_auth_key,
      {"7 Auth Key", "docsis_bpkmattr.auth_key",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Auth Key", HFILL}
      },
     {&hf_docsis_bpkmattr_tek,
      {"8 Traffic Encryption Key", "docsis_bpkmattr.tek",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Traffic Encryption Key", HFILL}
      },
     {&hf_docsis_bpkmattr_key_life,
@@ -454,7 +454,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_hmac_digest,
      {"11 HMAC Digest", "docsis_bpkmattr.hmacdigest",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "HMAC Digest", HFILL}
      },
     {&hf_docsis_bpkmattr_said,
@@ -464,12 +464,12 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_tek_params,
      {"13 TEK Parameters", "docsis_bpkmattr.tekparams",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "TEK Parameters", HFILL}
      },
     {&hf_docsis_bpkmattr_cbc_iv,
      {"14 CBC IV", "docsis_bpkmattr.cbciv",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cypher Block Chaining", HFILL}
      },
     {&hf_docsis_bpkmattr_error_code,
@@ -479,22 +479,22 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_vendor_def,
      {"127 Vendor Defined", "docsis_bpkmattr.vendordef",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Defined", HFILL}
      },
     {&hf_docsis_bpkmattr_ca_cert,
      {"17 CA Certificate", "docsis_bpkmattr.cacert",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "CA Certificate", HFILL}
      },
     {&hf_docsis_bpkmattr_cm_cert,
      {"18 CM Certificate", "docsis_bpkmattr.cmcert",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Certificate", HFILL}
      },
     {&hf_docsis_bpkmattr_security_cap,
      {"19 Security Capabilities", "docsis_bpkmattr.seccap",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Security Capabilities", HFILL}
      },
     {&hf_docsis_bpkmattr_crypto_suite,
@@ -504,7 +504,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_crypto_suite_list,
      {"21 Cryptographic Suite List", "docsis_bpkmattr.crypto_suite_lst",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cryptographic Suite", HFILL}
      },
     {&hf_docsis_bpkmattr_bpi_version,
@@ -514,7 +514,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_sa_descr,
      {"23 SA Descriptor", "docsis_bpkmattr.sadescr",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Descriptor", HFILL}
      },
     {&hf_docsis_bpkmattr_sa_type,
@@ -524,7 +524,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_sa_query,
      {"25 SA Query", "docsis_bpkmattr.saquery",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Query", HFILL}
      },
     {&hf_docsis_bpkmattr_sa_query_type,
@@ -534,12 +534,12 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_ip_address,
      {"27 IP Address", "docsis_bpkmattr.ipaddr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "IP Address", HFILL}
      },
     {&hf_docsis_bpkmattr_download_param,
      {"28 Download Parameters", "docsis_bpkmattr.dnld_params",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Download Parameters", HFILL}
      },
   };

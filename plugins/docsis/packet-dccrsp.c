@@ -188,55 +188,55 @@ proto_register_docsis_dccrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dccrsp_tran_id ,
       {
-      "Transaction ID ", 
+      "Transaction ID", 
       "docsis_dccrsp.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Transaction ID ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dccrsp_conf_code ,
       {
-      "Confirmation Code ", 
+      "Confirmation Code", 
       "docsis_dccrsp.conf_code",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Confirmation Code ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dccrsp_cm_jump_time_length ,
       {
-      "Jump Time Length ", 
+      "Jump Time Length", 
       "docsis_dccrsp.cm_jump_time_length",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Jump Time Length ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dccrsp_cm_jump_time_start ,
       {
-      "Jump Time Start ", 
+      "Jump Time Start", 
       "docsis_dccrsp.cm_jump_time_start",
       FT_UINT64, BASE_DEC, NULL, 0x0,
-      "Jump Time Start ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dccrsp_key_seq_num ,
       {
-      "Auth Key Sequence Number ",
+      "Auth Key Sequence Number",
       "docsis_dccrsp.key_seq_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Auth Key Sequence Number ",
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccrsp_hmac_digest ,
       {
-      "HMAC-DigestNumber ",
+      "HMAC-DigestNumber",
       "docsis_dccrsp.hmac_digest",
-      FT_BYTES, BASE_DEC, NULL, 0x0,
-      "HMAC-DigestNumber ",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL,
       HFILL
       }
     },

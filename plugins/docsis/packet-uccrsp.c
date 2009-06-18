@@ -95,13 +95,13 @@ proto_register_docsis_uccrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_uccrsp,
      {"Upstream Channel Change Request", "docsis_uccrsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Upstream Channel Change Request", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_uccrsp_upchid,
      {"Upstream Channel Id", "docsis_uccrsp.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel Id", HFILL}
+      NULL, HFILL}
      },
   };
 

@@ -128,13 +128,13 @@ void proto_register_ethercat_frame(void)
       { &hf_ethercat_frame_length,
       { "Length", "ecatf.length",
       FT_UINT16, BASE_HEX, NULL, 0x07FF,
-      "", HFILL }
+      NULL, HFILL }
       },
 
       { &hf_ethercat_frame_reserved,
       { "Reserved", "ecatf.reserved",
       FT_UINT16, BASE_HEX, VALS(&ethercat_frame_reserved_vals), 0x0800,
-      "", HFILL}
+      NULL, HFILL}
       },
 
       { &hf_ethercat_frame_type,

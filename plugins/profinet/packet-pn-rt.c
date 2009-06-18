@@ -581,39 +581,39 @@ proto_register_pn_rt(void)
 {
   static hf_register_info hf[] = {
     { &hf_pn_rt_frame_id,
-      { "FrameID", "pn_rt.frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "FrameID", "pn_rt.frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_cycle_counter, { 
-		"CycleCounter", "pn_rt.cycle_counter", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		"CycleCounter", "pn_rt.cycle_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_data_status, { 
-		"DataStatus", "pn_rt.ds", FT_UINT8, BASE_HEX, 0, 0x0, "", HFILL }},
+		"DataStatus", "pn_rt.ds", FT_UINT8, BASE_HEX, 0, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_res67, { 
-		"Reserved (should be zero)", "pn_rt.ds_res67", FT_UINT8, BASE_HEX, 0, 0xc0, "", HFILL }},
+		"Reserved (should be zero)", "pn_rt.ds_res67", FT_UINT8, BASE_HEX, 0, 0xc0, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_ok, { 
-		"StationProblemIndicator (1:Ok/0:Problem)", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, "", HFILL }},
+		"StationProblemIndicator (1:Ok/0:Problem)", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_operate, { 
-		"ProviderState (1:Run/0:Stop)", "pn_rt.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, "", HFILL }},
+		"ProviderState (1:Run/0:Stop)", "pn_rt.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_res3, { 
-		"Reserved (should be zero)", "pn_rt.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, "", HFILL }},
+		"Reserved (should be zero)", "pn_rt.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_valid, { 
-		"DataValid (1:Valid/0:Invalid)", "pn_rt.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, "", HFILL }},
+		"DataValid (1:Valid/0:Invalid)", "pn_rt.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_res1, { 
-		"Reserved (should be zero)", "pn_rt.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, "", HFILL }},
+		"Reserved (should be zero)", "pn_rt.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_primary, { 
-		"State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, "", HFILL }},
+		"State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
     { &hf_pn_rt_transfer_status,
-      { "TransferStatus", "pn_rt.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "TransferStatus", "pn_rt.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_sf, { 
-		"SubFrame", "pn_rt.sf", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
+		"SubFrame", "pn_rt.sf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_sf_crc16, { 
-		"CRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		"CRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_sf_position, { 
-		"Position", "pn_rt.sf.position", FT_UINT8, BASE_DEC, NULL, 0x7F, "", HFILL }},
+		"Position", "pn_rt.sf.position", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
 	{ &hf_pn_rt_sf_position_control, { 
-		"Control", "pn_rt.sf.position_control", FT_UINT8, BASE_DEC, VALS(pn_rt_position_control), 0x80, "", HFILL }},
+		"Control", "pn_rt.sf.position_control", FT_UINT8, BASE_DEC, VALS(pn_rt_position_control), 0x80, NULL, HFILL }},
 	{ &hf_pn_rt_sf_data_length, { 
-		"DataLength", "pn_rt.sf.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		"DataLength", "pn_rt.sf.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_sf_cycle_counter, { 
-		"CycleCounter", "pn_rt.sf.cycle_counter", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+		"CycleCounter", "pn_rt.sf.cycle_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,

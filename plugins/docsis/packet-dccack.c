@@ -128,28 +128,28 @@ proto_register_docsis_dccack (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dccack_tran_id ,
       {
-      "Transaction ID ", 
+      "Transaction ID", 
       "docsis_dccack.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Transaction ID ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dccack_key_seq_num ,
       {
-      "Auth Key Sequence Number ",
+      "Auth Key Sequence Number",
       "docsis_dccack.key_seq_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Auth Key Sequence Number ",
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccack_hmac_digest ,
       {
-      "HMAC-DigestNumber ",
+      "HMAC-DigestNumber",
       "docsis_dccack.hmac_digest",
-      FT_BYTES, BASE_DEC, NULL, 0x0,
-      "HMAC-DigestNumber ",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL,
       HFILL
       }
     },

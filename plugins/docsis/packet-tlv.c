@@ -2102,8 +2102,8 @@ proto_register_docsis_tlv (void)
   static hf_register_info hf[] = {
     {&hf_docsis_tlv,
      {"TLV Data", "docsis_tlv",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "TLV Data", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_down_freq,
      {"1 Downstream Frequency", "docsis_tlv.downfreq",
@@ -2122,8 +2122,8 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_cos,
      {"4 COS Encodings", "docsis_tlv.cos",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "4 COS Encodings", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_cos_id,
      {".1 Class ID", "docsis_tlv.cos.id",
@@ -2167,7 +2167,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_mcap,
      {"5 Modem Capabilities", "docsis_tlv.mcap",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Modem Capabilities", HFILL}
      },
     {&hf_docsis_tlv_mcap_concat,
@@ -2237,42 +2237,42 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cable Modem Message Integrity Check", HFILL}
      },
     {&hf_docsis_tlv_cmts_mic,
      {"7 CMTS MIC", "docsis_tlv.cmtsmic",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "CMTS Message Integrity Check", HFILL}
      },
     {&hf_docsis_tlv_vendor_id,
      {"8 Vendor ID", "docsis_tlv.vendorid",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Identifier", HFILL}
      },
     {&hf_docsis_tlv_sw_file,
      {"9 Software Upgrade File", "docsis_tlv.sw_upg_file",
-      FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
       "Software Upgrade File", HFILL}
      },
     {&hf_docsis_tlv_snmp_access,
      {"10 SNMP Write Access", "docsis_tlv.snmp_access",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SNMP Write Access", HFILL}
      },
     {&hf_docsis_tlv_snmp_obj,
      {"11 SNMP Object", "docsis_tlv.snmp_obj",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SNMP Object", HFILL}
      },
     {&hf_docsis_tlv_modem_addr,
      {"12 Modem IP Address", "docsis_tlv.modemaddr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Modem IP Address", HFILL}
      },
     {&hf_docsis_tlv_svc_unavail,
      {"13 Service Not Available Response", "docsis_tlv.svcunavail",
-      FT_BYTES, BASE_DEC, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Service Not Available Response", HFILL}
      },
     {&hf_docsis_tlv_svc_unavail_classid,
@@ -2283,12 +2283,12 @@ proto_register_docsis_tlv (void)
     {&hf_docsis_tlv_svc_unavail_type,
      {"Service Not Available (Type)", "docsis_tlv.svcunavail.type",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Service Not Available (Type)", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_svc_unavail_code,
      {"Service Not Available (Code)", "docsis_tlv.svcunavail.code",
       FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
-      "Service Not Available (Code)", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_cpe_ethernet,
      {"14 CPE Ethernet Addr", "docsis_tlv.cpe_ether",
@@ -2297,7 +2297,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_bpi,
      {"17 Baseline Privacy Encoding", "docsis_tlv.bpi",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Baseline Privacy Encoding", HFILL}
      },
     {&hf_docsis_tlv_max_cpe,
@@ -2312,23 +2312,23 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_tftp_prov_modem_address,
      {"20 TFTP Server Provisioned Modem Addr", "docsis_tlv.tftpmodemaddr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "TFTP Server Provisioned Modem Addr", HFILL}
      },
     {&hf_docsis_tlv_sw_upg_srvr,
      {"21 Software Upgrade Server", "docsis_tlv.sw_upg_srvr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Software Upgrade Server", HFILL}
      },
     {&hf_docsis_tlv_upclsfr,
      {"22 Upstream Classifier", "docsis_tlv.upclsfr",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "22 Upstream Classifier", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_downclsfr,
      {"23 Downstream Classifier", "docsis_tlv.downclsfr",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "23 Downstream Classifier", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_clsfr_ref,
      {".1 Classifier Ref", "docsis_tlv.clsfr.ref",
@@ -2367,7 +2367,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_clsfr_err,
      {".8 Error Encodings", "docsis_tlv.clsfr.err",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Error Encodings", HFILL}
      },
     {&hf_docsis_tlv_clsfr_err_param,
@@ -2382,17 +2382,17 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_clsfr_err_msg,
      {"..3 Error Message", "docsis_tlv.clsfr.err.msg",
-      FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
       "Error Message", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr,
      {".9 IP Classifier Encodings", "docsis_tlv.clsfr.ip",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "IP Classifier Encodings", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_tosmask,
      {"..1 Type Of Service Mask", "docsis_tlv.clsfr.ip.tosmask",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Type Of Service Mask", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_ipproto,
@@ -2402,22 +2402,22 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_ipclsfr_src,
      {"..3 Source Address", "docsis_tlv.clsfr.ip.src",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Source Address", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_dst,
      {"..4 Destination Address", "docsis_tlv.clsfr.ip.dst",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Destination Address", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_srcmask,
      {"..5 Source Mask", "docsis_tlv.clsfr.ip.smask",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Source Mask", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_dstmask,
      {"..6 Destination Mask", "docsis_tlv.clsfr.ip.dmask",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Destination Mask", HFILL}
      },
     {&hf_docsis_tlv_ipclsfr_sport_start,
@@ -2442,7 +2442,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_ethclsfr,
      {".10 Ethernet Classifier Encodings", "docsis_tlv.clsfr.eth",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Ethernet Classifier Encodings", HFILL}
      },
     {&hf_docsis_tlv_ethclsfr_dmac,
@@ -2462,7 +2462,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_dot1qclsfr,
      {".11 802.1Q Classifier Encodings", "docsis_tlv.clsfr.dot1q",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "802.1Q Classifier Encodings", HFILL}
      },
     {&hf_docsis_tlv_dot1qclsfr_user_pri,
@@ -2477,23 +2477,23 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_dot1qclsfr_vendorspec,
      {"..43 Vendor Specific Encodings", "docsis_tlv.clsfr.dot1q.vendorspec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_tlv_clsfr_vendor_spc,
      {".43 Vendor Specific Encodings", "docsis_tlv.clsfr.vendor",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_tlv_upsflow,
      {"24 Upstream Service Flow", "docsis_tlv.upsflow",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "24 Upstream Service Flow", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_downsflow,
      {"25 Downstream Service Flow", "docsis_tlv.downsflow",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "25 Downstream Service Flow", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_sflow_ref,
      {".1 Service Flow Ref", "docsis_tlv.sflow.ref",
@@ -2512,12 +2512,12 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_sflow_classname,
      {".4 Service Class Name", "docsis_tlv.sflow.cname",
-      FT_STRINGZ, BASE_HEX, NULL, 0x0,
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
       "Service Class Name", HFILL}
      },
     {&hf_docsis_tlv_sflow_err,
      {".5 Error Encodings", "docsis_tlv.sflow.err",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Error Encodings", HFILL}
      },
     {&hf_docsis_tlv_sflow_err_param,
@@ -2532,7 +2532,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_sflow_err_msg,
      {"..3 Error Message", "docsis_tlv.sflow.err.msg",
-      FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
       "Error Message", HFILL}
      },
     {&hf_docsis_tlv_sflow_qos_param,
@@ -2643,12 +2643,12 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_sflow_vendor_spec,
      {".43 Vendor Specific Encodings", "docsis_tlv.sflow.vendorspec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_tlv_phs,
      {"26 PHS Rules", "docsis_tlv.phs",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "PHS Rules", HFILL}
      },
     {&hf_docsis_tlv_phs_class_ref,
@@ -2678,7 +2678,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_err,
      {".6 Error Encodings", "docsis_tlv.phs.err",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Error Encodings", HFILL}
      },
     {&hf_docsis_tlv_phs_err_param,
@@ -2693,12 +2693,12 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_err_msg,
      {"..3 Error Message", "docsis_tlv.phs.err.msg",
-      FT_STRINGZ, BASE_DEC, NULL, 0x0,
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
       "Error Message", HFILL}
      },
     {&hf_docsis_tlv_phs_phsf,
      {".7 PHS Field", "docsis_tlv.phs.phsf",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "PHS Field", HFILL}
      },
     {&hf_docsis_tlv_phs_phsi,
@@ -2708,7 +2708,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_phsm,
      {".9 PHS Mask", "docsis_tlv.phs.phsm",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "PHS Mask", HFILL}
      },
     {&hf_docsis_tlv_phs_phss,
@@ -2723,12 +2723,12 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_phs_vendorspec,
      {".43 PHS Vendor Specific", "docsis_tlv.phs.vendorspec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "PHS Vendor Specific", HFILL}
      },
     {&hf_docsis_tlv_hmac_digest,
      {"27 HMAC Digest", "docsis_tlv.hmac_digest",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "HMAC Digest", HFILL}
      },
     {&hf_docsis_tlv_max_classifiers,
@@ -2743,68 +2743,68 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_auth_block,
      {"30 Auth Block", "docsis_tlv.auth_block",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Auth Block", HFILL}
      },
     {&hf_docsis_tlv_key_seq_num,
      {"31 Key Sequence Number", "docsis_tlv.key_seq",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Key Sequence Number", HFILL}
      },
     {&hf_docsis_tlv_mfgr_cvc,
      {"32 Manufacturer CVC", "docsis_tlv.mfgr_cvc",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Manufacturer CVC", HFILL}
      },
     {&hf_docsis_tlv_cosign_cvc,
      {"33 Co-Signer CVC", "docsis_tlv.cosign_cvc",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Co-Signer CVC", HFILL}
      },
     {&hf_docsis_tlv_snmpv3_kick,
      {"34 SNMPv3 Kickstart Value", "docsis_tlv.snmpv3",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SNMPv3 Kickstart Value", HFILL}
      },
     {&hf_docsis_tlv_snmpv3_kick_name,
      {".1 SNMPv3 Kickstart Security Name", "docsis_tlv.snmpv3.secname",
-      FT_STRING, BASE_DEC, NULL, 0x0,
+      FT_STRING, BASE_NONE, NULL, 0x0,
       "SNMPv3 Kickstart Security Name", HFILL}
      },
     {&hf_docsis_tlv_snmpv3_kick_publicnum,
      {".2 SNMPv3 Kickstart Manager Public Number", "docsis_tlv.snmpv3.publicnum",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "SNMPv3 Kickstart Value Manager Public Number", HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_ctrl,
      {"35 Subscriber Management Control", "docsis_tlv.subsmgmtctrl",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Subscriber Management Control", HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_ip_table,
      {"36 Subscriber Management CPE IP Table", "docsis_tlv.subsiptable",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Subscriber Management CPE IP Table", HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_ip_entry,
      {"Subscriber Management CPE IP Entry", "docsis_tlv.subsipentry",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
-      "Subscriber Management CPE IP Entry", HFILL}
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_tlv_subs_mgmt_filter_grps,
      {"37 Subscriber Management Filter Groups", "docsis_tlv.subsfltrgrps",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Subscriber Management Filter Groups", HFILL}
      },
     {&hf_docsis_tlv_vendor_spec,
      {"43 Vendor Specific Encodings", "docsis_tlv.vendorspec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_tlv_rng_tech,
      {"Ranging Technique", "docsis_tlv.rng_tech",
       FT_UINT8, BASE_DEC, VALS (rng_tech_vals), 0x0,
-      "Ranging Technique", HFILL}
+      NULL, HFILL}
      },
   };
 

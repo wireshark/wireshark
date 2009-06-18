@@ -105,8 +105,8 @@ proto_register_docsis_regrspmp (void)
 	static hf_register_info hf[] = {
 		{&hf_docsis_regrspmp,
 		{"REG-RSP-MP Message", "docsis_regrspmp",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"REG-RSP-MP Message", HFILL}
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 		},
 		{&hf_docsis_regrspmp_sid,
 		{"Sid", "docsis_regrspmp.sid",

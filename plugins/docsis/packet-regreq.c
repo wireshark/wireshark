@@ -102,13 +102,13 @@ proto_register_docsis_regreq (void)
   static hf_register_info hf[] = {
     {&hf_docsis_regreq,
      {"Registration Request", "docsis_regreq",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Registration Request", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_regreq_sid,
      {"Service Identifier", "docsis_regreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Identifier", HFILL}
+      NULL, HFILL}
      },
   };
 

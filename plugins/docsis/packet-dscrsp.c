@@ -108,7 +108,7 @@ proto_register_docsis_dscrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dscrsp,
      {"Dynamic Service Change Request", "docsis_dscrsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Dynamic Service Add Request", HFILL}
      },
     {&hf_docsis_dscrsp_tranid,
@@ -119,7 +119,7 @@ proto_register_docsis_dscrsp (void)
     {&hf_docsis_dscrsp_response,
      {"Confirmation Code", "docsis_dscrsp.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Confirmation Code", HFILL}
+      NULL, HFILL}
      },
   };
 

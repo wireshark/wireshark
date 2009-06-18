@@ -614,7 +614,7 @@ proto_register_docsis (void)
     {&hf_docsis_concat_cnt,
      {"Number of Concatenated Frames", "docsis.macparm",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Number of Concatenated Frames", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ehdrlen,
      {"Extended Header Length (bytes)", "docsis.macparm",
@@ -638,23 +638,23 @@ proto_register_docsis (void)
      },
     {&hf_docsis_eh_val,
      {"Value", "docsis.ehdr.value",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "TLV Value", HFILL}
      },
     {&hf_docsis_frag_rsvd,
      {"Reserved", "docsis.frag_rsvd",
       FT_UINT8, BASE_DEC, NULL, 0xC0,
-      "Reserved", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_frag_first,
      {"First Frame", "docsis.frag_first",
       FT_BOOLEAN, 8, NULL, 0x20,
-      "First Frame", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_frag_last,
      {"Last Frame", "docsis.frag_last",
       FT_BOOLEAN, 8, NULL, 0x10,
-      "Last Frame", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_frag_seq,
      {"Fragmentation Sequence #", "docsis.frag_seq",
@@ -684,32 +684,32 @@ proto_register_docsis (void)
     {&hf_docsis_key_seq,
      {"Key Sequence", "docsis.ehdr.keyseq",
       FT_UINT8, BASE_DEC, NULL, 0xF0,
-      "Key Sequence", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ehdr_ver,
      {"Version", "docsis.ehdr.ver",
       FT_UINT8, BASE_DEC, NULL, 0x0F,
-      "Version", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ehdr_phsi,
      {"Payload Header Suppression Index", "docsis.ehdr.phsi",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Payload Header Suppression Index", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ehdr_qind,
      {"Queue Indicator", "docsis.ehdr.qind",
       FT_BOOLEAN, 8, TFS(&qind_tfs), 0x80,
-      "Queue Indicator", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_ehdr_grants,
      {"Active Grants", "docsis.ehdr.act_grants",
       FT_UINT8, BASE_DEC, NULL, 0x7F,
-      "Active Grants", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_hcs,
      {"Header check sequence", "docsis.hcs",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "Header check sequence", HFILL},
+      NULL, HFILL},
      },
     {&hf_docsis_bpi_en,
      {"Encryption", "docsis.bpi_en",
@@ -719,7 +719,7 @@ proto_register_docsis (void)
     {&hf_docsis_toggle_bit,
      {"Toggle", "docsis.toggle_bit",
       FT_BOOLEAN, 8, TFS (&odd_even_tfs), 0x40,
-      "Toggle", HFILL},
+      NULL, HFILL},
      },
 
   };

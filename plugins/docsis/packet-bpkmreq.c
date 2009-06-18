@@ -129,8 +129,8 @@ proto_register_docsis_bpkmreq (void)
   static hf_register_info hf[] = {
     {&hf_docsis_bpkmreq,
      {"BPKM Request Message", "docsis_bpkmreq",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "BPKM Request Message", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_bpkmreq_code,
      {"BPKM Code", "docsis_bpkmreq.code",
@@ -140,12 +140,12 @@ proto_register_docsis_bpkmreq (void)
     {&hf_docsis_bpkmreq_ident,
      {"BPKM Identifier", "docsis_bpkmreq.ident",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "BPKM Identifier", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_bpkmreq_length,
      {"BPKM Length", "docsis_bpkmreq.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "BPKM Length", HFILL}
+      NULL, HFILL}
      },
   };
 

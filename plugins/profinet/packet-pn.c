@@ -286,13 +286,13 @@ init_pn (int proto)
 {
 	static hf_register_info hf[] = {
         { &hf_pn_padding,
-        { "Padding", "pn.padding", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "Padding", "pn.padding", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_undecoded_data,
-        { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_user_data,
-        { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_malformed,
-	{ "Malformed", "pn_rt.malformed", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }}
+	{ "Malformed", "pn_rt.malformed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
         };
 
 

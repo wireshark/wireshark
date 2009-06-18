@@ -102,13 +102,13 @@ proto_register_docsis_uccreq (void)
   static hf_register_info hf[] = {
     {&hf_docsis_uccreq,
      {"Upstream Channel Change Request", "docsis_uccreq",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Upstream Channel Change Request", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_uccreq_upchid,
      {"Upstream Channel Id", "docsis_uccreq.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream Channel Id", HFILL}
+      NULL, HFILL}
      },
   };
 

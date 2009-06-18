@@ -180,52 +180,52 @@ void proto_register_nv(void)
    {
       { &hf_nv_summary,
       { "Summary of the Nv Packet", "tc_nv.summary",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
       { &hf_nv_header, { "Header", "tc_nv.header",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_publisher, { "Publisher", "tc_nv.publisher",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
       { &hf_nv_count, { "Count", "tc_nv.count",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_cycleindex, { "CycleIndex", "tc_nv.cycleindex",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_variable, { "Variable", "tc_nv.variable",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
       { &hf_nv_varheader, { "VarHeader", "tc_nv.varheader",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_id, { "Id", "tc_nv.id",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_hash, { "Hash", "tc_nv.hash",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_length, { "Length", "tc_nv.length",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_quality, { "Quality", "tc_nv.quality",
       FT_UINT16, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      NULL, HFILL }
       },
       { &hf_nv_data, { "Data", "tc_nv.data",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
       },
    };
 

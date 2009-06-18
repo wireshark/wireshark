@@ -83,8 +83,8 @@ proto_register_docsis_sync (void)
 	static hf_register_info hf[] = {
 		{&hf_docsis_sync,
 		{"SYNC Message", "docsis_sync",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"SYNC Message", HFILL}
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL}
 		},
 		{&hf_docsis_sync_cmts_timestamp,
 		{"CMTS Timestamp", "docsis_sync.cmts_timestamp",

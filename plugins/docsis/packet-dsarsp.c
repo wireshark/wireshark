@@ -110,8 +110,8 @@ proto_register_docsis_dsarsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dsarsp,
      {"Dynamic Service Add Request", "docsis_dsarsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Dynamic Service Add Request", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_dsarsp_tranid,
      {"Transaction Id", "docsis_dsarsp.tranid",
@@ -121,7 +121,7 @@ proto_register_docsis_dsarsp (void)
     {&hf_docsis_dsarsp_response,
      {"Confirmation Code", "docsis_dsarsp.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Confirmation Code", HFILL}
+      NULL, HFILL}
      },
   };
 

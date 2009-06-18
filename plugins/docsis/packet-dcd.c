@@ -578,7 +578,7 @@ proto_register_docsis_dcd (void)
       "Configuration Change Count", 
       "docsis_dcd.config_ch_cnt",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Configuration Change Count", 
+      NULL, 
       HFILL
       }
     },
@@ -587,7 +587,7 @@ proto_register_docsis_dcd (void)
       "Number of Fragments", 
       "docsis_dcd.num_of_frag",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Number of Fragments", 
+      NULL, 
       HFILL
       }
     },
@@ -596,7 +596,7 @@ proto_register_docsis_dcd (void)
       "Fragment Sequence Number", 
       "docsis_dcd.frag_sequence_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Fragment Sequence Number", 
+      NULL, 
       HFILL
       }
     },
@@ -605,7 +605,7 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier Id", 
       "docsis_dcd.cfr_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier Id", 
+      NULL, 
       HFILL
       }
     },
@@ -614,7 +614,7 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier Rule Priority", 
       "docsis_dcd.cfr_rule_pri",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier Rule Priority", 
+      NULL, 
       HFILL
       }
     },
@@ -622,8 +622,8 @@ proto_register_docsis_dcd (void)
       {
       "Downstream Classifier IP Source Address", 
       "docsis_dcd.cfr_ip_source_addr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP Source Address", 
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },
@@ -631,8 +631,8 @@ proto_register_docsis_dcd (void)
       {
       "Downstream Classifier IP Source Mask", 
       "docsis_dcd.cfr_ip_source_mask",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP Source Mask", 
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },
@@ -640,8 +640,8 @@ proto_register_docsis_dcd (void)
       {
       "Downstream Classifier IP Destination Address", 
       "docsis_dcd.cfr_ip_dest_addr",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP Destination Address", 
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },
@@ -649,7 +649,7 @@ proto_register_docsis_dcd (void)
       {
       "Downstream Classifier IP Destination Mask", 
       "docsis_dcd.cfr_ip_dest_mask",
-      FT_IPv4, BASE_DEC, NULL, 0x0,
+      FT_IPv4, BASE_NONE, NULL, 0x0,
       "Downstream Classifier IP Destination Address", 
       HFILL
       }
@@ -659,7 +659,7 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier IP TCP/UDP Source Port Start", 
       "docsis_dcd.cfr_ip_tcpudp_srcport_start",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP TCP/UDP Source Port Start", 
+      NULL, 
       HFILL
       }
     },
@@ -668,7 +668,7 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier IP TCP/UDP Source Port End", 
       "docsis_dcd.cfr_ip_tcpudp_srcport_end",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP TCP/UDP Source Port End", 
+      NULL, 
       HFILL
       }
     },
@@ -677,7 +677,7 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier IP TCP/UDP Destination Port Start", 
       "docsis_dcd.cfr_ip_tcpudp_dstport_start",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP TCP/UDP Destination Port Start", 
+      NULL, 
       HFILL
       }
     },
@@ -686,70 +686,70 @@ proto_register_docsis_dcd (void)
       "Downstream Classifier IP TCP/UDP Destination Port End", 
       "docsis_dcd.cfr_ip_tcpudp_dstport_end",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Downstream Classifier IP TCP/UDP Destination Port End", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_id,
       {
-      "DSG Rule Id ", 
+      "DSG Rule Id", 
       "docsis_dcd.rule_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "DSG Rule Id ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_pri,
       {
-      "DSG Rule Priority ", 
+      "DSG Rule Priority", 
       "docsis_dcd.rule_pri",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "DSG Rule Priority ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_ucid_list,
       {
-      "DSG Rule UCID Range ", 
+      "DSG Rule UCID Range", 
       "docsis_dcd.rule_ucid_list",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "DSG Rule UCID Range ", 
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_clid_known_mac_addr,
       {
-      "DSG Rule Client ID Known MAC Address ", 
+      "DSG Rule Client ID Known MAC Address", 
       "docsis_dcd.clid_known_mac_addr",
       FT_ETHER, BASE_DEC, NULL, 0x0,
-      "DSG Rule Client ID Known MAC Address ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_clid_ca_sys_id,
       {
-      "DSG Rule Client ID CA System ID ", 
+      "DSG Rule Client ID CA System ID", 
       "docsis_dcd.clid_ca_sys_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Rule Client ID CA System ID ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_clid_app_id,
       {
-      "DSG Rule Client ID Application ID ", 
+      "DSG Rule Client ID Application ID", 
       "docsis_dcd.clid_app_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Rule Client ID Application ID ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_tunl_addr,
       {
-      "DSG Rule Tunnel MAC Address ", 
+      "DSG Rule Tunnel MAC Address", 
       "docsis_dcd.rule_tunl_addr",
       FT_ETHER, BASE_DEC, NULL, 0x0,
-      "DSG Rule Tunnel MAC Address ", 
+      NULL, 
       HFILL
       }
     },
@@ -758,7 +758,7 @@ proto_register_docsis_dcd (void)
       "DSG Rule Classifier ID", 
       "docsis_dcd.rule_cfr_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Rule Classifier ID", 
+      NULL, 
       HFILL
       }
     },
@@ -766,8 +766,8 @@ proto_register_docsis_dcd (void)
       {
       "DSG Rule Vendor Specific Parameters", 
       "docsis_dcd.rule_vendor_spec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "DSG Rule Vendor Specific Parameters", 
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },
@@ -776,43 +776,43 @@ proto_register_docsis_dcd (void)
       "DSG Configuration Channel", 
       "docsis_dcd.cfg_chan",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "DSG Configuration Channel", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg1,
       {
-      "DSG Initialization Timeout (Tdsg1) ", 
+      "DSG Initialization Timeout (Tdsg1)", 
       "docsis_dcd.cfg_tdsg1",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Initialization Timeout (Tdsg1) ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg2,
       {
-      "DSG Operational Timeout (Tdsg2) ", 
+      "DSG Operational Timeout (Tdsg2)", 
       "docsis_dcd.cfg_tdsg2",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Operational Timeout (Tdsg2) ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg3,
       {
-      "DSG Two-Way Retry Timer (Tdsg3) ", 
+      "DSG Two-Way Retry Timer (Tdsg3)", 
       "docsis_dcd.cfg_tdsg3",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG Two-Way Retry Timer (Tdsg3) ", 
+      NULL, 
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg4,
       {
-      "DSG One-Way Retry Timer (Tdsg4) ", 
+      "DSG One-Way Retry Timer (Tdsg4)", 
       "docsis_dcd.cfg_tdsg4",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "DSG One-Way Retry Timer (Tdsg4) ", 
+      NULL, 
       HFILL
       }
     },
@@ -820,8 +820,8 @@ proto_register_docsis_dcd (void)
       {
       "DSG Configuration Vendor Specific Parameters", 
       "docsis_dcd.cfg_vendor_spec",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "DSG Configuration Vendor Specific Parameters", 
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, 
       HFILL
       }
     },

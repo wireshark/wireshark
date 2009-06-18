@@ -107,7 +107,7 @@ proto_register_docsis_dsaack (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dsaack,
      {"Dynamic Service Add Ack", "docsis_dsaack",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       "Dynamic Service Add Request", HFILL}
      },
     {&hf_docsis_dsaack_tranid,
@@ -118,7 +118,7 @@ proto_register_docsis_dsaack (void)
     {&hf_docsis_dsaack_response,
      {"Confirmation Code", "docsis_dsaack.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Confirmation Code", HFILL}
+      NULL, HFILL}
      },
   };
 

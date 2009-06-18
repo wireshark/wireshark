@@ -104,23 +104,23 @@ proto_register_docsis_dsdrsp (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dsdrsp,
      {"Dynamic Service Delete Response", "docsis_dsdrsp",
-      FT_BYTES, BASE_HEX, NULL, 0x0,
-      "Dynamic Service Delete Response", HFILL}
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
      },
     {&hf_docsis_dsdrsp_tranid,
      {"Transaction Id", "docsis_dsdrsp.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Transaction Id", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_dsdrsp_confcode,
      {"Confirmation Code", "docsis_dsdrsp.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
-      "Confirmation Code", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_dsdrsp_rsvd,
      {"Reserved", "docsis_dsdrsp.rsvd",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Reserved", HFILL}
+      NULL, HFILL}
      },
   };
 
