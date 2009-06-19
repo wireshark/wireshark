@@ -210,11 +210,11 @@ extern gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent);
 #define GCP_ETT_ARR_ELEMS(gi)     &(gi.ett.ctx),&(gi.ett.ctx_cmds),&(gi.ett.ctx_terms),&(gi.ett.ctx_term)
 
 #define GCP_HF_ARR_ELEMS(n,gi) \
-  { &(gi.hf.ctx), { "Context", n ".ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }}, \
-  { &(gi.hf.ctx_term), { "Termination", n ".ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}, \
-  { &(gi.hf.ctx_term_type), { "Type", n ".ctx.term.type", FT_UINT32, BASE_HEX, VALS(gcp_term_types), 0, "", HFILL }}, \
-  { &(gi.hf.ctx_term_bir), { "BIR", n ".ctx.term.bir", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }}, \
-  { &(gi.hf.ctx_term_nsap), { "NSAP", n ".ctx.term.nsap", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}, \
-  { &(gi.hf.ctx_cmd), { "Command in Frame", n ".ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }}
+  { &(gi.hf.ctx), { "Context", n ".ctx", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }}, \
+  { &(gi.hf.ctx_term), { "Termination", n ".ctx.term", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}, \
+  { &(gi.hf.ctx_term_type), { "Type", n ".ctx.term.type", FT_UINT32, BASE_HEX, VALS(gcp_term_types), 0, NULL, HFILL }}, \
+  { &(gi.hf.ctx_term_bir), { "BIR", n ".ctx.term.bir", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}, \
+  { &(gi.hf.ctx_term_nsap), { "NSAP", n ".ctx.term.nsap", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}, \
+  { &(gi.hf.ctx_cmd), { "Command in Frame", n ".ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }}
 
 #endif

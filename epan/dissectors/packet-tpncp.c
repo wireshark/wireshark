@@ -567,7 +567,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     hf_entr.hfinfo.display        = BASE_DEC;
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
-    hf_entr.hfinfo.blurb          = "";
+    hf_entr.hfinfo.blurb          = NULL;
     hf_entr.hfinfo.id             = 0;
     hf_entr.hfinfo.parent         = 0;
     hf_entr.hfinfo.bitshift       = 0;

@@ -889,14 +889,14 @@ void proto_reg_handoff_iuup(void) {
 { &hf_iuup_init_rfci_flow_len[i][7], { "RFCI " #i " Flow 7 Len", "iuup.rfci."#i".flow.7.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
 { &hf_iuup_init_rfci_li[i], { "RFCI " #i " LI", "iuup.rfci."#i".li", FT_UINT8, BASE_HEX, VALS(iuup_init_rfci_li_vals),0x40,"Length Indicator",HFILL}}, \
 { &hf_iuup_init_rfci_lri[i], { "RFCI " #i " LRI", "iuup.rfci."#i".lri", FT_UINT8, BASE_HEX, VALS(iuup_init_lri_vals),0x80,"Last Record Indicator",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][0], { "RFCI " #i " Flow 0", "iuup.rfci."#i".flow.0", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][1], { "RFCI " #i " Flow 1", "iuup.rfci."#i".flow.1", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][2], { "RFCI " #i " Flow 2", "iuup.rfci."#i".flow.2", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][0], { "RFCI " #i " Flow 0", "iuup.rfci."#i".flow.0", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][1], { "RFCI " #i " Flow 1", "iuup.rfci."#i".flow.1", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][2], { "RFCI " #i " Flow 2", "iuup.rfci."#i".flow.2", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}}, \
 { &hf_iuup_init_ipti[i], { "RFCI " #i " IPTI", "iuup.rfci."#i".ipti", FT_UINT8, BASE_HEX, NULL,i%2 ? 0x0F : 0xF0,NULL,HFILL}}
 
 

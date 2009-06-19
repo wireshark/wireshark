@@ -827,27 +827,27 @@ void proto_register_pppoes(void)
 	{
 		{ &hf_pppoes_tags,
 			{ "PPPoE Tags", "pppoes.tags", FT_NONE, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoes_tag,
 			{ "Tag", "pppoes.tag", FT_UINT16, BASE_HEX,
-				 VALS(tag_vals), 0x0, "", HFILL
+				 VALS(tag_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoes_tag_credits,
-			{ "Credits", "pppoes.tags.credits", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "Credits", "pppoes.tags.credits", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoes_tag_credits_fcn,
 			{ "FCN", "pppoes.tags.credits.fcn", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoes_tag_credits_bcn,
 			{ "BCN", "pppoes.tags.credits.bcn", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

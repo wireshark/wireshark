@@ -3111,7 +3111,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_type,
 		  { "Message Type", "wlccp.type",
 		    FT_UINT8, BASE_HEX, NULL,
-		    0x0, "Message Type", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_subtype,
@@ -3123,43 +3123,43 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_base_message_type_0,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_0),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_1,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_1),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_2,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_2),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_3,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_3),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_4,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_4),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_5,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs_5),
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_base_message_type_unknown,
 		  { "Base message type", "wlccp.base_message_type",
 		    FT_UINT8, BASE_HEX_DEC, NULL,
-		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
+		    MT_BASE_MSG_TYPE, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_hops,
@@ -3171,7 +3171,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_nm_version,
 		  { "NM Version", "wlccp.nm_version",
 		    FT_UINT8, BASE_DEC, NULL,
-		    0x0, "NM Version", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_msg_id,
@@ -3185,13 +3185,13 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_flags,
 		  { "Flags", "wlccp.flags",
 		    FT_UINT16, BASE_HEX, NULL,
-		    0x0, "Flags", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_rm_flags,
 		  { "RM Flags", "wlccp.rm_flags",
 		    FT_UINT8, BASE_HEX, NULL,
-		    0x0, "RM Flags", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_retry_flag,
@@ -3305,13 +3305,13 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_status,
 		  { "Status", "wlccp.status",
 		    FT_UINT8, BASE_DEC, VALS(wlccp_status_vs),
-		    0x0, "Status", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_path_init_rsvd,
 		  { "Reserved", "wlccp.path_init_reserved",
 		    FT_UINT8, BASE_DEC, NULL,
-		    0x0, "Reserved", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_relay_node_type,
@@ -3389,7 +3389,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_scm_election_group,
 		  { "SCM Election Group", "wlccp.scm_election_group",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "SCM Election Group", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scm_attach_count,
@@ -3401,13 +3401,13 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_scm_priority_flags,
 		  { "SCM Priority flags", "wlccp.scm_priority_flags",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "SCM Priority flags", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scm_priority,
 		  { "SCM Priority", "wlccp.scm_priority",
 		    FT_UINT8, BASE_DEC, NULL,
-		    F_SCM_PRIORITY, "SCM Priority", HFILL }
+		    F_SCM_PRIORITY, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scm_preferred_flag,
@@ -3419,7 +3419,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_scm_bridge_priority_flags,
 		  { "Bridge Priority flags", "wlccp.scm_bridge_priority_flags",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Bridge Priority flags", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scm_bridge_priority,
@@ -3485,55 +3485,55 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_ap_node_id,
 		  { "AP Node ID", "wlccp.apnodeid",
 		    FT_NONE, BASE_NONE, NULL, 0,
-		    "AP Node ID", HFILL }
+		    NULL, HFILL }
 		},
 		
 		{ &hf_wlccp_ap_node_type,
 		  { "AP Node Type", "wlccp.apnodetype",
 		    FT_UINT16, BASE_HEX, NULL, 0,
-		    "AP Node Type", HFILL }
+		    NULL, HFILL }
 		},
 		
 		{ &hf_wlccp_ap_node_id_address,
 		  { "AP Node Address", "wlccp.apnodeidaddress",
 		    FT_ETHER, BASE_NONE, NULL, 0,
-		    "AP Node Address", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_aaa_msg_type,
 		  { "AAA Message Type", "wlccp.aaa_msg_type",
 		    FT_UINT8, BASE_HEX, VALS(wlccp_aaa_msg_type_vs), 0,
-		    "AAA Message Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_aaa_auth_type,
 		  { "AAA Authentication Type", "wlccp.aaa_auth_type",
 		    FT_UINT8, BASE_HEX, VALS(wlccp_eapol_auth_type_vs), 0,
-		    "AAA Authentication Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_keymgmt_type,
 		  { "AAA Key Management Type", "wlccp.aaa_keymgmt_type",
 		    FT_UINT8, BASE_HEX, VALS(wlccp_key_mgmt_type_vs), 0,
-		    "AAA Key Management Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_eapol_msg,
 		  { "EAPOL Message", "wlccp.eapol_msg",
 		    FT_NONE, BASE_NONE, NULL, 0,
-		    "EAPOL Message", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_eapol_version,
 		  { "EAPOL Version", "wlccp.eapol_version",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "EAPOL Version", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_eapol_type,
 		  { "EAPOL Type", "wlccp.eapol_type",
 		    FT_UINT8, BASE_HEX, VALS(eapol_type_vs), 0,
-		    "EAPOL Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_eap_msg_length,
@@ -3544,62 +3544,62 @@ proto_register_wlccp(void)
 
 		{ &hf_wlccp_eap_msg,
 		  { "EAP Message", "wlccp.eap_msg",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "EAP Message", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_cisco_acctg_msg,
 		  { "Cisco Accounting Message", "wlccp.cisco_acctg_msg",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "Cisco Accounting Message", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_wids_msg_type,
 		  { "WIDS Message Type", "wlccp.wids_msg_type",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "WIDS Message Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_nmconfig,
 		  { "NM Config", "wlccp.nmconfig",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "NM Config", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scmstate_change,
 		  { "SCM State Change", "wlccp.scmstate_change",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "SCM State Change", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scmstate_change_reason,
 		  { "SCM State Change Reason", "wlccp.scmstate_change_reason",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "SCM State Change Reason", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scmattach_state,
-		  { "SCM Attach State ", "wlccp.scmattach_state",
+		  { "SCM Attach State", "wlccp.scmattach_state",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "SCM Attach State", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_nmcapability,
 		  { "NM Capability", "wlccp.nm_capability",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "NM Capability", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_refresh_req_id,
 		  { "Refresh Request ID", "wlccp.refresh_request_id",
 		    FT_UINT32, BASE_DEC, NULL, 0,
-		    "Refresh Request ID", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_tlv,
 		  { "WLCCP TLV", "wlccp.tlv",
 		    FT_NONE, BASE_NONE, NULL, 0,
-		    "WLCCP TLV", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_tlv_flags,
@@ -3610,8 +3610,8 @@ proto_register_wlccp(void)
 
 		{ &hf_wlccp_null_tlv,
 		  { "NULL TLV", "wlccp.wlccp_null_tlv",
-		    FT_BYTES, BASE_HEX, NULL , 
-		    0, "NULL TLV", HFILL }
+		    FT_BYTES, BASE_NONE, NULL , 
+		    0, NULL, HFILL }
 		},
 
 
@@ -3690,109 +3690,109 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_tlv_length,
 		  { "TLV Length", "wlccp.tlv_length",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "TLV Length", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_path_length,
 		  { "Path Length", "wlccp.path_length",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Path Length", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mic_msg_seq_count,
 		  { "MIC Message Sequence Count", "wlccp.mic_msg_seq_count",
 		    FT_UINT64, BASE_DEC, NULL, 0,
-		    "MIC Message Sequence Count", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mic_length,
 		  { "MIC Length", "wlccp.mic_length",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "MIC Length", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mic_value,
 		  { "MIC Value", "wlccp.mic_value",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "MIC Value", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_dest_node_type,
 		  { "Destination node type", "wlccp.dest_node_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_node_type_vs),
-		    0x0, "Destination node type", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_dest_node_id,
 		  { "Destination node ID", "wlccp.dest_node_id",
 		    FT_ETHER, BASE_NONE, NULL,
-		    0x0, "Destination node ID", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_supp_node_type,
 		  { "Destination node type", "wlccp.supp_node_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_node_type_vs),
-		    0x0, "Destination node type", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_supp_node_id,
 		  { "Supporting node ID", "wlccp.supp_node_id",
 		    FT_ETHER, BASE_NONE, NULL,
-		    0x0, "Supporting node ID", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_src_node_type,
 		  { "Source node type", "wlccp.source_node_type",
 		    FT_UINT16, BASE_DEC, VALS(wlccp_node_type_vs),
-		    0x0, "Source node type", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_src_node_id,
 		  { "Source node ID", "wlccp.source_node_id",
 		    FT_ETHER, BASE_NONE, NULL,
-		    0x0, "Source node ID", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_key_mgmt_type,
 		  { "Key Management type", "wlccp.key_mgmt_type",
 		    FT_UINT8, BASE_HEX, NULL,
-		    0x0, "Key Management type", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_key_seq_count,
 		  { "Key Sequence Count", "wlccp.key_seq_count",
 		    FT_UINT32, BASE_DEC, NULL, 0,
-		    "Key Sequence Count", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_session_timeout,
 		  { "Session Timeout", "wlccp.session_timeout",
 		    FT_UINT32, BASE_DEC, NULL, 0,
-		    "Session Timeout", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_nonce,
 		  { "Nonce Value", "wlccp.nonce_value",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "Nonce Value", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_token,
 		  { "Token", "wlccp.token",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "Token", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scan_mode,
 		  { "Scan Mode", "wlccp.scan_mode",
 		    FT_UINT8, BASE_HEX, NULL,
-		    0, "Scan Mode", HFILL }
+		    0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mode,
 		  { "Mode", "wlccp.mode",
 		    FT_UINT8, BASE_HEX, VALS(wlccp_mode_vs), 
-		    0, "Mode", HFILL }
+		    0, NULL, HFILL }
 		},
 
 		{ &hf_wlccp_rss,
@@ -3804,43 +3804,43 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_srcidx,
 		  { "Source Index", "wlccp.srcidx",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "Source Index", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_parent_tsf,
 		  { "Parent TSF", "wlccp.parenttsf",
 		    FT_UINT32, BASE_HEX, NULL, 0,
-		    "Parent TSF", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_target_tsf,
 		  { "Target TSF", "wlccp.targettsf",
 		    FT_UINT64, BASE_HEX, NULL, 0,
-		    "Target TSF", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_channel,
 		  { "Channel", "wlccp.channel",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Channel", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_phy_type,
 		  { "PHY Type", "wlccp.phy_type",
 		    FT_UINT8, BASE_DEC, VALS(phy_type_80211_vs), 0,
-		    "PHY Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_bssid,
 		  { "BSS ID", "wlccp.bssid",
 		    FT_ETHER, BASE_NONE, NULL, 0,
-		    "Basic Service Set ID ", HFILL }
+		    "Basic Service Set ID", HFILL }
 		},
 
 		{ &hf_wlccp_beacon_interval,
 		  { "Beacon Interval", "wlccp.beacon_interval",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "Beacon Interval", HFILL }
+		    NULL, HFILL }
 		},
 
 		/*
@@ -3854,7 +3854,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_80211_capabilities,
 		  { "802.11 Capabilities Flags", "wlccp.80211_capabilities",
 		    FT_UINT16, BASE_HEX, NULL,
-		    0x0, "802.11 Capabilities Flags", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_80211_cap_ess,
@@ -3933,86 +3933,86 @@ proto_register_wlccp(void)
 		{ &hf_80211_reserved,
 		  { "Reserved", "wlccp.80211_reserved",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_RESVD, "Reserved", HFILL }
+		    F_80211_RESVD, NULL, HFILL }
 		},
 
 		{ &hf_80211_dsss_ofdm,
 		  { "DSSS-OFDM Flag", "wlccp.dsss_ofdm_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_DSSS_OFDM, "DSSS-OFDM Flag", HFILL }
+		    F_80211_DSSS_OFDM, NULL, HFILL }
 		},
 
 		{ &hf_80211_dlyd_block_ack,
 		  { "Delayed Block Ack Flag", "wlccp.dsss_dlyd_block_ack_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_DLYD_BLK_ACK, "Delayed Block Ack Flag", HFILL }
+		    F_80211_DLYD_BLK_ACK, NULL, HFILL }
 		},
 
 		{ &hf_80211_imm_block_ack,
 		  { "Immediate Block Ack Flag", "wlccp.dsss_imm_block_ack_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_IMM_BLK_ACK, "Immediate Block Ack Flag", HFILL }
+		    F_80211_IMM_BLK_ACK, NULL, HFILL }
 		},
 
 
 		{ &hf_wlccp_tlv80211,
 		  { "802.11 TLV Value", "wlccp.tlv80211",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "802.11 TLV Value", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_duration,
 		  { "Duration", "wlccp.duration",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "Duration", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_rpidensity,
 		  { "RPI Density", "wlccp.rpi_denisty",
-		    FT_BYTES, BASE_DEC, NULL, 0,
-		    "RPI Density", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_ccabusy,
 		  { "CCA Busy", "wlccp.cca_busy",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "CCA Busy", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_stamac,
 		  { "Station MAC", "wlccp.station_mac",
 		    FT_ETHER, BASE_NONE, NULL, 0,
-		    "Station MAC", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_sta_type,
 		  { "Station Type", "wlccp.station_type",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "Station Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_token2,
 		  { "2 Byte Token", "wlccp.token2",
 		    FT_UINT16, BASE_HEX, NULL, 0,
-		    "2 Byte Token", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_interval,
 		  { "Interval", "wlccp.interval",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "Interval", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_framereport_elements,
 		  { "Frame Report Elements", "wlccp.framereport_elements",
 		    FT_NONE, BASE_NONE, NULL, 0,
-		    "Frame Report Elements", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_count,
 		  { "Element Count", "wlccp.element_count",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Element Count", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_numframes,
@@ -4024,68 +4024,68 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_mfpcapability,
 		  { "MFP Capability", "wlccp.mfp_capability",
 		    FT_UINT16, BASE_HEX, NULL, 0,
-		    "MFP Capability", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mfpflags,
 		  { "MFP Flags", "wlccp.mfp_flags",
 		    FT_UINT16, BASE_HEX, NULL, 0,
-		    "MFP Flags", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_mfpconfig,
 		  { "MFP Config", "wlccp.mfp_config",
 		    FT_UINT16, BASE_HEX, NULL, 0,
-		    "MFP Config", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_clientmac,
 		  { "Client MAC", "wlccp.client_mac",
 		    FT_ETHER, BASE_NONE, NULL, 0,
-		    "Client MAC", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_reg_lifetime,
 		  { "Reg. LifeTime", "wlccp.reg_lifetime",
 		    FT_UINT8, BASE_DEC, NULL, 0,
-		    "Reg. LifeTime", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_time_elapsed,
 		  { "Elapsed Time", "wlccp.time_elapsed",
 		    FT_UINT16, BASE_DEC, NULL, 0,
-		    "Elapsed Time", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_parent_ap_mac,
 		  { "Parent AP MAC", "wlccp.parent_ap_mac",
 		    FT_ETHER, BASE_NONE, NULL, 0,
-		    "Parent AP MAC", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_auth_type,
 		  { "Authentication Type", "wlccp.auth_type",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "Authentication Type", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_radius_user_name,
 		  { "RADIUS Username", "wlccp.radius_username",
 		    FT_STRING, BASE_NONE, NULL,
-		    0x0, "RADIUS Username", HFILL }
+		    0x0, NULL, HFILL }
 		},
 
 		{ &hf_wds_reason,
 		  { "Reason Code", "wlccp.wds_reason",
 		    FT_UINT8, BASE_HEX, NULL, 0,
-		    "Reason Code", HFILL }
+		    NULL, HFILL }
 		},
 
 
 		{ &hf_wlccp_tlv_unknown_value,
 		  { "Unknown TLV Contents", "wlccp.tlv_unknown_value",
-		    FT_BYTES, BASE_HEX, NULL, 0,
-		    "Unknown TLV Contents", HFILL }
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
 		}
 
 	}; /* hf_register_info hf */

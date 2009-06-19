@@ -97,27 +97,27 @@ struct _fec_ptr
 
 #define FEC_FIELD_ARRAY(base_structure, base_protocol)	\
 	{ &base_structure.header,	\
-		{ "Forward Error Correction (FEC) header", base_protocol ".fec", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+		{ "Forward Error Correction (FEC) header", base_protocol ".fec", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.encoding_id,	\
-		{ "FEC Encoding ID", base_protocol ".fec.encoding_id", FT_UINT8, BASE_DEC, VALS(string_fec_encoding_id), 0x0, "", HFILL }},	\
+		{ "FEC Encoding ID", base_protocol ".fec.encoding_id", FT_UINT8, BASE_DEC, VALS(string_fec_encoding_id), 0x0, NULL, HFILL }},	\
 	{ &base_structure.instance_id,	\
-		{ "FEC Instance ID", base_protocol ".fec.instance_id", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "FEC Instance ID", base_protocol ".fec.instance_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.sbn,	\
-		{ "Source Block Number", base_protocol ".fec.sbn", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "Source Block Number", base_protocol ".fec.sbn", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.sbl,	\
-		{ "Source Block Length", base_protocol ".fec.sbl", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "Source Block Length", base_protocol ".fec.sbl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.esi,	\
-		{ "Encoding Symbol ID", base_protocol ".fec.esi", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},	\
+		{ "Encoding Symbol ID", base_protocol ".fec.esi", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_header,	\
-		{ "FEC Object Transmission Information", base_protocol ".fec.fti", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+		{ "FEC Object Transmission Information", base_protocol ".fec.fti", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_transfer_length,	\
-		{ "Transfer Length", base_protocol ".fec.fti.transfer_length", FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "Transfer Length", base_protocol ".fec.fti.transfer_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_encoding_symbol_length,	\
-		{ "Encoding Symbol Length", base_protocol ".fec.fti.encoding_symbol_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "Encoding Symbol Length", base_protocol ".fec.fti.encoding_symbol_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_max_source_block_length,	\
-		{ "Maximum Source Block Length", base_protocol ".fec.fti.max_source_block_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+		{ "Maximum Source Block Length", base_protocol ".fec.fti.max_source_block_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_max_number_encoding_symbols,	\
-		{ "Maximum Number of Encoding Symbols", base_protocol ".fec.fti.max_number_encoding_symbols", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }}
+		{ "Maximum Number of Encoding Symbols", base_protocol ".fec.fti.max_number_encoding_symbols", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 
 #define FEC_SUBTREE_ARRAY(base_structure) \
 	&base_structure.main

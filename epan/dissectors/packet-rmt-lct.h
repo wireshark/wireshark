@@ -124,45 +124,45 @@ struct _lct_ptr
 
 #define LCT_FIELD_ARRAY(base_structure, base_protocol)	\
 		{ &base_structure.header,	\
-			{ "Layered Coding Transport (LCT) header", base_protocol ".lct", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Layered Coding Transport (LCT) header", base_protocol ".lct", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.version,	\
-			{ "Version", base_protocol ".lct.version", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Version", base_protocol ".lct.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.fsize_header,	\
-			{ "Field sizes (bytes)", base_protocol ".lct.fsize", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Field sizes (bytes)", base_protocol ".lct.fsize", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.fsize_cci,	\
-			{ "Congestion Control Information field size", base_protocol ".lct.fsize.cci", FT_UINT8,	BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Congestion Control Information field size", base_protocol ".lct.fsize.cci", FT_UINT8,	BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.fsize_tsi,	\
-			{ "Transport Session Identifier field size", base_protocol ".lct.fsize.tsi", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Transport Session Identifier field size", base_protocol ".lct.fsize.tsi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.fsize_toi,	\
-			{ "Transport Object Identifier field size", base_protocol ".lct.fsize.toi", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Transport Object Identifier field size", base_protocol ".lct.fsize.toi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_header,	\
-			{ "Flags", base_protocol ".lct.flags", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Flags", base_protocol ".lct.flags", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_sct_present,	\
-			{ "Sender Current Time present flag", base_protocol ".lct.flags.sct_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, "", HFILL }},	\
+			{ "Sender Current Time present flag", base_protocol ".lct.flags.sct_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_ert_present,	\
-			{ "Expected Residual Time present flag", base_protocol ".lct.flags.ert_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, "", HFILL }},	\
+			{ "Expected Residual Time present flag", base_protocol ".lct.flags.ert_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_close_session,	\
-			{ "Close Session flag", base_protocol ".lct.flags.close_session", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, "", HFILL }},	\
+			{ "Close Session flag", base_protocol ".lct.flags.close_session", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_close_object,	\
-			{ "Close Object flag", base_protocol ".lct.flags.close_object", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, "", HFILL }},	\
+			{ "Close Object flag", base_protocol ".lct.flags.close_object", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.hlen,	\
-			{ "Header length", base_protocol ".lct.hlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Header length", base_protocol ".lct.hlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.codepoint,	\
-			{ "Codepoint", base_protocol ".lct.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Codepoint", base_protocol ".lct.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.cci,	\
-			{ "Congestion Control Information", base_protocol ".lct.cci", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Congestion Control Information", base_protocol ".lct.cci", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.tsi,	\
-			{ "Transport Session Identifier", base_protocol ".lct.tsi", FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Transport Session Identifier", base_protocol ".lct.tsi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.toi,	\
-			{ "Transport Object Identifier (up to 64 bites)", base_protocol ".lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL }},	\
+			{ "Transport Object Identifier (up to 64 bites)", base_protocol ".lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.toi_extended,	\
-			{ "Transport Object Identifier (up to 112 bits)", base_protocol ".lct.toi_extended", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Transport Object Identifier (up to 112 bits)", base_protocol ".lct.toi_extended", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.sct,	\
-			{ "Sender Current Time", base_protocol ".lct.sct", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Sender Current Time", base_protocol ".lct.sct", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.ert,	\
-			{ "Expected Residual Time", base_protocol ".lct.ert", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},	\
+			{ "Expected Residual Time", base_protocol ".lct.ert", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.ext,	\
-			{ "Extension count", base_protocol ".lct.ext", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }}
+			{ "Extension count", base_protocol ".lct.ext", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 
 #define LCT_SUBTREE_ARRAY(base_structure) \
 	&base_structure.main,	\

@@ -757,7 +757,7 @@ static void add_xml_field(GArray* hfs, int* p_id, gchar* name, gchar* fqn) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.strings = NULL;
 	hfri.hfinfo.bitmask = 0x0;
-	hfri.hfinfo.blurb = "";
+	hfri.hfinfo.blurb = NULL;
 	hfri.hfinfo.id = 0;
 	hfri.hfinfo.parent = 0;
 	hfri.hfinfo.ref_count = 0;
