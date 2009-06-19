@@ -152,6 +152,8 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type2,
       glbp_type2_vals, "Type 0x%02x"));
 
+  length2 = tvb_get_guint8(tvb, 13);
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_glbp, tvb, 0, -1, FALSE);
     glbp_tree = proto_item_add_subtree(ti, ett_glbp);
@@ -165,7 +167,6 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 12;
     proto_tree_add_item(glbp_tree, hf_glbp_type2, tvb, 12, 1,  FALSE);
     proto_tree_add_item(glbp_tree, hf_glbp_length2, tvb, 13, 1,  FALSE);
-    length2 = tvb_get_guint8(tvb, 13);
 
     switch(type2) {
       case 1: /* Hello */
