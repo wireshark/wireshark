@@ -142,7 +142,6 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti = NULL;
   guint32 type2;
   guint32 length2;
-  int offset = 0;
 
   type2 = tvb_get_guint8(tvb, 12);
 
@@ -164,7 +163,6 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(glbp_tree, hf_glbp_unknown1, tvb, 2, 2,  FALSE);
     proto_tree_add_item(glbp_tree, hf_glbp_unknown2, tvb, 4, 2,  FALSE);
     proto_tree_add_item(glbp_tree, hf_glbp_somemac, tvb, 6, 6, FALSE);
-    offset += 12;
     proto_tree_add_item(glbp_tree, hf_glbp_type2, tvb, 12, 1,  FALSE);
     proto_tree_add_item(glbp_tree, hf_glbp_length2, tvb, 13, 1,  FALSE);
 
@@ -193,7 +191,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
   }
-  return offset + length2;
+  return 12 + length2;
 }
 
 static gboolean
