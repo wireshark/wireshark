@@ -1522,11 +1522,10 @@ class EthCtx:
       fx.write('        %(TYPE)s, %(DISPLAY)s, %(STRINGS)s, %(BITMASK)s,\n' % attr)
       fx.write('        %(BLURB)s, HFILL }},\n' % attr)
     for nb in self.named_bit:
-      blurb = ''
       fx.write('    { &%s,\n' % (nb['ethname']))
       fx.write('      { "%s", "%s.%s",\n' % (nb['name'], self.proto, nb['name']))
       fx.write('        %s, %s, %s, %s,\n' % (nb['ftype'], nb['display'], nb['strings'], nb['bitmask']))
-      fx.write('        "%s", HFILL }},\n' % (blurb))
+      fx.write('        NULL, HFILL }},\n')
     self.output.file_close(fx)
 
   #--- eth_output_ett ---------------------------------------------------------
