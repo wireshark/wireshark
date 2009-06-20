@@ -227,7 +227,7 @@ gint pdu_type=-1;
 
 #.TYPE_ATTR
 NetworkAddress TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
-Message/community  TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+Message/community  TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 HeaderData/msgSecurityModel TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(sec_models)
-UsmSecurityParameters/msgUserName TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+UsmSecurityParameters/msgUserName TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 #.END

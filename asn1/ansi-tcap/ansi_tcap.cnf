@@ -19,7 +19,7 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
 
 #--- INVOKE ---
 #.FIELD_ATTR
-Invoke/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+Invoke/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_BODY Invoke/parameter
 tvbuff_t	*parameter_tvb;
@@ -37,7 +37,7 @@ tvbuff_t	*parameter_tvb;
 #--- RETURN RESULT ---
 
 #.FIELD_ATTR
-ReturnResult/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+ReturnResult/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_BODY ReturnResult/parameter
 tvbuff_t	*parameter_tvb;
@@ -57,7 +57,7 @@ tvbuff_t	*parameter_tvb;
 #--- RETURN ERROR ---
 
 #.FIELD_ATTR
-ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_BODY ReturnError/parameter
 tvbuff_t	*parameter_tvb;

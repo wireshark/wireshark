@@ -1388,8 +1388,8 @@ MulticastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS
 MulticastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(h245_RFC_number_vals)
 NonStandardIdentifier/h221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
-VendorIdentification/productNumber TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
-VendorIdentification/versionNumber TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+VendorIdentification/productNumber TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
+VendorIdentification/versionNumber TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 ParameterValue/octetString  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 
 #----------------------------------------------------------------------------------------

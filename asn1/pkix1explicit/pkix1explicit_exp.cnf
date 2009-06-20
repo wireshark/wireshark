@@ -38,7 +38,7 @@ SubjectPublicKeyInfo     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 TeletexDomainDefinedAttribute TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 TerminalType             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Time_vals)  BITMASK = 0
-UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_NONE   STRINGS = NULL  BITMASK = 0
 Version                  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Version_vals)  BITMASK = 0
 #.END
 

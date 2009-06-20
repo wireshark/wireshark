@@ -70,7 +70,7 @@ ReturnErrorProblem   VAL_PTR = &problem_val
 #.END
 
 #.FIELD_ATTR
-Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS Invoke/argument
 FN_VARIANT = _pdu
@@ -82,7 +82,7 @@ TYPE_REF_FN = argument_cb
 #--- RETURN RESULT ---
 
 #.FIELD_ATTR
-ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS ReturnResult/result/result
 FN_VARIANT = _pdu
@@ -95,7 +95,7 @@ TYPE_REF_FN = result_cb
 #--- RETURN ERROR ---
 
 #.FIELD_ATTR
-ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS ReturnError/parameter
 FN_VARIANT = _pdu

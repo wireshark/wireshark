@@ -725,8 +725,8 @@ TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NU
 TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 H245TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 H245TransportAddress/ip6Address/ip  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
-VendorIdentifier/productId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
-VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+VendorIdentifier/productId TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
+VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 H323-UserInformation/user-data/protocol-discriminator TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(q931_protocol_discriminator_vals)
 H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 NonStandardParameter/data  TYPE = FT_UINT32 DISPLAY = BASE_DEC
