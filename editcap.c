@@ -631,7 +631,7 @@ static void
 list_capture_types(void) {
     int i;
 
-    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
+    fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
       if (wtap_dump_can_open(i))
         fprintf(stderr, "    %s - %s\n",
@@ -644,7 +644,7 @@ list_encap_types(void) {
     int i;
     const char *string;
 
-    fprintf(stderr, "editcap: The available encapsulation types for \"T\":\n");
+    fprintf(stderr, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         string = wtap_encap_short_string(i);
         if (string != NULL)
