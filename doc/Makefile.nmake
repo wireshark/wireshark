@@ -33,13 +33,21 @@ doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 editcap.1 \
 	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1 rawshark.1
 
-wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
-	copy /B wireshark.pod + ..\AUTHORS-SHORT-FORMAT wireshark-tmp.pod
+wireshark-tmp.pod: wireshark.pod AUTHORS-SHORT-FORMAT
+	copy /B wireshark.pod + AUTHORS-SHORT-FORMAT wireshark-tmp.pod
 
-../AUTHORS-SHORT-FORMAT:
-	cd ..
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake AUTHORS-SHORT-FORMAT
-	cd doc
+#
+# Build the short version of the authors file for the about dialog
+#
+AUTHORS-SHORT: ../AUTHORS make-authors-short.pl
+	$(PERL) perlnoutf.pl make-authors-short.pl < ../AUTHORS > AUTHORS-SHORT
+
+#
+# Build the short version of the authors file with formatting codes for
+# the man page
+#
+AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
+    $(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 ws.css: ../docbook/ws.css
 	copy ..\docbook\ws.css .
@@ -200,6 +208,7 @@ clean:
 	rm -f rawshark.html rawshark.1
 	rm -f pod2htm*
 	rm -f ws.css
+	rm -f AUTHORS-SHORT AUTHORS-SHORT-FORMAT
 
 distclean: clean
 

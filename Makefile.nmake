@@ -391,18 +391,6 @@ svnversion.h: $(SVNENTRIES)
 	rm -f svnversion.h
 	$(PERL) make-version.pl
 
-#
-# Build the short version of the authors file for the about dialog
-#
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
-	$(PERL) perlnoutf.pl make-authors-short.pl < AUTHORS > AUTHORS-SHORT
-
-#
-# Build the short version of the authors file with formatting codes for
-# the man page
-#
-AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
-    $(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 #
 # Build "tshark-tap-register.c", which contains a function
@@ -435,8 +423,7 @@ clean-local: clean-deps
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
-		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
-		AUTHORS-SHORT-FORMAT $(LIBS_CHECK) \
+		rdps.pdb rdps.exe rdps.ilk config.h ps.c $(LIBS_CHECK) \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
@@ -635,7 +622,7 @@ codecs::
         $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
         cd ..
 
-gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
+gtk:: help config.h svnversion.h doxygen
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
@@ -960,12 +947,12 @@ install-generated-files:
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist editcap.exe xcopy editcap.exe $(INSTALL_DIR) /d
 	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d
-	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
+	xcopy "doc\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\services" $(INSTALL_DIR) /d
 	xcopy ".\README" $(INSTALL_DIR) /d
 	xcopy ".\README.win32" $(INSTALL_DIR) /d
-	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
+	xcopy "doc\AUTHORS-SHORT-FORMAT" $(INSTALL_DIR) /d
 	xcopy ".\COPYING" $(INSTALL_DIR) /d
 	copy ".\NEWS" $(INSTALL_DIR)\NEWS.txt
 	xcopy ".\cfilters" $(INSTALL_DIR) /d

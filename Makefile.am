@@ -36,43 +36,6 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
-#
-# This is a hideous hack.
-#
-# Automake needs to know into which sections to install various man
-# pages; if the names in "man_MANS" have suffixes, it can infer the
-# sections from the name (e.g., "hello.1" goes in section 1), but if
-# they don't have suffixes, it can't tell what sections to put them, and
-# it just gives up and doesn't create any rules to install them (and it
-# gives up silently, so you have no clue what's wrong).
-#
-# Therefore, we can't just set "man_MANS" to a list of variables to be
-# filled in by the configure script, as those variables don't have man
-# page section numbers.
-#
-# It turns out (although this is not documented anywhere I could find
-# in the automake Info file) that if you define, instead, variables with
-# names like "man{section}_MANS", automake will infer that the names in
-# those variables are the names of man pages to be installed in section
-# "{section}".
-#
-# So, as all our man pages go in section 1, we define "man1_MANS" to
-# contain all the man page.
-#
-# *However*, if "man_MANS" isn't defined at all, automake concludes that
-# there are no man pages, the fact that, say, "man1_MANS" is defined
-# nonwithstanding!  (I suspect this is the result of a mistaken attempt
-# to get people to fix their automake files not to use "MANS"; if "MANS"
-# is defined, it prints a warning and sets the exit status, but doesn't
-# exit, and then it just gives up if "man_MANS" isn't defined,
-# presumably on the theory that the only reason it wouldn't be defined
-# is because the automake file uses the obsolete "MANS" variable instead
-# of the shiny new "man_MANS" variable.)
-#
-# So we also define "man_MANS", but don't define it as anything;
-# automake will arrange that the Makefile define it as the union of all
-# the "man{section}_MANS" variables.
-#
 bin_PROGRAMS = \
 	@wireshark_bin@	\
 	@tshark_bin@	\
@@ -86,19 +49,6 @@ bin_PROGRAMS = \
 	@rawshark_bin@
 bin_SCRIPTS = @idl2wrs_bin@
 
-man1_MANS = \
-	@wireshark_man@	\
-	@tshark_man@	\
-	@text2pcap_man@	\
-	@mergecap_man@	\
-	@capinfos_man@	\
-	@editcap_man@	\
-	@dumpcap_man@	\
-	@idl2wrs_man@	\
-	@rawshark_man@
-man4_MANS = @wiresharkfilter_man@
-man_MANS =
-
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap rawshark
 EXTRA_SCRIPTS = idl2wrs
@@ -110,10 +60,8 @@ idl2wrs: tools/idl2wrs.sh Makefile
 #
 # Wireshark configuration files are put in $(pkgdatadir).
 #
-pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
-	tshark.html wireshark-filter.html capinfos.html editcap.html \
-	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
-	rawshark.html ws.css cfilters colorfilters dfilters smi_modules ipmap.html
+pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
+	smi_modules ipmap.html
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -487,19 +435,6 @@ svnversion.h: FORCE
 	LANG=C $(PERL) $(srcdir)/make-version.pl $(srcdir)
 
 #
-# Build the short version of the authors file for the about dialog
-#
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
-	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < $(srcdir)/AUTHORS > AUTHORS-SHORT
-
-#
-# Build the short version of the authors file with formatting codes for the
-# man page
-#
-AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
-	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
-
-#
 # Build shell scripts by doing variable substitution.
 # Taken from autoconf 2.13.
 #
@@ -548,10 +483,7 @@ CLEANFILES =		\
 # included in that list.)
 #
 DISTCLEANFILES = \
-	AUTHORS-SHORT		\
-	AUTHORS-SHORT-FORMAT	\
-	ps.c			\
-	ws.css
+	ps.c
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\
@@ -792,15 +724,12 @@ EXTRA_DIST = \
 	image/wssplash.xpm	\
 	image/wssplash-dev.xpm	\
 	ipmap.html	\
-	make-authors-format.pl	\
-	make-authors-short.pl	\
 	make-manuf		\
 	make-tapreg-dotc	\
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\
 	mergecap.c		\
-	perlnoutf.pl		\
 	print.ps		\
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
@@ -827,97 +756,14 @@ endif
 DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ . doc
 else
-SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap epan packaging help @wireshark_SUBDIRS@ . doc
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py
 	(cd help ; \
 	$(MAKE) faq.txt ;)
-
-wireshark.1: doc/wireshark.pod AUTHORS-SHORT-FORMAT
-	(cd doc ; \
-	$(MAKE) ../wireshark.1 )
-
-tshark.1: doc/tshark.pod
-	(cd doc ; \
-	$(MAKE) ../tshark.1 )
-
-wireshark-filter.4: tshark doc/wireshark-filter.pod.template
-	(cd doc ; \
-	$(MAKE) ../wireshark-filter.4 )
-
-capinfos.1: doc/capinfos.pod
-	(cd doc ; \
-	$(MAKE) ../capinfos.1 )
-
-editcap.1: doc/editcap.pod
-	(cd doc ; \
-	$(MAKE) ../editcap.1 )
-
-idl2wrs.1: doc/idl2wrs.pod
-	(cd doc ; \
-	$(MAKE) ../idl2wrs.1 )
-
-mergecap.1: doc/mergecap.pod
-	(cd doc ; \
-	$(MAKE) ../mergecap.1 )
-
-text2pcap.1: doc/text2pcap.pod
-	(cd doc ; \
-	$(MAKE) ../text2pcap.1 )
-
-dumpcap.1: doc/dumpcap.pod
-	(cd doc ; \
-	$(MAKE) ../dumpcap.1 )
-
-rawshark.1: doc/rawshark.pod
-	(cd doc ; \
-	$(MAKE) ../rawshark.1 )
-
-ws.css: $(srcdir)/docbook/ws.css
-	cp $(srcdir)/docbook/ws.css .
-
-wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT ws.css
-	(cd doc ; \
-	$(MAKE) ../wireshark.html )
-
-tshark.html: doc/tshark.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../tshark.html )
-
-wireshark-filter.html: tshark doc/wireshark-filter.pod.template ws.css
-	(cd doc ; \
-	$(MAKE) ../wireshark-filter.html )
-
-capinfos.html: doc/capinfos.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../capinfos.html )
-
-editcap.html: doc/editcap.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../editcap.html )
-
-idl2wrs.html: doc/idl2wrs.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../idl2wrs.html )
-
-mergecap.html: doc/mergecap.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../mergecap.html )
-
-text2pcap.html: doc/text2pcap.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../text2pcap.html )
-
-dumpcap.html: doc/dumpcap.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../dumpcap.html )
-
-rawshark.html: doc/rawshark.pod ws.css
-	(cd doc ; \
-	$(MAKE) ../rawshark.html )
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
