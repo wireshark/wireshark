@@ -58,7 +58,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/drag_and_drop.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/recent.h"
 #include "gtk/color_dlg.h"
 #ifdef HAVE_LIBPCAP

@@ -33,7 +33,7 @@
 #include "../file.h"
 #include "../globals.h"
 
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/packet_history.h"
 
 

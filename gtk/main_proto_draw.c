@@ -68,7 +68,7 @@
 #include "gtk/font_utils.h"
 #include "gtk/webbrowser.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/main_proto_draw.h"
 
 #if _WIN32

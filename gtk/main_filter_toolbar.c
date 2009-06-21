@@ -45,7 +45,7 @@
 #include "recent.h"
 
 #include "main.h"
-#include "main_menu.h"
+#include "menus.h"
 #include "main_toolbar.h"
 #include "main_filter_toolbar.h"
 

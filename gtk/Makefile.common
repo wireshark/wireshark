@@ -80,7 +80,7 @@ WIRESHARK_GTK_SRC = \
 	main.c		\
 	main_airpcap_toolbar.c	\
 	main_filter_toolbar.c	\
-	main_menu.c		\
+	menus.c		\
 	main_packet_list.c	\
 	main_proto_draw.c	\
 	main_statusbar.c		\
@@ -257,7 +257,7 @@ noinst_HEADERS = \
 	main.h		\
 	main_airpcap_toolbar.h	\
 	main_filter_toolbar.h	\
-	main_menu.h		\
+	menus.h		\
 	main_packet_list.h	\
 	main_proto_draw.h	\
 	main_statusbar.h		\

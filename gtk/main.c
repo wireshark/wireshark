@@ -128,7 +128,7 @@
 #include "gtk/main.h"
 #include "gtk/main_airpcap_toolbar.h"
 #include "gtk/main_filter_toolbar.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
 #include "gtk/main_statusbar_private.h"

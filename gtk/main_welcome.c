@@ -47,7 +47,7 @@
 #include "gtk/recent.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/main_welcome.h"
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"

@@ -44,7 +44,7 @@
 
 #include "gtk/recent.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/gui_utils.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/file_dlg.h"

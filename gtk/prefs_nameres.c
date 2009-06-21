@@ -39,7 +39,7 @@
 #include "gtk/prefs_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 
 
 #define M_RESOLVE_KEY	"m_resolve"

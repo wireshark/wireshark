@@ -1,5 +1,5 @@
-/* main_menu.c
- * Main menu routines
+/* menus.c
+ * Menu routines
  *
  * $Id$
  *
@@ -87,7 +87,7 @@
 #include "gtk/export_object.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
@@ -1155,7 +1155,7 @@ menus_init(void) {
     if (initialize) {
         initialize = FALSE;
 
-    /* popup */
+    /* packet list pop-up menu */
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     popup_menu_object = gtk_menu_new();
     gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
@@ -1163,16 +1163,23 @@ menus_init(void) {
                     packet_list_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
 
+    /* packet detail pop-up menu */
     tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, popup_menu_object, 2);
     g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                     tree_view_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
 
+    /*
+     * Hex dump pop-up menu.
+     * We provide our own empty menu to suppress the default pop-up menu
+     * for text widgets.
+     */
     hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     g_object_set_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY,
                     hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
+
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);

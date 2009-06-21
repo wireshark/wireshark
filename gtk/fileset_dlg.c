@@ -43,7 +43,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/help_dlg.h"
 #include "gtk/fileset_dlg.h"
 

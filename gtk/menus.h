@@ -1,5 +1,5 @@
-/* main_menu.h
- * Main menu definitions
+/* menus.h
+ * Menu definitions
  *
  * $Id$
  *

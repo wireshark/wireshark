@@ -48,7 +48,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/drag_and_drop.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #ifdef HAVE_LIBPCAP
 #include "gtk/capture_globals.h"
 #endif

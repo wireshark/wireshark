@@ -60,7 +60,7 @@
 #include "gtk/file_dlg.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/drag_and_drop.h"
 #include "gtk/capture_dlg.h"
 #include "gtk/file_dlg_win32.h"

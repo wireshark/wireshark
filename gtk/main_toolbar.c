@@ -50,7 +50,7 @@
 #include "gtk/color_dlg.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/help_dlg.h"

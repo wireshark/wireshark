@@ -35,8 +35,8 @@
 #include <string.h>
 #if 0
 /*
- * main_menu.h uses FILE, but I guess <stdio.h> is included by
- * something else before main_menu.h is included.
+ * menus.h uses FILE, but I guess <stdio.h> is included by
+ * something else before menus.h is included.
  */
 #include <stdio.h>
 #endif
@@ -57,7 +57,7 @@
 #include "../ringbuffer.h"
 
 #include "gtk/main.h"
-#include "gtk/main_menu.h"
+#include "gtk/menus.h"
 #include "gtk/gui_utils.h"
 #include "gtk/capture_dlg.h"
 #include "gtk/filter_dlg.h"
