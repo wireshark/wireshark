@@ -240,7 +240,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\main_menu.c"
+				RelativePath=".\menus.c"
 				>
 			</File>
 			<File
@@ -902,7 +902,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\main_menu.h"
+				RelativePath=".\menus.h"
 				>
 			</File>
 			<File
