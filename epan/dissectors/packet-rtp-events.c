@@ -22,6 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Ref http://www.ietf.org/rfc/rfc4733.txt?number=4733
  */
 
 /*
@@ -124,13 +125,18 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
 
 	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
+	offset++;
+	octet = tvb_get_guint8(tvb, offset);
+	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset, 1, octet);
+	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset, 1, octet);
+	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset, 1, octet);
+	offset++;
 
-	octet = tvb_get_guint8(tvb, offset +1 );
-	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset+1, 1, octet);
-	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset+1, 1, octet);
-	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
-
-	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
+	/* The duration field indicates the duration of the event or segment
+	 * being reported, in timestamp units.
+	 */
+	rtp_event_info.info_duration = tvb_get_ntohs(tvb, offset); 
+	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, FALSE);
 
 	/* set the end info for the tap */
 	if (octet & 0x80)
