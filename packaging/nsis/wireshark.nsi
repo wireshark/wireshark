@@ -409,7 +409,7 @@ File "${SMI_DIR}\lib\smi.dll"
 !endif
 File "..\..\README"
 File "..\..\README.win32"
-File "..\..\AUTHORS-SHORT"
+File "..\..\doc\AUTHORS-SHORT"
 File "..\..\COPYING"
 File "NEWS.txt"
 File "..\..\manuf"
