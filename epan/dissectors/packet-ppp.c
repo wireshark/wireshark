@@ -4147,15 +4147,15 @@ proto_register_ppp(void)
 
     { &hf_ppp_address,
     { "Address", "ppp.address", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_ppp_control,
     { "Control", "ppp.control", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_ppp_protocol,
     { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
-        VALS(ppp_vals), 0x0, "", HFILL }},
+        VALS(ppp_vals), 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_ppp
@@ -4223,19 +4223,19 @@ proto_register_mp(void)
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
     { "First fragment",		"mp.first",	FT_BOOLEAN, 8,
-        TFS(&tfs_yes_no), MP_FRAG_FIRST, "", HFILL }},
+        TFS(&tfs_yes_no), MP_FRAG_FIRST, NULL, HFILL }},
 
     { &hf_mp_frag_last,
     { "Last fragment",		"mp.last",	FT_BOOLEAN, 8,
-        TFS(&tfs_yes_no), MP_FRAG_LAST, "", HFILL }},
+        TFS(&tfs_yes_no), MP_FRAG_LAST, NULL, HFILL }},
 
     { &hf_mp_sequence_num,
     { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
-    	"", HFILL }},
+    	NULL, HFILL }},
 
     { &hf_mp_short_sequence_num,
     { "Sequence number",	"mp.seq",	FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-    	"", HFILL }}
+    	NULL, HFILL }}
   };
   static gint *ett[] = {
     &ett_mp,
@@ -4362,27 +4362,27 @@ proto_register_bcp(void)
   static hf_register_info hf[] = {
     { &hf_bcp_flags,
     { "Flags", "bcp.flags", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_bcp_fcs_present,
     { "LAN FCS present",	"bcp.flags.fcs_present",	FT_BOOLEAN, 8,
-        TFS(&tfs_yes_no), BCP_FCS_PRESENT, "", HFILL }},
+        TFS(&tfs_yes_no), BCP_FCS_PRESENT, NULL, HFILL }},
 
     { &hf_bcp_zeropad,
     { "802.3 pad zero-filled",	"bcp.flags.zeropad",	FT_BOOLEAN, 8,
-        TFS(&tfs_yes_no), BCP_ZEROPAD, "", HFILL }},
+        TFS(&tfs_yes_no), BCP_ZEROPAD, NULL, HFILL }},
 
     { &hf_bcp_bcontrol,
     { "Bridge control",	"bcp.flags.bcontrol",	FT_BOOLEAN, 8,
-        TFS(&tfs_yes_no), BCP_IS_BCONTROL, "", HFILL }},
+        TFS(&tfs_yes_no), BCP_IS_BCONTROL, NULL, HFILL }},
 
     { &hf_bcp_pads,
     { "Pads",	"bcp.pads",	FT_UINT8, BASE_DEC,
-        NULL, BCP_PADS_MASK, "", HFILL }},
+        NULL, BCP_PADS_MASK, NULL, HFILL }},
 
     { &hf_bcp_mac_type,
     { "MAC Type", "bcp.mac_type", FT_UINT8, BASE_DEC,
-        VALS(bcp_mac_type_vals), 0x0, "", HFILL }},
+        VALS(bcp_mac_type_vals), 0x0, NULL, HFILL }},
 
   };
   static gint *ett[] = {

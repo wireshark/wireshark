@@ -473,162 +473,162 @@ void proto_register_pppoed(void)
 		/* Discovery tag fields */
 		{ &hf_pppoed_tags,
 			{ "PPPoE Tags", "pppoed.tags", FT_NONE, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag,
 			{ "Tag", "pppoed.tag", FT_UINT16, BASE_HEX,
-				 VALS(tag_vals), 0x0, "", HFILL
+				 VALS(tag_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_length,
 			{ "Tag Length", "pppoed.tag_length", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_unknown_data,
 			{ "Unknown Data", "pppoed.tag.unknown_data", FT_BYTES, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_service_name,
 			{ "Service-Name", "pppoed.tags.service_name", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_name,
 			{ "AC-Name", "pppoed.tags.ac_name", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_host_uniq,
 			{ "Host-Uniq", "pppoed.tags.host_uniq", FT_BYTES, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_cookie,
 			{ "AC-Cookie", "pppoed.tags.ac_cookie", FT_BYTES, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_vendor_id,
 			{ "Vendor id", "pppoed.tags.vendor_id", FT_UINT32, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_vendor_unspecified,
-			{ "Vendor unspecified", "pppoed.tags.vendor_unspecified", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "Vendor unspecified", "pppoed.tags.vendor_unspecified", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_credits,
-			{ "Credits", "pppoed.tags.credits", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "Credits", "pppoed.tags.credits", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_credits_fcn,
 			{ "FCN", "pppoed.tags.credits.fcn", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_credits_bcn,
 			{ "BCN", "pppoed.tags.credits.bcn", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics,
-			{ "Metrics", "pppoed.tags.metrics", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "Metrics", "pppoed.tags.metrics", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_r,
 			{ "Receive Only", "pppoed.tags.metrics.r", FT_BOOLEAN, 16,
-				 NULL, PPPOE_RCV_ONLY_MASK, "", HFILL
+				 NULL, PPPOE_RCV_ONLY_MASK, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_mdr_units,
 			{ "MDR Units", "pppoed.tags.metrics.mdr_units", FT_UINT16, BASE_HEX,
-				 VALS(datarate_scale_vals), PPPOE_MDR_MASK, "", HFILL
+				 VALS(datarate_scale_vals), PPPOE_MDR_MASK, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_cdr_units,
 			{ "CDR Units", "pppoed.tags.metrics.cdr_units", FT_UINT16, BASE_HEX,
-				 VALS(datarate_scale_vals), PPPOE_CDR_MASK, "", HFILL
+				 VALS(datarate_scale_vals), PPPOE_CDR_MASK, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_rlq,
 			{ "Relative Link Quality", "pppoed.tags.metrics.rlq", FT_UINT8, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_resource,
 			{ "Resource", "pppoed.tags.metrics.resource", FT_UINT8, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_latency,
 			{ "Latency", "pppoed.tags.metrics.latency", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_curr_drate,
 			{ "Curr. datarate", "pppoed.tags.metrics.curr_drate", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_max_drate,
 			{ "Max. datarate", "pppoed.tags.metrics.max_drate", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_seq_num,
 			{ "Sequence Number", "pppoed.tags.seq_num", FT_UINT16, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_cred_scale,
 			{ "Credit Scale Factor", "pppoed.tags.credit_scale", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_relay_session_id,
 			{ "Relay-Session-Id", "pppoed.tags.relay_session_id", FT_BYTES, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_hurl,
-			{ "HURL", "pppoed.tags.hurl", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "HURL", "pppoed.tags.hurl", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_motm,
-			{ "MOTM", "pppoed.tags.motm", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "MOTM", "pppoed.tags.motm", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_max_payload,
-			{ "PPP Max Palyload", "pppoed.tags.max_payload", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "PPP Max Palyload", "pppoed.tags.max_payload", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ip_route_add,
-			{ "IP Route Add", "pppoed.tags.ip_route_add", FT_BYTES, BASE_HEX,
-				 NULL, 0x0, "", HFILL
+			{ "IP Route Add", "pppoed.tags.ip_route_add", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_service_name_error,
 			{ "Service-Name-Error", "pppoed.tags.service_name_error", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_system_error,
 			{ "AC-System-Error", "pppoed.tags.ac_system_error", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_generic_error,
 			{ "Generic-Error", "pppoed.tags.generic_error", FT_STRING, BASE_NONE,
-				 NULL, 0x0, "", HFILL
+				 NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

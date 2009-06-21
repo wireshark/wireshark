@@ -1017,7 +1017,7 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_ack_ack_conf_padding,
       { "Padding",
         "tdma-v1.msg.ack_ack_conf.padding",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "TDMA Padding", HFILL }},
 
     /* TDMA request test */
@@ -1082,13 +1082,13 @@ proto_register_rtmac(void) {
     { &hf_tdma_v1_msg_station_list_ip,
       { "IP",
         "tdma-v1.msg.station_list.ip",
-        FT_IPv4, BASE_DEC, NULL, 0x0,
+        FT_IPv4, BASE_NONE, NULL, 0x0,
         "TDMA Station IP", HFILL }},
 
     { &hf_tdma_v1_msg_station_list_padding,
       { "Padding",
         "tdma-v1.msg.station_list.padding",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "TDMA Padding", HFILL }},
 
 

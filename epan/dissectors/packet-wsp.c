@@ -6062,21 +6062,21 @@ proto_register_wsp(void)
 			{ 	"PDU Type",
 				"wsp.pdu_type",
 				 FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x00,
-				"PDU Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_version_major,
 			{ 	"Version (Major)",
 				"wsp.version.major",
 				 FT_UINT8, BASE_DEC, NULL, 0xF0,
-				"Version (Major)", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_version_minor,
 			{ 	"Version (Minor)",
 				"wsp.version.minor",
 				 FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"Version (Minor)", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_capabilities_length,
@@ -6096,15 +6096,15 @@ proto_register_wsp(void)
 		{ &hf_capabilities_section,
 			{ 	"Capabilities",
 				"wsp.capabilities",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Capabilities", HFILL
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_headers_section,
 			{ 	"Headers",
 				"wsp.headers",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Headers", HFILL
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_header_uri_len,
@@ -6118,14 +6118,14 @@ proto_register_wsp(void)
 			{ 	"URI",
 				"wsp.uri",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"URI", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_server_session_id,
 			{ 	"Server Session ID",
 				"wsp.server.session_id",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Server Session ID", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_header_status,
@@ -6230,7 +6230,7 @@ proto_register_wsp(void)
 			{ 	"Data",
 				"wsp.reply.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Data", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_header_shift_code,
@@ -6260,8 +6260,8 @@ proto_register_wsp(void)
 		{ &hf_capa_protocol_options,
 			{	"Protocol Options",
 				"wsp.capability.protocol_opt",
-				 FT_STRING, BASE_HEX, NULL, 0x00,
-				"Protocol Options", HFILL
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_protocol_option_confirmed_push,
@@ -6303,35 +6303,35 @@ proto_register_wsp(void)
 			{	"Method MOR",
 				"wsp.capability.method_mor",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Method MOR", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_push_mor,
 			{	"Push MOR",
 				"wsp.capability.push_mor",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Push MOR", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_extended_methods,
 			{	"Extended Methods",
 				"wsp.capability.extended_methods",
-				 FT_STRING, BASE_HEX, NULL, 0x00,
-				"Extended Methods", HFILL
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_header_code_pages,
 			{	"Header Code Pages",
 				"wsp.capability.code_pages",
-				 FT_STRING, BASE_HEX, NULL, 0x00,
-				"Header Code Pages", HFILL
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_aliases,
 			{	"Aliases",
 				"wsp.capability.aliases",
 				 FT_BYTES, BASE_NONE, NULL, 0x00,
-				"Aliases", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_capa_client_message_size,
@@ -6359,7 +6359,7 @@ proto_register_wsp(void)
 			{ 	"Push Data",
 				"wsp.push.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Push Data", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_multipart_data,
@@ -6387,7 +6387,7 @@ proto_register_wsp(void)
 			{ 	"Permanent Redirect",
 				"wsp.redirect.flags.permanent",
 				 FT_BOOLEAN, 8, TFS(&tfs_yes_no), PERMANENT_REDIRECT,
-				"Permanent Redirect", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_wsp_redirect_reuse_security_session,
@@ -6412,7 +6412,7 @@ proto_register_wsp(void)
 			{	"Address Record",
 				"wsp.address",
 				FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Address Record", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_address_flags_length,
@@ -6440,21 +6440,21 @@ proto_register_wsp(void)
 			{ 	"Address Length",
 				"wsp.address.flags.length",
 				 FT_UINT8, BASE_DEC, NULL, ADDRESS_LEN,
-				"Address Length", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_address_bearer_type,
 			{ 	"Bearer Type",
 				"wsp.address.bearer_type",
 				 FT_UINT8, BASE_HEX, VALS(vals_bearer_types), 0x0,
-				"Bearer Type", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_address_port_num,
 			{ 	"Port Number",
 				"wsp.address.port",
 				 FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Port Number", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_address_ipv4_addr,

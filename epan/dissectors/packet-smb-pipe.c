@@ -3216,11 +3216,11 @@ proto_register_pipe_lanman(void)
 			NULL, 0, "LANMAN Code Page", HFILL }},
 
 		{ &hf_new_password,
-			{ "New Password", "lanman.new_password", FT_BYTES, BASE_HEX,
+			{ "New Password", "lanman.new_password", FT_BYTES, BASE_NONE,
 			NULL, 0, "LANMAN New Password (encrypted)", HFILL }},
 
 		{ &hf_old_password,
-			{ "Old Password", "lanman.old_password", FT_BYTES, BASE_HEX,
+			{ "Old Password", "lanman.old_password", FT_BYTES, BASE_NONE,
 			NULL, 0, "LANMAN Old Password (encrypted)", HFILL }},
 
 		{ &hf_reserved,

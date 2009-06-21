@@ -1338,29 +1338,29 @@ proto_register_nis(void)
 	static hf_register_info hf[] = {
 		{ &hf_nisplus_procedure_v3, {
 			"V3 Procedure", "nisplus.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(nisplus3_proc_vals), 0, "V3 Procedure", HFILL }},
+			VALS(nisplus3_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nisplus_object, {
 			"NIS Object", "nisplus.object", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Object", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_oid, {
 			"Object Identity Verifier", "nisplus.object.oid", FT_NONE, BASE_NONE,
 			NULL, 0, "NIS Object Identity Verifier", HFILL }},
 
 		{ &hf_nisplus_object_name, {
-			"name", "nisplus.object.name", FT_STRING, BASE_DEC,
+			"name", "nisplus.object.name", FT_STRING, BASE_NONE,
 			NULL, 0, "NIS Name For This Object", HFILL }},
 
 		{ &hf_nisplus_object_owner, {
-			"owner", "nisplus.object.owner", FT_STRING, BASE_DEC,
+			"owner", "nisplus.object.owner", FT_STRING, BASE_NONE,
 			NULL, 0, "NIS Name Of Object Owner", HFILL }},
 
 		{ &hf_nisplus_object_group, {
-			"group", "nisplus.object.group", FT_STRING, BASE_DEC,
+			"group", "nisplus.object.group", FT_STRING, BASE_NONE,
 			NULL, 0, "NIS Name Of Access Group", HFILL }},
 
 		{ &hf_nisplus_object_domain, {
-			"domain", "nisplus.object.domain", FT_STRING, BASE_DEC,
+			"domain", "nisplus.object.domain", FT_STRING, BASE_NONE,
 			NULL, 0, "NIS Administrator For This Object", HFILL }},
 
 		{ &hf_nisplus_object_ttl, {
@@ -1368,7 +1368,7 @@ proto_register_nis(void)
 			NULL, 0, "NIS Time To Live For This Object", HFILL }},
 
 		{ &hf_nisplus_object_private, {
-			"private", "nisplus.object.private", FT_BYTES, BASE_DEC,
+			"private", "nisplus.object.private", FT_BYTES, BASE_NONE,
 			NULL, 0, "NIS Private Object", HFILL }},
 
 		{ &hf_nisplus_directory, {
@@ -1376,7 +1376,7 @@ proto_register_nis(void)
 			NULL, 0, "NIS Directory Object", HFILL }},
 
 		{ &hf_nisplus_directory_name, {
-			"directory name", "nisplus.directory.name", FT_STRING, BASE_DEC,
+			"directory name", "nisplus.directory.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Name Of Directory Being Served", HFILL }},
 
 		{ &hf_nisplus_directory_type, {
@@ -1496,7 +1496,7 @@ proto_register_nis(void)
 			NULL, 0, "NIS Server For This Directory", HFILL }},
 
 		{ &hf_nisplus_server_name, {
-			"name", "nisplus.server.name", FT_STRING, BASE_DEC,
+			"name", "nisplus.server.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Name Of NIS Server", HFILL }},
 
 		{ &hf_nisplus_key_type, {
@@ -1504,7 +1504,7 @@ proto_register_nis(void)
 			VALS(key_type), 0, "Type Of Key", HFILL }},
 
 		{ &hf_nisplus_key_data, {
-			"key data", "nisplus.key.data", FT_BYTES, BASE_DEC,
+			"key data", "nisplus.key.data", FT_BYTES, BASE_NONE,
 			NULL, 0, "Encryption Key", HFILL }},
 
 		{ &hf_nisplus_endpoints, {
@@ -1516,15 +1516,15 @@ proto_register_nis(void)
 			NULL, 0, "Endpoint For This NIS Server", HFILL }},
 
 		{ &hf_nisplus_endpoint_uaddr, {
-			"addr", "nisplus.endpoint.uaddr", FT_STRING, BASE_DEC,
+			"addr", "nisplus.endpoint.uaddr", FT_STRING, BASE_NONE,
 			NULL, 0, "Address", HFILL }},
 
 		{ &hf_nisplus_endpoint_family, {
-			"family", "nisplus.endpoint.family", FT_STRING, BASE_DEC,
+			"family", "nisplus.endpoint.family", FT_STRING, BASE_NONE,
 			NULL, 0, "Transport Family", HFILL }},
 
 		{ &hf_nisplus_endpoint_proto, {
-			"proto", "nisplus.endpoint.proto", FT_STRING, BASE_DEC,
+			"proto", "nisplus.endpoint.proto", FT_STRING, BASE_NONE,
 			NULL, 0, "Protocol", HFILL }},
 
 		{ &hf_nisplus_link, {
@@ -1537,14 +1537,14 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_attr, {
 			"Attribute", "nisplus.attr", FT_NONE, BASE_NONE,
-			NULL, 0, "Attribute", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_attr_name, {
-			"name", "nisplus.attr.name", FT_STRING, BASE_DEC,
+			"name", "nisplus.attr.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Attribute Name", HFILL }},
 
 		{ &hf_nisplus_attr_val, {
-			"val", "nisplus.attr.val", FT_BYTES, BASE_HEX,
+			"val", "nisplus.attr.val", FT_BYTES, BASE_NONE,
 			NULL, 0, "Attribute Value", HFILL }},
 
 		{ &hf_nisplus_entry, {
@@ -1552,7 +1552,7 @@ proto_register_nis(void)
 			NULL, 0, "Entry Object", HFILL }},
 
 		{ &hf_nisplus_entry_type, {
-			"type", "nisplus.entry.type", FT_STRING, BASE_DEC,
+			"type", "nisplus.entry.type", FT_STRING, BASE_NONE,
 			NULL, 0, "Entry Type", HFILL }},
 
 		{ &hf_nisplus_entry_cols, {
@@ -1568,7 +1568,7 @@ proto_register_nis(void)
 			NULL, 0, "Entry Col Flags", HFILL }},
 
 		{ &hf_nisplus_entry_val, {
-			"val", "nisplus.entry.val", FT_STRING, BASE_DEC,
+			"val", "nisplus.entry.val", FT_STRING, BASE_NONE,
 			NULL, 0, "Entry Value", HFILL }},
 
 		{ &hf_nisplus_entry_mask, {
@@ -1605,7 +1605,7 @@ proto_register_nis(void)
 			NULL, 0, "Table Object", HFILL }},
 
 		{ &hf_nisplus_table_type, {
-			"type", "nisplus.table.type", FT_STRING, BASE_DEC,
+			"type", "nisplus.table.type", FT_STRING, BASE_NONE,
 			NULL, 0, "Table Type", HFILL }},
 
 		{ &hf_nisplus_table_maxcol, {
@@ -1625,11 +1625,11 @@ proto_register_nis(void)
 			NULL, 0, "Table Column", HFILL }},
 
 		{ &hf_nisplus_table_path, {
-			"path", "nisplus.table.path", FT_STRING, BASE_DEC,
+			"path", "nisplus.table.path", FT_STRING, BASE_NONE,
 			NULL, 0, "Table Path", HFILL }},
 
 		{ &hf_nisplus_table_col_name, {
-			"column name", "nisplus.table.col.name", FT_STRING, BASE_DEC,
+			"column name", "nisplus.table.col.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Column Name", HFILL }},
 
 		{ &hf_nisplus_table_col_mask, {
@@ -1684,7 +1684,7 @@ proto_register_nis(void)
 			NULL, 0, "Group Object Flags", HFILL }},
 
 		{ &hf_nisplus_group_name, {
-			"group name", "nisplus.group.name", FT_STRING, BASE_DEC,
+			"group name", "nisplus.group.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Name Of Group Member", HFILL }},
 
 		{ &hf_nisplus_object_ctime, {
@@ -1704,15 +1704,15 @@ proto_register_nis(void)
 			NULL, 0, "Optional First/NextBufSize", HFILL }},
 
 		{ &hf_nisplus_cookie, {
-			"cookie", "nisplus.cookie", FT_BYTES, BASE_HEX,
+			"cookie", "nisplus.cookie", FT_BYTES, BASE_NONE,
 			NULL, 0, "Cookie", HFILL }},
 
 		{ &hf_nisplus_fd_dirname, {
-			"dirname", "nisplus.fd.dirname", FT_STRING, BASE_DEC,
+			"dirname", "nisplus.fd.dirname", FT_STRING, BASE_NONE,
 			NULL, 0, "Directory Name", HFILL }},
 
 		{ &hf_nisplus_fd_requester, {
-			"requester", "nisplus.fd.requester", FT_STRING, BASE_DEC,
+			"requester", "nisplus.fd.requester", FT_STRING, BASE_NONE,
 			NULL, 0, "Host Principal Name For Signature", HFILL }},
 
 		{ &hf_nisplus_taglist, {
@@ -1728,11 +1728,11 @@ proto_register_nis(void)
 			NULL, 0, "Type Of Statistics Tag", HFILL }},
 
 		{ &hf_nisplus_tag_val, {
-			"value", "nisplus.tag.value", FT_STRING, BASE_DEC,
+			"value", "nisplus.tag.value", FT_STRING, BASE_NONE,
 			NULL, 0, "Value Of Statistics Tag", HFILL }},
 
 		{ &hf_nisplus_dump_dir, {
-			"directory", "nisplus.dump.dir", FT_STRING, BASE_DEC,
+			"directory", "nisplus.dump.dir", FT_STRING, BASE_NONE,
 			NULL, 0, "Directory To Dump", HFILL }},
 
 		{ &hf_nisplus_dump_time, {
@@ -1741,14 +1741,14 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_dummy, {
 			" ", "nisplus.dummy", FT_BYTES, BASE_NONE,
-			NULL, 0, " ", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_ping_time, {
 			"time", "nisplus.ping.time", FT_ABSOLUTE_TIME, BASE_NONE,
 			NULL, 0, "Timestamp Of The Transaction", HFILL }},
 
 		{ &hf_nisplus_ping_dir, {
-			"directory", "nisplus.ping.dir", FT_STRING, BASE_DEC,
+			"directory", "nisplus.ping.dir", FT_STRING, BASE_NONE,
 			NULL, 0, "Directory That Had The Change", HFILL }},
 
 		{ &hf_nisplus_error, {
@@ -1756,11 +1756,11 @@ proto_register_nis(void)
 			VALS(nis_error), 0, "NIS Status Code", HFILL }},
 
 		{ &hf_nisplus_dir_data, {
-			"data", "nisplus.fd.dir.data", FT_BYTES, BASE_HEX,
+			"data", "nisplus.fd.dir.data", FT_BYTES, BASE_NONE,
 			NULL, 0, "Directory Data In XDR Format", HFILL }},
 
 		{ &hf_nisplus_signature, {
-			"signature", "nisplus.fd.sig", FT_BYTES, BASE_HEX,
+			"signature", "nisplus.fd.sig", FT_BYTES, BASE_NONE,
 			NULL, 0, "Signature Of The Source", HFILL }},
 
 		{ &hf_nisplus_log_entries, {
@@ -1780,13 +1780,13 @@ proto_register_nis(void)
 			VALS(entry_type), 0, "Type Of Entry In Transaction Log", HFILL }},
 
 		{ &hf_nisplus_log_principal, {
-			"principal", "nisplus.log.principal", FT_STRING, BASE_DEC,
+			"principal", "nisplus.log.principal", FT_STRING, BASE_NONE,
 			NULL, 0, "Principal Making The Change", HFILL }},
 
 		{ &hf_nisplus_callback_status, {
 			"status", "nisplus.callback.status",
-			FT_BOOLEAN, 0, TFS(&tfs_callback_status),
-			0, "Status Of Callback Thread", HFILL }},
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_callback_status),
+			0x0, "Status Of Callback Thread", HFILL }},
 
 		{ &hf_nisplus_cp_status, {
 			"status", "nisplus.checkpoint.status", FT_UINT32, BASE_DEC,
@@ -1802,19 +1802,19 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_zticks, {
 			"zticks", "nisplus.zticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_dticks, {
 			"dticks", "nisplus.dticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_aticks, {
 			"aticks", "nisplus.aticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_cticks, {
 			"cticks", "nisplus.cticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 	};
 

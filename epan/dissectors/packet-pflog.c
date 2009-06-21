@@ -239,7 +239,7 @@ proto_register_pflog(void)
         "Reason for logging the packet", HFILL }},
     { &hf_pflog_ifname,
       { "Interface", "pflog.ifname", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Interface", HFILL }},
+        NULL, HFILL }},
     { &hf_pflog_ruleset,
       { "Ruleset", "pflog.ruleset", FT_STRING, BASE_NONE, NULL, 0x0,
         "Ruleset name in anchor", HFILL }},
