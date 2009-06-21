@@ -2168,8 +2168,9 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *save_bt;
 #endif
 
-	/* create the main window */
-	io->window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
+	/* create the main window, transient_for top_level */
+	io->window = dlg_window_new("I/O Graphs");  
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(io->window), TRUE);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(io->window), vbox);

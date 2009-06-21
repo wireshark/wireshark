@@ -158,7 +158,9 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     tw->close_data = NULL;
     tw->buttons = g_ptr_array_new();
 	
-    tw->win = window_new(GTK_WINDOW_TOPLEVEL,title);
+	tw->win = dlg_window_new(title);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(tw->win), TRUE);
+
     g_signal_connect(tw->win, "delete-event", G_CALLBACK(text_window_delete_event_cb), tw);
 
     txt_scrollw = scrolled_window_new(NULL, NULL);

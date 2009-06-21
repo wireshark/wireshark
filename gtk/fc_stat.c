@@ -150,7 +150,9 @@ gtk_fcstat_init(const char *optarg, void *userdata _U_)
 
 	fc=g_malloc(sizeof(fcstat_t));
 
-	fc->win=window_new(GTK_WINDOW_TOPLEVEL, "fc-stat");
+	fc->win = dlg_window_new("fc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(fc->win), TRUE);
+
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
 	fcstat_set_title(fc);
 

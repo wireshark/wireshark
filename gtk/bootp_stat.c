@@ -217,8 +217,9 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 		title=g_strdup("DHCP statistics");
 	}
 
-	/* top level window */
-	sp->win = window_new(GTK_WINDOW_TOPLEVEL, title);
+	/* transient_for top_level */
+	sp->win= dlg_window_new(title);  
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
 	g_free(title);
 
 	vbox = gtk_vbox_new(FALSE, 3);

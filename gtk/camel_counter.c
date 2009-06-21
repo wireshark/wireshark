@@ -168,8 +168,11 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 
   gtk_camelcounter_reset(p_camelcounter);
 
-  p_camelcounter->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: CAMEL counters");
-  gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
+  /* transient_for top_level */
+  p_camelcounter->win=dlg_window_new("Wireshark: CAMEL counters");  
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(p_camelcounter->win), TRUE);
+
+	gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
 
   p_camelcounter->vbox=gtk_vbox_new(FALSE, 3);
   gtk_container_set_border_width(GTK_CONTAINER(p_camelcounter->vbox), 12);

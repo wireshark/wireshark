@@ -478,7 +478,8 @@ static void flow_graph_dlg_create (void)
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
-	flow_graph_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Flow Graph");
+	flow_graph_dlg_w = dlg_window_new("Wireshark: Flow Graph");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(flow_graph_dlg_w), TRUE);
 
 	gtk_window_set_default_size(GTK_WINDOW(flow_graph_dlg_w), 250, 150);
 

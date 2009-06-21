@@ -747,7 +747,9 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	/* microsecond precision */
 	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 
-	cs->win=window_new(GTK_WINDOW_TOPLEVEL, "compare-stat");
+	/* transient_for top_level */
+	cs->win=dlg_window_new("compare-stat");  
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(cs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(cs->win), 550, 400);
 	comparestat_set_title(cs);
 

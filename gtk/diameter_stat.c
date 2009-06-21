@@ -158,7 +158,8 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
 	g_hash_table_insert(cmd_str_hash, (gchar *)"Unknown", index);
 
-	diameter->win=window_new(GTK_WINDOW_TOPLEVEL, "diameter-stat");
+	diameter->win = dlg_window_new("diameter-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(diameter->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(diameter->win), 550, 400);
 	diameterstat_set_title(diameter);
 

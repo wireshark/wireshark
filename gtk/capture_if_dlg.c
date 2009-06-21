@@ -603,7 +603,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
-  cap_if_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Capture Interfaces");
+  cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
   tooltips = gtk_tooltips_new();
 

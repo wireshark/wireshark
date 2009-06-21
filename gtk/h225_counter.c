@@ -517,7 +517,9 @@ gtk_h225counter_init(const char *optarg, void *userdata _U_)
 
 	h225counter_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: H.225 counters");
+	hs->win = dlg_window_new("Wireshark: H.225 counters");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(hs->win), TRUE);
+
 	gtk_window_set_default_size(GTK_WINDOW(hs->win), 400, 200);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);

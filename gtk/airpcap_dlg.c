@@ -1769,7 +1769,8 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     airpcap_if_selected = airpcap_if_active;
 
     /* Create the new window */
-    airpcap_advanced_w = window_new(GTK_WINDOW_TOPLEVEL, "Advanced Wireless Settings");
+	airpcap_advanced_w = dlg_window_new("Advanced Wireless Settings");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(airpcap_advanced_w), TRUE);
 
     gtk_container_set_border_width (GTK_CONTAINER (airpcap_advanced_w), 5);
     gtk_window_set_position (GTK_WINDOW (airpcap_advanced_w),
@@ -2277,7 +2278,8 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     airpcap_if_selected = airpcap_if_active;
 
     /* Create the new window */
-    key_management_w = window_new(GTK_WINDOW_TOPLEVEL, "Decryption Key Management");
+	key_management_w = dlg_window_new("Decryption Key Management");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(key_management_w), TRUE);
 
     gtk_container_set_border_width (GTK_CONTAINER (key_management_w), 5);
     gtk_window_set_position (GTK_WINDOW (key_management_w),

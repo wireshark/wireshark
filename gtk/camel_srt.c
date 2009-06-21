@@ -166,7 +166,9 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   
   p_camelsrt=g_malloc(sizeof(struct camelsrt_t)); 
 
-  p_camelsrt->win=window_new(GTK_WINDOW_TOPLEVEL, "camel-srt");
+  p_camelsrt->win= dlg_window_new("camel-srt");  /* transient_for top_level */
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(p_camelsrt->win), TRUE);
+
   gtk_window_set_default_size(GTK_WINDOW(p_camelsrt->win), 550, 400);
   camelsrt_set_title(p_camelsrt);
 

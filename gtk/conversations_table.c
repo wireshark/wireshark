@@ -1318,7 +1318,8 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     conversations->filter=filter;
     conversations->use_dfilter=FALSE;
     g_snprintf(title, sizeof(title), "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-    conversations->win=window_new(GTK_WINDOW_TOPLEVEL, title);
+	conversations->win = dlg_window_new(title);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(conversations->win), TRUE);
 
     gtk_window_set_default_size(GTK_WINDOW(conversations->win), 750, 400);
 
@@ -1526,7 +1527,9 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
     g_snprintf(title, sizeof(title), "Conversations: %s", cf_get_display_name(&cfile));
-    win=window_new(GTK_WINDOW_TOPLEVEL, title);
+	win = dlg_window_new(title);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
+
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 
     vbox=gtk_vbox_new(FALSE, 6);
