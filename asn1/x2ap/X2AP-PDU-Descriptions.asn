@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.3.0 (2008-09)
+-- 3GPP TS 36.423 V8.6.0 (2009-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -32,11 +32,11 @@ FROM X2AP-CommonDataTypes
 	ENBConfigurationUpdateFailure,
 	ErrorIndication,
 	HandoverCancel,
-	HandoverPreparationFailure,	HandoverRequest,
+	HandoverPreparationFailure,	
+	HandoverRequest,
 	HandoverRequestAcknowledge,
-	
-	
-		LoadInformation,
+	LoadInformation,
+	PrivateMessage,
 	ResetRequest,
 	ResetResponse,
 	ResourceStatusFailure,
@@ -59,10 +59,11 @@ FROM X2AP-PDU-Contents
 	id-handoverPreparation,
 	
 	id-loadIndication,
+	id-privateMessage,
 	id-reset,
 	
 	id-resourceStatusReporting,
-	id-resourceStatusUpdateInitiation,
+	id-resourceStatusReportingInitiation,
 	id-snStatusTransfer,
 	id-uEContextRelease,
 	id-x2Setup
@@ -141,8 +142,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	handoverPreparation										|
 	reset													|
 	x2Setup													|
-	resourceStatusUpdateInitiation							|
-	eNBConfigurationUpdate								    ,
+	resourceStatusReportingInitiation						|
+	eNBConfigurationUpdate									,
 	...
 }
 
@@ -151,8 +152,9 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextRelease						|
 	handoverCancel							|
 	errorIndication							|
-	resourceStatusReporting					|	
-	loadIndication							,
+	resourceStatusReporting					|
+	loadIndication							|
+	privateMessage							,
 	...
 
 }
@@ -227,12 +229,12 @@ eNBConfigurationUpdate		X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
-resourceStatusUpdateInitiation	X2AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		ResourceStatusRequest
-	SUCCESSFUL OUTCOME		ResourceStatusResponse
-	UNSUCCESSFUL OUTCOME	ResourceStatusFailure
-	PROCEDURE CODE			id-resourceStatusUpdateInitiation
-	CRITICALITY				reject
+resourceStatusReportingInitiation	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE				ResourceStatusRequest
+	SUCCESSFUL OUTCOME				ResourceStatusResponse
+	UNSUCCESSFUL OUTCOME			ResourceStatusFailure
+	PROCEDURE CODE					id-resourceStatusReportingInitiation
+	CRITICALITY						reject
 }
 
 resourceStatusReporting X2AP-ELEMENTARY-PROCEDURE ::= {
@@ -241,4 +243,11 @@ resourceStatusReporting X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+privateMessage			X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
 END
+

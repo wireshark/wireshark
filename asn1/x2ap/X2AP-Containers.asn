@@ -1,12 +1,11 @@
 -- $Id$
--- 3GPP TS 36.423 V8.3.0 (2008-09)
+-- 3GPP TS 36.423 V8.6.0 (2009-06)
 -- 9.3.8	Container Definitions
 -- **************************************************************
 --
 -- Container definitions
 --
 -- **************************************************************
-
 X2AP-Containers {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-Containers (5)  }
@@ -195,5 +194,6 @@ PrivateIE-Field {X2AP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
 }
 
 END
+
 
 

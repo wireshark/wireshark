@@ -10,10 +10,6 @@ ALIGNED
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-PrivateMessage
-PrivateIE-Container
-PrivateIE-Field
-PrivateIE-ID 
 #.END
 
 #.PDU
@@ -28,7 +24,7 @@ ProtocolIE-ID
 #.TYPE_RENAME
 
 ProtocolIE-Field/value     ProtocolIE_Field_value
-#PrivateIE-Field/value      PrivateIE_Field_value
+PrivateIE-Field/value      PrivateIE_Field_value
 InitiatingMessage/value    InitiatingMessage_value
 SuccessfulOutcome/value    SuccessfulOutcome_value
 UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
@@ -36,12 +32,12 @@ UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
 
 #.FIELD_RENAME
 ProtocolExtensionField/id extension_id
-#PrivateIE-Field/id private_id
+PrivateIE-Field/id private_id
 InitiatingMessage/value initiatingMessage_value 
 
 ProtocolIE-Field/value protocolIE_Field_value 
 SuccessfulOutcome/value successfulOutcome_value 
-#PrivateIE-Field/value privateIE_Field_value 
+PrivateIE-Field/value privateIE_Field_value 
 
 #.OMIT_ASSIGNMENT
 Presence
@@ -87,30 +83,29 @@ ProtocolIE-ContainerPairList
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-handoverPreparation				ProcedureCode
-id-handoverCancel					ProcedureCode
-id-loadIndication					ProcedureCode
-id-errorIndication					ProcedureCode
-id-snStatusTransfer					ProcedureCode
-id-uEContextRelease					ProcedureCode
-id-x2Setup							ProcedureCode
-id-reset							ProcedureCode
-id-eNBConfigurationUpdate			ProcedureCode
-id-resourceStatusUpdateInitiation	ProcedureCode
-id-resourceStatusReporting			ProcedureCode
-
+id-handoverPreparation					ProcedureCode
+id-handoverCancel						ProcedureCode
+id-loadIndication						ProcedureCode
+id-errorIndication						ProcedureCode
+id-snStatusTransfer						ProcedureCode
+id-uEContextRelease						ProcedureCode
+id-x2Setup								ProcedureCode
+id-reset								ProcedureCode
+id-eNBConfigurationUpdate				ProcedureCode
+id-resourceStatusReportingInitiation	ProcedureCode
+id-resourceStatusReporting				ProcedureCode
+id-privateMessage						ProcedureCode
 
 # ProtocolIE-ID
 
-id-Bearers-Admitted-Item													ProtocolIE-ID
-id-Bearers-Admitted-List													ProtocolIE-ID
-id-Bearers-NotAdmitted-Item													ProtocolIE-ID
-id-Bearers-NotAdmitted-List													ProtocolIE-ID
-id-Bearers-ToBeSetup-Item													ProtocolIE-ID
+id-E-RABs-Admitted-Item														ProtocolIE-ID
+id-E-RABs-Admitted-List														ProtocolIE-ID
+id-E-RAB-Item																ProtocolIE-ID
+id-E-RABs-NotAdmitted-List													ProtocolIE-ID
+id-E-RABs-ToBeSetup-Item													ProtocolIE-ID
 id-Cause																	ProtocolIE-ID
 id-CellInformation															ProtocolIE-ID
 id-CellInformation-Item														ProtocolIE-ID
-id-InterfacesToTrace-Item													ProtocolIE-ID
 id-New-eNB-UE-X2AP-ID														ProtocolIE-ID
 id-Old-eNB-UE-X2AP-ID														ProtocolIE-ID
 id-TargetCell-ID															ProtocolIE-ID
@@ -120,8 +115,8 @@ id-UE-ContextInformation													ProtocolIE-ID
 id-UE-HistoryInformation													ProtocolIE-ID
 id-UE-X2AP-ID																ProtocolIE-ID
 id-CriticalityDiagnostics													ProtocolIE-ID
-id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID
-id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID
+id-E-RABs-SubjectToStatusTransfer-List										ProtocolIE-ID
+id-E-RABs-SubjectToStatusTransfer-Item										ProtocolIE-ID
 id-ServedCells																ProtocolIE-ID
 id-GlobalENB-ID																ProtocolIE-ID
 id-TimeToWait																ProtocolIE-ID
@@ -136,21 +131,25 @@ id-ReportingPeriodicity														ProtocolIE-ID
 id-CellToReport-Item														ProtocolIE-ID
 id-CellMeasurementResult													ProtocolIE-ID
 id-CellMeasurementResult-Item												ProtocolIE-ID
-id-GUGroupIDListToAdd														ProtocolIE-ID
-id-GUGroupIDListToDelete													ProtocolIE-ID
-
+id-GUGroupIDToAddList														ProtocolIE-ID
+id-GUGroupIDToDeleteList													ProtocolIE-ID
+id-SRVCCOperationPossible													ProtocolIE-ID
+id-Measurement-ID															ProtocolIE-ID
+id-ReportCharacteristics													ProtocolIE-ID
+id-ENB1-Measurement-ID														ProtocolIE-ID
+id-ENB2-Measurement-ID														ProtocolIE-ID
+id-Number-of-Antennaports													ProtocolIE-ID
 #.REGISTER_NEW
 
 #X2AP-PROTOCOL-IES
-Bearers-Admitted-Item						N x2ap.ies id-Bearers-Admitted-Item
-Bearers-Admitted-List						N x2ap.ies id-Bearers-Admitted-List
-Bearers-NotAdmitted-Item					N x2ap.ies id-Bearers-NotAdmitted-Item
-Bearers-NotAdmitted-List					N x2ap.ies id-Bearers-NotAdmitted-List
-Bearers-ToBeSetup-Item						N x2ap.ies id-Bearers-ToBeSetup-Item
+E-RABs-Admitted-Item						N x2ap.ies id-E-RABs-Admitted-Item
+E-RABs-Admitted-List						N x2ap.ies id-E-RABs-Admitted-List
+E-RAB-Item									N x2ap.ies id-E-RAB-Item
+E-RAB-List									N x2ap.ies id-E-RABs-NotAdmitted-List
+E-RABs-ToBeSetup-Item						N x2ap.ies id-E-RABs-ToBeSetup-Item
 Cause										N x2ap.ies id-Cause		
 CellInformation-List						N x2ap.ies id-CellInformation	
 CellInformation-Item						N x2ap.ies id-CellInformation-Item
-InterfacesToTrace-Item						N x2ap.ies id-InterfacesToTrace-Item
 UE-X2AP-ID									N x2ap.ies id-New-eNB-UE-X2AP-ID
 UE-X2AP-ID									N x2ap.ies id-Old-eNB-UE-X2AP-ID
 ECGI										N x2ap.ies id-TargetCell-ID
@@ -160,8 +159,8 @@ UE-ContextInformation						N x2ap.ies id-UE-ContextInformation
 UE-HistoryInformation						N x2ap.ies id-UE-HistoryInformation
 UE-X2AP-ID									N x2ap.ies id-UE-X2AP-ID
 CriticalityDiagnostics						N x2ap.ies id-CriticalityDiagnostics
-Bearers-SubjectToStatusTransfer-List		N x2ap.ies id-Bearers-SubjectToStatusTransfer-List
-Bearers-SubjectToStatusTransfer-Item		N x2ap.ies id-Bearers-SubjectToStatusTransfer-Item
+E-RABs-SubjectToStatusTransfer-List			N x2ap.ies id-E-RABs-SubjectToStatusTransfer-List
+E-RABs-SubjectToStatusTransfer-Item			N x2ap.ies id-E-RABs-SubjectToStatusTransfer-Item
 ServedCells									N x2ap.ies id-ServedCells
 GlobalENB-ID								N x2ap.ies id-GlobalENB-ID
 TimeToWait									N x2ap.ies id-TimeToWait
@@ -172,15 +171,20 @@ ServedCellsToModify							N x2ap.ies id-ServedCellsToModify
 Old-ECGIs									N x2ap.ies id-ServedCellsToDelete
 Registration-Request						N x2ap.ies id-Registration-Request
 CellToReport-List							N x2ap.ies id-CellToReport
-ReportingPeriod								N x2ap.ies id-ReportingPeriodicity
+ReportingPeriodicity						N x2ap.ies id-ReportingPeriodicity
 CellToReport-Item							N x2ap.ies id-CellToReport-Item
 CellMeasurementResult-List					N x2ap.ies id-CellMeasurementResult
 CellMeasurementResult-Item					N x2ap.ies id-CellMeasurementResult-Item
-GUGroupIDList								N x2ap.ies id-GUGroupIDListToAdd
-GUGroupIDList								N x2ap.ies id-GUGroupIDListToDelete
+GUGroupIDList								N x2ap.ies id-GUGroupIDToAddList
+GUGroupIDList								N x2ap.ies id-GUGroupIDToDeleteList
+SRVCCOperationPossible						N x2ap.ies id-SRVCCOperationPossible
+# N x2ap.ies id-Measurement-ID
+ReportCharacteristics						N x2ap.ies id-ReportCharacteristics
+Measurement-ID								N x2ap.ies id-ENB1-Measurement-ID
+Measurement-ID								N x2ap.ies id-ENB2-Measurement-ID
 
 #X2AP-PROTOCOL-EXTENSION
-# this is from rnsap MessageStructure                   N x2ap.extension id-MessageStructure
+Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -209,9 +213,11 @@ ENBConfigurationUpdate				S x2ap.proc.imsg "id-eNBConfigurationUpdate"
 ENBConfigurationUpdateAcknowledge	S x2ap.proc.sout "id-eNBConfigurationUpdate"
 ENBConfigurationUpdateFailure		S x2ap.proc.uout "id-eNBConfigurationUpdate"
 
-ResourceStatusRequest				S x2ap.proc.imsg "id-resourceStatusUpdateInitiation"
-ResourceStatusResponse				S x2ap.proc.sout "id-resourceStatusUpdateInitiation"
-ResourceStatusFailure				S x2ap.proc.uout "id-resourceStatusUpdateInitiation"
+ResourceStatusRequest				S x2ap.proc.imsg "id-resourceStatusReportingInitiation"
+ResourceStatusResponse				S x2ap.proc.sout "id-resourceStatusReportingInitiation"
+ResourceStatusFailure				S x2ap.proc.uout "id-resourceStatusReportingInitiation"
 
 ResourceStatusUpdate				S x2ap.proc.imsg "id-resourceStatusReporting"
+
+PrivateMessage				S x2ap.proc.imsg "id-privateMessage"
 #.END
