@@ -9068,7 +9068,7 @@
 00:23:5D	Cisco                  # Cisco Systems
 00:23:5E	Cisco                  # Cisco Systems
 00:23:5F	SiliconMic             # Silicon Micro Sensors GmbH
-00:23:60	Lookit                 # Lookit Co., Ltd
+00:23:60	LookitTech             # Lookit Technology Co., Ltd
 00:23:61	Unigen                 # Unigen Corporation
 00:23:62	GoldlineCo             # Goldline Controls
 00:23:63	ZhuhaiRays             # Zhuhai RaySharp Technology Co., Ltd.
@@ -9873,6 +9873,23 @@
 00:26:82	GemtekTech             # Gemtek Technology Co., Ltd.
 00:26:83	AjohoEnter             # Ajoho Enterprise Co., Ltd.
 00:26:84	KisanSyste             # KISAN SYSTEM
+00:26:85	DigitalInn             # Digital Innovation
+00:26:86	QuantennaC             # Quantenna Communcations, Inc.
+00:26:87	CoregaKK               # corega K.K.
+00:26:88	JuniperNet             # Juniper Networks
+00:26:89	GeneralDyn             # General Dynamics Robotic Systems
+00:26:8A	TerrierSc              # Terrier SC Ltd
+00:26:8B	GuangzhouE             # Guangzhou Escene Computer Technology Limited
+00:26:8C	Starleaf               # StarLeaf Ltd.
+00:26:8D	CelltelSPA             # CellTel S.p.A.
+00:26:8E	AltaSoluti             # Alta Solutions, Inc.
+00:26:8F	MtaSpa                 # MTA SpA
+00:26:90	IDoIt                  # I DO IT
+00:26:91	SagemCommu             # SAGEM COMMUNICATION
+00:26:92	Mitsubishi             # Mitsubishi Electric Co.
+00:26:93	QvidiumTec             # QVidium Technologies, Inc.
+00:26:94	Senscient              # Senscient Ltd
+00:26:95	ZtGroupInt             # ZT Group Int'l Inc
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13341,6 +13358,15 @@
 00:50:C2:AD:B0:00/36	GoEngineer             # GO engineering GmbH
 00:50:C2:AD:C0:00/36	Synthesech             # Synthesechemie Dr. Penth GmbH
 00:50:C2:AD:D0:00/36	GeneralDyn             # General Dynamics C4 Sysems
+00:50:C2:AD:E0:00/36	Neoptix                # Neoptix Inc.
+00:50:C2:AD:F0:00/36	Altinex                # Altinex, Inc
+00:50:C2:AE:00:00/36	At4Wireles             # AT4 wireless.S.A
+00:50:C2:AE:10:00/36	Evercare
+00:50:C2:AE:20:00/36	PowerMedic             # Power Medical Interventions
+00:50:C2:AE:30:00/36	Psd
+00:50:C2:AE:40:00/36	AdvancedEl             # Advanced Electronic Designs, Inc.
+00:50:C2:AE:50:00/36	AbsGesells             # ABS Gesellschaft f. Automatisierung, Bildverarbeitung und Software mbH
+00:50:C2:AE:60:00/36	VecomUsa               # VECOM USA
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
