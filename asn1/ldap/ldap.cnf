@@ -37,7 +37,9 @@ ReplControlValue		B "1.2.840.113556.1.4.841" "replControlValue"
 #RFC 3062
 PasswdModifyRequestValue	B "1.3.6.1.4.1.4203.1.11.1" "passwdModifyOID"
 #RFC 3909
-CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
+CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequestOID"
+# Draft RFC - Password Policy for LDAP Directories
+PasswordPolicyResponseValue	B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 
 #.FN_FTR LDAPURL
 	PROTO_ITEM_SET_URL(actx->created_item);
