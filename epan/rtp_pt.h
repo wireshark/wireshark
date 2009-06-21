@@ -34,33 +34,33 @@
  *
  *	http://www.iana.org/assignments/rtp-parameters
  */
-#define PT_PCMU		0	/* RFC 3551 */
-#define PT_1016		1	/* RFC 1890 (reserved in RFC 3551) */
-#define PT_G721		2	/* RFC 1890 (reserved in RFC 3551) */
-#define PT_GSM		3	/* RFC 3551 */
-#define PT_G723		4	/* From Vineet Kumar of Intel; see the Web page */
+#define PT_PCMU			0	/* RFC 3551 */
+#define PT_1016			1	/* RFC 1890 (reserved in RFC 3551) */
+#define PT_G721			2	/* RFC 1890 (reserved in RFC 3551) */
+#define PT_GSM			3	/* RFC 3551 */
+#define PT_G723			4	/* From Vineet Kumar of Intel; see the Web page */
 #define PT_DVI4_8000	5	/* RFC 3551 */
 #define PT_DVI4_16000	6	/* RFC 3551 */
-#define PT_LPC		7	/* RFC 3551 */
-#define PT_PCMA		8	/* RFC 3551 */
-#define PT_G722		9	/* RFC 3551 */
+#define PT_LPC			7	/* RFC 3551 */
+#define PT_PCMA			8	/* RFC 3551 */
+#define PT_G722			9	/* RFC 3551 */
 #define PT_L16_STEREO	10	/* RFC 3551 */
-#define PT_L16_MONO	11	/* RFC 3551 */
-#define PT_QCELP	12	/* Qualcomm Code Excited Linear Predictive coding? */
-#define PT_CN		13	/* RFC 3389 */
-#define PT_MPA		14	/* RFC 3551, RFC 2250 */
-#define PT_G728		15	/* RFC 3551 */
+#define PT_L16_MONO		11	/* RFC 3551 */
+#define PT_QCELP		12	/* Qualcomm Code Excited Linear Predictive coding? */
+#define PT_CN			13	/* RFC 3389 */
+#define PT_MPA			14	/* RFC 3551, RFC 2250 */
+#define PT_G728			15	/* RFC 3551 */
 #define PT_DVI4_11025	16	/* from Joseph Di Pol of Sun; see the Web page */
 #define PT_DVI4_22050	17	/* from Joseph Di Pol of Sun; see the Web page */
-#define PT_G729		18
-#define PT_CN_OLD	19	/* Payload type reserved (old version Comfort Noise) */
-#define PT_CELB		25	/* RFC 2029 */
-#define PT_JPEG		26	/* RFC 2435 */
-#define PT_NV		28	/* RFC 1890 */
-#define PT_H261		31	/* RFC 2032 */
-#define PT_MPV		32	/* RFC 2250 */
-#define PT_MP2T		33	/* RFC 2250 */
-#define PT_H263		34	/* from Chunrong Zhu of Intel; see the Web page */
+#define PT_G729			18
+#define PT_CN_OLD		19	/* Payload type reserved (old version Comfort Noise) */
+#define PT_CELB			25	/* RFC 2029 */
+#define PT_JPEG			26	/* RFC 2435 */
+#define PT_NV			28	/* RFC 1890 */
+#define PT_H261			31	/* RFC 2032 */
+#define PT_MPV			32	/* RFC 2250 */
+#define PT_MP2T			33	/* RFC 2250 */
+#define PT_H263			34	/* from Chunrong Zhu of Intel; see the Web page */
 
 /* Added to by Alex Lindberg to cover port ranges 96-127 - Dynamic RTP
    Some of these ports are used by Avaya for Modem and FAX support */
