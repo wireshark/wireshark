@@ -405,7 +405,7 @@ proto_register_ansi_tcap(void)
           { "Session Id",
             "ansi_tcap.srt.session_id",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_ansi_tcapsrt_BeginSession,
           { "Begin Session",
@@ -429,7 +429,7 @@ proto_register_ansi_tcap(void)
           { "Request Duplicate",
             "ansi_tcap.srt.duplicate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "", HFILL }
+            NULL, HFILL }
         },
 #include "packet-ansi_tcap-hfarr.c"
     };
