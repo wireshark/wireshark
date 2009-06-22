@@ -1831,22 +1831,22 @@ void proto_register_ldap(void) {
 
   static hf_register_info hf[] = {
 
-	  	{ &hf_ldap_sasl_buffer_length,
-		  { "SASL Buffer Length",	"ldap.sasl_buffer_length",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"SASL Buffer Length", HFILL }},
-	    { &hf_ldap_response_in,
-	      { "Response In", "ldap.response_in",
-	        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
-	        "The response to this LDAP request is in this frame", HFILL }},
-	    { &hf_ldap_response_to,
-	      { "Response To", "ldap.response_to",
-	        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
-	        "This is a response to the LDAP request in this frame", HFILL }},
-	    { &hf_ldap_time,
-	      { "Time", "ldap.time",
-	        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-	        "The time between the Call and the Reply", HFILL }},
+    { &hf_ldap_sasl_buffer_length,
+      { "SASL Buffer Length",   "ldap.sasl_buffer_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_ldap_response_in,
+      { "Response In", "ldap.response_in",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "The response to this LDAP request is in this frame", HFILL }},
+    { &hf_ldap_response_to,
+      { "Response To", "ldap.response_to",
+        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+        "This is a response to the LDAP request in this frame", HFILL }},
+    { &hf_ldap_time,
+      { "Time", "ldap.time",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Call and the Reply", HFILL }},
 
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
@@ -1856,57 +1856,57 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_version,
       { "Version", "mscldap.netlogon.version",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Version", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_netlogon_ipaddress_family,
       { "Family", "mscldap.netlogon.ipaddress.family",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Family", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_netlogon_ipaddress_ipv4,
       { "IPv4", "mscldap.netlogon.ipaddress.ipv4",
         FT_IPv4, BASE_DEC, NULL, 0x0,
         "IP Address", HFILL }},
 
-	{ &hf_mscldap_netlogon_ipaddress_port,
+    { &hf_mscldap_netlogon_ipaddress_port,
       { "Port", "mscldap.netlogon.ipaddress.port",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Port", HFILL }},
+        NULL, HFILL }},
 
-	{ &hf_mscldap_netlogon_ipaddress,
+    { &hf_mscldap_netlogon_ipaddress,
       { "IP Address","mscldap.netlogon.ipaddress",
-		FT_IPv4, BASE_NONE, NULL, 0x0,
-			"Domain Controller IP Address ", HFILL }},
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "Domain Controller IP Address ", HFILL }},
 
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        "LM Token", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_netlogon_nt_token,
       { "NT Token", "mscldap.netlogon.nt_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        "NT Token", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_netlogon_flags,
       { "Flags", "mscldap.netlogon.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "Netlogon flags describing the DC properties", HFILL }},
     
-	{ &hf_mscldap_ntver_flags,
+    { &hf_mscldap_ntver_flags,
       { "Search Flags", "mscldap.ntver.searchflags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "cldap Netlogon request flags", HFILL }},
-	
-	{ &hf_mscldap_domain_guid,
+        
+    { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
         FT_BYTES, BASE_HEX, NULL, 0x0,
-        "Domain GUID", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_forest,
       { "Forest", "mscldap.forest",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Forest", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_domain,
       { "Domain", "mscldap.domain",
@@ -1916,7 +1916,7 @@ void proto_register_ldap(void) {
     { &hf_mscldap_hostname,
       { "Hostname", "mscldap.hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Hostname", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_nb_domain,
       { "NetBios Domain", "mscldap.nb_domain",
@@ -1926,7 +1926,7 @@ void proto_register_ldap(void) {
     { &hf_mscldap_nb_hostname,
       { "NetBios Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "NetBios Hostname", HFILL }},
+        NULL, HFILL }},
 
     { &hf_mscldap_username,
       { "Username", "mscldap.username",
@@ -1946,49 +1946,49 @@ void proto_register_ldap(void) {
     { &hf_ldap_sid,
       { "Sid", "ldap.sid",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Sid", HFILL }},
+        NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_v5cs,
+    { &hf_mscldap_ntver_flags_v5cs,
       { "V5CS", "mscldap.ntver.searchflags.v5cs", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5cs), 0x00000010, "", HFILL }},
+        TFS(&tfs_ntver_v5cs), 0x00000010, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_v5ip,
+    { &hf_mscldap_ntver_flags_v5ip,
       { "V5IP", "mscldap.ntver.searchflags.v5ip", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ip), 0x00000008, "", HFILL }},
+        TFS(&tfs_ntver_v5ip), 0x00000008, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_v5ex,
+    { &hf_mscldap_ntver_flags_v5ex,
       { "V5EX", "mscldap.ntver.searchflags.v5ex", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ex), 0x00000004, "", HFILL }},
+        TFS(&tfs_ntver_v5ex), 0x00000004, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_v5,
+    { &hf_mscldap_ntver_flags_v5,
       { "V5", "mscldap.ntver.searchflags.v5", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5), 0x00000002, "", HFILL }},
+        TFS(&tfs_ntver_v5), 0x00000002, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_v1,
+    { &hf_mscldap_ntver_flags_v1,
       { "V1", "mscldap.ntver.searchflags.v1", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v1), 0x00000001, "", HFILL }},
+        TFS(&tfs_ntver_v1), 0x00000001, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_gc,
+    { &hf_mscldap_ntver_flags_gc,
       { "GC", "mscldap.ntver.searchflags.gc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_gc), 0x80000000, "", HFILL }},
+        TFS(&tfs_ntver_gc), 0x80000000, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_local,
+    { &hf_mscldap_ntver_flags_local,
       { "Local", "mscldap.ntver.searchflags.local", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_local), 0x40000000, "", HFILL }},
+        TFS(&tfs_ntver_local), 0x40000000, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_ip,
+    { &hf_mscldap_ntver_flags_ip,
       { "IP", "mscldap.ntver.searchflags.ip", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_ip), 0x20000000, "", HFILL }},
-	
-	{ &hf_mscldap_ntver_flags_pdc,
+        TFS(&tfs_ntver_ip), 0x20000000, NULL, HFILL }},
+        
+    { &hf_mscldap_ntver_flags_pdc,
       { "PDC", "mscldap.ntver.searchflags.pdc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_pdc), 0x10000000, "", HFILL }},
+        TFS(&tfs_ntver_pdc), 0x10000000, NULL, HFILL }},
 
-	{ &hf_mscldap_ntver_flags_nt4,
+    { &hf_mscldap_ntver_flags_nt4,
       { "NT4", "mscldap.ntver.searchflags.nt4", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_nt4), 0x01000000, "", HFILL }},
+        TFS(&tfs_ntver_nt4), 0x01000000, NULL, HFILL }},
 
-	{ &hf_mscldap_netlogon_flags_pdc,
+    { &hf_mscldap_netlogon_flags_pdc,
       { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_pdc), 0x00000001, "Is this DC a PDC or not?", HFILL }},
 
@@ -2028,15 +2028,15 @@ void proto_register_ldap(void) {
       { "NDNC", "mscldap.netlogon.flags.ndnc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_ndnc), 0x00000400, "Is this an NDNC dc?", HFILL }},
 
-	{ &hf_mscldap_netlogon_flags_rodc,
+    { &hf_mscldap_netlogon_flags_rodc,
       { "RODC", "mscldap.netlogon.flags.rodc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_rodc), 0x00000800, "Is this an read only dc?", HFILL }},
 
-	{ &hf_mscldap_netlogon_flags_wdc,
+    { &hf_mscldap_netlogon_flags_wdc,
       { "WDC", "mscldap.netlogon.flags.writabledc.", FT_BOOLEAN, 32,
         TFS(&tfs_ads_wdc), 0x00001000, "Is this an writable dc (Windows 2008)?", HFILL }},
 
-	{ &hf_mscldap_netlogon_flags_dns,
+    { &hf_mscldap_netlogon_flags_dns,
       { "DNS", "mscldap.netlogon.flags.dnsname", FT_BOOLEAN, 32,
         TFS(&tfs_ads_dns), 0x20000000, "Does the server have a dns name (Windows 2008)?", HFILL }},
 
@@ -2050,34 +2050,34 @@ void proto_register_ldap(void) {
 
     { &hf_ldap_guid,
       { "GUID", "ldap.guid", FT_GUID, BASE_NONE,
-        NULL, 0, "GUID", HFILL }},
+        NULL, 0, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_CREATE_CHILD, 
-	  { "Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CREATE_CHILD_tfs), LDAP_ACCESSMASK_ADS_CREATE_CHILD, "", HFILL }},
+      { "Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CREATE_CHILD_tfs), LDAP_ACCESSMASK_ADS_CREATE_CHILD, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_DELETE_CHILD, 
-	  { "Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_CHILD_tfs), LDAP_ACCESSMASK_ADS_DELETE_CHILD, "", HFILL }},
+      { "Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_CHILD_tfs), LDAP_ACCESSMASK_ADS_DELETE_CHILD, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_LIST, 
-	  { "List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_tfs), LDAP_ACCESSMASK_ADS_LIST, "", HFILL }},
+      { "List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_tfs), LDAP_ACCESSMASK_ADS_LIST, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_SELF_WRITE, 
-	  { "Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_SELF_WRITE_tfs), LDAP_ACCESSMASK_ADS_SELF_WRITE, "", HFILL }},
+      { "Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_SELF_WRITE_tfs), LDAP_ACCESSMASK_ADS_SELF_WRITE, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_READ_PROP, 
-	  { "Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_READ_PROP_tfs), LDAP_ACCESSMASK_ADS_READ_PROP, "", HFILL }},
+      { "Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_READ_PROP_tfs), LDAP_ACCESSMASK_ADS_READ_PROP, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_WRITE_PROP, 
-	  { "Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_WRITE_PROP_tfs), LDAP_ACCESSMASK_ADS_WRITE_PROP, "", HFILL }},
+      { "Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_WRITE_PROP_tfs), LDAP_ACCESSMASK_ADS_WRITE_PROP, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_DELETE_TREE, 
-	  { "Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_TREE_tfs), LDAP_ACCESSMASK_ADS_DELETE_TREE, "", HFILL }},
+      { "Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_TREE_tfs), LDAP_ACCESSMASK_ADS_DELETE_TREE, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_LIST_OBJECT, 
-	  { "List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_OBJECT_tfs), LDAP_ACCESSMASK_ADS_LIST_OBJECT, "", HFILL }},
+      { "List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_OBJECT_tfs), LDAP_ACCESSMASK_ADS_LIST_OBJECT, NULL, HFILL }},
 
     { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS, 
-	  { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, "", HFILL }},
+      { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, NULL, HFILL }},
 
 #include "packet-ldap-hfarr.c"
   };
