@@ -1,9 +1,0 @@
-/* XPM */
-static const char * clist_ascend_xpm[] = {
-"4 4 2 1",
-" 	c None",
-".	c #000000",
-"    ",
-"    ",
-"... ",
-" .  "};
