@@ -1642,7 +1642,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
 			offset++;
 
-			if(((tail_0 && 0x0f)==6)||((tail_0 && 0x0f)==7))
+			if(((tail_0 & 0x0f)==6)||((tail_0 & 0x0f)==7))
 			{
 				proto_tree_add_uint_format(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 4, 0x2323, "here should be attributes...");
 				offset +=4;

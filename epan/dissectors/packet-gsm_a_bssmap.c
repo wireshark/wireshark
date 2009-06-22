@@ -771,7 +771,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 		case 0x62: str = "DTM Handover - Timer Expiry"; break;
 
 		default:
-			if ((oct >= 0x18) && (oct <= 0x17)) { str = "Reserved for international use"; }
+			if ((oct >= 0) && (oct <= 0x17)) { str = "Reserved for international use"; }
 			else if ((oct >= 0x18) && (oct <= 0x1f)) { str = "Reserved for national use"; }
 			else if ((oct >= 0x2c) && (oct <= 0x2f)) { str = "Reserved for national use"; }
 			else if ((oct >= 0x35) && (oct <= 0x3f)) { str = "Reserved for international use"; }
