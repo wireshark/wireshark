@@ -2740,7 +2740,7 @@ add_events(tvbuff_t *tvb, int offs, proto_tree *tree, const struct true_false_st
 	int len = tvb_length(tvb);
 	int i, j, val, msk;
 
-	for (i = 0; offs < len; i++, offs++) {
+	for (i = 0; (offs < len) && (i < 4); i++, offs++) {
 		val = tvb_get_guint8(tvb, offs);
 		ti = proto_tree_add_text(tree, tvb, offs, 1, "%s (byte %d)", desc, i);
 		s_tree = proto_item_add_subtree(ti, *tsel[i]);
