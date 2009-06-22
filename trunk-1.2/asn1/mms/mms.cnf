@@ -1,0 +1,43 @@
+# mms.cnf
+# mms conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+ISO-8650-ACSE-1 acse
+
+#.IMPORT ../acse/acse-exp.cnf
+
+#.EXPORTS
+MMSpdu
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY ApplicationReference/ap-title
+  offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
+
+#.FN_BODY ApplicationReference/ap-invocation-id
+  offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
+
+#.FN_BODY ApplicationReference/ae-qualifier
+  offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
+
+#.FN_BODY ApplicationReference/ae-invocation-id
+  offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
+
+#.FN_BODY MMSpdu VAL_PTR=&branch_taken
+  gint branch_taken;
+
+%(DEFAULT_BODY)s
+
+  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+    if(check_col(actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
+  }
+

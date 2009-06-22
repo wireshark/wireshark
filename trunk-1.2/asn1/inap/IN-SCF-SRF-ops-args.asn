@@ -1,0 +1,280 @@
+-- $Id$
+-- Module IN-SCF-SRF-ops-args (Q.1248.3:07/2001)
+IN-SCF-SRF-ops-args {itu-t recommendation q 1248 modules(1)
+  in-scf-srf-ops-args(12) version1(0)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+  ros-InformationObjects, operationcodes, common-datatypes, errortypes,
+    common-classes, scf-srf-classes, ssf-scf-classes, ssf-scf-datatypes,
+    scf-srf-datatypes
+    FROM IN-object-identifiers {itu-t recommendation q 1248 modules(1)
+      in-object-identifiers(0) version1(0)}
+  OPERATION
+    FROM Remote-Operations-Information-Objects ros-InformationObjects
+  opcode-playAnnouncement, opcode-promptAndCollectUserInformation,
+    opcode-promptAndReceiveMessage, opcode-scriptClose, opcode-scriptEvent,
+    opcode-scriptInformation, opcode-scriptRun,
+    opcode-specializedResourceReport, opcode-activityTest, opcode-srfCallGap
+    FROM IN-operationcodes operationcodes
+  SCF-SSF-BOUNDS
+    FROM IN-SSF-SCF-Classes ssf-scf-classes
+  CallSegmentID{}, Digits{}, GenericNumber{}, LegID, ControlType, GapIndicators
+    FROM IN-SSF-SCF-datatypes ssf-scf-datatypes
+  InformationToSend{}, CollectedInfo, MailBoxID{}, InformationToRecord{},
+    Media, ReceivedStatus, RecordedMessageID, SRFGapCriteria{}
+    FROM IN-SCF-SRF-datatypes scf-srf-datatypes
+  canceled, improperCallerResponse, missingParameter, parameterOutOfRange,
+    systemFailure, taskRefused, unavailableResource,
+    unexpectedComponentSequence, unexpectedDataValue, unexpectedParameter,
+    unknownLegID
+    FROM IN-errortypes errortypes
+  UISCRIPT, SupportedUIScripts, SCF-SRF-BOUNDS
+    FROM IN-SCF-SRF-Classes scf-srf-classes
+  Extensions{}
+    FROM IN-common-datatypes common-datatypes
+  COMMON-BOUNDS
+    FROM IN-common-classes common-classes;
+
+-- The following three definitions are local short-hand notation for convenience.
+B1 ::=
+  COMMON-BOUNDS -- defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
+
+B2 ::= SCF-SSF-BOUNDS -- defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
+
+B3 ::= SCF-SRF-BOUNDS -- defined in this Recommendation (Q.1248.3)
+
+-- activityTest OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+-- assistRequestInstructions OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+--cancel OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+playAnnouncement{B1:b1, B2:b2, B3:b3} OPERATION ::= {
+  ARGUMENT         PlayAnnouncementArg {b1,
+                                        b2,
+                                        b3}
+  RETURN RESULT    FALSE
+  ERRORS
+    {canceled | missingParameter | parameterOutOfRange | systemFailure |
+      taskRefused | unexpectedComponentSequence | unexpectedDataValue |
+      unexpectedParameter | unavailableResource | unknownLegID}
+  LINKED           {specializedResourceReport}
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-playAnnouncement
+}
+
+-- Direction: SCF -> SRF, Timer: Tpa
+-- This operation is to be used after Establish Temporary Connection (assist procedure with a second SSP) 
+-- or a Connect to Resource (no assist) operation. It may be used for inband interaction with an analogue user, 
+-- or for interaction with an ISDN user. In the former case, the SRF is usually collocated with the SSF for 
+-- standard tones (congestion tone ...) or standard announcements. In the latter case, the SRF is always 
+-- collocated with the SSF in the switch. Any error is returned to the SCF. The timer associated with this 
+-- operation must be of a sufficient duration to allow its linked operation to be correctly correlated.
+PlayAnnouncementArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
+  informationToSend            [0]  InformationToSend{b2, b3},
+  disconnectFromIPForbidden    [1]  BOOLEAN DEFAULT TRUE,
+  requestAnnouncementComplete  [2]  BOOLEAN DEFAULT TRUE,
+  extensions                   [3]  Extensions{b1} OPTIONAL,
+  connectedParty
+    CHOICE {legID          [4]  LegID,
+            callSegmentID  [5]  CallSegmentID{b2}} OPTIONAL,
+  ...
+}
+
+promptAndCollectUserInformation{B1:b1, B2:b2, B3:b3} OPERATION ::= {
+  ARGUMENT  PromptAndCollectUserInformationArg {b1,
+                                                b2,
+                                                b3}
+  RESULT    ReceivedInformationArg {b2}
+  ERRORS
+    {canceled | improperCallerResponse | missingParameter | parameterOutOfRange
+      | systemFailure | taskRefused | unexpectedComponentSequence |
+      unavailableResource | unexpectedDataValue | unexpectedParameter}
+  CODE      opcode-promptAndCollectUserInformation
+}
+
+-- Direction: SCF -> SRF, Timer: Tpc 
+-- This operation is used to interact with a user to collect information.
+PromptAndCollectUserInformationArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
+  collectedInfo              [0]  CollectedInfo,
+  disconnectFromIPForbidden  [1]  BOOLEAN DEFAULT TRUE,
+  informationToSend          [2]  InformationToSend{b2, b3} OPTIONAL,
+  extensions                 [3]  Extensions{b1} OPTIONAL,
+  callSegmentID              [4]  CallSegmentID{b2} OPTIONAL,
+  ...
+}
+
+ReceivedInformationArg{B2:b2} ::= CHOICE {
+  digitsResponse  [0]  Digits{b2},
+  iA5Response     [1]  IA5String,
+  modemdetected   [2]  BOOLEAN
+}
+
+promptAndReceiveMessage{B1:b1, B2:b2, B3:b3} OPERATION ::= {
+  ARGUMENT  PromptAndReceiveMessageArg {b1,
+                                        b2,
+                                        b3}
+  RESULT    MessageReceivedArg {b1,
+                                b3}
+  ERRORS
+    {canceled | improperCallerResponse | missingParameter | parameterOutOfRange
+      | taskRefused | systemFailure | unavailableResource |
+      unexpectedComponentSequence | unexpectedDataValue | unexpectedParameter}
+  CODE      opcode-promptAndReceiveMessage
+}
+
+-- Direction: SCF ->SRF, Timer: Tprm
+-- Used to prompt a user to store a message
+PromptAndReceiveMessageArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
+  disconnectFromIPForbidden  [0]  BOOLEAN DEFAULT TRUE,
+  informationToSend          [1]  InformationToSend{b2, b3} OPTIONAL,
+  extensions                 [3]  Extensions{b1} OPTIONAL,
+  subscriberID               [4]  GenericNumber{b2} OPTIONAL,
+  mailBoxID                  [5]  MailBoxID{b3} OPTIONAL,
+  informationToRecord        [6]  InformationToRecord{b3},
+  media                      [7]  Media DEFAULT voiceMail,
+  callSegmentID              [8]  CallSegmentID{b2} OPTIONAL,
+  ...
+}
+
+MessageReceivedArg{B1:b1, B3:b3} ::= SEQUENCE {
+  receivedStatus        [0]  ReceivedStatus,
+  recordedMessageID     [1]  RecordedMessageID OPTIONAL,
+  recordedMessageUnits  [2]  INTEGER(1..b3.&maxRecordedMessageUnits) OPTIONAL,
+  extensions            [3]  Extensions{b1} OPTIONAL,
+  ...
+}
+
+-- reportUTSI OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+-- requestReportUTSI OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+-- sendSTUI OPERATION 
+-- This operation is described in Recommendation Q.1248.2. 
+scriptClose{B1:b1, B2:b2} OPERATION ::= {
+  ARGUMENT         ScriptCloseArg {b1,
+                                   b2}
+  RETURN RESULT    FALSE
+  ERRORS
+    {systemFailure | missingParameter | taskRefused | unavailableResource |
+      unexpectedComponentSequence | unexpectedDataValue | unexpectedParameter}
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-scriptClose
+}
+
+-- Direction:SCF-> SRF. Timer :TCl
+-- This operation is issued by the SCF to deallocate the resources used to perform the
+-- instance of the "User Interaction" script: the context is released.
+ScriptCloseArg{B1:b1, B2:b2} ::= SEQUENCE {
+  uIScriptId            UISCRIPT.&id({SupportedUIScripts}),
+  uIScriptSpecificInfo
+    [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
+  extensions            [1]  Extensions{b1} OPTIONAL,
+  callSegmentID         [2]  CallSegmentID{b2} OPTIONAL,
+  ...
+}
+
+scriptEvent{B1:b1, B2:b2} OPERATION ::= {
+  ARGUMENT         ScriptEventArg {b1,
+                                   b2}
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-scriptEvent
+}
+
+-- Direction:SRF-> SCF. Timer :TRe
+-- This operation is issued by the SRF to return information to the SCF on the results of the
+-- execution of the instance of User Interaction script.
+ScriptEventArg{B1:b1, B2:b2} ::= SEQUENCE {
+  uIScriptId          UISCRIPT.&id({SupportedUIScripts}),
+  uIScriptResult
+    [0]  UISCRIPT.&Result({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
+  extensions          [1]  Extensions{b1} OPTIONAL,
+  callSegmentID       [2]  CallSegmentID{b2} OPTIONAL,
+  lastEventIndicator  [3]  BOOLEAN DEFAULT FALSE,
+  ...
+}
+
+scriptInformation{B1:b1, B2:b2} OPERATION ::= {
+  ARGUMENT         ScriptInformationArg {b1,
+                                         b2}
+  RETURN RESULT    FALSE
+  ERRORS
+    {systemFailure | missingParameter | taskRefused | unavailableResource |
+      unexpectedComponentSequence | unexpectedDataValue | unexpectedParameter}
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-scriptInformation
+}
+
+-- Direction:SCF-> SRF. Timer :Tinf
+ScriptInformationArg{B1:b1, B2:b2} ::= SEQUENCE {
+  uIScriptId            UISCRIPT.&id({SupportedUIScripts}),
+  uIScriptSpecificInfo
+    [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
+  extensions            [1]  Extensions{b1} OPTIONAL,
+  callSegmentID         [2]  CallSegmentID{b2} OPTIONAL,
+  ...
+}
+
+scriptRun{B1:b1, B2:b2} OPERATION ::= {
+  ARGUMENT         ScriptRunArg {b1,
+                                 b2}
+  RETURN RESULT    FALSE
+  ERRORS
+    {systemFailure | missingParameter | taskRefused | unavailableResource |
+      unexpectedComponentSequence | unexpectedDataValue | unexpectedParameter}
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-scriptRun
+}
+
+-- Direction:SCF-> SRF. Timer :Tru
+-- This operation is issued by the SCF to allocate the necessary resources to perform the
+-- instance of the "User Interaction" script and then to activate this "User Interaction" script
+-- instance. A context is partially defined for it if necessary.
+ScriptRunArg{B1:b1, B2:b2} ::= SEQUENCE {
+  uIScriptId                 UISCRIPT.&id({SupportedUIScripts}),
+  uIScriptSpecificInfo
+    [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
+  extensions                 [1]  Extensions{b1} OPTIONAL,
+  disconnectFromIPForbidden  [2]  BOOLEAN DEFAULT TRUE,
+  callSegmentID              [3]  CallSegmentID{b2} OPTIONAL,
+  ...
+}
+
+specializedResourceReport OPERATION ::= {
+  ARGUMENT         SpecializedResourceReportArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-specializedResourceReport
+}
+
+-- Direction: SRF -> SCF, Timer: Tsrr 
+-- This operation is used as the response to a PlayAnnouncement operation when the announcement completed 
+-- report indication is set. 
+SpecializedResourceReportArg ::= NULL
+
+sRFCallGap{B1:b1, B2:b2} OPERATION ::= {
+  ARGUMENT         SRFCallGapArg {b1,
+                                  b2}
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             opcode-srfCallGap
+}
+
+-- Direction: SRF -> SCF, Timer: Tcg 
+-- This operation is used to request the SCF to reduce the rate at which specific service requests are sent to 
+-- the SRF. 
+SRFCallGapArg{B1:b1, B2:b2} ::= SEQUENCE {
+  sRFgapCriteria  [0]  SRFGapCriteria{b2},
+  gapIndicators   [1]  GapIndicators,
+  controlType     [2]  ControlType OPTIONAL,
+  ...,
+  ...,
+  extensions      [30]  Extensions{b1} OPTIONAL
+}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

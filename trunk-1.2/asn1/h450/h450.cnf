@@ -1,0 +1,166 @@
+# h450.cnf
+# H.450 conformation file
+# Copyright 2004 Anders Broman 
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+GROUP_BY_PROT
+-o h450
+#.END
+
+#.IMPORT ../h225/h225-exp.cnf
+#.IMPORT ../h450-ros/h450-ros-exp.cnf 
+
+#.MODULE
+
+H4501-Supplementary-ServiceAPDU-Structure           h450
+Addressing-Data-Elements                            h450
+H225-generic-parameters-definition                  h450
+Manufacturer-specific-service-extension-definition  h450
+H4501-General-Error-List                            h450
+
+Call-Transfer-Operations               h450.2
+Call-Diversion-Operations              h450.3
+Call-Hold-Operations                   h450.4
+Call-Park-Pickup-Operations            h450.5
+Call-Waiting-Operations                h450.6
+Message-Waiting-Indication-Operations  h450.7
+Name-Operations                        h450.8
+Call-Completion-Operations             h450.9
+Call-Offer-Operations                  h450.10
+Call-Intrusion-Operations              h450.11
+Common-Information-Operations          h450.12
+
+#.OMIT_ASSIGNMENT
+PresentedAddressScreened
+PresentedAddressUnscreened
+PresentedNumberScreened
+PresentedNumberUnscreened
+AddressScreened
+NumberScreened
+Address
+# implemented manually in h450-ros as asn2wrs is not able to handle subtype constraint event passed through parameter
+InvokeIDs
+#.END
+
+#.PDU_NEW
+H4501SupplementaryService
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+ERROR.&ParameterType
+
+#.FN_HDR H4501SupplementaryService
+  proto_item *hidden_item;
+
+  hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
+#.END
+
+#.FN_HDR ServiceApdus/rosApdus/_item
+  h450_rose_ctx.apdu_depth = 1;
+  actx->rose_ctx = &h450_rose_ctx;
+#.END
+
+#.TYPE_RENAME
+ARG-activateDiversionQ/extension ActivateDiversionQArg_extension
+ARG-deactivateDiversionQ/extension DeactivateDiversionQArg_extension
+ARG-interrogateDiversionQ/extension InterrogateDiversionQ_extension
+ARG-checkRestriction/extension CheckRestrictionArg_extension
+ARG-callRerouting/extension CallReroutingArg_extension
+ARG-divertingLegInformation1/extension DivertingLegInformation1Arg_extension
+ARG-divertingLegInformation2/extension DivertingLegInformation2Arg_extension
+ARG-divertingLegInformation3/extension DivertingLegInformation3Arg_extension
+ARG-divertingLegInformation4/extension DivertingLegInformation4Arg_extension
+IntResult/extension IntResult_extension
+
+#.FIELD_RENAME
+
+#PresentedAddressScreened/presentationAllowedAddress addressScreened_presentationAllowedAddress
+#PresentedNumberScreened/presentationAllowedAddress numberScreened_presentationAllowedAddress
+#PresentedNumberUnscreened/presentationAllowedAddress numberUnscreened_presentationAllowedAddress
+#PresentedAddressUnscreened/presentationAllowedAddress addressUnscreened_presentationAllowedAddress
+
+#PresentedAddressScreened/presentationRestrictedAddress addressScreened_presentationRestrictedAddress
+#PresentedNumberScreened/presentationRestrictedAddress numberScreened_presentationRestrictedAddress
+#PresentedNumberUnscreened/presentationRestrictedAddress numberUnscreened_presentationRestrictedAddress
+#PresentedAddressUnscreened/presentationRestrictedAddress addressUnscreened_presentationRestrictedAddress
+
+CTInitiateArg/argumentExtension cTInitiateArg_argumentExtension 
+CTSetupArg/argumentExtension cTSetupArg_argumentExtension 
+CTUpdateArg/argumentExtension cTUpdateArg_argumentExtension
+SubaddressTransferArg/argumentExtension subaddressTransferArg_argumentExtension 
+CTCompleteArg/argumentExtension cTCompleteArg_argumentExtension 
+CTActiveArg/argumentExtension cTActiveArg_argumentExtension
+MixedExtension/extension mixedExtension_extension
+PAR-unspecified/extension unspecified_extension
+ARG-checkRestriction/extension checkRestrictionArg_extension
+ARG-divertingLegInformation1/extension divertingLegInformation1Arg_extension
+ARG-divertingLegInformation2/extension divertingLegInformation2Arg_extension
+CcRequestArg/extension ccRequestArg_extension
+CcRequestRes/extension ccRequestRes_extension
+CcShortArg/extension ccShortArg_extension
+CcLongArg/extension ccLongArg_extension
+CoReqOptArg/extension coReqOptArg_extension
+RUAlertOptArg/extension rUAlertOptArg_extension
+CfbOvrOptArg/extension cfbOvrOptArg_extension
+CmnArg/extension cmnArg_extension
+ARG-activateDiversionQ/extension activateDiversionQArg_extension 
+ARG-interrogateDiversionQ/extension interrogateDiversionQ_extension
+ARG-callRerouting/extension callReroutingArg_extension 
+ARG-divertingLegInformation4/extension divertingLegInformation4Arg_extension 
+ARG-divertingLegInformation3/extension divertingLegInformation3Arg_extension 
+ARG-deactivateDiversionQ/extension deactivateDiversionQArg_extension 
+IntResult/extension intResult_extension
+
+MWIActivateArg/extensionArg mWIActivateArg_extensionArg 
+MWIDeactivateArg/extensionArg mWIDeactivateArg_extensionArg 
+MWIInterrogateArg/extensionArg mWIInterrogateArg_extensionArg 
+MWIInterrogateResElt/extensionArg mWIInterrogateResElt_extensionArg
+
+HoldNotificArg/extensionArg holdNotificArg_extensionArg 
+RetrieveNotificArg/extensionArg retrieveNotificArg_extensionArg 
+
+RemoteHoldArg/extensionArg remoteHoldArg_extensionArg
+RemoteRetrieveArg/extensionArg remoteRetrieveArg_extensionArg
+CpRequestArg/extensionArg cpRequestArg_extensionArg
+CpSetupArg/extensionArg cpSetupArg_extensionArg
+GroupIndicationOnArg/extensionArg groupIndicationOnArg_extensionArg
+GroupIndicationOffArg/extensionArg groupIndicationOffArg_extensionArg
+PickrequArg/extensionArg pickrequArg_extensionArg
+PickupArg/extensionArg pickupArg_extensionArg
+PickExeArg/extensionArg pickExeArg_extensionArg
+CpNotifyArg/extensionArg cpNotifyArg_extensionArg
+CpickupNotifyArg/extensionArg cpickupNotifyArg_extensionArg
+CallWaitingArg/extensionArg callWaitingArg_extensionArg
+CIRequestArg/argumentExtension cIRequestArg_argumentExtension 
+CIGetCIPLOptArg/argumentExtension cIGetCIPLOptArg_argumentExtension
+CIIsOptArg/argumentExtension cIIsOptArg_argumentExtension
+CIFrcRelArg/argumentExtension cIFrcRelArg_argumentExtension
+CIWobOptArg/argumentExtension cIWobOptArg_argumentExtension
+CISilentArg/argumentExtension cISilentArg_argumentExtension
+CINotificationArg/argumentExtension cINotificationArg_argumentExtension
+
+CIRequestRes/resultExtension cIRequestRes_resultExtension
+CIGetCIPLRes/resultExtension cIGetCIPLRes_resultExtension
+CIIsOptRes/resultExtension cIIsOptRes_resultExtension
+CIFrcRelOptRes/resultExtension cIFrcRelOptRes_resultExtension
+CIWobOptRes/resultExtension cIWobOptRes_resultExtension
+CISilentOptRes/resultExtension cISilentOptRes_resultExtension
+
+#.TABLE10_BODY OPERATION
+  { %(&operationCode)3s, "%(_name)s" },
+#.END
+
+#.TABLE11_BODY OPERATION
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE20_BODY ERROR
+  { %(&errorCode)4s, "%(_name)s" },
+#.END
+
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.END

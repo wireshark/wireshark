@@ -1,0 +1,17 @@
+#
+# $Id$
+#
+
+include ../config.nmake
+include <win32.mak>
+
+wireshark.manifest:	nsis/wireshark.nsi ws-manifest.pl
+	$(PERL) ws-manifest.pl nsis/wireshark.nsi > $@	
+
+clean:
+	rm -rf wireshark.manifest
+
+distclean:	clean
+	
+maintainer-clean:	distclean
+	

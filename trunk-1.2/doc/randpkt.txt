@@ -1,0 +1,97 @@
+Random Packet Generator
+-----------------------
+$Id$
+
+randpkt is a small utility creates a libpcap trace file full of random packets.
+You can control the number of packets, the maximum size of each packet,
+and the type of each packet. It is not build by default, but you
+can create it in the top-level Wireshark directory by typing:
+
+make randpkt
+
+By creating many randomized packets of a certain type, you can
+test packet sniffers to see how well they handle malformed packets.
+The sniffer can never trust the data that it sees in the packet because
+you can always sniff a very bad packet that conforms to no standard.
+Randpkt produces __very bad__ packets.
+
+When creating packets of a certain type, randpkt uses a sample
+packet that is stored internally to randpkt. It uses this as the
+starting point for your random packets, and then adds extra random
+bytes to the end of this sample packet.
+
+For example, if you choose to create random ARP packets, randpkt
+will create a packet which contains a predetermined Ethernet II header,
+with the Type field set to ARP. After the Ethernet II header, it will
+put a random number of bytes with random values.
+
+Run 'randpkt' with no options to see the usage statement. As of the
+writing of this text, the usage is:
+
+Usage: randpkt [-b maxbytes] [-c count] [-t type] filename
+
+The usage statement produced by randpkt will list the legal types.
+
+If you choose a maxbytes value that is less than the size of the
+sample packet, then your packets would contain only the sample
+packet... not much variance there! Randpkt exits on that condition.
+
+To add a new packet type to randpkt, you must add information
+in the following locations.
+
+1) Add the packet type name to the enum of produceable packets:
+
+	/* Types of produceable packets */
+	enum {
+		PKT_ARP,
+		PKT_ETHERNET,
+		PKT_FDDI,
+		PKT_LLC,
+		PKT_TR
+	};
+
+
+2) Type in the bytes from your sample packet
+
+	/* Ethernet, indicating ARP */
+	guint8 pkt_arp[] = {
+		0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0x00, 0x00,
+		0x32, 0x25, 0x0f, 0xff,
+		0x08, 0x06
+	};
+
+
+3) Add a record to the 'examples' array. The fields are
+		1. Abbreviation (for use in '-t' command line argument)
+		2. Full name (for use in usage statement)
+		3. Enum type
+		4. Array holding sample packet
+		5. Wiretap encapsulation type of datalink layer in your
+			sample packet
+		6. Length of sample packet. Use the handy array_length()
+			macro to avoid counting the bytes yourself.
+
+
+	pkt_example examples[] = {
+		{ "arp",
+			"Address Resolution Protocol",
+			PKT_ARP,
+			pkt_arp,
+			WTAP_ENCAP_ETHERNET,
+			array_length(pkt_arp) },
+
+		{ "eth",
+			"Ethernet",
+			PKT_ETHERNET,
+			NULL,
+			WTAP_ENCAP_ETHERNET,
+			0 },
+	};
+
+Note that packets that designate only their datalink type have no sample
+arrays, since the only thing that needs to be set is the datalink type,
+which is a field in the libpcap frame record; it's not a part of the
+packet itself.
+
+Enjoy!

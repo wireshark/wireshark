@@ -1,0 +1,62 @@
+OpenChange Wireshark dissector
+------------------------------
+
+Author: Julien Kerihuel <j.kerihuel@openchange.org>, November 2006
+
+0x0 Content
+-----------
+  0x1 Installation
+  0x2 Overview
+  0x3 Developers installation
+  0x4 Limitations
+  0x5 Links
+
+0x1 Installation
+----------------
+
+Copy packet-dcerpc-nspi.c and packet-dcerpc-nspi.h in the dissector
+wireshark directory (e.g.: wireshark/epan/dissectors) and compile.
+
+That's all ;)
+
+0x2 Overview
+-------------
+
+The NSPI dissector implements the following IDL functions:
+(0x1) NspiBind
+(0x2) NspiUnbind
+(0x3) NspiQueryRows
+(0x5) NspiGetMatches
+(0x7) NspiDNToEph
+(0x9) NspiGetProps
+(0xc) NspiGetHierarchyInfo
+
+0x3 Developers installation
+---------------------------
+
+The ws-parser directory includes the file used to generate the nspi
+dissector. In order to create the dissector, you need to follow this
+procedure below:
+
+1. Install Samba PIDL (>= rev 19559 if installed from samba4 sources)
+3. Copy idl_types.h in the current directory
+4. run "pidl --ws-parser -- nspi.idl"
+
+
+0x4 Limitations
+---------------
+
+- We have only implemented the SRestriction_CTR cases we found during
+our tests:
+	* RES_AND
+	* RES_PROPERTY
+
+- The current dissector implements the NSPI functions used by
+Microsoft Exchange Server 2000/2003 but some functions used by older
+versions of Exchange such as NspiUpdateStat may miss.
+
+0x5 Links
+-----------
+
+* http://www.openchange.org
+* http://wiki.openchange.org

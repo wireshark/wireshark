@@ -1,0 +1,186 @@
+#! /bin/sh
+
+#
+# $Id$
+#
+
+#
+# The first argument is the directory in which the source files live.
+#
+srcdir="$1"
+shift
+
+#
+# The second argument is either "plugin" or "dissectors"; if it's
+# "plugin", we build a plugin.c for a plugin, and if it's
+# "dissectors", we build a register.c for libwireshark.
+#
+registertype="$1"
+shift
+if [ "$registertype" = plugin ]
+then
+	outfile="plugin.c"
+elif [ "$registertype" = dissectors ]
+then
+	outfile="register.c"
+else
+	echo "Unknown output type '$registertype'" 1>&2
+	exit 1
+fi
+
+#
+# All subsequent arguments are the files to scan.
+#
+rm -f ${outfile}-tmp
+echo '/* Do not modify this file.  */' >${outfile}-tmp
+echo '/* It is created automatically by the Makefile. */'>>${outfile}-tmp
+if [ "$registertype" = plugin ]
+then
+	cat <<"EOF" >>${outfile}-tmp
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <gmodule.h>
+
+#include "moduleinfo.h"
+
+#ifndef ENABLE_STATIC
+G_MODULE_EXPORT const gchar version[] = VERSION;
+
+/* Start the functions we need for the plugin stuff */
+
+G_MODULE_EXPORT void
+plugin_register (void)
+{
+EOF
+#
+# Build code to call all the protocol registration routines.
+#
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>${outfile}-tmp
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>${outfile}-tmp
+else
+	cat <<"EOF" >>${outfile}-tmp
+#include "register.h"
+void
+register_all_protocols(register_cb cb, gpointer client_data)
+{
+EOF
+#
+# Build code to call all the protocol registration routines.
+#
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); if(cb) (*cb)(RA_REGISTER, \"\1\", client_data); \1 ();}/' >>${outfile}-tmp
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); if(cb) (*cb)(RA_REGISTER, \"\1\", client_data); \1 ();}/' >>${outfile}-tmp
+
+fi
+echo '}' >>${outfile}-tmp
+
+
+#
+# Build code to call all the protocol handoff registration routines.
+#
+if [ "$registertype" = plugin ]
+then
+	cat <<"EOF" >>${outfile}-tmp
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
+{
+EOF
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>${outfile}-tmp
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>${outfile}-tmp
+else
+	cat <<"EOF" >>${outfile}-tmp
+void
+register_all_protocol_handoffs(register_cb cb, gpointer client_data)
+{
+EOF
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); if(cb) (*cb)(RA_HANDOFF, \"\1\", client_data); \1 ();}/' >>${outfile}-tmp
+for f in "$@"
+do
+	if [ -f $f ]
+	then
+		srcfile=$f
+	else
+		srcfile=$srcdir/$f
+	fi
+	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
+done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); if(cb) (*cb)(RA_HANDOFF, \"\1\", client_data); \1 ();}/' >>${outfile}-tmp
+fi
+echo '}' >>${outfile}-tmp
+if [ "$registertype" = plugin ]
+then
+	echo '#endif' >>${outfile}-tmp
+else 
+	cat <<"EOF" >>${outfile}-tmp
+gulong register_count(void)
+{
+EOF
+	proto_regs=`grep RA_REGISTER ${outfile}-tmp | wc -l`
+	handoff_regs=`grep RA_HANDOFF ${outfile}-tmp | wc -l`
+	echo "  return $proto_regs + $handoff_regs;" >>${outfile}-tmp
+	echo '}' >>${outfile}-tmp
+fi
+mv ${outfile}-tmp ${outfile}

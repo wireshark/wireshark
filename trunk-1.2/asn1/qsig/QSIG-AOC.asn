@@ -1,0 +1,307 @@
+-- QSIG-AOC.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-212, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-212.htm
+--
+-- $Id$
+--
+
+SS-AOC-Operations-asn1-97 
+{iso (1) standard (0)  pss1-advice-of-charge (15050) advice-of-charge-operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+    {joint-iso-itu-t (2) remote-operations (4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    {iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11)} 
+ notAvailable, supplementaryServiceInteractionNotAllowed 
+ FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)} 
+  PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    { iso (1) standard (0) pss1-generic-procedures (11582)  
+    addressing-data-elements-asn1-97 (20) }  ; 
+ 
+AOC-Operations OPERATION ::=   { chargeRequest | getFinalCharge | aocFinal | aocInterim | aocRate | 
+        aocComplete | aocDivChargeReq } 
+ 
+aocRate    OPERATION ::= { 
+   ARGUMENT       AocRateArg 
+   RETURN RESULT     FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE        local:  63} 
+ 
+AocRateArg ::=  SEQUENCE { 
+     aocRate  CHOICE { 
+        chargeNotAvailable  NULL, 
+        aocSCurrencyInfoList AOCSCurrencyInfoList  
+              }, 
+     rateArgExtension  CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+        multipleExtension  [2] IMPLICIT SEQUENCE OF  
+            Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+
+aocInterim    OPERATION ::= { 
+   ARGUMENT AocInterimArg 
+   RETURN RESULT     FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE        local:  62} 
+      
+AocInterimArg ::=  SEQUENCE { 
+     interimCharge  CHOICE { 
+      chargeNotAvailable [0] IMPLICIT  NULL, 
+      freeOfCharge    [1] IMPLICIT  NULL, 
+      specificCurrency    SEQUENCE { 
+        recordedCurrency [1] IMPLICIT RecordedCurrency, 
+          interimBillingId[2] IMPLICIT InterimBillingId OPTIONAL } 
+               }, 
+     interimArgExtension  CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+        multipleExtension  [2] IMPLICIT SEQUENCE OF  
+                  Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+ 
+aocFinal    OPERATION ::= { 
+   ARGUMENT AocFinalArg 
+   RETURN RESULT     FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE        local:  61} 
+ 
+AocFinalArg ::=  SEQUENCE { 
+     finalCharge  CHOICE { 
+        chargeNotAvailable [0] IMPLICIT NULL, 
+        freeOfCharge [1] IMPLICIT NULL, 
+      specificCurrency  SEQUENCE { 
+        recordedCurrency [1] IMPLICIT RecordedCurrency, 
+            finalBillingId[2]  IMPLICIT FinalBillingId OPTIONAL } 
+                    }, 
+     chargingAssociation  ChargingAssociation OPTIONAL, 
+     finalArgExtension  CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+        multipleExtension  [2] IMPLICIT SEQUENCE OF  
+                  Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+ 
+AOCSCurrencyInfoList ::= SEQUENCE SIZE(1..10) OF AOCSCurrencyInfo 
+
+AOCSCurrencyInfo ::=  SEQUENCE { 
+    chargedItem  ChargedItem, 
+      rateType  CHOICE { 
+      durationCurrency       [1] IMPLICIT DurationCurrency, 
+      flatRateCurrency         [2] IMPLICIT FlatRateCurrency, 
+     volumeRateCurrency      [3] IMPLICIT VolumeRateCurrency, 
+     specialChargingCode   SpecialChargingCode, 
+      freeOfCharge       [4] IMPLICIT NULL, 
+      currencyInfoNotAvailable   [5] IMPLICIT NULL, 
+      freeOfChargefromBeginning [6] IMPLICIT NULL 
+        }  } 
+ChargedItem  ::=   ENUMERATED { 
+      basicCommunication      (0), 
+      callAttempt          (1), 
+      callSetup          (2), 
+      userToUserInfo       (3), 
+     operationOfSupplementaryServ (4) } 
+ 
+DurationCurrency ::=  SEQUENCE { 
+     dCurrency    [1] IMPLICIT     Currency, 
+     dAmount    [2] IMPLICIT     Amount, 
+     dChargingType [3] IMPLICIT     ChargingType, 
+     dTime    [4] IMPLICIT     Time, 
+      dGranularity   [5] IMPLICIT     Time OPTIONAL } 
+ 
+FlatRateCurrency ::=  SEQUENCE { 
+     fRCurrency  [1] IMPLICIT Currency, 
+      fRAmount  [2] IMPLICIT Amount  } 
+ 
+VolumeRateCurrency ::=  SEQUENCE { 
+     vRCurrency   [1] IMPLICIT Currency, 
+     vRAmount    [2] IMPLICIT Amount, 
+     vRVolumeUnit  [3] IMPLICIT VolumeUnit 
+       } 
+ 
+SpecialChargingCode ::=  INTEGER (1..10) 
+ 
+RecordedCurrency ::=  SEQUENCE { 
+     rCurrency  [1] IMPLICIT Currency, 
+      rAmount  [2] IMPLICIT Amount } 
+ 
+InterimBillingId ::=  ENUMERATED { 
+     normalCharging    (0), 
+     creditCardCharging  (2) } 
+
+FinalBillingId ::=  ENUMERATED { 
+      normalCharging      (0), 
+     creditCardCharging      (2), 
+     callForwardingUnconditional (3), 
+     callForwardingBusy      (4), 
+     callForwardingNoReply    (5), 
+      callDeflection       (6), 
+      callTransfer        (7) } 
+ 
+Currency  ::=  IA5String (SIZE (0..10)) 
+    -- SIZE(0) shall indicate the default currency of the PISN 
+    -- The representation of other currencies is outside the scope of this standard 
+ 
+Amount ::=  SEQUENCE { 
+     currencyAmount  [1] IMPLICIT CurrencyAmount, 
+     multiplier      [2] IMPLICIT Multiplier  } 
+ 
+CurrencyAmount ::=  INTEGER (0..16777215) 
+Multiplier ::=  ENUMERATED { 
+     oneThousandth (0), 
+     oneHundredth  (1), 
+     oneTenth    (2), 
+     one     (3), 
+     ten     (4), 
+     hundred    (5), 
+     thousand    (6) } 
+ 
+Time ::=  SEQUENCE { 
+     lengthOfTimeUnit  [1] IMPLICIT LengthOfTimeUnit, 
+     scale      [2] IMPLICIT Scale } 
+ 
+LengthOfTimeUnit ::=  INTEGER (0..16777215) 
+ 
+Scale ::=  ENUMERATED { 
+     oneHundredthSecond (0), 
+     oneTenthSecond    (1), 
+      oneSecond      (2), 
+      tenSeconds     (3), 
+      oneMinute      (4), 
+      oneHour      (5), 
+     twentyFourHours    (6) } 
+ 
+VolumeUnit ::=  ENUMERATED { 
+     octet   (0), 
+     segment  (1), 
+     message  (2) } 
+
+ChargingType ::=  ENUMERATED { 
+     continuousCharging  (0), 
+      stepFunction    (1) } 
+ 
+ChargingAssociation ::=  CHOICE { 
+     chargeNumber [0]   PartyNumber, 
+     chargeIdentifier ChargeIdentifier } 
+ 
+ChargeIdentifier ::=  INTEGER (-32768..32767) 
+ 
+chargeRequest    OPERATION ::= { 
+   ARGUMENT   ChargeRequestArg 
+   RESULT    ChargeRequestRes 
+   ERRORS    { 
+          freeOfCharge | 
+          supplementaryServiceInteractionNotAllowed | 
+            notAvailable | unspecified } 
+   CODE    local: 59} 
+ 
+getFinalCharge    OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RETURN RESULT     FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE        local:  60} 
+ 
+ChargeRequestArg ::=  SEQUENCE { 
+  adviceModeCombinations  SEQUENCE SIZE(0..7) OF 
+        AdviceModeCombination, 
+ chargeReqArgExtension CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+        multipleExtension  [2] IMPLICIT SEQUENCE OF  
+                 Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+ 
+ChargeRequestRes ::=  SEQUENCE { 
+   adviceModeCombination  AdviceModeCombination, 
+    chargeReqResExtension   CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+      multipleExtension  [2] IMPLICIT SEQUENCE OF  
+              Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+
+AdviceModeCombination ::=  ENUMERATED {    -- advice mode combination 
+      rate          (0),  -- charge rate provision 
+      rateInterim        (1),  -- charge rate and interim charge provision 
+      rateFinal        (2),  -- charge rate and final charge provision 
+      interim        (3),  -- interim charge provision 
+      final          (4),  -- final charge provision 
+      interimFinal       (5),  -- interim charge and final charge provision 
+      rateInterimFinal      (6)}  -- charge rate, interim charge and final  
+                 -- charge provision 
+ 
+DummyArg ::=  CHOICE{ 
+     none       NULL, 
+     extension      [1] IMPLICIT Extension{{AOCExtSet}}, 
+     multipleExtension  [2] IMPLICIT SEQUENCE OF Extension{{AOCExtSet}} 
+     } 
+ 
+ 
+-- The following OPERATION applies for the interaction with Call Transfer 
+ 
+aocComplete    OPERATION ::= { 
+   ARGUMENT AocCompleteArg   
+   RESULT  AocCompleteRes 
+   ERRORS  {supplementaryServiceInteractionNotAllowed} 
+   CODE  local: 64} 
+ 
+AocCompleteArg ::=  SEQUENCE { 
+      chargedUser     PartyNumber, 
+     chargingAssociation  ChargingAssociation OPTIONAL, 
+      completeArgExtension   CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+        multipleExtension  [2] IMPLICIT SEQUENCE OF  
+                 Extension{{AOCExtSet}} } OPTIONAL 
+      } 
+ 
+AocCompleteRes::= SEQUENCE { 
+   chargingOption ChargingOption, 
+    completeResExtension   CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+     multipleExtension  [2] IMPLICIT SEQUENCE OF Extension{{AOCExtSet}} 
+                 } OPTIONAL 
+     } 
+ 
+ChargingOption ::=  ENUMERATED{ 
+     aocFreeOfCharge   (0), 
+     aocContinueCharging (1), 
+     aocStopCharging    (2) 
+      } 
+
+-- The following OPERATION applies for the interaction with Call Diversion 
+ 
+aocDivChargeReq   OPERATION::= { 
+   ARGUMENT AocDivChargeReqArg 
+   RETURN RESULT     FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE        local:  65} 
+ 
+ 
+AocDivChargeReqArg  ::= SEQUENCE { 
+   divertingUser    PartyNumber, 
+   chargingAssociation  ChargingAssociation OPTIONAL, 
+   diversionType    DiversionType, 
+    aocDivChargeReqArgExt   CHOICE { 
+      extension [1]  IMPLICIT Extension{{AOCExtSet}}, 
+     multipleExtension  [2] IMPLICIT SEQUENCE OF Extension{{AOCExtSet}} 
+                 } OPTIONAL 
+     } 
+ 
+ 
+DiversionType  ::= ENUMERATED { 
+     callForwardingUnconditional (0), 
+     callForwardingBusy      (1), 
+     callForwardingNoReply    (2), 
+      callDeflection       (3) } 
+ 
+AOCExtSet EXTENSION ::= {...} 
+ 
+unspecified  ERROR ::= { 
+ PARAMETER     Extension{{AOCExtSet}} 
+  CODE       local: 1008} 
+ 
+freeOfCharge  ERROR ::= { CODE  local: 1016} 
+ 
+END  -- of SS-AOC-Operations-asn1-97 

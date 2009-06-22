@@ -1,0 +1,26 @@
+HF_FIELD hf_nspi_handle "Handle" "nspi.handle" FT_BYTES BASE_NONE NULL 0 "" "" ""
+
+HF_RENAME hf_nspi_NspiBind_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiUnbind_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiQueryRows_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiGetMatches_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiDNToEph_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiGetProps_handle hf_nspi_handle
+HF_RENAME hf_nspi_NspiGetHierarchyInfo_handle hf_nspi_handle
+
+HF_FIELD hf_nspi_property_type "Value" "nspi.SPropValue.value" FT_UINT32 BASE_HEX VALS(nspi_property_types_vals) 0 "" ""
+HF_FIELD hf_nspi_SRestriction_PTTYPE "Restriction Type" "nspi.property_type" FT_UINT32 BASE_HEX VALS(nspi_nspi_RestrictionType_vals) 0 "" ""
+HF_RENAME hf_nspi_SPropValue_value hf_nspi_property_type
+HF_RENAME hf_nspi_SRestriction_res hf_nspi_SRestriction_PTTYPE
+HF_RENAME hf_nspi_SRestriction_rt  hf_nspi_SRestriction_PTTYPE
+
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions (open==0x0001)
+PARAM_VALUE nspi_dissect_element_NspiBind_handle_ 0x0001
+# Policyhandles are closed in these functions (close==0x0002)
+PARAM_VALUE nspi_dissect_element_NspiUnbind_handle_ 0x0002

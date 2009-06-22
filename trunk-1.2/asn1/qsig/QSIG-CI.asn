@@ -1,0 +1,178 @@
+-- QSIG-CI.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-203, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-203.htm
+--
+-- $Id$
+--
+
+Call-Intrusion-Operations-asn1-97 
+  {iso(1) standard(0) pss1-call-intrusion(14846) call-intrusion-operations-asn1-97 (2) } 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+   {joint-iso-itu-t(2) remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+   {iso(1) standard(0) 
+   pss1-generic-procedures(11582) msi-class-asn1-97(11)} 
+ notAvailable, supplementaryServiceInteractionNotAllowed 
+   FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)}; 
+ 
+Call-Intrusion-Operations OPERATION ::= {pathRetain | serviceAvailable | callIntrusionRequest | 
+callIntrusionGetCIPL | callIntrusionIsolate | callIntrusionForcedRelease | callIntrusionWOBRequest | 
+callIntrusionCompleted | cfbOverride} 
+ 
+pathRetain  OPERATION ::= { 
+  ARGUMENT  PathRetainArg  -- this operation may be used by other 
+              -- Supplementary Services using other 
+              -- values of the argument 
+ RETURN RESULT   FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE      local: 41} 
+ 
+serviceAvailable  OPERATION ::= { 
+ ARGUMENT ServiceAvailableArg  -- this operation may be used by other 
+              -- Supplementary Services using other 
+              -- values of the argument 
+ RETURN RESULT   FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE      local: 42} 
+ 
+callIntrusionRequest  OPERATION ::= { 
+ ARGUMENT  CIRequestArg 
+ RESULT    CIRequestRes 
+ ERRORS  {notAvailable | notBusy | temporarilyUnavailable | notAuthorized | 
+     unspecified | supplementaryServiceInteractionNotAllowed} 
+ CODE      local: 43} 
+ 
+callIntrusionGetCIPL  OPERATION ::= { 
+ ARGUMENT    DummyArg 
+ RESULT      CIGetCIPLRes 
+ ALWAYS RESPONDS  FALSE 
+ CODE      local: 44} 
+
+callIntrusionForcedRelease  OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RESULT    DummyRes 
+   ERRORS    {notAvailable | unspecified | 
+     supplementaryServiceInteractionNotAllowed} 
+   CODE    local: 46} 
+ 
+callIntrusionIsolate    OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RESULT    DummyRes 
+   ERRORS    {notAvailable | unspecified | 
+     supplementaryServiceInteractionNotAllowed} 
+   CODE    local: 45} 
+ 
+callIntrusionWOBRequest  OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RESULT    DummyRes 
+   ERRORS    {notAvailable | unspecified | 
+     supplementaryServiceInteractionNotAllowed} 
+   CODE    local: 47} 
+ 
+callIntrusionCompleted    OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE    local: 48} 
+ 
+PathRetainArg  ::= CHOICE {  
+   serviceList       ServiceList, 
+   extendedServiceList    SEQUENCE { 
+     serviceList     ServiceList, 
+     extension     Extension{{CIExtSet}} 
+      } 
+ } 
+ 
+ServiceAvailableArg  ::= CHOICE {  
+   serviceList       ServiceList, 
+   extendedServiceList    SEQUENCE { 
+     serviceList     ServiceList, 
+     extension     Extension{{CIExtSet}} 
+      } 
+ } 
+ 
+ServiceList  ::=  BIT STRING  
+    {ci-low(4), ci-medium(5), ci-high(6)} (SIZE(1..32)) 
+  -- bits other than ci-low, ci-medium, ci-high are reserved  
+  -- for other supplementary services 
+ 
+DummyArg ::=  CHOICE{ 
+   null     NULL, 
+    extension    [1] IMPLICIT Extension{{CIExtSet}}, 
+    sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{CIExtSet}}} 
+ 
+DummyRes ::=  CHOICE{ 
+   null     NULL, 
+    extension    [1] IMPLICIT Extension{{CIExtSet}}, 
+    sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{CIExtSet}}} 
+
+CIRequestArg ::=  SEQUENCE{ 
+   ciCapabilityLevel CICapabilityLevel, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{CIExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{CIExtSet}} 
+     } OPTIONAL} 
+ 
+CIRequestRes ::=  SEQUENCE{ 
+   ciUnwantedUserStatus CIUnwantedUserStatus, 
+   resultExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{CIExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{CIExtSet}} 
+     } OPTIONAL} 
+ 
+CIGetCIPLRes ::= SEQUENCE{ 
+   ciProtectionLevel CIProtectionLevel, 
+   resultExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{CIExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{CIExtSet}} 
+     } OPTIONAL} 
+ 
+CICapabilityLevel ::= ENUMERATED{ 
+      intrusionLowProt(1), 
+      intrusionMediumProt(2), 
+      intrusionHighProt(3)} 
+ 
+CIProtectionLevel ::= ENUMERATED{ 
+      lowProtection(0), 
+      mediumProtection(1), 
+      highProtection(2), 
+      fullProtection(3)} 
+ 
+CIUnwantedUserStatus ::= ENUMERATED{ 
+      unwantedUserIntruded(0), 
+      unwantedUserIsolated(1)} 
+ 
+cfbOverride  OPERATION ::= { 
+ ARGUMENT    DummyArg 
+ RETURN RESULT   FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE      local: 49} 
+  -- used in the interaction with Call Forwarding Busy 
+ 
+CIExtSet EXTENSION ::= {...} 
+ 
+notBusy  ERROR ::= { CODE   local: 1009} 
+  -- used when an SS-CI request is received in 
+  -- a Terminating PINX and the called user is not busy 
+ 
+temporarilyUnavailable  ERROR ::= { CODE   local: 1000} 
+  -- used when conditions for invocation of SS-CI 
+  -- are momentarily not met 
+ 
+notAuthorized  ERROR ::= { CODE   local: 1007} 
+  --used when a SS-CI request is rejected 
+  --because of insufficient CICL 
+ 
+unspecified  ERROR ::= {  
+ PARAMETER Extension{{CIExtSet}} 
+  CODE   local: 1008} 
+ 
+END  -- of Call-Intrusion-Operations-asn1-97 

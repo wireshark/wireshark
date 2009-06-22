@@ -1,0 +1,69 @@
+--   PKIXProxy
+--   This ASN.1 definition is taken from RFC3820 and modified to pass
+--   through the asn2wrs compiler.
+--   
+--   The original copyright of the ASN.1 module follows below:
+--
+--   Full Copyright Statement
+--
+--   Copyright (C) The Internet Society (2004).  This document is subject
+--   to the rights, licenses and restrictions contained in BCP 78, and
+--   except as set forth therein, the authors retain all their rights.
+--
+--   This document and the information contained herein are provided on an
+--   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+--   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+--   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+--   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+--   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+--   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+PKIXproxy88 { iso(1) identified-organization(3) dod(6)
+       internet(1) security(5) mechanisms(5) pkix(7) id-mod(0)
+       proxy-cert-extns(25) }
+
+DEFINITIONS EXPLICIT TAGS ::=
+
+BEGIN
+
+-- EXPORTS ALL --
+
+-- IMPORTS NONE --
+
+-- PKIX specific OIDs
+
+--id-pkix OBJECT IDENTIFIER ::=
+--           { iso(1) identified-organization(3)
+--                dod(6) internet(1) security(5) mechanisms(5) pkix(7) }
+
+-- private certificate extensions
+--id-pe   OBJECT IDENTIFIER ::= { id-pkix 1 }
+
+-- Locally defined OIDs
+
+-- The proxy certificate extension
+--id-pe-proxyCertInfo    OBJECT IDENTIFIER ::= { id-pe 14 }
+
+-- Proxy certificate policy languages
+--id-ppl  OBJECT IDENTIFIER ::= { id-pkix 21 }
+
+-- Proxy certificate policies languages defined in
+--id-ppl-anyLanguage     OBJECT IDENTIFIER ::= { id-ppl 0 }
+--id-ppl-inheritAll      OBJECT IDENTIFIER ::= { id-ppl 1 }
+--id-ppl-independent     OBJECT IDENTIFIER ::= { id-ppl 2 }
+
+-- The ProxyCertInfo Extension
+ProxyCertInfoExtension  ::= SEQUENCE {
+         pCPathLenConstraint     ProxyCertPathLengthConstraint
+                                       OPTIONAL,
+         proxyPolicy             ProxyPolicy }
+
+ProxyCertPathLengthConstraint  ::= INTEGER
+
+ProxyPolicy  ::= SEQUENCE {
+         policyLanguage          OBJECT IDENTIFIER,
+         policy                  OCTET STRING OPTIONAL }
+
+END
+

@@ -1,0 +1,196 @@
+#
+# HTTP header TPG description
+#
+# (c) 2005 Luis E. Garcia Ontanon <luis@ontanon.org>
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 2004 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+%header_head %{
+typedef struct _http_info_value_t
+{
+	guint32  framenum;
+	gchar	*request_method;	
+	guint	 response_code;
+	gchar   *http_host;
+	gchar   *request_uri;
+    guint content_length;
+    gchar* media;
+    gboolean is_response;
+    gchar* transfer_encoding;
+} http_info_value_t;
+%}
+
+%parser_name http .
+%export req_resp header crlf sp.
+
+%tt_type %{ http_info_value_t %}
+
+%rule crlf = "\r\n" .
+
+%rule sp = [ ]+ .
+
+%choice versions = "1.0" | "1.1". <version>
+
+%field version hyttp.version "HTTP Version" FT_STRING .
+
+%sequence http_version = "HTTP/" & versions .
+
+%field response hyttp.response "Response" FT_STRING .
+%field response_code hyttp.response.code "Response Code" FT_UINT32 BASE_DEC %{ http_response_codes %} .
+
+%sequence %tree response = http_version & [0-9]+<response_code:RESPONSE> & ... ( crlf ) . <response:%plain_text>  %{
+    TT_DATA->is_response = TRUE;
+    TT_DATA->response_code = TPG_UINT(RESPONSE);
+%}
+
+
+%field request hyttp.request "Request" FT_STRING .
+%field method hyttp.request.method "Request Method" FT_STRING  .
+%field uri hyttp.request.uri "Request URI" FT_STRING  .
+%sequence %tree request  = [A-Z]+<method:METHOD> & [^ ]+<uri:URI> & http_version & crlf . <request:%plain_text>  %{
+    TT_DATA->is_response = FALSE;
+    TT_DATA->request_method = TPG_STRING(METHOD);
+    TT_DATA->request_uri = TPG_STRING(URI);
+%}
+
+%choice req_resp = request | response.
+
+%field media hyttp.content_type.media "Content-Type Media" FT_STRING  .
+
+%sequence media  = [a-zA-Z0-9-]+ & "/"  & [a-zA-Z0-9-]+ . <media:MEDIA> %{
+        TT_DATA->media = TPG_STRING(MEDIA);
+%}
+
+
+%sequence quoted_string = ["] & [^"]* & ["] .
+
+%choice value = [a-zA-Z0-9-]+ | quoted_string. 
+
+%field charset hyttp.content_type.charset "Content-Type Charset" FT_STRING  .
+
+%sequence parameter  = [a-zA-Z0-9-]+ & [=] & value.
+%sequence charset_parameter = 'charset' & '=' & [a-z0-9-]+<charset> .
+
+%choice content_type_param = charset_parameter | parameter .
+
+%sequence content_type_params =  [;] & content_type_param .
+
+%sequence content_type_value = media  & content_type_params* .
+
+%sequence content_type_hdr = 'Content-type:' & content_type_value & crlf .
+
+%field content_length hyttp.headers.content_length "Content-Length" FT_UINT32 BASE_DEC .
+%sequence content_length = 'Content-length:'  & [0-9]+<content_length:LENGTH>  & crlf. %{
+    TT_DATA->content_length = TPG_UINT(LENGTH);
+%}
+
+%field transfer_encoding hyttp.transfer_encoding "Transfer-Encoding" FT_STRING  .
+%sequence transfer_encoding = 'Transfer-encoding:' & ...<transfer_encoding:ENCODING> ( crlf     %leave )  & crlf.  %{
+    TT_DATA->transfer_encoding = TPG_STRING(ENCODING);
+%}
+
+%field authorization hyttp.authorization "Authorization" FT_STRING  .
+%sequence authorization = 'Authorization:' & ...<authorization> ( crlf     %leave ) & crlf.
+
+%field proxy_authorization hyttp.proxy_authorization "Proxy-Authorization" FT_STRING  .
+%sequence proxy_author = 'Proxy-authorization:' & ...<proxy_authorization> ( crlf     %leave ) & crlf.
+
+%field proxy_authen hyttp.proxy_authenti "Proxy-Authenticate" FT_STRING  .
+%sequence proxy_authen = 'Proxy-authenticate:' & ...<proxy_authen> ( crlf     %leave ) & crlf.
+
+%field www_auth hyttp.www_authenticate "WWW-Authenticate" FT_STRING  .
+%sequence www_auth = 'WWW-authenticate:' & ...<www_auth> ( crlf     %leave ) & crlf.
+
+%field content_encoding hyttp.content_encoding "Content-Encoding" FT_STRING  .
+%sequence content_encoding = 'Content-Encoding:' & ...<content_encoding> ( crlf     %leave ) & crlf.
+
+%field user_agent hyttp.content_encoding "User-Agent" FT_STRING  .
+%sequence user_agent = 'User-Agent:' & ...<user_agent> ( crlf     %leave ) & crlf.
+
+%field host hyttp.host "Host" FT_STRING  .
+%sequence host  = 'Host:' & ...<host:HOST> ( crlf     %leave ) & crlf. %{
+    TT_DATA->http_host = TPG_STRING(HOST);
+%}
+
+%field accept hyttp.accept "Accept" FT_STRING  .
+%sequence accept  = 'Accept:' & ...<accept> ( crlf     %leave ) & crlf.
+
+%field accept_language hyttp.accept_language "Accept-Language" FT_STRING  .
+%sequence accept_language  = 'Accept-language:' & ...<accept_language> ( crlf     %leave ) & crlf.
+
+%field accept_encoding hyttp.accept_encoding "Accept-Language" FT_STRING  .
+%sequence accept_encoding  = 'Accept-encoding:' & ...<accept_encoding> ( crlf     %leave ) & crlf.
+
+%field accept_ranges hyttp.accept_encoding "Accept-Ranges" FT_STRING  .
+%sequence accept_ranges  = 'Accept-Ranges:' & ...<accept_ranges> ( crlf     %leave ) & crlf.
+
+%field keep_alive hyttp.keep_alive "Keep-Alive" FT_UINT32 BASE_DEC .
+%sequence keep_alive  = 'Keep-Alive:' & ...<keep_alive> ( crlf     %leave ) & crlf.
+
+%field connection hyttp.connection "Connection" FT_STRING .
+%sequence connection  = 'Connection:' & ...<connection> ( crlf     %leave ) & crlf.
+
+%field referer hyttp.referer "Referer" FT_STRING .
+%sequence referer  = 'Referer:' & ...<referer> ( crlf     %leave ) & crlf.
+
+%field cookie hyttp.cookie "Cookie" FT_STRING .
+%sequence cookie  = 'Cookie:' & ...<cookie> ( crlf     %leave ) & crlf.
+
+%field etag hyttp.etag "Etag" FT_STRING .
+%sequence etag  = 'Etag:' & ["] & [^"]+<etag> & ["] & crlf .
+
+%field last_modified hyttp.last_modified "Last-Modified" FT_STRING .
+%sequence last_modified  = 'Last-Modified:' & ...<last_modified> ( crlf     %leave ) & crlf.
+
+%field server hyttp.server "Server" FT_STRING .
+%sequence server  = 'Server:' & ...<server> ( crlf     %leave ) & crlf.
+
+%sequence other_header = [A-Z] & [a-zA-Z-]+ & ":" & ... ( crlf     %leave ) &  crlf.
+
+%field header hyttp.headers.line "HTTP Header Line" FT_BOOLEAN  .
+%choice %tree header =
+    content_type_hdr
+    | transfer_encoding
+    | content_length
+    | authorization
+    | proxy_author
+    | proxy_authen
+    | www_auth
+    | content_encoding
+    | user_agent
+    | host
+    | accept
+    | accept_language
+    | accept_encoding
+    | accept_ranges
+    | keep_alive
+    | connection
+    | referer
+    | cookie
+    | etag
+    | last_modified
+    | server
+    | other_header . <header:%plain_text> 
+
+
+%tail %{
+/* tail */
+%}

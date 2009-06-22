@@ -1,0 +1,159 @@
+-- Addressing-Data-Elements.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/q/q932/1998-Amd1/Addressing-Data-Elements.asn
+--
+-- $Id$
+--
+
+-- Module Addressing-Data-Elements (Q.932:05/1998)
+Addressing-Data-Elements {itu-t recommendation q 932
+  addressing-data-elements(7)} DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+EXPORTS
+  PresentedAddressScreened, PresentedAddressUnscreened,
+    PresentedNumberScreened, PresentedNumberUnscreened, Address, PartyNumber,
+    PartySubaddress, ScreeningIndicator, PresentationAllowedIndicator;
+
+PresentedAddressScreened ::= CHOICE {
+  presentationAlIowedAddress           [0] IMPLICIT AddressScreened,
+  presentationRestricted               [1] IMPLICIT NULL,
+  numberNotAvailableDueTolnterworking  [2] IMPLICIT NULL,
+  presentationRestrictedAddress        [3] IMPLICIT AddressScreened
+}
+
+PresentedAddressUnscreened ::= CHOICE {
+  presentationAllowedAddress           [0] IMPLICIT Address,
+  presentationRestricted               [1] IMPLICIT NULL,
+  numberNotAvailableDueTolnterworking  [2] IMPLICIT NULL,
+  presentationRestrictedAddress        [3] IMPLICIT Address
+}
+
+PresentedNumberScreened ::= CHOICE {
+  presentationAllowedNumber            [0] IMPLICIT NumberScreened,
+  presentationRestricted               [1] IMPLICIT NULL,
+  numberNotAvailableDueToInterworking  [2] IMPLICIT NULL,
+  presentationRestrictedNumber         [3] IMPLICIT NumberScreened
+}
+
+PresentedNumberUnscreened ::= CHOICE {
+  presentationAllowedNumber            [0]  PartyNumber,
+  presentationRestricted               [1] IMPLICIT NULL,
+  numberNotAvailableDueToInterworking  [2] IMPLICIT NULL,
+  presentationRestrictedNumber         [3]  PartyNumber
+}
+
+AddressScreened ::= SEQUENCE {
+  partyNumber         PartyNumber,
+  screeninglndicator  ScreeningIndicator,
+  partySubaddress     PartySubaddress OPTIONAL
+}
+
+NumberScreened ::= SEQUENCE {
+  partyNumber         PartyNumber,
+  screeningIndicator  ScreeningIndicator
+}
+
+Address ::= SEQUENCE {
+  partyNumber      PartyNumber,
+  partySubaddress  PartySubaddress OPTIONAL
+}
+
+PartyNumber ::= CHOICE {
+  unknownPartyNumber           [0] IMPLICIT NumberDigits,
+  --  the numbering plan is the default numbering plan
+  --  of the network. It is recommended that this value
+  --  is used.
+  publicPartyNumber            [1] IMPLICIT PublicPartyNumber,
+  --  the numbering plan is according to ITU-T
+  --  Recommendation E.164.
+  nsapEncodedNumber            [2] IMPLICIT NsapEncodedNumber,
+  -- ATM endsystem address encoded as an NSAP address. 
+  dataPartyNumber              [3] IMPLICIT NumberDigits,
+  --  not used, value reserved.
+  telexPartyNumber             [4] IMPLICIT NumberDigits,
+  --  not used, value reserved.
+  privatePartyNumber           [5] IMPLICIT PrivatePartyNumber,
+  nationalStandardPartyNumber  [8] IMPLICIT NumberDigits
+}
+
+--  not used, value reserved.
+NsapEncodedNumber ::= OCTET STRING(SIZE (20))
+
+PublicPartyNumber ::= SEQUENCE {
+  publicTypeOfNumber  PublicTypeOfNumber,
+  publicNumberDigits  NumberDigits
+}
+
+PrivatePartyNumber ::= SEQUENCE {
+  privateTypeOfNumber  PrivateTypeOfNumber,
+  privateNumberDigits  NumberDigits
+}
+
+NumberDigits ::= NumericString(SIZE (1..20))
+
+PublicTypeOfNumber ::= ENUMERATED {
+  unknown(0),
+  --  if used number digits carry prefix indicating type
+  --  of number according to national
+  --  recommendations
+  internationalNumber(1), nationalNumber(2),
+  networkSpecificNumber(3),
+  --  not used, value reserved
+  subscriberNumber(4), abbreviatedNumber(6)}
+
+--  valid only for called party number at the
+--  outgoing access, network substitutes
+--  appropriate number
+PrivateTypeOfNumber ::= ENUMERATED {
+  unknown(0), level2RegionalNumber(1), level1RegionalNumber(2),
+  pTNSpecificNumber(3), localNumber(4), abbreviatedNumber(6)}
+
+PartySubaddress ::= CHOICE {
+  userSpecifiedSubaddress  UserSpecifiedSubaddress,
+  --  not recommended
+  nSAPSubaddress           NSAPSubaddress
+}
+
+--  according to ITU-T Recommendation X.213
+UserSpecifiedSubaddress ::= SEQUENCE {
+  subaddressInformation  SubaddressInformation,
+  oddCountIndicator      BOOLEAN OPTIONAL
+}
+
+--  used when the coding of subaddress is BCD
+NSAPSubaddress ::= OCTET STRING(SIZE (1..20))
+
+--  specified according to ITU-T Recommendation X.213. Some networks
+--  may limit the subaddress value to some other
+--  length, e.g. 4 octets
+SubaddressInformation ::= OCTET STRING(SIZE (1..20))
+
+--  coded according to user requirements. Some
+--  networks may limit the subaddress value to some
+--  other length, e.g. 4 octets
+ScreeningIndicator ::= ENUMERATED {
+  userProvidedNotScreened(0),
+  --  number was provided by a remote user terminal
+  --  equipment, and has been screened by a
+  --  network that is not the local public or local
+  --  private network.
+  userProvidedVerifiedAndPassed(1),
+  --  number was provided by a remote user terminal
+  --  equipment (or by a remote private network), and
+  --  has been screened by the local public or local
+  --  private network.
+  userProvidedVerifiedAndFailed(2),
+  --  not used, value reserved
+  networkProvided(3)}
+
+--  number was provided by local
+--  public or local
+--  private network
+PresentationAllowedIndicator ::= BOOLEAN
+
+END --  of addressing data elements
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

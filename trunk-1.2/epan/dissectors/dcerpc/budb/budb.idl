@@ -1,0 +1,695 @@
+/* this idl is from the LGPL irelease of dce/dfs from the open group.
+   it has been significantly modified to pass through idl2wrs
+   original copyright follows:
+ */
+/*
+ * @OSF_COPYRIGHT@
+ * COPYRIGHT NOTICE
+ * Copyright (c) 1990, 1996 Open Software Foundation, Inc.
+ * ALL RIGHTS RESERVED (DCE).  See the file named COPYRIGHT.DCE for
+ * the full copyright text.
+ */
+/*
+ * HISTORY
+ * $Log: budb.idl,v $
+ * Revision 1.1.13.1  1996/10/02  16:59:37  damon
+ * 	Newest DFS from Transarc
+ * 	[1996/10/01  18:04:09  damon]
+ *
+ * $EndLog$
+ */
+/* Copyright (C) 1996, 1990 Transarc Corporation - All rights reserved */
+
+/* $Header: /u0/rcs_trees/dce/rcs/file/bakserver/budb.idl,v 1.1.13.1 1996/10/02 16:59:37 damon Exp $ */
+
+[
+uuid("eb814e2a-0099-11ca-8678-02608c2ea96e"),
+version(4.0),
+/*provider_version(2)*/
+pointer_default(ptr)
+] interface budb 	/* The backup database interface */
+{
+
+/*import "dcedfs/common_data.idl";*/
+
+
+/* 
+ * Constants for bakserver data structures
+ */
+const long BU_MAXNAMELEN    = 128;      /* names of objects: volumes */
+const long BU_MAXTAPELEN    = 256;     	/* names of objects: tapes */
+const long BU_MAXHOSTLEN    = 128;     	/* names of server machines */
+const long BU_MAXTOKENLEN   = 16;     	/* identifiers */
+const long BU_MAXUNAMELEN   = 256;      /* length of user name */
+const long BU_MAXCELLLEN    = 256;      /* length of a cell name */
+const long BU_MAXINAMELEN   = 128;	/* length of user name */
+const long BU_MAXPATHLEN    = 256;	/* length of schedule path name */
+const long BU_MAXGENNAMELEN = 512;	/* length of generic name */
+const long BU_MAXVOLCOUNT   = 64;	/* max volumes in volume array */
+
+/* first some constants */
+const long BUDB_MAJORVERSION = 1;    	/* version number of this interface */
+const long BUDB_PROVIDER_VERSION = 2;	/* provider version of this interface */
+
+/* types of text blocks */
+const	long TB_DUMPSCHEDULE	= 0;
+const	long TB_VOLUMESET	= 1;
+const	long TB_TAPEHOSTS	= 2;
+
+/* TB_NUM must be <= TB_MAX */
+const	long TB_NUM	= 3;		/* no. of block types */
+const	long TB_MAX	= 6;		/* unused items are spares */
+
+/* dump flag bit definitions */
+const long BUDB_DUMP_INCOMPLETE = 1<<0;	/* some vols omitted due to errors */
+const long BUDB_DUMP_TAPEERROR  = 1<<1;	/* tape error during dump */
+const long BUDB_DUMP_INPROGRESS = 1<<2;
+const long BUDB_DUMP_ABORTED    = 1<<3;	/* aborted: prob. dump unavailable */
+
+/* tape flag bit definitions */
+const long BUDB_TAPE_TAPEERROR    = 1<<0;
+const long BUDB_TAPE_DELETED      = 1<<1;
+const long BUDB_TAPE_BEINGWRITTEN = 1<<2;/* writing in progress */
+const long BUDB_TAPE_ABORTED      = 1<<3;/* aborted: tape probably garbaged */
+const long BUDB_TAPE_STAGED       = 1<<4;/* not yet on permanent media */
+const long BUDB_TAPE_WRITTEN      = 1<<5;/* tape writing finished: all OK */
+
+/* volume flag bit definitions */
+const long BUDB_VOL_TAPEERROR    = 1<<0;/* tape problem during dump */
+const long BUDB_VOL_FILEERROR    = 1<<1;/* voldump aborted during dump */
+const long BUDB_VOL_BEINGWRITTEN = 1<<2;
+const long BUDB_VOL_FIRSTFRAG    = 1<<3;/* same as low bits of tape position */
+const long BUDB_VOL_LASTFRAG     = 1<<4;
+const long BUDB_VOL_ABORTED      = 1<<5;/* aborted: vol probably undumped */
+
+const long BUDB_OP_NAMES    = 0x7;
+const long BUDB_OP_STARTS   = 0x7<<3;
+const long BUDB_OP_ENDS	    = 0x7<<6;
+const long BUDB_OP_TIMES    = 0x3<<9;
+const long BUDB_OP_MISC	    = 0xff<<16;
+
+/* The flag bits specify which entries are being requested.  They are search
+   operations that use name, start, and end to select a subset of entries to be
+   returned.  Not all combinations are meaning full or supported. */
+/* defining the meaning of "name" */
+const long BUDB_OP_DUMPNAME   = 1<<0;
+const long BUDB_OP_VOLUMENAME = 2<<0;
+const long BUDB_OP_TAPENAME   = 3<<0;
+
+/* "start" is a time value */
+const long BUDB_OP_STARTTIME  = 1<<3;
+/* "end" delimits a range of times */
+const long BUDB_OP_RANGE      = 1<<6;
+/* "end" specifies number of earlier entries */
+const long BUDB_OP_NPREVIOUS  = 2<<6;
+/* "end" specifies number of later entries */
+const long BUDB_OP_NFOLLOWING = 3<<6;
+/* start is dump id (name may be null), return all entries */
+const long BUDB_OP_DUMPID     = 2<<3;
+/* defining the which type of time values */
+const long BUDB_OP_CLONETIME  = 1<<9;	/* use clone time */
+const long BUDB_OP_DUMPTIME   = 2<<9;	/* use dump time (create?) */
+const long BUDB_OP_INCTIME    = 3<<9;	/* use inc time */
+
+/* Miscellaneous bits: */
+/* for volumes: return only first fragment */
+const long BUDB_OP_FIRSTFRAG  = 1<<16;
+/* maximum number of elements returnable by these functions */
+const long BUDB_MAX_RETURN_LIST = 1000;
+const long BUDB_MAX_CHAR_LIST = 1024;
+
+/* maximum number of volumes accepted by these functions */
+const long BUDB_MAX_VOL_COUNT = 64;
+
+const long BUDB_TEXT_COMPLETE	= 1;
+/* structure type values for database dump and restore operations */
+/* XXX -- these names need a better prefix */
+const long	SD_DBHEADER		= 1;
+const long	SD_DUMP			= 2;
+const long	SD_TAPE			= 3;
+const long	SD_VOLUME		= 4;
+const long	SD_TEXT_DUMPSCHEDULE	= 5;
+const long	SD_TEXT_VOLUMESET	= 6;
+const long	SD_TEXT_TAPEHOSTS	= 7;
+const long	SD_END			= 8;
+
+/* 
+ * Now, the bakserver data structure type definitions
+ */
+
+/*
+ * A generic string type for backup
+ */
+
+typedef struct { 	/* identifies a principal identity */
+    budbNameString_t name;
+    budbNameString_t instance;
+    budbNameString_t cell;
+    budbNameString_t spare;
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_principal;
+
+typedef struct { 		/* describes a tape sequence */
+    int32  id;			/* id of tapeSet, assigned by budb */
+    budbNameString_t  tapeServer;
+    budbNameString_t  format;
+    /* Sequence numbers are assumed to be relatively small and relatively
+     * densely packed in 0<=seq<maxTapes. */
+    int32  maxTapes;			/* maximum number of tapes in seq. */
+    int32  a; int32 b;		/* linear transforms for tape */
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_tapeSet;
+
+typedef struct { 	/* describes a dump */
+    uint32 id;				/* identifier of this dump */
+    uint32 parent;			/* parent dump */
+    int32   level;			/* level in multi-level incremental */
+    int32  flags;			/* various bits described below */
+    budbNameString_t  volumeSetName;
+    budbNameString_t  dumpPath;
+    budbNameString_t  name;
+    time_t  created;			/* creation date of dump */
+    time_t  incTime;			/* time for incrementals, 0 => full */
+    int32   nVolumes;		/* number of vol fragments in dump */
+    budb_tapeSet tapes;		        /* tapes containing dump */
+    budb_principal dumper;	        /* name of person running doing dump */
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_dumpEntry;
+
+typedef struct { /* describes a tape */
+    budbNameString_t  name;
+    uint32  flags;			/* various bits described below */
+    time_t  written;			/* date tape was last written */
+    time_t  expires;                      /* expiration date */
+    uint32  nMBytes;		/* number of Mbytes on tape */
+    uint32  nBytes;			/* Megabyte remainder */
+    int32  nFiles;			/* number of files on tape */
+    int32   nVolumes;		/* number of vol fragments on tape */
+    int32   seq;			/* sequence in tape set */
+    int32  tapeid;			/* unique tape id */
+    int32  useCount;			/* # of times used */
+    int32  mediaType;                /* what kind of tape */
+    uint32 dump;			/* dump on tape (set) */
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_tapeEntry;
+
+typedef struct { /* describes a fragment of a volume */
+
+    /* volume information */
+    budbNameString_t  name;
+    uint32  flags;			/* various bits described below */
+    udlong id;			/* volume uid */
+    budbNameString_t  server;
+    int32  partition;		/* partition on server */
+    int32  nFrags;			/* number fragments in whole volume */
+    /* per fragment */
+    int32  position;			/* position on tape */
+    time_t  clone;			/* time volume was cloned for dump */
+    time_t  incTime;			/* NOT USED */
+    int32  startByte;		/* first byte of volume in this frag */
+    int32  nBytes;			/* number of bytes in this frag */
+    int32   seq;			/* sequence of frag in volume */
+    /* additional location info */
+    uint32 dump;			/* dump volume is part of */
+    budbNameString_t tape;
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_volumeEntry;
+
+/* To facilitate returning large large amounts of data some of these procedures
+   expect to receive a pointer to an array of structures.  The majorVersion
+   number implicitly specifies the size of each array element.  The progress
+   parameter is set to the number of elements actually returned.  Since the
+   caller may have limited buffer space, provisions are made to get the data in
+   a series of calls.  The index parameter specifies starting point of a
+   continued operation: for the first call it will be zero, a negative number
+   will produce an error.  If more elements are available on a subsequent call
+   nextIndex is set to the index of the next element.  Otherwise nextIndex is
+   set to a negative number. */
+
+typedef struct {
+    uint32 budb_volumeList_len; 
+    [size_is(budb_volumeList_len),ptr] budb_volumeEntry budb_volumeList_val[*];
+} budb_volumeList;
+
+typedef struct {
+    uint32 budb_dumpList_len;  
+    [size_is(budb_dumpList_len),ptr] budb_dumpEntry budb_dumpList_val[*];
+} budb_dumpList;
+
+typedef struct {
+    uint32 budb_tapeList_len;  
+    [size_is(budb_tapeList_len),ptr] budb_tapeEntry budb_tapeList_val[*];
+} budb_tapeList;
+
+typedef struct {
+    uint32 charListT_len;
+    [length_is(charListT_len)] uint8 charListT_val[1024];
+} charListT;
+
+/* database header - minimal version that is dumped. Allows values of important
+ *	state variables to be saved/restored.
+ */
+/* XXX -- this name needs a budb_ prefix */
+typedef struct {
+    int32 dbversion;			/* database version */
+    int32 created;			/* creation time */
+    budbNameString_t cell;
+    uint32 lastDumpId;			/* last dump id generated */
+    uint32 lastInstanceId;		/* last lock instance */
+    uint32 lastTapeId;		/* last tape id */
+    uint32 spare1;
+    uint32 spare2;
+    uint32 spare3;
+    uint32 spare4;
+} DbHeader;
+
+/* The structure is a version of budb_volumeEntry with the layout of the volume
+ * id hyper explicitly specified. */
+
+typedef struct { /* describes a volume in a database dump */
+    /* volume information */
+    budbNameString_t  name;
+    uint32  flags;			/* various bits described below */
+    udlong id;
+    budbNameString_t  server;
+    int32  partition;		/* partition on server */
+    int32  nFrags;			/* number fragments in whole volume */
+    /* per fragment */
+    int32  position;			/* position on tape */
+    time_t  clone;			/* time volume was cloned for dump */
+    time_t  incTime;			/* NOT USED */
+    int32  startByte;		/* first byte of volume in this frag */
+    int32  nBytes;			/* number of bytes in this frag */
+    int32   seq;			/* sequence of frag in volume */
+    /* additional location info */
+    uint32 dump;			/* dump volume is part of */
+    budbNameString_t tape;
+    uint32 spare1;			/* nominal spares */
+    uint32 spare2;			/* nominal spares */
+    uint32 spare3;			/* nominal spares */
+    uint32 spare4;			/* nominal spares */
+} budb_dbVolume;
+
+/* Header prefix for each structure in the byte stream returned by BUDB_DumpDB.
+ * The type field identifies the structure that follows --
+ *     SD_DBHEADER -- DbHeader
+ *     SD_DUMP -- budb_dumpEntry
+ *     SD_TAPE -- budb_tapeEntry
+ *     SD_VOLUME -- budb_dbVolume_t
+ *     SD_TEXT_DUMPSCHEDULE -- ???
+ *     SD_TEXT_VOLUMESET -- ???
+ *     SD_TEXT_TAPEHOSTS -- ???
+ *     SD_END -- end of database */
+
+/* XXX -- this name needs a budb_ prefix */
+typedef struct {
+  int32 type;			/* structure type */
+  int32 structversion;		/* version of following structure */
+  int32 size;    			/* bytes in following structure */
+  uint32 spare1;
+  uint32 spare2;
+  uint32 spare3;
+  uint32 spare4;
+} structDumpHeader;
+
+/*
+ * Bakserver interface procedure declarations 
+ */
+/* This adds a volume to particular dump and tape.  It is called after the
+   volume has been written to tape and allows the database to attach the volume
+   information to the structures for its containing dump and tape.  The
+   description of the volume must be specified on input, including the vldb
+   information, incTime, and a description of the volume's fragmention. */
+/*
+ * provider_version(1)
+ */
+WERROR AddVolume
+(
+ [ref, in] budb_volumeEntry *vol
+);
+
+/* This creates a new dump.  On input the dumpEntry specifies the containing
+   tape set, the dump name, the incTime, and the identity of the dumper.  On
+   output the dump's id is set. */
+
+/*
+ * provider_version(1)
+ */
+WERROR CreateDump
+(
+ [ref, in, out] budb_dumpEntry *dump
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR DeleteDump 
+(
+ [in] uint32 id 
+);
+
+/* This is called, probably infrequently, to remove a tape from the database.
+   The assumption is that sometimes tapes are retired or lost and this routine
+   facilitates cleaning up the database. */
+
+/*
+ * provider_version(1)
+ */
+WERROR DeleteTape
+(
+ [ref, in] budb_tapeEntry *tape
+);	/* tape info */
+
+/*
+ * provider_version(1)
+ */
+WERROR DeleteVDP
+(  
+   [in] budbNameString_t *dsname,	/* dump name */
+   [in] budbNameString_t *dumpPath,	/* dump node path name */
+   [in] int32 curDumpId		/* current dump Id for exclusion */
+);			
+
+/*
+ * provider_version(1)
+ */
+WERROR FindClone
+(  
+   [in] int32 dumpID,		/* id of dump to start with */
+   [in] budbNameString_t *volName,	/* clone time required for volName */
+   [ref, out] uint32  *clonetime,  	/* returned clone time */
+   [ref, out] uint32  *cloneSpare
+);		
+
+/*
+ * provider_version(1)
+ */
+WERROR FindDump
+(  
+   [in] budbNameString_t *volName,	/* name of volume to look for */
+   [in] uint32 beforeDate,		/* must be before this date */
+   [in] uint32 dateSpare,
+   [ref, out] budb_dumpEntry *deptr	/* returned dump information */
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR FindLatestDump
+(
+  [in] budbNameString_t *vsname,		/* name of volumeset to look for */
+  [in] budbNameString_t *dname, 		/* name of dump to look for */
+  [ref, out] budb_dumpEntry *dumpentry
+);
+
+/* This notifies the database that the dump is finished.  Some status bits can
+   be specified on input. */
+
+/*
+ * provider_version(1)
+ */
+WERROR FinishDump
+(
+   [ref, in, out] budb_dumpEntry *dump
+);
+
+/* This is called when writing to the tape has been completed.  The tapeEntry
+   includes some status bits on input, such as whether any tape errors were
+   encountered.  Volumes and dumps on the tape are marked as safe if the status
+   was good. */
+
+/*
+ * provider_version(1)
+ */
+WERROR FinishTape
+(
+  [ref, in] budb_tapeEntry *tape
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR GetDumps
+(
+  [in]  int32  majorVersion,		/* version of interface structures */
+  [in]  int32  flags,		/* search & select controls */
+  [in]  budbNameString_t *name,		/* s&s parameters */
+  [in]  int32  start,
+  [in]  int32  end,
+  [in]  int32  index,		/* start index of returned entries */
+  [ref, out] int32 *nextIndex,	/* output index for next call */
+  [ref, out] int32 *dbUpdate,	/* time of last db change */
+  [out] budb_dumpList **dumps      	/* structure list */
+);	
+
+/*
+ * provider_version(1)
+ */
+WERROR GetTapes
+(
+  [in]  int32   majorVersion,	/* version of interface structures */
+  [in]  int32  flags,		/* search & select controls */
+  [in]  budbNameString_t *name,	        /* s&s parameters */
+  [in]  int32  start,
+  [in]  int32  end,			/* reserved: MBZ */
+  [in]  int32  index,		/* start index of returned entries */
+  [ref, out] int32 *nextIndex,	/* output index for next call */
+  [ref, out] int32 *dbUpdate,	/* time of last db change */
+  [out] budb_tapeList **tapes		/* structure list */
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR GetVolumes
+(
+  [in]  int32   majorVersion,	/* version of interface structures */
+  [in]  int32  flags,		/* search & select controls */
+  [in]  budbNameString_t *name,	        /*  - parameters for search */
+  [in]  int32  start,		/*  - usage depends which BUDP_OP_* */
+  [in]  int32  end,			/*  - bits are set */
+  [in]  int32  index,		/* start index of returned entries */
+  [ref, out] int32 *nextIndex,	/* output index for next call */
+  [ref, out] int32 *dbUpdate,	/* time of last db change */
+  [out] budb_volumeList **volumes	/* structure list */
+);
+
+/* Called when a tape is about to be used.  It deletes from the database the
+   previous contents of the tape, if any, and marks it as "being written".  The
+   tapeEntry identifies the tape name and dump on input.  The updated entry is
+   returned on output. */
+
+/*
+ * provider_version(1)
+ */
+WERROR UseTape
+(
+  [ref, in] budb_tapeEntry *tape,	/* tape info */
+  [ref, out] int32  *new		/* set if tape is new */
+);
+
+/* text file management calls - alphabetic */
+
+/*
+ * provider_version(1)
+ */
+WERROR GetText
+(
+  [in]  int32 lockHandle,
+  [in]  int32 textType,			/* which type of text */
+  [in]  int32 maxLength,
+  [in] 	int32 offset,
+  [ref, out] int32 *nextOffset,
+  [ref, out] charListT *charListPtr 
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR GetTextVersion
+(
+  [in]  int32 textType,
+  [ref, out] int32 *tversion
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR SaveText
+(
+  [in]  int32 lockHandle,			/* which type of text */
+  [in]  int32 textType,			/* which type of text */
+  [in]	int32 offset,			/* offset into text block */
+  [in]  int32 flags,
+  [ref, in]  charListT *charListPtr	
+);
+
+/* Lock management interface routines */
+
+/*
+ * provider_version(1)
+ */
+WERROR FreeAllLocks
+(
+   [in] uint32 instanceId 			/* identifies user */ 
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR FreeLock
+(
+   [in] uint32 lockHandle			/* identifies lock */
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR GetInstanceId
+(
+   [ref, out] uint32 *instanceId     	/* instance of a user */
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR GetLock
+(
+   [in]	 uint32 instanceId,			/* instance of user */
+   [in]	 int32 lockName,			/* which lock */
+   [in]	 int32 expiration,			/* # secs after which lock 
+						   released */
+   [ref, out] uint32 *lockHandle		/* returned lock handle */
+);
+
+/* database dump and reconstruction */
+
+/*
+ * provider_version(1)
+ */
+WERROR DbVerify
+(
+   [ref, out] int32 *status,			/* 0=ok, 1=inconsistent */
+   [ref, out] int32 *orphans,		/* orphan block count */
+   [ref, out] int32 *host		       	/* host where checks done */
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR DumpDB
+(
+   [in]	 int32 maxLength,			/* max transfer size */
+   [ref, out] int32	*flags, 		/* status flags */
+   [ref, out] charListT *charListPtr		/* byte stream out */ 
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR RestoreDbHeader
+(
+   [ref, in] DbHeader *header 			/* restore database header */
+);
+
+/* Debug and test interface routines
+ *
+ * These routines provide a low level interface that can be used to test out
+ * the backup database.
+ */
+
+/*
+ * provider_version(1)
+ */
+WERROR T_GetVersion
+(
+   [ref, out] int32 *majorVersion
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR T_DumpHashTable 
+(
+   [in] int32 type, 
+   [in] budbNameString_t *filename
+);
+
+/*
+ * provider_version(1)
+ */
+WERROR T_DumpDatabase 
+(
+  [in] budbNameString_t *filename
+);
+
+/*
+ * provider_version(1)
+ */
+
+
+typedef struct {
+
+	uuid_t      interface_uuid;  /* i/f UUID of the supported i/f */
+	uint16  vers_major;      /* i/f major version number */
+	uint16  vers_minor;      /* i/f minor version number */
+	uint32  vers_provider;   /* provider_version number */
+
+	uint32 spare0;	/* some long spares */
+	uint32 spare1;
+	uint32 spare2;
+	uint32 spare3;
+	uint32 spare4;
+	uint32 spare5;
+	uint32 spare6;
+	uint32 spare7;
+	uint32 spare8;
+	uint32 spare9;
+
+	uint8 spareText[50]; /* spare text */
+
+} dfs_interfaceDescription;
+
+typedef struct {
+
+	uint32 dfs_interfaceList_len;
+	[length_is(dfs_interfaceList_len)] dfs_interfaceDescription dfs_interfaceList_val;
+
+} dfs_interfaceList;
+
+
+WERROR GetServerInterfaces
+(
+  [ref, in, out] dfs_interfaceList *serverInterfacesP
+);
+
+/*
+ * Same as AddVolume, except takes array of volumes instead of
+ * single volume
+ */
+
+/*
+ * provider_version(2)
+ */
+
+WERROR AddVolumes
+(
+ [in] uint32 cnt,
+ [in, size_is(cnt)] budb_volumeEntry vol[]
+);
+}

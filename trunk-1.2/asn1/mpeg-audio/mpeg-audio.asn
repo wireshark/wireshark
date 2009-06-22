@@ -1,0 +1,75 @@
+-- ASN description of MPEG Audio
+-- Written by Shaun Jackman <sjackman@gmail.com>
+-- Copyright 2007 Shaun Jackman
+--
+-- This program is free software; you can redistribute it and/or
+-- modify it under the terms of the GNU General Public License.
+
+MPEG DEFINITIONS ::= BEGIN
+
+Audio ::= SEQUENCE {
+	sync           BIT STRING (SIZE (11)),
+	version        ENUMERATED
+		{ mpeg-2-5(0), reserved(1), mpeg-2(2), mpeg-1(3) },
+	layer          ENUMERATED
+		{ reserved(0), layer-3(1), layer-2(2), layer-1(3) },
+	protection     ENUMERATED { crc(0), none(1) },
+	bitrate        INTEGER (0..15),
+	frequency      INTEGER (0..3),
+	padding        BOOLEAN,
+	private        BOOLEAN,
+	channel-mode   ENUMERATED
+		{ stereo(0), joint-stereo(1), dual-channel(2), single-channel(3) },
+	mode-extension INTEGER (0..3),
+	copyright      BOOLEAN,
+	original       BOOLEAN,
+	emphasis       ENUMERATED
+		{ none(0), em-50-15-ms(1), reserved(2), ccit-j-17(3) }
+}
+
+ID3v1 ::= SEQUENCE {
+	tag     OCTET STRING (SIZE (3)),
+	title   OCTET STRING (SIZE (30)),
+	artist  OCTET STRING (SIZE (30)),
+	album   OCTET STRING (SIZE (30)),
+	year    OCTET STRING (SIZE (4)),
+	comment OCTET STRING (SIZE (28)),
+	must-be-zero INTEGER (0..255),
+	track INTEGER (0..255),
+	genre INTEGER {
+		blues(0), classic-rock(1), country(2), dance(3), disco(4),
+		funk(5), grunge(6), hip-hop(7), jazz(8), metal(9),
+		new-age(10), oldies(11), other(12), pop(13), r-and-b(14),
+		rap(15), reggae(16), rock(17), techno(18), industrial(19),
+		alternative(20), ska(21), death-metal(22), pranks(23),
+		soundtrack(24), euro-techno(25), ambient(26), trip-hop(27),
+		vocal(28), jazz-and-funk(29), fusion(30), trance(31),
+		classical(32), instrumental(33), acid(34), house(35),
+		game(36), sound-clip(37), gospel(38), noise(39),
+		alternative-rock(40), bass(41), soul(42), punk(43), space(44),
+		meditative(45), instrumental-pop(46), instrumental-rock(47),
+		ethnic(48), gothic(49), darkwave(50), techno-industrial(51),
+		electronic(52), pop-folk(53), eurodance(54), dream(55),
+		southern-rock(56), comedy(57), cult(58), gangsta(59),
+		top-40(60), christian-rap(61), pop-funk(62), jungle(63),
+		native-american(64), cabaret(65), new-wave(66),
+		psychadelic(67), rave(68), showtunes(69), trailer(70),
+		lo-fi(71), tribal(72), acid-punk(73), acid-jazz(74),
+		polka(75), retro(76), musical(77), rock-and-roll(78),
+		hard-rock(79), folk(80), folk-rock(81), national-folk(82),
+		swing(83), fast-fusion(84), bebob(85), latin(86), revival(87),
+		celtic(88), bluegrass(89), avantgarde(90), gothic-rock(91),
+		progressive-rock(92), psychedelic-rock(93),
+		symphonic-rock(94), slow-rock(95), big-band(96), chorus(97),
+		easy-listening(98), acoustic(99), humour(100), speech(101),
+		chanson(102), opera(103), chamber-music(104), sonata(105),
+		symphony(106), booty-bass(107), primus(108), porn-groove(109),
+		satire(110), slow-jam(111), club(112), tango(113), samba(114),
+		folklore(115), ballad(116), power-ballad(117),
+		rhythmic-soul(118), freestyle(119), duet(120), punk-rock(121),
+		drum-solo(122), a-cappella(123), euro-house(124),
+		dance-hall(125)
+	} (0..255)
+}
+
+END

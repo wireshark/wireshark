@@ -1,0 +1,259 @@
+//Source file: mpcc_data.idl
+//Date:  7 October 2004
+//Multi Party Call Control Data Types for ETSI ES 203 915-04-3 V1.1.1, DES/TISPAN-01005-04-3-OSA, Parlay 5.0
+
+#ifndef __MPCC_DATA_DEFINED
+#define __MPCC_DATA_DEFINED
+
+
+#include "osa.idl"
+#include "common_cc_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			enum TpCallAppInfoType {
+
+				P_CALL_APP_UNDEFINED,
+				P_CALL_APP_ALERTING_MECHANISM,
+				P_CALL_APP_NETWORK_ACCESS_TYPE,
+				P_CALL_APP_TELE_SERVICE,
+				P_CALL_APP_BEARER_SERVICE,
+				P_CALL_APP_PARTY_CATEGORY,
+				P_CALL_APP_PRESENTATION_ADDRESS,
+				P_CALL_APP_GENERIC_INFO,
+				P_CALL_APP_ADDITIONAL_ADDRESS,
+				P_CALL_APP_ORIGINAL_DESTINATION_ADDRESS,
+				P_CALL_APP_REDIRECTING_ADDRESS,
+				P_CALL_APP_HIGH_PROBABILITY_COMPLETION,
+				P_CALL_APP_CARRIER				
+			};
+			
+			
+			enum TpCallEventType {
+
+				P_CALL_EVENT_UNDEFINED,
+				P_CALL_EVENT_ORIGINATING_CALL_ATTEMPT,
+				P_CALL_EVENT_ORIGINATING_CALL_ATTEMPT_AUTHORISED,
+				P_CALL_EVENT_ADDRESS_COLLECTED,
+				P_CALL_EVENT_ADDRESS_ANALYSED,
+				P_CALL_EVENT_ORIGINATING_SERVICE_CODE,
+				P_CALL_EVENT_ORIGINATING_RELEASE,
+				P_CALL_EVENT_TERMINATING_CALL_ATTEMPT,
+				P_CALL_EVENT_TERMINATING_CALL_ATTEMPT_AUTHORISED,
+				P_CALL_EVENT_ALERTING,
+				P_CALL_EVENT_ANSWER,
+				P_CALL_EVENT_TERMINATING_RELEASE,
+				P_CALL_EVENT_REDIRECTED,
+				P_CALL_EVENT_TERMINATING_SERVICE_CODE,
+				P_CALL_EVENT_QUEUED				
+			};
+			
+			
+			union TpCallAdditionalEventInfo switch(TpCallEventType) {
+				case P_CALL_EVENT_ADDRESS_COLLECTED: TpAddress CollectedAddress;
+				case P_CALL_EVENT_ADDRESS_ANALYSED: TpAddress CalledAddress;
+				case P_CALL_EVENT_ORIGINATING_SERVICE_CODE: TpCallServiceCode OriginatingServiceCode;
+				case P_CALL_EVENT_ORIGINATING_RELEASE: TpReleaseCause OriginatingReleaseCause;
+				case P_CALL_EVENT_TERMINATING_RELEASE: TpReleaseCause TerminatingReleaseCause;
+				case P_CALL_EVENT_REDIRECTED: TpAddress ForwardAddress;
+				case P_CALL_EVENT_TERMINATING_SERVICE_CODE: TpCallServiceCode TerminatingServiceCode;
+				default: short Dummy;	
+			};
+			
+			
+			struct TpCallNotificationScope {
+				TpAddressRange DestinationAddress;
+				TpAddressRange OriginatingAddress;
+			};
+			
+			
+			struct TpCallNotificationReportScope {
+				TpAddress DestinationAddress;
+				TpAddress OriginatingAddress;
+			};
+			
+			
+			typedef sequence<TpReleaseCause> TpReleaseCauseSet;
+			
+			
+			union TpAdditionalCallEventCriteria switch(TpCallEventType) {
+				case P_CALL_EVENT_ADDRESS_COLLECTED: TpInt32 MinAddressLength;
+				case P_CALL_EVENT_ORIGINATING_SERVICE_CODE: TpCallServiceCodeSet OriginatingServiceCode;
+				case P_CALL_EVENT_ORIGINATING_RELEASE: TpReleaseCauseSet OriginatingReleaseCauseSet;
+				case P_CALL_EVENT_TERMINATING_RELEASE: TpReleaseCauseSet TerminatingReleaseCauseSet;
+				case P_CALL_EVENT_TERMINATING_SERVICE_CODE: TpCallServiceCodeSet TerminatingServiceCode;
+				default: short Dummy;	
+			};
+			
+			
+			struct TpCallEventRequest {
+				TpCallEventType CallEventType;
+				TpAdditionalCallEventCriteria AdditionalCallEventCriteria;
+				TpCallMonitorMode CallMonitorMode;
+			};
+			
+			
+			typedef sequence <TpCallEventRequest> TpCallEventRequestSet;
+			
+			
+			struct TpCallNotificationRequest {
+				TpCallNotificationScope CallNotificationScope;
+				TpCallEventRequestSet CallEventsRequested;
+			};
+			
+			
+			struct TpNotificationRequested {
+				TpCallNotificationRequest AppCallNotificationRequest;
+				TpInt32 AssignmentID;
+			};
+			
+			
+			typedef sequence <TpNotificationRequested> TpNotificationRequestedSet;
+			
+			
+			enum TpCallLegAttachMechanism {
+
+				P_CALLLEG_ATTACH_IMPLICITLY,
+				P_CALLLEG_ATTACH_EXPLICITLY				
+			};
+			
+			
+			struct TpCallLegConnectionProperties {
+				TpCallLegAttachMechanism AttachMechanism;
+			};
+			
+			
+			const TpInt32 P_CALL_LEG_INFO_UNDEFINED = 0;
+			
+			const TpInt32 P_CALL_LEG_INFO_TIMES = 1;
+			
+			const TpInt32 P_CALL_LEG_INFO_RELEASE_CAUSE = 2;
+			
+			const TpInt32 P_CALL_LEG_INFO_ADDRESS = 4;
+			
+			const TpInt32 P_CALL_LEG_INFO_APPINFO = 8;
+			
+			typedef TpInt32 TpCallLegInfoType;
+			
+			
+			struct TpCallEventInfo {
+				TpCallEventType CallEventType;
+				TpCallAdditionalEventInfo AdditionalCallEventInfo;
+				TpCallMonitorMode CallMonitorMode;
+				TpDateAndTime CallEventTime;
+			};
+			
+			
+			typedef TpInt32 TpCallLegSuperviseTreatment;
+			
+			
+			const TpInt32 P_CALL_LEG_SUPERVISE_RELEASE = 1;
+			
+			const TpInt32 P_CALL_LEG_SUPERVISE_RESPOND = 2;
+			
+			const TpInt32 P_CALL_LEG_SUPERVISE_APPLY_TONE = 4;
+			
+			typedef TpInt32 TpCallHighProbabilityCompletion;
+			
+			
+			struct TpNotificationRequestedSetEntry {
+				TpNotificationRequestedSet NotificationRequestSet;
+				TpBoolean Final;
+			};
+			
+			
+			typedef TpOctetSet TpCarrierID;
+			
+			
+			enum TpCarrierSelectionField {
+
+				P_CIC_UNDEFINED,
+				P_CIC_NO_INPUT,
+				P_CIC_INPUT,
+				P_CIC_UNDETERMINED,
+				P_CIC_NOT_PRESCRIBED				
+			};
+			
+			
+			struct TpCarrier {
+				TpCarrierID CarrierID;
+				TpCarrierSelectionField CarrierSelectionField;
+			};
+			
+			
+			typedef sequence <TpCarrier> TpCarrierSet;
+			
+			
+			union TpCallAppInfo switch(TpCallAppInfoType) {
+				case P_CALL_APP_ALERTING_MECHANISM: TpCallAlertingMechanism CallAppAlertingMechanism;
+				case P_CALL_APP_NETWORK_ACCESS_TYPE: TpCallNetworkAccessType CallAppNetworkAccessType;
+				case P_CALL_APP_TELE_SERVICE: TpCallTeleService CallAppTeleService;
+				case P_CALL_APP_BEARER_SERVICE: TpCallBearerService CallAppBearerService;
+				case P_CALL_APP_PARTY_CATEGORY: TpCallPartyCategory CallAppPartyCategory;
+				case P_CALL_APP_PRESENTATION_ADDRESS: TpAddress CallAppPresentationAddress;
+				case P_CALL_APP_GENERIC_INFO: TpString CallAppGenericInfo;
+				case P_CALL_APP_ADDITIONAL_ADDRESS: TpAddress CallAppAdditionalAddress;
+				case P_CALL_APP_ORIGINAL_DESTINATION_ADDRESS: TpAddress CallAppOriginalDestinationAddress;
+				case P_CALL_APP_REDIRECTING_ADDRESS: TpAddress CallAppRedirectingAddress;
+				case P_CALL_APP_HIGH_PROBABILITY_COMPLETION: TpCallHighProbabilityCompletion CallHighProbabilityCompletion;
+				case P_CALL_APP_CARRIER: TpCarrierSet CallAppCarrier;
+				default: short Dummy;	
+			};
+			
+			
+			typedef sequence <TpCallAppInfo> TpCallAppInfoSet;
+			
+			
+			struct TpCallNotificationInfo {
+				TpCallNotificationReportScope CallNotificationReportScope;
+				TpCallAppInfoSet CallAppInfo;
+				TpCallEventInfo CallEventInfo;
+			};
+			
+			
+			struct TpCallLegInfoReport {
+				TpCallLegInfoType CallLegInfoType;
+				TpDateAndTime CallLegStartTime;
+				TpDateAndTime CallLegConnectedToResourceTime;
+				TpDateAndTime CallLegConnectedToAddressTime;
+				TpDateAndTime CallLegEndTime;
+				TpAddress ConnectedAddress;
+				TpReleaseCause CallLegReleaseCause;
+				TpCallAppInfoSet CallAppInfo;
+			};
+			
+			
+			typedef TpString TpCallLegPropertyName;
+			
+			
+			const TpCallLegPropertyName P_CALL_LEG_PROPERTY_INFO = "P_CALL_LEG_PROPERTY_INFO";
+			
+			const TpCallLegPropertyName P_CALL_LEG_PROPERTY_ICON = "P_CALL_LEG_PROPERTY_ICON";
+			
+			const TpCallLegPropertyName P_CALL_LEG_PROPERTY_CARD = "P_CALL_LEG_PROPERTY_CARD";
+			
+			typedef sequence <TpCallLegPropertyName> TpCallLegPropertyNameList;
+			
+			
+			typedef TpString TpCallLegPropertyValue;
+			
+			
+			struct TpCallLegProperty {
+				TpCallLegPropertyName CallLegPropertyName;
+				TpCallLegPropertyValue CallLegPropertyValue;
+			};
+			
+			
+			typedef sequence <TpCallLegProperty> TpCallLegPropertyList;
+			
+		};
+		
+	};
+	
+};
+
+#endif

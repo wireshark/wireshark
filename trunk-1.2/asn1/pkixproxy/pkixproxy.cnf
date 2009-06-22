@@ -1,0 +1,21 @@
+# pkixproxy.cnf
+# PKIXProxy conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.REGISTER
+ProxyCertInfoExtension     B "1.3.6.1.5.5.7.1.14" "id-pe-proxyCertInfo"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END

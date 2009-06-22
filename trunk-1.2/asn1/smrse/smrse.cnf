@@ -1,0 +1,51 @@
+# smrse.cnf
+# SMRSE conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.NO_EMIT
+SemiOctetString
+#.END
+
+#.PDU
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY SMS-Address/address-value/octet-format
+	char *strp,tmpstr[21];
+	guint32 i, start_offset;
+	gint8 class;
+	gboolean pc, ind;
+	gint32 tag;
+	guint32 len;
+	static char n2a[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+	start_offset=offset;
+
+	/* skip the tag and length */
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+	if(len>10){
+		len=10;
+	}
+	strp=tmpstr;
+	for(i=0;i<len;i++){
+		*strp++=n2a[tvb_get_guint8(tvb, offset)&0x0f];
+		*strp++=n2a[(tvb_get_guint8(tvb, offset)>>4)&0x0f];
+		offset++;
+	}
+	*strp=0;
+
+	proto_tree_add_string(tree, hf_smrse_Octet_Format, tvb, start_offset, offset-start_offset, tmpstr);
+
+	return offset;
+
+#.END
+
+

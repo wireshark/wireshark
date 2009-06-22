@@ -1,0 +1,1561 @@
+<!-- WSUG Chapter Work -->
+<!-- $Id$ -->
+
+<chapter id="ChapterWork">
+  <title>Working with captured packets</title>
+
+  <section id="ChWorkViewPacketsSection">
+    <title>Viewing packets you have captured</title>
+    <para>
+      Once you have captured some packets, or you have opened a previously 
+      saved capture file, you can view the packets that are displayed in 
+      the packet list pane by simply clicking on a packet in the 
+      packet list pane, which will bring up the selected packet in the 
+      tree view and byte view panes.
+    </para>
+    <para>
+      You can then expand any part of the tree view by clicking on the 
+      <command>plus</command> sign (the symbol itself may vary) to the left of 
+	  that part of the payload, 
+      and you can select individual fields by clicking on them in the tree 
+      view pane. An example with a TCP packet selected is shown in 
+      <xref linkend="ChWorkSelPack1"/>. It also has the Acknowledgment number 
+	in the TCP header selected, which shows up in the byte view as the 
+	selected bytes.
+	<figure id="ChWorkSelPack1">
+	  <title>Wireshark with a TCP packet selected for viewing</title>
+	  <graphic entityref="WiresharkPacketSelected1" format="PNG"/>
+	</figure>
+    </para>
+    <para>
+      You can also select and view packets the same way, while Wireshark is 
+	  capturing, if you selected "Update list of packets in real time" in the 
+	  Wireshark Capture Preferences dialog box.
+    </para>
+    <para>
+      In addition, you can view individual packets in a separate window as 
+      shown in <xref linkend="ChWorkPacketSepView"/>. Do this by selecting the 
+	packet in which you are interested in the packet list pane, and then 
+	select "Show Packet in New Windows" from the Display menu. This 
+	allows you to easily compare two or even more packets.
+	<figure id="ChWorkPacketSepView">
+	  <title>Viewing a packet in a separate window</title>
+	  <graphic entityref="WiresharkPacketSepView" format="PNG"/>
+	</figure>
+    </para>
+  </section>
+  
+  <section id="ChWorkDisplayPopUpSection"><title>Pop-up menus</title>
+    <para>
+      You can bring up a pop-up menu over either the "Packet List" or 
+      "Packet Details" pane by clicking your right mouse button at the
+      corresponding pane.
+    </para>	
+  <section id="ChWorkPacketListPanePopUpMenuSection">
+    <title>Pop-up menu of the "Packet List" pane</title>
+    <para>
+      <figure id="ChWorkPacketListPanePopUpMenu">
+	<title>Pop-up menu of the "Packet List" pane</title>
+	<graphic entityref="WiresharkPacketPanePopupMenu" format="PNG"/>
+      </figure>
+	</para>
+	  <para>
+	  The following table gives an overview of which functions are available 
+	  in this pane, where to find the corresponding function in the main menu, 
+	  and a short description of each item.
+	  </para>
+	<table id="PacketListPopupMenuTable">
+	  <title>The menu items of the "Packet List" pop-up menu</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>Identical to main menu's item:</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Mark Packet (toggle)</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Mark/unmark a packet.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Set Time Reference (toggle)</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Set/reset a time reference.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare and apply a display filter based on the currently selected 
+		  item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Conversation Filter</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      This menu item applies a display filter with the address information 
+		  from the selected packet. E.g. the IP menu entry will set a filter 
+		  to show the traffic between the two IP addresses of the current 
+		  packet.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Colorize Conversation</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      This menu item uses a display filter with the address information 
+		  from the selected packet to build a new colorizing rule.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>SCTP</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+		  XXX - add an explanation of this.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow TCP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a TCP 
+	      stream between a pair of nodes.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+		  <row>
+		<entry><command>Copy/ Summary (Text)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the summary fields as displayed to the clipboard, as tab-separated text.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Summary (CSV)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the summary fields as displayed to the clipboard, as comma-separated text.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		    <entry><command>Copy/ As Filter</command></entry>
+		    <entry></entry>
+	 	    <entry>
+	            <para>
+	 	      Prepare a display filter based on the currently selected item
+		      and copy that filter to the clipboard.
+	            </para>
+	 	    </entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard in hexdump-like format.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Offset Hex)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Printable Text Only)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Hex Stream)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as an unpunctuated list of hex digits.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Binary Stream)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as raw binary. The data is stored in the
+		  clipboard as MIME-type "application/octet-stream".</para>
+		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
+		</entry>
+		  </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Change or apply a new relation between two dissectors. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Print...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+		  Print packets.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Show Packet in New Window</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+		  Display the selected packet in a new window.
+	    </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+  </section>
+  
+  <section id="ChWorkPacketDetailsPanePopUpMenuSection">
+    <title>Pop-up menu of the "Packet Details" pane</title>
+    <para>
+      <figure id="ChWorkPacketDetailsPanePopUpMenu">
+	<title>Pop-up menu of the "Packet Details" pane</title>
+	<graphic entityref="WiresharkDetailsPanePopupMenu" format="PNG"/>
+      </figure>
+	  </para>
+	  <para>
+	  The following table gives an overview of which functions are available 
+	  in this pane, where to find the corresponding function in the main menu, 
+	  and a short description of each item.
+	  </para>
+	<table id="PacketDetailsPopupMenuTable">
+	  <title>The menu items of the "Packet Details" pop-up menu</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>Identical to main menu's item:</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Expand Subtrees</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Expand the currently selected subtree. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Expand All</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Expand all subtrees in all packets in the capture. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Collapse All</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Wireshark keeps a list of all the protocol subtrees that are 
+	      expanded, and uses it to ensure that the correct subtrees 
+	      are expanded when you display a packet. This menu item 
+	      collapses the tree view of all packets in the capture list.  
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ Description</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Copy the displayed text of the selected field to the system 
+		  clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ Fieldname</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Copy the name of the selected field to the system clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ Value</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Copy the value of the selected field to the system clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ As Filter</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item
+		  and copy it to the clipboard.
+	    </para>
+		</entry>
+	      </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard in hexdump-like format; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Offset Hex)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion; similar to the 		Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Printable Text Only)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Hex Stream)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as an unpunctuated list of hex digits; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Binary Stream)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as raw binary; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane). The data is stored in the
+		  clipboard as MIME-type "application/octet-stream".</para>
+		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
+		</entry>
+		  </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Prepare and apply a display filter based on the currently 
+			selected item. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Colorize with Filter</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item
+          and use it to prepare a new colorize rule.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow TCP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a TCP stream between a pair 
+		  of nodes.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Wiki Protocol Page</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      Show the wiki page corresponding to the currently selected protocol 
+		  in your web browser.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Filter Field Reference</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+		  Show the filter field reference web page corresponding to the 
+		  currently selected protocol in your web browser.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Protocol Preferences...</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      The menu item takes you to the properties dialog and selects the 
+		  page corresponding to the protocol if there are properties 
+		  associated with the highlighted field.  
+	      More information on preferences can be found in 
+	      <xref linkend="ChCustGUIPrefPage"/>.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Change or apply a new relation between two dissectors. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Resolve Name</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Causes a name resolution to be performed for 
+	      the selected packet, but NOT every packet in the capture. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Go to Corresponding Packet</command></entry>
+		<entry>Go</entry>
+		<entry>
+	    <para>
+	      If the selected field has a corresponding packet, go to it. 
+		  Corresponding packets will usually be a request/response packet pair 
+		  or such.
+	    </para>
+		</entry>
+	      </row>
+		</tbody>
+	  </tgroup>
+	</table>
+  </section>
+  
+  </section>
+  
+  <section id="ChWorkDisplayFilterSection">
+    <title>Filtering packets while viewing</title>
+    <para>
+      Wireshark has two filtering languages: One used when capturing 
+      packets, and one used when displaying packets.  In this section we 
+      explore that second type of filter: Display filters.  The first one 
+      has already been dealt with in 
+	  <xref linkend="ChCapCaptureFilterSection"/>.
+    </para>
+    <para>
+      Display filters allow you to concentrate on the packets you are 
+      interested in while hiding the currently uninteresting ones. They allow 
+	  you to select packets by:
+	<itemizedlist>
+	  <listitem><para>Protocol</para></listitem>
+	  <listitem><para>The presence of a field</para></listitem>
+	  <listitem><para>The values of fields</para></listitem>
+	  <listitem><para>A comparison between fields</para></listitem>
+	  <listitem><para>... and a lot more!</para></listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      To select packets based on protocol type, simply type the protocol in which you 
+      are interested in the <command>Filter:</command> field in the filter 
+	  toolbar of the Wireshark window and press enter to initiate 
+      the filter. <xref linkend="ChWorkTCPFilter"/> shows an example of what 
+	happens when you type <command>tcp</command> in the filter field.
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	All protocol and field names are entered in lowercase.  Also, don't 
+	forget to press enter after entering the filter expression.
+      </para>
+    </note>
+    <figure id="ChWorkTCPFilter"><title>Filtering on the TCP protocol</title>
+      <graphic entityref="WiresharkFilterTCP" format="JPG"/>
+    </figure>
+    <para>
+	As you might have noticed, only packets of the TCP protocol are displayed 
+	now (e.g. packets 1-10 are hidden). The packet numbering will remain as 
+	before, so the first packet shown is now packet number 11.
+    </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  When using a display filter, all packets remain in the capture file.
+	  The display filter only changes the display of the capture file but
+	  not its content!	  
+      </para>
+    </note>
+    <para>
+      You can filter on any protocol that Wireshark understands.  
+      You can also filter on any field that a dissector adds to the tree 
+      view, but only if the dissector has added an abbreviation for the 
+      field. A list of such fields is available in Wireshark in the 
+      <command>Add Expression...</command> dialog box.  You can find more 
+      information on the <command>Add Expression...</command> dialog box 
+      in <xref linkend="ChWorkFilterAddExpressionSection"/>.
+    </para>
+    <para>
+      For example, to narrow the packet list pane down to only those 
+      packets to or from the IP address 192.168.0.1, use 
+      <command>ip.addr==192.168.0.1</command>.
+    </para>    
+    <note>
+      <title>Note!</title>
+      <para>
+	To remove the filter, click on the <command>Clear</command> button 
+	to the right of the filter field.
+      </para>
+    </note>
+    </section>
+	
+    <section id="ChWorkBuildDisplayFilterSection">
+      <title>Building display filter expressions</title>
+      <para>
+	Wireshark provides a simple but powerful display filter language that allows you 
+	to build quite complex filter expressions.  You can compare 
+	values in packets as well as combine expressions into more 
+	specific expressions.  The following sections provide more 
+	information on doing this.
+      </para>
+    <tip>
+      <title>Tip!</title>
+      <para>
+	  You will find a lot of Display Filter examples at the <command>Wireshark 
+	  Wiki Display Filter page</command> at <ulink 
+	  url="&WiresharkWikiDisplayFiltersPage;">&WiresharkWikiDisplayFiltersPage;</ulink>.
+      </para>
+    </tip>
+      <section>
+	<title>Display filter fields</title>
+	<para>
+	Every field in the packet details pane can be used as a filter 
+	string, this will result in showing only the packets where this field 
+	exists. For example: the 
+	filter string: <command>tcp</command> will show all packets containing the 
+	tcp protocol. 
+	</para>
+	<para>
+	There is a complete list of all filter fields available
+	through the menu item "Help/Supported Protocols" in the page "Display Filter 
+	Fields" of the Supported Protocols dialog. 
+	</para>
+	<para>
+	XXX - add some more info here and a link to the statusbar info.
+	</para>
+      </section>
+      <section>
+	<title>Comparing values</title>
+	<para>
+	  You can build display filters that compare values using a number 
+	  of different comparison operators.  They are shown in 
+	  <xref linkend="DispCompOps"/>.
+	</para>
+	<tip><title>Tip!</title>
+	<para>
+	You can use English and C-like terms in the same way, they can even be 
+	mixed in a filter string!
+	</para>
+	</tip>
+	<table id="DispCompOps">
+	  <title>Display Filter comparison operators</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="50pt"/>
+		<colspec colnum="2" colwidth="50pt"/>
+	    <thead>
+	      <row>
+		<entry>English</entry>
+		<entry>C-like</entry>
+		<entry>Description and example</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>eq</entry>
+		<entry><programlisting>==</programlisting></entry>
+		<entry><para>
+		    <command>Equal</command></para><para>
+		    <programlisting>ip.src==10.0.0.5</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>ne</entry>
+		<entry><programlisting>!=</programlisting></entry>
+		<entry><para>
+		    <command>Not equal</command></para><para>
+		    <programlisting>ip.src!=10.0.0.5</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>gt</entry>
+		<entry><programlisting>&gt;</programlisting></entry>
+		<entry><para>
+		    <command>Greater than</command></para><para>
+		    <programlisting>frame.len &gt; 10</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>lt</entry>
+		<entry><programlisting>&lt;</programlisting></entry>
+		<entry><para><command>Less than</command></para><para>
+		    <programlisting>frame.len &lt; 128</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>ge</entry>
+		<entry><programlisting>&gt;=</programlisting></entry>
+		<entry><para>
+		    <command>Greater than or equal to</command></para><para>
+		    <programlisting>frame.len ge 0x100</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>le</entry>
+		<entry><programlisting>&lt;=</programlisting></entry>
+		<entry><para>
+		    <command>Less than or equal to</command></para><para>
+		    <programlisting>frame.len &lt;= 0x20</programlisting>
+		  </para></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	<para>
+	  In addition, all protocol fields are typed. 
+	  <xref linkend="ChWorkFieldTypes"/> provides a list of the types and 
+	    example of how to express them.
+	    <table id="ChWorkFieldTypes">
+	      <title>Display Filter Field Types</title>
+	      <tgroup cols="2">
+		<thead>
+		  <row>
+		    <entry>Type</entry>
+		    <entry>Example</entry>
+		  </row>
+		</thead>
+		<tbody>
+		  <row>
+		    <entry>
+		      Unsigned integer (8-bit, 16-bit, 24-bit, 32-bit)
+		    </entry>
+		    <entry><para>
+			You can express integers in decimal, octal, or 
+			hexadecimal. The following display filters are 
+			equivalent:
+			<programlisting>
+ip.len le 1500
+ip.len le 02734
+ip.len le 0x436
+			</programlisting>
+		      </para></entry>
+		  </row>
+		  <row>
+		    <entry>
+		      Signed integer (8-bit, 16-bit, 24-bit, 32-bit)
+		    </entry>
+		    <entry></entry>
+		  </row>
+		  <row>
+		    <entry>Boolean</entry>
+		    <entry><para>
+			A boolean field is present in the protocol decode 
+			only if its value is true. For example, 
+			<command>tcp.flags.syn</command> is present, and 
+			thus true, only if the SYN flag is present in a 
+			TCP segment header.</para><para>
+			Thus the filter expression 
+			<command>tcp.flags.syn</command> will select only 
+			those packets for which this flag exists, that is, 
+			TCP segments where the segment header contains the 
+			SYN flag. Similarly, to find source-routed token 
+			ring packets, use a filter expression of 
+			<command>tr.sr</command>.
+		      </para></entry>
+		  </row>
+		  <row>
+		    <entry>Ethernet address (6 bytes)</entry>
+		    <entry><para>Separators can be a colon
+			(:), dot (.) or dash (-) and can have one or
+			two bytes between separators:<programlisting>
+eth.dst == ff:ff:ff:ff:ff:ff
+eth.dst == ff-ff-ff-ff-ff-ff
+eth.dst == ffff.ffff.ffff</programlisting></para></entry>
+		  </row>
+		  <row>
+		    <entry>IPv4 address</entry>
+		    <entry>
+                <para>ip.addr == 192.168.0.1</para>
+                <para>Classless InterDomain Routing (CIDR) notation
+                can be used to test if an IPv4 address is in a
+                certain subnet. For example, this display filter
+                will find all packets in the 129.111 Class-B
+                network:
+                </para><para>ip.addr == 129.111.0.0/16</para></entry>
+		  </row>
+		  <row>
+		    <entry>IPv6 address</entry>
+		    <entry>ipv6.addr == ::1</entry>
+		  </row>
+		  <row>
+		    <entry>IPX address</entry>
+		    <entry>ipx.addr == 00000000.ffffffffffff</entry>
+		  </row>
+		  <row>
+		    <entry>String (text)</entry>
+		    <entry>http.request.uri == "http://www.wireshark.org/"</entry>
+		  </row>
+		</tbody>
+	      </tgroup>
+	    </table>
+	</para>
+      </section>
+      <section>
+	<title>Combining expressions</title>
+	<para>
+	  You can combine filter expressions in Wireshark using the 
+	  logical operators shown in <xref linkend="FiltLogOps"/>
+	</para>
+	<table id="FiltLogOps">
+	  <title>Display Filter Logical Operations</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="50pt"/>
+		<colspec colnum="2" colwidth="50pt"/>
+	    <thead>
+	      <row>
+		<entry>English</entry>
+		<entry>C-like</entry>
+		<entry>Description and example</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>and</entry>
+		<entry>&amp;&amp;</entry>
+		<entry><para>
+		    <command>Logical AND</command></para><para>
+		    <programlisting>ip.src==10.0.0.5 and tcp.flags.fin</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>or</entry>
+		<entry>||</entry>
+		<entry><para>
+		    <command>Logical OR</command></para><para>
+		    <programlisting>ip.scr==10.0.0.5 or ip.src==192.1.1.1</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>xor</entry>
+		<entry>^^</entry>
+		<entry><para>
+		    <command>Logical XOR</command></para><para>
+		    <programlisting>tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>not</entry>
+		<entry>!</entry>
+		<entry><para>
+		    <command>Logical NOT</command></para><para>
+		    <programlisting>not llc</programlisting>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry>[...]</entry>
+		<entry></entry>
+		<entry><para>
+		    <command>Substring Operator</command></para><para>
+		    Wireshark allows you to select subsequences of a 
+		    sequence in rather elaborate ways.  After a label you 
+		    can place a pair of brackets [] containing a comma 
+		    separated list of range specifiers. </para><para>
+		    <programlisting>eth.src[0:3] == 00:00:83</programlisting></para><para>
+		    The example above uses the n:m format to specify a 
+		    single range.  In this case n is the beginning offset 
+		    and m is the length of the range 
+		    being specified.</para><para>
+		    <programlisting>
+eth.src[1-2] == 00:83
+		    </programlisting></para><para>
+		    The example above uses the n-m format to specify a 
+		    single range. In this case n is the beginning offset 
+		    and m is the ending offset. </para><para>
+		    <programlisting>eth.src[:4] == 00:00:83:00</programlisting></para><para>
+		    The example above uses the :m format, which takes 
+		    everything from the beginning of a sequence to offset m.  
+		    It is equivalent to 0:m</para><para>
+		    <programlisting>eth.src[4:] == 20:20</programlisting></para><para>
+		    The example above uses the n: format, which takes 
+		    everything from offset n to the end of the 
+		    sequence. </para><para>
+		    <programlisting>eth.src[2] == 83</programlisting></para><para>
+		    The example above uses the n format to specify a 
+		    single range.  In this case the element in the 
+		    sequence at offset n is selected.  This is equivalent 
+		    to n:1.</para><para>
+		    <programlisting>eth.src[0:3,1-2,:4,4:,2] == 
+00:00:83:00:83:00:00:83:00:20:20:83</programlisting></para><para>
+		    Wireshark allows you to string together single ranges 
+		    in a comma separated list to form compound ranges as 
+		    shown above.
+		  </para></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </section>
+      <section id="ChWorkBuildDisplayFilterMistake"><title>A common mistake</title>
+	  <warning><title>Warning!</title>
+	  <para>
+	  Using the != operator on combined expressions like: eth.addr, ip.addr, 
+	  tcp.port, udp.port and alike will probably not work as expected!
+	  </para>
+	  </warning>
+	  <para>
+	  Often people use a filter string to display something like 
+	  <command>ip.addr == 1.2.3.4</command> which will display all packets
+	  containing the IP address 1.2.3.4.
+	  </para>
+	  <para>
+	  Then they use <command>ip.addr != 1.2.3.4</command> to see all packets 
+	  not containing the IP address 1.2.3.4 in it. Unfortunately, this does 
+	  <command>not</command> do the expected.
+	  </para>
+	  <para>
+	Instead, that expression will even be true for packets where either
+	source or destination IP address equals 1.2.3.4. The reason for this,
+	is that the expression <command>ip.addr != 1.2.3.4</command> must be read as "the
+	packet contains a field named ip.addr with a value
+	different from 1.2.3.4". As an IP datagram contains both a source and
+	a destination address, the expression will evaluate to true whenever
+	at least one of the two addresses differs from 1.2.3.4. 
+	  </para>
+	  <para>
+	If you want to
+	filter out all packets containing IP datagrams to or from IP address
+	1.2.3.4, then the correct filter is <command>!(ip.addr == 1.2.3.4)</command> as it
+	reads "show me all the packets for which it is not true
+	that a field named ip.addr exists with a value of 1.2.3.4", or in
+	other words, "filter out all packets for which there are
+	no occurrences of a field named ip.addr with the value 1.2.3.4".
+	  </para>
+      </section>
+  </section>
+  
+  <section id="ChWorkFilterAddExpressionSection">
+  <title>The "Filter Expression" dialog box</title>
+    <para>
+      When you are accustomed to Wireshark's filtering system and know what 
+      labels you wish to use in your filters it can be very quick to 
+      simply type a filter string.  However if you are new to Wireshark or 
+      are working with a slightly unfamiliar protocol it can be very 
+      confusing to try to figure out what to type.  The Filter Expression 
+      dialog box helps with this.
+    </para>
+    <tip><title>Tip!</title>
+	<para>
+      The "Filter Expression" dialog box is an excellent way to learn how to 
+	  write Wireshark display filter strings.
+	</para>
+    </tip>
+    <figure id="ChWorkFilterAddExpression1">
+      <title>The "Filter Expression" dialog box</title>
+      <graphic entityref="WiresharkFilterAddExpression" format="PNG"/>
+    </figure>
+    <para>
+      When you first bring up the Filter Expression dialog box you are shown a 
+      tree list of field names, organized by protocol, and a box for 
+      selecting a relation.
+    </para>
+    <variablelist>
+      <varlistentry><term><command>Field Name</command></term>
+	<listitem>
+	  <para>
+	    Select a protocol field from the protocol field tree.  
+	    Every protocol with filterable fields is listed at the 
+	    top level.  (You can search for a particular protocol
+            entry by entering the first few letters of the protocol name).
+            By clicking on the "+" next to a protocol name 
+	    you can get a list of the field names available for filtering 
+	    for that protocol.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Relation</command></term>
+	<listitem>
+	  <para>
+	    Select a relation from the list of available relation.  
+	    The <command>is present</command> is a unary relation which 
+	    is true if the selected field is present in a packet.  All 
+	    other listed relations are binary relations which require additional 
+	    data (e.g. a <command>Value</command> to match) to complete.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+    <para> 
+      When you select a field from the field name list and select a 
+      binary relation (such as the equality relation ==) you will be 
+      given the opportunity to enter a value, and possibly some range 
+      information. 
+    </para>
+    <variablelist>
+      <varlistentry><term><command>Value</command></term>
+	<listitem>
+	  <para>
+	    You may enter an appropriate value in the 
+	    <command>Value</command> text box.  The <command>Value</command> 
+	    will also indicate the type of value for the 
+	    <command>field name</command> you have selected (like 
+	    character string).
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Predefined values</command></term>
+	<listitem>
+	  <para>
+	  Some of the protocol fields have predefined values available, much like
+	  enum's in C. If the selected protocol field has such values defined, you
+	  can choose one of them here.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Range</command></term>
+	<listitem>
+	  <para>
+	  XXX - add an explanation here!
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>OK</command></term>
+	<listitem>
+	  <para>
+	    When you have built a satisfactory expression click 
+	    <command>OK</command> and a filter string will be 
+	    built for you. 
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry><term><command>Cancel</command></term>
+	<listitem>
+	  <para>
+	    You can leave the <command>Add Expression...</command> dialog 
+	    box without any effect by clicking the <command>Cancel</command>
+		button.
+	  </para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="ChWorkDefineFilterSection"><title>Defining and saving filters</title>
+    <para>
+      You can define filters with Wireshark and give them labels for 
+      later use.  This can save time in remembering and retyping some of 
+      the more complex filters you use.
+    </para>
+    <para>
+      To define a new filter or edit an existing one, select the 
+      <command>Capture Filters...</command> menu item from the Capture menu 
+	  or the <command>Display Filters...</command> menu item from the Analyze 
+	  menu. Wireshark will then pop up the Filters dialog as shown in 
+	  <xref linkend="FiltersDialog"/>.
+    </para>
+	<note>
+	  <title>Note!</title>
+	  <para>
+		The mechanisms for defining and saving capture filters and display 
+		filters are almost identical. So both will be described here, 
+		differences between these two will be marked as such.
+	  </para>
+	</note>
+	<warning><title>Warning!</title>
+	<para>
+	You must use <command>Save</command> to save your filters permanently. 
+	<command>Ok</command> or <command>Apply</command> will not save the filters,
+	so they will be lost when you close Wireshark.
+	</para>
+	</warning>
+    <figure id="FiltersDialog">
+      <title>The "Capture Filters" and "Display Filters" dialog boxes</title>
+      <graphic entityref="WiresharkFilters" format="PNG"/>
+    </figure>
+    <para>
+      <variablelist>
+	<varlistentry><term><command>New</command></term>
+	  <listitem>
+	    <para>
+	      This button adds a new filter to the list of filters. The currently 
+		  entered values from Filter name and Filter string will be used. If 
+		  any of these fields are empty, it will be set to "new".
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Delete</command></term>
+	  <listitem>
+	  <para>
+	  This button deletes the selected filter. It will be greyed out, if no 
+	  filter is selected.
+	  </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter</command></term>
+	  <listitem>
+	    <para>
+		You can select a filter from this list (which will fill in the 
+		filter name and filter string in the fields down at the bottom of the 
+		dialog box).
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter name:</command></term>
+	  <listitem>
+	    <para>
+		You can change the name of the currently selected filter here.
+	    </para>
+		<note><title>Note!</title>
+		<para>
+		The filter name will only be used in this dialog to identify the 
+		filter for your convenience, it will not be used elsewhere. You can 
+		add multiple filters with the same name, but this is not very useful.
+		</para>
+		</note>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter string:</command></term>
+	  <listitem>
+	    <para>
+		You can change the filter string of the currently selected filter here.
+		Display Filter only: the string will be syntax checked while you are 
+		typing.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Add Expression...</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button brings up the Add Expression 
+		  dialog box which assists in building filter strings.  You can find 
+		  more information about the Add Expression dialog in 
+	      <xref linkend="ChWorkFilterAddExpressionSection"/>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>OK</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button applies the selected filter to the 
+		  current display and closes the dialog.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply</command></term>
+	  <listitem>
+	    <para>
+	      Display Filter only: This button applies the selected filter to the 
+		  current display, and keeps the dialog open.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Save</command></term>
+	  <listitem>
+	    <para>
+	      Save the current settings in this dialog. The file location and 
+		  format is explained in <xref linkend="AppFiles"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Close</command></term>
+	  <listitem>
+	    <para>
+	      Close this dialog. This will discard unsaved settings.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
+  
+  <section id="ChWorkDefineFilterMacrosSection"><title>Defining and saving filter macros</title>
+    <para>
+      You can define filter macros with Wireshark and give them labels for 
+      later use.  This can save time in remembering and retyping some of 
+      the more complex filters you use.
+    </para>
+    <para>
+      XXX - add an explanation of this.
+    </para>
+  </section>
+
+  <section id="ChWorkFindPacketSection"><title>Finding packets</title>
+    <para>
+      You can easily find packets once you have captured some packets or 
+      have read in a previously saved capture file. Simply select the 
+      <command>Find Packet...</command> menu item from the 
+      <command>Edit</command> menu.  Wireshark will pop up the dialog box 
+      shown in <xref linkend="ChWorkFindPacketDialog"/>.
+    </para>
+	<section><title>The "Find Packet" dialog box</title>
+    <figure id="ChWorkFindPacketDialog">
+      <title>The "Find Packet" dialog box</title>
+      <graphic entityref="WiresharkFindPacket" format="PNG"/>
+    </figure>
+    <para>
+	You might first select the kind of thing to search for:
+	<itemizedlist>
+		<listitem>
+			<para>
+    		<command>Display filter</command>
+			</para>
+			<para>
+			Simply enter a display filter string into the 
+			<command>Filter:</command> field, select a direction, and click on OK.
+			</para>
+			<para>
+			For example, to find the three way handshake for a connection from 
+			host 192.168.0.1, use the following filter string:
+			<programlisting>ip.src==192.168.0.1 and tcp.flags.syn==1</programlisting>
+			For more details on display filters, see <xref linkend="ChWorkDisplayFilterSection"/>
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+    		<command>Hex Value</command>
+			</para>
+			<para>
+			Search for a specific byte sequence in the packet data.
+			</para>
+			<para>
+			For example, use "00:00" to find the next packet including two 
+			null bytes in the packet data.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+    		<command>String</command>
+			</para>
+			<para>
+			Find a string in the packet data, with various options.
+			</para>
+		</listitem>
+	</itemizedlist>
+    </para>
+    <para>
+	The value to be found will be syntax checked while you type it in. If the 
+	syntax check of your value succeeds, the background of the entry field 
+	will turn green, if it fails, it will turn red.
+	</para>
+    <para>
+	You can choose the search direction:
+	<itemizedlist>
+		<listitem>
+    		<para><command>Up</command></para>
+			<para>Search upwards in the packet list (decreasing packet numbers).</para>
+		</listitem>
+	</itemizedlist>
+	<itemizedlist>
+		<listitem>
+    		<para><command>Down</command></para>
+			<para>Search downwards in the packet list (increasing packet numbers).</para>
+		</listitem>
+	</itemizedlist>
+	</para>
+  </section>
+  <section><title>The "Find Next" command</title>
+    <para>
+	"Find Next" will continue searching with the same options used in the last 
+	"Find Packet".
+	</para>
+  </section>
+  <section><title>The "Find Previous" command</title>
+    <para>
+	"Find Previous" will do the same thing as "Find Next", but with reverse 
+	search direction.
+	</para>
+  </section>
+  </section>
+    
+  <section id="ChWorkGoToPacketSection"><title>Go to a specific packet</title>
+  <para>
+  You can easily jump to specific packets with one of the menu items in the 
+  Go menu.  
+  </para>
+  <section><title>The "Go Back" command</title>
+  <para>
+  Go back in the packet history, works much like the page history in current 
+  web browsers.
+  </para>
+  </section>
+  <section><title>The "Go Forward" command</title>
+  <para>
+  Go forward in the packet history, works much like the page history in 
+  current web browsers.
+  </para>
+  </section>
+  <section><title>The "Go to Packet" dialog box</title>
+    <figure id="ChWorkGoToPacketDialog">
+      <title>The "Go To Packet" dialog box</title>
+      <graphic entityref="WiresharkGoToPacket" format="PNG"/>
+    </figure>
+    <para>
+	This dialog box will let you enter a packet number. When you press 
+	<command>OK</command>, Wireshark will jump to that packet.
+	</para>
+  </section>
+  <section><title>The "Go to Corresponding Packet" command</title>
+    <para>
+	If a protocol field is selected which points to another packet in the 
+	capture file, this command will jump to that packet.
+	</para>
+    <note><title>Note!</title>
+    <para>
+	As these protocol fields now work like links (just as in your 
+	Web browser), it's easier to simply double-click on the field to jump
+	to the corresponding field.
+    </para>
+    </note>
+  </section>
+  <section><title>The "Go to First Packet" command</title>
+    <para>
+	This command will simply jump to the first packet displayed.
+	</para>
+  </section>
+  <section><title>The "Go to Last Packet" command</title>
+    <para>
+	This command will simply jump to the last packet displayed.
+	</para>
+  </section>
+  </section>
+    
+  <section id="ChWorkMarkPacketSection"><title>Marking packets</title>
+    <para>
+	You can mark packets in the "Packet List" pane. A marked packet will 
+	be shown with black background, regardless of the coloring rules set.
+	Marking a packet can be useful to find it later while analyzing in a large 
+	capture file.
+    </para>
+    <warning><title>Warning!</title>
+    <para>
+	The packet marks are not stored in the capture file or anywhere else, 
+	so all packet marks will be lost if you close the capture file.
+    </para>
+    </warning>
+    <para>
+	You can use packet marking to control the output of packets when 
+	saving/exporting/printing. To do so, an option in the packet range is 
+	available, see <xref linkend="ChIOPacketRangeSection"/>.
+    </para>
+    <para>
+	There are three functions to manipulate the marked state of a packet:
+	<itemizedlist>
+		<listitem>
+    		<para>
+			<command>Mark packet (toggle)</command> toggles the marked state 
+			of a single packet.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Mark all packets</command> set the mark state of all 
+			packets.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Unmark all packets</command> reset the mark state of all 
+			packets.
+    		</para>
+		</listitem>
+	</itemizedlist>
+	These mark function are available from the "Edit" menu, and the 
+	"Mark packet (toggle)" function is also available from the pop-up menu of 
+	the "Packet List" pane.
+    </para>
+  </section>
+	
+  <section id="ChWorkTimeFormatsSection"><title>Time display formats and time 
+  references</title>
+	<para>
+	While packets are captured, each packet is timestamped. These timestamps 
+	will be saved to the capture file, so they will be available for later 
+	analysis.
+	</para>
+	<para>
+	A detailed description of timestamps, timezones and alike can be found at: <xref 
+		linkend="ChAdvTimestamps"/>.
+	</para>
+	<para>
+	The timestamp presentation format and the precision in the packet list can 
+	be chosen using the View menu, see <xref linkend="ChUseWiresharkViewMenu"/>. 
+	</para>
+	<para>
+	The available presentation formats are:
+	<itemizedlist>
+	<listitem><para><command>Date and Time of Day:  1970-01-01 01:02:03.123456</command>
+		The absolute date and time of the day when the packet was captured.</para>
+	</listitem>
+	<listitem><para><command>Time of Day:  01:02:03.123456</command>
+		The absolute time of the day when the packet was captured.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Beginning of Capture:  123.123456</command>
+		The time relative to the start of the capture file or the first 
+		"Time Reference" before this packet (see <xref 
+		linkend="ChWorkTimeReferencePacketSection"/>).</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Previous Captured Packet:  1.123456</command>
+		The time relative to the previous captured packet.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Previous Displayed Packet:  1.123456</command>
+		The time relative to the previous displayed packet.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Epoch (1970-01-01):  1234567890.123456</command>
+		The time relative to epoch (midnight UTC of January 1, 1970).</para>
+	</listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	The available precisions (aka. the number of displayed decimal places) are:
+	<itemizedlist>
+	<listitem><para><command>Automatic</command>
+	The timestamp precision of  
+	the loaded capture file format will be used (the default).</para>
+	</listitem>
+	<listitem><para><command>Seconds, Deciseconds, Centiseconds, Milliseconds, 
+	Microseconds or Nanoseconds</command>
+	The timestamp precision will be forced to the given setting. If the 
+	actually available
+	precision is smaller, zeros will be appended. If the precision is larger, 
+	the remaining decimal places will be cut off.</para>
+	</listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	Precision example: If you have a timestamp and it's displayed using,
+	"Seconds Since Previous Packet", : the value might be 1.123456. This will
+	be displayed using the "Automatic" setting for libpcap files (which is 
+	microseconds). If you use Seconds it would show simply 1 and if you use
+	Nanoseconds it shows 1.123456000.
+	</para>
+  <section id="ChWorkTimeReferencePacketSection">
+  <title>Packet time referencing</title>
+    <para>
+	The user can set time references to packets. A time reference is the 
+	starting point for all subsequent packet time calculations. It will be 
+	useful, if you want to see the time values relative to a special packet,
+	e.g. the start of a new request. It's possible to set multiple time 
+	references in the capture file.
+    </para>
+    <warning><title>Warning!</title>
+    <para>
+	The time references will not be saved permanently and will be lost when 
+	you close the capture file.
+	</para>
+    </warning>
+    <note><title>Note!</title>
+    <para>
+	Time referencing will only be useful, if the time display format is set to 
+	"Seconds Since Beginning of Capture". If one of the other time display 
+	formats are used, time referencing will have no effect (and will make no 
+	sense either).
+	</para>
+    </note>
+    <para>
+	To work with time references, choose one of the "Time Reference" items 
+	in the "Edit" menu , see <xref linkend="ChUseEditMenuSection"/>, or from 
+	the pop-up menu of the "Packet List" pane.
+	</para>
+	<itemizedlist>
+	<listitem><para><command>Set Time Reference (toggle)</command>
+		Toggles the time reference state of the currently selected 
+		packet to on or off.</para>
+	</listitem>
+	<listitem><para><command>Find Next</command>
+		Find the next time referenced packet in the "Packet List" pane.
+		</para>
+	</listitem>
+	<listitem><para><command>Find Previous</command>
+		Find the previous time referenced packet in the "Packet List" 
+		pane.
+		</para>
+	</listitem>
+	</itemizedlist>
+    <para>
+    <figure id="ChWorkTimeReference">
+      <title>Wireshark showing a time referenced packet</title>
+      <graphic entityref="WiresharkTimeReference" format="PNG"/>
+    </figure>
+	</para>
+	<para>
+	A time referenced packet will be marked with the string *REF* in the Time 
+	column (see packet number 10). All subsequent packets will show the time 
+	since the last time reference.
+	</para>
+  </section>
+  </section>
+
+</chapter>
+<!-- End of WSUG Chapter Work -->
+
+
+

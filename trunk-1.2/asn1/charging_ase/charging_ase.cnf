@@ -1,0 +1,17 @@
+# charging ase.cnf
+# charging ase conformation file
+# Anders Broman 2009
+# $Id$
+
+#.EXPORTS
+ChargingMessageType
+ChargingMessageType_PDU
+
+#.PDU_NEW
+ChargingMessageType
+
+#.FN_BODY ExtensionField/value
+
+	proto_tree_add_text(tree, tvb, offset, -1, "Extensions not dissected");
+	return tvb_length(tvb);
+#.END

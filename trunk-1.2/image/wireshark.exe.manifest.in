@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity
+    version="@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_MICRO@.0"
+    processorArchitecture="X86"
+    name="WiresharkDevelopmentTeam.Wireshark"
+    type="win32"
+  />
+  <description>The world's most popular network protocol analyzer</description>
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+        type="win32"
+        name="Microsoft.Windows.Common-Controls"
+        version="6.0.0.0"
+        processorArchitecture="X86"
+        publicKeyToken="6595b64144ccf1df"
+        language="*"
+      />
+    </dependentAssembly>
+  </dependency>
+</assembly> 

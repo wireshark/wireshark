@@ -1,0 +1,21 @@
+<!-- $Id$ -->
+
+<bookinfo>
+  <title><inlinegraphic entityref="WiresharkLogo" valign="middle" format="PNG"/> &DocumentTitle;</title>
+  <subtitle>&DocumentSubTitle;</subtitle>
+  <authorgroup>
+    <author><firstname>&AuthorFirstName;</firstname><surname>&AuthorSurname;</surname>
+      <affiliation><orgname>&AuthorOrgName;</orgname></affiliation>
+    </author>
+  </authorgroup>
+  <!--<edition>&DocumentEdition;</edition>
+  <pubdate>&DocumentPubDate;</pubdate>-->
+  <copyright><year>&DocumentCopyrightYear;</year>
+    <holder>&DocumentCopyrightHolder;</holder>
+  </copyright>
+
+<legalnotice>
+  &DocumentLegalNotice;
+</legalnotice>
+
+</bookinfo>

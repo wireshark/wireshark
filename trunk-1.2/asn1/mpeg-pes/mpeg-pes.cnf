@@ -1,0 +1,10 @@
+# mpeg-pes.cnf
+# mpeg-pes conformation file
+#
+# $Id$
+
+#.TYPE_ATTR
+PES/stream TYPE=FT_UINT8 DISPLAY=BASE_HEX
+Pack/program-mux-rate TYPE=FT_UINT32 DISPLAY=BASE_DEC
+Stream/length TYPE=FT_UINT16 DISPLAY=BASE_DEC
+#.END

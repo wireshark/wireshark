@@ -1,0 +1,34 @@
+-- QSIG-GF-EXT.asn
+--
+-- Taken from Ecma International
+-- http://www.ecma-international.org/publications/standards/Ecma-165.htm
+--
+-- 9.2 Manufacturer specific additions to standardised operations
+--
+-- $Id$
+--
+
+Manufacturer-specific-service-extension-class-asn1-97 {iso(1) standard(0)
+  pss1-generic-procedures(11582) msi-class-asn1-97(11)} DEFINITIONS ::=
+BEGIN
+
+EXTENSION ::= CLASS {
+  &ArgumentType  ,
+  &extensionId   OBJECT IDENTIFIER
+} WITH SYNTAX {
+  ARGUMENT &ArgumentType
+  IDENTIFIER &extensionId
+}
+
+Extension{EXTENSION:ExtensionSet} ::= SEQUENCE {
+  extensionId        EXTENSION.&extensionId({Extensionset}),
+  extensionArgument  EXTENSION.&ArgumentType({ExtensionSet}{@extensionId})
+}
+
+Extensionset EXTENSION ::= {...}
+
+-- ExtensionSet is a set of objects of class EXTENSION. Element extensionId is constrained to be 
+-- the identifier of an object from that set, and element extensionArgument is constrained to be the 
+-- argument type for that particular object. 
+
+END -- of Manufacturer-specific-service-extension-class-asn1-97

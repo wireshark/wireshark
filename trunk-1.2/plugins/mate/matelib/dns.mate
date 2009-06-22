@@ -1,0 +1,7 @@
+# dns.mate
+# $Id$
+
+Action=PduDef; Name=dns_pdu; Proto=dns; Transport=udp/ip; addr=ip.addr; port=udp.port; dns_id=dns.id; dns_rsp=dns.flags.response;
+Action=GopDef; Name=dns_req; On=dns_pdu; addr; addr; port!53; dns_id;
+Action=GopStart; For=dns_req; dns_rsp=0;
+Action=GopStop; For=dns_req; dns_rsp=1;

@@ -1,0 +1,117 @@
+-- This ASN.1 module was taken from RFC3709.
+-- 
+-- The copyright statement of the RFC as follows :
+-- 
+-- Full Copyright Statement
+-- 
+--    Copyright (C) The Internet Society (2004).  This document is subject
+--    to the rights, licenses and restrictions contained in BCP 78 and
+--    except as set forth therein, the authors retain all their rights.
+-- 
+--    This document and the information contained herein are provided on an
+--    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+--    REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE
+--    INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR
+--    IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+--    THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+--    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+LogotypeCertExtn
+  { iso(1) identified-organization(3) dod(6) internet(1)
+    security(5) mechanisms(5) pkix(7) id-mod(0)
+    id-mod-logotype(22) }
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+   AlgorithmIdentifier FROM AuthenticationFramework -- RFC 3280
+     { iso(1) identified-organization(3) dod(6) internet(1)
+       security(5) mechanisms(5) pkix(7) id-mod(0)
+       id-pkix1-explicit(18) };
+
+
+-- Logotype Extension OID
+--
+id-pe-logotype  OBJECT IDENTIFIER  ::=
+   { iso(1) identified-organization(3) dod(6) internet(1)
+     security(5) mechanisms(5) pkix(7) id-pe(1) 12 }
+
+
+-- Logotype Extension Syntax
+
+LogotypeExtn ::= SEQUENCE {
+   communityLogos  [0] EXPLICIT SEQUENCE OF LogotypeInfo OPTIONAL,
+   issuerLogo      [1] EXPLICIT LogotypeInfo OPTIONAL,
+   subjectLogo     [2] EXPLICIT LogotypeInfo OPTIONAL,
+   otherLogos      [3] EXPLICIT SEQUENCE OF OtherLogotypeInfo OPTIONAL }
+
+LogotypeInfo ::= CHOICE {
+   direct          [0] LogotypeData,
+   indirect        [1] LogotypeReference }
+
+LogotypeData ::= SEQUENCE {
+   image           SEQUENCE OF LogotypeImage OPTIONAL,
+   audio           [1] SEQUENCE OF LogotypeAudio OPTIONAL }
+
+LogotypeImage ::= SEQUENCE {
+   imageDetails    LogotypeDetails,
+   imageInfo       LogotypeImageInfo OPTIONAL }
+
+LogotypeAudio ::= SEQUENCE {
+   audioDetails    LogotypeDetails,
+   audioInfo       LogotypeAudioInfo OPTIONAL }
+
+LogotypeDetails ::= SEQUENCE {
+   mediaType       IA5String, -- MIME media type name and optional
+                              -- parameters
+   logotypeHash    SEQUENCE SIZE (1..MAX) OF HashAlgAndValue,
+   logotypeURI     SEQUENCE SIZE (1..MAX) OF IA5String }
+
+LogotypeImageInfo ::= SEQUENCE {
+   type            [0] LogotypeImageType DEFAULT color,
+   fileSize        INTEGER,  -- In octets
+   xSize           INTEGER,  -- Horizontal size in pixels
+   ySize           INTEGER,  -- Vertical size in pixels
+   resolution      LogotypeImageResolution OPTIONAL,
+   language        [4] IA5String OPTIONAL }  -- RFC 3066 Language Tag
+
+LogotypeImageType ::= INTEGER { grayScale(0), color(1) }
+
+LogotypeImageResolution ::= CHOICE {
+   numBits         [1] INTEGER,   -- Resolution in bits
+   tableSize       [2] INTEGER }  -- Number of colors or grey tones
+
+LogotypeAudioInfo ::= SEQUENCE {
+   fileSize        INTEGER,  -- In octets
+   playTime        INTEGER,  -- In milliseconds
+   channels        INTEGER,  -- 1=mono, 2=stereo, 4=quad
+   sampleRate      [3] INTEGER OPTIONAL,  -- Samples per second
+   language        [4] IA5String OPTIONAL }  -- RFC 3066 Language Tag
+
+OtherLogotypeInfo ::= SEQUENCE {
+   logotypeType    OBJECT IDENTIFIER,
+   info            LogotypeInfo }
+
+LogotypeReference ::= SEQUENCE {
+   refStructHash   SEQUENCE SIZE (1..MAX) OF HashAlgAndValue,
+   refStructURI    SEQUENCE SIZE (1..MAX) OF IA5String }
+                      -- Places to get the same "LTD" file
+
+-- Note: The content of referenced "LTD" files is defined by the
+--       LogotypeData type
+
+HashAlgAndValue ::= SEQUENCE {
+   hashAlg         AlgorithmIdentifier,
+   hashValue       OCTET STRING }
+
+-- Other logotype type OIDs
+
+id-logo OBJECT IDENTIFIER ::= { iso(1) identified-organization(3)
+   dod(6) internet(1) security(5) mechanisms(5) pkix(7) 20 }
+
+
+id-logo-loyalty    OBJECT IDENTIFIER ::= { id-logo 1 }
+
+id-logo-background OBJECT IDENTIFIER ::= { id-logo 2 }
+END

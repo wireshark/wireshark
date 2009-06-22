@@ -1,0 +1,88 @@
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_DEFER_SPN "Defer setting of servicePrincipalName and dNSHostName attributes on the computer object until a rename operation" "Set servicePrincipalName and dNSHostName attributes on the computer object"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_MACHINE_PWD_PASSED "Set the machine password after domain join to passed password" "Do not set the machine password after domain join to passed password"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_UNSECURE "Performs an unsecured join" "Perform a secured join"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_DOMAIN_JOIN_IF_JOINED "Allow a join to a new domain even if the computer is already joined to a domain" "Do not allow join to a new domain if the computer is already joined to a domain"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_WIN9X_UPGRADE "The join operation is occuring as part of an upgrade of Windows 9x" "The join operation is not part of a Windows 9x upgrade"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_DELETE "Delete the account when a domain is left" "Do not delete the account when a domain is left"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_ACCOUNT_CREATE "Create the account on the domain" "Do not create the account"
+
+TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_TYPE "Join the computer to a domain" "Join the computer to a workgroup"
+
+
+HF_FIELD hf_wkssvc_platform_id "Platform Id" "wkssvc.platform_id" FT_UINT32 BASE_DEC VALS(srvsvc_srvsvc_PlatformId_vals) 0 "" "" ""
+
+#
+#
+# Prettifications
+PARAM_VALUE wkssvc_dissect_element_NetWkstaGetInfo_server_name_ 1|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaGetInfo_level PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo100_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo100_domain_name_ 5
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo101_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo101_domain_name_ 5
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_domain_name_ 5
+
+PARAM_VALUE wkssvc_dissect_element_NetWkstaTransportEnum_server_name_ 1|PIDL_SET_COL_INFO
+
+
+TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
+
+CODE START
+/* Bug in pidl.  Can not handle these dependencies properly yet */
+static int
+wkssvc_dissect_struct_srvsvc_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
+{
+	offset = srvsvc_dissect_enum_PlatformId(tvb,offset,pinfo,tree,drep,hf_wkssvc_platform_id,0);
+
+	return offset;
+}
+
+static int
+cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	header_field_info *hf_info;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+	hf_info=proto_registrar_get_nth(hfindex);
+
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
+		tree = proto_item_add_subtree(item, ett_wkssvc_lsa_String);
+	}
+	
+	offset = wkssvc_dissect_element_lsa_String_name_len(tvb, offset, pinfo, tree, drep);
+	offset = wkssvc_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+static int
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, NULL);
+
+	return offset;
+}
+
+CODE END

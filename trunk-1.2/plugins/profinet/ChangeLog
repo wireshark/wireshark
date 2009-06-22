@@ -1,0 +1,35 @@
+$Id$
+
+Overview of changes in Art-Net Ethereal plugin:
+
+Version 0.0.0:
+
+* initial implementation
+
+Version 0.0.1:
+
+* some experiments
+
+Version 0.1.0:
+
+* first official plugin
+
+Version 0.1.1:
+
+* fixed some bugs in the PN-IO dissection found with fuzz-test.sh
+
+Version 0.1.2:
+
+* PN-DCP: dissection of "DHCP/DHCP client identifier" suboption was added
+
+Version 0.2.0:
+
+* PN-PTCP: add whole new Precision Time Control Protocol dissector
+
+Version 0.2.1:
+
+* PN-MRP and PN-MRRT: add new Media Redundancy Protocol and Media Redundacy for RealTime Protocol dissector
+
+Version 0.2.2:
+
+* PN-IO: RT class 3 packets and some more blocks

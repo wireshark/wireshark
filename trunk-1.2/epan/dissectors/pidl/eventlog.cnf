@@ -1,0 +1,199 @@
+# Conformance file for EVENTLOG
+#
+
+HF_FIELD hf_eventlog_Record "Record" "eventlog.Record" FT_NONE BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_length "Record Length" "eventlog.Record.length" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_source_name "Source Name" "eventlog.Record.source_name" FT_STRING BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_computer_name "Computer Name" "eventlog.Record.computer_name" FT_STRING BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_eventlog_Record_string "string" "eventlog.Record.string" FT_STRING BASE_NONE NULL 0 "" "" ""
+
+MANUAL eventlog_dissect_element_ReadEventLogW_data_
+MANUAL eventlog_dissect_element_Record_sid_length
+MANUAL eventlog_dissect_element_Record_sid_offset
+MANUAL eventlog_dissect_element_Record_source_name
+MANUAL eventlog_dissect_element_Record_computer_name
+MANUAL eventlog_dissect_element_Record_num_of_strings
+MANUAL eventlog_dissect_element_Record_stringoffset
+MANUAL eventlog_dissect_element_Record_strings
+
+
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions
+PARAM_VALUE eventlog_dissect_element_OpenEventLogW_handle_       PIDL_POLHND_OPEN
+PARAM_VALUE eventlog_dissect_element_OpenBackupEventLogW_handle_ PIDL_POLHND_OPEN
+# Policyhandles are closed in these functions
+PARAM_VALUE eventlog_dissect_element_CloseEventLog_handle_       PIDL_POLHND_CLOSE
+
+
+
+CODE START
+/* Add this one manually until we can compile LSA */
+static int
+eventlog_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index,int notused _U_)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+			hf_index, 0);
+	return offset;
+}
+
+
+static int
+eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+	tvbuff_t *record_tvb;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_eventlog_Record_length, &len);
+
+	/* Create a new tvb so that we know that offset==0 is the beginning
+	 * of the record. We need to know this since the data is not really
+	 * NDR encoded at all and there are byte offsets into this buffer
+	 * encoded therein.
+	 */
+	record_tvb=tvb_new_subset(tvb, offset, MIN((gint)len, tvb_length_remaining(tvb, offset)), len);
+	eventlog_dissect_struct_Record(record_tvb, 0, pinfo, tree, drep, hf_eventlog_Record, 0);
+	offset+=len;
+
+	return offset;
+}
+
+
+/* sid_length and sid_offset handled by manual code since this is not NDR
+   and we want to dissect the sid from the data blob */
+static guint32 sid_length;
+static int
+eventlog_dissect_element_Record_sid_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	sid_length=0;
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_sid_length,&sid_length);
+
+	return offset;
+}
+static int
+eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 sid_offset=0;
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_sid_offset,&sid_offset);
+
+	if(sid_offset && sid_length){
+		tvbuff_t *sid_tvb;
+
+		/* this blob contains an NT SID. 
+		 * tvb starts at the beginning of the record.
+		 */
+		sid_tvb=tvb_new_subset(tvb, sid_offset, MIN((gint)sid_length, tvb_length_remaining(tvb, offset)), sid_length);
+		dissect_nt_sid(sid_tvb, 0, tree, "SID", NULL, -1);
+	}
+
+	return offset;
+}
+
+
+static int
+eventlog_get_unicode_string_length(tvbuff_t *tvb, int offset)
+{
+	int len;
+
+	len=0;
+	while(1){
+		if(!tvb_get_ntohs(tvb, offset+len*2)){
+			len++;
+			break;
+		}
+		len++;
+	}
+
+	return len;
+}
+
+static int
+eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+{
+	char *str;
+	int len;
+
+	len=eventlog_get_unicode_string_length(tvb, offset);
+	str=tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+	proto_tree_add_string_format(tree, hf_eventlog_Record_source_name, tvb, offset, len*2, str, "source_name: %s", str);
+
+	offset+=len*2;
+	return offset;
+}
+
+static int
+eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+{
+	char *str;
+	int len;
+
+	len=eventlog_get_unicode_string_length(tvb, offset);
+	str=tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+	proto_tree_add_string_format(tree, hf_eventlog_Record_computer_name, tvb, offset, len*2, str, "computer_name: %s", str);
+
+	offset+=len*2;
+	return offset;
+}
+
+static guint16 num_of_strings;
+
+static int
+eventlog_dissect_element_Record_num_of_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	num_of_strings=0;
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_num_of_strings,&num_of_strings);
+
+	return offset;
+}
+
+static guint32 string_offset;
+
+static int
+eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	string_offset=0;
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_stringoffset,&string_offset);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+{
+	while(string_offset && num_of_strings){
+		char *str;
+		int len;
+
+		len=eventlog_get_unicode_string_length(tvb, string_offset);
+		str=tvb_get_ephemeral_faked_unicode(tvb, string_offset, len, TRUE);
+		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
+		string_offset+=len*2;
+	
+		num_of_strings--;
+	}
+
+
+	return offset;
+}
+
+CODE END

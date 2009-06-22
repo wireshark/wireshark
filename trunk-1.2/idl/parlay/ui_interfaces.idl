@@ -1,0 +1,361 @@
+//Source file: ui_interfaces.idl
+//Date:  8 October 2004
+//User Interaction Interfaces for ETSI ES 203 915-05 V1.1.1, DES/TISPAN-01005-05-OSA, Parlay 5.0
+
+
+#ifndef __UI_INTERFACES_DEFINED
+#define __UI_INTERFACES_DEFINED
+
+
+#include "osa.idl"
+#include "ui_data.idl"
+#include "gcc_interfaces.idl"
+#include "mpcc_interfaces.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module ui {
+			interface IpUI;
+			interface IpUICall;
+			
+			enum TpUITargetObjectType {
+
+				P_UI_TARGET_OBJECT_CALL,
+				P_UI_TARGET_OBJECT_MULTI_PARTY_CALL,
+				P_UI_TARGET_OBJECT_CALL_LEG				
+			};
+			
+			
+			union TpUITargetObject switch(TpUITargetObjectType) {
+				case P_UI_TARGET_OBJECT_CALL: cc::gccs::TpCallIdentifier Call;
+				case P_UI_TARGET_OBJECT_MULTI_PARTY_CALL: cc::mpccs::TpMultiPartyCallIdentifier MultiPartyCall;
+				case P_UI_TARGET_OBJECT_CALL_LEG: cc::mpccs::TpCallLegIdentifier CallLeg;
+			};
+			
+			
+			struct TpUIIdentifier {
+				IpUI UIRef;
+				TpSessionID UserInteractionSessionID;
+			};
+			
+			
+			typedef sequence <TpUIIdentifier> TpUIIdentifierSet;
+			
+			struct TpUICallIdentifier {
+				IpUICall UICallRef;
+				TpSessionID UserInteractionSessionID;
+			};
+			
+			
+			
+			interface IpAppUI : IpInterface {
+				void sendInfoRes (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIReport response	
+					);
+					
+				void sendInfoErr (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void sendInfoAndCollectRes (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIReport response,	
+					in TpString collectedInfo	
+					);
+					
+				void sendInfoAndCollectErr (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void userInteractionFaultDetected (
+					in TpSessionID userInteractionSessionID,	
+					in TpUIFault fault	
+					);
+					
+			};
+			
+			
+			interface IpAppUICall : IpAppUI {
+				void recordMessageRes (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIReport response,	
+					in TpInt32 messageID	
+					);
+					
+				void recordMessageErr (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void deleteMessageRes (
+					in TpSessionID usrInteractionSessionID,	
+					in TpUIReport response,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void deleteMessageErr (
+					in TpSessionID usrInteractionSessionID,	
+					in TpUIError error,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void abortActionRes (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void abortActionErr (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void getMessageRes (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIInfo message	
+					);
+					
+				void getMessageErr (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+			};
+			
+			
+			interface IpAppUIManager : IpInterface {
+				void userInteractionAborted (
+					in TpUIIdentifier userInteraction	
+					);
+					
+				void userInteractionNotificationInterrupted ();
+					
+				void userInteractionNotificationContinued ();
+					
+				IpAppUI reportEventNotification (
+					in TpUIIdentifier userInteraction,	
+					in TpUIEventNotificationInfo eventNotificationInfo,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void abortMultipleUserInteractions (
+					in TpUIIdentifierSet userInteractionSet	
+					);
+					
+			};
+			
+			
+			interface IpUI : IpService {
+				TpAssignmentID sendInfoReq (
+					in TpSessionID userInteractionSessionID,	
+					in TpUIInfo info,	
+					in TpLanguage language,	
+					in TpUIVariableInfoSet variableInfo,	
+					in TpInt32 repeatIndicator,	
+					in TpUIResponseRequest responseRequested	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+				TpAssignmentID sendInfoAndCollectReq (
+					in TpSessionID userInteractionSessionID,	
+					in TpUIInfo info,	
+					in TpLanguage language,	
+					in TpUIVariableInfoSet variableInfo,	
+					in TpUICollectCriteria criteria,	
+					in TpUIResponseRequest responseRequested	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_ILLEGAL_ID,P_ID_NOT_FOUND,P_ILLEGAL_RANGE,P_INVALID_COLLECTION_CRITERIA);
+					
+				void release (
+					in TpSessionID userInteractionSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void setOriginatingAddress (
+					in TpSessionID userInteractionSessionID,	
+					in TpString origin	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_INVALID_ADDRESS);
+					
+				TpString getOriginatingAddress (
+					in TpSessionID userInteractionSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+					
+			};
+			
+			
+			interface IpUICall : IpUI {
+				TpAssignmentID recordMessageReq (
+					in TpSessionID userInteractionSessionID,	
+					in TpUIInfo info,	
+					in TpUIMessageCriteria criteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_ILLEGAL_ID,P_ID_NOT_FOUND,P_INVALID_CRITERIA);
+					
+				TpAssignmentID deleteMessageReq (
+					in TpSessionID usrInteractionSessionID,	
+					in TpInt32 messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+				void abortActionReq (
+					in TpSessionID userInteractionSessionID,	
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_ASSIGNMENT_ID);
+					
+				TpAssignmentID getMessageReq (
+					in TpSessionID userInteractionSessionID,	
+					in TpInt32 messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+			};
+			
+			
+			interface IpUIManager : IpService {
+				TpUIIdentifier createUI (
+					in IpAppUI appUI,	
+					in TpAddress userAddress	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_INTERFACE_TYPE);
+					
+				TpUICallIdentifier createUICall (
+					in IpAppUICall appUI,	
+					in TpUITargetObject uiTargetObject	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_INTERFACE_TYPE);
+					
+				TpAssignmentID createNotification (
+					in IpAppUIManager appUIManager,	
+					in TpUIEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_CRITERIA,P_INVALID_INTERFACE_TYPE);
+					
+				void destroyNotification (
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+					
+				void changeNotification (
+					in TpAssignmentID assignmentID,	
+					in TpUIEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA);
+					
+				TpUIEventCriteriaResultSet getNotification ()					
+					raises (TpCommonExceptions);
+					
+				TpAssignmentID enableNotifications (
+					in IpAppUIManager appUIManager	
+					)					
+					raises (TpCommonExceptions);
+					
+				void disableNotifications ()					
+					raises (TpCommonExceptions);
+					
+			};
+			
+			
+			interface IpAppUIAdminManager : IpInterface {
+				void getMessageRes (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIInfo message	
+					);
+					
+				void getMessageErr (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void deleteMessageRes (
+					in TpSessionID usrInteractionSessionID,	
+					in TpUIReport response,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void deleteMessageErr (
+					in TpSessionID usrInteractionSessionID,	
+					in TpUIError error,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void putMessageRes (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpInt32 messageID	
+					);
+					
+				void putMessageErr (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+				void getMessageListRes (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpMessageIDList messageIDList,	
+					in TpBoolean final	
+					);
+					
+				void getMessageListErr (
+					in TpSessionID usrInteractionSessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpUIError error	
+					);
+					
+			};
+			
+			
+			interface IpUIAdminManager : IpService {
+				TpAssignmentID getMessageReq (
+					in TpSessionID usrInteractionSessionID,	
+					in TpInt32 messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+				TpAssignmentID putMessageReq (
+					in TpSessionID usrInteractionSessionID,	
+					in TpUIInfo info	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+				TpAssignmentID deleteMessageReq (
+					in TpSessionID usrInteractionSessionID,	
+					in TpInt32 messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_ILLEGAL_ID,P_ID_NOT_FOUND);
+					
+				TpAssignmentID getMessageListReq (
+					in TpSessionID usrInteractionSessionID,	
+					in TpBoolean reset	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

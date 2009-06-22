@@ -1,0 +1,188 @@
+-- Module IN-SCF-SRF-datatypes (Q.1248.3:07/2001)
+IN-SCF-SRF-datatypes {itu-t recommendation q 1248 modules(1)
+  in-scf-srf-datatypes(10) version1(0)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+  tc-Messages, common-classes, common-datatypes, ssf-scf-classes,
+    scf-srf-classes, ssf-scf-datatypes, ros-InformationObjects
+    FROM IN-object-identifiers {itu-t recommendation q 1248 modules(1)
+      in-object-identifiers(0) version1(0)}
+  EXTENSION, SupportedExtensions, COMMON-BOUNDS
+    FROM IN-common-classes common-classes
+  Integer4
+    FROM IN-common-datatypes common-datatypes
+  Code
+    FROM Remote-Operations-Information-Objects ros-InformationObjects
+  Digits{}, DisplayInformation{}, SDSSinformation{}
+    FROM IN-SSF-SCF-datatypes ssf-scf-datatypes
+  SCF-SSF-BOUNDS
+    FROM IN-SSF-SCF-Classes ssf-scf-classes
+  SCF-SRF-BOUNDS
+    FROM IN-SCF-SRF-Classes scf-srf-classes;
+
+-- The following three definitions are local short-hand notation for convenience.
+B1 ::=
+  COMMON-BOUNDS -- defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
+
+B2 ::= SCF-SSF-BOUNDS -- defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
+
+B3 ::= SCF-SRF-BOUNDS -- defined in this Recommendation (Q.1248.3)
+
+CollectedDigits ::= SEQUENCE {
+  minimumNbOfDigits    [0]  INTEGER(1..127) DEFAULT 1,
+  maximumNbOfDigits    [1]  INTEGER(1..127),
+  endOfReplyDigit      [2]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+  cancelDigit          [3]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+  startDigit           [4]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+  firstDigitTimeOut    [5]  INTEGER(1..127) OPTIONAL,
+  interDigitTimeOut    [6]  INTEGER(1..127) OPTIONAL,
+  errorTreatment       [7]  ErrorTreatment DEFAULT reportErrorToScf,
+  interruptableAnnInd  [8]  BOOLEAN DEFAULT TRUE,
+  voiceInformation     [9]  BOOLEAN DEFAULT FALSE,
+  voiceBack            [10]  BOOLEAN DEFAULT FALSE,
+  detectModem          [11]  BOOLEAN DEFAULT FALSE,
+  ...
+}
+
+-- The use of voiceBack is network operator specific.
+-- The endOfReplyDigit, cancelDigit, and startDigit parameters have been designated as OCTET STRING, 
+-- and are to be encoded as BCD, one digit per octet only, contained
+-- in the four least significant bits of each OCTET. The usage is service dependent.
+CollectedInfo ::= CHOICE {
+  collectedDigits  [0]  CollectedDigits,
+  iA5Information   [1]  BOOLEAN,
+  detectModem      [2]  BOOLEAN
+}
+
+ElementaryMessageID ::= Integer4
+
+ErrorTreatment ::= ENUMERATED {reportErrorToScf(0), help(1), repeatPrompt(2)}
+
+-- reportErrorToScf means returning the "ImproperCallerResponse" error in the event of an error
+-- condition during collection of user info.
+GapOnResource ::=
+  Code
+
+InbandInfo{B2:b2, B3:b3} ::= SEQUENCE {
+  messageID            [0]  MessageID{b2, b3},
+  numberOfRepetitions  [1]  INTEGER(1..127) OPTIONAL,
+  duration             [2]  INTEGER(0..32767) OPTIONAL,
+  interval             [3]  INTEGER(0..32767) OPTIONAL,
+  preferredLanguage    [4]  Language OPTIONAL,
+  ...
+}
+
+-- Interval is the time in seconds between each repeated announcement. Duration is the total
+-- amount of time in seconds, including repetitions and intervals.
+-- The end of announcement is either the end of duration or numberOfRepetitions, whatever comes first.
+-- duration with value 0 indicates infinite duration
+InformationToRecord{B3:b3} ::= SEQUENCE {
+  messageID               [0]  ElementaryMessageID OPTIONAL,
+  messageDeletionTimeOut  [1]  INTEGER(1..3600) OPTIONAL,
+  --Time units = hours
+  timeToRecord            [3]  INTEGER(0..b3.&maxRecordingTime) OPTIONAL,
+  --Time units = seconds
+  controlDigits
+    [4]  SEQUENCE {endOfRecordingDigit
+                     [0]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+                   cancelDigit
+                     [1]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+                   replayDigit
+                     [2]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+                   restartRecordingDigit
+                     [3]  OCTET STRING(SIZE (1..2)) OPTIONAL,
+                   restartAllowed         [4]  BOOLEAN DEFAULT FALSE,
+                   replayAllowed          [5]  BOOLEAN DEFAULT FALSE,
+                   ...},
+  ...
+}
+
+InformationToSend{B2:b2, B3:b3} ::= CHOICE {
+  inbandInfo          [0]  InbandInfo{b2, b3},
+  tone                [1]  Tone,
+  displayInformation  [2]  DisplayInformation{b2},
+  sDSSinformation     [3]  SDSSinformation{b2}
+}
+
+Language ::= PrintableString(SIZE (3)) -- ISO 639 codes only;
+                            
+
+MailBoxID{B3:b3} ::=
+  OCTET STRING(SIZE (b3.&minMailBoxIDLength..b3.&maxMailBoxIDLength))
+
+Media ::= ENUMERATED {voiceMail(0), faxGroup3(1), faxGroup4(2)}
+
+MessageID{B2:b2, B3:b3} ::= CHOICE {
+  elementaryMessageID   [0]  Integer4,
+  text
+    [1]  SEQUENCE {messageContent
+                     [0]  IA5String
+                            (SIZE (b3.&minMessageContentLength..
+                                     b3.&maxMessageContentLength)),
+                   attributes
+                     [1]  OCTET STRING
+                            (SIZE (b3.&minAttributesLength..
+                                     b3.&maxAttributesLength)) OPTIONAL,
+                   ...},
+  elementaryMessageIDs
+    [29]  SEQUENCE SIZE (1..b3.&numOfMessageIDs) OF Integer4,
+  variableMessage
+    [30]  SEQUENCE {elementaryMessageID  [0]  Integer4,
+                    variableParts
+                      [1]  SEQUENCE SIZE (1..b3.&maxVariableParts) OF
+                             VariablePart{b2},
+                    ...}
+}
+
+-- OPTIONAL denotes network operator specific use.
+ReceivedStatus ::= ENUMERATED {
+  messageComplete(0), messageInterrupted(1), messageTimeOut(2)}
+
+RecordedMessageID ::= Integer4
+
+SRFGapCriteria{B2:b2} ::= CHOICE {
+  iPAddressValue        [1]  Digits{b2},
+  gapOnResource         [2]  GapOnResource,
+  iPAddressAndresource
+    [3]  SEQUENCE {iPAddressValue  [1]  Digits{b2},
+                   gapOnResource   [2]  GapOnResource,
+                   ...}
+}
+
+Tone ::= SEQUENCE {
+  toneID    [0]  Integer4,
+  duration  [1]  Integer4 OPTIONAL,
+  ...
+}
+
+-- The duration specifies the length of the tone in seconds, value 0 indicates infinite duration.
+VariablePart{B2:b2} ::= CHOICE {
+  integer  [0]  Integer4,
+  number   [1]  Digits{b2}, -- Generic digits
+  time     [2]  OCTET STRING(SIZE (2)), -- HH:MM, BCD coded
+  date     [3]  OCTET STRING(SIZE (3)), -- YYMMDD, BCD coded
+  price    [4]  OCTET STRING(SIZE (4))
+}
+
+-- Indicates the variable part of the message.
+-- BCD coded variable parts are encoded as described in the examples below.
+-- For example, time = 12:15 would be encoded as:
+--	Bits					HGFE 		DCBA
+-- 	leading octet	2	1
+--			5	1
+-- date = 1993 September 30th would be encoded as:
+--	Bits					HGFE		DCBA
+--	leading octet 	3	9
+--			9	0
+--			0	3 
+-- For a system operating when or after this Recommendation is released, the 2-digit value
+-- representing a Year shall be interpreted as follows:
+--    - If the two-digits value is 00 through 49 inclusive, it shall be interpreted as representing 
+--     year 2000 through 2049.
+--    - If the two-digits value is 50 through 99 inclusive, it shall be interpreted as representing
+--     year 1950 through 1999.
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

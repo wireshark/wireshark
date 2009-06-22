@@ -1,0 +1,28 @@
+#
+#	Nokia dictionary
+#	$Id$
+#
+#       Enable by putting the line "$INCLUDE dictionary.nokia" into
+#       the main dictionary file. Don't forget to comment out the
+#       $INCLUDE dictionary.ascend, because these over-lap with the
+#       standard RADIUS attributes, which are also illegitimately used
+#       by Ascend.
+#
+#	It's apparently rocket science for people to define their own
+#	VSA's.
+#
+
+#
+#	The format of this attribute is binary coded decimal (BCD)
+#	with the last four bits all set to 1 if there are an odd
+#	number of digits,
+#
+#	e.g 123 is encoded as hexadecimal bytes 21 F3
+#
+#	This is an incredibly stupid way of encoding the data.
+#
+ATTRIBUTE	Nokia-IMSI			224	octets
+ATTRIBUTE	Nokia-Charging-Id		225	integer
+ATTRIBUTE	Nokia-Prepaid-Ind		226	integer
+ATTRIBUTE	Nokia-GGSN-IP-Address		227	ipaddr
+ATTRIBUTE	Nokia-SGSN-IP-Address		228	ipaddr

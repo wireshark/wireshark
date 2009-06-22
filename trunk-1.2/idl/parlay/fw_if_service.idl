@@ -1,0 +1,519 @@
+//Source file: fw_if_service.idl
+//Date:  13 October 2004
+//Framework to Service Interfaces for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#ifndef __FW_IF_SERVICE_DEFINED
+#define __FW_IF_SERVICE_DEFINED
+
+#include "osa.idl"
+#include "fw_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module fw {
+			
+			module fw_service {
+				
+				module discovery {
+					
+					
+					interface IpFwServiceDiscovery : IpInterface {
+						TpServiceTypeNameList listServiceTypes ()							
+							raises (TpCommonExceptions);
+							
+						TpServiceTypeDescription describeServiceType (
+							in TpServiceTypeName name	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE);
+							
+						TpServiceList discoverService (
+							in TpServiceTypeName serviceTypeName,	
+							in TpServicePropertyList desiredPropertyList,	
+							in TpInt32 max	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE,P_INVALID_PROPERTY);
+							
+						TpServiceList listRegisteredServices ()							
+							raises (TpCommonExceptions);
+							
+					};
+					
+				};
+				
+				module service_lifecycle {
+					
+					
+					interface IpServiceInstanceLifecycleManager : IpInterface {
+						IpService createServiceManager (
+							in TpClientAppID application,	
+							in TpServicePropertyList serviceProperties,	
+							in TpServiceInstanceID serviceInstanceID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_PROPERTY);
+							
+						void destroyServiceManager (
+							in TpServiceInstanceID serviceInstance	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+				};
+				
+				module service_registration {
+					
+					
+					interface IpFwServiceRegistration : IpInterface {
+						TpServiceID registerService (
+							in TpServiceTypeName serviceTypeName,	
+							in TpServicePropertyList servicePropertyList	
+							)							
+							raises (TpCommonExceptions,P_PROPERTY_TYPE_MISMATCH,P_DUPLICATE_PROPERTY_NAME,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE,P_MISSING_MANDATORY_PROPERTY,P_SERVICE_TYPE_UNAVAILABLE);
+							
+						void announceServiceAvailability (
+							in TpServiceID serviceID,	
+							in service_lifecycle::IpServiceInstanceLifecycleManager serviceInstanceLifecycleManagerRef	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_ID,P_UNKNOWN_SERVICE_ID,P_INVALID_INTERFACE_TYPE);
+							
+						void unregisterService (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_ID,P_UNKNOWN_SERVICE_ID);
+							
+						TpServiceDescription describeService (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_ID,P_UNKNOWN_SERVICE_ID);
+							
+						void unannounceService (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions,P_ILLEGAL_SERVICE_ID,P_UNKNOWN_SERVICE_ID);
+							
+						TpServiceID registerServiceSubType (
+							in TpServiceTypeName serviceTypeName,	
+							in TpServicePropertyList servicePropertyList,	
+							in TpServiceTypePropertyValueList extendedServicePropertyList	
+							)							
+							raises (TpCommonExceptions,P_PROPERTY_TYPE_MISMATCH,P_DUPLICATE_PROPERTY_NAME,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE,P_MISSING_MANDATORY_PROPERTY,P_SERVICE_TYPE_UNAVAILABLE);
+							
+					};
+					
+				};
+				
+				module integrity {
+					interface IpSvcHeartBeatMgmt ;
+					interface IpFwHeartBeat ;
+					interface IpSvcHeartBeat ;
+					
+					
+					
+					interface IpSvcLoadManager : IpInterface {
+						void querySvcLoadReq (
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadRes (
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadErr (
+							in TpLoadStatisticError loadStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+						void loadLevelNotification (
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void suspendNotification ()							
+							raises (TpCommonExceptions);
+							
+						void resumeNotification ()							
+							raises (TpCommonExceptions);
+							
+						void createLoadLevelNotification ()							
+							raises (TpCommonExceptions);
+							
+						void destroyLoadLevelNotification ()							
+							raises (TpCommonExceptions);
+							
+						void querySvcLoadStatsReq (
+							in TpLoadTestID loadStatsReqID,	
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadStatsRes (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadStatsErr (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticError loadStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpFwLoadManager : IpInterface {
+						void reportLoad (
+							in TpLoadLevel loadLevel	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadReq (
+							in TpSubjectType querySubject,	
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions);
+							
+						void querySvcLoadRes (
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void querySvcLoadErr (
+							in TpLoadStatisticError loadStatisticError	
+							)							
+							raises (TpCommonExceptions);
+							
+						void createLoadLevelNotification (
+							in TpSubjectType notificationSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void destroyLoadLevelNotification (
+							in TpSubjectType notificationSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void suspendNotification (
+							in TpSubjectType notificationSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void resumeNotification (
+							in TpSubjectType notificationSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadStatsReq (
+							in TpLoadTestID loadStatsReqID,	
+							in TpSubjectType querySubject,	
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions);
+							
+						void querySvcLoadStatsRes (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void querySvcLoadStatsErr (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticError loadStatisticError	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpSvcFaultManager : IpInterface {
+						void activityTestRes (
+							in TpActivityTestID activityTestID,	
+							in TpActivityTestRes activityTestResult	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void svcActivityTestReq (
+							in TpActivityTestID activityTestID	
+							)							
+							raises (TpCommonExceptions);
+							
+						void fwFaultReportInd (
+							in TpInterfaceFault fault	
+							)							
+							raises (TpCommonExceptions);
+							
+						void fwFaultRecoveryInd (
+							in TpInterfaceFault fault	
+							)							
+							raises (TpCommonExceptions);
+							
+						void fwUnavailableInd (
+							in TpFwUnavailReason reason	
+							)							
+							raises (TpCommonExceptions);
+							
+						void svcUnavailableInd ()							
+							raises (TpCommonExceptions);
+							
+						void appUnavailableInd ()							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordRes (
+							in TpFaultStatsRecord faultStatistics,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void activityTestErr (
+							in TpActivityTestID activityTestID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void genFaultStatsRecordErr (
+							in TpFaultStatisticsError faultStatisticsError,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordReq (
+							in TpTimeInterval timePeriod,	
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void generateFaultStatsRecordReq (
+							in TpTimeInterval timePeriod	
+							)							
+							raises (TpCommonExceptions);
+							
+						void appAvailStatusInd (
+							in TpAppAvailStatusReason reason	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordRes (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatsRecord faultStatistics,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordErr (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatisticsError faultStatisticsError,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordReq (
+							in TpFaultReqID faultStatsReqID,	
+							in TpTimeInterval timePeriod	
+							)							
+							raises (TpCommonExceptions);
+							
+						void fwAvailStatusInd (
+							in TpFwAvailStatusReason reason	
+							);
+							
+					};
+					
+					
+					interface IpFwFaultManager : IpInterface {
+						void activityTestReq (
+							in TpActivityTestID activityTestID,	
+							in TpSubjectType testSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void svcActivityTestRes (
+							in TpActivityTestID activityTestID,	
+							in TpActivityTestRes activityTestResult	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void appUnavailableInd ()							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordReq (
+							in TpTimeInterval timePeriod,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void svcUnavailableInd (
+							in TpSvcUnavailReason reason	
+							)							
+							raises (TpCommonExceptions);
+							
+						void svcActivityTestErr (
+							in TpActivityTestID activityTestID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void genFaultStatsRecordRes (
+							in TpFaultStatsRecord faultStatistics,	
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordErr (
+							in TpFaultStatisticsError faultStatisticsError,	
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatsRecordRes (
+							in TpFaultStatsRecord faultStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatsRecordErr (
+							in TpFaultStatisticsError faultStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+						void svcAvailStatusInd (
+							in TpSvcAvailStatusReason reason	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordReq (
+							in TpFaultReqID faultStatsReqID,	
+							in TpTimeInterval timePeriod,	
+							in TpSubjectType recordSubject	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordRes (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatsRecord faultStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordErr (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatisticsError faultStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpSvcOAM : IpInterface {
+						TpDateAndTime systemDateTimeQuery (
+							in TpDateAndTime systemDateAndTime	
+							)							
+							raises (TpCommonExceptions,P_INVALID_TIME_AND_DATE_FORMAT);
+							
+					};
+					
+					
+					interface IpFwOAM : IpInterface {
+						TpDateAndTime systemDateTimeQuery (
+							in TpDateAndTime clientDateAndTime	
+							)							
+							raises (TpCommonExceptions,P_INVALID_TIME_AND_DATE_FORMAT);
+							
+					};
+					
+					
+					interface IpFwHeartBeatMgmt : IpInterface {
+						
+						void enableHeartBeat (
+							in TpInt32 interval,	
+							in IpSvcHeartBeat svcInterface	
+							)							
+							raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+							
+						void disableHeartBeat ()							
+							raises (TpCommonExceptions);
+							
+						void changeInterval (
+							in TpInt32 interval	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpSvcHeartBeat : IpInterface {
+						
+						void pulse ()							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpFwHeartBeat : IpInterface {
+						
+						void pulse ()							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpSvcHeartBeatMgmt : IpInterface {
+						
+						void enableSvcHeartBeat (
+							in TpInt32 interval,	
+							in IpFwHeartBeat fwInterface	
+							)							
+							raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+							
+						void disableSvcHeartBeat ()							
+							raises (TpCommonExceptions);
+							
+						void changeInterval (
+							in TpInt32 interval	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+				};
+				
+				module notification {
+					
+					
+					interface IpFwEventNotification : IpInterface {
+						TpAssignmentID createNotification (
+							in TpFwEventCriteria eventCriteria	
+							)							
+							raises (TpCommonExceptions,P_INVALID_EVENT_TYPE,P_INVALID_CRITERIA);
+							
+						void destroyNotification (
+							in TpAssignmentID assignmentID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+							
+					};
+					
+					
+					interface IpSvcEventNotification : IpInterface {
+						void reportNotification (
+							in TpFwEventInfo eventInfo,	
+							in TpAssignmentID assignmentID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+							
+						void notificationTerminated ()							
+							raises (TpCommonExceptions);
+							
+					};
+					
+				};
+				
+			};
+			
+			
+		};
+		
+	};
+	
+};
+
+#endif

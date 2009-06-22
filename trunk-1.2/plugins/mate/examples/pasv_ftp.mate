@@ -1,0 +1,18 @@
+# pasv_ftp.mate
+# $Id$
+Action=PduDef; Name=ftp_pdu; Proto=ftp; Transport=tcp/ip; Stop=TRUE; ftp_addr=ip.addr; ftp_port=tcp.port; ftp_resp=ftp.response.code; ftp_req=ftp.request.command; server_addr=ftp.passive.ip; server_port=ftp.passive.port;
+
+Action=PduDef; Name=ftp_data_pdu; Proto=ftp-data; Transport=tcp/ip; server_addr=ip.src; server_port=tcp.srcport; 
+
+Action=GopDef; Name=ftp_data; On=ftp_data_pdu; server_addr; server_port;
+Action=GopStart; For=ftp_data; server_addr;
+
+Action=GopDef; Name=ftp_ctl; On=ftp_pdu; ftp_addr; ftp_addr; ftp_port; ftp_port;
+Action=GopStart; For=ftp_ctl; ftp_resp=220;
+Action=GopStop; For=ftp_ctl; ftp_resp=221;
+Action=GopExtra; For=ftp_ctl; server_addr; server_port;
+
+Action=GogDef; Name=ftp_ses;
+Action=GogKey; For=ftp_ses; On=ftp_ctl; ftp_addr; ftp_addr; ftp_port; ftp_port;
+Action=GogKey; For=ftp_ses; On=ftp_data; server_addr; server_port;
+

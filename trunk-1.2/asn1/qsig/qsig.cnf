@@ -1,0 +1,181 @@
+# qsig.cnf
+# QSIG conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.OPT
+BER
+GROUP_BY_PROT
+-o qsig
+#.END
+
+#.EXPORTS  EXTERN VALS_WITH_TABLE
+
+Name
+
+#.MODULE
+Addressing-Data-Elements-asn1-97                         qsig
+Manufacturer-specific-service-extension-class-asn1-97    qsig
+PSS1-generic-parameters-definition-asn1-97               qsig
+
+Name-Operations-asn1-97                                  qsig.na
+Call-Diversion-Operations-asn1-97                        qsig.cf
+Path-Replacement-Operations-asn1-97                      qsig.pr
+Call-Transfer-Operations-asn1-97                         qsig.ct
+SS-CC-Operations-asn1-97                                 qsig.cc
+Call-Offer-Operations-asn1-97                            qsig.co
+Do-Not-Disturb-Operations-asn1-97                        qsig.dnd
+Call-Intrusion-Operations-asn1-97                        qsig.ci
+SS-AOC-Operations-asn1-97                                qsig.aoc
+Recall-Operations-asn1-97                                qsig.re
+Call-Interception-Operations-asn1-97                     qsig.cint
+Synchronization-Operations-asn1-97                       qsig.sync
+Common-Information-Operations-asn1-97                    qsig.cmn
+Call-Interruption-Operations-asn1-97                     qsig.cpi
+PUM-Registration-Operations-asn1-97                      qsig.pumr
+Private-User-Mobility-Call-Handling-Operations-asn1-97   qsig.pumch
+Single-Step-Call-Transfer-Operations-asn1-97             qsig.ssct
+WTM-Location-Registration-Operations-asn1-97             qsig.wtmlr
+Wireless-Terminal-Call-Handling-Operations-asn1-97       qsig.wtmch
+WTM-Authentication-Operations-asn1-97                    qsig.wtmau
+SS-SD-Operations-asn1-97                                 qsig.sd
+Call-Identification-and-Call-Linkage-Operations-asn1-97  qsig.cidl
+Short-Message-Service-Operations-asn1-97                 qsig.sms
+SS-MCR-Operations-asn97                                  qsig.mcr
+SS-MCM-Operations-asn1-97                                qsig.mcm
+SS-MID-Operations-asn1-97                                qsig.mid
+
+#.PDU_NEW
+
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+ERROR.&ParameterType
+
+#.END
+
+#.TYPE_RENAME
+ARG-activateDiversionQ/extension    ADExtension
+ARG-deactivateDiversionQ/extension  DDExtension
+ARG-interrogateDiversionQ/extension      IDExtension
+ARG-checkRestriction/extension         CHRExtension
+ARG-callRerouteing/extension         CRRExtension
+ARG-divertingLegInformation1/extension DLI1Extension
+ARG-divertingLegInformation2/extension DLI2Extension
+ARG-divertingLegInformation3/extension DLI3Extension
+IntResult/extension     IRExtension
+PRProposeArg/extension  PRPExtension
+PRSetupArg/extension    PRSExtension
+PRRetainArg/extension   PRRExtension
+CTInitiateArg/argumentExtension   CTIargumentExtension
+CTSetupArg/argumentExtension      CTSargumentExtension
+CTActiveArg/argumentExtension     CTAargumentExtension
+CTCompleteArg/argumentExtension   CTCargumentExtension
+CTUpdateArg/argumentExtension     CTUargumentExtension
+SubaddressTransferArg/argumentExtension STargumentExtension
+DNDActivateArg/argumentExtension     DNDAargumentExtension
+DNDDeactivateArg/argumentExtension   DNDDargumentExtension
+DNDInterrogateArg/argumentExtension  DNDIargumentExtension
+DNDOverrideArg/argumentExtension     DNDOargumentExtension
+SSCTInitiateArg/argumentExtension   SSCTIargumentExtension
+SSCTSetupArg/argumentExtension      SSCTSargumentExtension
+SSCTDigitInfoArg/argumentExtension  SSCTDargumentExtension
+PumRegistrArg/pumUserId   RpumUserId
+PumDelRegArg/pumUserId    XpumUserId
+PumDe-regArg/pumUserId    DpumUserId
+PumInterrogArg/pumUserId  IpumUserId
+MCMNewMsgArg/argumentExt        MCMNewArgumentExt
+MCMNoNewMsgArg/argumentExt      MCMNoNewArgumentExt
+MCMUpdateReqArg/argumentExt     MCMUpdArgArgumentExt
+MCMUpdateReqResElt/argumentExt  MCMUpdResArgumentExt
+#.END                           
+
+#.FIELD_RENAME
+NameArg/nameSequence/extension extensionNA
+ARG-activateDiversionQ/extension       extensionAD
+ARG-deactivateDiversionQ/extension     extensionDD
+ARG-interrogateDiversionQ/extension         extensionID
+ARG-checkRestriction/extension            extensionCHR
+ARG-callRerouteing/extension            extensionCRR
+ARG-divertingLegInformation1/extension        extensionDLI1
+ARG-divertingLegInformation2/extension        extensionDLI2
+ARG-divertingLegInformation3/extension        extensionDLI3
+IntResult/extension            extensionIR
+PRSetupArg/extension     extensionPRS
+PRProposeArg/extension   extensionPRP
+PRRetainArg/extension    extensionPRR
+CTInitiateArg/argumentExtension   argumentExtensionCTI
+CTSetupArg/argumentExtension      argumentExtensionCTS
+CTActiveArg/argumentExtension     argumentExtensionCTA
+CTCompleteArg/argumentExtension   argumentExtensionCTC
+CTUpdateArg/argumentExtension     argumentExtensionCTU
+SubaddressTransferArg/argumentExtension argumentExtensionST
+DNDActivateArg/argumentExtension     argumentExtensionDNDA
+DNDDeactivateArg/argumentExtension   argumentExtensionDNDD
+DNDInterrogateArg/argumentExtension  argumentExtensionDNDI
+DNDOverrideArg/argumentExtension     argumentExtensionDNDO
+SSCTInitiateArg/argumentExtension   argumentExtensionSSCTI
+SSCTSetupArg/argumentExtension      argumentExtensionSSCTS
+SSCTDigitInfoArg/argumentExtension  argumentExtensionSSCTD
+PumRegistrArg/pumUserId   pumRUserId                 
+PumDelRegArg/pumUserId    pumXUserId
+PumDe-regArg/pumUserId    pumDUserId
+PumInterrogArg/pumUserId  pumIUserId
+MCMNewMsgArg/argumentExt        argumentExtMCMNew
+MCMNoNewMsgArg/argumentExt      argumentExtMCMNoNew
+MCMUpdateReqArg/argumentExt     argumentExtMCMUpdArg
+MCMUpdateReqResElt/argumentExt  argumentExtMCMUpdRes
+CallIdentificationAssignArg/extension  extensiont
+CallIdentificationUpdateArg/extension  extensiont
+DisplayArg/extension  sdextension
+KeypadArg/extension   sdextension
+AddressHeader/priority ahpriority
+WtmoArg/extension  wtmoaextension
+PumoArg/extension  pumoaextension
+#.END                                
+
+
+#.TYPE_ATTR
+NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
+#.END
+
+#.FN_HDR Extension
+  extension_oid = NULL;
+#.FN_PARS Extension/extensionId  FN_VARIANT = _str  VAL_PTR = &extension_oid
+#.FN_BODY Extension/extensionArgument
+    tvbuff_t *next_tvb;
+
+    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree)) {
+        proto_item *item=NULL;
+        proto_tree *next_tree=NULL;
+
+        item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "QSIG: Dissector for extension with OID:%%s not implemented.", extension_oid);
+        if(item){
+            next_tree=proto_item_add_subtree(item, ett_qsig_unknown_extension);
+        }
+        dissect_unknown_ber(actx->pinfo, next_tvb, offset, next_tree);
+    }
+
+    offset+=tvb_length_remaining(tvb, offset);
+#.END
+
+#.FN_BODY AuthAlgorithm/param
+
+#.END
+
+#.TABLE10_BODY OPERATION
+  { %(&operationCode)3s, "%(_name)s" },
+#.END
+
+#.TABLE11_BODY OPERATION
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE20_BODY ERROR
+  { %(&errorCode)4s, "%(_name)s" },
+#.END
+
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.END

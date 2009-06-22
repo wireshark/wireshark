@@ -1,0 +1,121 @@
+#
+# $Id$
+#
+
+include ../../../config.nmake
+include <win32.mak>
+
+FILES 		= Files
+APP 		= App
+DATA		= Data
+OTHER		= Other
+APPINFO		= AppInfo
+WIRESHARK 	= Wireshark
+SOURCE		= WiresharkPortableSource
+
+WSMANIFEST	= ../../wireshark.manifest
+
+NSIS_PLUGINS	= nsis-plugins
+FINDPROCDLL	= $(WIRESHARK_LIBS)\$(NSIS_PLUGINS)\FindProcDLL.dll
+
+TOPDIR		= ..\..\..
+U3DIST		= ..\..\u3\win32
+COPY		= xcopy
+MKDIR		= mkdir
+COPY_FLAGS	= /d /y
+!IFNDEF WIN32_SETUP_OPT
+WIN32_SETUP_OPT=--download
+!ENDIF
+
+UPX_FLAGS = -q
+
+PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
+
+all:	package
+
+package:	WiresharkPortable-$(VERSION).paf.exe
+
+dirs:
+	if not exist $(FILES) $(MKDIR) $(FILES)
+	if not exist $(FILES)\$(APP) $(MKDIR) $(FILES)\$(APP)
+	if not exist $(FILES)\$(APP)\$(APPINFO) $(MKDIR) $(FILES)\$(APP)\$(APPINFO)
+	if not exist $(FILES)\$(APP)\$(WIRESHARK) $(MKDIR) $(FILES)\$(APP)\$(WIRESHARK)
+	if not exist $(FILES)\$(DATA) $(MKDIR) $(FILES)\$(DATA)
+	if not exist $(FILES)\$(OTHER) $(MKDIR) $(FILES)\$(OTHER)
+	if not exist $(FILES)\$(OTHER)\$(SOURCE) $(MKDIR) $(FILES)\$(OTHER)\$(SOURCE)
+
+nsis-bits:
+	cd ../../nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
+	cd ../portableapps/win32
+
+$(WSMANIFEST):
+	cd ../..
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
+	cd portableapps/win32
+
+distribution.nmake:	$(WSMANIFEST) makenmake.pl
+	$(PERL) makenmake.pl $(WSMANIFEST) > $@
+
+distribution:	distribution.nmake
+	nmake -f distribution.nmake
+
+pack:	distribution
+!IFDEF UPX
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\$(GTK_WIMP_DLLDST_DIR)\*.dll
+!ENDIF
+
+
+appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
+	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
+            -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
+            -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
+	< appinfo.tmpl > appinfo.ini
+
+appinfo: appinfo.ini
+	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
+
+source:
+	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+
+findprocdll:
+	if not exist $(FINDPROCDLL) \
+	@$(SH) $(TOPDIR)\tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		$(NSIS_PLUGINS) FindProc.zip
+
+
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi
+	$(MAKENSIS) \
+	/DVERSION=$(PAPPS_VERSION) \
+	/DWSVERSION=$(VERSION) \
+	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
+	Installer.nsi
+
+Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
+	$(MAKENSIS) \
+	/DVERSION=$(PAPPS_VERSION) \
+	/DWSVERSION=$(VERSION) \
+	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
+	WiresharkPortable.nsi
+
+clean:
+	cd ../../
+	$(MAKE) -f makefile.nmake $@
+	cd portableapps/win32
+	rm -rf $(FILES)
+	rm -rf appinfo.ini
+	rm -rf distribution.nmake
+	rm -rf WiresharkPortable-$(VERSION).paf.exe
+   	rm -rf *~ *.*~
+
+distclean:	clean
+
+maintainer-clean:	distclean

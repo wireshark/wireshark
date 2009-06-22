@@ -1,0 +1,140 @@
+
+=head1 NAME
+
+capinfos - Prints information about capture files
+
+=head1 SYNOPSIS
+
+B<capinfos>
+S<[ B<-t> ]>
+S<[ B<-E> ]>
+S<[ B<-c> ]>
+S<[ B<-s> ]>
+S<[ B<-d> ]>
+S<[ B<-u> ]>
+S<[ B<-a> ]>
+S<[ B<-e> ]>
+S<[ B<-y> ]>
+S<[ B<-i> ]>
+S<[ B<-z> ]>
+S<[ B<-x> ]>
+S<[ B<-h> ]>
+E<lt>I<infile>E<gt>
+I<...>
+
+=head1 DESCRIPTION
+
+B<Capinfos> is a program that reads one or more capture files and
+returns some or all available statistics of each E<lt>I<infile>E<gt>.
+
+The user specifies which statistics to report by specifying flags
+corresponding to the statistic.  If no flags are specified, B<Capinfos>
+will report all statistics available.
+
+B<Capinfos> is able to detect and read the same capture files that are
+supported by B<Wireshark>.
+The input files don't need a specific filename extension; the file
+format and an optional gzip compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of wireshark(1) or
+L<http://www.wireshark.org/docs/man-pages/wireshark.html>
+is a detailed description of the way B<Wireshark> handles this, which is
+the same way B<Capinfos> handles this.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -t
+
+Displays the capture type of the capture file.
+
+=item -E
+
+Displays the per-file encapsulation of the capture file.
+
+=item -c
+
+Counts the number of packets in the capture file.
+
+=item -s
+
+Displays the size of the file, in bytes.  This reports
+the size of the capture file itself.
+
+=item -d
+
+Displays the total length of all packets in the file, in
+bytes.  This counts the size of the packets as they appeared
+in their original form, not as they appear in this file.
+For example, if a packet was originally 1514 bytes and only
+256 of those bytes were saved to the capture file (if packets
+were captured with a snaplen or other slicing option),
+B<Capinfos> will consider the packet to have been 1514 bytes.
+
+=item -u
+
+Displays the capture duration, in seconds.  This is the
+difference in time between the earliest packet seen and
+latest packet seen.
+
+=item -a
+
+Displays the start time of the capture.  B<Capinfos> considers
+the earliest timestamp seen to be the start time, so the
+first packet in the capture is not necessarily the earliest -
+if packets exist "out-of-order", time-wise, in the capture,
+B<Capinfos> detects this.
+
+=item -e
+
+Displays the end time of the capture.  B<Capinfos> considers
+the latest timestamp seen to be the end time, so the
+last packet in the capture is not necessarily the latest -
+if packets exist "out-of-order", time-wise, in the capture,
+B<Capinfos> detects this.
+
+=item -y
+
+Displays the average data rate, in bytes/sec
+
+=item -i
+
+Displays the average data rate, in bits/sec
+
+=item -z
+
+displays the average packet size, in bytes
+
+=item -x
+
+displays the average packet rate, in packets/sec
+
+=item -h
+
+Prints the help listing and exits.
+
+=back
+
+=head1 SEE ALSO
+
+tcpdump(8), pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
+dumpcap(1)
+
+=head1 NOTES
+
+B<Capinfos> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<http://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Ian Schorr           <ian[AT]ianschorr.com>
+
+
+  Contributors
+  ------------
+  Gerald Combs         <gerald[AT]wireshark.org>

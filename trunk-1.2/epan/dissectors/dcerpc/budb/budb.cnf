@@ -1,0 +1,4 @@
+#
+#
+TYPE	budbNameString_t budb_dissect_NameString_t FT_STRING BASE_NONE 0 NULL 4
+#

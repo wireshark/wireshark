@@ -1,0 +1,36 @@
+CompressedDataType 
+        { iso(1) identified-organization(3) nato(26) stanags(0)
+          mmhs(4406) object-identifiers(0) id-mcont(4) 2 }
+
+DEFINITIONS ::=
+BEGIN
+
+CompressedData ::= SEQUENCE {
+    compressionAlgorithm  CompressionAlgorithmIdentifier,
+    compressedContentInfo CompressedContentInfo }
+
+CompressionAlgorithmIdentifier ::= CHOICE {
+    algorithmID-ShortForm  [0] IMPLICIT AlgorithmID-ShortForm,
+    algorithmID-OID        [1] IMPLICIT OBJECT IDENTIFIER }
+
+AlgorithmID-ShortForm ::= INTEGER  {
+    zlibCompress (0) }
+
+CompressedContentInfo ::= SEQUENCE {
+    contentType CHOICE { 
+        contentType-ShortForm  [0] IMPLICIT ContentType-ShortForm,
+        contentType-OID        [1] IMPLICIT OBJECT IDENTIFIER
+    },
+    compressedContent [0] EXPLICIT CompressedContent }
+
+CompressedContent ::= OCTET STRING
+
+ContentType-ShortForm ::= INTEGER  {
+    unidentified (0),
+    external (1),           -- identified by the object-identifier 
+                            -- of the EXTERNAL content 
+    p1 (2),
+    p3 (3),
+    p7 (4) }
+
+END

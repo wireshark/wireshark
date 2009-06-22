@@ -1,0 +1,122 @@
+-- QSIG-SSCT.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-300, 2nd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-300.htm
+--
+-- $Id$
+--
+
+Single-Step-Call-Transfer-Operations-asn1-97 
+{ iso(1) standard (0) pss1-single-step-call-transfer (19460)  
+single-step-call-transfer-operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+IMPORTS  
+  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+    { joint-iso-itu-t (2) remote-operations (4) informationObjects(5) version1(0) } 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    { iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) } 
+  Name FROM Name-Operations-asn1-97 
+    {iso(1) standard(0) pss1-name (13868) name-operations-asn1-97 (1)} 
+ supplementaryServiceInteractionNotAllowed, notAvailable, invalidCallState 
+   FROM General-Error-List 
+    { ccitt recommendation q 950 general-error-list (1) } 
+  PresentedAddressScreened, PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    {iso(1) standard (0) pss1-generic-procedures (11582)  
+   addressing-data-elements-asn1-97 (20)} 
+  PSS1InformationElement FROM PSS1-generic-parameters-definition-asn1-97 
+    {iso(1) standard (0) pss1-generic-procedures (11582)  
+   pss1-generic-parameters-asn1-97 (17)} 
+ callTransferUpdate, callTransferComplete, callTransferActive, subaddressTransfer, 
+ invalidRerouteingNumber, establishmentFailure FROM Call-Transfer-Operations-asn1-97 
+    {iso(1) standard (0) pss1-call-transfer (13869) call-transfer-operations-asn1-97 (1)}; 
+ 
+Single-Step-Call-Transfer-Operations OPERATION ::= { ssctInitiate | ssctSetup | ssctPostDial | 
+ssctDigitInfo } 
+ 
+ssctInitiate     OPERATION ::= { 
+   -- sent from the Transferring PINX to the Rerouting PINX  
+   ARGUMENT  SSCTInitiateArg 
+   RESULT  DummyRes 
+   ERRORS  { notAvailable | invalidCallState | invalidRerouteingNumber | 
+     establishmentFailure | unspecified | 
+     supplementaryServiceInteractionNotAllowed } 
+   CODE  local: 99} 
+
+ssctSetup    OPERATION ::= { 
+   -- sent from the Rerouting PINX to the Transferred-To PINX  
+   ARGUMENT    SSCTSetupArg 
+   RETURN RESULT  FALSE 
+    ALWAYS RESPONDS FALSE 
+   CODE    local: 100} 
+ 
+ssctPostDial   OPERATION ::= { 
+   -- sent from the Rerouting PINX to the Transferred PINX  
+   ARGUMENT  DummyArg 
+   RETURN RESULT  FALSE 
+    ALWAYS RESPONDS FALSE 
+   CODE    local: 101} 
+ 
+ssctDigitInfo   OPERATION ::= { 
+   -- sent from the Transferred PINX to the Rerouting PINX  
+   ARGUMENT  SSCTDigitInfoArg 
+   RETURN RESULT  FALSE 
+    ALWAYS RESPONDS FALSE 
+   CODE    local: 102} 
+ 
+DummyArg  ::=   CHOICE { 
+   null  NULL, 
+   single  [1]  IMPLICIT Extension{{SSCTExtSet}}, 
+   multiple  [2]  IMPLICIT SEQUENCE OF Extension{{SSCTExtSet}}} 
+ 
+DummyRes  ::=   CHOICE { 
+   null  NULL, 
+   single  [1]  IMPLICIT Extension{{SSCTExtSet}}, 
+   multiple  [2]  IMPLICIT SEQUENCE OF Extension{{SSCTExtSet}}} 
+ 
+SSCTInitiateArg ::=  SEQUENCE { 
+    rerouteingNumber  PartyNumber,  -- Transferred-To Number 
+   transferredAddress  PresentedAddressScreened, 
+   awaitConnect    AwaitConnect, 
+    transferredName  [1] Name     OPTIONAL, 
+    transferringAddress  [2] PresentedAddressScreened   OPTIONAL, 
+    transferringName  [3] Name     OPTIONAL, 
+    argumentExtension   CHOICE { 
+             single   [4] IMPLICIT Extension{{SSCTExtSet}}, 
+             multiple  [5] IMPLICIT SEQUENCE OF Extension{{SSCTExtSet}} 
+          }     OPTIONAL 
+     } 
+ 
+AwaitConnect ::=     BOOLEAN 
+   -- FALSE = release the original call upon ALERTING received 
+   -- TRUE = release the original call upon CONNECT received 
+
+SSCTSetupArg ::=  SEQUENCE { 
+    transferringAddress  [1] PresentedAddressScreened   OPTIONAL, 
+    transferringName  [2] Name     OPTIONAL, 
+    argumentExtension   CHOICE { 
+             single     [3] IMPLICIT Extension{{SSCTExtSet}}, 
+             multiple     [4] IMPLICIT SEQUENCE OF Extension{{SSCTExtSet}} 
+          }     OPTIONAL 
+     } 
+ 
+SSCTDigitInfoArg ::=  SEQUENCE { 
+   reroutingNumber  [1] PartyNumber   OPTIONAL, 
+        -- remaining digits of the Transferred-To Number 
+    sendingComplete  [2] IMPLICIT NULL   OPTIONAL, 
+    argumentExtension   CHOICE { 
+             single     [3] IMPLICIT Extension{{SSCTExtSet}}, 
+             multiple     [4] IMPLICIT SEQUENCE OF Extension{{SSCTExtSet}} 
+         }     OPTIONAL 
+     } 
+ 
+SSCTExtSet EXTENSION ::= {...} 
+ 
+unspecified  ERROR ::= { 
+   PARAMETER   Extension{{SSCTExtSet}} 
+ CODE   local: 1008} 
+ 
+END -- of SSCT Operations-asn1-97 

@@ -1,0 +1,22 @@
+#
+#	3com SuperStack Firewall dictionary
+#	Bought from Sonicwall, apparently, from Enterprise number 8741.
+#
+#		$Id$
+#
+
+VENDOR	3com	43
+
+#
+#	These attributes contain the access-level value.
+#
+ATTRIBUTE	3Com-User-Access-Level	1	integer 3com
+
+#	Read-only access to manageable (not security) parameters
+VALUE	3Com-User-Access-Level	3Com-Monitor		1
+
+# 	Read-write access to manageable (not security) parameters
+VALUE	3Com-User-Access-Level	3Com-Manager		2
+
+#	Read-write access to all manageable parameters
+VALUE	3Com-User-Access-Level	3Com-Administrator	3

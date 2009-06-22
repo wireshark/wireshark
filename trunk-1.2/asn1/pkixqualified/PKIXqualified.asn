@@ -1,0 +1,224 @@
+-- This ASN definition is taken from (and modified to pass through asn2wrs)
+-- RFC3739
+--
+-- RFC3739 contains the followin copyright statements:
+-- 
+-- Full Copyright Statement
+-- 
+--    Copyright (C) The Internet Society (2004).  This document is subject
+--    to the rights, licenses and restrictions contained in BCP 78 and
+--    except as set forth therein, the authors retain all their rights.
+-- 
+--    This document and the information contained herein are provided on an
+--    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+--    REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE
+--    INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR
+--    IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+--    THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+--    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+-- 
+-- Intellectual Property
+-- 
+--    The IETF takes no position regarding the validity or scope of any
+--    Intellectual Property Rights or other rights that might be claimed
+--    to pertain to the implementation or use of the technology
+--    described in this document or the extent to which any license
+--    under such rights might or might not be available; nor does it
+--    represent that it has made any independent effort to identify any
+--    such rights.  Information on the procedures with respect to
+--    rights in RFC documents can be found in BCP 78 and BCP 79.
+-- 
+--    Copies of IPR disclosures made to the IETF Secretariat and any
+--    assurances of licenses to be made available, or the result of an
+--    attempt made to obtain a general license or permission for the use
+--    of such proprietary rights by implementers or users of this
+--    specification can be obtained from the IETF on-line IPR repository
+--    at http://www.ietf.org/ipr.
+-- 
+--    The IETF invites any interested party to bring to its attention
+--    any copyrights, patents or patent applications, or other
+--    proprietary rights that may cover technology that may be required
+--    to implement this standard.  Please address the information to the
+--    IETF at ietf-ipr@ietf.org.
+-- 
+-- Acknowledgement
+-- 
+--    Funding for the RFC Editor function is currently provided by the
+--    Internet Society.
+-- 
+
+
+   PKIXqualified97 {iso(1) identified-organization(3) dod(6)
+       internet(1) security(5) mechanisms(5) pkix(7) id-mod(0)
+       id-mod-qualified-cert-97(35) }
+
+   DEFINITIONS EXPLICIT TAGS ::=
+
+   BEGIN
+
+   -- EXPORTS ALL --
+
+   IMPORTS
+
+   informationFramework, certificateExtensions, selectedAttributeTypes,
+       authenticationFramework, upperBounds, id-at
+       FROM UsefulDefinitions {joint-iso-itu-t(2) ds(5) module(1)
+       usefulDefinitions(0) 3 }
+
+   ub-name
+       FROM UpperBounds upperBounds
+
+   GeneralName
+       FROM CertificateExtensions certificateExtensions
+
+   ATTRIBUTE, AttributeType
+       FROM InformationFramework informationFramework
+
+   DirectoryString
+       FROM SelectedAttributeTypes selectedAttributeTypes
+
+   AlgorithmIdentifier, Extension, EXTENSION
+       FROM AuthenticationFramework authenticationFramework
+
+   id-pkix, id-pe
+       FROM PKIX1Explicit88 { iso(1) identified-organization(3) dod(6)
+       internet(1) security(5) mechanisms(5) pkix(7) id-mod(0)
+       id-pkix1-explicit(18) };
+
+   -- Locally defined OIDs
+
+   -- Arc for QC personal data attributes
+--   id-pda  OBJECT IDENTIFIER ::= { id-pkix 9 }
+
+   -- Arc for QC statements
+--   id-qcs  OBJECT IDENTIFIER ::= { id-pkix 11 }
+
+   -- Personal data attributes
+
+--   id-pda-dateOfBirth          AttributeType ::= { id-pda 1 }
+--   id-pda-placeOfBirth         AttributeType ::= { id-pda 2 }
+--   id-pda-gender               AttributeType ::= { id-pda 3 }
+--   id-pda-countryOfCitizenship AttributeType ::= { id-pda 4 }
+--   id-pda-countryOfResidence   AttributeType ::= { id-pda 5 }
+
+   -- Certificate extensions
+
+--   id-pe-biometricInfo         OBJECT IDENTIFIER ::= { id-pe 2 }
+--   id-pe-qcStatements          OBJECT IDENTIFIER ::= { id-pe 3 }
+
+   -- QC statements
+
+--   id-qcs-pkixQCSyntax-v1      OBJECT IDENTIFIER ::= { id-qcs 1 }
+--   id-qcs-pkixQCSyntax-v2      OBJECT IDENTIFIER ::= { id-qcs 2 }
+
+Generalizedtime ::= GeneralizedTime
+
+Directorystring ::= DirectoryString
+
+Printablestring ::= PrintableString
+
+   -- Personal data attributes
+--
+--   dateOfBirth ATTRIBUTE ::= {
+--       WITH SYNTAX GeneralizedTime
+--       ID          id-pda-dateOfBirth }
+--
+--   placeOfBirth ATTRIBUTE ::= {
+--      WITH SYNTAX DirectoryString {ub-name}
+--      ID          id-pda-placeOfBirth }
+--
+--   gender ATTRIBUTE ::= {
+--       WITH SYNTAX PrintableString (SIZE(1) ^ FROM("M"|"F"|"m"|"f"))
+--       ID          id-pda-gender }
+--
+--   countryOfCitizenship ATTRIBUTE ::= {
+--       WITH SYNTAX PrintableString (SIZE (2))
+--           (CONSTRAINED BY { })
+--       ID          id-pda-countryOfCitizenship }
+--
+--   countryOfResidence ATTRIBUTE ::= {
+--       WITH SYNTAX PrintableString (SIZE (2))
+--           (CONSTRAINED BY { })
+--       ID          id-pda-countryOfResidence }
+--
+   -- Certificate extensions
+
+   -- Biometric info extension
+--
+--   biometricInfo  EXTENSION ::= {
+--       SYNTAX             BiometricSyntax
+--       IDENTIFIED BY      id-pe-biometricInfo }
+
+   BiometricSyntax ::= SEQUENCE OF BiometricData
+
+   BiometricData ::= SEQUENCE {
+       typeOfBiometricData TypeOfBiometricData,
+       hashAlgorithm       AlgorithmIdentifier,
+       biometricDataHash   OCTET STRING,
+       sourceDataUri       IA5String OPTIONAL,
+       ... }
+
+   TypeOfBiometricData ::= CHOICE {
+       predefinedBiometricType PredefinedBiometricType,
+       biometricDataOid        OBJECT IDENTIFIER }
+
+   PredefinedBiometricType ::= INTEGER {
+       picture(0), handwritten-signature(1)}
+
+
+   -- QC Statements Extension
+   -- NOTE: This extension does not allow to mix critical and
+   -- non-critical Qualified Certificate Statements. Either all
+   -- statements must be critical or all statements must be
+   -- non-critical.
+--
+--   qcStatements  EXTENSION ::= {
+--       SYNTAX        QCStatements
+--       IDENTIFIED BY id-pe-qcStatements }
+
+   QCStatements ::= SEQUENCE OF QCStatement
+
+   QCStatement ::= SEQUENCE {
+       statementId   OBJECT IDENTIFIER,
+       statementInfo ANY OPTIONAL }
+
+--   QC-STATEMENT ::= CLASS {
+--       &id   OBJECT IDENTIFIER UNIQUE,
+--       &Type OPTIONAL }
+--       WITH SYNTAX {
+--       [SYNTAX &Type] IDENTIFIED BY &id }
+
+--   qcStatement-1 QC-STATEMENT ::= { SYNTAX SemanticsInformation
+--       IDENTIFIED BY id-qcs-pkixQCSyntax-v1}
+       --  This statement identifies conformance with requirements
+       --  defined in RFC 3039 (Version 1). This statement
+       --  may optionally contain additional semantics information
+       --  as specified below.
+
+--   qcStatement-2 QC-STATEMENT ::= { SYNTAX SemanticsInformation
+--       IDENTIFIED BY id-qcs-pkixQCSyntax-v2}
+       --  This statement identifies conformance with requirements
+       --  defined in this Qualified Certificate profile
+       --  (Version 2). This statement may optionally contain
+       --  additional semantics information as specified below.
+
+   SemanticsInformation ::= SEQUENCE {
+       semanticsIdentifier         OBJECT IDENTIFIER OPTIONAL,
+       nameRegistrationAuthorities NameRegistrationAuthorities OPTIONAL
+       }
+
+   NameRegistrationAuthorities ::= SEQUENCE OF GeneralName
+
+   -- The following information object set is defined to constrain the
+   -- set of attributes applications are required to recognize as QCSs.
+--   SupportedStatements QC-STATEMENT ::= {
+--       qcStatement-1 |
+--       qcStatement-2 , ... }
+
+-- RFC 3920 added
+
+   XmppAddr ::= UTF8String
+
+   END
+
+

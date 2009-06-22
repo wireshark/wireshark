@@ -1,0 +1,74 @@
+# CRMF.cnf
+# CRMF conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+PKIX1Explicit88	pkix1explicit
+PKIX1Implicit88	pkix1implicit
+CryptographicMessageSyntax2004 cms
+		
+#.IMPORT ../cms/cms-exp.cnf
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+
+#.EXPORTS
+Authenticator
+Attributes
+AttributeTypeAndValue
+CertId
+CertReq
+CertReqMessages
+CertReqMsg
+CertRequest
+CertTemplate
+Controls
+EncKeyWithID
+EncryptedKey
+EncryptedValue
+KeyGenParameters
+OldCertId
+OptionalValidity
+PBMParameter
+PKIArchiveOptions
+PKIPublicationInfo
+PKMACValue
+POPOPrivKey
+POPOSigningKey
+POPOSigningKeyInput
+PrivateKeyInfo
+ProofOfPossession
+ProtocolEncrKey
+RegToken
+SinglePubInfo
+SubsequentMessage
+UTF8Pairs
+
+#.REGISTER
+CertId               B "1.3.6.1.5.5.7.5.1.5"        "id-regCtrl-oldCertID"
+CertRequest          B "1.3.6.1.5.5.7.5.2.2"        "id-regInfo-certReq"
+EncKeyWithID         B "1.2.840.113549.1.9.16.1.21" "id-ct-encKeyWithID"
+PBMParameter         B "1.2.840.113533.7.66.13"     "PasswordBasedMac"
+ProtocolEncrKey      B "1.3.6.1.5.5.7.5.1.6"        "id-regCtrl-protocolEncrKey"
+UTF8Pairs            B "1.3.6.1.5.5.7.5.2.1"        "id-regInfo-utf8Pairs"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+CertTemplate/issuer		template_issuer
+POPOSigningKey/signature	sk_signature
+PKMACValue/value		pkmac_value
+PrivateKeyInfo/version          privkey_version
+EncKeyWithID/privateKey         enckeywid_privkey
+
+#.FN_PARS AttributeTypeAndValue/type
+  FN_VARIANT = _str  HF_INDEX = hf_crmf_type_oid  VAL_PTR = &object_identifier_id
+
+#.FN_BODY AttributeTypeAndValue/value
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+
+#.END
+
+

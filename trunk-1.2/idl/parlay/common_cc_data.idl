@@ -1,0 +1,289 @@
+//Source file: common_cc_data.idl
+//Date:  6 October 2004
+//Common Call Control Data Types for ES 203 915-4-1 V1.1.1, DES/TISPAN-01005-04-2-OSA, Parlay 5.0
+
+#ifndef __COMMON_CC_DATA_DEFINED
+#define __COMMON_CC_DATA_DEFINED
+
+
+#include "ui_data.idl"
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			enum TpReleaseCause {
+
+				P_UNDEFINED,
+				P_USER_NOT_AVAILABLE,
+				P_BUSY,
+				P_NO_ANSWER,
+				P_NOT_REACHABLE,
+				P_ROUTING_FAILURE,
+				P_PREMATURE_DISCONNECT,
+				P_DISCONNECTED,
+				P_CALL_RESTRICTED,
+				P_UNAVAILABLE_RESOURCE,
+				P_GENERAL_FAILURE,
+				P_TIMER_EXPIRY,
+				P_UNSUPPORTED_MEDIA				
+			};
+			
+			
+			enum TpCallMonitorMode {
+
+				P_CALL_MONITOR_MODE_INTERRUPT,
+				P_CALL_MONITOR_MODE_NOTIFY,
+				P_CALL_MONITOR_MODE_DO_NOT_MONITOR				
+			};
+			
+			
+			typedef TpInt32 TpCallAlertingMechanism;
+			
+			
+			enum TpCallBearerService {
+
+				P_CALL_BEARER_SERVICE_UNKNOWN,
+				P_CALL_BEARER_SERVICE_SPEECH,
+				P_CALL_BEARER_SERVICE_DIGITALUNRESTRICTED,
+				P_CALL_BEARER_SERVICE_DIGITALRESTRICTED,
+				P_CALL_BEARER_SERVICE_AUDIO,
+				P_CALL_BEARER_SERVICE_DIGITALUNRESTRICTEDTONES,
+				P_CALL_BEARER_SERVICE_VIDEO				
+			};
+			
+			
+			enum TpCallChargeOrderCategory {
+
+				P_CALL_CHARGE_TRANSPARENT,
+				P_CALL_CHARGE_PREDEFINED_SET				
+			};
+			
+			
+			enum TpCallErrorType {
+
+				P_CALL_ERROR_UNDEFINED,
+				P_CALL_ERROR_INVALID_ADDRESS,
+				P_CALL_ERROR_INVALID_STATE,
+				P_CALL_ERROR_RESOURCE_UNAVAILABLE				
+			};
+			
+			
+			union TpCallAdditionalErrorInfo switch(TpCallErrorType) {
+				case P_CALL_ERROR_INVALID_ADDRESS: TpAddressError CallErrorInvalidAddress;
+				default: short Dummy;	
+			};
+			
+			
+			struct TpCallError {
+				TpDateAndTime ErrorTime;
+				TpCallErrorType ErrorType;
+				TpCallAdditionalErrorInfo AdditionalErorInfo;
+			};
+			
+			
+			struct TpCallEndedReport {
+				TpSessionID CallLegSessionID;
+				TpReleaseCause Cause;
+			};
+			
+			
+			const TpInt32 P_CALL_INFO_UNDEFINED = 0;
+			
+			const TpInt32 P_CALL_INFO_TIMES = 1;
+			
+			const TpInt32 P_CALL_INFO_RELEASE_CAUSE = 2;
+			
+			typedef TpInt32 TpCallInfoType;
+			
+			
+			struct TpCallInfoReport {
+				TpCallInfoType CallInfoType;
+				TpDateAndTime CallInitiationStartTime;
+				TpDateAndTime CallConnectedToResourceTime;
+				TpDateAndTime CallConnectedToDestinationTime;
+				TpDateAndTime CallEndTime;
+				TpReleaseCause Cause;
+			};
+			
+			
+			const TpInt32 P_CALL_LOAD_CONTROL_ADMIT_NO_CALLS = 0;
+			
+			enum TpCallLoadControlMechanismType {
+
+				P_CALL_LOAD_CONTROL_PER_INTERVAL				
+			};
+			
+			
+			typedef TpInt32 TpCallLoadControlIntervalRate;
+			
+			
+			union TpCallLoadControlMechanism switch(TpCallLoadControlMechanismType) {
+				case P_CALL_LOAD_CONTROL_PER_INTERVAL: TpCallLoadControlIntervalRate CallLoadControlPerInterval;
+			};
+			
+			
+			enum TpCallNetworkAccessType {
+
+				P_CALL_NETWORK_ACCESS_TYPE_UNKNOWN,
+				P_CALL_NETWORK_ACCESS_TYPE_POT,
+				P_CALL_NETWORK_ACCESS_TYPE_ISDN,
+				P_CALL_NETWORK_ACCESS_TYPE_DIALUPINTERNET,
+				P_CALL_NETWORK_ACCESS_TYPE_XDSL,
+				P_CALL_NETWORK_ACCESS_TYPE_WIRELESS				
+			};
+			
+			
+			enum TpCallPartyCategory {
+
+				P_CALL_PARTY_CATEGORY_UNKNOWN,
+				P_CALL_PARTY_CATEGORY_OPERATOR_F,
+				P_CALL_PARTY_CATEGORY_OPERATOR_E,
+				P_CALL_PARTY_CATEGORY_OPERATOR_G,
+				P_CALL_PARTY_CATEGORY_OPERATOR_R,
+				P_CALL_PARTY_CATEGORY_OPERATOR_S,
+				P_CALL_PARTY_CATEGORY_ORDINARY_SUB,
+				P_CALL_PARTY_CATEGORY_PRIORITY_SUB,
+				P_CALL_PARTY_CATEGORY_DATA_CALL,
+				P_CALL_PARTY_CATEGORY_TEST_CALL,
+				P_CALL_PARTY_CATEGORY_PAYPHONE				
+			};
+			
+			
+			enum TpCallServiceCodeType {
+
+				P_CALL_SERVICE_CODE_UNDEFINED,
+				P_CALL_SERVICE_CODE_DIGITS,
+				P_CALL_SERVICE_CODE_FACILITY,
+				P_CALL_SERVICE_CODE_U2U,
+				P_CALL_SERVICE_CODE_HOOKFLASH,
+				P_CALL_SERVICE_CODE_RECALL				
+			};
+			
+			
+			struct TpCallServiceCode {
+				TpCallServiceCodeType CallServiceCodeType;
+				TpString ServiceCodeValue;
+			};
+			
+			
+			enum TpCallTeleService {
+
+				P_CALL_TELE_SERVICE_UNKNOWN,
+				P_CALL_TELE_SERVICE_TELEPHONY,
+				P_CALL_TELE_SERVICE_FAX_2_3,
+				P_CALL_TELE_SERVICE_FAX_4_I,
+				P_CALL_TELE_SERVICE_FAX_4_II_III,
+				P_CALL_TELE_SERVICE_VIDEOTEX_SYN,
+				P_CALL_TELE_SERVICE_VIDEOTEX_INT,
+				P_CALL_TELE_SERVICE_TELEX,
+				P_CALL_TELE_SERVICE_MHS,
+				P_CALL_TELE_SERVICE_OSI,
+				P_CALL_TELE_SERVICE_FTAM,
+				P_CALL_TELE_SERVICE_VIDEO,
+				P_CALL_TELE_SERVICE_VIDEO_CONF,
+				P_CALL_TELE_SERVICE_AUDIOGRAPH_CONF,
+				P_CALL_TELE_SERVICE_MULTIMEDIA,
+				P_CALL_TELE_SERVICE_CS_INI_H221,
+				P_CALL_TELE_SERVICE_CS_SUB_H221,
+				P_CALL_TELE_SERVICE_CS_INI_CALL,
+				P_CALL_TELE_SERVICE_DATATRAFFIC,
+				P_CALL_TELE_SERVICE_EMERGENCY_CALLS,
+				P_CALL_TELE_SERVICE_SMS_MT_PP,
+				P_CALL_TELE_SERVICE_SMS_MO_PP,
+				P_CALL_TELE_SERVICE_CELL_BROADCAST,
+				P_CALL_TELE_SERVICE_ALT_SPEECH_FAX_3,
+				P_CALL_TELE_SERVICE_AUTOMATIC_FAX_3,
+				P_CALL_TELE_SERVICE_VOICE_GROUP_CALL,
+				P_CALL_TELE_SERVICE_VOICE_BROADCAST				
+			};
+			
+			
+			const TpInt32 P_CALL_SUPERVISE_TIMEOUT = 1;
+			
+			const TpInt32 P_CALL_SUPERVISE_CALL_ENDED = 2;
+			
+			const TpInt32 P_CALL_SUPERVISE_TONE_APPLIED = 4;
+			
+			const TpInt32 P_CALL_SUPERVISE_UI_FINISHED = 8;
+			
+			typedef TpInt32 TpCallSuperviseReport;
+			
+			
+			const TpInt32 P_CALL_SUPERVISE_RELEASE = 1;
+			
+			const TpInt32 P_CALL_SUPERVISE_RESPOND = 2;
+			
+			const TpInt32 P_CALL_SUPERVISE_APPLY_TONE = 4;
+			
+			typedef TpInt32 TpCallSuperviseTreatment;
+			
+			
+			enum TpCallTreatmentType {
+
+				P_CALL_TREATMENT_DEFAULT,
+				P_CALL_TREATMENT_RELEASE,
+				P_CALL_TREATMENT_SIAR				
+			};
+			
+			
+			union TpCallAdditionalTreatmentInfo switch(TpCallTreatmentType) {
+				case P_CALL_TREATMENT_SIAR: ui::TpUIInfo InformationToSend;
+				default: short Dummy;	
+			};
+			
+			
+			struct TpCallTreatment {
+				TpCallTreatmentType CallTreatmentType;
+				TpReleaseCause ReleaseCause;
+				TpCallAdditionalTreatmentInfo AdditionalTreatmentInfo;
+			};
+			
+			
+			enum TpCallPartyToChargeType {
+
+				P_CALL_PARTY_ORIGINATING,
+				P_CALL_PARTY_DESTINATION,
+				P_CALL_PARTY_SPECIAL				
+			};
+			
+			
+			typedef TpInt32 TpMediaType;
+			
+			
+			union TpCallPartyToChargeAdditionalInfo switch(TpCallPartyToChargeType) {
+				case P_CALL_PARTY_SPECIAL: TpAddress CallPartySpecial;
+				default: short Dummy;
+			};
+			
+			
+			struct TpCallChargePlan {
+				TpCallChargeOrderCategory ChargeOrderType;
+				TpOctetSet TransparentCharge;
+				TpInt32 ChargePlan;
+				TpOctetSet AdditionalInfo;
+				TpCallPartyToChargeType PartyToCharge;
+				TpCallPartyToChargeAdditionalInfo PartyToChargeAdditionalInfo;
+			};
+			
+			
+			typedef sequence <TpCallServiceCode> TpCallServiceCodeSet;
+			
+			
+			const TpInt32 P_AUDIO = 1;
+			
+			const TpInt32 P_DATA = 4;
+			
+			const TpInt32 P_VIDEO = 2;
+			
+			const TpInt32 P_CALL_SUPERVISE_QOS_PARAM_CHANGE = 16;
+		};
+		
+	};
+	
+};
+
+#endif

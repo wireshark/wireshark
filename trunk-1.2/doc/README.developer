@@ -1,0 +1,3765 @@
+$Revision$
+$Date$
+$Author$
+Tabsize: 4
+
+This file is a HOWTO for Wireshark developers. It describes how to start coding
+a Wireshark protocol dissector and the use of some of the important functions
+and variables.
+
+This file is compiled to give in depth information on Wireshark.
+It is by no means all inclusive and complete. Please feel free to send
+remarks and patches to the developer mailing list.
+
+0. Prerequisites.
+
+Before starting to develop a new dissector, a "running" Wireshark build
+environment is required - there's no such thing as a standalone "dissector
+build toolkit".
+
+How to setup such an environment is platform dependent; detailed information
+about these steps can be found in the "Developer's Guide" (available from:
+http://www.wireshark.org) and in the INSTALL and README files of the sources
+root dir.
+
+0.1. General README files.
+
+You'll find additional information in the following README files:
+
+- README.capture - the capture engine internals
+- README.design - Wireshark software design - incomplete
+- README.developer - this file
+- README.display_filter - Display Filter Engine
+- README.idl2wrs - CORBA IDL converter
+- README.packaging - how to distribute a software package containing WS
+- README.regression - regression testing of WS and TS
+- README.stats_tree - a tree statistics counting specific packets
+- README.tapping - "tap" a dissector to get protocol specific events
+- README.xml-output - how to work with the PDML exported output
+- wiretap/README.developer - how to add additional capture file types to
+  Wiretap
+
+0.2. Dissector related README files.
+
+You'll find additional dissector related information in the following README
+files:
+
+- README.binarytrees - fast access to large data collections
+- README.heuristic - what are heuristic dissectors and how to write them
+- README.malloc - how to obtain "memory leak free" memory
+- README.plugins - how to "pluginize" a dissector
+- README.request_response_tracking - how to track req./resp. times and such
+
+0.3 Contributors
+
+James Coe <jammer[AT]cin.net>
+Gilbert Ramirez <gram[AT]alumni.rice.edu>
+Jeff Foster <jfoste[AT]woodward.com>
+Olivier Abad <oabad[AT]cybercable.fr>
+Laurent Deniel <laurent.deniel[AT]free.fr>
+Gerald Combs <gerald[AT]wireshark.org>
+Guy Harris <guy[AT]alum.mit.edu>
+Ulf Lamping <ulf.lamping[AT]web.de>
+
+1. Setting up your protocol dissector code.
+
+This section provides skeleton code for a protocol dissector. It also explains
+the basic functions needed to enter values in the traffic summary columns,
+add to the protocol tree, and work with registered header fields.
+
+1.1 Code style.
+
+1.1.1 Portability.
+
+Wireshark runs on many platforms, and can be compiled with a number of
+different compilers; here are some rules for writing code that will work
+on multiple platforms.
+
+Don't use C++-style comments (comments beginning with "//" and running
+to the end of the line); Wireshark's dissectors are written in C, and
+thus run through C rather than C++ compilers, and not all C compilers
+support C++-style comments (GCC does, but IBM's C compiler for AIX, for
+example, doesn't do so by default).
+
+Don't initialize variables in their declaration with non-constant
+values. Not all compilers support this. E.g. don't use
+	guint32 i = somearray[2];
+use
+	guint32 i;
+	i = somearray[2];
+instead.
+
+Don't use zero-length arrays; not all compilers support them.  If an
+array would have no members, just leave it out.
+
+Don't declare variables in the middle of executable code; not all C
+compilers support that.  Variables should be declared outside a
+function, or at the beginning of a function or compound statement.
+
+Don't use anonymous unions; not all compilers support it. 
+Example:
+typedef struct foo {
+  guint32 foo;
+  union {
+    guint32 foo_l;
+    guint16 foo_s;
+  } u;  /* have a name here */
+} foo_t;
+
+Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
+"ulong", "u_long" or "boolean"; they aren't defined on all platforms.
+If you want an 8-bit unsigned quantity, use "guint8"; if you want an
+8-bit character value with the 8th bit not interpreted as a sign bit,
+use "guchar"; if you want a 16-bit unsigned quantity, use "guint16";
+if you want a 32-bit unsigned quantity, use "guint32"; and if you want
+an "int-sized" unsigned quantity, use "guint"; if you want a boolean,
+use "gboolean".  Use "%d", "%u", "%x", and "%o" to print those types;
+don't use "%ld", "%lu", "%lx", or "%lo", as longs are 64 bits long on
+many platforms, but "guint32" is 32 bits long.
+
+Don't use "long" to mean "signed 32-bit integer", and don't use
+"unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
+long on many platforms.  Use "gint32" for signed 32-bit integers and use
+"guint32" for unsigned 32-bit integers.
+
+Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
+long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
+many other platforms.  Don't use "long long" or "unsigned long long",
+either, as not all platforms support them; use "gint64" or "guint64",
+which will be defined as the appropriate types for 64-bit signed and
+unsigned integers.
+
+On LLP64 data model systems (notably 64-bit Windows), "int" and "long"
+are 32 bits while "size_t" and "ptrdiff_t" are 64 bits. This means that
+the following will generate a compiler warning:
+
+	int i;
+	i = strlen("hello, sailor");  /* Compiler warning */
+
+Normally, you'd just make "i" a size_t. However, many GLib and Wireshark
+functions won't accept a size_t on LLP64:
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+
+Try to use the appropriate data type when you can. When you can't, you
+will have to cast to a compatible data type, e.g.
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */
+
+or
+
+	gint i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+	
+	i = (gint) strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+
+See http://www.unix.org/version2/whatsnew/lp64_wp.html for more
+information on the sizes of common types in different data models.
+
+When printing or displaying the values of 64-bit integral data types,
+don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
+support "%ll" for printing 64-bit integral data types.  Instead, for
+GLib routines, and routines that use them, such as all the routines in
+Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
+
+    proto_tree_add_text(tree, tvb, offset, 8,
+			"Sequence Number: %" G_GINT64_MODIFIER "u",
+			sequence_number);
+
+When using standard C routines, such as printf and scanf, use
+PRId64, PRIu64, PRIx64, PRIX64, and PRIo64; for example:
+
+   printf("Sequence Number: %" PRIu64 "\n", sequence_number);
+
+When specifying an integral constant that doesn't fit in 32 bits, don't
+use "LL" at the end of the constant - not all compilers use "LL" for
+that.  Instead, put the constant in a call to the "G_GINT64_CONSTANT()"
+macro, e.g.
+
+	G_GINT64_CONSTANT(11644473600U)
+
+rather than
+
+	11644473600ULL
+
+Don't use a label without a statement following it.  For example,
+something such as
+
+	if (...) {
+
+		...
+
+	done:
+	}
+
+will not work with all compilers - you have to do
+
+	if (...) {
+
+		...
+
+	done:
+		;
+	}
+
+with some statement, even if it's a null statement, after the label.
+
+Don't use "bzero()", "bcopy()", or "bcmp()"; instead, use the ANSI C
+routines
+
+	"memset()" (with zero as the second argument, so that it sets
+	all the bytes to zero);
+
+	"memcpy()" or "memmove()" (note that the first and second
+	arguments to "memcpy()" are in the reverse order to the
+	arguments to "bcopy()"; note also that "bcopy()" is typically
+	guaranteed to work on overlapping memory regions, while
+	"memcpy()" isn't, so if you may be copying from one region to a
+	region that overlaps it, use "memmove()", not "memcpy()" - but
+	"memcpy()" might be faster as a result of not guaranteeing
+	correct operation on overlapping memory regions);
+
+	and "memcmp()" (note that "memcmp()" returns 0, 1, or -1, doing
+	an ordered comparison, rather than just returning 0 for "equal"
+	and 1 for "not equal", as "bcmp()" does).
+
+Not all platforms necessarily have "bzero()"/"bcopy()"/"bcmp()", and
+those that do might not declare them in the header file on which they're
+declared on your platform.
+
+Don't use "index()" or "rindex()"; instead, use the ANSI C equivalents,
+"strchr()" and "strrchr()".  Not all platforms necessarily have
+"index()" or "rindex()", and those that do might not declare them in the
+header file on which they're declared on your platform.
+
+Don't fetch data from packets by getting a pointer to data in the packet
+with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
+and dereferencing that pointer.  That pointer won't necessarily be aligned
+on the proper boundary, which can cause crashes on some platforms (even
+if it doesn't crash on an x86-based PC); furthermore, the data in a
+packet is not necessarily in the byte order of the machine on which
+Wireshark is running.  Use the tvbuff routines to extract individual
+items from the packet, or use "proto_tree_add_item()" and let it extract
+the items for you.
+
+Don't use structures that overlay packet data, or into which you copy
+packet data; the C programming language does not guarantee any
+particular alignment of fields within a structure, and even the
+extensions that try to guarantee that are compiler-specific and not
+necessarily supported by all compilers used to build Wireshark.  Using
+bitfields in those structures is even worse; the order of bitfields
+is not guaranteed.
+
+Don't use "ntohs()", "ntohl()", "htons()", or "htonl()"; the header
+files required to define or declare them differ between platforms, and
+you might be able to get away with not including the appropriate header
+file on your platform but that might not work on other platforms.
+Instead, use "g_ntohs()", "g_ntohl()", "g_htons()", and "g_htonl()";
+those are declared by <glib.h>, and you'll need to include that anyway,
+as Wireshark header files that all dissectors must include use stuff from
+<glib.h>.
+
+Don't fetch a little-endian value using "tvb_get_ntohs() or
+"tvb_get_ntohl()" and then using "g_ntohs()", "g_htons()", "g_ntohl()",
+or "g_htonl()" on the resulting value - the g_ routines in question
+convert between network byte order (big-endian) and *host* byte order,
+not *little-endian* byte order; not all machines on which Wireshark runs
+are little-endian, even though PCs are.  Fetch those values using
+"tvb_get_letohs()" and "tvb_get_letohl()".
+
+Don't put a comma after the last element of an enum - some compilers may
+either warn about it (producing extra noise) or refuse to accept it.
+
+Don't include <unistd.h> without protecting it with
+
+	#ifdef HAVE_UNISTD_H
+
+		...
+
+	#endif
+
+and, if you're including it to get routines such as "open()", "close()",
+"read()", and "write()" declared, also include <io.h> if present:
+
+	#ifdef HAVE_IO_H
+	#include <io.h>
+	#endif
+
+in order to declare the Windows C library routines "_open()",
+"_close()", "_read()", and "_write()".  Your file must include <glib.h>
+- which many of the Wireshark header files include, so you might not have
+to include it explicitly - in order to get "open()", "close()",
+"read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
+"_write()", etc..
+
+Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
+"fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
+"ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
+"ws_freopen()": these wrapper functions change the path and file name from
+UTF8 to UTF16 on Windows allowing the functions to work correctly when the
+path or file name contain non-ASCII characters.
+
+When opening a file with "ws_fopen()", "ws_freopen()", or "ws_fdopen()", if
+the file contains ASCII text, use "r", "w", "a", and so on as the open mode
+- but if it contains binary data, use "rb", "wb", and so on.  On
+Windows, if a file is opened in a text mode, writing a byte with the
+value of octal 12 (newline) to the file causes two bytes, one with the
+value octal 15 (carriage return) and one with the value octal 12, to be
+written to the file, and causes bytes with the value octal 15 to be
+discarded when reading the file (to translate between C's UNIX-style
+lines that end with newline and Windows' DEC-style lines that end with
+carriage return/line feed).
+
+In addition, that also means that when opening or creating a binary
+file, you must use "ws_open()" (with O_CREAT and possibly O_TRUNC if the
+file is to be created if it doesn't exist), and OR in the O_BINARY flag.
+That flag is not present on most, if not all, UNIX systems, so you must
+also do
+
+	#ifndef O_BINARY
+	#define O_BINARY	0
+	#endif
+
+to properly define it for UNIX (it's not necessary on UNIX).
+
+Don't use forward declarations of static arrays without a specified size
+in a fashion such as this:
+
+	static const value_string foo_vals[];
+
+		...
+
+	static const value_string foo_vals[] = {
+		{ 0,		"Red" },
+		{ 1,		"Green" },
+		{ 2,		"Blue" },
+		{ 0,		NULL }
+	};
+
+as some compilers will reject the first of those statements.  Instead,
+initialize the array at the point at which it's first declared, so that
+the size is known.
+
+Don't put a comma after the last tuple of an initializer of an array.
+
+For #define names and enum member names, prefix the names with a tag so
+as to avoid collisions with other names - this might be more of an issue
+on Windows, as it appears to #define names such as DELETE and
+OPTIONAL.
+
+Don't use the "numbered argument" feature that many UNIX printf's
+implement, e.g.:
+
+	g_snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);
+
+as not all UNIX printf's implement it, and Windows printf doesn't appear
+to implement it.  Use something like
+
+	g_snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);
+
+instead.
+
+Don't use "variadic macros", such as
+
+	#define DBG(format, args...)	fprintf(stderr, format, ## args)
+
+as not all C compilers support them.  Use macros that take a fixed
+number of arguments, such as
+
+	#define DBG0(format)		fprintf(stderr, format)
+	#define DBG1(format, arg1)	fprintf(stderr, format, arg1)
+	#define DBG2(format, arg1, arg2) fprintf(stderr, format, arg1, arg2)
+
+		...
+
+or something such as
+
+	#define DBG(args)		printf args
+
+Don't use
+
+	case N ... M:
+
+as that's not supported by all compilers.
+
+snprintf() -> g_snprintf()
+snprintf() is not available on all platforms, so it's a good idea to use the
+g_snprintf() function declared by <glib.h> instead.
+
+tmpnam() -> mkstemp()
+tmpnam is insecure and should not be used any more. Wireshark brings its
+own mkstemp implementation for use on platforms that lack mkstemp.
+Note: mkstemp does not accept NULL as a parameter.
+
+The pointer returned by a call to "tvb_get_ptr()" is not guaranteed to be
+aligned on any particular byte boundary; this means that you cannot
+safely cast it to any data type other than a pointer to "char",
+"unsigned char", "guint8", or other one-byte data types.  You cannot,
+for example, safely cast it to a pointer to a structure, and then access
+the structure members directly; on some systems, unaligned accesses to
+integral data types larger than 1 byte, and floating-point data types,
+cause a trap, which will, at best, result in the OS slowly performing an
+unaligned access for you, and will, on at least some platforms, cause
+the program to be terminated.
+
+Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer. 
+If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions 
+newer than 2.4/2.4 then use "#if GTK_CHECK_VERSION(...)" to conditionally
+compile code using that mechanism. 
+
+When different code must be used on UN*X and Win32, use a #if or #ifdef
+that tests _WIN32, not WIN32.  Try to write code portably whenever
+possible, however; note that there are some routines in Wireshark with
+platform-dependent implementations and platform-independent APIs, such
+as the routines in epan/filesystem.c, allowing the code that calls it to
+be written portably without #ifdefs.
+
+1.1.2 String handling
+
+Do not use functions such as strcat() or strcpy().
+A lot of work has been done to remove the existing calls to these functions and
+we do not want any new callers of these functions.
+
+Instead use g_snprintf() since that function will if used correctly prevent
+buffer overflows for large strings.
+
+When using a buffer to create a string, do not use a buffer stored on the stack.
+I.e. do not use a buffer declared as
+
+   char buffer[1024];
+
+instead allocate a buffer dynamically using the string-specific or plain emem
+routines (see README.malloc) such as
+
+   emem_strbuf_t *strbuf;
+   strbuf = ep_strbuf_new_label("");
+   ep_strbuf_append_printf(strbuf, ...
+
+or
+
+   char *buffer=NULL;
+   ...
+   #define MAX_BUFFER 1024
+   buffer=ep_alloc(MAX_BUFFER);
+   buffer[0]='\0';
+   ...
+   g_snprintf(buffer, MAX_BUFFER, ...
+
+This avoids the stack from being corrupted in case there is a bug in your code
+that accidentally writes beyond the end of the buffer.
+
+
+If you write a routine that will create and return a pointer to a filled in
+string and if that buffer will not be further processed or appended to after
+the routine returns (except being added to the proto tree),
+do not preallocate the buffer to fill in and pass as a parameter instead
+pass a pointer to a pointer to the function and return a pointer to an
+emem allocated buffer that will be automatically freed. (see README.malloc)
+
+I.e. do not write code such as
+  static void
+  foo_to_str(char *string, ... ){
+     <fill in string>
+  }
+  ...
+     char buffer[1024];
+     ...
+     foo_to_str(buffer, ...
+     proto_tree_add_text(... buffer ...
+
+instead write the code as
+  static void
+  foo_to_str(char **buffer, ...
+    #define MAX_BUFFER x
+    *buffer=ep_alloc(MAX_BUFFER);
+    <fill in *buffer>
+  }
+  ...
+    char *buffer;
+    ...
+    foo_to_str(&buffer, ...
+    proto_tree_add_text(... *buffer ...
+
+Use ep_ allocated buffers. They are very fast and nice. These buffers are all
+automatically free()d when the dissection of the current packet ends so you
+don't have to worry about free()ing them explicitly in order to not leak memory.
+Please read README.malloc.
+
+Don't use non-ASCII characters in source files; not all compiler
+environments will be using the same encoding for non-ASCII characters,
+and at least one compiler (Microsoft's Visual C) will, in environments
+with double-byte character encodings, such as many Asian environments,
+fail if it sees a byte sequence in a source file that doesn't correspond
+to a valid character.  This causes source files using either an ISO
+8859/n single-byte character encoding or UTF-8 to fail to compile.  Even
+if the compiler doesn't fail, there is no guarantee that the compiler,
+or a developer's text editor, will interpret the characters the way you
+intend them to be interpreted.
+
+1.1.3 Robustness.
+
+Wireshark is not guaranteed to read only network traces that contain correctly-
+formed packets. Wireshark is commonly used to track down networking
+problems, and the problems might be due to a buggy protocol implementation
+sending out bad packets.
+
+Therefore, protocol dissectors not only have to be able to handle
+correctly-formed packets without, for example, crashing or looping
+infinitely, they also have to be able to handle *incorrectly*-formed
+packets without crashing or looping infinitely.
+
+Here are some suggestions for making dissectors more robust in the face
+of incorrectly-formed packets:
+
+Do *NOT* use "g_assert()" or "g_assert_not_reached()" in dissectors.
+*NO* value in a packet's data should be considered "wrong" in the sense
+that it's a problem with the dissector if found; if it cannot do
+anything else with a particular value from a packet's data, the
+dissector should put into the protocol tree an indication that the
+value is invalid, and should return. You can use the DISSECTOR_ASSERT
+macro for that purpose.
+
+If you are allocating a chunk of memory to contain data from a packet,
+or to contain information derived from data in a packet, and the size of
+the chunk of memory is derived from a size field in the packet, make
+sure all the data is present in the packet before allocating the buffer.
+Doing so means that:
+
+	1) Wireshark won't leak that chunk of memory if an attempt to
+	   fetch data not present in the packet throws an exception.
+
+and
+
+	2) it won't crash trying to allocate an absurdly-large chunk of
+	   memory if the size field has a bogus large value.
+
+If you're fetching into such a chunk of memory a string from the buffer,
+and the string has a specified size, you can use "tvb_get_*_string()",
+which will check whether the entire string is present before allocating
+a buffer for the string, and will also put a trailing '\0' at the end of
+the buffer.
+
+If you're fetching into such a chunk of memory a 2-byte Unicode string
+from the buffer, and the string has a specified size, you can use
+"tvb_get_ephemeral_faked_unicode()", which will check whether the entire
+string is present before allocating a buffer for the string, and will also
+put a trailing '\0' at the end of the buffer.  The resulting string will be
+a sequence of single-byte characters; the only Unicode characters that
+will be handled correctly are those in the ASCII range.  (Wireshark's
+ability to handle non-ASCII strings is limited; it needs to be
+improved.)
+
+If you're fetching into such a chunk of memory a sequence of bytes from
+the buffer, and the sequence has a specified size, you can use
+"tvb_memdup()", which will check whether the entire sequence is present
+before allocating a buffer for it.
+
+Otherwise, you can check whether the data is present by using
+"tvb_ensure_bytes_exist()" or by getting a pointer to the data by using
+"tvb_get_ptr()", although note that there might be problems with using
+the pointer from "tvb_get_ptr()" (see the item on this in the
+Portability section above, and the next item below).
+
+Note also that you should only fetch string data into a fixed-length
+buffer if the code ensures that no more bytes than will fit into the
+buffer are fetched ("the protocol ensures" isn't good enough, as
+protocol specifications can't ensure only packets that conform to the
+specification will be transmitted or that only packets for the protocol
+in question will be interpreted as packets for that protocol by
+Wireshark).  If there's no maximum length of string data to be fetched,
+routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
+large enough to hold the string.  (Note that some variants of this call
+require you to free the string once you're finished with it.)
+
+If you have gotten a pointer using "tvb_get_ptr()", you must make sure
+that you do not refer to any data past the length passed as the last
+argument to "tvb_get_ptr()"; while the various "tvb_get" routines
+perform bounds checking and throw an exception if you refer to data not
+available in the tvbuff, direct references through a pointer gotten from
+"tvb_get_ptr()" do not do any bounds checking.
+
+If you have a loop that dissects a sequence of items, each of which has
+a length field, with the offset in the tvbuff advanced by the length of
+the item, then, if the length field is the total length of the item, and
+thus can be zero, you *MUST* check for a zero-length item and abort the
+loop if you see one.  Otherwise, a zero-length item could cause the
+dissector to loop infinitely.  You should also check that the offset,
+after having the length added to it, is greater than the offset before
+the length was added to it, if the length field is greater than 24 bits
+long, so that, if the length value is *very* large and adding it to the
+offset causes an overflow, that overflow is detected.
+
+If you are fetching a length field from the buffer, corresponding to the
+length of a portion of the packet, and subtracting from that length a
+value corresponding to the length of, for example, a header in the
+packet portion in question, *ALWAYS* check that the value of the length
+field is greater than or equal to the length you're subtracting from it,
+and report an error in the packet and stop dissecting the packet if it's
+less than the length you're subtracting from it.  Otherwise, the
+resulting length value will be negative, which will either cause errors
+in the dissector or routines called by the dissector, or, if the value
+is interpreted as an unsigned integer, will cause the value to be
+interpreted as a very large positive value.
+
+Any tvbuff offset that is added to as processing is done on a packet
+should be stored in a 32-bit variable, such as an "int"; if you store it
+in an 8-bit or 16-bit variable, you run the risk of the variable
+overflowing.
+
+sprintf() -> g_snprintf()
+Prevent yourself from using the sprintf() function, as it does not test the
+length of the given output buffer and might be writing into unintended memory
+areas. This function is one of the main causes of security problems like buffer
+exploits and many other bugs that are very hard to find. It's much better to
+use the g_snprintf() function declared by <glib.h> instead.
+
+You should test your dissector against incorrectly-formed packets.  This
+can be done using the randpkt and editcap utilities that come with the
+Wireshark distribution.  Testing using randpkt can be done by generating
+output at the same layer as your protocol, and forcing Wireshark/TShark
+to decode it as your protocol, e.g. if your protocol sits on top of UDP:
+
+    randpkt -c 50000 -t dns randpkt.pcap
+    tshark -nVr randpkt.pcap -d udp.port==53,<myproto>
+
+Testing using editcap can be done using preexisting capture files and the
+"-E" flag, which introduces errors in a capture file.  E.g.:
+
+    editcap -E 0.03 infile.pcap outfile.pcap
+    tshark -nVr outfile.pcap
+
+The script fuzz-test.sh is available to help automate these tests.
+
+1.1.4 Name convention.
+
+Wireshark uses the underscore_convention rather than the InterCapConvention for
+function names, so new code should probably use underscores rather than
+intercaps for functions and variable names. This is especially important if you
+are writing code that will be called from outside your code.  We are just
+trying to keep things consistent for other developers.
+
+1.1.5 White space convention.
+
+Avoid using tab expansions different from 8 column widths, as not all
+text editors in use by the developers support this. For a detailed
+discussion of tabs, spaces, and indentation, see
+
+    http://www.jwz.org/doc/tabs-vs-spaces.html
+
+When creating a new file, you are free to choose an indentation logic.
+Most of the files in Wireshark tend to use 2-space or 4-space
+indentation. You are encouraged to write a short comment on the
+indentation logic at the beginning of this new file, especially if
+you're using non-mod-8 tabs.  The tabs-vs-spaces document above provides
+examples of Emacs and vi modelines for this purpose.
+
+When editing an existing file, try following the existing indentation
+logic and even if it very tempting, never ever use a restyler/reindenter
+utility on an existing file.  If you run across wildly varying
+indentation styles within the same file, it might be helpful to send a
+note to wireshark-dev for guidance.
+
+1.1.6 Compiler warnings
+
+You should write code that is free of compiler warnings. Such warnings will
+often indicate questionable code and sometimes even real bugs, so it's best
+to avoid warnings at all.
+
+The compiler flags in the Makefiles are set to "treat warnings as errors",
+so your code won't even compile when warnings occur.
+
+1.2 Skeleton code.
+
+Wireshark requires certain things when setting up a protocol dissector.
+Below is skeleton code for a dissector that you can copy to a file and
+fill in.  Your dissector should follow the naming convention of packet-
+followed by the abbreviated name for the protocol.  It is recommended
+that where possible you keep to the IANA abbreviated name for the
+protocol, if there is one, or a commonly-used abbreviation for the
+protocol, if any.
+
+Usually, you will put your newly created dissector file into the directory
+epan/dissectors, just like all the other packet-....c files already in there.
+
+Also, please add your dissector file to the corresponding makefile,
+described in section "1.9 Editing Makefile.common to add your dissector" below.
+
+Dissectors that use the dissector registration to register with a lower level
+dissector don't need to define a prototype in the .h file. For other
+dissectors the main dissector routine should have a prototype in a header
+file whose name is "packet-", followed by the abbreviated name for the
+protocol, followed by ".h"; any dissector file that calls your dissector
+should be changed to include that file.
+
+You may not need to include all the headers listed in the skeleton
+below, and you may need to include additional headers.  For example, the
+code inside
+
+	#ifdef HAVE_LIBPCRE
+
+		...
+
+	#endif
+
+is needed only if you are using a function from libpcre, e.g. the
+"pcre_compile()" function.
+
+The "$Id$" in the comment will be updated by Subversion when the file is
+checked in.
+
+When creating a new file, it is fine to just write "$Id$" as Subversion will
+automatically fill in the identifier at the time the file will be added to the
+SVN repository (committed).
+
+------------------------------------Cut here------------------------------------
+/* packet-PROTOABBREV.c
+ * Routines for PROTONAME dissection
+ * Copyright 200x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
+ * is a dissector file; if you just copied this from README.developer,
+ * don't bother with the "Copied from" - you don't even need to put
+ * in a "Copied from" if you copied an existing dissector, especially
+ * if the bulk of the code in the new dissector is your code)
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ * USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <glib.h>
+
+#include <epan/packet.h>
+#include <epan/prefs.h>
+
+/* IF PROTO exposes code to other dissectors, then it must be exported
+   in a header file. If not, a header file is not needed at all. */
+#include "packet-PROTOABBREV.h"
+
+/* Forward declaration we need below (if using proto_reg_handoff...     
+   as a prefs callback)       */
+void proto_reg_handoff_PROTOABBREV(void);
+
+/* Initialize the protocol and registered fields */
+static int proto_PROTOABBREV = -1;
+static int hf_PROTOABBREV_FIELDABBREV = -1;
+
+/* Global sample preference ("controls" display of numbers) */
+static gboolean gPREF_HEX = FALSE;
+/* Global sample port pref */
+static guint gPORT_PREF = 1234;
+
+/* Initialize the subtree pointers */
+static gint ett_PROTOABBREV = -1;
+
+/* Code to actually dissect the packets */
+static int
+dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+/* Set up structures needed to add the protocol subtree and manage it */
+	proto_item *ti;
+	proto_tree *PROTOABBREV_tree;
+
+/*  First, if at all possible, do some heuristics to check if the packet cannot
+ *  possibly belong to your protocol.  This is especially important for
+ *  protocols directly on top of TCP or UDP where port collisions are
+ *  common place (e.g., even though your protocol uses a well known port,
+ *  someone else may set up, for example, a web server on that port which,
+ *  if someone analyzed that web server's traffic in Wireshark, would result
+ *  in Wireshark handing an HTTP packet to your dissector).  For example:
+ */
+	/* Check that there's enough data */
+	if (tvb_length(tvb) < /* your protocol's smallest packet size */)
+		return 0;
+
+	/* Get some values from the packet header, probably using tvb_get_*() */
+	if ( /* these values are not possible in PROTONAME */ )
+		/*  This packet does not appear to belong to PROTONAME.
+		 *  Return 0 to give another dissector a chance to dissect it.
+		 */
+		return 0;
+
+/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+
+/* This field shows up as the "Info" column in the display; you should use
+   it, if possible, to summarize what's in the packet, so that a user looking
+   at the list of packets can tell what type of packet it is. See section 1.5
+   for more information.
+
+   Before changing the contents of a column you should make sure the column is
+   active by calling "check_col(pinfo->cinfo, COL_*)". If it is not active
+   don't bother setting it.
+
+   If you are setting the column to a constant string, use "col_set_str()",
+   as it's more efficient than the other "col_set_XXX()" calls.
+
+   If you're setting it to a string you've constructed, or will be
+   appending to the column later, use "col_add_str()".
+
+   "col_add_fstr()" can be used instead of "col_add_str()"; it takes
+   "printf()"-like arguments.  Don't use "col_add_fstr()" with a format
+   string of "%s" - just use "col_add_str()" or "col_set_str()", as it's
+   more efficient than "col_add_fstr()".
+
+   If you will be fetching any data from the packet before filling in
+   the Info column, clear that column first, in case the calls to fetch
+   data from the packet throw an exception because they're fetching data
+   past the end of the packet, so that the Info column doesn't have data
+   left over from the previous dissector; do
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+   */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
+
+/* A protocol dissector can be called in 2 different ways:
+
+	(a) Operational dissection
+
+		In this mode, Wireshark is only interested in the way protocols
+		interact, protocol conversations are created, packets are
+		reassembled and handed over to higher-level protocol dissectors.
+		In this mode Wireshark does not build a so-called "protocol
+		tree".
+
+	(b) Detailed dissection
+
+		In this mode, Wireshark is also interested in all details of
+		a given protocol, so a "protocol tree" is created.
+
+   Wireshark distinguishes between the 2 modes with the proto_tree pointer:
+	(a) <=> tree == NULL
+	(b) <=> tree != NULL
+
+   In the interest of speed, if "tree" is NULL, avoid building a
+   protocol tree and adding stuff to it, or even looking at any packet
+   data needed only if you're building the protocol tree, if possible.
+
+   Note, however, that you must fill in column information, create
+   conversations, reassemble packets, build any other persistent state
+   needed for dissection, and call subdissectors regardless of whether
+   "tree" is NULL or not.  This might be inconvenient to do without
+   doing most of the dissection work; the routines for adding items to
+   the protocol tree can be passed a null protocol tree pointer, in
+   which case they'll return a null item pointer, and
+   "proto_item_add_subtree()" returns a null tree pointer if passed a
+   null item pointer, so, if you're careful not to dereference any null
+   tree or item pointers, you can accomplish this by doing all the
+   dissection work.  This might not be as efficient as skipping that
+   work if you're not building a protocol tree, but if the code would
+   have a lot of tests whether "tree" is null if you skipped that work,
+   you might still be better off just doing all that work regardless of
+   whether "tree" is null or not. */
+	if (tree) {
+
+/* NOTE: The offset and length values in the call to
+   "proto_tree_add_item()" define what data bytes to highlight in the hex
+   display window when the line in the protocol tree display
+   corresponding to that item is selected.
+
+   Supplying a length of -1 is the way to highlight all data from the
+   offset to the end of the packet. */
+
+/* create display subtree for the protocol */
+		ti = proto_tree_add_item(tree, proto_PROTOABBREV, tvb, 0, -1, FALSE);
+
+		PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
+
+/* add an item to the subtree, see section 1.6 for more information */
+		proto_tree_add_item(PROTOABBREV_tree,
+		    hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, FALSE);
+
+
+/* Continue adding tree items to process the packet here */
+
+
+	}
+
+/* If this protocol has a sub-dissector call it here, see section 1.8 */
+
+/* Return the amount of data this dissector was able to dissect */
+	return tvb_length(tvb);
+}
+
+
+/* Register the protocol with Wireshark */
+
+/* this format is require because a script is used to build the C function
+   that calls all the protocol registration.
+*/
+
+void
+proto_register_PROTOABBREV(void)
+{
+	module_t *PROTOABBREV_module;
+
+/* Setup list of header fields  See Section 1.6.1 for details*/
+	static hf_register_info hf[] = {
+		{ &hf_PROTOABBREV_FIELDABBREV,
+			{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
+			FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,
+			"FIELDDESCR", HFILL }
+		}
+	};
+
+/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_PROTOABBREV
+	};
+
+/* Register the protocol name and description */
+	proto_PROTOABBREV = proto_register_protocol("PROTONAME",
+	    "PROTOSHORTNAME", "PROTOABBREV");
+
+/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+/* Register preferences module (See Section 2.6 for more on preferences) */
+/* (Registration of a prefs callback is not required if there are no     */
+/*  prefs-dependent registration functions (eg: a port pref).            */
+/*  See proto_reg_handoff below.                                         */
+/*  If a prefs callback is not needed, use NULL instead of               */
+/*  proto_reg_handoff_PROTOABBREV in the following).                     */
+	PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV,
+	    proto_reg_handoff_PROTOABBREV);
+
+/* Register a sample preference */
+	prefs_register_bool_preference(PROTOABBREV_module, "show_hex",
+	     "Display numbers in Hex",
+	     "Enable to display numerical values in hexadecimal.",
+	     &gPREF_HEX);
+}
+/* Register a sample port preference   */
+	prefs_register_uint_preference(PROTOABBREV_module, "tcp.port", "PROTOABBREV TCP Port",
+	     " PROTOABBREV TCP port if other than the default",
+	     10, &gPORT_PREF);
+
+/* If this dissector uses sub-dissector registration add a registration routine.
+   This exact format is required because a script is used to find these
+   routines and create the code that calls these routines.
+
+   If this function is registered as a prefs callback (see prefs_register_protocol 
+   above) this function is also called by preferences whenever "Apply" is pressed;
+   In that case, it should accommodate being called more than once.
+
+   This form of the reg_handoff function is used if if you perform 
+   registration functions which are dependent upon prefs. See below
+   for a simpler form  which can be used if there are no
+   prefs-dependent registration functions.
+*/
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+	static gboolean initialized = FALSE;
+        static dissector_handle_t PROTOABBREV_handle;
+        static int currentPort;
+
+	if (!initialized) {
+
+/*  Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
+ *  returns the number of bytes it dissected (or 0 if it thinks the packet
+ *  does not belong to PROTONAME).
+ */
+		PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+								 proto_PROTOABBREV);
+		dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+
+		initialized = TRUE;
+	} else {
+
+ 		/*
+		  If you perform registration functions which are dependent upon
+		  prefs the you should de-register everything which was associated
+		  with the previous settings and re-register using the new prefs
+		  settings here. In general this means you need to keep track of 
+		  the PROTOABBREV_handle and the value the preference had at the time 
+		  you registered.  The PROTOABBREV_handle value and the value of the
+		  preference can be saved using local statics in this 
+		  function (proto_reg_handoff).
+		*/
+
+		dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
+	}
+
+	currentPort = gPORT_PREF;
+
+	dissector_add("tcp.port", currentPort, PROTOABBREV_handle);
+
+}
+
+#if 0
+/* Simple form of proto_reg_handoff_PROTOABBREV which can be used if there are
+   no prefs-dependent registration function calls.
+ */
+
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+	dissector_handle_t PROTOABBREV_handle;
+
+/*  Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
+ *  returns the number of bytes it dissected (or 0 if it thinks the packet
+ *  does not belong to PROTONAME).
+ */
+	PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+							 proto_PROTOABBREV);
+	dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+}
+#endif
+
+
+------------------------------------Cut here------------------------------------
+
+1.3 Explanation of needed substitutions in code skeleton.
+
+In the above code block the following strings should be substituted with
+your information.
+
+YOUR_NAME	Your name, of course.  You do want credit, don't you?
+		It's the only payment you will receive....
+YOUR_EMAIL_ADDRESS	Keep those cards and letters coming.
+WHATEVER_FILE_YOU_USED	Add this line if you are using another file as a
+		starting point.
+PROTONAME	The name of the protocol; this is displayed in the
+		top-level protocol tree item for that protocol.
+PROTOSHORTNAME	An abbreviated name for the protocol; this is displayed
+		in the "Preferences" dialog box if your dissector has
+		any preferences, in the dialog box of enabled protocols,
+		and in the dialog box for filter fields when constructing
+		a filter expression.
+PROTOABBREV	A name for the protocol for use in filter expressions;
+		it shall contain only lower-case letters, digits, and
+		hyphens.
+FIELDNAME	The displayed name for the header field.
+FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
+FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
+		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
+		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
+		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC,
+		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
+		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
+FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
+		BASE_HEX_DEC, BASE_RANGE_STRING, BASE_CUSTOM
+FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
+BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
+FIELDDESCR	A brief description of the field, or NULL.
+PARENT_SUBFIELD	Lower level protocol field used for lookup, i.e. "tcp.port"
+ID_VALUE	Lower level protocol field value that identifies this protocol
+		For example the TCP or UDP port number
+
+If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
+PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp".  Try to
+conform with IANA names.
+
+1.4 The dissector and the data it receives.
+
+
+1.4.1 Header file.
+
+This is only needed if the dissector doesn't use self-registration to
+register itself with the lower level dissector, or if the protocol dissector
+wants/needs to expose code to other subdissectors.
+
+The dissector must be declared exactly as follows in the file
+packet-PROTOABBREV.h:
+
+int
+dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+
+1.4.2 Extracting data from packets.
+
+NOTE: See the file /epan/tvbuff.h for more details.
+
+The "tvb" argument to a dissector points to a buffer containing the raw
+data to be analyzed by the dissector; for example, for a protocol
+running atop UDP, it contains the UDP payload (but not the UDP header,
+or any protocol headers above it).  A tvbuffer is an opaque data
+structure, the internal data structures are hidden and the data must be
+accessed via the tvbuffer accessors.
+
+The accessors are:
+
+Bit accessors for a maximum of 8-bits, 16-bits 32-bits and 64-bits:
+
+guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits);
+guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+
+Single-byte accessor:
+
+guint8  tvb_get_guint8(tvbuff_t*, gint offset);
+
+Network-to-host-order accessors for 16-bit integers (guint16), 24-bit
+integers, 32-bit integers (guint32), and 64-bit integers (guint64):
+
+guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
+guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
+guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+guint64 tvb_get_ntoh64(tvbuff_t*, gint offset);
+
+Network-to-host-order accessors for single-precision and
+double-precision IEEE floating-point numbers:
+
+gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
+
+Little-Endian-to-host-order accessors for 16-bit integers (guint16),
+24-bit integers, 32-bit integers (guint32), and 64-bit integers
+(guint64):
+
+guint16 tvb_get_letohs(tvbuff_t*, gint offset);
+guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
+guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
+
+Little-Endian-to-host-order accessors for single-precision and
+double-precision IEEE floating-point numbers:
+
+gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
+gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
+
+Accessors for IPv4 and IPv6 addresses:
+
+guint32 tvb_get_ipv4(tvbuff_t*, gint offset);
+void tvb_get_ipv6(tvbuff_t*, gint offset, struct e_in6_addr *addr);
+
+NOTE: IPv4 addresses are not to be converted to host byte order before
+being passed to "proto_tree_add_ipv4()".  You should use "tvb_get_ipv4()"
+to fetch them, not "tvb_get_ntohl()" *OR* "tvb_get_letohl()" - don't,
+for example, try to use "tvb_get_ntohl()", find that it gives you the
+wrong answer on the PC on which you're doing development, and try
+"tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
+answer on big-endian machines.
+
+Accessors for GUID:
+
+void tvb_get_ntohguid(tvbuff_t *, gint offset, e_guid_t *guid);
+void tvb_get_letohguid(tvbuff_t *, gint offset, e_guid_t *guid);
+
+String accessors:
+
+guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_ephemeral_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_seasonal_string(tvbuff_t*, gint offset, gint length);
+
+Returns a null-terminated buffer containing data from the specified
+tvbuff, starting at the specified offset, and containing the specified
+length worth of characters (the length of the buffer will be length+1,
+as it includes a null character to terminate the string).
+
+tvb_get_string() returns a buffer allocated by g_malloc() so you must
+g_free() it when you are finished with the string. Failure to g_free() this
+buffer will lead to memory leaks.
+
+tvb_get_ephemeral_string() returns a buffer allocated from a special heap
+with a lifetime until the next packet is dissected. You do not need to
+free() this buffer, it will happen automatically once the next packet is
+dissected.
+
+tvb_get_seasonal_string() returns a buffer allocated from a special heap
+with a lifetime of the current capture session. You do not need to
+free() this buffer, it will happen automatically once the a new capture or
+file is opened.
+
+guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+
+Returns a null-terminated buffer, allocated with "g_malloc()",
+containing data from the specified tvbuff, starting at the
+specified offset, and containing all characters from the tvbuff up to
+and including a terminating null character in the tvbuff.  "*lengthp"
+will be set to the length of the string, including the terminating null.
+
+tvb_get_stringz() returns a buffer allocated by g_malloc() so you must
+g_free() it when you are finished with the string. Failure to g_free() this
+buffer will lead to memory leaks.
+tvb_get_ephemeral_stringz() returns a buffer allocated from a special heap
+with a lifetime until the next packet is dissected. You do not need to
+free() this buffer, it will happen automatically once the next packet is
+dissected.
+
+tvb_get_seasonal_stringz() returns a buffer allocated from a special heap
+with a lifetime of the current capture session. You do not need to
+free() this buffer, it will happen automatically once the a new capture or
+file is opened.
+
+guint8 *tvb_fake_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);
+guint8 *tvb_get_ephemeral_faked_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);
+
+Converts a 2-byte unicode string to an ASCII string.
+Returns a null-terminated buffer containing data from the specified
+tvbuff, starting at the specified offset, and containing the specified
+length worth of characters (the length of the buffer will be length+1,
+as it includes a null character to terminate the string).
+
+tvb_fake_unicode() returns a buffer allocated by g_malloc() so you must
+g_free() it when you are finished with the string. Failure to g_free() this
+buffer will lead to memory leaks.
+tvb_get_ephemeral_faked_unicode() returns a buffer allocated from a special
+heap with a lifetime until the next packet is dissected. You do not need to
+free() this buffer, it will happen automatically once the next packet is
+dissected.
+
+Byte Array Accessors:
+
+gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
+
+Formats a bunch of data from a tvbuff as bytes, returning a pointer
+to the string with the data formatted as two hex digits for each byte. 
+The string pointed to is stored in an "ep_alloc'd" buffer which will be freed
+before the next frame is dissected. The formatted string will contain the hex digits
+for at most the first 16 bytes of the data. If len is greater than 16 bytes, a 
+trailing "..." will be added to the string.
+
+gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct);
+
+This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
+between the hex representation of each byte. 
+
+
+Copying memory:
+guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+
+Copies into the specified target the specified length's worth of data
+from the specified tvbuff, starting at the specified offset.
+
+guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
+guint8* ep_tvb_memdup(tvbuff_t*, gint offset, gint length);
+
+Returns a buffer, allocated with "g_malloc()", containing the specified
+length's worth of data from the specified tvbuff, starting at the
+specified offset. The ephemeral variant is freed automatically after the
+packet is dissected.
+
+Pointer-retrieval:
+/* WARNING! This function is possibly expensive, temporarily allocating
+ * another copy of the packet data. Furthermore, it's dangerous because once
+ * this pointer is given to the user, there's no guarantee that the user will
+ * honor the 'length' and not overstep the boundaries of the buffer.
+ */
+guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
+
+The reason that tvb_get_ptr() might have to allocate a copy of its data
+only occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers.
+If the user requests a pointer to a range of bytes that span the member
+tvbuffs that make up the TVBUFF_COMPOSITE, the data will have to be
+copied to another memory region to assure that all the bytes are
+contiguous.
+
+
+
+1.5 Functions to handle columns in the traffic summary window.
+
+The topmost pane of the main window is a list of the packets in the
+capture, possibly filtered by a display filter.
+
+Each line corresponds to a packet, and has one or more columns, as
+configured by the user.
+
+Many of the columns are handled by code outside individual dissectors;
+most dissectors need only specify the value to put in the "Protocol" and
+"Info" columns.
+
+Columns are specified by COL_ values; the COL_ value for the "Protocol"
+field, typically giving an abbreviated name for the protocol (but not
+the all-lower-case abbreviation used elsewhere) is COL_PROTOCOL, and the
+COL_ value for the "Info" field, giving a summary of the contents of the
+packet for that protocol, is COL_INFO.
+
+A value for a column should only be added if the user specified that it
+be displayed; to check whether a given column is to be displayed, call
+'check_col' with the COL_ value for that field as an argument - it will
+return TRUE if the column is to be displayed and FALSE if it is not to
+be displayed.
+
+The value for a column can be specified with one of several functions,
+all of which take the 'fd' argument to the dissector as their first
+argument, and the COL_ value for the column as their second argument.
+
+1.5.1 The col_set_str function.
+
+'col_set_str' takes a string as its third argument, and sets the value
+for the column to that value.  It assumes that the pointer passed to it
+points to a string constant or a static "const" array, not to a
+variable, as it doesn't copy the string, it merely saves the pointer
+value; the argument can itself be a variable, as long as it always
+points to a string constant or a static "const" array.
+
+It is more efficient than 'col_add_str' or 'col_add_fstr'; however, if
+the dissector will be using 'col_append_str' or 'col_append_fstr" to
+append more information to the column, the string will have to be copied
+anyway, so it's best to use 'col_add_str' rather than 'col_set_str' in
+that case.
+
+For example, to set the "Protocol" column
+to "PROTOABBREV":
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+
+
+1.5.2 The col_add_str function.
+
+'col_add_str' takes a string as its third argument, and sets the value
+for the column to that value.  It takes the same arguments as
+'col_set_str', but copies the string, so that if the string is, for
+example, an automatic variable that won't remain in scope when the
+dissector returns, it's safe to use.
+
+
+1.5.3 The col_add_fstr function.
+
+'col_add_fstr' takes a 'printf'-style format string as its third
+argument, and 'printf'-style arguments corresponding to '%' format
+items in that string as its subsequent arguments.  For example, to set
+the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
+string containing the type of the request in the packet and "n" is an
+unsigned integer containing the number of bytes in the request:
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s request, %u bytes",
+			reqtype, n);
+
+Don't use 'col_add_fstr' with a format argument of just "%s" -
+'col_add_str', or possibly even 'col_set_str' if the string that matches
+the "%s" is a static constant string, will do the same job more
+efficiently.
+
+
+1.5.4 The col_clear function.
+
+If the Info column will be filled with information from the packet, that
+means that some data will be fetched from the packet before the Info
+column is filled in.  If the packet is so small that the data in
+question cannot be fetched, the routines to fetch the data will throw an
+exception (see the comment at the beginning about tvbuffers improving
+the handling of short packets - the tvbuffers keep track of how much
+data is in the packet, and throw an exception on an attempt to fetch
+data past the end of the packet, so that the dissector won't process
+bogus data), causing the Info column not to be filled in.
+
+This means that the Info column will have data for the previous
+protocol, which would be confusing if, for example, the Protocol column
+had data for this protocol.
+
+Therefore, before a dissector fetches any data whatsoever from the
+packet (unless it's a heuristic dissector fetching data to determine
+whether the packet is one that it should dissect, in which case it
+should check, before fetching the data, whether there's any data to
+fetch; if there isn't, it should return FALSE), it should set the
+Protocol column and the Info column.
+
+If the Protocol column will ultimately be set to, for example, a value
+containing a protocol version number, with the version number being a
+field in the packet, the dissector should, before fetching the version
+number field or any other field from the packet, set it to a value
+without a version number, using 'col_set_str', and should later set it
+to a value with the version number after it's fetched the version
+number.
+
+If the Info column will ultimately be set to a value containing
+information from the packet, the dissector should, before fetching any
+fields from the packet, clear the column using 'col_clear' (which is
+more efficient than clearing it by calling 'col_set_str' or
+'col_add_str' with a null string), and should later set it to the real
+string after it's fetched the data to use when doing that.
+
+
+1.5.5 The col_append_str function.
+
+Sometimes the value of a column, especially the "Info" column, can't be
+conveniently constructed at a single point in the dissection process;
+for example, it might contain small bits of information from many of the
+fields in the packet.  'col_append_str' takes, as arguments, the same
+arguments as 'col_add_str', but the string is appended to the end of the
+current value for the column, rather than replacing the value for that
+column.  (Note that no blank separates the appended string from the
+string to which it is appended; if you want a blank there, you must add
+it yourself as part of the string being appended.)
+
+
+1.5.6 The col_append_fstr function.
+
+'col_append_fstr' is to 'col_add_fstr' as 'col_append_str' is to
+'col_add_str' - it takes, as arguments, the same arguments as
+'col_add_fstr', but the formatted string is appended to the end of the
+current value for the column, rather than replacing the value for that
+column.
+
+1.5.7 The col_append_sep_str and col_append_sep_fstr functions.
+
+In specific situations the developer knows that a column's value will be
+created in a stepwise manner, where the appended values are listed. Both
+'col_append_sep_str' and 'col_append_sep_fstr' functions will add an item
+separator between two consecutive items, and will not add the separator at the
+beginning of the column. The remainder of the work both functions do is
+identical to what 'col_append_str' and 'col_append_fstr' do.
+
+1.5.8 The col_set_fence and col_prepend_fence_fstr functions.
+
+Sometimes a dissector may be called multiple times for different PDUs in the
+same frame (for example in the case of SCTP chunk bundling: several upper
+layer data packets may be contained in one SCTP packet).  If the upper layer
+dissector calls 'col_set_str()' or 'col_clear()' on the Info column when it
+begins dissecting each of those PDUs then when the frame is fully dissected
+the Info column would contain only the string from the last PDU in the frame.
+The 'col_set_fence' function erects a "fence" in the column that prevents
+subsequent 'col_...' calls from clearing the data currently in that column.
+For example, the SCTP dissector calls 'col_set_fence' on the Info column
+after it has called any subdissectors for that chunk so that subdissectors
+of any subsequent chunks may only append to the Info column.
+'col_prepend_fence_fstr' prepends data before a fence (moving it if
+necessary).  It will create a fence at the end of the prepended data if the
+fence does not already exist.
+
+
+1.5.9 The col_set_time function.
+
+The 'col_set_time' function takes an nstime value as its third argument.
+This nstime value is a relative value and will be added as such to the
+column. The fourth argument is the filtername holding this value. This
+way, rightclicking on the column makes it possible to build a filter
+based on the time-value.
+
+For example:
+
+if (check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
+  nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+  col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
+}
+
+
+1.6 Constructing the protocol tree.
+
+The middle pane of the main window, and the topmost pane of a packet
+popup window, are constructed from the "protocol tree" for a packet.
+
+The protocol tree, or proto_tree, is a GNode, the N-way tree structure
+available within GLIB. Of course the protocol dissectors don't care
+what a proto_tree really is; they just pass the proto_tree pointer as an
+argument to the routines which allow them to add items and new branches
+to the tree.
+
+When a packet is selected in the packet-list pane, or a packet popup
+window is created, a new logical protocol tree (proto_tree) is created.
+The pointer to the proto_tree (in this case, 'protocol tree'), is passed
+to the top-level protocol dissector, and then to all subsequent protocol
+dissectors for that packet, and then the GUI tree is drawn via
+proto_tree_draw().
+
+The logical proto_tree needs to know detailed information about the protocols
+and fields about which information will be collected from the dissection
+routines. By strictly defining (or "typing") the data that can be attached to a
+proto tree, searching and filtering becomes possible.  This means that for
+every protocol and field (which I also call "header fields", since they are
+fields in the protocol headers) which might be attached to a tree, some
+information is needed.
+
+Every dissector routine will need to register its protocols and fields
+with the central protocol routines (in proto.c). At first I thought I
+might keep all the protocol and field information about all the
+dissectors in one file, but decentralization seemed like a better idea.
+That one file would have gotten very large; one small change would have
+required a re-compilation of the entire file. Also, by allowing
+registration of protocols and fields at run-time, loadable modules of
+protocol dissectors (perhaps even user-supplied) is feasible.
+
+To do this, each protocol should have a register routine, which will be
+called when Wireshark starts.  The code to call the register routines is
+generated automatically; to arrange that a protocol's register routine
+be called at startup:
+
+	the file containing a dissector's "register" routine must be
+	added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common";
+
+	the "register" routine must have a name of the form
+	"proto_register_XXX";
+
+	the "register" routine must take no argument, and return no
+	value;
+
+	the "register" routine's name must appear in the source file
+	either at the beginning of the line, or preceded only by "void "
+	at the beginning of the line (that would typically be the
+	definition) - other white space shouldn't cause a problem, e.g.:
+
+void proto_register_XXX(void) {
+
+	...
+
+}
+
+and
+
+void
+proto_register_XXX( void )
+{
+
+	...
+
+}
+
+	and so on should work.
+
+For every protocol or field that a dissector wants to register, a variable of
+type int needs to be used to keep track of the protocol. The IDs are
+needed for establishing parent/child relationships between protocols and
+fields, as well as associating data with a particular field so that it
+can be stored in the logical tree and displayed in the GUI protocol
+tree.
+
+Some dissectors will need to create branches within their tree to help
+organize header fields. These branches should be registered as header
+fields. Only true protocols should be registered as protocols. This is
+so that a display filter user interface knows how to distinguish
+protocols from fields.
+
+A protocol is registered with the name of the protocol and its
+abbreviation.
+
+Here is how the frame "protocol" is registered.
+
+        int proto_frame;
+
+        proto_frame = proto_register_protocol (
+                /* name */            "Frame",
+                /* short name */      "Frame",
+                /* abbrev */          "frame" );
+
+A header field is also registered with its name and abbreviation, but
+information about its data type is needed. It helps to look at
+the header_field_info struct to see what information is expected:
+
+struct header_field_info {
+	const char			*name;
+	const char			*abbrev;
+	enum ftenum			type;
+	int				display;
+	const void			*strings;
+	guint32				bitmask;
+	const char			*blurb;
+	.....
+};
+
+name
+----
+A string representing the name of the field. This is the name
+that will appear in the graphical protocol tree.  It must be a non-empty
+string.
+
+abbrev
+------
+A string with an abbreviation of the field. We concatenate the
+abbreviation of the parent protocol with an abbreviation for the field,
+using a period as a separator. For example, the "src" field in an IP packet
+would have "ip.src" as an abbreviation. It is acceptable to have
+multiple levels of periods if, for example, you have fields in your
+protocol that are then subdivided into subfields. For example, TRMAC
+has multiple error fields, so the abbreviations follow this pattern:
+"trmac.errors.iso", "trmac.errors.noniso", etc.
+
+The abbreviation is the identifier used in a display filter.  If it is
+an empty string then the field will not be filterable.
+
+type
+----
+The type of value this field holds. The current field types are:
+
+	FT_NONE			No field type. Used for fields that
+				aren't given a value, and that can only
+				be tested for presence or absence; a
+				field that represents a data structure,
+				with a subtree below it containing
+				fields for the members of the structure,
+				or that represents an array with a
+				subtree below it containing fields for
+				the members of the array, might be an
+				FT_NONE field.
+	FT_PROTOCOL		Used for protocols which will be placing
+				themselves as top-level items in the
+				"Packet Details" pane of the UI.
+	FT_BOOLEAN		0 means "false", any other value means
+				"true".
+	FT_FRAMENUM		A frame number; if this is used, the "Go
+				To Corresponding Frame" menu item can
+				work on that field.
+	FT_UINT8		An 8-bit unsigned integer.
+	FT_UINT16		A 16-bit unsigned integer.
+	FT_UINT24		A 24-bit unsigned integer.
+	FT_UINT32		A 32-bit unsigned integer.
+	FT_UINT64		A 64-bit unsigned integer.
+	FT_INT8			An 8-bit signed integer.
+	FT_INT16		A 16-bit signed integer.
+	FT_INT24		A 24-bit signed integer.
+	FT_INT32		A 32-bit signed integer.
+	FT_INT64		A 64-bit signed integer.
+	FT_FLOAT		A single-precision floating point number.
+	FT_DOUBLE		A double-precision floating point number.
+	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
+				of time displayed as month name, month day,
+				year, hours, minutes, and seconds with 9
+				digits after the decimal point.
+	FT_RELATIVE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
+				of time displayed as seconds and 9 digits
+				after the decimal point.
+	FT_STRING		A string of characters, not necessarily
+				NUL-terminated, but possibly NUL-padded.
+				This, and the other string-of-characters
+				types, are to be used for text strings,
+				not raw binary data.
+	FT_STRINGZ		A NUL-terminated string of characters.
+	FT_EBCDIC		A string of characters, not necessarily
+				NUL-terminated, but possibly NUL-padded.
+				The data from the packet is converted from
+				EBCDIC to ASCII before displaying to the user.
+	FT_UINT_STRING		A counted string of characters, consisting
+				of a count (represented as an integral value,
+				of width given in the proto_tree_add_item()
+				call) followed immediately by that number of
+				characters.
+	FT_ETHER		A six octet string displayed in
+				Ethernet-address format.
+	FT_BYTES		A string of bytes with arbitrary values;
+				used for raw binary data.
+	FT_UINT_BYTES		A counted string of bytes, consisting
+				of a count (represented as an integral value,
+				of width given in the proto_tree_add_item()
+				call) followed immediately by that number of
+				arbitrary values; used for raw binary data.
+	FT_IPv4			A version 4 IP address (4 bytes) displayed
+				in dotted-quad IP address format (4
+				decimal numbers separated by dots).
+	FT_IPv6			A version 6 IP address (16 bytes) displayed
+				in standard IPv6 address format.
+	FT_IPXNET		An IPX address displayed in hex as a 6-byte
+				network number followed by a 6-byte station
+				address.
+	FT_GUID			A Globally Unique Identifier
+	FT_OID			An ASN.1 Object Identifier
+
+Some of these field types are still not handled in the display filter
+routines, but the most common ones are. The FT_UINT* variables all
+represent unsigned integers, and the FT_INT* variables all represent
+signed integers; the number on the end represent how many bits are used
+to represent the number.
+
+display
+-------
+The display field has a couple of overloaded uses. This is unfortunate,
+but since we're using C as an application programming language, this sometimes
+makes for cleaner programs. Right now I still think that overloading
+this variable was okay.
+
+For integer fields (FT_UINT* and FT_INT*), this variable represents the
+base in which you would like the value displayed.  The acceptable bases
+are:
+
+	BASE_DEC,
+	BASE_HEX,
+	BASE_OCT,
+	BASE_DEC_HEX,
+	BASE_HEX_DEC,
+	BASE_CUSTOM
+
+BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
+respectively. BASE_DEC_HEX and BASE_HEX_DEC display value in two bases
+(the 1st representation followed by the 2nd in parenthesis).
+
+BASE_CUSTOM allows one to specify a callback function pointer that will
+format the value. The function pointer of the same type as defined by
+custom_fmt_func_t in epan/proto.h, specifically:
+
+  void func(gchar *, guint32);
+
+The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
+and the second argument is the value to be formatted.
+
+For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
+the proto_tree how wide the parent bitfield is.  With integers this is
+not needed since the type of integer itself (FT_UINT8, FT_UINT16,
+FT_UINT24, FT_UINT32, etc.) tells the proto_tree how wide the parent
+bitfield is.
+
+Additionally, BASE_NONE is used for 'display' as a NULL-value. That is,
+for non-integers and non-bitfield FT_BOOLEANs, you'll want to use BASE_NONE
+in the 'display' field.  You may not use BASE_NONE for integers.
+
+It is possible that in the future we will record the endianness of
+integers. If so, it is likely that we'll use a bitmask on the display field
+so that integers would be represented as BEND|BASE_DEC or LEND|BASE_HEX.
+But that has not happened yet.
+
+strings
+-------
+Some integer fields, of type FT_UINT*, need labels to represent the true
+value of a field.  You could think of those fields as having an
+enumerated data type, rather than an integral data type.
+
+A 'value_string' structure is a way to map values to strings.
+
+	typedef struct _value_string {
+		guint32  value;
+		gchar   *strptr;
+	} value_string;
+
+For fields of that type, you would declare an array of "value_string"s:
+
+	static const value_string valstringname[] = {
+		{ INTVAL1, "Descriptive String 1" },
+		{ INTVAL2, "Descriptive String 2" },
+		{ 0,       NULL }
+	};
+
+(the last entry in the array must have a NULL 'strptr' value, to
+indicate the end of the array).  The 'strings' field would be set to
+'VALS(valstringname)'.
+
+If the field has a numeric rather than an enumerated type, the 'strings'
+field would be set to NULL.
+
+If the field has a numeric type that might logically fit in ranges of values
+one can use a range_string struct.
+
+Thus a 'range_string' structure is a way to map ranges to strings.
+
+        typedef struct _range_string {
+                guint32        value_min;
+                guint32        value_max;
+                const gchar   *strptr;
+        } range_string;
+
+For fields of that type, you would declare an array of "range_string"s:
+
+	static const range_string rvalstringname[] = {
+		{ INTVAL_MIN1, INTVALMAX1, "Descriptive String 1" },
+		{ INTVAL_MIN2, INTVALMAX2, "Descriptive String 2" },
+		{ 0,           0,          NULL                   }
+	};
+
+If INTVAL_MIN equals INTVAL_MAX for a given entry the range_string
+behavior collapses to the one of value_string.
+For FT_(U)INT* fields that need a 'range_string' struct, the 'strings' field
+would be set to 'RVALS(rvalstringname)'. Furthermore, 'display' field must be
+ORed with 'BASE_RANGE_STRING' (e.g. BASE_DEC|BASE_RANGE_STRING).
+
+FT_BOOLEANs have a default map of 0 = "False", 1 (or anything else) = "True".
+Sometimes it is useful to change the labels for boolean values (e.g.,
+to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
+true_false_string is used.
+
+	typedef struct true_false_string {
+		char	*true_string;
+		char	*false_string;
+	} true_false_string;
+
+For Boolean fields for which "False" and "True" aren't the desired
+labels, you would declare a "true_false_string"s:
+
+	static const true_false_string boolstringname = {
+		"String for True",
+		"String for False"
+	};
+
+Its two fields are pointers to the string representing truth, and the
+string representing falsehood.  For FT_BOOLEAN fields that need a
+'true_false_string' struct, the 'strings' field would be set to
+'TFS(&boolstringname)'.
+
+If the Boolean field is to be displayed as "False" or "True", the
+'strings' field would be set to NULL.
+
+Wireshark predefines a whole range of ready made "true_false_string"s
+in tfs.h, included via packet.h.
+
+bitmask
+-------
+If the field is a bitfield, then the bitmask is the mask which will
+leave only the bits needed to make the field when ANDed with a value.
+The proto_tree routines will calculate 'bitshift' automatically
+from 'bitmask', by finding the rightmost set bit in the bitmask.
+This shift is applied before applying string mapping functions or 
+filtering.
+If the field is not a bitfield, then bitmask should be set to 0.
+
+blurb
+-----
+This is a string giving a proper description of the field.  It should be
+at least one grammatically complete sentence, or NULL in which case the
+name field is used.
+It is meant to provide a more detailed description of the field than the
+name alone provides. This information will be used in the man page, and
+in a future GUI display-filter creation tool. We might also add tooltips
+to the labels in the GUI protocol tree, in which case the blurb would
+be used as the tooltip text.
+
+
+1.6.1 Field Registration.
+
+Protocol registration is handled by creating an instance of the
+header_field_info struct (or an array of such structs), and
+calling the registration function along with the registration ID of
+the protocol that is the parent of the fields. Here is a complete example:
+
+	static int proto_eg = -1;
+	static int hf_field_a = -1;
+	static int hf_field_b = -1;
+
+	static hf_register_info hf[] = {
+
+		{ &hf_field_a,
+		{ "Field A",	"proto.field_a", FT_UINT8, BASE_HEX, NULL,
+			0xf0, "Field A represents Apples", HFILL }},
+
+		{ &hf_field_b,
+		{ "Field B",	"proto.field_b", FT_UINT16, BASE_DEC, VALS(vs),
+			0x0, "Field B represents Bananas", HFILL }}
+	};
+
+	proto_eg = proto_register_protocol("Example Protocol",
+	    "PROTO", "proto");
+	proto_register_field_array(proto_eg, hf, array_length(hf));
+
+Be sure that your array of hf_register_info structs is declared 'static',
+since the proto_register_field_array() function does not create a copy
+of the information in the array... it uses that static copy of the
+information that the compiler created inside your array. Here's the
+layout of the hf_register_info struct:
+
+typedef struct hf_register_info {
+	int			*p_id;	/* pointer to parent variable */
+	header_field_info	hfinfo;
+} hf_register_info;
+
+Also be sure to use the handy array_length() macro found in packet.h
+to have the compiler compute the array length for you at compile time.
+
+If you don't have any fields to register, do *NOT* create a zero-length
+"hf" array; not all compilers used to compile Wireshark support them.
+Just omit the "hf" array, and the "proto_register_field_array()" call,
+entirely.
+
+It is OK to have header fields with a different format be registered with
+the same abbreviation. For instance, the following is valid:
+
+	static hf_register_info hf[] = {
+
+		{ &hf_field_8bit, /* 8-bit version of proto.field */
+		{ "Field (8 bit)", "proto.field", FT_UINT8, BASE_DEC, NULL,
+			0x00, "Field represents FOO", HFILL }},
+
+		{ &hf_field_32bit, /* 32-bit version of proto.field */
+		{ "Field (32 bit)", "proto.field", FT_UINT32, BASE_DEC, NULL,
+			0x00, "Field represents FOO", HFILL }}
+	};
+
+This way a filter expression can match a header field, irrespective of the
+representation of it in the specific protocol context. This is interesting
+for protocols with variable-width header fields.
+
+The HFILL macro at the end of the struct will set reasonable default values
+for internally used fields.
+
+1.6.2 Adding Items and Values to the Protocol Tree.
+
+A protocol item is added to an existing protocol tree with one of a
+handful of proto_XXX_DO_YYY() functions.
+
+Remember that it only makes sense to add items to a protocol tree if its
+proto_tree pointer is not null. Should you add an item to a NULL tree, then
+the proto_XXX_DO_YYY() function will immediately return. The cost of this
+function call can be avoided by checking for the tree pointer.
+
+Subtrees can be made with the proto_item_add_subtree() function:
+
+	item = proto_tree_add_item(....);
+	new_tree = proto_item_add_subtree(item, tree_type);
+
+This will add a subtree under the item in question; a subtree can be
+created under an item made by any of the "proto_tree_add_XXX" functions,
+so that the tree can be given an arbitrary depth.
+
+Subtree types are integers, assigned by
+"proto_register_subtree_array()".  To register subtree types, pass an
+array of pointers to "gint" variables to hold the subtree type values to
+"proto_register_subtree_array()":
+
+	static gint ett_eg = -1;
+	static gint ett_field_a = -1;
+
+	static gint *ett[] = {
+		&ett_eg,
+		&ett_field_a
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+
+in your "register" routine, just as you register the protocol and the
+fields for that protocol.
+
+There are several functions that the programmer can use to add either
+protocol or field labels to the proto_tree:
+
+	proto_item*
+	proto_tree_add_item(tree, id, tvb, start, length, little_endian);
+
+	proto_item*
+	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
+
+	proto_item*
+	proto_tree_add_protocol_format(tree, id, tvb, start, length,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_bytes(tree, id, tvb, start, length, start_ptr);
+
+	proto_item *
+	proto_tree_add_bytes_format(tree, id, tvb, start, length, start_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_bytes_format_value(tree, id, tvb, start, length,
+		start_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_time_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_ipxnet(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_ipxnet_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_ipxnet_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_ipv4(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_ipv4_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_ipv4_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_ipv6(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_ipv6_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_ipv6_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_ether_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_ether_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_string(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_string_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_string_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_boolean(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_boolean_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_boolean_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_float(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_float_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_float_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_double(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_double_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_double_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_uint(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_uint_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_uint_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_uint64(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_uint64_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_uint64_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_int(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_int_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_int_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item *
+	proto_tree_add_int64(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_int64_format(tree, id, tvb, start, length, value,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_int64_format_value(tree, id, tvb, start, length,
+		value, format, ...);
+
+	proto_item*
+	proto_tree_add_text(tree, tvb, start, length, format, ...);
+
+	proto_item*
+	proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
+
+	proto_item *
+	proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_guid_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item *
+	proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
+		format, ...);
+
+	proto_item *
+	proto_tree_add_oid_format_value(tree, id, tvb, start, length,
+		value_ptr, format, ...);
+
+	proto_item*
+	proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
+		little_endian);
+
+	proto_item *
+	proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits,
+		return_value, little_endian);
+
+	proto_item *
+	proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
+		little_endian);
+
+	proto_item *
+	proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
+		ett, fields, little_endian, flags);
+
+The 'tree' argument is the tree to which the item is to be added.  The
+'tvb' argument is the tvbuff from which the item's value is being
+extracted; the 'start' argument is the offset from the beginning of that
+tvbuff of the item being added, and the 'length' argument is the length,
+in bytes, of the item, bit_offset is the offset in bits and no_of_bits
+is the lenght in bits.
+
+The length of some items cannot be determined until the item has been
+dissected; to add such an item, add it with a length of -1, and, when the
+dissection is complete, set the length with 'proto_item_set_len()':
+
+	void
+	proto_item_set_len(ti, length);
+
+The "ti" argument is the value returned by the call that added the item
+to the tree, and the "length" argument is the length of the item.
+
+proto_tree_add_item()
+---------------------
+proto_tree_add_item is used when you wish to do no special formatting.
+The item added to the GUI tree will contain the name (as passed in the
+proto_register_*() function) and a value.  The value will be fetched
+from the tvbuff by proto_tree_add_item(), based on the type of the field
+and, for integral and Boolean fields, the byte order of the value; the
+byte order is specified by the 'little_endian' argument, which is TRUE
+if the value is little-endian and FALSE if it is big-endian.
+
+Now that definitions of fields have detailed information about bitfield
+fields, you can use proto_tree_add_item() with no extra processing to
+add bitfield values to your tree.  Here's an example.  Take the Format
+Identifier (FID) field in the Transmission Header (TH) portion of the SNA
+protocol.  The FID is the high nibble of the first byte of the TH.  The
+FID would be registered like this:
+
+	name		= "Format Identifier"
+	abbrev		= "sna.th.fid"
+	type		= FT_UINT8
+	display		= BASE_HEX
+	strings		= sna_th_fid_vals
+	bitmask		= 0xf0
+
+The bitmask contains the value which would leave only the FID if bitwise-ANDed
+against the parent field, the first byte of the TH.
+
+The code to add the FID to the tree would be;
+
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, offset, 1, TRUE);
+
+The definition of the field already has the information about bitmasking
+and bitshifting, so it does the work of masking and shifting for us!
+This also means that you no longer have to create value_string structs
+with the values bitshifted.  The value_string for FID looks like this,
+even though the FID value is actually contained in the high nibble.
+(You'd expect the values to be 0x0, 0x10, 0x20, etc.)
+
+/* Format Identifier */
+static const value_string sna_th_fid_vals[] = {
+	{ 0x0,	"SNA device <--> Non-SNA Device" },
+	{ 0x1,	"Subarea Node <--> Subarea Node" },
+	{ 0x2,	"Subarea Node <--> PU2" },
+	{ 0x3,	"Subarea Node or SNA host <--> Subarea Node" },
+	{ 0x4,	"?" },
+	{ 0x5,	"?" },
+	{ 0xf,	"Adjacent Subarea Nodes" },
+	{ 0,	NULL }
+};
+
+The final implication of this is that display filters work the way you'd
+naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
+Subarea Nodes. The user does not have to shift the value of the FID to
+the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
+in the past.
+
+proto_tree_add_protocol_format()
+--------------------------------
+proto_tree_add_protocol_format is used to add the top-level item for the
+protocol when the dissector routine wants complete control over how the
+field and value will be represented on the GUI tree.  The ID value for
+the protocol is passed in as the "id" argument; the rest of the
+arguments are a "printf"-style format and any arguments for that format.
+The caller must include the name of the protocol in the format; it is
+not added automatically as in proto_tree_add_item().
+
+proto_tree_add_none_format()
+----------------------------
+proto_tree_add_none_format is used to add an item of type FT_NONE.
+The caller must include the name of the field in the format; it is
+not added automatically as in proto_tree_add_item().
+
+proto_tree_add_bytes()
+proto_tree_add_time()
+proto_tree_add_ipxnet()
+proto_tree_add_ipv4()
+proto_tree_add_ipv6()
+proto_tree_add_ether()
+proto_tree_add_string()
+proto_tree_add_boolean()
+proto_tree_add_float()
+proto_tree_add_double()
+proto_tree_add_uint()
+proto_tree_add_uint64()
+proto_tree_add_int()
+proto_tree_add_int64()
+proto_tree_add_guid()
+proto_tree_add_oid()
+------------------------
+These routines are used to add items to the protocol tree if either:
+
+	the value of the item to be added isn't just extracted from the
+	packet data, but is computed from data in the packet;
+
+	the value was fetched into a variable.
+
+The 'value' argument has the value to be added to the tree.
+
+NOTE: in all cases where the 'value' argument is a pointer, a copy is
+made of the object pointed to; if you have dynamically allocated a
+buffer for the object, that buffer will not be freed when the protocol
+tree is freed - you must free the buffer yourself when you don't need it
+any more.
+
+For proto_tree_add_bytes(), the 'value_ptr' argument is a pointer to a
+sequence of bytes.
+
+For proto_tree_add_time(), the 'value_ptr' argument is a pointer to an
+"nstime_t", which is a structure containing the time to be added; it has
+'secs' and 'nsecs' members, giving the integral part and the fractional
+part of a time in units of seconds, with 'nsecs' being the number of
+nanoseconds.  For absolute times, "secs" is a UNIX-style seconds since
+January 1, 1970, 00:00:00 GMT value.
+
+For proto_tree_add_ipxnet(), the 'value' argument is a 32-bit IPX
+network address.
+
+For proto_tree_add_ipv4(), the 'value' argument is a 32-bit IPv4
+address, in network byte order.
+
+For proto_tree_add_ipv6(), the 'value_ptr' argument is a pointer to a
+128-bit IPv6 address.
+
+For proto_tree_add_ether(), the 'value_ptr' argument is a pointer to a
+48-bit MAC address.
+
+For proto_tree_add_string(), the 'value_ptr' argument is a pointer to a
+text string.
+
+For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer.
+It is masked and shifted as defined by the field info after which zero
+means "false", and non-zero means "true".
+
+For proto_tree_add_float(), the 'value' argument is a 'float' in the
+host's floating-point format.
+
+For proto_tree_add_double(), the 'value' argument is a 'double' in the
+host's floating-point format.
+
+For proto_tree_add_uint(), the 'value' argument is a 32-bit unsigned
+integer value, in host byte order.  (This routine cannot be used to add
+64-bit integers.)
+
+For proto_tree_add_uint64(), the 'value' argument is a 64-bit unsigned
+integer value, in host byte order.
+
+For proto_tree_add_int(), the 'value' argument is a 32-bit signed
+integer value, in host byte order.  (This routine cannot be used to add
+64-bit integers.)
+
+For proto_tree_add_int64(), the 'value' argument is a 64-bit signed
+integer value, in host byte order.
+
+For proto_tree_add_guid(), the 'value_ptr' argument is a pointer to an
+e_guid_t structure.
+
+For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
+ASN.1 Object Identifier.
+
+proto_tree_add_bytes_format()
+proto_tree_add_time_format()
+proto_tree_add_ipxnet_format()
+proto_tree_add_ipv4_format()
+proto_tree_add_ipv6_format()
+proto_tree_add_ether_format()
+proto_tree_add_string_format()
+proto_tree_add_boolean_format()
+proto_tree_add_float_format()
+proto_tree_add_double_format()
+proto_tree_add_uint_format()
+proto_tree_add_uint64_format()
+proto_tree_add_int_format()
+proto_tree_add_int64_format()
+proto_tree_add_guid_format()
+proto_tree_add_oid_format()
+----------------------------
+These routines are used to add items to the protocol tree when the
+dissector routine wants complete control over how the field and value
+will be represented on the GUI tree.  The argument giving the value is
+the same as the corresponding proto_tree_add_XXX() function; the rest of
+the arguments are a "printf"-style format and any arguments for that
+format.  The caller must include the name of the field in the format; it
+is not added automatically as in the proto_tree_add_XXX() functions.
+
+proto_tree_add_bytes_format_value()
+proto_tree_add_time_format_value()
+proto_tree_add_ipxnet_format_value()
+proto_tree_add_ipv4_format_value()
+proto_tree_add_ipv6_format_value()
+proto_tree_add_ether_format_value()
+proto_tree_add_string_format_value()
+proto_tree_add_boolean_format_value()
+proto_tree_add_float_format_value()
+proto_tree_add_double_format_value()
+proto_tree_add_uint_format_value()
+proto_tree_add_uint64_format_value()
+proto_tree_add_int_format_value()
+proto_tree_add_int64_format_value()
+proto_tree_add_guid_format_value()
+proto_tree_add_oid_format_value()
+------------------------------------
+
+These routines are used to add items to the protocol tree when the
+dissector routine wants complete control over how the value will be
+represented on the GUI tree.  The argument giving the value is the same
+as the corresponding proto_tree_add_XXX() function; the rest of the
+arguments are a "printf"-style format and any arguments for that format.
+With these routines, unlike the proto_tree_add_XXX_format() routines,
+the name of the field is added automatically as in the
+proto_tree_add_XXX() functions; only the value is added with the format.
+
+proto_tree_add_text()
+---------------------
+proto_tree_add_text() is used to add a label to the GUI tree.  It will
+contain no value, so it is not searchable in the display filter process.
+This function was needed in the transition from the old-style proto_tree
+to this new-style proto_tree so that Wireshark would still decode all
+protocols w/o being able to filter on all protocols and fields.
+Otherwise we would have had to cripple Wireshark's functionality while we
+converted all the old-style proto_tree calls to the new-style proto_tree
+calls.  In other words, you should not use this in new code unless you've got
+a specific reason (see below).
+
+This can also be used for items with subtrees, which may not have values
+themselves - the items in the subtree are the ones with values.
+
+For a subtree, the label on the subtree might reflect some of the items
+in the subtree.  This means the label can't be set until at least some
+of the items in the subtree have been dissected.  To do this, use
+'proto_item_set_text()' or 'proto_item_append_text()':
+
+	void
+	proto_item_set_text(proto_item *ti, ...);
+
+	void
+	proto_item_append_text(proto_item *ti, ...);
+
+'proto_item_set_text()' takes as an argument the value returned by
+'proto_tree_add_text()', a 'printf'-style format string, and a set of
+arguments corresponding to '%' format items in that string, and replaces
+the text for the item created by 'proto_tree_add_text()' with the result
+of applying the arguments to the format string.
+
+'proto_item_append_text()' is similar, but it appends to the text for
+the item the result of applying the arguments to the format string.
+
+For example, early in the dissection, one might do:
+
+	ti = proto_tree_add_text(tree, tvb, offset, length, <label>);
+
+and later do
+
+	proto_item_set_text(ti, "%s: %s", type, value);
+
+after the "type" and "value" fields have been extracted and dissected.
+<label> would be a label giving what information about the subtree is
+available without dissecting any of the data in the subtree.
+
+Note that an exception might be thrown when trying to extract the values of
+the items used to set the label, if not all the bytes of the item are
+available.  Thus, one should create the item with text that is as
+meaningful as possible, and set it or append additional information to
+it as the values needed to supply that information are extracted.
+
+proto_tree_add_text_valist()
+----------------------------
+This is like proto_tree_add_text(), but takes, as the last argument, a
+'va_list'; it is used to allow routines that take a printf-like
+variable-length list of arguments to add a text item to the protocol
+tree.
+
+proto_tree_add_bits_item()
+--------------------------
+Adds a number of bits to the protocol tree which does not have to be byte
+aligned. The offset and length is in bits.
+Output format:
+
+..10 1010 10.. .... "value" (formatted as FT_ indicates).
+
+proto_tree_add_bits_ret_val()
+-----------------------------
+Works in the same way but also returns the value of the read bits.
+
+proto_tree_add_bitmask() and proto_tree_add_bitmask_text()
+----------------------------------------------------------
+This function provides an easy to use and convenient helper function
+to manage many types of common bitmasks that occur in protocols.
+
+This function will dissect a 1/2/3/4 byte large bitmask into its individual
+fields.
+header is an integer type and must be of type FT_[U]INT{8|16|24|32} and
+represents the entire width of the bitmask.
+
+'header' and 'ett' are the hf fields and ett field respectively to create an
+expansion that covers the 1-4 bytes of the bitmask.
+
+'fields' is a NULL terminated array of pointers to hf fields representing
+the individual subfields of the bitmask. These fields must either be integers
+of the same byte width as 'header' or of the type FT_BOOLEAN.
+Each of the entries in 'fields' will be dissected as an item under the
+'header' expansion and also IF the field is a boolean and IF it is set to 1,
+then the name of that boolean field will be printed on the 'header' expansion
+line.  For integer type subfields that have a value_string defined, the
+matched string from that value_string will be printed on the expansion line
+as well.
+
+Example: (from the SCSI dissector)
+	static int hf_scsi_inq_peripheral        = -1;
+	static int hf_scsi_inq_qualifier         = -1;
+	static int hf_scsi_inq_devtype           = -1;
+	...
+	static gint ett_scsi_inq_peripheral = -1;
+	...
+	static const int *peripheal_fields[] = {
+		&hf_scsi_inq_qualifier,
+		&hf_scsi_inq_devtype,
+		NULL
+	};
+	...
+	/* Qualifier and DeviceType */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral,
+		ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+	offset+=1;
+	...
+        { &hf_scsi_inq_peripheral,
+          {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_inq_qualifier,
+          {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
+           VALS (scsi_qualifier_val), 0xE0, NULL, HFILL}},
+        { &hf_scsi_inq_devtype,
+          {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
+           VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
+	...
+
+Which provides very pretty dissection of this one byte bitmask.
+
+    Peripheral: 0x05, Qualifier: Device type is connected to logical unit, Device Type: CD-ROM
+        000. .... = Qualifier: Device type is connected to logical unit (0x00)
+        ...0 0101 = Device Type: CD-ROM (0x05)
+
+The proto_tree_add_bitmask_text() function is an extended version of
+the proto_tree_add_bitmask() function. In addition, it allows to:
+- Provide a leading text (e.g. "Flags: ") that will appear before
+  the comma-separated list of field values
+- Provide a fallback text (e.g. "None") that will be appended if
+  no fields warranted a change to the top-level title.
+- Using flags, specify which fields will affect the top-level title.
+
+There are the following flags defined:
+
+  BMT_NO_APPEND - the title is taken "as-is" from the 'name' argument.
+  BMT_NO_INT - only boolean flags are added to the title.
+  BMT_NO_FALSE - boolean flags are only added to the title if they are set.
+  BMT_NO_TFS - only add flag name to the title, do not use true_false_string
+
+The proto_tree_add_bitmask() behavior can be obtained by providing
+both 'name' and 'fallback' arguments as NULL, and a flags of
+(BMT_NO_FALSE|BMT_NO_TFS).
+
+PROTO_ITEM_SET_GENERATED()
+--------------------------
+PROTO_ITEM_SET_GENERATED is used to mark fields as not being read from the
+captured data directly, but inferred from one or more values.
+
+One of the primary uses of this is the presentation of verification of
+checksums. Every IP packet has a checksum line, which can present the result
+of the checksum verification, if enabled in the preferences. The result is
+presented as a subtree, where the result is enclosed in square brackets
+indicating a generated field.
+
+  Header checksum: 0x3d42 [correct]
+    [Good: True]
+    [Bad: False]
+
+PROTO_ITEM_SET_HIDDEN()
+-----------------------
+PROTO_ITEM_SET_HIDDEN is used to hide fields, which have already been added
+to the tree, from being visible in the displayed tree.
+
+NOTE that creating hidden fields is actually quite a bad idea from a UI design
+perspective because the user (someone who did not write nor has ever seen the
+code) has no way of knowing that hidden fields are there to be filtered on
+thus defeating the whole purpose of putting them there.  A Better Way might
+be to add the fields (that might otherwise be hidden) to a subtree where they
+won't be seen unless the user opens the subtree--but they can be found if the
+user wants.
+
+One use for hidden fields (which would be better implemented using visible
+fields in a subtree) follows: The caller may want a value to be
+included in a tree so that the packet can be filtered on this field, but
+the representation of that field in the tree is not appropriate.  An
+example is the token-ring routing information field (RIF).  The best way
+to show the RIF in a GUI is by a sequence of ring and bridge numbers.
+Rings are 3-digit hex numbers, and bridges are single hex digits:
+
+	RIF: 001-A-013-9-C0F-B-555
+
+In the case of RIF, the programmer should use a field with no value and
+use proto_tree_add_none_format() to build the above representation. The
+programmer can then add the ring and bridge values, one-by-one, with
+proto_tree_add_item() and hide them with PROTO_ITEM_SET_HIDDEN() so that the
+user can then filter on or search for a particular ring or bridge. Here's a
+skeleton of how the programmer might code this.
+
+	char *rif;
+	rif = create_rif_string(...);
+
+	proto_tree_add_none_format(tree, hf_tr_rif_label, ..., "RIF: %s", rif);
+
+	for(i = 0; i < num_rings; i++) {
+		proto_item *pi;
+
+		pi = proto_tree_add_item(tree, hf_tr_rif_ring, ..., FALSE);
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
+	for(i = 0; i < num_rings - 1; i++) {
+		proto_item *pi;
+
+		pi = proto_tree_add_item(tree, hf_tr_rif_bridge, ..., FALSE);
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
+
+The logical tree has these items:
+
+	hf_tr_rif_label, text="RIF: 001-A-013-9-C0F-B-555", value = NONE
+	hf_tr_rif_ring,  hidden, value=0x001
+	hf_tr_rif_bridge, hidden, value=0xA
+	hf_tr_rif_ring,  hidden, value=0x013
+	hf_tr_rif_bridge, hidden, value=0x9
+	hf_tr_rif_ring,  hidden, value=0xC0F
+	hf_tr_rif_bridge, hidden, value=0xB
+	hf_tr_rif_ring,  hidden, value=0x555
+
+GUI or print code will not display the hidden fields, but a display
+filter or "packet grep" routine will still see the values. The possible
+filter is then possible:
+
+	tr.rif_ring eq 0x013
+
+PROTO_ITEM_SET_URL
+------------------
+PROTO_ITEM_SET_URL is used to mark fields as containing a URL. This can only
+be done with fields of type FT_STRING(Z). If these fields are presented they
+are underlined, as could be done in a browser. These fields are sensitive to
+clicks as well, launching the configured browser with this URL as parameter.
+
+1.7 Utility routines.
+
+1.7.1 match_strval and val_to_str.
+
+A dissector may need to convert a value to a string, using a
+'value_string' structure, by hand, rather than by declaring a field with
+an associated 'value_string' structure; this might be used, for example,
+to generate a COL_INFO line for a frame.
+
+'match_strval()' will do that:
+
+	gchar*
+	match_strval(guint32 val, const value_string *vs)
+
+It will look up the value 'val' in the 'value_string' table pointed to
+by 'vs', and return either the corresponding string, or NULL if the
+value could not be found in the table.  Note that, unless 'val' is
+guaranteed to be a value in the 'value_string' table ("guaranteed" as in
+"the code has already checked that it's one of those values" or "the
+table handles all possible values of the size of 'val'", not "the
+protocol spec says it has to be" - protocol specs do not prevent invalid
+packets from being put onto a network or into a purported packet capture
+file), you must check whether 'match_strval()' returns NULL, and arrange
+that its return value not be dereferenced if it's NULL. 'val_to_str()'
+can be used to generate a string for values not found in the table:
+
+	gchar*
+	val_to_str(guint32 val, const value_string *vs, const char *fmt)
+
+If the value 'val' is found in the 'value_string' table pointed to by
+'vs', 'val_to_str' will return the corresponding string; otherwise, it
+will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
+to generate a string, and will return a pointer to that string.
+You can use it in a call to generate a COL_INFO line for a frame such as
+
+	col_add_fstr(COL_INFO, ", %s", val_to_str(val, table, "Unknown %d"));
+
+1.7.2 match_strrval and rval_to_str.
+
+A dissector may need to convert a range of values to a string, using a
+'range_string' structure.
+
+'match_strrval()' will do that:
+
+	gchar*
+	match_strrval(guint32 val, const range_string *rs)
+
+It will look up the value 'val' in the 'range_string' table pointed to
+by 'rs', and return either the corresponding string, or NULL if the
+value could not be found in the table. Please note that its base
+behavior is inherited from match_strval().
+
+'rval_to_str()' can be used to generate a string for values not found in
+the table:
+
+	gchar*
+	rval_to_str(guint32 val, const range_string *rs, const char *fmt)
+
+If the value 'val' is found in the 'range_string' table pointed to by
+'rs', 'rval_to_str' will return the corresponding string; otherwise, it
+will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
+to generate a string, and will return a pointer to that string. Please
+note that its base behavior is inherited from match_strval().
+
+1.8 Calling Other Dissectors.
+
+As each dissector completes its portion of the protocol analysis, it
+is expected to create a new tvbuff of type TVBUFF_SUBSET which
+contains the payload portion of the protocol (that is, the bytes
+that are relevant to the next dissector).
+
+The syntax for creating a new TVBUFF_SUBSET is:
+
+next_tvb = tvb_new_subset(tvb, offset, length, reported_length)
+
+Where:
+	tvb is the tvbuff that the dissector has been working on. It
+	can be a tvbuff of any type.
+
+	next_tvb is the new TVBUFF_SUBSET.
+
+	offset is the byte offset of 'tvb' at which the new tvbuff
+	should start.  The first byte is the 0th byte.
+
+	length is the number of bytes in the new TVBUFF_SUBSET. A length
+	argument of -1 says to use as many bytes as are available in
+	'tvb'.
+
+	reported_length is the number of bytes that the current protocol
+	says should be in the payload. A reported_length of -1 says that
+	the protocol doesn't say anything about the size of its payload.
+
+
+An example from packet-ipx.c -
+
+void
+dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        tvbuff_t        *next_tvb;
+        int             reported_length, available_length;
+
+
+        /* Make the next tvbuff */
+
+/* IPX does have a length value in the header, so calculate report_length */
+   Set this to -1 if there isn't any length information in the protocol
+*/
+        reported_length = ipx_length - IPX_HEADER_LEN;
+
+/* Calculate the available data in the packet,
+   set this to -1 to use all the data in the tv_buffer
+*/
+        available_length = tvb_length(tvb) - IPX_HEADER_LEN;
+
+/* Create the tvbuffer for the next dissector */
+        next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
+                        MIN(available_length, reported_length),
+                        reported_length);
+
+/* call the next dissector */
+	dissector_next( next_tvb, pinfo, tree);
+
+
+1.9 Editing Makefile.common to add your dissector.
+
+To arrange that your dissector will be built as part of Wireshark, you
+must add the name of the source file for your dissector to the
+'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan/dissectors'
+directory.  (Note that this is for modern versions of UNIX, so there
+is no 14-character limitation on file names, and for modern versions of
+Windows, so there is no 8.3-character limitation on file names.)
+
+If your dissector also has its own header file or files, you must add
+them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.common' file in
+the 'epan/dissectors' directory, so that it's included when release source
+tarballs are built (otherwise, the source in the release tarballs won't
+compile).
+
+1.10 Using the SVN source code tree.
+
+  See <http://www.wireshark.org/develop.html>
+
+1.11 Submitting code for your new dissector.
+
+  - VERIFY that your dissector code does not use prohibited or deprecated APIs
+    as follows:
+    perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)>
+
+  - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
+    Use fuzz-test.sh and/or randpkt against your dissector.  These are
+    described at <http://wiki.wireshark.org/FuzzTesting>.
+
+  - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
+    <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
+    <http://www.wireshark.org/lists/>.
+
+  - 'svn add' all the files of your new dissector.
+
+  - 'svn diff' the workspace and save the result to a file.
+
+  - Edit the diff file - remove any changes unrelated to your new dissector,
+    e.g. changes in config.nmake
+
+  - Submit a bug report to the Wireshark bug database, found at
+    <http://bugs.wireshark.org>, qualified as an enhancement and attach your
+    diff file there. Set the review request flag to '?' so it will pop up in
+    the patch review list.
+
+  - Create a Wiki page on the protocol at <http://wiki.wireshark.org>.
+    A template is provided so it is easy to setup in a consistent style.
+
+  - If possible, add sample capture files to the sample captures page at
+    <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
+    the automated build system for fuzz testing.
+
+  - If you find that you are contributing a lot to wireshark on an ongoing
+    basis you can request to become a committer which will allow you to
+    commit files to subversion directly.
+
+2. Advanced dissector topics.
+
+2.1 Introduction.
+
+Some of the advanced features are being worked on constantly. When using them
+it is wise to check the relevant header and source files for additional details.
+
+2.2 Following "conversations".
+
+In wireshark a conversation is defined as a series of data packets between two
+address:port combinations.  A conversation is not sensitive to the direction of
+the packet.  The same conversation will be returned for a packet bound from
+ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
+
+There are five routines that you will use to work with a conversation:
+conversation_new, find_conversation, conversation_add_proto_data,
+conversation_get_proto_data, and conversation_delete_proto_data.
+
+
+2.2.1 The conversation_init function.
+
+This is an internal routine for the conversation code.  As such you
+will not have to call this routine.  Just be aware that this routine is
+called at the start of each capture and before the packets are filtered
+with a display filter.  The routine will destroy all stored
+conversations.  This routine does NOT clean up any data pointers that are
+passed in the conversation_new 'data' variable.  You are responsible for
+this clean up if you pass a malloc'ed pointer in this variable.
+
+See item 2.2.8 for more information about the 'data' pointer.
+
+
+2.2.2 The conversation_new function.
+
+This routine will create a new conversation based upon two address/port
+pairs.  If you want to associate with the conversation a pointer to a
+private data structure you must use the conversation_add_proto_data
+function.  The ptype variable is used to differentiate between
+conversations over different protocols, i.e. TCP and UDP.  The options
+variable is used to define a conversation that will accept any destination
+address and/or port.  Set options = 0 if the destination port and address
+are know when conversation_new is called.  See section 2.4 for more
+information on usage of the options parameter.
+
+The conversation_new prototype:
+	conversation_t *conversation_new(guint32 setup_frame, address *addr1,
+	    address *addr2, port_type ptype, guint32 port1, guint32 port2,
+	    guint options);
+
+Where:
+	guint32 setup_frame = The lowest numbered frame for this conversation
+	address* addr1 	    = first data packet address
+	address* addr2 	    = second data packet address
+	port_type ptype     = port type, this is defined in packet.h
+	guint32 port1	    = first data packet port
+	guint32 port2	    = second data packet port
+	guint options	    = conversation options, NO_ADDR2 and/or NO_PORT2
+
+setup_frame indicates the first frame for this conversation, and is used to
+distinguish multiple conversations with the same addr1/port1 and addr2/port2
+pair that occur within the same capture session.
+
+"addr1" and "port1" are the first address/port pair; "addr2" and "port2"
+are the second address/port pair.  A conversation doesn't have source
+and destination address/port pairs - packets in a conversation go in
+both directions - so "addr1"/"port1" may be the source or destination
+address/port pair; "addr2"/"port2" would be the other pair.
+
+If NO_ADDR2 is specified, the conversation is set up so that a
+conversation lookup will match only the "addr1" address; if NO_PORT2 is
+specified, the conversation is set up so that a conversation lookup will
+match only the "port1" port; if both are specified, i.e.
+NO_ADDR2|NO_PORT2, the conversation is set up so that the lookup will
+match only the "addr1"/"port1" address/port pair.  This can be used if a
+packet indicates that, later in the capture, a conversation will be
+created using certain addresses and ports, in the case where the packet
+doesn't specify the addresses and ports of both sides.
+
+2.2.3 The find_conversation function.
+
+Call this routine to look up a conversation.  If no conversation is found,
+the routine will return a NULL value.
+
+The find_conversation prototype:
+
+	conversation_t *find_conversation(guint32 frame_num, address *addr_a,
+	    address *addr_b, port_type ptype, guint32 port_a, guint32 port_b,
+	    guint options);
+
+Where:
+	guint32 frame_num = a frame number to match
+	address* addr_a = first address
+	address* addr_b = second address
+	port_type ptype = port type
+	guint32 port_a	= first data packet port
+	guint32 port_b	= second data packet port
+	guint options	= conversation options, NO_ADDR_B and/or NO_PORT_B
+
+frame_num is a frame number to match. The conversation returned is where
+	(frame_num >= conversation->setup_frame
+	&& frame_num < conversation->next->setup_frame)
+Suppose there are a total of 3 conversations (A, B, and C) that match
+addr_a/port_a and addr_b/port_b, where the setup_frame used in
+conversation_new() for A, B and C are 10, 50, and 100 respectively. The
+frame_num passed in find_conversation is compared to the setup_frame of each
+conversation. So if (frame_num >= 10 && frame_num < 50), conversation A is
+returned. If (frame_num >= 50 && frame_num < 100), conversation B is returned.
+If (frame_num >= 100) conversation C is returned.
+
+"addr_a" and "port_a" are the first address/port pair; "addr_b" and
+"port_b" are the second address/port pair.  Again, as a conversation
+doesn't have source and destination address/port pairs, so
+"addr_a"/"port_a" may be the source or destination address/port pair;
+"addr_b"/"port_b" would be the other pair.  The search will match the
+"a" address/port pair against both the "1" and "2" address/port pairs,
+and match the "b" address/port pair against both the "2" and "1"
+address/port pairs; you don't have to worry about which side the "a" or
+"b" pairs correspond to.
+
+If the NO_ADDR_B flag was specified to "find_conversation()", the
+"addr_b" address will be treated as matching any "wildcarded" address;
+if the NO_PORT_B flag was specified, the "port_b" port will be treated
+as matching any "wildcarded" port.  If both flags are specified, i.e.
+NO_ADDR_B|NO_PORT_B, the "addr_b" address will be treated as matching
+any "wildcarded" address and the "port_b" port will be treated as
+matching any "wildcarded" port.
+
+
+2.2.4 The conversation_add_proto_data function.
+
+Once you have created a conversation with conversation_new, you can
+associate data with it using this function.
+
+The conversation_add_proto_data prototype:
+
+	void conversation_add_proto_data(conversation_t *conv, int proto,
+		void *proto_data);
+
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+	void *data	     = dissector data structure
+
+"conversation" is the value returned by conversation_new.  "proto" is a
+unique protocol number created with proto_register_protocol.  Protocols
+are typically registered in the proto_register_XXXX section of your
+dissector.  "data" is a pointer to the data you wish to associate with the
+conversation.  Using the protocol number allows several dissectors to
+associate data with a given conversation.
+
+
+2.2.5 The conversation_get_proto_data function.
+
+After you have located a conversation with find_conversation, you can use
+this function to retrieve any data associated with it.
+
+The conversation_get_proto_data prototype:
+
+	void *conversation_get_proto_data(conversation_t *conv, int proto);
+
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+
+"conversation" is the conversation created with conversation_new.  "proto"
+is a unique protocol number created with proto_register_protocol,
+typically in the proto_register_XXXX portion of a dissector.  The function
+returns a pointer to the data requested, or NULL if no data was found.
+
+
+2.2.6 The conversation_delete_proto_data function.
+
+After you are finished with a conversation, you can remove your association
+with this function.  Please note that ONLY the conversation entry is
+removed.  If you have allocated any memory for your data, you must free it
+as well.
+
+The conversation_delete_proto_data prototype:
+
+	void conversation_delete_proto_data(conversation_t *conv, int proto);
+
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+
+"conversation" is the conversation created with conversation_new.  "proto"
+is a unique protocol number created with proto_register_protocol,
+typically in the proto_register_XXXX portion of a dissector.
+
+
+2.2.7 Using timestamps relative to the conversation
+
+There is a framework to calculate timestamps relative to the start of the
+conversation. First of all the timestamp of the first packet that has been
+seen in the conversation must be kept in the protocol data to be able
+to calculate the timestamp of the current packet relative to the start
+of the conversation. The timestamp of the last packet that was seen in the
+conversation should also be kept in the protocol data. This way the
+delta time between the current packet and the previous packet in the
+conversation can be calculated.
+
+So add the following items to the struct that is used for the protocol data:
+
+  nstime_t	ts_first;
+  nstime_t	ts_prev;
+
+The ts_prev value should only be set during the first run through the
+packets (ie pinfo->fd->flags.visited is false).
+
+Next step is to use the per-packet information (described in section 2.5)
+to keep the calculated delta timestamp, as it can only be calculated
+on the first run through the packets. This is because a packet can be
+selected in random order once the whole file has been read.
+
+After calculating the conversation timestamps, it is time to put them in
+the appropriate columns with the function 'col_set_time' (described in
+section 1.5.9). There are two columns for conversation timestamps:
+
+COL_REL_CONV_TIME,  /* Relative time to beginning of conversation */
+COL_DELTA_CONV_TIME,/* Delta time to last frame in conversation */
+
+Last but not least, there MUST be a preference in each dissector that
+uses conversation timestamps that makes it possible to enable and
+disable the calculation of conversation timestamps. The main argument
+for this is that a higher level conversation is able to overwrite
+the values of lowel level conversations in these two columns. Being
+able to actively select which protocols may overwrite the conversation
+timestamp columns gives the user the power to control these columns.
+(A second reason is that conversation timestamps use the per-packet
+data structure which uses additional memory, which should be avoided
+if these timestamps are not needed)
+
+Have a look at the differences to packet-tcp.[ch] in SVN 22966 and
+SVN 23058 to see the implementation of conversation timestamps for
+the tcp-dissector.
+
+
+2.2.8 The example conversation code with GMemChunk's.
+
+For a conversation between two IP addresses and ports you can use this as an
+example.  This example uses the GMemChunk to allocate memory and stores the data
+pointer in the conversation 'data' variable.
+
+NOTE: Remember to register the init routine (my_dissector_init) in the
+protocol_register routine.
+
+
+/************************ Global values ************************/
+
+/* the number of entries in the memory chunk array */
+#define my_init_count 10
+
+/* define your structure here */
+typedef struct {
+
+} my_entry_t;
+
+/* the GMemChunk base structure */
+static GMemChunk *my_vals = NULL;
+
+/* Registered protocol number */
+static int my_proto = -1;
+
+
+/********************* in the dissector routine *********************/
+
+/* the local variables in the dissector */
+
+conversation_t *conversation;
+my_entry_t *data_ptr;
+
+
+/* look up the conversation */
+
+conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
+/* if conversation found get the data pointer that you stored */
+if (conversation)
+    data_ptr = (my_entry_t*)conversation_get_proto_data(conversation, my_proto);
+else {
+
+    /* new conversation create local data structure */
+
+    data_ptr = g_mem_chunk_alloc(my_vals);
+
+    /*** add your code here to setup the new data structure ***/
+
+    /* create the conversation with your data pointer  */
+
+    conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
+	    pinfo->srcport, pinfo->destport, 0);
+    conversation_add_proto_data(conversation, my_proto, (void *)data_ptr);
+}
+
+/* at this point the conversation data is ready */
+
+
+/******************* in the dissector init routine *******************/
+
+#define my_init_count 20
+
+static void
+my_dissector_init(void)
+{
+
+    /* destroy memory chunks if needed */
+
+    if (my_vals)
+	g_mem_chunk_destroy(my_vals);
+
+    /* now create memory chunks */
+
+    my_vals = g_mem_chunk_new("my_proto_vals",
+	    sizeof(my_entry_t),
+	    my_init_count * sizeof(my_entry_t),
+	    G_ALLOC_AND_FREE);
+}
+
+/***************** in the protocol register routine *****************/
+
+/* register re-init routine */
+
+register_init_routine(&my_dissector_init);
+
+my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
+
+
+2.2.9 An example conversation code that starts at a specific frame number.
+
+Sometimes a dissector has determined that a new conversation is needed that
+starts at a specific frame number, when a capture session encompasses multiple
+conversation that reuse the same src/dest ip/port pairs. You can use the
+conversation->setup_frame returned by find_conversation with
+pinfo->fd->num to determine whether or not there already exists a conversation
+that starts at the specific frame number.
+
+/* in the dissector routine */
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL || (conversation->setup_frame != pinfo->fd->num)) {
+		/* It's not part of any conversation or the returned
+		 * conversation->setup_frame doesn't match the current frame
+		 * create a new one.
+		 */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
+		    NULL, 0);
+	}
+
+
+2.2.10 The example conversation code using conversation index field.
+
+Sometimes the conversation isn't enough to define a unique data storage
+value for the network traffic.  For example if you are storing information
+about requests carried in a conversation, the request may have an
+identifier that is used to  define the request. In this case the
+conversation and the identifier are required to find the data storage
+pointer.  You can use the conversation data structure index value to
+uniquely define the conversation.
+
+See packet-afs.c for an example of how to use the conversation index.  In
+this dissector multiple requests are sent in the same conversation.  To store
+information for each request the dissector has an internal hash table based
+upon the conversation index and values inside the request packets.
+
+
+        /* in the dissector routine */
+
+        /* to find a request value, first lookup conversation to get index */
+        /* then used the conversation index, and request data to find data */
+        /* in the local hash table */
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/* It's not part of any conversation - create a new one. */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
+		    NULL, 0);
+	}
+
+	request_key.conversation = conversation->index;
+	request_key.service = pntohs(&rxh->serviceId);
+	request_key.callnumber = pntohl(&rxh->callNumber);
+
+	request_val = (struct afs_request_val *)g_hash_table_lookup(
+		afs_request_hash, &request_key);
+
+	/* only allocate a new hash element when it's a request */
+	opcode = 0;
+	if (!request_val && !reply)
+	{
+		new_request_key = g_mem_chunk_alloc(afs_request_keys);
+		*new_request_key = request_key;
+
+		request_val = g_mem_chunk_alloc(afs_request_vals);
+		request_val -> opcode = pntohl(&afsh->opcode);
+		opcode = request_val->opcode;
+
+		g_hash_table_insert(afs_request_hash, new_request_key,
+			request_val);
+	}
+
+
+
+2.3 Dynamic conversation dissector registration.
+
+
+NOTE:   This sections assumes that all information is available to
+	create a complete conversation, source port/address and
+	destination port/address.  If either the destination port or
+	address is know, see section 2.4 Dynamic server port dissector
+	registration.
+
+For protocols that negotiate a secondary port connection, for example
+packet-msproxy.c, a conversation can install a dissector to handle
+the secondary protocol dissection.  After the conversation is created
+for the negotiated ports use the conversation_set_dissector to define
+the dissection routine.
+Before we create these conversations or assign a dissector to them we should
+first check that the conversation does not already exist and if it exists
+whether it is registered to our protocol or not.
+We should do this because it is uncommon but it does happen that multiple
+different protocols can use the same socketpair during different stages of
+an application cycle. By keeping track of the frame number a conversation
+was started in wireshark can still tell these different protocols apart.
+
+The second argument to conversation_set_dissector is a dissector handle,
+which is created with a call to create_dissector_handle or
+register_dissector.
+
+create_dissector_handle takes as arguments a pointer to the dissector
+function and a protocol ID as returned by proto_register_protocol;
+register_dissector takes as arguments a string giving a name for the
+dissector, a pointer to the dissector function, and a protocol ID.
+
+The protocol ID is the ID for the protocol dissected by the function.
+The function will not be called if the protocol has been disabled by the
+user; instead, the data for the protocol will be dissected as raw data.
+
+An example -
+
+/* the handle for the dynamic dissector *
+static dissector_handle_t sub_dissector_handle;
+
+/* prototype for the dynamic dissector */
+static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
+                proto_tree *tree);
+
+/* in the main protocol dissector, where the next dissector is setup */
+
+/* if conversation has a data field, create it and load structure */
+
+/* First check if a conversation already exists for this
+	socketpair
+*/
+	conversation = find_conversation(pinfo->fd->num,
+				&pinfo->src, &pinfo->dst, protocol,
+				src_port, dst_port, new_conv_info, 0);
+
+/* If there is no such conversation, or if there is one but for
+   someone else's protocol then we just create a new conversation
+   and assign our protocol to it.
+*/
+	if ( (conversation == NULL) ||
+	     (conversation->dissector_handle != sub_dissector_handle) ) {
+            new_conv_info = g_mem_chunk_alloc(new_conv_vals);
+            new_conv_info->data1 = value1;
+
+/* create the conversation for the dynamic port */
+	    conversation = conversation_new(pinfo->fd->num,
+	        &pinfo->src, &pinfo->dst, protocol,
+	        src_port, dst_port, new_conv_info, 0);
+
+/* set the dissector for the new conversation */
+	    conversation_set_dissector(conversation, sub_dissector_handle);
+	}
+		...
+
+void
+proto_register_PROTOABBREV(void)
+{
+	...
+
+	sub_dissector_handle = create_dissector_handle(sub_dissector,
+	    proto);
+
+	...
+}
+
+2.4 Dynamic server port dissector registration.
+
+NOTE: While this example used both NO_ADDR2 and NO_PORT2 to create a
+conversation with only one port and address set, this isn't a
+requirement.  Either the second port or the second address can be set
+when the conversation is created.
+
+For protocols that define a server address and port for a secondary
+protocol, a conversation can be used to link a protocol dissector to
+the server port and address.  The key is to create the new
+conversation with the second address and port set to the "accept
+any" values.
+
+Some server applications can use the same port for different protocols during
+different stages of a transaction. For example it might initially use SNMP
+to perform some discovery and later switch to use TFTP using the same port.
+In order to handle this properly we must first check whether such a
+conversation already exists or not and if it exists we also check whether the
+registered dissector_handle for that conversation is "our" dissector or not.
+If not we create a new conversation on top of the previous one and set this new
+conversation to use our protocol.
+Since wireshark keeps track of the frame number where a conversation started
+wireshark will still be able to keep the packets apart even though they do use
+the same socketpair.
+		(See packet-tftp.c and packet-snmp.c for examples of this)
+
+There are two support routines that will allow the second port and/or
+address to be set later.
+
+conversation_set_port2( conversation_t *conv, guint32 port);
+conversation_set_addr2( conversation_t *conv, address addr);
+
+These routines will change the second address or port for the
+conversation.  So, the server port conversation will be converted into a
+more complete conversation definition.  Don't use these routines if you
+want to create a conversation between the server and client and retain the
+server port definition, you must create a new conversation.
+
+
+An example -
+
+/* the handle for the dynamic dissector *
+static dissector_handle_t sub_dissector_handle;
+
+	...
+
+/* in the main protocol dissector, where the next dissector is setup */
+
+/* if conversation has a data field, create it and load structure */
+
+        new_conv_info = g_mem_chunk_alloc(new_conv_vals);
+        new_conv_info->data1 = value1;
+
+/* create the conversation for the dynamic server address and port 	*/
+/* NOTE: The second address and port values don't matter because the	*/
+/* NO_ADDR2 and NO_PORT2 options are set. 				*/
+
+/* First check if a conversation already exists for this
+	IP/protocol/port
+*/
+	conversation = find_conversation(pinfo->fd->num,
+				&server_src_addr, 0, protocol,
+				server_src_port, 0, NO_ADDR2 | NO_PORT_B);
+/* If there is no such conversation, or if there is one but for
+   someone else's protocol then we just create a new conversation
+   and assign our protocol to it.
+*/
+	if ( (conversation == NULL) ||
+	     (conversation->dissector_handle != sub_dissector_handle) ) {
+	    conversation = conversation_new(pinfo->fd->num,
+	    &server_src_addr, 0, protocol,
+	    server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
+
+/* set the dissector for the new conversation */
+	    conversation_set_dissector(conversation, sub_dissector_handle);
+	}
+
+2.5 Per-packet information.
+
+Information can be stored for each data packet that is processed by the
+dissector.  The information is added with the p_add_proto_data function and
+retrieved with the p_get_proto_data function.  The data pointers passed into
+the p_add_proto_data are not managed by the proto_data routines. If you use
+malloc or any other dynamic memory allocation scheme, you must release the
+data when it isn't required.
+
+void
+p_add_proto_data(frame_data *fd, int proto, void *proto_data)
+void *
+p_get_proto_data(frame_data *fd, int proto)
+
+Where:
+	fd         - The fd pointer in the pinfo structure, pinfo->fd
+	proto      - Protocol id returned by the proto_register_protocol call
+	             during initialization
+	proto_data - pointer to the dissector data.
+
+
+2.6 User Preferences.
+
+If the dissector has user options, there is support for adding these preferences
+to a configuration dialog.
+
+You must register the module with the preferences routine with -
+
+       module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
+
+Where: proto_id   - the value returned by "proto_register_protocol()" when
+                    the protocol was registered.
+       apply_cb   - Callback routine that is called when preferences are
+                    applied. It may be NULL, which inhibits the callback.
+
+Then you can register the fields that can be configured by the user with these
+routines -
+
+	/* Register a preference with an unsigned integral value. */
+	void prefs_register_uint_preference(module_t *module, const char *name,
+	    const char *title, const char *description, guint base, guint *var);
+
+	/* Register a preference with an Boolean value. */
+	void prefs_register_bool_preference(module_t *module, const char *name,
+	    const char *title, const char *description, gboolean *var);
+
+	/* Register a preference with an enumerated value. */
+	void prefs_register_enum_preference(module_t *module, const char *name,
+	    const char *title, const char *description, gint *var,
+	    const enum_val_t *enumvals, gboolean radio_buttons)
+
+	/* Register a preference with a character-string value. */
+	void prefs_register_string_preference(module_t *module, const char *name,
+	    const char *title, const char *description, char **var)
+
+	/* Register a preference with a range of unsigned integers (e.g.,
+	 * "1-20,30-40").
+	 */
+	void prefs_register_range_preference(module_t *module, const char *name,
+	    const char *title, const char *description, range_t *var,
+	    guint32 max_value)
+
+Where: module - Returned by the prefs_register_protocol routine
+	 name     - This is appended to the name of the protocol, with a
+		    "." between them, to construct a name that identifies
+		    the field in the preference file; the name itself
+		    should not include the protocol name, as the name in
+		    the preference file will already have it
+	 title    - Field title in the preferences dialog
+	 description - Comments added to the preference file above the
+		       preference value
+	 var	  - pointer to the storage location that is updated when the
+		    field is changed in the preference dialog box
+	 base	  - Base that the unsigned integer is expected to be in,
+		    see strtoul(3).
+	 enumvals - an array of enum_val_t structures.  This must be
+		    NULL-terminated; the members of that structure are:
+
+			a short name, to be used with the "-o" flag - it
+			should not contain spaces or upper-case letters,
+			so that it's easier to put in a command line;
+
+			a description, which is used in the GUI (and
+			which, for compatibility reasons, is currently
+			what's written to the preferences file) - it can
+			contain spaces, capital letters, punctuation,
+			etc.;
+
+			the numerical value corresponding to that name
+			and description
+	 radio_buttons - TRUE if the field is to be displayed in the
+			 preferences dialog as a set of radio buttons,
+			 FALSE if it is to be displayed as an option
+			 menu
+	 max_value - The maximum allowed value for a range (0 is the minimum).
+
+An example from packet-beep.c -
+
+  proto_beep = proto_register_protocol("Blocks Extensible Exchange Protocol",
+				       "BEEP", "beep");
+
+	...
+
+  /* Register our configuration options for BEEP, particularly our port */
+
+  beep_module = prefs_register_protocol(proto_beep, proto_reg_handoff_beep);
+
+  prefs_register_uint_preference(beep_module, "tcp.port", "BEEP TCP Port",
+				 "Set the port for BEEP messages (if other"
+				 " than the default of 10288)",
+				 10, &global_beep_tcp_port);
+
+  prefs_register_bool_preference(beep_module, "strict_header_terminator",
+				 "BEEP Header Requires CRLF",
+				 "Specifies that BEEP requires CRLF as a "
+				 "terminator, and not just CR or LF",
+				 &global_beep_strict_term);
+
+This will create preferences "beep.tcp.port" and
+"beep.strict_header_terminator", the first of which is an unsigned
+integer and the second of which is a Boolean.
+
+Note that a warning will pop up if you've saved such preference to the
+preference file and you subsequently take the code out. The way to make
+a preference obsolete is to register it as such:
+
+/* Register a preference that used to be supported but no longer is. */
+	void prefs_register_obsolete_preference(module_t *module,
+	    const char *name);
+
+2.7 Reassembly/desegmentation for protocols running atop TCP.
+
+There are two main ways of reassembling a Protocol Data Unit (PDU) which
+spans across multiple TCP segments.  The first approach is simpler, but
+assumes you are running atop of TCP when this occurs (but your dissector
+might run atop of UDP, too, for example), and that your PDUs consist of a
+fixed amount of data that includes enough information to determine the PDU
+length, possibly followed by additional data.  The second method is more
+generic but requires more code and is less efficient.
+
+2.7.1 Using tcp_dissect_pdus().
+
+For the first method, you register two different dissection methods, one
+for the TCP case, and one for the other cases.  It is a good idea to
+also have a dissect_PROTO_common function which will parse the generic
+content that you can find in all PDUs which is called from
+dissect_PROTO_tcp when the reassembly is complete and from
+dissect_PROTO_udp (or dissect_PROTO_other).
+
+To register the distinct dissector functions, consider the following
+example, stolen from packet-dns.c:
+
+	dissector_handle_t dns_udp_handle;
+	dissector_handle_t dns_tcp_handle;
+	dissector_handle_t mdns_udp_handle;
+
+	dns_udp_handle = create_dissector_handle(dissect_dns_udp,
+	    proto_dns);
+	dns_tcp_handle = create_dissector_handle(dissect_dns_tcp,
+	    proto_dns);
+	mdns_udp_handle = create_dissector_handle(dissect_mdns_udp,
+	    proto_dns);
+
+	dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
+	dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
+	dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+	dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+
+The dissect_dns_udp function does very little work and calls
+dissect_dns_common, while dissect_dns_tcp calls tcp_dissect_pdus with a
+reference to a callback which will be called with reassembled data:
+
+	static void
+	dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+	{
+		tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2,
+		    get_dns_pdu_len, dissect_dns_tcp_pdu);
+	}
+
+(The dissect_dns_tcp_pdu function acts similarly to dissect_dns_udp.)
+The arguments to tcp_dissect_pdus are:
+
+	the tvbuff pointer, packet_info pointer, and proto_tree pointer
+	passed to the dissector;
+
+	a gboolean flag indicating whether desegmentation is enabled for
+	your protocol;
+
+	the number of bytes of PDU data required to determine the length
+	of the PDU;
+
+	a routine that takes as arguments a packet_info pointer, a tvbuff
+	pointer and an offset value representing the offset into the tvbuff
+	at which a PDU begins and should return - *without* throwing an
+	exception (it is guaranteed that the number of bytes specified by the
+	previous argument to tcp_dissect_pdus is available, but more data
+	might not be available, so don't refer to any data past that) - the
+	total length of the PDU, in bytes;
+
+	a routine that's passed a tvbuff pointer, packet_info pointer,
+	and proto_tree pointer, with the tvbuff containing a
+	possibly-reassembled PDU, and that should dissect that PDU.
+
+2.7.2 Modifying the pinfo struct.
+
+The second reassembly mode is preferred when the dissector cannot determine
+how many bytes it will need to read in order to determine the size of a PDU.
+It may also be useful if your dissector needs to support reassembly from
+protocols other than TCP.
+
+Your dissect_PROTO will initially be passed a tvbuff containing the payload of
+the first packet. It should dissect as much data as it can, noting that it may
+contain more than one complete PDU. If the end of the provided tvbuff coincides
+with the end of a PDU then all is well and your dissector can just return as
+normal. (If it is a new-style dissector, it should return the number of bytes
+successfully processed.)
+
+If the dissector discovers that the end of the tvbuff does /not/ coincide with
+the end of a PDU, (ie, there is half of a PDU at the end of the tvbuff), it can
+indicate this to the parent dissector, by updating the pinfo struct. The
+desegment_offset field is the offset in the tvbuff at which the dissector will
+continue processing when next called.  The desegment_len field should contain
+the estimated number of additional bytes required for completing the PDU.  Next
+time your dissect_PROTO is called, it will be passed a tvbuff composed of the
+end of the data from the previous tvbuff together with desegment_len more bytes.
+
+If the dissector cannot tell how many more bytes it will need, it should set
+desegment_len=DESEGMENT_ONE_MORE_SEGMENT; it will then be called again as soon
+as any more data becomes available. Dissectors should set the desegment_len to a
+reasonable value when possible rather than always setting
+DESEGMENT_ONE_MORE_SEGMENT as it will generally be more efficient. Also, you
+*must not* set desegment_len=1 in this case, in the hope that you can change
+your mind later: once you return a positive value from desegment_len, your PDU
+boundary is set in stone.
+
+static hf_register_info hf[] = {
+    {&hf_cstring,
+     {"C String", "c.string", FT_STRING, BASE_NONE, NULL, 0x0,
+      "C String", HFILL}
+     }
+   };
+
+/**
+*   Dissect a buffer containing C strings.
+*
+*   @param  tvb     The buffer to dissect.
+*   @param  pinfo   Packet Info.
+*   @param  tree    The protocol tree.
+**/
+static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+    guint offset = 0;
+    while(offset < tvb_reported_length(tvb)) {
+        gint available = tvb_reported_length_remaining(tvb, offset);
+        gint len = tvb_strnlen(tvb, offset, available);
+
+        if( -1 == len ) {
+            /* we ran out of data: ask for more */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return;
+        }
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_set_str(pinfo->cinfo, COL_INFO, "C String");
+        }
+
+        len += 1; /* Add one for the '\0' */
+
+        if (tree) {
+            proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
+        }
+        offset += (guint)len;
+    }
+
+    /* if we get here, then the end of the tvb coincided with the end of a
+       string. Happy days. */
+}
+
+This simple dissector will repeatedly return DESEGMENT_ONE_MORE_SEGMENT
+requesting more data until the tvbuff contains a complete C string. The C string
+will then be added to the protocol tree. Note that there may be more
+than one complete C string in the tvbuff, so the dissection is done in a
+loop.
+
+2.8 ptvcursors.
+
+The ptvcursor API allows a simpler approach to writing dissectors for
+simple protocols. The ptvcursor API works best for protocols whose fields
+are static and whose format does not depend on the value of other fields.
+However, even if only a portion of your protocol is statically defined,
+then that portion could make use of ptvcursors.
+
+The ptvcursor API lets you extract data from a tvbuff, and add it to a
+protocol tree in one step. It also keeps track of the position in the
+tvbuff so that you can extract data again without having to compute any
+offsets --- hence the "cursor" name of the API.
+
+The three steps for a simple protocol are:
+    1. Create a new ptvcursor with ptvcursor_new()
+    2. Add fields with multiple calls of ptvcursor_add()
+    3. Delete the ptvcursor with ptvcursor_free()
+
+ptvcursor offers the possibility to add subtrees in the tree as well. It can be
+done in very simple steps :
+    1. Create a new subtree with ptvcursor_push_subtree(). The old subtree is
+       pushed in a stack and the new subtree will be used by ptvcursor.
+    2. Add fields with multiple calls of ptvcursor_add(). The fields will be
+       added in the new subtree created at the previous step.
+    3. Pop the previous subtree with ptvcursor_pop_subtree(). The previous
+       subtree is again used by ptvcursor.
+Note that at the end of the parsing of a packet you must have popped each
+subtree you pushed. If it's not the case, the dissector will generate an error.
+
+To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
+is an example of how to use it. You don't need to look at it as a guide;
+instead, the API description here should be good enough.
+
+2.8.1 ptvcursor API.
+
+ptvcursor_t*
+ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
+    This creates a new ptvcursor_t object for iterating over a tvbuff.
+You must call this and use this ptvcursor_t object so you can use the
+ptvcursor API.
+
+proto_item*
+ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
+    This will extract 'length' bytes from the tvbuff and place it in
+the proto_tree as field 'hf', which is a registered header_field. The
+pointer to the proto_item that is created is passed back to you. Internally,
+the ptvcursor advances its cursor so the next call to ptvcursor_add
+starts where this call finished. The 'endianness' parameter matters for
+FT_UINT* and FT_INT* fields.
+
+proto_item*
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
+    Like ptvcursor_add, but does not advance the internal cursor.
+
+void
+ptvcursor_advance(ptvcursor_t* ptvc, gint length)
+    Advances the internal cursor without adding anything to the proto_tree.
+
+void
+ptvcursor_free(ptvcursor_t* ptvc)
+    Frees the memory associated with the ptvcursor. You must call this
+after your dissection with the ptvcursor API is completed.
+
+
+proto_tree*
+ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree)
+    Pushes the current subtree in the tree stack of the cursor, creates a new
+one and sets this one as the working tree.
+
+void
+ptvcursor_pop_subtree(ptvcursor_t* ptvc);
+    Pops a subtree in the tree stack of the cursor
+
+proto_tree*
+ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
+			    gboolean little_endian, gint ett_subtree);
+    Adds an item to the tree and creates a subtree.
+If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
+In this case, at the next pop, the item length will be equal to the advancement
+of the cursor since the creation of the subtree.
+
+proto_tree*
+ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, gint length,
+				gint ett_subtree, const char* format, ...);
+    Add a text node to the tree and create a subtree.
+If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
+In this case, at the next pop, the item length will be equal to the advancement
+of the cursor since the creation of the subtree.
+
+2.8.2 Miscellaneous functions.
+
+tvbuff_t*
+ptvcursor_tvbuff(ptvcursor_t* ptvc)
+    Returns the tvbuff associated with the ptvcursor.
+
+gint
+ptvcursor_current_offset(ptvcursor_t* ptvc)
+    Returns the current offset.
+
+proto_tree*
+ptvcursor_tree(ptvcursor_t* ptvc)
+    Returns the proto_tree associated with the ptvcursor.
+
+void
+ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
+    Sets a new proto_tree for the ptvcursor.
+
+proto_tree*
+ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
+    Creates a subtree and adds it to the cursor as the working tree but does
+not save the old working tree.
+

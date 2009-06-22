@@ -1,0 +1,198 @@
+$Id$
+tapping with stats_tree
+
+Let's suppose that you want to write a tap only to keep counters, and you
+don't want to get involved with GUI programming or maybe you'd like to make
+it a plugin. A stats_tree might be the way to go. The stats_tree module takes
+care of the representation (GUI for wireshark and text for tshark) of the
+tap data. So there's very little code to write to make a tap listener usable
+from both wireshark and tshark.
+
+First, you should add the TAP to the dissector in question as described in
+README.tapping .
+
+Once the dissector in question is "tapped" you have to write the stats tree
+code which is made of three parts:
+
+The init callback routine:
+   which will be executed before any packet is passed to the tap. Here you
+   should create the "static" nodes of your tree. As well as initialize your
+   data.
+   
+The (per)packet callback routine:
+   As the tap_packet callback is going to be called for every packet, it
+   should be used to increment the counters.
+   
+The cleanup callback:
+   It is called at the destruction of the stats_tree and might be used to
+   free ....
+
+Other than that the stats_tree should be registered.
+
+If you want to make it a plugin, stats_tree_register() should be called by
+plugin_register_tap_listener() read README.plugin for other information
+regarding wireshark plugins.
+
+If you want it as part of the dissector stats_tree_register() can be called
+either by proto_register_xxx() or if you prefer by proto_reg_handoff_xxx().
+
+
+A small example of a very basic stats_tree plugin follows.
+
+----- example stats_tree plugin ------
+/* udpterm_stats_tree.c
+ * A small example of stats_tree plugin that counts udp packets by termination
+ * 2005, Luis E. G. Ontanon
+ *
+ * $ ~Id:  $
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifndef ENABLE_STATIC
+#include <gmodule.h>
+#else
+#include <glib.h>
+#endif
+
+#include <epan/stats_tree.h>
+#include <epan/dissectors/udp.h>
+
+static int st_udp_term;
+static gchar* st_str_udp_term = "UDP terminations";
+
+/* this one initializes the tree, creating the root nodes */
+extern void udp_term_stats_tree_init(stats_tree* st) {
+	/* we create a node under which we'll add every termination */
+	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, TRUE);	
+}
+
+/* this one will be called with every udp packet */
+extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */ 
+                                      packet_info *pinfo,  /* we'll fetch the addresses from here */
+                                      epan_dissect_t *edt _U_, /* unused */ 
+                                      const void *p) /* we'll use this to fetch the ports */
+{
+	static guint8 str[128];
+	e_udphdr* udphdr = (e_udphdr*) p;
+	
+	/* we increment by one (tick) the root node */
+	stats_tree_tick_node(st, st_udp_term, 0, FALSE);
+	
+	/* we then tick a node for this src_addr:src_port
+	   if the node doesn't exists it will be created */
+	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_src),udphdr->sport);
+	tick_stat_node(st, str, st_udp_term, FALSE);
+
+	/* same thing for dst */
+	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_dst),udphdr->dport);
+	tick_stat_node(st, str, st_udp_term, FALSE);
+	
+	return 1;
+}
+
+#ifndef ENABLE_STATIC
+G_MODULE_EXPORT const gchar version[] = "0.0";
+
+G_MODULE_EXPORT void plugin_register_tap_listener(void) {
+
+    stats_tree_register("udp", /* the proto we are going to "tap" */
+                        "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
+                        st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
+                        udp_term_stats_tree_packet, /* the per packet callback */
+                        udp_term_stats_tree_init, /* the init callback */
+                        NULL ); /* the cleanup callback (in this case there isn't) */
+
+}
+#endif
+
+----- END ------
+
+the stats_tree API
+==================
+ every stats_tree callback has a stats_tree* parameter (st), stats_tree is an obscure
+ data structure which should be passed to the api functions.
+
+stats_tree_register( tapname, abbr, name,  packet_cb, init_cb, cleanup_cb);
+ registers a new stats tree
+
+stats_tree_parent_id_by_name( st, parent_name)
+  returns the id of a candidate parent node given its name 
+
+
+Node functions
+==============
+
+All the functions that operate on nodes return a parent_id
+
+stats_tree_create_node(st, name, parent_id, with_children)
+  Creates a node in the tree (to be used in the in init_cb)
+    name: the name of the new node
+    parent_id: the id of the parent_node (NULL for root)
+    with_children: TRUE if this node will have "dynamically created" children
+                   (i.e. it will be a candidate parent)
+
+
+stats_tree_create_node_by_pname(st, name, parent_name, with_children);
+  As before but creates a node using its parent's name
+
+
+stats_tree_create_range_node(st, name, parent_id, ...)
+stats_tree_range_node_with_pname(st, name, parent_name, ...)
+  Creates a node in the tree, that will contain a ranges list.
+    example:
+       stats_tree_create_range_node(st,name,parent_id,
+				"-99","100-199","200-299","300-399","400-", NULL);
+
+stats_tree_tick_range( st, name,  parent_id, value_in_range);
+stats_tree_tick_range_by_pname(st,name,parent_name,value_in_range)
+   Increases by one the ranged node and the sub node to whose range the value belongs
+
+
+stats_tree_create_pivot(st, name, parent_id);
+stats_tree_create_pivot_by_pname(st, name, parent_name);
+  Creates a "pivot node"
+
+stats_tree_tick_pivot(st, pivot_id, pivoted_string);
+ Each time a pivot node will be ticked it will get increased, and, it will
+ increase (or create) the children named as pivoted_string
+
+
+the following will either increase or create a node (with value 1) when called
+
+tick_stat_node(st,name,parent_id,with_children)
+increases by one a stat_node
+
+increase_stat_node(st,name,parent_id,with_children,value)
+increases by value a stat_node
+
+set_stat_node(st,name,parent_id,with_children,value)
+sets the value of a stat_node
+
+zero_stat_node(st,name,parent_id,with_children)
+resets to zero a stat_node
+
+
+You can find more examples of these in $srcdir/plugins/stats_tree/pinfo_stats_tree.c
+
+Luis E. G. Ontanon.

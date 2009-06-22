@@ -1,0 +1,137 @@
+-- QSIG-NA.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-164, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-164.htm
+--
+-- $Id$
+--
+
+Name-Operations-asn1-97 
+        { iso ( 1)  standard ( 0) pss1-name (13868) name-operations-asn1-97( 1)  } 
+ 
+ 
+DEFINITIONS ::=  
+ 
+BEGIN 
+ 
+IMPORTS 
+  
+OPERATION       FROM    Remote-Operations-Information-Objects  
+      {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)} 
+ 
+EXTENSION, Extension{}  FROM    Manufacturer-specific-service-extension-class-asn1-97  
+   { iso standard pss1-generic-procedures (11582)  msi-class-asn1-97 ( 11) }; 
+ 
+Name-Operations OPERATION ::= { callingName | calledName | connectedName | busyName } 
+ 
+callingName   OPERATION ::= { 
+   ARGUMENT    NameArg  
+     RETURN RESULT  FALSE 
+     ALWAYS RESPONDS  FALSE 
+     CODE    local: 0 
+   } 
+     
+calledName   OPERATION  ::= { 
+   ARGUMENT    NameArg  
+     RETURN RESULT  FALSE 
+     ALWAYS RESPONDS  FALSE 
+     CODE    local: 1 
+   } 
+ 
+connectedName OPERATION ::= { 
+   ARGUMENT    NameArg  
+     RETURN RESULT  FALSE 
+     ALWAYS RESPONDS  FALSE 
+     CODE    local: 2 
+   } 
+      
+busyName   OPERATION ::= { 
+   ARGUMENT    NameArg  
+     RETURN RESULT  FALSE 
+     ALWAYS RESPONDS  FALSE 
+     CODE    local: 3 
+   } 
+
+NameArg   ::=  CHOICE { 
+      name    Name,  
+      nameSequence   SEQUENCE { 
+         name    Name,  
+         extension   NameExtension  OPTIONAL   
+         } 
+    } 
+ 
+NameExtension ::=  CHOICE { 
+    single   [5] IMPLICIT Extension{{NameExtensionSet}}, 
+    multiple [6] IMPLICIT SEQUENCE OF Extension{{NameExtensionSet}}  
+      }  
+ 
+NameExtensionSet    EXTENSION ::= {...} 
+     
+Name             ::= CHOICE 
+    {  namePresentationAllowed   NamePresentationAllowed, 
+     namePresentationRestricted NamePresentationRestricted, 
+     nameNotAvailable    NameNotAvailable } 
+ 
+NamePresentationAllowed ::= CHOICE 
+    {  namePresentationAllowedSimple   [0] IMPLICIT NameData, 
+     namePresentationAllowedExtended   [1] IMPLICIT NameSet } 
+      -- iso8859-1 is implied in namePresentationAllowedSimple. 
+ 
+NamePresentationRestricted ::= CHOICE 
+    {  namePresentationRestrictedSimple   [2] IMPLICIT NameData, 
+     namePresentationRestrictedExtended   [3] IMPLICIT NameSet,  
+     namePresentationRestrictedNull   [7] IMPLICIT NULL} 
+        -- iso8859-1 is implied in namePresentationRestrictedSimple. 
+    -- namePresentationRestrictedNull shall only be used in the 
+        -- case of interworking where the other network provides an 
+        -- indication that the name is restricted without the name itself.  
+ 
+NameNotAvailable  ::= [4] IMPLICIT NULL 
+ 
+NameData    ::= OCTET STRING (SIZE (1..50)) 
+        -- The maximum allowed size of the name field is 50 octets. 
+        -- The minimum required size of the name field is 1 octet. 
+ 
+NameSet   ::= SEQUENCE 
+    {  nameData  NameData, 
+     characterSet  CharacterSet OPTIONAL } 
+        -- If characterSet is not included, iso8859-1 is implied. 
+ 
+CharacterSet ::= INTEGER 
+           {  unknown (0), 
+   iso8859-1 (1), 
+    -- The character set "iso8859-1" is specified in International 
+    -- Standard ISO 8859-1 
+        -- The value 2 was assigned for CCITT Rec. T.61 
+        -- which has been withdrawn by ITU-T. 
+   iso8859-2 (3), 
+    -- The character set "iso8859-2" is specified in International 
+    -- Standard ISO 8859-2 
+  iso8859-3 (4), 
+         --The character set "iso8859-3" is specified in International 
+    -- Standard ISO 8859-3 
+   iso8859-4 (5), 
+    --The character set "iso8859-4" is specified in International 
+    -- Standard ISO 8859-4 
+   iso8859-5 (6), 
+    --The character set "iso8859-5" is specified in International 
+    -- Standard ISO 8859-5 
+   iso8859-7 (7), 
+    --The character set "iso8859-7" is specified in International 
+    -- Standard ISO 8859-7 
+   iso10646-BmpString (8),  
+    -- The character set "iso10646-BmpString" is specified in International 
+        -- Standard ISO 10646-1 and in ITU-T Rec. X.680 
+        -- with this character set, each character occupies 2 octets in NameData 
+   iso10646-utf-8String (9) 
+    -- The character set "iso10646-utf-8String" is specified in International 
+    -- Standard ISO 10646-1 
+        -- UTF-8-String is defined in Annex R of ISO 10646-1 
+    -- with this character set, each character occupies a variable 
+        -- number of octets (1...6) in NameData 
+       } (0..255) 
+          -- Other character sets might be added in further editions of 
+     -- this Standard 
+ 
+END    -- of Name-Operations-asn1-97 

@@ -1,0 +1,434 @@
+-- $Id$
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/x/x402/1999/index.html
+-- Module MHSDirectoryObjectsAndAttributes (X.402:06/1999)
+MHSDirectoryObjectsAndAttributes {joint-iso-itu-t mhs(6) arch(5) modules(0)
+  directory(1) version-1999(1)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Exports everything.
+IMPORTS
+  -- MHS Object Identifiers
+  id-at-mhs-acceptable-eits, id-at-mhs-deliverable-classes,
+    id-at-mhs-deliverable-content-types, id-at-mhs-dl-archive-service,
+    id-at-mhs-dl-members, id-at-mhs-dl-policy, id-at-mhs-dl-related-lists,
+    id-at-mhs-dl-submit-permissions, id-at-mhs-dl-subscription-service,
+    id-at-mhs-exclusively-acceptable-eits, id-at-mhs-maximum-content-length,
+    id-at-mhs-message-store-dn, id-at-mhs-or-addresses,
+    id-at-mhs-or-addresses-with-capabilities, id-at-mhs-supported-attributes,
+    id-at-mhs-supported-automatic-actions, id-at-mhs-supported-content-types,
+    id-at-mhs-supported-matching-rules, id-at-mhs-unacceptable-eits,
+    id-con-dl-administrator-annotation, id-con-dl-nested-dl,
+    id-con-dl-reset-originator, id-mr-address-capabilities-match,
+    id-mr-capability-match, id-mr-orname-exact-match,
+    id-oc-mhs-distribution-list, id-oc-mhs-message-store,
+    id-oc-mhs-message-transfer-agent, id-oc-mhs-user, id-oc-mhs-user-agent,
+    id-san-mta-name
+    --==
+    FROM MHSObjectIdentifiers {joint-iso-itu-t mhs(6) arch(5) modules(0)
+      object-identifiers(0) version-1999(1)}
+  -- MTS Abstract Service
+  ContentLength, EncodedInformationTypesConstraints, ExtendedContentType,
+    ExtendedEncodedInformationType, GlobalDomainIdentifier, MTAName, 
+    ORAddress, ORName, RequestedDeliveryMethod, SecurityContext
+    --==
+    FROM MTSAbstractService {joint-iso-itu-t mhs(6) mts(3) modules(0)
+      mts-abstract-service(1) version-1999(1)}
+  -- MS Abstract Service
+  AUTO-ACTION
+    --==
+    FROM MSAbstractService {joint-iso-itu-t mhs(6) ms(4) modules(0)
+      abstract-service(1) version-1999(1)}
+  -- MS General Attribute Types
+  X413ATTRIBUTE, AttributeTable
+    --==
+    FROM MSGeneralAttributeTypes {joint-iso-itu-t mhs(6) ms(4) modules(0)
+      general-attribute-types(2) version-1999(1)}
+  -- MS General Auto Action Types
+  AutoActionTable
+    --==
+    FROM MSGeneralAutoActionTypes {joint-iso-itu-t mhs(6) ms(4) modules(0)
+      general-auto-action-types(3) version-1994(0)}
+  -- MS Matching Rules
+  MatchingRuleTable, oRAddressMatch, oRAddressElementsMatch,
+    oRAddressSubstringElementsMatch, oRNameMatch, oRNameElementsMatch,
+    oRNameSingleElementMatch, oRNameSubstringElementsMatch
+    --==
+    FROM MSMatchingRules {joint-iso-itu-t mhs(6) ms(4) modules(0)
+      general-matching-rules(5) version-1999(1)}
+  -- Information Framework
+  ATTRIBUTE, CONTEXT, distinguishedNameMatch, DIT-CONTEXT-USE-RULE,
+    objectIdentifierMatch, MATCHING-RULE, Name, OBJECT-CLASS, top
+    --==
+    FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
+      informationFramework(1) 3}
+  -- Selected Object Classes
+  applicationEntity
+    --==
+    FROM SelectedObjectClasses {joint-iso-itu-t ds(5) module(1)
+      selectedObjectClasses(6) 3}
+  -- Selected Attribute Types
+  commonName, description, distinguishedName, integerMatch, organizationName,
+    organizationalUnitName, owner, protocolInformation, seeAlso
+    --==
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 3}
+  -- Authentication Framework
+  AlgorithmIdentifier
+    --==
+    FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
+      authenticationFramework(7) 3}
+  -- Certificate Extensions
+  CertificateAssertion, OTHER-NAME
+    --==
+    FROM CertificateExtensions {joint-iso-itu-t ds(5) module(1)
+      certificateExtensions(26) 0};
+
+-- OBJECT CLASSES
+-- MHS Distribution List
+mhs-distribution-list OBJECT-CLASS ::= {
+  SUBCLASS OF   {top}
+  MUST CONTAIN  {commonName | mhs-dl-submit-permissions | mhs-or-addresses}
+  MAY CONTAIN
+    {description | organizationName | organizationalUnitName | owner | seeAlso
+      | mhs-maximum-content-length | mhs-deliverable-content-types |
+      mhs-acceptable-eits | mhs-exclusively-acceptable-eits |
+      mhs-unacceptable-eits | mhs-dl-policy | mhs-dl-subscription-service |
+      mhs-dl-archive-service | mhs-dl-related-lists | mhs-dl-members}
+  ID            id-oc-mhs-distribution-list
+}
+
+-- MHS Message Store
+mhs-message-store OBJECT-CLASS ::= {
+  SUBCLASS OF  {applicationEntity}
+  MAY CONTAIN
+    {owner | mhs-supported-attributes | mhs-supported-automatic-actions |
+      mhs-supported-matching-rules | mhs-supported-content-types |
+      protocolInformation}
+  ID           id-oc-mhs-message-store
+}
+
+-- MHS Message Transfer Agent
+mhs-message-transfer-agent OBJECT-CLASS ::= {
+  SUBCLASS OF  {applicationEntity}
+  MAY CONTAIN  {owner | mhs-maximum-content-length | protocolInformation}
+  ID           id-oc-mhs-message-transfer-agent
+}
+
+-- MHS User
+mhs-user OBJECT-CLASS ::= {
+  SUBCLASS OF   {top}
+  KIND          auxiliary
+  MUST CONTAIN  {mhs-or-addresses}
+  MAY CONTAIN
+    {mhs-maximum-content-length | mhs-deliverable-content-types |
+      mhs-acceptable-eits | mhs-exclusively-acceptable-eits |
+      mhs-unacceptable-eits | mhs-or-addresses-with-capabilities |
+      mhs-message-store-dn}
+  ID            id-oc-mhs-user
+}
+
+-- MHS User Agent
+mhs-user-agent OBJECT-CLASS ::= {
+  SUBCLASS OF  {applicationEntity}
+  MAY CONTAIN
+    {owner | mhs-maximum-content-length | mhs-deliverable-content-types |
+      mhs-acceptable-eits | mhs-exclusively-acceptable-eits |
+      mhs-unacceptable-eits | mhs-deliverable-classes | mhs-or-addresses |
+      protocolInformation}
+  ID           id-oc-mhs-user-agent
+}
+
+-- ATTRIBUTES
+-- MHS Acceptable EITs
+mhs-acceptable-eits ATTRIBUTE ::= {
+  WITH SYNTAX             ExtendedEncodedInformationType
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-acceptable-eits
+}
+
+-- MHS Deliverable Classes
+mhs-deliverable-classes ATTRIBUTE ::= {
+  WITH SYNTAX             Capability
+  EQUALITY MATCHING RULE  capabilityMatch
+  ID                      id-at-mhs-deliverable-classes
+}
+
+-- MHS Deliverable Content Types
+mhs-deliverable-content-types ATTRIBUTE ::= {
+  WITH SYNTAX             ExtendedContentType
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-deliverable-content-types
+}
+
+-- MHS DL Archive Service
+mhs-dl-archive-service ATTRIBUTE ::= {
+  WITH SYNTAX             ORName
+  EQUALITY MATCHING RULE  oRNameExactMatch
+  -- EXTENSIBLE MATCHING RULE	{ oRNameMatch | oRNameElementsMatch |
+  --				oRNameSubstringElementsMatch | oRNameSingleElementMatch }
+  ID                      id-at-mhs-dl-archive-service
+}
+
+-- MHS DL Members
+mhs-dl-members ATTRIBUTE ::= {
+  WITH SYNTAX             ORName
+  EQUALITY MATCHING RULE  oRNameExactMatch
+  -- EXTENSIBLE MATCHING RULE	{ oRNameMatch | oRNameElementsMatch |
+  --				oRNameSubstringElementsMatch | oRNameSingleElementMatch }
+  ID                      id-at-mhs-dl-members
+}
+
+-- MHS DL Policy
+mhs-dl-policy ATTRIBUTE ::= {
+  WITH SYNTAX   DLPolicy
+  SINGLE VALUE  TRUE
+  ID            id-at-mhs-dl-policy
+}
+
+-- MHS DL Related Lists
+mhs-dl-related-lists ATTRIBUTE ::= {
+  SUBTYPE OF              distinguishedName
+  EQUALITY MATCHING RULE  distinguishedNameMatch
+  ID                      id-at-mhs-dl-related-lists
+}
+
+-- MHS DL Submit Permissions
+mhs-dl-submit-permissions ATTRIBUTE ::= {
+  WITH SYNTAX  DLSubmitPermission
+  ID           id-at-mhs-dl-submit-permissions
+}
+
+-- MHS DL Subscription Service
+mhs-dl-subscription-service ATTRIBUTE ::= {
+  WITH SYNTAX             ORName
+  EQUALITY MATCHING RULE  oRNameExactMatch
+  -- EXTENSIBLE MATCHING RULE	{ oRNameMatch | oRNameElementsMatch |
+  --				oRNameSubstringElementsMatch | oRNameSingleElementMatch }
+  ID                      id-at-mhs-dl-subscription-service
+}
+
+-- MHS Exclusively Acceptable EITs
+mhs-exclusively-acceptable-eits ATTRIBUTE ::= {
+  WITH SYNTAX             ExtendedEncodedInformationType
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-exclusively-acceptable-eits
+}
+
+-- MHS Maximum Content Length
+mhs-maximum-content-length ATTRIBUTE ::= {
+  WITH SYNTAX             ContentLength
+  EQUALITY MATCHING RULE  integerMatch
+  SINGLE VALUE            TRUE
+  ID                      id-at-mhs-maximum-content-length
+}
+
+-- MHS Message Store Directory Name
+mhs-message-store-dn ATTRIBUTE ::= {
+  SUBTYPE OF              distinguishedName
+  EQUALITY MATCHING RULE  distinguishedNameMatch
+  SINGLE VALUE            TRUE
+  ID                      id-at-mhs-message-store-dn
+}
+
+-- MHS OR-Addresses
+mhs-or-addresses ATTRIBUTE ::= {
+  WITH SYNTAX             ORAddress
+  EQUALITY MATCHING RULE  oRAddressMatch
+  -- EXTENSIBLE MATCHING RULE	{ oRAddressElementsMatch | oRNameSingleElementMatch |
+  --				oRAddressSubstringElementsMatch } 
+  ID                      id-at-mhs-or-addresses
+}
+
+-- MHS OR-Addresses with Capabilities
+mhs-or-addresses-with-capabilities ATTRIBUTE ::= {
+  WITH SYNTAX             AddressCapabilities
+  EQUALITY MATCHING RULE  addressCapabilitiesMatch
+  ID                      id-at-mhs-or-addresses-with-capabilities
+}
+
+-- MHS Supported Attributes
+mhs-supported-attributes ATTRIBUTE ::= {
+  WITH SYNTAX             X413ATTRIBUTE.&id({AttributeTable})
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-supported-attributes
+}
+
+-- MHS Supported Automatic Actions
+mhs-supported-automatic-actions ATTRIBUTE ::= {
+  WITH SYNTAX             AUTO-ACTION.&id({AutoActionTable})
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-supported-automatic-actions
+}
+
+-- MHS Supported Content Types
+mhs-supported-content-types ATTRIBUTE ::= {
+  WITH SYNTAX             ExtendedContentType
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-supported-content-types
+}
+
+-- MHS Supported Matching Rules
+mhs-supported-matching-rules ATTRIBUTE ::= {
+  WITH SYNTAX             MATCHING-RULE.&id({MatchingRuleTable})
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-supported-matching-rules
+}
+
+-- MHS Unacceptable EITs
+mhs-unacceptable-eits ATTRIBUTE ::= {
+  WITH SYNTAX             ExtendedEncodedInformationType
+  EQUALITY MATCHING RULE  objectIdentifierMatch
+  ID                      id-at-mhs-unacceptable-eits
+}
+
+-- ATTRIBUTE SYNTAXES
+-- DL Submit Permission
+DLSubmitPermission ::= CHOICE {
+  individual       [0]  ORName,
+  member-of-dl     [1]  ORName,
+  pattern-match    [2]  ORNamePattern,
+  member-of-group  [3]  Name
+}
+
+ORNamePattern ::= ORName
+
+--any-user-may-submit DLSubmitPermission ::=
+--  pattern-match:{built-in-standard-attributes {}}
+
+-- DL Policy
+DLPolicy ::= SET {
+  report-propagation
+    [0]  INTEGER {previous-dl-or-originator(0), dl-owner(1),
+                  both-previous-and-owner(2)} DEFAULT previous-dl-or-originator,
+  report-from-dl
+    [1]  INTEGER {whenever-requested(0), when-no-propagation(1)}
+      DEFAULT whenever-requested,
+  originating-MTA-report
+    [2]  INTEGER {unchanged(0), report(2), non-delivery-report(3),
+                  audited-report(4)} DEFAULT unchanged,
+  originator-report
+    [3]  INTEGER {unchanged(0), no-report(1), report(2), non-delivery-report(3)}
+      DEFAULT unchanged,
+  return-of-content
+    [4]  ENUMERATED {unchanged(0), content-return-not-requested(1),
+                     content-return-requested(2)} DEFAULT unchanged,
+  priority
+    [5]  INTEGER {unchanged(0), normal(1), non-urgent(2), urgent(3)}
+      DEFAULT unchanged,
+  disclosure-of-other-recipients
+    [6]  ENUMERATED {unchanged(0),
+                     disclosure-of-other-recipients-prohibited(1),
+                     disclosure-of-other-recipients-allowed(2)}
+      DEFAULT unchanged,
+  implicit-conversion-prohibited
+    [7]  ENUMERATED {unchanged(0), implicit-conversion-allowed(1),
+                     implicit-conversion-prohibited(2)} DEFAULT unchanged,
+  conversion-with-loss-prohibited
+    [8]  ENUMERATED {unchanged(0), conversion-with-loss-allowed(1),
+                     conversion-with-loss-prohibited(2)} DEFAULT unchanged,
+  further-dl-expansion-allowed                      [9]  BOOLEAN DEFAULT TRUE,
+  originator-requested-alternate-recipient-removed  [10]  BOOLEAN DEFAULT TRUE,
+  proof-of-delivery
+    [11]  INTEGER {dl-expansion-point(0), dl-members(1), both(2), neither(3)}
+      DEFAULT dl-members,
+  requested-delivery-method
+    [12]  CHOICE {unchanged  [0]  NULL,
+                  removed    [1]  NULL,
+                  replaced   RequestedDeliveryMethod} DEFAULT unchanged:NULL,
+  token-encryption-algorithm-preference
+    [13]  SEQUENCE OF AlgorithmInformation OPTIONAL,
+  token-signature-algorithm-preference
+    [14]  SEQUENCE OF AlgorithmInformation OPTIONAL,
+  ...
+}
+
+AlgorithmInformation ::= SEQUENCE {
+  algorithm-identifier             [0]  AlgorithmIdentifier,
+  originator-certificate-selector  [1]  CertificateAssertion OPTIONAL,
+  recipient-certificate-selector   [2]  CertificateAssertion OPTIONAL
+}
+
+-- OR-Address with Capabilities
+AddressCapabilities ::= SEQUENCE {
+  description   GeneralString OPTIONAL,
+  address       ORAddress,
+  capabilities  SET OF Capability
+}
+
+Capability ::= SET {
+  content-types
+    [0]  SET OF ExtendedContentType OPTIONAL,
+  maximum-content-length                 [1]  ContentLength OPTIONAL,
+  encoded-information-types-constraints
+    [2]  EncodedInformationTypesConstraints OPTIONAL,
+  security-labels                        [3]  SecurityContext OPTIONAL,
+  ...
+}
+
+-- MATCHING RULES
+-- OR-Address with Capabilities Match
+addressCapabilitiesMatch MATCHING-RULE ::= {
+  SYNTAX  AddressCapabilities
+  ID      id-mr-address-capabilities-match
+}
+
+-- Capability Match
+capabilityMatch MATCHING-RULE ::= {
+  SYNTAX  Capability
+  ID      id-mr-capability-match
+}
+
+-- OR-Name Exact Match
+oRNameExactMatch MATCHING-RULE ::= {
+  SYNTAX  ORName
+  ID      id-mr-orname-exact-match
+}
+
+-- CONTEXTS
+-- DL Administrator Annotation
+dl-administrator-annotation CONTEXT ::= {
+  WITH SYNTAX
+    CHOICE {bmpstring        BMPString,
+            universalstring  UniversalString}
+  ID           id-con-dl-administrator-annotation
+}
+
+dl-administrator-annotation-use-rule DIT-CONTEXT-USE-RULE ::= {
+  ATTRIBUTE TYPE     mhs-dl-members.&id
+  OPTIONAL CONTEXTS  {dl-administrator-annotation}
+}
+
+-- DL Nested DL
+dl-nested-dl CONTEXT ::= {WITH SYNTAX  NULL
+                          ID           id-con-dl-nested-dl
+}
+
+dl-nested-dl-use-rule DIT-CONTEXT-USE-RULE ::= {
+  ATTRIBUTE TYPE     mhs-dl-members.&id
+  OPTIONAL CONTEXTS  {dl-nested-dl}
+}
+
+-- DL Reset Originator
+dl-reset-originator CONTEXT ::= {
+  WITH SYNTAX  NULL
+  ID           id-con-dl-reset-originator
+}
+
+dl-reset-originator-use-rule DIT-CONTEXT-USE-RULE ::= {
+  ATTRIBUTE TYPE     mhs-dl-members.&id
+  OPTIONAL CONTEXTS  {dl-reset-originator}
+}
+
+-- CERTIFICATE SUBJECT ALTERNATIVE NAMES
+-- MTA Name
+mta-name OTHER-NAME ::= {
+  SEQUENCE {domain    GlobalDomainIdentifier,
+            mta-name  MTAName}
+  IDENTIFIED BY  id-san-mta-name
+}
+
+END -- of MHSDirectory
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

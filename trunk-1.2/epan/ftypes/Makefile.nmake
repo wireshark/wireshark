@@ -1,0 +1,34 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ..\..\config.nmake
+
+include Makefile.common
+
+############### no need to modify below this line #########
+
+CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) \
+	$(PCRE_CFLAGS) /I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
+
+.c.obj::
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj)
+
+ftypes.lib	: $(OBJECTS)
+	link /lib /out:ftypes.lib $(OBJECTS)
+
+clean:
+	rm -f $(OBJECTS) ftypes.lib *.pdb
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+		$(NONGENERATED_C_FILES)

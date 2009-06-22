@@ -1,0 +1,550 @@
+//Source file: cs.idl
+//Date:  12 October 2004
+//Charging Interfaces and Data Types for ETSI ES 203 915-12 v.1.1.1, DES/TISPAN-01005-12-OSA, Parlay 5.0
+
+
+#ifndef __CS_DEFINED
+#define __CS_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module cs {
+
+			interface IpChargingSession;
+
+
+
+						
+			struct TpMerchantAccountID {
+				TpString MerchantID;
+				TpInt32 AccountID;
+			};
+			
+			
+			typedef TpInt32 TpCorrelationType;
+			
+			
+			struct TpCorrelationID {
+				TpSessionID CorrelationID;
+				TpCorrelationType CorrelationType;
+			};
+			
+			
+			struct TpAmount {
+				TpInt32 Number;
+				TpInt32 Exponent;
+			};
+			
+			
+			struct TpChargingPrice {
+				TpString Currency;
+				TpAmount Amount;
+			};
+			
+			
+			typedef TpInt32 TpChargingParameterID;
+			
+			
+			enum TpChargingParameterValueType {
+
+				P_CHS_PARAMETER_INT32,
+				P_CHS_PARAMETER_FLOAT,
+				P_CHS_PARAMETER_STRING,
+				P_CHS_PARAMETER_BOOLEAN,
+				P_CHS_PARAMETER_OCTETSET				
+			};
+			
+			
+			union TpChargingParameterValue switch(TpChargingParameterValueType) {
+				case P_CHS_PARAMETER_INT32: TpInt32 IntValue;
+				case P_CHS_PARAMETER_FLOAT: TpFloat FloatValue;
+				case P_CHS_PARAMETER_STRING: TpString StringValue;
+				case P_CHS_PARAMETER_BOOLEAN: TpBoolean BooleanValue;
+				case P_CHS_PARAMETER_OCTETSET: TpOctetSet OctetValue;
+			};
+			
+			
+			typedef TpInt32 TpUnitID;
+			
+			
+			struct TpVolume {
+				TpAmount Amount;
+				TpUnitID Unit;
+			};
+			
+			
+			typedef sequence <TpVolume> TpVolumeSet;
+			
+			
+			struct TpChargingSessionID {
+				IpChargingSession ChargingSessionReference;
+				TpSessionID ChargingSessionID;
+				TpInt32 RequestNumberFirstRequest;
+			};
+			
+			
+			struct TpPriceVolume {
+				TpChargingPrice Price;
+				TpVolume Volume;
+			};
+			
+			
+			typedef sequence <TpPriceVolume> TpPriceVolumeSet;
+			
+			
+			enum TpChargingError {
+
+				P_CHS_ERR_UNDEFINED,
+				P_CHS_ERR_ACCOUNT,
+				P_CHS_ERR_USER,
+				P_CHS_ERR_PARAMETER,
+				P_CHS_ERR_NO_DEBIT,
+				P_CHS_ERR_NO_CREDIT,
+				P_CHS_ERR_VOLUMES,
+				P_CHS_ERR_CURRENCY,
+				P_CHS_ERR_NO_EXTEND,
+				P_CHS_ERR_RESERVATION_LIMIT,
+				P_CHS_ERR_CONFIRMATION_REQUIRED				
+			};
+			
+			
+			enum TpSessionEndedCause {
+
+				P_CHS_CAUSE_UNDEFINED,
+				P_CHS_CAUSE_TIMER_EXPIRED				
+			};
+			
+			
+			enum TpAppInformationType {
+
+				P_APP_INF_TIMESTAMP				
+			};
+			
+			
+			union TpAppInformation switch(TpAppInformationType) {
+				case P_APP_INF_TIMESTAMP: TpDateAndTime Timestamp;
+			};
+			
+			
+			typedef sequence <TpAppInformation> TpAppInformationSet;
+			
+			
+			struct TpApplicationDescription {
+				TpString Text;
+				TpAppInformationSet AppInformation;
+			};
+			
+			
+			struct TpChargingParameter {
+				TpChargingParameterID ParameterID;
+				TpChargingParameterValue ParameterValue;
+			};
+			
+			
+			typedef sequence <TpChargingParameter> TpChargingParameterSet;
+			
+			
+			const TpChargingParameterID P_CHS_PARAM_UNDEFINED = 0;
+			
+			const TpChargingParameterID P_CHS_PARAM_ITEM = 1;
+			
+			const TpChargingParameterID P_CHS_PARAM_SUBTYPE = 2;
+			
+			const TpCorrelationType P_CHS_CORRELATION_UNDEFINED = 0;
+			
+			const TpCorrelationType P_CHS_CORRELATION_VOICE = 1;
+			
+			const TpCorrelationType P_CHS_CORRELATION_DATA = 2;
+			
+			const TpCorrelationType P_CHS_CORRELATION_MM = 3;
+			
+			const TpUnitID P_CHS_UNIT_UNDEFINED = 0;
+			
+			const TpUnitID P_CHS_UNIT_NUMBER = 1;
+			
+			const TpUnitID P_CHS_UNIT_OCTETS = 2;
+			
+			const TpUnitID P_CHS_UNIT_SECONDS = 3;
+			
+			const TpUnitID P_CHS_UNIT_MINUTES = 4;
+			
+			const TpUnitID P_CHS_UNIT_HOURS = 5;
+			
+			const TpUnitID P_CHS_UNIT_DAYS = 6;
+			
+			exception P_INVALID_USER {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_ACCOUNT {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_REQUEST_NUMBER {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_VOLUME {
+				TpString ExtraInformation;
+			};
+			
+			
+			const TpChargingParameterID P_CHS_PARAM_CONFIRMATION_ID = 3;
+			
+			const TpChargingParameterID P_CHS_PARAM_CONTRACT = 4;
+
+			
+
+
+			interface IpAppChargingSession : IpInterface {
+				void creditAmountErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void creditAmountRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingPrice creditedAmount,	
+					in TpChargingPrice reservedAmountLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void creditUnitErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void creditUnitRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpVolumeSet creditedVolumes,	
+					in TpVolumeSet reservedUnitsLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void debitAmountErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void debitAmountRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingPrice debitedAmount,	
+					in TpChargingPrice reservedAmountLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void debitUnitErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void debitUnitRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpVolumeSet debitedVolumes,	
+					in TpVolumeSet reservedUnitsLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directCreditAmountErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directCreditAmountRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingPrice creditedAmount,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directCreditUnitErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directCreditUnitRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpVolumeSet creditedVolumes,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directDebitAmountErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directDebitAmountRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingPrice debitedAmount,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directDebitUnitErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void directDebitUnitRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpVolumeSet debitedVolumes,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void extendLifeTimeErr (
+					in TpSessionID sessionID,	
+					in TpChargingError error	
+					);
+					
+				void extendLifeTimeRes (
+					in TpSessionID sessionID,	
+					in TpInt32 sessionTimeLeft	
+					);
+					
+				void rateErr (
+					in TpSessionID sessionID,	
+					in TpChargingError error	
+					);
+					
+				void rateRes (
+					in TpSessionID sessionID,	
+					in TpPriceVolumeSet rates,	
+					in TpDuration validityTimeLeft	
+					);
+					
+				void reserveAmountErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void reserveAmountRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingPrice reservedAmount,	
+					in TpInt32 sessionTimeLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void reserveUnitErr (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpChargingError error,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void reserveUnitRes (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber,	
+					in TpVolumeSet reservedUnits,	
+					in TpInt32 sessionTimeLeft,	
+					in TpInt32 requestNumberNextRequest	
+					);
+					
+				void sessionEnded (
+					in TpSessionID sessionID,	
+					in TpSessionEndedCause report	
+					);
+					
+			};
+			
+			
+			interface IpChargingSession : IpService {
+				void creditAmountReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingPrice amount,	
+					in TpBoolean closeReservation,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_AMOUNT,P_INVALID_CURRENCY,P_INVALID_REQUEST_NUMBER);
+					
+				void creditUnitReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpVolumeSet volumes,	
+					in TpBoolean closeReservation,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_VOLUME,P_INVALID_REQUEST_NUMBER);
+					
+				void debitAmountReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingPrice amount,	
+					in TpBoolean closeReservation,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_AMOUNT,P_INVALID_CURRENCY,P_INVALID_REQUEST_NUMBER);
+					
+				void debitUnitReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpVolumeSet volumes,	
+					in TpBoolean closeReservation,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_VOLUME,P_INVALID_REQUEST_NUMBER);
+					
+				void directCreditAmountReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpChargingPrice amount,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_AMOUNT,P_INVALID_CURRENCY,P_INVALID_REQUEST_NUMBER);
+					
+				void directCreditUnitReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpVolumeSet volumes,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_VOLUME,P_INVALID_REQUEST_NUMBER);
+					
+				void directDebitAmountReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpChargingPrice amount,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_AMOUNT,P_INVALID_CURRENCY,P_INVALID_REQUEST_NUMBER);
+					
+				void directDebitUnitReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpVolumeSet volumes,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_VOLUME,P_INVALID_REQUEST_NUMBER);
+					
+				void extendLifeTimeReq (
+					in TpSessionID sessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpChargingPrice getAmountLeft (
+					in TpSessionID sessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpInt32 getLifeTimeLeft (
+					in TpSessionID sessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpVolumeSet getUnitLeft (
+					in TpSessionID sessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void rateReq (
+					in TpSessionID sessionID,	
+					in TpChargingParameterSet chargingParameters	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void release (
+					in TpSessionID sessionID,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_REQUEST_NUMBER);
+					
+				void reserveAmountReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpChargingPrice preferredAmount,	
+					in TpChargingPrice minimumAmount,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_AMOUNT,P_INVALID_CURRENCY,P_INVALID_REQUEST_NUMBER);
+					
+				void reserveUnitReq (
+					in TpSessionID sessionID,	
+					in TpApplicationDescription applicationDescription,	
+					in TpChargingParameterSet chargingParameters,	
+					in TpVolumeSet volumes,	
+					in TpInt32 requestNumber	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_VOLUME,P_INVALID_REQUEST_NUMBER);
+					
+			};
+			
+			
+			interface IpAppChargingManager : IpInterface {
+				void sessionAborted (
+					in TpSessionID sessionID	
+					);
+					
+				void abortMultipleChargingSessions (
+					in TpSessionIDSet chargingSessionSet	
+					);
+					
+			};
+			
+			
+			interface IpChargingManager : IpService {
+				TpChargingSessionID createChargingSession (
+					in IpAppChargingSession appChargingSession,	
+					in TpString sessionDescription,	
+					in TpMerchantAccountID merchantAccount,	
+					in TpAddress user,	
+					in TpCorrelationID correlationID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_USER,P_INVALID_ACCOUNT);
+					
+				TpChargingSessionID createSplitChargingSession (
+					in IpAppChargingSession appChargingSession,	
+					in TpString sessionDescription,	
+					in TpMerchantAccountID merchantAccount,	
+					in TpAddressSet users,	
+					in TpCorrelationID correlationID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_USER,P_INVALID_ACCOUNT);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

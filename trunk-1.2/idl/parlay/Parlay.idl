@@ -1,0 +1,24 @@
+//Source file: fw_if_access.idl
+//Date:  13 October 2004
+//Framework Access Interfaces for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#include "fw_if_access.idl"
+#include "fw_if_app.idl"
+#include "fw_if_entop.idl"
+#include "fw_if_service.idl"
+#include "gcc_interfaces.idl"
+#include "mpcc_interfaces.idl"
+#include "mmccs.idl"
+#include "cccs.idl"
+#include "ui_interfaces.idl"
+#include "mm.idl"
+#include "termcap.idl"
+#include "dsc.idl"
+#include "gms.idl"
+#include "cm.idl"
+#include "am.idl"
+#include "cs.idl"
+#include "policy_interfaces.idl"
+#include "pam_interfaces.idl"
+#include "mmm.idl"
+

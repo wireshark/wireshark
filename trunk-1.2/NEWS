@@ -1,0 +1,193 @@
+Wireshark 1.2.0 Release Notes
+
+   ------------------------------------------------------------------
+
+What is Wireshark?
+
+   Wireshark is the world's most popular network protocol analyzer.
+   It is used for troubleshooting, analysis, development, and
+   education.
+
+What's New
+
+  Bug Fixes
+
+   Too many bugs have been fixed since the 1.0 release to list here.
+   Some notable fixes are:
+
+     o Type-ahead search now works properly.
+
+     o Several bugs that affected capture from pipes have been fixed.
+
+     o Many Lua-related bugs have been fixed.
+
+     o Several memory leaks have been found and fixed.
+
+     o The "Follow TCP Stream" feature could show two streams at the
+       same time The hex dump view has been narrowed.
+
+     o WPA and SSL decryption bugs have been fixed.
+
+     o Readability problems on 256-color displays on Windows have
+       been fixed.
+
+  New and Updated Features
+
+   The following features are new (or have been significantly
+   updated) since version 1.0:
+
+     o Wireshark has a spiffy new start page.
+
+     o Display filters now autocomplete.
+
+     o A 64-bit Windows (x64) installer is now provided.
+
+     o Support for the c-ares resolver library has been added. It has
+       many advantages over ADNS.
+
+     o Many new protocol dissectors and capture file formats have
+       been added (see below for a complete list).
+
+     o Macintosh OS X support has been improved.
+
+     o GeoIP database lookups.
+
+     o OpenStreetMap + GeoIP integration.
+
+     o Improved Postscript(R) print output.
+
+     o The preference handling code is now much smarter about
+       changes.
+
+     o Support for Pcap-ng, the next-generation capture file format.
+
+     o Support for process information correlation via IPFIX.
+
+     o Column widths are now saved.
+
+     o The last used configuration profile is now saved.
+
+     o Protocol preferences are changeable from the packet details
+       context menu.
+
+     o Support for IP packet comparison.
+
+     o Capinfos now shows the average packet rate.
+
+     o GTK1 is no longer supported. (Yes, this is a feature.)
+
+     o Official Windows packages are now built using Microsoft Visual
+       C++ 2008 SP1.
+
+  New Protocol Support
+
+   Anything in Anything Protocol, ATM PW, N-to-one Cell Mode,
+   B.A.T.M.A.N. Layer 3 Protocol, BACnet MS/TP, BSS LCS Assistance
+   Protocol, Canon BJNP, CESoPSN basic NxDS0 mode (no RTP support),
+   Charging ASE, Cimetrics MS/TP, DECT Protocol, Digital Private
+   Signalling System No 1 Link Layer, DOCSIS Mac Domain Description,
+   DOCSIS Registration Request Multipart, DOCSIS Registration
+   Response Multipart, DOCSIS Synchronisation Message, E100
+   Encapsulation, EHS, Enhanced Variable Rate Codec, Ethernet Global
+   Data, Ethernet PW, Exchange 2003 Directory Request For Response,
+   Far End Failure Detection, FCoE Initialization Protocol, GOOSE,
+   GPEF, GPRS Tunneling Protocol V2, GSM A-I/F COMMON, GSM A-I/F GPRS
+   Mobility and Session Management, GSM SACCH, GSM Um Interface, HDLC
+   PW, FR port mode (no CW), HDLC-like framing for PPP, IEC
+   60870-5-104,Apci, IEC 60870-5-104,Asdu, IEEE 802.15.4 Low-Rate
+   Wireless PAN non-ASK PHY, IEEE C37.118 Synchrophasor Protocol,
+   Intelligent Platform Management Interface (Session Wrapper),
+   Inter-Integrated Circuit, Internal TDM, IPSICTL, ISMACryp
+   Protocol, iWARP Direct Data Placement and Remote Direct Memory
+   Access Protocol, iWARP Marker Protocol data unit Aligned framing,
+   Kontiki Delivery Protocol, LANforge Traffic Generator, Layer 1
+   Event Messages, Lb-I/F BSSMAP LE, LeCroy VICP, Link Access
+   Procedure, Channel Dm (LAPDm), Local Download Sharing Service, LTE
+   Radio Resource Control (RRC) protocol, MAC-LTE, Memcache Protocol,
+   Mesh Header, MP4V-ES, Nasdaq TotalView-ITCH, Nasdaq-SoupTCP
+   version 2.0, NAT Port Mapping Protocol, Netdump Protocol,
+   Non-Access-Stratum (NAS)PDU, PacketLogger, Paltalk Messenger
+   Protocol, PDCP-LTE, PW Associated Channel Header, PW Ethernet
+   Control Word, PW Frame Relay DLCI Control Word, PW MPLS Control
+   Word (generic/preferred), Real-Time Publish-Subscribe Wire
+   Protocol 2.x, Remote Packet Capture, RLC-LTE, SAToP (no RTP
+   support), SERCOS III V1.1, SIMULCRYPT Protocol, Subnetwork
+   Dependent Convergence Protocol XID, Teamspeak2 Protocol,
+   TTEthernet, TTEthernet Protocol Control Frame, Turbocell Aggregate
+   Data, Turbocell Header, TURN Channel, Unreliable Multicast
+   Inter-ORB Protocol, VCDU, Wave Short Message Protocol(IEEE
+   P1609.3), Wireless Access Station Session Protocol, Wireshark
+   Expert Info, World of Warcraft, Xpress Transport Protocol, ZigBee
+   Application Framework, ZigBee Application Support Layer, ZigBee
+   Device Profile, ZigBee Encapsulation Protocol, ZigBee Network
+   Layer, Zipped Inter-ORB Protocol, ZRTP
+
+  Updated Protocol Support
+
+   There are too many updates to list here.
+
+  New Capture File Support
+
+   Apple Bluetooth PacketLogger, Daintree's Sensor Network Analyzer,
+   dct3trace, Pcap-NG, TNEF (yes, those silly winmail.dat
+   attachments)
+
+Getting Wireshark
+
+   Wireshark source code and installation packages are available from
+   the download page on the main web site.
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Wireshark packages.
+   You can usually install or upgrade Wireshark using the package
+   management system specific to that platform. A list of third-party
+   packages can be found on the download page on the Wireshark web
+   site.
+
+File Locations
+
+   Wireshark and TShark look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+
+Known Problems
+
+   Wireshark may appear offscreen on multi-monitor Windows systems.
+   (Bug 553)
+
+   Wireshark might make your system disassociate from a wireless
+   network on OS X. (Bug 1315)
+
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
+
+   The BER dissector might infinitely loop. (Bug 1516)
+
+   Wireshark can't dynamically update the packet list. This means
+   that host name resolutions above a certain response time threshold
+   won't show up in the packet list. (Bug 1605)
+
+   Capture filters aren't applied when capturing from named pipes.
+   (Bug 1814)
+
+   Wireshark might freeze when reading from a pipe. (Bug 2082)
+
+   Filtering tshark captures with display filters (-R) no longer
+   works. (Bug 2234)
+
+   The 64-bit Windows installer does not ship with the same libraries
+   as the 32-bit installer.
+
+Getting Help
+
+   Community support is available on the wireshark-users mailing
+   list. Subscription information and archives for all of Wireshark's
+   mailing lists can be found on the web site.
+
+   Commercial support, training, and development services are
+   available from CACE Technologies.
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the Wireshark web site.

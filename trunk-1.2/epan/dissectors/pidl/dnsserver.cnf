@@ -1,0 +1,97 @@
+#
+# DNS_RPC_NAME
+#
+MANUAL dnsserver_dissect_struct_DNS_RPC_NAME
+HF_FIELD hf_dnsserver_DNS_RPC_NAME_name "Name" "dnsserver.DNS_RPC_NAME.name" FT_STRING BASE_NONE NULL 0 "" "" ""
+
+
+#
+# DNS_RPC_NODE
+#
+MANUAL dnsserver_dissect_element_DNS_RPC_NODE_RecordCount
+MANUAL dnsserver_dissect_element_DNS_RPC_NODE_records
+
+CODE START
+
+	#include "packet-smb-common.h"
+
+int
+dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	dcerpc_info *di = NULL;
+	guint8 len;
+	const char *dn;
+	int dn_len;
+	guint16 bc;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_NAME);
+	}
+
+	offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, hf_dnsserver_DNS_RPC_NAME_NameLength, &len);
+	bc = tvb_length_remaining(tvb, offset);
+	dn = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &dn_len, TRUE, TRUE, &bc);
+	if (dn) {
+		proto_tree_add_string(tree, hf_dnsserver_DNS_RPC_NAME_name, tvb,
+			offset, dn_len,dn);
+		offset += dn_len;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+
+static guint16 node_record_count;
+
+static int
+dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	dcerpc_info *di = NULL;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_dnsserver_DNS_RPC_NODE_RecordCount, &node_record_count);
+
+	return offset;
+}
+
+static int
+dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	dcerpc_info *di = NULL;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	while(node_record_count--){
+		offset = dnsserver_dissect_element_DNS_RPC_NODE_records_(tvb, offset, pinfo, tree, drep);
+	}
+
+	return offset;
+}
+
+CODE END

@@ -1,0 +1,146 @@
+//Source file: policy_data.idl
+//Date:  13 October 2004
+//Policy Management Data Types for ES 203 915-13 V1.1.1, DES/TISPAN-01005-13-OSA, Parlay 5.0
+
+#ifndef __POLICY_DATA_DEFINED
+#define __POLICY_DATA_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module policy {
+			
+			
+			enum TpPolicyConditionListType {
+
+				P_PM_DNF,
+				P_PM_CNF				
+			};
+			
+			
+			enum TpPolicyConditionType {
+
+				P_PM_TIME_PERIOD_CONDITION,
+				P_PM_EVENT_CONDITION,
+				P_PM_EXPRESSION_CONDITION				
+			};
+			
+			
+			enum TpPolicyActionType {
+
+				P_PM_EVENT_ACTION,
+				P_PM_EXPRESSION_ACTION				
+			};
+			
+			
+			struct TpPolicyEvent {
+				TpInt32 EventID;
+				TpDateAndTime TimeGenerated;
+				TpAttributeSet Attributes;
+				TpString EventDefinitionName;
+				TpString EventDomainName;
+			};
+			
+			
+			typedef TpString TpPolicyKeyword;
+			
+			
+			typedef sequence <TpPolicyKeyword> TpPolicyKeywordSet;
+			
+			
+			exception P_ACCESS_VIOLATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_SYNTAX_ERROR {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_NAME_SPACE_ERROR {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_NO_TRANSACTION_IN_PROCESS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_TRANSACTION_IN_PROCESS {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef TpInt32 TpPolicyError;
+			
+			
+			const TpPolicyError P_PM_ERROR_UNDEFINED = 0;
+			
+			const TpPolicyError P_PM_ERROR_INSUFFICIENT_INPUTS = 1;
+			
+			const TpPolicyError P_PM_ERROR_INVALID_INPUT_NAME = 2;
+			
+			const TpPolicyError P_PM_ERROR_INVALID_INPUT_VALUE = 3;
+			
+			const TpPolicyError P_PM_ERROR_EVALUATION_ERROR = 5;
+			
+			const TpPolicyError P_PM_ERROR_DB_ERROR = 4;
+			
+			enum TpPolicyTypeInfo {
+
+				P_PM_SIMPLE_TYPE,
+				P_PM_TYPE_RECORD,
+				P_PM_TYPE_LIST,
+				P_PM_STRUCTURED_TYPE,
+				P_PM_XML_TYPE				
+			};
+			
+			
+			struct TpPolicyNameValue {
+				TpString Name;
+				TpAny Value;
+			};
+			
+			
+			typedef sequence <TpPolicyNameValue> TpPolicyNameValueList;
+			
+			
+			union TpPolicyType switch(TpPolicyTypeInfo) {
+				case P_PM_SIMPLE_TYPE: TpSimpleAttributeTypeInfo SimpleType;	
+				case P_PM_TYPE_RECORD: 
+					struct TpPolicyRecordType {
+						sequence<TpString> Names;
+						sequence<TpPolicyType> Types;
+					} RecordType;	
+				case P_PM_TYPE_LIST: 
+					struct TpPolicyListType {
+						sequence<TpPolicyType,1> ElementType;
+					} ListType;	
+				case P_PM_STRUCTURED_TYPE: TpStructuredAttributeType StructuredType;	
+				case P_PM_XML_TYPE: TpXMLString XMLString;	
+			};
+			
+			
+			struct TpPolicyVar {
+				TpString VarName;
+				TpPolicyType VarType;
+				TpAny VarValue;
+			};
+			
+			
+			typedef sequence <TpPolicyVar> TpPolicyVarSet;
+
+			
+		};
+		
+	};
+	
+};
+
+#endif

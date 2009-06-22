@@ -1,0 +1,9 @@
+/* XPM */
+static const char * clist_descend_xpm[] = {
+"4 4 2 1",
+" 	c None",
+".	c #000000",
+" .  ",
+"... ",
+"    ",
+"    "};

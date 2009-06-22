@@ -1,0 +1,820 @@
+//Source file: fw_data.idl
+//Date:  13 October 2004
+//Framework Data Types for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#ifndef __FW_DATA_DEFINED
+#define __FW_DATA_DEFINED
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module fw {
+			
+			
+			typedef TpString TpAccessType;
+			
+			
+			typedef TpInt32 TpActivityTestID;
+			
+			
+			typedef TpString TpActivityTestRes;
+			
+			
+			enum TpAPIUnavailReason {
+
+				API_UNAVAILABLE_UNDEFINED,
+				API_UNAVAILABLE_LOCAL_FAILURE,
+				API_UNAVAILABLE_GATEWAY_FAILURE,
+				API_UNAVAILABLE_OVERLOADED,
+				API_UNAVAILABLE_CLOSED,
+				API_UNAVAILABLE_PROTOCOL_FAILURE				
+			};
+			
+			
+			typedef TpString TpEncryptionCapability;
+			
+			
+			typedef TpString TpEncryptionCapabilityList;
+			
+			
+			typedef TpString TpAuthType;
+			
+			
+			typedef TpString TpClientAppID;
+			
+			
+			typedef sequence <TpClientAppID> TpClientAppIDList;
+			
+			
+			enum TpDomainIDType {
+
+				P_FW,
+				P_CLIENT_APPLICATION,
+				P_ENT_OP,
+				P_SERVICE_INSTANCE,
+				P_SERVICE_SUPPLIER				
+			};
+			
+			
+			typedef TpString TpEmail;
+			
+			
+			typedef TpString TpEntOpID;
+			
+			
+			typedef sequence <TpEntOpID> TpEntOpIDList;
+			
+			
+			enum TpFwEventName {
+
+				P_EVENT_FW_NAME_UNDEFINED,
+				P_EVENT_FW_SERVICE_AVAILABLE,
+				P_EVENT_FW_SERVICE_UNAVAILABLE,
+				P_EVENT_FW_MIGRATION_SERVICE_AVAILABLE,
+				P_EVENT_FW_APP_SESSION_CREATED,
+				P_EVENT_FW_APP_SESSION_TERMINATED,
+				P_EVENT_FW_APP_AGREEMENT_SIGNED,
+				P_EVENT_FW_APP_AGREEMENT_ENDED				
+			};
+			
+			
+			enum TpFWExceptionType {
+
+				P_FW_DUMMY				
+			};
+			
+			
+			typedef TpString TpFwID;
+			
+			
+			enum TpFwUnavailReason {
+
+				FW_UNAVAILABLE_UNDEFINED,
+				FW_UNAVAILABLE_LOCAL_FAILURE,
+				FW_UNAVAILABLE_GATEWAY_FAILURE,
+				FW_UNAVAILABLE_OVERLOADED,
+				FW_UNAVAILABLE_CLOSED,
+				FW_UNAVAILABLE_PROTOCOL_FAILURE				
+			};
+			
+			
+			typedef TpString TpHomePage;
+			
+			
+			enum TpInterfaceFault {
+
+				INTERFACE_FAULT_UNDEFINED,
+				INTERFACE_FAULT_LOCAL_FAILURE,
+				INTERFACE_FAULT_GATEWAY_FAILURE,
+				INTERFACE_FAULT_PROTOCOL_ERROR				
+			};
+			
+			
+			struct TpFaultStats {
+				TpInterfaceFault Fault;
+				TpInt32 Occurrences;
+				TpInt32 MaxDuration;
+				TpInt32 TotalDuration;
+				TpInt32 NumberOfClientsAffected;
+			};
+			
+			
+			typedef sequence <TpFaultStats> TpFaultStatsSet;
+			
+			
+			struct TpFaultStatsRecord {
+				TpTimeInterval Period;
+				TpFaultStatsSet FaultStatsSet;
+			};
+			
+			
+			typedef TpString TpInterfaceName;
+			
+			
+			enum TpLoadLevel {
+
+				LOAD_LEVEL_NORMAL,
+				LOAD_LEVEL_OVERLOAD,
+				LOAD_LEVEL_SEVERE_OVERLOAD				
+			};
+			
+			
+			struct TpLoadPolicy {
+				TpString LoadPolicy;
+			};
+			
+			
+			struct TpLoadStatisticData {
+				TpFloat LoadValue;
+				TpLoadLevel LoadLevel;
+			};
+			
+			
+			enum TpLoadStatisticEntityType {
+
+				P_LOAD_STATISTICS_FW_TYPE,
+				P_LOAD_STATISTICS_SVC_TYPE,
+				P_LOAD_STATISTICS_APP_TYPE				
+			};
+			
+			
+			enum TpLoadStatisticInfoType {
+
+				P_LOAD_STATISTICS_VALID,
+				P_LOAD_STATISTICS_INVALID				
+			};
+			
+			
+			enum TpLoadStatusError {
+
+				LOAD_STATUS_ERROR_UNDEFINED,
+				LOAD_STATUS_ERROR_UNAVAILABLE				
+			};
+			
+			
+			struct TpLoadThreshold {
+				TpFloat LoadThreshold;
+			};
+			
+			
+			struct TpLoadInitVal {
+				TpLoadLevel LoadLevel;
+				TpLoadThreshold LoadThreshold;
+			};
+			
+			
+			typedef TpString TpPersonName;
+			
+			
+			typedef TpString TpPostalAddress;
+			
+			
+			typedef TpString TpPropertyName;
+			
+			
+			typedef TpString TpPropertyValue;
+			
+			
+			struct TpProperty {
+				TpPropertyName PropertyName;
+				TpPropertyValue PropertyValue;
+			};
+			
+			
+			typedef sequence <TpProperty> TpPropertyList;
+			
+			
+			typedef TpPropertyList TpClientAppProperties;
+			
+			
+			struct TpClientAppDescription {
+				TpClientAppID ClientAppID;
+				TpClientAppProperties ClientAppProperties;
+				TpBoolean HasAccessSession;
+				TpBoolean HasServiceInstances;
+			};
+			
+			
+			typedef TpPropertyList TpEndAccessProperties;
+			
+			
+			typedef TpPropertyList TpEntOpProperties;
+			
+			
+			struct TpEntOp {
+				TpEntOpID EntOpID;
+				TpEntOpProperties EntOpProperties;
+			};
+			
+			
+			typedef TpPropertyList TpPersonProperties;
+			
+			
+			typedef TpString TpSagDescription;
+			
+			
+			typedef TpString TpSagID;
+			
+			
+			struct TpSag {
+				TpSagID SagID;
+				TpSagDescription SagDescription;
+			};
+			
+			
+			typedef sequence <TpSagID> TpSagIDList;
+			
+			
+			typedef TpString TpServiceContractID;
+			
+			
+			typedef TpDateAndTime TpServiceEndDate;
+			
+			
+			typedef TpString TpServiceID;
+			
+			
+			typedef sequence <TpServiceID> TpServiceIDList;
+			
+			
+			typedef TpString TpServiceProfileID;
+			
+			
+			typedef sequence <TpServiceProfileID> TpServiceProfileIDList;
+			
+			
+			enum TpServiceTypePropertyMode {
+
+				NORMAL,
+				MANDATORY,
+				_READONLY,
+				MANDATORY_READONLY				
+			};
+			
+			
+			typedef TpString TpServicePropertyName;
+			
+			
+			typedef sequence <TpServicePropertyName> TpServicePropertyNameList;
+			
+			
+			typedef TpString TpServicePropertyTypeName;
+			
+			
+			typedef TpString TpServicePropertyValue;
+			
+			
+			typedef sequence <TpServicePropertyValue> TpServicePropertyValueList;
+			
+			
+			struct TpServiceProperty {
+				TpServicePropertyName ServicePropertyName;
+				TpServicePropertyValueList ServicePropertyValueList;
+			};
+			
+			
+			typedef sequence <TpServiceProperty> TpServicePropertyList;
+			
+			
+			typedef TpDateAndTime TpServiceStartDate;
+			
+			
+			typedef TpServicePropertyList TpServiceSubscriptionProperties;
+			
+			
+			typedef TpString TpServiceSupplierID;
+			
+			
+			typedef TpString TpServiceToken;
+			
+			
+			typedef TpString TpServiceTypeName;
+			
+			
+			struct TpServiceDescription {
+				TpServiceTypeName ServiceTypeName;
+				TpServicePropertyList ServicePropertyList;
+			};
+			
+			
+			struct TpService {
+				TpServiceID ServiceID;
+				TpServiceDescription ServiceDescription;
+			};
+			
+			
+			typedef sequence <TpService> TpServiceList;
+			
+			
+			struct TpServiceProfileDescription {
+				TpServiceContractID ServiceContractID;
+				TpServiceStartDate ServiceStartDate;
+				TpServiceEndDate ServiceEndDate;
+				TpServiceTypeName ServiceTypeName;
+				TpServiceSubscriptionProperties ServiceSubscriptionProperties;
+				TpBoolean InUse;
+				TpServiceID ServiceID;
+			};
+			
+			
+			typedef sequence <TpServiceTypeName> TpServiceTypeNameList;
+			
+			
+			union TpFwEventCriteria switch(TpFwEventName) {
+				case P_EVENT_FW_NAME_UNDEFINED: TpString EventNameUndefined;
+				case P_EVENT_FW_SERVICE_AVAILABLE: TpServiceTypeNameList ServiceTypeNameList;
+				case P_EVENT_FW_SERVICE_UNAVAILABLE: TpServiceTypeNameList UnavailableServiceTypeNameList;
+				case P_EVENT_FW_MIGRATION_SERVICE_AVAILABLE: TpServiceTypeNameList CompatibleServiceTypeNameList;
+				case P_EVENT_FW_APP_SESSION_CREATED: TpClientAppIDList SessionCreatedList;
+				case P_EVENT_FW_APP_SESSION_TERMINATED: TpClientAppIDList SessionTerminatedList;
+				case P_EVENT_FW_APP_AGREEMENT_SIGNED: TpClientAppIDList AgreementSignedList;
+				case P_EVENT_FW_APP_AGREEMENT_ENDED: TpClientAppIDList AgreementEndedList;
+			};
+			
+			
+			struct TpServiceTypeProperty {
+				TpServicePropertyName ServicePropertyName;
+				TpServiceTypePropertyMode ServiceTypePropertyMode;
+				TpServicePropertyTypeName ServicePropertyTypeName;
+			};
+			
+			
+			typedef sequence <TpServiceTypeProperty> TpServiceTypePropertyList;
+			
+			
+			struct TpServiceTypeDescription {
+				TpServiceTypePropertyList ServiceTypePropertyList;
+				TpServiceTypeNameList ServiceTypeNameList;
+				TpBoolean AvailableOrUnavailable;
+			};
+			
+			
+			struct TpSignatureAndServiceMgr {
+				TpOctetSet DigitalSignature;
+				IpService ServiceMgrInterface;
+			};
+			
+			
+			typedef TpString TpSigningAlgorithm;
+			
+			
+			enum TpSvcUnavailReason {
+
+				SERVICE_UNAVAILABLE_UNDEFINED,
+				SERVICE_UNAVAILABLE_LOCAL_FAILURE,
+				SERVICE_UNAVAILABLE_GATEWAY_FAILURE,
+				SERVICE_UNAVAILABLE_OVERLOADED,
+				SERVICE_UNAVAILABLE_CLOSED				
+			};
+			
+			
+			typedef TpString TpTelephoneNumber;
+			
+			
+			struct TpPerson {
+				TpPersonName PersonName;
+				TpPostalAddress PostalAddress;
+				TpTelephoneNumber TelephoneNumber;
+				TpEmail Email;
+				TpHomePage HomePage;
+				TpPersonProperties PersonProperties;
+			};
+			
+			
+			typedef TpPerson TpBillingContact;
+			
+			
+			typedef TpPerson TpServiceRequestor;
+			
+			
+			struct TpServiceContractDescription {
+				TpServiceRequestor ServiceRequestor;
+				TpBillingContact BillingContact;
+				TpServiceStartDate ServiceStartDate;
+				TpServiceEndDate ServiceEndDate;
+				TpServiceTypeName ServiceTypeName;
+				TpServiceID ServiceID;
+				TpServiceSubscriptionProperties ServiceSubscriptionProperties;
+				TpBoolean InUse;
+			};
+			
+			
+			union TpLoadStatisticEntityID switch(TpLoadStatisticEntityType) {
+				case P_LOAD_STATISTICS_FW_TYPE: TpFwID FrameworkID;
+				case P_LOAD_STATISTICS_SVC_TYPE: TpServiceID ServiceID;
+				case P_LOAD_STATISTICS_APP_TYPE: TpClientAppID ClientAppID;
+			};
+			
+			
+			enum TpLoadStatisticError {
+
+				P_LOAD_INFO_ERROR_UNDEFINED,
+				P_LOAD_INFO_UNAVAILABLE				
+			};
+			
+			typedef sequence <TpLoadStatisticError> TpLoadStatisticErrorList;
+			
+			
+			union TpLoadStatisticInfo switch(TpLoadStatisticInfoType) {
+				case P_LOAD_STATISTICS_VALID: TpLoadStatisticData LoadStatisticData;
+				case P_LOAD_STATISTICS_INVALID: TpLoadStatisticError LoadStatisticError;
+			};
+			
+			
+			struct TpLoadStatistic {
+				TpLoadStatisticEntityID LoadStatisticEntityID;
+				TpDateAndTime TimeStamp;
+				TpLoadStatisticInfo LoadStatisticInfo;
+			};
+			
+			
+			typedef sequence <TpLoadStatistic> TpLoadStatisticList;
+			
+			
+			exception P_INVALID_SERVICE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_SERVICE_ACCESS_DENIED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ACCESS_DENIED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_SERVICE_NOT_ENABLED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_ENCRYPTION_CAPABILITY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_AGREEMENT_TEXT {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SERVICE_TOKEN {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SIGNATURE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SIGNING_ALGORITHM {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_DOMAIN_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_PROPERTY {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpServiceContract {
+				TpServiceContractID ServiceContractID;
+				TpServiceContractDescription ServiceContractDescription;
+			};
+			
+			
+			struct TpServiceProfile {
+				TpServiceProfileID ServiceProfileID;
+				TpServiceProfileDescription ServiceProfileDescription;
+			};
+			
+			
+			exception P_INVALID_ACCESS_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_SERVICE_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SERVICE_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MISSING_MANDATORY_PROPERTY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_DUPLICATE_PROPERTY_NAME {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PROPERTY_TYPE_MISMATCH {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SERVICE_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_CLIENT_APP_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_AUTH_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SAG_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SERVICE_PROFILE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SERVICE_CONTRACT_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_ACTIVITY_TEST_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_ENT_OP_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_SERVICE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SERVICE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef sequence <TpInterfaceName> TpInterfaceNameList;
+			
+			
+			enum TpSubjectType {
+
+				P_SUBJECT_UNDEFINED,
+				P_SUBJECT_CLIENT_APP,
+				P_SUBJECT_FW				
+			};
+			
+			
+			enum TpFaultStatisticsError {
+
+				P_FAULT_INFO_ERROR_UNDEFINED,
+				P_FAULT_INFO_UNAVAILABLE				
+			};
+			
+			
+			typedef TpString TpServiceInstanceID;
+			
+			
+			union TpDomainID switch(TpDomainIDType) {
+				case P_FW: TpFwID FwID;
+				case P_CLIENT_APPLICATION: TpClientAppID ClientAppID;
+				case P_ENT_OP: TpEntOpID EntOpID;
+				case P_SERVICE_INSTANCE: TpServiceInstanceID ServiceID;
+				case P_SERVICE_SUPPLIER: TpServiceSupplierID ServiceSupplierID;
+			};
+			
+			
+			struct TpAuthDomain {
+				TpDomainID DomainID;
+				IpInterface AuthInterface;
+			};
+			
+			
+			typedef sequence <TpServiceContractID> TpServiceContractIDList;
+			
+			
+			exception P_SERVICE_TYPE_UNAVAILABLE {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpSagProfilePair {
+				TpSagID Sag;
+				TpServiceProfileID ServiceProfile;
+			};
+			
+			
+			struct TpAddSagMembersConflict {
+				TpClientAppID ClientApplication;
+				TpSagProfilePair ConflictGeneratingSagProfilePair;
+				TpSagProfilePair AlreadyAssignedSagProfilePair;
+				TpServiceID Service;
+			};
+			
+			
+			typedef sequence <TpAddSagMembersConflict> TpAddSagMembersConflictList;
+			
+			
+			struct TpAssignSagToServiceProfileConflict {
+				TpClientAppID ClientApplication;
+				TpSagProfilePair AlreadyAssignedSagProfilePair;
+				TpServiceID Service;
+			};
+			
+			
+			typedef sequence <TpAssignSagToServiceProfileConflict> TpAssignSagToServiceProfileConflictList;
+			
+			
+			exception P_INVALID_ADDITION_TO_SAG {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef TpString TpAuthMechanism;
+			
+			
+			typedef TpString TpAuthMechanismList;
+			
+			
+			typedef TpString TpSigningAlgorithmCapabilityList;
+			
+			
+			exception P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_NO_ACCEPTABLE_SIGNING_ALGORITHM {
+				TpString ExtraInformation;
+			};
+			
+			
+			enum TpSvcAvailStatusReason {
+
+				SVC_UNAVAILABLE_UNDEFINED,
+				SVC_UNAVAILABLE_LOCAL_FAILURE,
+				SVC_UNAVAILABLE_GATEWAY_FAILURE,
+				SVC_UNAVAILABLE_OVERLOADED,
+				SVC_UNAVAILABLE_CLOSED,
+				SVC_UNAVAILABLE_NO_RESPONSE,
+				SVC_UNAVAILABLE_SW_UPGRADE,
+				SVC_AVAILABLE				
+			};
+			
+			
+			enum TpAppAvailStatusReason {
+
+				APP_UNAVAILABLE_UNDEFINED,
+				APP_UNAVAILABLE_LOCAL_FAILURE,
+				APP_UNAVAILABLE_REMOTE_FAILURE,
+				APP_UNAVAILABLE_OVERLOADED,
+				APP_UNAVAILABLE_CLOSED,
+				APP_UNAVAILABLE_NO_RESPONSE,
+				APP_UNAVAILABLE_SW_UPGRADE,
+				APP_AVAILABLE				
+			};
+			
+			
+			typedef TpInt32 TpLoadTestID;
+			
+			
+			typedef sequence <TpFaultStatisticsError> TpFaultStatsErrorList;
+			
+			
+			typedef TpInt32 TpFaultReqID;
+			
+			
+			struct TpServiceTypePropertyValue {
+				TpServicePropertyName ServicePropertyName;
+				TpServiceTypePropertyMode ServiceTypePropertyMode;
+				TpServicePropertyTypeName ServicePropertyTypeName;
+				TpServicePropertyValueList ServicePropertyValueList;
+			};
+			
+			
+			typedef sequence <TpServiceTypePropertyValue> TpServiceTypePropertyValueList;
+			
+			
+			enum TpMigrationAdditionalInfoType {
+
+				P_MIGRATION_INFO_UNDEFINED				
+			};
+			
+			
+			union TpMigrationAdditionalInfo switch(TpMigrationAdditionalInfoType) {
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpMigrationAdditionalInfo> TpMigrationAdditionalInfoSet;
+			
+			
+			struct TpFwMigrationServiceAvailableInfo {
+				TpServiceTypeName ServiceType;
+				TpServiceID ServiceID;
+				TpServiceID CompatibleServiceID;
+				TpBoolean BackwardCompatibilityLevel;
+				TpBoolean MigrationRequired;
+				TpBoolean DataMigrated;
+				TpDateAndTime MigrationDataAndTime;
+				TpMigrationAdditionalInfoSet MigrationAdditionalInfo;
+			};
+			
+			
+			enum TpFwAvailStatusReason {
+
+				FRAMEWORK_UNAVAILABLE_UNDEFINED,
+				FRAMEWORK_UNAVAILABLE_LOCAL_FAILURE,
+				FRAMEWORK_UNAVAILABLE_REMOTE_FAILURE,
+				FRAMEWORK_UNAVAILABLE_OVERLOADED,
+				FRAMEWORK_UNAVAILABLE_CLOSED,
+				FRAMEWORK_UNAVAILABLE_PROTOCOL_FAILURE,
+				FRAMEWORK_UNAVAILABLE_SW_UPGRADE,
+				FRAMEWORK_AVAILABLE				
+			};
+			
+			
+			struct TpFwAgreementInfo {
+				TpClientAppID ClientApplicationID;
+				TpServiceID ServiceID;
+				TpServiceContractID ServiceContractID;
+				TpServiceProfileID ServiceProfileID;
+			};
+			
+			
+			union TpFwEventInfo switch(TpFwEventName) {
+				case P_EVENT_FW_NAME_UNDEFINED: TpString EventNameUndefined;
+				case P_EVENT_FW_SERVICE_AVAILABLE: TpServiceIDList ServiceIDList;
+				case P_EVENT_FW_SERVICE_UNAVAILABLE: TpServiceIDList UnavailableServiceIDList;
+				case P_EVENT_FW_MIGRATION_SERVICE_AVAILABLE: TpFwMigrationServiceAvailableInfo MigrationServiceAvailable;
+				case P_EVENT_FW_APP_SESSION_CREATED: TpClientAppID AppSessionCreated;
+				case P_EVENT_FW_APP_SESSION_TERMINATED: TpClientAppID AppSessionTerminated;
+				case P_EVENT_FW_APP_AGREEMENT_SIGNED: TpFwAgreementInfo AppAgreementSigned;
+				case P_EVENT_FW_APP_AGREEMENT_ENDED: TpFwAgreementInfo AppAgreementEnded;
+			};
+			
+			
+		};
+		
+	};
+	
+};
+
+#endif

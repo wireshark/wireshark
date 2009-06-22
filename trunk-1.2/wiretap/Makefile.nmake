@@ -1,0 +1,80 @@
+#
+# $Id$
+#
+
+include ..\config.nmake
+include <win32.mak>
+include ..\Makefile.nmake.inc
+
+include Makefile.common
+
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DYYMALLOC=malloc -DYYFREE=free -DHAVE_CONFIG_H /I. /I.. \
+	$(GLIB_CFLAGS) $(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
+	-D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX $(GENERATED_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
+.c.obj::
+	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj)
+
+wiretap_LIBS = \
+	$(GLIB_LIBS)	\
+	..\wsutil\libwsutil.lib \
+	$(ZLIB_LIBS)
+
+all: wiretap-$(WTAP_VERSION).dll
+
+wiretap-$(WTAP_VERSION).lib: wiretap-$(WTAP_VERSION).dll
+wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll
+
+wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
+	$(link) $(dlllflags) $(conlibsdll) \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
+		/DEF:wtap.def /OUT:wiretap-$(WTAP_VERSION).dll \
+		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
+		..\image\wiretap.res \
+		$(OBJECTS) $(wiretap_LIBS)
+
+RUNLEX = ..\tools\runlex.sh
+
+ascend-scanner_lex.h : ascend-scanner.c
+ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+k12text_lex.h : k12text.c
+k12text.obj : k12text.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+ascend-grammar.c ascend-grammar.h : ascend-grammar.y
+	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
+
+clean :
+	rm -f $(OBJECTS) \
+		wiretap-*.lib \
+		wiretap-*.exp \
+		wiretap-*.dll \
+		wiretap-*.dll.manifest \
+		*.pdb
+
+#
+# We remove the generated files with "distclean" because one of them,
+# "ascend-scanner.c", needs different #includes for UN*X and Windows
+# (UN*X versions of Flex make it include <unistd.h>, but that's a
+# UN*X-only header), so if you're going to build from source, you need
+# to build "ascend-scanner.c" from "ascend-scanner.l" with Flex.
+# This might not be necessary for "ascend-grammar.{c,h}", but as
+# long as you need Flex, you might as well get Bison....
+#
+distclean: clean
+	rm -f $(GENERATED_FILES)
+
+maintainer-clean: distclean
+
+checkapi:
+## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
+##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+	$(PERL) ../tools/checkAPIs.pl -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)

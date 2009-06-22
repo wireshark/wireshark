@@ -1,0 +1,13 @@
+#
+#	For Merit.
+#
+#	$Id$
+#
+VENDOR		Merit	61
+
+ATTRIBUTE	Merit-Proxy-Action           	211     string	Merit
+ATTRIBUTE	Merit-User-Id                 	222     string	Merit
+ATTRIBUTE	Merit-User-Realm              	223     string	Merit
+
+
+

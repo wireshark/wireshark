@@ -1,0 +1,213 @@
+-- QSIG-DND.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-194, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-194.htm
+--
+-- $Id$
+--
+
+Do-Not-Disturb-Operations-asn1-97  
+  {iso(1) standard(0) pss1-do-not-disturb(14844) do-not-disturb-operations-asn1-97 (2) } 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+   {joint-iso-itu-t(2) remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+   {iso(1) standard(0) 
+   pss1-generic-procedures(11582) msi-class-asn1-97(11)} 
+ basicServiceNotProvided, invalidServedUserNr, notAvailable, 
+ userNotSubscribed, supplementaryServiceInteractionNotAllowed 
+   FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)} 
+  PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    {iso(1) standard(0) pss1-generic-procedures(11582) 
+   addressing-data-elements-asn1-97 (20)} 
+  BasicService FROM Call-Diversion-Operations-asn1-97 
+    {iso(1) standard(0) pss1-call-diversion(13873) call-diversion-operations-asn1-97 (1) } 
+ ; 
+ 
+Do-Not-Disturb-Operations OPERATION ::= {doNotDisturbActivateQ | doNotDisturbDeactivateQ | 
+doNotDisturbInterrogateQ | doNotDisturbOverrideQ | doNotDisturbOvrExecuteQ | pathRetain | serviceAvailable} 
+ 
+doNotDisturbActivateQ  OPERATION ::= { 
+ ARGUMENT  DNDActivateArg 
+ RESULT  DNDActivateRes 
+ ERRORS {  userNotSubscribed | 
+         notAvailable | 
+         invalidServedUserNr | 
+         basicServiceNotProvided | 
+         temporarilyUnavailable | 
+         supplementaryServiceInteractionNotAllowed | 
+         unspecified} 
+ CODE    local: 35} 
+
+doNotDisturbDeactivateQ  OPERATION ::= { 
+ ARGUMENT  DNDDeactivateArg 
+ RESULT  DummyRes 
+ ERRORS  {  userNotSubscribed | 
+        notAvailable | 
+        invalidServedUserNr | 
+        notActivated | 
+        temporarilyUnavailable | 
+        supplementaryServiceInteractionNotAllowed | 
+        unspecified} 
+ CODE   local: 36} 
+ 
+doNotDisturbInterrogateQ  OPERATION ::= { 
+ ARGUMENT  DNDInterrogateArg 
+ RESULT  DNDInterrogateRes 
+ ERRORS  {  userNotSubscribed | 
+        notAvailable | 
+        invalidServedUserNr | 
+        temporarilyUnavailable | 
+        supplementaryServiceInteractionNotAllowed | 
+        unspecified} 
+ CODE   local: 37} 
+ 
+doNotDisturbOverrideQ  OPERATION ::= { 
+ ARGUMENT  DNDOverrideArg 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE   local: 38} 
+ 
+pathRetain  OPERATION ::= { 
+  ARGUMENT  PathRetainArg  -- this operation may be used by other 
+                -- Supplementary Services using other 
+                -- values of the argument 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE   local: 41} 
+ 
+serviceAvailable  OPERATION ::= { 
+ ARGUMENT ServiceAvailableArg  -- this operation may be used by other 
+              -- Supplementary Services using other 
+              -- values of the argument 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE   local: 42} 
+
+doNotDisturbOvrExecuteQ  OPERATION ::= { 
+ ARGUMENT  DummyArg 
+ RESULT  DummyRes 
+ ERRORS   {  notAvailable | 
+        temporarilyUnavailable | 
+        supplementaryServiceInteractionNotAllowed | 
+        unspecified} 
+ CODE   local: 39} 
+ 
+DummyArg  ::= CHOICE { 
+   null    NULL, 
+   extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+   sequenceOfExtn   [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+ } 
+ 
+DummyRes  ::= CHOICE { 
+   null    NULL, 
+   extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+   sequenceOfExtn   [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+ } 
+ 
+DNDActivateArg  ::= SEQUENCE { 
+   basicService  BasicService, 
+   servedUserNr  PartyNumber, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+ 
+DNDActivateRes  ::= SEQUENCE { 
+    status  SET OF SEQUENCE{ 
+     basicService   BasicService, 
+     dndProtectionLevel  DNDProtectionLevel OPTIONAL 
+   } OPTIONAL, 
+   resultExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+ 
+DNDDeactivateArg  ::= SEQUENCE { 
+   basicService  BasicService, 
+   servedUserNr  PartyNumber, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+
+DNDInterrogateArg  ::= SEQUENCE { 
+   servedUserNr  PartyNumber, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+ 
+DNDInterrogateRes  ::= SEQUENCE { 
+    status  SET OF SEQUENCE { 
+     basicService   BasicService, 
+     dndProtectionLevel  DNDProtectionLevel OPTIONAL 
+   } OPTIONAL, 
+   resultExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+ 
+DNDOverrideArg  ::= SEQUENCE { 
+   dndoCapabilityLevel DNDOCapabilityLevel, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{DNDExtSet}}, 
+     sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{DNDExtSet}} 
+       } OPTIONAL 
+ } 
+ 
+PathRetainArg  ::= CHOICE {  
+   serviceList   ServiceList, 
+   extendedServiceList  SEQUENCE { 
+     serviceList     ServiceList, 
+     extension     Extension{{DNDExtSet}} 
+       } 
+ } 
+ 
+ServiceAvailableArg  ::= CHOICE {  
+   serviceList   ServiceList, 
+   extendedServiceList  SEQUENCE { 
+     serviceList     ServiceList, 
+     extension     Extension{{DNDExtSet}} 
+       } 
+ } 
+
+DNDProtectionLevel  ::= ENUMERATED {   
+     lowProtection(0), 
+     mediumProtection(1), 
+     highProtection(2), 
+     fullProtection(3) 
+ }  
+ 
+DNDOCapabilityLevel  ::= ENUMERATED { 
+     overrideLowProt(1), 
+     overrideMediumProt(2), 
+     overrideHighProt(3) 
+ }  
+ 
+ServiceList  ::= BIT STRING 
+    { dndo-low(1), dndo-medium(2), dndo-high(3) } (SIZE (1..32)) 
+    -- bits other than dndo-low, dndo-medium, or dndo-high, are reserved 
+    -- for other Supplementary Services 
+ 
+temporarilyUnavailable  ERROR ::= { CODE  local: 1000} 
+notActivated  ERROR ::= { CODE  local: 43} 
+ 
+unspecified  ERROR ::= {  
+ PARAMETER Extension{{DNDExtSet}} 
+  CODE   local: 1008} 
+ 
+DNDExtSet EXTENSION ::= {...} 
+ 
+END  -- of Do-Not-Disturb-Operations-asn1-97 

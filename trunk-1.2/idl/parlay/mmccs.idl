@@ -1,0 +1,320 @@
+//Source file: mmccs.idl
+//Date:  7 October 2004
+//Multi Media Call Control for ETSI ES 203 915-04-4 V1.1.1, DES/TISPAN-01005-04-4-OSA, Parlay 5.0
+
+#ifndef __MMCCS_DEFINED
+#define __MMCCS_DEFINED
+
+
+#include "osa.idl"
+#include "mpcc_interfaces.idl"
+#include "common_cc_data.idl"
+#include "mpcc_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			module mmccs {
+				
+				interface IpMultiMediaCall;
+				interface IpAppMultiMediaCall;
+				interface IpMultiMediaCallLeg;
+				interface IpAppMultiMediaCallLeg;
+				interface IpMultiMediaStream;
+								
+				enum TpMediaStreamDirection {
+
+					P_SEND_ONLY,
+					P_RECEIVE_ONLY,
+					P_SEND_RECEIVE					
+				};
+				
+				
+				typedef TpInt32 TpAudioCapabilitiesType;
+				
+				
+				const TpInt32 P_G711_64K = 1;
+				
+				const TpInt32 P_G711_56K = 2;
+				
+				const TpInt32 P_G722_64K = 4;
+				
+				const TpInt32 P_G722_56K = 8;
+				
+				const TpInt32 P_G722_48K = 16;
+				
+				const TpInt32 P_G7231 = 32;
+				
+				const TpInt32 P_G728 = 64;
+				
+				const TpInt32 P_G729 = 128;
+				
+				const TpInt32 P_G729_ANNEX_A = 256;
+				
+				const TpInt32 P_IS11172_3 = 512;
+				
+				const TpInt32 P_IS13818_3 = 1024;
+				
+				const TpInt32 P_G729_ANNEXB = 2048;
+				
+				const TpInt32 P_G729_ANNEX_A_AND_B = 4096;
+				
+				const TpInt32 P_G7231_ANNEX_C = 8192;
+				
+				const TpInt32 P_GSM_FULLRATE = 16384;
+				
+				const TpInt32 P_GSM_HALFRATE = 32768;
+				
+				const TpInt32 P_GSM_ENHANCED = 65536;
+				
+				typedef TpInt32 TpVideoCapabilitiesType;
+				
+				
+				const TpInt32 P_H261 = 1;
+				
+				const TpInt32 P_H262 = 2;
+				
+				const TpInt32 P_H263 = 4;
+				
+				const TpInt32 P_IS11172_2 = 8;
+				
+				typedef TpInt32 TpDataCapabilities;
+				
+				
+				enum TpMediaStreamEventType {
+
+					P_MEDIA_STREAM_ADDED,
+					P_MEDIA_STREAM_SUBTRACTED,
+					P_MEDIA_STREAM_QOS_CLASS_CHANGED					
+				};
+				
+				
+				struct TpCallSuperviseVolume {
+					TpInt32 VolumeQuantity;
+					TpInt32 VolumeUnit;
+				};
+				
+				
+				enum TpMediaStreamDataTypeRequestType {
+
+					P_AUDIO_CAPABILITIES,
+					P_VIDEO_CAPABILITIES,
+					P_DATA_CAPABILITIES					
+				};
+				
+				
+				union TpMediaStreamDataTypeRequest switch(TpMediaStreamDataTypeRequestType) {
+					case P_AUDIO_CAPABILITIES: TpAudioCapabilitiesType Audio;
+					case P_VIDEO_CAPABILITIES: TpVideoCapabilitiesType Video;
+					case P_DATA_CAPABILITIES: TpDataCapabilities Data;
+				};
+				
+				
+				struct TpMediaStreamRequest {
+					TpMediaStreamDirection Direction;
+					TpMediaStreamDataTypeRequest DataTypeRequest;
+					TpCallMonitorMode MediaMonitorMode;
+					TpMediaStreamEventType EventType;
+				};
+				
+				
+				typedef sequence <TpMediaStreamRequest> TpMediaStreamRequestSet;
+				
+				
+				typedef TpMediaStreamDataTypeRequest TpMediaStreamDataType;
+				
+				
+				struct TpMediaStream {
+					TpMediaStreamDirection Direction;
+					TpMediaStreamDataType DataType;
+					TpSessionID ChannelSessionID;
+					IpMultiMediaStream MediaStream;
+				};
+				
+				
+				typedef sequence <TpMediaStream> TpMediaStreamSet;
+				
+				
+				struct TpNotificationMediaRequest {
+					TpCallNotificationScope MediaNotificationScope;
+					TpMediaStreamRequestSet MediaStreamsRequested;
+				};
+				
+				
+				struct TpMediaNotificationRequested {
+					TpNotificationMediaRequest AppNotificationMediaRequest;
+					TpInt32 AssignmentID;
+				};
+				
+				
+				typedef sequence <TpMediaNotificationRequested> TpMediaNotificationRequestedSet;
+				
+				
+				const TpInt32 P_UMTS_AMR_NB = 131072;
+				
+				const TpInt32 P_UMTS_AMR_WB = 262144;
+				
+				const TpInt32 P_IS14496_2 = 16;
+
+				
+				struct TpMultiMediaCallIdentifier {
+					IpMultiMediaCall MMCallReference;
+					TpSessionID MMCallSessionID;
+				};
+				
+				
+				struct TpMultiMediaCallLegIdentifier {
+					IpMultiMediaCallLeg MMCallLegReference;
+					TpSessionID MMCallLegSessionID;
+				};
+				
+				
+				typedef sequence <TpMultiMediaCallIdentifier> TpMultiMediaCallIdentifierSet;
+				
+				
+				enum TpAppMultiMediaCallBackRefType {
+
+					P_APP_CALLBACK_UNDEFINED,
+					P_APP_MULTIMEDIA_CALL_CALLBACK,
+					P_APP_CALL_LEG_CALLBACK,
+					P_APP_CALL_AND_CALL_LEG_CALLBACK					
+				};
+				
+				
+				typedef sequence <IpAppMultiMediaCallLeg> TpAppMultiMediaCallLegRefSet;
+				
+				
+				struct TpAppMultiMediaCallLegCallBack {
+					IpAppMultiMediaCall AppMultiMediaCall;
+					TpAppMultiMediaCallLegRefSet AppCallLegSet;
+				};
+				
+				
+				union TpAppMultiMediaCallBack switch(TpAppMultiMediaCallBackRefType) {
+					case P_APP_MULTIMEDIA_CALL_CALLBACK: IpAppMultiMediaCall AppMultiMediaCall;
+					case P_APP_CALL_LEG_CALLBACK: IpAppMultiMediaCallLeg AppMultiMediaCallLeg;
+					case P_APP_CALL_AND_CALL_LEG_CALLBACK: TpAppMultiMediaCallLegCallBack AppMultiMediaCallAndCallLeg;
+					default: short Dummy;
+				};
+				
+				
+				typedef sequence <TpMultiMediaCallLegIdentifier> TpMultiMediaCallLegIdentifierSet;
+				
+
+
+
+				interface IpAppMultiMediaCall : mpccs::IpAppMultiPartyCall {
+					void superviseVolumeRes (
+						in TpSessionID callSessionID,	
+						in TpCallSuperviseReport report,	
+						in TpCallSuperviseVolume usedVolume,	
+						in TpDataSessionQosClass qualityOfService	
+						);
+						
+					void superviseVolumeErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+				};
+				
+				
+				interface IpAppMultiMediaCallLeg : mpccs::IpAppCallLeg {
+					void mediaStreamMonitorRes (
+						in TpSessionID callLegSessionID,	
+						in TpMediaStreamSet streams,	
+						in TpMediaStreamEventType type	
+						);
+						
+				};
+				
+				
+				interface IpMultiMediaStream : IpService {
+					void subtract (
+						in TpSessionID mediaStreamSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+				
+				interface IpMultiMediaCallLeg : mpccs::IpCallLeg {
+					void mediaStreamAllow (
+						in TpSessionID callLegSessionID,	
+						in TpSessionIDSet mediaStreamList	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void mediaStreamMonitorReq (
+						in TpSessionID callLegSessionID,	
+						in TpMediaStreamRequestSet mediaStreamEventCriteria	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+						
+					TpMediaStreamSet getMediaStreams (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+				
+				interface IpMultiMediaCall : mpccs::IpMultiPartyCall {
+					void superviseVolumeReq (
+						in TpSessionID callSessionID,	
+						in TpCallSuperviseVolume volume,	
+						in TpCallSuperviseTreatment treatment	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+				
+				interface IpAppMultiMediaCallControlManager : mpccs::IpAppMultiPartyCallControlManager {
+					TpAppMultiMediaCallBack reportMediaNotification (
+						in TpMultiMediaCallIdentifier callReference,	
+						in TpMultiMediaCallLegIdentifierSet callLegReferenceSet,	
+						in TpMediaStreamSet mediaStreams,	
+						in TpMediaStreamEventType type,	
+						in TpDataSessionQosClass qualityOfService,	
+						in TpAssignmentID assignmentID	
+						);
+						
+				};
+				
+				
+				interface IpMultiMediaCallControlManager : mpccs::IpMultiPartyCallControlManager {
+					TpAssignmentID createMediaNotification (
+						in IpAppMultiMediaCallControlManager appInterface,	
+						in TpNotificationMediaRequest notificationMediaRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_CRITERIA,P_INVALID_INTERFACE_TYPE,P_INVALID_EVENT_TYPE);
+						
+					void destroyMediaNotification (
+						in TpAssignmentID assignmentID	
+						)						
+						raises (TpCommonExceptions);
+						
+					void changeMediaNotification (
+						in TpAssignmentID assignmentID,	
+						in TpNotificationMediaRequest notificationMediaRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+						
+					TpMediaNotificationRequestedSet getMediaNotification ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

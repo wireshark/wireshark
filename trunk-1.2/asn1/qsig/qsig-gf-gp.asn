@@ -1,0 +1,17 @@
+-- QSIG-GF-EXT.asn
+--
+-- Taken from Ecma International
+-- http://www.ecma-international.org/publications/standards/Ecma-165.htm
+--
+-- B.3 PSS1InformationElement
+--
+-- $Id$
+--
+
+PSS1-generic-parameters-definition-asn1-97 { iso( 1) standard( 0) 
+  pss1-generic-procedures( 11582) pss1-generic-parameters-asn1-97( 17)} DEFINITIONS ::= 
+BEGIN 
+
+PSS1InformationElement ::= [APPLICATION 0] IMPLICIT OCTET STRING 
+
+END -- of PSS1 Generic parameters definition-asn1-97

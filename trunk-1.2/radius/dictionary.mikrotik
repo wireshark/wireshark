@@ -1,0 +1,13 @@
+#	http://www.mikrotik.com
+#
+#	http://www.mikrotik.com/Documentation/manual_2.7/Basic/AAA.html#ht37996460
+#
+#	$Id$
+#
+VENDOR	Mikrotik	14988
+
+ATTRIBUTE	Mikrotik-Recv-Limit		1	integer	Mikrotik
+ATTRIBUTE	Mikrotik-Xmit-Limit		2	integer	Mikrotik
+
+# this attribute is unused
+ATTRIBUTE	Mikrotik-Group		3	string	Mikrotik

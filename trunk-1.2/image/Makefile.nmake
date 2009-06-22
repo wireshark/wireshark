@@ -1,0 +1,78 @@
+#
+# $Id$
+#
+
+include ..\config.nmake
+
+# Nmake uses an implicit rule to build a .res from a .rc file!
+
+ALL_RC=wireshark.rc libwireshark.rc tshark.rc rawshark.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc libwsutil.rc wireshark.exe.manifest
+all : $(ALL_RC)
+
+wireshark.exe.manifest: wireshark.exe.manifest.in ..\config.nmake
+	sed -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
+		-e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
+		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
+		< wireshark.exe.manifest.in > $@
+
+wireshark.rc   : file_dlg_win32.rc wireshark.rc.in wireshark.exe.manifest ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< wireshark.rc.in > $@
+
+libwireshark.rc: libwireshark.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< libwireshark.rc.in > $@
+
+tshark.rc  : tshark.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< tshark.rc.in > $@
+
+rawshark.rc  : rawshark.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< rawshark.rc.in > $@
+
+capinfos.rc    : capinfos.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< capinfos.rc.in > $@
+
+editcap.rc    : editcap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< editcap.rc.in > $@
+
+mergecap.rc   : mergecap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< mergecap.rc.in > $@
+
+text2pcap.rc  : text2pcap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< text2pcap.rc.in > $@
+
+wiretap.rc    : wiretap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(WTAP_VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_WTAP_VERSION)/ \
+		< wiretap.rc.in > $@
+
+libwsutil.rc  : libwsutil.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< libwsutil.rc.in > $@
+
+dumpcap.rc   : dumpcap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< dumpcap.rc.in > $@
+
+clean :
+	rm -f $(ALL_RC)
+
+distclean: clean
+
+maintainer-clean: distclean

@@ -1,0 +1,736 @@
+
+
+/**
+ * This is the new TACO interface defined in IDL. New TACO (or TANGO)
+ * is a total rethink of (old) TACO which was based on remote procedure
+ * calls. 
+ * TANGO is an extension of old TACO.
+ * The fundamental idea of a device as a network object which
+ * has methods and data has been retained. However 
+ * in TANGO objects will be real C++/Java objects which can be instantiated
+ * and accessed via their methods and data by the client as if they were local
+ * objects. 
+ * Certain aspects of the old DSAPI application programmer's 
+ * interface have been suppressed in order to simplify the client (e.g. import,
+ * free, data collector api). 
+ * Features which have been considered missing in old TACO have been added 
+ * e.g. signals, events and groups. 
+ * Asynchronism and groups have been foreseen right from the beginning 
+ * this time. 
+ * This interface is defined in CORBA IDL.
+ * The fundamental interface is Device. 
+ * All TANGO control objects will be of this type i.e. they will implement and
+ * offer the Device interface. 
+ * New classes of control objects e.g. PowerSupply, will be created by 
+ * wrapping the Device class appropriately. 
+ * The wrapper class will hide the calls to the Device interface from
+ * the client so that the client will only see the wrapper class.
+ * All CORBA details will be hidden from the client as far as possible.
+ * Generic clients will use the Device interface directly.
+ * In addition to Device TANGO offers the interfaces Monitor,
+ * GroupDevice and GroupSignal.
+ * These interfaces implement TANGO services for monitoring and 
+ * executing grouped accesses to device/signals.<BR><BR>
+ * Version history: <BR>
+ * 20/08/98 : 1.1 : First official release<BR>
+ * 18/08/99 : 2.0 : Separe idl and pseudo-idl<BR>
+ * 08/09/99 : 2.1 : Remove the applet attribute and the initiliase and serialise operation from the device interface<BR>
+ * 15/09/99 : 2.2 : Adapted to the ICALEPS show<BR>
+ * 06/12/99 : 2.3 : Less possible state and add strings in the DevCmdInfo struct<BR>
+ * 31/01/00 : 2.4 : Update DevVarCharArray to array of octet<BR>
+ * 10/02/00 : 2.5 : Updated all attribute related stuff<BR>
+ * 21/03/00 : 2.6 : Change arguments for the write_attributes device operation<BR>
+ * 15/09/00 : 2.7 : Change arguments for the read_attributes operation. Remove the
+ *		    CORBA field of the ErrFacility enumeration.
+ *		    Replace the WARMUP state by INIT.
+ *		    Change name of the dim_x and dim_y fields of the 
+ *		    AttributeConfig structure to max_dim_x and max_dim_y<BR>
+ * 27/09/00 : 2.8 : Change the writable field type of the AttributeConfig structure<BR>
+ * 26/10/00 : 2.9 : Change the DevError structure fields<BR>
+ * 12/02/01 : 2.10 : Change in the ErrSeverity enum. Windows does not like enum member like ERROR<BR>
+ * 14/02/01 : 2.11 : Another change in the ErrSeverity enum. WARNING is now WARN<BR>
+ * 23/03/01 : 2.12 : Add a new attribute in the Device interface called adm_name<BR>
+ * 26/10/01 : 3.0 : Add a new Device interface version using inheritance<BR>
+ * Add a new parameter to command_inout operation<BR>
+ * Add the command and attribute display level in command and attribute config structure<BR>
+ * Add a new call to get command or attribute cache history<BR>
+ * 06/04/02 : 2.0 : Update release number to be coherent with the real Tango software release number<BR>
+
+@author JM.Chaize,<BR>A.Gotz,<BR>W-D.Klotz,<BR>J.Meyer,<BR>E.Taurel
+@version 2.0
+**/ 
+
+module Tango
+{
+
+//-------------------------------------------------------------------------
+//
+//		Include all types, struct.... definition file
+//
+//-------------------------------------------------------------------------
+
+
+
+//-------------------------------------------------------------------------
+//
+// 		Basic types to transport command data
+//
+//-------------------------------------------------------------------------
+
+typedef boolean 			DevBoolean;
+typedef double 				DevDouble;
+typedef float 				DevFloat;
+typedef long 				DevLong;
+typedef short 				DevShort;
+typedef string 				DevString;
+typedef octet				DevUChar;
+typedef unsigned long 			DevULong;
+typedef unsigned short 			DevUShort;
+typedef sequence<float> 		DevVarFloatArray;
+typedef sequence<double> 		DevVarDoubleArray;
+typedef sequence<short> 		DevVarShortArray;
+typedef sequence<long> 			DevVarLongArray;
+typedef sequence<octet> 		DevVarCharArray;
+typedef sequence<string> 		DevVarStringArray;
+typedef sequence<unsigned short> 	DevVarUShortArray;
+typedef sequence<unsigned long>	 	DevVarULongArray;
+typedef sequence<boolean>		DevVarBooleanArray;
+
+struct DevVarLongStringArray
+{
+	DevVarLongArray 	lvalue;
+	DevVarStringArray 	svalue;
+};
+
+struct DevVarDoubleStringArray
+{
+	DevVarDoubleArray 	dvalue;
+	DevVarStringArray 	svalue;
+};
+
+
+//-------------------------------------------------------------------------
+//
+// 		Some enumerations
+//
+//-------------------------------------------------------------------------
+
+
+enum AttrQuality
+{
+	ATTR_VALID,
+	ATTR_INVALID,
+	ATTR_ALARM,
+	ATTR_CHANGING,
+	ATTR_WARNING
+};
+
+enum AttrWriteType
+{
+	READ,
+	READ_WITH_WRITE,
+	WRITE,
+	READ_WRITE
+};
+		
+enum AttrDataFormat
+{
+	SCALAR,
+	SPECTRUM,
+	IMAGE
+};
+
+enum DevSource
+{
+	DEV,
+	CACHE,
+	CACHE_DEV
+};
+
+enum ErrSeverity
+{
+	WARN,
+	ERR,
+	PANIC
+};
+
+enum DevState
+{
+	ON,
+	OFF,
+	CLOSE,
+	OPEN,
+	INSERT,
+	EXTRACT,
+	MOVING,
+	STANDBY,
+	FAULT,
+	INIT,
+	RUNNING,
+	ALARM,
+	DISABLE,
+	UNKNOWN
+};	
+
+enum DispLevel
+{
+	OPERATOR,
+	EXPERT
+};
+
+
+//-------------------------------------------------------------------------
+//	
+//		 Some  miscellaneous structures definitions
+//
+//-------------------------------------------------------------------------	
+	
+struct TimeVal 
+{
+	long 	tv_sec;
+	long 	tv_usec;
+	long 	tv_nsec;
+};
+
+
+//-------------------------------------------------------------------------
+//	
+//		For the command query device operation 
+//
+//-------------------------------------------------------------------------
+
+
+struct DevCmdInfo
+{
+	string 	cmd_name;
+	long 	cmd_tag;
+	long 	in_type;
+	long 	out_type;
+	string	in_type_desc;
+	string 	out_type_desc;
+};
+
+struct DevCmdInfo_2
+{
+	string 		cmd_name;
+	DispLevel 	level;
+	long		cmd_tag;
+	long 		in_type;
+	long 		out_type;
+	string		in_type_desc;
+	string 		out_type_desc;
+};
+
+typedef sequence<DevCmdInfo> DevCmdInfoList;
+typedef sequence<DevCmdInfo_2> DevCmdInfoList_2;
+
+
+//-------------------------------------------------------------------------
+//
+// 		For the DevFailed exceptions
+//
+//-------------------------------------------------------------------------
+
+struct DevError
+{
+	string 		reason;
+	ErrSeverity 	severity;
+	string 		desc;
+	string 		origin;
+};			
+
+typedef sequence<DevError> DevErrorList;
+
+struct NamedDevError
+{
+	string		name;
+	long		index_in_call;
+	DevErrorList	err_list;
+};
+
+typedef sequence<NamedDevError> NamedDevErrorList;
+
+
+exception DevFailed
+{
+	DevErrorList errors;
+};
+
+exception MultiDevFailed
+{
+	NamedDevErrorList errors;
+};
+
+
+//-------------------------------------------------------------------------
+//	
+//		For attribute management
+//
+//-------------------------------------------------------------------------
+
+
+struct AttributeConfig
+{
+	string			name;
+	AttrWriteType		writable;
+	AttrDataFormat		data_format;
+	long			data_type;
+	long			max_dim_x;
+	long			max_dim_y;
+	string 			description;
+	string 			label;
+	string 			unit;
+	string 			standard_unit;
+	string			display_unit;
+	string 			format;
+	string   		min_value;
+	string    		max_value;
+	string   		min_alarm;
+	string   		max_alarm;
+	string			writable_attr_name;
+	DevVarStringArray	extensions;	
+};
+
+struct AttributeConfig_2
+{
+	string			name;
+	AttrWriteType		writable;
+	AttrDataFormat		data_format;
+	long			data_type;
+	long			max_dim_x;
+	long			max_dim_y;
+	string 			description;
+	string 			label;
+	string 			unit;
+	string 			standard_unit;
+	string			display_unit;
+	string 			format;
+	string   		min_value;
+	string    		max_value;
+	string   		min_alarm;
+	string   		max_alarm;
+	string			writable_attr_name;
+	DispLevel		level;
+	DevVarStringArray	extensions;	
+};
+
+struct AttributeValue
+{
+	any 		value;
+	AttrQuality 	quality;
+	TimeVal 	time;
+	string		name;
+	long		dim_x;
+	long 		dim_y;
+};
+
+struct AttributeDim
+{
+	long dim_x;
+	long dim_y;
+};
+
+struct AttributeValue_3
+{
+	any 		value;
+	AttrQuality 	quality;
+	TimeVal 	time;
+	string		name;
+	AttributeDim	r_dim;
+	AttributeDim	w_dim;
+	DevErrorList	err_list;
+};
+
+struct ChangeEventProp
+{
+	string			rel_change;
+	string			abs_change;
+	DevVarStringArray	extensions;	
+};
+
+struct PeriodicEventProp
+{
+	string			period;
+	DevVarStringArray	extensions;	
+};
+
+struct ArchiveEventProp
+{
+	string			rel_change;
+	string			abs_change;
+	string			period;
+	DevVarStringArray	extensions;	
+};
+
+struct EventProperties
+{
+	ChangeEventProp		ch_event;
+	PeriodicEventProp	per_event;
+	ArchiveEventProp	arch_event;
+};
+
+struct AttributeAlarm
+{
+	string			min_alarm;
+	string			max_alarm;
+	string 			min_warning;
+	string			max_warning;
+	string			delta_t;
+	string			delta_val;
+	DevVarStringArray	extensions;	
+};
+
+struct AttributeConfig_3
+{
+	string			name;
+	AttrWriteType		writable;
+	AttrDataFormat		data_format;
+	long			data_type;
+	long			max_dim_x;
+	long			max_dim_y;
+	string 			description;
+	string 			label;
+	string 			unit;
+	string 			standard_unit;
+	string			display_unit;
+	string 			format;
+	string   		min_value;
+	string    		max_value;
+	string			writable_attr_name;
+	DispLevel		level;
+	AttributeAlarm		att_alarm;
+	EventProperties		event_prop;	
+	DevVarStringArray	extensions;
+	DevVarStringArray	sys_extensions;
+};
+
+typedef sequence<AttributeConfig> AttributeConfigList;
+typedef sequence<AttributeConfig_2> AttributeConfigList_2;
+typedef sequence<AttributeConfig_3> AttributeConfigList_3;
+typedef sequence<AttributeValue> AttributeValueList;
+typedef sequence<AttributeValue_3> AttributeValueList_3;
+
+
+//-------------------------------------------------------------------------
+//
+//		For device interface info operation
+//
+//-------------------------------------------------------------------------
+
+struct DevInfo
+{
+	string 	dev_class;
+	string 	server_id;
+	string 	server_host;
+	long 	server_version;
+	string 	doc_url;
+};
+
+struct DevInfo_3
+{
+	string 	dev_class;
+	string 	server_id;
+	string 	server_host;
+	long 	server_version;
+	string 	doc_url;
+	string 	dev_type;
+};
+
+//-------------------------------------------------------------------------
+//
+//		For command and attribute history
+//
+//-------------------------------------------------------------------------
+
+struct DevCmdHistory
+{
+	TimeVal		time;
+	boolean		cmd_failed;
+	any		value;
+	DevErrorList	errors;
+};
+
+typedef sequence<DevCmdHistory> DevCmdHistoryList;
+
+struct DevAttrHistory
+{
+	boolean		attr_failed;
+	AttributeValue	value;
+	DevErrorList	errors;
+};
+
+struct DevAttrHistory_3
+{
+	boolean			attr_failed;
+	AttributeValue_3	value;
+};
+
+typedef sequence<DevAttrHistory> 	DevAttrHistoryList;
+typedef sequence<DevAttrHistory_3> 	DevAttrHistoryList_3;
+
+//-------------------------------------------------------------------------
+//
+//		Include the device interface
+//
+//-------------------------------------------------------------------------
+
+
+
+
+
+/**
+ * The fundamental interface for all TANGO objects.
+ * Each Device is a network object which can be accessed locally or via
+ * network.
+ * The network protocol on the wire will be IIOP.
+ * The Device interface implements all the basic functions needed for doing
+ * generic synchronous and asynchronous I/O on a device.
+ * A Device object has data and actions. 
+ * Data are represented in the form of Attributes.
+ * Actions are represented in the form of Commands.
+ * The CORBA Device interface offers attributes and methods to access
+ * the attributes and commands.
+ * A client will either use these methods directly from C++ or Java or access
+ * them via a wrapper class.
+ * The Device interface describes only the remote network interface.
+ * Implementation features like threads, command security, priority
+ * etc. are dealt with in server side of the device server model.
+ **/
+
+interface Device
+{
+
+/**
+ * name (readonly) - unique ascii identifier
+ **/
+	readonly attribute string name;
+/**
+ * description (readonly) - general description of device
+ **/
+	readonly attribute string description;
+/**
+ * state (readonly) - device state 
+ **/
+	readonly attribute DevState state;
+/**
+ * status (readonly) - device state as ascii string
+ **/
+	readonly attribute string status;
+/**
+ * adm_name (readonly) - administrator device unique ascii identifier
+ **/
+	readonly attribute string adm_name;
+
+/**
+ * execute a command on a device synchronously with
+ * one input parameter and one output parameter
+@param command ascii string e.g. "On"
+@param argin command input parameter e.g. float
+@return command result.
+ **/
+	any command_inout(in string command, in any argin) raises(DevFailed);
+	
+	
+/**
+ * read the configuration for a variable list of attributes from a device
+@param name list of attribute names to read
+@return list of attribute configurations read
+ **/
+	AttributeConfigList get_attribute_config(in DevVarStringArray names) raises(DevFailed);
+
+
+/**
+ * set the configuration for a variable list of attributes from the device
+@param new_conf list of attribute configuration to be set
+@return nothing
+ **/
+	void set_attribute_config(in AttributeConfigList new_conf) raises(DevFailed);
+	
+	
+/**
+ * read a variable list of attributes from a device
+@param name list of attribute names to read
+@return list of attribute values read
+ **/
+	AttributeValueList read_attributes(in DevVarStringArray names) raises(DevFailed);
+
+
+
+/**
+ * write a variable list of attributes to a device
+@param values list of attribute values to write
+@return nothing
+ **/
+	void write_attributes(in AttributeValueList values) raises(DevFailed);
+
+/**
+ * ping a device to see if it alive
+ **/
+	void ping() raises(DevFailed);
+
+/**
+ * read list of last N commands executed by clients
+@param number of commands to return
+@return list of command and clients
+ **/
+	DevVarStringArray black_box(in long n) raises(DevFailed);
+	
+
+/**
+ * return general information about object e.g. class, type, ... 
+@return device info
+ **/
+	DevInfo info() raises(DevFailed);
+	
+	
+/**
+ * query device to see what commands it supports
+@return list of commands and their types
+ **/
+	DevCmdInfoList command_list_query() raises(DevFailed);
+	
+	
+/**
+ * query device to see command argument
+@return command and its types
+@param command name
+ **/
+	DevCmdInfo command_query(in string command) raises(DevFailed);
+
+};
+	
+/**
+ * A new release of the basic Device interface.
+ * This new release has been introduced mainly to support Tango device server
+ * internal polling. Inheritance is used between this new release and the
+ * old one. This release mainly defines a new release of the command_inout and 
+ * read_attributes calls with a new parameter. It also add a new call to read
+ * command or attributes result history.
+ **/
+ 
+interface Device_2: Device
+{
+/**
+ * Execute a command on a device synchronously with
+ * one input parameter and one output parameter
+@param command ascii string e.g. "On"
+@param argin command input parameter e.g. float
+@param source The data source. Used to specify if the command result must be 
+read from the polling cache buffer or from the device itself
+@return command result.
+ **/
+	any command_inout_2(in string command,
+			    in any argin,
+			    in DevSource source) raises(DevFailed);
+
+/**
+ * Read a variable list of attributes from a device
+@param name list of attribute names to read
+@param source The data source. Used to specify if the command result must be 
+read from the polling cache buffer or from the device itself
+@return list of attribute values read
+ **/
+	AttributeValueList read_attributes_2(in DevVarStringArray names,
+					     in DevSource source) raises(DevFailed);
+
+/**
+ * Read the configuration for a variable list of attributes from a device.
+ * Compared to the Device interface, the attribute configuration has one more
+ * field (The display level)
+@param name list of attribute names to read
+@return list of attribute configurations read
+ **/					     			   
+	AttributeConfigList_2 get_attribute_config_2(in DevVarStringArray names) raises(DevFailed);
+
+/**
+ * Query device to see what commands it supports.
+ * Compared to the Device interface, the command configuration has one more
+ * field (The display level)
+@return list of commands and their types
+ **/
+	DevCmdInfoList_2 command_list_query_2() raises(DevFailed);
+
+/**
+ * Query device to see command argument.
+ * Compared to the Device interface, the command configuration has one more
+ * field (The display level)
+@return command and its types
+@param command name
+ **/	
+	DevCmdInfo_2 command_query_2(in string command) raises(DevFailed);
+
+/**
+ * Get command history buffer.
+ * Return command result history for polled command
+@param command ascii string e.g. "On"
+@param n The history depth
+@return command history.
+ **/	
+	DevCmdHistoryList command_inout_history_2(in string command,
+						  in long n) raises (DevFailed);
+
+/**
+ * Get attribute value history buffer.
+ * Return attribute value history for polled attribute
+@param name ascii string
+@param n The history depth
+@return attribute value history.
+ **/						  
+	DevAttrHistoryList read_attribute_history_2(in string name,
+						    in long n) raises (DevFailed);
+};
+
+
+interface Device_3: Device_2
+{
+
+/**
+ * Read a variable list of attributes from a device
+@param name list of attribute names to read
+@param source The data source. Used to specify if the command result must be 
+read from the polling cache buffer or from the device itself
+@return list of attribute values read
+ **/
+	AttributeValueList_3 read_attributes_3(in DevVarStringArray names,
+					       in DevSource source) raises(DevFailed);
+
+/**
+ * write a variable list of attributes to a device
+@param values list of attribute values to write
+@return nothing
+ **/
+	void write_attributes_3(in AttributeValueList values) raises(DevFailed,MultiDevFailed);
+/**
+ * Get attribute value history buffer.
+ * Return attribute value history for polled attribute
+@param name ascii string
+@param n The history depth
+@return attribute value history.
+ **/						  
+	DevAttrHistoryList_3 read_attribute_history_3(in string name,
+						      in long n) raises (DevFailed);
+
+/**
+ * return general information about object e.g. class, type, ... 
+@return device info
+ **/
+	DevInfo_3 info_3() raises(DevFailed);
+
+/**
+ * Read the configuration for a variable list of attributes from a device.
+ * Compared to the Device interface, the attribute configuration has one more
+ * field (The display level)
+@param name list of attribute names to read
+@return list of attribute configurations read
+ **/					     			   
+	AttributeConfigList_3 get_attribute_config_3(in DevVarStringArray names) raises(DevFailed);
+
+/**
+ * set the configuration for a variable list of attributes from the device
+@param new_conf list of attribute configuration to be set
+@return nothing
+ **/
+	void set_attribute_config_3(in AttributeConfigList_3 new_conf) raises(DevFailed);
+};
+
+};  /* module tango */

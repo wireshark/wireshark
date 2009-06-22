@@ -1,0 +1,25 @@
+# isup.mate
+# $Id$
+
+
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=1;		.isup_IAM=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=2;		.isup_SAM=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=3;		.isup_INR=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=4;		.isup_INF=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=5;		.isup_COT=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=6;		.isup_ACM=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=7;		.isup_CON=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=8;		.isup_FOT=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=9;		.isup_ANM=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=12;		.isup_REL=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=13;		.isup_SUS=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=14;		.isup_RES=;
+#Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=16;		.isup_RLC=;
+
+Action=PduDef; Name=isup_pdu; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;
+#Action=PduTransform; For=isup_pdu; Name=isup_msg_type;
+
+Action=GopDef; Name=isup_leg; On=isup_pdu; ShowPduTree=TRUE; mtp3pc; mtp3pc; cic;
+Action=GopStart; For=isup_leg; isup_msg=1;
+Action=GopStop; For=isup_leg; isup_msg=16;
+

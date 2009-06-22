@@ -1,0 +1,9 @@
+Dearborn Group Technology has released under GPL this plugin
+for Wireshark. It decodes the protocol used by their Gryphon
+automotive network tool.
+
+The plugin decodes the communication protocol, but not any
+vehicle network messages.
+
+Dearborn Group Technology can be found at http://www.dgtech.com/
+The author is Steve Limkemann <stevelim@dgtech.com>

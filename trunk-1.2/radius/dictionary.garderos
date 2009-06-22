@@ -1,0 +1,16 @@
+#
+# dictionary.garderos
+#
+# Version: $Id$
+#
+#	For documentation on Garderos attributes, see:
+#
+#	http://www.garderos.com
+
+VENDOR	Garderos	16108
+
+#
+#    Standard attribute
+#
+ATTRIBUTE	Garderos-Location-Name		1	string	Garderos
+ATTRIBUTE	Garderos-Service-Name		2	string	Garderos

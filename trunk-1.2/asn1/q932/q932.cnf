@@ -1,0 +1,34 @@
+# q932.cnf
+# Q.932 conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.PDU
+
+InterpretationComponent
+NetworkFacilityExtension
+NetworkProtocolProfile
+
+#.EXPORTS EXTERN VALS_WITH_TABLE
+
+# Addressing-Data-Elements
+PresentedAddressScreened
+PresentedAddressUnscreened
+PresentedNumberScreened
+PresentedNumberUnscreened
+Address
+PartyNumber
+PartySubaddress
+ScreeningIndicator
+PresentationAllowedIndicator
+
+#.FIELD_RENAME
+
+# Addressing-Data-Elements
+PresentedNumberScreened/presentationAllowedNumber      presentationAllowedNumberScreened
+PresentedAddressScreened/presentationRestrictedAddress presentationRestrictedAddressScreened
+PresentedNumberScreened/presentationRestrictedNumber   presentationRestrictedNumberScreened
+
+#.END
+

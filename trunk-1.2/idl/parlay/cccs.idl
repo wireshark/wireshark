@@ -1,0 +1,264 @@
+//Source file:cccs.idl
+//Date:  7 October 2004
+//Conference Call Control for ES 203 915-4-5 V1.1.1, DES/TISPAN-01005-04-5-OSA, Parlay 5.0
+
+
+#ifndef __CCCS_DEFINED
+#define __CCCS_DEFINED
+
+
+#include "osa.idl"
+#include "mpcc_data.idl"
+#include "mmccs.idl"
+#include "common_cc_data.idl"
+
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			module cccs {
+				interface IpAppConfCallControlManager ;
+				interface IpConfCall ;
+				interface IpSubConfCall ;
+				
+				
+				enum TpConfPolicyType {
+
+					P_CONFERENCE_POLICY_UNDEFINED,
+					P_CONFERENCE_POLICY_MONOMEDIA,
+					P_CONFERENCE_POLICY_MULTIMEDIA					
+				};
+				
+				
+				struct TpMonoMediaConfPolicy {
+					TpBoolean JoinAllowed;
+				};
+				
+				
+				struct TpJoinEventInfo {
+					TpAddress DestinationAddress;
+					TpAddress OriginatingAddress;
+					TpCallAppInfoSet CallAppInfo;
+				};
+				
+				
+				struct TpConfSearchCriteria {
+					TpDateAndTime StartSearch;
+					TpDateAndTime StopSearch;
+					TpInt32 RequestedResources;
+					TpDuration RequestedDuration;
+				};
+				
+				
+				struct TpConfSearchResult {
+					TpBoolean MatchFound;
+					TpDateAndTime ActualStartTime;
+					TpInt32 ActualResources;
+					TpDuration ActualDuration;
+				};
+				
+				
+				enum TpVideoHandlingType {
+
+					P_MIXED_VIDEO,
+					P_SWITCHED_VIDEO_CHAIR_CONTROLLED,
+					P_SWITCHED_VIDEO_VOICE_CONTROLLED					
+				};
+				
+				
+				struct TpMultiMediaConfPolicy {
+					TpBoolean JoinAllowed;
+					TpMediaType MediaAllowed;
+					TpBoolean Chaired;
+					TpVideoHandlingType VideoHandling;
+				};
+				
+				
+				union TpConfPolicy switch(TpConfPolicyType) {
+					case P_CONFERENCE_POLICY_MONOMEDIA: TpMonoMediaConfPolicy MonoMedia;
+					case P_CONFERENCE_POLICY_MULTIMEDIA: TpMultiMediaConfPolicy MultiMedia;
+					default: short Dummy;
+				};
+				
+				
+				struct TpResourceReservation {
+					TpAddress ResourceID;
+					TpInt32 ReservationID;
+				};
+				
+				
+				struct TpConfCallIdentifier {
+					IpConfCall ConfCallReference;
+					TpSessionID ConfCallSessionID;
+				};
+				
+				
+				struct TpSubConfCallIdentifier {
+					IpSubConfCall SubConfCallReference;
+					TpSessionID SubConfCallSessionID;
+				};
+				
+				
+				typedef sequence <TpSubConfCallIdentifier> TpSubConfCallIdentifierSet;
+				
+				
+				
+				interface IpAppSubConfCall : mmccs::IpAppMultiMediaCall {
+					void chairSelection (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionID callLegSessionID	
+						);
+						
+					void floorRequest (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionID callLegSessionID	
+						);
+						
+				};
+				
+				
+				interface IpAppConfCall : mmccs::IpAppMultiMediaCall {
+					mpccs::IpAppCallLeg partyJoined (
+						in TpSessionID conferenceSessionID,	
+						in mpccs::TpCallLegIdentifier callLeg,	
+						in TpJoinEventInfo eventInfo	
+						);
+						
+					void leaveMonitorRes (
+						in TpSessionID conferenceSessionID,	
+						in TpSessionID callLeg	
+						);
+						
+				};
+				
+				
+				interface IpConfCallControlManager : mmccs::IpMultiMediaCallControlManager {
+					TpConfCallIdentifier createConference (
+						in IpAppConfCall appConferenceCall,	
+						in TpInt32 numberOfSubConferences,	
+						in TpConfPolicy conferencePolicy,	
+						in TpInt32 numberOfParticipants,	
+						in TpDuration duration	
+						)						
+						raises (TpCommonExceptions);
+						
+					TpConfSearchResult checkResources (
+						in TpConfSearchCriteria searchCriteria	
+						)						
+						raises (TpCommonExceptions);
+						
+					TpResourceReservation reserveResources (
+						in IpAppConfCallControlManager appInterface,	
+						in TpDateAndTime startTime,	
+						in TpInt32 numberOfParticipants,	
+						in TpDuration duration,	
+						in TpConfPolicy conferencePolicy	
+						)						
+						raises (TpCommonExceptions);
+						
+					void freeResources (
+						in TpResourceReservation resourceReservation	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpAppConfCallControlManager : mmccs::IpAppMultiMediaCallControlManager {
+					IpAppConfCall conferenceCreated (
+						in TpConfCallIdentifier conferenceCall	
+						);
+						
+				};
+				
+				
+				interface IpSubConfCall : mmccs::IpMultiMediaCall {
+					TpSubConfCallIdentifier splitSubConference (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionIDSet callLegList,	
+						in IpAppSubConfCall appSubConferenceCall	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void mergeSubConference (
+						in TpSessionID subConferenceCallSessionID,	
+						in TpSessionID targetSubConferenceCall	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void moveCallLeg (
+						in TpSessionID subConferenceCallSessionID,	
+						in TpSessionID targetSubConferenceCall,	
+						in TpSessionID callLeg	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void inspectVideo (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionID inspectedCallLeg	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void inspectVideoCancel (
+						in TpSessionID subConferenceSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void appointSpeaker (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionID speakerCallLeg	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void chairSelection (
+						in TpSessionID subConferenceSessionID,	
+						in TpSessionID chairCallLeg	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void changeConferencePolicy (
+						in TpSessionID subConferenceSessionID,	
+						in TpConfPolicy conferencePolicy	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+				
+				interface IpConfCall : mmccs::IpMultiMediaCall {
+					TpSubConfCallIdentifierSet getSubConferences (
+						in TpSessionID conferenceSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					TpSubConfCallIdentifier createSubConference (
+						in TpSessionID conferenceSessionID,	
+						in IpAppSubConfCall appSubConference,	
+						in TpConfPolicy conferencePolicy	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void leaveMonitorReq (
+						in TpSessionID conferenceSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					TpAddress getConferenceAddress (
+						in TpSessionID conferenceSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

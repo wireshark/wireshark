@@ -1,0 +1,971 @@
+
+=head1 NAME
+
+tshark - Dump and analyze network traffic
+
+=head1 SYNOPSIS
+
+B<tshark>
+S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
+S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
+S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
+S<[ B<-c> E<lt>capture packet countE<gt> ]>
+S<[ B<-C> E<lt>configuration profileE<gt> ]>
+S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
+S<[ B<-D> ]>
+S<[ B<-e> E<lt>fieldE<gt> ]>
+S<[ B<-E> E<lt>field print optionE<gt> ]>
+S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-F> E<lt>file formatE<gt> ]>
+S<[ B<-h> ]>
+S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
+S<[ B<-K> E<lt>keytabE<gt> ]> 
+S<[ B<-l> ]>
+S<[ B<-L> ]>
+S<[ B<-n> ]>
+S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
+S<[ B<-o> E<lt>preference settingE<gt> ] ...>
+S<[ B<-p> ]>
+S<[ B<-q> ]>
+S<[ B<-r> E<lt>infileE<gt> ]>
+S<[ B<-R> E<lt>read (display) filterE<gt> ]>
+S<[ B<-s> E<lt>capture snaplenE<gt> ]>
+S<[ B<-S> ]>
+S<[ B<-t> ad|a|r|d|e ]>
+S<[ B<-T> pdml|psml|ps|text|fields ]>
+S<[ B<-v> ]>
+S<[ B<-V> ]>
+S<[ B<-w> E<lt>outfileE<gt>|- ]>
+S<[ B<-x> ]>
+S<[ B<-X> E<lt>eXtension optionE<gt>]>
+S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-z> E<lt>statisticsE<gt> ]>
+S<[ E<lt>capture filterE<gt> ]>
+
+=head1 DESCRIPTION
+
+B<TShark> is a network protocol analyzer.  It lets you capture packet
+data from a live network, or read packets from a previously saved
+capture file, either printing a decoded form of those packets to the
+standard output or writing the packets to a file.  B<TShark>'s native
+capture file format is B<libpcap> format, which is also the format used
+by B<tcpdump> and various other tools.  
+
+Without any options set, B<TShark> will work much like B<tcpdump>. It will 
+use the pcap library to capture traffic from the first available network 
+interface and displays a summary line on stdout for each received packet. 
+
+B<TShark> is able to detect, read and write the same capture files that 
+are supported by B<Wireshark>.
+The input file doesn't need a specific filename extension; the file 
+format and an optional gzip compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of wireshark(1) or
+L<http://www.wireshark.org/docs/man-pages/wireshark.html>
+is a detailed description of the way B<Wireshark> handles this, which is
+the same way B<Tshark> handles this.
+
+Compressed file support uses (and therefore requires) the zlib library. 
+If the zlib library is not present, B<TShark> will compile, but will
+be unable to read compressed files.
+
+If the B<-w> option is not specified, B<TShark> writes to the standard
+output the text of a decoded form of the packets it captures or reads. 
+If the B<-w> option is specified, B<TShark> writes to the file
+specified by that option the raw data of the packets, along with the
+packets' time stamps.
+
+When writing a decoded form of packets, B<TShark> writes, by
+default, a summary line containing the fields specified by the
+preferences file (which are also the fields displayed in the packet list
+pane in B<Wireshark>), although if it's writing packets as it captures
+them, rather than writing packets from a saved capture file, it won't
+show the "frame number" field.  If the B<-V> option is specified, it
+writes instead a view of the details of the packet, showing all the
+fields of all protocols in the packet.
+
+If you want to write the decoded form of packets to a file, run
+B<TShark> without the B<-w> option, and redirect its standard output to
+the file (do I<not> use the B<-w> option).
+
+When writing packets to a file, B<TShark>, by default, writes the
+file in B<libpcap> format, and writes all of the packets it sees to the
+output file.  The B<-F> option can be used to specify the format in which
+to write the file. This list of available file formats is displayed by 
+the B<-F> flag without a value. However, you can't specify a file format
+for a live capture.
+
+Read filters in B<TShark>, which allow you to select which packets
+are to be decoded or written to a file, are very powerful; more fields
+are filterable in B<TShark> than in other protocol analyzers, and the
+syntax you can use to create your filters is richer.  As B<TShark>
+progresses, expect more and more protocol fields to be allowed in read
+filters.
+
+Packet capturing is performed with the pcap library.  The capture filter
+syntax follows the rules of the pcap library.  This syntax is different
+from the read filter syntax.  A read filter can also be specified when
+capturing, and only packets that pass the read filter will be displayed
+or saved to the output file; note, however, that capture filters are much
+more efficient than read filters, and it may be more difficult for
+B<TShark> to keep up with a busy network if a read filter is
+specified for a live capture.
+
+A capture or read filter can either be specified with the B<-f> or B<-R>
+option, respectively, in which case the entire filter expression must be
+specified as a single argument (which means that if it contains spaces,
+it must be quoted), or can be specified with command-line arguments
+after the option arguments, in which case all the arguments after the
+filter arguments are treated as a filter expression.  Capture filters
+are supported only when doing a live capture; read filters are supported
+when doing a live capture and when reading a capture file, but require
+TShark to do more work when filtering, so you might be more likely to
+lose packets under heavy load if you're using a read filter.  If the
+filter is specified with command-line arguments after the option
+arguments, it's a capture filter if a capture is being done (i.e., if no
+B<-r> option was specified) and a read filter if a capture file is being
+read (i.e., if a B<-r> option was specified).
+
+=head1 OPTIONS
+
+=over 4
+
+=item -a  E<lt>capture autostop conditionE<gt>
+
+Specify a criterion that specifies when B<TShark> is to stop writing
+to a capture file.  The criterion is of the form I<test>B<:>I<value>,
+where I<test> is one of:
+
+B<duration>:I<value> Stop writing to a capture file after I<value> seconds have elapsed.
+
+B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
+kilobytes (where a kilobyte is 1024 bytes). If this option 
+is used together with the -b option, B<TShark> will stop writing to the 
+current capture file and switch to the next one if filesize is reached. When reading a capture file,
+B<TShark> will stop reading the file after the number of bytes read exceeds this number
+(the complete packet will be read, so more bytes than this number may be read).
+
+B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
+
+=item -b  E<lt>capture ring buffer optionE<gt>
+
+Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode, 
+B<TShark> will write to several capture files. When the first capture file 
+fills up, B<TShark> will switch writing to the next file and so on.
+
+The created filenames are based on the filename given with the B<-w> option, the number of 
+the file and on the creation date and time, 
+e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
+
+With the I<files> option it's also possible to form a "ring buffer". 
+This will fill up new files until the number of files specified, 
+at which point B<TShark> will discard the data in the first file and start 
+writing to that file and so on. If the I<files> option is not set,
+new files filled up until one of the capture stop conditions match (or 
+until the disk if full).
+
+The criterion is of the form I<key>B<:>I<value>,
+where I<key> is one of:
+
+B<duration>:I<value> switch to the next file after I<value> seconds have 
+elapsed, even if the current file is not completely filled up.
+
+B<filesize>:I<value> switch to the next file after it reaches a size of 
+I<value> kilobytes (where a kilobyte is 1024 bytes). 
+
+B<files>:I<value> begin again with the first file after I<value> number of 
+files were written (form a ring buffer).
+
+=item -B  E<lt>capture buffer size (Win32 only)E<gt>
+
+Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
+the capture driver to buffer packet data until that data can be written to 
+disk. If you encounter packet drops while capturing, try to increase this size.
+
+=item -c  E<lt>capture packet countE<gt>
+
+Set the maximum number of packets to read when capturing live
+data. If reading a capture file, set the maximum number of packets to read.
+
+=item -C  E<lt>configuration profileE<gt>
+
+Run with the given configuration profile.
+
+=item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
+
+Like Wireshark's B<Decode As...> feature, this lets you specify how a
+layer type should be dissected. If the layer type in question (for example,
+B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
+selector value, packets should be dissected as the specified protocol.
+
+Example: B<-d tcp.port==8888,http> will decode any traffic running over
+TCP port 8888 as HTTP.
+
+Using an invalid selector or protocol will print out a list of valid selectors
+and protocol names, respectively.
+
+Example: B<-d .> is a quick way to get a list of valid selectors.
+
+Example: B<-d ethertype==0x0800.> is a quick way to get a list of protocols that can be
+selected with an ethertype.
+
+=item -D
+
+Print a list of the interfaces on which B<TShark> can capture, and
+exit.  For each network interface, a number and an
+interface name, possibly followed by a text description of the
+interface, is printed.  The interface name or the number can be supplied
+to the B<-i> option to specify an interface on which to capture.
+
+This can be useful on systems that don't have a command to list them  
+(e.g., Windows systems, or UNIX systems lacking B<ifconfig -a>);
+the number can be useful on Windows 2000 and later systems, where the
+interface name is a somewhat complex string.
+
+Note that "can capture" means that B<TShark> was able to open that
+device to do a live capture.  Depending on your system you may need to
+run tshark from an account with special privileges (for example, as
+root) to be able to capture network traffic.  If B<TShark -D> is not run
+from such an account, it will not list any interfaces.
+
+=item -e  E<lt>fieldE<gt>
+
+Add a field to the list of fields to display if B<-T fields> is
+selected.  This option can be used multiple times on the command line. 
+At least one field must be provided if the B<-T fields> option is
+selected.
+
+Example: B<-e frame.number -e ip.addr -e udp>
+
+Giving a protocol rather than a single field will print multiple items
+of data about the protocol as a single field.  Fields are separated by
+tab characters by default.  B<-E> controls the format of the printed
+fields.
+
+=item -E  E<lt>field print optionE<gt>
+
+Set an option controlling the printing of fields when B<-T fields> is
+selected.
+
+Options are:
+
+B<header=y|n> If B<y>, print a list of the field names given using B<-e>
+as the first line of the output; the field name will be separated using
+the same character as the field values.  Defaults to B<n>.
+
+B<separator=/t|/s|>E<lt>characterE<gt> Set the separator character to
+use for fields.  If B</t> tab will be used (this is the default), if
+B</s>, s single space will be used.  Otherwise any character that can be
+accepted by the command line as part of the option may be used.
+
+B<quote=d|s|n> Set the quote character to use to surround fields.  B<d>
+uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
+
+=item -f  E<lt>capture filterE<gt>
+
+Set the capture filter expression.
+
+=item -F  E<lt>file formatE<gt>
+
+Set the file format of the output capture file written using the B<-w>
+option.  The output written with the B<-w> option is raw packet data, not
+text, so there is no B<-F> option to request text output.  The option B<-F>
+without a value will list the available formats.
+
+=item -h
+
+Print the version and options and exits.
+
+=item -i  E<lt>capture interfaceE<gt>|-
+
+Set the name of the network interface or pipe to use for live packet
+capture. 
+
+Network interface names should match one of the names listed in
+"B<tshark -D>" (described above); a number, as reported by
+"B<tshark -D>", can also be used.  If you're using UNIX, "B<netstat
+-i>" or "B<ifconfig -a>" might also work to list interface names,
+although not all versions of UNIX support the B<-a> option to B<ifconfig>.
+
+If no interface is specified, B<TShark> searches the list of
+interfaces, choosing the first non-loopback interface if there are any
+non-loopback interfaces, and choosing the first loopback interface if
+there are no non-loopback interfaces. If there are no interfaces at all,
+B<TShark> reports an error and doesn't start the capture.
+
+Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+read data from the standard input.  Data read from pipes must be in
+standard libpcap format.
+
+Note: the Win32 version of B<TShark> doesn't support capturing from
+pipes!
+
+=item -K  E<lt>keytabE<gt>
+
+Load kerberos crypto keys from the specified keytab file.
+This option can be used multiple times to load keys from several files.
+
+Example: B<-K krb5.keytab>
+
+=item -l
+
+Flush the standard output after the information for each packet is
+printed.  (This is not, strictly speaking, line-buffered if B<-V>
+was specified; however, it is the same as line-buffered if B<-V> wasn't
+specified, as only one line is printed for each packet, and, as B<-l> is
+normally used when piping a live capture to a program or script, so that
+output for a packet shows up as soon as the packet is seen and
+dissected, it should work just as well as true line-buffering.  We do
+this as a workaround for a deficiency in the Microsoft Visual C++ C
+library.)
+
+This may be useful when piping the output of B<TShark> to another
+program, as it means that the program to which the output is piped will
+see the dissected data for a packet as soon as B<TShark> sees the
+packet and generates that output, rather than seeing it only when the
+standard output buffer containing that data fills up.
+
+=item -L
+
+List the data link types supported by the interface and exit. The reported
+link types can be used for the B<-y> option.
+
+=item -n
+
+Disable network object name resolution (such as hostname, TCP and UDP port
+names), the B<-N> flag might override this one.
+
+=item -N  E<lt>name resolving flagsE<gt>
+
+Turn on name resolving only for particular types of addresses and port
+numbers, with name resolving for other types of addresses and port
+numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are 
+present. If both B<-N> and B<-n> flags are not present, all name resolutions are 
+turned on.
+
+The argument is a string that may contain the letters:
+
+B<m> to enable MAC address resolution
+
+B<n> to enable network address resolution
+
+B<t> to enable transport-layer port number resolution
+
+B<C> to enable concurrent (asynchronous) DNS lookups
+
+=item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>
+
+Set a preference value, overriding the default value and any value read
+from a preference file.  The argument to the option is a string of the
+form I<prefname>B<:>I<value>, where I<prefname> is the name of the
+preference (which is the same name that would appear in the preference
+file), and I<value> is the value to which it should be set.
+
+=item -p
+
+I<Don't> put the interface into promiscuous mode.  Note that the
+interface might be in promiscuous mode for some other reason; hence,
+B<-p> cannot be used to ensure that the only traffic that is captured is
+traffic sent to or from the machine on which B<TShark> is running,
+broadcast traffic, and multicast traffic to addresses received by that
+machine.
+
+=item -q
+
+When capturing packets, don't display the continuous count of packets
+captured that is normally shown when saving a capture to a file;
+instead, just display, at the end of the capture, a count of packets
+captured.  On systems that support the SIGINFO signal, such as various
+BSDs, you can cause the current count to be displayed by typing your 
+"status" character (typically control-T, although it
+might be set to "disabled" by default on at least some BSDs, so you'd
+have to explicitly set it to use it).
+
+When reading a capture file, or when capturing and not saving to a file,
+don't print packet information; this is useful if you're using a B<-z>
+option to calculate statistics and don't want the packet information
+printed, just the statistics.
+
+=item -r  E<lt>infileE<gt>
+
+Read packet data from I<infile>, can be any supported capture file format 
+(including gzipped files). It's B<not> possible to use named pipes 
+or stdin here!
+
+=item -R  E<lt>read (display) filterE<gt>
+
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied before printing a
+decoded form of packets or writing packets to a file; packets not
+matching the filter are discarded rather than being printed or written.
+
+=item -s  E<lt>capture snaplenE<gt>
+
+Set the default snapshot length to use when capturing live data. 
+No more than I<snaplen> bytes of each network packet will be read into
+memory, or saved to disk.  A value of 0 specifies a snapshot length of
+65535, so that the full packet is captured; this is the default.
+
+=item -S
+
+Decode and display packets even while writing raw packet data using the
+B<-w> option.
+
+=item -t  ad|a|r|d|e
+
+Set the format of the packet timestamp printed in summary lines, the default 
+is relative. The format can be one of:
+
+B<ad> absolute with date: The absolute date and time is the actual time and 
+date the packet was captured
+
+B<a> absolute: The absolute time is the actual time the packet was captured, 
+with no date displayed
+
+B<r> relative: The relative time is the time elapsed between the first packet 
+and the current packet
+
+B<d> delta: The delta time is the time since the previous packet was
+captured
+
+B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+=item -T  pdml|psml|ps|text|fields
+
+Set the format of the output when viewing decoded packet data.  The
+options are one of:
+
+B<pdml> Packet Details Markup Language, an XML-based format for the details of
+a decoded packet.  This information is equivalent to the packet details
+printed with the B<-V> flag.
+
+B<psml> Packet Summary Markup Language, an XML-based format for the summary
+information of a decoded packet.  This information is equivalent to the
+information shown in the one-line summary printed by default.
+
+B<ps> PostScript for a human-readable one-line summary of each of the packets,
+or a multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.
+
+B<text> Text of a human-readable one-line summary of each of the packets, or a
+multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.  This is the default.
+
+B<fields> The values of fields specified with the B<-e> option, in a
+form specified by the B<-E> option.
+
+=item -v
+
+Print the version and exit.
+
+=item -V
+
+Cause B<TShark> to print a view of the packet details rather
+than a one-line summary of the packet.
+
+=item -w  E<lt>outfileE<gt>|-
+
+Write raw packet data to I<outfile> or to the standard output if
+I<outfile> is '-'.  
+
+NOTE: -w provides raw packet data, not text. If you want text output 
+you need to redirect stdout (e.g. using '>'), don't use the B<-w> 
+option for this.
+
+=item -x
+
+Cause B<TShark> to print a hex and ASCII dump of the packet data
+after printing the summary or details.
+
+
+=item -X E<lt>eXtension optionsE<gt>
+
+Specify an option to be passed to a B<TShark> module. The eXtension option
+is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+
+B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
+default Lua scripts.
+
+
+=item -y  E<lt>capture link typeE<gt>
+
+Set the data link type to use while capturing packets.  The values
+reported by B<-L> are the values that can be used.
+
+=item -z  E<lt>statisticsE<gt>
+
+Get B<TShark> to collect various types of statistics and display the result
+after finishing reading the capture file.  Use the B<-q> flag if you're
+reading a capture file and only want the statistics printed, not any
+per-packet information.
+
+Note that the B<-z proto> option is different - it doesn't cause
+statistics to be gathered and printed when the capture is complete, it
+modifies the regular packet summary output to include the values of
+fields specified with the option.  Therefore you must not use the B<-q>
+option, as that option would suppress the printing of the regular packet
+summary output, and must also not use the B<-V> option, as that would
+cause packet detail information rather than packet summary information
+to be printed.
+
+Currently implemented statistics are:
+
+B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
+
+Collect call/reply RTT data for DCERPC interface I<uuid>, 
+version I<major>.I<minor>.
+Data collected is number of calls for each procedure, MinRTT, MaxRTT 
+and AvgRTT. 
+Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0> to collect data for CIFS SAMR Interface.  
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4> to collect SAMR
+RTT statistics for a specific host.
+
+
+B<-z> io,phs[,I<filter>]
+
+Create Protocol Hierarchy Statistics listing both number of packets and bytes.
+If no I<filter> is specified the statistics will be calculated for all packets.
+If a I<filters> is specified statistics will be only calculated for those
+packets that match the filter.
+
+This option can be used multiple times on the command line. 
+
+
+B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
+
+Collect packet/bytes statistics for the capture in intervals of
+I<interval> seconds.  I<Intervals> can be specified either as whole or
+fractional seconds.  Interval can be specified in ms resolution.
+If Interval is 0, the statistics will be calculated over all packets.
+
+If no I<filter> is specified the statistics will be calculated for all packets.
+If one or more I<filters> are specified statistics will be calculated for
+all filters and presented with one column of statistics for each filter.
+
+This option can be used multiple times on the command line. 
+
+
+Example: B<-z io,stat,1,ip.addr==1.2.3.4> to generate 1 second
+statistics for all traffic to/from host 1.2.3.4.
+
+Example: B<-z "io,stat,0.001,smb&&ip.addr==1.2.3.4"> to generate 1ms
+statistics for all SMB packets to/from host 1.2.3.4.
+
+The examples above all use the standard syntax for generating statistics
+which only calculates the number of packets and bytes in each interval.
+
+B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
+MIN(), MAX(), and AVG() using a slightly different filter syntax:
+
+  [COUNT|SUM|MIN|MAX|AVG](<field>)<filter>
+
+NOTE: One important thing to note here is that the field that the 
+calculation is based on MUST also be part of the filter string or 
+else the calculation will fail.
+
+So: B<-z io,stat,0.010,AVG(smb.time)> does not work.  Use B<-z
+io,stat,0.010,AVG(smb.time)smb.time> instead.  Also be aware that a field
+can exist multiple times inside the same packet and will then be counted
+multiple times in those packets. 
+
+NOTE: A second important thing to note is that the system setting for 
+decimal separator is set to "."! If it is set to "," the statistics 
+will not be displayed per filter.
+
+
+COUNT(<field>) can be used on any type which has a display filter name. 
+It will count how many times this particular field is encountered in the
+filtered packet list.
+
+Example: B<-z io,stat,0.010,COUNT(smb.sid)smb.sid>
+This will count the total number of SIDs seen in each 10ms interval.
+
+SUM(<field>) can only be used on named fields of integer type.
+This will sum together every occurence of this fields value for each interval.
+
+Example: B<-z io,stat,0.010,SUM(frame.pkt_len)frame.pkt_len>
+This will report the total number of bytes seen in all the packets within
+an interval.
+
+MIN/MAX/AVG(<field>) can only be used on named fields that are either
+integers or relative time fields.  This will calculate maximum/minimum
+or average seen in each interval.  If the field is a relative time field
+the output will be presented in seconds and three digits after the
+decimal point.  The resolution for time calculations is 1ms and anything
+smaller will be truncated.
+
+Example:  B<-z "io,stat,0.010,smb.time&&ip.addr==1.1.1.1,MIN(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1">
+
+This will calculate statistics for all smb response times we see to/from
+host 1.1.1.1 in 10ms intervals.  The output will be displayed in 4
+columns; number of packets/bytes, minimum response time, maximum response
+time and average response time.
+
+
+
+B<-z> conv,I<type>[,I<filter>]
+
+Create a table that lists all conversations that could be seen in the capture.
+I<type> specifies which type of conversation we want to generate the 
+statistics for; currently the supported ones are
+
+  "eth"   Ethernet
+  "fc"    Fibre Channel
+  "fddi"  FDDI
+  "ip"    IP addresses
+  "ipx"   IPX addresses
+  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"    Token Ring
+  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+
+If the optional filter string is specified, only those packets that match the
+filter will be used in the calculations.
+
+The table is presented with one line for each conversation and displays
+number of packets/bytes in each direction as well as total number of 
+packets/bytes.
+The table is sorted according to total number of bytes.
+
+
+B<-z> proto,colinfo,I<filter>,I<field>
+
+Append all I<field> values for the packet to the Info column of the
+one-line summary output.
+This feature can be used to append arbitrary fields to the Info column
+in addition to the normal content of that column.
+I<field> is the display-filter name of a field which value should be placed
+in the Info column.
+I<filter> is a filter string that controls for which packets the field value
+will be presented in the info column. I<field> will only be presented in the
+Info column for the packets which match I<filter>.
+
+NOTE: In order for B<TShark> to be able to extract the I<field> value
+from the packet, I<field> MUST be part of the I<filter> string.  If not,
+B<TShark> will not be able to extract its value.
+
+For a simple example to add the "nfs.fh.hash" field to the Info column
+for all packets containing the "nfs.fh.hash" field, use
+
+B<-z proto,colinfo,nfs.fh.hash,nfs.fh.hash>
+
+
+To put "nfs.fh.hash" in the Info column but only for packets coming from
+host 1.2.3.4 use:
+
+B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
+
+This option can be used multiple times on the command line. 
+
+
+B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
+
+Collect call/reply RTT data for I<program>/I<version>.  Data collected
+is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
+Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
+option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
+RTT statistics for a specific file.
+
+
+B<-z> rpc,programs
+
+Collect call/reply RTT data for all known ONC-RPC programs/versions.  
+Data collected is number of calls for each protocol/version, MinRTT, 
+MaxRTT and AvgRTT. 
+This option can only be used once on the command line.
+
+B<-z> rtp,streams
+
+Collect statistics for all RTP streams and calculate max. delta, max. and
+mean jitter and packet loss percentages.
+
+
+B<-z> smb,rtt[,I<filter>]
+
+Collect call/reply RTT data for SMB.  Data collected
+is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
+Example: use B<-z smb,rtt>.
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have its stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
+SMB packets echanged by the host at IP address 1.2.3.4 .
+
+B<-z> smb,sids
+
+When this feature is used B<TShark> will print a report with all the
+discovered SID and account name mappings.  Only those SIDs where the
+account name is known will be presented in the table.
+
+For this feature to work you will need to either to enable
+"Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
+preferences or you can override the preferences by specifying
+B<-o "smb.sid_name_snooping:TRUE"> on the B<TShark> command line.
+
+The current methods used by B<TShark> to find the SID->name mapping
+is relatively restricted but is hoped to be expanded in the future.
+
+B<-z> mgcp,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MGCP. 
+This is similar to B<-z smb,rtt>). Data collected is number of calls
+for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses, 
+unresponded requests, responses ,which don't match with
+any request. 
+Example: use B<-z mgcp,rtd>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
+MGCP packets exchanged by the host at IP address 1.2.3.4 .
+
+B<-z> megaco,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MEGACO. 
+This is similar to B<-z smb,rtt>). Data collected is number of calls
+for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses, 
+unresponded requests, responses ,which don't match with
+any request. 
+Example: use B<-z megaco,rtd>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "megaco,rtd,ip.addr==1.2.3.4"> to only collect stats for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+
+B<-z> h225,counter[I<,filter>]
+
+Count ITU-T H.225 messages and their reasons. In the first column you get a 
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file. The number of occurences of each message or reason is displayed 
+in the second column.
+
+Example: use B<-z h225,counter>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
+H.225 packets exchanged by the host at IP address 1.2.3.4 .
+
+B<-z> h225,srt[I<,filter>]
+
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
+Data collected is number of calls of each ITU-T H.225 RAS Message Type,
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
+You will also get the number of Open Requests (Unresponded Requests), 
+Discarded Responses (Responses without matching request) and Duplicate Messages.
+Example: use B<-z h225,srt>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,srt,ip.addr==1.2.3.4"> to only collect stats for
+ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+
+B<-z> sip,stat[I<,filter>]
+
+This option will activate a counter for SIP messages. You will get the number 
+of occurences of each SIP Method and of each SIP Status-Code. Additionally you 
+also get the number of resent SIP Messages (only for SIP over UDP).  
+
+Example: use B<-z sip,stat>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filter string is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "sip,stat,ip.addr==1.2.3.4"> to only collect stats for
+SIP packets exchanged by the host at IP address 1.2.3.4 .
+
+=back
+
+=head1 CAPTURE FILTER SYNTAX
+
+See the manual page of pcap-filter(4) or, if that doesn't exist, tcpdump(8).
+
+=head1 READ FILTER SYNTAX
+
+For a complete table of protocol and protocol fields that are filterable
+in B<TShark> see the wireshark-filter(4) manual page.
+
+=head1 FILES
+
+These files contains various B<Wireshark> configuration values.
+
+=over 4
+
+=item Preferences
+
+The F<preferences> files contain global (system-wide) and personal
+preference settings. If the system-wide preference file exists, it is
+read first, overriding the default settings. If the personal preferences
+file exists, it is read next, overriding any previous values. Note: If
+the command line option B<-o> is used (possibly more than once), it will
+in turn override values from the preferences files.
+
+The preferences settings are in the form I<prefname>B<:>I<value>,
+one per line,
+where I<prefname> is the name of the preference
+and I<value> is the value to
+which it should be set; white space is allowed between B<:> and
+I<value>.  A preference setting can be continued on subsequent lines by
+indenting the continuation lines with white space.  A B<#> character
+starts a comment that runs to the end of the line:
+
+  # Capture in promiscuous mode?
+  # TRUE or FALSE (case-insensitive).
+  capture.prom_mode: TRUE
+
+The global preferences file is looked for in the F<wireshark> directory
+under the F<share> subdirectory of the main installation directory (for
+example, F</usr/local/share/wireshark/preferences>) on UNIX-compatible
+systems, and in the main installation directory (for example,
+F<C:\Program Files\Wireshark\preferences>) on Windows systems.
+
+The personal preferences file is looked for in
+F<$HOME/.wireshark/preferences> on
+UNIX-compatible systems and F<%APPDATA%\Wireshark\preferences> (or, if
+%APPDATA% isn't defined, F<%USERPROFILE%\Application
+Data\Wireshark\preferences>) on Windows systems.
+
+=item Disabled (Enabled) Protocols
+
+The F<disabled_protos> files contain system-wide and personal lists of
+protocols that have been disabled, so that their dissectors are never
+called.  The files contain protocol names, one per line, where the
+protocol name is the same name that would be used in a display filter
+for the protocol:
+
+  http
+  tcp     # a comment
+
+The global F<disabled_protos> file uses the same directory as the global
+preferences file.
+
+The personal F<disabled_protos> file uses the same directory as the
+personal preferences file.
+
+=item Name Resolution (hosts)
+
+If the personal F<hosts> file exists, it is
+used to resolve IPv4 and IPv6 addresses before any other
+attempts are made to resolve them.  The file has the standard F<hosts>
+file syntax; each line contains one IP address and name, separated by
+whitespace. The same directory as for the personal preferences file is
+used.
+
+=item Name Resolution (ethers)
+
+The F<ethers> files are consulted to correlate 6-byte hardware addresses to
+names. First the personal F<ethers> file is tried and if an address is not
+found there the global F<ethers> file is tried next.
+
+Each line contains one hardware address and name, separated by
+whitespace.  The digits of the hardware address are separated by colons
+(:), dashes (-) or periods (.).  The same separator character must be
+used consistently in an address. The following three lines are valid
+lines of an F<ethers> file:
+
+  ff:ff:ff:ff:ff:ff          Broadcast
+  c0-00-ff-ff-ff-ff          TR_broadcast
+  00.00.00.00.00.00          Zero_broadcast
+
+The global F<ethers> file is looked for in the F</etc> directory on
+UNIX-compatible systems, and in the main installation directory (for
+example, F<C:\Program Files\Wireshark>) on Windows systems.
+
+The personal F<ethers> file is looked for in the same directory as the personal
+preferences file.
+
+=item Name Resolution (manuf)
+
+The F<manuf> file is used to match the 3-byte vendor portion of a 6-byte 
+hardware address with the manufacturer's name; it can also contain well-known 
+MAC addresses and address ranges specified with a netmask.  The format of the 
+file is the same as the F<ethers> files, except that entries of the form:
+
+  00:00:0C      Cisco
+
+can be provided, with the 3-byte OUI and the name for a vendor, and
+entries such as:
+
+  00-00-0C-07-AC/40     All-HSRP-routers
+
+can be specified, with a MAC address and a mask indicating how many bits
+of the address must match. The above entry, for example, has 40
+significant bits, or 5 bytes, and would match addresses from
+00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF. The mask need not be a
+multiple of 8.
+
+The F<manuf> file is looked for in the same directory as the global
+preferences file.
+
+=item Name Resolution (ipxnets)
+
+The F<ipxnets> files are used to correlate 4-byte IPX network numbers to 
+names. First the global F<ipxnets> file is tried and if that address is not 
+found there the personal one is tried next.
+
+The format is the same as the F<ethers>
+file, except that each address is four bytes instead of six.
+Additionally, the address can be represented as a single hexadecimal
+number, as is more common in the IPX world, rather than four hex octets.
+For example, these four lines are valid lines of an F<ipxnets> file:
+
+  C0.A8.2C.00              HR
+  c0-a8-1c-00              CEO
+  00:00:BE:EF              IT_Server1
+  110f                     FileServer3
+
+The global F<ipxnets> file is looked for in the F</etc> directory on
+UNIX-compatible systems, and in the main installation directory (for
+example, F<C:\Program Files\Wireshark>) on Windows systems.
+
+The personal F<ipxnets> file is looked for in the same directory as the
+personal preferences file.
+
+=back
+
+=head1 SEE ALSO
+
+wireshark-filter(4), wireshark(1), editcap(1), pcap-filter(4), tcpdump(8),
+pcap(3), dumpcap(1), text2pcap(1)
+
+=head1 NOTES
+
+B<TShark> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<http://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+B<TShark> uses the same packet dissection code that B<Wireshark> does,
+as well as using many other modules from B<Wireshark>; see the list of
+authors in the B<Wireshark> man page for a list of authors of that code.

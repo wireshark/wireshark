@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Sodipodi ("http://www.sodipodi.com/") -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg548"
+   sodipodi:version="0.32"
+   width="210mm"
+   height="297mm"
+   sodipodi:docbase="/home/gerald/devel/wireshark/image"
+   sodipodi:docname="wslogo.svg"
+   inkscape:version="0.45"
+   inkscape:export-filename="/home/gerald/devel/wsweb/wslogotrans800.png"
+   inkscape:export-xdpi="181.24001"
+   inkscape:export-ydpi="181.24001"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:modified="TRUE">
+  <metadata
+     id="metadata1317">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs550" />
+  <sodipodi:namedview
+     id="base"
+     showgrid="true"
+     showguides="true"
+     inkscape:zoom="2.130271"
+     inkscape:cx="431.18454"
+     inkscape:cy="582.92903"
+     inkscape:window-width="1262"
+     inkscape:window-height="874"
+     inkscape:window-x="405"
+     inkscape:window-y="52"
+     inkscape:current-layer="svg548"
+     inkscape:guide-bbox="true" />
+  <text
+     style="font-size:96.086143px;font-style:normal;font-weight:bold;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Luxi Sans"
+     x="204.84328"
+     y="452.43033"
+     id="text555"
+     transform="scale(0.947903,1.054960)"
+     sodipodi:linespacing="125.00000%"
+     inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
+     inkscape:export-xdpi="90.000000"
+     inkscape:export-ydpi="90.000000">
+    <tspan
+       x="204.84328"
+       y="452.43033"
+       sodipodi:role="line"
+       id="tspan563"
+       style="font-size:64.000008px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00002%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans">WIRE<tspan
+   style="font-size:64.000008px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
+   id="tspan1330">SHARK</tspan>
+<tspan
+   id="tspan1334"
+   style="font-size:40.000004px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00002%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" />
+</tspan>
+  </text>
+  <path
+     style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.2972369;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+     d="M 195.51343,420.14613 L 352.44720,420.14613 C 352.44720,420.14613 356.51830,372.36090 398.58648,371.69721 C 385.01611,392.93509 397.78858,420.21356 397.78858,420.21356 L 588.47175,420.21356"
+     id="path1328"
+     sodipodi:nodetypes="ccccc"
+     inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
+     inkscape:export-xdpi="90.000000"
+     inkscape:export-ydpi="90.000000" />
+  <text
+     id="text4138"
+     y="413.71448"
+     x="574.64508"
+     style="font-size:13.94218159px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     xml:space="preserve"><tspan
+       y="413.71448"
+       x="574.64508"
+       id="tspan4140"
+       sodipodi:role="line">®</tspan></text>
+</svg>

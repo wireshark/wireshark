@@ -1,0 +1,110 @@
+# 
+# /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
+#
+# $Id$
+#
+# Laurent Deniel <laurent.deniel [AT] free.fr>
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald [AT] wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# The data below has been assembled from the following sources:
+#
+# The IEEE public OUI listing available from:
+# http://standards.ieee.org/regauth/oui/index.shtml
+# http://standards.ieee.org/regauth/oui/oui.txt
+#
+# Michael Patton's "Ethernet Codes Master Page" available from:
+# <http://www.cavebear.com/CaveBear/Ethernet/>
+# <ftp://ftp.cavebear.com/pub/Ethernet.txt>
+#
+# This is Wireshark 'manuf' file, which started out as a subset of Michael
+# Patton's list and grew from there.
+#
+# In the event of data set collisions the Wireshark entries have been given
+# precedence, followed by Michael Patton's, followed by the IEEE.
+#
+# This file is in the same format as ethers(4) except that vendor names
+# are truncated to eight characters when used with Wireshark, and
+# that well-known MAC addresses need not have a full 6 octets and may
+# have a netmask following them specifying how many bits of the address
+# are relevant (the other bits are wildcards).  Also, either ":", "-",
+# or "." can be used to separate the octets.
+#
+# You can get the latest version of this file from
+# <http://anonsvn.wireshark.org/wireshark/trunk/manuf>
+
+00:00:00	00:00:00	# Officially Xerox, but 0:0:0:0:0:0 is more common
+00:00:10	Hughes
+00:00:11	Tektrnix
+00:00:1a	AMD
+00:00:20	DIAB
+00:00:21	SC&C
+00:00:24	Olicom
+00:00:3d	AT&T
+00:00:46	ISC-BR
+00:00:4b	APT
+00:00:55	AT&T
+00:00:62	Hneywell	# Honeywell
+00:00:63	HP
+00:00:69	SGI
+00:00:6b	MIPS
+00:00:7a	Ardent
+00:00:7d	Cray
+00:00:a3	NAT
+00:00:a5	CSC
+00:00:a7	NCD
+00:00:a9	NetSys		# Network Systems
+00:00:dd	Gould
+00:00:de	Unigraph
+00:00:e1	Hitachi
+00:00:f6	Madge
+00:01:fa	Compaq
+00:02:04	Novell
+00:02:31	Axis
+00:07:01	Cisco		# RACAL-DATACOM
+00:07:99	TippingPoint		# TippingPoint Technologies, Inc.
+00:10:db	Netscreen		# Now part of Juniper Networks
+00:20:85	3Com
+00:40:0b	Cresc
+# Be able to differentiate between wireless and non-wireless
+00:40:96        Aironet			# Cisco Systems, Inc.
+00:60:b0	HP
+00:80:0f	SMC
+00:80:1C	Cisco		# NEWPORT SYSTEMS SOLUTIONS
+00:80:96	HDS
+00:80:ad	Telebit
+00:e0:98	Trend
+01:0e:cf	PN-MC		# PROFINET Multicast
+02:cf:1f	CMC
+02:20:48	Marconi		# At least some 2810 send with locally assigned flag set
+08:00:02	3Com
+08:00:03	ACC
+08:00:08	BBN
+08:00:09	HP
+08:00:1a	DataGenl	# Data General
+08:00:38	Bull
+08:00:3e	Motorola
+08:00:69	SGI
+08:00:79	SGI
+08:00:90	Retix
+09:00:6a	AT&T
+10:00:90	HP
+10:00:d4	DEC
+3C:00:00	3Com
+44:45:53	Microsoft

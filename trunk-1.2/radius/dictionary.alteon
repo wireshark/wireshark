@@ -1,0 +1,17 @@
+#
+#  dictionary.alteon
+#
+#	Alteon Webswitch
+#
+#	$Id$
+#
+VENDOR	Alteon	1872
+
+ATTRIBUTE	Alteon-Service-Type			26	integer Alteon
+
+VALUE	Alteon-Service-Type	Alteon-L4admin		250
+VALUE	Alteon-Service-Type	Alteon-Slbadmin		251
+VALUE	Alteon-Service-Type	Alteon-Oper		252
+VALUE	Alteon-Service-Type	Alteon-L4oper		253
+VALUE	Alteon-Service-Type	Alteon-Slboper		254
+VALUE	Alteon-Service-Type	Alteon-User		255

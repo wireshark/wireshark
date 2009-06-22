@@ -1,0 +1,89 @@
+-- ROBUSTNESS-DATA.asn
+--
+-- $Id$
+--
+-- ITU-T Rec. H.323 (06/2006)
+--
+-- Annex R - Robustness methods for H.323 entities
+-- R.11 GenericData usage
+--
+
+ROBUSTNESS-DATA DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  TransportAddress, AlternateTransportAddresses, 
+  GloballyUniqueID, TimeToLive
+    FROM H323-MESSAGES; 
+
+RobustnessData ::= SEQUENCE {
+  versionID       INTEGER(1..256),
+  robustnessData
+    CHOICE {
+      rrqData            Rrq-RD,
+      rcfData            Rcf-RD,
+      setupData          Setup-RD,
+      connectData        Connect-RD,
+      statusData         Status-RD,
+      statusInquiryData  StatusInquiry-RD,
+      ...
+    },
+  ...
+}
+
+BackupCallSignalAddresses ::= SEQUENCE OF
+  CHOICE {
+    tcp                 TransportAddress,
+    alternateTransport  AlternateTransportAddresses,
+    ...
+  }
+
+GloballyUniqueIdentifier ::= GloballyUniqueID
+
+Rrq-RD ::= SEQUENCE {
+  backupCallSignalAddresses  BackupCallSignalAddresses,
+  hasSharedRepository        NULL OPTIONAL,
+  ...
+}
+
+Rcf-RD ::= SEQUENCE {
+  hasSharedRepository  NULL OPTIONAL,
+  ...,
+  irrFrequency         INTEGER(1..65535) OPTIONAL -- in seconds;
+                                                  -- not present
+                                                  -- if GK does not
+                                                  -- want IRRs for
+                                                  -- recovered calls
+}
+
+Setup-RD ::= SEQUENCE {
+  backupCallSignalAddresses  BackupCallSignalAddresses,
+  hasSharedRepository        NULL OPTIONAL,
+  endpointGuid               GloballyUniqueIdentifier OPTIONAL,
+  ...
+}
+
+Connect-RD ::= SEQUENCE {
+  backupCallSignalAddresses  BackupCallSignalAddresses,
+  hasSharedRepository        NULL OPTIONAL,
+  endpointGuid               GloballyUniqueIdentifier OPTIONAL,
+  ...
+}
+
+Status-RD ::= SEQUENCE {
+  h245Address   TransportAddress OPTIONAL,
+  fastStart     SEQUENCE OF OCTET STRING OPTIONAL,
+  ...,
+  resetH245     NULL OPTIONAL
+}
+
+StatusInquiry-RD ::= SEQUENCE {
+  h245Address       TransportAddress OPTIONAL,
+  timeToLive        TimeToLive OPTIONAL,
+  includeFastStart  NULL OPTIONAL,
+  ...
+}
+
+robustnessId GenericIdentifier ::= standard:1
+
+END

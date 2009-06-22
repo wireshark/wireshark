@@ -1,0 +1,526 @@
+-- some of the definitions use implicit tags  so be careful when adding 
+-- new structures.
+-- Module CMIP-A-ASSOCIATE-Information (X.711:10/1997)
+CMIP-A-ASSOCIATE-Information {joint-iso-itu-t ms(9) cmip(1) modules(0)
+  aAssociateUserInfo(1)} DEFINITIONS ::=
+BEGIN
+
+	IMPORTS
+
+  EXTERNALt
+    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
+
+
+ModificationItem ::= SEQUENCE {
+  modifyOperator   [2] IMPLICIT ModifyOperator OPTIONAL,
+  attributeId      OBJECT IDENTIFIER,
+  attributeValue   ANY OPTIONAL
+}
+
+GetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  getInfoList            [6] IMPLICIT SET OF GetInfoStatus,
+  ...
+}
+
+ModifyOperator ::= INTEGER {
+  replace(0), addValues(1), removeValues(2), setToDefault(3)}
+
+GetInfoStatus ::= CHOICE {
+  attributeIdError  [0] IMPLICIT AttributeIdError,
+  attribute         [1] IMPLICIT Attribute
+}
+
+AttributeIdError ::= SEQUENCE {
+  errorStatus  ENUMERATED {accessDenied(2), noSuchAttribute(5), ...
+                           },
+  attributeId  AttributeId,
+  ...
+}
+
+SetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  setInfoList            [6] IMPLICIT SET OF SetInfoStatus,
+  ...
+}
+
+ActionError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionErrorInfo        [6]  ActionErrorInfo,
+  ...
+}
+
+ProcessingFailure ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  specificErrorInfo      [5]  SpecificErrorInfo,
+  ...
+}
+
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
+
+DeleteError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  deleteErrorInfo        [6]  ENUMERATED {accessDenied(2), ...
+                                          },
+  ...
+}
+
+SetInfoStatus ::= CHOICE {
+  attributeError  [0] IMPLICIT AttributeError,
+  attribute       [1] IMPLICIT Attribute
+}
+
+SpecificErrorInfo ::= SEQUENCE {
+  errorId    OBJECT IDENTIFIER,
+  errorInfo  ANY
+}
+
+NoSuchArgumentAction ::= SEQUENCE {
+  managedObjectClass  ObjectClass OPTIONAL,
+  actionType          OBJECT IDENTIFIER
+}
+
+NoSuchArgumentEvent ::= SEQUENCE {
+  managedObjectClass  ObjectClass OPTIONAL,
+  eventType           OBJECT IDENTIFIER
+}
+
+NoSuchArgument ::= CHOICE {
+  actionId
+    [0] IMPLICIT NoSuchArgumentAction,
+  eventId
+    [1] IMPLICIT NoSuchArgumentEvent
+}
+
+InvalidArgumentValueEventValue ::= SEQUENCE {
+  eventType  OBJECT IDENTIFIER,
+  eventInfo  [8]  ANY OPTIONAL
+}
+
+InvalidArgumentValue ::= CHOICE {
+  actionValue  [0] IMPLICIT ActionInfo,
+  eventValue
+    [1] IMPLICIT InvalidArgumentValueEventValue
+}
+
+ErrorInfo ::= CHOICE {
+  actionType      OBJECT IDENTIFIER,
+  actionArgument  [0]  NoSuchArgument,
+  argumentValue   [1]  InvalidArgumentValue
+}
+
+ActionErrorInfo ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAction(9), noSuchArgument(14),
+                invalidArgumentValue(15), ...
+                },
+  errorInfo    
+    ErrorInfo,
+  ...
+}
+
+AttributeError ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAttribute(5), invalidAttributeValue(6),
+                invalidOperation(24), invalidOperator(25), ...
+                },
+  modifyOperator  [2] IMPLICIT ModifyOperator OPTIONAL, -- present for invalidOperator
+  
+  -- and invalidOperation
+  attributeId     OBJECT IDENTIFIER,
+  attributeValue  ANY OPTIONAL
+  -- value is absent for setToDefault
+}
+
+SetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+SetArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl     [5]  AccessControl OPTIONAL,
+  synchronization   [6] IMPLICIT CMISSync OPTIONAL,
+  scope             [7]  Scope OPTIONAL,
+  filter            CMISFilter OPTIONAL,
+  modificationList  [12] IMPLICIT SET OF ModificationItem,
+  -- value is absent for setToDefault
+  ...
+}
+
+LinkedReplyArgument ::= CHOICE {
+  getResult          [0] IMPLICIT GetResult,
+  getListError       [1] IMPLICIT GetListError,
+  setResult          [2] IMPLICIT SetResult,
+  setListError       [3] IMPLICIT SetListError,
+  actionResult       [4] IMPLICIT ActionResult,
+  processingFailure  [5] IMPLICIT ProcessingFailure,
+  deleteResult       [6] IMPLICIT DeleteResult,
+  actionError        [7] IMPLICIT ActionError,
+  deleteError        [8] IMPLICIT DeleteError
+}
+
+EventReply ::= SEQUENCE {
+  eventType       OBJECT IDENTIFIER,
+  eventReplyInfo  [8] ANY OPTIONAL
+}
+
+DistinguishedName ::= RDNSequence
+
+EventReportResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventReply             EventReply OPTIONAL,
+  ...
+}
+
+EventReportArgument ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance,
+  eventTime              [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventType              OBJECT IDENTIFIER,
+  eventInfo              [8] ANY OPTIONAL,
+  ...
+}
+
+DeleteArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  ...
+}
+
+DeleteResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  ...
+}
+
+CreateArgument ::= SEQUENCE {
+  managedObjectClass               ObjectClass,
+  managedOrSuperiorObjectInstance
+    CHOICE {managedObjectInstance   ObjectInstance,
+            superiorObjectInstance  [8]  ObjectInstance} OPTIONAL,
+  accessControl                    [5]  AccessControl OPTIONAL,
+  referenceObjectInstance          [6]  ObjectInstance OPTIONAL,
+  attributeList                    [7] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+CreateResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL, -- shall be returned if omitted from CreateArgument
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+ActionReply ::= SEQUENCE {
+  actionType       OBJECT IDENTIFIER,
+  actionReplyInfo  [4]  ANY
+}
+
+ActionResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionReply            [6] IMPLICIT ActionReply OPTIONAL,
+  ...
+}
+
+ActionArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  actionInfo       [12] IMPLICIT ActionInfo,
+  ...
+}
+
+ActionInfo ::= SEQUENCE {
+  actionType     OBJECT IDENTIFIER,
+  actionInfoArg  [4]  ANY OPTIONAL
+}
+
+ObjectClass ::= CHOICE {
+  ocglobalForm  [0] IMPLICIT OBJECT IDENTIFIER,
+  oclocalForm   [1] IMPLICIT INTEGER
+}
+
+ObjectInstance ::= CHOICE {
+  distinguishedName       [2] IMPLICIT DistinguishedName,
+  nonSpecificForm         [3] IMPLICIT OCTET STRING,
+  localDistinguishedName  [4] IMPLICIT RDNSequence
+}
+
+BaseManagedObjectId ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance
+}
+
+AttributeId ::= CHOICE {
+  globalForm    [0] IMPLICIT OBJECT IDENTIFIER,
+  localForm     [1] IMPLICIT INTEGER
+}
+
+Attribute ::= SEQUENCE {
+  id         AttributeId,
+  value      ANY
+}
+
+AttributeValueAssertion ::= SEQUENCE {
+  id     OBJECT IDENTIFIER,
+  value  ANY
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+FilterItem ::= CHOICE {
+  equality                [0] IMPLICIT Attribute,
+  substrings
+    [1] IMPLICIT SEQUENCE OF
+                   CHOICE {initialString  [0] IMPLICIT Attribute,
+                           anyString      [1] IMPLICIT Attribute,
+                           finalString    [2] IMPLICIT Attribute},
+  greaterOrEqual          [2] IMPLICIT Attribute, -- asserted value ? attribute value
+  lessOrEqual             [3] IMPLICIT Attribute, -- asserted value <= attribute value
+  present                 [4]  AttributeId,
+  subsetOf                [5] IMPLICIT Attribute, -- asserted value is a subset of attribute value
+  supersetOf              [6] IMPLICIT Attribute, -- asserted value is a superset of attribute value
+  nonNullSetIntersection  [7] IMPLICIT Attribute
+}
+
+-- IMPORTED from Attribute-ASN1Module {joint-iso-itu-t ms(9) smi(3) part2(2) asn1Module(2) 1}
+
+AdministrativeState ::= ENUMERATED {locked(0), unlocked(1), shuttingDown(2)}
+
+DiscriminatorConstruct ::= CMISFilter
+
+Destination ::= CHOICE {single    AE-title,
+                        multiple  SET OF AE-title
+}
+
+OperationalState ::= ENUMERATED {disabled(0), enabled(1)}
+
+NameBinding ::= OBJECT IDENTIFIER
+
+
+-- FROM ACSE
+AE-title ::= CHOICE {
+  ae-title-form1  AE-title-form1,
+  ae-title-form2  AE-title-form2,
+  ...
+}
+
+--  As defined in ITU-T Rec. X.650 | ISO/IEC 7498-3, an application-entity title is composed of an application process
+--  title and an application-entity qualifier. The ACSE protocol provides for the transfer of an application-entity title
+--  value by the transfer of its component values. However, the following data type is provided for International
+--  Standards that reference a single syntactic structure for AE titles.
+AE-title-form1 ::= Name
+
+--  For access to The Directory (see ITU-T Rec. X.500 series | ISO/IEC 9594), an AE title has AE-title-form1. This value
+--  can be constructed from AP-title-form1 and AE-qualifier-form1 values contained in an AARQ or AARE APDU.
+--  A discussion of forming an AE-title-form1 from AP-title-form1 and AE-qualifier form1 may be found in itu-t
+--  Rec X.665 | ISO/IEC 9834-6.
+AE-title-form2 ::= OBJECT IDENTIFIER
+
+Name ::= CHOICE {
+   rdnSequence  RDNSequence
+}
+
+-- End Imports
+
+
+CMISFilter ::= CHOICE {
+  item  [8]  FilterItem,
+  and   [9] IMPLICIT SET OF CMISFilter,
+  or    [10] IMPLICIT SET OF CMISFilter,
+  not   [11]  CMISFilter
+}
+
+Scope ::= CHOICE {
+  namedNumbers      INTEGER {baseObject(0), firstLevelOnly(1), wholeSubtree(2)},
+  individualLevels  [1] IMPLICIT INTEGER, -- POSITIVE integer indicates the level to be selected
+  baseToNthLevel    [2] IMPLICIT INTEGER
+} -- POSITIVE integer N indicates that the range of levels
+
+CMISSync ::= ENUMERATED {bestEffort(0), atomic(1)}
+
+-- Supporting type definitions
+AccessControl ::= EXTERNALt
+
+
+GetArgument ::= SEQUENCE {
+--  COMPONENTS OF BaseManagedObjectId,  manually expanded
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  attributeIdList  [12] IMPLICIT SET OF AttributeId OPTIONAL,
+  ...
+}
+
+GetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+Argument ::= ANY
+
+ReturnResultBody ::= SEQUENCE {
+  opcode      Opcode,
+  argument    Argument
+}
+
+InvokeID ::= INTEGER
+
+Opcode ::= INTEGER { m-EventReport(0), m-EventReport-Confirmed(1), m-Linked-Reply(2), m-Get(3), m-Set(4), m-Set-Confirmed(5), m-Action(6), m-Action-Confirmed(7), m-Create(8), m-Delete(9), m-CancelGet(10) }
+
+--InvokeLinkedId ::= CHOICE {
+--  present [0] IMPLICIT InvokeId,
+--  absent  [1] IMPLICIT NULL
+--}
+InvokeLinkedId ::= INTEGER
+
+InvokeIDType ::= InvokeId
+
+InvokeId ::= CHOICE {
+  present InvokeID,
+  absent  NULL
+}
+
+Invoke ::= SEQUENCE {
+  invokeId    InvokeId,
+  linkedId    [0] IMPLICIT InvokeLinkedId OPTIONAL,
+  opcode      Opcode,
+  argument    Argument OPTIONAL
+}
+
+ReturnResult ::= SEQUENCE {
+  invokeId    InvokeId,
+  rRBody      ReturnResultBody OPTIONAL
+}
+
+ReturnError ::= SEQUENCE {
+  invokeId    InvokeId
+--XXX need to fill in missing fields here
+}
+
+
+GeneralProblem ::= INTEGER {
+  unrecognizedPDU(0), mistypedPDU(1), badlyStructuredPDU(2)
+}
+
+InvokeProblem ::= INTEGER {
+  duplicateInvocation(0), unrecognizedOperation(1), mistypedArgument(2),
+  resourceLimitation(3), releaseInProgress(4), unrecognizedLinkedId(5),
+  linkedResponseUnexpected(6), unexpectedLinkedOperation(7)
+}
+
+ReturnResultProblem ::= INTEGER {
+  unrecognizedInvocation(0), resultResponseUnexpected(1), mistypedResult(2)
+}
+
+ReturnErrorProblem ::= INTEGER {
+  unrecognizedInvocation(0), errorResponseUnexpected(1), unrecognizedError(2),
+  unexpectedError(3), mistypedParameter(4)
+}
+
+RejectProblem ::= INTEGER {
+  general-unrecognizedPDU(0), general-mistypedPDU(1),
+  general-badlyStructuredPDU(2), invoke-duplicateInvocation(10),
+  invoke-unrecognizedOperation(11), invoke-mistypedArgument(12),
+  invoke-resourceLimitation(13), invoke-releaseInProgress(14),
+  invoke-unrecognizedLinkedId(15), invoke-linkedResponseUnexpected(16),
+  invoke-unexpectedLinkedOperation(17),
+  returnResult-unrecognizedInvocation(20),
+  returnResult-resultResponseUnexpected(21), returnResult-mistypedResult(22),
+  returnError-unrecognizedInvocation(30),
+  returnError-errorResponseUnexpected(31), returnError-unrecognizedError(32),
+  returnError-unexpectedError(33), returnError-mistypedParameter(34)
+}
+
+RejectProb ::= CHOICE {
+  generalProblem      [0] IMPLICIT GeneralProblem,
+  invokeProblem       [1] IMPLICIT InvokeProblem,
+  returnResultProblem [2] IMPLICIT ReturnResultProblem,
+  returnErrorProblem  [3] IMPLICIT ReturnErrorProblem
+}
+  
+Reject ::= SEQUENCE {
+  invokeId      InvokeId,
+  rejectProblem RejectProb
+}
+
+ROS ::= CHOICE {
+  invoke       [1] IMPLICIT Invoke,
+  returnResult [2] IMPLICIT ReturnResult,
+  returnError  [3] IMPLICIT ReturnError,
+  reject       [4] IMPLICIT Reject
+}
+
+
+
+
+
+
+-- CMIP-A-ABORT
+--      Information carried in user-information parameter of A-ABORT
+CMIPAbortInfo ::= SEQUENCE {
+  abortSource  [0] IMPLICIT CMIPAbortSource,
+  userInfo     [1]  EXTERNALt OPTIONAL
+}
+
+CMIPAbortSource ::= ENUMERATED {cmiseServiceUser(0), cmiseServiceProvider(1)}
+
+
+
+
+-- CMIP-A-ASSOCIATE
+FunctionalUnits ::= BIT STRING {
+  multipleObjectSelection(0), filter(1), multipleReply(2), extendedService(3),
+  cancelGet(4)}
+
+--	Functional unit i is supported if and only if bit i is one
+--	Information carried in user-information parameter of A-ASSOCIATE
+CMIPUserInfo ::= SEQUENCE {
+  protocolVersion  [0] IMPLICIT ProtocolVersion OPTIONAL,
+  functionalUnits  [1] IMPLICIT FunctionalUnits OPTIONAL,
+  accessControl    [2]  EXTERNALt OPTIONAL,
+  userInfo         [3]  EXTERNALt OPTIONAL
+}
+
+ProtocolVersion ::= BIT STRING {version1(0), version2(1)}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

@@ -1,0 +1,66 @@
+# h460.cnf
+# H.460.x conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.INCLUDE ../h225/h225-exp.cnf
+#.INCLUDE ../h235/h235-exp.cnf
+#.INCLUDE ../h245/h245-exp.cnf
+
+#.OPT
+PER
+ALIGNED
+GROUP_BY_PROT
+-o h460
+#.END
+
+#.OMIT_ASSIGNMENT
+MessageBroadcastGroups
+GroupAttributes
+#.END
+
+#.MODULE
+NUMBER-PORTABILITY                   h460.2
+CIRCUIT-STATUS-MAP                   h460.3
+CALL-PRIORITY                        h460.4
+QOS-MONITORING-REPORT                h460.9
+QOS-MONITORING-EXTENDED-VOIP-REPORT  h460.9
+CALL-PARTY-CATEGORY                  h460.10
+MLPP                                 h460.14
+SIGNALLING-CHANNEL-SUSPEND-REDIRECT  h460.15
+SIGNALLING-TRAVERSAL                 h460.18
+MEDIA-TRAVERSAL                      h460.19
+MESSAGE-BROADCAST                    h460.21
+#.END
+
+#.PDU_NEW
+# H.460.2
+NumberPortabilityInfo
+# H.460.3
+CircuitStatus
+# H.460.4
+CallPriorityInfo
+CountryInternationalNetworkCallOriginationIdentification
+# H.460.9
+QosMonitoringReportData
+ExtendedRTPMetrics
+# H.460.10
+CallPartyCategoryInfo
+# H.460.14
+MLPPInfo
+# H.460.15
+SignallingChannelData
+# H.460.18
+IncomingCallIndication
+LRQKeepAliveData
+# H.460.19
+TraversalParameters
+# H.460.21
+CapabilityAdvertisement
+#.END
+
+#.TF_RENAME
+CountryInternationalNetworkCallOriginationIdentification/numberingPlan/x121/countryCode  x121CountryCode
+CountryInternationalNetworkCallOriginationIdentification/numberingPlan/e164/countryCode  e164CountryCode
+#.END

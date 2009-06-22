@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 03_preferences.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: use Debian sensible-browser
+
+@DPATCH@
+diff -urNad wireshark-0.99.7~pre1~/epan/prefs.c wireshark-0.99.7~pre1/epan/prefs.c
+--- wireshark-0.99.7~pre1~/epan/prefs.c	2007-11-22 17:57:25.000000000 +0100
++++ wireshark-0.99.7~pre1/epan/prefs.c	2007-11-22 18:04:50.555226510 +0100
+@@ -1198,7 +1198,7 @@
+   prefs.gui_ask_unsaved            = TRUE;
+   prefs.gui_find_wrap              = TRUE;
+   prefs.gui_use_pref_save          = FALSE;
+-  prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
++  prefs.gui_webbrowser             = g_strdup("sensible-browser %s");
+   prefs.gui_window_title           = g_strdup("");
+   prefs.gui_layout_type            = layout_type_5;
+   prefs.gui_layout_content_1       = layout_pane_content_plist;

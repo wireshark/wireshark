@@ -1,0 +1,207 @@
+//Source file: gcc_data.idl
+//Date:  6 October 2004
+//Generic Call Control Data Types for ES 203 915-4-2 V1.1.1, DES/TISPAN-01005-04-2-OSA, Parlay 5.0
+
+#ifndef __GCC_DATA_DEFINED
+#define __GCC_DATA_DEFINED
+
+
+#include "common_cc_data.idl"
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			module gccs {
+				
+				const TpInt32 P_EVENT_NAME_UNDEFINED = 0;
+				
+				const TpInt32 P_EVENT_GCCS_OFFHOOK_EVENT = 1;
+				
+				const TpInt32 P_EVENT_GCCS_ADDRESS_COLLECTED_EVENT = 2;
+				
+				const TpInt32 P_EVENT_GCCS_ADDRESS_ANALYSED_EVENT = 4;
+				
+				const TpInt32 P_EVENT_GCCS_CALLED_PARTY_BUSY = 8;
+				
+				const TpInt32 P_EVENT_GCCS_CALLED_PARTY_UNREACHABLE = 16;
+				
+				const TpInt32 P_EVENT_GCCS_NO_ANSWER_FROM_CALLED_PARTY = 32;
+				
+				const TpInt32 P_EVENT_GCCS_ROUTE_SELECT_FAILURE = 64;
+				
+				const TpInt32 P_EVENT_GCCS_ANSWER_FROM_CALL_PARTY = 128;
+				
+				
+				typedef TpInt32 TpCallEventName;
+				
+				
+				enum TpCallNotificationType {
+
+					P_ORIGINATING,
+					P_TERMINATING					
+				};
+				
+				
+				struct TpCallEventCriteria {
+					TpAddressRange DestinationAddress;
+					TpAddressRange OriginatingAddress;
+					TpCallEventName CallEventName;
+					TpCallNotificationType CallNotificationType;
+					TpCallMonitorMode MonitorMode;
+				};
+				
+				
+				struct TpCallEventCriteriaResult {
+					TpCallEventCriteria CallEventCriteria;
+					TpInt32 AssignmentID;
+				};
+				
+				
+				typedef sequence <TpCallEventCriteriaResult> TpCallEventCriteriaResultSet;
+				
+				
+				enum TpCallAppInfoType {
+
+					P_CALL_APP_UNDEFINED,
+					P_CALL_APP_ALERTING_MECHANISM,
+					P_CALL_APP_NETWORK_ACCESS_TYPE,
+					P_CALL_APP_TELE_SERVICE,
+					P_CALL_APP_BEARER_SERVICE,
+					P_CALL_APP_PARTY_CATEGORY,
+					P_CALL_APP_PRESENTATION_ADDRESS,
+					P_CALL_APP_GENERIC_INFO,
+					P_CALL_APP_ADDITIONAL_ADDRESS					
+				};
+				
+				
+				union TpCallAppInfo switch(TpCallAppInfoType) {
+					case P_CALL_APP_ALERTING_MECHANISM: TpCallAlertingMechanism CallAppAlertingMechanism;
+					case P_CALL_APP_NETWORK_ACCESS_TYPE: TpCallNetworkAccessType CallAppNetworkAccessType;
+					case P_CALL_APP_TELE_SERVICE: TpCallTeleService CallAppTeleService;
+					case P_CALL_APP_BEARER_SERVICE: TpCallBearerService CallAppBearerService;
+					case P_CALL_APP_PARTY_CATEGORY: TpCallPartyCategory CallAppPartyCategory;
+					case P_CALL_APP_PRESENTATION_ADDRESS: TpAddress CallAppPresentationAddress;
+					case P_CALL_APP_GENERIC_INFO: TpString CallAppGenericInfo;
+					case P_CALL_APP_ADDITIONAL_ADDRESS: TpAddress CallAppAdditionalAddress;
+					default: short Dummy;
+				};
+				
+				
+				typedef sequence<TpCallAppInfo> TpCallAppInfoSet;
+				
+				
+				struct TpCallReleaseCause {
+					TpInt32 Value;
+					TpInt32 Location;
+				};
+				
+				
+				enum TpCallReportType {
+
+					P_CALL_REPORT_UNDEFINED,
+					P_CALL_REPORT_PROGRESS,
+					P_CALL_REPORT_ALERTING,
+					P_CALL_REPORT_ANSWER,
+					P_CALL_REPORT_BUSY,
+					P_CALL_REPORT_NO_ANSWER,
+					P_CALL_REPORT_DISCONNECT,
+					P_CALL_REPORT_REDIRECTED,
+					P_CALL_REPORT_SERVICE_CODE,
+					P_CALL_REPORT_ROUTING_FAILURE,
+					P_CALL_REPORT_QUEUED,
+					P_CALL_REPORT_NOT_REACHABLE					
+				};
+				
+				
+				union TpCallAdditionalReportInfo switch(TpCallReportType) {
+					case P_CALL_REPORT_BUSY: TpCallReleaseCause Busy;
+					case P_CALL_REPORT_DISCONNECT: TpCallReleaseCause CallDisconnect;
+					case P_CALL_REPORT_REDIRECTED: TpAddress ForwardAddress;
+					case P_CALL_REPORT_SERVICE_CODE: TpCallServiceCode ServiceCode;
+					case P_CALL_REPORT_ROUTING_FAILURE: TpCallReleaseCause RoutingFailure;
+					case P_CALL_REPORT_QUEUED: TpString QueueStatus;
+					case P_CALL_REPORT_NOT_REACHABLE: TpCallReleaseCause NotReachable;
+					default: short Dummy;
+				};
+				
+				
+				struct TpCallReport {
+					TpCallMonitorMode MonitorMode;
+					TpDateAndTime CallEventTime;
+					TpCallReportType CallReportType;
+					TpCallAdditionalReportInfo AdditionalReportInfo;
+				};
+				
+				
+				union TpCallAdditionalReportCriteria switch(TpCallReportType) {
+					case P_CALL_REPORT_NO_ANSWER: TpDuration NoAnswerDuration;
+					case P_CALL_REPORT_SERVICE_CODE: TpCallServiceCode ServiceCode;
+					default: short Dummy;
+				};
+				
+				
+				struct TpCallReportRequest {
+					TpCallMonitorMode MonitorMode;
+					TpCallReportType CallReportType;
+					TpCallAdditionalReportCriteria AdditionalReportCriteria;
+				};
+				
+				
+				typedef sequence <TpCallReportRequest> TpCallReportRequestSet;
+				
+				
+				struct TpCallEventInfo {
+					TpAddress DestinationAddress;
+					TpAddress OriginatingAddress;
+					TpAddress OriginalDestinationAddress;
+					TpAddress RedirectingAddress;
+					TpCallAppInfoSet CallAppInfo;
+					TpCallEventName CallEventName;
+					TpCallNotificationType CallNotificationType;
+					TpCallMonitorMode MonitorMode;
+				};
+				
+				
+				struct TpCallEndedReport {
+					TpSessionID CallLegSessionID;
+					TpCallReleaseCause Cause;
+				};
+				
+				
+				struct TpCallInfoReport {
+					TpCallInfoType CallInfoType;
+					TpDateAndTime CallInitiationStartTime;
+					TpDateAndTime CallConnectedToResourceTime;
+					TpDateAndTime CallConnectedToDestinationTime;
+					TpDateAndTime CallEndTime;
+					TpCallReleaseCause Cause;
+				};
+				
+				
+				struct TpCallTreatment {
+					TpCallTreatmentType CallTreatmentType;
+					TpCallReleaseCause ReleaseCause;
+					TpCallAdditionalTreatmentInfo AdditionalTreatmentInfo;
+				};
+				
+				
+				enum TpCallFault {
+
+					P_CALL_FAULT_UNDEFINED,
+					P_CALL_TIMEOUT_ON_RELEASE,
+					P_CALL_TIMEOUT_ON_INTERRUPT					
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

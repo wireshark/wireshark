@@ -1,0 +1,174 @@
+#
+# $Id$
+#
+# NSIS is a free packager/installer/uninstaller program for Win32.
+# It was originally written for the Winamp package, but various
+# freeware and non-freeware packages are using it, too.
+#
+# http://www.nullsoft.com/free/nsis/
+
+include ../../config.nmake
+
+UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
+
+
+EXE=../../tshark.exe ../../editcap.exe \
+!IFDEF GTK_DIR
+	../../wireshark.exe \
+!ENDIF
+	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_4_0_2.exe
+DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
+DOC=../../doc/ws.css			\
+	../../doc/capinfos.html 	\
+	../../doc/dumpcap.html		\
+	../../doc/editcap.html 		\
+	../../doc/idl2wrs.html 		\
+	../../doc/mergecap.html 	\
+	../../doc/rawshark.html 	\
+	../../doc/text2pcap.html 	\
+	../../doc/rawshark.html		\
+	../../doc/tshark.html		\
+	../../doc/wireshark-filter.html	\
+	../../doc/wireshark.html	\
+	../../README			\
+	../../README.win32
+DOC_dos=NEWS.txt
+GPL=../../COPYING
+HELP=../../help/capture_filters.txt \
+	../../help/capturing.txt \
+	../../help/display_filters.txt \
+	../../help/faq.txt \
+	../../help/getting_started.txt \
+	../../help/overview.txt \
+	../../help/toc
+
+PLUGINS= \
+	../../plugins/asn1/asn1.dll \
+	../../plugins/docsis/docsis.dll \
+	../../plugins/ethercat/ethercat.dll \
+	../../plugins/giop/coseventcomm.dll \
+	../../plugins/giop/cosnaming.dll \
+	../../plugins/giop/parlay.dll \
+	../../plugins/giop/tango.dll \
+	../../plugins/gryphon/gryphon.dll \
+	../../plugins/irda/irda.dll \
+	../../plugins/m2m/m2m.dll \
+	../../plugins/mate/mate.dll \
+	../../plugins/opcua/opcua.dll \
+	../../plugins/profinet/profinet.dll \
+	../../plugins/sercosiii/sercosiii.dll \
+	../../plugins/stats_tree/stats_tree.dll \
+	../../plugins/unistim/unistim.dll \
+	../../plugins/wimax/wimax.dll \
+	../../plugins/wimaxasncp/wimaxasncp.dll
+
+NSI=wireshark.nsi \
+	GetWindowsVersion.nsh \
+	servicelib.nsh \
+	AdditionalTasksPage.ini \
+	WinPcapPage.ini
+
+DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
+
+all: NEWS.txt wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+
+NEWS.txt: ../../NEWS
+	$(UNIX2DOS) < ../../NEWS > NEWS.txt
+
+# fetch the latest available user-guide.chm version
+user-guide.chm::
+	if exist ..\..\docbook\user-guide.chm xcopy ..\..\docbook\user-guide.chm . /Y /D
+	if exist $(WIRESHARK_LIBS)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIBS)\user-guide\user-guide.chm . /Y /D
+
+wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
+	$(MAKENSIS) \
+	/DWIRESHARK_TARGET_PLATFORM=$(WIRESHARK_TARGET_PLATFORM) \
+	/DMSVC_VARIANT=$(MSVC_VARIANT) \
+!IFDEF MSVCR_DLL
+	/DMSVCR_DLL="$(MSVCR_DLL)" \
+!ENDIF
+!IFDEF VCREDIST_EXE
+	/DVCREDIST_EXE="$(VCREDIST_EXE)" \
+!ENDIF
+!IF "$(ENABLE_LIBWIRESHARK)" != ""
+	/DENABLE_LIBWIRESHARK=$(ENABLE_LIBWIRESHARK) \
+!ENDIF
+!IFDEF GTK_DIR
+	/DGTK_DIR=$(GTK_DIR) \
+	/DGTK_LIB_DIR=$(GTK_LIB_DIR) \
+	/DPANGO_LIB_DIR=$(PANGO_LIB_DIR) \
+!IFDEF NEED_LIBPNG_DLL
+	/DNEED_LIBPNG_DLL=$(NEED_LIBPNG_DLL) \
+!ENDIF
+!IFDEF NEED_LIBJPEG_DLL
+	/DNEED_LIBJPEG_DLL=$(NEED_LIBJPEG_DLL) \
+	/DJPEG_DLL=$(JPEG_DLL) \
+!ENDIF
+!IFDEF NEED_LIBTIFF_DLL
+	/DNEED_LIBTIFF_DLL=$(NEED_LIBTIFF_DLL) \
+	/DTIFF_DLL=$(TIFF_DLL) \
+!ENDIF
+!IFDEF NEED_CAIRO_DLL
+	/DNEED_CAIRO_DLL=$(NEED_CAIRO_DLL) \
+!ENDIF
+!ENDIF
+	/DGTK_WIMP_DLLDST_DIR=$(GTK_WIMP_DLLDST_DIR) \
+	/DGTK_WIMP_DLLSRC_DIR=$(GTK_WIMP_DLLSRC_DIR) \
+	/DGTK_WIMP_RCDST_DIR=$(GTK_WIMP_RCDST_DIR) \
+	/DGTK_WIMP_RCSRC_DIR=$(GTK_WIMP_RCSRC_DIR) \
+	/DGLIB_DIR=$(GLIB_DIR) \
+!IFDEF ICONV_DIR
+	/DICONV_DIR=$(ICONV_DIR) \
+!ENDIF
+	/DGETTEXT_DIR=$(GETTEXT_DIR) \
+	/DGETTEXT_DLL=$(GETTEXT_DLL) \
+	/DVERSION=$(VERSION) \
+	/DWTAP_VERSION=$(WTAP_VERSION) \
+!IF "$(C_ARES_DIR)" != ""
+	/DC_ARES_DIR=$(C_ARES_DIR) \
+!ENDIF
+!IF "$(ADNS_DIR)" != ""
+	/DADNS_DIR=$(ADNS_DIR) \
+!ENDIF
+!IF "$(KFW_DIR)" != ""
+	/DKFW_DIR=$(KFW_DIR) \
+!ENDIF
+!IF "$(GNUTLS_DIR)" != ""
+	/DGNUTLS_DIR=$(GNUTLS_DIR) \
+!ENDIF
+!IF "$(PCRE_DIR)" != ""
+	/DPCRE_DIR=$(PCRE_DIR) \
+!ENDIF
+!IF "$(ZLIB_DIR)" != ""
+	/DZLIB_DIR=$(ZLIB_DIR) \
+!ENDIF
+!IFDEF LUA_DIR
+	/DLUA_DIR=$(LUA_DIR) \
+!ENDIF
+!IFDEF SMI_DIR
+	/DSMI_DIR=$(SMI_DIR) \
+!ENDIF
+!IFDEF HHC_DIR
+	/DHHC_DIR="$(HHC_DIR)" \
+!ENDIF
+	wireshark.nsi
+
+clean:
+	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+	rm -f NEWS.txt
+	rm -f user-guide.chm
+
+distclean: clean
+	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-*.exe
+
+maintainer-clean: distclean
+
+$(DOC):
+	cd ../../doc
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+	cd ../packaging/nsis
+
+$(EXE) $(DLL):
+	cd ../..
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+	cd packaging/nsis

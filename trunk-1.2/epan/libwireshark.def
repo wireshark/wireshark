@@ -1,0 +1,1048 @@
+; libwireshark.def
+; $Id$
+
+; Add symbols that should be exported out of libwireshark.dll,
+; e.g. when used inside the GUI.
+;
+; DATA symbols must be declared WS_VAR_IMPORT in the header file!
+;
+; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
+;
+EXPORTS
+abs_time_secs_to_str
+abs_time_to_str
+add_new_data_source
+address_to_str
+address_to_str_buf
+AdmissionRejectReason_vals      DATA
+airpdcap_ctx                    DATA
+AirPDcapDestroyContext
+AirPDcapInitContext
+ansi_a_bsmap_strings     DATA
+ansi_a_dtap_strings     DATA
+ansi_a_ios401_bsmap_strings     DATA
+ansi_a_ios401_dtap_strings      DATA
+ansi_a_ios501_bsmap_strings     DATA
+ansi_a_ios501_dtap_strings      DATA
+ansi_map_opr_code_strings       DATA
+asn1_ctx_init
+BandRejectReason_vals           DATA
+ber_decode_as
+ber_decode_as_foreach
+ber_set_filename
+build_column_format_array
+build_follow_filter
+byte_array_dup
+byte_array_equal
+bytes_to_str
+bytes_to_str_punct
+bytestring_to_str
+call_ber_oid_callback
+call_dissector
+call_dissector_only
+camel_opr_code_strings          DATA
+camelSRTtype_naming             DATA
+capture_ap1394
+capture_arcnet
+capture_atm
+capture_chdlc
+capture_clip
+capture_enc
+capture_eth
+capture_fddi
+capture_fr
+capture_i2c
+capture_ieee80211
+capture_ipfc
+capture_llap
+capture_null
+capture_ppi
+capture_ppp_hdlc
+capture_prism
+capture_radiotap
+capture_raw
+capture_sll
+capture_tr
+capture_wlancap
+check_col
+check_xdlc_control
+circuit_add_proto_data
+circuit_get_proto_data
+circuit_new
+cleanup_dissection
+codec_init
+codec_decode
+codec_release
+col_add_fstr
+col_add_str
+col_append_fstr
+col_append_sep_fstr
+col_append_sep_str
+col_append_str
+col_clear
+col_custom_prime_edt
+col_custom_set_fstr
+col_format_desc
+col_format_to_string
+col_get_writable
+col_has_time_fmt
+col_prepend_fence_fstr
+col_prepend_fstr
+col_set_fence
+col_set_fmt_time
+col_set_str
+col_set_time
+col_set_writable
+col_setup
+CommandCode_vals	DATA
+conversation_add_proto_data
+conversation_delete_proto_data
+conversation_get_proto_data
+conversation_new
+conversation_set_dissector
+convert_string_case
+convert_string_to_hex
+copy_file_binary_mode
+copy_prefs
+crc16_ccitt_tvb
+crc16_plain_tvb_offset
+create_dissector_handle
+create_persconffile_dir
+create_persconffile_profile
+data_out_file                   DATA
+dcerpc_add_conv_to_bind_table
+dcerpc_get_proto_hf_opnum
+dcerpc_get_proto_name
+dcerpc_get_proto_sub_dissector
+dcerpc_get_transport_salt
+dcerpc_hooks_init_protos        DATA
+dcerpc_init_uuid
+dcerpc_uuids                    DATA
+dcom_hresult_vals				DATA
+dcom_interface_find
+dcom_interface_new
+dcom_variant_type_vals			DATA
+decode_bitfield_value
+decode_boolean_bitfield
+decode_enumerated_bitfield_shifted
+decode_enumerated_bitfield
+decode_numeric_bitfield
+delete_persconffile_profile
+deletefile
+de_cell_id
+de_d_gb_call_ref
+de_gmm_drx_param
+de_gmm_ms_net_cap
+de_gmm_ms_radio_acc_cap
+de_gmm_rai
+de_lai
+de_mid
+de_ms_cm_1
+de_ms_cm_2
+de_sm_apn
+de_sm_qos
+de_sm_pflow_id
+de_rej_cause
+de_rr_cause
+de_rr_cell_dsc
+de_rr_chnl_needed
+de_rr_ch_dsc
+de_rr_ch_mode
+de_rr_cip_mode_set
+de_rr_cm_enq_mask
+de_rr_multirate_conf
+de_rr_sus_cau
+de_rr_tlli
+dfilter_apply_edt
+dfilter_compile
+dfilter_deprecated_tokens
+dfilter_dump
+dfilter_error_msg               DATA
+dfilter_free
+dfilter_macro_build_ftv_cache
+dfilter_macro_foreach
+dfilter_macro_get_uat
+DisengageReason_vals            DATA
+DisengageRejectReason_vals      DATA
+display_epoch_time
+display_signed_time
+dissect_ber_bitstring
+dissect_ber_boolean
+dissect_ber_choice
+dissect_ber_GeneralizedTime
+dissect_ber_identifier
+dissect_ber_integer
+dissect_ber_integer64
+dissect_ber_length
+dissect_ber_null
+dissect_ber_object_identifier
+dissect_ber_object_identifier_str
+dissect_ber_octet_string
+dissect_ber_old_choice
+dissect_ber_old_sequence_of
+dissect_ber_old_sequence
+dissect_ber_restricted_string
+dissect_ber_sequence_of
+dissect_ber_sequence
+dissect_ber_set_of
+dissect_ber_tagged_type
+dissect_dcerpc_uint16
+dissect_dcerpc_uint32
+dissect_dcerpc_uint64
+dissect_dcerpc_uint8
+dissect_dcerpc_uuid_t
+dissect_dcom_BSTR
+dissect_dcom_dcerpc_pointer
+dissect_dcom_dcerpc_array_size
+dissect_dcom_HRESULT_item
+dissect_dcom_HRESULT
+dissect_dcom_indexed_HRESULT
+dissect_dcom_indexed_LPWSTR
+dissect_dcom_indexed_DWORD
+dissect_dcom_LPWSTR
+dissect_dcom_MInterfacePointer
+dissect_dcom_PMInterfacePointer
+dissect_dcom_SAFEARRAY
+dissect_dcom_simple_rqst
+dissect_dcom_simple_resp
+dissect_dcom_that
+dissect_dcom_this
+dissect_dcom_VARIANT
+dissect_dcom_VARTYPE
+dissect_e164_cc
+dissect_e212_mcc_mnc
+dissect_gsm_map_GlobalCellId
+dissect_gsm_map_IMSI
+dissect_gsm_map_ISDN_AddressString
+dissect_gsm_map_lcs_Ext_GeographicalInformation
+dissect_h245_H223Capability
+dissect_IDispatch_GetIDsOfNames_resp
+dissect_IDispatch_GetTypeInfo_resp
+dissect_IDispatch_GetTypeInfo_rqst
+dissect_IDispatch_GetTypeInfoCount_resp
+dissect_IDispatch_GetIDsOfNames_rqst
+dissect_IDispatch_Invoke_rqst
+dissect_IDispatch_Invoke_resp
+dissect_ndr_double
+dissect_ndr_duint32
+dissect_ndr_uint16
+dissect_ndr_uint32
+dissect_ndr_uint8
+dissect_ndr_uuid_t
+dissect_nt_64bit_time
+dissect_per_bit_string
+dissect_per_bit_string_containing_pdu
+dissect_per_bit_string_containing_pdu_new
+dissect_per_BMPString
+dissect_per_boolean
+dissect_per_choice
+dissect_per_constrained_sequence_of
+dissect_per_constrained_set_of
+dissect_per_constrained_integer
+dissect_per_constrained_integer_64b
+dissect_per_enumerated
+dissect_per_external_type
+dissect_per_GeneralString
+dissect_per_IA5String
+dissect_per_integer
+dissect_per_null
+dissect_per_NumericString
+dissect_per_object_identifier_str
+dissect_per_object_identifier
+dissect_per_octet_string
+dissect_per_octet_string_containing_pdu
+dissect_per_octet_string_containing_pdu_new
+dissect_per_open_type
+dissect_per_open_type_pdu
+dissect_per_open_type_pdu_new
+dissect_per_PrintableString
+dissect_per_real
+dissect_per_restricted_character_string
+dissect_per_sequence_of
+dissect_per_sequence
+dissect_per_set_of
+dissect_per_VisibleString
+dissect_q932_PartyNumber
+dissect_q932_PartySubaddress
+dissect_q932_PresentedNumberUnscreened
+dissect_q932_PresentedNumberScreened
+dissect_qsig_na_Name
+dissect_rpc_array
+dissect_rpc_bool
+dissect_rpc_bytes
+dissect_rpc_data
+dissect_rpc_indir_call
+dissect_rpc_indir_reply
+dissect_rpc_list
+dissect_rpc_opaque_data
+dissect_rpc_string
+dissect_rpc_uint32
+dissect_rpc_uint64
+dissect_tpkt_encap
+dissect_unknown_ber
+dissect_xdlc_control
+dissector_add
+dissector_add_handle
+dissector_add_string
+dissector_all_tables_foreach_changed
+dissector_all_tables_foreach_table
+dissector_change
+dissector_change_string
+dissector_delete
+dissector_delete_string
+dissector_dump_decodes
+dissector_filter_list           DATA
+dissector_get_port_handle
+dissector_get_string_handle
+dissector_handle_get_protocol_index
+dissector_handle_get_short_name
+dissector_reset
+dissector_reset_string
+dissector_table_foreach_handle
+dissector_try_heuristic
+dissector_try_port
+dissector_try_string
+draw_tap_listeners
+dscp_vals						DATA
+dtbl_entry_get_handle
+dtbl_entry_get_initial_handle
+EBCDIC_to_ASCII
+EBCDIC_to_ASCII1
+eap_code_vals                 DATA
+eap_type_vals                 DATA
+emem_tree_foreach
+emem_tree_insert32
+emem_tree_insert32_array
+emem_tree_insert_string
+emem_tree_lookup32
+emem_tree_lookup32_array
+emem_tree_lookup32_le
+emem_tree_lookup_string
+empty_tcp_stream           DATA
+elem_lv
+elem_t
+elem_tlv
+elem_tv
+elem_tv_short
+elem_v
+elem_v_short
+ep_alloc
+ep_alloc0
+ep_free_all
+ep_init_chunk
+ep_memdup
+ep_stack_new
+ep_stack_pop
+ep_stack_push
+ep_strbuf_append
+ep_strbuf_append_c
+ep_strbuf_append_printf
+ep_strbuf_append_vprintf
+ep_strbuf_new
+ep_strbuf_new_label
+ep_strbuf_printf
+ep_strbuf_sized_new
+ep_strbuf_truncate
+ep_strdup
+ep_strdup_printf
+ep_strdup_vprintf
+ep_strndup
+ep_strsplit
+ep_tvb_memdup
+epan_base64_decode
+epan_cleanup
+epan_dissect_fill_in_columns
+epan_dissect_free
+epan_dissect_new
+epan_dissect_prime_dfilter
+epan_dissect_run
+epan_get_version
+epan_init
+epan_strcasestr
+ethertype
+ether_to_str
+ex_opt_add
+ex_opt_count
+ex_opt_get_next
+ex_opt_get_nth
+except_alloc
+except_deinit
+except_free
+except_init
+except_pop
+except_rethrow
+except_set_allocator
+except_setup_try
+except_take_data
+except_throw
+except_throwd
+except_throwf
+except_unhandled_catcher
+expert_add_info_format
+expert_get_highest_severity
+expert_group_vals               DATA
+expert_severity_vals            DATA
+FacilityReason_vals             DATA
+fc_fc4_val                      DATA
+fetch_tapped_data
+file_exists
+file_open_error_message
+file_write_error_message
+files_identical
+filesystem_opt
+find_circuit
+find_codec
+find_conversation
+find_dissector
+find_dissector_table
+find_protocol_by_id
+find_stream_circ
+find_tap_id
+find_val_for_string
+flags_set_truth                 DATA
+follow_stats
+format_text
+format_uri
+fragment_add
+fragment_add_check
+fragment_add_multiple_ok
+fragment_add_seq
+fragment_add_seq_check
+fragment_add_seq_next
+fragment_delete
+fragment_end_seq_next
+fragment_get
+fragment_get_reassembled_id
+fragment_get_tot_len
+fragment_set_partial_reassembly
+fragment_set_tot_len
+fragment_table_init
+free_prefs
+ftype_can_contains
+ftype_can_eq
+ftype_can_ge
+ftype_can_gt
+ftype_can_le
+ftype_can_lt
+ftype_can_matches
+ftype_can_ne
+ftype_can_slice
+ftype_pretty_name
+funnel_get_funnel_ops
+funnel_register_all_menus
+funnel_register_menu
+funnel_set_funnel_ops
+fvalue_from_unparsed
+fvalue_get
+fvalue_get_floating
+fvalue_get_integer64
+fvalue_get_sinteger
+fvalue_get_uinteger
+fvalue_string_repr_len
+fvalue_t_free_list              DATA
+fvalue_to_string_repr
+g_resolv_flags                  DATA
+GatekeeperRejectReason_vals     DATA
+gcamel_StatSRT                  DATA
+geoip_db_get_paths
+geoip_db_name
+geoip_db_num_dbs
+geoip_db_lookup_ipv4
+geoip_db_get_paths
+get_addr_name
+get_asn1_ctx
+get_basename
+get_ber_identifier
+get_ber_length
+get_CDR_any
+get_CDR_boolean
+get_CDR_char
+get_CDR_double
+get_CDR_encap_info
+get_CDR_enum
+get_CDR_fixed
+get_CDR_float
+get_CDR_interface
+get_CDR_long
+get_CDR_long_long
+get_CDR_object
+get_CDR_octet
+get_CDR_octet_seq
+get_CDR_short
+get_CDR_string
+get_CDR_typeCode
+get_CDR_ulong
+get_CDR_ulong_long
+get_CDR_ushort
+get_CDR_wchar
+get_CDR_wstring
+get_column_char_width
+get_column_custom_field
+get_column_format
+get_column_format_from_str
+get_column_format_matches
+get_column_longest_string
+get_column_title
+get_column_width_string
+get_datafile_dir
+get_datafile_path
+get_dirname
+get_dissector_table_selector_type
+get_dissector_table_ui_name
+get_dissector_table_base
+get_ether_name
+get_host_ipaddr
+get_host_ipaddr6
+get_hostname
+get_hostname6
+get_key_string
+get_manuf_name_if_known
+get_persconffile_path
+get_persdatafile_dir
+get_plugin_dir
+get_plugins_pers_dir
+get_profile_name
+get_profiles_dir
+get_progfile_dir
+get_rose_ctx
+get_sctp_port
+get_systemfile_dir
+get_tcp_port
+get_tempfile_path
+get_udp_port
+getenv_utf8
+golay_decode
+golay_encode
+golay_errors
+gsm_a_bssmap_msg_strings        DATA
+gsm_a_dtap_msg_cc_strings       DATA
+gsm_a_dtap_msg_gmm_strings      DATA
+gsm_a_dtap_msg_mm_strings       DATA
+gsm_a_dtap_msg_rr_strings       DATA
+gsm_a_dtap_msg_sm_strings       DATA
+gsm_a_dtap_msg_sms_strings      DATA
+gsm_a_dtap_msg_ss_strings       DATA
+gsm_a_dtap_msg_tp_strings       DATA
+gsm_a_sacch_msg_rr_strings      DATA
+gsm_a_pd_str                    DATA
+gsm_map_opr_code_strings        DATA
+gtcap_StatSRT                   DATA
+guid_to_str
+guids_add_guid
+guids_get_guid_name
+guids_init
+guids_resolve_guid_to_str
+h225_RasMessage_vals                 DATA
+h225_ReleaseCompleteReason_vals      DATA
+h245_set_h223_add_lc_handle
+h245_set_h223_set_mc_handle
+h248_param_ber_integer 
+h248_register_package 
+have_custom_cols
+have_tap_listeners
+heur_dissector_add
+heur_dissector_delete
+hex_str_to_bytes
+hf_frame_arrival_time           DATA
+hf_frame_capture_len            DATA
+hf_frame_number                 DATA
+hf_frame_len                    DATA
+hf_text_only                    DATA
+host_ip_af
+host_name_lookup_process
+http_dissector_add
+ieee80211_chan_to_mhz
+ieee80211_mhz_to_chan
+ieee80211_mhz_to_str
+ieee802a_add_oui
+incomplete_tcp_stream           DATA
+InfoRequestNakReason_vals       DATA
+init_dissection
+init_progfile_dir
+ip6_to_str
+in_cksum
+ip_to_str
+ipprotostr
+ipv4_get_net_order_addr
+is_big_endian
+is_tpkt
+isup_message_type_value_acro    DATA
+isup_message_type_value         DATA
+list_stat_cmd_args
+llc_add_oui
+LocationRejectReason_vals       DATA
+make_printable_string
+match_strrval
+match_strrval_idx
+match_strval
+match_strval_idx
+md5_append
+md5_finish
+md5_hmac
+md5_init
+mkstemp
+mtp3_addr_to_str_buf
+mtp3_service_indicator_code_short_vals DATA
+new_octet_aligned_subset_bits
+new_create_dissector_handle
+new_register_dissector
+nstime_cmp
+nstime_delta
+nstime_is_unset
+nstime_is_zero
+nstime_set_unset
+nstime_set_zero
+nstime_sum
+nstime_to_msec
+nstime_to_sec
+nt_cmd_vals                     DATA
+num_tap_filters                 DATA
+num_tree_types                  DATA
+offset_from_real_beginning
+oid_add
+oid_add_from_encoded
+oid_add_from_string
+oid_both
+oid_both_from_encoded
+oid_both_from_string
+oid_encoded2string
+oid_encoded2subid
+oid_get
+oid_get_default_mib_path
+oid_get_from_encoded
+oid_get_from_string
+oid_has_dissector
+oid_resolved
+oid_resolved_from_encoded
+oid_resolved_from_string
+oid_string2encoded
+oid_string2subid
+oid_subid2encoded
+oid_subid2string
+other_decode_bitfield_value
+p_add_proto_data
+p_get_proto_data
+parse_key_string
+pe_tree_create
+plugin_list                     DATA
+postseq_cleanup_all_protocols
+prefs                           DATA
+prefs_apply
+prefs_apply_all
+prefs_clear_string_list
+prefs_is_capture_device_hidden
+prefs_find_module
+prefs_find_preference
+prefs_get_string_list
+prefs_get_title_by_name
+prefs_is_registered_protocol
+prefs_module_has_submodules
+prefs_modules_foreach
+prefs_modules_foreach_submodules
+prefs_pref_foreach
+prefs_register_bool_preference
+prefs_register_enum_preference
+prefs_register_modules
+prefs_register_obsolete_preference
+prefs_register_protocol
+prefs_register_range_preference
+prefs_register_static_text_preference
+prefs_register_string_preference
+prefs_register_uat_preference
+prefs_register_uint_preference
+prefs_reset
+prefs_set_pref
+process_reassembled_data
+process_stat_cmd_arg
+profile_exists
+proto_all_finfos
+proto_can_match_selected
+proto_can_toggle_protocol
+proto_check_field_name
+proto_construct_match_selected_string
+proto_data                      DATA
+proto_enable_all
+proto_find_field_from_offset
+proto_find_finfo
+proto_frame                     DATA
+proto_get_finfo_ptr_array
+proto_get_first_protocol_field
+proto_get_first_protocol
+proto_get_id
+proto_get_id_by_filter_name
+proto_get_next_protocol
+proto_get_next_protocol_field
+proto_get_protocol_filter_name
+proto_get_protocol_name
+proto_get_protocol_short_name
+proto_get_protocol_long_name
+proto_initialize_all_prefixes
+proto_is_private
+proto_is_protocol_enabled
+proto_item_add_subtree
+proto_item_append_text
+proto_item_fill_label
+proto_item_get_len
+proto_item_get_parent_nth
+proto_item_get_parent
+proto_item_get_subtree
+proto_item_set_end
+proto_item_set_expert_flags
+proto_item_set_len
+proto_item_set_text
+proto_malformed
+proto_mark_private
+proto_register_field_array
+proto_register_prefix
+proto_register_protocol
+proto_register_subtree_array
+proto_registrar_dump_protocols
+proto_registrar_dump_values
+proto_registrar_dump_fields
+proto_registrar_get_ftype
+proto_registrar_get_byname
+proto_registrar_get_nth
+proto_registrar_get_parent
+proto_registrar_get_abbrev
+proto_registrar_is_protocol
+proto_registrar_n
+proto_set_cant_toggle
+proto_set_decoding
+proto_tree_add_bitmask
+proto_tree_add_bits_item
+proto_tree_add_bits_ret_val
+proto_tree_add_boolean_format
+proto_tree_add_boolean_format_value
+proto_tree_add_boolean
+proto_tree_add_bytes_format
+proto_tree_add_bytes_format_value
+proto_tree_add_bytes
+proto_tree_add_debug_text
+proto_tree_add_double
+proto_tree_add_double_format
+proto_tree_add_double_format_value
+proto_tree_add_ether_format
+proto_tree_add_ether
+proto_tree_add_ether_format_value
+proto_tree_add_float_format
+proto_tree_add_float_format_value
+proto_tree_add_float
+proto_tree_add_guid
+proto_tree_add_guid_format_value
+proto_tree_add_guid_format
+proto_tree_add_int
+proto_tree_add_int64_format_value
+proto_tree_add_int64
+proto_tree_add_int64_format
+proto_tree_add_int_format
+proto_tree_add_int_format_value
+proto_tree_add_ipv4
+proto_tree_add_ipv4_format
+proto_tree_add_ipv4_format_value
+proto_tree_add_ipv6
+proto_tree_add_ipv6_format_value
+proto_tree_add_ipv6_format
+proto_tree_add_ipxnet
+proto_tree_add_ipxnet_format
+proto_tree_add_ipxnet_format_value
+proto_tree_add_item
+proto_tree_add_none_format
+proto_tree_add_protocol_format
+proto_tree_add_string_format
+proto_tree_add_string_format_value
+proto_tree_add_string
+proto_tree_add_text
+proto_tree_add_time
+proto_tree_add_time_format
+proto_tree_add_time_format_value
+proto_tree_add_uint
+proto_tree_add_uint64
+proto_tree_add_uint64_format
+proto_tree_add_uint64_format_value
+proto_tree_add_uint_format_value
+proto_tree_add_uint_format
+proto_tree_children_foreach
+proto_tree_get_parent
+proto_tree_get_root
+proto_tree_move_item
+protocols_module                DATA
+ptvcursor_new
+ptvcursor_add
+ptvcursor_add_no_advance
+ptvcursor_advance
+ptvcursor_free
+ptvcursor_tvbuff
+ptvcursor_current_offset
+ptvcursor_tree
+ptvcursor_set_tree
+ptvcursor_push_subtree
+ptvcursor_pop_subtree
+ptvcursor_add_with_subtree
+ptvcursor_add_text_with_subtree
+ptvcursor_set_subtree
+q850_cause_code_vals           DATA
+q931_cause_code_vals           DATA
+q931_message_type_vals         DATA
+range_convert_range
+range_convert_str
+range_copy
+range_empty
+range_foreach
+ranges_are_equal
+read_keytab_file
+read_prefs
+read_prefs_file
+reassembled_table_init
+register_all_plugin_tap_listeners
+register_all_protocols
+register_all_protocol_handoffs
+register_all_protocol_handoffs
+register_all_wiretap_modules
+register_ber_oid_dissector
+register_ber_oid_dissector_handle
+register_ber_oid_syntax
+register_ber_syntax_dissector
+register_codec
+register_count
+register_dissector
+register_dissector_filter
+register_dissector_table
+register_final_registration_routine
+register_giop_user
+register_giop_user_module
+register_heur_dissector_list
+register_init_routine
+register_postdissector
+register_postseq_cleanup_routine
+register_stat_cmd_arg
+register_tap
+register_tap_listener
+RegistrationRejectReason_vals   DATA
+rel_time_to_secs_str
+rel_time_to_str
+remove_tap_listener
+rename_persconffile_profile
+report_failure
+report_open_failure
+report_read_failure
+report_write_failure
+reset_tap_listeners
+reset_tcp_reassembly
+rose_ctx_clean_data
+rose_ctx_init
+rpc_init_proc_table
+rpc_init_prog
+rpc_proc_name
+rpc_procs                       DATA
+rpc_prog_hf
+rpc_prog_name
+rpc_progs                       DATA
+rpc_roundup
+rtcp_add_address
+rtp_add_address
+rtp_free_hash_dyn_payload
+rtp_payload_type_short_vals    DATA
+rtp_payload_type_vals           DATA
+running_in_build_directory
+rval_to_str
+sccp_message_type_acro_values		DATA
+scsi_mmc_vals					DATA
+scsi_osd_vals					DATA
+scsi_sbc_vals					DATA
+scsi_smc_vals					DATA
+scsi_ssc_vals					DATA
+se_alloc
+se_alloc0
+se_init_chunk
+se_memdup
+se_strdup
+se_strdup_printf
+se_strdup_vprintf
+se_strndup
+se_tree_create
+se_tree_create_non_persistent
+set_actual_length
+set_profile_name
+set_tap_dfilter
+show_exception
+show_fragment_seq_tree
+show_fragment_tree
+sid_name_snooping               DATA
+sid_name_table                  DATA
+smb2_cmd_vals                    DATA
+smb_cmd_vals                    DATA
+sminmpec_values                 DATA
+srtcp_add_address
+srtp_add_address
+ssl_dissector_add
+ssl_dissector_delete
+ssl_set_master_secret
+start_requested_stats
+stats_tree_branch_max_namelen
+stats_tree_branch_to_str
+stats_tree_create_node
+stats_tree_create_node_by_pname
+stats_tree_create_pivot_by_pname
+stats_tree_create_pivot
+stats_tree_create_range_node
+stats_tree_free
+stats_tree_get_abbr
+stats_tree_get_cfg_by_abbr
+stats_tree_get_strs_from_node
+stats_tree_manip_node
+stats_tree_new
+stats_tree_node_to_str
+stats_tree_packet
+stats_tree_parent_id_by_name
+stats_tree_presentation
+stats_tree_range_node_with_pname
+stats_tree_register
+stats_tree_register_with_group
+stats_tree_reinit
+stats_tree_reset
+stats_tree_tick_pivot
+stats_tree_tick_range
+stream_add_frag
+stream_find_frag
+stream_new_circ
+stream_process_reassembled
+string_or_null
+string_to_name_resolve
+sua_co_class_type_acro_values	DATA
+swaptab
+t30_facsimile_control_field_vals_short  DATA
+t30_facsimile_control_field_vals        DATA
+t38_T30_data_vals                   DATA
+t38_T30_indicator_vals		DATA
+T_h323_message_body_vals	DATA
+tap_push_tapped_queue
+tap_queue_init
+tap_queue_packet
+tcp_dissect_pdus
+test_for_directory
+test_for_fifo
+tfs_accept_reject               DATA
+tfs_ack_nack                    DATA
+tfs_active_inactive             DATA
+tfs_allow_block                 DATA
+tfs_capable_not_capable         DATA
+tfs_command_response            DATA
+tfs_enabled_disabled            DATA
+tfs_found_not_found             DATA
+tfs_more_nomore                 DATA
+tfs_odd_even                    DATA
+tfs_ok_error                    DATA
+tfs_on_off                      DATA
+tfs_present_absent              DATA
+tfs_restricted_allowed          DATA
+tfs_set_notset                  DATA
+tfs_success_fail                DATA
+tfs_supported_not_supported     DATA
+tfs_true_false                  DATA
+tfs_used_notused                DATA
+tfs_yes_no                      DATA
+time_msecs_to_str
+time_secs_to_str
+timestamp_get_precision
+timestamp_get_type
+timestamp_set_precision
+timestamp_set_type
+trans2_cmd_vals                 DATA
+tree_is_expanded                DATA
+tvb_bytes_exist
+tvb_bytes_to_str
+tvb_bytes_to_str_punct
+tvb_ensure_bytes_exist
+tvb_ensure_length_remaining
+tvb_fake_unicode
+tvb_find_guint8
+tvb_find_line_end
+tvb_find_line_end_unquoted
+tvb_format_text
+tvb_format_text_wsp
+tvb_free
+tvb_get_bits8
+tvb_get_bits16
+tvb_get_bits32
+tvb_get_bits64
+tvb_get_ephemeral_faked_unicode
+tvb_get_ephemeral_string
+tvb_get_ephemeral_stringz
+tvb_get_guid
+tvb_get_guint8
+tvb_get_ipv4
+tvb_get_ipv6
+tvb_get_letoh24
+tvb_get_letoh64
+tvb_get_letohguid
+tvb_get_letohieee_double
+tvb_get_letohieee_float
+tvb_get_letohl
+tvb_get_letohs
+tvb_get_nstringz
+tvb_get_nstringz0
+tvb_get_ntoh24
+tvb_get_ntoh64
+tvb_get_ntohguid
+tvb_get_ntohieee_double
+tvb_get_ntohieee_float
+tvb_get_ntohl
+tvb_get_ntohs
+tvb_get_ptr
+tvb_get_string
+tvb_get_stringz
+tvb_length
+tvb_length_remaining
+tvb_memcpy
+tvb_memdup
+tvb_memeql
+tvb_new_real_data
+tvb_new_child_real_data
+tvb_new_subset
+tvb_offset_exists
+tvb_pbrk_guint8
+tvb_reported_length
+tvb_reported_length_remaining
+tvb_set_child_real_data_tvbuff
+tvb_set_free_cb
+tvb_set_reported_length
+tvb_skip_wsp
+tvb_skip_wsp_return
+tvb_strncaseeql
+tvb_strneql
+tvb_strnlen
+tvb_strsize
+tvb_uncompress
+uat_add_record
+uat_clear
+uat_fld_chk_enum
+uat_fld_chk_num_dec
+uat_fld_chk_num_hex
+uat_fld_chk_proto
+uat_fld_chk_range
+uat_fld_chk_str
+uat_fld_chk_str_isalpha
+uat_fld_chk_str_isalnum
+uat_fld_chk_str_isdigit
+uat_fld_chk_str_isprint
+uat_fld_chk_str_isxdigit
+uat_foreach_table
+uat_get_table_by_name
+uat_load
+uat_new
+uat_remove_record_idx
+uat_save
+uat_swap
+UnregRejectReason_vals          DATA
+UnregRequestReason_vals         DATA
+uri_str_to_bytes
+val_to_str
+vals_pdu_type                   DATA
+vals_status                     DATA
+value_is_in_range
+write_prefs
+wtap_nstime_to_sec
+xml_escape
+xml_get_attrib
+xml_get_cdata
+xml_get_tag

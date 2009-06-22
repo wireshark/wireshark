@@ -1,0 +1,174 @@
+-- Online Certificate Status Protocol
+-- RFC 2560
+-- This definition was taken from RFC2560 and modified to pass through
+-- asn2wrs.
+-- The original copyright from RFC2650 follows below
+-- 
+-- Full Copyright Statement
+-- 
+--    Copyright (C) The Internet Society (1999).  All Rights Reserved.
+-- 
+--    This document and translations of it may be copied and furnished to
+--    others, and derivative works that comment on or otherwise explain it
+--    or assist in its implementation may be prepared, copied, published
+--    and distributed, in whole or in part, without restriction of any
+--    kind, provided that the above copyright notice and this paragraph are
+--    included on all such copies and derivative works.  However, this
+--    document itself may not be modified in any way, such as by removing
+--    the copyright notice or references to the Internet Society or other
+--    Internet organizations, except as needed for the purpose of
+--    developing Internet standards in which case the procedures for
+--    copyrights defined in the Internet Standards process must be
+--    followed, or as required to translate it into languages other than
+--    English.
+-- 
+--    The limited permissions granted above are perpetual and will not be
+--    revoked by the Internet Society or its successors or assigns.
+-- 
+--    This document and the information contained herein is provided on an
+--    "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+--    TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+--    BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+--    HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+--    MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+-- 
+
+OCSP DEFINITIONS EXPLICIT TAGS::=
+
+BEGIN
+
+IMPORTS
+
+      -- Directory Authentication Framework (X.509)
+             Certificate, AlgorithmIdentifier
+             FROM AuthenticationFramework { joint-iso-itu-t ds(5)
+                      module(1) authenticationFramework(7) 3 }
+
+	     CRLReason
+	     FROM CertificateExtensions
+
+-- PKIX Certificate Extensions
+             AuthorityInfoAccessSyntax
+          FROM PKIX1Implicit88 {iso(1) identified-organization(3)
+                  dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+                  id-mod(0) id-pkix1-implicit-88(2)}
+
+
+          Name, GeneralName, CertificateSerialNumber, Extensions,
+           id-kp, id-ad-ocsp
+             FROM PKIX1Explicit88 {iso(1) identified-organization(3)
+                  dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+                  id-mod(0) id-pkix1-explicit-88(1)};
+
+OCSPRequest     ::=     SEQUENCE {
+    tbsRequest                  TBSRequest,
+    optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
+
+TBSRequest      ::=     SEQUENCE {
+    version             [0] EXPLICIT Version DEFAULT v1,
+    requestorName       [1] EXPLICIT GeneralName OPTIONAL,
+    requestList             SEQUENCE OF Request,
+    requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
+
+Signature       ::=     SEQUENCE {
+    signatureAlgorithm   AlgorithmIdentifier,
+    signature            BIT STRING,
+    certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
+
+Version  ::=  INTEGER  {  v1(0) }
+
+Request ::=     SEQUENCE {
+    reqCert                    CertID,
+    singleRequestExtensions    [0] EXPLICIT Extensions OPTIONAL }
+
+CertID ::= SEQUENCE {
+    hashAlgorithm            AlgorithmIdentifier,
+    issuerNameHash     OCTET STRING, -- Hash of Issuer's DN
+    issuerKeyHash      OCTET STRING, -- Hash of Issuers public key
+    serialNumber       CertificateSerialNumber }
+
+OCSPResponse ::= SEQUENCE {
+   responseStatus         OCSPResponseStatus,
+   responseBytes          [0] EXPLICIT ResponseBytes OPTIONAL }
+
+OCSPResponseStatus ::= ENUMERATED {
+    successful            (0),      --Response has valid confirmations
+    malformedRequest      (1),      --Illegal confirmation request
+    internalError         (2),      --Internal error in issuer
+    tryLater              (3),      --Try again later
+                                    --(4) is not used
+    sigRequired           (5),      --Must sign the request
+    unauthorized          (6)       --Request unauthorized
+}
+
+ResponseBytes ::=       SEQUENCE {
+    responseType   OBJECT IDENTIFIER,
+    response       OCTET STRING }
+
+BasicOCSPResponse       ::= SEQUENCE {
+   tbsResponseData      ResponseData,
+   signatureAlgorithm   AlgorithmIdentifier,
+   signature            BIT STRING,
+   certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
+
+ResponseData ::= SEQUENCE {
+   version              [0] EXPLICIT Version DEFAULT v1,
+   responderID              ResponderID,
+   producedAt               GeneralizedTime,
+   responses                SEQUENCE OF SingleResponse,
+   responseExtensions   [1] EXPLICIT Extensions OPTIONAL }
+
+ResponderID ::= CHOICE {
+   byName   [1] Name,
+   byKey    [2] KeyHash }
+
+KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
+                         --(excluding the tag and length fields)
+
+SingleResponse ::= SEQUENCE {
+   certID                       CertID,
+   certStatus                   CertStatus,
+   thisUpdate                   GeneralizedTime,
+   nextUpdate           [0]     EXPLICIT GeneralizedTime OPTIONAL,
+   singleExtensions     [1]     EXPLICIT Extensions OPTIONAL }
+
+CertStatus ::= CHOICE {
+    good                [0]     IMPLICIT NULL,
+    revoked             [1]     IMPLICIT RevokedInfo,
+    unknown             [2]     IMPLICIT UnknownInfo }
+
+RevokedInfo ::= SEQUENCE {
+    revocationTime              GeneralizedTime,
+    revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
+
+UnknownInfo ::= NULL -- this can be replaced with an enumeration
+
+ArchiveCutoff ::= GeneralizedTime
+
+AcceptableResponses ::= SEQUENCE OF OBJECT IDENTIFIER
+
+ServiceLocator ::= SEQUENCE {
+    issuer    Name,
+    locator   AuthorityInfoAccessSyntax }
+
+CrlID ::= SEQUENCE {
+      crlUrl               [0]     EXPLICIT IA5String OPTIONAL,
+      crlNum               [1]     EXPLICIT INTEGER OPTIONAL,
+      crlTime              [2]     EXPLICIT GeneralizedTime OPTIONAL }
+
+
+-- Object Identifiers
+
+id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+id-pkix-ocsp                 OBJECT IDENTIFIER ::= { id-ad-ocsp }
+id-pkix-ocsp-basic           OBJECT IDENTIFIER ::= { id-pkix-ocsp 1 }
+id-pkix-ocsp-nonce           OBJECT IDENTIFIER ::= { id-pkix-ocsp 2 }
+id-pkix-ocsp-crl             OBJECT IDENTIFIER ::= { id-pkix-ocsp 3 }
+id-pkix-ocsp-response        OBJECT IDENTIFIER ::= { id-pkix-ocsp 4 }
+id-pkix-ocsp-nocheck         OBJECT IDENTIFIER ::= { id-pkix-ocsp 5 }
+id-pkix-ocsp-archive-cutoff  OBJECT IDENTIFIER ::= { id-pkix-ocsp 6 }
+id-pkix-ocsp-service-locator OBJECT IDENTIFIER ::= { id-pkix-ocsp 7 }
+
+
+END
+

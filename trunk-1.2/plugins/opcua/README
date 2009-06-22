@@ -1,0 +1,55 @@
+OpcUa Plugin:
+=============
+
+This plugin implements the dissection of the OpcUa Binary Protocol.
+Author: Gerhard Gappmeier
+        ascolab GmbH
+        http://www.ascolab.com
+	
+Overview:
+=========
+
+OpcUa (OPC Unified Architecture) is a vendor and platform independent
+protocol for automation technology. It is the successor of the
+COM/DCOM based specifications OPC DA, OPC Alarm & Events, OPC HDA, etc.
+It unifies all this technologies into a single protocol.
+
+The specification describes abstract services that are independent
+of the underlying protocol. For now there exist protocol mappings
+to a Binary TCP based protocol and a SOAP based Webservice.
+Also a hybrid version will be available where the Binary messages are transported
+by a single webservice command called "Invoke".
+
+More information about the technology you can find on
+http://www.ascolab.com/index.php?file=ua&lang=en.
+
+Protocol Mappings:
+==================
+
+Binary (TCP): The fastest and most flexible version (small footprint, no XML and SOAP necessary)
+              can easily be tunneled (SSH, IPSEC, etc.), redirected, ...
+SOAP version: Easy to implement with verious tools like .Net, JAVA, gSOAP, etc.
+              Better to communicate through firewalls via HTTP.
+SOAP with Binary Attchment: Combines the advantages of both.
+              The messages are encoded as Binary, and transported via SOAP as binary
+              attachment.
+
+The OPC Foundation offers a free Opc Ua stack implementation in ANSI C
+for all members. This stack implements the binary protocol as well
+as the SOAP version. It's easily portable to different kinds of operating
+systems from embedded devices to servers.
+This makes it easy to implement Opc Ua applications based on this stack
+and it is expected that the binary protocol will be the most used
+protocol.
+Nevertheless it's free to everbody to implement an own stack according
+to the specification. An own implementation of the SOAP version 
+should be easy with the various SOAP toolkits.
+
+For more information see http://www.opcfoundation.org
+
+Known limitations:
+==================
+
+* Only the security policy http://opcfoundation.org/UA/SecurityPolicy#None is supported,
+  which means the encryption and signing is turned off.
+  

@@ -1,0 +1,108 @@
+/*
+	IDL definitions from original packet-dcerpc-efs.c
+        by Jean-Baptiste Marchand
+*/
+
+/* import "security.idl";*/
+
+[ 
+  uuid("c681d488-d850-11d0-8c52-00c04fd90f7e"),
+  version(1.0),
+  pointer_default(unique)
+] interface efs
+{
+
+WERROR EfsRpcOpenFileRaw(
+	[out,ref] policy_handle *pvContext,
+	[in] [charset(UTF16),string] uint16 FileName[],
+	[in] uint32 Flags
+	);
+
+WERROR EfsRpcReadFileRaw(
+	[in,ref] policy_handle *pvContext
+/* incomplete */
+);
+
+
+WERROR EfsRpcWriteFileRaw(
+	[in,ref] policy_handle *pvContext
+/* incomplete */
+);
+
+void EfsRpcCloseRaw(
+	[in,out,ref] policy_handle *pvContext
+);
+
+WERROR EfsRpcEncryptFileSrv(
+	[in] [charset(UTF16),string] uint16 Filename[]
+);
+
+WERROR EfsRpcDecryptFileSrv(
+	[in] [charset(UTF16),string] uint16 FileName[], 
+	[in] uint32 Reserved
+);
+
+typedef struct {
+	uint32 cbData;
+	[size_is(cbData), unique]  uint8  *pbData;
+} EFS_HASH_BLOB;
+
+typedef struct {
+	uint32 cbTotalLength;
+	[unique] dom_sid *pUserSid;
+	[unique] EFS_HASH_BLOB  *pHash;
+	[unique] [charset(UTF16),string] uint16 *lpDisplayInformation;
+} ENCRYPTION_CERTIFICATE_HASH;
+
+typedef struct {
+	uint32 nCert_Hash;
+	/* this is a pointer to an array of pointers */
+	[size_is(nCert_Hash)] ENCRYPTION_CERTIFICATE_HASH *pUsers[*];
+} ENCRYPTION_CERTIFICATE_HASH_LIST;
+
+WERROR EfsRpcQueryUsersOnFile(
+	[in] [charset(UTF16),string] uint16 FileName[],
+	[out,ref,unique] ENCRYPTION_CERTIFICATE_HASH_LIST **pUsers
+);
+
+WERROR EfsRpcQueryRecoveryAgents(
+	[in] [charset(UTF16),string] uint16 FileName[],
+	[out,ref,unique] ENCRYPTION_CERTIFICATE_HASH_LIST **pRecoveryAgents
+);
+
+WERROR EfsRpcRemoveUsersFromFile(
+	[in] [charset(UTF16),string] uint16 FileName[]
+	/*	[in] ENCRYPTION_CERTIFICATE_LIST Hashes*/
+);
+
+WERROR EfsRpcAddUsersToFile(
+	[in] [charset(UTF16),string] uint16 FileName[]
+	/*	[in] ENCRYPTION_CERTIFICATE_LIST Hashes*/
+);
+
+typedef struct {
+	uint32 dwCertEncodingType;
+	uint32 cbData;
+  [size_is(cbData)] [unique] uint8 *pbData;
+} EFS_CERTIFICATE_BLOB;
+
+typedef struct {
+	uint32 TotalLength;
+	[unique] dom_sid *pUserSid;
+	[unique] EFS_CERTIFICATE_BLOB *pCertBlob;
+} ENCRYPTION_CERTIFICATE;
+
+WERROR EfsRpcSetFileEncryptionKey(
+	[in] [unique] ENCRYPTION_CERTIFICATE *pEncryptionCertificate
+);
+
+WERROR EfsRpcNotSupported(
+);
+
+WERROR EfsRpcFileKeyInfo(
+);
+
+WERROR EfsRpcDuplicateEncryptionInfoFile(
+);
+
+}

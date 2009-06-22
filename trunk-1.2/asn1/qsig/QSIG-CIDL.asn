@@ -1,0 +1,80 @@
+-- QSIG-CIDL.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-314, 2nd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-314.htm
+--
+-- $Id$
+--
+
+Call-Identification-and-Call-Linkage-Operations-asn1-97 
+  {iso(1) standard (0) pss1-call-identification-and-call-linkage (21889) 
+   call-identification-and-call-linkage-operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+BEGIN 
+IMPORTS  
+ OPERATION 
+ FROM Remote-Operations-Information-Objects 
+ {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)} 
+ 
+   EXTENSION, Extension{}   
+   FROM Manufacturer-specific-service-extension-class-asn1-97 
+  { iso standard pss1-generic-procedures (11582) msi-class-asn1-97 (11)}; 
+ 
+CallIdentification-Operations OPERATION ::= { callIdentificationAssign | callIdentificationUpdate } 
+ 
+callIdentificationAssign   OPERATION  ::= { 
+       ARGUMENT   CallIdentificationAssignArg 
+         RETURN RESULT   FALSE 
+         ALWAYS RESPONDS  FALSE 
+        CODE     local: 105 
+       } 
+ 
+callIdentificationUpdate   OPERATION  ::= { 
+       ARGUMENT  CallIdentificationUpdateArg 
+        RETURN RESULT   FALSE 
+         ALWAYS RESPONDS  FALSE 
+        CODE     local: 106 
+       } 
+ 
+CallIdentificationAssignArg  ::=   SEQUENCE { 
+           globalCallID  [0] CallIdentificationData, 
+           threadID   [1] CallIdentificationData OPTIONAL, 
+           legID    [2] CallIdentificationData OPTIONAL, 
+           extension   ExtensionType    OPTIONAL 
+           } 
+ 
+CallIdentificationUpdateArg  ::=   SEQUENCE { 
+           globalCallID  [0] CallIdentificationData  OPTIONAL, 
+           threadID   [1] CallIdentificationData OPTIONAL, 
+           legID    [2] CallIdentificationData OPTIONAL, 
+           extension   ExtensionType      OPTIONAL  
+           } 
+
+CallIdentificationData  ::= SEQUENCE { 
+-- this structure is according to ECMA-269, 12.2.5 (see annex D) 
+      switchingSubDomainName  [0] IMPLICIT   SwitchingSubDomainName OPTIONAL, 
+      linkageID         CHOICE { 
+       subDomainID       [1] IMPLICIT  SubDomainID, 
+       globallyUniqueID      [2] IMPLICIT  GloballyUniqueID}, 
+      timeStamp         [3] IMPLICIT    TimeStamp OPTIONAL 
+    } 
+ 
+SwitchingSubDomainName  ::=   IA5String (SIZE(1..64)) 
+ 
+GloballyUniqueID  ::=   OCTET STRING (SIZE(1..16)) 
+-- the GloballyUniqueID shall be coded according to ITU-T Recommendation H.225, section 7.6 (see annex D) 
+ 
+ExtensionType    ::=   CHOICE { 
+      extension    [3] Extension{{ExampleExtSet}}, 
+      sequenceOfExt  [4] IMPLICIT SEQUENCE OF Extension{{ExampleExtSet}} 
+            }  
+ 
+ExampleExtSet EXTENSION ::= {...} 
+ 
+SubDomainID    ::=   OCTET STRING (SIZE(1..8)) 
+ 
+TimeStamp    ::=   GeneralizedTime (SIZE(16..19)) 
+ 
+END -- of Call-Identification-and-Call-Linkage-Operations-asn1-97 

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<application id="1" name="NASREQ Application" uri="http://www.ietf.org/rfc/rfc4005.txt">
+
+		<command name="AA" code="265" vendor-id="None"/>
+		<command name="Diameter-EAP" code="268" vendor-id="None"/>
+
+		<avp name="Accounting-Input-Octets" code="363">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="Accounting-Output-Octets" code="364">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="Accounting-Input-Packets" code="365">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="Accounting-Output-Packets" code="366">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="NAS-Filter-Rule" code="400">
+			<type type-name="IPFilterRule"/>
+		</avp>
+		<avp name="Tunneling" code="401">
+			<grouped>
+				<gavp name="CHAP-Algorithm"/>
+				<gavp name="CHAP-Ident"/>
+				<gavp name="CHAP-Response"/>
+			</grouped>
+		</avp>
+		<avp name="CHAP-Auth" code="402">
+			<grouped>
+				<gavp name="Tunnel-Type"/>
+				<gavp name="Tunnel-Medium-Type"/>
+				<gavp name="Tunnel-Client-Endpoint"/>
+				<gavp name="Tunnel-Server-Endpoint"/>
+				<gavp name="Tunnel-Preference"/>
+				<gavp name="Tunnel-Client-Auth-Id"/>
+				<gavp name="Tunnel-Server-Auth-Id"/>
+				<gavp name="Tunnel-Assignment-Id"/>
+				<gavp name="Tunnel-Password"/>
+				<gavp name="Tunnel-Private-Group-Id"/>
+			</grouped>
+		</avp>
+		<avp name="CHAP-Algorithm" code="403">
+			<type type-name="Enumerated"/>
+			<enum name="CHAP with MD5" code="5"/>
+		</avp>
+		<avp name="CHAP-Ident" code="404">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="OctetString" code="405">
+			<type type-name="IPFilterRule"/>
+		</avp>
+		<avp name="Accounting-Auth-Method" code="406">
+			<type type-name="Unsigned32"/>
+			<enum name="PAP" code="1"/>
+			<enum name="CHAP" code="2"/>
+			<enum name="MS-CHAP-1" code="3"/>
+			<enum name="MS-CHAP-2" code="4"/>
+			<enum name="EAP" code="5"/>
+			<enum name="None" code="7"/>
+		</avp>
+		<avp name="QoS-Filter-Rule" code="407">
+			<type type-name="QoSFilterRule"/>
+		</avp>
+		<avp name="Origin-AAA-Protocol" code="408">
+			<type type-name="Enumerated"/>
+			<enum name="RADIUS" code="1"/>
+		</avp>
+	</application>

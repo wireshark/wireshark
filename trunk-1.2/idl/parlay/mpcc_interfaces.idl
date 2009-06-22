@@ -1,0 +1,414 @@
+//Source file: mpcc_interfaces.idl
+//Date:  7 October 2004
+//Multi Party Call Control Interfaces for ETSI ES 203 915-04-3 V1.1.1, DES/TISPAN-01005-04-3-OSA, Parlay 5.0
+
+#ifndef __MPCC_INTERFACES_DEFINED
+#define __MPCC_INTERFACES_DEFINED
+
+
+#include "osa.idl"
+#include "common_cc_data.idl"
+#include "mpcc_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			module mpccs {
+				interface IpAppMultiPartyCallControlManager ;
+				interface IpMultiPartyCall ;
+				interface IpAppMultiPartyCall ;
+				interface IpCallLeg;
+				interface IpAppCallLeg;
+				
+				
+				enum TpAppMultiPartyCallBackRefType {
+					P_APP_CALLBACK_UNDEFINED,
+					P_APP_MULTIPARTY_CALL_CALLBACK,
+					P_APP_CALL_LEG_CALLBACK,
+					P_APP_CALL_AND_CALL_LEG_CALLBACK					
+				};
+				
+				
+				typedef sequence <IpAppCallLeg> TpAppCallLegRefSet;
+				
+				
+				struct TpMultiPartyCallIdentifier {
+					IpMultiPartyCall CallReference;
+					TpSessionID CallSessionID;
+				};
+				
+				
+				struct TpCallLegIdentifier {
+					IpCallLeg CallLegReference;
+					TpSessionID CallLegSessionID;
+				};
+				
+				
+				
+				typedef sequence <TpCallLegIdentifier> TpCallLegIdentifierSet;
+				
+				
+				typedef sequence <TpMultiPartyCallIdentifier> TpMultiPartyCallIdentifierSet;
+				
+				
+				struct TpAppCallLegCallBack {
+					IpAppMultiPartyCall AppMultiPartyCall;
+					TpAppCallLegRefSet AppCallLegSet;
+				};
+				
+				
+				union TpAppMultiPartyCallBack switch(TpAppMultiPartyCallBackRefType) {
+					case P_APP_MULTIPARTY_CALL_CALLBACK: IpAppMultiPartyCall AppMultiPartyCall;
+					case P_APP_CALL_LEG_CALLBACK: IpAppCallLeg AppCallLeg;
+					case P_APP_CALL_AND_CALL_LEG_CALLBACK: TpAppCallLegCallBack AppMultiPartyCallAndCallLeg;
+					default: short Dummy;
+				};
+				
+
+				
+				interface IpAppCallLeg : IpInterface {
+					void eventReportRes (
+						in TpSessionID callLegSessionID,	
+						in TpCallEventInfo eventInfo	
+						);
+						
+					void eventReportErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void attachMediaRes (
+						in TpSessionID callLegSessionID	
+						);
+						
+					void attachMediaErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void detachMediaRes (
+						in TpSessionID callLegSessionID	
+						);
+						
+					void detachMediaErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void getInfoRes (
+						in TpSessionID callLegSessionID,	
+						in TpCallLegInfoReport callLegInfoReport	
+						);
+						
+					void getInfoErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void routeErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void superviseRes (
+						in TpSessionID callLegSessionID,	
+						in TpCallSuperviseReport report,	
+						in TpDuration usedTime	
+						);
+						
+					void superviseErr (
+						in TpSessionID callLegSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void callLegEnded (
+						in TpSessionID callLegSessionID,	
+						in TpReleaseCause cause	
+						);
+						
+				};
+				
+				
+				interface IpMultiPartyCallControlManager : IpService {
+					TpMultiPartyCallIdentifier createCall (
+						in IpAppMultiPartyCall appCall	
+						)						
+						raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID createNotification (
+						in IpAppMultiPartyCallControlManager appCallControlManager,	
+						in TpCallNotificationRequest notificationRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_CRITERIA,P_INVALID_INTERFACE_TYPE,P_INVALID_EVENT_TYPE);
+						
+					void destroyNotification (
+						in TpAssignmentID assignmentID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					void changeNotification (
+						in TpAssignmentID assignmentID,	
+						in TpCallNotificationRequest notificationRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+						
+					TpNotificationRequestedSet getNotification ()						
+						raises (TpCommonExceptions);
+						
+					TpAssignmentID setCallLoadControl (
+						in TpDuration duration,	
+						in TpCallLoadControlMechanism mechanism,	
+						in TpCallTreatment treatment,	
+						in TpAddressRange addressRange	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ADDRESS,P_UNSUPPORTED_ADDRESS_PLAN);
+						
+					TpAssignmentID enableNotifications (
+						in IpAppMultiPartyCallControlManager appCallControlManager	
+						)						
+						raises (TpCommonExceptions);
+						
+					void disableNotifications ()						
+						raises (TpCommonExceptions);
+						
+					TpNotificationRequestedSetEntry getNextNotification (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpCallLeg : IpService {
+					void routeReq (
+						in TpSessionID callLegSessionID,	
+						in TpAddress targetAddress,	
+						in TpAddress originatingAddress,	
+						in TpCallAppInfoSet appInfo,	
+						in TpCallLegConnectionProperties connectionProperties	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_INVALID_ADDRESS,P_UNSUPPORTED_ADDRESS_PLAN);
+						
+					void eventReportReq (
+						in TpSessionID callLegSessionID,	
+						in TpCallEventRequestSet eventsRequested	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_EVENT_TYPE,P_INVALID_CRITERIA);
+						
+					void release (
+						in TpSessionID callLegSessionID,	
+						in TpReleaseCause cause	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					void getInfoReq (
+						in TpSessionID callLegSessionID,	
+						in TpCallLegInfoType callLegInfoRequested	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					TpMultiPartyCallIdentifier getCall (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void attachMediaReq (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					void detachMediaReq (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					TpAddress getCurrentDestinationAddress (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void continueProcessing (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					void setChargePlan (
+						in TpSessionID callLegSessionID,	
+						in TpCallChargePlan callChargePlan	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void setAdviceOfCharge (
+						in TpSessionID callLegSessionID,	
+						in TpAoCInfo aOCInfo,	
+						in TpDuration tariffSwitch	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_CURRENCY,P_INVALID_AMOUNT);
+						
+					void superviseReq (
+						in TpSessionID callLegSessionID,	
+						in TpDuration time,	
+						in TpCallLegSuperviseTreatment treatment	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void deassign (
+						in TpSessionID callLegSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					TpCallLegPropertyList getProperties (
+						in TpSessionID callLegSessionID,	
+						in TpCallLegPropertyNameList propertyNames	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_INFORMATION_NOT_AVAILABLE,P_UNAUTHORISED_PARAMETER_VALUE);
+						
+					void setProperties (
+						in TpSessionID callLegSessionID,	
+						in TpCallLegPropertyList properties	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE,P_INFORMATION_NOT_AVAILABLE,P_UNAUTHORISED_PARAMETER_VALUE);
+						
+				};
+				
+				
+				interface IpAppMultiPartyCall : IpInterface {
+					void getInfoRes (
+						in TpSessionID callSessionID,	
+						in TpCallInfoReport callInfoReport	
+						);
+						
+					void getInfoErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void superviseRes (
+						in TpSessionID callSessionID,	
+						in TpCallSuperviseReport report,	
+						in TpDuration usedTime	
+						);
+						
+					void superviseErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void callEnded (
+						in TpSessionID callSessionID,	
+						in TpCallEndedReport report	
+						);
+						
+					void createAndRouteCallLegErr (
+						in TpSessionID callSessionID,	
+						in TpCallLegIdentifier callLegReference,	
+						in TpCallError errorIndication	
+						);
+						
+				};
+				
+				
+				interface IpMultiPartyCall : IpService {
+					TpCallLegIdentifierSet getCallLegs (
+						in TpSessionID callSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					TpCallLegIdentifier createCallLeg (
+						in TpSessionID callSessionID,	
+						in IpAppCallLeg appCallLeg	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_INTERFACE_TYPE);
+						
+					TpCallLegIdentifier createAndRouteCallLegReq (
+						in TpSessionID callSessionID,	
+						in TpCallEventRequestSet eventsRequested,	
+						in TpAddress targetAddress,	
+						in TpAddress originatingAddress,	
+						in TpCallAppInfoSet appInfo,	
+						in IpAppCallLeg appLegInterface	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_INTERFACE_TYPE,P_INVALID_ADDRESS,P_UNSUPPORTED_ADDRESS_PLAN,P_INVALID_NETWORK_STATE,P_INVALID_EVENT_TYPE,P_INVALID_CRITERIA);
+						
+					void release (
+						in TpSessionID callSessionID,	
+						in TpReleaseCause cause	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					void deassignCall (
+						in TpSessionID callSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void getInfoReq (
+						in TpSessionID callSessionID,	
+						in TpCallInfoType callInfoRequested	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void setChargePlan (
+						in TpSessionID callSessionID,	
+						in TpCallChargePlan callChargePlan	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void setAdviceOfCharge (
+						in TpSessionID callSessionID,	
+						in TpAoCInfo aOCInfo,	
+						in TpDuration tariffSwitch	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_CURRENCY,P_INVALID_AMOUNT);
+						
+					void superviseReq (
+						in TpSessionID callSessionID,	
+						in TpDuration time,	
+						in TpCallSuperviseTreatment treatment	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+				};
+				
+				
+				interface IpAppMultiPartyCallControlManager : IpInterface {
+					TpAppMultiPartyCallBack reportNotification (
+						in TpMultiPartyCallIdentifier callReference,	
+						in TpCallLegIdentifierSet callLegReferenceSet,	
+						in TpCallNotificationInfo notificationInfo,	
+						in TpAssignmentID assignmentID	
+						);
+						
+					void callAborted (
+						in TpSessionID callReference	
+						);
+						
+					void managerInterrupted ();
+						
+					void managerResumed ();
+						
+					void callOverloadEncountered (
+						in TpAssignmentID assignmentID	
+						);
+						
+					void callOverloadCeased (
+						in TpAssignmentID assignmentID	
+						);
+						
+					void abortMultipleCalls (
+						in TpSessionIDSet callReferenceSet	
+						);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

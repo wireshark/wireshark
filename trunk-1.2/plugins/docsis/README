@@ -1,0 +1,52 @@
+
+Overview:
+=========
+The dissectors provided by this plugin allow the dissection of DOCSIS 1.1
+Frames.  Captures of DOCSIS 1.1 frames can be facilitated using Cisco's 
+Cable Monitor Features found on Cicso UBR7200 and UBR10000 Series Cable Modem 
+Termination Systems.  Captures of DOCSIS 1.1 and DOCSIS 2.0 frames can be
+facilitated using the ARRIS Cadant C4 and the ARRIS Cadant C3.
+
+ 
+Features:
+=========
++ Decode the DOCSIS header + Extended Header.  For Data PDU's it will 
+  automatically decode as far up the stack that it can. 
++ Decode Mac Management Header. The following Mac Messages 
+  are decoded at present: 
+	REG-REQ 
+	REG-RSP 
+	REG-ACK 
+	RNG-REQ 
+	RNG-RSP 
+	UCC-REQ 
+	UCC-RSP 
+	UCD Messages 
+	MAP Messages 
+	DSA-REQ 
+	DSA-RSP 
+	DSA-ACK 
+	DSC-REQ 
+	DSC-RSP 
+	DSC-ACK 
+	DSD-REQ 
+	DSD-RSP
+	BPKM-REQ
+	BPKM-RSP
+	BPKM Attributes
++ Decode All Appendix C TLV's
++ Decode Concatenated Frames via a recursive call to dissect_docsis()
++ Decode DOCSIS 2.0 packets including:
+        Type 29 UCD Messages (DOCSIS 2.0 only)
+	INT-RNG-REQ
+	
+References:
+===========
+DOCSIS 1.1 and DOCSIS 2.0 Specifications can be found at:
+http://www.cablemodem.com/specifications.html
+
+Information on Cisco's Cable Monitor Feature can be found at:
+http://www.cisco.com/univercd/cc/td/doc/product/cable/cab_rout/cmtsfg/ufg_cmon.htm
+
+Information on the ARRIS Cadant line of products
+http://www.arrisi.com/products_solutions/product_families/Cadant/index.asp

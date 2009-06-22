@@ -1,0 +1,134 @@
+$Id$
+
+1. Some problems seen by one person who tried to build Ethereal on IRIX;
+your mileage may vary.  Some comments hae been added.
+
+To: ethereal-dev@zing.org
+Subject: Re: [ethereal-dev] Ethereal on SGI
+From: Randall Hopper <aa8vb@yahoo.com>
+Date: Sat, 18 Sep 1999 12:19:31 -0400
+
+ |>      Just tried to build ethereal on SGI IRIX.  configure failed because
+ |> there is no net/bpf.h.
+
+Thanks for all the help.  I pulled the latest today (0.7.3), and after a
+few fix-ups, I got it built.  Here are the tweaks I needed to build it for
+SGI IRIX 6.5 using gcc.
+
+==========
+PROBLEM #1
+==========
+
+   Ethereal doesn't use RPATH (see ld(1) for shared library linking on all
+   platforms that support it (e.g. SGI IRIX, FreeBSD ELF, etc.), just
+   Solaris it appears.  Instead, ethereal recommends use of the
+   LD_LIBRARY_PATH hack which causes all sorts problems.
+
+   On SGI IRIX this is -rpath to the linker, on Solaris -R, on FreeBSD ELF
+   --rpath, etc.
+
+   SOLUTION: Slip in my linker flags when configuring ethereal so it can
+             find libgtk, libgmodule, libsnmp, etc. at run-time without
+             LD_LIBRARY_PATH:
+
+   env LDFLAGS="-rpath $HOME/software/gtk+-1.2.3/lib:$HOME/software/glib-1.2.3/lib:/usr/local/lib" configure --prefix=$HOME/software/ethereal-0.7.3 --with-gtk-prefix=$HOME/software/gtk+-1.2.3
+
+   BETTER SOLUTION:  Modify configure to support RPATH for more platforms
+                     than Solaris.
+
+[NOTE: configure is generated from configure.in and acinclude.m4, and
+all the linking stuff is done by libtool.  We don't recommend the
+LD_LIBRARY_PATH hack - perhaps we did so in the past, but we don't do so
+now.]
+
+==========
+PROBLEM #2
+==========
+
+   __P not defined -- packet-snmp.c fails to build
+   (gcc version 2.95.1 19990816 (release), SGI IRIX 6.5.5f)
+
+   SOLUTION:  Include gnuc.h -- it defines it
+
+   --- ORIG/packet-snmp.c  Mon Aug 30 11:10:17 1999
+   +++ packet-snmp.c       Sat Sep 18 11:35:45 1999
+   @@ -25,4 +25,6 @@
+     */
+
+   +#include "gnuc.h"
+   +
+    #ifdef HAVE_CONFIG_H
+    # include "config.h"
+
+Randall
+
+[NOTE: we don't use the __P macro ourselves; some of the SNMP libraries
+might, but that's a bug in the libraries if they require you to define
+__P in order to use them.]
+
+===============================================================================
+
+Problem #1:
+
+checking for GTK - version >= 1.2.0... 186062:./conftest: rld: Fatal Error: Cannot Successfully map soname 'libgtk-1.2.so.1' under any of the filenames /usr/lib32/libgtk-1.2.so.1:/usr/lib32/internal/libgtk-1.2.so.1:/lib32/libgtk-1.2.so.1:/opt/lib32/libgtk
+no
+*** Could not run GTK test program, checking why...
+*** The test program compiled, but did not run. This usually means
+*** that the run-time linker is not finding GTK or finding the wrong
+*** version of GTK. If it is not finding GTK, you'll need to set your
+*** LD_LIBRARY_PATH environment variable, or edit /etc/ld.so.conf to point
+*** to the installed location  Also, make sure you have run ldconfig if that
+*** is required on your system
+***
+*** If you have an old version installed, it is best to remove it, although
+*** you may also be able to get things to work by modifying LD_LIBRARY_PATH
+***
+*** If you have a RedHat 5.0 system, you should remove the GTK package that
+*** came with the system with the command
+***
+***    rpm --erase --nodeps gtk gtk-devel
+configure: error: GTK+ distribution not found.
+
+==============================================================================
+
+Problem #2:
+
+gcc -DHAVE_CONFIG_H -I. -I. -I.     -Wall -g -O2 -Iwiretap -I/home/rhh/software/gtk+-1.2.3/include -I/home/rhh/software/glib-1.2.3/lib/glib/include -I/home/rhh/software/glib-1.2.3/include -c packet-snmp.c
+In file included from packet-snmp.c:62:
+/usr/local/include/ucd-snmp/asn1.h:131: parse error before `__P'
+/usr/local/include/ucd-snmp/asn1.h:132: parse error before `__P'
+/usr/local/include/ucd-snmp/asn1.h:133: parse error before `__P'
+/usr/local/include/ucd-snmp/asn1.h:134: parse error before `__P'
+/usr/local/include/ucd-snmp/asn1.h:135: parse error before `__P'
+...
+packet-snmp.c: In function `dissect_snmp':
+packet-snmp.c:344: warning: implicit declaration of function `asn_parse_header'
+packet-snmp.c:358: warning: implicit declaration of function `snmp_comstr_parse'
+packet-snmp.c:358: warning: assignment makes pointer from integer without a cast
+packet-snmp.c:407: warning: assignment makes pointer from integer without a cast
+...
+packet-snmp.c: In function `proto_register_snmp':
+packet-snmp.c:869: warning: implicit declaration of function `init_mib'
+gmake[2]: *** [packet-snmp.o] Error 1
+gmake[2]: Leaving directory `/home/rhh/software/PKGS/t/ethereal-0.7.3'
+gmake[1]: *** [all-recursive] Error 1
+gmake[1]: Leaving directory `/home/rhh/software/PKGS/t/ethereal-0.7.3'
+gmake: *** [all-recursive-am] Error 2
+
+-------------------------------------------------------------------------------
+
+Problem #3 (same as Problem #1):
+
+> ./ethereal 
+189684:./ethereal: rld: Fatal Error: Cannot Successfully map soname 'libsnmp.so' under any of the filenames /home/rhh/software/gtk+-1.2.3/lib/libsnmp.so:/home/rhh/software/glib-1.2.3/lib/libsnmp.so:/usr/lib32/libsnmp.so:/usr/lib32/internal/libsnmp.so:/lib32/libsnmp.so:/opt/lib32/libsnmp.so: 
+
+2. Patches to libpcap that may be necessary
+
+On IRIX, older versions of the libpcap library use, in
+"pcap_open_live()", the snapshot length passed in, without reducing it
+to be less than or equal to the MTU of the interface.  If the snapshot
+length is larger than the interface MTU, IRIX will return an error; this
+means that, for example, the Wireshark default snapshot length of 65535,
+chosen so that all of the packet is captured, will not work.
+
+Current versions of libpcap, from tcpdump.org, do not do so.

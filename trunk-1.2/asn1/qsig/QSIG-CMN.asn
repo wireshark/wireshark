@@ -1,0 +1,145 @@
+-- QSIG-CMN.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-251, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-251.htm
+--
+-- $Id$
+--
+
+Common-Information-Operations-asn1-97 
+  {iso (1)  standard (0) pss1-common-information (15772) operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+    {joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1 (0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    {iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11)}; 
+ 
+CMN-Operations OPERATION ::= {cmnRequest | cmnInform } 
+ 
+cmnRequest  OPERATION ::= { 
+   ARGUMENT   DummyArg 
+   RESULT     CmnArg 
+   ALWAYS RESPONDS  FALSE 
+   CODE     local: 84}  
+ 
+cmnInform  OPERATION ::= { 
+   ARGUMENT   CmnArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE     local: 85} 
+ 
+CmnArg  ::=  SEQUENCE  { 
+   featureIdentifier   [2] IMPLICIT FeatureIdList    OPTIONAL, 
+   ssDNDOprotectionLevel  [3] IMPLICIT INTEGER (0..3)    OPTIONAL, 
+     -- Supplementary Service Do Not Disturb Override Protection level, 
+      -- meaningful only in backward direction; inclusion indicates 
+      -- support of SS-DNDO as well as the applicable protection level. 
+    ssCIprotectionLevel  [4] IMPLICIT INTEGER (0..3)    OPTIONAL, 
+     -- Supplementary Service Call Intrusion Protection level, 
+      -- meaningful both in forward & backward direction; inclusion indicates support 
+      -- of SS-CI as an Unwanted user PINX (forward direction) or as a Terminating 
+      -- PINX (backward direction), as well as the applicable protection level. 
+   equipmentIdentity   [5] IMPLICIT EquipmentId   OPTIONAL, 
+   partyCategory   [6] IMPLICIT PartyCategory    OPTIONAL, 
+   extension     CHOICE    { 
+              single    [7] IMPLICIT Extension{{CMNExtSet}}, 
+              multiple  [8] IMPLICIT SEQUENCE OF  
+            Extension{{CMNExtSet}} 
+            }   OPTIONAL   } 
+
+DummyArg  ::=  CHOICE  { 
+      null   NULL, 
+      single  [1] IMPLICIT Extension{{CMNExtSet}}, 
+      multiple  [2] IMPLICIT SEQUENCE OF Extension{{CMNExtSet}} 
+      } 
+ 
+FeatureIdList  ::=  BIT STRING {  -- bit set to ONE means the corresponding feature  
+        -- is available for this call 
+   reserved       (0),  -- this Bit shall be reserved 
+   ssCFreRoutingSupported  (1),  -- Call Forwarding rerouting supported 
+            -- meaningful only in forward direction  
+            -- during call establishment 
+   ssCTreRoutingSupported  (2),  -- Call Transfer rerouting supported 
+            -- meaningful both in forward & backward  
+            -- direction during call establishment 
+   ssCCBSpossible     (3),  -- CCBS possible 
+            -- meaningful only in backward direction  
+            -- before receipt of ALERTING/CONNECT 
+   ssCCNRpossible     (4),  -- CCNR possible 
+            -- meaningful only in backward direction  
+            -- before receipt of CONNECT 
+   ssCOsupported     (5),  -- Call Offer supported 
+            -- meaningful only in backward direction 
+            -- during call establishment 
+ 
+            -- Call Intrusion 
+   ssCIforcedRelease    (6),  -- meaningful only in backward direction 
+    ssCIisolation           (7),  -- meaningful only in backward direction 
+   ssCIwaitOnBusy     (8),  -- meaningful only in backward direction 
+ 
+                 -- Advice of Charge 
+   ssAOCsupportChargeRateProvAtGatewPinx   (9),  -- meaningful only in  
+                 -- backward direction 
+   ssAOCsupportInterimChargeProvAtGatewPinx  (10),  -- meaningful only in  
+                 -- backward direction 
+    ssAOCsupportFinalChargeProvAtGatewPinx     (11),  -- meaningful only in  
+                 -- backward direction 
+ 
+   anfPRsupportedAtCooperatingPinx    (12),  -- Path replacement 
+               -- meaningful both in forward &  
+               -- backward direction 
+ 
+               -- Call Interception 
+   anfCINTcanInterceptImmediate    (13),  -- meaningful only in  
+               -- forward direction 
+   anfCINTcanInterceptDelayed     (14),  -- meaningful only in  
+               -- forward direction 
+
+   anfWTMIreRoutingSupported     (15),  -- Incoming WTM call 
+               -- meaningful only in  
+               -- forward direction 
+   anfPUMIreRoutingSupported     (16),  -- Incoming PUM call 
+               -- meaningful only in  
+               -- forward direction 
+   ssSSCTreRoutingSupported     (17)  -- Single Step Call Transfer rerouting 
+               -- supported 
+               -- meaningful both in forward and  
+               -- backward direction during call  
+               -- establishment 
+      } (SIZE (1..64)) 
+ 
+EquipmentId  ::=  SEQUENCE  { 
+    nodeId    [1] IMPLICIT IA5String (SIZE (1..10))  OPTIONAL, 
+    groupId    [2] IMPLICIT IA5String (SIZE (1..10))  OPTIONAL, 
+    unitId     [3] IMPLICIT IA5String (SIZE (1..10))  OPTIONAL 
+     }  
+-- NOTE: 
+-- The purpose of the Equipment Id is to indicate, to another user or to another PINX, information about a 
+-- calling or called party involved in a call. 
+-- Assignment of network wide unique Equipment Id values is outside the scope of this Standard. 
+ 
+PartyCategory  ::=  ENUMERATED  { 
+   unknown    (0), 
+   extension    (1), 
+   pisnAttendant  (2), 
+   emergExt    (3) 
+     } 
+ 
+-- NOTE: 
+-- The purpose of the Party category is to indicate, to another user or to another PINX, the category of a user  
+-- involved in a call. An Originating PINX may include an indication of the calling user's category in the SETUP  
+-- message sent across an inter-PINX link. A Terminating PINX may include an indication of the called user's  
+-- category in an ALERTING message or CONNECT message sent across an inter-PINX link. A received 
+-- Party category information may be used for display at the user's terminal or for PINX internal call handling, 
+-- e.g. depending on whether the calling or called party is an extension or a PISN attendant, the PINX internal 
+-- call handling may invoke different options of a supplementary service related to that call. 
+ 
+CMNExtSet EXTENSION ::= {...} 
+  
+ 
+END  -- of Common-Information-Operations-asn1-97

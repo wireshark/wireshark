@@ -1,0 +1,1186 @@
+# $Id$
+
+# Some more informations about the settings in this file, can be found
+# in the file README.win32 and the Developer's Guide (available online).
+
+##### Target platform #####
+# Only "win32" and "win64" are valid (for now).
+# This can be defined in the system environment.
+!IFNDEF WIRESHARK_TARGET_PLATFORM
+WIRESHARK_TARGET_PLATFORM=win32
+!ENDIF
+
+##### Versions #####
+
+# The current Wireshark version
+# It's highly recommended to leave MAJOR/MINOR/MICRO unchanged
+VERSION_MAJOR=1
+VERSION_MINOR=2
+VERSION_MICRO=0
+VERSION_BUILD=0
+# It's recommended to change VERSION_EXTRA for your own custom builds
+# e.g. "-SVN-12345"
+VERSION_EXTRA=""
+
+# The version of the wiretap library (recommended: leave unchanged)
+WTAP_VERSION_MAJOR=0
+WTAP_VERSION_MINOR=3
+WTAP_VERSION_MICRO=1
+
+
+
+##### Directories #####
+
+#
+# Base directory, where your libraries reside, which are needed to
+# compile the sources. This setting is used only inside this file.
+#
+WIRESHARK_LIBS=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs-1.2
+
+#
+# Base directory, where your programs reside.
+# This setting is used only inside this file.
+#
+PROGRAM_FILES=$(PROGRAMFILES)
+
+#
+# Location of the "tools" directory. This affects HTML2TXT below and should
+# be overridden by makefiles in any subdirectories that use HTML2TXT.
+!IFNDEF TOOLS_DIR
+TOOLS_DIR=tools
+!ENDIF
+
+#
+# Machine type for the compiler and linker
+# TARGET_MACHINE (Used for link /MACHINE) should be one of "X86" or "X64"
+# (sorry ARM, Alpha, MIPS, and Itanium fans).
+# CPU (Used by win32.mak) should be one of "i386" or "AMD64".
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+TARGET_MACHINE=x86
+CPU=i386
+VCREDIST_DLL=x86
+!else if "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
+TARGET_MACHINE=x64
+CPU=AMD64
+VCREDIST_DLL=amd64
+!else
+!error Your mysterious moon-man architecture "$(WIRESHARK_TARGET_PLATFORM)" frightens and confuses us.
+!endif
+
+
+##### Microsoft Visual C / Studio Variant #####
+# for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
+# only one of the following MSVC_VARIANT settings should be used
+# BTW: The "Microsoft Visual C++ Toolkit 2003" DOESN'T WORK for WS!
+
+# "Microsoft Visual Studio 6.0"
+# Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
+#MSVC_VARIANT=MSVC6
+
+# "Microsoft Visual Studio .NET (2002)"
+# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
+#MSVC_VARIANT=MSVC2002
+
+# "Microsoft .Net Framework SDK Version 1.0"
+# needs additional Platform SDK installation
+# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
+#MSVC_VARIANT=DOTNET10
+
+# "Microsoft Visual Studio .NET 2003"
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=MSVC2003
+
+# "Microsoft .Net Framework SDK Version 1.1"
+# needs additional Platform SDK installation
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=DOTNET11
+
+# "Microsoft Visual Studio 2005"
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=MSVC2005
+
+# "Microsoft Visual C++ 2005 Express Edition"
+# needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=MSVC2005EE
+
+# "Microsoft .Net Framework 2.0 SDK"
+# needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=DOTNET20
+
+# "Microsoft Visual Studio 2008"
+# Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
+MSVC_VARIANT=MSVC2008
+
+# "Microsoft Visual C++ 2008 Express Edition"
+# Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
+#MSVC_VARIANT=MSVC2008EE
+
+#
+# Optional: To compile some time critical code from assembler instead of C
+#
+# If you have the NASM compiler, set this to the NASM executable.
+# http://nasm.sourceforge.net/
+#
+# If you don't have NASM, comment this line out, so that NASM
+# isn't defined.
+#
+NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
+
+
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+##### Win32 Libraries #####
+#
+# Mandatory: GLib settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
+#
+GLIB_VERSION=2.0
+GLIB_PKG=2.20.3-1
+GLIB_DIR=$(WIRESHARK_LIBS)\glib
+
+#
+# Mandatory: GTK (& related libs) settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
+#
+# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# directory in which the "include" and "lib" directories reside.
+#
+GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+GTK_PKG=2.16.2-1
+CAIRO_PKG=1.8.6-1
+ATK_PKG=1.26.0-1
+LIBPNG_PKG=1.2.37-1
+TIFF_PKG=libtiff-3.8.2
+TIFF_DLL=libtiff3.dll
+JPEG_PKG=jpeg-6b-4-bin
+JPEG_DLL=jpeg62.dll
+PANGO_PKG=1.24.2-1
+
+#
+# Mandatory: Version numbers of GTK and pango.
+#
+# (MAJOR + MINOR Version number but without MICRO version number)
+# These macros are used by the nsis installer script and by the setup target.
+#
+# GTK 2.12 is the mainline since Wireshark 0.99.7
+GTK_INST_VERSION=2.16
+PANGO_INST_VERSION=1.24
+
+#
+# Optional: WinPcap developer's pack to capture network traffic.
+#
+# If you have the WinPcap developer's pack (at least version 3.0),
+# set this to the directory in which the WinPcap developer's pack resides.
+#
+# If you don't have the WPdpack, comment this line out, so that
+# PCAP_DIR isn't defined.
+#
+PCAP_VERSION=4_1_beta5
+PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+
+#
+# Optional: WinPcap remote capture support and new API
+# (pcap_open(), pcap_findalldevs_ex(), etc.)
+#
+PCAP_REMOTE=1
+
+#
+# Optional: The ZLib enables unzipping of gzip compressed capture files
+# "on the fly".
+#
+# If you have Zlib, set this to directory in which the Zlib headers
+# and .lib file are stored.
+#
+# If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
+# defined.
+#
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
+
+#
+# Optional: the ADNS library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have GNU ADNS, set this to the directory in which the GNU ADNS
+# .lib file is stored.
+#
+# If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
+# isn't defined.
+#
+# If C_ARES_DIR is defined below, it will override this setting.
+#
+#ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05ws
+
+#
+# Optional: the c-ares library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have c-ares, set this to the directory in which the c-ares
+# .lib file is stored. Setting this will override ADNS_DIR above. You
+# can't have both.
+#
+# If you're using Visual C++ 6.0, you'll have to use a platform SDK that
+# defines socklen_t, such as Windows Server 2003 PSDK.
+#
+# If you don't have c-ares, comment this line out, so that C_ARES_DIR
+# isn't defined.
+#
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.6.0ws
+
+#
+# Optional: the PCRE (Perl Compatible Regular Expressions) library
+# enables regular expressions for display filters.
+#
+# If you have the PCRE library, set this to the directory in which
+# the GNUWIN32 pcre-lib package is stored.
+#
+# If you don't have PCRE, comment this line out, so that PCRE_DIR
+# isn't defined.
+#
+PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
+
+#
+# Optional: the GNUTLS library enables ssl decryption.
+#
+# If you have the GNUTLS library, set this to the directory where
+# the lib and include files are stored.
+#
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# isn't defined.
+#
+# Platform SDK conflicts with openssl.h header
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
+
+#
+# Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
+#
+# If you have the kerberos for windows (mit) library, set this to the
+# directory where the kfw package is stored.
+#
+# If you don't have KFW, comment this line out, so that KFW_DIR
+# isn't defined.
+#
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
+
+#
+# Optional: the Nettle library enables ??? decryption.
+#
+# If you have the Nettle encryption library, set this to the
+# directory in which the nettle package is stored.
+#
+# If you don't have Nettle, comment this line out, so that NETTLE_DIR
+# isn't defined.
+#
+# NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
+
+#
+# Optional: the LUA library enables scripting support.
+#
+# If you have the LUA library, set this to the directory in which
+# the LUA package is stored.
+#
+# If you don't have LUA, comment this line out, so that LUA_DIR
+# isn't defined.
+#
+LUA_DIST=5_1_4_Win32_dll6
+LUA_DIR=$(WIRESHARK_LIBS)\lua5.1.4
+
+#
+# Optional: the PORTAUDIO library enables audio output for RTP streams.
+#
+# If you have the PORTAUDIO library (used for rtp_player), set this to
+# the directory in which the PORTAUDIO library is stored.
+#
+# If you don't have PORTAUDIO, comment this line out, so that
+# PORTAUDIO_DIR isn't defined.
+#
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19_2
+
+#
+# Version number of PortAudio
+#
+#PORTAUDIO_VERSION=18
+PORTAUDIO_VERSION=19
+
+#
+# Iconv: Mandatory for Glib >= 2 and <= 2.14.4
+# [win-iconv statically linked as part of Glib >= 2.14.5]
+# Set ICONV_DIR to the directory in which the
+# ICONV include files and library resides.
+#
+##ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
+
+#
+# Mandatory for GTK >= 2: Gettext
+#
+# Set GETTEXT_DIR to the directory in which the
+# GETTEXT include files and library resides.
+#
+#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
+GETTEXT_PKG=-runtime-0.17-1
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
+GETTEXT_DLL=intl.dll
+#
+# Optional: AirPcap developer's pack to capture wireless network traffic
+# incl. 802.11 management frames.
+#
+# If you have the AirPcap developer's pack, set this to the directory
+# in which the AirPcap developer's pack resides.
+#
+# If you don't have the AirPcap developer's pack, comment this line out,
+# so that AIRPCAP_DIR isn't defined.
+#
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+
+#
+# Optional: LIBSMI, System Management Interface
+#
+# Used for oid-name resolution for SNMP and other protocols
+#
+SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
+
+#
+# Optional: GeoIP, IP address database lookups
+#
+# Used to map IP addresses to MaxMind GeoIP database entries
+#
+# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
+# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
+# these definitions. The SDK's SetEnv.bat script defines INETSDK.
+!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+!ENDIF
+
+!else
+##### Win64 Libraries #####
+#
+# Mandatory: GLib settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
+#
+GLIB_VERSION=2.0
+GLIB_PKG=2.18.4-1
+GLIB_DIR=$(WIRESHARK_LIBS)\glib
+
+#
+# Mandatory: GTK (& related libs) settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
+#
+# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# directory in which the "include" and "lib" directories reside.
+#
+GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+GTK_PKG=2.14.7-1
+CAIRO_PKG=1.8.6-1
+ATK_PKG=1.24.0-1
+LIBPNG_PKG=1.2.34-1
+TIFF_PKG=libtiff_3.8.2-1_win64
+TIFF_DLL=libtiff.dll
+JPEG_PKG=jpeg_6b-2_win64
+JPEG_DLL=libjpeg-62.dll
+PANGO_PKG=1.22.4-1
+
+#
+# Mandatory: Version numbers of GTK and pango.
+#
+# (MAJOR + MINOR Version number but without MICRO version number)
+# These macros are used by the nsis installer script and by the setup target.
+#
+# GTK 2.12 is the mainline since Wireshark 0.99.7
+GTK_INST_VERSION=2.14
+PANGO_INST_VERSION=1.22
+
+#
+# Optional: WinPcap developer's pack to capture network traffic.
+#
+# If you have the WinPcap developer's pack (at least version 3.0),
+# set this to the directory in which the WinPcap developer's pack resides.
+#
+# If you don't have the WPdpack, comment this line out, so that
+# PCAP_DIR isn't defined.
+#
+PCAP_VERSION=4_1_beta5
+PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+
+#
+# Optional: WinPcap remote capture support and new API
+# (pcap_open(), pcap_findalldevs_ex(), etc.)
+#
+PCAP_REMOTE=1
+
+#
+# Optional: The ZLib enables unzipping of gzip compressed capture files
+# "on the fly".
+#
+# If you have Zlib, set this to directory in which the Zlib headers
+# and .lib file are stored.
+#
+# If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
+# defined.
+#
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
+
+#
+# Optional: the ADNS library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have GNU ADNS, set this to the directory in which the GNU ADNS
+# .lib file is stored.
+#
+# If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
+# isn't defined.
+#
+# If C_ARES_DIR is defined below, it will override this setting.
+#
+#ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05ws
+
+#
+# Optional: the c-ares library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have c-ares, set this to the directory in which the c-ares
+# .lib file is stored. Setting this will override ADNS_DIR above. You
+# can't have both.
+#
+# If you're using Visual C++ 6.0, you'll have to use a platform SDK that
+# defines socklen_t, such as Windows Server 2003 PSDK.
+#
+# If you don't have c-ares, comment this line out, so that C_ARES_DIR
+# isn't defined.
+#
+#C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
+
+#
+# Optional: the PCRE (Perl Compatible Regular Expressions) library
+# enables regular expressions for display filters.
+#
+# If you have the PCRE library, set this to the directory in which
+# the GNUWIN32 pcre-lib package is stored.
+#
+# If you don't have PCRE, comment this line out, so that PCRE_DIR
+# isn't defined.
+#
+#PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
+
+#
+# Optional: the GNUTLS library enables ssl decryption.
+#
+# If you have the GNUTLS library, set this to the directory where
+# the lib and include files are stored.
+#
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# isn't defined.
+#
+# Platform SDK conflicts with openssl.h header
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
+
+#
+# Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
+#
+# If you have the kerberos for windows (mit) library, set this to the
+# directory where the kfw package is stored.
+#
+# If you don't have KFW, comment this line out, so that KFW_DIR
+# isn't defined.
+#
+#KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
+
+#
+# Optional: the Nettle library enables ??? decryption.
+#
+# If you have the Nettle encryption library, set this to the
+# directory in which the nettle package is stored.
+#
+# If you don't have Nettle, comment this line out, so that NETTLE_DIR
+# isn't defined.
+#
+# NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
+
+#
+# Optional: the LUA library enables scripting support.
+#
+# If you have the LUA library, set this to the directory in which
+# the LUA package is stored.
+#
+# If you don't have LUA, comment this line out, so that LUA_DIR
+# isn't defined.
+#
+LUA_DIST=5_1_4_Win64_dll9
+LUA_DIR=$(WIRESHARK_LIBS)\lua5.1.4
+
+#
+# Optional: the PORTAUDIO library enables audio output for RTP streams.
+#
+# If you have the PORTAUDIO library (used for rtp_player), set this to
+# the directory in which the PORTAUDIO library is stored.
+#
+# If you don't have PORTAUDIO, comment this line out, so that
+# PORTAUDIO_DIR isn't defined.
+#
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19_2
+
+#
+# Version number of PortAudio
+#
+#PORTAUDIO_VERSION=18
+PORTAUDIO_VERSION=19
+
+#
+# Iconv: Mandatory for Glib >= 2 and <= 2.14.4
+# [win-iconv statically linked as part of Glib >= 2.14.5]
+# Set ICONV_DIR to the directory in which the
+# ICONV include files and library resides.
+#
+##ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
+
+#
+# Mandatory for GTK >= 2: Gettext
+#
+# Set GETTEXT_DIR to the directory in which the
+# GETTEXT include files and library resides.
+#
+#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
+GETTEXT_PKG=_0.17-1_win64
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
+GETTEXT_DLL=libintl-8.dll
+#
+# Optional: AirPcap developer's pack to capture wireless network traffic
+# incl. 802.11 management frames.
+#
+# If you have the AirPcap developer's pack, set this to the directory
+# in which the AirPcap developer's pack resides.
+#
+# If you don't have the AirPcap developer's pack, comment this line out,
+# so that AIRPCAP_DIR isn't defined.
+#
+#AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+
+#
+# Optional: LIBSMI, System Management Interface
+#
+# Used for oid-name resolution for SNMP and other protocols
+#
+#SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
+
+#
+# Optional: GeoIP, IP address database lookups
+#
+# Used to map IP addresses to MaxMind GeoIP database entries
+#
+# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
+# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
+# these definitions. The SDK's SetEnv.bat script defines INETSDK.
+!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
+#GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+!ENDIF
+
+!endif
+
+##### Tools #####
+
+# Set the following mandatory commands to find the tools.
+# The easiest way is to use the corresponding packages from cygwin.
+
+# Set up the path to the cygwin binaries
+CYGWIN_PATH=c:\cygwin\bin
+
+# command for a shell (cygwin's bash package recommended)
+SH_PROG=bash
+
+# bash versions after 3.1.6 need the 'igncr' shell option to be able to
+#  process scripts in windows 'native format' (dos crlf format).
+# The following !IF results in the option being used only if it is available
+#  since using it on bash version 3.1.6 (or earlier) is not required and
+#  will cause an error message.
+!if "$(SH_PROG)"=="bash" && [$(CYGWIN_PATH)\bash -c "set -o igncr" 2>nul: ] == 0
+SH_FLAGS=-o igncr
+!endif
+
+SH=$(SH_PROG) $(SH_FLAGS)
+
+
+# command for perl (cygwin's perl package recommended)
+PERL=perl
+
+# command for pod2man and pod2html
+# (part of the perl package, usually leave these unchanged)
+POD2MAN=$(SH) pod2man
+POD2HTML=$(SH) pod2html
+
+# Command for native Windows Python (recommended)
+# V2.4 to V2.6 should work
+
+# If you want to specify your Python settings, uncomment the lines below.
+#PYTHON="C:\Python26\python.exe"
+#PATH=c:\Python26;$(PATH)
+
+# Command for Cygwin's Python (not recommended)
+#PYTHON=env python
+
+# Otherwise, find Python automatically.
+!IF !DEFINED(PYTHON)
+!IF EXIST(c:\Python26\python.exe)
+PYTHON="C:\Python26\python.exe"
+PATH=c:\Python26;$(PATH)
+!ELSE IF EXIST(c:\Python25\python.exe)
+PYTHON="C:\Python25\python.exe"
+PATH=c:\Python25;$(PATH)
+!ELSE IF EXIST(c:\Python24\python.exe)
+PYTHON="C:\Python24\python.exe"
+PATH=c:\Python24;$(PATH)
+!ENDIF
+!ENDIF
+
+# command for lex/flexx (cygwin's flex recommended)
+LEX=flex
+
+# command for yacc/bison (cygwin's bison recommended)
+YACC=bison
+
+#
+# Optional: To build the NSIS installer.
+#
+# If you have the NSIS package, set this to the NSIS executable.
+#
+# If you don't have NSIS, comment this line out, so that MAKENSIS
+# isn't defined.
+#
+MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
+
+#
+# Optional: To build the developers API documentation with doxygen and dot.
+# Currently experimental, outdated and incomplete.
+#
+# You will have to download and install:
+# Doxygen from: http://www.doxygen.org
+# Graphviz from: http://www.research.att.com/sw/tools/graphviz/
+#
+# If you have doxygen, set this to the doxygen executable.
+#
+# If you don't want the developers documentation (or don't have the tools),
+# comment this line out, so that DOXYGEN isn't defined.
+#
+#DOXYGEN="$(PROGRAM_FILES)/doxygen/bin/doxygen.exe"
+
+#
+# Recommended: Use the compressed html help format .chm as the Wireshark integrated help.
+#
+# The required htmlhelp.h and htmlhelp.lib should be included in MSVC_VARIANT > MSVC6.
+#
+# For MSVC_VARIANT == MSVC6 you will have to download and install the html help workshop from:
+#
+# http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
+# /hwMicrosoftHTMLHelpDownloads.asp
+#
+# Then point HHC_DIR to the html help dir (where hhc.exe resides).
+#
+# If you don't want the online help (or don't have the tools),
+# comment this line out, so that HHC_DIR isn't defined.
+#
+HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
+
+#
+# Optional: To reduce the size of dlls and exes, which is especially useful for USB device distributions (U3, PortableApps)
+#
+# If you have the UPX package, set this to the upx.exe executable.
+#
+# UPX can be downloaded from:
+#   http://upx.sourceforge.net/
+#
+# If you don't have UPX, or don't want to pack exes and dlls,
+# comment this line out, so that UPX isn't defined.
+#
+
+UPX=$(WIRESHARK_LIBS)\upx301w\upx.exe
+
+##### Flags, PATHs and Miscellaneous #####
+
+# "convert" the MSVC variant into the required MSC compiler version
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+MSC_VER_REQUIRED=1200
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10"
+MSC_VER_REQUIRED=1300
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
+MSC_VER_REQUIRED=1310
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+MSC_VER_REQUIRED=1400
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2008" ||  "$(MSVC_VARIANT)" == "MSVC2008EE"
+MSC_VER_REQUIRED=1500
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
+
+# Compiler flags:
+# /W3  warning level 3 (0 less - 4 most, 1 default)
+# /Zi  create .pdb file for debugging
+# /MD  use "Multithreading Debug" libraries
+# /D_CRT_SECURE_NO_DEPRECATE        Don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
+# /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this
+# /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
+# /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
+# /MP [<number of processes>]       [MSVC2008]: Compiles multiple source files by using multiple processes 
+#                                               Add if desired for compile speedup on machines with 2 or more "effective processors"
+# /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load a second copy of the CRT.
+#
+!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
+LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE"
+LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) /D_BIND_TO_CURRENT_CRT_VERSION=1
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
+
+# Linker flags:
+# /DEBUG  generate debug info
+# /PROFILE generate map file(s) for profiling
+# /DEFAULTLIB:xxx use xxx as the standard C library
+# /NODEFAULTLIB:xxx don't use xxx as the standard C library
+#
+LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
+DLL_LDFLAGS = 
+!IF $(MSC_VER_REQUIRED) >= 1400
+DLL_LDFLAGS = /MANIFEST:no
+!ENDIF
+
+PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS) $(DLL_LDFLAGS)
+
+#
+# According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403
+# XCOPY under Windows NT doesn't support the "/Y" flag.  This works
+# around that bug.
+# XXX - This apparently doesn't work for some versions of nmake:
+# http://support.microsoft.com/default.aspx?scid=kb;en-us;86814
+# It looks like we'll have to call "set copycmd=/y" before we run xcopy.
+COPYCMD=/y
+
+#
+# If you don't want to build libwireshark.dll, you should comment out the
+# following line. (Note: for plugin support this option must stay activated)
+ENABLE_LIBWIRESHARK=USE
+
+#
+# install (debug) directory for Wireshark (relative to your source dir)
+INSTALL_DIR=wireshark-gtk2
+
+
+
+##### C-Runtime Redistributable #####
+#
+# The C-Runtime since Version 7 must be shipped together with
+# the program installer, to avoid missing msvcr*.dll files on
+# the target machine.
+#
+# The location of these files differ on the various compiler
+# packages, the following will use the default paths depending
+# on the package version.
+#
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+# msvcrt.dll will already be available on target machines - nothing additional to install
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002"
+# you probably need to tweak this directory if you don't use the professional edition!
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET\Visual Studio .NET Professional - English\msvcr70.dll
+
+!ELSEIF "$(MSVC_VARIANT)" == "DOTNET10"
+# no redistributable available for this package!
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2003"
+# you probably need to tweak this directory if you don't use the professional edition!
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET 2003\Visual Studio .NET Professional 2003 - English\msvcr71.dll
+
+!ELSEIF "$(MSVC_VARIANT)" == "DOTNET11"
+# no redistributable available for this package!
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(VCREDIST_DLL)\Microsoft.VC80.CRT\*.*
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
+# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
+# and copy it to the lib folder!!!
+VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_$(TARGET_MACHINE).exe
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2008"
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(VCREDIST_DLL)\Microsoft.VC90.CRT\*.*
+
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
+
+
+
+##### Advanced: Docbook/XML documentation generation #####
+# If you want to generate the Docbook/XML based docs (User's and Developer's
+# Guide, ...), you'll need some additional tools / libraries compared to the
+# rest of the build process.
+#
+# FOR DETAILED INSTRUCTIONS TO GENERATE THE DOCS, SEE: docbook\readme.txt.
+#
+# If you don't call the Makefile.nmake in the docbook dir to generate the
+# docs, the following settings in this section will have no effect.
+
+# formatting objects processor executable
+# Comment this out if you don't have fop installed or you don't want the docs
+# in PDF format.
+!IFNDEF FOP
+FOP=fop-0.20.5\fop.bat
+!ENDIF
+
+# Additional options to fop.
+FOP_OPTS=-Xmx256m
+
+# html help compiler
+# Comment this out if you don't have hhc.exe or you don't want the docs in
+# .chm format.
+#
+# Beware: hhc.exe is NOT part of the MSVC packages in HHC_DIR mentioned above,
+# so you'll need to install the HTML Help Workshop for this.
+HHC_EXE="$(HHC_DIR)\hhc.exe"
+
+# html to text converter for text version of release notes, e.g. elinks.
+# This could also be "lynx", or "true" if neither elinks nor lynx is installed
+# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
+#HTML2TXT=elinks -dump -dump-width 72
+#HTML2TXT=links -dump -width 72
+#HTML2TXT=lynx -dump -width=72 -nolist -stdin
+
+!IFNDEF HTML2TXT
+HTML2TXT=$(PYTHON) $(TOOLS_DIR)\html2text.py --width=72 --no-links
+!ENDIF
+
+# the XSL processor (part of cygwin's libxslt package)
+XSLTPROC="xsltproc"
+
+# the XML validator (part of cygwin's libxml2 package)
+XMLLINT="xmllint"
+
+
+
+##############################################################################
+#
+# You should not have to change anything below this comment.
+# If you do, it's a deficiency in the Makefile.nmake files;
+# either tell wireshark-dev@wireshark.org about it, including
+# details of why you had to change it, or fix config.nmake
+# and any Makefile.nmake files that need to be changed, and
+# send us the patches, along with details of why the change
+# was necessary.
+#
+##############################################################################
+
+#
+# The RC_VERSION should be comma-separated, not dot-separated,
+# as per Graham Bloice's message in
+#
+#	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
+#
+# "The RC_VERSION variable in config.nmake should be comma separated.
+# This allows the resources to be built correctly and the version
+# number to be correctly displayed in the explorer properties dialog
+# for the executables, and XP's tooltip, rather than 0.0.0.0."
+#
+
+VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)$(VERSION_EXTRA)
+RC_VERSION=$(VERSION_MAJOR),$(VERSION_MINOR),$(VERSION_MICRO),$(VERSION_BUILD)
+
+WTAP_VERSION=$(WTAP_VERSION_MAJOR).$(WTAP_VERSION_MINOR).$(WTAP_VERSION_MICRO)
+RC_WTAP_VERSION=$(WTAP_VERSION_MAJOR),$(WTAP_VERSION_MINOR),$(WTAP_VERSION_MICRO)
+
+
+GLIB_CFLAGS=/I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
+	/I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
+GCC_GLIB_CFLAGS=-I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
+	-I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
+GLIB_LIBS=$(GLIB_DIR)\lib\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\lib\gobject-$(GLIB_VERSION).lib
+
+# GTK+
+GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
+	/I$(GTK_DIR)\lib\gtk-2.0\include \
+	/I$(GTK_DIR)\include\atk-1.0 \
+	/I$(GTK_DIR)\include\cairo \
+	/I$(GTK_DIR)\include\pango-1.0
+GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
+	$(GTK_DIR)\lib\pango-1.0.lib \
+	$(GLIB_LIBS)
+
+!IF "$(GTK_INST_VERSION)" == "2.16"
+GTK_LIB_DIR=2.10.0
+NEED_LIBPNG_DLL=USE
+NEED_LIBJPEG_DLL=USE
+NEED_LIBTIFF_DLL=USE
+NEED_CAIRO_DLL=USE
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCDST_DIR=etc\gtk-2.0
+!ELSEIF "$(GTK_INST_VERSION)" == "2.14"
+GTK_LIB_DIR=2.10.0
+NEED_LIBPNG_DLL=USE
+NEED_LIBJPEG_DLL=USE
+NEED_LIBTIFF_DLL=USE
+NEED_CAIRO_DLL=USE
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCDST_DIR=etc\gtk-2.0
+!ELSEIF "$(GTK_INST_VERSION)" == "2.12"
+GTK_LIB_DIR=2.10.0
+NEED_LIBPNG_DLL=USE
+NEED_LIBJPEG_DLL=USE
+NEED_LIBTIFF_DLL=USE
+NEED_CAIRO_DLL=USE
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCDST_DIR=etc\gtk-2.0
+!ELSE
+!ERROR ? Unknown or invalid GTK_INST_VERSION
+!ENDIF
+
+!IF "$(PANGO_INST_VERSION)" == "1.24"
+PANGO_LIB_DIR=1.5.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.22"
+PANGO_LIB_DIR=1.5.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.18"
+PANGO_LIB_DIR=1.5.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
+PANGO_LIB_DIR=1.5.0
+!ELSE
+!ERROR ? Unknown or invalid PANGO_INST_VERSION
+!ENDIF
+
+!IFDEF AIRPCAP_DIR
+AIRPCAP_CONFIG=^#define HAVE_AIRPCAP 1
+AIRPDCAP_CONFIG=^#define HAVE_AIRPDCAP 1
+#AIRPCAP_CFLAGS=/I$(AIRPCAP_DIR)\include
+!ELSE
+AIRPCAP_CONFIG=
+AIRPDCAP_CONFIG=
+!ENDIF
+
+!IFDEF PCAP_DIR
+# Nmake uses carets to escape special characters
+WINPCAP_CONFIG=^#define HAVE_LIBPCAP 1
+PCAP_FINDALLDEVS_CONFIG=^#define HAVE_PCAP_FINDALLDEVS 1
+PCAP_DATALINK_NAME_TO_VAL_CONFIG=^#define HAVE_PCAP_DATALINK_NAME_TO_VAL 1
+PCAP_DATALINK_VAL_TO_NAME_CONFIG=^#define HAVE_PCAP_DATALINK_VAL_TO_NAME 1
+# PCAP_BREAKLOOP won't have any benefit on Win32, but breaks compatibility with 3.0
+PCAP_BREAKLOOP_CONFIG=
+WPCAP_CONSTIFIED_CONFIG=^#define WPCAP_CONSTIFIED 1
+!ELSE
+# no WpdPack installed
+WINPCAP_CONFIG=
+PCAP_FINDALLDEVS_CONFIG=
+PCAP_DATALINK_NAME_TO_VAL_CONFIG=
+PCAP_DATALINK_VAL_TO_NAME_CONFIG=
+PCAP_BREAKLOOP_CONFIG=
+WPCAP_CONSTIFIED=
+!ENDIF
+
+PCAP_LIST_DATALINKS_CONFIG=^#define HAVE_PCAP_LIST_DATALINKS 1
+PCAP_SET_DATALINK_CONFIG=^#define HAVE_PCAP_SET_DATALINK 1
+
+!IF DEFINED(PCAP_DIR) && DEFINED(PCAP_REMOTE)
+PCAP_HAVE_REMOTE_CONFIG=^#define HAVE_REMOTE 1
+PCAP_REMOTE_CONFIG=^#define HAVE_PCAP_REMOTE 1
+PCAP_OPEN_CONFIG=^#define HAVE_PCAP_OPEN 1
+PCAP_FINDALLDEVS_EX_CONFIG=^#define HAVE_PCAP_FINDALLDEVS_EX 1
+PCAP_CREATESRCSTR_CONFIG=^#define HAVE_PCAP_CREATESRCSTR 1
+PCAP_SETSAMPLING_CONFIG=^#define HAVE_PCAP_SETSAMPLING 1
+!ELSE
+PCAP_HAVE_REMOTE_CONFIG=
+PCAP_REMOTE_CONFIG=
+PCAP_OPEN_CONFIG=
+PCAP_FINDALLDEVS_EX_CONFIG=
+PCAP_CREATESRCSTR_CONFIG=
+PCAP_SETSAMPLING_CONFIG=
+!ENDIF
+
+!IFDEF ZLIB_DIR
+ZLIB_PATH=$(ZLIB_DIR)
+ZLIB_CFLAGS=/I$(ZLIB_DIR)\include
+ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
+ZLIB_DLL=$(ZLIB_DIR)\zlib1.dll
+# Nmake uses carets to escape special characters
+ZLIB_CONFIG=^#define HAVE_LIBZ 1
+!else
+ZLIB_CFLAGS=
+ZLIB_LIBS=
+ZLIB_DLL=
+ZLIB_CONFIG=
+!ENDIF
+
+!IFDEF C_ARES_DIR
+!UNDEF ADNS_DIR
+C_ARES_CFLAGS=/I$(C_ARES_DIR)
+C_ARES_LIBS=$(C_ARES_DIR)\cares.lib
+C_ARES_DLL=$(C_ARES_DIR)\cares.dll
+# Nmake uses carets to escape special characters
+C_ARES_CONFIG=^#define HAVE_C_ARES 1
+!else
+C_ARES_CFLAGS=
+C_ARES_LIBS=
+C_ARES_CONFIG=
+!IFDEF ADNS_DIR
+ADNS_PATH=$(ADNS_DIR)\adns_win32\lib
+ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
+ADNS_LIBS=$(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns\adns_dll.lib
+ADNS_DLL=$(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns\adns_dll.dll
+# Nmake uses carets to escape special characters
+ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
+!else
+ADNS_CFLAGS=
+ADNS_LIBS=
+ADNS_CONFIG=
+!ENDIF # ADNS
+!ENDIF # C_ARES
+
+!IFDEF KFW_DIR
+KFW_PATH=$(KFW_DIR)\bin
+KFW_CFLAGS=/I$(KFW_DIR)\include
+KFW_LIBS=$(KFW_DIR)\lib\krb5_32.lib
+# Nmake uses carets to escape special characters
+KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
+!else
+KFW_CFLAGS=
+KFW_LIBS=
+KFW_CONFIG=
+!ENDIF
+
+!IFDEF PCRE_DIR
+PCRE_PATH=$(PCRE_DIR)\bin
+PCRE_CFLAGS=/I$(PCRE_DIR)\include
+PCRE_LIBS=$(PCRE_DIR)\lib\pcre.lib
+# Nmake uses carets to escape special characters
+PCRE_CONFIG=^#define HAVE_LIBPCRE 1
+!else
+PCRE_CFLAGS=
+PCRE_LIBS=
+PCRE_CONFIG=
+!ENDIF
+
+!IFDEF NETTLE_DIR
+NETTLE_CFLAGS=/I$(NETTLE_DIR)
+NETTLE_LIBS=$(NETTLE_DIR)\libnettle.lib
+# Nmake uses carets to escape special characters
+NETTLE_CONFIG=^#define HAVE_LIBNETTLE 1
+!else
+NETTLE_CFLAGS=
+NETTLE_LIBS=
+NETTLE_CONFIG=
+!ENDIF
+
+!IFDEF GNUTLS_DIR
+GNUTLS_PATH=$(GNUTLS_DIR)
+# /DNOCRYPT avoids inclusion of Wincrypt.h, avoiding a X509_NAME define clash
+GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include /DNOCRYPT /DIMPORT_LIGNUTLSDLL
+GNUTLS_LIBS=\
+	$(GNUTLS_DIR)\bin\libtasn1-3.lib	\
+	$(GNUTLS_DIR)\bin\libgpg-error-0.lib	\
+	$(GNUTLS_DIR)\bin\libgcrypt-11.lib	\
+	$(GNUTLS_DIR)\bin\libgnutls-26.lib
+# Nmake uses carets to escape special characters
+GNUTLS_CONFIG=^#define HAVE_LIBGNUTLS 1
+LIBGCRYPT_CONFIG=^#define HAVE_LIBGCRYPT 1
+!else
+GNUTLS_CFLAGS=
+GNUTLS_LIBS=
+GNUTLS_CONFIG=
+LIBGCRYPT_CONFIG=
+!ENDIF
+
+!IFDEF LUA_DIR
+LUA_CFLAGS=/I$(LUA_DIR)\include
+LUA_LIBS=$(LUA_DIR)\lua5.1.lib
+# Nmake uses carets to escape special characters
+LUA_CONFIG=^#define HAVE_LUA 1
+LUA_VERSION=^#define HAVE_LUA_5_1 1
+!else
+LUA_CFLAGS=
+LUA_LIBS=
+LUA_CONFIG=
+!ENDIF
+
+!IFDEF PORTAUDIO_DIR
+# Nmake uses carets to escape special characters
+PORTAUDIO_CONFIG=^#define HAVE_LIBPORTAUDIO 1
+!IF "$(PORTAUDIO_VERSION)" == "18"
+# V18 uses API version 1 and v19 API version 2
+PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\pa_common
+PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
+!ELSE
+PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\include /I$(PORTAUDIO_DIR)\src\common /I$(PORTAUDIO_DIR)\src\os\win /DPA_NO_DS /DPA_NO_ASIO
+!ENDIF
+!ELSE
+PORTAUDIO_CFLAGS=
+PORTAUDIO_CONFIG=
+!ENDIF
+
+!IFDEF HHC_DIR
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+HHC_CFLAGS=/I"$(HHC_DIR)\include" -DHHC_DIR
+HHC_LIBS="$(HHC_DIR)\lib\htmlhelp.lib"
+!ELSE
+HHC_CFLAGS=-DHHC_DIR
+HHC_LIBS=htmlhelp.lib
+!ENDIF
+!ELSE
+HHC_CFLAGS=
+HHC_LIBS=
+!ENDIF
+
+!IFDEF SMI_DIR
+SMI_CONFIG=^#define HAVE_LIBSMI 1
+SMI_CFLAGS=/I$(SMI_DIR)\include
+SMI_LIBS=$(SMI_DIR)\lib\smi.lib
+!ELSE
+SMI_LIBS=
+SMI_CFLAGS=
+SMI_CONFIG=
+!ENDIF
+
+!IFDEF GEOIP_DIR
+GEOIP_CONFIG=^#define HAVE_GEOIP 1
+GEOIP_CFLAGS=/I$(GEOIP_DIR)\libGeoIP
+GEOIP_LIBS=$(GEOIP_DIR)\libGeoIP\GeoIP.lib
+!ELSE
+GeoIP_LIBS=
+GeoIP_CFLAGS=
+GeoIP_CONFIG=
+!ENDIF
+
+!IFDEF ENABLE_LIBWIRESHARK
+LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
+# Link plugins with the import library of libwireshark.dll
+LINK_PLUGINS_WITH_LIBWIRESHARK=USE
+!ELSE
+LIBWIRESHARK_CONFIG=
+!ENDIF
+
+# Construct the path
+!IFDEF ICONV_DIR
+PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
+!ELSE
+PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
+!ENDIF
+
+# We can't use a lot of IPv6 code with plain Visual C++ 6.0
+!IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)
+INET6_CONFIG=
+!ELSE
+INET6_CONFIG=^#define INET6 1
+!ENDIF
+
+!IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)
+NTDDNDIS_CONFIG=
+!ELSE
+NTDDNDIS_CONFIG=^#define HAVE_NTDDNDIS_H 1
+!ENDIF

@@ -1,0 +1,170 @@
+<!-- $Id$ -->
+
+<preface id="Preface">
+  <title>Preface</title>
+  <section id="PreForeword">
+  <title>Foreword</title>
+  <para>
+    Wireshark is one of those programs that many network managers would love 
+    to be able to use, but they are often prevented from getting what they 
+    would like from Wireshark because of the lack of documentation.
+  </para>
+  <para>
+    This document is part of an effort by the Wireshark team to improve the 
+	usability of Wireshark.
+  </para>
+  <para>
+    We hope that you find it useful, and look forward to your comments.
+  </para>
+  </section>
+
+  <section id="PreAudience">
+  <title>Who should read this document?</title>
+  <para>
+  The intended audience of this book is anyone using Wireshark.
+  </para>
+  <para>
+  This book will explain all the basics and also some of the advanced features 
+  that Wireshark provides. As Wireshark has become a very complex program since 
+  the early days, not every feature of Wireshark may be explained in this 
+  book. 
+  </para>
+  <para>
+  This book is not intended to explain network sniffing in general and it will
+  not provide details about specific network protocols. A lot of useful 
+  information regarding these topics can be found at the Wireshark Wiki at
+  <ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>
+  </para>
+  <para>
+  By reading this book, you will learn how to install Wireshark, how to use the 
+  basic elements of the graphical user interface (such as the menu) and what's 
+  behind some of the advanced features that are not always obvious at first 
+  sight. It will hopefully guide you around some common problems that
+  frequently appear for new (and sometimes even advanced) users of Wireshark.
+  </para>
+  </section>
+
+  <section id="PreAck">
+  <title>Acknowledgements</title>
+  <para>
+    The authors would like to thank the whole Wireshark team for their 
+	assistance. In particular, the authors would like to thank:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Gerald Combs, for initiating the Wireshark project and funding to 
+	  do this documentation.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Guy Harris, for many helpful hints and a great deal of patience 
+	  in reviewing this document.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Gilbert Ramirez, for general encouragement and helpful hints along 
+	  the way.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    The authors would also like to thank the following people for their 
+	helpful feedback on this document:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Pat Eyler, for his suggestions on improving the example on 
+	  generating a backtrace.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Martin Regner, for his various suggestions and corrections.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Graeme Hewson, for a lot of grammatical corrections.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    The authors would like to acknowledge those man page and README authors 
+	for the Wireshark project from who sections of this document borrow heavily:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Scott Renfro from whose <command>mergecap</command> man page 
+	  <xref linkend="AppToolsmergecap"/> is derived.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Ashok Narayanan from whose <command>text2pcap</command> man page 
+	  <xref linkend="AppToolstext2pcap"/> is derived.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Frank Singleton from whose <filename>README.idl2wrs</filename> 
+	  <xref linkend="AppToolsidl2wrs"/> is derived. 
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  </section>
+
+  <section id="PreAbout">
+    <title>About this document</title>
+    <para>
+      This book was originally developed by 
+      <ulink url="mailto:&AuthorEmail2;">Richard Sharpe</ulink> with 
+      funds provided from the Wireshark Fund. It was updated by 
+	  <ulink url="mailto:&AuthorEmail3;">Ed Warnicke</ulink> and more recently 
+	  redesigned and updated by <ulink url="mailto:&AuthorEmail;">Ulf 
+	  Lamping</ulink>.
+    </para>
+    <para>
+      It is written in DocBook/XML.
+    </para>
+    <para>
+	You will find some specially marked parts in this book:
+    </para>
+    <warning><title>This is a warning!</title>
+	<para>
+	You should pay attention to a warning, as otherwise data loss might occur.
+	</para>
+    </warning>
+    <note><title>This is a note!</title>
+	<para>
+	A note will point you to common mistakes and things that might not be 
+	obvious.
+	</para>
+    </note>
+    <tip><title>This is a tip!</title>
+	<para>
+	Tips will be helpful for your everyday work using Wireshark.
+	</para>
+    </tip>
+  </section>
+  
+  <section id="PreDownload">
+    <title>Where to get the latest copy of this document?</title>
+    <para>
+      The latest copy of this documentation can always be found at: 
+      <ulink url="&WiresharkUsersGuidePage;"/>.
+    </para>
+  </section>
+
+  <section id="PreFeedback">
+    <title>Providing feedback about this document</title>
+    <para>
+      Should you have any feedback about this document, please send it 
+      to the authors through <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
+    </para>
+  </section>
+</preface>

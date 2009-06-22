@@ -1,0 +1,128 @@
+#.EXPORTS
+RTORQapdu
+RTOACapdu
+RTORJapdu
+RTABapdu
+
+#.FN_BODY RTORJapdu/userDataRJ
+	char *oid = NULL;
+
+	switch(app_proto)  {
+	case 1:		/* mts-transfer-protocol-1984 */
+		oid = "applicationProtocol.1";
+		break;
+	case 12: 	/* mts-transfer-protocol */
+		oid = "applicationProtocol.12";
+		break;
+	default:
+		if(session && session->pres_ctx_id)
+			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
+		break;
+	}
+	
+	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+		oid = "applicationProtocol.12";
+
+	if(oid) {
+	  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+		session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
+
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+	}
+
+#.FN_BODY RTABapdu/userdataAB
+/*XXX not implemented yet */
+
+#.FN_BODY RTORQapdu
+
+  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
+  open_request=TRUE;
+  %(DEFAULT_BODY)s
+  open_request=FALSE;
+
+#.FN_BODY RTOACapdu
+
+  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
+	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
+
+  %(DEFAULT_BODY)s
+
+#.FN_BODY ConnectionData/open
+
+	char *oid = NULL;
+
+	switch(app_proto)  {
+	case 1:		/* mts-transfer-protocol-1984 */
+		oid = "applicationProtocol.1";
+		break;
+	case 12: 	/* mts-transfer-protocol */
+		oid = "applicationProtocol.12";
+		break;
+	default:
+		if(session && session->pres_ctx_id)
+			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
+		break;
+	}
+	
+	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+		oid = "applicationProtocol.12";
+
+	if(oid) {
+
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+	}
+
+	/* else XXX: need to flag we can't find the presentation context */
+
+#.FN_BODY RTTRapdu
+	tvbuff_t *next_tvb = NULL;
+
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+
+	if(next_tvb) {
+
+		/* XXX: we should check is this is an EXTERNAL first */
+
+		/* ROS won't do this for us */
+		if(session)
+			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
+
+		offset = dissect_ber_external_type(FALSE, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
+	}
+
+
+#.FN_BODY RTORQapdu/applicationProtocol
+
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
+
+#.FN_BODY SessionConnectionIdentifier
+  if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "Recover");
+  %(DEFAULT_BODY)s
+
+#.END
+  
+#.FN_BODY CallingSSuserReference/t61String  VAL_PTR=&string
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+
+#.FN_PARS CommonReference
+  VAL_PTR=&string
+#.FN_BODY CommonReference
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+
+#.END
+  
+#.FN_BODY CallingSSuserReference/octetString  VAL_PTR=&string
+  tvbuff_t *string = NULL;
+  %(DEFAULT_BODY)s
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+
+#.END

@@ -1,0 +1,13 @@
+# radius.mate
+# $Id$
+
+Action=Transform; Name=radius_same_port; Mode=Insert; Match=Strict; radius_port; radius_port;
+Action=Transform; Name=radius_same_port; Mode=Insert; Match=Every; radius_port; .radius_port=0;
+
+Action=PduDef; Name=radius_pdu; Proto=radius; Transport=udp/ip; radius_addr=ip.addr; radius_port=udp.port; radius_id=radius.id; radius_code=radius.code;
+Action=PduTransform; For=radius_pdu; Name=radius_same_port;
+
+Action=GopDef; Name=radius_req; On=radius_pdu; radius_id; radius_addr; radius_addr; radius_port; radius_port;
+Action=GopStart; For=radius_req; radius_code|1|4|7;
+Action=GopStop; For=radius_req; radius_code|2|3|5|8|9;
+

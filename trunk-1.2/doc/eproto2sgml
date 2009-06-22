@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+#
+# Reads the display filter keyword dump produced by 'wireshark -G' and
+# formats it as an SGML bulleted list of protocols.
+#
+# STDIN is the wireshark glossary
+# arg1 is the pod template file. The =insert_dfilter_table token
+#	will be replaced by the pod-formatted glossary
+# STDOUT is the output
+#
+# $Id$
+
+# Read all the data into memory
+while (<STDIN>) {
+	next unless (/^([PF])/);
+
+	$record_type = $1;
+	chomp($_);
+
+	# Store protocol information
+	if ($record_type eq 'P') {
+		($junk, $name, $abbrev) = split(/\t+/, $_);
+		$proto_abbrev{$name} = $abbrev;
+	}
+	# Store header field information
+	else {
+		($junk, $name, $abbrev, $type, $parent) =
+			split(/\t+/, $_);
+		push(@{$field_abbrev{$parent}}, $abbrev);
+		$field_info{$abbrev} = [ $name, $type ];
+	}
+}
+
+# if there was no input on stdin, bail out
+if ($record_type ne 'P' and $record_type ne 'F') {
+	exit;
+}
+
+$template = shift(@ARGV);
+
+open(TEMPLATE, $template) || die "Can't open $template for reading: $!\n";
+
+while (<TEMPLATE>) {
+	if (/=insert_dfilter_table/) {
+		&create_dfilter_table;
+	}
+	else {
+		print;
+	}
+}
+
+close(TEMPLATE) || die "Can't close $template: $!\n";
+
+sub create_dfilter_table {
+
+        print "<itemizedlist id=\"WiresharkListOfProtos\">\n";
+
+	# Print each protocol
+	for $proto_name (sort keys %proto_abbrev) {
+
+		print "   <listitem><para>$proto_name</></>\n";
+	
+	
+	    }
+
+	print "</itemizedlist>\n";
+
+}

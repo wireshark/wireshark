@@ -1,0 +1,295 @@
+//Source file: ui_data.idl
+//Date:  8 October 2004
+//User Interaction Data Types for ETSI ES 203 915-05 V1.1.1, DES/TISPAN-01005-05-OSA, Parlay 5.0
+
+#ifndef __UI_DATA_DEFINED
+#define __UI_DATA_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module ui {
+			
+			
+			enum TpUIVariablePartType {
+
+				P_UI_VARIABLE_PART_INT,
+				P_UI_VARIABLE_PART_ADDRESS,
+				P_UI_VARIABLE_PART_TIME,
+				P_UI_VARIABLE_PART_DATE,
+				P_UI_VARIABLE_PART_PRICE				
+			};
+			
+			
+			union TpUIVariableInfo switch(TpUIVariablePartType) {
+				case P_UI_VARIABLE_PART_INT: TpInt32 VariablePartInteger;
+				case P_UI_VARIABLE_PART_ADDRESS: TpString VariablePartAddress;
+				case P_UI_VARIABLE_PART_TIME: TpTime VariablePartTime;
+				case P_UI_VARIABLE_PART_DATE: TpDate VariablePartDate;
+				case P_UI_VARIABLE_PART_PRICE: TpPrice VariablePartPrice;
+			};
+			
+			
+			typedef sequence <TpUIVariableInfo> TpUIVariableInfoSet;
+			
+			
+			typedef TpInt32 TpUIResponseRequest;
+			
+			
+			enum TpUIReport {
+
+				P_UI_REPORT_UNDEFINED,
+				P_UI_REPORT_INFO_SENT,
+				P_UI_REPORT_INFO_COLLECTED,
+				P_UI_REPORT_NO_INPUT,
+				P_UI_REPORT_TIMEOUT,
+				P_UI_REPORT_MESSAGE_STORED,
+				P_UI_REPORT_MESSAGE_NOT_STORED,
+				P_UI_REPORT_MESSAGE_DELETED,
+				P_UI_REPORT_MESSAGE_NOT_DELETED				
+			};
+			
+			
+			struct TpUIMessageCriteria {
+				TpString EndSequence;
+				TpDuration MaxMessageTime;
+				TpInt32 MaxMessageSize;
+			};
+			
+			
+			enum TpUIInfoType {
+
+				P_UI_INFO_ID,
+				P_UI_INFO_DATA,
+				P_UI_INFO_ADDRESS,
+				P_UI_INFO_BIN_DATA,
+				P_UI_INFO_UUENCODED,
+				P_UI_INFO_MIME,
+				P_UI_INFO_WAVE,
+				P_UI_INFO_AU,
+				P_UI_INFO_VXML,
+				P_UI_INFO_SYNTHESIS				
+			};
+			
+			
+			enum TpUIFault {
+
+				P_UI_FAULT_UNDEFINED,
+				P_UI_CALL_ENDED				
+			};
+			
+			
+			enum TpUIEventInfoDataType {
+
+				P_UI_EVENT_DATA_TYPE_UNDEFINED,
+				P_UI_EVENT_DATA_TYPE_UNSPECIFIED,
+				P_UI_EVENT_DATA_TYPE_TEXT,
+				P_UI_EVENT_DATA_TYPE_USSD_DATA				
+			};
+			
+			
+			struct TpUIEventInfo {
+				TpAddress OriginatingAddress;
+				TpAddress DestinationAddress;
+				TpString ServiceCode;
+				TpUIEventInfoDataType DataTypeIndication;
+				TpString DataString;
+			};
+			
+			
+			struct TpUIEventCriteria {
+				TpAddressRange OriginatingAddress;
+				TpAddressRange DestinationAddress;
+				TpString ServiceCode;
+			};
+			
+			
+			enum TpUIError {
+
+				P_UI_ERROR_UNDEFINED,
+				P_UI_ERROR_ILLEGAL_INFO,
+				P_UI_ERROR_ID_NOT_FOUND,
+				P_UI_ERROR_RESOURCE_UNAVAILABLE,
+				P_UI_ERROR_ILLEGAL_RANGE,
+				P_UI_ERROR_IMPROPER_USER_RESPONSE,
+				P_UI_ERROR_ABANDON,
+				P_UI_ERROR_NO_OPERATION_ACTIVE,
+				P_UI_ERROR_NO_SPACE_AVAILABLE,
+				P_UI_ERROR_RESOURCE_TIMEOUT				
+			};
+			
+			
+			const TpInt32 P_UI_RESPONSE_REQUIRED = 1;
+			
+			const TpInt32 P_UI_LAST_ANNOUNCEMENT_IN_A_ROW = 2;
+			
+			const TpInt32 P_UI_FINAL_REQUEST = 4;
+			
+			struct TpUIEventCriteriaResult {
+				TpUIEventCriteria EventCriteria;
+				TpInt32 AssignmentID;
+			};
+			
+			
+			typedef sequence <TpUIEventCriteriaResult> TpUIEventCriteriaResultSet;
+			
+			
+			exception P_ID_NOT_FOUND {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_RANGE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_COLLECTION_CRITERIA {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpUIEventNotificationInfo {
+				TpAddress OriginatingAddress;
+				TpAddress DestinationAddress;
+				TpString ServiceCode;
+				TpUIEventInfoDataType DataTypeIndication;
+				TpOctetSet UIEventData;
+			};
+			
+			
+			typedef TpString TpUIRecognitionGrammar;
+			
+			
+			struct TpUIRecognitionProperty {
+				TpString PropertyName;
+				TpString PropertyValue;
+			};
+			
+			
+			typedef sequence <TpUIRecognitionProperty> TpUIRecognitionPropertySet;
+			
+			
+			typedef TpString TpUIRecognitionSpeakerID;
+			
+			
+			struct TpUIRecognitionCriteria {
+				TpUIRecognitionSpeakerID SpeakerID;
+				TpUIRecognitionPropertySet Properties;
+				TpUIRecognitionGrammar Grammar;
+			};
+			
+			
+			enum TpUICollectMode {
+
+				P_UI_COLLECT_MODE_DTMF,
+				P_UI_COLLECT_MODE_VOICE,
+				P_UI_COLLECT_MODE_DTMFANDVOICE				
+			};
+			
+			
+			struct TpUICollectCriteria {
+				TpInt32 MinLength;
+				TpInt32 MaxLength;
+				TpString EndSequence;
+				TpDuration StartTimeout;
+				TpDuration InterCharTimeout;
+				TpUICollectMode CollectMode;
+				TpUIRecognitionCriteria RecognitionCriteria;
+			};
+			
+			
+			enum TpUIPronounceType {
+
+				P_UI_PRONOUNCE_IPA,
+				P_UI_PRONOUNCE_SOUNDSLIKE				
+			};
+			
+			
+			struct TpUIWordOverride {
+				TpString Spelling;
+				TpUIPronounceType PronounceType;
+				TpString PronounceAs;
+			};
+			
+			
+			typedef sequence <TpUIWordOverride> TpUIWordOverrideSet;
+			
+			
+			enum TpUISynthesisRange {
+
+				P_UI_RANGE_CALMER,
+				P_UI_RANGE_CALM,
+				P_UI_RANGE_AVERAGE,
+				P_UI_RANGE_EXCITED,
+				P_UI_RANGE_MORE_EXCITED				
+			};
+			
+			
+			enum TpUISynthesisRate {
+
+				P_UI_RATE_SLOW,
+				P_UI_RATE_AVERAGE,
+				P_UI_RATE_FAST				
+			};
+			
+			
+			enum TpUISynthesisAge {
+
+				P_UI_AGE_CHILD,
+				P_UI_AGE_YOUNG_ADULT,
+				P_UI_AGE_ADULT,
+				P_UI_AGE_OLDER_ADULT				
+			};
+			
+			
+			enum TpUISynthesisGender {
+
+				P_UI_GENDER_MALE,
+				P_UI_GENDER_FEMALE				
+			};
+			
+			
+			struct TpUISynthesisInfoData {
+				TpUISynthesisGender SpeakerGender;
+				TpUISynthesisAge SpeakerAge;
+				TpUISynthesisRate SpeakerRate;
+				TpUISynthesisRange SpeakerRange;
+				TpString TextData;
+				TpUIWordOverrideSet WordOverrideSet;
+			};
+			
+			
+			union TpUIInfo switch(TpUIInfoType) {
+				case P_UI_INFO_ID: TpInt32 InfoID;	
+				case P_UI_INFO_DATA: TpString InfoData;	
+				case P_UI_INFO_ADDRESS: TpURL InfoAddress;	
+				case P_UI_INFO_BIN_DATA: TpOctetSet InfoBinData;	
+				case P_UI_INFO_UUENCODED: TpString InfoUUEncData;	
+				case P_UI_INFO_MIME: TpOctetSet InfoMimeData;	
+				case P_UI_INFO_WAVE: TpOctetSet InfoWaveData;	
+				case P_UI_INFO_AU: TpOctetSet InfoAuData;	
+				case P_UI_INFO_VXML: TpString InfoVXMLData;	
+				case P_UI_INFO_SYNTHESIS: TpUISynthesisInfoData InfoSynthData;	
+			};
+			
+			
+			typedef sequence <TpInt32> TpMessageIDList;
+			
+		};
+		
+	};
+	
+};
+
+#endif

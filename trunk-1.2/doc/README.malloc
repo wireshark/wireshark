@@ -1,0 +1,91 @@
+$Id$
+
+1. Introduction
+
+In order to make memory management easier and to reduce the probability of
+memory leaks wireshark provides its own memory management API. This API is 
+implemented inside epan/emem.c and provides memory allocation functions 
+where the allocated memory is automatically freed at certain points.
+
+If you use these functions you will no longer need to keep track of when and 
+where to free any dynamically allocated memory, the memory will 
+automatically be freed at the appropriate time.
+
+Using these functions will greatly elevate the probability that your code 
+will not leak memory so do use them where appropriate.
+
+2. The allocation types
+
+There are two sets of functions with different allocation temporal scopes:
+ * ephemeral (ep_...)
+ * seasonal (se_...)
+
+2.1 Ephemeral allocations
+
+The ephemeral functions allocate memory that will be automatically freed 
+once the current packet dissection completes. These functions are useful for 
+situations where you just want a temporary buffer that should stay around for 
+a short while. Do not use these functions if you need persistent allocations 
+where the data is to still be available in some later packet.
+
+2.2 Seasonal allocations
+
+The seasonal functions allocate memory that will stay around a lot longer 
+but will be automatically freed once the current capture is closed and 
+Wireshark opens a new capture (either by reading a new capture file or by 
+starting a new capture on some interface). These functions are useful for 
+allocations with longer scope for example if you need some buffers or data to 
+keep state between packets.
+
+3 The API
+
+For a detailed description of the functions please refer to the header file
+epan/emem.h
+
+3.1 Common memory allocation functions
+
+.._alloc(n) : allocate a chunk of memory of size n with ep/se scope.
+ep_new(t) : allocate a single element of type t.
+.._alloc_array(t,n): will allocate an array of n elements of type t.
+
+.._alloc0(n) : allocate a chunk of memory of size n and fill it with 0.
+ep_new0(t) : allocate a single element of type t and fill it with 0.
+
+3.2 String related functions
+
+.._strdup(s) : equivalent to strdup(s) with ep/se scope.
+.._strndup(s,n) : allocate a chunk of size n+1 and copy s into it.
+.._memdup(s,n) : allocate n chunk and copy into it n bytes starting at s.
+
+.._strdup_printf() : will calculate the size of the formatted string, allocate 
+  a chunk for it and format the string.
+.._strdup_vprintf() : will calculate the size of the formatted string, 
+  allocate a chunk for it and format the string.
+
+ep_strsplit(): will split a string based on a certain separator returning an 
+  array of strings.
+
+3.3 Stack related functions
+
+ep_stack_new() : creates an ephemeral stack.
+ep_stack_push() : pushes an element into the stack.
+ep_stack_pop() : pops an element from the stack.
+ep_stack_peek() : returns the top element of the stack without popping it.
+
+3.4 tvbuff related functions
+
+ep_tvb_memdup(): create an ephemeral duplicate of part of the tvbuff.
+
+3.4 String buffers
+
+The ep_strbuf_... functions create and modify growable strings, similar to GLib's
+GStrings.
+
+ep_strbuf_new(s) : Creates a new strbuf, initialized to s.
+ep_strbuf_new_label(s) : Like ep_strbuf_new, but with a max length suitable for
+  protocol tree items.
+ep_strbuf_sized_new() : Creates a new strbuf with explicit sizes.
+ep_strbuf_append_vprintf() : Appends an argument list to a strbuf.
+ep_strbuf_append_printf() : Appends to a strbuf in the style of printf.
+ep_strbuf_append() : Appends a string to a strbuf.
+ep_strbuf_truncate() : Shortens a strbuf.

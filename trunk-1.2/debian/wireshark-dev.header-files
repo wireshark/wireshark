@@ -1,0 +1,9 @@
+color.h
+config.h
+register.h
+epan/*.h
+epan/crypt/*.h
+epan/dfilter/*.h
+epan/dissectors/*.h
+epan/ftypes/*.h
+wiretap/*.h

@@ -1,0 +1,721 @@
+-- $Id$
+-- Module IN-object-identifiers (Q.1248.1:07/2001)
+IN-object-identifiers {itu-t recommendation q 1248 modules(1)
+  in-object-identifiers(0) version1(0)} DEFINITIONS ::=
+BEGIN
+
+-- For Modules from TCAP, ROS, 
+tc-Messages OBJECT IDENTIFIER ::=
+  {itu-t recommendation q 773 modules(2) messages(1) version3(3)}
+
+tc-NotationExtensions OBJECT IDENTIFIER ::=
+  {itu-t recommendation q 775 modules(2) notation-extension(4) version1(1)}
+
+ros-InformationObjects OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)}
+
+ros-genericPDUs OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t remote-operations(4) generic-ROS-PDUs(6) version1(0)}
+
+ros-UsefulDefinitions OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t remote-operations(4) useful-definitions(7) version1(0)}
+
+sese-APDUs OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t genericULS(20) modules(1) seseAPDUs(6)}
+
+guls-Notation OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t genericULS(20) modules(1) notation(1)}
+
+guls-SecurityTransformations OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t genericULS(20) modules(1) gulsSecurityTransformations(3)}
+
+guls-DirectoryProtectionMappings OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t genericULS(20) modules(1) dirProtectionMappings(4)}
+
+ds-UsefulDefinitions OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t ds(5) module(1) usefulDefinitions(0) 3}
+
+spkmGssTokens OBJECT IDENTIFIER ::=
+  {iso(1) identified-organization(3) dod(6) internet(1) security(5)
+   mechanisms(5) spkm(1) spkmGssTokens(10)}
+
+-- For IN-CS1 Modules
+contexts OBJECT IDENTIFIER ::=
+  {itu-t recommendation q 1218 modules(0) contexts(8) selectedContexts(1)
+   version(1)}
+
+-- For IN CS4 Modules
+id OBJECT IDENTIFIER ::= {itu-t recommendation q 1248}
+
+modules OBJECT IDENTIFIER ::= {id modules(1)}
+
+id-ac OBJECT IDENTIFIER ::= {id ac(3)}
+
+id-at OBJECT IDENTIFIER ::= {id at(4)}
+
+id-as OBJECT IDENTIFIER ::= {id as(5)}
+
+id-oc OBJECT IDENTIFIER ::= {id oc(6)}
+
+id-mt OBJECT IDENTIFIER ::= {id mt(7)}
+
+id-sf OBJECT IDENTIFIER ::= {id sf(11)}
+
+id-soa OBJECT IDENTIFIER ::= {id soa(21)}
+
+id-aca OBJECT IDENTIFIER ::= {id aca(24)}
+
+id-rosObject OBJECT IDENTIFIER ::= {id rosObject(25)}
+
+id-contract OBJECT IDENTIFIER ::= {id contract(26)}
+
+id-package OBJECT IDENTIFIER ::= {id package(27)}
+
+id-avc OBJECT IDENTIFIER ::= {id avc(29)}
+
+object-identifiers OBJECT IDENTIFIER ::=
+  {modules in-object-identifiers(0) version1(0)}
+
+common-datatypes OBJECT IDENTIFIER ::=
+  {modules in-common-datatypes(1) version1(0)}
+
+errortypes OBJECT IDENTIFIER ::= {modules in-errortypes(2) version1(0)}
+
+operationcodes OBJECT IDENTIFIER ::= {modules in-operationcodes(3) version1(0)}
+
+errorcodes OBJECT IDENTIFIER ::= {modules in-errorcodes(4) version1(0)}
+
+common-classes OBJECT IDENTIFIER ::= {modules in-common-classes(5) version1(0)}
+
+ssf-scf-datatypes OBJECT IDENTIFIER ::=
+  {modules in-ssf-scf-datatypes(6) version1(0)}
+
+ssf-scf-classes OBJECT IDENTIFIER ::=
+  {modules in-ssf-scf-classes(7) version1(0)}
+
+ssf-scf-Operations OBJECT IDENTIFIER ::=
+  {modules in-ssf-scf-ops-args(8) version1(0)}
+
+ssf-scf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-ssf-scf-pkgs-contracts-acs(9) version1(0)}
+
+scf-srf-datatypes OBJECT IDENTIFIER ::=
+  {modules in-scf-srf-datatypes(10) version1(0)}
+
+scf-srf-classes OBJECT IDENTIFIER ::=
+  {modules in-scf-srf-classes(11) version1(0)}
+
+scf-srf-Operations OBJECT IDENTIFIER ::=
+  {modules in-scf-srf-ops-args(12) version1(0)}
+
+scf-srf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-scf-srf-pkgs-contracts-acs(13) version1(0)}
+
+scf-sdf-datatypes OBJECT IDENTIFIER ::=
+  {modules in-scf-sdf-datatypes(14) version1(0)}
+
+scf-sdf-classes OBJECT IDENTIFIER ::=
+  {modules in-scf-sdf-classes(15) version1(0)}
+
+scf-sdf-Operations OBJECT IDENTIFIER ::=
+  {modules in-scf-sdf-ops-args(16) version1(0)}
+
+scf-sdf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-scf-sdf-pkgs-contracts-acs(17) version1(0)}
+
+sdf-sdf-Operations OBJECT IDENTIFIER ::=
+  {modules in-sdf-sdf-ops-args(18) version1(0)}
+
+sdf-sdf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-sdf-sdf-pkgs-contracts-acs(19) version1(0)}
+
+scf-scf-datatypes OBJECT IDENTIFIER ::=
+  {modules in-scf-scf-datatypes(20) version1(0)}
+
+scf-scf-classes OBJECT IDENTIFIER ::=
+  {modules in-scf-scf-classes(21) version1(0)}
+
+scf-scf-Operations OBJECT IDENTIFIER ::=
+  {modules in-scf-scf-ops-args(22) version1(0)}
+
+scf-scf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-scf-scf-pkgs-contracts-acs(23) version1(0)}
+
+scf-cusf-datatypes OBJECT IDENTIFIER ::=
+  {modules in-scf-cusf-datatypes(24) version1(0)}
+
+scf-cusf-classes OBJECT IDENTIFIER ::=
+  {modules in-scf-cusf-classes(25) version1(0)}
+
+scf-cusf-Operations OBJECT IDENTIFIER ::=
+  {modules in-scf-cusf-ops-args(26) version1(0)}
+
+scf-cusf-Protocol OBJECT IDENTIFIER ::=
+  {modules in-scf-cusf-pkgs-contracts-acs(27) version1(0)}
+
+scf-sdf-Additional-Definitions OBJECT IDENTIFIER ::=
+  {modules in-scf-sdf-additional-definitions(28) version1(0)}
+
+-- Application Context
+-- SSF/SCF Application Context
+id-ac-ssf-scfGenericAC OBJECT IDENTIFIER ::=
+  {id-ac ssf-scfGenericAC(4) version1(0)}
+
+id-ac-ssf-scfDPSpecificAC OBJECT IDENTIFIER ::=
+  {id-ac ssf-scfDPSpecificAC(5) version1(0)}
+
+id-ac-ssf-scfAssistHandoffAC OBJECT IDENTIFIER ::=
+  {id-ac ssf-scfAssistHandoffAC(6) version1(0)}
+
+id-ac-ssf-scfServiceManagementAC OBJECT IDENTIFIER ::=
+  {id-ac ssf-scfServiceManagementAC(7) version1(0)}
+
+id-ac-scf-ssfGenericAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfGenericAC(8) version1(0)}
+
+id-ac-scf-ssfDPSpecificAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfDPSpecificAC(9) version1(0)}
+
+id-ac-scf-ssfINTrafficManagementAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfINTrafficManagementAC(10) version1(0)}
+
+id-ac-scf-ssfServiceManagementAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfServiceManagementAC(11) version1(0)}
+
+id-ac-scf-ssfStatusReportingAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfStatusReportingAC(12) version1(0)}
+
+id-ac-scf-ssfTriggerManagementAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfTriggerManagementAC(13) version1(0)}
+
+id-ac-scf-ssfRouteMonitoringAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfRouteMonitorinAC(33) version1(0)}
+
+id-ac-ssf-scfRouteMonitoringAC OBJECT IDENTIFIER ::=
+  {id-ac ssf-scfRouteMonitorinAC(34) version1(0)}
+
+id-ac-scf-ssfTrafficManagementAC OBJECT IDENTIFIER ::=
+  {id-ac scf-ssfTrafficManagementAC(35) version1(0)}
+
+-- SRF/SCF Application Context
+id-ac-srf-scfAC OBJECT IDENTIFIER ::=
+  {id-ac srf-scfAC(14) version1(0)}
+
+--SCF-SDF - application contexts 
+id-ac-indirectoryAccessAC OBJECT IDENTIFIER ::=
+  {id-ac indirectoryAccessAC(1) version1(0)}
+
+id-ac-indirectoryAccessWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac indirectoryAccessWith3seAC(2) version1(0)}
+
+id-ac-inExtendedDirectoryAccessAC OBJECT IDENTIFIER ::=
+  {id-ac inExtendedDirectoryAccessAC(3) version1(0)}
+
+id-ac-inExtendedDirectoryAccessWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac inExtendedDirectoryAccessWith3seAC(27) version1(0)}
+
+id-ac-trafficFlowControlAC OBJECT IDENTIFIER ::=
+  {id-ac trafficFlowControlAC(28) version1(0)}
+
+--SDF-SDF Application Contexts
+id-ac-indirectorySystemAC OBJECT IDENTIFIER ::=
+  {id-ac indirectorySystemAC(15) version1(0)}
+
+id-ac-inShadowSupplierInitiatedAC OBJECT IDENTIFIER ::=
+  {id-ac inShadowSupplierInitiatedAC(16) version1(0)}
+
+id-ac-inShadowConsumerInitiatedAC OBJECT IDENTIFIER ::=
+  {id-ac inShadowConsumerInitiatedAC(17) version1(0)}
+
+id-ac-indirectorySystemWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac indirectorySystemWith3seAC(18) version1(0)}
+
+id-ac-inShadowSupplierInitiatedWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac inShadowSupplierInitiatedWith3seAC(19) version1(0)}
+
+id-ac-inShadowConsumerInitiatedWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac inShadowConsumerInitiatedWith3seAC(20) version1(0)}
+
+-- SCF/SCF Application Context
+id-ac-scfc-scfsOperationsAC OBJECT IDENTIFIER ::=
+  {id-ac scfc-scfsOperationsAC(21) version1(0)}
+
+id-ac-distributedSCFSystemAC OBJECT IDENTIFIER ::=
+  {id-ac distributedSCFSystemAC(22) version1(0)}
+
+id-ac-scfc-scfsOperationsWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac scfc-scfsOperationsWith3seAC(23) version1(0)}
+
+id-ac-distributedSCFSystemWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac distributedSCFSystemWith3seAC(24) version1(0)}
+
+id-ac-scfs-scfcOperationsAC OBJECT IDENTIFIER ::=
+  {id-ac scfs-scfcOperationsAC(31) version1(0)}
+
+id-ac-scfs-scfcOperationsWith3seAC OBJECT IDENTIFIER ::=
+  {id-ac scfs-scfcOperationsWith3seAC(32) version1(0)}
+
+-- CUSF/SCF Application Context
+id-acscfcusfDPSpecific OBJECT IDENTIFIER ::=
+  {id-ac scf-cusf-DPSpecific(25) version1(0)}
+
+id-accusfscfDPSpecific OBJECT IDENTIFIER ::=
+  {id-ac cusf-scf-DPSpecific(26) version1(0)}
+
+id-acscfcusfGeneric OBJECT IDENTIFIER ::=
+  {id-ac scf-cusf-Generic(29) version1(0)}
+
+id-accusfscfGeneric OBJECT IDENTIFIER ::=
+  {id-ac cusf-scf-Generic(30) version1(0)}
+
+-- Attributes
+-- SCF/SDF attributes
+id-at-securityFacilityId OBJECT IDENTIFIER ::=
+  {id-at securityFacilityId(1)}
+
+id-at-secretKey OBJECT IDENTIFIER ::= {id-at secretKey(2)}
+
+id-at-identifierList OBJECT IDENTIFIER ::= {id-at identifierList(3)}
+
+id-at-bindLevelIfOK OBJECT IDENTIFIER ::= {id-at bindLevelIfOK(4)}
+
+id-at-lockSession OBJECT IDENTIFIER ::= {id-at lockSession(5)}
+
+id-at-failureCounter OBJECT IDENTIFIER ::= {id-at failureCounter(6)}
+
+id-at-maxAttempts OBJECT IDENTIFIER ::= {id-at maxAttempts(7)}
+
+id-at-currentList OBJECT IDENTIFIER ::= {id-at currentList(8)}
+
+id-at-stockId OBJECT IDENTIFIER ::= {id-at stockId(9)}
+
+id-at-source OBJECT IDENTIFIER ::= {id-at source(10)}
+
+id-at-sizeOfRestocking OBJECT IDENTIFIER ::= {id-at sizeOfRestocking(11)}
+
+id-at-challengeResponse OBJECT IDENTIFIER ::= {id-at challengeResponse(12)}
+
+-- Abstract Syntaxes
+-- SSF/SCF Abstract Syntaxes
+id-as-ssf-scfGenericAS OBJECT IDENTIFIER ::=
+  {id-as ssf-scfGenericAS(4)}
+
+id-as-ssf-scfDpSpecificAS OBJECT IDENTIFIER ::= {id-as ssf-scfDpSpecificAS(5)}
+
+id-as-assistHandoff-ssf-scfAS OBJECT IDENTIFIER ::=
+  {id-as assistHandoff-ssf-scfAS(6)}
+
+id-as-scf-ssfGenericAS OBJECT IDENTIFIER ::= {id-as scf-ssfGenericAS(7)}
+
+id-as-scf-ssfDpSpecificAS OBJECT IDENTIFIER ::= {id-as scf-ssfDpSpecificAS(8)}
+
+id-as-scf-ssfINTrafficManagementAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfINTrafficManagementAS(9)}
+
+id-as-scf-ssfServiceManagementAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfServiceManagementAS(10)}
+
+id-as-ssf-scfServiceManagementAS OBJECT IDENTIFIER ::=
+  {id-as ssf-scfServiceManagementAS(11)}
+
+id-as-scf-ssfStatusReportingAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfStatusReportingAS(12)}
+
+id-as-scf-ssfTriggerManagementAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfTriggerManagementAS(13)}
+
+id-as-scf-ssfRouteMonitoringAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfRouteMonitoringAS(31)}
+
+id-as-ssf-scfRouteMonitoringAS OBJECT IDENTIFIER ::=
+  {id-as ssf-scfRouteMonitoringAS(32)}
+
+id-as-scf-ssfTrafficManagementAS OBJECT IDENTIFIER ::=
+  {id-as scf-ssfTrafficManagementAS(33)}
+
+-- SRF/SCF Abstract Syntaxes
+id-as-basic-srf-scf OBJECT IDENTIFIER ::=
+  {id-as basic-srf-scf(14)}
+
+id-as-basic-scf-srf OBJECT IDENTIFIER ::= {id-as basic-scf-srf(15)}
+
+-- SCF-SDF - abstract syntaxes 
+id-as-indirectoryOperationsAS OBJECT IDENTIFIER ::=
+  {id-as indirectoryOperationsAS(1)}
+
+id-as-indirectoryBindingAS OBJECT IDENTIFIER ::=
+  {id-as indirectoryBindingAS(2)}
+
+id-as-inExtendedDirectoryOperationsAS OBJECT IDENTIFIER ::=
+  {id-as inExtendedDirectoryOperationsAS(3)}
+
+id-as-inSESEAS OBJECT IDENTIFIER ::= {id-as inSESEAS(25)}
+
+id-as-tfcOperationsAS OBJECT IDENTIFIER ::= {id-as tfcOperationsAS(26)}
+
+id-as-tfcBindingAS OBJECT IDENTIFIER ::= {id-as tfcBindingAS(27)}
+
+-- SDF-SDF - abstract syntaxes
+id-as-indirectorySystemAS OBJECT IDENTIFIER ::=
+  {id-as indirectorySystemAS(16)}
+
+id-as-indirectoryDSABindingAS OBJECT IDENTIFIER ::=
+  {id-as indirectoryDSABindingAS(17)}
+
+id-as-indirectoryShadowAS OBJECT IDENTIFIER ::= {id-as indirectoryShadowAS(18)}
+
+id-as-indsaShadowBindingAS OBJECT IDENTIFIER ::=
+  {id-as indsaShadowBindingAS(19)}
+
+-- SCF/SCF Abstract Syntaxes
+id-as-scfc-scfsOperationsAS OBJECT IDENTIFIER ::=
+  {id-as scfc-scfsOperationsAS(20)}
+
+id-as-distributedSCFSystemAS OBJECT IDENTIFIER ::=
+  {id-as distributedSCFSystemAS(21)}
+
+id-as-scf-scfBindingAS OBJECT IDENTIFIER ::= {id-as scf-scfBindingAS(22)}
+
+id-as-scfs-scfcOperationsAS OBJECT IDENTIFIER ::=
+  {id-as scfs-scfcOperationsAS(30)}
+
+-- CUSF/SCF Abstract Syntaxes
+id-asscfcusfDPSpecific OBJECT IDENTIFIER ::=
+  {id-as scf-cusf-DPSpecific(23)}
+
+id-ascusfscfDPSpecific OBJECT IDENTIFIER ::= {id-as cusf-scf-DPSpecific(24)}
+
+id-asscfcusfGeneric OBJECT IDENTIFIER ::= {id-as scf-cusf-Generic(28)}
+
+id-ascusfscfGeneric OBJECT IDENTIFIER ::= {id-as cusf-scf-Generic(29)}
+
+-- Object Class 
+-- for SCF-SDF interface, Object Class
+id-oc-securityUserInfo OBJECT IDENTIFIER ::=
+  {id-oc securityUserInfo(1)}
+
+id-oc-tokensStock OBJECT IDENTIFIER ::= {id-oc tokenStock(2)}
+
+-- Methods 
+-- for SCF-SDF interface, Methods
+id-mt-verifyCredentials OBJECT IDENTIFIER ::=
+  {id-mt verifyCredentials(1)}
+
+id-mt-conformCredentials OBJECT IDENTIFIER ::= {id-mt conformCredentials(2)}
+
+id-mt-provideTokens OBJECT IDENTIFIER ::= {id-mt provideTokens(3)}
+
+id-mt-fillSecurityTokens OBJECT IDENTIFIER ::= {id-mt fillSecurityTokens(4)}
+
+-- Security Facility
+-- for SCF-SDF interface, Security Facility
+id-sf-pwd OBJECT IDENTIFIER ::=
+  {id-sf pwd(1)}
+
+id-sf-challengeResponse OBJECT IDENTIFIER ::= {id-sf challengeResponse(2)}
+
+id-sf-onAirSubscription OBJECT IDENTIFIER ::= {id-sf onAirSubscription(3)}
+
+-- for SDF-SDF interface, SDF Attributes
+id-soa-methodRuleUse OBJECT IDENTIFIER ::=
+  {id-soa methodRuleUse(1)}
+
+id-aca-prescriptiveACI OBJECT IDENTIFIER ::= {id-aca prescriptiveACI(4)}
+
+id-aca-entryACI OBJECT IDENTIFIER ::= {id-aca entryACI(5)}
+
+id-aca-subentryACI OBJECT IDENTIFIER ::= {id-aca subentryACI(6)}
+
+-- for ac, as, rosObject, contract and package, the values are identical to Q1228
+-- ROS Objects
+id-rosObject-scf OBJECT IDENTIFIER ::=
+  {id-rosObject scf(1)}
+
+id-rosObject-ssf OBJECT IDENTIFIER ::= {id-rosObject ssf(2)}
+
+id-rosObject-srf OBJECT IDENTIFIER ::= {id-rosObject srf(3)}
+
+id-rosObject-sdf OBJECT IDENTIFIER ::= {id-rosObject sdf(4)}
+
+id-rosObject-cusf OBJECT IDENTIFIER ::= {id-rosObject cusf(5)}
+
+-- Contracts
+-- SSF/SCF Contracts
+id-inSsfToScfGeneric OBJECT IDENTIFIER ::=
+  {id-contract inSsfToScfGeneric(3)}
+
+id-inSsfToScfDpSpecific OBJECT IDENTIFIER ::=
+  {id-contract inSsfToScfDpSpecific(4)}
+
+id-inAssistHandoffSsfToScf OBJECT IDENTIFIER ::=
+  {id-contract inAssistHandoffSsfToScf(5)}
+
+id-inScfToSsfGeneric OBJECT IDENTIFIER ::= {id-contract inScfToSsfGeneric(6)}
+
+id-inScfToSsfDpSpecific OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfDpSpecific(7)}
+
+id-inScfToSsfINTrafficManagement OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfINTrafficManagement(8)}
+
+id-inScfToSsfServiceManagement OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfServiceManagement(9)}
+
+id-inSsfToScfServiceManagement OBJECT IDENTIFIER ::=
+  {id-contract inSsfToScfServiceManagement(10)}
+
+id-inScfToSsfStatusReporting OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfStatusReporting(11)}
+
+id-inScfToSsfTriggerManagement OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfTriggerManagement(12)}
+
+id-inScfToSsfRouteMonitoring OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfRouteMonitoring(26)}
+
+id-inSsfToScfRouteMonitoring OBJECT IDENTIFIER ::=
+  {id-contract inSsfToScfRouteMonitoring(27)}
+
+id-inScfToSsfTrafficManagement OBJECT IDENTIFIER ::=
+  {id-contract inScfToSsfTrafficManagement(28)}
+
+-- SRF/SCF Contracts
+id-contract-srf-scf OBJECT IDENTIFIER ::=
+  {id-contract srf-scf(13)}
+
+-- SCF-SDF contracts 
+id-contract-dap OBJECT IDENTIFIER ::= {id-contract dap(1)}
+
+id-contract-dapExecute OBJECT IDENTIFIER ::= {id-contract dapExecute(2)}
+
+id-contract-tfc OBJECT IDENTIFIER ::= {id-contract tfc(22)}
+
+-- SDF - SDF Contracts. 
+id-contract-indsp OBJECT IDENTIFIER ::=
+  {id-contract indsp(14)}
+
+id-contract-shadowConsumer OBJECT IDENTIFIER ::=
+  {id-contract shadowConsumer(15)}
+
+id-contract-shadowSupplier OBJECT IDENTIFIER ::=
+  {id-contract shadowSupplier(17)}
+
+-- SCF/SCF Contracts
+id-contract-scfc-scfs OBJECT IDENTIFIER ::=
+  {id-contract scfc-scfs(18)}
+
+id-contract-dssp OBJECT IDENTIFIER ::= {id-contract dssp(19)}
+
+id-contract-scfs-scfc OBJECT IDENTIFIER ::= {id-contract scfs-scfc(25)}
+
+-- CUSF/SCF Contracts
+id-contract-scfcusfDPSpecific OBJECT IDENTIFIER ::=
+  {id-contract scf-cusf-DPSpecific(20)}
+
+id-contract-cusfscfDPSpecific OBJECT IDENTIFIER ::=
+  {id-contract cusf-scf-DPSpecific(21)}
+
+id-contract-scfcusfGeneric OBJECT IDENTIFIER ::=
+  {id-contract scf-cusf-Generic(23)}
+
+id-contract-cusfscfGeneric OBJECT IDENTIFIER ::=
+  {id-contract cusf-scf-Generic(24)}
+
+-- Operation Packages
+id-package-emptyConnection OBJECT IDENTIFIER ::=
+  {id-package emptyConnection(60)}
+
+-- SSF/SCF Operation Packages
+id-package-scfActivation OBJECT IDENTIFIER ::=
+  {id-package scfActivation(11)}
+
+id-package-basicBCPDP OBJECT IDENTIFIER ::= {id-package basicBCPDP(12)}
+
+id-package-advancedBCPDP OBJECT IDENTIFIER ::= {id-package advancedBCPDP(14)}
+
+id-package-srf-scfActivationOfAssist OBJECT IDENTIFIER ::=
+  {id-package srf-scfActivationOfAssist(15)}
+
+id-package-assistConnectionEstablishment OBJECT IDENTIFIER ::=
+  {id-package assistConnectionEstablishment(16)}
+
+id-package-genericDisconnectResource OBJECT IDENTIFIER ::=
+  {id-package genericDisconnectResource(17)}
+
+id-package-nonAssistedConnectionEstablishment OBJECT IDENTIFIER ::=
+  {id-package nonAssistedConnectionEstablishment(18)}
+
+id-package-connect OBJECT IDENTIFIER ::= {id-package connect(19)}
+
+id-package-callHandling OBJECT IDENTIFIER ::= {id-package callHandling(20)}
+
+id-package-bcsmEventHandling OBJECT IDENTIFIER ::=
+  {id-package bcsmEventHandling(21)}
+
+id-package-dpSpecificEventHandling OBJECT IDENTIFIER ::=
+  {id-package dpSpecificEventHandling(22)}
+
+id-package-chargingEventHandling OBJECT IDENTIFIER ::=
+  {id-package chargingEventHandling(23)}
+
+id-package-ssfCallProcessing OBJECT IDENTIFIER ::=
+  {id-package ssfCallProcessing(24)}
+
+id-package-scfCallInitiation OBJECT IDENTIFIER ::=
+  {id-package scfCallInitiation(25)}
+
+id-package-timer OBJECT IDENTIFIER ::= {id-package timer(26)}
+
+id-package-billing OBJECT IDENTIFIER ::= {id-package billing(27)}
+
+id-package-charging OBJECT IDENTIFIER ::= {id-package charging(28)}
+
+id-package-iNTrafficManagement OBJECT IDENTIFIER ::=
+  {id-package iNtrafficManagement(29)}
+
+id-package-serviceManagementActivate OBJECT IDENTIFIER ::=
+  {id-package serviceManagementActivate(30)}
+
+id-package-serviceManagementResponse OBJECT IDENTIFIER ::=
+  {id-package serviceManagementResponse(31)}
+
+id-package-callReport OBJECT IDENTIFIER ::= {id-package callReport(32)}
+
+id-package-signallingControl OBJECT IDENTIFIER ::=
+  {id-package signallingControl(33)}
+
+id-package-activityTest OBJECT IDENTIFIER ::= {id-package activityTest(34)}
+
+id-package-statusReporting OBJECT IDENTIFIER ::=
+  {id-package statusReporting(35)}
+
+id-package-cancel OBJECT IDENTIFIER ::= {id-package cancel(36)}
+
+id-package-cphResponse OBJECT IDENTIFIER ::= {id-package cphResponse(37)}
+
+id-package-entityReleased OBJECT IDENTIFIER ::= {id-package entityReleased(38)}
+
+id-package-triggerManagement OBJECT IDENTIFIER ::=
+  {id-package triggerManagement(39)}
+
+id-package-uSIHandling OBJECT IDENTIFIER ::= {id-package uSIHandling(40)}
+
+id-package-facilityIEHandling OBJECT IDENTIFIER ::=
+  {id-package facilityIEHandling(41)}
+
+id-package-triggerCallManagement OBJECT IDENTIFIER ::=
+  {id-package triggerCallManagement(63)}
+
+id-package-monitorRoute OBJECT IDENTIFIER ::= {id-package monitorRoute(77)}
+
+id-package-trafficManagement OBJECT IDENTIFIER ::=
+  {id-package trafficManagement(78)}
+
+-- SRF/SCF Operation Packages
+id-package-specializedResourceControl OBJECT IDENTIFIER ::=
+  {id-package specializedResourceControl(42)}
+
+id-package-srf-scfCancel OBJECT IDENTIFIER ::= {id-package srf-scfCancel(43)}
+
+id-package-messageControl OBJECT IDENTIFIER ::= {id-package messageControl(44)}
+
+id-package-scriptControl OBJECT IDENTIFIER ::= {id-package scriptControl(45)}
+
+id-package-srfManagement OBJECT IDENTIFIER ::= {id-package srfManagement(66)}
+
+-- SCF-SDF packages 
+id-package-search OBJECT IDENTIFIER ::=
+  {id-package search(2)}
+
+id-package-modify OBJECT IDENTIFIER ::= {id-package modify(3)}
+
+id-package-dapConnection OBJECT IDENTIFIER ::= {id-package dapConnection(10)}
+
+id-package-execute OBJECT IDENTIFIER ::= {id-package execute(4)}
+
+id-package-tfcOperations OBJECT IDENTIFIER ::= {id-package tfcOperations(64)}
+
+id-package-tfcConnection OBJECT IDENTIFIER ::= {id-package tfcConnection(65)}
+
+-- SDF-SDF Packages. 
+id-package-dspConnection OBJECT IDENTIFIER ::=
+  {id-package dspConnection(47)}
+
+id-package-inchainedModify OBJECT IDENTIFIER ::=
+  {id-package inchainedModify(48)}
+
+id-package-inchainedSearch OBJECT IDENTIFIER ::=
+  {id-package inchainedSearch(49)}
+
+id-package-chainedExecute OBJECT IDENTIFIER ::= {id-package chainedExecute(50)}
+
+id-package-dispConnection OBJECT IDENTIFIER ::= {id-package dispConnection(51)}
+
+id-package-shadowConsumer OBJECT IDENTIFIER ::= {id-package shadowConsumer(52)}
+
+id-package-shadowSupplier OBJECT IDENTIFIER ::= {id-package shadowSupplier(53)}
+
+-- SCF/SCF Operation Packages
+id-package-scf-scfConnection OBJECT IDENTIFIER ::=
+  {id-package scf-scfConnection(46)}
+
+id-package-dsspConnection OBJECT IDENTIFIER ::= {id-package dsspConnection(74)}
+
+id-package-handlingInformation OBJECT IDENTIFIER ::=
+  {id-package handlingInformation(54)}
+
+id-package-notification OBJECT IDENTIFIER ::= {id-package notification(55)}
+
+id-package-chargingInformation OBJECT IDENTIFIER ::=
+  {id-package chargingInformation(56)}
+
+id-package-userInformation OBJECT IDENTIFIER ::=
+  {id-package userInformation(57)}
+
+id-package-networkCapability OBJECT IDENTIFIER ::=
+  {id-package networkCapability(58)}
+
+id-package-chainedSCFOperations OBJECT IDENTIFIER ::=
+  {id-package chainedSCFOperations(59)}
+
+id-package-transferStsi OBJECT IDENTIFIER ::= {id-package transferStsi(75)}
+
+id-package-initiateCall OBJECT IDENTIFIER ::= {id-package initiateCall(76)}
+
+-- CUSF/SCF Operation Packages
+id-package-cusfTDPSpecificInvocation OBJECT IDENTIFIER ::=
+  {id-package cusfTDPSpecificInvocation(61)}
+
+id-package-cusfTDPGenericInvocation OBJECT IDENTIFIER ::=
+  {id-package cusfTDPGenericInvocation(62)}
+
+id-package-cusfDPSpecificEventHandling OBJECT IDENTIFIER ::=
+  {id-package cusfDPSpecificEventHandling(67)}
+
+id-package-cusfGenericEventHandling OBJECT IDENTIFIER ::=
+  {id-package cusfGenericEventHandling(68)}
+
+id-package-cusfComponentHandling OBJECT IDENTIFIER ::=
+  {id-package cusfComponentHandling(69)}
+
+id-package-cusfSCFInitiation OBJECT IDENTIFIER ::=
+  {id-package cusfSCFInitiation(70)}
+
+id-package-cusfContinue OBJECT IDENTIFIER ::= {id-package cusfContinue(71)}
+
+id-package-cusfConnect OBJECT IDENTIFIER ::= {id-package cusfConnect(72)}
+
+id-package-cusfRelease OBJECT IDENTIFIER ::= {id-package cusfRelease(73)}
+
+-- SDF Attribute Value Contexts
+id-avc-assignment OBJECT IDENTIFIER ::=
+  {id-avc assignment(1)}
+
+id-avc-basicService OBJECT IDENTIFIER ::= {id-avc assignment(2)}
+
+id-avc-lineIdentity OBJECT IDENTIFIER ::= {id-avc assignment(3)}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

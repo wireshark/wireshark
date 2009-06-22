@@ -1,0 +1,402 @@
+=head1 NAME
+
+wireshark-filter - Wireshark filter syntax and reference
+
+=head1 SYNOPSIS
+
+B<wireshark> [other options]
+S<[ B<-R> "filter expression" ]>
+
+B<tshark> [other options]
+S<[ B<-R> "filter expression" ]>
+
+=head1 DESCRIPTION
+
+B<Wireshark> and B<TShark> share a powerful filter engine that helps remove
+the noise from a packet trace and lets you see only the packets that interest
+you.  If a packet meets the requirements expressed in your filter, then it
+is displayed in the list of packets.  Display filters let you compare the
+fields within a protocol against a specific value, compare fields against
+fields, and check the existence of specified fields or protocols.
+
+Filters are also used by other features such as statistics generation and
+packet list colorization (the latter is only available to B<Wireshark>). This
+manual page describes their syntax and provides a comprehensive reference of
+filter fields.
+
+=head1 FILTER SYNTAX
+
+=head2 Check whether a field or protocol exists
+
+The simplest filter allows you to check for the existence of a protocol or
+field.  If you want to see all packets which contain the IP protocol, the
+filter would be "ip" (without the quotation marks). To see all packets
+that contain a Token-Ring RIF field, use "tr.rif".
+
+Think of a protocol or field in a filter as implicitly having the "exists"
+operator.
+
+Note: all protocol and field names that are available in B<Wireshark> and
+B<TShark> filters are listed in the comprehensive B<FILTER PROTOCOL 
+REFERENCE> (see below).
+
+=head2 Comparison operators
+
+Fields can also be compared against values.  The comparison operators
+can be expressed either through English-like abbreviations or through 
+C-like symbols:
+
+    eq, ==    Equal
+    ne, !=    Not Equal
+    gt, >     Greater Than
+    lt, <     Less Than
+    ge, >=    Greater than or Equal to
+    le, <=    Less than or Equal to
+
+=head2 Search and match operators
+
+Additional operators exist expressed only in English, not C-like syntax:
+
+    contains  Does the protocol, field or slice contain a value
+    matches   Does the protocol or text string match the given Perl
+              regular expression
+
+The "contains" operator allows a filter to search for a sequence of
+characters, expressed as a string (quoted or unquoted), or bytes,
+expressed as a byte array.  For example, to search for a given HTTP
+URL in a capture, the following filter can be used:
+
+    http contains "http://www.wireshark.org"
+
+The "contains" operator cannot be used on atomic fields,
+such as numbers or IP addresses.
+
+The "matches" operator allows a filter to apply to a specified
+Perl-compatible regular expression (PCRE).  The "matches" operator is only
+implemented for protocols and for protocol fields with a text string
+representation.  For example, to search for a given WAP WSP User-Agent,
+you can write:
+
+    wsp.user_agent matches "(?i)cldc"
+
+This example shows an interesting PCRE feature: pattern match options have to
+be specified with the B<(?>optionB<)> construct. For instance, B<(?i)> performs
+a case-insensitive pattern match. More information on PCRE can be found in the
+pcrepattern(3) man page (Perl Regular Expressions are explained in
+L<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
+
+Note: the "matches" operator is only available if B<Wireshark> or B<TShark>
+have been compiled with the PCRE library. This can be checked by running:
+
+    wireshark -v
+    tshark -v
+
+or selecting the "About Wireshark" item from the "Help" menu in B<Wireshark>.
+
+=head2 Functions
+
+The filter language has the following functions:
+
+    upper(string-field) - converts a string field to uppercase
+    lower(string-field) - converts a string field to lowercase
+
+upper() and lower() are useful for performing case-insensitive string
+comparisons. For example:
+
+    upper(ncp.nds_stream_name) contains "MACRO"
+    lower(mount.dump.hostname) == "angel"
+
+=head2 Protocol field types
+
+Each protocol field is typed. The types are:
+
+    Unsigned integer (8-bit, 16-bit, 24-bit, or 32-bit)
+    Signed integer (8-bit, 16-bit, 24-bit, or 32-bit)
+    Boolean
+    Ethernet address (6 bytes)
+    Byte array
+    IPv4 address
+    IPv6 address
+    IPX network number
+    Text string
+    Double-precision floating point number
+
+An integer may be expressed in decimal, octal, or hexadecimal notation. 
+The following three display filters are equivalent:
+
+    frame.pkt_len > 10
+    frame.pkt_len > 012
+    frame.pkt_len > 0xa
+
+Boolean values are either true or false.  In a display filter expression
+testing the value of a Boolean field, "true" is expressed as 1 or any
+other non-zero value, and "false" is expressed as zero.  For example, a
+token-ring packet's source route field is Boolean.  To find any
+source-routed packets, a display filter would be:
+
+    tr.sr == 1
+
+Non source-routed packets can be found with:
+
+    tr.sr == 0
+
+Ethernet addresses and byte arrays are represented by hex
+digits.  The hex digits may be separated by colons, periods, or hyphens:
+
+    eth.dst eq ff:ff:ff:ff:ff:ff
+    aim.data == 0.1.0.d
+    fddi.src == aa-aa-aa-aa-aa-aa
+    echo.data == 7a
+
+IPv4 addresses can be represented in either dotted decimal notation or
+by using the hostname:
+
+    ip.dst eq www.mit.edu
+    ip.src == 192.168.1.1
+
+IPv4 addresses can be compared with the same logical relations as numbers:
+eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
+so you do not have to worry about the endianness of an IPv4 address
+when using it in a display filter.
+
+Classless InterDomain Routing (CIDR) notation can be used to test if an
+IPv4 address is in a certain subnet.  For example, this display filter
+will find all packets in the 129.111 Class-B network:
+
+    ip.addr == 129.111.0.0/16
+
+Remember, the number after the slash represents the number of bits used
+to represent the network.  CIDR notation can also be used with
+hostnames, as in this example of finding IP addresses on the same Class C
+network as 'sneezy':
+
+    ip.addr eq sneezy/24
+
+The CIDR notation can only be used on IP addresses or hostnames, not in
+variable names.  So, a display filter like "ip.src/24 == ip.dst/24" is
+not valid (yet).
+
+IPX networks are represented by unsigned 32-bit integers.  Most likely
+you will be using hexadecimal when testing IPX network values:
+
+    ipx.src.net == 0xc0a82c00
+
+Strings are enclosed in double quotes:
+
+    http.request.method == "POST"
+
+Inside double quotes, you may use a backslash to embed a double quote
+or an arbitrary byte represented in either octal or hexadecimal.
+
+    browser.comment == "An embedded \" double-quote"
+
+Use of hexadecimal to look for "HEAD":
+
+    http.request.method == "\x48EAD"
+
+Use of octal to look for "HEAD":
+
+    http.request.method == "\110EAD"
+
+This means that you must escape backslashes with backslashes inside
+double quotes.
+
+    smb.path contains "\\\\SERVER\\SHARE"
+
+looks for \\SERVER\SHARE in "smb.path".
+
+=head2 The slice operator
+
+You can take a slice of a field if the field is a text string or a
+byte array. 
+For example, you can filter on
+the vendor portion of an ethernet address (the first three bytes) like
+this:
+
+    eth.src[0:3] == 00:00:83
+
+Another example is:
+
+    http.content_type[0:4] == "text"
+
+You can use the slice operator on a protocol name, too.
+The "frame" protocol can be useful, encompassing all the data captured
+by B<Wireshark> or B<TShark>.
+
+    token[0:5] ne 0.0.0.1.1
+    llc[0] eq aa
+    frame[100-199] contains "wireshark"
+
+The following syntax governs slices:
+
+    [i:j]    i = start_offset, j = length
+    [i-j]    i = start_offset, j = end_offset, inclusive.
+    [i]      i = start_offset, length = 1
+    [:j]     start_offset = 0, length = j
+    [i:]     start_offset = i, end_offset = end_of_field
+
+Offsets can be negative, in which case they indicate the
+offset from the B<end> of the field.  The last byte of the field is at offset
+-1, the last but one byte is at offset -2, and so on.
+Here's how to check the last four bytes of a frame:
+
+    frame[-4:4] == 0.1.2.3
+
+or
+
+    frame[-4:] == 0.1.2.3
+
+You can concatenate slices using the comma operator:
+
+    ftp[1,3-5,9:] == 01:03:04:05:09:0a:0b
+
+This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
+data.
+
+=head2 Type conversions
+
+If a field is a text string or a byte array, it can be expressed in whichever
+way is most convenient.
+
+So, for instance, the following filters are equivalent:
+
+    http.request.method == "GET"
+    http.request.method == 47.45.54
+
+A range can also be expressed in either way:
+
+    frame[60:2] gt 50.51
+    frame[60:2] gt "PQ"
+
+=head2 Bit field operations
+
+It is also possible to define tests with bit field operations. Currently the
+following bit field operation is supported:
+
+    bitwise_and, &	Bitwise AND
+
+The bitwise AND operation allows testing to see if one or more bits are set.
+Bitwise AND operates on integer protocol fields and slices.
+
+When testing for TCP SYN packets, you can write:
+
+    tcp.flags & 0x02
+
+That expression will match all packets that contain a "tcp.flags" field
+with the 0x02 bit, i.e. the SYN bit, set.
+
+Similarly, filtering for all WSP GET and extended GET methods is achieved with:
+
+    wsp.pdu_type & 0x40
+
+When using slices, the bit mask must be specified as a byte string, and it must
+have the same number of bytes as the slice itself, as in:
+
+    ip[42:2] & 40:ff
+
+=head2 Logical expressions
+
+Tests can be combined using logical expressions. 
+These too are expressable in C-like syntax or with English-like
+abbreviations:
+
+    and, &&   Logical AND
+    or,  ||   Logical OR
+    not, !    Logical NOT
+
+Expressions can be grouped by parentheses as well.  The following are
+all valid display filter expressions:
+
+    tcp.port == 80 and ip.src == 192.168.2.1
+    not llc
+    http and frame[100-199] contains "wireshark"
+    (ipx.src.net == 0xbad && ipx.src.node == 0.0.0.0.0.1) || ip
+
+Remember that whenever a protocol or field name occurs in an expression, the
+"exists" operator is implicitly called. The "exists" operator has the highest
+priority. This means that the first filter expression must be read as "show me
+the packets for which tcp.port exists and equals 80, and ip.src exists and
+equals 192.168.2.1". The second filter expression means "show me the packets
+where not (llc exists)", or in other words "where llc does not exist" and hence
+will match all packets that do not contain the llc protocol.
+The third filter expression includes the constraint that offset 199 in the
+frame exists, in other words the length of the frame is at least 200.
+
+A special caveat must be given regarding fields that occur more than
+once per packet.  "ip.addr" occurs twice per IP packet, once for the
+source address, and once for the destination address.  Likewise,
+"tr.rif.ring" fields can occur more than once per packet.  The following
+two expressions are not equivalent:
+
+        ip.addr ne 192.168.4.1
+    not ip.addr eq 192.168.4.1
+
+The first filter says "show me packets where an ip.addr exists that
+does not equal 192.168.4.1".  That is, as long as one ip.addr in the
+packet does not equal 192.168.4.1, the packet passes the display
+filter.  The other ip.addr could equal 192.168.4.1 and the packet would
+still be displayed.
+The second filter says "don't show me any packets that have an
+ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
+the packet does not pass.  If B<neither> ip.addr field is 192.168.4.1,
+then the packet is displayed.
+
+It is easy to think of the 'ne' and 'eq' operators as having an implicit
+"exists" modifier when dealing with multiply-recurring fields.  "ip.addr
+ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
+not equal 192.168.4.1".  "not ip.addr eq 192.168.4.1" can be thought of as
+"there does not exist an ip.addr equal to 192.168.4.1".
+
+Be careful with multiply-recurring fields; they can be confusing.
+
+Care must also be taken when using the display filter to remove noise
+from the packet trace. If, for example, you want to filter out all IP
+multicast packets to address 224.1.2.3, then using:
+
+    ip.dst ne 224.1.2.3
+
+may be too restrictive. Filtering with "ip.dst" selects only those
+B<IP> packets that satisfy the rule. Any other packets, including all
+non-IP packets, will not be displayed. To display the non-IP
+packets as well, you can use one of the following two expressions:
+
+    not ip or ip.dst ne 224.1.2.3
+    not ip.addr eq 224.1.2.3
+
+The first filter uses "not ip" to include all non-IP packets and then
+lets "ip.dst ne 224.1.2.3" filter out the unwanted IP packets. The
+second filter has already been explained above where filtering with
+multiply occuring fields was discussed.
+
+=head1 FILTER PROTOCOL REFERENCE
+
+Each entry below provides an abbreviated protocol or field name.  Every
+one of these fields can be used in a display filter.  The type of the
+field is also given.
+
+=insert_dfilter_table
+
+=head1 NOTES
+
+The B<wireshark-filters> manpage is part of the B<Wireshark> distribution.
+The latest version of B<Wireshark> can be found at
+L<http://www.wireshark.org>.
+
+Regular expressions in the "matches" operator are provided with B<libpcre>,
+the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
+
+This manpage does not describe the capture filter syntax, which is
+different. See the manual page of pcap-filter(4) or, if that doesn't exist,
+tcpdump(8) for a description of capture
+filters. Microsoft Windows versions use WinPcap from
+L<http://www.winpcap.org/> for which the capture filter syntax is described
+in L<http://www.winpcap.org/docs/man/html/group__language.html>.
+
+=head1 SEE ALSO
+
+wireshark(1), tshark(1), editcap(1), pcap-filter(4), tcpdump(8), pcap(3)
+
+=head1 AUTHORS
+
+See the list of authors in the B<Wireshark> man page for a list of authors of
+that code.

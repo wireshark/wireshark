@@ -1,0 +1,176 @@
+# -*- text -*-
+##############################################################################
+#
+#	Starent dictionary
+#	http://www.starentnetworks.com/
+#
+#	These appear to be 16-bit VSA types, with 16-bit lengths.
+#
+#	$Id$
+#
+##############################################################################
+
+VENDOR		Starent				8164	format=2,2
+
+BEGIN-VENDOR	Starent
+
+ATTRIBUTE	SN-VPN-ID				1	integer
+ATTRIBUTE	SN-VPN-Name				2	string
+ATTRIBUTE	SN-Disconnect-Reason			3	integer
+ATTRIBUTE	SN-PPP-Progress-Code			4	integer
+ATTRIBUTE	SN-Primary-DNS-Server			5	ipaddr
+ATTRIBUTE	SN-Secondary-DNS-Server			6	ipaddr
+ATTRIBUTE	SN-Re-CHAP-Interval			7	integer
+ATTRIBUTE	SN-IP-Pool-Name				8	string
+ATTRIBUTE	SN-PPP-Data-Compression			9	integer
+ATTRIBUTE	SN-IP-Filter-In				10	string
+ATTRIBUTE	SN-IP-Filter-Out			11	string
+ATTRIBUTE	SN-Local-IP-Address			13	ipaddr
+ATTRIBUTE	SN-IP-Source-Validation			14	integer
+ATTRIBUTE	SN-PPP-Outbound-Password		15	string
+ATTRIBUTE	SN-PPP-Keepalive			16	integer
+ATTRIBUTE	SN-IP-In-ACL				17	string
+ATTRIBUTE	SN-IP-Out-ACL				18	string
+ATTRIBUTE	SN-PPP-Data-Compression-Mode		19	integer
+ATTRIBUTE	SN-Subscriber-Permission		20	integer
+ATTRIBUTE	SN-Admin-Permission			21	integer
+ATTRIBUTE	SN-Simultaneous-SIP-MIP			22	integer
+ATTRIBUTE	SN-Min-Compress-Size			23	integer
+ATTRIBUTE	SNA-PPP-Unfr-data-In-Oct		200	integer
+ATTRIBUTE	SNA-PPP-Unfr-data-Out-Oct		201	integer
+ATTRIBUTE	SNA-PPP-Ctrl-Input-Octets		1001	integer
+ATTRIBUTE	SNA-PPP-Ctrl-Output-Octets		1002	integer
+ATTRIBUTE	SNA-PPP-Ctrl-Input-Packets		1003	integer
+ATTRIBUTE	SNA-PPP-Ctrl-Output-Packets		1004	integer
+ATTRIBUTE	SNA-PPP-Framed-Input-Octets		1005	integer
+ATTRIBUTE	SNA-PPP-Framed-Output-Octets		1006	integer
+ATTRIBUTE	SNA-PPP-Discards-Input			1007	integer
+ATTRIBUTE	SNA-PPP-Discards-Output			1008	integer
+ATTRIBUTE	SNA-PPP-Errors-Input			1009	integer
+ATTRIBUTE	SNA-PPP-Errors-Output			1010	integer
+ATTRIBUTE	SNA-PPP-Bad-Addr			1011	integer
+ATTRIBUTE	SNA-PPP-Bad-Ctrl			1012	integer
+ATTRIBUTE	SNA-PPP-Packet-Too-Long			1013	integer
+ATTRIBUTE	SNA-PPP-Bad-FCS				1014	integer
+ATTRIBUTE	SNA-PPP-Echo-Req-Input			1015	integer
+ATTRIBUTE	SNA-PPP-Echo-Req-Output			1016	integer
+ATTRIBUTE	SNA-PPP-Echo-Rsp-Input			1017	integer
+ATTRIBUTE	SNA-PPP-Echo-Rsp-Output			1018	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Total			1019	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Acc-Reg			1020	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Acc-Dereg		1021	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Msg-Auth-Fail		1022	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Mis-ID			1023	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-Badly-Formed		1024	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-VID-Unsupported		1025	integer
+ATTRIBUTE	SNA-RPRRQ-Rcvd-T-Bit-Not-Set		1026	integer
+ATTRIBUTE	SNA-RPRAK-Rcvd-Total			1027	integer
+ATTRIBUTE	SNA-RPRAK-Rcvd-Acc-Ack			1028	integer
+ATTRIBUTE	SNA-RPRAK-Rcvd-Msg-Auth-Fail		1029	integer
+ATTRIBUTE	SNA-RPRAK-Rcvd-Mis-ID			1030	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Total		1031	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Acc-Reg		1032	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Acc-Dereg		1033	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Bad-Req		1034	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Denied		1035	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Mis-ID		1036	integer
+ATTRIBUTE	SNA-RP-Reg-Reply-Sent-Send-Err		1037	integer
+ATTRIBUTE	SNA-RP-Reg-Upd-Sent			1038	integer
+ATTRIBUTE	SNA-RP-Reg-Upd-Re-Sent			1039	integer
+ATTRIBUTE	SNA-RP-Reg-Upd-Send-Err			1040	integer
+
+VALUE	SN-Disconnect-Reason		Not-Defined		0
+VALUE	SN-Disconnect-Reason		Admin-Disconnect	1
+VALUE	SN-Disconnect-Reason		Remote-Disconnect	2
+VALUE	SN-Disconnect-Reason		Local-Disconnect	3
+VALUE	SN-Disconnect-Reason		Disc-No-Resource	4
+VALUE	SN-Disconnect-Reason		Disc-Excd-Service-Limit	5
+VALUE	SN-Disconnect-Reason		PPP-LCP-Neg-Failed	6
+VALUE	SN-Disconnect-Reason		PPP-LCP-No-Response	7
+VALUE	SN-Disconnect-Reason		PPP-LCP-Loopback	8
+VALUE	SN-Disconnect-Reason		PPP-LCP-Max-Retry	9
+VALUE	SN-Disconnect-Reason		PPP-Echo-Failed		10
+VALUE	SN-Disconnect-Reason		PPP-Auth-Failed		11
+VALUE	SN-Disconnect-Reason		PPP-Auth-Failed-No-AAA-Resp 12
+VALUE	SN-Disconnect-Reason		PPP-Auth-No-Response	13
+VALUE	SN-Disconnect-Reason		PPP-Auth-Max-Retry	14
+VALUE	SN-Disconnect-Reason		Invalid-AAA-Attr	15
+VALUE	SN-Disconnect-Reason		Failed-User-Filter	16
+VALUE	SN-Disconnect-Reason		Failed-Provide-Service	17
+VALUE	SN-Disconnect-Reason		Invalid-IP-Address-AAA	18
+VALUE	SN-Disconnect-Reason		Invalid-IP-Pool-AAA	19
+VALUE	SN-Disconnect-Reason		PPP-IPCP-Neg-Failed	20
+VALUE	SN-Disconnect-Reason		PPP-IPCP-No-Response	21
+VALUE	SN-Disconnect-Reason		PPP-IPCP-Max-Retry	22
+VALUE	SN-Disconnect-Reason		PPP-No-Rem-IP-Address	23
+VALUE	SN-Disconnect-Reason		Inactivity-Timeout	24
+VALUE	SN-Disconnect-Reason		Session-Timeout		25
+VALUE	SN-Disconnect-Reason		Max-Data-Excd		26
+VALUE	SN-Disconnect-Reason		Invalid-IP-Source-Address 27
+VALUE	SN-Disconnect-Reason		MSID-Auth-Failed	28
+VALUE	SN-Disconnect-Reason		MSID-Auth-Fauiled-No-AAA-Resp 29
+VALUE	SN-Disconnect-Reason		A11-Max-Retry		30
+VALUE	SN-Disconnect-Reason		A11-Lifetime-Expired	31
+VALUE	SN-Disconnect-Reason		A11-Message-Integrity-Failure 32
+VALUE	SN-Disconnect-Reason		PPP-lcp-remote-disc	33
+VALUE	SN-Disconnect-Reason		Session-setup-timeout	34
+VALUE	SN-Disconnect-Reason		PPP-keepalive-failure	35
+VALUE	SN-Disconnect-Reason		Flow-add-failed		36
+VALUE	SN-Disconnect-Reason		Call-type-detection-failed 37
+VALUE	SN-Disconnect-Reason		Wrong-ipcp-params	38
+VALUE	SN-Disconnect-Reason		MIP-remote-dereg	39
+VALUE	SN-Disconnect-Reason		MIP-lifetime-expiry	40
+VALUE	SN-Disconnect-Reason		MIP-proto-error		41
+VALUE	SN-Disconnect-Reason		MIP-auth-failure	42
+VALUE	SN-Disconnect-Reason		MIP-reg-timeout		43
+VALUE	SN-Disconnect-Reason		Invalid-dest-context	44
+VALUE	SN-Disconnect-Reason		Source-context-removed	45
+VALUE	SN-Disconnect-Reason		Destination-context-removed 46
+VALUE	SN-Disconnect-Reason		Req-service-addr-unavailable 47
+VALUE	SN-Disconnect-Reason		Demux-mgr-failed	48
+VALUE	SN-Disconnect-Reason		Internal-error		49
+
+VALUE	SN-PPP-Progress-Code		Not-Defined		0
+VALUE	SN-PPP-Progress-Code		Call-Lcp-Down		1
+VALUE	SN-PPP-Progress-Code		Call-Disconnecting	2
+VALUE	SN-PPP-Progress-Code		Call-Ppp-Renegotiating	3
+VALUE	SN-PPP-Progress-Code		Call-Arrived		11
+VALUE	SN-PPP-Progress-Code		Call-Lcp-Up		12
+VALUE	SN-PPP-Progress-Code		Call-Authenticating	13
+VALUE	SN-PPP-Progress-Code		Call-Authenticated	14
+VALUE	SN-PPP-Progress-Code		Call-Ipcp-Up		15
+VALUE	SN-PPP-Progress-Code		Call-Simple-IP-Connected 16
+VALUE	SN-PPP-Progress-Code		Call-Mobile-IP-Connected 17
+
+VALUE	SN-PPP-Data-Compression		None			0
+VALUE	SN-PPP-Data-Compression		Stac-LZS		1
+VALUE	SN-PPP-Data-Compression		MPPC			2
+VALUE	SN-PPP-Data-Compression		MPCC-Stac-LZS		3
+VALUE	SN-PPP-Data-Compression		Deflate			4
+VALUE	SN-PPP-Data-Compression		Deflate-Stac-LZS	5
+VALUE	SN-PPP-Data-Compression		Deflate-MPCC		6
+VALUE	SN-PPP-Data-Compression		Deflate-MPCC-Stac-LZS	7
+
+VALUE	SN-IP-Source-Validation		No			0
+VALUE	SN-IP-Source-Validation		Yes			1
+
+VALUE	SN-Subscriber-Permission	None			0
+VALUE	SN-Subscriber-Permission	Simple-IP		1
+VALUE	SN-Subscriber-Permission	Mobile-IP		2
+VALUE	SN-Subscriber-Permission	Simple-IP-Mobile-IP	3
+VALUE	SN-Subscriber-Permission	HA-Mobile-IP		4
+VALUE	SN-Subscriber-Permission	Simple-IP-HA-Mobile-IP	5
+VALUE	SN-Subscriber-Permission	Mobile-IP-HA-Mobile-IP	6
+VALUE	SN-Subscriber-Permission	All			7
+
+VALUE	SN-Admin-Permission		None			0
+VALUE	SN-Admin-Permission		CLI			1
+VALUE	SN-Admin-Permission		FTP			2
+
+VALUE	SN-Simultaneous-SIP-MIP		Disabled		0
+VALUE	SN-Simultaneous-SIP-MIP		Enabled			1
+
+VALUE	SN-PPP-Data-Compression-Mode	Normal			0
+VALUE	SN-PPP-Data-Compression-Mode	Stateless		1
+
+END-VENDOR	Starent

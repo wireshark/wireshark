@@ -1,0 +1,29 @@
+# Conformance file for EFS
+
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions
+PARAM_VALUE efs_dissect_element_EfsRpcOpenFileRaw_pvContext_ PIDL_POLHND_OPEN
+# Policyhandles are closed in these functions
+PARAM_VALUE efs_dissect_element_EfsRpcCloseRaw_pvContext_    PIDL_POLHND_CLOSE
+
+CODE START
+static int
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	offset=dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+	return offset;
+}
+
+CODE END

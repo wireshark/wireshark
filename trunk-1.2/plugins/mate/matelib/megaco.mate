@@ -1,0 +1,9 @@
+# megaco.mate
+# $Id$
+
+Action=PduDef; Name=mgc_pdu; Proto=megaco; Transport=ip; addr=ip.addr; megaco_ctx=megaco.context; megaco_trx=megaco.transid; megaco_msg=megaco.transaction; term=megaco.termid;
+
+Action=GopDef; Name=mgc_tr; On=mgc_pdu; addr; addr; megaco_trx;
+Action=GopStart; For=mgc_tr; megaco_msg|Request|Notify;
+Action=GopStop; For=mgc_tr; megaco_msg=Reply;
+Action=GopExtra; For=mgc_tr; term^DS1; megaco_ctx!Choose one;

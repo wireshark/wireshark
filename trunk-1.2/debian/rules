@@ -1,0 +1,128 @@
+#!/usr/bin/make -f
+# Made with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Cristoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+include /usr/share/dpatch/dpatch.make 
+DB2MAN=/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl
+
+
+DEB_HOST_GNU_TYPE       ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE      ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+PYTHON_VERSION=python2.4
+
+CFLAGS=-g -O2
+
+# Enable IEEE-conformant floating point math on alphas (not the default)
+ifeq (alpha-linux,$(DEB_HOST_GNU_TYPE))
+  CFLAGS += -mieee
+endif
+
+CONFIGURE_FLAGS=--prefix=/usr --sysconfdir=/usr/share --datadir=/usr/share --libdir=/usr/lib/wireshark --disable-static --enable-gtk2 --enable-warnings-as-errors=no --enable-setuid-install --with-plugins=/usr/lib/wireshark/plugins --with-lua=/usr/
+
+configure: configure-stamp
+configure-stamp: patch
+	dh_testdir
+
+	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
+	libtoolize --force --copy
+	-mkdir aclocal-missing
+	./autogen.sh
+	CFLAGS="$(CFLAGS)" ./configure $(CONFIGURE_FLAGS)
+
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	$(MAKE)
+
+	touch build-stamp
+
+patch: patch-stamp
+patch-stamp:
+	dpatch apply-all
+
+
+clean: unpatch-stamp
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	[ ! -f Makefile ] || $(MAKE) distclean 
+	rm -f rdps wireshark.1 tshark.1 wireshark-filter.4
+	rm -f conftest conftest.c
+	rm -f config.guess config.sub config.log
+	rm -f config.h.in config.h configure
+
+	dh_clean
+
+unpatch: unpatch-stamp
+unpatch-stamp:
+	dpatch deapply-all
+	rm -rf patch-stamp debian/patched
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the files into debian/tmp
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/applications/
+	cp debian/wireshark.desktop $(CURDIR)/debian/tmp/usr/share/applications/
+	cp tools/idl2wrs.sh $(CURDIR)/debian/tmp/usr/bin/
+	#cp debian/wireshark-root.desktop $(CURDIR)/debian/tmp/usr/share/applications/
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps/
+	cp image/hi48-app-wireshark.png $(CURDIR)/debian/tmp/usr/share/pixmaps/
+	cp image/wsicon32.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/
+	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
+	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
+		$(CURDIR)/debian/tmp/etc/wireshark/
+	ln -s /etc/wireshark/init.lua \
+		$(CURDIR)/debian/tmp/usr/share/wireshark/init.lua
+	mkdir -p $(CURDIR)/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
+	cp $(CURDIR)/tools/wireshark_be.py $(CURDIR)/tools/wireshark_gen.py \
+			$(CURDIR)/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
+	mkdir -p $(CURDIR)/debian/tmp/usr/include/wireshark/
+	for F in `cat debian/wireshark-dev.header-files`; do \
+		cp --parents $$F $(CURDIR)/debian/tmp/usr/include/wireshark; \
+	done
+	-rm -rf $(CURDIR)/debian/tmp/usr/man
+	dh_installman
+
+	dh_movefiles
+	dh_pysupport
+	dh_installdocs
+	dh_installmenu
+	dh_installchangelogs NEWS
+
+# Build architecture-independent files here.
+binary-indep: install
+# We have nothing to do by default.
+
+check: install
+	# check all necessary headers are included
+	gcc -c debian/headers-check.c `pkg-config --cflags glib-2.0` -Idebian/wireshark-dev/usr/include/ -Idebian/wireshark-dev/usr/include/wireshark/ -o /dev/null
+
+# Build architecture-dependent files here.
+binary-arch: install check
+	dh_strip
+	dh_compress
+	dh_fixperms -Xdumpcap
+
+	dh_installdeb
+	LD_LIBRARY_PATH=/usr/lib/wireshark/ dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+source diff:
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean install check binary-indep binary-arch binary

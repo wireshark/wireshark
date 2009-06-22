@@ -1,0 +1,5 @@
+?package(wireshark):needs="X11" section="Applications/Network/Monitoring" \
+	title="Wireshark" \
+	command="/usr/bin/wireshark" \
+	icon="/usr/share/pixmaps/wsicon32.xpm"
+

@@ -1,0 +1,11 @@
+# Colubris dictionary - dictionary.colubris
+#
+#       Enable by putting the line "$INCLUDE dictionary.colubris" into
+#       the main dictionary file.
+#
+#
+VENDOR          Colubris                8744
+#
+#       Vendor-specific attributes
+#
+ATTRIBUTE       Colubris-AVPair         0       string          Colubris

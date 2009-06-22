@@ -1,0 +1,113 @@
+//Source file: termcap.idl
+//Date:  11 October 2004
+//Terminal Capability Interfaces and Data Types for ETSI ES 203 915-07 V1.1.1, DES/TISPAN-01005-07-OSA, Parlay 5.0
+
+#ifndef __TERMCAP_DEFINED
+#define __TERMCAP_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module termcap {
+			
+			
+			struct TpTerminalCapabilities {
+				TpString TerminalCapabilities;
+				TpBoolean StatusCode;
+			};
+			
+			
+			enum TpTerminalCapabilitiesError {
+
+				P_TERMCAP_ERROR_UNDEFINED,
+				P_TERMCAP_INVALID_TERMINALID,
+				P_TERMCAP_SYSTEM_FAILURE,
+				P_TERMCAP_INFO_UNAVAILABLE				
+			};
+			
+			
+			exception P_INVALID_TERMINAL_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef TpInt32 TpTerminalCapabilityChangeCriteria;
+			
+			
+			const TpTerminalCapabilityChangeCriteria P_TERMINAL_CAPABILITY_CHANGE_CRITERIA_UNDEFINED = 0;
+			
+			const TpTerminalCapabilityChangeCriteria P_TERMINAL_CAPABILITY_CHANGE_CRITERIA_GENERAL = 1;
+			
+			const TpTerminalCapabilityChangeCriteria P_TERMINAL_CAPABILITY_CHANGE_CRITERIA_HW_UPDATE = 2;
+			
+			const TpTerminalCapabilityChangeCriteria P_TERMINAL_CAPABILITY_CHANGE_CRITERIA_SW_UPDATE = 4;
+			
+			const TpTerminalCapabilityChangeCriteria P_TERMINAL_CAPABILITY_CHANGE_CRITERIA_INITIAL = 8;
+			
+			enum TpTerminalCapabilityScopeType {
+
+				P_TERMINAL_CAPABILITY_SCOPE_TYPE_UNDEFINED,
+				P_TERMINAL_CAPABILITY_SCOPE_TYPE_CCPP				
+			};
+			
+			
+			struct TpTerminalCapabilityScope {
+				TpTerminalCapabilityScopeType ScopeType;
+				TpString Scope;
+			};
+			
+			
+			interface IpTerminalCapabilities : IpService {
+				TpTerminalCapabilities getTerminalCapabilities (
+					in TpString terminalIdentity	
+					)					
+					raises (TpCommonExceptions,P_INVALID_TERMINAL_ID);
+					
+			};
+			
+			
+			interface IpAppExtendedTerminalCapabilities : IpInterface {
+				void triggeredTerminalCapabilityReport (
+					in TpAssignmentID assignmentID,	
+					in TpAddressSet terminals,	
+					in TpTerminalCapabilityChangeCriteria criteria,	
+					in TpTerminalCapabilities capabilities	
+					);
+					
+				void triggeredTerminalCapabilityReportErr (
+					in TpAssignmentID assignmentId,	
+					in TpAddressSet terminals,	
+					in TpTerminalCapabilitiesError cause	
+					);
+					
+			};
+			
+			
+			interface IpExtendedTerminalCapabilities : IpTerminalCapabilities {
+				TpAssignmentID triggeredTerminalCapabilityStartReq (
+					in IpAppExtendedTerminalCapabilities appTerminalCapabilities,	
+					in TpAddressSet terminals,	
+					in TpTerminalCapabilityScope capabilityScope,	
+					in TpTerminalCapabilityChangeCriteria criteria	
+					)					
+					raises (TpCommonExceptions,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE,P_INVALID_CRITERIA,P_INVALID_TERMINAL_ID);
+					
+				void triggeredTerminalCapabilityStop (
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

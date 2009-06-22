@@ -1,0 +1,13 @@
+HF_FIELD hf_atsvc_job_id "Job Id" "atsvc.job_id" FT_UINT32 BASE_DEC NULL 0 "Identifier of the scheduled job"
+HF_RENAME hf_atsvc_atsvc_JobAdd_job_id hf_atsvc_job_id
+HF_RENAME hf_atsvc_atsvc_JobEnumInfo_job_id hf_atsvc_job_id
+HF_RENAME hf_atsvc_atsvc_JobGetInfo_job_id hf_atsvc_job_id
+HF_FIELD hf_atsvc_servername "Server" "atsvc.server" FT_STRING BASE_HEX NULL 0 "Name of the server"
+HF_RENAME hf_atsvc_atsvc_JobEnum_servername hf_atsvc_servername
+HF_RENAME hf_atsvc_atsvc_JobDel_servername hf_atsvc_servername
+HF_RENAME hf_atsvc_atsvc_JobAdd_servername hf_atsvc_servername
+HF_RENAME hf_atsvc_atsvc_JobGetInfo_servername hf_atsvc_servername
+HF_FIELD hf_atsvc_job_info "JobInfo" "atcvs.job_info" FT_NONE BASE_HEX NULL 0 "JobInfo structure"
+HF_RENAME hf_atsvc_atsvc_JobGetInfo_job_info hf_atsvc_job_info
+HF_RENAME hf_atsvc_atsvc_JobAdd_job_info hf_atsvc_job_info
+

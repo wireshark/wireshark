@@ -1,0 +1,50 @@
+-- UPL.asn
+--
+-- Taken from OMA UserPlane Location Protocol Candidate Version 1.0 – 22 Jan 2007
+-- http://www.openmobilealliance.org/release_program/docs/SUPL/V1_0-20070122-C/OMA-TS-ULP-V1_0-20070122-C.pdf
+--
+-- 8.1 Common Part
+--
+
+ULP DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+IMPORTS 
+  Version, SessionID 
+  FROM ULP-Components 
+  SUPLINIT 
+  FROM SUPL-INIT 
+  SUPLSTART 
+  FROM SUPL-START 
+  SUPLRESPONSE 
+  FROM SUPL-RESPONSE 
+  SUPLPOSINIT 
+  FROM SUPL-POS-INIT 
+  SUPLPOS 
+  FROM SUPL-POS 
+  SUPLEND 
+  FROM SUPL-END 
+  SUPLAUTHREQ 
+  FROM SUPL-AUTH-REQ 
+  SUPLAUTHRESP 
+  FROM SUPL-AUTH-RESP; 
+ 
+-- general ULP PDU layout; 
+ULP-PDU ::= SEQUENCE { 
+  length     INTEGER(0..65535), 
+  version    Version, 
+  sessionID  SessionID, 
+  message    UlpMessage} 
+ 
+UlpMessage ::= CHOICE { 
+  msSUPLINIT      SUPLINIT, 
+  msSUPLSTART     SUPLSTART, 
+  msSUPLRESPONSE  SUPLRESPONSE, 
+  msSUPLPOSINIT   SUPLPOSINIT, 
+  msSUPLPOS       SUPLPOS, 
+  msSUPLEND       SUPLEND, 
+  msSUPLAUTHREQ   SUPLAUTHREQ, 
+  msSUPLAUTHRESP  SUPLAUTHRESP, 
+  ...} 
+ 
+END 

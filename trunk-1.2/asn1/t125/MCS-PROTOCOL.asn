@@ -1,0 +1,445 @@
+-- Module MCS-PROTOCOL (T.125:02/1998)
+MCS-PROTOCOL DEFINITIONS ::=
+BEGIN
+
+--  Part 1: Fundamental MCS types
+ChannelId ::= INTEGER(0..65535) --  range is 16 bits
+                     
+
+StaticChannelId ::= ChannelId(1..1000) --  those known permanently
+                             
+
+DynamicChannelId ::= ChannelId(1001..65535) --  those created and deleted
+                              
+
+UserId ::= DynamicChannelId --  created by Attach-User
+
+--  deleted by Detach-User
+PrivateChannelId ::=
+  DynamicChannelId --  created by Channel-Convene
+
+--  deleted by Channel-Disband
+AssignedChannelId ::=
+  DynamicChannelId --  created by Channel-Join zero
+
+--  deleted by last Channel-Leave
+TokenId ::= INTEGER(1..65535) --  all are known permanently
+                   
+
+TokenStatus ::= ENUMERATED {
+  notInUse(0), selfGrabbed(1), otherGrabbed(2), selfInhibited(3),
+  otherInhibited(4), selfRecipient(5), selfGiving(6), otherGiving(7)}
+
+DataPriority ::= ENUMERATED {top(0), high(1), medium(2), low(3)}
+
+Segmentation ::= BIT STRING {begin(0), end(1)}(SIZE (2))
+
+DomainParameters ::= SEQUENCE {
+  maxChannelIds    INTEGER(0..MAX),
+  --  a limit on channel ids in use,
+  --  static + user id + private + assigned
+  maxUserIds       INTEGER(0..MAX),
+  --  a sublimit on user id channels alone
+  maxTokenIds      INTEGER(0..MAX),
+  --  a limit on token ids in use
+  --  grabbed + inhibited + giving + ungivable + given
+  numPriorities    INTEGER(0..MAX),
+  --  the number of TCs in an MCS connection
+  minThroughput    INTEGER(0..MAX),
+  --  the enforced number of octets per second
+  maxHeight        INTEGER(0..MAX),
+  --  a limit on the height of a provider
+  maxMCSPDUsize    INTEGER(0..MAX),
+  --  an octet limit on domain MCSPDUs
+  protocolVersion  INTEGER(0..MAX)
+}
+
+--  Part 2: Connect provider
+Connect-Initial ::= [APPLICATION 101] IMPLICIT SEQUENCE {
+  callingDomainSelector  OCTET STRING,
+  calledDomainSelector   OCTET STRING,
+  upwardFlag             BOOLEAN,
+  --  TRUE if called provider is higher
+  targetParameters       DomainParameters,
+  minimumParameters      DomainParameters,
+  maximumParameters      DomainParameters,
+  userData               OCTET STRING
+}
+
+Connect-Response ::= [APPLICATION 102] IMPLICIT SEQUENCE {
+  result            Result,
+  calledConnectId   INTEGER(0..MAX),
+  --  assigned by the called provider
+  --  to identify additional TCs of 
+  --  the same MCS connection
+  domainParameters  DomainParameters,
+  userData          OCTET STRING
+}
+
+Connect-Additional ::= [APPLICATION 103] IMPLICIT SEQUENCE {
+  calledConnectId  INTEGER(0..MAX),
+  dataPriority     DataPriority
+}
+
+Connect-Result ::= [APPLICATION 104] IMPLICIT SEQUENCE {result  Result
+}
+
+--  Part 3: Merge domain
+PlumbDomainIndication ::= [APPLICATION 0] IMPLICIT SEQUENCE {
+  heightLimit  INTEGER(0..MAX)
+} --  a restriction on the MCSPDU receiver
+
+ErectDomainRequest ::= [APPLICATION 1] IMPLICIT SEQUENCE {
+  subHeight    INTEGER(0..MAX),
+  --  height in domain of the MCSPDU transmitter
+  subInterval  INTEGER(0..MAX)
+} --  its throughput enforcement interval in milliseconds
+
+ChannelAttributes ::= CHOICE {
+  static    [0] IMPLICIT SEQUENCE {channelId  StaticChannelId}, --  joined is implicitly TRUE
+  userId
+    [1] IMPLICIT SEQUENCE {joined  BOOLEAN,
+                           --  TRUE if user is joined to its user id
+                           userId  UserId},
+  private
+    [2] IMPLICIT SEQUENCE {joined     BOOLEAN,
+                           --  TRUE if channel id is joined below
+                           channelId  PrivateChannelId,
+                           manager    UserId,
+                           admitted   SET OF UserId}, --  may span multiple MergeChannelsRequest
+  assigned  [3] IMPLICIT SEQUENCE {channelId  AssignedChannelId} --  joined is implicitly TRUE
+}
+
+MergeChannelsRequest ::= [APPLICATION 2] IMPLICIT SEQUENCE {
+  mergeChannels    SET OF ChannelAttributes,
+  purgeChannelIds  SET OF ChannelId
+}
+
+MergeChannelsConfirm ::= [APPLICATION 3] IMPLICIT SEQUENCE {
+  mergeChannels    SET OF ChannelAttributes,
+  purgeChannelIds  SET OF ChannelId
+}
+
+PurgeChannelsIndication ::= [APPLICATION 4] IMPLICIT SEQUENCE {
+  detachUserIds    SET OF UserId,
+  --  purge user id channels
+  purgeChannelIds  SET OF ChannelId
+} --  purge other channels
+
+TokenAttributes ::= CHOICE {
+  grabbed    [0] IMPLICIT SEQUENCE {tokenId  TokenId,
+                                    grabber  UserId},
+  inhibited
+    [1] IMPLICIT SEQUENCE {tokenId     TokenId,
+                           inhibitors  SET OF UserId}, --  may span multiple MergeTokensRequest
+  giving
+    [2] IMPLICIT SEQUENCE {tokenId    TokenId,
+                           grabber    UserId,
+                           recipient  UserId},
+  ungivable  [3] IMPLICIT SEQUENCE {tokenId  TokenId,
+                                    grabber  UserId}, --  recipient has since detached
+  given      [4] IMPLICIT SEQUENCE {tokenId    TokenId,
+                                    recipient  UserId} --  grabber released or detached
+}
+
+MergeTokensRequest ::= [APPLICATION 5] IMPLICIT SEQUENCE {
+  mergeTokens    SET OF TokenAttributes,
+  purgeTokenIds  SET OF TokenId
+}
+
+MergeTokensConfirm ::= [APPLICATION 6] IMPLICIT SEQUENCE {
+  mergeTokens    SET OF TokenAttributes,
+  purgeTokenIds  SET OF TokenId
+}
+
+PurgeTokensIndication ::= [APPLICATION 7] IMPLICIT SEQUENCE {
+  purgeTokenIds  SET OF TokenId
+}
+
+--  Part 4: Disconnect provider
+DisconnectProviderUltimatum ::= [APPLICATION 8] IMPLICIT SEQUENCE {
+  reason  Reason
+}
+
+RejectMCSPDUUltimatum ::= [APPLICATION 9] IMPLICIT SEQUENCE {
+  diagnostic     Diagnostic,
+  initialOctets  OCTET STRING
+}
+
+--  Part 5: Attach/Detach user
+AttachUserRequest ::= [APPLICATION 10] IMPLICIT SEQUENCE {
+}
+
+AttachUserConfirm ::= [APPLICATION 11] IMPLICIT SEQUENCE {
+  result     Result,
+  initiator  UserId OPTIONAL
+}
+
+DetachUserRequest ::= [APPLICATION 12] IMPLICIT SEQUENCE {
+  reason   Reason,
+  userIds  SET OF UserId
+}
+
+DetachUserIndication ::= [APPLICATION 13] IMPLICIT SEQUENCE {
+  reason   Reason,
+  userIds  SET OF UserId
+}
+
+--  Part 6: Channel management
+ChannelJoinRequest ::= [APPLICATION 14] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  channelId  ChannelId
+} --  may be zero
+
+ChannelJoinConfirm ::= [APPLICATION 15] IMPLICIT SEQUENCE {
+  result     Result,
+  initiator  UserId,
+  requested  ChannelId,
+  --  may be zero
+  channelId  ChannelId OPTIONAL
+}
+
+ChannelLeaveRequest ::= [APPLICATION 16] IMPLICIT SEQUENCE {
+  channelIds  SET OF ChannelId
+}
+
+ChannelConveneRequest ::= [APPLICATION 17] IMPLICIT SEQUENCE {initiator  UserId
+}
+
+ChannelConveneConfirm ::= [APPLICATION 18] IMPLICIT SEQUENCE {
+  result     Result,
+  initiator  UserId,
+  channelId  PrivateChannelId OPTIONAL
+}
+
+ChannelDisbandRequest ::= [APPLICATION 19] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  channelId  PrivateChannelId
+}
+
+ChannelDisbandIndication ::= [APPLICATION 20] IMPLICIT SEQUENCE {
+  channelId  PrivateChannelId
+}
+
+ChannelAdmitRequest ::= [APPLICATION 21] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  channelId  PrivateChannelId,
+  userIds    SET OF UserId
+}
+
+ChannelAdmitIndication ::= [APPLICATION 22] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  channelId  PrivateChannelId,
+  userIds    SET OF UserId
+}
+
+ChannelExpelRequest ::= [APPLICATION 23] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  channelId  PrivateChannelId,
+  userIds    SET OF UserId
+}
+
+ChannelExpelIndication ::= [APPLICATION 24] IMPLICIT SEQUENCE {
+  channelId  PrivateChannelId,
+  userIds    SET OF UserId
+}
+
+--  Part 7: Data transfer
+SendDataRequest ::= [APPLICATION 25] IMPLICIT SEQUENCE {
+  initiator     UserId,
+  channelId     ChannelId,
+  dataPriority  DataPriority,
+  segmentation  Segmentation,
+  userData      OCTET STRING
+}
+
+SendDataIndication ::= [APPLICATION 26] IMPLICIT SEQUENCE {
+  initiator     UserId,
+  channelId     ChannelId,
+  dataPriority  DataPriority,
+  segmentation  Segmentation,
+  userData      OCTET STRING
+}
+
+UniformSendDataRequest ::= [APPLICATION 27] IMPLICIT SEQUENCE {
+  initiator     UserId,
+  channelId     ChannelId,
+  dataPriority  DataPriority,
+  segmentation  Segmentation,
+  userData      OCTET STRING
+}
+
+UniformSendDataIndication ::= [APPLICATION 28] IMPLICIT SEQUENCE {
+  initiator     UserId,
+  channelId     ChannelId,
+  dataPriority  DataPriority,
+  segmentation  Segmentation,
+  userData      OCTET STRING
+}
+
+--  Part 8: Token management
+TokenGrabRequest ::= [APPLICATION 29] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenGrabConfirm ::= [APPLICATION 30] IMPLICIT SEQUENCE {
+  result       Result,
+  initiator    UserId,
+  tokenId      TokenId,
+  tokenStatus  TokenStatus
+}
+
+TokenInhibitRequest ::= [APPLICATION 31] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenInhibitConfirm ::= [APPLICATION 32] IMPLICIT SEQUENCE {
+  result       Result,
+  initiator    UserId,
+  tokenId      TokenId,
+  tokenStatus  TokenStatus
+}
+
+TokenGiveRequest ::= [APPLICATION 33] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId,
+  recipient  UserId
+}
+
+TokenGiveIndication ::= [APPLICATION 34] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId,
+  recipient  UserId
+}
+
+TokenGiveResponse ::= [APPLICATION 35] IMPLICIT SEQUENCE {
+  result     Result,
+  recipient  UserId,
+  tokenId    TokenId
+}
+
+TokenGiveConfirm ::= [APPLICATION 36] IMPLICIT SEQUENCE {
+  result       Result,
+  initiator    UserId,
+  tokenId      TokenId,
+  tokenStatus  TokenStatus
+}
+
+TokenPleaseRequest ::= [APPLICATION 37] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenPleaseIndication ::= [APPLICATION 38] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenReleaseRequest ::= [APPLICATION 39] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenReleaseConfirm ::= [APPLICATION 40] IMPLICIT SEQUENCE {
+  result       Result,
+  initiator    UserId,
+  tokenId      TokenId,
+  tokenStatus  TokenStatus
+}
+
+TokenTestRequest ::= [APPLICATION 41] IMPLICIT SEQUENCE {
+  initiator  UserId,
+  tokenId    TokenId
+}
+
+TokenTestConfirm ::= [APPLICATION 42] IMPLICIT SEQUENCE {
+  initiator    UserId,
+  tokenId      TokenId,
+  tokenStatus  TokenStatus
+}
+
+--  Part 9: Status codes
+--  in DisconnectProviderUltimatum, DetachUserRequest, DetachUserIndication
+Reason ::= ENUMERATED {
+  rn-domain-disconnected(0), rn-provider-initiated(1), rn-token-purged(2),
+  rn-user-requested(3), rn-channel-purged(4)}
+
+--  in Connect, response, confirm
+Result ::= ENUMERATED {
+  rt-successful(0), rt-domain-merging(1), rt-domain-not-hierarchical(2),
+  rt-no-such-channel(3), rt-no-such-domain(4), rt-no-such-user(5),
+  rt-not-admitted(6), rt-other-user-id(7), rt-parameters-unacceptable(8),
+  rt-token-not-available(9), rt-token-not-possessed(10),
+  rt-too-many-channels(11), rt-too-many-tokens(12), rt-too-many-users(13),
+  rt-unspecified-failure(14), rt-user-rejected(15)}
+
+--  in RejectMCSPDUUltimatum
+Diagnostic ::= ENUMERATED {
+  dc-inconsistent-merge(0), dc-forbidden-PDU-downward(1),
+  dc-forbidden-PDU-upward(2), dc-invalid-BER-encoding(3),
+  dc-invalid-PER-encoding(4), dc-misrouted-user(5), dc-unrequested-confirm(6),
+  dc-wrong-transport-priority(7), dc-channel-id-conflict(8),
+  dc-token-id-conflict(9), dc-not-user-id-channel(10),
+  dc-too-many-channels(11), dc-too-many-tokens(12), dc-too-many-users(13)
+}
+
+--  Part 10: MCSPDU repertoire
+ConnectMCSPDU ::= CHOICE {
+  connect-initial     Connect-Initial,
+  connect-response    Connect-Response,
+  connect-additional  Connect-Additional,
+  connect-result      Connect-Result
+}
+
+DomainMCSPDU ::= CHOICE {
+  plumbDomainIndication        PlumbDomainIndication,
+  erectDomainRequest           ErectDomainRequest,
+  mergeChannelsRequest         MergeChannelsRequest,
+  mergeChannelsConfirm         MergeChannelsConfirm,
+  purgeChannelsIndication      PurgeChannelsIndication,
+  mergeTokensRequest           MergeTokensRequest,
+  mergeTokensConfirm           MergeTokensConfirm,
+  purgeTokensIndication        PurgeTokensIndication,
+  disconnectProviderUltimatum  DisconnectProviderUltimatum,
+  rejectMCSPDUUltimatum        RejectMCSPDUUltimatum,
+  attachUserRequest            AttachUserRequest,
+  attachUserConfirm            AttachUserConfirm,
+  detachUserRequest            DetachUserRequest,
+  detachUserIndication         DetachUserIndication,
+  channelJoinRequest           ChannelJoinRequest,
+  channelJoinConfirm           ChannelJoinConfirm,
+  channelLeaveRequest          ChannelLeaveRequest,
+  channelConveneRequest        ChannelConveneRequest,
+  channelConveneConfirm        ChannelConveneConfirm,
+  channelDisbandRequest        ChannelDisbandRequest,
+  channelDisbandIndication     ChannelDisbandIndication,
+  channelAdmitRequest          ChannelAdmitRequest,
+  channelAdmitIndication       ChannelAdmitIndication,
+  channelExpelRequest          ChannelExpelRequest,
+  channelExpelIndication       ChannelExpelIndication,
+  sendDataRequest              SendDataRequest,
+  sendDataIndication           SendDataIndication,
+  uniformSendDataRequest       UniformSendDataRequest,
+  uniformSendDataIndication    UniformSendDataIndication,
+  tokenGrabRequest             TokenGrabRequest,
+  tokenGrabConfirm             TokenGrabConfirm,
+  tokenInhibitRequest          TokenInhibitRequest,
+  tokenInhibitConfirm          TokenInhibitConfirm,
+  tokenGiveRequest             TokenGiveRequest,
+  tokenGiveIndication          TokenGiveIndication,
+  tokenGiveResponse            TokenGiveResponse,
+  tokenGiveConfirm             TokenGiveConfirm,
+  tokenPleaseRequest           TokenPleaseRequest,
+  tokenPleaseIndication        TokenPleaseIndication,
+  tokenReleaseRequest          TokenReleaseRequest,
+  tokenReleaseConfirm          TokenReleaseConfirm,
+  tokenTestRequest             TokenTestRequest,
+  tokenTestConfirm             TokenTestConfirm
+}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

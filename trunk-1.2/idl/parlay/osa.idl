@@ -1,0 +1,441 @@
+//Source file: osa.idl
+//Date:  7 October 2004
+//Common Data Types for ES 203 915-2 V1.1.1, DES/TISPAN-01005-02, Parlay 5.0
+
+#ifndef __OSA_DEFINED
+#define __OSA_DEFINED
+
+module org {
+	
+	module csapi {
+		
+		
+		enum TpAddressError {
+
+			P_ADDRESS_INVALID_UNDEFINED,
+			P_ADDRESS_INVALID_MISSING,
+			P_ADDRESS_INVALID_MISSING_ELEMENT,
+			P_ADDRESS_INVALID_OUT_OF_RANGE,
+			P_ADDRESS_INVALID_INCOMPLETE,
+			P_ADDRESS_INVALID_CANNOT_DECODE			
+		};
+		
+		
+		enum TpAddressPlan {
+
+			P_ADDRESS_PLAN_NOT_PRESENT,
+			P_ADDRESS_PLAN_UNDEFINED,
+			P_ADDRESS_PLAN_IP,
+			P_ADDRESS_PLAN_MULTICAST,
+			P_ADDRESS_PLAN_UNICAST,
+			P_ADDRESS_PLAN_E164,
+			P_ADDRESS_PLAN_AESA,
+			P_ADDRESS_PLAN_URL,
+			P_ADDRESS_PLAN_NSAP,
+			P_ADDRESS_PLAN_SMTP,
+			P_ADDRESS_PLAN_MSMAIL,
+			P_ADDRESS_PLAN_X400,
+			P_ADDRESS_PLAN_SIP,
+			P_ADDRESS_PLAN_ANY,
+			P_ADDRESS_PLAN_NATIONAL			
+		};
+		
+		
+		enum TpAddressPresentation {
+
+			P_ADDRESS_PRESENTATION_UNDEFINED,
+			P_ADDRESS_PRESENTATION_ALLOWED,
+			P_ADDRESS_PRESENTATION_RESTRICTED,
+			P_ADDRESS_PRESENTATION_ADDRESS_NOT_AVAILABLE			
+		};
+		
+		
+		enum TpAddressScreening {
+
+			P_ADDRESS_SCREENING_UNDEFINED,
+			P_ADDRESS_SCREENING_USER_VERIFIED_PASSED,
+			P_ADDRESS_SCREENING_USER_NOT_VERIFIED,
+			P_ADDRESS_SCREENING_USER_VERIFIED_FAILED,
+			P_ADDRESS_SCREENING_NETWORK			
+		};
+		
+		
+		typedef boolean TpBoolean;
+		
+		
+		typedef float TpFloat;
+		
+		
+		typedef long TpInt32;
+		
+		
+		const TpInt32 P_METHOD_NOT_SUPPORTED = 22;
+		
+		const TpInt32 P_NO_CALLBACK_ADDRESS_SET = 17;
+		
+		const TpInt32 P_RESOURCES_UNAVAILABLE = 13;
+		
+		const TpInt32 P_TASK_CANCELLED = 15;
+		
+		const TpInt32 P_TASK_REFUSED = 14;
+		
+		typedef TpInt32 TpAssignmentID;
+		
+		
+		typedef TpInt32 TpDuration;
+		
+		
+		typedef TpInt32 TpSessionID;
+		
+		
+		typedef sequence <TpSessionID> TpSessionIDSet;
+		
+		
+		typedef string TpString;
+		
+		
+		exception P_INVALID_ASSIGNMENT_ID {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_TIME_AND_DATE_FORMAT {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_EVENT_TYPE {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_INTERFACE_NAME {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_INTERFACE_TYPE {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_UNKNOWN_SUBSCRIBER {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INFORMATION_NOT_AVAILABLE {
+			TpString ExtraInformation;
+		};
+		
+		
+		struct TpAddress {
+			TpAddressPlan Plan;
+			TpString AddrString;
+			TpString Name;
+			TpAddressPresentation Presentation;
+			TpAddressScreening Screening;
+			TpString SubAddressString;
+		};
+		
+		
+		struct TpAddressRange {
+			TpAddressPlan Plan;
+			TpString AddrString;
+			TpString Name;
+			TpString SubAddressString;
+		};
+		
+		
+		typedef sequence <TpAddress> TpAddressSet;
+		
+		
+		typedef TpString TpPrice;
+		
+		
+		typedef TpString TpDate;
+		
+		
+		typedef TpString TpDateAndTime;
+		
+		
+		typedef TpString TpTime;
+		
+		
+		typedef TpString TpURL;
+		
+		
+		typedef TpString TpLanguage;
+		
+		enum TpCallAoCOrderCategory {
+
+			P_CHARGE_ADVICE_INFO,
+			P_CHARGE_PER_TIME,
+			P_CHARGE_NETWORK			
+		};
+		
+		
+		struct TpCAIElements {
+			TpInt32 UnitsPerInterval;
+			TpInt32 SecondsPerTimeInterval;
+			TpInt32 ScalingFactor;
+			TpInt32 UnitIncrement;
+			TpInt32 UnitsPerDataInterval;
+			TpInt32 SegmentsPerDataInterval;
+			TpInt32 InitialSecsPerTimeInterval;
+		};
+		
+		
+		struct TpChargeAdviceInfo {
+			TpCAIElements CurrentCAI;
+			TpCAIElements NextCAI;
+		};
+		
+		
+		struct TpChargePerTime {
+			TpInt32 InitialCharge;
+			TpInt32 CurrentChargePerMinute;
+			TpInt32 NextChargePerMinute;
+		};
+		
+		
+		union TpAoCOrder switch(TpCallAoCOrderCategory) {
+			case P_CHARGE_ADVICE_INFO: TpChargeAdviceInfo ChargeAdviceInfo;
+			case P_CHARGE_PER_TIME: TpChargePerTime ChargePerTime;
+			case P_CHARGE_NETWORK: TpString NetworkCharge;
+		};
+		
+		
+		struct TpAoCInfo {
+			TpAoCOrder ChargeOrder;
+			TpString Currency;
+		};
+		
+		
+		exception P_INVALID_CRITERIA {
+			TpString ExtraInformation;
+		};
+		
+		
+		const TpInt32 P_INVALID_STATE = 744;
+		
+		exception P_INVALID_SESSION_ID {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception TpCommonExceptions {
+			TpInt32 ExceptionType;
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_CURRENCY {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_AMOUNT {
+			TpString ExtraInformation;
+		};
+		
+		
+		struct TpTimeInterval {
+			TpDateAndTime StartTime;
+			TpDateAndTime StopTime;
+		};
+		
+		
+		exception P_APPLICATION_NOT_ACTIVATED {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_INVALID_ADDRESS {
+			TpString ExtraInformation;
+		};
+		
+		
+		typedef octet TpOctet;
+		
+		
+		typedef sequence <TpOctet> TpOctetSet;
+		
+		
+		exception P_UNSUPPORTED_ADDRESS_PLAN {
+			TpString ExtraInformation;
+		};
+		
+		
+		exception P_UNAUTHORISED_PARAMETER_VALUE {
+			TpString ExtraInformation;
+		};
+		
+		
+		typedef string TpLongString;
+		
+		
+		typedef any TpAny;
+		
+		
+		typedef long long TpInt64;
+		
+		
+		typedef TpString TpVersion;
+		
+		
+		exception P_INVALID_VERSION {
+			TpString ExtraInformation;
+		};
+		
+		
+		typedef sequence <TpString> TpStringList;
+		
+		
+		typedef sequence <TpString> TpStringSet;
+		
+		
+		enum TpDataSessionQosClass {
+
+			P_DATA_SESSION_QOS_CLASS_CONVERSATIONAL,
+			P_DATA_SESSION_QOS_CLASS_STREAMING,
+			P_DATA_SESSION_QOS_CLASS_INTERACTIVE,
+			P_DATA_SESSION_QOS_CLASS_BACKGROUND			
+		};
+		
+		
+		typedef TpString TpURN;
+		
+		
+		exception P_INVALID_NETWORK_STATE {
+			TpString ExtraInformation;
+		};
+		
+		
+		typedef sequence <TpOctet> TpUnorderedOctetSet;
+		
+		
+		typedef char TpChar;
+		
+		
+		typedef wchar TpWChar;
+		
+		
+		typedef wstring TpWString;
+		
+		
+		typedef short TpInt16;
+		
+		
+		typedef unsigned short TpUnsignedInt16;
+		
+		
+		typedef unsigned long TpUnsignedInt32;
+		
+		
+		typedef unsigned long long TpUnsignedInt64;
+		
+		
+		typedef double TpDouble;
+		
+		
+		typedef TpString TpXMLString;
+		
+		
+		typedef TpString TpStructuredAttributeType;
+		
+		
+		struct TpStructuredAttributeValue {
+			TpStructuredAttributeType Type;
+			TpAny Value;
+		};
+		
+		
+		enum TpSimpleAttributeTypeInfo {
+
+			P_BOOLEAN,
+			P_OCTET,
+			P_CHAR,
+			P_WCHAR,
+			P_STRING,
+			P_WSTRING,
+			P_INT16,
+			P_UNSIGNED_INT16,
+			P_INT32,
+			P_UNSIGNED_INT32,
+			P_INT64,
+			P_UNSIGNED_INT64,
+			P_FLOAT,
+			P_DOUBLE			
+		};
+		
+		
+		union TpSimpleAttributeValue switch(TpSimpleAttributeTypeInfo) {
+			case P_BOOLEAN: TpBoolean BooleanValue;
+			case P_OCTET: TpOctet OctetValue;
+			case P_CHAR: TpChar CharValue;
+			case P_WCHAR: TpWChar WCharValue;
+			case P_STRING: TpString StringValue;
+			case P_WSTRING: TpWString WStringValue;
+			case P_INT16: TpInt16 Int16Value;
+			case P_UNSIGNED_INT16: TpUnsignedInt16 UnsignedInt16Value;
+			case P_INT32: TpInt32 Int32Value;
+			case P_UNSIGNED_INT32: TpUnsignedInt32 UnsignedInt32Value;
+			case P_INT64: TpInt64 Int64Value;
+			case P_UNSIGNED_INT64: TpUnsignedInt64 UnsignedInt64Value;
+			case P_FLOAT: TpFloat FloatValue;
+			case P_DOUBLE: TpDouble DoubleValue;
+		};
+		
+		
+		enum TpAttributeTagInfo {
+
+			P_SIMPLE_TYPE,
+			P_STRUCTURED_TYPE,
+			P_XML_TYPE			
+		};
+		
+		
+		union TpAttributeValue switch(TpAttributeTagInfo) {
+			case P_SIMPLE_TYPE: TpSimpleAttributeValue SimpleValue;
+			case P_STRUCTURED_TYPE: TpStructuredAttributeValue StructuredValue;
+			case P_XML_TYPE: TpXMLString XMLValue;
+		};
+		
+		
+		struct TpAttribute {
+			TpString AttributeName;
+			TpAttributeValue AttributeValue;
+		};
+		
+		
+		typedef sequence <TpAttribute> TpAttributeList;
+		
+		
+		typedef sequence <TpAttribute> TpAttributeSet;
+
+		
+		
+		interface IpInterface {
+		};
+		
+		
+		interface IpService : IpInterface {
+			void setCallback (
+				in IpInterface appInterface	
+				)				
+				raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+				
+			void setCallbackWithSessionID (
+				in IpInterface appInterface,	
+				in TpSessionID sessionID	
+				)				
+				raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_INTERFACE_TYPE);
+				
+		};
+		
+	};
+	
+};
+
+#endif

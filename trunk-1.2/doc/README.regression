@@ -1,0 +1,78 @@
+#
+# Wireshark/TShark Regression Testing
+#
+# $Id$
+#
+# This is a sample Makefile for regression testing of the
+# Wireshark engine. These tests use that uses 'tshark -V' to analyze all
+# the frames of a capture file.
+#
+# You should probably rename this file as 'Makefile' in a separate directory
+# set aside for the sole purpose of regression testing. Two text files will
+# be created for each capture file you test, so expect to have lots of files.
+#
+# Set TSHARK, CAPTURE_DIR, and CAPTURE_FILES to values appropriate for
+# your system. Run 'make' to create the initial datasets. Type 'make accept'
+# to accept those files as the reference set.
+#
+# After you make changes to TShark, run 'make regress'. This will re-run
+# the tests and compare them against the accepted reference set of data.
+# The comparison, which is just an invocation of 'diff -u' for the output
+# of each trace file, will be put into a file called 'regress'. Examine
+# this file for any changes that you did or did not expect. 
+#
+# If you have introduced a change to TShark that shows up in the tests, but
+# it is a valid change, run 'make accept' to accept those new data as your
+# reference set. 
+#
+# Commands:
+#
+# 'make'		Creates tests
+# 'make regress'	Checks tests against accepted reference test results
+#			Report is put in file 'regress'
+# 'make accept'		Accept current tests; make them the reference test results
+# 'make clean'		Cleans any tests (but not references!)
+
+TSHARK=/home/gram/prj/wireshark/debug/linux-ix86/tshark
+
+CAPTURE_DIR=/home/gram/prj/sniff
+
+CAPTURE_FILES=\
+	dhcp-g.tr1	\
+	genbroad.snoop	\
+	ipv6-ripng.gz	\
+	ipx.pcap	\
+	pcmjh03.tr1	\
+	strange.iptrace	\
+	teardrop.toshiba.gz	\
+	zlip-1.pcap	\
+	zlip-2.pcap	\
+	zlip-3.pcap
+
+######################################## No need to modify below this line
+
+TESTS = $(CAPTURE_FILES:=.tether)
+REFERENCES = $(TESTS:.tether=.ref)
+
+all:	$(TESTS)
+
+clean:
+	rm -f $(TESTS)
+
+%.tether : $(CAPTURE_DIR)/% $(TSHARK)
+	$(TSHARK) -V -n -r $< > $@
+
+accept: $(REFERENCES)
+
+%.ref : %.tether
+	mv $< $@
+
+regress: $(TESTS)
+	@echo "Regression Report" 			> regress
+	@date						>> regress
+	@echo "BOF------------------------------------"	>> regress
+	@for file in $(CAPTURE_FILES); do \
+		echo Checking regression of $$file ; \
+		diff -u $${file}.ref $${file}.tether	>> regress ; \
+	done
+	@echo "EOF------------------------------------"	>> regress

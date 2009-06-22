@@ -1,0 +1,26 @@
+#
+#	dictionary.trapeze
+#
+#	For use with FreeRadius and Trapeze Networks MSS software 1.1
+#	or greater.
+#
+#	For assistance, email support@trapezenetworks.com.
+#
+#	$Id$
+#
+#
+VENDOR		Trapeze		14525
+
+# Attributes for MSS 1.1 and later
+
+ATTRIBUTE	Trapeze-VLAN-Name		1	string	Trapeze
+ATTRIBUTE	Trapeze-Mobility-Profile	2	string	Trapeze
+ATTRIBUTE	Trapeze-Encryption-Type		3	string	Trapeze
+ATTRIBUTE	Trapeze-Time-Of-Day		4	string	Trapeze
+
+# New attributes for MSS 3.0 and later
+
+ATTRIBUTE	Trapeze-SSID			5	string	Trapeze
+ATTRIBUTE	Trapeze-End-Date		6	string	Trapeze
+ATTRIBUTE	Trapeze-Start-Date		7	string	Trapeze
+ATTRIBUTE	Trapeze-URL			8	string	Trapeze

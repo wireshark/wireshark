@@ -1,0 +1,6 @@
+#! /bin/sh -e
+
+if test -e /usr/etc/manuf ; then rm /usr/etc/manuf ; fi
+
+#DEBHELPER#
+

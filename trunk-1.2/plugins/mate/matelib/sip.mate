@@ -1,0 +1,13 @@
+# sip.mate
+# $Id$
+
+Action=PduDef; Name=sip_pdu; Proto=sip; Transport=tcp/ip; addr=ip.addr; port=tcp.port; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+Action=GopDef; Name=sip_leg; On=sip_pdu; addr; addr; port; port;
+Action=GopStart; For=sip_leg; sip_method=INVITE;
+Action=GopStop; For=sip_leg; sip_method=BYE;
+
+Action=PduDef; Name=sip_trunk_pdu; Proto=sip; Transport=udp/ip; addr=ip.addr; port=udp.port; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+Action=GopDef; Name=sip_trunk_leg; On=sip_trunk_pdu; addr; addr; sip_callid;
+Action=GopStart; For=sip_trunk_leg; sip_method=INVITE;
+Action=GopStop; For=sip_trunk_leg; sip_method=BYE;
+

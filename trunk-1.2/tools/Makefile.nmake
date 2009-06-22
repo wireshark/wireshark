@@ -1,0 +1,33 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+all: lemon
+
+clean-local:
+	rm -f *.pyc
+
+clean:  clean-local
+	cd lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+
+distclean-local: clean-local
+
+distclean: distclean-local
+	cd lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+
+maintainer-clean-local: distclean-local
+
+maintainer-clean: maintainer-clean-local
+	cd lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
+lemon::
+	cd lemon
+	..\native-nmake $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..

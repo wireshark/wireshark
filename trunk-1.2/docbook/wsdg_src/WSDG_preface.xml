@@ -1,0 +1,129 @@
+<!-- $Id$ -->
+
+<preface id="Preface">
+  <title>Preface</title>
+  <section id="PreForeword">
+  <title>Foreword</title>
+  <para>
+	This book tries to give you a guide to start your own experiments into 
+	the wonderful world of Wireshark development.
+  </para>
+  <para>
+	Developers who are new to Wireshark often have a hard time getting 
+	their development environment up and running. This is
+	especially true for Win32 developers, as a lot of the tools and methods
+	used when building Wireshark are much more common in the UNIX world than
+	on Win32.
+  </para>
+  <para>
+	The first part of this book will describe how to set up the environment 
+	needed to develop Wireshark.
+  </para>
+  <para>
+	The second part of this book will describe how to change the Wireshark 
+	source code.
+  </para>
+  <para>
+    We hope that you find this book useful, and look forward to your comments.
+  </para>
+  </section>
+
+  <section id="PreAudience">
+  <title>Who should read this document?</title>
+  <para>
+  The intended audience of this book is anyone going into the development of 
+  Wireshark.
+  </para>
+  <para>
+  This book is not intended to explain the usage of Wireshark in general. 
+  Please refer the 
+  <ulink url="&WiresharkUsersGuidePage;">Wireshark User's Guide</ulink> 
+  about Wireshark usage.
+  </para>
+  <para>
+  By reading this book, you will learn how to develop Wireshark. It will 
+  hopefully guide you around some common problems that frequently appear for 
+  new (and sometimes even advanced) developers of Wireshark.
+  </para>
+  </section>
+
+  <section id="PreAck">
+  <title>Acknowledgements</title>
+  <para>
+    The authors would like to thank the whole Wireshark team for their 
+	assistance. In particular, the authors would like to thank:
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Gerald Combs, for initiating the Wireshark project.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+      Guy Harris, for many helpful hints and his effort in maintaining
+      the various contributions on the mailing lists.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    The authors would also like to thank the following people for their 
+	helpful feedback on this document:
+    <itemizedlist>
+      <listitem>
+      <para>XXX - Please give feedback :-)
+      </para>
+      </listitem>
+    </itemizedlist>
+	And of course a big thank you to the many, many contributors of the 
+	Wireshark development community!
+  </para>
+  </section>
+
+  <section id="PreAbout">
+    <title>About this document</title>
+    <para>
+      This book was developed by 
+      <ulink url="mailto:&AuthorEmail;">Ulf Lamping</ulink>.
+    </para>
+    <para>
+      It is written in DocBook/XML.
+    </para>
+    <para>
+	You will find some specially marked parts in this book:
+    </para>
+    <warning><title>This is a warning!</title>
+	<para>
+	You should pay attention to a warning, as otherwise data loss might occur.
+	</para>
+    </warning>
+    <note><title>This is a note!</title>
+	<para>
+	A note will point you to common mistakes and things that might not be 
+	obvious.
+	</para>
+    </note>
+    <tip><title>This is a tip!</title>
+	<para>
+	Tips will be helpful for your everyday work developing Wireshark.
+	</para>
+    </tip>
+  </section>
+  
+  <section id="PreDownload">
+    <title>Where to get the latest copy of this document?</title>
+    <para>
+      The latest copy of this documentation can always be found at: 
+      <ulink url="&WiresharkDevsGuidePage;">&WiresharkDevsGuidePage;</ulink>
+	  in PDF (A4 and US letter), HTML (single and chunked) and CHM format.
+    </para>
+  </section>
+
+  <section id="PreFeedback">
+    <title>Providing feedback about this document</title>
+    <para>
+      Should you have any feedback about this document, please send it 
+      to the authors through <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
+    </para>
+  </section>
+</preface>

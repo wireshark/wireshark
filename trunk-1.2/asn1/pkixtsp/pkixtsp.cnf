@@ -1,0 +1,33 @@
+# pkixtsp.cnf
+# Time-Stamp Protocol (RFC3161) conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+PKIX1Explicit88 pkix1explicit
+PKIX1Implicit88 pkix1implicit
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.IMPORT ../cms/cms-exp.cnf
+
+#.EXPORTS
+
+#.PDU
+
+#.REGISTER
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+TSTInfo/version Tst_version
+
+#.FIELD_RENAME
+PKIStatusInfo/status	pki_status
+TSTInfo/version tst_version
+
+#.REGISTER
+TSTInfo			B "1.2.840.113549.1.9.16.1.4" "id-ct-TSTInfo"
+
+#.END
+

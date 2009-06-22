@@ -1,0 +1,88 @@
+$Id$
+
+This document is an attempt, to explain how to use the wimax plugin
+in this directory.
+
+
+Overview
+--------
+The wimax plugin is a standalone Wireshark plugin that contains a set
+of WiMax Protocol dissectors.  The plugin registers the WiMax Protocol
+dissectors without attached to any packet type.  So none of the
+dissectors will be called by the Wireshark because there is no any
+packet type hookup to the plugin.  However, it is very simple to add
+the WiMax Protocol decoding capability into any of the packet decoder
+by searching and calling the WiMax Protocol dissectors since they are
+registered to Wireshark already.  m2m plugin is an example that uses
+the wimax plugin to decode the WiMax MAC to MAC Protocol TLV packet.
+
+
+WiMax Protocol dissector list
+-------------
+WiMax Burst Dissectors:
+ 1. wimax_cdma_code_burst_handler - WiMax CDMA Code Attribute Burst dissector.
+ 2. wimax_fch_burst_handler - WiMax FCH Burst dissector.
+ 3. wimax_ffb_burst_handler - WiMax Fast Feedback Burst dissector.
+ 4. wimax_pdu_burst_handler - WiMax PDU Burst dissector.
+ 5. wimax_hack_burst_handler - WiMax HACK Burst dissector.
+ 6. wimax_phy_attributes_burst_handler - WiMax PHY Attributes Burst dissector.
+
+WiMax MAC dissectors:
+ 7. mac_header_type_1_handler - WiMax TYPE I MAC Header PDU dissector.
+ 8. mac_header_type_2_handler - WiMax TYPE II MAC Header PDU dissector.
+ 9. mac_header_generic_handler - WiMax Generic MAC Header PDU dissector.
+ 10. mac_mgmt_msg_handler - WiMax MAC Management Messages dissector.
+
+WiMax Utility dissectors:
+11. wimax_service_flow_encodings_decoder - WiMax Service Flow Encodings dissector.
+12. wimax_error_parameter_set_decoder - WiMax Error Parameter Set dissector.
+13. wimax_security_negotiation_parameters_decoder - WiMax Security Negotiation Parameter dissector.
+14. wimax_pkm_tlv_encoded_attributes_decoder - WiMax PKM TLV Encoded Attributes dissector.
+15. wimax_tek_parameters_decoder - WiMax TEK Parameters dissector.
+16. wimax_pkm_configuration_settings_decoder - WiMax PKM Configuration Settings dissector.
+17. wimax_sa_descriptor_decoder - WiMax SA Descriptor dissector.
+18. wimax_cryptographic_suite_list_decoder - WiMax Cryptographic Suite List dissector.
+19. wimax_security_capabilities_decoder - WiMax Security Capabilities dissector.
+20. wimax_common_tlv_encoding_decoder - WiMax Common TLV Encoding dissector.
+19. wimax_vendor_specific_information_decoder - WiMax Vendor-Specific Information dissector.
+
+
+Usages
+--------
+To use any of the dissectors listed above:
+
+1. Call Wireshark function: handle = find_dissector("dissector_name")
+to get the dissector's handler.
+Example: mgt_msg_handle = find_dissector("mac_mgmt_msg_handler");
+
+2. If find_dissector() finds the dissector successfully a non-NULL
+handle will be returned. Then call another Wireshark function:
+call_dissector(handle, tvb, pinfo, tree) to call the dissector
+corresponding to the handle.
+
+Here, handle is the value returned by find_dissector() function.
+    tvb is the pointer of the data buffer which contains the exact
+	content defined by the IEEE 802.16 standards for the dissector.
+    pinfo is the pointer to the packet information from Wireshark.
+    tree is the pointer to the display tree or sub-tree.
+Example: call_dissector(mgt_msg_handle, mgt_msg_tvb, pinfo, mgt_msg_tree);
+
+3. The WiMax Utility dissectors should be called directly.
+
+
+Notes
+--------
+1. All the burst data has to be defraged before passing it to the
+WiMax burst dissectors.
+
+2. The wimax_pdu_burst_handler will automatically call
+mac_header_generic_handler, mac_header_type_1_handler and
+mac_header_type_2_handler based on the PDU contents.
+
+3. The mac_header_generic_handler will automatically call
+mac_mgmt_msg_handler based on the PDU payload.
+
+4. All the dissectors can be called independently but the data passed
+to the dissectors has to contain exact content defined by the
+IEEE 802.16 standards.
+

@@ -1,0 +1,313 @@
+//Source file: am.idl
+//Date:  12 October 2004
+//Account Manager Interfaces and Data Types for ETSI ES 203 915-11 V1.1.1, DES/TISPAN-01005-11-OSA, Parlay 5.0
+
+
+#ifndef __AM_DEFINED
+#define __AM_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module am {
+			
+			
+			enum TpChargingEventName {
+
+				P_AM_CHARGING,
+				P_AM_RECHARGING,
+				P_AM_ACCOUNT_LOW,
+				P_AM_ACCOUNT_ZERO,
+				P_AM_ACCOUNT_DISABLED				
+			};
+			
+			
+			enum TpBalanceQueryError {
+
+				P_BALANCE_QUERY_OK,
+				P_BALANCE_QUERY_ERROR_UNDEFINED,
+				P_BALANCE_QUERY_UNKNOWN_SUBSCRIBER,
+				P_BALANCE_QUERY_UNAUTHORIZED_APPLICATION,
+				P_BALANCE_QUERY_SYSTEM_FAILURE				
+			};
+			
+			
+			struct TpBalanceInfo {
+				TpString Currency;
+				TpInt32 ValuePartA;
+				TpInt32 ValuePartB;
+				TpInt32 Exponent;
+				TpString AdditionalInfo;
+			};
+			
+			
+			struct TpChargingEventInfo {
+				TpChargingEventName ChargingEventName;
+				TpBalanceInfo CurrentBalanceInfo;
+				TpTime ChargingEventTime;
+			};
+			
+			
+			struct TpBalance {
+				TpAddress UserID;
+				TpBalanceQueryError StatusCode;
+				TpBalanceInfo BalanceInfo;
+			};
+			
+			
+			typedef sequence <TpBalance> TpBalanceSet;
+			
+			
+			struct TpTransactionHistory {
+				TpAssignmentID TransactionID;
+				TpDateAndTime TimeStamp;
+				TpString AdditionalInfo;
+			};
+			
+			
+			typedef sequence <TpTransactionHistory> TpTransactionHistorySet;
+			
+			
+			enum TpTransactionHistoryStatus {
+
+				P_AM_TRANSACTION_ERROR_UNSPECIFIED,
+				P_AM_TRANSACTION_INVALID_INTERVAL,
+				P_AM_TRANSACTION_UNKNOWN_ACCOUNT,
+				P_AM_TRANSACTION_UNAUTHORIZED_APPLICATION,
+				P_AM_TRANSACTION_PROCESSING_ERROR,
+				P_AM_TRANSACTION_SYSTEM_FAILURE				
+			};
+			
+			
+			typedef sequence <TpChargingEventName> TpChargingEventNameSet;
+			
+			
+			struct TpChargingEventCriteria {
+				TpChargingEventNameSet ChargingEvents;
+				TpAddressSet Users;
+			};
+			
+			
+			struct TpChargingEventCriteriaResult {
+				TpChargingEventCriteria ChargingEventCriteria;
+				TpAssignmentID AssignmentID;
+			};
+			
+			
+			exception P_UNAUTHORIZED_APPLICATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef sequence <TpChargingEventCriteriaResult> TpChargingEventCriteriaResultSet;
+			
+			
+			struct TpBalanceExpiryDate {
+				TpAddress UserID;
+				TpBalanceQueryError StatusCode;
+				TpDateAndTime ExpiryDate;
+			};
+			
+			
+			typedef sequence <TpBalanceExpiryDate> TpBalanceExpiryDateSet;
+			
+			
+			enum TpVoucherError {
+
+				P_VOUCHER_OK,
+				P_VOUCHER_UNDEFINED,
+				P_VOUCHER_UNKNOWN_SUBSCRIBER,
+				P_VOUCHER_UNAUTHORIZED_APPLICATION,
+				P_VOUCHER_SYSTEM_FAILURE				
+			};
+			
+			
+			struct TpVoucher {
+				TpAssignmentID VoucherID;
+				TpAddress UserID;
+				TpBalanceInfo BalanceInfo;
+			};
+			
+			
+			typedef sequence <TpVoucher> TpVoucherSet;
+			
+
+			
+			interface IpAppAccountManager : IpInterface {
+				void reportNotification (
+					in TpChargingEventInfo chargingEventInfo,	
+					in TpAssignmentID assignmentId	
+					);
+					
+				void queryBalanceRes (
+					in TpAssignmentID queryId,	
+					in TpBalanceSet balances	
+					);
+					
+				void queryBalanceErr (
+					in TpAssignmentID queryId,	
+					in TpBalanceQueryError cause	
+					);
+					
+				void retrieveTransactionHistoryRes (
+					in TpAssignmentID retrievalID,	
+					in TpTransactionHistorySet transactionHistory	
+					);
+					
+				void retrieveTransactionHistoryErr (
+					in TpAssignmentID retrievalID,	
+					in TpTransactionHistoryStatus transactionHistoryError	
+					);
+					
+				void queryBalanceExpiryDateRes (
+					in TpAssignmentID queryId,	
+					in TpBalanceExpiryDateSet dates	
+					);
+					
+				void queryBalanceExpiryDateErr (
+					in TpAssignmentID queryId,	
+					in TpBalanceQueryError cause	
+					);
+					
+				void updateBalanceRes (
+					in TpAssignmentID requestId,	
+					in TpBalance balance	
+					);
+					
+				void updateBalanceErr (
+					in TpAssignmentID requestId,	
+					in TpBalanceQueryError cause	
+					);
+					
+				void createVoucherRes (
+					in TpAssignmentID requestId,	
+					in TpAssignmentID voucherId	
+					);
+					
+				void createVoucherErr (
+					in TpAssignmentID requestId,	
+					in TpVoucherError cause	
+					);
+					
+				void destroyVoucherRes (
+					in TpAssignmentID requestId,	
+					in TpAssignmentID voucherId	
+					);
+					
+				void destroyVoucherErr (
+					in TpAssignmentID requestId,	
+					in TpAssignmentID voucherId,	
+					in TpVoucherError cause	
+					);
+					
+				void queryVoucherRes (
+					in TpAssignmentID queryId,	
+					in TpVoucher voucher	
+					);
+					
+				void queryVoucherErr (
+					in TpAssignmentID queryId,	
+					in TpAssignmentID voucherId,	
+					in TpVoucherError cause	
+					);
+					
+				void queryUserVouchersRes (
+					in TpAssignmentID queryId,	
+					in TpVoucherSet vouchers	
+					);
+					
+				void queryUserVouchersErr (
+					in TpAssignmentID queryId,	
+					in TpVoucherError cause	
+					);
+					
+			};
+			
+			
+			interface IpAccountManager : IpService {
+				TpAssignmentID createNotification (
+					in IpAppAccountManager appAccountManager,	
+					in TpChargingEventCriteria chargingEventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ADDRESS,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE,P_UNKNOWN_SUBSCRIBER);
+					
+				void destroyNotification (
+					in TpAssignmentID assignmentId	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+					
+				TpAssignmentID queryBalanceReq (
+					in TpAddressSet users	
+					)					
+					raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_UNAUTHORIZED_APPLICATION);
+					
+				void changeNotification (
+					in TpAssignmentID assignmentID,	
+					in TpChargingEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE,P_UNKNOWN_SUBSCRIBER,P_INVALID_ADDRESS);
+					
+				TpChargingEventCriteriaResultSet getNotification ()					
+					raises (TpCommonExceptions);
+					
+				TpAssignmentID retrieveTransactionHistoryReq (
+					in TpAddress user,	
+					in TpTimeInterval transactionInterval	
+					)					
+					raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_UNAUTHORIZED_APPLICATION,P_INVALID_TIME_AND_DATE_FORMAT);
+					
+				TpAssignmentID enableNotifications (
+					in IpAppAccountManager appAccountManager	
+					)					
+					raises (TpCommonExceptions);
+					
+				void disableNotifications ()					
+					raises (TpCommonExceptions);
+					
+				TpAssignmentID queryBalanceExpiryDateReq (
+					in TpAddressSet users	
+					)					
+					raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_UNAUTHORIZED_APPLICATION);
+					
+				TpAssignmentID updateBalanceReq (
+					in TpAddress user,	
+					in TpBoolean debit,	
+					in TpBalanceInfo amount,	
+					in TpInt32 period	
+					)					
+					raises (TpCommonExceptions, P_UNKNOWN_SUBSCRIBER, P_UNAUTHORIZED_APPLICATION);
+					
+				TpAssignmentID createVoucherReq (
+					in TpAddress user,	
+					in TpBalanceInfo amount	
+					)					
+					raises (TpCommonExceptions, P_UNKNOWN_SUBSCRIBER, P_UNAUTHORIZED_APPLICATION);
+					
+				TpAssignmentID destroyVoucherReq (
+					in TpAssignmentID voucherId	
+					)					
+					raises (TpCommonExceptions, P_UNAUTHORIZED_APPLICATION, P_INVALID_ASSIGNMENT_ID);
+					
+				TpAssignmentID queryVoucherReq (
+					in TpAssignmentID voucherId	
+					)					
+					raises (TpCommonExceptions, P_UNAUTHORIZED_APPLICATION, P_INVALID_ASSIGNMENT_ID);
+					
+				TpAssignmentID queryUserVouchersReq (
+					in TpAddress user	
+					)					
+					raises (TpCommonExceptions, P_UNKNOWN_SUBSCRIBER, P_UNAUTHORIZED_APPLICATION, P_INVALID_ASSIGNMENT_ID);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

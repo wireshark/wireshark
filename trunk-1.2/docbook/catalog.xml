@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!-- Wireshark User's Guide and Developer's Guide catalog
+     $Id$
+
+See the Readme.txt file for instructions.
+
+Please note that if you shift any files in the directory structure you MUST adjust this catalog.
+
+-->
+<!DOCTYPE catalog
+   PUBLIC "-//OASIS/DTD Entity Resolution XML Catalog V1.0//EN"
+   "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+  <!-- DTD and stylesheet files installed under /usr/share/xml -->
+  <group  xml:base="file:///usr/share/xml/" >
+
+    <!-- Resolve DTD URL system ID to local file -->
+    <rewriteSystem
+        systemIdStartString="http://www.oasis-open.org/docbook/xml/4.2/"
+        rewritePrefix="/usr/share/xml/docbook/4.2/" />
+        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/schema/dtd/4.2/" /> -->
+    
+    <!-- Resolve stylesheet URL to local file -->
+    <!-- if you need to change this, don't forget to change it in the Makefile too -->
+    <rewriteURI
+        uriStartString="http://docbook.sourceforge.net/release/xsl/current/"
+        rewritePrefix="/usr/share/docbook-xsl/" />
+        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/" /> -->
+        <!-- rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" /> -->
+
+    <!-- Resolve DTD PUBLIC identifiers -->
+    <nextCatalog  catalog="docbook42/catalog.xml" />
+    <!-- Debian: <nextCatalog  catalog="catalog.xml" /> -->
+
+    <!-- To resolve simple DTD SYSTEM identifiers. -->
+    <!-- Note: this does not work with Java resolver -->
+    <!--   classes in Saxon or Xalan -->
+    <system
+         systemId="docbook.dtd"
+         uri="docbook42/docbookx.dtd" />
+         <!-- Debian: uri="docbookx.dtd" /> -->
+
+    <!-- To resolve short stylesheet references -->
+	<!--
+    <system
+        systemId="EtherealMain1"
+        uri="./graphics/wireshark-main.jpg" />
+    <system
+        systemId="EtherealThreePane1"
+        uri="./graphics/wireshark-main.jpg" />
+    <uri 
+        name="chunk.xsl"
+        uri="docbook-xsl-1.62.1/html/chunk.xsl" />
+    <uri
+        name="fo-docbook.xsl"
+        uri="docbook-xsl-1.62.1/fo/docbook.xsl" />
+	-->
+
+  </group>
+
+</catalog>

@@ -1,0 +1,981 @@
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h282/1999/RDC-PROTOCOL.asn
+
+-- Module RDC-PROTOCOL (H.282:02/1998)
+RDC-PROTOCOL {itu-t(0) recommendation(0) h 282 version(0) 1} DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+-- Export all symbols
+-- ==========================================================================
+-- Part 1:  Message Components
+-- ==========================================================================
+H221NonStandardIdentifier ::= OCTET STRING(SIZE (4..255))
+
+-- First four octets shall be country code and
+-- Manufacturer code, assigned as specified in
+-- H.221 Annex A for NS-cap and NS-comm
+Key ::= CHOICE -- Identifier of a standard or non-standard object
+         {
+  object           OBJECT IDENTIFIER,
+  h221NonStandard  H221NonStandardIdentifier
+}
+
+NonStandardParameter ::= SEQUENCE {key   Key,
+                                   data  OCTET STRING
+}
+
+Handle ::= INTEGER(0..4294967295)
+
+NonStandardIdentifier ::= CHOICE {
+  object           OBJECT IDENTIFIER,
+  h221nonStandard  H221NonStandardIdentifier
+}
+
+TextString ::=
+  BMPString
+    (SIZE (0..255)) -- Basic Multilingual Plane of ISO/IEC 10646-1 (Unicode)
+    
+
+DeviceClass ::= CHOICE {
+  camera                NULL,
+  microphone            NULL,
+  streamPlayerRecorder  NULL,
+  slideProjector        NULL,
+  lightSource           NULL,
+  sourceCombiner        NULL,
+  nonStandardDevice     NonStandardIdentifier
+}
+
+DeviceID ::= INTEGER(0..127)
+
+StreamID ::= INTEGER(0..65535)
+
+DeviceProfile ::= SEQUENCE {
+  deviceID           DeviceID,
+  audioSourceFlag    BOOLEAN,
+  audioSinkFlag      BOOLEAN,
+  videoSourceFlag    BOOLEAN,
+  videoSinkFlag      BOOLEAN,
+  remoteControlFlag  BOOLEAN,
+  instanceNumber     INTEGER(0..255),
+  deviceName         TextString OPTIONAL,
+  ...
+}
+
+StreamProfile ::= SEQUENCE {
+  streamID          StreamID,
+  videoStreamFlag   BOOLEAN,
+  sourceChangeFlag  BOOLEAN,
+  streamName        TextString OPTIONAL,
+  ...
+}
+
+CapabilityID ::= CHOICE {
+  standard     INTEGER(0..65535), -- Assigned by this specification
+  nonStandard  Key
+}
+
+NonCollapsingCapabilities ::=
+  SET OF
+    SEQUENCE {capabilityID     CapabilityID,
+              applicationData
+                CHOICE {deviceList  SET SIZE (0..127) OF DeviceProfile,
+                        streamList  SET SIZE (0..127) OF StreamProfile
+              }}
+
+--
+-- Attribute parameter types
+--
+Day ::= INTEGER(1..31)
+
+Month ::= INTEGER(1..12)
+
+Year ::= INTEGER(1980..2999)
+
+Hour ::= INTEGER(0..23)
+
+Minute ::= INTEGER(0..59)
+
+DeviceText ::= OCTET STRING(SIZE (0..32))
+
+PanPosition ::= INTEGER(-18000..18000) -- 100ths of a degree
+                       
+
+TiltPosition ::= INTEGER(-18000..18000) -- 100ths of a degree
+                        
+
+ZoomPosition ::= INTEGER(-1023..1023)
+
+IrisPosition ::= INTEGER(-127..127)
+
+FocusPosition ::= INTEGER(-127..127)
+
+CameraPanSpeed ::= INTEGER(1..18000) -- 100ths of a degree/sec
+                          
+
+CameraTiltSpeed ::= INTEGER(1..18000) -- 100ths of a degree/sec
+                           
+
+BackLight ::= INTEGER(0..255)
+
+WhiteBalance ::= INTEGER(0..255)
+
+PresetNumber ::= INTEGER(1..255)
+
+StreamPlayerState ::= CHOICE {
+  playing             NULL,
+  recording           NULL,
+  pausedOnRecord      NULL,
+  pausedOnPlay        NULL,
+  rewinding           NULL,
+  fastForwarding      NULL,
+  searchingForwards   NULL,
+  searchingBackwards  NULL,
+  stopped             NULL,
+  programUnavailable  NULL
+}
+
+DevicePresetCapability ::= SEQUENCE {
+  maxNumber         PresetNumber,
+  presetCapability
+    SET SIZE (0..255) OF
+      SEQUENCE {presetNumber        PresetNumber,
+                storeModeSupported  BOOLEAN,
+                presetTextLabel     DeviceText} OPTIONAL
+}
+
+CameraFilterCapability ::= SEQUENCE {
+  maxNumberOfFilters  INTEGER(2..255),
+  filterTextLabel
+    SET SIZE (0..255) OF
+      SEQUENCE {filterNumber     INTEGER(1..255),
+                filterTextLabel  DeviceText} OPTIONAL
+}
+
+CameraLensCapability ::= SEQUENCE {
+  maxNumberOfLens     INTEGER(2..255),
+  accessoryTextLabel
+    SET SIZE (0..255) OF
+      SEQUENCE {lensNumber     INTEGER(1..255),
+                lensTextLabel  DeviceText} OPTIONAL
+}
+
+ExternalCameraLightCapability ::= SEQUENCE {
+  maxNumber       INTEGER(1..10),
+  lightTextLabel
+    SET SIZE (0..10) OF
+      SEQUENCE {lightNumber  INTEGER(1..10),
+                lightLabel   DeviceText} OPTIONAL
+}
+
+CameraPanSpeedCapability ::= SEQUENCE {
+  maxSpeed       CameraPanSpeed,
+  minSpeed       CameraPanSpeed,
+  speedStepSize  CameraPanSpeed
+}
+
+CameraTiltSpeedCapability ::= SEQUENCE {
+  maxSpeed       CameraTiltSpeed,
+  minSpeed       CameraTiltSpeed,
+  speedStepSize  CameraTiltSpeed
+}
+
+MaxBacklight ::= INTEGER(1..255)
+
+MaxWhiteBalance ::= INTEGER(1..255)
+
+MinZoomPositionSetSize ::= INTEGER(1..1023)
+
+MinFocusPositionStepSize ::= INTEGER(1..127)
+
+MinIrisPositionStepSize ::= INTEGER(1..127)
+
+PanPositionCapability ::= SEQUENCE {
+  maxLeft      INTEGER(-18000..0), -- Max pan left
+  maxRight     INTEGER(0..18000), -- Max pan right
+  minStepSize  INTEGER(1..18000)
+}
+
+TiltPositionCapability ::= SEQUENCE {
+  maxDown      INTEGER(-18000..0), -- Max tilt down
+  maxUp        INTEGER(0..18000), -- Max tilt up
+  minStepSize  INTEGER(1..18000)
+}
+
+MinZoomMagnificationStepSize ::= INTEGER(1..1000)
+
+MaxNumberOfSlides ::= INTEGER(1..1024)
+
+MaxSlideDisplayTime ::= INTEGER(1..255) -- Max time in seconds
+                               
+
+MaxNumberOfPrograms ::= INTEGER(1..1023)
+
+PlayBackSpeedCapability ::= SEQUENCE {
+  multiplierFactors  SET SIZE (1..64) OF INTEGER(10..1000),
+  divisorFactors     SET SIZE (1..64) OF INTEGER(10..1000)
+}
+
+VideoInputsCapability ::= SEQUENCE {
+  numberOfDeviceInputs  INTEGER(2..64),
+  numberOfDeviceRows    INTEGER(1..64),
+  -- The Optional Device list is only included if the inputs are configurable
+  availableDevices
+    SET SIZE (2..64) OF
+      SEQUENCE {deviceClass       DeviceClass,
+                deviceIdentifier  DeviceID} OPTIONAL
+}
+
+AudioInputsCapability ::= SEQUENCE {
+  numberOfDeviceInputs  INTEGER(2..64),
+  -- The Optional Device list is only included if the inputs are configurable
+  availableDevices
+    SET SIZE (2..64) OF
+      SEQUENCE {deviceClass       DeviceClass,
+                deviceIdentifier  DeviceID} OPTIONAL
+}
+
+DeviceAttribute ::= CHOICE {
+  deviceStateSupported                NULL,
+  deviceDateSupported                 NULL,
+  deviceTimeSupported                 NULL,
+  devicePresetSupported               DevicePresetCapability,
+  irisModeSupported                   NULL,
+  focusModeSupported                  NULL,
+  pointingModeSupported               NULL,
+  cameraLensSupported                 CameraLensCapability,
+  cameraFilterSupported               CameraFilterCapability,
+  homePositionSupported               NULL,
+  externalCameraLightSupported        ExternalCameraLightCapability,
+  clearCameraLensSupported            NULL,
+  cameraPanSpeedSupported             CameraPanSpeedCapability,
+  cameraTiltSpeedSupported            CameraTiltSpeedCapability,
+  backLightModeSupported              NULL,
+  backLightSettingSupported           MaxBacklight,
+  whiteBalanceSettingSupported        MaxWhiteBalance,
+  whiteBalanceModeSupported           NULL,
+  calibrateWhiteBalanceSupported      NULL,
+  focusImageSupported                 NULL,
+  captureImageSupported               NULL,
+  panContinuousSupported              NULL,
+  tiltContinuousSupported             NULL,
+  zoomContinuousSupported             NULL,
+  focusContinuousSupported            NULL,
+  irisContinuousSupported             NULL,
+  zoomPositionSupported               MinZoomPositionSetSize,
+  focusPositionSupported              MinFocusPositionStepSize,
+  irisPositionSupported               MinIrisPositionStepSize,
+  panPositionSupported                PanPositionCapability,
+  tiltPositionSupported               TiltPositionCapability,
+  zoomMagnificationSupported          MinZoomMagnificationStepSize,
+  panViewSupported                    NULL,
+  tiltViewSupported                   NULL,
+  selectSlideSupported                MaxNumberOfSlides,
+  selectNextSlideSupported            NULL,
+  slideShowModeSupported              NULL,
+  playSlideShowSupported              NULL,
+  setSlideDisplayTimeSupported        MaxSlideDisplayTime,
+  continuousRewindSupported           NULL,
+  continuousFastForwardSupported      NULL,
+  searchBackwardsSupported            NULL,
+  searchForwardsSupported             NULL,
+  pauseSupported                      NULL,
+  selectProgramSupported              MaxNumberOfPrograms,
+  nextProgramSupported                NULL,
+  gotoNormalPlayTimePointSupported    NULL,
+  readStreamPlayerStateSupported      NULL,
+  readProgramDurationSupported        NULL,
+  continuousPlayBackModeSupported     NULL,
+  playbackSpeedSupported              PlayBackSpeedCapability,
+  playSupported                       NULL,
+  setAudioOutputStateSupported        NULL,
+  playToNormalPlayTimePointSupported  NULL,
+  recordSupported                     NULL,
+  recordForDurationSupported          NULL,
+  configurableVideoInputsSupported    VideoInputsCapability,
+  videoInputsSupported                VideoInputsCapability,
+  configurableAudioInputsSupported    AudioInputsCapability,
+  audioInputsSupported                AudioInputsCapability,
+  -- Attributes for Device Events
+  deviceLockStateChangedSupported     NULL,
+  deviceAvailabilityChangedSupported  NULL,
+  cameraPannedToLimitSupported        NULL,
+  cameraTiltedToLimitSupported        NULL,
+  cameraZoomedToLimitSupported        NULL,
+  cameraFocusedToLimitSupported       NULL,
+  autoSlideShowFinishedSupported      NULL,
+  streamPlayerStateChangeSupported    NULL,
+  streamPlayerProgramChangeSupported  NULL,
+  nonStandardAttributeSupported       NonStandardParameter,
+  ...
+}
+
+DeviceState ::= CHOICE {active    NULL,
+                        inactive  NULL
+}
+
+DeviceDate ::= SEQUENCE {day    Day,
+                         month  Month,
+                         year   Year
+}
+
+DeviceTime ::= SEQUENCE {hour    Hour,
+                         minute  Minute
+}
+
+DevicePreset ::= SEQUENCE {
+  presetNumber  PresetNumber,
+  mode          CHOICE {store     NULL,
+                        activate  NULL}
+}
+
+Mode ::= CHOICE {manual  NULL,
+                 auto    NULL
+}
+
+PointingToggle ::= CHOICE {manual  NULL,
+                           auto    NULL,
+                           toggle  NULL
+}
+
+SelectExternalLight ::= CHOICE {lightNumber  INTEGER(1..10),
+                                none         NULL
+}
+
+PanContinuous ::= SEQUENCE {
+  panDirection
+    CHOICE {left      NULL,
+            right     NULL,
+            stop      NULL,
+            continue  NULL},
+  timeOut       INTEGER(50..1000) -- Milliseconds
+}
+
+TiltContinuous ::= SEQUENCE {
+  tiltDirection
+    CHOICE {up        NULL,
+            down      NULL,
+            stop      NULL,
+            continue  NULL},
+  timeOut        INTEGER(50..1000) -- Milliseconds
+}
+
+ZoomContinuous ::= SEQUENCE {
+  zoomDirection
+    CHOICE {telescopic  NULL,
+            wide        NULL,
+            stop        NULL,
+            continue    NULL},
+  timeOut        INTEGER(50..1000) -- Milliseconds
+}
+
+FocusContinuous ::= SEQUENCE {
+  focusDirection
+    CHOICE {near      NULL,
+            far       NULL,
+            stop      NULL,
+            continue  NULL},
+  timeOut         INTEGER(50..1000) -- Milliseconds
+}
+
+IrisContinuous ::= SEQUENCE {
+  irisDirection
+    CHOICE {darker    NULL,
+            lighter   NULL,
+            stop      NULL,
+            continue  NULL},
+  timeOut        INTEGER(50..1000) -- Milliseconds
+}
+
+PositioningMode ::= CHOICE {relative  NULL,
+                            absolute  NULL
+}
+
+CameraLensNumber ::= INTEGER(1..255)
+
+CameraFilterNumber ::= INTEGER(1..255)
+
+SetZoomPosition ::= SEQUENCE {
+  zoomPosition     ZoomPosition,
+  positioningMode  PositioningMode
+}
+
+SetFocusPosition ::= SEQUENCE {
+  focusPosition    FocusPosition,
+  positioningMode  PositioningMode
+}
+
+SetIrisPosition ::= SEQUENCE {
+  irisPosition     IrisPosition,
+  positioningMode  PositioningMode
+}
+
+SetPanPosition ::= SEQUENCE {
+  panPosition      PanPosition,
+  positioningMode  PositioningMode
+}
+
+SetTiltPosition ::= SEQUENCE {
+  tiltPosition     TiltPosition,
+  positioningMode  PositioningMode
+}
+
+ZoomMagnification ::= INTEGER(10..1000)
+
+PanView ::= INTEGER(-1000..1000)
+
+TiltView ::= INTEGER(-1000..1000)
+
+SlideNumber ::= INTEGER(0..1023)
+
+SelectDirection ::= CHOICE {next      NULL,
+                            previous  NULL
+}
+
+AutoSlideShowControl ::= CHOICE {start  NULL,
+                                 stop   NULL,
+                                 pause  NULL
+}
+
+AutoSlideDisplayTime ::=
+  INTEGER(1..255) -- Automatic slide display time in seconds
+         
+
+ProgramNumber ::= INTEGER(1..1023)
+
+ProgramDuration ::= SEQUENCE {
+  hours         INTEGER(0..24),
+  minutes       INTEGER(0..59),
+  seconds       INTEGER(0..59),
+  microseconds  INTEGER(0..99999)
+}
+
+PlaybackSpeed ::= SEQUENCE {
+  scaleFactor     INTEGER(10..1000),
+  multiplyFactor  BOOLEAN -- TRUE to multiply, FALSE to divide
+}
+
+RecordForDuration ::= SEQUENCE {
+  hours    INTEGER(0..24),
+  minutes  INTEGER(0..59),
+  seconds  INTEGER(0..59)
+}
+
+DeviceInputs ::= SEQUENCE {
+  -- When used with the configurableVideoInputs type this device list must only contain 
+  -- devices that source a video stream. 
+  -- When used with the configurableAudioInputs type this device list must only contain
+  -- devices that source an audio stream. 
+  inputDevices
+    SET SIZE (2..64) OF
+      SEQUENCE {deviceClass       DeviceClass,
+                deviceIdentifier  DeviceID}
+}
+
+ControlAttribute ::= CHOICE {
+  setDeviceState                DeviceState,
+  setDeviceDate                 DeviceDate,
+  setDeviceTime                 DeviceTime,
+  setDevicePreset               DevicePreset,
+  setIrisMode                   Mode,
+  setFocusMode                  Mode,
+  setBackLightMode              Mode,
+  setPointingMode               PointingToggle,
+  selectCameraLens              CameraLensNumber,
+  selectCameraFilter            CameraFilterNumber,
+  gotoHomePosition              NULL,
+  selectExternalLight           SelectExternalLight,
+  clearCameraLens               NULL,
+  setCameraPanSpeed             CameraPanSpeed,
+  setCameraTiltSpeed            CameraTiltSpeed,
+  setBackLight                  BackLight,
+  setWhiteBalance               WhiteBalance,
+  setWhiteBalanceMode           Mode,
+  calibrateWhiteBalance         NULL,
+  focusImage                    NULL,
+  captureImage                  NULL,
+  panContinuous                 PanContinuous,
+  tiltContinuous                TiltContinuous,
+  zoomContinuous                ZoomContinuous,
+  focusContinuous               FocusContinuous,
+  setZoomPosition               SetZoomPosition,
+  setFocusPosition              SetFocusPosition,
+  setIrisPosition               SetIrisPosition,
+  setPanPosition                SetPanPosition,
+  setTiltPosition               SetTiltPosition,
+  setZoomMagnification          ZoomMagnification,
+  setPanView                    PanView,
+  setTiltView                   TiltView,
+  selectSlide                   SlideNumber,
+  selectNextSlide               SelectDirection,
+  playAutoSlideShow             AutoSlideShowControl,
+  setAutoSlideDisplayTime       AutoSlideDisplayTime,
+  continuousRewindControl       BOOLEAN, -- TRUE to start, FALSE to Stop
+  continuousFastForwardControl  BOOLEAN, -- TRUE to start, FALSE to Stop
+  searchBackwardsControl        BOOLEAN, -- TRUE to start, FALSE to Stop
+  searchForwardsControl         BOOLEAN, -- TRUE to start, FALSE to Stop
+  pause                         BOOLEAN, -- TRUE to pause, FALSE to release
+  selectProgram                 ProgramNumber,
+  nextProgramSelect             SelectDirection,
+  gotoNormalPlayTimePoint       ProgramDuration,
+  continuousPlayBackMode        BOOLEAN, -- TRUE to set continuous mode
+  setPlaybackSpeed              PlaybackSpeed,
+  play                          BOOLEAN, -- TRUE to pause, FALSE to release
+  setAudioOutputMute            BOOLEAN, -- TRUE to mute, FALSE to unmute
+  playToNormalPlayTimePoint     ProgramDuration,
+  record                        BOOLEAN, -- TRUE to start, FALSE to Stop
+  recordForDuration             RecordForDuration,
+  configureVideoInputs          DeviceInputs, -- Device list contains Video devices
+  configureAudioInputs          DeviceInputs, -- Device list contains Audio Devices
+  nonStandardControl            NonStandardParameter,
+  ...
+}
+
+StatusAttributeIdentifier ::= CHOICE {
+  getDeviceState              NULL,
+  getDeviceDate               NULL,
+  getDeviceTime               NULL,
+  getdevicePreset             NULL,
+  getIrisMode                 NULL,
+  getFocusMode                NULL,
+  getBacklightMode            NULL,
+  getPointingMode             NULL,
+  getCameraLens               NULL,
+  getCameraFilter             NULL,
+  getExternalLight            NULL,
+  getCameraPanSpeed           NULL,
+  getCameraTiltSpeed          NULL,
+  getBackLightMode            NULL,
+  getBackLight                NULL,
+  getWhiteBalance             NULL,
+  getWhiteBalanceMode         NULL,
+  getZoomPosition             NULL,
+  getFocusPosition            NULL,
+  getIrisPosition             NULL,
+  getPanPosition              NULL,
+  getTiltPosition             NULL,
+  getSelectedSlide            NULL,
+  getAutoSlideDisplayTime     NULL,
+  getSelectedProgram          NULL,
+  getStreamPlayerState        NULL,
+  getCurrentProgramDuration   NULL,
+  getPlaybackSpeed            NULL,
+  getAudioOutputState         NULL,
+  getConfigurableVideoInputs  NULL,
+  getVideoInputs              NULL,
+  getConfigurableAudioInputs  NULL,
+  getAudioInputs              NULL,
+  getNonStandardStatus        NonStandardIdentifier,
+  ...
+}
+
+CurrentDeviceState ::= CHOICE {deviceState  DeviceState,
+                               unknown      NULL
+}
+
+CurrentDeviceDate ::= SEQUENCE {
+  currentDay    CHOICE {day      Day,
+                        unknown  NULL},
+  currentMonth  CHOICE {month    Month,
+                        unknown  NULL},
+  currentYear   CHOICE {year     Year,
+                        unknown  NULL}
+}
+
+CurrentDeviceTime ::= SEQUENCE {
+  currentHour    CHOICE {hour     Hour,
+                         unknown  NULL},
+  currentMinute  CHOICE {minute   Minute,
+                         unknown  NULL}
+}
+
+CurrentDevicePreset ::= CHOICE {preset   PresetNumber,
+                                unknown  NULL
+}
+
+CurrentMode ::= CHOICE {mode     Mode,
+                        unknown  NULL
+}
+
+CurrentPointingMode ::= CHOICE {
+  automatic  NULL,
+  manual     NULL,
+  unknown    NULL
+}
+
+CurrentCameraLensNumber ::= CHOICE {
+  lensNumber  CameraLensNumber,
+  unknown     NULL
+}
+
+CurrentCameraFilterNumber ::= CHOICE {
+  lensNumber  CameraFilterNumber,
+  unknown     NULL
+}
+
+CurrentExternalLight ::= CHOICE {
+  lightNumber  INTEGER(1..10),
+  none         NULL,
+  unknown      NULL
+}
+
+CurrentCameraPanSpeed ::= CHOICE {speed    CameraPanSpeed,
+                                  unknown  NULL
+}
+
+CurrentCameraTiltSpeed ::= CHOICE {speed    CameraTiltSpeed,
+                                   unknown  NULL
+}
+
+CurrentBackLight ::= CHOICE {backLight  BackLight,
+                             unknown    NULL
+}
+
+CurrentWhiteBalance ::= CHOICE {whiteBalance  WhiteBalance,
+                                unknown       NULL
+}
+
+CurrentZoomPosition ::= CHOICE {zoomPosition  ZoomPosition,
+                                unknown       NULL
+}
+
+CurrentFocusPosition ::= CHOICE {
+  focusPosition  FocusPosition,
+  unknown        NULL
+}
+
+CurrentIrisPosition ::= CHOICE {irisPosition  IrisPosition,
+                                unknown       NULL
+}
+
+CurrentPanPosition ::= CHOICE {panPosition  PanPosition,
+                               unknown      NULL
+}
+
+CurrentTiltPosition ::= CHOICE {tiltPosition  TiltPosition,
+                                unknown       NULL
+}
+
+CurrentSlide ::= CHOICE {slide    SlideNumber,
+                         unknown  NULL
+}
+
+CurrentAutoSlideDisplayTime ::= CHOICE {
+  time     AutoSlideDisplayTime,
+  unknown  NULL
+}
+
+CurrentSelectedProgram ::= CHOICE {program  ProgramNumber,
+                                   unknown  NULL
+}
+
+CurrentStreamPlayerState ::= CHOICE {state    StreamPlayerState,
+                                     unknown  NULL
+}
+
+CurrentPlaybackSpeed ::= CHOICE {speed    PlaybackSpeed,
+                                 unknown  NULL
+}
+
+CurrentAudioOutputMute ::= CHOICE {
+  mute     BOOLEAN, -- TRUE if muted
+  unknown  NULL
+}
+
+StatusAttribute ::= CHOICE {
+  currentdeviceState           CurrentDeviceState,
+  currentDeviceDate            CurrentDeviceDate,
+  currentDeviceTime            CurrentDeviceTime,
+  currentDevicePreset          CurrentDevicePreset,
+  currentIrisMode              CurrentMode,
+  currentFocusMode             CurrentMode,
+  currentBackLightMode         CurrentMode,
+  currentPointingMode          CurrentPointingMode,
+  currentCameraLens            CurrentCameraLensNumber,
+  currentCameraFilter          CurrentCameraFilterNumber,
+  currentExternalLight         CurrentExternalLight,
+  currentCameraPanSpeed        CurrentCameraPanSpeed,
+  currentCameraTiltSpeed       CurrentCameraTiltSpeed,
+  currentBackLight             CurrentBackLight,
+  currentWhiteBalance          CurrentWhiteBalance,
+  currentWhiteBalanceMode      CurrentMode,
+  currentZoomPosition          CurrentZoomPosition,
+  currentFocusPosition         CurrentFocusPosition,
+  currentIrisPosition          CurrentIrisPosition,
+  currentPanPosition           CurrentPanPosition,
+  currentTiltPosition          CurrentTiltPosition,
+  currentSlide                 CurrentSlide,
+  currentAutoSlideDisplayTime  CurrentAutoSlideDisplayTime,
+  currentSelectedProgram       CurrentSelectedProgram,
+  currentstreamPlayerState     CurrentStreamPlayerState,
+  currentProgramDuration       ProgramDuration,
+  currentPlaybackSpeed         CurrentPlaybackSpeed,
+  currentAudioOutputMute       CurrentAudioOutputMute,
+  configurableVideoInputs      DeviceInputs,
+  videoInputs                  DeviceInputs,
+  configurableAudioInputs      DeviceInputs,
+  audioInputs                  DeviceInputs,
+  nonStandardStatus            NonStandardParameter,
+  ...
+}
+
+DeviceEventIdentifier ::= CHOICE {
+  requestDeviceLockChanged          NULL,
+  requestDeviceAvailabilityChanged  NULL,
+  requestCameraPannedToLimit        NULL,
+  requestCameraTiltedToLimit        NULL,
+  requestCameraZoomedToLimit        NULL,
+  requestCameraFocusedToLimit       NULL,
+  requestAutoSlideShowFinished      NULL,
+  requestStreamPlayerStateChange    NULL,
+  requestStreamPlayerProgramChange  NULL,
+  requestNonStandardEvent           NonStandardIdentifier,
+  ...
+}
+
+CameraPannedToLimit ::= CHOICE {left   NULL,
+                                right  NULL
+}
+
+CameraTiltedToLimit ::= CHOICE {up    NULL,
+                                down  NULL
+}
+
+CameraZoomedToLimit ::= CHOICE {telescopic  NULL,
+                                wide        NULL
+}
+
+CameraFocusedToLimit ::= CHOICE {near  NULL,
+                                 far   NULL
+}
+
+DeviceEvent ::= CHOICE {
+  deviceLockChanged          BOOLEAN, -- TRUE if now locked FALSE if now unlocked
+  deviceAvailabilityChanged  BOOLEAN, -- TRUE if available FALSE if now unavailable
+  cameraPannedToLimit        CameraPannedToLimit,
+  cameraTiltedToLimit        CameraTiltedToLimit,
+  cameraZoomedToLimit        CameraZoomedToLimit,
+  cameraFocusedToLimit       CameraFocusedToLimit,
+  autoSlideShowFinished      NULL,
+  streamPlayerStateChange    StreamPlayerState,
+  streamPlayerProgramChange  ProgramNumber,
+  nonStandardEvent           NonStandardParameter,
+  ...
+}
+
+-- ==========================================================================
+-- Part 2:  PDU Messages
+-- ==========================================================================
+SourceSelectRequest ::= SEQUENCE {
+  requestHandle     Handle,
+  deviceClass       DeviceClass,
+  deviceID          DeviceID,
+  streamIdentifier  StreamID,
+  ...
+}
+
+SourceSelectResponse ::= SEQUENCE {
+  requestHandle  Handle,
+  result
+    CHOICE {successful             NULL,
+            requestDenied          NULL,
+            deviceUnavailable      NULL,
+            invalidStreamID        NULL,
+            currentDeviceIsLocked  NULL,
+            deviceIncompatible     NULL,
+            ...},
+  ...
+}
+
+SourceEventsRequest ::= SEQUENCE {
+  requestHandle      Handle,
+  streamIdentifier   StreamID,
+  sourceEventNotify  BOOLEAN, -- TRUE to request source events
+  ...
+}
+
+SourceEventsResponse ::= SEQUENCE {
+  requestHandle  Handle,
+  deviceClass    DeviceClass,
+  deviceID       DeviceID,
+  result
+    CHOICE {successful          NULL,
+            eventsNotSupported  NULL,
+            invalidStreamID     NULL,
+            ...},
+  ...
+}
+
+SourceChangeEventIndication ::= SEQUENCE {
+  deviceClass  DeviceClass,
+  deviceID     DeviceID,
+  ...
+}
+
+DeviceAttributeRequest ::= SEQUENCE {
+  requestHandle  Handle,
+  deviceClass    DeviceClass,
+  deviceID       DeviceID,
+  ...
+}
+
+DeviceAttributeResponse ::= SEQUENCE {
+  requestHandle        Handle,
+  deviceAttributeList  SET OF DeviceAttribute OPTIONAL,
+  result
+    CHOICE {successful     NULL,
+            requestDenied  NULL,
+            unknownDevice  NULL,
+            ...},
+  ...
+}
+
+DeviceLockRequest ::= SEQUENCE {
+  requestHandle  Handle,
+  deviceClass    DeviceClass,
+  deviceID       DeviceID,
+  lockFlag       BOOLEAN, -- TRUE to lock
+  ...
+}
+
+DeviceLockResponse ::= SEQUENCE {
+  requestHandle  Handle,
+  result
+    CHOICE {successful           NULL,
+            requestDenied        NULL,
+            unknownDevice        NULL,
+            lockingNotSupported  NULL,
+            deviceAlreadyLocked  NULL,
+            ...},
+  ...
+}
+
+DeviceLockEnquireRequest ::= SEQUENCE {
+  requestHandle  Handle,
+  deviceClass    DeviceClass,
+  deviceID       DeviceID,
+  ...
+}
+
+DeviceLockEnquireResponse ::= SEQUENCE {
+  requestHandle  Handle,
+  result
+    CHOICE {lockRequired     NULL,
+            lockNotRequired  NULL,
+            unknownDevice    NULL,
+            ...},
+  ...
+}
+
+DeviceLockTerminatedIndication ::= SEQUENCE {
+  deviceClass  DeviceClass,
+  deviceID     DeviceID,
+  ...
+}
+
+DeviceControlRequest ::= SEQUENCE {
+  requestHandle         Handle,
+  deviceClass           DeviceClass,
+  deviceID              DeviceID,
+  controlAttributeList  SET SIZE (1..8) OF ControlAttribute,
+  ...
+}
+
+DeviceStatusEnquireRequest ::= SEQUENCE {
+  requestHandle                  Handle,
+  deviceClass                    DeviceClass,
+  deviceID                       DeviceID,
+  statusAttributeIdentifierList  SET SIZE (1..16) OF StatusAttributeIdentifier,
+  ...
+}
+
+DeviceStatusEnquireResponse ::= SEQUENCE {
+  requestHandle        Handle,
+  statusAttributeList  SET SIZE (1..16) OF StatusAttribute OPTIONAL,
+  result
+    CHOICE {successful            NULL,
+            requestDenied         NULL,
+            unknownDevice         NULL,
+            deviceUnavailable     NULL,
+            deviceAttributeError  NULL,
+            ...},
+  ...
+}
+
+ConfigureDeviceEventsRequest ::= SEQUENCE {
+  requestHandle              Handle,
+  deviceClass                DeviceClass,
+  deviceID                   DeviceID,
+  deviceEventIdentifierList  SET OF DeviceEventIdentifier,
+  ...
+}
+
+ConfigureDeviceEventsResponse ::= SEQUENCE {
+  requestHandle  Handle,
+  result
+    CHOICE {successful            NULL,
+            requestDenied         NULL,
+            unknownDevice         NULL,
+            deviceUnavailable     NULL,
+            deviceAttributeError  NULL,
+            ...},
+  ...
+}
+
+DeviceEventNotifyIndication ::= SEQUENCE {
+  deviceClass      DeviceClass,
+  deviceID         DeviceID,
+  deviceEventList  SET SIZE (1..8) OF DeviceEvent,
+  ...
+}
+
+NonStandardPDU ::= SEQUENCE {nonStandardData  NonStandardParameter,
+                             ...
+}
+
+-- ==========================================================================
+-- Part 3:  Messages sent using  lower layer protocol
+-- ==========================================================================
+RDCPDU ::= CHOICE {
+  request     RequestPDU,
+  response    ResponsePDU,
+  indication  IndicationPDU
+}
+
+RequestPDU ::= CHOICE {
+  sourceSelectRequest           SourceSelectRequest,
+  sourceEventsRequest           SourceEventsRequest,
+  deviceAttributeRequest        DeviceAttributeRequest,
+  deviceLockRequest             DeviceLockRequest,
+  deviceLockEnquireRequest      DeviceLockEnquireRequest,
+  deviceControlRequest          DeviceControlRequest,
+  deviceStatusEnquireRequest    DeviceStatusEnquireRequest,
+  configureDeviceEventsRequest  ConfigureDeviceEventsRequest,
+  nonStandardRequest            NonStandardPDU,
+  ...
+}
+
+ResponsePDU ::= CHOICE {
+  sourceSelectResponse           SourceSelectResponse,
+  sourceEventsResponse           SourceEventsResponse,
+  deviceAttributeResponse        DeviceAttributeResponse,
+  deviceLockResponse             DeviceLockResponse,
+  deviceLockEnquireResponse      DeviceLockEnquireResponse,
+  deviceStatusEnquireResponse    DeviceStatusEnquireResponse,
+  configureDeviceEventsResponse  ConfigureDeviceEventsResponse,
+  nonStandardResponse            NonStandardPDU,
+  ...
+}
+
+IndicationPDU ::= CHOICE {
+  sourceChangeEventIndication     SourceChangeEventIndication,
+  deviceLockTerminatedIndication  DeviceLockTerminatedIndication,
+  deviceEventNotifyIndication     DeviceEventNotifyIndication,
+  nonStandardIndication           NonStandardPDU,
+  ...
+}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

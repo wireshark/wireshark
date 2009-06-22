@@ -1,0 +1,69 @@
+-- QSIG-CPI.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-264, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-264.htm
+--
+-- $Id$
+--
+
+Call-Interruption-Operations-asn1-97 
+{iso (1) standard (0) pss1-call-interruption (15992) call-interruption-operations-asn1-97 (2) } 
+ 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION FROM Remote-Operations-Information-Objects  
+    {joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1 (0)} 
+ 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    {iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11)}; 
+ 
+  -- The following operations are defined: 
+ 
+Call-Interruption-Operations OPERATION ::= { callInterruptionRequest | callProtectionRequest  } 
+ 
+callInterruptionRequest    OPERATION ::= { 
+   ARGUMENT   CPIRequestArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE     local: 87} 
+ 
+callProtectionRequest    OPERATION ::= { 
+   ARGUMENT   CPIPRequestArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE     local: 88} 
+ 
+  -- The following arguments are defined: 
+ 
+CPIRequestArg ::=  SEQUENCE{ 
+   cpiCapabilityLevel  CPICapabilityLevel, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{CPIPExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF 
+         Extension{{CPIPExtSet}}} OPTIONAL} 
+ 
+CPIPRequestArg ::=  SEQUENCE{ 
+   cpiProtectionLevel  CPIProtectionLevel, 
+   argumentExtension  CHOICE{ 
+     extension   [1] IMPLICIT Extension{{CPIPExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF 
+         Extension{{CPIPExtSet}}} OPTIONAL} 
+
+CPICapabilityLevel ::=  ENUMERATED{ 
+      interruptionLowPriority (1), 
+      interruptionMediumPriority (2), 
+      interruptionHighPriority (3)} 
+ 
+CPIProtectionLevel ::=  ENUMERATED{ 
+      noProtection (0), 
+      lowProtection (1), 
+      mediumProtection (2), 
+      totalProtection (3)} 
+ 
+CPIPExtSet EXTENSION ::= {...}  
+ 
+END  -- of Call-Interruption-Operations-asn1-97 

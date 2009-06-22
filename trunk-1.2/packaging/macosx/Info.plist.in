@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- $Id -->
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleExecutable</key>
+    <string>Wireshark</string>
+    <key>CFBundleGetInfoString</key>
+    <string>@VERSION@, Copyright 1998-2009 Wireshark Development Team</string>
+    <key>CFBundleIconFile</key>
+    <string>Wireshark.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.wireshark.Wireshark</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleTypeExtensions</key>
+        <array>
+          <string>PCAP</string>
+        </array>
+        <key>CFBundleTypeIconFile</key>
+        <string>wsicondoc.icns</string>
+        <key>CFBundleTypeMIMETypes</key>
+        <array>
+          <string>pcap</string>
+        </array>
+        <key>CFBundleTypeName</key>
+        <string>Libpcap Network Capture</string>
+        <key>CFBundleTypeOSTypes</key>
+        <array>
+          <string>PCAP</string>
+        </array>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+      </dict>
+      <!-- XXX - This dictionary needs a lot more entries -->
+    </array>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@VERSION@</string>
+    <key>CFBundleSignature</key>
+    <string>Wshk</string>
+    <key>CFBundleVersion</key>
+    <string>@VERSION@</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright 1998-2009 Wireshark Developers, GNU General Public License.</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.3</string>
+</dict>
+</plist>

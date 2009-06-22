@@ -1,0 +1,276 @@
+$Id$
+
+1. Plugins
+
+Writing a "plugin" dissector is not very different from writing a
+standard one.  In fact all of the functions described in
+README.developer can be used in the plugins exactly as they are used in
+standard dissectors.
+
+(Note, however, that not all OSes on which Wireshark runs can support
+plugins.)
+
+If you've chosen "xxx" as the name of your plugin (typically, that would
+be a short name for your protocol, in all lower case), the following
+instructions tell you how to implement it as a plugin.  All occurrences
+of "xxx" below should be replaced by the name of your plugin.
+
+2. The directory for the plugin, and its files
+
+The plugin should be placed in a new plugins/xxx directory which should
+contain minimally the following files:
+
+AUTHORS
+COPYING
+ChangeLog
+Makefile.am
+Makefile.common
+Makefile.nmake
+moduleinfo.h
+moduleinfo.nmake
+plugin.rc.in
+The source files and header files for your dissector
+
+Examples of these files can be found in plugins/gryphon.
+
+2.1 AUTHORS, COPYING, and ChangeLog
+
+The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project
+files.
+
+2.2 Makefile.am
+
+For your plugins/xxx/Makefile.am file, see the corresponding file in
+plugins/gryphon. Replace all occurrences of "gryphon" in those files
+with "xxx".
+
+2.3 Makefile.common
+
+Your plugins/xxx/Makefile.common should only list the main source file(s),
+which exports register_*() and handoff_*(), for your dissector in the
+DISSECTOR_SRC variable, and all other supporting source files in the
+DISSECTOR_SUPPORT_SRC variable.
+The header files for your dissector, if any, must be listed in the
+DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
+include moduleinfo.h.
+
+2.4 Makefile.nmake
+
+For your plugins/xxx/Makefile.nmake file, see the corresponding file in
+plugins/gryphon. No modifications are needed here.
+
+2.5 moduleinfo.h
+
+Your plugins/xxx/moduleinfo.h file is used to set the version information
+for the plugin.
+
+2.6 moduleinfo.nmake
+
+Your plugins/xxx/moduleinfo.nmake is used to set the version information
+for building the plugin. Its contents should match that in moduleinfo.h
+
+2.7 plugin.rc.in
+
+Your plugins/xxx/plugin.rc.in is the Windows resource template file
+used to add the plugin specific information as resources to the DLL.
+No modifications are needed here.
+
+3. Changes to existing Wireshark files
+
+You will also need to change the following files:
+	configure.in
+	epan/Makefile.am
+	Makefile.am
+	Makefile.nmake
+	packaging/nsis/Makefile.nmake
+	packaging/nsis/wireshark.nsi
+	plugins/Makefile.am
+	plugins/Makefile.nmake
+
+You might also want to search your Wireshark development directory for
+occurrences of an existing plugin name, in case this document is out of
+date with the current directory structure. For example,
+
+	grep -rl gryphon .
+
+could be used from a shell prompt.
+
+3.1  Changes to plugins/Makefile.am
+
+The plugins directory contains a Makefile.am.  You need to change the
+SUBDIRS directive to reflect the addition of your plugin:
+
+SUBDIRS = $(_CUSTOM_SUBDIRS_) \
+	...
+	gryphon \
+	irda \
+	xxx \
+
+3.2 Changes to plugins/Makefile.nmake
+
+To the Makefile.nmake you need to add the following (in
+alphabetical order) for your plugin to the process-plugins: rule
+
+	cd xxx
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
+	cd ..
+
+Then add a copy command to the install-plugins rule:
+
+	...
+	xcopy plugins\xxx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	cd plugins
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
+
+3.3 Changes to the top level Makefile.am
+
+Add your plugin (in alphabetical order) to the plugin_ldadd:
+
+if HAVE_PLUGINS
+
+plugin_ldadd = \
+	...
+	-dlopen plugins/gryphon/gryphon.la      \
+	-dlopen plugins/irda/irda.la    \
+	-dlopen plugins/xxx/xxx.la      \
+	...
+
+3.4  Changes to the top level configure.in
+
+You need to add your plugins Makefile (in alphbetical order) to the AC_OUTPUT
+rule in the configure.in
+
+AC_OUTPUT(
+  ...
+  plugins/gryphon/Makefile
+  plugins/irda/Makefile
+  plugins/xxx/Makefile
+  ...
+  ,)
+
+3.5  Changes to epan/Makefile.am
+
+Add the relative path of your plugin (in alphbetical order) to plugin_src:
+
+plugin_src = \
+        ...
+	../plugins/gryphon/packet-gryphon.c \
+	../plugins/irda/packet-irda.c \
+	../plugins/xxx/packet-xxx.c \
+        ...
+
+3.6  Changes to the installers
+
+If you want to include your plugin in an installer you have to add lines
+in the NSIS installer Makefile.nmake and wireshark.nsi files.
+
+For the NSIS installer:
+
+	Add ../../plugins/xxx/xxx.dll to the list of plugins for the
+	PLUGINS variable in packaging/nsis/Makefile.nmake.
+
+	Add
+
+		File "..\..\plugins\xxx\xxx.dll"
+
+	to the list of "File" statements in the "Dissector Plugins"
+	section in packaging/nsis/wireshark.nsi.
+
+The U3 and PortableApps installers build their manifests, including plugins,
+from packaging/nsis/wireshark.nsi via the packaging/ws-manifest.pl script.
+
+4. Development and plugins on Unix
+
+Plugins make some aspects of development easier and some harder.
+
+The first thing is that you'll have to run autogen.sh and configure
+once more to setup your build environment.
+
+The good news is that if you are working on a single plugin
+then you will find recompiling the plugin MUCH faster than
+recompiling a dissector and then linking it back into Wireshark.
+
+The bad news is that Wireshark will not use the plugins unless the
+plugins are installed in one of the places it expects them to find.
+
+One way of dealing with this problem is to set an environment variable
+when running Wireshark: WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1.
+
+Another way to deal with this problem is to set up a working root for
+wireshark, say in $HOME/build/root and build wireshark to install
+there
+
+./configure --prefix=${HOME}/build/root;make install
+
+then subsequent rebuilds/installs of your plugin can be accomplished
+by going to the plugins/xxx directory and running
+
+make install
+
+5. Update "old style" plugins
+
+5.1 How to update an "old style" plugin (using plugin_register and
+    plugin_reg_handoff functions).
+
+The plugin registration has changed with the extension of the build
+scripts. These now generate the additional code needed for plugin
+encapsulation in plugin.c. When using the new style build scripts,
+stips the parts outlined below:
+
+    o Remove the following include statements:
+
+        #include <gmodule.h>
+        #include "moduleinfo.h"
+
+    o Removed the definition:
+
+        #ifndef ENABLE_STATIC
+        G_MODULE_EXPORT gchar version[] = VERSION;
+        #endif
+
+    o Move relevant code from the blocks and delete these functions:
+
+        #ifndef ENABLE_STATIC
+        plugin_reg_handoff()
+        ....
+        #endif
+
+        #ifndef ENABLE_STATIC
+        plugin_register()
+        ....
+        #endif
+
+This will leave a clean dissector source file without plugin specifics.
+
+5.2 How to update an "old style" plugin (using plugin_init function)
+
+The plugin registering has changed between 0.10.9 and 0.10.10; everyone
+is encouraged to update their plugins as outlined below:
+
+    o Remove following include statements from all plugin sources:
+
+	#include "plugins/plugin_api.h"
+	#include "plugins/plugin_api_defs.h"
+
+    o Remove the init function.
+
+    o Add a new Makefile.common file with the lists of source files and
+      headers.
+
+    o Change the Makefile.am and Makefile.nmake files to match those of
+      the DOCSIS plugin.
+
+----------------
+
+Ed Warnicke <hagbard@physics.rutgers.edu>
+Guy Harris <guy@alum.mit.edu>
+
+Derived and expanded from the plugin section of README.developers
+which was originally written by
+
+James Coe <jammer@cin.net>
+Gilbert Ramirez <gram@alumni.rice.edu>
+Jeff Foster <jfoste@woodward.com>
+Olivier Abad <oabad@cybercable.fr>
+Laurent Deniel <laurent.deniel@free.fr>
+Jaap Keuter <jaap.keuter@xs4all.nl>

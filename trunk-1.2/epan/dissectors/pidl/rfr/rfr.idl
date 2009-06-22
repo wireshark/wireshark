@@ -1,0 +1,55 @@
+/*
+   RFR Implementation
+
+   OpenChange Project
+
+   Copyright (C) Julien Kerihuel 2008.
+
+   $Id$
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "idl_types.h"
+
+[
+  uuid("1544f5e0-613c-11d1-93df-00c04fd7bd09"),
+  endpoint("ncacn_np:[\\pipe\\lsass]","ncacn_np:[\\pipe\\protected_storage]","ncacn_ip_tcp:[]"),
+  pointer_default(unique),
+  version(1.0),
+  helpstring("Exchange 2003 Directory Request For Response")
+] interface rfr
+{
+
+#include "mapicodes_enum.h"
+
+	/*****************/
+	/* Function 0x00 */
+	MAPISTATUS RfrGetNewDSA(
+		[in]                                    uint32  ulFlags,
+		[in,string,charset(DOS)]                uint8   *pUserDN,
+		[in,out,unique,string,charset(DOS)]     uint8   **ppszUnused,
+		[in,out,unique,string,charset(DOS)]     uint8   **ppszServer
+		);
+	
+	/*****************/
+	/* Function 0x01 */
+	MAPISTATUS RfrGetFQDNFromLegacyDN(
+		[in]							uint32	ulFlags,
+		[in,range(10,1024)]					uint32	cbMailboxServerDN,
+		[in,string,charset(DOS),size_is(cbMailboxServerDN)]	uint8	*szMailboxServerDN,
+		[out,ref,string,charset(DOS)]				uint8	**ppszServerFQDN
+		);
+}

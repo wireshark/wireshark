@@ -1,0 +1,64 @@
+-- QSIG-RE.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-214, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-214.htm
+--
+-- $Id$
+--
+
+Recall-Operations-asn1-97  
+  { iso (1) standard (0) pss1-recall (15052) recall-operations-asn1-97 (1) } 
+ 
+DEFINITIONS EXPLICIT TAGS  ::= 
+ 
+BEGIN 
+ 
+IMPORTS  
+   OPERATION, ERROR FROM Remote-Operations-Information-Objects  
+  { joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1(0) } 
+ 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+  { iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) } 
+ 
+  Name FROM Name-Operations-asn1-97 
+  { iso (1) standard (0) pss1-name (13868) name-operations-asn1-97 (1) } 
+ 
+  PresentedNumberScreened, PartySubaddress FROM Addressing-Data-Elements-asn1-97 
+  { iso (1) standard (0) pss1-generic-procedures (11582) addressing-data-elements-asn1-97 (20) }; 
+ 
+Recall-Operations OPERATION ::= { recallAlerting | recallAnswered } 
+ 
+recallAlerting OPERATION  ::= { 
+    -- Sent from the Served User PINX to the Primary PINX 
+  ARGUMENT    ReAlertingArg 
+  RETURN RESULT  FALSE 
+  ALWAYS RESPONDS FALSE 
+  CODE    local: 57} 
+ 
+recallAnswered  OPERATION ::= { 
+      -- Sent from the Served User PINX to the Primary PINX 
+   ARGUMENT ReAnswerArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS FALSE 
+   CODE    local: 58} 
+ 
+ReAlertingArg   ::= SEQUENCE  { 
+      alertedNumber    [1] PresentedNumberScreened OPTIONAL, 
+      alertedName    [2] Name OPTIONAL, 
+      argumentExtension   CHOICE { 
+    extension   [6] IMPLICIT Extension{{REExtSet}}, 
+        multipleExtension   [7] IMPLICIT SEQUENCE OF Extension{{REExtSet}} 
+    } OPTIONAL  } 
+
+ReAnswerArg   ::= SEQUENCE  { 
+      connectedNumber    [1] PresentedNumberScreened, 
+      connectedSubaddress  [2] PartySubaddress OPTIONAL, 
+      connectedName    [3] Name OPTIONAL, 
+      argumentExtension   CHOICE { 
+   extension   [6] IMPLICIT Extension{{REExtSet}}, 
+      multipleExtension   [7] IMPLICIT SEQUENCE OF Extension{{REExtSet}} 
+      } OPTIONAL  } 
+REExtSet EXTENSION ::= {...} 
+ 
+END   -- of Recall-Operations-asn1-97 

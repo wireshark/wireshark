@@ -1,0 +1,794 @@
+#include "idl_types.h"
+
+/*
+  wkssvc interface definitions
+*/
+
+import "srvsvc.idl", "lsa.idl";
+
+[ uuid("6bffd098-a112-3610-9833-46c3f87e345a"),
+  version(1.0),
+  pointer_default(unique),
+  pointer_default_top(unique),
+  helpstring("Workstation Service"),
+  endpoint("ncacn_np:[\\pipe\\wkssvc]","ncacn_ip_tcp:","ncalrpc:")
+] interface wkssvc
+{
+	declare [v1_enum] enum srvsvc_PlatformId;
+
+#define BOOL uint32
+
+	typedef [public,noejs] struct {
+		[value(strlen_m_term(name)*2)] uint16 name_len;
+		[value(strlen_m_term(name)*2)] uint16 name_size;
+		[string,charset(UTF16)] uint16 *name;
+	} lsa_String;
+
+	/******************/
+	/* Function: 0x00 */
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+		[string,charset(UTF16)] uint16 *domain_name;
+		uint32 version_major;
+		uint32 version_minor;
+	} wkssvc_NetWkstaInfo100;
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+		[string,charset(UTF16)] uint16 *domain_name;
+		uint32 version_major;
+		uint32 version_minor;
+		[string,charset(UTF16)] uint16 *lan_root;
+	} wkssvc_NetWkstaInfo101;
+
+	typedef struct {
+		srvsvc_PlatformId platform_id;
+		[string,charset(UTF16)] uint16 *server_name;
+		[string,charset(UTF16)] uint16 *domain_name;
+		uint32 version_major;
+		uint32 version_minor;
+		[string,charset(UTF16)] uint16 *lan_root;
+		uint32 logged_on_users;
+	} wkssvc_NetWkstaInfo102;
+
+	/* FIXME: 302, 402 */
+
+	typedef struct {
+		uint32 char_wait;
+		uint32 collection_time;
+		uint32 maximum_collection_count;
+		uint32 keep_connection;
+		uint32 max_commands;
+		uint32 session_timeout;
+		uint32 size_char_buf;
+		uint32 max_threads;
+		uint32 lock_quota;
+		uint32 lock_increment;
+		uint32 lock_maximum;
+		uint32 pipe_increment;
+		uint32 pipe_maximum;
+		uint32 cache_file_timeout;
+		uint32 dormant_file_limit;
+		uint32 read_ahead_throughput;
+		uint32 num_mailslot_buffers;
+		uint32 num_srv_announce_buffers;
+		uint32 max_illegal_dgram_events;
+		uint32 dgram_event_reset_freq;
+		BOOL log_election_packets;
+		BOOL use_opportunistic_locking;
+		BOOL use_unlock_behind;
+		BOOL use_close_behind;
+		BOOL buf_named_pipes;
+		BOOL use_lock_read_unlock;
+		BOOL utilize_nt_caching;
+		BOOL use_raw_read;
+		BOOL use_raw_write;
+		BOOL use_write_raw_data;
+		BOOL use_encryption;
+		BOOL buf_files_deny_write;
+		BOOL buf_read_only_files;
+		BOOL force_core_create_mode;
+		BOOL use_512_byte_max_transfer;
+	} wkssvc_NetWkstaInfo502;
+
+	typedef struct {
+		uint32 char_wait;
+	} wkssvc_NetWkstaInfo1010;
+
+	typedef struct {
+		uint32 collection_time;
+	} wkssvc_NetWkstaInfo1011;
+
+	typedef struct {
+		uint32 maximum_collection_count;
+	} wkssvc_NetWkstaInfo1012;
+
+	typedef struct {
+		uint32 keep_connection;
+	} wkssvc_NetWkstaInfo1013;
+
+	typedef struct {
+		uint32 session_timeout;
+	} wkssvc_NetWkstaInfo1018;
+
+	typedef struct {
+		uint32 size_char_buf;
+	} wkssvc_NetWkstaInfo1023;
+
+	typedef struct {
+		uint32 errorlog_sz;
+	} wkssvc_NetWkstaInfo1027;
+
+	/* downlevel */
+	typedef struct {
+		uint32 print_buf_time;
+	} wkssvc_NetWkstaInfo1028;
+
+	/* downlevel */
+	typedef struct {
+		uint32 wrk_heuristics;
+	} wkssvc_NetWkstaInfo1032;
+
+	typedef struct {
+		uint32 max_threads;
+	} wkssvc_NetWkstaInfo1033;
+
+	typedef struct {
+		uint32 lock_quota;
+	} wkssvc_NetWkstaInfo1041;
+
+	typedef struct {
+		uint32 lock_increment;
+	} wkssvc_NetWkstaInfo1042;
+
+	typedef struct {
+		uint32 lock_maximum;
+	} wkssvc_NetWkstaInfo1043;
+
+	typedef struct {
+		uint32 pipe_increment;
+	} wkssvc_NetWkstaInfo1044;
+
+	typedef struct {
+		uint32 pipe_maximum;
+	} wkssvc_NetWkstaInfo1045;
+
+	typedef struct {
+		uint32 dormant_file_limit;
+	} wkssvc_NetWkstaInfo1046;
+
+	typedef struct {
+		uint32 cache_file_timeout;
+	} wkssvc_NetWkstaInfo1047;
+
+	typedef struct {
+		uint32 use_opportunistic_locking;
+	} wkssvc_NetWkstaInfo1048;
+
+	typedef struct {
+		uint32 use_unlock_behind;
+	} wkssvc_NetWkstaInfo1049;
+
+	typedef struct {
+		uint32 use_close_behind;
+	} wkssvc_NetWkstaInfo1050;
+
+	typedef struct {
+		uint32 buf_named_pipes;
+	} wkssvc_NetWkstaInfo1051;
+
+	typedef struct {
+		uint32 use_lock_read_unlock;
+	} wkssvc_NetWkstaInfo1052;
+
+	typedef struct {
+		uint32 utilize_nt_caching;
+	} wkssvc_NetWkstaInfo1053;
+
+	typedef struct {
+		uint32 use_raw_read;
+	} wkssvc_NetWkstaInfo1054;
+
+	typedef struct {
+		uint32 use_raw_write;
+	} wkssvc_NetWkstaInfo1055;
+
+	typedef struct {
+		uint32 use_write_raw_data;
+	} wkssvc_NetWkstaInfo1056;
+
+	typedef struct {
+		uint32 use_encryption;
+	} wkssvc_NetWkstaInfo1057;
+
+	typedef struct {
+		uint32 buf_files_deny_write;
+	} wkssvc_NetWkstaInfo1058;
+
+	typedef struct {
+		uint32 buf_read_only_files;
+	} wkssvc_NetWkstaInfo1059;
+
+	typedef struct {
+		uint32 force_core_create_mode;
+	} wkssvc_NetWkstaInfo1060;
+
+	typedef struct {
+		uint32 use_512_byte_max_transfer;
+	} wkssvc_NetWkstaInfo1061;
+
+	typedef struct {
+		uint32 read_ahead_throughput;
+	} wkssvc_NetWkstaInfo1062;
+
+	typedef union {
+		[case(100)] wkssvc_NetWkstaInfo100 *info100;
+		[case(101)] wkssvc_NetWkstaInfo101 *info101;
+		[case(102)] wkssvc_NetWkstaInfo102 *info102;
+		[case(502)] wkssvc_NetWkstaInfo502 *info502;
+		[case(1010)] wkssvc_NetWkstaInfo1010 *info1010;
+		[case(1011)] wkssvc_NetWkstaInfo1011 *info1011;
+		[case(1012)] wkssvc_NetWkstaInfo1012 *info1012;
+		[case(1013)] wkssvc_NetWkstaInfo1013 *info1013;
+		[case(1018)] wkssvc_NetWkstaInfo1018 *info1018;
+		[case(1023)] wkssvc_NetWkstaInfo1023 *info1023;
+		[case(1027)] wkssvc_NetWkstaInfo1027 *info1027;
+		[case(1028)] wkssvc_NetWkstaInfo1028 *info1028;
+		[case(1032)] wkssvc_NetWkstaInfo1032 *info1032;
+		[case(1033)] wkssvc_NetWkstaInfo1033 *info1033;
+		[case(1041)] wkssvc_NetWkstaInfo1041 *info1041;
+		[case(1042)] wkssvc_NetWkstaInfo1042 *info1042;
+		[case(1043)] wkssvc_NetWkstaInfo1043 *info1043;
+		[case(1044)] wkssvc_NetWkstaInfo1044 *info1044;
+		[case(1045)] wkssvc_NetWkstaInfo1045 *info1045;
+		[case(1046)] wkssvc_NetWkstaInfo1046 *info1046;
+		[case(1047)] wkssvc_NetWkstaInfo1047 *info1047;
+		[case(1048)] wkssvc_NetWkstaInfo1048 *info1048;
+		[case(1049)] wkssvc_NetWkstaInfo1049 *info1049;
+		[case(1050)] wkssvc_NetWkstaInfo1050 *info1050;
+		[case(1051)] wkssvc_NetWkstaInfo1051 *info1051;
+		[case(1052)] wkssvc_NetWkstaInfo1052 *info1052;
+		[case(1053)] wkssvc_NetWkstaInfo1053 *info1053;
+		[case(1054)] wkssvc_NetWkstaInfo1054 *info1054;
+		[case(1055)] wkssvc_NetWkstaInfo1055 *info1055;
+		[case(1056)] wkssvc_NetWkstaInfo1056 *info1056;
+		[case(1057)] wkssvc_NetWkstaInfo1057 *info1057;
+		[case(1058)] wkssvc_NetWkstaInfo1058 *info1058;
+		[case(1059)] wkssvc_NetWkstaInfo1059 *info1059;
+		[case(1060)] wkssvc_NetWkstaInfo1060 *info1060;
+		[case(1061)] wkssvc_NetWkstaInfo1061 *info1061;
+		[case(1062)] wkssvc_NetWkstaInfo1062 *info1062;
+		[default] ;
+	} wkssvc_NetWkstaInfo;
+
+	WERROR wkssvc_NetWkstaGetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_name,
+		[in]   uint32 level,
+		[out,switch_is(level),ref]  wkssvc_NetWkstaInfo *info
+		);
+
+
+	/******************/
+	/* Function: 0x01 */
+	WERROR wkssvc_NetWkstaSetInfo(
+		[in]   [string,charset(UTF16)] uint16 *server_name,
+		[in]   uint32 level,
+		[in,switch_is(level),ref]  wkssvc_NetWkstaInfo *info,
+		[in,out,ref]   uint32 *parm_error
+		);
+
+
+	/*****************************/
+	/* Function        0x02      */
+	typedef struct {
+		[string,charset(UTF16)] uint16 *user_name;
+	} wkssvc_NetrWkstaUserInfo0;
+
+	typedef struct {
+		uint32 entries_read;
+		[size_is(entries_read)] wkssvc_NetrWkstaUserInfo0 *user0;
+	} wkssvc_NetWkstaEnumUsersCtr0;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *user_name;
+		[string,charset(UTF16)] uint16 *logon_domain;
+		[string,charset(UTF16)] uint16 *other_domains;
+		[string,charset(UTF16)] uint16 *logon_server;
+	} wkssvc_NetrWkstaUserInfo1;
+
+	typedef struct {
+		uint32 entries_read;
+		[size_is(entries_read)] wkssvc_NetrWkstaUserInfo1 *user1;
+	} wkssvc_NetWkstaEnumUsersCtr1;
+
+	typedef [switch_type(uint32)] union {
+		[case(0)] wkssvc_NetWkstaEnumUsersCtr0 *user0;
+		[case(1)] wkssvc_NetWkstaEnumUsersCtr1 *user1;
+	} wkssvc_NetWkstaEnumUsersCtr;
+
+	typedef struct {
+		uint32 level;
+		[switch_is(level)] wkssvc_NetWkstaEnumUsersCtr ctr;
+	} wkssvc_NetWkstaEnumUsersInfo;
+
+	WERROR wkssvc_NetWkstaEnumUsers(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,out,ref] wkssvc_NetWkstaEnumUsersInfo *info,
+		[in] uint32 prefmaxlen,
+		[out,ref] uint32 *entries_read,
+		[in,out] uint32 *resume_handle
+		);
+
+	/*****************************/
+	/* Function        0x03      */
+	typedef struct {
+		[string,charset(UTF16)] uint16 *other_domains;
+	} wkssvc_NetrWkstaUserInfo1101;
+
+	typedef [switch_type(uint32)] union {
+		[case(0)] wkssvc_NetrWkstaUserInfo0 *info0;
+		[case(1)] wkssvc_NetrWkstaUserInfo1 *info1;
+		[case(1101)] wkssvc_NetrWkstaUserInfo1101 *info1101;
+	} wkssvc_NetrWkstaUserInfo;
+
+	WERROR wkssvc_NetrWkstaUserGetInfo(
+		[in] [string,charset(UTF16)] uint16 *unknown,
+		[in] uint32 level,
+		[out,ref] [switch_is(level)] wkssvc_NetrWkstaUserInfo *info
+		);
+
+	/*****************************/
+	/* Function        0x04      */
+	WERROR wkssvc_NetrWkstaUserSetInfo(
+		[in] [string,charset(UTF16)] uint16 *unknown,
+		[in] uint32 level,
+		[in,ref] [switch_is(level)] wkssvc_NetrWkstaUserInfo *info,
+		[in,out] uint32 *parm_err
+		);
+
+	/*****************************/
+	/* Function        0x05      */
+
+	typedef struct {
+		uint32 quality_of_service;
+		uint32 vc_count;
+		[string,charset(UTF16)] uint16 *name;
+		[string,charset(UTF16)] uint16 *address;
+		uint32 wan_link;
+	} wkssvc_NetWkstaTransportInfo0;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] wkssvc_NetWkstaTransportInfo0 *array;
+	} wkssvc_NetWkstaTransportCtr0;
+
+	typedef union {
+		[case(0)] wkssvc_NetWkstaTransportCtr0 *ctr0;
+	} wkssvc_NetWkstaTransportCtr;
+
+	typedef struct {
+		uint32 level;
+		[switch_is(level)] wkssvc_NetWkstaTransportCtr ctr;
+	} wkssvc_NetWkstaTransportInfo;
+
+	WERROR wkssvc_NetWkstaTransportEnum (
+		[in]         [string,charset(UTF16)] uint16 *server_name,
+		[in,out,ref] wkssvc_NetWkstaTransportInfo *info,
+		[in]         uint32 max_buffer,
+		[out,ref]    uint32 *total_entries,
+		[in,out]     uint32 *resume_handle
+		);
+
+	/*****************************/
+	/* Function        0x06      */
+	/* only supported on NT */
+	WERROR wkssvc_NetrWkstaTransportAdd(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] uint32 level, /* must be 0 */
+		[in,ref] wkssvc_NetWkstaTransportInfo0 *info0,
+		[in,out] uint32 *parm_err
+                );
+
+	/*****************************/
+	/* Function        0x07      */
+	/* only supported on NT */
+	WERROR wkssvc_NetrWkstaTransportDel(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *transport_name,
+		[in] uint32 unknown3
+		);
+
+	/*****************************/
+	/* Function        0x08      */
+	typedef struct {
+		[string,charset(UTF16)] uint16 *unknown1;
+		[string,charset(UTF16)] uint16 *unknown2;
+	} wkssvc_NetrUseInfo3;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *local;
+		[string,charset(UTF16)] uint16 *remote;
+		[string,charset(UTF16)] uint16 *password;
+		uint32 status;
+		uint32 asg_type;
+		uint32 ref_count;
+		uint32 use_count;
+		[string,charset(UTF16)] uint16 *user_name;
+		[string,charset(UTF16)] uint16 *domain_name;
+	} wkssvc_NetrUseInfo2;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *local;
+		[string,charset(UTF16)] uint16 *remote;
+		[string,charset(UTF16)] uint16 *password;
+		uint32 status;
+		uint32 asg_type;
+		uint32 ref_count;
+		uint32 use_count;
+	} wkssvc_NetrUseInfo1;
+
+	typedef struct {
+		[string,charset(UTF16)] uint16 *local;
+		[string,charset(UTF16)] uint16 *remote;
+	} wkssvc_NetrUseInfo0;
+
+	typedef [switch_type(uint32)] union {
+		[case(0)] wkssvc_NetrUseInfo0 *info0;
+		[case(1)] wkssvc_NetrUseInfo1 *info1;
+		[case(2)] wkssvc_NetrUseInfo2 *info2;
+		[case(3)] wkssvc_NetrUseInfo3 *info3;
+	} wkssvc_NetrUseGetInfoCtr;
+
+	WERROR wkssvc_NetrUseAdd(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] uint32 level,
+		[in,ref] [switch_is(level)] wkssvc_NetrUseGetInfoCtr *ctr,
+		[in,out] uint32 *parm_err
+		);
+
+	/*****************************/
+	/* Function        0x09      */
+	WERROR wkssvc_NetrUseGetInfo(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *use_name,
+		[in] uint32 level,
+		[out,ref] [switch_is(level)] wkssvc_NetrUseGetInfoCtr *ctr
+		);
+
+	/*****************************/
+	/* Function        0x0a      */
+	WERROR wkssvc_NetrUseDel(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *use_name,
+		[in] uint32 force_cond
+		);
+
+	/*****************************/
+	/* Function        0x0b      */
+	typedef struct {
+		uint32 count;
+		[size_is(count)] wkssvc_NetrUseInfo2 *array;
+	} wkssvc_NetrUseEnumCtr2;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] wkssvc_NetrUseInfo1 *array;
+	} wkssvc_NetrUseEnumCtr1;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] wkssvc_NetrUseInfo0 *array;
+	} wkssvc_NetrUseEnumCtr0;
+
+	typedef [switch_type(uint32)] union {
+		[case(0)] wkssvc_NetrUseEnumCtr0 *ctr0;
+		[case(1)] wkssvc_NetrUseEnumCtr1 *ctr1;
+		[case(2)] wkssvc_NetrUseEnumCtr2 *ctr2;
+	} wkssvc_NetrUseEnumCtr;
+
+	typedef struct {
+		uint32 level;
+		[switch_is(level)] wkssvc_NetrUseEnumCtr ctr;
+	} wkssvc_NetrUseEnumInfo;
+
+	WERROR wkssvc_NetrUseEnum(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,out,ref] wkssvc_NetrUseEnumInfo *info,
+		[in] uint32 prefmaxlen,
+		[out,ref] uint32 *entries_read,
+		[in,out] uint32 *resume_handle
+		);
+
+	/*****************************/
+	/* Function        0x0c      */
+	WERROR wkssvc_NetrMessageBufferSend(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *message_name,
+		[in] [string,charset(UTF16)] uint16 *message_sender_name,
+		[in,ref] [size_is(message_size)] uint8 *message_buffer,
+		[in] uint32 message_size
+		);
+
+	/*****************************/
+	/* Function        0x0d      */
+	typedef struct {
+		hyper unknown1;
+		hyper unknown2;
+		hyper unknown3;
+		hyper unknown4;
+		hyper unknown5;
+		hyper unknown6;
+		hyper unknown7;
+		hyper unknown8;
+		hyper unknown9;
+		hyper unknown10;
+		hyper unknown11;
+		hyper unknown12;
+		hyper unknown13;
+		uint32 unknown14;
+		uint32 unknown15;
+		uint32 unknown16;
+		uint32 unknown17;
+		uint32 unknown18;
+		uint32 unknown19;
+		uint32 unknown20;
+		uint32 unknown21;
+		uint32 unknown22;
+		uint32 unknown23;
+		uint32 unknown24;
+		uint32 unknown25;
+		uint32 unknown26;
+		uint32 unknown27;
+		uint32 unknown28;
+		uint32 unknown29;
+		uint32 unknown30;
+		uint32 unknown31;
+		uint32 unknown32;
+		uint32 unknown33;
+		uint32 unknown34;
+		uint32 unknown35;
+		uint32 unknown36;
+		uint32 unknown37;
+		uint32 unknown38;
+		uint32 unknown39;
+		uint32 unknown40;
+	} wkssvc_NetrWorkstationStatistics;
+
+	WERROR wkssvc_NetrWorkstationStatisticsGet(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *unknown2,
+		[in] uint32 unknown3,
+		[in] uint32 unknown4,
+		[out,ref] wkssvc_NetrWorkstationStatistics **info
+		);
+
+	/*****************************/
+	/* Function        0x0e      */
+	WERROR wkssvc_NetrLogonDomainNameAdd(
+		[in,ref] [string,charset(UTF16)] uint16 *domain_name
+		);
+
+	/*****************************/
+	/* Function        0x0f      */
+	WERROR wkssvc_NetrLogonDomainNameDel(
+		[in,ref] [string,charset(UTF16)] uint16 *domain_name
+		);
+
+	/*****************************/
+	/* Function        0x10      */
+	WERROR wkssvc_NetrJoinDomain(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *domain_name,
+		[in] [string,charset(UTF16)] uint16 *account_ou,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] [string,charset(UTF16)] uint16 *unknown,
+		[in] wkssvc_joinflags join_flags
+		);
+
+	/*****************************/
+	/* Function        0x11      */
+	WERROR wkssvc_NetrUnjoinDomain(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] [string,charset(UTF16)] uint16 *password,
+		[in] wkssvc_joinflags unjoin_flags
+		);
+
+	/*****************************/
+	/* Function        0x12      */
+	typedef [bitmap32bit] bitmap {
+		/* TRUE: create the account in the domain */
+		WKSSVC_JOIN_FLAGS_ACCOUNT_CREATE	= 0x00000002
+	} wkssvc_renameflags;
+
+	WERROR wkssvc_NetrRenameMachineInDomain(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *NewMachineName,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] [string,charset(UTF16)] uint16 *password,
+		[in] wkssvc_renameflags RenameOptions
+		);
+
+	/*****************************/
+	/* Function        0x13      */
+	typedef enum {
+		NetSetupUnknown = 0,
+		NetSetupMachine = 1,
+		NetSetupWorkgroup = 2,
+		NetSetupDomain = 3,
+		NetSetupNonExistentDomain = 4,
+		NetSetupDnsMachine = 5
+	} wkssvc_NetValidateNameType;
+
+	WERROR wkssvc_NetrValidateName(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] [string,charset(UTF16)] uint16 *Password,
+		[in] wkssvc_NetValidateNameType name_type
+		);
+
+	/*****************************/
+	/* Function        0x14      */
+	typedef enum {
+		NetSetupUnknownStatus = 0,
+		NetSetupUnjoined = 1,
+		NetSetupWorkgroupName = 2,
+		NetSetupDomainName = 3
+	} wkssvc_NetJoinStatus;
+
+	WERROR wkssvc_NetrGetJoinInformation(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,out,ref] [string,charset(UTF16)] uint16 **name_buffer,
+		[out,ref] wkssvc_NetJoinStatus *name_type
+		);
+
+	/*****************************/
+	/* Function        0x15      */
+	WERROR wkssvc_NetrGetJoinableOus(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *domain_name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] [string,charset(UTF16)] uint16 *unknown,
+		[in,out,ref] uint32 *num_ous,
+		[out,ref] [size_is(*num_ous)] [string,charset(UTF16)] uint16 ***ous
+		);
+
+	typedef [flag(NDR_PAHEX)] struct {
+		uint8 data[524];
+	} wkssvc_PasswordBuffer;
+
+	typedef [bitmap32bit] bitmap {
+		WKSSVC_JOIN_FLAGS_JOIN_WITH_NEW_NAME	= 0x00000400,
+		WKSSVC_JOIN_FLAGS_JOIN_DC_ACCOUNT	= 0x00000200,
+		/* TRUE: defer setting the SPN and dNSHostName until a rename operation */
+		WKSSVC_JOIN_FLAGS_DEFER_SPN		= 0x00000100,
+
+		/* TRUE: set the machine password to the provided one after the join completes */
+		WKSSVC_JOIN_FLAGS_MACHINE_PWD_PASSED	= 0x00000080,
+
+		/* TRUE: perform an unsecured join */
+		WKSSVC_JOIN_FLAGS_JOIN_UNSECURE		= 0x00000040,
+
+		/* TRUE: allow the join to complete even if the account already exists */
+		WKSSVC_JOIN_FLAGS_DOMAIN_JOIN_IF_JOINED	= 0x00000020,
+
+		/* TRUE: this join is part of a w9x upgrade */
+		WKSSVC_JOIN_FLAGS_WIN9X_UPGRADE		= 0x00000010,
+
+		/* TRUE: delete the account when the domain is left */
+		WKSSVC_JOIN_FLAGS_ACCOUNT_DELETE	= 0x00000004,
+
+		/* TRUE: create the account in the domain */
+		WKSSVC_JOIN_FLAGS_ACCOUNT_CREATE	= 0x00000002,
+
+		/* TRUE: join domain    FALSE: join workgroup */
+		WKSSVC_JOIN_FLAGS_JOIN_TYPE		= 0x00000001
+
+	} wkssvc_joinflags;
+
+	/*****************************/
+	/* Function        0x16      */
+	WERROR wkssvc_NetrJoinDomain2 (
+		[in]         [string,charset(UTF16)] uint16 *server_name,
+		[in,ref]     [string,charset(UTF16)] uint16 *domain_name,
+		[in]         [string,charset(UTF16)] uint16 *account_name,
+		[in]         [string,charset(UTF16)] uint16 *admin_account,
+		[in]         wkssvc_PasswordBuffer *encrypted_password,
+		[in]         wkssvc_joinflags join_flags
+		);
+
+	/*****************************/
+	/* Function        0x17      */
+	WERROR wkssvc_NetrUnjoinDomain2 (
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *account,
+		[in] wkssvc_PasswordBuffer *encrypted_password,
+		[in] wkssvc_joinflags unjoin_flags
+		);
+
+	/*****************************/
+	/* Function        0x18      */
+	WERROR wkssvc_NetrRenameMachineInDomain2(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *NewMachineName,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in] wkssvc_renameflags RenameOptions
+		);
+
+	/*****************************/
+	/* Function        0x19      */
+	WERROR wkssvc_NetrValidateName2(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in] wkssvc_NetValidateNameType name_type
+		);
+
+	/*****************************/
+	/* Function        0x1a      */
+	WERROR wkssvc_NetrGetJoinableOus2(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in,ref] [string,charset(UTF16)] uint16 *domain_name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in,out,ref] uint32 *num_ous,
+		[out,ref] [size_is(*num_ous)] [string,charset(UTF16)] uint16 ***ous
+		);
+
+	/*****************************/
+	/* Function        0x1b      */
+	WERROR wkssvc_NetrAddAlternateComputerName(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *NewAlternateMachineName,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in] uint32 Reserved
+		);
+
+	/*****************************/
+	/* Function        0x1c      */
+	WERROR wkssvc_NetrRemoveAlternateComputerName(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *AlternateMachineNameToRemove,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in] uint32 Reserved
+		);
+
+	/*****************************/
+	/* Function        0x1d      */
+	WERROR wkssvc_NetrSetPrimaryComputername(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [string,charset(UTF16)] uint16 *primary_name,
+		[in] [string,charset(UTF16)] uint16 *Account,
+		[in] wkssvc_PasswordBuffer *EncryptedPassword,
+		[in] uint32 Reserved
+		);
+
+	/*****************************/
+	/* Function        0x1e      */
+	typedef enum {
+		NetPrimaryComputerName = 0,
+		NetAlternateComputerNames = 1,
+		NetAllComputerNames = 2,
+		NetComputerNameTypeMax = 3
+	} wkssvc_ComputerNameType;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] lsa_String *computer_name;
+        } wkssvc_ComputerNamesCtr;
+
+	WERROR wkssvc_NetrEnumerateComputerNames(
+		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] wkssvc_ComputerNameType name_type,
+		[in] uint32 Reserved,
+		[out,ref] wkssvc_ComputerNamesCtr **ctr
+		);
+}

@@ -1,0 +1,47 @@
+#
+#	$Id$
+#
+
+VENDOR	Aptis	2637
+
+BEGIN-VENDOR Aptis
+ATTRIBUTE	CVX-Identification		1	string
+ATTRIBUTE	CVX-VPOP-ID			2	integer
+ATTRIBUTE	CVX-SS7-Session-ID-Type		3	integer
+ATTRIBUTE	CVX-Radius-Redirect		4	integer
+ATTRIBUTE	CVX-IPSVC-AZNLVL		5	integer
+ATTRIBUTE	CVX-IPSVC-Mask			6	integer
+ATTRIBUTE	CVX-Multilink-Match-Info	7	integer
+ATTRIBUTE	CVX-Multilink-Group-Number	8	integer
+ATTRIBUTE	CVX-PPP-Log-Mask		9	integer
+
+ATTRIBUTE	CVX-Modem-Begin-Modulation	10	string
+ATTRIBUTE	CVX-Modem-End-Modulation	11	string
+ATTRIBUTE	CVX-Modem-Error-Correction	12	string
+ATTRIBUTE	CVX-Modem-Data-Compression	13	string
+ATTRIBUTE	CVX-Modem-Tx-Packets		14	integer
+ATTRIBUTE	CVX-Modem-ReTx-Packets		15	integer
+ATTRIBUTE	CVX-Modem-SNR			16	integer
+ATTRIBUTE	CVX-Modem-Local-Retrains	17	integer
+ATTRIBUTE	CVX-Modem-Remote-Retrains	18	integer
+ATTRIBUTE	CVX-Modem-Local-Rate-Negs	19	integer
+ATTRIBUTE	CVX-Modem-Remote-Rate-Negs	20	integer
+ATTRIBUTE	CVX-Modem-Begin-Recv-Line-Lvl	21	integer
+ATTRIBUTE	CVX-Modem-End-Recv-Line-Lvl	22	integer
+
+ATTRIBUTE	CVX-Primary-DNS			135	ipaddr
+ATTRIBUTE	CVX-Secondary-DNS		136	ipaddr
+ATTRIBUTE	CVX-Client-Assign-DNS		137	integer
+ATTRIBUTE	CVX-Multicast-Rate-Limit	152	integer
+ATTRIBUTE	CVX-Multicast-Client		155	integer
+ATTRIBUTE	CVX-Disconnect-Cause		195	integer
+ATTRIBUTE	CVX-Data-Rate			197	integer
+ATTRIBUTE	CVX-PreSession-Time		198	integer
+ATTRIBUTE	CVX-Assign-IP-Pool		218	integer
+ATTRIBUTE	CVX-Maximum-Channels		235	integer
+ATTRIBUTE	CVX-Data-Filter			242	string
+ATTRIBUTE	CVX-Idle-Limit			244	integer
+ATTRIBUTE	CVX-PPP-Address			253	ipaddr
+ATTRIBUTE	CVX-Xmit-Rate			255	integer
+
+END-VENDOR Aptis

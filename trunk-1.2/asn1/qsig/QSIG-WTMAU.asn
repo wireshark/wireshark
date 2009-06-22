@@ -1,0 +1,156 @@
+-- QSIG-WTMAU.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-306, 2nd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-306.htm
+--
+-- $Id$
+--
+
+WTM-Authentication-Operations-asn1-97 
+  {iso standard pss1-authentication (15433) authentication-operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects    
+   {joint-iso-itu-t(2) remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    {iso standard  
+    pss1-generic-procedures (11582) msi-class-asn1-97 (11)} 
+  invalidServedUserNr FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)} 
+  PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    {iso(1) standard(0) pss1-generic-procedures(11582) 
+   addressing-data-elements-asn1-97(20)}; 
+WTMAuth-Operations OPERATION ::= {authWtmUser | getWtatParam | wtatParamEnq | getWtanParam |  
+      wtanParamEnq | transferAuthParam} 
+-- The following three operations shall apply to SS-WTAT -- 
+authWtmUser   OPERATION ::= {  -- from Home PINX to Visitor PINX-- 
+ ARGUMENT   AuthWtmArg 
+ RESULT    AuthWtmRes 
+  ERRORS    { temporarilyUnavailable | invalidServedUserNr |  
+          notAuthorized | paramNotAvailable | unspecified}  
+  CODE    local : 72} 
+getWtatParam   OPERATION ::= {  -- from Visitor PINX to Home PINX -- 
+ ARGUMENT  WtatParamArg 
+ RESULT    WtatParamRes 
+  ERRORS    { invalidServedUserNr | notAuthorized | 
+          paramNotAvailable | temporarilyUnavailable | unspecified} 
+  CODE    local : 73} 
+wtatParamEnq   OPERATION ::= {  -- from Home PINX to Authentication Server PINX-- 
+ ARGUMENT  WtatParamArg 
+ RESULT    WtatParamRes 
+  ERRORS    { invalidServedUserNr | paramNotAvailable | unspecified} 
+  CODE    local : 74} 
+AuthWtmArg ::=  SEQUENCE    {  
+      wtmUserId    WtmUserId, 
+        calcWtatInfo   [ 1 ] IMPLICIT CalcWtatInfo OPTIONAL, 
+      dummyExtension  DummyExtension OPTIONAL} 
+
+AuthWtmRes ::=  SEQUENCE    {  
+      autWtmResValue   ENUMERATED    
+              {auth-res-correct (0), 
+              auth-res-incorrect (1) }, 
+      dummyExtension   DummyExtension OPTIONAL} 
+WtatParamArg ::=  SEQUENCE   {  
+      wtmUserId     WtmUserId,  
+      canCompute   CanCompute OPTIONAL,  
+      authChallenge   AuthChallenge OPTIONAL, 
+      dummyExtension   DummyExtension OPTIONAL} 
+  -- The presence of element canCompute indicates that the Visitor PINX is able to -- 
+  -- compute a challenge and the expected response from session key information -- 
+WtatParamRes ::=  SEQUENCE   {wtatParamInfo  WtatParamInfo, 
+      dummyExtension   DummyExtension OPTIONAL} 
+-- The following two operations shall apply to SS-WTAN -- 
+getWtanParam   OPERATION ::= {   -- from Visitor PINX to Home PINX -- 
+ ARGUMENT  WtanParamArg  
+ RESULT    WtanParamRes  
+  ERRORS    { invalidServedUserNr | notAuthorized |  
+          paramNotAvailable | temporarilyUnavailable | unspecified} 
+  CODE    local : 75} 
+wtanParamEnq   OPERATION ::= {  -- from Home PINX to Authentication Server PINX-- 
+ ARGUMENT  WtanParamArg  
+ RESULT    WtanParamRes  
+  ERRORS    { invalidServedUserNr | paramNotAvailable | unspecified} 
+  CODE    local : 76} 
+WtanParamArg ::=  SEQUENCE   { wtmUserId    WtmUserId,  
+      authChallenge   AuthChallenge,  
+      authAlgorithm   AuthAlgorithm,  
+      canCompute   CanCompute OPTIONAL,  
+      dummyExtension   DummyExtension OPTIONAL} 
+  -- The presence of element canCompute indicates that the Visitor PINX is able to -- 
+  -- compute the response from session key information -- 
+WtmUserId ::=  CHOICE  { pisnNumber  PartyNumber, 
+        -- The PISN number of the WTM user, 
+        -- always a Complete Number.  
+       alternativeId  AlternativeId } 
+AlternativeId ::=  OCTET STRING(SIZE(1..20)) 
+WtanParamRes ::=  SEQUENCE   {wtanParamInfo  WtanParamInfo,  
+      dummyExtension   DummyExtension OPTIONAL} 
+
+-- The following unconfirmed operation shall apply when interaction between SS-WTAT and ANF-WTINFO -- 
+transferAuthParam    OPERATION ::= {  -- from Home PINX to Visitor PINX -- 
+ ARGUMENT    SEQUENCE { 
+         wtatParamInfo   WtatParamInfo,  
+           dummyExtension  DummyExtension OPTIONAL} 
+ RETURN RESULT   FALSE 
+ ALWAYS RESPONDS  FALSE 
+  CODE      local : 77} 
+WtatParamInfo ::=  SEQUENCE   {authAlgorithm    AuthAlgorithm,  
+        wtatParamInfoChoice   CHOICE {  
+          authSessionKeyInfo  [ 1 ] IMPLICIT AuthSessionKeyInfo,  
+          calcWtatInfo    [ 2 ] IMPLICIT CalcWtatInfo,  
+          authKey     [ 3 ] IMPLICIT AuthKey,  
+          challLen     [ 4 ] IMPLICIT INTEGER(1..8) } } 
+AuthKey ::=  OCTET STRING (SIZE(1..16))  -- Authentication key -- 
+WtanParamInfo ::=  CHOICE   {authSessionKeyInfo  [ 1 ] IMPLICIT AuthSessionKeyInfo,  
+      calcWtanInfo      [ 2 ] IMPLICIT CalcWtanInfo} 
+AuthSessionKeyInfo ::=  SEQUENCE   {authSessionKey AuthSessionKey,  
+      calculationParam  CalculationParam} 
+CalcWtatInfo ::=  SEQUENCE SIZE(1..5) OF CalcWtatInfoUnit 
+CalcWtatInfoUnit ::=  SEQUENCE  {authChallenge  AuthChallenge,  
+      authResponse  AuthResponse,  
+      derivedCipherKey  [1] IMPLICIT DerivedCipherKey OPTIONAL, 
+        calculationParam  [2] IMPLICIT CalculationParam OPTIONAL} 
+        -- included if required by the authentication algorithm in use -- 
+CalcWtanInfo ::=  SEQUENCE   {authResponse AuthResponse,  
+      calculationParam  CalculationParam OPTIONAL}  
+        -- included if required by the authentication algorithm in use -- 
+DummyExtension ::=  CHOICE   {extension     [5] IMPLICIT Extension{{WTMAuthExtSet}}, 
+      sequOfExtn   [6] IMPLICIT SEQUENCE OF  
+              Extension{{WTMAuthExtSet}} } 
+AUTH-ALG    ::= CLASS  { 
+  &id DefinedIDs UNIQUE, 
+ &Type OPTIONAL 
+     } 
+DefinedIDs ::= INTEGER { ct2 (0), dect (1), gsm (2), pci (3), pwt (4), us-gsm (5), phs (6), tetra (7) } (0..255)  
+AuthAlgSet AUTH-ALG ::= {...} 
+AuthAlgorithm ::=        SEQUENCE   { 
+ authAlg  AUTH-ALG.&id({AuthAlgSet}), 
+ param   AUTH-ALG.&Type({AuthAlgSet}{@.authAlg}) OPTIONAL 
+     } 
+AuthChallenge ::=  OCTET STRING (SIZE(1..8))  -- Randomly generated parameter -- 
+
+AuthResponse ::=  OCTET STRING (SIZE(1..4))  -- WTAT: Expected response value -- 
+            -- WTAN: Response value from network -- 
+AuthSessionKey ::=  OCTET STRING (SIZE(1..16))  -- Authentication session key-- 
+CalculationParam ::=  OCTET STRING (SIZE(1..8))  -- Parameter used when calculating -- 
+            -- the authentication session key from -- 
+            -- the real authentication key. It may be -- 
+            -- transferred to the WTM user during -- 
+            -- both WTAT and WTAN. -- 
+CanCompute ::=  NULL         -- indicates capability of computing --   
+            -- challenge and/or response value --   
+DerivedCipherKey ::=  OCTET STRING (SIZE(1..8))  -- derived cipher key may be computed -- 
+            -- when computing challenge and -- 
+         -- expected response values--   
+WTMAuthExtSet EXTENSION ::= {...} 
+notAuthorized  ERROR      ::=  {CODE local : 1007 } 
+paramNotAvailable  ERROR      ::=  {CODE local : 1017 } 
+temporarilyUnavailable  ERROR      ::=  {CODE local : 1000 } 
+unspecified ERROR ::={  
+   PARAMETER   Extension{{WTMAuthExtSet}} 
+    CODE    local : 1008} 
+END  -- of WTM-Authentication-Operations-asn1-97 

@@ -1,0 +1,550 @@
+//Source file: pam_data.idl
+//Date:  13 October 2004
+//Presence and Availability Management Data Types for ES 203 915-14 V1.1.1, DES/TISPAN-01005-14-OSA, Parlay 5.0
+
+#ifndef __PAM_DATA_DEFINED
+#define __PAM_DATA_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module pam {
+			
+			
+			typedef TpInt64 TpPAMTimeInterval;
+			
+			
+			typedef TpURN TpPAMFQName;
+			
+			
+			typedef sequence <TpPAMFQName> TpPAMFQNameList;
+			
+			
+			typedef TpOctetSet TpPAMCredential;
+			
+			
+			typedef TpString TpPAMCapability;
+			
+			
+			typedef sequence <TpPAMCapability> TpPAMCapabilityList;
+			
+			
+			struct TpPAMAttributeDef {
+				TpString Name;
+				TpString Type;
+				TpBoolean IsStatic;
+				TpBoolean IsRevertOnExpiration;
+				TpAny DefaultValues;
+			};
+			
+			
+			typedef sequence <TpPAMAttributeDef> TpPAMAttributeDefList;
+			
+			
+			struct TpPAMAttribute {
+				TpString AttributeName;
+				TpAttributeValue AttributeValue;
+				TpPAMTimeInterval ExpiresIn;
+			};
+			
+			
+			typedef sequence <TpPAMAttribute> TpPAMAttributeList;
+			
+			const TpInt64 PAM_MAX_LONGINT = 0x7fffffff;
+			
+			exception P_PAM_UNKNOWN_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_MEMBER {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_IDENTITY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_GROUP {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_CAPABILITY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_ATTRIBUTES {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_ATTRIBUTE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_ASSIGNMENT {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_ALIAS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNKNOWN_AGENT {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_UNASSIGNED_ALIAS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_TYPE_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_TYPE_ASSOCIATED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_NOT_REGISTERED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_NOT_MEMBER {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_NO_CAPABILITY {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_MEMBER_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_IS_CYCLIC {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_IDENTITY_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_DISASSOCIATED_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_ATTRIBUTE_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_ALIAS_NOT_UNIQUE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_ALIAS_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_PAM_AGENT_EXISTS {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpPAMPresenceData {
+				TpString Name;
+				TpString subscriberStatus;
+				TpString networkStatus;
+				TpPAMCapability communicationMeans;
+				TpAddress contactAddress;
+				TpString subscriberProvidedLocation;
+				TpString networkProvidedLocation;
+				TpInt32 Priority;
+				TpString otherInfo;
+			};
+			
+			
+			typedef sequence <TpPAMPresenceData> TpPAMPresenceDataList;
+			
+			
+			typedef TpString TpPAMPrivacyCode;
+			
+			
+			struct TpPAMAvailabilityProfile {
+				TpPAMPrivacyCode PrivacyCode;
+				TpPAMPresenceData AvailabilityData;
+			};
+			
+			
+			typedef sequence <TpPAMAvailabilityProfile> TpPAMAvailabilityProfileList;
+			
+			
+			enum TpPAMContextName {
+
+				PAM_CONTEXT_ANY,
+				PAM_CONTEXT_COMMUNICATION				
+			};
+			
+			
+			struct TpPAMCommunicationContext {
+				TpPAMCapability CommunicationCapability;
+			};
+			
+			
+			union TpPAMContextData switch(TpPAMContextName) {
+				case PAM_CONTEXT_COMMUNICATION: TpPAMCommunicationContext CommunicationContext;
+				default: short Dummy;
+			};
+			
+			
+			struct TpPAMContext {
+				TpPAMContextData ContextData;
+				TpAttributeList AskerData;
+			};
+			
+			
+			typedef sequence <TpPAMContext> TpPAMContextList;
+			
+			
+			enum TpPAMACLDefault {
+
+				PAM_ACCESS_ALLOW,
+				PAM_ACCESS_DENY				
+			};
+			
+			
+			struct TpPAMAccessControlData {
+				TpPAMACLDefault DefaultPolicy;
+				TpPAMFQNameList AllowList;
+				TpPAMFQNameList DenyList;
+			};
+			
+			
+			typedef TpString TpPAMPreferenceOp;
+			
+			
+			enum TpPAMPreferenceType {
+
+				PAM_ACCESS_LIST,
+				PAM_EXTERNAL_CONTROL				
+			};
+			
+			
+			enum TpPAMEventName {
+
+				PAM_CE_IDENTITY_PRESENCE_SET,
+				PAM_CE_AVAILABILITY_CHANGED,
+				PAM_CE_WATCHERS_CHANGED,
+				PAM_CE_IDENTITY_CREATED,
+				PAM_CE_IDENTITY_DELETED,
+				PAM_CE_GROUP_MEMBERSHIP_CHANGED,
+				PAM_CE_AGENT_CREATED,
+				PAM_CE_AGENT_DELETED,
+				PAM_CE_AGENT_ASSIGNED,
+				PAM_CE_AGENT_UNASSIGNED,
+				PAM_CE_CAPABILITY_CHANGED,
+				PAM_CE_AGENT_CAPABILITY_PRESENCE_SET,
+				PAM_CE_AGENT_PRESENCE_SET				
+			};
+			
+			
+			typedef sequence <TpPAMEventName> TpPAMEventNameList;
+			
+			
+			struct TpPAMICEventData {
+				TpStringList IdentityType;
+			};
+			
+			
+			struct TpPAMICNotificationData {
+				TpPAMFQNameList Identities;
+			};
+			
+			
+			struct TpPAMIDEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+			};
+			
+			
+			struct TpPAMIDNotificationData {
+				TpPAMFQNameList Identities;
+			};
+			
+			
+			struct TpPAMGMCEventData {
+				TpPAMFQNameList GroupName;
+				TpStringList GroupType;
+			};
+			
+			
+			struct TpPAMGMCNotificationData {
+				TpPAMFQNameList Groups;
+			};
+			
+			
+			struct TpPAMACEventData {
+				TpStringList AgentType;
+			};
+			
+			
+			struct TpPAMACNotificationData {
+				TpPAMFQNameList Agents;
+			};
+			
+			
+			struct TpPAMADEventData {
+				TpPAMFQNameList AgentName;
+				TpStringList AgentType;
+			};
+			
+			
+			struct TpPAMADNotificationData {
+				TpPAMFQNameList Agents;
+			};
+			
+			
+			struct TpPAMAAEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpPAMFQNameList AgentName;
+				TpStringList AgentType;
+			};
+			
+			
+			struct TpPAMAANotificationData {
+				TpPAMFQName Identity;
+				TpPAMFQName Agent;
+			};
+			
+			
+			struct TpPAMAUEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpPAMFQNameList AgentName;
+				TpStringList AgentType;
+			};
+			
+			
+			struct TpPAMAUNotificationData {
+				TpPAMFQName Identity;
+				TpPAMFQName Agent;
+			};
+			
+			
+			struct TpPAMCCEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpPAMCapabilityList Capabilities;
+			};
+			
+			
+			struct TpPAMCCNotificationData {
+				TpPAMFQName Identity;
+				TpPAMCapabilityList Capabilities;
+			};
+			
+			
+			struct TpPAMACPSEventData {
+				TpPAMFQNameList AgentName;
+				TpStringList AgentType;
+				TpPAMCapabilityList Capabilities;
+				TpStringList AttributeNames;
+				TpPAMTimeInterval ReportingPeriod;
+			};
+			
+			
+			struct TpPAMACPSNotificationData {
+				TpPAMFQName Agent;
+				TpPAMCapability Capability;
+				TpStringList AttributeNames;
+			};
+			
+			
+			struct TpPAMAPSEventData {
+				TpPAMFQNameList AgentName;
+				TpStringList AgentType;
+				TpStringList AttributeNames;
+				TpPAMTimeInterval ReportingPeriod;
+			};
+			
+			
+			struct TpPAMAPSNotificationData {
+				TpPAMFQName Agent;
+				TpStringList AttributeNames;
+			};
+			
+			
+			struct TpPAMIPSEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpStringList AttributeNames;
+				TpPAMTimeInterval ReportingPeriod;
+			};
+			
+			
+			struct TpPAMIPSNotificationData {
+				TpPAMFQName Identity;
+				TpPAMPresenceDataList Attributes;
+			};
+			
+			
+			struct TpPAMAVCEventData {
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpPAMContextList PAMContext;
+				TpStringList AttributeNames;
+				TpPAMTimeInterval ReportingPeriod;
+			};
+			
+			
+			struct TpPAMAVCNotificationData {
+				TpPAMFQName Identity;
+				TpPAMAvailabilityProfileList Availability;
+			};
+			
+			
+			struct TpPAMWCEventData {
+				TpPAMEventNameList Events;
+				TpPAMFQNameList IdentityName;
+				TpStringList IdentityType;
+				TpPAMTimeInterval ReportingPeriod;
+			};
+			
+			
+			union TpPAMEventInfo switch(TpPAMEventName) {
+				case PAM_CE_IDENTITY_PRESENCE_SET: TpPAMIPSEventData IdentityPresenceSet;
+				case PAM_CE_AVAILABILITY_CHANGED: TpPAMAVCEventData AvailabilityChanged;
+				case PAM_CE_WATCHERS_CHANGED: TpPAMWCEventData WatchersChanged;
+				case PAM_CE_IDENTITY_CREATED: TpPAMICEventData IdentityCreated;
+				case PAM_CE_IDENTITY_DELETED: TpPAMIDEventData IdentityDeleted;
+				case PAM_CE_GROUP_MEMBERSHIP_CHANGED: TpPAMGMCEventData GroupMembershipChanged;
+				case PAM_CE_AGENT_CREATED: TpPAMACEventData AgentCreated;
+				case PAM_CE_AGENT_DELETED: TpPAMADEventData AgentDeleted;
+				case PAM_CE_AGENT_ASSIGNED: TpPAMAAEventData AgentAssigned;
+				case PAM_CE_AGENT_UNASSIGNED: TpPAMAUEventData AgentUnassigned;
+				case PAM_CE_CAPABILITY_CHANGED: TpPAMCCEventData CapabilityChanged;
+				case PAM_CE_AGENT_CAPABILITY_PRESENCE_SET: TpPAMACPSEventData AgentCapabilityPresenceSet;
+				case PAM_CE_AGENT_PRESENCE_SET: TpPAMAPSEventData AgentPresenceSet;
+			};
+			
+			
+			enum TpPAMwatcherChangeType {
+
+				PAM_WATCHERS_PERIODIC,
+				PAM_WATCHERS_ADDED,
+				PAM_WATCHERS_DELETED				
+			};
+			
+			
+			struct TpPAMWCNotificationData {
+				TpPAMEventName Event;
+				TpPAMwatcherChangeType ChangeType;
+				TpPAMFQName Identity;
+				TpPAMFQNameList Watchers;
+			};
+			
+			
+			union TpPAMNotificationInfo switch(TpPAMEventName) {
+				case PAM_CE_IDENTITY_PRESENCE_SET: TpPAMIPSNotificationData IdentityPresenceSetNotify;
+				case PAM_CE_AVAILABILITY_CHANGED: TpPAMAVCNotificationData AvailabilityChangedNotify;
+				case PAM_CE_WATCHERS_CHANGED: TpPAMWCNotificationData WatchersChangedNotify;
+				case PAM_CE_IDENTITY_CREATED: TpPAMICNotificationData IdentityCreatedNotify;
+				case PAM_CE_IDENTITY_DELETED: TpPAMIDNotificationData IdentityDeletedNotify;
+				case PAM_CE_GROUP_MEMBERSHIP_CHANGED: TpPAMGMCNotificationData GroupMembershipChangedNotify;
+				case PAM_CE_AGENT_CREATED: TpPAMACNotificationData AgentCreatedNotify;
+				case PAM_CE_AGENT_DELETED: TpPAMADNotificationData AgentDeletedNotify;
+				case PAM_CE_AGENT_ASSIGNED: TpPAMAANotificationData AgentAssignedNotify;
+				case PAM_CE_AGENT_UNASSIGNED: TpPAMAUNotificationData AgentUnassignedNotify;
+				case PAM_CE_CAPABILITY_CHANGED: TpPAMCCNotificationData CapabilityChangedNotify;
+				case PAM_CE_AGENT_CAPABILITY_PRESENCE_SET: TpPAMACPSNotificationData AgentCapabilityPresenceSetNotify;
+				case PAM_CE_AGENT_PRESENCE_SET: TpPAMAPSNotificationData AgentPresenceSetNotify;
+			};
+			
+			
+			typedef TpString TpPAMProvisioningInterfaceName;
+			
+			
+			typedef TpString TpPAMPresenceAvailabilityInterfaceName;
+			
+			
+			typedef TpString TpPAMEventInterfaceName;
+			
+			
+			typedef sequence <TpPAMEventInfo> TpPAMEventInfoList;
+			
+			
+			typedef sequence <TpPAMNotificationInfo> TpPAMNotificationInfoList;
+			
+			
+			enum TpPAMErrorCause {
+
+				P_PAM_CAUSE_UNDEFINED,
+				P_PAM_CAUSE_INVALID_ADDRESS,
+				P_PAM_CAUSE_SYSTEM_FAILURE,
+				P_PAM_CAUSE_INFO_UNAVAILABLE,
+				P_PAM_CAUSE_EVENT_REGISTRATION_CANCELLED				
+			};
+			
+			
+			struct TpPAMErrorInfo {
+				TpPAMErrorCause Cause;
+				TpPAMNotificationInfo ErrorData;
+			};
+			
+			
+			exception P_PAM_UNAVAILABLE_INTERFACE {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef TpInt32 TpPAMClientID;
+			
+			
+			typedef TpAssignmentID TpPAMEventID;
+			
+			
+			exception P_PAM_INVALID_CREDENTIAL {
+				TpString ExtraInformation;
+			};
+			
+			
+			const TpPAMCapability P_PAM_VOICE = "P_PAM_VOICE";
+			
+			const TpPAMCapability P_PAM_SMS = "P_PAM_SMS";
+			
+			const TpPAMCapability P_PAM_IM = "P_PAM_IM";
+			
+			const TpPAMCapability P_PAM_MMS = "P_PAM_MMS";
+		};
+		
+	};
+	
+};
+
+#endif

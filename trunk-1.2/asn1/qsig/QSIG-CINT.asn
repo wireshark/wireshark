@@ -1,0 +1,154 @@
+-- QSIG-CINT.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-221, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-221.htm
+--
+-- $Id$
+--
+
+Call-Interception-Operations-asn1-97 {iso (1) standard (0) pss1-cint (15054) cint-operations-asn1-97 (1) } 
+ 
+DEFINITIONS  EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS    OPERATION, ERROR FROM  Remote-Operations-Information-Objects 
+   {joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1(0)} 
+ 
+   EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+      {iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11)} 
+ 
+   PartyNumber, PresentedNumberUnscreened, PresentationAllowedIndicator 
+   FROM Addressing-Data-Elements-asn1-97 
+      {iso (1) standard (0) pss1-generic-procedures (11582) 
+   addressing-data-elements-asn1-97 (20)} 
+ 
+   Name FROM Name-Operations-asn1-97 
+      {iso (1) standard (0) pss1-name (13868) name-operations-asn1-97 (1)}; 
+ 
+Call-Interception-Operations OPERATION ::= { cintLegInformation1 | cintLegInformation2 | cintCondition | 
+cintDisable | cintEnable} 
+ 
+ 
+cintLegInformation1  OPERATION ::= { 
+    -- Sent from the Intercepting PINX to the Originating PINX -- 
+    ARGUMENT   CintInformation1Arg 
+    RETURN RESULT  FALSE 
+    ALWAYS RESPONDS  FALSE 
+    CODE    local: 66} 
+ 
+ 
+cintLegInformation2  OPERATION ::= { 
+    -- Sent from the Intercepting PINX to the Intercepted-to PINX -- 
+    ARGUMENT   CintInformation2Arg 
+    RETURN RESULT  FALSE 
+    ALWAYS RESPONDS  FALSE 
+    CODE    local: 67} 
+
+cintCondition    OPERATION ::= { 
+        -- Sent to a preceding PINX to indicate a condition for possible interception 
+    ARGUMENT   CintCondArg 
+    RETURN RESULT  FALSE 
+    ALWAYS RESPONDS  FALSE 
+    CODE    local: 68} 
+ 
+cintDisable    OPERATION ::= { 
+        -- Sent to a Preceding PINX to disable interception delayed -- 
+    ARGUMENT  CintExtension 
+    RETURN RESULT  FALSE 
+    ALWAYS RESPONDS  FALSE 
+    CODE    local: 69} 
+ 
+cintEnable    OPERATION  ::= { 
+        -- Sent to a Preceding PINX to reenable interception -- 
+    ARGUMENT  CintExtension 
+    RETURN RESULT  FALSE 
+    ALWAYS RESPONDS  FALSE 
+    CODE    local: 70} 
+ 
+CintInformation1Arg ::=  SEQUENCE 
+    { 
+    interceptionCause   CintCause, 
+    interceptedToNumber   PartyNumber, 
+    extension    CintExtension OPTIONAL 
+    } 
+ 
+CintInformation2Arg ::=  SEQUENCE 
+    { 
+    interceptionCause  CintCause, 
+    calledNumber   [1]PresentedNumberUnscreened OPTIONAL, 
+    originalCalledNumber  [2]PresentedNumberUnscreened OPTIONAL, 
+    calledName   [3]Name OPTIONAL, 
+    originalCalledName  [4]Name OPTIONAL, 
+    extension   CintExtension OPTIONAL 
+    } 
+ 
+ 
+CintCondArg   ::=  SEQUENCE 
+    { 
+    interceptionCause  Condition, 
+    originalCalledNumber  [1]PresentedNumberUnscreened OPTIONAL, 
+    calledName   [2]Name OPTIONAL, 
+    originalCalledName  [3]Name OPTIONAL, 
+    extension   CintExtension OPTIONAL 
+    } 
+ 
+CintExtension   ::=  CHOICE 
+    { 
+    none   NULL, 
+    single   [5] IMPLICIT Extension{{CINTExtSet}}, 
+    multiple  [6] IMPLICIT SEQUENCE OF Extension{{CINTExtSet}} 
+    } 
+
+CintCause  ::=  INTEGER  { 
+   unknown   (0), 
+      cintBnan  (1),  -- timeout in waiting on busy condition 
+   cintBus  (2),  -- busy user 
+   cintCug  (3),  -- closed user group rejection 
+   cintDnd  (4),  -- do not disturb activated 
+   cintIbd   (5),  -- incoming barred destination 
+   cintInn   (6),  -- invalid number 
+      cintMob1  (7),  -- mobile user location not known 
+      cintMob2  (8),  -- mobile user no longer registered 
+      cintMob3  (9),  -- mobile terminal not responding 
+   cintNcmp  (10),  -- no compatible destination 
+   cintNcong  (11),  -- network congestion 
+      cintNre   (12),  -- no reply (i.e. timeout during alerting) 
+      cintOos   (13),  -- called user out of service 
+   cintRrs  (14),  -- route restriction (calling user not authorized for 
+      -- the route) 
+      cintTbnan  (15),  -- timeout in wait on busy condition after transfer 
+      cintTnre  (16),  -- no reply after transfer (i.e. timeout during alerting 
+      -- after transfer 
+   cintTrans  (17),  -- upper limit of transit counter reached 
+   cintUpl   (18),  -- upper limit of number of diversions reached 
+      cintInvDiv  (19),  -- invalid call diversion destination 
+      cintHold  (20)  -- timeout after call hold 
+   } (0..127) 
+    
+ 
+Condition  ::=  INTEGER  { 
+   unknown   (0), 
+   cintBus  (2),  -- busy user 
+   cintCug  (3),  -- closed user group rejection 
+   cintDnd  (4),  -- do not disturb activated 
+   cintIbd   (5),  -- incoming barred destination 
+   cintInn   (6),  -- invalid number 
+      cintMob1  (7),  -- mobile user location not known 
+      cintMob2  (8),  -- mobile user no longer registered 
+      cintMob3  (9),  -- mobile terminal not responding 
+   cintNcmp  (10),  -- no compatible destination 
+   cintNcong  (11),  -- network congestion 
+      cintOos   (13),  -- called user out of service 
+   cintRrs  (14),  -- route restriction (calling user not authorized for 
+      -- the route 
+   cintTrans  (17),  -- upper limit of transit counter reached 
+      cintUpl    (18),  -- upper limit of number of diversions 
+      -- reached 
+      cintInvDiv  (19)  -- invalid call diversion destination 
+   } (0..127) 
+ 
+CINTExtSet EXTENSION ::= {...} 
+ 
+END  -- of Call-Interception-Operations-asn1-97 

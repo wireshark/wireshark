@@ -1,0 +1,117 @@
+-- ASN description of MPEG Packetized Elementary Stream (PES)
+-- Written by Shaun Jackman <sjackman@gmail.com>
+-- Copyright 2007 Shaun Jackman
+--
+-- This program is free software; you can redistribute it and/or
+-- modify it under the terms of the GNU General Public License.
+
+MPEG DEFINITIONS ::= BEGIN
+
+PES ::= SEQUENCE {
+	prefix OCTET STRING (SIZE (3)),
+	stream INTEGER {
+		picture (0),
+		sequence-header (179),
+		sequence-header-extension (181),
+		group-of-pictures (184),
+		program-end (185),
+		pack-header (186),
+		system-header (187),
+		program-stream-map (188),
+		private-stream-1 (189),
+		padding-stream (190),
+		private-stream-2 (191),
+		audio-stream (192),
+		video-stream (224)
+	} (0..255)
+}
+
+Stream ::= SEQUENCE {
+	length INTEGER (0..65535),
+	must-be-one BOOLEAN,
+	must-be-zero BOOLEAN,
+	scrambling-control INTEGER {
+		not-scrambled (0)
+	} (0..3),
+	priority BOOLEAN,
+	data-alignment BOOLEAN,
+	copyright BOOLEAN,
+	original BOOLEAN,
+	pts-flag BOOLEAN,
+	dts-flag BOOLEAN,
+	escr-flag BOOLEAN,
+	es-rate-flag BOOLEAN,
+	dsm-trick-mode-flag BOOLEAN,
+	additional-copy-info-flag BOOLEAN,
+	crc-flag BOOLEAN,
+	extension-flag BOOLEAN,
+	header-data-length INTEGER (0..255)
+}
+
+Sequence-header ::= SEQUENCE {
+	horizontal-size BIT STRING (SIZE (12)),
+	vertical-size BIT STRING (SIZE (12)),
+	aspect-ratio INTEGER {
+		aspect-1to1 (1),
+		aspect-4to3 (2),
+		aspect-16to9 (3),
+		aspect-2-21to1 (4)
+	} (0..15),
+	frame-rate ENUMERATED {
+		reserved (0),
+		fr (23976),
+		fr (24000),
+		fr (25000),
+		fr (29970),
+		fr (30000),
+		fr (50000),
+		fr (59940),
+		fr (60000)
+	},
+	bit-rate BIT STRING (SIZE (18)),
+	must-be-one BOOLEAN,
+	vbv-buffer-size BIT STRING (SIZE (10)),
+	constrained-parameters-flag BOOLEAN,
+	load-intra-quantiser-matrix BOOLEAN,
+	load-non-intra-quantiser-matrix BOOLEAN
+}
+
+Sequence-extension ::= SEQUENCE {
+	must-be-0001 BIT STRING (SIZE (4)),
+	profile-and-level INTEGER (0..255),
+	progressive-sequence BOOLEAN,
+	chroma-format INTEGER (0..3),
+	horizontal-size-extension INTEGER (0..3),
+	vertical-size-extension INTEGER (0..3),
+	bit-rate-extension BIT STRING (SIZE (12)),
+	must-be-one BOOLEAN,
+	vbv-buffer-size-extension INTEGER (0..255),
+	low-delay BOOLEAN,
+	frame-rate-extension-n INTEGER (0..3),
+	frame-rate-extension-d INTEGER (0..3)
+}
+
+Group-of-pictures ::= SEQUENCE {
+	drop-frame-flag BOOLEAN,
+	hour INTEGER (0..32),
+	minute INTEGER (0..64),
+	must-be-one BOOLEAN,
+	second INTEGER (0..64),
+	frame INTEGER (0..64),
+	closed-gop BOOLEAN,
+	broken-gop BOOLEAN,
+	must-be-zero BIT STRING (SIZE (5))
+}
+
+Picture ::= SEQUENCE {
+	temporal-sequence-number BIT STRING (SIZE (10)),
+	frame-type INTEGER {
+		i-frame (1),
+		p-frame (2),
+		b-frame (3),
+		d-frame (4)
+	} (0..7),
+	vbv-delay BIT STRING (SIZE (16))
+}
+
+END

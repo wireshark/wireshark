@@ -1,0 +1,658 @@
+-- H501-MESSAGES.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h501/2002/H501-MESSAGES.asn
+--
+-- $Id$
+--
+
+-- Module H501-MESSAGES (H.501:03/2002)
+H501-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  AuthenticationMechanism, TimeStamp, ClearToken
+    FROM H235-SECURITY-MESSAGES
+  AliasAddress, TransportAddress, ReleaseCompleteReason, ConferenceIdentifier,
+    CallIdentifier, CryptoH323Token, CryptoToken, EndpointType,
+    GatekeeperIdentifier, GloballyUniqueID, NonStandardParameter, NumberDigits,
+    PartyNumber, SupportedProtocols, TransportQOS, VendorIdentifier,
+    IntegrityMechanism, ICV, FeatureSet, GenericData, EnumeratedParameter,
+    ServiceControlSession, CircuitInfo, CircuitIdentifier
+    FROM H323-MESSAGES;
+
+Message ::= SEQUENCE {body    MessageBody,
+                      common  MessageCommonInfo,
+                      ...
+}
+
+MessageBody ::= CHOICE {
+  serviceRequest               ServiceRequest,
+  serviceConfirmation          ServiceConfirmation,
+  serviceRejection             ServiceRejection,
+  serviceRelease               ServiceRelease,
+  descriptorRequest            DescriptorRequest,
+  descriptorConfirmation       DescriptorConfirmation,
+  descriptorRejection          DescriptorRejection,
+  descriptorIDRequest          DescriptorIDRequest,
+  descriptorIDConfirmation     DescriptorIDConfirmation,
+  descriptorIDRejection        DescriptorIDRejection,
+  descriptorUpdate             DescriptorUpdate,
+  descriptorUpdateAck          DescriptorUpdateAck,
+  accessRequest                AccessRequest,
+  accessConfirmation           AccessConfirmation,
+  accessRejection              AccessRejection,
+  requestInProgress            RequestInProgress,
+  nonStandardRequest           NonStandardRequest,
+  nonStandardConfirmation      NonStandardConfirmation,
+  nonStandardRejection         NonStandardRejection,
+  unknownMessageResponse       UnknownMessageResponse,
+  usageRequest                 UsageRequest,
+  usageConfirmation            UsageConfirmation,
+  usageIndication              UsageIndication,
+  usageIndicationConfirmation  UsageIndicationConfirmation,
+  usageIndicationRejection     UsageIndicationRejection,
+  usageRejection               UsageRejection,
+  validationRequest            ValidationRequest,
+  validationConfirmation       ValidationConfirmation,
+  validationRejection          ValidationRejection,
+  ...,
+  authenticationRequest        AuthenticationRequest,
+  authenticationConfirmation   AuthenticationConfirmation,
+  authenticationRejection      AuthenticationRejection
+}
+
+MessageCommonInfo ::= SEQUENCE {
+  sequenceNumber       INTEGER(0..65535),
+  annexGversion        ProtocolVersion, -- set to "H.225.0 Annex G V2"
+  hopCount             INTEGER(1..255),
+  replyAddress         SEQUENCE OF TransportAddress OPTIONAL,
+  -- Must be present in request
+  integrityCheckValue  ICV OPTIONAL,
+  tokens               SEQUENCE OF ClearToken OPTIONAL,
+  cryptoTokens         SEQUENCE OF CryptoH323Token OPTIONAL,
+  nonStandard          SEQUENCE OF NonStandardParameter OPTIONAL,
+  ...,
+  serviceID            ServiceID OPTIONAL,
+  genericData          SEQUENCE OF GenericData OPTIONAL,
+  featureSet           FeatureSet OPTIONAL,
+  version              ProtocolVersion -- current H.501 protocol version
+}
+
+ServiceID ::= GloballyUniqueID
+
+--
+-- H.501 messages 
+--
+ServiceRequest ::= SEQUENCE {
+  elementIdentifier  ElementIdentifier OPTIONAL,
+  domainIdentifier   AliasAddress OPTIONAL,
+  securityMode       SEQUENCE OF SecurityMode OPTIONAL,
+  timeToLive         INTEGER(1..4294967295) OPTIONAL,
+  ...,
+  usageSpec          UsageSpecification OPTIONAL
+}
+
+SecurityMode ::= SEQUENCE {
+  authentication  AuthenticationMechanism OPTIONAL,
+  integrity       IntegrityMechanism OPTIONAL,
+  algorithmOIDs   SEQUENCE OF OBJECT IDENTIFIER OPTIONAL,
+  ...
+}
+
+ServiceConfirmation ::= SEQUENCE {
+  elementIdentifier  ElementIdentifier,
+  domainIdentifier   AliasAddress,
+  alternates         AlternatePEInfo OPTIONAL,
+  securityMode       SecurityMode OPTIONAL,
+  timeToLive         INTEGER(1..4294967295) OPTIONAL,
+  ...,
+  usageSpec          UsageSpecification OPTIONAL
+}
+
+ServiceRejection ::= SEQUENCE {
+  reason      ServiceRejectionReason,
+  alternates  AlternatePEInfo OPTIONAL,
+  ...
+}
+
+ServiceRejectionReason ::= CHOICE {
+  serviceUnavailable      NULL,
+  serviceRedirected       NULL,
+  security                NULL,
+  continue                NULL,
+  undefined               NULL,
+  ...,
+  unknownServiceID        NULL,
+  cannotSupportUsageSpec  NULL, -- Cannot comply with proposed spec
+  neededFeature           NULL,
+  genericDataReason       NULL,
+  usageUnavailable        NULL, -- Usage reporting not supported
+  unknownUsageSendTo      NULL -- Usage sendTo could not be resolved
+}
+
+ServiceRelease ::= SEQUENCE {
+  reason      ServiceReleaseReason,
+  alternates  AlternatePEInfo OPTIONAL,
+  ...
+}
+
+ServiceReleaseReason ::= CHOICE {
+  outOfService  NULL,
+  maintenance   NULL,
+  terminated    NULL,
+  expired       NULL,
+  ...
+}
+
+DescriptorRequest ::= SEQUENCE {descriptorID  SEQUENCE OF DescriptorID,
+                                ...
+}
+
+DescriptorConfirmation ::= SEQUENCE {descriptor  SEQUENCE OF Descriptor,
+                                     ...
+}
+
+DescriptorRejection ::= SEQUENCE {
+  reason        DescriptorRejectionReason,
+  descriptorID  DescriptorID OPTIONAL,
+  ...
+}
+
+DescriptorRejectionReason ::= CHOICE {
+  packetSizeExceeded     NULL, -- use other transport type
+  illegalID              NULL, -- no descriptor for provided descriptorID
+  security               NULL, -- request did not meet security requirements
+  hopCountExceeded       NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+DescriptorIDRequest ::= SEQUENCE {...
+}
+
+DescriptorIDConfirmation ::= SEQUENCE {
+  descriptorInfo  SEQUENCE OF DescriptorInfo,
+  ...
+}
+
+DescriptorIDRejection ::= SEQUENCE {reason  DescriptorIDRejectionReason,
+                                    ...
+}
+
+DescriptorIDRejectionReason ::= CHOICE {
+  noDescriptors          NULL, -- no descriptors to report
+  security               NULL, -- request did not meet security requirements
+  hopCountExceeded       NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+DescriptorUpdate ::= SEQUENCE {
+  sender      AliasAddress,
+  updateInfo  SEQUENCE OF UpdateInformation,
+  ...
+}
+
+UpdateInformation ::= SEQUENCE {
+  descriptorInfo
+    CHOICE {descriptorID  DescriptorID,
+            descriptor    Descriptor,
+            ...},
+  updateType      CHOICE {added    NULL,
+                          deleted  NULL,
+                          changed  NULL,
+                          ...},
+  ...
+}
+
+DescriptorUpdateAck ::= SEQUENCE {...
+}
+
+AccessRequest ::= SEQUENCE {
+  destinationInfo      PartyInformation,
+  sourceInfo           PartyInformation OPTIONAL,
+  callInfo             CallInformation OPTIONAL,
+  usageSpec            UsageSpecification OPTIONAL,
+  ...,
+  desiredProtocols     SEQUENCE OF SupportedProtocols OPTIONAL
+}
+
+AccessConfirmation ::= SEQUENCE {
+  templates              SEQUENCE OF AddressTemplate,
+  partialResponse        BOOLEAN,
+  ...,
+  supportedProtocols     SEQUENCE OF SupportedProtocols OPTIONAL,
+  serviceControl         SEQUENCE OF ServiceControlSession OPTIONAL
+}
+
+AccessRejection ::= SEQUENCE {
+  reason             AccessRejectionReason,
+  ...,
+  serviceControl     SEQUENCE OF ServiceControlSession OPTIONAL
+}
+
+AccessRejectionReason ::= CHOICE {
+  noMatch                 NULL, -- no template matched the destinationInfo
+  packetSizeExceeded      NULL, -- use other transport type
+  security                NULL, -- request did not meet security requirements
+  hopCountExceeded        NULL,
+  needCallInformation     NULL, -- Call Information must be specified
+  noServiceRelationship   NULL,
+  undefined               NULL,
+  ...,
+  neededFeature           NULL,
+  genericDataReason       NULL,
+  destinationUnavailable  NULL, -- Destination was resolved but is
+  
+  -- unavailable
+  aliasesInconsistent     NULL, -- Multiple aliases identify distinct
+  
+  -- destinations
+  resourceUnavailable     NULL, -- One or more required resources are
+  
+  -- unavailable
+  incompleteAddress       NULL, -- Destination cannot be distinctly
+  
+  -- identified
+  unknownServiceID        NULL, -- The serviceID is not recognized by
+  
+  -- the peer element
+  usageUnavailable        NULL, -- Usage reporting not supported
+  cannotSupportUsageSpec  NULL, -- Cannot comply with proposed spec
+  unknownUsageSendTo      NULL -- Usage sendTo could not be resolved
+}
+
+UsageRequest ::= SEQUENCE {
+  callInfo   CallInformation,
+  usageSpec  UsageSpecification,
+  ...
+}
+
+UsageConfirmation ::= SEQUENCE {...
+}
+
+UsageRejection ::= SEQUENCE {reason  UsageRejectReason,
+                             ...
+}
+
+UsageIndication ::= SEQUENCE {
+  callInfo          CallInformation,
+  accessTokens      SEQUENCE OF AccessToken OPTIONAL,
+  senderRole        Role,
+  usageCallStatus   UsageCallStatus,
+  srcInfo           PartyInformation OPTIONAL,
+  destAddress       PartyInformation,
+  startTime         TimeStamp OPTIONAL,
+  endTime           TimeStamp OPTIONAL,
+  terminationCause  TerminationCause OPTIONAL,
+  usageFields       SEQUENCE OF UsageField,
+  ...
+}
+
+UsageField ::= SEQUENCE {id     OBJECT IDENTIFIER,
+                         value  OCTET STRING,
+                         ...
+}
+
+UsageRejectReason ::= CHOICE {
+  invalidCall            NULL,
+  unavailable            NULL,
+  security               NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+UsageIndicationConfirmation ::= SEQUENCE {...
+}
+
+UsageIndicationRejection ::= SEQUENCE {
+  reason  UsageIndicationRejectionReason,
+  ...
+}
+
+UsageIndicationRejectionReason ::= CHOICE {
+  unknownCall            NULL,
+  incomplete             NULL,
+  security               NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+ValidationRequest ::= SEQUENCE {
+  accessToken      SEQUENCE OF AccessToken OPTIONAL,
+  destinationInfo  PartyInformation OPTIONAL,
+  sourceInfo       PartyInformation OPTIONAL,
+  callInfo         CallInformation,
+  usageSpec        UsageSpecification OPTIONAL,
+  ...
+}
+
+ValidationConfirmation ::= SEQUENCE {
+  destinationInfo  PartyInformation OPTIONAL,
+  usageSpec        UsageSpecification OPTIONAL,
+  ...
+}
+
+ValidationRejection ::= SEQUENCE {reason  ValidationRejectionReason,
+                                  ...
+}
+
+ValidationRejectionReason ::= CHOICE {
+  tokenNotValid          NULL,
+  security               NULL, -- request did not meet security requirements
+  hopCountExceeded       NULL,
+  missingSourceInfo      NULL,
+  missingDestInfo        NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+RequestInProgress ::= SEQUENCE {
+  delay              INTEGER(1..65535),
+  ...,
+  serviceControl     SEQUENCE OF ServiceControlSession OPTIONAL
+}
+
+NonStandardRequest ::= SEQUENCE {...
+}
+
+NonStandardConfirmation ::= SEQUENCE {...
+}
+
+NonStandardRejection ::= SEQUENCE {reason  NonStandardRejectionReason,
+                                   ...
+}
+
+NonStandardRejectionReason ::= CHOICE {
+  notSupported           NULL,
+  noServiceRelationship  NULL,
+  undefined              NULL,
+  ...,
+  neededFeature          NULL,
+  genericDataReason      NULL,
+  unknownServiceID       NULL-- The serviceID is not recognized by--
+  -- the peer element
+}
+
+UnknownMessageResponse ::= SEQUENCE {
+  unknownMessage  OCTET STRING,
+  reason          UnknownMessageReason,
+  ...
+}
+
+UnknownMessageReason ::= CHOICE {notUnderstood  NULL,
+                                 undefined      NULL,
+                                 ...
+}
+
+AuthenticationRequest ::= SEQUENCE {
+  applicationMessage  ApplicationMessage, -- e.g. RAS message in 
+  
+  -- ITU-T Rec. H.323
+  ...
+}
+
+ApplicationMessage ::= OCTET STRING
+
+AuthenticationConfirmation ::= SEQUENCE {...
+}
+
+AuthenticationRejection ::= SEQUENCE {
+  reason  AuthenticationRejectionReason,
+  ...
+}
+
+AuthenticationRejectionReason ::= CHOICE {
+  security                 NULL,
+  hopCountExceeded         NULL,
+  noServiceRelationship    NULL,
+  undefined                NULL,
+  neededFeature            NULL,
+  genericDataReason        NULL,
+  unknownServiceID         NULL,
+  securityWrongSyncTime    NULL, -- time server problem or network delay
+  securityReplay           NULL, -- replay attack encountered
+  securityWrongGeneralID   NULL, -- wrong general ID
+  securityWrongSendersID   NULL, -- wrong senders ID
+  securityIntegrityFailed  NULL, -- integrity check failed
+  securityWrongOID         NULL, -- wrong token OIDs or crypto alg OIDs
+  ...
+}
+
+--
+-- structures common to multiple messages
+--
+AddressTemplate ::= SEQUENCE {
+  pattern                SEQUENCE OF Pattern,
+  routeInfo              SEQUENCE OF RouteInformation,
+  timeToLive             INTEGER(1..4294967295),
+  ...,
+  supportedProtocols     SEQUENCE OF SupportedProtocols OPTIONAL,
+  featureSet             FeatureSet OPTIONAL
+}
+
+Pattern ::= CHOICE {
+  specific  AliasAddress,
+  wildcard  AliasAddress,
+  range     SEQUENCE {startOfRange  PartyNumber,
+                      endOfRange    PartyNumber},
+  ...
+}
+
+RouteInformation ::= SEQUENCE {
+  messageType
+    CHOICE {sendAccessRequest  NULL,
+            sendSetup          NULL,
+            nonExistent        NULL,
+            ...},
+  callSpecific          BOOLEAN,
+  usageSpec             UsageSpecification OPTIONAL,
+  priceInfo             SEQUENCE OF PriceInfoSpec OPTIONAL,
+  contacts              SEQUENCE OF ContactInformation,
+  type                  EndpointType OPTIONAL,
+  -- must be present if messageType = sendSetup
+  ...,
+  featureSet            FeatureSet OPTIONAL,
+  circuitID             CircuitInfo OPTIONAL,
+  supportedCircuits     SEQUENCE OF CircuitIdentifier OPTIONAL
+}
+
+ContactInformation ::= SEQUENCE {
+  transportAddress      AliasAddress,
+  priority              INTEGER(0..127),
+  transportQoS          TransportQOS OPTIONAL,
+  security              SEQUENCE OF SecurityMode OPTIONAL,
+  accessTokens          SEQUENCE OF AccessToken OPTIONAL,
+  ...,
+  multipleCalls         BOOLEAN OPTIONAL,
+  featureSet            FeatureSet OPTIONAL,
+  circuitID             CircuitInfo OPTIONAL,
+  supportedCircuits     SEQUENCE OF CircuitIdentifier OPTIONAL
+}
+
+PriceInfoSpec ::= SEQUENCE {
+  currency       IA5String(SIZE (3)), -- e.g. "USD"
+  currencyScale  INTEGER(-127..127),
+  validFrom      GlobalTimeStamp OPTIONAL,
+  validUntil     GlobalTimeStamp OPTIONAL,
+  hoursFrom      IA5String(SIZE (6)) OPTIONAL, -- "HHMMSS" UTC
+  hoursUntil     IA5String(SIZE (6)) OPTIONAL, -- "HHMMSS" UTC
+  priceElement   SEQUENCE OF PriceElement OPTIONAL,
+  priceFormula   IA5String(SIZE (1..2048)) OPTIONAL,
+  ...
+}
+
+PriceElement ::= SEQUENCE {
+  amount   INTEGER(0..4294967295), -- meter increment
+  quantum  INTEGER(0..4294967295), -- each or part thereof
+  units
+    CHOICE {seconds  NULL,
+            packets  NULL,
+            bytes    NULL,
+            initial  NULL,
+            minimum  NULL,
+            maximum  NULL,
+            ...},
+  ...
+}
+
+Descriptor ::= SEQUENCE {
+  descriptorInfo  DescriptorInfo,
+  templates       SEQUENCE OF AddressTemplate,
+  gatekeeperID    GatekeeperIdentifier OPTIONAL,
+  ...
+}
+
+DescriptorInfo ::= SEQUENCE {
+  descriptorID  DescriptorID,
+  lastChanged   GlobalTimeStamp,
+  ...
+}
+
+AlternatePEInfo ::= SEQUENCE {
+  alternatePE           SEQUENCE OF AlternatePE,
+  alternateIsPermanent  BOOLEAN,
+  ...
+}
+
+AlternatePE ::= SEQUENCE {
+  contactAddress     AliasAddress,
+  priority           INTEGER(1..127),
+  elementIdentifier  ElementIdentifier OPTIONAL,
+  ...
+}
+
+AccessToken ::= CHOICE {
+  token        ClearToken,
+  cryptoToken  CryptoH323Token,
+  ...,
+  genericData  GenericData
+}
+
+CallInformation ::= SEQUENCE {
+  callIdentifier  CallIdentifier,
+  conferenceID    ConferenceIdentifier,
+  ...,
+  circuitID       CircuitInfo OPTIONAL
+}
+
+UsageCallStatus ::= CHOICE {
+  preConnect        NULL, -- Call has not started
+  callInProgress    NULL, -- Call is in progress
+  callEnded         NULL, -- Call ended
+  ...,
+  registrationLost  NULL -- Uncertain if call ended or not
+}
+
+UserInformation ::= SEQUENCE {
+  userIdentifier     AliasAddress,
+  userAuthenticator  SEQUENCE OF CryptoH323Token OPTIONAL,
+  ...
+}
+
+UsageSpecification ::= SEQUENCE {
+  sendTo              ElementIdentifier,
+  when
+    SEQUENCE {never     NULL OPTIONAL,
+              start     NULL OPTIONAL,
+              end       NULL OPTIONAL,
+              period    INTEGER(1..65535) OPTIONAL, -- in seconds--
+              failures  NULL OPTIONAL,
+              ...},
+  required            SEQUENCE OF OBJECT IDENTIFIER,
+  preferred           SEQUENCE OF OBJECT IDENTIFIER,
+  ...,
+  sendToPEAddress     AliasAddress OPTIONAL
+}
+
+PartyInformation ::= SEQUENCE {
+  logicalAddresses  SEQUENCE OF AliasAddress,
+  domainIdentifier  AliasAddress OPTIONAL,
+  transportAddress  AliasAddress OPTIONAL,
+  endpointType      EndpointType OPTIONAL,
+  userInfo          UserInformation OPTIONAL,
+  timeZone          TimeZone OPTIONAL,
+  ...
+}
+
+Role ::= CHOICE {
+  originator       NULL,
+  destination      NULL,
+  nonStandardData  NonStandardParameter,
+  ...
+}
+
+TimeZone ::= INTEGER(-43200..43200) -- number of seconds relative to UTC
+                    
+
+-- including DST if appropriate
+TerminationCause ::= SEQUENCE {
+  releaseCompleteReason  ReleaseCompleteReason,
+  causeIE                INTEGER(1..65535) OPTIONAL,
+  nonStandardData        NonStandardParameter OPTIONAL,
+  ...
+}
+
+ProtocolVersion ::= OBJECT IDENTIFIER
+
+--	shall be set to 
+--	{itu-t(0) recommendation(0) h(8) h-225-0(2250) annex(1) g(7) 
+--	version(0) 2} in field annexGversion;
+--	{itu-t(0) recommendation(0) h(8) 501 version(0) 1} 
+--	in field version
+DescriptorID ::=
+  GloballyUniqueID
+
+ElementIdentifier ::= BMPString(SIZE (1..128))
+
+GlobalTimeStamp ::= IA5String(SIZE (14))
+
+-- UTC,  in the form YYYYMMDDHHmmSS
+-- where YYYY = year, MM = month, DD = day,
+-- HH = hour, mm = minute, SS = second
+-- (for example, 19981219120000 for noon
+-- 19 December 1998)
+--
+-- REPOSITORY FOR APPLICATION SPECIFIC DATA 
+--
+-- H.225.0 Annex-G profile data
+--
+idAnnexGProfiles INTEGER ::=
+  0
+
+idAnnexGProfileA INTEGER ::= 1
+
+--annexGProfileA	 EnumeratedParameter ::= 
+--{
+--	id	  standard:idAnnexGProfileA
+--}
+END -- of H501-MESSAGES
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

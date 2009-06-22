@@ -1,0 +1,16 @@
+2007-08-29  Stephen Croll  <croll@mobilemetrics.net>
+
+	* initial version
+
+2007-10-09  Stephen Croll <stephen.d.croll@gmail.com>
+
+	* TLVs defined in XML files.
+	
+	* packet-wimaxasncp.c: fixed memory leak in function
+	  wimaxasncp_dissect_tlv_value()
+
+2007-11-04 Zhang Li <lzhang@cienet.com.cn>
+	
+	* Add EAP support. EAP payload is dessected by calling EAP dissector
+	* Add port preference.
+

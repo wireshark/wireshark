@@ -1,0 +1,164 @@
+//Source file: fw_if_access.idl
+//Date:  13 October 2004
+//Framework Access Interfaces for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#ifndef __FW_IF_ACCESS_DEFINED
+#define __FW_IF_ACCESS_DEFINED
+
+
+#include "osa.idl"
+#include "fw_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module fw {
+			
+			module fw_access {
+				
+				
+				module trust_and_security {
+					
+					
+					interface IpInitial : IpInterface {
+						TpAuthDomain initiateAuthentication (
+							in TpAuthDomain clientDomain,	
+							in TpAuthType authType	
+							)							
+							raises (TpCommonExceptions,P_INVALID_DOMAIN_ID,P_INVALID_INTERFACE_TYPE,P_INVALID_AUTH_TYPE);
+							
+						TpAuthDomain initiateAuthenticationWithVersion (
+							in TpAuthDomain clientDomain,	
+							in TpAuthType authType,	
+							in TpVersion frameworkVersion	
+							)							
+							raises (TpCommonExceptions,P_INVALID_DOMAIN_ID,P_INVALID_INTERFACE_TYPE,P_INVALID_AUTH_TYPE,P_INVALID_VERSION);
+							
+					};
+					
+					
+					interface IpAuthentication : IpInterface {
+						IpInterface requestAccess (
+							in TpAccessType accessType,	
+							in IpInterface clientAccessInterface	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_ACCESS_TYPE,P_INVALID_INTERFACE_TYPE);
+							
+					};
+					
+					
+					interface IpClientAccess : IpInterface {
+						void terminateAccess (
+							in TpString terminationText,	
+							in TpSigningAlgorithm signingAlgorithm,	
+							in TpOctetSet digitalSignature	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SIGNING_ALGORITHM,P_INVALID_SIGNATURE);
+							
+					};
+					
+					
+					interface IpAccess : IpInterface {
+						IpInterface obtainInterface (
+							in TpInterfaceName interfaceName	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_INTERFACE_NAME);
+							
+						IpInterface obtainInterfaceWithCallback (
+							in TpInterfaceName interfaceName,	
+							in IpInterface clientInterface	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_INTERFACE_NAME,P_INVALID_INTERFACE_TYPE);
+							
+						void endAccess (
+							in TpEndAccessProperties endAccessProperties	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_PROPERTY);
+							
+						TpInterfaceNameList listInterfaces ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						void releaseInterface (
+							in TpInterfaceName interfaceName	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_INTERFACE_NAME);
+							
+						TpSigningAlgorithm selectSigningAlgorithm (
+							in TpSigningAlgorithmCapabilityList signingAlgorithmCaps	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_NO_ACCEPTABLE_SIGNING_ALGORITHM);
+							
+						void terminateAccess (
+							in TpString terminationText,	
+							in TpOctetSet digitalSignature	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SIGNATURE);
+							
+						void relinquishInterface (
+							in TpInterfaceName interfaceName,	
+							in TpString terminationText,	
+							in TpOctetSet digitalSignature	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SIGNATURE,P_INVALID_INTERFACE_NAME);
+							
+					};
+					
+					
+					interface IpClientAPILevelAuthentication : IpInterface {
+						TpOctetSet authenticate (
+							in TpOctetSet challenge	
+							);
+							
+						void abortAuthentication ();
+							
+						void authenticationSucceeded ();
+							
+						TpOctetSet challenge (
+							in TpOctetSet challenge	
+							);
+							
+					};
+					
+					
+					interface IpAPILevelAuthentication : IpAuthentication {
+						TpEncryptionCapability selectEncryptionMethod (
+							in TpEncryptionCapabilityList encryptionCaps	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY);
+							
+						TpOctetSet authenticate (
+							in TpOctetSet challenge	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						void abortAuthentication ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						void authenticationSucceeded ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpAuthMechanism selectAuthenticationMechanism (
+							in TpAuthMechanismList authMechanismList	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM);
+							
+						TpOctetSet challenge (
+							in TpOctetSet challenge	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+				};
+				
+			};
+			
+			
+		};
+		
+	};
+	
+};
+
+#endif

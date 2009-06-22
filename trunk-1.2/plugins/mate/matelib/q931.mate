@@ -1,0 +1,7 @@
+# q931.thing
+# $Id$
+
+Action=PduDef; Name=q931_pdu; Proto=q931; Stop=TRUE; Transport=tcp/ip; addr=ip.addr; call_ref=q931.call_ref; q931_msg=q931.message_type;
+Action=GopDef; Name=q931_leg; On=q931_pdu; addr; addr; call_ref;
+Action=GopStart; For=q931_leg; q931_msg=5;
+Action=GopStop; For=q931_leg; q931_msg=90;

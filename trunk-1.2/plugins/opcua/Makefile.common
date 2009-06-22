@@ -1,0 +1,57 @@
+# Makefile.common for OpcUa plugin
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id$
+#
+# Adapted by Gerhard Gappmeier for OpcUa
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# the name of the plugin
+PLUGIN_NAME = opcua
+
+# the dissector sources (without any helpers)
+DISSECTOR_SRC = \
+	opcua.c 
+
+# corresponding headers
+DISSECTOR_INCLUDES =	\
+	opcua_complextypeparser.h \
+	opcua_enumparser.h \
+	opcua_hfindeces.h \
+	opcua_identifiers.h \
+	opcua_serviceparser.h \
+	opcua_simpletypes.h \
+	opcua_application_layer.h \
+	opcua_security_layer.h \
+	opcua_transport_layer.h \
+	opcua_serviceids.h
+
+# other sources
+DISSECTOR_SUPPORT_SRC = \
+	opcua_transport_layer.c \
+	opcua_security_layer.c \
+	opcua_application_layer.c \
+	opcua_serviceparser.c \
+	opcua_complextypeparser.c \
+	opcua_enumparser.c \
+	opcua_simpletypes.c \
+	opcua_servicetable.c \
+	opcua_hfindeces.c

@@ -1,0 +1,136 @@
+-- $Id$
+IEC61850 DEFINITIONS ::= BEGIN
+
+GOOSEpdu ::= CHOICE {
+	gseMngtPdu	[APPLICATION 0] IMPLICIT GSEMngtPdu,
+	goosePdu	[APPLICATION 1] IMPLICIT IECGoosePdu,
+	...
+}
+
+GSEMngtPdu ::= SEQUENCE {
+	stateID		[0] IMPLICIT INTEGER,
+--	security	[3] ANY OPTIONAL,
+					-- reserved for future definition
+	requestResp	RequestResponse
+--	CHOICE {
+--		requests	[1] IMPLICIT GSEMngtRequests,
+--		responses	[2] IMPLICIT GSEMngtResponses
+--	}
+}
+
+RequestResponse ::= CHOICE {
+	requests	[1] IMPLICIT GSEMngtRequests,
+	responses	[2] IMPLICIT GSEMngtResponses
+}
+
+GSEMngtRequests ::= CHOICE {
+	getGoReference			[1] IMPLICIT GetReferenceRequestPdu,
+	getGOOSEElementNumber	[2] IMPLICIT GetElementRequestPdu,
+	getGsReference			[3] IMPLICIT GetReferenceRequestPdu,
+	getGSSEDataOffset		[4] IMPLICIT GetElementRequestPdu,
+	...
+}
+
+GSEMngtResponses ::= CHOICE {
+	gseMngtNotSupported		[0] IMPLICIT NULL,
+	getGoReference			[1] IMPLICIT GSEMngtResponsePdu,
+	getGOOSEElementNumber	[2] IMPLICIT GSEMngtResponsePdu,
+	getGsReference			[3] IMPLICIT GSEMngtResponsePdu,
+	getGSSEDataOffset		[4] IMPLICIT GSEMngtResponsePdu,
+	...
+}
+
+GetReferenceRequestPdu ::= SEQUENCE {
+	ident	[0] IMPLICIT VisibleString, -- size shall support up to 65 octets
+	offset	[1] IMPLICIT SEQUENCE OF INTEGER,
+	...
+}
+
+GetElementRequestPdu ::= SEQUENCE {
+	ident		[0] IMPLICIT VisibleString, -- size shall support up to 65 octets
+	references	[1] IMPLICIT SEQUENCE OF VisibleString,
+	...
+}
+
+GSEMngtResponsePdu ::= SEQUENCE {
+	ident		[0] IMPLICIT VisibleString, -- echos the value of the request
+	confRev		[1] IMPLICIT INTEGER OPTIONAL,
+	posNeg		PositiveNegative,
+--	CHOICE {
+--		responsePositive	[2] IMPLICIT SEQUENCE {
+--			datSet				[0] IMPLICIT VisibleString OPTIONAL,
+--			result				[1] IMPLICIT SEQUENCE OF RequestResults
+--		},
+--		responseNegative	[3] IMPLICIT GlbErrors
+--	},
+	...
+}
+
+PositiveNegative ::= CHOICE {
+	responsePositive	[2] IMPLICIT SEQUENCE {
+		datSet				[0] IMPLICIT VisibleString OPTIONAL,
+		result				[1] IMPLICIT SEQUENCE OF RequestResults
+	},
+	responseNegative	[3] IMPLICIT GlbErrors
+}
+
+RequestResults::= CHOICE {
+	offset		[0] IMPLICIT INTEGER,
+	reference	[1] IMPLICIT IA5String,
+	error		[2] IMPLICIT ErrorReason
+}
+
+GlbErrors ::= INTEGER {
+	other(0),
+	unknownControlBlock(1),
+	responseTooLarge(2),
+	controlBlockConfigurationError(3) --,
+--	...
+}
+
+ErrorReason ::= INTEGER {
+	other (0),
+	notFound (1) --,
+--	...
+}
+
+IECGoosePdu ::= SEQUENCE {
+	gocbRef				[0] IMPLICIT VisibleString,
+	timeAllowedtoLive	[1] IMPLICIT INTEGER,
+	datSet				[2] IMPLICIT VisibleString,
+	goID				[3] IMPLICIT VisibleString OPTIONAL,
+	t					[4] IMPLICIT UtcTime,
+	stNum				[5] IMPLICIT INTEGER,
+	sqNum				[6] IMPLICIT INTEGER,
+	test				[7] IMPLICIT BOOLEAN DEFAULT FALSE,
+	confRev				[8] IMPLICIT INTEGER,
+	ndsCom				[9] IMPLICIT BOOLEAN DEFAULT FALSE,
+	numDatSetEntries	[10] IMPLICIT INTEGER,
+	allData				[11] IMPLICIT SEQUENCE OF Data --,
+--	security			[12] ANY OPTIONAL
+							 -- reserved for digital signature
+}
+
+UtcTime ::= OCTET STRING -- format and size defined in 8.1.3.6.
+
+TimeOfDay ::= OCTET STRING -- (SIZE (4 | 6))
+FloatingPoint ::= OCTET STRING
+
+Data ::= CHOICE {
+	-- context tag 0 is reserved for AccessResult
+	array			[1] IMPLICIT SEQUENCE OF Data,
+	structure		[2] IMPLICIT SEQUENCE OF Data,
+	boolean			[3] IMPLICIT BOOLEAN,	
+	bit-string		[4] IMPLICIT BIT STRING,
+	integer			[5] IMPLICIT INTEGER,
+	unsigned		[6] IMPLICIT INTEGER,
+	floating-point	[7] IMPLICIT FloatingPoint,
+	real		 	[8] IMPLICIT REAL,
+	octet-string	[9] IMPLICIT OCTET STRING,
+	visible-string	[10] IMPLICIT VisibleString,
+	binary-time		[12] IMPLICIT TimeOfDay,
+	bcd				[13] IMPLICIT INTEGER,
+	booleanArray	[14] IMPLICIT BIT STRING
+}
+
+END

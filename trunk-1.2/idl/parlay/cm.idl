@@ -1,0 +1,544 @@
+//Source file: cm.idl
+//Date:  11 October 2004
+//Connectivity Manager Interfaces and Data Types for ETSI ES 203 915-10 V1.1.1, DES/TISPAN-01005-10-OSA, Parlay 5.0
+
+#ifndef __CM_DEFINED
+#define __CM_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cm {
+			interface IpVPrN ;
+			interface IpEnterpriseNetwork ;
+			interface IpConnectivityManager ;
+			interface IpQoSTemplate ;
+			interface IpEnterpriseNetworkSite ;
+			
+			
+			enum TpTrafficDirection {
+
+				UNIDIRECTIONAL,
+				BIDIRECTIONAL				
+			};
+			
+			
+			enum TpTagValue {
+
+				PROVIDER_SPECIFIED,
+				OPERATOR_SPECIFIED,
+				UNSPECIFIED				
+			};
+			
+			enum TpSiteOrSap {
+
+				SITE,
+				SAP				
+			};
+			
+			
+			struct TpNameDescrpTagTimePeriod {
+				TpInt32 duration;
+			};
+			
+			
+			struct TpNameDescrpTagTimeOfDay {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpString value;
+			};
+			
+			struct TpNameDescrpTagString {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpString value;
+			};
+			
+			
+			struct TpNameDescrpTagMonth {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpInt32 value;
+			};
+			
+			struct TpNameDescrpTagInt {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpInt32 value;
+			};
+			
+			struct TpNameDescrpTagDir {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpTrafficDirection value;
+			};
+			
+			
+			struct TpNameDescrpTagDayOfWeek {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpInt32 value;
+			};
+			
+			
+			struct TpNameDescrpTagDateTime {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpDateAndTime value;
+			};
+			
+			
+			struct TpLossDescriptor {
+				TpNameDescrpTagInt meanLoss;
+				TpNameDescrpTagInt measurementPeriod;
+				TpNameDescrpTagInt maxLoss;
+				TpNameDescrpTagInt minLoss;
+				TpNameDescrpTagInt lossPriority;
+				TpNameDescrpTagString description;
+			};
+			
+			
+			struct TpLoadDescriptor {
+				TpNameDescrpTagInt meanBandwidth;
+				TpNameDescrpTagInt measurementInterval;
+				TpNameDescrpTagInt maxBandwidth;
+				TpNameDescrpTagInt minBandwidth;
+				TpNameDescrpTagInt bandwidthShare;
+				TpNameDescrpTagInt bandwidthWeight;
+				TpNameDescrpTagInt burstSize;
+				TpNameDescrpTagString description;
+			};
+			
+			
+			struct TpJitterDescriptor {
+				TpNameDescrpTagInt meanJitter;
+				TpNameDescrpTagInt measurementPeriod;
+				TpNameDescrpTagInt maxJitter;
+				TpNameDescrpTagInt minJitter;
+				TpNameDescrpTagInt jitterPriority;
+				TpNameDescrpTagString description;
+			};
+			
+			enum TpIPVersion {
+
+				VERSION_UNKNOWN,
+				VERSION_IPV4,
+				VERSION_IPV6				
+			};
+			
+			enum TpIPv4AddType {
+
+				IPV4_ADD_CLASS_A,
+				IPV4_ADD_CLASS_B,
+				IPV4_ADD_CLASS_C,
+				IPV4_ADD_CLASS_D,
+				IPV4_ADD_CLASS_E				
+			};
+			
+			struct TpEndpoint {
+				TpSiteOrSap type;
+				TpString id;
+			};
+			
+			
+			struct TpDelayDescriptor {
+				TpNameDescrpTagInt meanDelay;
+				TpNameDescrpTagInt measurementPeriod;
+				TpNameDescrpTagInt maxDelay;
+				TpNameDescrpTagInt minDelay;
+				TpNameDescrpTagInt delayPriority;
+				TpNameDescrpTagString description;
+			};
+			
+			
+			enum TpAction {
+
+				DROP,
+				TRANSMIT,
+				RESHAPE,
+				REMARK				
+			};
+			
+			
+			struct TpNameDescrpTagExcessLoadAction {
+				TpString name;
+				TpString description;
+				TpTagValue tag;
+				TpAction value;
+			};
+			
+			
+			exception P_UNKNOWN_VPRP_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SLA_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_STATUS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_QOS_INFO {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_VALIDITY_INFO {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_PIPEQOSINFO {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_DSCODEPOINT {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_VPRPID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_REF_VALUE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_INTERFACE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_CANT_DELETE_VPRP {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_TEMPLATES {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_MENU {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_ENTERPRISE_NETWORK {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_TEMPLATE_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_DESCRIPTION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_SLA_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_TAG {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_VALUE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_COMBINATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SITES {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_VPRN {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_ILLEGAL_SITE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SITE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SAPS {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SITE_LOCATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SITE_DESCRIPTION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_IPSUBNET {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_SAP {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_UNKNOWN_VPRP {
+				TpString ExtraInformation;
+			};
+			
+			
+			enum TpVprpStatus {
+
+				ACTIVE,
+				PENDING,
+				DISALLOWED				
+			};
+			
+			
+			struct TpValidityInfo {
+				TpNameDescrpTagDateTime validFrom;
+				TpNameDescrpTagTimePeriod validPeriod;
+				TpNameDescrpTagTimeOfDay validDailyFrom;
+				TpNameDescrpTagTimePeriod validDailyPeriod;
+				TpNameDescrpTagDayOfWeek validDayOfWeek;
+				TpNameDescrpTagMonth validMonth;
+				TpNameDescrpTagString description;
+			};
+			
+			struct TpProvisionedQoSInfo {
+				TpDelayDescriptor delayDescriptor;
+				TpLossDescriptor lossDescriptor;
+				TpJitterDescriptor jitterDescriptor;
+				TpNameDescrpTagExcessLoadAction excessLoadAction;
+				TpNameDescrpTagString description;
+			};
+			
+			struct TpPipeQoSInfo {
+				TpNameDescrpTagDir directionality;
+				TpEndpoint serviceOrigin;
+				TpEndpoint serviceDestination;
+				TpLoadDescriptor forwardLoad;
+				TpLoadDescriptor reverseLoad;
+				TpNameDescrpTagString description;
+			};
+			
+			
+			struct TpDsCodepoint {
+				TpString match;
+				TpString mask;
+			};
+			
+			
+			struct TpIPSubnet {
+				TpString subnetNumber;
+				TpString subnetMask;
+				TpIPv4AddType addressType;
+				TpIPVersion IPVersionSupport;
+			};
+			
+			
+			interface IpVPrP : IpService {
+				
+				TpString getVPrPID ()					
+					raises (TpCommonExceptions,P_UNKNOWN_VPRP_ID);
+					
+				TpString getSlaID ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SLA_ID);
+					
+				TpVprpStatus getStatus ()					
+					raises (TpCommonExceptions,P_UNKNOWN_STATUS);
+					
+				TpProvisionedQoSInfo getProvisionedQoSInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_QOS_INFO);
+					
+				TpValidityInfo getValidityInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_VALIDITY_INFO);
+					
+				TpPipeQoSInfo getPipeQoSInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_PIPEQOSINFO);
+					
+				TpDsCodepoint getDsCodepoint ()					
+					raises (TpCommonExceptions,P_UNKNOWN_DSCODEPOINT);
+					
+			};
+			
+			
+			interface IpVPrN : IpService {
+				
+				TpStringList getVPrPList ()					
+					raises (TpCommonExceptions,P_UNKNOWN_VPRP);
+					
+				IpInterface getVPrP (
+					in TpString vPrPID	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_VPRPID,P_UNKNOWN_VPRP_ID);
+					
+				IpInterface createVPrP (
+					in IpInterface templateRef	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_REF_VALUE,P_UNKNOWN_INTERFACE);
+					
+				void deleteVPrP (
+					in TpString vPrPID	
+					)					
+					raises (TpCommonExceptions,P_CANT_DELETE_VPRP,P_UNKNOWN_VPRP_ID);
+					
+			};
+			
+			
+			interface IpQoSMenu : IpService {
+				
+				IpInterface getTemplate (
+					in TpString templateType	
+					)					
+					raises (TpCommonExceptions);
+					
+				TpStringList getTemplateList ()					
+					raises (TpCommonExceptions,P_UNKNOWN_TEMPLATES);
+					
+			};
+			
+			
+			interface IpConnectivityManager : IpService {
+				
+				IpInterface getQoSMenu ()					
+					raises (TpCommonExceptions,P_UNKNOWN_MENU);
+					
+				IpInterface getEnterpriseNetwork ()					
+					raises (TpCommonExceptions,P_UNKNOWN_ENTERPRISE_NETWORK);
+					
+			};
+			
+			
+			interface IpQoSTemplate : IpService {
+				
+				TpString getTemplateType ()					
+					raises (TpCommonExceptions,P_UNKNOWN_TEMPLATE_TYPE);
+					
+				TpString getDescription ()					
+					raises (TpCommonExceptions,P_UNKNOWN_DESCRIPTION);
+					
+				void setSlaID (
+					in TpString slaID	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_SLA_ID);
+					
+				TpPipeQoSInfo getPipeQoSInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_PIPEQOSINFO);
+					
+				void setPipeQoSInfo (
+					in TpPipeQoSInfo pipeQoSInfo	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_TAG,P_ILLEGAL_VALUE,P_ILLEGAL_COMBINATION);
+					
+				TpValidityInfo getValidityInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_VALIDITY_INFO);
+					
+				void setValidityInfo (
+					in TpValidityInfo validityInfo	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_TAG,P_ILLEGAL_VALUE,P_ILLEGAL_COMBINATION);
+					
+				void setProvisionedQoSInfo (
+					in TpProvisionedQoSInfo provisionedQoSInfo	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_TAG,P_ILLEGAL_VALUE,P_ILLEGAL_COMBINATION);
+					
+				TpProvisionedQoSInfo getProvisionedQoSInfo ()					
+					raises (TpCommonExceptions,P_UNKNOWN_QOS_INFO);
+					
+				TpDsCodepoint getDsCodepoint ()					
+					raises (TpCommonExceptions,P_UNKNOWN_DSCODEPOINT);
+					
+			};
+			
+			
+			interface IpEnterpriseNetwork : IpService {
+				
+				TpStringList getSiteList ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SITES);
+					
+				IpInterface getVPrN ()					
+					raises (TpCommonExceptions,P_UNKNOWN_VPRN);
+					
+				IpInterface getSite (
+					in TpString siteID	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_SITE_ID,P_UNKNOWN_SITE_ID);
+					
+			};
+			
+			
+			interface IpEnterpriseNetworkSite : IpEnterpriseNetwork {
+				
+				TpStringList getSAPList ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SAPS);
+					
+				TpString getSiteID ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SITE_ID);
+					
+				TpString getSiteLocation ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SITE_LOCATION);
+					
+				TpString getSiteDescription ()					
+					raises (TpCommonExceptions,P_UNKNOWN_SITE_DESCRIPTION);
+					
+				TpIPSubnet getIPSubnet ()					
+					raises (TpCommonExceptions,P_UNKNOWN_IPSUBNET);
+					
+				TpIPSubnet getSAPIPSubnet (
+					in TpString sapID	
+					)					
+					raises (TpCommonExceptions,P_ILLEGAL_SITE_ID,P_UNKNOWN_SAP,P_UNKNOWN_IPSUBNET);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

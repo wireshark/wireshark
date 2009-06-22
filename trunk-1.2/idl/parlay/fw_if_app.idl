@@ -1,0 +1,465 @@
+//Source file: fw_if_app.idl
+//Date:  13 October 2004
+//Framework to Application Interfaces for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#ifndef __FW_IF_APP_DEFINED
+#define __FW_IF_APP_DEFINED
+
+
+#include "osa.idl"
+#include "fw_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module fw {
+			
+			module fw_application {
+				
+				module notification {
+					
+					
+					interface IpAppEventNotification : IpInterface {
+						void reportNotification (
+							in TpFwEventInfo eventInfo,	
+							in TpAssignmentID assignmentID	
+							);
+							
+						void notificationTerminated ();
+							
+					};
+					
+					
+					interface IpEventNotification : IpInterface {
+						TpAssignmentID createNotification (
+							in TpFwEventCriteria eventCriteria	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+							
+						void destroyNotification (
+							in TpAssignmentID assignmentID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_ASSIGNMENT_ID);
+							
+					};
+					
+				};
+				
+				module integrity {
+					interface IpAppHeartBeatMgmt ;
+					interface IpHeartBeat ;
+					interface IpAppHeartBeat ;
+					
+					
+					
+					interface IpAppFaultManager : IpInterface {
+						void activityTestRes (
+							in TpActivityTestID activityTestID,	
+							in TpActivityTestRes activityTestResult	
+							);
+							
+						void appActivityTestReq (
+							in TpActivityTestID activityTestID	
+							);
+							
+						void fwFaultReportInd (
+							in TpInterfaceFault fault	
+							);
+							
+						void fwFaultRecoveryInd (
+							in TpInterfaceFault fault	
+							);
+							
+						void svcUnavailableInd (
+							in TpServiceID serviceID,	
+							in TpSvcUnavailReason reason	
+							);
+							
+						void genFaultStatsRecordRes (
+							in TpFaultStatsRecord faultStatistics,	
+							in TpServiceIDList serviceIDs	
+							);
+							
+						void fwUnavailableInd (
+							in TpFwUnavailReason reason	
+							);
+							
+						void activityTestErr (
+							in TpActivityTestID activityTestID	
+							);
+							
+						void genFaultStatsRecordErr (
+							in TpFaultStatisticsError faultStatisticsError,	
+							in TpServiceIDList serviceIDs	
+							);
+							
+						void appUnavailableInd (
+							in TpServiceID serviceID	
+							);
+							
+						void genFaultStatsRecordReq (
+							in TpTimeInterval timePeriod	
+							);
+							
+						void svcAvailStatusInd (
+							in TpServiceID serviceID,	
+							in TpSvcAvailStatusReason reason	
+							);
+							
+						void generateFaultStatisticsRecordRes (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatsRecord faultStatistics,	
+							in TpServiceIDList serviceIDs	
+							);
+							
+						void generateFaultStatisticsRecordErr (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatsErrorList faultStatistics,	
+							in TpServiceIDList serviceIDs	
+							);
+							
+						void generateFaultStatisticsRecordReq (
+							in TpFaultReqID faultStatsReqID,	
+							in TpTimeInterval timePeriod	
+							);
+							
+						void fwAvailStatusInd (
+							in TpFwAvailStatusReason reason	
+							);
+							
+					};
+					
+					
+					interface IpAppLoadManager : IpInterface {
+						void queryAppLoadReq (
+							in TpTimeInterval timeInterval	
+							);
+							
+						void queryLoadRes (
+							in TpLoadStatisticList loadStatistics	
+							);
+							
+						void queryLoadErr (
+							in TpLoadStatisticError loadStatisticsError	
+							);
+							
+						void loadLevelNotification (
+							in TpLoadStatisticList loadStatistics	
+							);
+							
+						void resumeNotification ();
+							
+						void suspendNotification ();
+							
+						void createLoadLevelNotification ();
+							
+						void destroyLoadLevelNotification ();
+							
+						void queryAppLoadStatsReq (
+							in TpLoadTestID loadStatsReqID,	
+							in TpTimeInterval timeInterval	
+							);
+							
+						void queryLoadStatsRes (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticList loadStatistics	
+							);
+							
+						void queryLoadStatsErr (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticError loadStatisticsError	
+							);
+							
+					};
+					
+					
+					interface IpLoadManager : IpInterface {
+						void reportLoad (
+							in TpLoadLevel loadLevel	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryLoadReq (
+							in TpServiceIDList serviceIDs,	
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_SERVICE_NOT_ENABLED,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void queryAppLoadRes (
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryAppLoadErr (
+							in TpLoadStatisticError loadStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+						void createLoadLevelNotification (
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void destroyLoadLevelNotification (
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void resumeNotification (
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_SERVICE_NOT_ENABLED,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void suspendNotification (
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_SERVICE_NOT_ENABLED,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void queryLoadStatsReq (
+							in TpLoadTestID loadStatsReqID,	
+							in TpServiceIDList serviceIDs,	
+							in TpTimeInterval timeInterval	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_SERVICE_NOT_ENABLED,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void queryAppLoadStatsRes (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticList loadStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void queryAppLoadStatsErr (
+							in TpLoadTestID loadStatsReqID,	
+							in TpLoadStatisticError loadStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpAppOAM : IpInterface {
+						TpDateAndTime systemDateTimeQuery (
+							in TpDateAndTime systemDateAndTime	
+							);
+							
+					};
+					
+					
+					interface IpOAM : IpInterface {
+						TpDateAndTime systemDateTimeQuery (
+							in TpDateAndTime clientDateAndTime	
+							)							
+							raises (TpCommonExceptions,P_INVALID_TIME_AND_DATE_FORMAT);
+							
+					};
+					
+					
+					interface IpFaultManager : IpInterface {
+						void activityTestReq (
+							in TpActivityTestID activityTestID,	
+							in TpServiceID svcID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void appActivityTestRes (
+							in TpActivityTestID activityTestID,	
+							in TpActivityTestRes activityTestResult	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void svcUnavailableInd (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void genFaultStatsRecordReq (
+							in TpTimeInterval timePeriod,	
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void appActivityTestErr (
+							in TpActivityTestID activityTestID	
+							)							
+							raises (TpCommonExceptions,P_INVALID_ACTIVITY_TEST_ID);
+							
+						void appUnavailableInd (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordRes (
+							in TpFaultStatsRecord faultStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void genFaultStatsRecordErr (
+							in TpFaultStatisticsError faultStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+						void appAvailStatusInd (
+							in TpAppAvailStatusReason reason	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordReq (
+							in TpFaultReqID faultStatsReqID,	
+							in TpTimeInterval timePeriod,	
+							in TpServiceIDList serviceIDs	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_ID,P_UNAUTHORISED_PARAMETER_VALUE);
+							
+						void generateFaultStatisticsRecordRes (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatsRecord faultStatistics	
+							)							
+							raises (TpCommonExceptions);
+							
+						void generateFaultStatisticsRecordErr (
+							in TpFaultReqID faultStatsReqID,	
+							in TpFaultStatisticsError faultStatisticsError	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpHeartBeatMgmt : IpInterface {
+						
+						void enableHeartBeat (
+							in TpInt32 interval,	
+							in IpAppHeartBeat appInterface	
+							)							
+							raises (TpCommonExceptions);
+							
+						void disableHeartBeat ()							
+							raises (TpCommonExceptions);
+							
+						void changeInterval (
+							in TpInt32 interval	
+							)							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpAppHeartBeat : IpInterface {
+						
+						void pulse ();
+							
+					};
+					
+					
+					interface IpHeartBeat : IpInterface {
+						
+						void pulse ()							
+							raises (TpCommonExceptions);
+							
+					};
+					
+					
+					interface IpAppHeartBeatMgmt : IpInterface {
+						
+						void enableAppHeartBeat (
+							in TpInt32 interval,	
+							in IpHeartBeat fwInterface	
+							);
+							
+						void disableAppHeartBeat ();
+							
+						void changeInterval (
+							in TpInt32 interval	
+							);
+							
+					};
+					
+				};
+				
+				
+				module discovery {
+					
+					
+					interface IpServiceDiscovery : IpInterface {
+						TpServiceTypeNameList listServiceTypes ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpServiceTypeDescription describeServiceType (
+							in TpServiceTypeName name	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE);
+							
+						TpServiceList discoverService (
+							in TpServiceTypeName serviceTypeName,	
+							in TpServicePropertyList desiredPropertyList,	
+							in TpInt32 max	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_ILLEGAL_SERVICE_TYPE,P_UNKNOWN_SERVICE_TYPE,P_INVALID_PROPERTY);
+							
+						TpServiceList listSubscribedServices ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+				};
+				
+				module service_agreement {
+					
+					
+					interface IpAppServiceAgreementManagement : IpInterface {
+						TpOctetSet signServiceAgreement (
+							in TpServiceToken serviceToken,	
+							in TpString agreementText,	
+							in TpSigningAlgorithm signingAlgorithm	
+							)							
+							raises (TpCommonExceptions,P_INVALID_AGREEMENT_TEXT,P_INVALID_SERVICE_TOKEN,P_INVALID_SIGNING_ALGORITHM);
+							
+						void terminateServiceAgreement (
+							in TpServiceToken serviceToken,	
+							in TpString terminationText,	
+							in TpOctetSet digitalSignature	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_TOKEN,P_INVALID_SIGNATURE);
+							
+					};
+					
+					
+					interface IpServiceAgreementManagement : IpInterface {
+						TpSignatureAndServiceMgr signServiceAgreement (
+							in TpServiceToken serviceToken,	
+							in TpString agreementText,	
+							in TpSigningAlgorithm signingAlgorithm	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_AGREEMENT_TEXT,P_INVALID_SERVICE_TOKEN,P_INVALID_SIGNING_ALGORITHM,P_SERVICE_ACCESS_DENIED);
+							
+						void terminateServiceAgreement (
+							in TpServiceToken serviceToken,	
+							in TpString terminationText,	
+							in TpOctetSet digitalSignature	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_TOKEN,P_INVALID_SIGNATURE);
+							
+						TpServiceToken selectService (
+							in TpServiceID serviceID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_ID,P_SERVICE_ACCESS_DENIED);
+							
+						void initiateSignServiceAgreement (
+							in TpServiceToken serviceToken	
+							)							
+							raises (TpCommonExceptions,P_INVALID_SERVICE_TOKEN,P_SERVICE_ACCESS_DENIED);
+							
+					};
+					
+				};
+				
+			};			
+			
+		};
+		
+	};
+	
+};
+
+#endif

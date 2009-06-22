@@ -1,0 +1,22 @@
+# pkcs1.cnf
+# PKCS#1 conformation file
+
+# $Id$
+
+#.IMPORT ../x509af/x509af-exp.cnf
+
+#.EXPORTS
+
+RSAPrivateKey
+RSAPublicKey
+DigestInfo
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+

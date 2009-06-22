@@ -1,0 +1,19 @@
+#
+#	Aruba Dictionary
+#
+#	
+#
+#
+VENDOR		Aruba	14823
+
+BEGIN-VENDOR Aruba 
+ATTRIBUTE	Aruba-User-Role		1	String		
+ATTRIBUTE	Aruba-User-Vlan		2	Integer		
+ATTRIBUTE	Aruba-Priv-Admin-User	3	Integer		
+ATTRIBUTE	Aruba-Admin-Role	4	String		
+ATTRIBUTE  	Aruba-Essid-Name	5	String	
+ATTRIBUTE  	Aruba-Location-Id	6	String	
+ATTRIBUTE  	Aruba-Port-Identifier	7	String	
+ATTRIBUTE  	Aruba-Template-User     8       String   
+END-VENDOR	Aruba
+

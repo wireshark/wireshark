@@ -1,0 +1,91 @@
+-- QSIG-SD.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-311, 2nd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-311.htm
+--
+-- $Id$
+--
+
+SS-SD-Operations-asn1-97 
+{ iso (1) standard (0) pss1-simple-dialog (21407) simple-dialog-operations-asn1-97 (1)} 
+ 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS    OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+      {joint-iso-itu-t (2) remote-operations (4) informationObjects (5)  
+     version1 (0)} 
+ 
+     EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+         {iso (1) standard (0) pss1-generic-procedures (11582)  
+     msi-class-asn1-97(11)}; 
+ 
+SD-Operations OPERATION ::= { display | keypad} 
+ 
+display   OPERATION ::= { 
+   ARGUMENT    DisplayArg 
+   RETURN RESULT   FALSE 
+   ERRORS    {unspecified | 
+        noDisplayAvailable | 
+         displayTemporarilyNotAvailable | 
+         notPresentable  
+         } 
+   ALWAYS RESPONDS   FALSE 
+   CODE     local: 103} 
+ 
+ 
+keypad   OPERATION ::= { 
+   ARGUMENT    KeypadArg 
+   RETURN RESULT   FALSE 
+   ALWAYS RESPONDS   FALSE 
+   CODE     local: 104} 
+ 
+ 
+DisplayArg  ::= SEQUENCE { 
+     displayString   DisplayString, 
+   extension   SDExtension   OPTIONAL 
+   } 
+ 
+ 
+DisplayString  ::= CHOICE { 
+   displayStringNormal  [0] IMPLICIT BMPStringNormal, 
+   displayStringExtended  [1] IMPLICIT BMPStringExtended 
+   } 
+
+KeypadArg  ::= SEQUENCE { 
+   keypadString   [0] IMPLICIT BMPStringNormal, 
+   extension   SDExtension   OPTIONAL 
+  } 
+ 
+ 
+BMPStringNormal  ::= OCTET STRING (SIZE(2..64))  -- shall be used according to  
+     -- ISO/IEC 10646-1 (section 6.2) 
+        -- coded as a BMP String according to  
+        -- ITU-T Rec. X.690 (section 8.20.8) 
+ 
+BMPStringExtended  ::= OCTET STRING (SIZE(2..160))  -- shall be used according to ISO/IEC 10646-1 
+        -- coded as a BMP String according to  
+        -- ITU-T Rec. X.690 
+ 
+ 
+SDExtension    ::= CHOICE { 
+    extension   [2] IMPLICIT Extension{{SDExtSet}}, 
+    multipleExtension  [3] IMPLICIT SEQUENCE OF Extension{{SDExtSet}} 
+    } 
+ 
+SDExtSet EXTENSION ::= {...} 
+ 
+unspecified      ERROR  ::= { PARAMETER  Extension{{SDExtSet}} 
+              CODE   local:   1008} 
+ 
+noDisplayAvailable      ERROR  ::= { CODE     local:  1023} 
+ 
+displayTemporarilyNotAvailable   ERROR  ::= { CODE    local:  1024} 
+ 
+notPresentable    ERROR  ::= { CODE   local:   1025} 
+ 
+ 
+END   -- of SS-SD-Operations-asn1-97 

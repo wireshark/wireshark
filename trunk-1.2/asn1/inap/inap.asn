@@ -1,0 +1,180 @@
+-- $Id$
+IN-CS-1-Operations-appendix { ccitt recommendation q 1218 modules(0) cs-1-operations-app(4) version1(0) }
+--  This module contains additional type definitions for IN CS-1 operations.
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- IMPORTED ROS stuff for Wireshark use
+-- ROS def's
+-- Module Remote-Operations-Apdus (H.450.1:02/1998)
+--Remote-Operations-Apdus {itu-t recommendation h 450 1 version1(0)
+--  remote-operations-apdus(11)} DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+INAP-Component ::=	CHOICE {
+				invoke				[1] IMPLICIT Invoke,
+				returnResultLast	[2] IMPLICIT ReturnResult,
+				returnError			[3] IMPLICIT ReturnError,
+				reject				[4] IMPLICIT Reject,
+-- TCAP adds returnResultNotLast to allow for the segmentation of a result.
+				returnResultNotLast	[7] IMPLICIT ReturnResult
+}
+Invoke ::=		SEQUENCE {
+				invokeID			InvokeIdType,
+				linkedID			[0] IMPLICIT InvokeIdType OPTIONAL,
+				opCode				INAP-OPERATION,
+				invokeparameter	 	InvokeParameter OPTIONAL
+}
+
+InvokeParameter ::= ANY
+
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER or the keyword ARGUMENT
+-- in the type definition of a particular operation.
+
+ReturnResult ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				resultretres			SEQUENCE {
+				opCode					INAP-OPERATION,
+				returnparameter				ReturnResultParameter OPTIONAL
+				} OPTIONAL
+			}
+
+ReturnResultParameter ::= ANY
+
+-- ANY is filled by the single ASN.1 data type following the keyword RESULT in the type definition
+-- of a particular operation.
+
+ReturnError ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				errorCode				INAP-ERROR,
+				parameter				ReturnErrorParameter  OPTIONAL }
+
+ReturnErrorParameter ::= ANY
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER in the type definition
+-- of a particular error.
+
+Reject ::=		SEQUENCE {
+				invokeIDRej CHOICE {
+					derivable			InvokeIdType,
+					not-derivable		NULL },
+				problem CHOICE {
+					generalProblem		[0] IMPLICIT GeneralProblem,
+					invokeProblem		[1] IMPLICIT InvokeProblem,
+					returnResultProblem	[2] IMPLICIT ReturnResultProblem,
+					returnErrorProblem	[3] IMPLICIT ReturnErrorProblem } }
+
+InvokeIdType ::=	INTEGER (-128..127)
+
+
+INAP-OPERATION	::=	CHOICE {
+							localValue OperationLocalvalue,
+							globalValue OBJECT IDENTIFIER } 
+
+LocalErrorcode ::= INAPLocalErrorcode
+OperationLocalvalue ::= INAPOperationLocalvalue
+INAPLocalErrorcode ::= INTEGER
+INAPOperationLocalvalue ::= INTEGER
+INAP-ERROR	::=	CHOICE {
+			localValue LocalErrorcode,
+			globalValue OBJECT IDENTIFIER } 
+
+-- PROBLEMS
+
+GeneralProblem		::=	INTEGER {		unrecognizedComponent (0),
+								mistypedComponent (1),
+								badlyStructuredComponent (2) }
+
+InvokeProblem		::=	INTEGER {		duplicateInvokeID (0),
+								unrecognizedOperation (1),
+								mistypedParameter (2),
+								resourceLimitation (3),
+								initiatingRelease (4),
+								unrecognizedLinkedID (5),
+								linkedResponseUnexpected (6),
+								unexpectedLinkedOperation (7) }
+
+ReturnResultProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnResultUnexpected (1),
+								mistypedParameter (2) }
+
+ReturnErrorProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnErrorUnexpected (1),
+								unrecognizedError (2),
+								unexpectedError (3),
+								mistypedParameter (4) }
+
+--  TYPE DEFINITION FOR ADDITIONAL	IN CS-1	INAP-OPERATIONS
+--  SCF-SSF operations
+--  SCF ? SSF
+--  This operation is used to release a call party connection during a call between two or more parties.
+--LegIDAlreadyAssigned ::= INAP-ERROR
+--  Indicates that a legID has already been assigned with the requested value.
+--TooLate ::= INAP-ERROR
+--  Indicates that the operation could not be performed in a timely manner.
+--UnknownLegID ::= INAP-ERROR
+--  Indicates that the legID does not exist.
+--  TYPE DEFINITION FOR ADDITIONAL	IN CS-1	DATA TYPES
+--  Argument Data Types
+
+
+--  INAP-OPERATION AND INAP-ERROR CODE DEFINITION
+--  Code point values are for further study. The operations are grouped by the identified ASEs.
+--  Call party handling ASE
+addParty	AddParty ::= ffs
+changeParties	ChangeParties ::= ffs
+holdCallPartyConnection		HoldCallPartyConnection ::= ffs
+reconnect		Reconnect ::= ffs
+releaseCallPartyConnection		ReleaseCallPartyConnection ::= ffs
+--  Attach ASE
+attach	Attach ::= ffs
+detach	Detach ::= ffs
+
+
+--Canceled  ::= localValue 0
+ 
+CancelFailed ::=	SEQUENCE {
+	problem [0] IMPLICIT ENUMERATED {
+	unknownOperation (0),
+	tooLate (1),
+	operationNotCancellable (2)},
+	operation [1] IMPLICIT INTEGER (-128..127)}
+ --::= localValue 1
+--ETCFailed  ::= localValue 3
+--ImproperCallerResponse  ::= localValue 4
+--MissingCustomerRecord  ::= localValue 6
+--MissingParameter  ::= localValue 7
+--parameterOutOfRange INAP-ERROR
+ --::= localValue 8
+RequestedInfoError ::= ENUMERATED {
+	unknownRequestedInfo (1),
+	requestedInfoNotAvailable (2)}
+ --::= localValue 10
+SystemFailure ::= ENUMERATED {
+	unavailableResources (0),
+	componentFailure (1),
+	basicCallProcessingException (2),
+	resourceStatusFailure (3),
+	endUserFailure (4)}
+ 
+TaskRefused ::=	ENUMERATED {
+	generic (0),
+	unobtainable (1),
+	congestion  (2)}
+ --::= localValue 12
+--unavailableResource INAP-ERROR
+-- ::= localValue 13
+--unexpectedComponentSequence INAP-ERROR
+-- ::= localValue 14
+--unexpectedDataValue INAP-ERROR
+-- ::= localValue 15
+--unexpectedParameter INAP-ERROR
+-- ::= localValue 16
+--unknownLegID INAP-ERROR
+-- ::= localValue 17-
+--unknownResource INAP-ERROR
+-- ::= localValue 18
+-- Dummy asign problems with CLASS
+ExtensionType ::= OCTET STRING
+END

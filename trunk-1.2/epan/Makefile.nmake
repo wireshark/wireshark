@@ -1,0 +1,331 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ..\config.nmake
+include <win32.mak>
+include ..\Makefile.nmake.inc
+
+include Makefile.common
+
+LINK= link
+
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
+	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) \
+	$(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
+	$(SMI_CFLAGS) $(GEOIP_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX $(GENERATED_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
+!IFDEF LUA_DIR
+WSLUA_LIB=wslua\wslua.lib
+WSLUA_DIR=wslua
+!ELSE
+WSLUA_LIB=
+WSLUA_DIR=
+!ENDIf
+
+# For use when making libwireshark.dll
+libwireshark_LIBS = \
+	$(GLIB_LIBS)	\
+	$(C_ARES_LIBS) \
+	$(ADNS_LIBS) \
+	$(PCRE_LIBS) \
+	$(KFW_LIBS) \
+	$(NETTLE_LIBS) \
+	$(ZLIB_LIBS) \
+	$(GNUTLS_LIBS) \
+	$(LUA_LIBS) \
+	$(SMI_LIBS) \
+	$(GEOIP_LIBS) \
+	..\wsutil\libwsutil.lib \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+!IFDEF ICONV_DIR
+	$(ICONV_DIR)\lib\iconv.lib \
+!ENDIF
+	crc\crc.lib \
+	crypt\airpdcap.lib \
+	ftypes\ftypes.lib \
+	dfilter\dfilter.lib \
+	$(WSLUA_LIB) \
+	dissectors\dissectors.lib
+
+.c.obj::
+	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
+
+EXTRA_OBJECTS = \
+#	strerror.obj	\
+	inet_aton.obj	\
+	inet_pton.obj	\
+	inet_ntop.obj	\
+	mkstemp.obj	\
+	strptime.obj	\
+!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+	asm_utils_win32_x86.obj
+!ELSE
+	asm_utils.obj
+!ENDIF
+
+
+
+!IFDEF DOXYGEN
+DOXYGEN_DEP=doxygen
+!ENDIF
+
+!IFDEF ENABLE_LIBWIRESHARK
+all: crc crypt ftypes dfilter $(WSLUA_DIR) dissectors libwireshark.dll
+!ELSE
+all: crc crypt ftypes dfilter $(WSLUA_DIR) dissectors libwireshark.lib
+!ENDIF
+
+# For use when making libwireshark.dll
+libwireshark.lib: libwireshark.dll
+libwireshark.exp: libwireshark.dll
+
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crc crypt ftypes dfilter $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                 crc\crc.lib crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib $(WSLUA_LIB) ..\image\libwireshark.res
+	@echo Linking libwireshark.dll
+	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
+		/DEF:libwireshark.def /OUT:libwireshark.dll \
+		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
+		$(libwireshark_LIBS) ..\image\libwireshark.res \
+		dissectors\register.obj \
+		$(EXTRA_OBJECTS)
+
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crc crypt ftypes dfilter $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                  crc\crc.lib crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib $(WSLUA_LIB) dissectors\dissectors.lib
+	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
+		$(EXTRA_OBJECTS)
+
+..\config.h	: ..\config.h.win32 ..\config.nmake
+	cd ..
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake config.h
+	cd epan
+
+clean-local:
+	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
+		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
+		*.pdb doxygen.cfg html/*.* \
+		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
+	if exist html rmdir html	
+
+clean:  clean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../crypt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+
+#
+# We remove the Flex-generated files with "distclean" because they need
+# different #includes for UN*X and Windows (UN*X versions of Flex make it
+# include <unistd.h>, but that's a UN*X-only header), so if you're going
+# to build from source, you need to build those scanners from the
+# corresponding ".l" files with Flex.
+# This might not be necessary for "dtd_grammar.{c,h}", but we handle them
+# the same for now.
+#
+distclean-local: clean-local
+	rm -f config.h register.c mkstemp.c strptime.c \
+		inet_ntop.c inet_pton.c \
+		$(LIBWIRESHARK_DISTCLEAN_GENERATED_SRC) \
+		$(LIBWIRESHARK_DISTCLEAN_GENERATED_INCLUDES) \
+		$(LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC) \
+		$(LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES) \
+		dtd_grammar.out	sminmpec.c 
+
+distclean: distclean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../crypt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+
+maintainer-clean-local: distclean-local
+
+maintainer-clean: maintainer-clean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../crypt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
+crc:: ..\config.h
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+crypt:: ..\config.h
+	cd crypt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+ftypes:: ..\config.h
+	cd ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+dfilter:: ..\config.h
+	cd dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+dissectors:: ..\config.h
+	cd dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+wslua:: ..\config.h
+	cd wslua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+doxygen.cfg: ..\config.nmake doxygen.cfg.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg.in > $@
+
+doxygen-run:
+!IFDEF DOXYGEN
+	$(DOXYGEN) doxygen.cfg
+!ENDIF
+
+doxygen: doxygen.cfg doxygen-run
+
+# Rules for making unit tests
+exntest: exntest.exe
+reassemble_test: reassemble_test.exe
+tvbtest: tvbtest.exe
+
+
+
+exntest.exe: exntest.obj except.obj
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) exntest.obj except.obj
+!IF $(MSC_VER_REQUIRED) >= 1400
+	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
+!ENDIF
+
+tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) $(ZLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
+!IF $(MSC_VER_REQUIRED) >= 1400
+	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
+!ENDIF
+
+reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.obj \
+                 reassemble.obj
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+                $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
+                except.obj strutil.obj emem.obj reassemble.obj
+!IF $(MSC_VER_REQUIRED) >= 1400
+	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
+!ENDIF
+
+exntest_install:
+	set copycmd=/y
+	if exist exntest.exe          xcopy exntest.exe          $(INSTALL_DIR) /d
+
+tvbtest_install:
+	set copycmd=/y
+	if exist tvbtest.exe          xcopy tvbtest.exe          $(INSTALL_DIR) /d
+
+reassemble_test_install:
+	set copycmd=/y
+	if exist reassemble_test.exe          xcopy reassemble_test.exe          $(INSTALL_DIR) /d
+
+
+#
+# Compile some time critical code from assembler if NASM available
+#
+!IFDEF NASM
+asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
+	$(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
+!ENDIF
+
+# (Windows only) Copy some sources from /trunk to /trunk/epan.
+# It is a cleaner to compile these sources separately with this makefile than
+# using the object code compiled by the makefile in /trunk for both dynamically
+# and statically linking
+
+mkstemp.c: ..\mkstemp.c
+	set copycmd=/y
+	xcopy ..\mkstemp.c . /d
+
+strptime.c: ..\strptime.c
+	set copycmd=/y
+	xcopy ..\strptime.c . /d
+
+inet_ntop.c: ..\inet_ntop.c
+	set copycmd=/y
+	xcopy ..\inet_ntop.c . /d
+
+inet_pton.c: ..\inet_pton.c
+	set copycmd=/y
+	xcopy ..\inet_pton.c . /d
+
+sminmpec.c: enterprise-numbers make-sminmpec.pl
+	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
+
+RUNLEX=..\tools\runlex.sh
+ 
+diam_dict_lex.h: diam_dict.c
+diam_dict.obj : diam_dict.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+dtd_parse_lex.h: dtd_parse.c
+dtd_parse.obj : dtd_parse.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+dtd_preparse_lex.h: dtd_preparse.c
+dtd_preparse.obj : dtd_preparse.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+radius_dict_lex.h: radius_dict.c
+radius_dict.obj : radius_dict.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+uat_load_lex.h: uat_load.c
+uat_load.obj : uat_load.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+LEMON=..\tools\lemon
+
+dtd_grammar.h: dtd_grammar.c
+dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
+	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
+
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC)

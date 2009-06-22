@@ -1,0 +1,11 @@
+#
+#
+#We dont know this type yet
+TYPE	a_string drsuapi_dissect_a_string FT_STRING BASE_NONE 0 NULL 4
+#
+# this one is better/easier to just implement by hand
+NOEMIT drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn
+NOEMIT ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn
+#
+UNION_TAG_SIZE DsBindInfo 4
+#
