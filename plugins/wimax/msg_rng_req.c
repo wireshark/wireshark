@@ -241,238 +241,238 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 			&hf_rng_activation_of_power_saving_class,
 			{
 				"Activation of Power Saving Class (Types 1 and 2 only)", "wmx.rng.power_save.activate",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_activate), 0x02, "", HFILL
+				FT_BOOLEAN, 8, TFS(&tfs_rng_activate), 0x02, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_class_id,
 			{
 				"Power Saving Class ID", "wmx.rng.power_save.class_id",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_class_type,
 			{
 				"Power Saving Class Type", "wmx.rng.power_save.class_type",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_definition_of_power_saving_class_present,
 			{
 				"Definition of Power Saving Class present", "wmx.rng.power_save.definition_present",
-				FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_final_sleep_window_base,
 			{
 				"Final-sleep window base (measured in frames)", "wmx.rng.power_save.final_sleep_window_base",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_final_sleep_window_exp,
 			{
 				"Final-sleep window exponent (measured in frames)", "wmx.rng.power_save.final_sleep_window_exp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_first_sleep_window_frame,
 			{
 				"Start frame number for first sleep window", "wmx.rng.power_save.first_sleep_window_frame",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_included_cid,
 			{
 				"CID of connection to be included into the Power Saving Class.", "wmx.rng.power_save.included_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_initial_sleep_window,
 			{
 				"Initial-sleep window", "wmx.rng.power_save.initial_sleep_window",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_listening_window,
 			{
 				"Listening window duration (measured in frames)", "wmx.rng.power_save.listening_window",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_mgmt_connection_direction,
 			{
 				"Direction for management connection added to Power Saving Class", "wmx.rng.power_save.mgmt_connection_direction",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_class_reserved,
 			{
 				"Reserved", "wmx.rng.power_save.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0xF8, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_power_saving_slpid,
 			{
 				"SLPID assigned by the BS whenever an MS is instructed to enter sleep mode", "wmx.rng.power_save.slpid",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_trf_ind_required,
 			{
 				"BS shall transmit at least one TRF-IND message during each listening window of the Power Saving Class", "wmx.rng.power_save.trf_ind_required",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_activate), 0x04, "", HFILL
+				FT_BOOLEAN, 8, TFS(&tfs_rng_activate), 0x04, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.rng_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_aas_broadcast,
 			{
 				"AAS broadcast capability", "wmx.rng_req.aas_broadcast",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_req_aas_broadcast), 0x00, "", HFILL
+				FT_BOOLEAN, BASE_NONE, TFS(&tfs_rng_req_aas_broadcast), 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_anomalies_max_power,
 			{
 				"Meaning", "wmx.rng_req.anomalies.max_power",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_max_power), 0x04, "", HFILL
+				FT_BOOLEAN, 8, TFS(&tfs_rng_max_power), 0x04, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_anomalies_min_power,
 			{
 				"Meaning", "wmx.rng_req.anomalies.min_power",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_min_power), 0x02, "", HFILL
+				FT_BOOLEAN, 8, TFS(&tfs_rng_min_power), 0x02, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_anomalies_timing_adj,
 			{
 				"Meaning", "wmx.rng_req.anomalies.timing_adj",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_timing_adj), 0x01, "", HFILL
+				FT_BOOLEAN, 8, TFS(&tfs_rng_timing_adj), 0x01, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_cmac_key_count,
 			{
 				"CMAC Key Count", "wmx.rng_req.cmac_key_count",
-				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_dl_burst_profile_lsb_ccc,
 			{
 				"LSB of CCC of DCD associated with DIUC", "wmx.rng_req.dl_burst_profile.ccc",
-				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_dl_burst_profile_diuc,
 			{
 				"DIUC", "wmx.rng_req.dl_burst_profile.diuc",
-				FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL
 			}
 		},
 		{
 			&hf_tlv_type,
 			{
 				"Unknown TLV Type", "wmx.rng_req.unknown_tlv_type",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.rng_req.invalid_tlv",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ho_id,
 			{
 				"ID from the target BS for use in initial ranging during MS handover to it", "wmx.rng_req.ho_id",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_power_down_indicator,
 			{
 				"Power down Indicator", "wmx.rng_req.power_down_indicator",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_purpose_ho_indication,
 			{
 				"MS HO indication", "wmx.rng_req.ranging_purpose.ho_indication",
-				FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_purpose_reserved,
 			{
 				"Reserved", "wmx.rng_req.ranging_purpose.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0xFC, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xFC, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ranging_purpose_location_update_request,
 			{
 				"Location Update Request", "wmx.rng_req.ranging_purpose.loc_update_req",
-				FT_UINT8, BASE_DEC, VALS(vals_rng_req_ranging_purpose_location_update_request), 0x02, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_rng_req_ranging_purpose_location_update_request), 0x02, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_repetition_coding_level,
 			{
 				"Repetition coding level", "wmx.rng_req.repetition_coding_level",
-				FT_UINT8, BASE_DEC, VALS(vals_rng_req_repetition_coding_level), 0x03, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_rng_req_repetition_coding_level), 0x03, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_requested_downlink_repetition_coding_level_reserved,
 			{
 				"Reserved", "wmx.rng_req.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0xFC, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xFC, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_reserved,
 			{
 				"Reserved", "wmx.rng_req.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_serving_bs_id,
 			{
 				"Former serving BS ID", "wmx.rng_req.serving_bs_id",
-				FT_ETHER, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ss_mac_address,
 			{
 				"SS MAC Address", "wmx.rng_req.ss_mac_address",
-				FT_ETHER, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		}
 	};

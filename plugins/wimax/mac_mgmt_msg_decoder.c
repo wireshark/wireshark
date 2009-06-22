@@ -207,16 +207,16 @@ void proto_register_mac_mgmt_msg(void)
 			&hf_mac_mgmt_msg_values,
 			{
 				"Values", "wmx.values",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 		{
 			&hf_mac_mgmt_msg_unknown_type,
 			{
 				"Unknown MAC Message Type", "wmx.unknown_type",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
 			}
 		}
 	};

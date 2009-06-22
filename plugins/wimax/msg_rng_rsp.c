@@ -289,70 +289,70 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.rng_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_broadcast,
 			{
 				"AAS broadcast permission", "wmx.rng_rsp.aas_broadcast",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_rsp_aas_broadcast), 0x00, "", HFILL
+				FT_BOOLEAN, BASE_NONE, TFS(&tfs_rng_rsp_aas_broadcast), 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_akid,
 			{
 				"AKId", "wmx.rng_rsp.akid",
-				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_basic_cid,
 			{
 				"Basic CID", "wmx.rng_rsp.basic_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_bs_random,
 			{
 				"BS_Random", "wmx.rng_rsp.bs_random",
-				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_config_change_count_of_dcd,
 			{
 				"Configuration Change Count value of DCD defining DIUC associated burst profile", "wmx.rng_rsp.config_change_count_of_dcd",
-				FT_UINT16, BASE_HEX, NULL, 0xFF00, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_dl_freq_override,
 			{
 				"Downlink Frequency Override", "wmx.rng_rsp.dl_freq_override",
-				FT_UINT32, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_dl_operational_burst_profile_ccc,
 			{
 				"CCC value of DCD defining the burst profile associated with DIUC", "wmx.rng_rsp.dl_op_burst_prof.ccc",
-				FT_UINT16, BASE_DEC, NULL, 0x00FF, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00FF, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_dl_operational_burst_profile_diuc,
 			{
 				"The least robust DIUC that may be used by the BS for transmissions to the SS", "wmx.rng_rsp.dl_op_burst_prof.diuc",
-				FT_UINT16, BASE_DEC, NULL, 0xFF00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0xFF00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_dl_operational_burst_profile,
 			{
 				"Downlink Operational Burst Profile", "wmx.rng_rsp.dl_op_burst_profile",
-				FT_UINT16, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		/* Added the following to help implement RNG-RSP message encoding 33 (Table 367 in IEEE 802.16e-2007) */
@@ -360,21 +360,21 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_dl_op_burst_profile_ofdma,
 			{
 				"Downlink Operational Burst Profile for OFDMA", "wmx.rng_rsp.dl_op_burst_profile_ofdma",
-				FT_UINT16, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_frame_number2,
 			{
 				"The 8 least significant bits of the frame number of the OFDMA frame where the SS sent the ranging code", "wmx.rng_rsp.eight_bit_frame_num",
-				FT_UINT32, BASE_DEC, NULL, 0x000000FF, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0x000000FF, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_frame_number,
 			{
 				"Frame number", "wmx.rng_rsp.frame_number",
-				FT_UINT24, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		/* Added the following to help implement RNG-RSP message encoding 22 (IEEE 802.16e-2007) */
@@ -382,301 +382,301 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_ho_id,
 			{
 				"HO ID", "wmx.rng_rsp.ho_id",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization,
 			{
 				"HO Process Optimization", "wmx.rng_rsp.ho_process_optimization",
-				FT_UINT16, BASE_HEX, NULL, 0x0000, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x0000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_0,
 			{
 				"Bit #0", "wmx.rng_rsp.ho_process_optimization.omit_sbc_req",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_0), 0x0001, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_0), 0x0001, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_1_2,
 			{
 				"Bits #1-2", "wmx.rng_rsp.ho_process_optimization.perform_reauthentication",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_1_2), 0x0006, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_1_2), 0x0006, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_3,
 			{
 				"Bit #3", "wmx.rng_rsp.ho_process_optimization.omit_network_address",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_3), 0x0008, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_3), 0x0008, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_4,
 			{
 				"Bit #4", "wmx.rng_rsp.ho_process_optimization.omit_time_of_day",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_4), 0x0010, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_4), 0x0010, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_5,
 			{
 				"Bit #5", "wmx.rng_rsp.ho_process_optimization.omit_tftp",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_5), 0x0020, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_5), 0x0020, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_6,
 			{
 				"Bit #6", "wmx.rng_rsp.ho_process_optimization.transfer_or_sharing",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_6), 0x0040, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_6), 0x0040, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_7,
 			{
 				"Bit #7", "wmx.rng_rsp.ho_process_optimization.omit_reg_req",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_7), 0x0080, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_7), 0x0080, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_8,
 			{
 				"Bit #8", "wmx.rng_rsp.ho_process_optimization.unsolicited_sbc_rsp",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_8), 0x0100, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_8), 0x0100, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_9,
 			{
 				"Bit #9", "wmx.rng_rsp.ho_process_optimization.post_ho_reentry",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_9), 0x0200, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_9), 0x0200, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_10,
 			{
 				"Bit #10", "wmx.rng_rsp.ho_process_optimization.unsolicited_reg_rsp",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_10), 0x0400, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_10), 0x0400, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_11,
 			{
 				"Bit #11", "wmx.rng_rsp.ho_process_optimization.virtual_sdu_sn",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_11), 0x0800, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_11), 0x0800, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_12,
 			{
 				"Bit #12", "wmx.rng_rsp.ho_process_optimization.send_notification",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_12), 0x1000, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_12), 0x1000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_13,
 			{
 				"Bit #13", "wmx.rng_rsp.ho_process_optimization.trigger_higher_layer_protocol",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_13), 0x2000, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_ho_process_optimization_13), 0x2000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_14,
 			{
 				"Bit #14: Reserved", "wmx.rng_rsp.ho_process_optimization.reserved",
-				FT_UINT16, BASE_HEX, NULL, 0x4000, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ho_process_optimization_15,
 			{
 				"Bit #15: Reserved", "wmx.rng_rsp.ho_process_optimization.reserved",
-				FT_UINT16, BASE_HEX, NULL, 0x8000, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.rng_rsp.invalid_tlv", 
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_least_robust_diuc,
 			{
 				"Least Robust DIUC that may be used by the BS for transmissions to the MS", "wmx.rng_rsp.least_robust_diuc",
-				FT_UINT16, BASE_HEX, NULL, 0x000F, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_location_update_response,
 			{
 				"Location Update Response", "wmx.rng_rsp.location_update_response",
-				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_location_update_response), 0xFF, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_location_update_response), 0xFF, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_offset_freq_adjust,
 			{
 				"Offset Frequency Adjust", "wmx.rng_rsp.offset_freq_adjust",
-				FT_INT32, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_opportunity_number,
 			{
 				"Initial ranging opportunity number", "wmx.rng_rsp.opportunity_number",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_paging_cycle,
 			{
 				"Paging Cycle", "wmx.rng_rsp.paging_cycle",
-				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_paging_group_id,
 			{
 				"Paging Group ID", "wmx.rng_rsp.paging_group_id",
-				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_paging_information,
 			{
 				"Paging Information", "wmx.rng_rsp.paging_information",
-				FT_BYTES, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_paging_offset,
 			{
 				"Paging Offset", "wmx.rng_rsp.paging_offset",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_power_level_adjust,
 			{
 				"Power Level Adjust", "wmx.rng_rsp.power_level_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_primary_mgmt_cid,
 			{
 				"Primary Management CID", "wmx.rng_rsp.primary_mgmt_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ranging_code_index,
 			{
 				"The ranging code index that was sent by the SS", "wmx.rng_rsp.ranging_code_index",
-				FT_UINT32, BASE_DEC, NULL, 0x0000FF00, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0x0000FF00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ranging_status,
 			{
 				"Ranging status", "wmx.rng_rsp.ranging_status",
-				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_ranging_status), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_ranging_status), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ranging_subchan,
 			{
 				"Ranging code attributes", "wmx.rng_rsp.ranging_subchannel",
-				FT_UINT32, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_repetition_coding_indication,
 			{
 				"Repetition Coding Indication", "wmx.rng_rsp.repetition_coding_indication",
-				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_repetition_coding_indication), 0x00F0, "", HFILL
+				FT_UINT16, BASE_HEX, VALS(vals_rng_rsp_repetition_coding_indication), 0x00F0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_reserved,
 			{
 				"Reserved", "wmx.rng_rsp.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_resource_retain_flag,
 			{
 				"The connection information for the MS is", "wmx.rng_rsp.resource_retain_flag",
-				FT_BOOLEAN, 8, TFS(&tfs_rng_rsp_resource_retain_flag), 0x00, "", HFILL
+				FT_BOOLEAN, BASE_NONE, TFS(&tfs_rng_rsp_resource_retain_flag), 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_service_level_prediction,
 			{
 				"Service Level Prediction", "wmx.rng_rsp.service_level_prediction",
-				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_level_of_service), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_rng_rsp_level_of_service), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ss_mac_address,
 			{
 				"SS MAC Address", "wmx.rng_rsp.ss_mac_address",
-				FT_ETHER, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_rng_rsp_subchannel_reference,
 			{
 				"OFDMA subchannel reference used to transmit the ranging code", "wmx.rng_rsp.subchannel_reference",
-				FT_UINT32, BASE_DEC, NULL, 0x003f0000, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0x003f0000, NULL, HFILL
 			}
 		},
 			{
 			&hf_rng_rsp_time_symbol_reference,
 			{
 				"OFDM time symbol reference used to transmit the ranging code", "wmx.rng_rsp.time_symbol_reference",
-				FT_UINT32, BASE_DEC, NULL, 0xFFC00000, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0xFFC00000, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_timing_adjust,
 			{
 				"Timing Adjust", "wmx.rng_rsp.timing_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ul_channel_id,
 			{
 				"Uplink Channel ID", "wmx.rng_rsp.ul_chan_id",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_rsp_ul_chan_id_override,
 			{
 				"Uplink channel ID Override", "wmx.rng_rsp.ul_chan_id_override",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_tlv_type,
 			{
 				"Unknown TLV Type", "wmx.rng_rsp.unknown_tlv_type",
-				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_tlv_value,
 			{
 				"Value", "wmx.rng_rsp.tlv_value",
-				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		}
 	};

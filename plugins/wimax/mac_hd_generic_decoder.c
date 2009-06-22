@@ -731,8 +731,8 @@ void proto_register_mac_header_generic(void)
 			&hf_mac_header_generic_value_bytes,
 			{
 				"Values", "wmx.genericValueBytes",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 		{
@@ -740,7 +740,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Header Type", "wmx.genericHt",
 				FT_UINT24, BASE_HEX, VALS(ht_msgs), WIMAX_MAC_HEADER_GENERIC_HT,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -748,7 +748,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Encryption Control", "wmx.genericEc",
 				FT_UINT24, BASE_HEX, VALS(ec_msgs), WIMAX_MAC_HEADER_GENERIC_EC,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -756,7 +756,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 0", "wmx.genericType0",
 				FT_UINT24, BASE_HEX, VALS(type_msg0), WIMAX_MAC_HEADER_GENERIC_TYPE_0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -764,7 +764,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 1", "wmx.genericType1",
 				FT_UINT24, BASE_HEX, VALS(type_msg1), WIMAX_MAC_HEADER_GENERIC_TYPE_1,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -772,7 +772,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 2", "wmx.genericType2",
 				FT_UINT24, BASE_HEX, VALS(type_msg2), WIMAX_MAC_HEADER_GENERIC_TYPE_2,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -780,7 +780,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 3", "wmx.genericType3",
 				FT_UINT24, BASE_HEX, VALS(type_msg3), WIMAX_MAC_HEADER_GENERIC_TYPE_3,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -788,7 +788,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 4", "wmx.genericType4",
 				FT_UINT24, BASE_HEX, VALS(type_msg4), WIMAX_MAC_HEADER_GENERIC_TYPE_4,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -796,7 +796,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"MAC Sub-type Bit 5", "wmx.genericType5",
 				FT_UINT24, BASE_HEX, VALS(type_msg5), WIMAX_MAC_HEADER_GENERIC_TYPE_5,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -804,7 +804,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Extended Sub-header Field", "wmx.genericEsf",
 				FT_UINT24, BASE_HEX, VALS(esf_msgs), WIMAX_MAC_HEADER_GENERIC_ESF,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -812,7 +812,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"CRC Indicator", "wmx.genericCi",
 				FT_UINT24, BASE_HEX, VALS(ci_msgs), WIMAX_MAC_HEADER_GENERIC_CI,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -820,7 +820,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Encryption Key Sequence", "wmx.genericEks",
 				FT_UINT24, BASE_HEX, NULL, WIMAX_MAC_HEADER_GENERIC_EKS,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -828,7 +828,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericRsv",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_GENERIC_RSV,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -836,7 +836,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Length", "wmx.genericLen",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_GENERIC_LEN,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -844,7 +844,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Connection ID", "wmx.genericCid",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -852,7 +852,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Header Check Sequence", "wmx.genericHcs",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -860,7 +860,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"CRC", "wmx.genericCrc",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -873,7 +873,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericExtSubhd.Rsv",
 				FT_UINT8, BASE_DEC, NULL, EXTENDED_SUB_HEADER_RSV_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -881,7 +881,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"DL Extended Subheader Type", "wmx.genericExtSubhd.Dl",
 				FT_UINT8, BASE_DEC, VALS(dl_ext_sub_header_type), EXTENDED_SUB_HEADER_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -889,7 +889,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"UL Extended Subheader Type", "wmx.genericExtSubhd.Ul",
 				FT_UINT8, BASE_DEC, VALS(ul_ext_sub_header_type), EXTENDED_SUB_HEADER_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -897,7 +897,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"SDU Sequence Number", "wmx.genericExtSubhd.SduSn",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -905,7 +905,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Power Saving Class ID", "wmx.genericExtSubhd.DlSleepCtrlPSCID",
 				FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_POWER_SAVING_CLASS_ID_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -913,7 +913,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Operation", "wmx.genericExtSubhd.DlSleepCtrlOP",
 				FT_UINT24, BASE_HEX, VALS(dl_sleep_control_ops), DL_SLEEP_CONTROL_OPERATION_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -921,7 +921,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Final Sleep Window Exponent", "wmx.genericExtSubhd.DlSleepCtrlFSWE",
 				FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_FINAL_SLEEP_WINDOW_EXPONENT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -929,7 +929,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Final Sleep Window Base", "wmx.genericExtSubhd.DlSleepCtrlFSWB",
 				FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_FINAL_SLEEP_WINDOW_BASE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -937,7 +937,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericExtSubhd.DlSleepCtrlRsv",
 				FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_RESERVED_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -945,7 +945,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"UIUC", "wmx.genericExtSubhd.FbReqUIUC",
 				FT_UINT24, BASE_HEX, VALS(uiuc_values), FEEDBACK_REQUEST_UIUC_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -953,7 +953,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Type", "wmx.genericExtSubhd.FbReqFbType",
 				FT_UINT24, BASE_HEX, VALS(fb_types), FEEDBACK_REQUEST_FEEDBACK_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -961,7 +961,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"OFDMA Symbol Offset", "wmx.genericExtSubhd.FbReqOfdmaSymbolOffset",
 				FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_OFDMA_SYMBOL_OFFSET_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -969,7 +969,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Subchannel Offset", "wmx.genericExtSubhd.FbReqSubchannelOffset",
 				FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_SUBCHANNEL_OFFSET_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -977,7 +977,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Number of Slots", "wmx.genericExtSubhd.FbReqSlots",
 				FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_NUMBER_OF_SLOTS_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -985,7 +985,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Frame Offset", "wmx.genericExtSubhd.FbReqFrameOffset",
 				FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_FRAME_OFFSET_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -993,7 +993,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"First SN Report Indication", "wmx.genericExtSubhd.SnReqRepInd1",
 				FT_UINT8, BASE_DEC, VALS(sn_rep_msg), SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_1_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1001,7 +1001,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Second SN Report Indication", "wmx.genericExtSubhd.SnReqRepInd2",
 				FT_UINT8, BASE_DEC, VALS(sn_rep_msg), SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_2_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1009,7 +1009,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericExtSubhd.SnReqRsv",
 				FT_UINT8, BASE_DEC, NULL, SN_REQUEST_SUBHEADER_RESERVED_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1017,7 +1017,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Type", "wmx.genericExtSubhd.MimoFbType",
 				FT_UINT8, BASE_DEC, VALS(mimo_fb_types), MIMO_FEEDBACK_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1025,7 +1025,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Content", "wmx.genericExtSubhd.MimoFbContent",
 				FT_UINT8, BASE_DEC, NULL, MIMO_FEEDBACK_CONTENT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1033,7 +1033,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"UL TX Power", "wmx.genericExtSubhd.UlTxPwr",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1041,7 +1041,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Type", "wmx.genericExtSubhd.MiniFbType",
 				FT_UINT16, BASE_DEC, VALS(fb_types), MINI_FEEDBACK_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1049,7 +1049,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Content", "wmx.genericExtSubhd.MiniFbContent",
 				FT_UINT16, BASE_DEC, NULL, MINI_FEEDBACK_CONTENT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1057,7 +1057,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"PDU Sequence Number", "wmx.genericExtSubhd.PduSnShort",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1065,7 +1065,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"PDU Sequence Number", "wmx.genericExtSubhd.PduSnLong",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1078,7 +1078,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Xmt Node Id", "wmx.genericMeshSubhd",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1091,7 +1091,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Type", "wmx.genericFragSubhd.Fc",
 				FT_UINT8, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1099,7 +1099,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Type", "wmx.genericFragSubhd.FcExt",
 				FT_UINT16, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1107,7 +1107,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Block Sequence Number (BSN)", "wmx.genericFragSubhd.Bsn",
 				FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_BSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1115,7 +1115,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Sequence Number (FSN)", "wmx.genericFragSubhd.Fsn",
 				FT_UINT8, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_FSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1123,7 +1123,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Sequence Number (FSN)", "wmx.genericFragSubhd.FsnExt",
 				FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_BSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1131,7 +1131,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericFragSubhd.Rsv",
 				FT_UINT8, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_RSV_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1139,7 +1139,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericFragSubhd.RsvExt",
 				FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_RSV_EXT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1152,7 +1152,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Type", "wmx.genericPackSubhd.Fc",
 				FT_UINT16, BASE_DEC, VALS(frag_types), PACKING_SUBHEADER_FC_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1160,7 +1160,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Type", "wmx.genericPackSubhd.FcExt",
 				FT_UINT24, BASE_HEX, VALS(frag_types), PACKING_SUBHEADER_FC_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1168,7 +1168,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"First Block Sequence Number", "wmx.genericPackSubhd.Bsn",
 				FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_BSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1176,7 +1176,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Number", "wmx.genericPackSubhd.Fsn",
 				FT_UINT16, BASE_DEC, NULL, PACKING_SUBHEADER_FSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1184,7 +1184,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Fragment Number", "wmx.genericPackSubhd.FsnExt",
 				FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_BSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1192,7 +1192,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Length", "wmx.genericPackSubhd.Len",
 				FT_UINT16, BASE_DEC, NULL, PACKING_SUBHEADER_LENGTH_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1200,7 +1200,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Length", "wmx.genericPackSubhd.LenExt",
 				FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_LENGTH_EXT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1213,7 +1213,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Allocation Offset", "wmx.genericFastFbSubhd.AllocOffset",
 				FT_UINT8, BASE_DEC, NULL, FAST_FEEDBACK_ALLOCATION_OFFSET_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1221,7 +1221,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Feedback Type", "wmx.genericFastFbSubhd.FbType",
 				FT_UINT8, BASE_DEC, VALS(fast_fb_types), FAST_FEEDBACK_FEEDBACK_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1235,7 +1235,7 @@ void proto_register_mac_header_generic(void)
 				"Scheduling Service Type (Default)",
 				"wimax.genericGrantSubhd.Default",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1243,7 +1243,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"PiggyBack Request", "wmx.genericGrantSubhd.Pbr",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1251,7 +1251,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Scheduling Service Type (UGS)", "wmx.genericGrantSubhd.UGS",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1259,7 +1259,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Slip Indicator", "wmx.genericGrantSubhd.Si",
 				FT_UINT16, BASE_DEC, VALS(si_msgs), GRANT_MGMT_SUBHEADER_UGS_SI_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1267,7 +1267,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Poll-Me", "wmx.genericGrantSubhd.Pm",
 				FT_UINT16, BASE_DEC, VALS(pm_msgs), GRANT_MGMT_SUBHEADER_UGS_PM_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1275,7 +1275,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Frame Latency Indication", "wmx.genericGrantSubhd.Fli",
 				FT_UINT16, BASE_DEC, VALS(fli_msgs), GRANT_MGMT_SUBHEADER_UGS_FLI_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1283,7 +1283,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Frame Latency", "wmx.genericGrantSubhd.Fl",
 				FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_UGS_FL_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1291,7 +1291,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericGrantSubhd.Rsv",
 				FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_UGS_RSV_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1300,7 +1300,7 @@ void proto_register_mac_header_generic(void)
 				"Scheduling Service Type (Extended rtPS)",
 				"wimax.genericGrantSubhd.ExtendedRTPS",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1308,7 +1308,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Extended PiggyBack Request", "wmx.genericGrantSubhd.ExtPbr",
 				FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_EXT_PBR_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1316,7 +1316,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Frame Latency Indication", "wmx.genericGrantSubhd.ExtFli",
 				FT_UINT16, BASE_DEC, VALS(fli_msgs), GRANT_MGMT_SUBHEADER_EXT_FLI_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1324,7 +1324,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Frame Latency", "wmx.genericGrantSubhd.ExtFl",
 				FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_EXT_FL_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
@@ -1337,7 +1337,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"CID", "wmx.genericArq.FbIeCid",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1345,7 +1345,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Last IE", "wmx.genericArq.FbIeLast",
 				FT_UINT16, BASE_DEC, VALS(last_ie_msgs), ARQ_FB_IE_LAST_BIT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1353,7 +1353,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"ACK Type", "wmx.genericArq.FbIeAckType",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_ACK_TYPE_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1361,7 +1361,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"BSN", "wmx.genericArq.FbIeBsn",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_BSN_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1369,13 +1369,13 @@ void proto_register_mac_header_generic(void)
 			{
 				"Number of ACK Maps", "wmx.genericArq.FbIeMaps",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_NUM_MAPS_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
 			&hf_ack_type_reserved,
 			{
-				"Reserved", "wmx.genericArq.FbIeRsvd", FT_UINT16, BASE_DEC, NULL, 0x03, "", HFILL
+				"Reserved", "wmx.genericArq.FbIeRsvd", FT_UINT16, BASE_DEC, NULL, 0x03, NULL, HFILL
 			}
 		},
 		{
@@ -1383,7 +1383,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Selective ACK Map", "wmx.genericArq.FbIeSelAckMap",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1391,7 +1391,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence Format", "wmx.genericArq.FbIeSeqFmt",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ_FORMAT_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1399,7 +1399,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence ACK Map", "wmx.genericArq.FbIeSeqAckMap",
 				FT_UINT16, BASE_HEX, NULL, ARQ_FB_IE_SEQ_ACK_MAP_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1407,7 +1407,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence 1 Length", "wmx.genericArq.FbIeSeq1Len",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ1_LENGTH_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1415,7 +1415,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence 2 Length", "wmx.genericArq.FbIeSeq2Len",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ2_LENGTH_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1423,7 +1423,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence 3 Length", "wmx.genericArq.FbIeSeq3Len",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ3_LENGTH_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1431,7 +1431,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence ACK Map", "wmx.genericArq.FbIeSeqAckMap2",
 				FT_UINT16, BASE_HEX, NULL, ARQ_FB_IE_SEQ_ACK_MAP_2_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1439,7 +1439,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence 1 Length", "wmx.genericArq.FbIeSeq1Len",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ1_LENGTH_6_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1447,7 +1447,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Sequence 2 Length", "wmx.genericArq.FbIeSeq2Len",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ2_LENGTH_6_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1455,7 +1455,7 @@ void proto_register_mac_header_generic(void)
 			{
 				"Reserved", "wmx.genericArq.FbIeRsv",
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_RSV_MASK,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};

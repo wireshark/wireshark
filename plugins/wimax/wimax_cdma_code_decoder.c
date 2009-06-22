@@ -65,7 +65,7 @@ void proto_register_wimax_cdma(void)
 			{
 				"Ranging Code", "wmx.cdma.ranging_code",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -73,7 +73,7 @@ void proto_register_wimax_cdma(void)
 			{
 				"Ranging Symbol Offset", "wmx.cdma.ranging_symbol_offset",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -81,7 +81,7 @@ void proto_register_wimax_cdma(void)
 			{
 				"Ranging Sub-Channel Offset", "wmx.cdma.ranging_subchannel_offset",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};

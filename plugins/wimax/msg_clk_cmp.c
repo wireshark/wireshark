@@ -67,42 +67,42 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 			&hf_clk_cmp_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.clk_cmp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_clk_cmp_clock_count,
 			{
 				"Clock Count", "wmx.clk_cmp.clock_count",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_clk_cmp_clock_id,
 			{
 				"Clock ID", "wmx.clk_cmp.clock_id",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_clk_cmp_comparison_value,
 			{
 				"Comparison Value", "wmx.clk_cmp.comparison_value",
-				FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_clk_cmp_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.clk_cmp.invalid_tlv",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_clk_cmp_seq_number,
 			{
 				"Sequence Number", "wmx.clk_cmp.seq_number",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

@@ -703,60 +703,60 @@ void proto_register_wimax_utility_decoders(void)
 	{
 		{	/* 1 Service Flow ID */
 			&hf_sfe_sf_id,
-			{"Service Flow ID", "wmx.sfe.sf_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Service Flow ID", "wmx.sfe.sf_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 2 CID */
 			&hf_sfe_cid,
-			{"CID", "wmx.sfe.cid", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"CID", "wmx.sfe.cid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 3 Service Class Name */
 			&hf_sfe_service_class_name,
-			{"Service Class Name", "wmx.sfe.service_class_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Service Class Name", "wmx.sfe.service_class_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 4 MBS Service */
 			&hf_sfe_mbs_service,
-			{"MBS Service", "wmx.sfe.mbs_service", FT_UINT8, BASE_DEC, VALS(vals_mbs_service), 0x0, "", HFILL}
+			{"MBS Service", "wmx.sfe.mbs_service", FT_UINT8, BASE_DEC, VALS(vals_mbs_service), 0x0, NULL, HFILL}
 		},
 		{	/* 5 QoS Parameter Set Type */
 			&hf_sfe_qos_params_set,
-			{"QoS Parameter Set Type", "wmx.sfe.qos_params_set", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"QoS Parameter Set Type", "wmx.sfe.qos_params_set", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 5.1 */
 			&hf_sfe_set_provisioned,
-			{"Provisioned Set", "wmx.sfe.qos_params_set.provisioned", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_PROVISIONED_SET, "", HFILL}
+			{"Provisioned Set", "wmx.sfe.qos_params_set.provisioned", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_PROVISIONED_SET, NULL, HFILL}
 		},
 		{	/* 5.2 */
 			&hf_sfe_set_admitted,
-			{"Admitted Set", "wmx.sfe.qos_params_set.admitted", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_ADMITTED_SET, "", HFILL}
+			{"Admitted Set", "wmx.sfe.qos_params_set.admitted", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_ADMITTED_SET, NULL, HFILL}
 		},
 		{	/* 5.3 */
 			&hf_sfe_set_active,
-			{"Active Set", "wmx.sfe.qos_params_set.active", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_ACTIVE_SET, "", HFILL}
+			{"Active Set", "wmx.sfe.qos_params_set.active", FT_BOOLEAN, 8, NULL, SFE_QOS_PARAMS_SET_ACTIVE_SET, NULL, HFILL}
 		},
 		{	/* 5.4 */
 			&hf_sfe_set_rsvd,
-			{"Reserved", "wmx.sfe.qos_params_set.rsvd", FT_UINT8, BASE_HEX, NULL, SFE_QOS_PARAMS_SET_RESERVED, "", HFILL}
+			{"Reserved", "wmx.sfe.qos_params_set.rsvd", FT_UINT8, BASE_HEX, NULL, SFE_QOS_PARAMS_SET_RESERVED, NULL, HFILL}
 		},
 		{	/* 6 Traffic Priority */
 			&hf_sfe_traffic_priority,
-			{"Traffic Priority", "wmx.sfe.traffic_priority", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Traffic Priority", "wmx.sfe.traffic_priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 7 Maximum Sustained Traffic Rate */
 			&hf_sfe_max_str,
-			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 8 Maximum Traffic Burst */
 			&hf_sfe_max_traffic_burst,
-			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 9 Minimum Reserved Traffic Rate */
 			&hf_sfe_min_rtr,
-			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			/* 10 Reserved */
 			&hf_sfe_reserved_10,
-			{"Reserved", "wmx.sfe.reserved_10", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Reserved", "wmx.sfe.reserved_10", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 #if 0
 		{	/* 10 reserved by 16E */
@@ -766,223 +766,223 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11 Service Flow Scheduling Type */
 			&hf_sfe_ul_grant_scheduling,
-			{"Uplink Grant Scheduling Type", "wmx.sfe.uplink_grant_scheduling", FT_UINT8, BASE_DEC, VALS(vals_ul_grant_scheduling), 0x0, "", HFILL}
+			{"Uplink Grant Scheduling Type", "wmx.sfe.uplink_grant_scheduling", FT_UINT8, BASE_DEC, VALS(vals_ul_grant_scheduling), 0x0, NULL, HFILL}
 		},
 		{	/* 12 Request/Transmission Policy */
 			&hf_sfe_req_tx_policy,
-			{"Request/Transmission Policy", "wmx.sfe.req_tx_policy", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Request/Transmission Policy", "wmx.sfe.req_tx_policy", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 12.1 */
 			&hf_sfe_policy_broadcast_bwr,
-			{"The Service Flow Shall Not Use Broadcast Bandwidth Request Opportunities", "wmx.sfe.policy.broadcast_bwr", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_BROADCAST_BWR, "", HFILL}
+			{"The Service Flow Shall Not Use Broadcast Bandwidth Request Opportunities", "wmx.sfe.policy.broadcast_bwr", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_BROADCAST_BWR, NULL, HFILL}
 		},
 		{	/* 12.2 */
 			&hf_sfe_policy_multicast_bwr,
-			{"The Service Flow Shall Not Use Multicast Bandwidth Request Opportunities", "wmx.sfe.policy.bit1", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_MULTICAST_BWR, "", HFILL}
+			{"The Service Flow Shall Not Use Multicast Bandwidth Request Opportunities", "wmx.sfe.policy.bit1", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_MULTICAST_BWR, NULL, HFILL}
 		},
 		{	/* 12.3 */
 			&hf_sfe_policy_piggyback,
-			{"The Service Flow Shall Not Piggyback Requests With Data", "wmx.sfe.policy.piggyback", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PIGGYBACK, "", HFILL}
+			{"The Service Flow Shall Not Piggyback Requests With Data", "wmx.sfe.policy.piggyback", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PIGGYBACK, NULL, HFILL}
 		},
 		{	/* 12.4 */
 			&hf_sfe_policy_fragment,
-			{"The Service Flow Shall Not Fragment Data", "wmx.sfe.policy.fragment", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_FRAGMENT_DATA, "", HFILL}
+			{"The Service Flow Shall Not Fragment Data", "wmx.sfe.policy.fragment", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_FRAGMENT_DATA, NULL, HFILL}
 		},
 		{	/* 12.5 */
 			&hf_sfe_policy_headers,
-			{"The Service Flow Shall Not Suppress Payload Headers", "wmx.sfe.policy.headers", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PAYLOAD_HEADER, "", HFILL}
+			{"The Service Flow Shall Not Suppress Payload Headers", "wmx.sfe.policy.headers", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PAYLOAD_HEADER, NULL, HFILL}
 		},
 		{	/* 12.6 */
 			&hf_sfe_policy_packing,
-			{"The Service Flow Shall Not Pack Multiple SDUs (Or Fragments) Into Single MAC PDUs", "wmx.sfe.policy.packing", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PACKINGS, "", HFILL}
+			{"The Service Flow Shall Not Pack Multiple SDUs (Or Fragments) Into Single MAC PDUs", "wmx.sfe.policy.packing", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_PACKINGS, NULL, HFILL}
 		},
 		{	/* 12.7 */
 			&hf_sfe_policy_crc,
-			{"The Service Flow Shall Not Include CRC In The MAC PDU", "wmx.sfe.policy.crc", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_CRC, "", HFILL}
+			{"The Service Flow Shall Not Include CRC In The MAC PDU", "wmx.sfe.policy.crc", FT_BOOLEAN, 8, NULL, SFE_REQ_TX_POLICY_CRC, NULL, HFILL}
 		},
 		{	/* 12.8 */
 			&hf_sfe_policy_rsvd1,
-			{"Reserved", "wmx.sfe.policy.rsvd1", FT_UINT8, BASE_HEX, NULL, SFE_REQ_TX_POLICY_RESERVED, "", HFILL}
+			{"Reserved", "wmx.sfe.policy.rsvd1", FT_UINT8, BASE_HEX, NULL, SFE_REQ_TX_POLICY_RESERVED, NULL, HFILL}
 		},
 		{	/* 13 Tolerated Jitter */
 			&hf_sfe_jitter,
-			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 14 Maximum Latency */
 			&hf_sfe_max_latency,
-			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 15 Fixed/Variable Length SDU */
 			&hf_sfe_fixed_len_sdu,
-			{"Fixed/Variable Length SDU", "wmx.sfe.fixed_len_sdu", FT_UINT8, BASE_DEC, VALS(vals_fixed_len_sdu), 0x0, "", HFILL}
+			{"Fixed/Variable Length SDU", "wmx.sfe.fixed_len_sdu", FT_UINT8, BASE_DEC, VALS(vals_fixed_len_sdu), 0x0, NULL, HFILL}
 		},
 		{	/* 16 SDU Size */
 			&hf_sfe_sdu_size,
-			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 17 SAID Onto Which SF Is Mapped */
 			&hf_sfe_target_said,
-			{"SAID Onto Which SF Is Mapped", "wmx.sfe.target_said", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SAID Onto Which SF Is Mapped", "wmx.sfe.target_said", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 18 ARQ Enable */
 			&hf_sfe_arq_enable,
-			{"ARQ Enable", "wmx.arq.enable", FT_UINT8, BASE_DEC, VALS(vals_arq_enable), 0x0, "", HFILL}
+			{"ARQ Enable", "wmx.arq.enable", FT_UINT8, BASE_DEC, VALS(vals_arq_enable), 0x0, NULL, HFILL}
 		},
 		{	/* 19 ARQ Window Size */
 			&hf_sfe_arq_window_size,
-			{"ARQ Window Size", "wmx.arq.window_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Window Size", "wmx.arq.window_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 20 ARQ Transmitter Delay */
 			&hf_sfe_arq_transmitter_delay,
-			{"ARQ Transmitter Delay (10us granularity)", "wmx.arq.transmitter_delay", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Transmitter Delay (10us granularity)", "wmx.arq.transmitter_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 21 ARQ Receiver Delay */
 			&hf_sfe_arq_receiver_delay,
-			{"ARQ Receiver Delay (10us granularity)", "wmx.arq.receiver_delay", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Receiver Delay (10us granularity)", "wmx.arq.receiver_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 22 ARQ Block Lifetime */
 			&hf_sfe_arq_block_lifetime,
-			{"ARQ Block Lifetime (10us granularity)", "wmx.arq.block_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Block Lifetime (10us granularity)", "wmx.arq.block_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 23 ARQ Sync Loss Timeout */
 			&hf_sfe_arq_sync_loss_timeout,
-			{"ARQ Sync Loss Timeout (10us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, "", HFILL}
+			{"ARQ Sync Loss Timeout (10us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 20 ARQ Transmitter Delay */
 			&hf_sfe_arq_transmitter_delay_cor2,
-			{"ARQ Transmitter Delay (100us granularity)", "wmx.arq.transmitter_delay", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Transmitter Delay (100us granularity)", "wmx.arq.transmitter_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 21 ARQ Receiver Delay */
 			&hf_sfe_arq_receiver_delay_cor2,
-			{"ARQ Receiver Delay (100us granularity)", "wmx.arq.receiver_delay", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Receiver Delay (100us granularity)", "wmx.arq.receiver_delay", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 22 ARQ Block Lifetime */
 			&hf_sfe_arq_block_lifetime_cor2,
-			{"ARQ Block Lifetime (100us granularity)", "wmx.arq.block_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Block Lifetime (100us granularity)", "wmx.arq.block_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 23 ARQ Sync Loss Timeout */
 			&hf_sfe_arq_sync_loss_timeout_cor2,
-			{"ARQ Sync Loss Timeout (100us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, "", HFILL}
+			{"ARQ Sync Loss Timeout (100us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 24 ARQ Deliver In Order */
 			&hf_sfe_arq_deliver_in_order,
-			{"ARQ Deliver In Order", "wmx.arq.deliver_in_order", FT_UINT8, BASE_DEC, VALS(&vals_arq_deliver_in_order), 0x0, "", HFILL}
+			{"ARQ Deliver In Order", "wmx.arq.deliver_in_order", FT_UINT8, BASE_DEC, VALS(&vals_arq_deliver_in_order), 0x0, NULL, HFILL}
 		},
 		{	/* 25 ARQ Purge Timeout */
 			&hf_sfe_arq_rx_purge_timeout,
-			{"ARQ RX Purge Timeout (100us granularity)", "wmx.arq.rx_purge_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_rx_purge_timeout), 0x0, "", HFILL}
+			{"ARQ RX Purge Timeout (100us granularity)", "wmx.arq.rx_purge_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_rx_purge_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 26 ARQ Block Size */
 			&hf_sfe_arq_block_size,
-			{"ARQ Block Size", "wmx.arq.block_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"ARQ Block Size", "wmx.arq.block_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 26 ARQ Block Size */
 			&hf_sfe_arq_block_size_cor2,
-			{"ARQ Block Size", "wmx.arq.block_size", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ARQ Block Size", "wmx.arq.block_size", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 26 ARQ Block Size for Corrigendum 2 */
 			&hf_sfe_arq_min_block_size,
-			{"ARQ Minimum Block Size", "wmx.arq.min_block_size", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL}
+			{"ARQ Minimum Block Size", "wmx.arq.min_block_size", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}
 		},
 		{	/* 26 ARQ Block Size for Corrigendum 2 */
 			&hf_sfe_arq_max_block_size,
-			{"ARQ Maximum Block Size", "wmx.arq.max_block_size", FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL}
+			{"ARQ Maximum Block Size", "wmx.arq.max_block_size", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL}
 		},
 	/* 27 reserved */
 		{	/* 28 CS Specification */
 			&hf_sfe_cs_specification,
-			{"CS Specification", "wmx.sfe.cs_specification", FT_UINT8, BASE_DEC, VALS(vals_cs_specification), 0x0, "", HFILL}
+			{"CS Specification", "wmx.sfe.cs_specification", FT_UINT8, BASE_DEC, VALS(vals_cs_specification), 0x0, NULL, HFILL}
 		},
 			{	/* 29 Type of Data Delivery Services */
 			&hf_sfe_type_of_data_delivery_services,
-			{"Type of Data Delivery Services", "wmx.sfe.type_of_data_delivery_services", FT_UINT8, BASE_DEC, VALS(vals_type_of_data_delivery_services), 0x0, "", HFILL}
+			{"Type of Data Delivery Services", "wmx.sfe.type_of_data_delivery_services", FT_UINT8, BASE_DEC, VALS(vals_type_of_data_delivery_services), 0x0, NULL, HFILL}
 		},
 			{	/* 30 SDU Inter-Arrival Interval */
 			&hf_sfe_sdu_inter_arrival_interval,
-			{"SDU Inter-Arrival Interval (in the resolution of 0.5 ms)", "wmx.sfe.sdu_inter_arrival_interval", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"SDU Inter-Arrival Interval (in the resolution of 0.5 ms)", "wmx.sfe.sdu_inter_arrival_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 31 Time Base */
 			&hf_sfe_time_base,
-			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 32 Paging Preference */
 			&hf_sfe_paging_preference,
-			{"Paging Preference", "wmx.sfe.paging_preference", FT_UINT8, BASE_DEC, VALS(vals_paging_preference), 0x0, "", HFILL}
+			{"Paging Preference", "wmx.sfe.paging_preference", FT_UINT8, BASE_DEC, VALS(vals_paging_preference), 0x0, NULL, HFILL}
 		},
 			{	/* 33 MBS Zone Identifier */
 			&hf_sfe_mbs_zone_identifier_assignment,
-			{"MBS Zone Identifier", "wmx.sfe.mbs_zone_identifier", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"MBS Zone Identifier", "wmx.sfe.mbs_zone_identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 34 Traffic Indication Preference */
 			&hf_sfe_reserved_34,
-			{"Reserved", "wmx.sfe.reserved_34", FT_UINT8, BASE_DEC, NULL /*VALS(vals_traffic_indication_preference)*/, 0x0, "", HFILL}
+			{"Reserved", "wmx.sfe.reserved_34", FT_UINT8, BASE_DEC, NULL /*VALS(vals_traffic_indication_preference)*/, 0x0, NULL, HFILL}
 		},
 		{	/* 35 Global Service Class Name */
 			&hf_sfe_global_service_class_name,
-			{"Global Service Class Name", "wmx.sfe.global_service_class_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Global Service Class Name", "wmx.sfe.global_service_class_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 	/* 36 reserved by 16E */
 			/* 36 Reserved */
 		{
 			&hf_sfe_reserved_36,
-			{"Reserved", "wmx.sfe.reserved_36", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Reserved", "wmx.sfe.reserved_36", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 37 SN Feedback Enable */
 			&hf_sfe_sn_feedback_enabled,
-			{"SN Feedback", "wmx.sfe.sn_feedback_enabled", FT_UINT8, BASE_DEC, VALS(vals_sn_fb_enable), 0x0, "", HFILL}
+			{"SN Feedback", "wmx.sfe.sn_feedback_enabled", FT_UINT8, BASE_DEC, VALS(vals_sn_fb_enable), 0x0, NULL, HFILL}
 		},
 		{	/* 38 FSN Size */
 			&hf_sfe_fsn_size,
-			{"FSN Size", "wmx.sfe.fsn_size", FT_UINT8, BASE_DEC, VALS(vals_fsn_size), 0x0, "", HFILL}
+			{"FSN Size", "wmx.sfe.fsn_size", FT_UINT8, BASE_DEC, VALS(vals_fsn_size), 0x0, NULL, HFILL}
 		},
 		{	/* 39 CID allocation for Active BSs */
 			&hf_sfe_cid_alloc_for_active_bs,
-			{"CID Allocation For Active BSs", "wmx.sfe.cid_alloc_for_active_bs", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CID Allocation For Active BSs", "wmx.sfe.cid_alloc_for_active_bs", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 39.1 */
 			&hf_sfe_cid_alloc_for_active_bs_cid,
-			{"CID", "wmx.sfe.cid_alloc_for_active_bs_cid", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"CID", "wmx.sfe.cid_alloc_for_active_bs_cid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 40 Unsolicited Grant Interval */
 			&hf_sfe_unsolicited_grant_interval,
-			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 41 Unsolicited Polling Interval */
 			&hf_sfe_unsolicited_polling_interval,
-			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 42 PDU SN extended subheader for HARQ reordering */
 			&hf_sfe_pdu_sn_ext_subheader_reorder,
-			{"PDU SN Extended Subheader For HARQ Reordering", "wmx.sfe.pdu_sn_ext_subheader_reorder", FT_UINT8, BASE_DEC, VALS(vals_pdu_sn_ext_subheader), 0x0, "", HFILL}
+			{"PDU SN Extended Subheader For HARQ Reordering", "wmx.sfe.pdu_sn_ext_subheader_reorder", FT_UINT8, BASE_DEC, VALS(vals_pdu_sn_ext_subheader), 0x0, NULL, HFILL}
 		},
 		{	/* 43 MBS contents ID */
 			&hf_sfe_mbs_contents_ids,
-			{"MBS contents IDs", "wmx.sfe.mbs_contents_ids", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"MBS contents IDs", "wmx.sfe.mbs_contents_ids", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 43.1 */
 			&hf_sfe_mbs_contents_ids_id,
-			{"MBS Contents ID", "wmx.sfe.mbs_contents_ids_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"MBS Contents ID", "wmx.sfe.mbs_contents_ids_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 44 HARQ Service Flows */
 			&hf_sfe_harq_service_flows,
-			{"HARQ Service Flows", "wmx.sfe.harq_service_flows", FT_UINT8, BASE_DEC, VALS(vals_harq), 0x0, "", HFILL}
+			{"HARQ Service Flows", "wmx.sfe.harq_service_flows", FT_UINT8, BASE_DEC, VALS(vals_harq), 0x0, NULL, HFILL}
 		},
 		{	/* 45 Authorization Token */
 			&hf_sfe_authorization_token,
-			{"Authorization Token", "wmx.sfe.authorization_token", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Authorization Token", "wmx.sfe.authorization_token", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 46 HARQ Channel Mapping */
 			&hf_sfe_harq_channel_mapping,
-			{"HARQ Channel Mapping", "wmx.sfe.harq_channel_mapping", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"HARQ Channel Mapping", "wmx.sfe.harq_channel_mapping", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 			{	/* 46.1 HARQ Channel Index*/
 			&hf_sfe_harq_channel_mapping_index,
-			{"HARQ Channel Index", "wmx.sfe.harq_channel_mapping.index", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"HARQ Channel Index", "wmx.sfe.harq_channel_mapping.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 	/* unknown types */
 		{	/* unknown SFE types */
 			&hf_sfe_unknown_type,
-			{"Unknown SFE TLV type", "wmx.sfe.unknown_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Unknown SFE TLV type", "wmx.sfe.unknown_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		}
 	};
 
@@ -991,47 +991,47 @@ void proto_register_wimax_utility_decoders(void)
 	{	/* 99 - 111 CS parameter encoding rules */
 		{	/* Classifier DSC Action */
 			&hf_cst_classifier_dsc_action,
-			{"Classifier DSC Action", "wmx.cst.classifier_action", FT_UINT8, BASE_DEC, VALS(vals_cst_classifier_action), 0x0, "", HFILL}
+			{"Classifier DSC Action", "wmx.cst.classifier_action", FT_UINT8, BASE_DEC, VALS(vals_cst_classifier_action), 0x0, NULL, HFILL}
 		},
 		{	/* Errored Parameter */
 			&hf_cst_error_set_errored_param,
-			{"Errored Parameter", "wmx.cst.error_set.errored_param", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Errored Parameter", "wmx.cst.error_set.errored_param", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Error Code */
 			&hf_cst_error_set_error_code,
-			{"Error Code", "wmx.cst.error_set.error_code", FT_UINT8, BASE_HEX, VALS(vals_cc), 0x0, "", HFILL}
+			{"Error Code", "wmx.cst.error_set.error_code", FT_UINT8, BASE_HEX, VALS(vals_cc), 0x0, NULL, HFILL}
 		},
 		{	/* Error Message */
 			&hf_cst_error_set_error_msg,
-			{"Error Message", "wmx.cst.error_set.error_msg", FT_STRINGZ, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Error Message", "wmx.cst.error_set.error_msg", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Packet Classification Rule */
 			&hf_cst_pkt_class_rule,
-			{"Packet Classification Rule", "wmx.cst.pkt_class_rule", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Packet Classification Rule", "wmx.cst.pkt_class_rule", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Classification Rule Priority */
 			&hf_cst_pkt_class_rule_priority,
-			{"Classification Rule Priority", "wmx.cst.pkt_class_rule.priority", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Classification Rule Priority", "wmx.cst.pkt_class_rule.priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ToS/Differentiated Services Codepoint (DSCP) Range And Mask */
 			&hf_cst_pkt_class_rule_range_mask,
-			{"ToS/Differentiated Services Codepoint (DSCP) Range And Mask", "wmx.cst.pkt_class_rule.range_mask", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ToS/Differentiated Services Codepoint (DSCP) Range And Mask", "wmx.cst.pkt_class_rule.range_mask", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ToS-Low */
 			&hf_cst_pkt_class_rule_tos_low,
-			{"ToS-Low", "wmx.cst.pkt_class_rule.tos-low", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ToS-Low", "wmx.cst.pkt_class_rule.tos-low", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ToS-High */
 			&hf_cst_pkt_class_rule_tos_high,
-			{"ToS-High", "wmx.cst.pkt_class_rule.tos-high", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ToS-High", "wmx.cst.pkt_class_rule.tos-high", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ToS-Mask */
 			&hf_cst_pkt_class_rule_tos_mask,
-			{"ToS-Mask", "wmx.cst.pkt_class_rule.tos-mask", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ToS-Mask", "wmx.cst.pkt_class_rule.tos-mask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Protocol */
 			&hf_cst_pkt_class_rule_protocol,
-			{"Protocol", "wmx.cst.pkt_class_rule.protocol", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Protocol", "wmx.cst.pkt_class_rule.protocol", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 #if 0 /* Removed by the changes of 802.16E 2005 */
 		{	/* Protocol */
@@ -1045,216 +1045,216 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* IP Masked Source Address */
 			&hf_cst_pkt_class_rule_ip_masked_src_address,
-			{"IP Masked Source Address", "wmx.cst.pkt_class_rule.ip_masked_src_address", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"IP Masked Source Address", "wmx.cst.pkt_class_rule.ip_masked_src_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IP Masked Destination Address */
 			&hf_cst_pkt_class_rule_ip_masked_dest_address,
-			{"IP Masked Destination Address", "wmx.cst.pkt_class_rule.ip_masked_dest_address", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"IP Masked Destination Address", "wmx.cst.pkt_class_rule.ip_masked_dest_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv4 Source Address */
 			&hf_cst_pkt_class_rule_src_ipv4,
-			{"IPv4 Source Address", "wmx.cst.pkt_class_rule.src_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv4 Source Address", "wmx.cst.pkt_class_rule.src_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv4 Destination Address */
 			&hf_cst_pkt_class_rule_dest_ipv4,
-			{"IPv4 Destination Address", "wmx.cst.pkt_class_rule.dst_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv4 Destination Address", "wmx.cst.pkt_class_rule.dst_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv4 Mask */
 			&hf_cst_pkt_class_rule_mask_ipv4,
-			{"IPv4 Mask", "wmx.cst.pkt_class_rule.mask_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv4 Mask", "wmx.cst.pkt_class_rule.mask_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv6 Source Address */
 			&hf_cst_pkt_class_rule_src_ipv6,
-			{"IPv6 Source Address", "wmx.cst.pkt_class_rule.src_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv6 Source Address", "wmx.cst.pkt_class_rule.src_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv6 Destination Address */
 			&hf_cst_pkt_class_rule_dest_ipv6,
-			{"IPv6 Destination Address", "wmx.cst.pkt_class_rule.dst_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv6 Destination Address", "wmx.cst.pkt_class_rule.dst_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv6 Mask */
 			&hf_cst_pkt_class_rule_mask_ipv6,
-			{"IPv6 Mask", "wmx.cst.pkt_class_rule.mask_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"IPv6 Mask", "wmx.cst.pkt_class_rule.mask_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Protocol Source Port Range */
 			&hf_cst_pkt_class_rule_prot_src_port_range,
-			{"Protocol Source Port Range", "wmx.cst.pkt_class_rule.prot_src_port_range", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Protocol Source Port Range", "wmx.cst.pkt_class_rule.prot_src_port_range", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Src-Port Low */
 			&hf_cst_pkt_class_rule_src_port_low,
-			{"Src-Port Low", "wmx.cst.pkt_class_rule.src_port_low", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Src-Port Low", "wmx.cst.pkt_class_rule.src_port_low", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Src-Port High */
 			&hf_cst_pkt_class_rule_src_port_high,
-			{"Src-Port High", "wmx.cst.pkt_class_rule.src_port_high", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Src-Port High", "wmx.cst.pkt_class_rule.src_port_high", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Protocol Destination Port Range */
 			&hf_cst_pkt_class_rule_prot_dest_port_range,
-			{"Protocol Destination Port Range", "wmx.cst.pkt_class_rule.prot_dest_port_range", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Protocol Destination Port Range", "wmx.cst.pkt_class_rule.prot_dest_port_range", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Dst-Port Low */
 			&hf_cst_pkt_class_rule_dest_port_low,
-			{"Dst-Port Low", "wmx.cst.pkt_class_rule.dst_port_low", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Dst-Port Low", "wmx.cst.pkt_class_rule.dst_port_low", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Dst-Port High */
 			&hf_cst_pkt_class_rule_dest_port_high,
-			{"Dst-Port High", "wmx.cst.pkt_class_rule.dst_port_high", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Dst-Port High", "wmx.cst.pkt_class_rule.dst_port_high", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 802.3/Ethernet Destination MAC Address */
 			&hf_cst_pkt_class_rule_dest_mac_address,
-			{"802.3/Ethernet Destination MAC Address", "wmx.cst.pkt_class_rule.dest_mac_address", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"802.3/Ethernet Destination MAC Address", "wmx.cst.pkt_class_rule.dest_mac_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Destination MAC Address */
 			&hf_cst_pkt_class_rule_dest_mac,
-			{"Destination MAC Address", "wmx.cst.pkt_class_rule.dst_mac", FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Destination MAC Address", "wmx.cst.pkt_class_rule.dst_mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 802.3/Ethernet Source MAC Address */
 			&hf_cst_pkt_class_rule_src_mac_address,
-			{"802.3/Ethernet Source MAC Address", "wmx.cst.pkt_class_rule.src_mac_address", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"802.3/Ethernet Source MAC Address", "wmx.cst.pkt_class_rule.src_mac_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Source MAC Address */
 			&hf_cst_pkt_class_rule_src_mac,
-			{"Source MAC Address", "wmx.cst.pkt_class_rule.src_mac", FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Source MAC Address", "wmx.cst.pkt_class_rule.src_mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* MAC Address Mask */
 			&hf_cst_pkt_class_rule_mask_mac,
-			{"MAC Address Mask", "wmx.cst.pkt_class_rule.mask_mac", FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"MAC Address Mask", "wmx.cst.pkt_class_rule.mask_mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Ethertype/IEEE Std 802.2-1998 SAP */
 			&hf_cst_pkt_class_rule_ethertype,
-			{"Ethertype/IEEE Std 802.2-1998 SAP", "wmx.cst.pkt_class_rule.ethertype", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Ethertype/IEEE Std 802.2-1998 SAP", "wmx.cst.pkt_class_rule.ethertype", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Ethertype */
 			&hf_cst_pkt_class_rule_etype,
-			{"Ethertype", "wmx.cst.pkt_class_rule.ethertype", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Ethertype", "wmx.cst.pkt_class_rule.ethertype", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Eprot1 */
 			&hf_cst_pkt_class_rule_eprot1,
-			{"Eprot1", "wmx.cst.pkt_class_rule.eprot1", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Eprot1", "wmx.cst.pkt_class_rule.eprot1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Eprot2 */
 			&hf_cst_pkt_class_rule_eprot2,
-			{"Eprot2", "wmx.cst.pkt_class_rule.eprot2", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Eprot2", "wmx.cst.pkt_class_rule.eprot2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IEEE Std 802.1D-1998 User_Priority */
 			&hf_cst_pkt_class_rule_user_priority,
-			{"IEEE Std 802.1D-1998 User_Priority", "wmx.cst.pkt_class_rule.user_priority", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"IEEE Std 802.1D-1998 User_Priority", "wmx.cst.pkt_class_rule.user_priority", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cst_pkt_class_rule_pri_low,
-			{"Pri-Low", "wmx.cst.pkt_class_rule.pri-low", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Pri-Low", "wmx.cst.pkt_class_rule.pri-low", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cst_pkt_class_rule_pri_high,
-			{"Pri-High", "wmx.cst.pkt_class_rule.pri-high", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Pri-High", "wmx.cst.pkt_class_rule.pri-high", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IEEE Std 802.1Q-1998 VLAN_ID */
 			&hf_cst_pkt_class_rule_vlan_id,
-			{"IEEE Std 802.1Q-1998 VLAN_ID", "wmx.cst.pkt_class_rule.vlan_id", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"IEEE Std 802.1Q-1998 VLAN_ID", "wmx.cst.pkt_class_rule.vlan_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Vlan_Id1 */
 			&hf_cst_pkt_class_rule_vlan_id1,
-			{"Vlan_Id1", "wmx.cst.pkt_class_rule.vlan_id1", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Vlan_Id1", "wmx.cst.pkt_class_rule.vlan_id1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Vlan_Id2 */
 			&hf_cst_pkt_class_rule_vlan_id2,
-			{"Vlan_Id2", "wmx.cst.pkt_class_rule.vlan_id2", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Vlan_Id2", "wmx.cst.pkt_class_rule.vlan_id2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Associated PHSI */
 			&hf_cst_pkt_class_rule_phsi,
-			{"Associated PHSI", "wmx.cst.pkt_class_rule.phsi", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Associated PHSI", "wmx.cst.pkt_class_rule.phsi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Packet Classifier Rule Index */
 			&hf_cst_pkt_class_rule_index,
-			{"Packet Classifier Rule Index (PCRI)", "wmx.cst.pkt_class_rule.index", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Packet Classifier Rule Index (PCRI)", "wmx.cst.pkt_class_rule.index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Large Context ID for ROHC/ECRTP Compressed Packet or ROHC Feedback Packet */
 			&hf_cst_large_context_id,
-			{"Large Context ID", "wmx.cst.large_context_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Large Context ID", "wmx.cst.large_context_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Short-Format Context ID for ROHC/ECRTP Compressed Packet or ROHC Feedback Packet */
 			&hf_cst_short_format_context_id,
-			{"Short-Format Context ID", "wmx.cst.short_format_context_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Short-Format Context ID", "wmx.cst.short_format_context_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Vendor-Specific Classifier Parameters */
 			&hf_cst_pkt_class_rule_vendor_spec,
-			{"Vendor-Specific Classifier Parameters", "wmx.cst.pkt_class_rule.vendor_spec", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Vendor-Specific Classifier Parameters", "wmx.cst.pkt_class_rule.vendor_spec", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* Classifier Action Rule */
 			&hf_cst_pkt_class_rule_classifier_action_rule,
-			{"Classifier Action Rule", "wmx.cst.pkt_class_rule.classifier.action.rule", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Classifier Action Rule", "wmx.cst.pkt_class_rule.classifier.action.rule", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cst_pkt_class_rule_classifier_action_rule_bit0,
-			{"Bit #0", "wmx.cst.pkt_class_rule.classifier.action.rule.bit0", FT_UINT8, BASE_HEX, VALS(vals_classification_action_rule), CST_PKT_CLASS_RULE_CLASSIFIER_ACTION_RULE_BIT0, "", HFILL}
+			{"Bit #0", "wmx.cst.pkt_class_rule.classifier.action.rule.bit0", FT_UINT8, BASE_HEX, VALS(vals_classification_action_rule), CST_PKT_CLASS_RULE_CLASSIFIER_ACTION_RULE_BIT0, NULL, HFILL}
 		},
 		{
 			&hf_cst_pkt_class_rule_classifier_action_rule_bit1,
-			{"Reserved", "wmx.cst.pkt_class_rule.classifier.action.rule.reserved", FT_UINT8, BASE_HEX, NULL, CST_PKT_CLASS_RULE_CLASSIFIER_ACTION_RULE_RSV, "", HFILL}
+			{"Reserved", "wmx.cst.pkt_class_rule.classifier.action.rule.reserved", FT_UINT8, BASE_HEX, NULL, CST_PKT_CLASS_RULE_CLASSIFIER_ACTION_RULE_RSV, NULL, HFILL}
 		},
 		{	/* PHS DSC action */
 			&hf_cst_phs_dsc_action,
-			{"PHS DSC action", "wmx.cst.phs_dsc_action", FT_UINT8, BASE_DEC, VALS(vals_cst_phs_dsc_action), 0x0, "", HFILL}
+			{"PHS DSC action", "wmx.cst.phs_dsc_action", FT_UINT8, BASE_DEC, VALS(vals_cst_phs_dsc_action), 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule */
 			&hf_cst_phs_rule,
-			{"PHS Rule", "wmx.cst.phs_rule", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"PHS Rule", "wmx.cst.phs_rule", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 1 */
 			&hf_cst_phs_phsi,
-			{"PHSI", "wmx.cst.phs_rule.phsi", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"PHSI", "wmx.cst.phs_rule.phsi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 2 */
 			&hf_cst_phs_phsf,
-			{"PHSF", "wmx.cst.phs_rule.phsf", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"PHSF", "wmx.cst.phs_rule.phsf", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 3 */
 			&hf_cst_phs_phsm,
-			{"PHSM (bit x: 0-don't suppress the (x+1) byte; 1-suppress the (x+1) byte)", "wmx.cst.phs_rule.phsm", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"PHSM (bit x: 0-don't suppress the (x+1) byte; 1-suppress the (x+1) byte)", "wmx.cst.phs_rule.phsm", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 4 */
 			&hf_cst_phs_phss,
-			{"PHSS", "wmx.cst.phs_rule.phss", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"PHSS", "wmx.cst.phs_rule.phss", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 5 */
 			&hf_cst_phs_phsv,
-			{"PHSV", "wmx.cst.phs_rule.phsv", FT_UINT8, BASE_DEC, VALS(vals_verify), 0x0, "", HFILL}
+			{"PHSV", "wmx.cst.phs_rule.phsv", FT_UINT8, BASE_DEC, VALS(vals_verify), 0x0, NULL, HFILL}
 		},
 		{	/* PHS Rule 143 */
 			&hf_cst_phs_vendor_spec,
-			{"Vendor-Specific PHS Parameters", "wmx.cst.phs.vendor_spec", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Vendor-Specific PHS Parameters", "wmx.cst.phs.vendor_spec", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* IPv6 Flow Label */
 			&hf_cst_pkt_class_rule_ipv6_flow_label,
-			{"IPv6 Flow Label", "wmx.cst.pkt_class_rule.ipv6_flow_label", FT_UINT24, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"IPv6 Flow Label", "wmx.cst.pkt_class_rule.ipv6_flow_label", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ATM Switching Encoding */
 			&hf_csper_atm_switching_encoding,
-			{"ATM Switching Encoding", "wmx.csper.atm_switching_encoding", FT_UINT8, BASE_DEC, VALS(vals_atm_switching_encodings), 0x0, "", HFILL}
+			{"ATM Switching Encoding", "wmx.csper.atm_switching_encoding", FT_UINT8, BASE_DEC, VALS(vals_atm_switching_encodings), 0x0, NULL, HFILL}
 		},
 		{	/* ATM Classifier TLV */
 			&hf_csper_atm_classifier,
-			{"ATM Classifier TLV", "wmx.csper.atm_classifier", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"ATM Classifier TLV", "wmx.csper.atm_classifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ATM VPI Classifier */
 			&hf_csper_atm_classifier_vpi,
-			{"VPI Classifier", "wmx.csper.atm_classifier_vpi", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"VPI Classifier", "wmx.csper.atm_classifier_vpi", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ATM VCI Classifier */
 			&hf_csper_atm_classifier_vci,
-			{"VCI Classifier", "wmx.csper.atm_classifier_vci", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"VCI Classifier", "wmx.csper.atm_classifier_vci", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* ATM Classifier ID */
 			&hf_csper_atm_classifier_id,
-			{"Classifier ID", "wmx.csper.atm_classifier_tlv", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Classifier ID", "wmx.csper.atm_classifier_tlv", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 	/* unknown types */
 		{	/* unknown CSPER types */
 			&hf_csper_unknown_type,
-			{"Unknown CSPER TLV type", "wmx.csper.unknown_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Unknown CSPER TLV type", "wmx.csper.unknown_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cst_invalid_tlv,
-			{"Invalid TLV", "wmx.cst.invalid_tlv", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Invalid TLV", "wmx.cst.invalid_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		}
 	};
 
@@ -1263,27 +1263,27 @@ void proto_register_wimax_utility_decoders(void)
 	{
 		{
 			&hf_xmac_tuple_rsvd,
-			{"Reserved", "wmx.xmac_tuple.reserved", FT_UINT8, BASE_HEX, NULL, XMAC_TUPLE_RESERVED, "", HFILL}
+			{"Reserved", "wmx.xmac_tuple.reserved", FT_UINT8, BASE_HEX, NULL, XMAC_TUPLE_RESERVED, NULL, HFILL}
 		},
 		{
 			&hf_xmac_tuple_key_seq_num,
-			{"Key Sequence Number", "wmx.xmac_tuple.key_sn", FT_UINT8, BASE_DEC, NULL, XMAC_TUPLE_KEY_SEQ_NUM, "", HFILL}
+			{"Key Sequence Number", "wmx.xmac_tuple.key_sn", FT_UINT8, BASE_DEC, NULL, XMAC_TUPLE_KEY_SEQ_NUM, NULL, HFILL}
 		},
 		{
 			&hf_hmac_tuple_hmac_digest,
-			{"HMAC Digest", "wmx.xmac_tuple.hmac_digest", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"HMAC Digest", "wmx.xmac_tuple.hmac_digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cmac_tuple_bsid,
-			{"BSID", "wmx.cmac_tuple.bsid", FT_ETHER, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"BSID", "wmx.cmac_tuple.bsid", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cmac_tuple_cmac_value,
-			{"CMAC Value", "wmx.cmac_tuple.cmac.value", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CMAC Value", "wmx.cmac_tuple.cmac.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_packet_number_counter,
-			{"Packet Number Counter", "wmx.xmac_tuple.packet_number_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Packet Number Counter", "wmx.xmac_tuple.packet_number_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		}
 	};
 
@@ -1291,111 +1291,111 @@ void proto_register_wimax_utility_decoders(void)
 	{
 		{	/* 11.8.4.1 */
 			&hf_snp_pkm_version_support,
-			{"PKM Version Support", "wmx.security_negotiation_parameters.pkm_version_support",FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"PKM Version Support", "wmx.security_negotiation_parameters.pkm_version_support",FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_snp_pkm_version_support_bit0,
-			{"PKM version 1", "wmx.security_negotiation_parameters.pkm_version_support.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_PKM_VERSION_SUPPORT_BIT0, "", HFILL}
+			{"PKM version 1", "wmx.security_negotiation_parameters.pkm_version_support.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_PKM_VERSION_SUPPORT_BIT0, NULL, HFILL}
 		},
 		{
 			&hf_snp_pkm_version_support_bit1,
-			{"PKM version 2", "wmx.security_negotiation_parameters.pkm_version_support.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_PKM_VERSION_SUPPORT_BIT1, "", HFILL}
+			{"PKM version 2", "wmx.security_negotiation_parameters.pkm_version_support.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_PKM_VERSION_SUPPORT_BIT1, NULL, HFILL}
 		},
 		{
 			&hf_snp_pkm_version_support_reserved,
-			{"Reserved", "wmx.security_negotiation_parameters.pkm_version_support.reserved",FT_UINT8, BASE_HEX, NULL, SNP_PKM_VERSION_SUPPORT_RSV, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.pkm_version_support.reserved",FT_UINT8, BASE_HEX, NULL, SNP_PKM_VERSION_SUPPORT_RSV, NULL, HFILL}
 		},
 		{	/* 11.8.4.2 */
 			&hf_snp_auth_policy_support,
-			{"Authorization Policy Support", "wmx.security_negotiation_parameters.auth_policy_support",FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Authorization Policy Support", "wmx.security_negotiation_parameters.auth_policy_support",FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit0,
-			{"RSA-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT0, "", HFILL}
+			{"RSA-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT0, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit1,
-			{"EAP-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT1, "", HFILL}
+			{"EAP-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT1, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit2,
-			{"Authenticated EAP-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit2",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT2, "", HFILL}
+			{"Authenticated EAP-based Authorization At The Initial Network Entry", "wmx.security_negotiation_parameters.auth_policy_support.bit2",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT2, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit3,
-			{"Reserved", "wmx.security_negotiation_parameters.auth_policy_support.bit3",FT_UINT8, BASE_HEX, NULL, SNP_AUTH_POLICY_SUPPORT_BIT3, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.auth_policy_support.bit3",FT_UINT8, BASE_HEX, NULL, SNP_AUTH_POLICY_SUPPORT_BIT3, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit4,
-			{"RSA-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit4",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT4, "", HFILL}
+			{"RSA-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit4",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT4, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit5,
-			{"EAP-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit5",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT5, "", HFILL}
+			{"EAP-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit5",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT5, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit6,
-			{"Authenticated EAP-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit6",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT6, "", HFILL}
+			{"Authenticated EAP-based Authorization At Re-entry", "wmx.security_negotiation_parameters.auth_policy_support.bit6",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_AUTH_POLICY_SUPPORT_BIT6, NULL, HFILL}
 		},
 		{
 			&hf_snp_auth_policy_support_bit7,
-			{"Reserved", "wmx.security_negotiation_parameters.auth_policy_support.bit7",FT_UINT8, BASE_HEX, NULL, SNP_AUTH_POLICY_SUPPORT_BIT7, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.auth_policy_support.bit7",FT_UINT8, BASE_HEX, NULL, SNP_AUTH_POLICY_SUPPORT_BIT7, NULL, HFILL}
 		},
 		{	/* 11.8.4.3 */
 			&hf_snp_mac_mode,
-			{"MAC (Message Authentication Code) Mode", "wmx.security_negotiation_parameters.mac_mode",FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"MAC (Message Authentication Code) Mode", "wmx.security_negotiation_parameters.mac_mode",FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit0,
-			{"HMAC", "wmx.security_negotiation_parameters.mac_mode.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT0, "", HFILL}
+			{"HMAC", "wmx.security_negotiation_parameters.mac_mode.bit0",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT0, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit1,
-			{"CMAC", "wmx.security_negotiation_parameters.mac_mode.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT1, "", HFILL}
+			{"CMAC", "wmx.security_negotiation_parameters.mac_mode.bit1",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT1, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit1_rsvd,
-			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.bit1_rsvd",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT1, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.bit1_rsvd",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT1, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit2,
-			{"64-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit2",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT2, "", HFILL}
+			{"64-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit2",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT2, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit3,
-			{"80-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit3",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT3, "", HFILL}
+			{"80-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit3",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT3, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit4,
-			{"96-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit4",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT4, "", HFILL}
+			{"96-bit Short-HMAC", "wmx.security_negotiation_parameters.mac_mode.bit4",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT4, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_bit5,
-			{"CMAC", "wmx.security_negotiation_parameters.mac_mode.bit5",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT5, "", HFILL}
+			{"CMAC", "wmx.security_negotiation_parameters.mac_mode.bit5",FT_BOOLEAN, 8, TFS(&tfs_supported), SNP_MAC_MODE_BIT5, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_reserved,
-			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.reserved",FT_UINT8, BASE_HEX, NULL, SNP_MAC_MODE_RSV, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.reserved",FT_UINT8, BASE_HEX, NULL, SNP_MAC_MODE_RSV, NULL, HFILL}
 		},
 		{
 			&hf_snp_mac_mode_reserved1,
-			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.reserved",FT_UINT8, BASE_HEX, NULL, SNP_MAC_MODE_RSV1, "", HFILL}
+			{"Reserved", "wmx.security_negotiation_parameters.mac_mode.reserved",FT_UINT8, BASE_HEX, NULL, SNP_MAC_MODE_RSV1, NULL, HFILL}
 		},
 		{	/* 11.8.4.4 */
 			&hf_snp_pn_window_size,
-			{"PN Window Size", "wmx.security_negotiation_parameters.pn_window_size",FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"PN Window Size", "wmx.security_negotiation_parameters.pn_window_size",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.8.4.5 */
 			&hf_snp_max_conc_transactions,
-			{"Maximum concurrent transactions (0 indicates no limit)", "wmx.security_negotiation_parameters.max_conc_transactions",FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Maximum concurrent transactions (0 indicates no limit)", "wmx.security_negotiation_parameters.max_conc_transactions",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.8.4.6 */
 			&hf_snp_max_suppt_sec_assns,
-			{"Maximum number of security associations supported by the SS", "wmx.security_negotiation_parameters.max_suppt_sec_assns",FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Maximum number of security associations supported by the SS", "wmx.security_negotiation_parameters.max_suppt_sec_assns",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_snp_unknown_type,
-			{"Unknown Security Negotiation Parameter type", "wmx.security_negotiation_parameters.unknown.type",FT_BYTES, BASE_HEX, NULL, 0x0,	"", HFILL}
+			{"Unknown Security Negotiation Parameter type", "wmx.security_negotiation_parameters.unknown.type",FT_BYTES, BASE_NONE, NULL, 0x0,	NULL, HFILL}
 		}
 	};
 
@@ -1403,31 +1403,31 @@ void proto_register_wimax_utility_decoders(void)
 	{
 		{	/* 11.9.1 - type 6 */
 			&hf_pkm_msg_attr_display,
-			{"Display String", "wmx.pkm_msg.pkm_attr.display_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}
+			{"Display String", "wmx.pkm_msg.pkm_attr.display_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.2 - type 7 */
 			&hf_pkm_msg_attr_auth_key,
-			{"Auth Key", "wmx.pkm_msg.pkm_attr.auth_key", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Auth Key", "wmx.pkm_msg.pkm_attr.auth_key", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.3 - type 8 */
 			&hf_pkm_msg_attr_tek,
-			{"TEK", "wmx.pkm_msg.pkm_attr.tek", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"TEK", "wmx.pkm_msg.pkm_attr.tek", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.4 - type 9 */
 			&hf_pkm_msg_attr_key_life_time,
-			{"Key Lifetime", "wmx.pkm_msg.pkm_attr.key_life_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Key Lifetime", "wmx.pkm_msg.pkm_attr.key_life_time", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.5 - type 10 */
 			&hf_pkm_msg_attr_key_seq_num,
-			{"Key Sequence Number", "wmx.pkm_msg.pkm_attr.key_seq_num", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Key Sequence Number", "wmx.pkm_msg.pkm_attr.key_seq_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.6 - type 11 */
 			&hf_pkm_msg_attr_hmac_digest,
-			{"HMAC-Digest", "wmx.pkm_msg.pkm_attr.hmac_digest", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"HMAC-Digest", "wmx.pkm_msg.pkm_attr.hmac_digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.7 - type 12 */
 			&hf_pkm_msg_attr_said,
-			{"SAID", "wmx.pkm_msg.pkm_attr.said", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SAID", "wmx.pkm_msg.pkm_attr.said", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 #if 0	/* not been used */
 		{	/* 11.9.8 - type 13 */
@@ -1437,19 +1437,19 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11.9.9 - type 15 */
 			&hf_pkm_msg_attr_cbc_iv,
-			{"CBC IV", "wmx.pkm_msg.pkm_attr.cbc_iv", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CBC IV", "wmx.pkm_msg.pkm_attr.cbc_iv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.10 - type 16 */
 			&hf_pkm_msg_attr_error_code,
-			{"Error Code", "wmx.pkm_msg.pkm_attr.error_code", FT_UINT8, BASE_DEC, VALS(vals_pkm_attr_error_codes), 0x0, "", HFILL}
+			{"Error Code", "wmx.pkm_msg.pkm_attr.error_code", FT_UINT8, BASE_DEC, VALS(vals_pkm_attr_error_codes), 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.11 - type 17 */
 			&hf_pkm_msg_attr_ca_certificate,
-			{"CA Certificate", "wmx.pkm_msg.pkm_attr.ca_certificate", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CA Certificate", "wmx.pkm_msg.pkm_attr.ca_certificate", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.12 - type 18 */
 			&hf_pkm_msg_attr_ss_certificate,
-			{"SS Certificate", "wmx.pkm_msg.pkm_attr.ss_certificate", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SS Certificate", "wmx.pkm_msg.pkm_attr.ss_certificate", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 #if 0	/* not been used */
 		{	/* 11.9.13 - type 19 */
@@ -1459,19 +1459,19 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11.9.14 - type 20 */
 			&hf_pkm_msg_crypto_suite,
-			{"Cryptography", "wmx.pkm_msg.pkm_attr.crypto_suite", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Cryptography", "wmx.pkm_msg.pkm_attr.crypto_suite", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_msg_crypto_suite_msb,
-			{"Data Encryption Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.msb", FT_UINT8, BASE_DEC, VALS(vals_data_encryption_ids), 0x0, "", HFILL}
+			{"Data Encryption Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.msb", FT_UINT8, BASE_DEC, VALS(vals_data_encryption_ids), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_msg_crypto_suite_middle,
-			{"Data Authentication Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.middle", FT_UINT8, BASE_DEC, VALS(vals_data_authentication_ids), 0x0, "", HFILL}
+			{"Data Authentication Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.middle", FT_UINT8, BASE_DEC, VALS(vals_data_authentication_ids), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_msg_crypto_suite_lsb,
-			{"TEK Encryption Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.lsb", FT_UINT8, BASE_DEC, VALS(vals_tek_encryption_ids), 0x0, "", HFILL}
+			{"TEK Encryption Algorithm Identifiers", "wmx.pkm_msg.pkm_attr.crypto_suite.lsb", FT_UINT8, BASE_DEC, VALS(vals_tek_encryption_ids), 0x0, NULL, HFILL}
 		},
 #if 0	/* not been used */
 		{	/* 11.9.15 - type 21 */
@@ -1493,7 +1493,7 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11.9.18 - type 24 */
 			&hf_pkm_sa_type,
-			{"SA Type", "wmx.pkm_msg.pkm_attr.sa_type", FT_UINT8, BASE_DEC, VALS(vs_sa_type), 0x0, "", HFILL}
+			{"SA Type", "wmx.pkm_msg.pkm_attr.sa_type", FT_UINT8, BASE_DEC, VALS(vs_sa_type), 0x0, NULL, HFILL}
 		},
 #if 0	/* not been used */
 		{	/* 11.9.?? - type 25 */
@@ -1509,109 +1509,109 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11.9.19.1 */
 			&hf_pkm_config_settings_authorize_waitout,
-			{"Authorize Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.authorize_waitout", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Authorize Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.authorize_waitout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.2 */
 			&hf_pkm_config_settings_reauthorize_waitout,
-			{"Reauthorize Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.reauthorize_waitout", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Reauthorize Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.reauthorize_waitout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.3 */
 			&hf_pkm_config_settings_grace_time,
-			{"Authorization Grace Time (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.grace_time", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Authorization Grace Time (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.grace_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.4 */
 			&hf_pkm_config_settings_operational_waittime,
-			{"Operational Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.operational_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Operational Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.operational_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.5 */
 			&hf_pkm_config_settings_rekey_wait_timeout,
-			{"Rekey Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.rekey_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Rekey Wait Timeout (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.rekey_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.6 */
 			&hf_pkm_config_settings_tek_grace_time,
-			{"TEK Grace Time (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.tek_grace_time", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"TEK Grace Time (in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.tek_grace_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.19.7 */
 			&hf_pkm_config_settings_authorize_reject_wait_timeout,
-			{"Authorize Reject Wait Timeout(in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.authorize_reject_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Authorize Reject Wait Timeout(in seconds)", "wmx.pkm_msg.pkm_attr.config_settings.authorize_reject_wait_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.20 - type 29 */
 			&hf_pkm_attr_nonce,
-			{"Nonce", "wmx.pkm_msg.pkm_attr.nonce", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Nonce", "wmx.pkm_msg.pkm_attr.nonce", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.21 - type 33 */
 			&hf_pkm_attr_ss_random,
-			{"SS_RANDOM", "wmx.pkm_msg.pkm_attr.ss_random", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SS_RANDOM", "wmx.pkm_msg.pkm_attr.ss_random", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.22 - type 34 */
 			&hf_pkm_attr_bs_random,
-			{"BS_RANDOM", "wmx.pkm_msg.pkm_attr.bs_random", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"BS_RANDOM", "wmx.pkm_msg.pkm_attr.bs_random", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.23 - type 35 */
 			&hf_pkm_attr_pre_pak,
-			{"Pre-PAK", "wmx.pkm_msg.pkm_attr.pre_pak", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Pre-PAK", "wmx.pkm_msg.pkm_attr.pre_pak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 #if 1	/* no definition */
 		{	/* 11.9.?? - type 36 */
 			&hf_pkm_attr_pak_ak_seq_number,
-			{"PAK/AK Sequence Number", "wmx.pkm_msg.pkm_attr.pak_ak_seq_number", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"PAK/AK Sequence Number", "wmx.pkm_msg.pkm_attr.pak_ak_seq_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 #endif
 		{	/* 11.9.24 - type 37 */
 			&hf_pkm_attr_bs_certificate,
-			{"BS Certificate", "wmx.pkm_msg.pkm_attr.bs_certificate", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"BS Certificate", "wmx.pkm_msg.pkm_attr.bs_certificate", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.25 - type 38 */
 			&hf_pkm_attr_sig_bs,
-			{"SigBS", "wmx.pkm_msg.pkm_attr.sig_bs",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SigBS", "wmx.pkm_msg.pkm_attr.sig_bs",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.26 - type 39 */
 			&hf_pkm_attr_ms_mac_address,
-			{"MS-MAC Address", "wmx.pkm_msg.pkm_attr.ms_mac_address",FT_ETHER, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"MS-MAC Address", "wmx.pkm_msg.pkm_attr.ms_mac_address",FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.27 - type 40 */
 			&hf_pkm_attr_cmac_digest,
-			{"CMAC Digest", "wmx.pkm_msg.pkm_attr.cmac_digest",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CMAC Digest", "wmx.pkm_msg.pkm_attr.cmac_digest",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_attr_cmac_digest_pn,
-			{"CMAC Packet Number counter, CMAC_PN_*", "wmx.pkm_msg.pkm_attr.cmac_digest.pn",FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CMAC Packet Number counter, CMAC_PN_*", "wmx.pkm_msg.pkm_attr.cmac_digest.pn",FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_attr_cmac_digest_value,
-			{"CMAC Value", "wmx.pkm_msg.pkm_attr.cmac_digest.value",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"CMAC Value", "wmx.pkm_msg.pkm_attr.cmac_digest.value",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.28 - type 41 */
 			&hf_pkm_attr_push_modes,
-			{"Key Push Modes", "wmx.pkm_msg.pkm_attr.key_push_modes",FT_UINT8, BASE_DEC, VALS(va_key_push_modes), 0x0, "", HFILL}
+			{"Key Push Modes", "wmx.pkm_msg.pkm_attr.key_push_modes",FT_UINT8, BASE_DEC, VALS(va_key_push_modes), 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.29 - type 42 */
 			&hf_pkm_attr_key_push_counter,
-			{"Key Push Counter", "wmx.pkm_msg.pkm_attr.key_push_counter",FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Key Push Counter", "wmx.pkm_msg.pkm_attr.key_push_counter",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.30 - type 43 */
 			&hf_pkm_attr_gkek,
-			{"GKEK", "wmx.pkm_msg.pkm_attr.gkek",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"GKEK", "wmx.pkm_msg.pkm_attr.gkek",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.31 - type 44 */
 			&hf_pkm_attr_sig_ss,
-			{"SigSS", "wmx.pkm_msg.pkm_attr.sig_ss",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"SigSS", "wmx.pkm_msg.pkm_attr.sig_ss",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.32 - type 45 */
 			&hf_pkm_attr_akid,
-			{"AKID", "wmx.pkm_msg.pkm_attr.akid",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"AKID", "wmx.pkm_msg.pkm_attr.akid",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.33 - type 28 */
 			&hf_pkm_attr_eap_payload,
-			{"EAP Payload", "wmx.pkm_msg.pkm_attr.eap_payload", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"EAP Payload", "wmx.pkm_msg.pkm_attr.eap_payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.34 - type 30 */
 			&hf_pkm_attr_auth_result_code,
-			{"Auth Result Code", "wmx.pkm_msg.pkm_attr.auth_result_code", FT_UINT8, BASE_DEC, VALS(vs_success_reject), 0x0, "", HFILL}
+			{"Auth Result Code", "wmx.pkm_msg.pkm_attr.auth_result_code", FT_UINT8, BASE_DEC, VALS(vs_success_reject), 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.35 - type 31 */
 			&hf_pkm_attr_sa_service_type,
-			{"SA Service Type", "wmx.pkm_msg.pkm_attr.sa_service_type", FT_UINT8, BASE_DEC, VALS(vs_sa_service_type), 0x0, "", HFILL}
+			{"SA Service Type", "wmx.pkm_msg.pkm_attr.sa_service_type", FT_UINT8, BASE_DEC, VALS(vs_sa_service_type), 0x0, NULL, HFILL}
 		},
 #if 0	/* same as 11.9.19 */
 		{	/* 11.9.36 - type 27 */
@@ -1621,21 +1621,21 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 		{	/* 11.9.37 - type 32 */
 			&hf_pkm_attr_frame_number,
-			{"Frame Number", "wmx.pkm_msg.pkm_attr.frame_number", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Frame Number", "wmx.pkm_msg.pkm_attr.frame_number", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 #if 1	/* no definitions */
 		{	/* 11.9.?? - type 46 */
 			&hf_pkm_attr_associated_gkek_seq_number,
-			{"Associated GKEK Sequence Number", "wmx.pkm_msg.pkm_attr.associated_gkek_seq_number",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Associated GKEK Sequence Number", "wmx.pkm_msg.pkm_attr.associated_gkek_seq_number",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.?? - type 47 */
 			&hf_pkm_attr_gkek_params,
-			{"GKEK Parameters", "wmx.pkm_msg.pkm_attr.gkek_params",FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"GKEK Parameters", "wmx.pkm_msg.pkm_attr.gkek_params",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 #endif
 		{
 			&hf_pkm_msg_unknown_type,
-			{"Unknown Type", "wmx.pkm.unknown.type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Unknown Type", "wmx.pkm.unknown.type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		}
 	};
 
@@ -1644,35 +1644,35 @@ void proto_register_wimax_utility_decoders(void)
 	{
 		{
 			&hf_common_tlv_mac_version,
-			{ "MAC Version", "wmx.common_tlv.mac_version", FT_UINT8, BASE_DEC, VALS(vals_dcd_mac_version), 0x0, "", HFILL}
+			{ "MAC Version", "wmx.common_tlv.mac_version", FT_UINT8, BASE_DEC, VALS(vals_dcd_mac_version), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_common_tlv_vendor_id,
-			{ "Vendor ID Encoding", "wmx.common_tlv.vendor_id_encoding", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{ "Vendor ID Encoding", "wmx.common_tlv.vendor_id_encoding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_common_tlv_vendor_specific_type,
-			{ "Vendor Specific Type", "wmx.common_tlv.vendor_specific_type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{ "Vendor Specific Type", "wmx.common_tlv.vendor_specific_type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_common_tlv_vendor_specific_length_size,
 			{
 				"Vendor Specific Length Size", "wmx.common_tlv.vendor_specific_length_size",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
 			&hf_common_tlv_vendor_specific_length,
-			{ "Vendor Specific Length", "wmx.common_tlv.vendor_specific_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{ "Vendor Specific Length", "wmx.common_tlv.vendor_specific_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_common_tlv_vendor_specific_value,
-			{ "Vendor Specific Value", "wmx.common_tlv.vendor_specific_value", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{ "Vendor Specific Value", "wmx.common_tlv.vendor_specific_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_common_tlv_unknown_type,
-			{"Unknown Common TLV Type", "wmx.common_tlv.unknown_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Unknown Common TLV Type", "wmx.common_tlv.unknown_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		}
 	};
 

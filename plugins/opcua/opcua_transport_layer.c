@@ -65,61 +65,61 @@ void registerTransportLayerTypes(int proto)
     {
         { &hf_opcua_transport_type,
         /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
-        {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+        {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     NULL,    HFILL }
         },
         { &hf_opcua_transport_chunk,
-        {  "Chunk Type",          "transport.chunk",    FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+        {  "Chunk Type",          "transport.chunk",    FT_STRING, BASE_NONE, NULL,    0x0,     NULL,    HFILL }
         },
         { &hf_opcua_transport_size,
-        {  "Message Size",        "transport.size",     FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "Message Size",        "transport.size",     FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_ver,
-        {  "Version",             "transport.ver",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "Version",             "transport.ver",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_scid,
-        {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    "",    HFILL }
+        {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_lifetime,
-        {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_rbs,
-        {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_sbs,
-        {  "SendBufferSize",      "transport.sbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "SendBufferSize",      "transport.sbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_mms,
-        {  "MaxMessageSize",      "transport.mms",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "MaxMessageSize",      "transport.mms",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_mcc,
-        {  "MaxChunkCount",       "transport.mcc",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "MaxChunkCount",       "transport.mcc",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_endpoint,
-        {  "EndPointUrl",         "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
+        {  "EndPointUrl",         "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_error,
-        {  "Error",               "transport.error",    FT_UINT32, BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        {  "Error",               "transport.error",    FT_UINT32, BASE_HEX,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_reason,
-        {  "Reason",              "transport.reason",   FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "Reason",              "transport.reason",   FT_STRING, BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
     /*    { &hf_opcua_transport_spul,
         {  "SecurityPolicyUriLength", "transport.spul", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
         },*/
         { &hf_opcua_transport_spu,
-        {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_scert,
-        {  "SenderCertificate",   "security.scert",    FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        {  "SenderCertificate",   "security.scert",    FT_BYTES,  BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_rcthumb,
-        {  "ReceiverCertificateThumbprint", "security.rcthumb", FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        {  "ReceiverCertificateThumbprint", "security.rcthumb", FT_BYTES,  BASE_NONE,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_seq,
-        {  "SequenceNumber", "security.seq",           FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "SequenceNumber", "security.seq",           FT_UINT32,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
         { &hf_opcua_transport_rqid,
-        {  "RequestId", "security.rqid",                FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        {  "RequestId", "security.rqid",                FT_UINT32,  BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
     };
 

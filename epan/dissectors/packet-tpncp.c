@@ -460,7 +460,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -472,7 +472,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -484,7 +484,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -496,7 +496,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -508,7 +508,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -520,7 +520,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 VALS(tpncp_commands_id_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -532,7 +532,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 VALS(tpncp_commands_id_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -544,7 +544,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 VALS(tpncp_events_id_vals),
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -556,7 +556,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 BASE_DEC,
                 NULL,
                 0x0,
-                "", HFILL
+                NULL, HFILL
             }
         }
     };

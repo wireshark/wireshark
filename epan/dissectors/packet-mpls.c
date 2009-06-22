@@ -699,53 +699,53 @@ proto_register_mpls(void)
 		/* MPLS header fields */
 		{&mpls_filter[MPLSF_LABEL],
 		 {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{&mpls_filter[MPLSF_EXP],
 		 {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{&mpls_filter[MPLSF_BOTTOM_OF_STACK],
 		 {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		{&mpls_filter[MPLSF_TTL],
 		 {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "", HFILL }},
+		  NULL, HFILL }},
 
 		/* 1st nibble */
 		 {&hf_mpls_1st_nibble,
 		 {"MPLS 1st nibble", "mpls.1st_nibble", FT_UINT8, 
-		   BASE_DEC, NULL, 0x0, "MPLS 1st nibble", HFILL }},
+		   BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		/* PW Associated Channel Header fields */
 		{&hf_mpls_pw_ach_ver,
 		 {"PW Associated Channel Version", "pwach.ver", FT_UINT8, BASE_DEC, 
-		  NULL, 0x0, "PW Associated Channel Version", HFILL }},
+		  NULL, 0x0, NULL, HFILL }},
 
 		{&hf_mpls_pw_ach_res,
 		 {"Reserved", "pwach.res", FT_UINT8, BASE_DEC, 
-		  NULL, 0x0, "Reserved", HFILL }},
+		  NULL, 0x0, NULL, HFILL }},
 
 		{&hf_mpls_pw_ach_channel_type,
 		 {"PW Associated Channel Type", "pwach.channel_type", FT_UINT16, BASE_HEX, 
-		  NULL, 0x0, "PW Associated Channel Type", HFILL }},
+		  NULL, 0x0, NULL, HFILL }},
 
 		/* Generic/Preferred PW MPLS Control Word fields */
 		{&hf_mpls_pw_mcw_flags,
 		 {"Generic/Preferred PW MPLS Control Word Flags", "pwmcw.flags", FT_UINT8,
-		  BASE_HEX, NULL, 0x0, "Generic/Preferred PW MPLS Control Word Flags", 
+		  BASE_HEX, NULL, 0x0, NULL, 
 		  HFILL }},
 
 		{&hf_mpls_pw_mcw_length,
 		 {"Generic/Preferred PW MPLS Control Word Length", "pwmcw.length", FT_UINT8,
-		  BASE_DEC, NULL, 0x0, "Generic/Preferred PW MPLS Control Word Length", 
+		  BASE_DEC, NULL, 0x0, NULL, 
 		  HFILL }},
 
 		{&hf_mpls_pw_mcw_sequence_number,
 		 {"Generic/Preferred PW MPLS Control Word Sequence Number",
 		  "pwmcw.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Generic/Preferred PW MPLS Control Word Sequence Number", HFILL }},
+		  NULL, HFILL }},
 
 		/* OAM header fields */
 		{&hf_mpls_oam_function_type,
@@ -754,7 +754,7 @@ proto_register_mpls(void)
 
 		{&hf_mpls_oam_ttsi,
 		 {"Trail Termination Source Identifier", "mpls.oam.ttsi", FT_UINT32, 
-		  BASE_HEX, NULL, 0x0, "Trail Termination Source Identifier", HFILL }},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{&hf_mpls_oam_frequency,
 		 {"Frequency", "mpls.oam.frequency", FT_UINT8, 
@@ -762,7 +762,7 @@ proto_register_mpls(void)
 
 		{&hf_mpls_oam_defect_type,
 		 {"Defect Type", "mpls.oam.defect_type", FT_UINT16, 
-		  BASE_HEX, VALS(oam_defect_type_vals), 0x0, "Defect Type", HFILL }},
+		  BASE_HEX, VALS(oam_defect_type_vals), 0x0, NULL, HFILL }},
 
 		{&hf_mpls_oam_defect_location,
 		 {"Defect Location (AS)", "mpls.oam.defect_location", FT_UINT32, 
@@ -770,7 +770,7 @@ proto_register_mpls(void)
 
 		{&hf_mpls_oam_bip16,
 		 {"BIP16", "mpls.oam.bip16", FT_UINT16, 
-		  BASE_HEX, NULL, 0x0, "BIP16", HFILL }},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

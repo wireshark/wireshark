@@ -107,19 +107,19 @@ void proto_register_mac_mgmt_msg_pkm(void)
 	{
 		{
 			&hf_pkm_msg_code,
-			{"Code", "wmx.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, "", HFILL}
+			{"Code", "wmx.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_msg_pkm_id,
-			{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_req_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_pkm_rsp_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		}
 	};
 

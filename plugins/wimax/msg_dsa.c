@@ -87,35 +87,35 @@ void proto_register_mac_mgmt_msg_dsa(void)
 			&hf_dsa_ack_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_ack",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsa_req_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsa_rsp_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsa_confirmation_code,
 			{
 				"Confirmation code", "wmx.dsa.confirmation_code",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsa_transaction_id,
 			{
 				"Transaction ID", "wmx.dsa.transaction_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

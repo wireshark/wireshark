@@ -77,14 +77,14 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			&hf_prc_lt_ctrl_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_prc_lt_ctrl_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
@@ -92,7 +92,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			{
 				"Setup/Tear-down long-term precoding with feedback",
 				"wimax.prc_lt_ctrl.precoding",
-				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, NULL, HFILL
 			}
 		},
 		{
@@ -100,7 +100,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			{
 				"BS precoding application delay",
 				"wimax.prc_lt_ctrl.precoding_delay",
-				FT_UINT8, BASE_DEC, NULL, 0x60, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x60, NULL, HFILL
 			}
 		}
 	};

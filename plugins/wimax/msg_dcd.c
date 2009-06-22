@@ -351,217 +351,217 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.dcd",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_33_asr,
 			{
 				"ASR (Anchor Switch Report) Slot Length (M) and Switching Period (L)", "wmx.dcd.asr",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_33_asr_l,
 			{
 				"ASR Switching Period (L)", "wmx.dcd.asr.l",
-				FT_UINT8, BASE_DEC, NULL, 0x0f, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_33_asr_m,
 			{
 				"ASR Slot Length (M)", "wmx.dcd.asr.m",
-				FT_UINT8, BASE_DEC, NULL, 0xf0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_bs_eirp,
 			{
 				"BS EIRP", "wmx.dcd.bs_eirp",
-				FT_INT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_bs_id,
 			{
 				"Base Station ID", "wmx.dcd.bs_id",
-				FT_ETHER, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_restart_count,
 			{
 				"BS Restart Count", "wmx.dcd.bs_restart_count",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dl_burst_diuc,
 			{
 				"DIUC", "wmx.dcd.burst.diuc",
-				FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_diuc_entry_threshold,
 			{
 				"DIUC Minimum Entry Threshold (in 0.25 dB units)", "wmx.dcd.burst.diuc_entry_threshold",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_diuc_exit_threshold,
 			{
 				"DIUC Mandatory Exit Threshold (in 0.25 dB units)", "wmx.dcd.burst.diuc_exit_threshold",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_fec,
 			{
 				"FEC Code Type", "wmx.dcd.burst.fec",
-				FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_fec_ofdma), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_fec_ofdma), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_freq,
 			{
 				"Frequency", "wmx.dcd.burst.freq",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dl_burst_reserved,
 			{
 				"Reserved", "wmx.dcd.burst.reserved",
-				FT_UINT8, BASE_HEX, NULL, 0xF0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_tcs,
 			{
 				"TCS", "wmx.dcd.burst.tcs",
-				FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_tcs), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_tcs), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_channel_nr,
 			{
 				"Channel Nr", "wmx.dcd.channel_nr",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_config_change_count,
 			{
 				"Configuration Change Count", "wmx.dcd.config_change_count",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_physical_cinr_measurements,
 			{
 				"Default Averaging Parameter for Physical CINR Measurements (in multiples of 1/16)", "wmx.dcd.default_physical_cinr_meas_averaging_parameter",
-				FT_UINT8, BASE_HEX, NULL, 0xf0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter,
 			{
 				"Default RSSI and CINR Averaging Parameter", "wmx.dcd.default_rssi_and_cinr_averaging_parameter",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_rssi_measurements,
 			{
 				"Default Averaging Parameter for RSSI Measurements (in multiples of 1/16)", "wmx.dcd.default_rssi_meas_averaging_parameter",
-				FT_UINT8, BASE_HEX, NULL, 0x0f, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap,
 			{
 				"DL AMC Allocated Physical Bands Bitmap", "wmx.dcd.dl_amc_allocated_phy_bands_bitmap",
-				FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_dl_burst_profile_diuc,
 			{
 				"DIUC", "wmx.dcd.dl_burst_profile_diuc",
-				FT_UINT8, BASE_DEC, VALS(diuc_msgs), 0x0F, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(diuc_msgs), 0x0F, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_dl_burst_profile_rsv,
 			{
 				"Reserved", "wmx.dcd.dl_burst_profile_rsv",
-				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_downlink_channel_id,
 			{
 				"Reserved", "wmx.dcd.dl_channel_id",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types,
 			{
 				"Downlink Burst Profile for Multiple FEC Types","wimax.dcd.dl_burst_profile_multiple_fec_types",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition,
 			{
 				"DL Region Definition", "wmx.dcd.dl_region_definition",
-				FT_BYTES, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_num_region,
 			{
 				"Number of Regions", "wmx.dcd.dl_region_definition.num_region",
-				FT_UINT8, BASE_DEC, NULL, 0xFC, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0xFC, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_num_subchannels,
 			{
 				"Number of Subchannels", "wmx.dcd.dl_region_definition.num_subchannels",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_num_symbols,
 			{
 				"Number of OFDMA Symbols", "wmx.dcd.dl_region_definition.num_symbols",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_reserved,
 			{
 				"Reserved", "wmx.dcd.dl_region_definition.reserved",
-				FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_subchannel_offset,
 			{
 				"Subchannel Offset", "wmx.dcd.dl_region_definition.subchannel_offset",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_34_dl_region_definition_symbol_offset,
 			{
 				"OFDMA Symbol Offset", "wmx.dcd.dl_region_definition.symbol_offset",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 #ifndef WIMAX_16D_2004
@@ -569,7 +569,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_eirxp,
 			{
 				"EIRXP (IR, max)", "wmx.dcd.eirxp",
-				FT_INT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 #endif
@@ -577,35 +577,35 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_frame_duration,
 			{
 				"Frame Duration", "wmx.dcd.frame_duration",
-				FT_UINT32, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_frame_duration_code,
 			{
 				"Frame Duration Code", "wmx.dcd.frame_duration_code",
-				FT_UINT8, BASE_HEX, VALS(vals_dcd_frame_duration), 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(vals_dcd_frame_duration), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_frame_nr,
 			{
 				"Frame Number", "wmx.dcd.frame_nr",
-				FT_UINT24, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_frequency,
 			{
 				"Downlink Center Frequency", "wmx.dcd.frequency",
-				FT_UINT32, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_31_h_add_threshold,
 			{
 				"H_add Threshold", "wmx.dcd.h_add_threshold",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 #ifdef WIMAX_16D_2004
@@ -621,7 +621,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_h_arq_ack_delay,
 			{
 				"H-ARQ ACK Delay for UL Burst", "wmx.dcd.h_arq_ack_delay_ul_burst",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 #endif
@@ -629,126 +629,126 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_tlv_t_32_h_delete_threshold,
 			{
 				"H_delete Threshold", "wmx.dcd.h_delete_threshold",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_50_ho_type_support,
 			{
 				"HO Type Support", "wmx.dcd.ho_type_support",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_50_ho_type_support_fbss_ho,
 			{
 				"FBSS HO", "wmx.dcd.ho_type_support.fbss_ho",
-				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x20, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x20, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_50_ho_type_support_ho,
 			{
 				"HO", "wmx.dcd.ho_type_support.ho",
-				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x80, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x80, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_50_ho_type_support_mdho,
 			{
 				"MDHO", "wmx.dcd.ho_type_support.mdho",
-				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x40, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(tfs_support), 0x40, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_50_ho_type_support_reserved,
 			{
 				"Reserved", "wmx.dcd.ho_type_support.reserved",
-				FT_UINT8, BASE_HEX, NULL, 0x1f, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_51_hysteresis_margin,
 			{
 				"Hysteresis Margin", "wmx.dcd.hysteresis_margin",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.dcd.invalid_tlv",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_mac_version,
 			{
 				"MAC Version", "wmx.dcd.mac_version",
-				FT_UINT8, BASE_DEC, VALS(vals_dcd_mac_version), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_dcd_mac_version), 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_20_maximum_retransmission,
 			{
 				"Maximum Retransmission", "wmx.dcd.maximum_retransmission",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_60_noise_interference,
 			{
 				"Noise and Interference", "wmx.dcd.noise_interference",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_35_paging_group_id,
 			{
 				"Paging Group ID", "wmx.dcd.paging_group_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap,
 			{
 				"TUSC1 permutation active subchannels bitmap", "wmx.dcd.tusc1",
-				FT_UINT16, BASE_HEX, NULL, 0xFF80, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0xFF80, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap,
 			{
 				"TUSC2 permutation active subchannels bitmap", "wmx.dcd.tusc2",
-				FT_UINT16, BASE_HEX, NULL, 0xFFF8, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0xFFF8, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_45_paging_interval_length,
 			{
 				"Paging Interval Length", "wmx.dcd.paging_interval_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone,
 			{
 				"Permutation Type for Broadcast Region in HARQ Zone", "wmx.dcd.permutation_type_broadcast_region_in_harq_zone",
-				FT_UINT8, BASE_DEC, VALS(vals_dcd_permutation_type), 0x00, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_dcd_permutation_type), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_phy_type,
 			{
 				"PHY Type", "wmx.dcd.phy_type",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_power_adjustment,
 			{
 				"Power Adjustment Rule", "wmx.dcd.power_adjustment",
-				FT_UINT8, BASE_HEX, VALS(vals_dcd_power_adjustmnt), 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(vals_dcd_power_adjustmnt), 0x00, NULL, HFILL
 			}
 		},
 #ifdef WIMAX_16D_2004
@@ -764,7 +764,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_rtg,
 			{
 				"RTG", "wmx.dcd.rtg",
-				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 #ifdef WIMAX_16D_2004
@@ -780,70 +780,70 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_channel_switch_frame_nr,
 			{
 				"Channel Switch Frame Number", "wmx.dcd.switch_frame",
-				FT_UINT24, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_52_time_to_trigger_duration,
 			{
 				"Time to Trigger Duration", "wmx.dcd.time_trigger_duration",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_543_trigger_averaging_duration,
 			{
 				"Trigger Averaging Duration", "wmx.dcd.trigger_averaging_duration",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_542_trigger_value,
 			{
 				"Trigger Value", "wmx.dcd.trigger_value",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_ttg,
 			{
 				"TTG", "wmx.dcd.ttg",
-				FT_UINT16, BASE_HEX, NULL, 0x00, "", HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_541_type_function_action,
 			{
 				"Type/Function/Action", "wmx.dcd.type_function_action",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_541_action,
 			{
 				"Action", "wmx.dcd.type_function_action.action",
-				FT_UINT8, BASE_HEX, VALS(vals_dcd_action), 0x7, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(vals_dcd_action), 0x7, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_541_function,
 			{
 				"Function", "wmx.dcd.type_function_action.function",
-				FT_UINT8, BASE_HEX, VALS(vals_dcd_function), 0x38, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(vals_dcd_function), 0x38, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_541_type,
 			{
 				"Type", "wmx.dcd.type_function_action.type",
-				FT_UINT8, BASE_HEX, VALS(vals_dcd_type), 0xC0, "", HFILL
+				FT_UINT8, BASE_HEX, VALS(vals_dcd_type), 0xC0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_unknown_type,
 			{
 				"Unknown DCD Type", "wmx.dcd.unknown_tlv_value",
-				FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

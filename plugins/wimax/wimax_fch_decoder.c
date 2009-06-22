@@ -121,7 +121,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 0", "wmx.fch.subchannel_group0",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -129,7 +129,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 1", "wmx.fch.subchannel_group1",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_1,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -137,7 +137,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 2", "wmx.fch.subchannel_group2",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_2,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -145,7 +145,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 3", "wmx.fch.subchannel_group3",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_3,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -153,7 +153,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 4", "wmx.fch.subchannel_group4",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_4,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -161,7 +161,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Sub-Channel Group 5", "wmx.fch.subchannel_group5",
 				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_5,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -169,7 +169,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Reserved", "wmx.fch.reserved1",
 				FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_1,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -177,7 +177,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Repetition Coding Indication", "wmx.fch.repetition_coding_indication",
 				FT_UINT24, BASE_DEC, VALS(repetition_coding_indications), REPETITION_CODING_INDICATION,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -185,7 +185,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Coding Indication", "wmx.fch.coding_indication",
 				FT_UINT24, BASE_DEC, VALS(coding_indications), CODING_INDICATION,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -193,7 +193,7 @@ void proto_register_wimax_fch(void)
 			{
 				"DL Map Length", "wmx.fch.dl_map_length",
 				FT_UINT24, BASE_DEC, NULL, DL_MAP_LENGTH,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -201,7 +201,7 @@ void proto_register_wimax_fch(void)
 			{
 				"Reserved", "wmx.fch.reserved2",
 				FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_2,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};

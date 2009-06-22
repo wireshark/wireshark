@@ -93,8 +93,8 @@ void proto_register_wimax_pdu(void)
 			&hf_wimax_value_bytes,
 			{
 				"Values", "wmx.pdu.value",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 	};

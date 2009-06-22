@@ -115,21 +115,21 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 			&hf_aas_beam_message_type,
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.aas_beam", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_select_index,
 			{
 				"AAS Beam Index", "wmx.aas_beam.aas_beam_index", 
-				FT_UINT8, BASE_DEC, NULL, AAS_BEAM_SELECT_AAS_BEAM_INDEX_MASK, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, AAS_BEAM_SELECT_AAS_BEAM_INDEX_MASK, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_beam_bit_mask,
 			{
 				"Beam Bit Mask", "wmx.aas_beam.beam_bit_mask", 
-				FT_UINT8, BASE_HEX, NULL, AAS_BEAM_BEAM_BIT_MASK_MASK, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, AAS_BEAM_BEAM_BIT_MASK_MASK, NULL, HFILL
 			}
 		},
 #ifdef OFDM
@@ -137,63 +137,63 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 			&hf_aas_beam_cinr_value,
 			{
 				"CINR Mean Value", "wmx.aas_beam.cinr_mean_value", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_feedback_request_number,
 			{
 				"Feedback Request Number", "wmx.aas_beam.feedback_request_number", 
-				FT_UINT8, BASE_DEC, NULL, AAS_BEAM_FEEDBACK_REQUEST_NUMBER_MASK, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, AAS_BEAM_FEEDBACK_REQUEST_NUMBER_MASK, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_frame_number,
 			{
 				"Frame Number", "wmx.aas_beam.frame_number", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_freq_value_im,
 			{
 				"Frequency Value (imaginary part)", "wmx.aas_beam.freq_value_im", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_freq_value_re,
 			{
 				"Frequency Value (real part)", "wmx.aas_beam.freq_value_re", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_measurement_report_type,
 			{
 				"Measurement Report Type", "wmx.aas_beam.measurement_report_type", 
-				FT_UINT8, BASE_DEC, VALS(vals_report_types), AAS_BEAM_MEASUREMENT_REPORT_TYPE_MASK, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_report_types), AAS_BEAM_MEASUREMENT_REPORT_TYPE_MASK, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_select_reserved,
 			{
 				"Reserved", "wmx.aas_beam.reserved", 
-				FT_UINT8, BASE_HEX, NULL, AAS_BEAM_SELECT_RESERVED_MASK, "", HFILL
+				FT_UINT8, BASE_HEX, NULL, AAS_BEAM_SELECT_RESERVED_MASK, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_resolution_parameter,
 			{
 				"Resolution Parameter", "wmx.aas_beam.resolution_parameter", 
-				FT_UINT8, BASE_DEC, VALS(vals_resolution_parameter), AAS_BEAM_RESOLUTION_PARAMETER_MASK, "", HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_resolution_parameter), AAS_BEAM_RESOLUTION_PARAMETER_MASK, NULL, HFILL
 			}
 		},
 		{
 			&hf_aas_beam_rssi_value,
 			{
 				"RSSI Mean Value", "wmx.aas_beam.rssi_mean_value", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 #endif
@@ -201,7 +201,7 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 			&hf_aas_beam_unknown_type,
 			{
 				"Unknown TLV type", "wmx.aas_beam.unknown_type", 
-				FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

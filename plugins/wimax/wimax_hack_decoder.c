@@ -78,27 +78,27 @@ void proto_register_wimax_hack(void)
 	{
 		{
 			&hf_hack_burst,
-			{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_hack_num_of_hacks,
-			{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_hack_subchannel,
-			{"Physical Subchannel", "wmx.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Physical Subchannel", "wmx.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_hack_symboloffset,
-			{"Symbol Offset", "wmx.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Symbol Offset", "wmx.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_hack_half_slot_flag,
-			{"Half-Slot Flag", "wmx.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, "", HFILL}
+			{"Half-Slot Flag", "wmx.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_hack_value,
-			{"ACK Value", "wmx.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, "", HFILL}
+			{"ACK Value", "wmx.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, NULL, HFILL}
 		}
 	};
 

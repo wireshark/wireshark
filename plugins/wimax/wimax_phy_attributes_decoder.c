@@ -95,35 +95,35 @@ void proto_register_wimax_phy_attributes(void)
 	{
 		{
 			&hf_phy_attributes_subchannelization_type,
-			{"Subchannelization Type", "wmx.phy_attributes.subchannelization_type", FT_UINT8, BASE_DEC, VALS(vals_subchannel_types), 0x0, "", HFILL}
+			{"Subchannelization Type", "wmx.phy_attributes.subchannelization_type", FT_UINT8, BASE_DEC, VALS(vals_subchannel_types), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_permbase,
-			{"Permbase", "wmx.phy_attributes.permbase", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Permbase", "wmx.phy_attributes.permbase", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_modulation_rate,
-			{"Modulation Rate", "wmx.phy_attributes.modulation_rate", FT_UINT8, BASE_DEC, VALS(vals_modulation_rates), 0x0, "", HFILL}
+			{"Modulation Rate", "wmx.phy_attributes.modulation_rate", FT_UINT8, BASE_DEC, VALS(vals_modulation_rates), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_encoding_type,
-			{"Encoding Type", "wmx.phy_attributes.encoding_type", FT_UINT8, BASE_DEC, VALS(vals_encoding_types), 0x0, "", HFILL}
+			{"Encoding Type", "wmx.phy_attributes.encoding_type", FT_UINT8, BASE_DEC, VALS(vals_encoding_types), 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_num_repeat,
-			{"numRepeat", "wmx.phy_attributes.num_repeat", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"numRepeat", "wmx.phy_attributes.num_repeat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_symbol_offset,
-			{"Symbol Offset", "wmx.phy_attributes.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Symbol Offset", "wmx.phy_attributes.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_num_of_slots,
-			{"Number Of Slots", "wmx.phy_attributes.num_of_slots", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}
+			{"Number Of Slots", "wmx.phy_attributes.num_of_slots", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_phy_attributes_subchannel,
-			{"Subchannel", "wmx.phy_attributes.subchannel", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"Subchannel", "wmx.phy_attributes.subchannel", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		}
 	};
 

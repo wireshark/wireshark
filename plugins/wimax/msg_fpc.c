@@ -74,42 +74,42 @@ void proto_register_mac_mgmt_msg_fpc(void)
 			{
 				"MAC Management Message Type", "wmx.macmgtmsgtype.fpc",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
 			&hf_fpc_basic_cid,
 			{
 				"Basic CID", "wmx.fpc.basic_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_fpc_invalid_tlv,
 			{
 				"Invalid TLV", "wmx.fpc.invalid_tlv",
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_fpc_number_of_stations,
 			{
 				"Number of stations", "wmx.fpc.number_stations",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_fpc_power_adjust,
 			{
 				"Power Adjust.	Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_FLOAT, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_fpc_power_measurement_frame,
 			{
 				"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wmx.fpc.power_measurement_frame",
-				FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL
+				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};

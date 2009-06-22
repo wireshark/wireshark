@@ -82,27 +82,27 @@ void proto_register_wimax_harq_map(void)
 	{
 		{
 			&hf_harq_map_indicator,
-			{"HARQ MAP Indicator", "wmx.harq_map.indicator", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_INDICATOR_MASK, "", HFILL}
+			{"HARQ MAP Indicator", "wmx.harq_map.indicator", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_INDICATOR_MASK, NULL, HFILL}
 		},
 		{
 			&hf_harq_ul_map_appended,
-			{"HARQ UL-MAP Appended", "wmx.harq_map.ul_map_appended", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_UL_MAP_APPENDED_MASK, "", HFILL}
+			{"HARQ UL-MAP Appended", "wmx.harq_map.ul_map_appended", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_UL_MAP_APPENDED_MASK, NULL, HFILL}
 		},
 		{
 			&hf_harq_map_reserved,
-			{"Reserved", "wmx.harq_map.reserved", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_RESERVED_MASK, "", HFILL}
+			{"Reserved", "wmx.harq_map.reserved", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_RESERVED_MASK, NULL, HFILL}
 		},
 		{
 			&hf_harq_map_msg_length,
-			{"Map Message Length", "wmx.harq_map.msg_length", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_MSG_LENGTH_MASK, "", HFILL}
+			{"Map Message Length", "wmx.harq_map.msg_length", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_MSG_LENGTH_MASK, NULL, HFILL}
 		},
 		{
 			&hf_harq_dl_ie_count,
-			{"DL IE Count", "wmx.harq_map.dl_ie_count", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_DL_IE_COUNT_MASK, "", HFILL}
+			{"DL IE Count", "wmx.harq_map.dl_ie_count", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_DL_IE_COUNT_MASK, NULL, HFILL}
 		},
 		{
 			&hf_harq_map_msg_crc,
-			{"HARQ MAP Message CRC", "wmx.harq_map.msg_crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}
+			{"HARQ MAP Message CRC", "wmx.harq_map.msg_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		}
 	};
 

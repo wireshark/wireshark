@@ -231,8 +231,8 @@ void proto_register_mac_header_type_1(void)
 			&hf_mac_header_type_1_value_bytes,
 			{
 				"Values", "wmx.type1ValueBytes",
-				FT_BYTES, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 		{
@@ -240,7 +240,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"MAC Header Type", "wmx.type1Ht",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_HT,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -248,7 +248,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"MAC Encryption Control", "wmx.type1Ec",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_EC,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -256,7 +256,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"MAC Sub-Type", "wmx.type1Type",
 				FT_UINT24, BASE_HEX, VALS(sub_types), WIMAX_MAC_HEADER_TYPE_1_TYPE,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -264,7 +264,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Bandwidth Request", "wmx.type1Br",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -272,7 +272,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Bandwidth Request", "wmx.type1Br3",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR_3,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -280,7 +280,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Feedback Type", "wmx.type1FbType",
 				FT_UINT24, BASE_HEX, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_1_FB_TYPE,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -288,7 +288,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Preferred DIUC Index", "wmx.type1Diuc",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_DIUC,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -296,7 +296,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"UL TX Power", "wmx.type1UlTxPwr",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -304,7 +304,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"UL TX Power", "wmx.type1UlTxPwr3",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR_3,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -312,7 +312,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Headroom to UL Max Power Level", "wmx.type1HdRm",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_HDRM,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -320,7 +320,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"CINR Value", "wmx.type1Cinr",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_CINR,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -328,7 +328,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"DCD Change Indication", "wmx.type1Dci",
 				FT_UINT24, BASE_HEX, VALS(dci_msgs), WIMAX_MAC_HEADER_TYPE_1_DCI,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -336,7 +336,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Power Saving Class ID", "wmx.type1PsCid",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PSCID,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -344,7 +344,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Operation", "wmx.type1Op",
 				FT_UINT24, BASE_HEX, VALS(op_msgs), WIMAX_MAC_HEADER_TYPE_1_OP,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -352,7 +352,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Last ARQ BSN or SDU SN", "wmx.type1Last",
 				FT_UINT24, BASE_HEX, VALS(last_msgs), WIMAX_MAC_HEADER_TYPE_1_LAST,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -360,7 +360,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"ARQ BSN or MAC SDU SN (1)", "wmx.type1SduSn1",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN1,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -368,7 +368,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"ARQ BSN or MAC SDU SN (2)", "wmx.type1SduSn2",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN2,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -376,7 +376,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"ARQ BSN or MAC SDU SN (3)", "wmx.type1SduSn3",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN3,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -384,7 +384,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"FBSS Indicator", "wmx.type1Fbssi",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_FBSSI,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -392,7 +392,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Preferred CQICH Allocation Period", "wmx.type1Period",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PERIOD,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -400,7 +400,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Reserved", "wmx.type1Rsv2",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_2,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -408,7 +408,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Reserved", "wmx.type1Rsv5",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_5,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -416,7 +416,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Reserved", "wmx.type1Rsv7",
 				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_7,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -424,7 +424,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Connection ID", "wmx.type1Cid",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -432,7 +432,7 @@ void proto_register_mac_header_type_1(void)
 			{
 				"Header Check Sequence", "wmx.type1Hcs",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		}
 	};
