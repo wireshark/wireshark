@@ -30,17 +30,12 @@
  * http://www.cisco.com/en/US/docs/ios/12_2t/12_2t15/feature/guide/ft_glbp.pdf
  *
  * TODO: This dissector has been written without specs, so much of it is
- *    guesswork. Candidate values that might be somewhere in the packet:
- *    - weight (current/lower/upper)
- *    - group#
- *    - forwarder#
- *    - preempt (capable/delay)
- *    - vg state
- *    - vf state
- *    - authentication
- *    - ipv6 support
- *    - sso capable
- *    - secondary IP addresses
+ *    guesswork. Also, there are still unknown elements in the message.
+ * Some debug output:
+ * GLBP: Fa0/0 Grp 1020 Hello  out VG Active  pri 100 vIP FE80::C800:8FF:FE64:AAAA
+ *       hello 3000, hold 10000 VF 1 Active  pri 167 vMAC 0007.b403.fc01
+ * GLBP: Fa0/0 Grp 1021 Hello  out VG Active  pri 100 vIP 10.20.20.100
+ *       hello 3000, hold 10000 VF 1 Active  pri 167 vMAC 0007.b403.fd01
  */
 
 #ifdef HAVE_CONFIG_H
@@ -54,14 +49,16 @@
 static int proto_glbp = -1;
 /* glbp header? */
 static gint hf_glbp_version = -1;
-static gint hf_glbp_forwarder = -1;
+static gint hf_glbp_unknown1 = -1;
 static gint hf_glbp_group = -1;
 static gint hf_glbp_unknown2 = -1;
-static gint hf_glbp_somemac = -1;
+static gint hf_glbp_ownerid = -1;
 static gint hf_glbp_tlv = -1;
 static gint hf_glbp_type = -1;
 static gint hf_glbp_length = -1;
 /* glbp type = 1 - hello */
+static gint hf_glbp_hello_unknown10 = -1;
+static gint hf_glbp_hello_vgstate = -1;
 static gint hf_glbp_hello_unknown11 = -1;
 static gint hf_glbp_hello_priority = -1;
 static gint hf_glbp_hello_unknown12 = -1;
@@ -70,12 +67,18 @@ static gint hf_glbp_hello_holdint = -1;
 static gint hf_glbp_hello_redirect = -1;
 static gint hf_glbp_hello_timeout = -1;
 static gint hf_glbp_hello_unknown13 = -1;
-static gint hf_glbp_hello_numips = -1;
-static gint hf_glbp_hello_lenip = -1;
-static gint hf_glbp_hello_virtualip = -1;
+static gint hf_glbp_hello_addrtype = -1;
+static gint hf_glbp_hello_addrlen = -1;
+static gint hf_glbp_hello_virtualipv4 = -1;
+static gint hf_glbp_hello_virtualipv6 = -1;
+static gint hf_glbp_hello_virtualunk = -1;
 /* glbp type = 2 - Request/Response??? */
-static gint hf_glbp_reqresp_type = -1;
+static gint hf_glbp_reqresp_forwarder = -1;
+static gint hf_glbp_reqresp_vfstate = -1;
 static gint hf_glbp_reqresp_unknown21 = -1;
+static gint hf_glbp_reqresp_priority = -1;
+static gint hf_glbp_reqresp_weight = -1;
+static gint hf_glbp_reqresp_unknown22 = -1;
 static gint hf_glbp_reqresp_virtualmac = -1;
 /* glbp type = 3 - Auth */
 static gint hf_glbp_auth_authtype = -1;
@@ -99,9 +102,18 @@ static const value_string glbp_type_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string glbp_reqresp_type_vals[] = {
+#if 0
+static const value_string glbp_reqresp_forwarder_vals[] = {
 	{ 0,	"Request?" },
 	{ 2,	"Response?" },
+
+	{ 0, NULL }
+};
+#endif
+
+static const value_string glbp_addr_type_vals[] = {
+	{ 1,	"IPv4" },
+	{ 2,	"IPv6" },
 
 	{ 0, NULL }
 };
@@ -124,34 +136,45 @@ static const value_string glbp_loadbalancing_vals[] = {
 
 	{ 0, NULL }
 };
+#endif
 
 static const value_string glbp_vgstate_vals[] = {
-	{ x,	"Active" },
-	{ x,	"Standby" },
-	{ x,	"Listen" },
-	{ x,	"Initial" },
-	{ x,	"Speak" },
+#if 0
 	{ x,	"Disabled" },
+	{ x,	"Initial" },
+#endif
+	{ 4,	"Listen" },
+	{ 8,	"Speak" },
+	{ 0x10,	"Standby" },
+	{ 0x20,	"Active" },
 
 	{ 0, NULL }
 };
 
 static const value_string glbp_vfstate_vals[] = {
-	{ x,	"Active" },
-	{ x,	"Listen" },
-	{ x,	"Initial" },
+#if 0
 	{ x,	"Disabled" },
+	{ x,	"Initial" },
+	{ x,	"Listen" },
+#endif
+	{ 0x20,	"Active" },
 
 	{ 0, NULL }
 };
-#endif
 
 static void
 dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length _U_,
-	packet_info *pinfo _U_, proto_tree *tlv_tree)
+	packet_info *pinfo, proto_tree *tlv_tree)
 {
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown11, tvb, offset, 3,  FALSE);
-  offset += 3;
+  guint16 addrtype;
+  guint16 addrlen;
+
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  FALSE);
+  offset ++;
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_vgstate, tvb, offset, 1,  FALSE);
+  offset ++;
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown11, tvb, offset, 1,  FALSE);
+  offset ++;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_priority, tvb, offset, 1,  FALSE);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown12, tvb, offset, 2, FALSE);
@@ -166,12 +189,27 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length _U_,
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown13, tvb, offset, 2, FALSE);
   offset += 2;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_numips, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_addrtype, tvb, offset, 1, FALSE);
+  addrtype = tvb_get_guint8(tvb, offset);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_lenip, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_addrlen, tvb, offset, 1, FALSE);
+  addrlen = tvb_get_guint8(tvb, offset);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualip, tvb, offset, 4, FALSE);
-  offset += 4;
+  switch (addrtype) {
+    case 1:
+    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv4, tvb, offset, addrlen, FALSE);
+    break;
+  case 2:
+    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, FALSE);
+    break;
+  default:
+    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualunk, tvb, offset, addrlen, FALSE);
+    break;
+  }
+  offset += addrlen;
+
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+    val_to_str(addrtype, glbp_addr_type_vals, "%d"));
 }
 
 
@@ -179,10 +217,18 @@ static void
 dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length _U_,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
-  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_forwarder, tvb, offset, 1, FALSE);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown21, tvb, offset, 11, FALSE);
-  offset += 11;
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_vfstate, tvb, offset, 1, FALSE);
+  offset++;
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown21, tvb, offset, 1, FALSE);
+  offset += 1;
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_priority, tvb, offset, 1, FALSE);
+  offset++;
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_weight, tvb, offset, 1, FALSE);
+  offset++;
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown22, tvb, offset, 7, FALSE);
+  offset += 7;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, FALSE);
   offset += 6 ;
 }
@@ -249,13 +295,13 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* glbp header? */
     proto_tree_add_item(glbp_tree, hf_glbp_version, tvb, offset, 1,  FALSE);
     offset++;
-    proto_tree_add_item(glbp_tree, hf_glbp_forwarder, tvb, offset, 1,  FALSE);
+    proto_tree_add_item(glbp_tree, hf_glbp_unknown1, tvb, offset, 1,  FALSE);
     offset++;
     proto_tree_add_item(glbp_tree, hf_glbp_group, tvb, offset, 2,  FALSE);
     offset += 2;
     proto_tree_add_item(glbp_tree, hf_glbp_unknown2, tvb, offset, 2,  FALSE);
     offset += 2;
-    proto_tree_add_item(glbp_tree, hf_glbp_somemac, tvb, offset, 6, FALSE);
+    proto_tree_add_item(glbp_tree, hf_glbp_ownerid, tvb, offset, 6, FALSE);
     offset += 6;
     while (tvb_length_remaining(tvb, offset) > 0) {
 
@@ -297,16 +343,16 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 test_glbp(tvbuff_t *tvb, packet_info *pinfo)
 {
-	guint32 forwarder;
+	guint32 unknown1;
 	if ( tvb_length(tvb) < 2)
 		return FALSE;
-	forwarder = tvb_get_guint8(tvb, 1);
+	unknown1 = tvb_get_guint8(tvb, 1);
 	if (tvb_get_guint8(tvb, 0) != 1 /* version? */
-		|| forwarder > 4
+		|| unknown1 > 4
 		|| pinfo->srcport != pinfo->destport
 #if 0 /* XXX */
-		|| forwarder == 0 && pinfo->net_dst != ipv4:224.0.0.102
-		|| forwarder == 0 && pinfo->dl_src != ether:c2-00-7c-b8-00-00
+		|| unknown1 == 0 && pinfo->net_dst != ipv4:224.0.0.102
+		|| unknown1 == 0 && pinfo->dl_src != ether:c2-00-7c-b8-00-00
 #endif
 	) {
 		return FALSE;
@@ -333,8 +379,8 @@ proto_register_glbp(void)
 	   { "Version?",	"glbp.version", FT_UINT8, BASE_DEC, NULL,
 	     0x0, NULL, HFILL }},
 
-	{ &hf_glbp_forwarder,
-	   { "Forwarder???",	"glbp.forwarder", FT_UINT8, BASE_DEC, NULL,
+	{ &hf_glbp_unknown1,
+	   { "Unknown1",	"glbp.unknown1", FT_UINT8, BASE_DEC, NULL,
 	     0x0, NULL, HFILL }},
 
 	{ &hf_glbp_group,
@@ -345,8 +391,8 @@ proto_register_glbp(void)
 	   { "Unknown2",      "glbp.unknown2", FT_BYTES, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
 
-	{ &hf_glbp_somemac,
-	   { "Somemac?",       "glbp.somemac", FT_ETHER, BASE_NONE, NULL,
+	{ &hf_glbp_ownerid,
+	   { "Owner ID",       "glbp.ownerid", FT_ETHER, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
 
 	{ &hf_glbp_tlv,
@@ -362,6 +408,14 @@ proto_register_glbp(void)
 	     0x0, NULL, HFILL }},
 
 	/* type = 1 - hello */
+	{ &hf_glbp_hello_unknown10,
+	   { "Unknown1-0",      "glbp.hello.unknown10", FT_BYTES, BASE_NONE, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_hello_vgstate,
+	   { "VG state?",      "glbp.hello.vgstate", FT_UINT8, BASE_DEC, VALS(glbp_vgstate_vals),
+	     0x0, NULL, HFILL }},
+
 	{ &hf_glbp_hello_unknown11,
 	   { "Unknown1-1",      "glbp.hello.unknown11", FT_BYTES, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
@@ -394,25 +448,49 @@ proto_register_glbp(void)
 	   { "Unknown1-3",      "glbp.hello.unknown13", FT_BYTES, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_numips,
-	   { "Number IPs???",      "glbp.hello.numips", FT_UINT8, BASE_DEC, NULL,
+	{ &hf_glbp_hello_addrtype,
+	   { "Address type",      "glbp.hello.addrtype", FT_UINT8, BASE_DEC, VALS(glbp_addr_type_vals),
 	     0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_lenip,
-	   { "Length IP???",      "glbp.hello.lenip", FT_UINT8, BASE_DEC, NULL,
+	{ &hf_glbp_hello_addrlen,
+	   { "Address length",      "glbp.hello.addrlen", FT_UINT8, BASE_DEC, NULL,
 	     0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_virtualip,
-	   { "Virtual IP",      "glbp.hello.virtualip", FT_IPv4, BASE_NONE, NULL,
+	{ &hf_glbp_hello_virtualipv4,
+	   { "Virtual IPv4",      "glbp.hello.virtualipv4", FT_IPv4, BASE_NONE, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_hello_virtualipv6,
+	   { "Virtual IPv6",      "glbp.hello.virtualipv6", FT_IPv6, BASE_NONE, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_hello_virtualunk,
+	   { "Virtual Unknown",      "glbp.hello.virtualunk", FT_BYTES, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
 
 	/* type = 2 - request/response??? */
-	{ &hf_glbp_reqresp_type,
-	   { "Type???",      "glbp.reqresp.type", FT_UINT8, BASE_DEC, VALS(glbp_reqresp_type_vals),
+	{ &hf_glbp_reqresp_forwarder,
+	   { "Forwarder?",      "glbp.reqresp.forwarder", FT_UINT8, BASE_DEC, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_reqresp_vfstate,
+	   { "VF state?",      "glbp.reqresp.vfstate", FT_UINT8, BASE_DEC, VALS(glbp_vfstate_vals),
 	     0x0, NULL, HFILL }},
 
 	{ &hf_glbp_reqresp_unknown21,
 	   { "Unknown2-1",      "glbp.reqresp.unknown21", FT_BYTES, BASE_NONE, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_reqresp_priority,
+	   { "Priority",          "glbp.reqresp.priority", FT_UINT8, BASE_DEC, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_reqresp_weight,
+	   { "Weight",          "glbp.reqresp.weight", FT_UINT8, BASE_DEC, NULL,
+	     0x0, NULL, HFILL }},
+
+	{ &hf_glbp_reqresp_unknown22,
+	   { "Unknown2-2",      "glbp.reqresp.unknown22", FT_BYTES, BASE_NONE, NULL,
 	     0x0, NULL, HFILL }},
 
 	{ &hf_glbp_reqresp_virtualmac,
