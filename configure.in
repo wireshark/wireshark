@@ -230,6 +230,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	then
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Woverflow)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
 #		AC_WIRESHARK_GCC_CFLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
 #		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunreachable-code)
@@ -254,6 +255,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wextra) # -W is now known as -Wextra
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
