@@ -84,11 +84,18 @@ pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 AUTHORS-SHORT: $(top_srcdir)/AUTHORS $(srcdir)/make-authors-short.pl
 	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < $(top_srcdir)/AUTHORS > AUTHORS-SHORT
 
+# Put a copy in the top-level directory so Help->About, when run from the
+# build directory, can find it.
+../AUTHORS-SHORT: AUTHORS-SHORT
+	cp AUTHORS-SHORT ..
+
 #
 # Build the short version of the authors file with formatting codes for the
 # man page
+# (Depending on ../AUTHORS-SHORT is a bit of a hack to get the file copied
+# down there.)
 #
-AUTHORS-SHORT-FORMAT: AUTHORS-SHORT $(srcdir)/make-authors-format.pl
+AUTHORS-SHORT-FORMAT: ../AUTHORS-SHORT $(srcdir)/make-authors-format.pl
 	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 wireshark-tmp.pod: $(srcdir)/wireshark.pod AUTHORS-SHORT-FORMAT
@@ -253,10 +260,11 @@ CLEANFILES =		\
 	rawshark.1	\
 	rawshark.html
 
-DISTCLEANFILES =	\
-	pod2htmi.tmp	\
-	pod2htmd.tmp	\
+DISTCLEANFILES =		\
+	pod2htmi.tmp		\
+	pod2htmd.tmp		\
 	AUTHORS-SHORT		\
+	../AUTHORS-SHORT	\
 	AUTHORS-SHORT-FORMAT	\
 	*~
 
