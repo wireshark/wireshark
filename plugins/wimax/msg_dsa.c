@@ -77,49 +77,50 @@ static gint hf_dsa_rsp_message_type = -1;
 static gint hf_dsa_confirmation_code = -1;
 static gint hf_dsa_ack_message_type = -1;
 
-/* DSx display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_dsa_ack_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_ack",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_dsa_req_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_req",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_dsa_rsp_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_rsp",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_dsa_confirmation_code,
-		{
-			"Confirmation code", "wmx.dsa.confirmation_code",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_dsa_transaction_id,
-		{
-			"Transaction ID", "wmx.dsa.transaction_id",
-			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
-		}
-	}
-};
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_dsa(void)
 {
+	/* DSx display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_dsa_ack_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_ack",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dsa_req_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_req",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dsa_rsp_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_rsp",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dsa_confirmation_code,
+			{
+				"Confirmation code", "wmx.dsa.confirmation_code",
+				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dsa_transaction_id,
+			{
+				"Transaction ID", "wmx.dsa.transaction_id",
+				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
+			}
+		}
+	};
+
+
 	if (proto_mac_mgmt_msg_dsa_decoder == -1)
 	{
 		proto_mac_mgmt_msg_dsa_decoder = proto_register_protocol (

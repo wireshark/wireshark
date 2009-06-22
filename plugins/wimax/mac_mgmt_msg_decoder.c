@@ -197,30 +197,30 @@ static gint *ett[] =
 static gint hf_mac_mgmt_msg_values = -1;
 static gint hf_mac_mgmt_msg_unknown_type = -1;
 
-/* Payload display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_mac_mgmt_msg_values,
-		{
-			"Values", "wmx.values",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_mgmt_msg_unknown_type,
-		{
-			"Unknown MAC Message Type", "wmx.unknown_type",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	}
-};
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg(void)
 {
+	/* Payload display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_mac_mgmt_msg_values,
+			{
+				"Values", "wmx.values",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_mgmt_msg_unknown_type,
+			{
+				"Unknown MAC Message Type", "wmx.unknown_type",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_decoder == -1)
 	{
 		proto_mac_mgmt_msg_decoder = proto_wimax;

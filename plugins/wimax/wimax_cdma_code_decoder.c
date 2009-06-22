@@ -48,35 +48,6 @@ static int hf_wimax_ranging_code = -1;
 static int hf_wimax_ranging_symbol_offset = -1;
 static int hf_wimax_ranging_subchannel_offset = -1;
 
-/* TLV display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_wimax_ranging_code,
-		{
-			"Ranging Code", "wmx.cdma.ranging_code",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_wimax_ranging_symbol_offset,
-		{
-			"Ranging Symbol Offset", "wmx.cdma.ranging_symbol_offset",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_wimax_ranging_subchannel_offset,
-		{
-			"Ranging Sub-Channel Offset", "wmx.cdma.ranging_subchannel_offset",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	}
-};
-
 /* Setup protocol subtree array */
 static gint *ett[] =
 {
@@ -86,6 +57,35 @@ static gint *ett[] =
 /* Register Wimax CDMA Protocol */
 void proto_register_wimax_cdma(void)
 {
+	/* TLV display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_wimax_ranging_code,
+			{
+				"Ranging Code", "wmx.cdma.ranging_code",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_wimax_ranging_symbol_offset,
+			{
+				"Ranging Symbol Offset", "wmx.cdma.ranging_symbol_offset",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_wimax_ranging_subchannel_offset,
+			{
+				"Ranging Sub-Channel Offset", "wmx.cdma.ranging_subchannel_offset",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		}
+	};
+
 	if (proto_wimax_cdma_code_decoder == -1)
 	{
 		proto_wimax_cdma_code_decoder = proto_wimax;

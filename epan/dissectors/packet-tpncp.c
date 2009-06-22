@@ -125,116 +125,6 @@ static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
 static gint hf_size = 1;
 static gint hf_allocated = 0;
 static hf_register_info *hf = NULL;
-static hf_register_info hf_tpncp[] = {
-    {
-        &hf_tpncp_version,
-        {
-            "Version",
-            "tpncp.version",
-            FT_UINT16,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_length,
-        {
-            "Length",
-            "tpncp.length",
-            FT_UINT16,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_seq_number,
-        {
-            "Sequence number",
-            "tpncp.seq_number",
-            FT_UINT16,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_old_event_seq_number,
-        {
-            "Sequence number",
-            "tpncp.old_event_seq_number",
-            FT_UINT32,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_reserved,
-        {
-            "Reserved",
-            "tpncp.reserved",
-            FT_UINT16,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_command_id,
-        {
-            "Command ID",
-            "tpncp.command_id",
-            FT_UINT32,
-            BASE_DEC,
-            VALS(tpncp_commands_id_vals),
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_old_command_id,
-        {
-            "Command ID",
-            "tpncp.old_command_id",
-            FT_UINT16,
-            BASE_DEC,
-            VALS(tpncp_commands_id_vals),
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_event_id,
-        {
-            "Event ID",
-            "tpncp.event_id",
-            FT_UINT32,
-            BASE_DEC,
-            VALS(tpncp_events_id_vals),
-            0x0,
-            "", HFILL
-        }
-    },
-    {
-        &hf_tpncp_cid,
-        {
-            "Channel ID",
-            "tpncp.channel_id",
-            FT_INT32,
-            BASE_DEC,
-            NULL,
-            0x0,
-            "", HFILL
-        }
-    }
-};
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -559,6 +449,117 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     guint index;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
     hf_register_info hf_entr;
+
+    static hf_register_info hf_tpncp[] = {
+        {
+            &hf_tpncp_version,
+            {
+                "Version",
+                "tpncp.version",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_length,
+            {
+                "Length",
+                "tpncp.length",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_seq_number,
+            {
+                "Sequence number",
+                "tpncp.seq_number",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_old_event_seq_number,
+            {
+                "Sequence number",
+                "tpncp.old_event_seq_number",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_reserved,
+            {
+                "Reserved",
+                "tpncp.reserved",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_command_id,
+            {
+                "Command ID",
+                "tpncp.command_id",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(tpncp_commands_id_vals),
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_old_command_id,
+            {
+                "Command ID",
+                "tpncp.old_command_id",
+                FT_UINT16,
+                BASE_DEC,
+                VALS(tpncp_commands_id_vals),
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_event_id,
+            {
+                "Event ID",
+                "tpncp.event_id",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(tpncp_events_id_vals),
+                0x0,
+                "", HFILL
+            }
+        },
+        {
+            &hf_tpncp_cid,
+            {
+                "Channel ID",
+                "tpncp.channel_id",
+                FT_INT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        }
+    };
 
     tpncp_db_entry = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     tpncp_db_entry[0] = 0;

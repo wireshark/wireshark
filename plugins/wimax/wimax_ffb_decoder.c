@@ -56,38 +56,38 @@ static gint hf_ffb_subchannel = -1;
 static gint hf_ffb_symboloffset = -1;
 static gint hf_ffb_value = -1;
 
-/* FFB display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_ffb_burst,
-		{"Fast Feedback Burst", "wmx.ffb.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_ffb_num_of_ffbs,
-		{"Number Of Fast Feedback", "wmx.ffb.num_of_ffbs", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_ffb_type,
-		{"Fast Feedback Type", "wmx.ffb.ffb_type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_ffb_subchannel,
-		{"Physical Subchannel", "wmx.ffb.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_ffb_symboloffset,
-		{"Symbol Offset", "wmx.ffb.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_ffb_value,
-		{"Fast Feedback Value", "wmx.ffb.ffb_value", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
-	}
-};
-
 /* Register Wimax FFB Protocol */
 void proto_register_wimax_ffb(void)
 {
+	/* FFB display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_ffb_burst,
+			{"Fast Feedback Burst", "wmx.ffb.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_ffb_num_of_ffbs,
+			{"Number Of Fast Feedback", "wmx.ffb.num_of_ffbs", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_ffb_type,
+			{"Fast Feedback Type", "wmx.ffb.ffb_type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_ffb_subchannel,
+			{"Physical Subchannel", "wmx.ffb.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_ffb_symboloffset,
+			{"Symbol Offset", "wmx.ffb.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_ffb_value,
+			{"Fast Feedback Value", "wmx.ffb.ffb_value", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		}
+	};
+
 	if (proto_wimax_ffb_decoder == -1)
 	{
 		proto_wimax_ffb_decoder = proto_wimax;

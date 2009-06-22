@@ -220,185 +220,6 @@ static gint hf_cdlmap_num_subchannels_1 = -1;
 static gint hf_cdlmap_reserved_type = -1;
 static gint hf_cdlmap_reserved_type_1 = -1;
 
-/* Compact DL-MAP IE display */
-static hf_register_info hf_compact_dlmap[] =
-{
-	{
-		&hf_cdlmap_dl_map_type,
-		{"DL-MAP Type", "wmx.compact_dlmap.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_dl_map_type_1,
-		{"DL-MAP Type", "wmx.compact_dlmap.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_ul_map_append,
-		{"UL-MAP Append", "wmx.compact_dlmap.ul_map_append", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_ul_map_append_1,
-		{"UL-MAP Append", "wmx.compact_dlmap.ul_map_append", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_reserved,
-		{"Reserved", "wmx.compact_dlmap.reserved", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_reserved_1,
-		{"Reserved", "wmx.compact_dlmap.reserved", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_nep_code,
-		{"Nep Code", "wmx.compact_dlmap.nep_code", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_nep_code_1,
-		{"Nep Code", "wmx.compact_dlmap.nep_code", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_nsch_code,
-		{"Nsch Code", "wmx.compact_dlmap.nsch_code", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_nsch_code_1,
-		{"Nsch Code", "wmx.compact_dlmap.nsch_code", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_num_bands,
-		{"Number Of Bands", "wmx.compact_dlmap.num_bands", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_num_bands_1,
-		{"Number Of Bands", "wmx.compact_dlmap.num_bands", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_band_index,
-		{"Band Index", "wmx.compact_dlmap.band_index", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-#if 0
-	{
-		&hf_cdlmap_band_index_1,
-		{"Band Index", "wmx.compact_dlmap.band_index", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-#endif
-	{
-		&hf_cdlmap_nb_bitmap,
-		{"Number Of Bits For Band BITMAP", "wmx.compact_dlmap.nb_bitmap", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_nb_bitmap_1,
-		{"Number Of Bits For Band BITMAP", "wmx.compact_dlmap.nb_bitmap", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_shortened_uiuc,
-		{"Shortened UIUC", "wmx.compact_dlmap.shortened_uiuc", FT_UINT8, BASE_HEX, NULL, SHORTENED_DIUC_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_shortened_uiuc_1,
-		{"Shortened UIUC", "wmx.compact_dlmap.shortened_uiuc", FT_UINT16, BASE_HEX, NULL, SHORTENED_DIUC_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_shortened_diuc,
-		{"Shortened DIUC", "wmx.compact_dlmap.shortened_diuc", FT_UINT8, BASE_HEX, NULL, SHORTENED_DIUC_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_shortened_diuc_1,
-		{"Shortened DIUC", "wmx.compact_dlmap.shortened_diuc", FT_UINT16, BASE_HEX, NULL, SHORTENED_DIUC_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_companded_sc,
-		{"Companded SC", "wmx.compact_dlmap.companded_sc", FT_UINT8, BASE_HEX, NULL, COMPANDED_SC_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_companded_sc_1,
-		{"Companded SC", "wmx.compact_dlmap.companded_sc", FT_UINT16, BASE_HEX, NULL, COMPANDED_SC_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_bin_offset,
-		{"BIN Offset", "wmx.compact_dlmap.bin_offset", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_bin_offset_1,
-		{"BIN Offset", "wmx.compact_dlmap.bin_offset", FT_UINT16, BASE_HEX, NULL, 0x0FF0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_num_of_subchannels,
-		{"Number Of Subchannels", "wmx.compact_dlmap.diuc_num_of_subchannels", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_num_of_subchannels_1,
-		{"Number Of Subchannels", "wmx.compact_dlmap.diuc_num_of_subchannels", FT_UINT16, BASE_DEC, NULL, 0x0FF0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_repetition_coding_indication,
-		{"Repetition Coding Indication", "wmx.compact_dlmap.diuc_repetition_coding_indication", FT_UINT8, BASE_DEC, VALS(rep_msgs), 0xC0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_repetition_coding_indication_1,
-		{"Repetition Coding Indication", "wmx.compact_dlmap.diuc_repetition_coding_indication", FT_UINT8, BASE_DEC, VALS(rep_msgs), 0x0C, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_reserved,
-		{"Reserved", "wmx.compact_dlmap.diuc_reserved", FT_UINT8, BASE_HEX, NULL, 0x30, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_reserved_1,
-		{"Reserved", "wmx.compact_dlmap.diuc_reserved", FT_UINT8, BASE_HEX, NULL, 0x03, "", HFILL}
-	},
-	{
-		&hf_cdlmap_bit_map_length,
-		{"BIT MAP Length", "wmx.compact_dlmap.bit_map_length", FT_UINT8, BASE_DEC, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_bit_map_length_1,
-		{"BIT MAP Length", "wmx.compact_dlmap.bit_map_length", FT_UINT8, BASE_DEC, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_bit_map,
-		{"BIT MAP", "wmx.compact_dlmap.bit_map", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc,
-		{"DIUC", "wmx.compact_dlmap.diuc", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_diuc_1,
-		{"DIUC", "wmx.compact_dlmap.diuc", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_allocation_mode,
-		{"Allocation Mode", "wmx.compact_dlmap.allocation_mode", FT_UINT8, BASE_DEC, VALS(vals_allocation_modes), 0xC0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_allocation_mode_1,
-		{"Allocation Mode", "wmx.compact_dlmap.allocation_mode", FT_UINT8, BASE_DEC, VALS(vals_allocation_modes), 0x0C, "", HFILL}
-	},
-	{
-		&hf_cdlmap_allocation_mode_rsvd,
-		{"Reserved", "wmx.compact_dlmap.allocation_mode_rsvd", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL}
-	},
-	{
-		&hf_cdlmap_allocation_mode_rsvd_1,
-		{"Reserved", "wmx.compact_dlmap.allocation_mode_rsvd", FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL}
-	},
-	{
-		&hf_cdlmap_num_subchannels,
-		{"Number Of Subchannels", "wmx.compact_dlmap.num_subchannels", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_num_subchannels_1,
-		{"Number Of Subchannels", "wmx.compact_dlmap.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x0FF0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_reserved_type,
-		{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_reserved_type_1,
-		{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
-	}
-};
-
 /* display indexies */
 static gint hf_format_config_ie_dl_map_type = -1;
 static gint hf_format_config_ie_dl_map_type_1 = -1;
@@ -439,91 +260,6 @@ static gint hf_format_config_ie_num_of_ul_band_amc_symbol_1 = -1;
 #define NUM_DL_AMC_SYMBOLS_MASK              0x0000FC00
 #define NUM_UL_AMC_SYMBOLS_MASK              0x000003F0
 
-/* HARQ MAP Format Configuration IE display */
-static hf_register_info hf_format_config[] =
-{
-	{
-		&hf_format_config_ie_dl_map_type,
-		{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_dl_map_type_1,
-		{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_dl_map_type_32,
-		{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT32, BASE_DEC, NULL, FORMAT_CONFIG_IE_DL_MAP_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_new_format_indication,
-		{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 8, TFS(&tfs_indication), UL_MAP_APPEND_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_new_format_indication_1,
-		{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 8, TFS(&tfs_indication), UL_MAP_APPEND_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_new_format_indication_32,
-		{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 32, TFS(&tfs_indication), FORMAT_CONFIG_IE_NEW_FORMAT_IND_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_cid_type,
-		{"HARQ MAP Indicator", "wmx.harq_map.format_config_ie.indicator", FT_UINT32, BASE_HEX, VALS(vals_cid_types), CID_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_cid_type_1,
-		{"CID Type", "wmx.harq_map.format_config_ie.cid_type", FT_UINT32, BASE_HEX, VALS(vals_cid_types), CID_TYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_safety_pattern,
-		{"Safety Pattern", "wmx.harq_map.format_config_ie.safety_pattern", FT_UINT32, BASE_HEX, NULL, SAFETY_PATTERN_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_safety_pattern_1,
-		{"Safety Pattern", "wmx.harq_map.format_config_ie.safety_pattern", FT_UINT32, BASE_HEX, NULL, SAFETY_PATTERN_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_subchannel_type,
-		{"Subchannel Type For Band AMC", "wmx.harq_map.format_config_ie.subchannel_type", FT_UINT32, BASE_HEX, VALS(vals_subchannel_types), BAND_AMC_SUBCHANNEL_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_subchannel_type_1,
-		{"Subchannel Type For Band AMC", "wmx.harq_map.format_config_ie.subchannel_type", FT_UINT32, BASE_HEX, VALS(vals_subchannel_types), BAND_AMC_SUBCHANNEL_TYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_max_logical_bands,
-		{"Max Logical Bands", "wmx.harq_map.format_config_ie.max_logical_bands", FT_UINT32, BASE_HEX, VALS(vals_max_logical_bands), MAX_LOGICAL_BANDS_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_max_logical_bands_1,
-		{"Max Logical Bands", "wmx.harq_map.format_config_ie.max_logical_bands", FT_UINT32, BASE_HEX, VALS(vals_max_logical_bands), MAX_LOGICAL_BANDS_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_broadcast_symbol,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_broadcast_symbol", FT_UINT32, BASE_HEX, NULL, NUM_BROADCAST_SYMBOLS_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_broadcast_symbol_1,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_broadcast_symbol", FT_UINT32, BASE_HEX, NULL, NUM_BROADCAST_SYMBOLS_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_dl_band_amc_symbol,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_dl_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_DL_AMC_SYMBOLS_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_dl_band_amc_symbol_1,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_dl_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_DL_AMC_SYMBOLS_MASK_1, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_ul_band_amc_symbol,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_ul_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_UL_AMC_SYMBOLS_MASK, "", HFILL}
-	},
-	{
-		&hf_format_config_ie_num_of_ul_band_amc_symbol_1,
-		{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_ul_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_UL_AMC_SYMBOLS_MASK_1, "", HFILL}
-	}
-};
-
 /* display indexies */
 static gint hf_harq_rcid_ie_prefix = -1;
 static gint hf_harq_rcid_ie_prefix_1 = -1;
@@ -549,59 +285,6 @@ static gint hf_harq_rcid_ie_cid11_3 = -1;
 #define WIMAX_RCID_IE_CID11_MASK             0x7FF0
 #define WIMAX_RCID_IE_CID11_MASK_1           0x07FF
 
-/* HARQ MAP Reduced CID IE display */
-static hf_register_info hf_rcid[] =
-{
-	{
-		&hf_harq_rcid_ie_normal_cid,
-		{"Normal CID", "wmx.harq_map.rcid_ie.normal_cid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_normal_cid_1,
-		{"Normal CID", "wmx.harq_map.rcid_ie.normal_cid", FT_UINT24, BASE_HEX, NULL, WIMAX_RCID_IE_NORMAL_CID_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_prefix,
-		{"Prefix", "wmx.harq_map.rcid_ie.prefix", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_PREFIX_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_prefix_1,
-		{"Prefix", "wmx.harq_map.rcid_ie.prefix", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_PREFIX_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid3,
-		{"3 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid3", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID3_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid3_1,
-		{"3 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid3", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID3_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid7,
-		{"7 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid7", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID7_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid7_1,
-		{"7 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid7", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID7_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid11,
-		{"11 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid11_1,
-		{"11 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid11_2,
-		{"11 LSB Of Multicast, AAS or Broadcast CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_rcid_ie_cid11_3,
-		{"11 LSB Of Multicast, AAS or Broadcast CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK_1, "", HFILL}
-	}
-};
-
 /* HARQ MAP HARQ Control IE display indexies */
 static gint hf_harq_control_ie_prefix = -1;
 static gint hf_harq_control_ie_ai_sn = -1;
@@ -625,51 +308,6 @@ static gint hf_harq_control_ie_reserved_1 = -1;
 #define WIMAX_HARQ_CONTROL_IE_SPID_MASK_1      0x0300
 #define WIMAX_HARQ_CONTROL_IE_ACID_MASK_1      0x00F0
 #define WIMAX_HARQ_CONTROL_IE_RESERVED_MASK_1  0x0700
-
-/* HARQ MAP HARQ Control IE display */
-static hf_register_info hf_harq_control[] =
-{
-	{
-		&hf_harq_control_ie_prefix,
-		{"Prefix", "wmx.harq_map.harq_control_ie.prefix", FT_BOOLEAN, 8, TFS(&tfs_prefix), WIMAX_HARQ_CONTROL_IE_PREFIX_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_ai_sn,
-		{"HARQ ID Sequence Number(AI_SN)", "wmx.harq_map.harq_control_ie.ai_sn", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_AI_SN_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_spid,
-		{"Subpacket ID (SPID)", "wmx.harq_map.harq_control_ie.spid", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_SPID_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_acid,
-		{"HARQ CH ID (ACID)", "wmx.harq_map.harq_control_ie.acid", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_ACID_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_reserved,
-		{"Reserved", "wmx.harq_map.harq_control_ie.reserved", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_RESERVED_MASK, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_prefix_1,
-		{"Prefix", "wmx.harq_map.harq_control_ie.prefix", FT_BOOLEAN, 16, TFS(&tfs_prefix), WIMAX_HARQ_CONTROL_IE_PREFIX_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_ai_sn_1,
-		{"HARQ ID Sequence Number(AI_SN)", "wmx.harq_map.harq_control_ie.ai_sn", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_AI_SN_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_spid_1,
-		{"Subpacket ID (SPID)", "wmx.harq_map.harq_control_ie.spid", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_SPID_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_acid_1,
-		{"HARQ CH ID (ACID)", "wmx.harq_map.harq_control_ie.acid", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_ACID_MASK_1, "", HFILL}
-	},
-	{
-		&hf_harq_control_ie_reserved_1,
-		{"Reserved", "wmx.harq_map.harq_control_ie.reserved", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_RESERVED_MASK_1, "", HFILL}
-	}
-};
 
 /* HARQ MAP CQICH Control IE display indexies */
 static gint hf_cqich_control_ie_indicator = -1;
@@ -699,59 +337,6 @@ static gint hf_cqich_control_ie_cqi_rep_threshold_1 = -1;
 #define WIMAX_CQICH_CONTROL_IE_DURATION_MASK_1          0x0000F0
 #define WIMAX_CQICH_CONTROL_IE_CQI_REP_THRESHOLD_MASK_1 0x070000
 
-/* HARQ MAP CQICH Control IE display */
-static hf_register_info hf_cqich_control[] =
-{
-	{
-		&hf_cqich_control_ie_indicator,
-		{"CQICH Indicator", "wmx.harq_map.cqich_control_ie.cqich_indicator", FT_BOOLEAN, 16, TFS(&tfs_cqich_ind), WIMAX_CQICH_CONTROL_IE_INDICATOR_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_alloc_id,
-		{"Allocation Index", "wmx.harq_map.cqich_control_ie.alloc_id", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_ALLOCATION_INDEX_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_period,
-		{"PERIOD", "wmx.harq_map.cqich_control_ie.period", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_PERIOD_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_frame_offset,
-		{"Frame Offset", "wmx.harq_map.cqich_control_ie.frame_offset", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_FRAME_OFFSET_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_duration,
-		{"Duration", "wmx.harq_map.cqich_control_ie.duration", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_DURATION_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_cqi_rep_threshold,
-		{"CQI Reporting Threshold", "wmx.harq_map.cqich_control_ie.cqi_rep_threshold", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_CQI_REP_THRESHOLD_MASK, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_indicator_1,
-		{"CQICH Indicator", "wmx.harq_map.cqich_control_ie.cqich_indicator", FT_BOOLEAN, 24, TFS(&tfs_cqich_ind), WIMAX_CQICH_CONTROL_IE_INDICATOR_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_alloc_id_1,
-		{"Allocation Index", "wmx.harq_map.cqich_control_ie.alloc_id", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_ALLOCATION_INDEX_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_period_1,
-		{"PERIOD", "wmx.harq_map.cqich_control_ie.period", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_PERIOD_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_frame_offset_1,
-		{"Frame Offset", "wmx.harq_map.cqich_control_ie.frame_offset", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_FRAME_OFFSET_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_duration_1,
-		{"Duration", "wmx.harq_map.cqich_control_ie.duration", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_DURATION_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cqich_control_ie_cqi_rep_threshold_1,
-		{"CQI Reporting Threshold", "wmx.harq_map.cqich_control_ie.cqi_rep_threshold", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_CQI_REP_THRESHOLD_MASK_1, "", HFILL}
-	}
-};
-
 /* Extension Type */
 #define EXTENSION_TYPE_MASK         0xE000
 #define EXTENSION_TYPE_MASK_1       0x0E00
@@ -774,58 +359,6 @@ static gint hf_cdlmap_extension_time_diversity_mbs_1 = -1;
 static gint hf_cdlmap_extension_harq_mode_1 = -1;
 static gint hf_cdlmap_extension_unknown_sub_type_1 = -1;
 
-static hf_register_info hf_extension_type[] =
-{
-	{
-		&hf_cdlmap_extension_type,
-		{"DL-MAP Type", "wmx.extension_type.dl_map_type", FT_UINT16, BASE_DEC, NULL, EXTENSION_TYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_type_1,
-		{"DL-MAP Type", "wmx.extension_type.dl_map_type", FT_UINT16, BASE_DEC, NULL, EXTENSION_TYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_subtype,
-		{"Extension Subtype", "wmx.extension_type.subtype", FT_UINT16, BASE_DEC, NULL, EXTENSION_SUBTYPE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_subtype_1,
-		{"Extension Subtype", "wmx.extension_type.subtype", FT_UINT16, BASE_DEC, NULL, EXTENSION_SUBTYPE_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_length,
-		{"Extension Length", "wmx.extension_type.length", FT_UINT16, BASE_DEC, NULL, EXTENSION_LENGTH_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_length_1,
-		{"Extension Length", "wmx.extension_type.length", FT_UINT16, BASE_DEC, NULL, EXTENSION_LENGTH_MASK_1, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_time_diversity_mbs,
-		{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_time_diversity_mbs_1,
-		{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_harq_mode_1,
-		{"HARQ Mode Switch", "wmx.extension_type.harq_mode", FT_UINT16, BASE_HEX, NULL, 0x000F, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_harq_mode,
-		{"HARQ Mode Switch", "wmx.extension_type.harq_mode", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_unknown_sub_type,
-		{"Unknown Extension Subtype", "wmx.extension_type.unknown_sub_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_cdlmap_extension_unknown_sub_type_1,
-		{"Unknown Extension Subtype", "wmx.extension_type.unknown_sub_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	}
-};
-
 /* Extended DIUC dependent IE display indexies */
 static gint hf_extended_diuc_dependent_ie_diuc = -1;
 static gint hf_extended_diuc_dependent_ie_diuc_1 = -1;
@@ -844,79 +377,546 @@ static gint hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation = -1;
 static gint hf_extended_diuc_dependent_ie_ul_interference_and_noise_level = -1;
 static gint hf_extended_diuc_dependent_ie_unknown_diuc = -1;
 
-/* Extended DIUC dependent IE */
-static hf_register_info hf_extended_diuc[] =
-{
-	{
-		&hf_extended_diuc_dependent_ie_diuc,
-		{"Extended DIUC", "wmx.extended_diuc_dependent_ie.diuc", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL }
-	},
-	{
-		&hf_extended_diuc_dependent_ie_diuc_1,
-		{"Extended DIUC", "wmx.extended_diuc_dependent_ie.diuc", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL }
-	},
-	{
-		&hf_extended_diuc_dependent_ie_length,
-		{"Length", "wmx.extended_diuc_dependent_ie.length", FT_UINT8, BASE_DEC, NULL, MSB_NIBBLE_MASK, "", HFILL }
-	},
-	{
-		&hf_extended_diuc_dependent_ie_length_1,
-		{"Length", "wmx.extended_diuc_dependent_ie.length", FT_UINT8, BASE_DEC, NULL, LSB_NIBBLE_MASK, "", HFILL }
-	},
-	{	/* 8.4.5.3.? Channel_Measurement_IE */
-		&hf_extended_diuc_dependent_ie_channel_measurement,
-		{"Channel_Measurement_IE (not implemented)", "wmx.extended_diuc_dependent_ie.channel_measurement", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.4 STC_Zone_IE */
-		&hf_extended_diuc_dependent_ie_stc_zone,
-		{"STC_Zone_IE (not implemented)", "wmx.extended_diuc_dependent_ie.stc_zone", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.3 AAS_DL_IE */
-		&hf_extended_diuc_dependent_ie_aas_dl,
-		{"AAS_DL_IE (not implemented)", "wmx.extended_diuc_dependent_ie.aas_dl", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.6 Data_location_in_another_BS_IE */
-		&hf_extended_diuc_dependent_ie_data_location,
-		{"Data_location_in_another_BS_IE (not implemented)", "wmx.extended_diuc_dependent_ie.data_location", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.7 CID_Switch_IE */
-		&hf_extended_diuc_dependent_ie_cid_switch,
-		{"CID_Switch_IE (not implemented)", "wmx.extended_diuc_dependent_ie.cid_switch", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-
-	{	/* 8.4.5.3.8 MIMO_DL_Basic_IE */
-		&hf_extended_diuc_dependent_ie_mimo_dl_basic,
-		{"MIMO_DL_Basic_IE (not implemented)", "wmx.extended_diuc_dependent_ie.mimo_dl_basic", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.9 MIMO_DL_Enhanced_IE */
-		&hf_extended_diuc_dependent_ie_mimo_dl_enhanced,
-		{"MIMO_DL_Enhanced_IE (not implemented)", "wmx.extended_diuc_dependent_ie.mimo_dl_enhanced", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.10 HARQ_Map_Pointer_IE */
-		&hf_extended_diuc_dependent_ie_harq_map_pointer,
-		{"HARQ_Map_Pointer_IE (not implemented)", "wmx.extended_diuc_dependent_ie.harq_map_pointer", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.11 PHYMOD_DL_IE */
-		&hf_extended_diuc_dependent_ie_phymod_dl,
-		{"PHYMOD_DL_IE (not implemented)", "wmx.extended_diuc_dependent_ie.phymod_dl", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
-		&hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation,
-		{"DL_PUSC_Burst_Allocation_in_Other_Segment_IE (not implemented)", "wmx.extended_diuc_dependent_ie.dl_pusc_burst_allocation", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* 8.4.5.3.19 UL_interference_and_noise_level_IE */
-		&hf_extended_diuc_dependent_ie_ul_interference_and_noise_level,
-		{"UL_interference_and_noise_level_IE (not implemented)", "wmx.extended_diuc_dependent_ie.ul_interference_and_noise_level", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	},
-	{	/* unknown DIUC */
-		&hf_extended_diuc_dependent_ie_unknown_diuc,
-		{"Unknown Extended DIUC", "wmx.extended_diuc_dependent_ie.unknown_diuc", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-	}
-};
-
 /* Register Wimax Compact DL-MAP IE Protocol */
 void proto_register_wimax_compact_dlmap_ie(void)
 {
+	/* Compact DL-MAP IE display */
+	static hf_register_info hf_compact_dlmap[] =
+	{
+		{
+			&hf_cdlmap_dl_map_type,
+			{"DL-MAP Type", "wmx.compact_dlmap.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_dl_map_type_1,
+			{"DL-MAP Type", "wmx.compact_dlmap.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_ul_map_append,
+			{"UL-MAP Append", "wmx.compact_dlmap.ul_map_append", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_ul_map_append_1,
+			{"UL-MAP Append", "wmx.compact_dlmap.ul_map_append", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_reserved,
+			{"Reserved", "wmx.compact_dlmap.reserved", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_reserved_1,
+			{"Reserved", "wmx.compact_dlmap.reserved", FT_UINT8, BASE_HEX, NULL, UL_MAP_APPEND_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_nep_code,
+			{"Nep Code", "wmx.compact_dlmap.nep_code", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_nep_code_1,
+			{"Nep Code", "wmx.compact_dlmap.nep_code", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_nsch_code,
+			{"Nsch Code", "wmx.compact_dlmap.nsch_code", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_nsch_code_1,
+			{"Nsch Code", "wmx.compact_dlmap.nsch_code", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_num_bands,
+			{"Number Of Bands", "wmx.compact_dlmap.num_bands", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_num_bands_1,
+			{"Number Of Bands", "wmx.compact_dlmap.num_bands", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_band_index,
+			{"Band Index", "wmx.compact_dlmap.band_index", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+#if 0
+		{
+			&hf_cdlmap_band_index_1,
+			{"Band Index", "wmx.compact_dlmap.band_index", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+#endif
+		{
+			&hf_cdlmap_nb_bitmap,
+			{"Number Of Bits For Band BITMAP", "wmx.compact_dlmap.nb_bitmap", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_nb_bitmap_1,
+			{"Number Of Bits For Band BITMAP", "wmx.compact_dlmap.nb_bitmap", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_shortened_uiuc,
+			{"Shortened UIUC", "wmx.compact_dlmap.shortened_uiuc", FT_UINT8, BASE_HEX, NULL, SHORTENED_DIUC_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_shortened_uiuc_1,
+			{"Shortened UIUC", "wmx.compact_dlmap.shortened_uiuc", FT_UINT16, BASE_HEX, NULL, SHORTENED_DIUC_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_shortened_diuc,
+			{"Shortened DIUC", "wmx.compact_dlmap.shortened_diuc", FT_UINT8, BASE_HEX, NULL, SHORTENED_DIUC_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_shortened_diuc_1,
+			{"Shortened DIUC", "wmx.compact_dlmap.shortened_diuc", FT_UINT16, BASE_HEX, NULL, SHORTENED_DIUC_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_companded_sc,
+			{"Companded SC", "wmx.compact_dlmap.companded_sc", FT_UINT8, BASE_HEX, NULL, COMPANDED_SC_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_companded_sc_1,
+			{"Companded SC", "wmx.compact_dlmap.companded_sc", FT_UINT16, BASE_HEX, NULL, COMPANDED_SC_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_bin_offset,
+			{"BIN Offset", "wmx.compact_dlmap.bin_offset", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_bin_offset_1,
+			{"BIN Offset", "wmx.compact_dlmap.bin_offset", FT_UINT16, BASE_HEX, NULL, 0x0FF0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_num_of_subchannels,
+			{"Number Of Subchannels", "wmx.compact_dlmap.diuc_num_of_subchannels", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_num_of_subchannels_1,
+			{"Number Of Subchannels", "wmx.compact_dlmap.diuc_num_of_subchannels", FT_UINT16, BASE_DEC, NULL, 0x0FF0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_repetition_coding_indication,
+			{"Repetition Coding Indication", "wmx.compact_dlmap.diuc_repetition_coding_indication", FT_UINT8, BASE_DEC, VALS(rep_msgs), 0xC0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_repetition_coding_indication_1,
+			{"Repetition Coding Indication", "wmx.compact_dlmap.diuc_repetition_coding_indication", FT_UINT8, BASE_DEC, VALS(rep_msgs), 0x0C, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_reserved,
+			{"Reserved", "wmx.compact_dlmap.diuc_reserved", FT_UINT8, BASE_HEX, NULL, 0x30, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_reserved_1,
+			{"Reserved", "wmx.compact_dlmap.diuc_reserved", FT_UINT8, BASE_HEX, NULL, 0x03, "", HFILL}
+		},
+		{
+			&hf_cdlmap_bit_map_length,
+			{"BIT MAP Length", "wmx.compact_dlmap.bit_map_length", FT_UINT8, BASE_DEC, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_bit_map_length_1,
+			{"BIT MAP Length", "wmx.compact_dlmap.bit_map_length", FT_UINT8, BASE_DEC, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_bit_map,
+			{"BIT MAP", "wmx.compact_dlmap.bit_map", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc,
+			{"DIUC", "wmx.compact_dlmap.diuc", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_diuc_1,
+			{"DIUC", "wmx.compact_dlmap.diuc", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_allocation_mode,
+			{"Allocation Mode", "wmx.compact_dlmap.allocation_mode", FT_UINT8, BASE_DEC, VALS(vals_allocation_modes), 0xC0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_allocation_mode_1,
+			{"Allocation Mode", "wmx.compact_dlmap.allocation_mode", FT_UINT8, BASE_DEC, VALS(vals_allocation_modes), 0x0C, "", HFILL}
+		},
+		{
+			&hf_cdlmap_allocation_mode_rsvd,
+			{"Reserved", "wmx.compact_dlmap.allocation_mode_rsvd", FT_UINT8, BASE_DEC, NULL, 0x30, "", HFILL}
+		},
+		{
+			&hf_cdlmap_allocation_mode_rsvd_1,
+			{"Reserved", "wmx.compact_dlmap.allocation_mode_rsvd", FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL}
+		},
+		{
+			&hf_cdlmap_num_subchannels,
+			{"Number Of Subchannels", "wmx.compact_dlmap.num_subchannels", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_num_subchannels_1,
+			{"Number Of Subchannels", "wmx.compact_dlmap.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x0FF0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_reserved_type,
+			{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_reserved_type_1,
+			{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
+		}
+	};
+
+	/* HARQ MAP Format Configuration IE display */
+	static hf_register_info hf_format_config[] =
+	{
+		{
+			&hf_format_config_ie_dl_map_type,
+			{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_dl_map_type_1,
+			{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_dl_map_type_32,
+			{"DL-MAP Type", "wmx.format_config_ie.dl_map_type", FT_UINT32, BASE_DEC, NULL, FORMAT_CONFIG_IE_DL_MAP_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_new_format_indication,
+			{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 8, TFS(&tfs_indication), UL_MAP_APPEND_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_new_format_indication_1,
+			{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 8, TFS(&tfs_indication), UL_MAP_APPEND_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_new_format_indication_32,
+			{"New Format Indication", "wmx.format_config_ie.new_format_indication", FT_BOOLEAN, 32, TFS(&tfs_indication), FORMAT_CONFIG_IE_NEW_FORMAT_IND_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_cid_type,
+			{"HARQ MAP Indicator", "wmx.harq_map.format_config_ie.indicator", FT_UINT32, BASE_HEX, VALS(vals_cid_types), CID_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_cid_type_1,
+			{"CID Type", "wmx.harq_map.format_config_ie.cid_type", FT_UINT32, BASE_HEX, VALS(vals_cid_types), CID_TYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_safety_pattern,
+			{"Safety Pattern", "wmx.harq_map.format_config_ie.safety_pattern", FT_UINT32, BASE_HEX, NULL, SAFETY_PATTERN_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_safety_pattern_1,
+			{"Safety Pattern", "wmx.harq_map.format_config_ie.safety_pattern", FT_UINT32, BASE_HEX, NULL, SAFETY_PATTERN_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_subchannel_type,
+			{"Subchannel Type For Band AMC", "wmx.harq_map.format_config_ie.subchannel_type", FT_UINT32, BASE_HEX, VALS(vals_subchannel_types), BAND_AMC_SUBCHANNEL_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_subchannel_type_1,
+			{"Subchannel Type For Band AMC", "wmx.harq_map.format_config_ie.subchannel_type", FT_UINT32, BASE_HEX, VALS(vals_subchannel_types), BAND_AMC_SUBCHANNEL_TYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_max_logical_bands,
+			{"Max Logical Bands", "wmx.harq_map.format_config_ie.max_logical_bands", FT_UINT32, BASE_HEX, VALS(vals_max_logical_bands), MAX_LOGICAL_BANDS_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_max_logical_bands_1,
+			{"Max Logical Bands", "wmx.harq_map.format_config_ie.max_logical_bands", FT_UINT32, BASE_HEX, VALS(vals_max_logical_bands), MAX_LOGICAL_BANDS_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_broadcast_symbol,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_broadcast_symbol", FT_UINT32, BASE_HEX, NULL, NUM_BROADCAST_SYMBOLS_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_broadcast_symbol_1,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_broadcast_symbol", FT_UINT32, BASE_HEX, NULL, NUM_BROADCAST_SYMBOLS_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_dl_band_amc_symbol,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_dl_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_DL_AMC_SYMBOLS_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_dl_band_amc_symbol_1,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_dl_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_DL_AMC_SYMBOLS_MASK_1, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_ul_band_amc_symbol,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.format_config_ie.num_of_ul_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_UL_AMC_SYMBOLS_MASK, "", HFILL}
+		},
+		{
+			&hf_format_config_ie_num_of_ul_band_amc_symbol_1,
+			{"Number Of Symbols for Broadcast", "wmx.harq_map.num_of_ul_band_amc_symbol", FT_UINT32, BASE_HEX, NULL, NUM_UL_AMC_SYMBOLS_MASK_1, "", HFILL}
+		}
+	};
+
+	/* HARQ MAP Reduced CID IE display */
+	static hf_register_info hf_rcid[] =
+	{
+		{
+			&hf_harq_rcid_ie_normal_cid,
+			{"Normal CID", "wmx.harq_map.rcid_ie.normal_cid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_normal_cid_1,
+			{"Normal CID", "wmx.harq_map.rcid_ie.normal_cid", FT_UINT24, BASE_HEX, NULL, WIMAX_RCID_IE_NORMAL_CID_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_prefix,
+			{"Prefix", "wmx.harq_map.rcid_ie.prefix", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_PREFIX_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_prefix_1,
+			{"Prefix", "wmx.harq_map.rcid_ie.prefix", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_PREFIX_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid3,
+			{"3 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid3", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID3_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid3_1,
+			{"3 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid3", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID3_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid7,
+			{"7 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid7", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID7_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid7_1,
+			{"7 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid7", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID7_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid11,
+			{"11 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid11_1,
+			{"11 LSB Of Basic CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid11_2,
+			{"11 LSB Of Multicast, AAS or Broadcast CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_rcid_ie_cid11_3,
+			{"11 LSB Of Multicast, AAS or Broadcast CID", "wmx.harq_map.rcid_ie.cid11", FT_UINT16, BASE_HEX, NULL, WIMAX_RCID_IE_CID11_MASK_1, "", HFILL}
+		}
+	};
+
+	/* HARQ MAP HARQ Control IE display */
+	static hf_register_info hf_harq_control[] =
+	{
+		{
+			&hf_harq_control_ie_prefix,
+			{"Prefix", "wmx.harq_map.harq_control_ie.prefix", FT_BOOLEAN, 8, TFS(&tfs_prefix), WIMAX_HARQ_CONTROL_IE_PREFIX_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_ai_sn,
+			{"HARQ ID Sequence Number(AI_SN)", "wmx.harq_map.harq_control_ie.ai_sn", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_AI_SN_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_spid,
+			{"Subpacket ID (SPID)", "wmx.harq_map.harq_control_ie.spid", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_SPID_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_acid,
+			{"HARQ CH ID (ACID)", "wmx.harq_map.harq_control_ie.acid", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_ACID_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_reserved,
+			{"Reserved", "wmx.harq_map.harq_control_ie.reserved", FT_UINT8, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_RESERVED_MASK, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_prefix_1,
+			{"Prefix", "wmx.harq_map.harq_control_ie.prefix", FT_BOOLEAN, 16, TFS(&tfs_prefix), WIMAX_HARQ_CONTROL_IE_PREFIX_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_ai_sn_1,
+			{"HARQ ID Sequence Number(AI_SN)", "wmx.harq_map.harq_control_ie.ai_sn", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_AI_SN_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_spid_1,
+			{"Subpacket ID (SPID)", "wmx.harq_map.harq_control_ie.spid", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_SPID_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_acid_1,
+			{"HARQ CH ID (ACID)", "wmx.harq_map.harq_control_ie.acid", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_ACID_MASK_1, "", HFILL}
+		},
+		{
+			&hf_harq_control_ie_reserved_1,
+			{"Reserved", "wmx.harq_map.harq_control_ie.reserved", FT_UINT16, BASE_HEX, NULL, WIMAX_HARQ_CONTROL_IE_RESERVED_MASK_1, "", HFILL}
+		}
+	};
+
+	/* HARQ MAP CQICH Control IE display */
+	static hf_register_info hf_cqich_control[] =
+	{
+		{
+			&hf_cqich_control_ie_indicator,
+			{"CQICH Indicator", "wmx.harq_map.cqich_control_ie.cqich_indicator", FT_BOOLEAN, 16, TFS(&tfs_cqich_ind), WIMAX_CQICH_CONTROL_IE_INDICATOR_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_alloc_id,
+			{"Allocation Index", "wmx.harq_map.cqich_control_ie.alloc_id", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_ALLOCATION_INDEX_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_period,
+			{"PERIOD", "wmx.harq_map.cqich_control_ie.period", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_PERIOD_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_frame_offset,
+			{"Frame Offset", "wmx.harq_map.cqich_control_ie.frame_offset", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_FRAME_OFFSET_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_duration,
+			{"Duration", "wmx.harq_map.cqich_control_ie.duration", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_DURATION_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_cqi_rep_threshold,
+			{"CQI Reporting Threshold", "wmx.harq_map.cqich_control_ie.cqi_rep_threshold", FT_UINT16, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_CQI_REP_THRESHOLD_MASK, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_indicator_1,
+			{"CQICH Indicator", "wmx.harq_map.cqich_control_ie.cqich_indicator", FT_BOOLEAN, 24, TFS(&tfs_cqich_ind), WIMAX_CQICH_CONTROL_IE_INDICATOR_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_alloc_id_1,
+			{"Allocation Index", "wmx.harq_map.cqich_control_ie.alloc_id", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_ALLOCATION_INDEX_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_period_1,
+			{"PERIOD", "wmx.harq_map.cqich_control_ie.period", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_PERIOD_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_frame_offset_1,
+			{"Frame Offset", "wmx.harq_map.cqich_control_ie.frame_offset", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_FRAME_OFFSET_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_duration_1,
+			{"Duration", "wmx.harq_map.cqich_control_ie.duration", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_DURATION_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cqich_control_ie_cqi_rep_threshold_1,
+			{"CQI Reporting Threshold", "wmx.harq_map.cqich_control_ie.cqi_rep_threshold", FT_UINT24, BASE_HEX, NULL, WIMAX_CQICH_CONTROL_IE_CQI_REP_THRESHOLD_MASK_1, "", HFILL}
+		}
+	};
+
+	static hf_register_info hf_extension_type[] =
+	{
+		{
+			&hf_cdlmap_extension_type,
+			{"DL-MAP Type", "wmx.extension_type.dl_map_type", FT_UINT16, BASE_DEC, NULL, EXTENSION_TYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_type_1,
+			{"DL-MAP Type", "wmx.extension_type.dl_map_type", FT_UINT16, BASE_DEC, NULL, EXTENSION_TYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_subtype,
+			{"Extension Subtype", "wmx.extension_type.subtype", FT_UINT16, BASE_DEC, NULL, EXTENSION_SUBTYPE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_subtype_1,
+			{"Extension Subtype", "wmx.extension_type.subtype", FT_UINT16, BASE_DEC, NULL, EXTENSION_SUBTYPE_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_length,
+			{"Extension Length", "wmx.extension_type.length", FT_UINT16, BASE_DEC, NULL, EXTENSION_LENGTH_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_length_1,
+			{"Extension Length", "wmx.extension_type.length", FT_UINT16, BASE_DEC, NULL, EXTENSION_LENGTH_MASK_1, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_time_diversity_mbs,
+			{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_time_diversity_mbs_1,
+			{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_harq_mode_1,
+			{"HARQ Mode Switch", "wmx.extension_type.harq_mode", FT_UINT16, BASE_HEX, NULL, 0x000F, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_harq_mode,
+			{"HARQ Mode Switch", "wmx.extension_type.harq_mode", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_unknown_sub_type,
+			{"Unknown Extension Subtype", "wmx.extension_type.unknown_sub_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_cdlmap_extension_unknown_sub_type_1,
+			{"Unknown Extension Subtype", "wmx.extension_type.unknown_sub_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		}
+	};
+
+	/* Extended DIUC dependent IE */
+	static hf_register_info hf_extended_diuc[] =
+	{
+		{
+			&hf_extended_diuc_dependent_ie_diuc,
+			{"Extended DIUC", "wmx.extended_diuc_dependent_ie.diuc", FT_UINT8, BASE_HEX, NULL, MSB_NIBBLE_MASK, "", HFILL }
+		},
+		{
+			&hf_extended_diuc_dependent_ie_diuc_1,
+			{"Extended DIUC", "wmx.extended_diuc_dependent_ie.diuc", FT_UINT8, BASE_HEX, NULL, LSB_NIBBLE_MASK, "", HFILL }
+		},
+		{
+			&hf_extended_diuc_dependent_ie_length,
+			{"Length", "wmx.extended_diuc_dependent_ie.length", FT_UINT8, BASE_DEC, NULL, MSB_NIBBLE_MASK, "", HFILL }
+		},
+		{
+			&hf_extended_diuc_dependent_ie_length_1,
+			{"Length", "wmx.extended_diuc_dependent_ie.length", FT_UINT8, BASE_DEC, NULL, LSB_NIBBLE_MASK, "", HFILL }
+		},
+		{	/* 8.4.5.3.? Channel_Measurement_IE */
+			&hf_extended_diuc_dependent_ie_channel_measurement,
+			{"Channel_Measurement_IE (not implemented)", "wmx.extended_diuc_dependent_ie.channel_measurement", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.4 STC_Zone_IE */
+			&hf_extended_diuc_dependent_ie_stc_zone,
+			{"STC_Zone_IE (not implemented)", "wmx.extended_diuc_dependent_ie.stc_zone", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.3 AAS_DL_IE */
+			&hf_extended_diuc_dependent_ie_aas_dl,
+			{"AAS_DL_IE (not implemented)", "wmx.extended_diuc_dependent_ie.aas_dl", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.6 Data_location_in_another_BS_IE */
+			&hf_extended_diuc_dependent_ie_data_location,
+			{"Data_location_in_another_BS_IE (not implemented)", "wmx.extended_diuc_dependent_ie.data_location", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.7 CID_Switch_IE */
+			&hf_extended_diuc_dependent_ie_cid_switch,
+			{"CID_Switch_IE (not implemented)", "wmx.extended_diuc_dependent_ie.cid_switch", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+
+		{	/* 8.4.5.3.8 MIMO_DL_Basic_IE */
+			&hf_extended_diuc_dependent_ie_mimo_dl_basic,
+			{"MIMO_DL_Basic_IE (not implemented)", "wmx.extended_diuc_dependent_ie.mimo_dl_basic", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.9 MIMO_DL_Enhanced_IE */
+			&hf_extended_diuc_dependent_ie_mimo_dl_enhanced,
+			{"MIMO_DL_Enhanced_IE (not implemented)", "wmx.extended_diuc_dependent_ie.mimo_dl_enhanced", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.10 HARQ_Map_Pointer_IE */
+			&hf_extended_diuc_dependent_ie_harq_map_pointer,
+			{"HARQ_Map_Pointer_IE (not implemented)", "wmx.extended_diuc_dependent_ie.harq_map_pointer", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.11 PHYMOD_DL_IE */
+			&hf_extended_diuc_dependent_ie_phymod_dl,
+			{"PHYMOD_DL_IE (not implemented)", "wmx.extended_diuc_dependent_ie.phymod_dl", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
+			&hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation,
+			{"DL_PUSC_Burst_Allocation_in_Other_Segment_IE (not implemented)", "wmx.extended_diuc_dependent_ie.dl_pusc_burst_allocation", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* 8.4.5.3.19 UL_interference_and_noise_level_IE */
+			&hf_extended_diuc_dependent_ie_ul_interference_and_noise_level,
+			{"UL_interference_and_noise_level_IE (not implemented)", "wmx.extended_diuc_dependent_ie.ul_interference_and_noise_level", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{	/* unknown DIUC */
+			&hf_extended_diuc_dependent_ie_unknown_diuc,
+			{"Unknown Extended DIUC", "wmx.extended_diuc_dependent_ie.unknown_diuc", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		}
+	};
+
 	if (proto_wimax_compact_dlmap_ie_decoder == -1)
 	{
 		proto_wimax_compact_dlmap_ie_decoder = proto_wimax;

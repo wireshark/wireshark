@@ -55,74 +55,74 @@ static int hf_opcua_transport_seq = -1;
 static int hf_opcua_transport_rqid = -1;
 extern gint ett_opcua_nodeid;
 
-static hf_register_info hf[] =
-{
-    { &hf_opcua_transport_type,
-    /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
-    {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
-    },
-    { &hf_opcua_transport_chunk,
-    {  "Chunk Type",          "transport.chunk",    FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
-    },
-    { &hf_opcua_transport_size,
-    {  "Message Size",        "transport.size",     FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_ver,
-    {  "Version",             "transport.ver",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_scid,
-    {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_lifetime,
-    {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_rbs,
-    {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_sbs,
-    {  "SendBufferSize",      "transport.sbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_mms,
-    {  "MaxMessageSize",      "transport.mms",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_mcc,
-    {  "MaxChunkCount",       "transport.mcc",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_endpoint,
-    {  "EndPointUrl",         "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_error,
-    {  "Error",               "transport.error",    FT_UINT32, BASE_HEX,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_reason,
-    {  "Reason",              "transport.reason",   FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-/*    { &hf_opcua_transport_spul,
-    {  "SecurityPolicyUriLength", "transport.spul", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },*/
-    { &hf_opcua_transport_spu,
-    {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_scert,
-    {  "SenderCertificate",   "security.scert",    FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_rcthumb,
-    {  "ReceiverCertificateThumbprint", "security.rcthumb", FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_seq,
-    {  "SequenceNumber", "security.seq",           FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_transport_rqid,
-    {  "RequestId", "security.rqid",                FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-};
-
 /** subtree types */
 extern gint ett_opcua_extensionobject;
 
 /** Register transport layer types. */
 void registerTransportLayerTypes(int proto)
 {
+    static hf_register_info hf[] =
+    {
+        { &hf_opcua_transport_type,
+        /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
+        {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+        },
+        { &hf_opcua_transport_chunk,
+        {  "Chunk Type",          "transport.chunk",    FT_STRING, BASE_NONE, NULL,    0x0,     "",    HFILL }
+        },
+        { &hf_opcua_transport_size,
+        {  "Message Size",        "transport.size",     FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_ver,
+        {  "Version",             "transport.ver",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_scid,
+        {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_lifetime,
+        {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_rbs,
+        {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_sbs,
+        {  "SendBufferSize",      "transport.sbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_mms,
+        {  "MaxMessageSize",      "transport.mms",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_mcc,
+        {  "MaxChunkCount",       "transport.mcc",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_endpoint,
+        {  "EndPointUrl",         "transport.endpoint", FT_STRING, BASE_NONE, NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_error,
+        {  "Error",               "transport.error",    FT_UINT32, BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_reason,
+        {  "Reason",              "transport.reason",   FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+    /*    { &hf_opcua_transport_spul,
+        {  "SecurityPolicyUriLength", "transport.spul", FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },*/
+        { &hf_opcua_transport_spu,
+        {  "SecurityPolicyUri",   "security.spu",      FT_STRING, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_scert,
+        {  "SenderCertificate",   "security.scert",    FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_rcthumb,
+        {  "ReceiverCertificateThumbprint", "security.rcthumb", FT_BYTES,  BASE_HEX,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_seq,
+        {  "SequenceNumber", "security.seq",           FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_transport_rqid,
+        {  "RequestId", "security.rqid",                FT_UINT32,  BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+    };
+
     proto_register_field_array(proto, hf, array_length(hf));
 }
 

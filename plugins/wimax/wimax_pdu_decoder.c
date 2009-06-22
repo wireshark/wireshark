@@ -77,19 +77,6 @@ static gint ett_wimax_pdu_decoder = -1;
 
 static int hf_wimax_value_bytes = -1;
 
-/* PDU display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_wimax_value_bytes,
-		{
-			"Values", "wmx.pdu.value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-};
-
 /* Setup protocol subtree array */
 static gint *ett[] =
 {
@@ -99,6 +86,19 @@ static gint *ett[] =
 /* Register Wimax PDU Burst Protocol */
 void proto_register_wimax_pdu(void)
 {
+	/* PDU display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_wimax_value_bytes,
+			{
+				"Values", "wmx.pdu.value",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+	};
+
 	if (proto_wimax_pdu_decoder == -1)
 	{
 		proto_wimax_pdu_decoder = proto_wimax;

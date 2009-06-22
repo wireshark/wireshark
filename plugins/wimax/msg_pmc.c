@@ -94,85 +94,84 @@ static const value_string vals_pmc_req_confirmation[] = {
 	{0,				NULL}
 };
 
-/* PMC fields display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_pmc_req_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.pmc_req",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_req_confirmation,
-		{
-			"Confirmation", "wmx.pmc_req.confirmation",
-			FT_UINT16, BASE_DEC, VALS(vals_pmc_req_confirmation), 0x0020, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_req_pwr_control_mode_change,
-		{
-			"Power control mode change", "wmx.pmc_req.power_control_mode",
-			FT_UINT16, BASE_DEC, VALS(vals_pmc_req_pwr), 0xC000, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_req_pwr_control_mode_change_cor2,
-		{
-			"Power control mode change", "wmx.pmc_req.power_control_mode",
-			FT_UINT16, BASE_DEC, VALS(vals_pmc_req_pwr_cor2), 0xC000, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_req_reserved,
-		{
-			"Reserved", "wmx.pmc_req.reserved",
-			FT_UINT16, BASE_DEC, NULL, 0x001F, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_req_tx_power_level,
-		{
-			"UL Tx power level for the burst that carries this header (11.1.1). When the Tx power is different from slot to slot, the maximum value is reported", "wmx.pmc_req.ul_tx_power_level",
-			FT_UINT16, BASE_DEC, NULL, 0x3FC0, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_rsp_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.pmc_rsp",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_rsp_offset_BS_per_MS,
-		{
-			"Offset_BS per MS.  Signed change in power level (incr of 0.25 dB) that the MS shall apply to the open loop power control formula in 8.4.10.3.2", "wmx.pmc_rsp.offset_BS_per_MS",
-			FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_rsp_power_adjust,
-		{
-			"Power adjust.  Signed change in power level (incr of 0.25 dB) the MS shall apply to its current transmission power. When subchannelization is employed, the SS shall interpret as a required change to the Tx power density", "wmx.pmc_rsp.power_adjust",
-			FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_pmc_rsp_start_frame,
-		{
-			"Start frame.  Apply mode change from current frame when 6 LSBs of frame match this", "wmx.pmc_rsp.start_frame",
-			FT_UINT16, BASE_HEX, NULL, 0x3F00, "", HFILL
-		}
-	}
-};
-
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_pmc_req(void)
 {
+	/* PMC fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_pmc_req_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.pmc_req",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_req_confirmation,
+			{
+				"Confirmation", "wmx.pmc_req.confirmation",
+				FT_UINT16, BASE_DEC, VALS(vals_pmc_req_confirmation), 0x0020, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_req_pwr_control_mode_change,
+			{
+				"Power control mode change", "wmx.pmc_req.power_control_mode",
+				FT_UINT16, BASE_DEC, VALS(vals_pmc_req_pwr), 0xC000, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_req_pwr_control_mode_change_cor2,
+			{
+				"Power control mode change", "wmx.pmc_req.power_control_mode",
+				FT_UINT16, BASE_DEC, VALS(vals_pmc_req_pwr_cor2), 0xC000, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_req_reserved,
+			{
+				"Reserved", "wmx.pmc_req.reserved",
+				FT_UINT16, BASE_DEC, NULL, 0x001F, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_req_tx_power_level,
+			{
+				"UL Tx power level for the burst that carries this header (11.1.1). When the Tx power is different from slot to slot, the maximum value is reported", "wmx.pmc_req.ul_tx_power_level",
+				FT_UINT16, BASE_DEC, NULL, 0x3FC0, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_rsp_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.pmc_rsp",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_rsp_offset_BS_per_MS,
+			{
+				"Offset_BS per MS.	Signed change in power level (incr of 0.25 dB) that the MS shall apply to the open loop power control formula in 8.4.10.3.2", "wmx.pmc_rsp.offset_BS_per_MS",
+				FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_rsp_power_adjust,
+			{
+				"Power adjust.	Signed change in power level (incr of 0.25 dB) the MS shall apply to its current transmission power. When subchannelization is employed, the SS shall interpret as a required change to the Tx power density", "wmx.pmc_rsp.power_adjust",
+				FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_pmc_rsp_start_frame,
+			{
+				"Start frame.  Apply mode change from current frame when 6 LSBs of frame match this", "wmx.pmc_rsp.start_frame",
+				FT_UINT16, BASE_HEX, NULL, 0x3F00, "", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_pmc_req_decoder == -1) {
 		proto_mac_mgmt_msg_pmc_req_decoder = proto_register_protocol (
 							"WiMax PMC-REQ/RSP Messages", /* name */

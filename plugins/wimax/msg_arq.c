@@ -130,183 +130,183 @@ static const value_string vals_arq_reset_direction[] = {
 	{0,				NULL}
 };
 
-/* ARQ fields display */
-static hf_register_info hf[] =
-{
-	/* TODO: Make three separate arq message types */
-	{
-		&hf_arq_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.arq",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_arq_ack_type,
-		{
-			"ACK Type", "wmx.arq.ack_type",
-			FT_UINT8, BASE_DEC, VALS(vals_arq_ack_type), 0x60, "", HFILL
-		}
-	},
-	{
-		&hf_arq_bsn,
-		{
-			"BSN", "wmx.arq.bsn",
-			FT_UINT16, BASE_DEC, NULL, 0x1FFC, "", HFILL
-		}
-	},
-	{
-		&hf_arq_cid,
-		{
-			"Connection ID", "wmx.arq.cid",
-			FT_UINT16, BASE_DEC, NULL, 0x00, "The ID of the connection being referenced", HFILL
-		}
-	},
-	{
-		&hf_arq_discard_bsn,
-		{
-			"BSN", "wmx.arq.discard_bsn",
-			FT_UINT16, BASE_DEC, NULL, 0x07FF, "", HFILL
-		}
-	},
-	{
-		&hf_arq_discard_cid,
-		{
-			"Connection ID", "wmx.arq.discard_cid",
-			FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
-		}
-	},
-	{
-		&hf_arq_discard_reserved,
-		{
-			"Reserved", "wmx.arq.discard_reserved",
-			FT_UINT8, BASE_DEC, NULL, 0xF8, "", HFILL
-		}
-	},
-	{
-		&hf_arq_last,
-		{
-			"LAST", "wmx.arq.last",
-			FT_BOOLEAN, 8, TFS(&tfs_arq_last), 0x80, "", HFILL
-		}
-	},
-	{
-		&hf_arq_num_ack_maps,
-		{
-			"Number of ACK Maps", "wmx.arq.num_maps",
-			FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
-		}
-	},
-	{
-		&hf_arq_reserved,
-		{
-			"Reserved", "wmx.arq.reserved",
-			FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_arq_reset_cid,
-		{
-			"Connection ID", "wmx.arq.reset_cid",
-			FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
-		}
-	},
-	{
-		&hf_arq_reset_direction,
-		{
-			"Direction", "wmx.arq.reset_direction",
-			FT_UINT8, BASE_DEC, VALS(vals_arq_reset_direction), 0x30, "", HFILL
-		}
-	},
-	{
-		&hf_arq_reset_reserved,
-		{
-			"Reserved", "wmx.arq.reset_reserved",
-			FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
-		}
-	},
-	{
-		&hf_arq_reset_type,
-		{
-			"Type", "wmx.arq.reset_type",
-			FT_UINT8, BASE_DEC, VALS(vals_arq_reset_type), 0xC0, "", HFILL
-		}
-	},
-	{
-		&hf_arq_selective_map,
-		{
-			"Selective ACK Map", "wmx.arq.selective_map",
-			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_arq_0seq_ack_map,
-		{
-			"Sequence ACK Map", "wmx.arq.seq_ack_map",
-			FT_UINT8, BASE_HEX, NULL, 0x60, "", HFILL
-		}
-	},
-	{
-		&hf_arq_1seq_ack_map,
-		{
-			"Sequence ACK Map", "wmx.arq.seq_ack_map",
-			FT_UINT8, BASE_HEX, NULL, 0x70, "", HFILL
-		}
-	},
-	{
-		&hf_arq_seq_format,
-		{
-			"Sequence Format", "wmx.arq.seq_format",
-			FT_UINT8, BASE_DEC, NULL, 0x80, "", HFILL
-		}
-	},
-	{
-		&hf_arq_0seq1_len,
-		{
-			"Sequence 1 Length", "wmx.arq.seq1_len",
-			FT_UINT16, BASE_DEC, NULL, 0x1F80, "", HFILL
-		}
-	},
-	{
-		&hf_arq_0seq2_len,
-		{
-			"Sequence 2 Length", "wmx.arq.seq2_len",
-			FT_UINT16, BASE_DEC, NULL, 0x007E, "", HFILL
-		}
-	},
-	{
-		&hf_arq_1seq1_len,
-		{
-			"Sequence 1 Length", "wmx.arq.seq1_len",
-			FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
-		}
-	},
-	{
-		&hf_arq_1seq2_len,
-		{
-			"Sequence 2 Length", "wmx.arq.seq2_len",
-			FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
-		}
-	},
-	{
-		&hf_arq_1seq3_len,
-		{
-			"Sequence 3 Length", "wmx.arq.seq3_len",
-			FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
-		}
-	},
-	{
-		&hf_ack_type_reserved,
-		{
-			"Reserved", "wmx.ack_type.reserved",
-			FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
-		}
-	}
-};
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_arq_feedback(void)
 {
+	/* ARQ fields display */
+	static hf_register_info hf[] =
+	{
+		/* TODO: Make three separate arq message types */
+		{
+			&hf_arq_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.arq",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_arq_ack_type,
+			{
+				"ACK Type", "wmx.arq.ack_type",
+				FT_UINT8, BASE_DEC, VALS(vals_arq_ack_type), 0x60, "", HFILL
+			}
+		},
+		{
+			&hf_arq_bsn,
+			{
+				"BSN", "wmx.arq.bsn",
+				FT_UINT16, BASE_DEC, NULL, 0x1FFC, "", HFILL
+			}
+		},
+		{
+			&hf_arq_cid,
+			{
+				"Connection ID", "wmx.arq.cid",
+				FT_UINT16, BASE_DEC, NULL, 0x00, "The ID of the connection being referenced", HFILL
+			}
+		},
+		{
+			&hf_arq_discard_bsn,
+			{
+				"BSN", "wmx.arq.discard_bsn",
+				FT_UINT16, BASE_DEC, NULL, 0x07FF, "", HFILL
+			}
+		},
+		{
+			&hf_arq_discard_cid,
+			{
+				"Connection ID", "wmx.arq.discard_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+			}
+		},
+		{
+			&hf_arq_discard_reserved,
+			{
+				"Reserved", "wmx.arq.discard_reserved",
+				FT_UINT8, BASE_DEC, NULL, 0xF8, "", HFILL
+			}
+		},
+		{
+			&hf_arq_last,
+			{
+				"LAST", "wmx.arq.last",
+				FT_BOOLEAN, 8, TFS(&tfs_arq_last), 0x80, "", HFILL
+			}
+		},
+		{
+			&hf_arq_num_ack_maps,
+			{
+				"Number of ACK Maps", "wmx.arq.num_maps",
+				FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
+			}
+		},
+		{
+			&hf_arq_reserved,
+			{
+				"Reserved", "wmx.arq.reserved",
+				FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_arq_reset_cid,
+			{
+				"Connection ID", "wmx.arq.reset_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x00, "", HFILL
+			}
+		},
+		{
+			&hf_arq_reset_direction,
+			{
+				"Direction", "wmx.arq.reset_direction",
+				FT_UINT8, BASE_DEC, VALS(vals_arq_reset_direction), 0x30, "", HFILL
+			}
+		},
+		{
+			&hf_arq_reset_reserved,
+			{
+				"Reserved", "wmx.arq.reset_reserved",
+				FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
+			}
+		},
+		{
+			&hf_arq_reset_type,
+			{
+				"Type", "wmx.arq.reset_type",
+				FT_UINT8, BASE_DEC, VALS(vals_arq_reset_type), 0xC0, "", HFILL
+			}
+		},
+		{
+			&hf_arq_selective_map,
+			{
+				"Selective ACK Map", "wmx.arq.selective_map",
+				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_arq_0seq_ack_map,
+			{
+				"Sequence ACK Map", "wmx.arq.seq_ack_map",
+				FT_UINT8, BASE_HEX, NULL, 0x60, "", HFILL
+			}
+		},
+		{
+			&hf_arq_1seq_ack_map,
+			{
+				"Sequence ACK Map", "wmx.arq.seq_ack_map",
+				FT_UINT8, BASE_HEX, NULL, 0x70, "", HFILL
+			}
+		},
+		{
+			&hf_arq_seq_format,
+			{
+				"Sequence Format", "wmx.arq.seq_format",
+				FT_UINT8, BASE_DEC, NULL, 0x80, "", HFILL
+			}
+		},
+		{
+			&hf_arq_0seq1_len,
+			{
+				"Sequence 1 Length", "wmx.arq.seq1_len",
+				FT_UINT16, BASE_DEC, NULL, 0x1F80, "", HFILL
+			}
+		},
+		{
+			&hf_arq_0seq2_len,
+			{
+				"Sequence 2 Length", "wmx.arq.seq2_len",
+				FT_UINT16, BASE_DEC, NULL, 0x007E, "", HFILL
+			}
+		},
+		{
+			&hf_arq_1seq1_len,
+			{
+				"Sequence 1 Length", "wmx.arq.seq1_len",
+				FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
+			}
+		},
+		{
+			&hf_arq_1seq2_len,
+			{
+				"Sequence 2 Length", "wmx.arq.seq2_len",
+				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
+			}
+		},
+		{
+			&hf_arq_1seq3_len,
+			{
+				"Sequence 3 Length", "wmx.arq.seq3_len",
+				FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL
+			}
+		},
+		{
+			&hf_ack_type_reserved,
+			{
+				"Reserved", "wmx.ack_type.reserved",
+				FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_arq_feedback_decoder == -1)
 	{
 		proto_mac_mgmt_msg_arq_feedback_decoder = proto_register_protocol (

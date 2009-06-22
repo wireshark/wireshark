@@ -90,84 +90,84 @@ static const value_string vals_reg_rsp_status [] = {
 };
 
 
-/* REG-RSP fields display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_reg_rsp_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_invalid_tlv,
-		{
-			"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
-			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_rsp_new_cid_after_ho,
-		{
-			"New CID after handover to new BS", "wmx.reg_rsp.new_cid_after_ho",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_rsp_status,
-		{
-			"Response", "wmx.reg_rsp.response", 
-			FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_rsp_secondary_mgmt_cid,
-		{
-			"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_total_provisioned_sf,
-		{
-			"Total Number of Provisional Service Flow", "wmx.reg_rsp.total_provisional_sf",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_rsp_service_flow_id,
-		{
-			"Service flow ID", "wmx.reg_rsp.service_flow_id",
-			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_rsp_system_resource_retain_time,
-		{
-			"System Resource Retain Time", "wmx.reg_rsp.system_resource_retain_time",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_tlv_type,
-		{
-			"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
-			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
-		}
-	},
-	{
-		&hf_tlv_value,
-		{
-			"Value", "wmx.reg_rsp.tlv_value", 
-			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
-		}
-	}
-};
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_reg_rsp(void)
 {
+	/* REG-RSP fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_reg_rsp_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_new_cid_after_ho,
+			{
+				"New CID after handover to new BS", "wmx.reg_rsp.new_cid_after_ho",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_status,
+			{
+				"Response", "wmx.reg_rsp.response", 
+				FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_secondary_mgmt_cid,
+			{
+				"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_total_provisioned_sf,
+			{
+				"Total Number of Provisional Service Flow", "wmx.reg_rsp.total_provisional_sf",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_service_flow_id,
+			{
+				"Service flow ID", "wmx.reg_rsp.service_flow_id",
+				FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_system_resource_retain_time,
+			{
+				"System Resource Retain Time", "wmx.reg_rsp.system_resource_retain_time",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_tlv_type,
+			{
+				"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
+				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+			}
+		},
+		{
+			&hf_tlv_value,
+			{
+				"Value", "wmx.reg_rsp.tlv_value", 
+				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_reg_rsp_decoder == -1)
 	{
 		proto_mac_mgmt_msg_reg_rsp_decoder = proto_mac_mgmt_msg_reg_req_decoder;

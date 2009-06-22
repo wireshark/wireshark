@@ -104,99 +104,6 @@ static const value_string coding_indications[] =
 	{ 0,  NULL }
 };
 
-/* TLV display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_fch_used_subchannel_group0,
-		{
-			"Sub-Channel Group 0", "wmx.fch.subchannel_group0",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_used_subchannel_group1,
-		{
-			"Sub-Channel Group 1", "wmx.fch.subchannel_group1",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_used_subchannel_group2,
-		{
-			"Sub-Channel Group 2", "wmx.fch.subchannel_group2",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_used_subchannel_group3,
-		{
-			"Sub-Channel Group 3", "wmx.fch.subchannel_group3",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_used_subchannel_group4,
-		{
-			"Sub-Channel Group 4", "wmx.fch.subchannel_group4",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_4,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_used_subchannel_group5,
-		{
-			"Sub-Channel Group 5", "wmx.fch.subchannel_group5",
-			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_5,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_reserved_1,
-		{
-			"Reserved", "wmx.fch.reserved1",
-			FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_repetition_coding_indication,
-		{
-			"Repetition Coding Indication", "wmx.fch.repetition_coding_indication",
-			FT_UINT24, BASE_DEC, VALS(repetition_coding_indications), REPETITION_CODING_INDICATION,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_coding_indication,
-		{
-			"Coding Indication", "wmx.fch.coding_indication",
-			FT_UINT24, BASE_DEC, VALS(coding_indications), CODING_INDICATION,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_dlmap_length,
-		{
-			"DL Map Length", "wmx.fch.dl_map_length",
-			FT_UINT24, BASE_DEC, NULL, DL_MAP_LENGTH,
-			"", HFILL
-		}
-	},
-	{
-		&hf_fch_reserved_2,
-		{
-			"Reserved", "wmx.fch.reserved2",
-			FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_2,
-			"", HFILL
-		}
-	}
-};
-
 /* Setup protocol subtree array */
 static gint *ett[] =
 {
@@ -206,6 +113,99 @@ static gint *ett[] =
 /* Register Wimax FCH Protocol */
 void proto_register_wimax_fch(void)
 {
+	/* TLV display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_fch_used_subchannel_group0,
+			{
+				"Sub-Channel Group 0", "wmx.fch.subchannel_group0",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_used_subchannel_group1,
+			{
+				"Sub-Channel Group 1", "wmx.fch.subchannel_group1",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_used_subchannel_group2,
+			{
+				"Sub-Channel Group 2", "wmx.fch.subchannel_group2",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_used_subchannel_group3,
+			{
+				"Sub-Channel Group 3", "wmx.fch.subchannel_group3",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_used_subchannel_group4,
+			{
+				"Sub-Channel Group 4", "wmx.fch.subchannel_group4",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_4,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_used_subchannel_group5,
+			{
+				"Sub-Channel Group 5", "wmx.fch.subchannel_group5",
+				FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_5,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_reserved_1,
+			{
+				"Reserved", "wmx.fch.reserved1",
+				FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_repetition_coding_indication,
+			{
+				"Repetition Coding Indication", "wmx.fch.repetition_coding_indication",
+				FT_UINT24, BASE_DEC, VALS(repetition_coding_indications), REPETITION_CODING_INDICATION,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_coding_indication,
+			{
+				"Coding Indication", "wmx.fch.coding_indication",
+				FT_UINT24, BASE_DEC, VALS(coding_indications), CODING_INDICATION,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_dlmap_length,
+			{
+				"DL Map Length", "wmx.fch.dl_map_length",
+				FT_UINT24, BASE_DEC, NULL, DL_MAP_LENGTH,
+				"", HFILL
+			}
+		},
+		{
+			&hf_fch_reserved_2,
+			{
+				"Reserved", "wmx.fch.reserved2",
+				FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_2,
+				"", HFILL
+			}
+		}
+	};
+
 	if (proto_wimax_fch_decoder == -1)
 	{
 		proto_wimax_fch_decoder = proto_wimax;

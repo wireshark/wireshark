@@ -393,573 +393,573 @@ static const value_string ai_msgs[] =
 	{ 0,  NULL}
 };
 
-/* MAC HEADER TYPE II display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_mac_header_type_2_value_bytes,
-		{
-			"Values", "wmx.type2ValueBytes",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_ht,
-		{
-			"MAC Header Type", "wmx.type2Ht",
-			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_HT,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_ec,
-		{
-			"MAC Encryption Control", "wmx.type2Ec",
-			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_EC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_type,
-		{
-			"MAC Sub-Type", "wmx.type2Type",
-			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cii,
-		{
-			"CID Inclusion Indication", "wmx.type2Cii",
-			FT_UINT8, BASE_DEC, VALS(cii_msgs), WIMAX_MAC_HEADER_TYPE_2_CII,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_fb_type,
-		{
-			"Feedback Type", "wmx.type2FbType",
-			FT_UINT8, BASE_DEC, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_2_FB_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cqi_fb_type,
-		{
-			"Mimo Feedback Type", "wmx.type2MimoFbType",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_FB_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cqi_payload,
-		{
-			"CQI and Mimo Feedback Payload", "wmx.type2MimoFbPayload",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_PAYLOAD,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cqi_rsv,
-		{
-			"Reserved", "wmx.type2MimoFbRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_dl_ave_cinr,
-		{
-			"DL Average CINR", "wmx.type2DlAveCinr",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_CINR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_dl_ave_rsv,
-		{
-			"Reserved", "wmx.type2DlAveRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_coef_ni,
-		{
-			"Number of Index", "wmx.type2MimoCoefNi",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_NI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_coef_ai,
-		{
-			"Occurrences of Antenna Index", "wmx.type2MimoCoefAi",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_AI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_coef,
-		{
-			"MIMO Coefficients", "wmx.type2MimoCoef",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_coef_rsv,
-		{
-			"Reserved", "wmx.type2MimoCoefRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_dl_chan_diuc,
-		{
-			"Preferred DIUC", "wmx.type2DlChanDiuc",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DIUC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_dl_chan_dcd,
-		{
-			"DCD Change Count", "wmx.type2DlChanDcd",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DCD,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_dl_chan_rsv,
-		{
-			"Reserved", "wmx.type2DlChanRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_ul_tx_pwr,
-		{
-			"UL TX Power", "wmx.type2UlTxPwr",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_ul_tx_pwr_rsv,
-		{
-			"Reserved", "wmx.type2UlTxPwrRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_phy_diuc,
-		{
-			"Preferred DIUC Index", "wmx.type2PhyDiuc",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_DIUC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_phy_ul_tx_pwr,
-		{
-			"UL TX Power", "wmx.type2PhyUlTxPwr",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_TX_PWR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_phy_ul_hdrm,
-		{
-			"UL Headroom", "wmx.type2PhyHdRm",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_HDRM,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_phy_rsv,
-		{
-			"Reserved", "wmx.type2PhyRsv",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_amc_bitmap,
-		{
-			"AMC Band Indication Bitmap", "wmx.type2AmcBitmap",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_BITMAP,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_amc_cqi_1,
-		{
-			"CQI 1", "wmx.type2AmcCqi1",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_amc_cqi_2,
-		{
-			"CQI 2", "wmx.type2AmcCqi2",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_amc_cqi_3,
-		{
-			"CQI 3", "wmx.type2AmcCqi3",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_amc_cqi_4,
-		{
-			"CQI 4", "wmx.type2AmcCqi4",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_4,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_life_span,
-		{
-			"Life Span of Short-term", "wmx.type2LifeSpan",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_life_span_rsv,
-		{
-			"Reserved", "wmx.type2LifeSpanRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mt_num_fb_types,
-		{
-			"Number of Feedback Types", "wmx.type2MtNumFbTypes",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_NUM_FB_TYPES,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mt_occu_fb_type,
-		{
-			"Occurrences of Feedback Type", "wmx.type2MtOccuFbType",
-			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_OCCU_FB_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mt_fb_contents,
-		{
-			"Number of Feedback Types", "wmx.type2MtNumFbTypes",
-			FT_UINT32, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_FB_CONTENTS,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_lt_id_fb,
-		{
-			"Long-term Feedback Index", "wmx.type2LtFbId",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_ID_FB,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_lt_rank,
-		{
-			"Rank of Precoding Codebook", "wmx.type2LtRank",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RANK,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_lt_fec_qam,
-		{
-			"FEC and QAM", "wmx.type2LtFecQam",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_FEC_QAM,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_lt_rsv,
-		{
-			"Reserved", "wmx.type2LtFbId",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_comb_dl_ave,
-		{
-			"Combined DL Average CINR of Active BSs", "wmx.type2CombDlAve",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_AVE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_comb_dl_rsv,
-		{
-			"Reserved", "wmx.type2CombDlRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_diuc,
-		{
-			"Preferred DIUC Index", "wmx.type2MimoDiuc",
-			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DIUC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_pbwi,
-		{
-			"Preferred Bandwidth Index", "wmx.type2MimoPbwi",
-			FT_UINT8, BASE_DEC, VALS(pbwi_table), WIMAX_MAC_HEADER_TYPE_2_PBWI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_slpb,
-		{
-			"Starting Location of Preferred Bandwidth", "wmx.type2MimoSlpb",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_SLPB,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_bpri_cid,
-		{
-			"Burst Profile Ranking Indicator with CID", "wmx.type2MimoBpriCid",
-			FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI_CID,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_cid,
-		{
-			"Connection ID", "wmx.type2MimoCid",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CID,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_bpri,
-		{
-			"Burst Profile Ranking Indicator without CID", "wmx.type2MimoBpri",
-			FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_cti,
-		{
-			"Coherent Time Index", "wmx.type2MimoCti",
-			FT_UINT24, BASE_HEX, VALS(cti_table), WIMAX_MAC_HEADER_TYPE_2_CTI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_ai_0,
-		{
-			"Antenna 0 Indication", "wmx.type2MimoAi",
-			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_ai_1,
-		{
-			"Antenna 1 Indication", "wmx.type2MimoAi",
-			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_ai_2,
-		{
-			"Antenna 2 Indication", "wmx.type2MimoAi",
-			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_ai_3,
-		{
-			"Antenna 3 Indication", "wmx.type2MimoAi",
-			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_mi,
-		{
-			"MS Matrix Indicator", "wmx.type2MimoMi",
-			FT_UINT24, BASE_HEX, VALS(mi_table), WIMAX_MAC_HEADER_TYPE_2_MI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_ct,
-		{
-			"CQI Type", "wmx.type2MimoCt",
-			FT_UINT24, BASE_HEX, VALS(ct_msgs), WIMAX_MAC_HEADER_TYPE_2_CT,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_mimo_cqi,
-		{
-			"CQI Feedback", "wmx.type2MimoCqi",
-			FT_UINT24, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI,
-			"", HFILL
-		}
-	},
-	{	&hf_mac_header_type_2_cinr_mean,
-		{
-			"CINR Mean", "wmx.type2CinrMean",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cinr_devi,
-		{
-			"CINR Standard Deviation", "wmx.type2CinrDevi",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_type,
-		{
-			"Closed-Loop MIMO Type", "wmx.type2ClMimoType",
-			FT_UINT16, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_ant_id,
-		{
-			"Antenna Grouping Index", "wmx.type2ClMimoAntId",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_ID,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_cqi,
-		{
-			"Average CQI", "wmx.type2ClMimoCqi",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_cqi_1,
-		{
-			"Average CQI", "wmx.type2ClMimoCqi",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_cqi_2,
-		{
-			"Average CQI", "wmx.type2ClMimoCqi",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_rsv,
-		{
-			"Reserved", "wmx.type2ClMimoRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_rsv_1,
-		{
-			"Reserved", "wmx.type2ClMimoRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_rsv_2,
-		{
-			"Reserved", "wmx.type2ClMimoRsv",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_streams,
-		{
-			"Number of Streams", "wmx.type2ClMimoStreams",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_STREAMS,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_ant_sel,
-		{
-			"Antenna Selection Option Index", "wmx.type2ClMimoAntSel",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_SEL,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cl_mimo_codebook_id,
-		{
-			"Codebook Index", "wmx.type2ClMimoCodeBkId",
-			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CODEBOOK_ID,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_cid,
-		{
-			"Connection ID", "wmx.type2Cid",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_no_cid,
-		{
-			"Reserved", "wmx.type2NoCid",
-			FT_UINT16, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_2_hcs,
-		{
-			"Header Check Sequence", "wmx.type2Hcs",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	}
-};
-
 /* Register Wimax Mac Header Type II Protocol and Dissector */
 void proto_register_mac_header_type_2(void)
 {
+	/* MAC HEADER TYPE II display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_mac_header_type_2_value_bytes,
+			{
+				"Values", "wmx.type2ValueBytes",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_ht,
+			{
+				"MAC Header Type", "wmx.type2Ht",
+				FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_HT,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_ec,
+			{
+				"MAC Encryption Control", "wmx.type2Ec",
+				FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_EC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_type,
+			{
+				"MAC Sub-Type", "wmx.type2Type",
+				FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cii,
+			{
+				"CID Inclusion Indication", "wmx.type2Cii",
+				FT_UINT8, BASE_DEC, VALS(cii_msgs), WIMAX_MAC_HEADER_TYPE_2_CII,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_fb_type,
+			{
+				"Feedback Type", "wmx.type2FbType",
+				FT_UINT8, BASE_DEC, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_2_FB_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cqi_fb_type,
+			{
+				"Mimo Feedback Type", "wmx.type2MimoFbType",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_FB_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cqi_payload,
+			{
+				"CQI and Mimo Feedback Payload", "wmx.type2MimoFbPayload",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_PAYLOAD,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cqi_rsv,
+			{
+				"Reserved", "wmx.type2MimoFbRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_dl_ave_cinr,
+			{
+				"DL Average CINR", "wmx.type2DlAveCinr",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_CINR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_dl_ave_rsv,
+			{
+				"Reserved", "wmx.type2DlAveRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_coef_ni,
+			{
+				"Number of Index", "wmx.type2MimoCoefNi",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_NI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_coef_ai,
+			{
+				"Occurrences of Antenna Index", "wmx.type2MimoCoefAi",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_AI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_coef,
+			{
+				"MIMO Coefficients", "wmx.type2MimoCoef",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_coef_rsv,
+			{
+				"Reserved", "wmx.type2MimoCoefRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_dl_chan_diuc,
+			{
+				"Preferred DIUC", "wmx.type2DlChanDiuc",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DIUC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_dl_chan_dcd,
+			{
+				"DCD Change Count", "wmx.type2DlChanDcd",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DCD,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_dl_chan_rsv,
+			{
+				"Reserved", "wmx.type2DlChanRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_ul_tx_pwr,
+			{
+				"UL TX Power", "wmx.type2UlTxPwr",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_ul_tx_pwr_rsv,
+			{
+				"Reserved", "wmx.type2UlTxPwrRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_phy_diuc,
+			{
+				"Preferred DIUC Index", "wmx.type2PhyDiuc",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_DIUC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_phy_ul_tx_pwr,
+			{
+				"UL TX Power", "wmx.type2PhyUlTxPwr",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_TX_PWR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_phy_ul_hdrm,
+			{
+				"UL Headroom", "wmx.type2PhyHdRm",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_HDRM,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_phy_rsv,
+			{
+				"Reserved", "wmx.type2PhyRsv",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_amc_bitmap,
+			{
+				"AMC Band Indication Bitmap", "wmx.type2AmcBitmap",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_BITMAP,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_amc_cqi_1,
+			{
+				"CQI 1", "wmx.type2AmcCqi1",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_amc_cqi_2,
+			{
+				"CQI 2", "wmx.type2AmcCqi2",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_amc_cqi_3,
+			{
+				"CQI 3", "wmx.type2AmcCqi3",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_amc_cqi_4,
+			{
+				"CQI 4", "wmx.type2AmcCqi4",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_4,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_life_span,
+			{
+				"Life Span of Short-term", "wmx.type2LifeSpan",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_life_span_rsv,
+			{
+				"Reserved", "wmx.type2LifeSpanRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mt_num_fb_types,
+			{
+				"Number of Feedback Types", "wmx.type2MtNumFbTypes",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_NUM_FB_TYPES,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mt_occu_fb_type,
+			{
+				"Occurrences of Feedback Type", "wmx.type2MtOccuFbType",
+				FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_OCCU_FB_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mt_fb_contents,
+			{
+				"Number of Feedback Types", "wmx.type2MtNumFbTypes",
+				FT_UINT32, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_FB_CONTENTS,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_lt_id_fb,
+			{
+				"Long-term Feedback Index", "wmx.type2LtFbId",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_ID_FB,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_lt_rank,
+			{
+				"Rank of Precoding Codebook", "wmx.type2LtRank",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RANK,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_lt_fec_qam,
+			{
+				"FEC and QAM", "wmx.type2LtFecQam",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_FEC_QAM,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_lt_rsv,
+			{
+				"Reserved", "wmx.type2LtFbId",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_comb_dl_ave,
+			{
+				"Combined DL Average CINR of Active BSs", "wmx.type2CombDlAve",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_AVE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_comb_dl_rsv,
+			{
+				"Reserved", "wmx.type2CombDlRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_diuc,
+			{
+				"Preferred DIUC Index", "wmx.type2MimoDiuc",
+				FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DIUC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_pbwi,
+			{
+				"Preferred Bandwidth Index", "wmx.type2MimoPbwi",
+				FT_UINT8, BASE_DEC, VALS(pbwi_table), WIMAX_MAC_HEADER_TYPE_2_PBWI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_slpb,
+			{
+				"Starting Location of Preferred Bandwidth", "wmx.type2MimoSlpb",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_SLPB,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_bpri_cid,
+			{
+				"Burst Profile Ranking Indicator with CID", "wmx.type2MimoBpriCid",
+				FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI_CID,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_cid,
+			{
+				"Connection ID", "wmx.type2MimoCid",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CID,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_bpri,
+			{
+				"Burst Profile Ranking Indicator without CID", "wmx.type2MimoBpri",
+				FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_cti,
+			{
+				"Coherent Time Index", "wmx.type2MimoCti",
+				FT_UINT24, BASE_HEX, VALS(cti_table), WIMAX_MAC_HEADER_TYPE_2_CTI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_ai_0,
+			{
+				"Antenna 0 Indication", "wmx.type2MimoAi",
+				FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_ai_1,
+			{
+				"Antenna 1 Indication", "wmx.type2MimoAi",
+				FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_ai_2,
+			{
+				"Antenna 2 Indication", "wmx.type2MimoAi",
+				FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_ai_3,
+			{
+				"Antenna 3 Indication", "wmx.type2MimoAi",
+				FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_mi,
+			{
+				"MS Matrix Indicator", "wmx.type2MimoMi",
+				FT_UINT24, BASE_HEX, VALS(mi_table), WIMAX_MAC_HEADER_TYPE_2_MI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_ct,
+			{
+				"CQI Type", "wmx.type2MimoCt",
+				FT_UINT24, BASE_HEX, VALS(ct_msgs), WIMAX_MAC_HEADER_TYPE_2_CT,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_mimo_cqi,
+			{
+				"CQI Feedback", "wmx.type2MimoCqi",
+				FT_UINT24, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI,
+				"", HFILL
+			}
+		},
+		{	&hf_mac_header_type_2_cinr_mean,
+			{
+				"CINR Mean", "wmx.type2CinrMean",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cinr_devi,
+			{
+				"CINR Standard Deviation", "wmx.type2CinrDevi",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_type,
+			{
+				"Closed-Loop MIMO Type", "wmx.type2ClMimoType",
+				FT_UINT16, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_ant_id,
+			{
+				"Antenna Grouping Index", "wmx.type2ClMimoAntId",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_ID,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_cqi,
+			{
+				"Average CQI", "wmx.type2ClMimoCqi",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_cqi_1,
+			{
+				"Average CQI", "wmx.type2ClMimoCqi",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_cqi_2,
+			{
+				"Average CQI", "wmx.type2ClMimoCqi",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_rsv,
+			{
+				"Reserved", "wmx.type2ClMimoRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_rsv_1,
+			{
+				"Reserved", "wmx.type2ClMimoRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_rsv_2,
+			{
+				"Reserved", "wmx.type2ClMimoRsv",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_streams,
+			{
+				"Number of Streams", "wmx.type2ClMimoStreams",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_STREAMS,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_ant_sel,
+			{
+				"Antenna Selection Option Index", "wmx.type2ClMimoAntSel",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_SEL,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cl_mimo_codebook_id,
+			{
+				"Codebook Index", "wmx.type2ClMimoCodeBkId",
+				FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CODEBOOK_ID,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_cid,
+			{
+				"Connection ID", "wmx.type2Cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_no_cid,
+			{
+				"Reserved", "wmx.type2NoCid",
+				FT_UINT16, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_2_hcs,
+			{
+				"Header Check Sequence", "wmx.type2Hcs",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_header_type_2_decoder == -1)
 	{
 		proto_mac_header_type_2_decoder = proto_mac_header_generic_decoder;

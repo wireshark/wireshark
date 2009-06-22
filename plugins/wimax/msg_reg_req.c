@@ -223,742 +223,6 @@ static const value_string tfs_support[] = {
     {0,					NULL}
 };
 
-/* REG-REQ fields display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp,
-		{
-			"DHCP", "wmx.reg.alloc_sec_mgmt_dhcp",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6,
-		{
-			"DHCPv6", "wmx.reg.alloc_sec_mgmt_dhcpv6",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
-		}
-	},
-	{
-		&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6,
-		{
-			"IPv6 Stateless Address Autoconfiguration", "wmx.reg.alloc_sec_mgmt_ipv6",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
-		}
-	},
-	{
-		&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4,
-		{
-			"Mobile IPv4", "wmx.reg.alloc_sec_mgmt_mobile_ipv4",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
-		}
-	},
-	{
-		&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_rsvd,
-		{
-			"Reserved", "wmx.reg.alloc_sec_mgmt_rsvd",
-			FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_arq,
-		{
-			"ARQ support", "wmx.reg.arq",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_entry,
-		{
-			"Cumulative ACK entry", "wmx.reg.arq_ack_type_cumulative_ack_entry",
-			FT_UINT8, BASE_DEC, NULL, 0x2, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_with_block_sequence_ack,
-		{
-			"Cumulative ACK with Block Sequence ACK", "wmx.reg.arq_ack_type_cumulative_ack_with_block_sequence_ack",
-			FT_UINT8, BASE_DEC, NULL, 0x8, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_40_arq_ack_type_cumulative_with_selective_ack_entry,
-		{
-			"Cumulative with Selective ACK entry", "wmx.reg.arq_ack_type_cumulative_with_selective_ack_entry",
-			FT_UINT8, BASE_DEC, NULL, 0x4, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_40_arq_ack_type_reserved,
-		{
-			"Reserved", "wmx.reg.arq_ack_type_reserved",
-			FT_UINT8, BASE_DEC, NULL, 0xf0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_40_arq_ack_type_selective_ack_entry,
-		{
-			"Selective ACK entry", "wmx.reg.arq_ack_type_selective_ack_entry",
-			FT_UINT8, BASE_DEC, NULL, 0x1, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_bandwidth_request_cinr_report_header_support,
-		{
-			"Bandwidth request and CINR report header support", "wmx.reg.bandwidth_request_cinr_report_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x2, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_bandwidth_request_ul_sleep_control_header_support,
-		{
-			"Bandwidth request and uplink sleep control header support", "wmx.reg.bandwidth_request_ul_sleep_control_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x10, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_cqich_allocation_request_header_support,
-		{
-			"CQICH Allocation Request header support", "wmx.reg.cqich_allocation_request_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x4, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_dl_sleep_control_extended_subheader,
-		{
-			"Downlink sleep control extended subheader", "wmx.reg.dl_sleep_control_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x800, "", HFILL
-		}
-	},
-	{
-		&hf_reg_dsx_flow_control,
-		{
-			"DSx flow control", "wmx.reg.dsx_flow_control",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	/* When REG-REQ TLV 7 is length 2 */
-	{
-		&hf_reg_encap_802_1q_2,
-		{
-			"Packet, 802.1Q VLAN", "wmx.reg.encap_802_1q",
-			FT_UINT16, BASE_HEX, NULL, 0x0010, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_802_3_2,
-		{
-			"Packet, 802.3/Ethernet", "wmx.reg.encap_802_3",
-			FT_UINT16, BASE_HEX, NULL, 0x00000008, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_atm_2,
-		{
-			"ATM", "wmx.reg.encap_atm",
-			FT_UINT16, BASE_HEX, NULL, 0x00000001, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_2,
-		{
-			"Packet, IPv4", "wmx.reg.encap_ipv4",
-			FT_UINT16, BASE_HEX, NULL, 0x00000002, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_2,
-		{
-			"Packet, IPv6", "wmx.reg.encap_ipv6",
-			FT_UINT16, BASE_HEX, NULL, 0x00000004, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_802_1q_2,
-		{
-			"Packet, IPv4 over 802.1Q VLAN", "wmx.reg.encap_ipv4_802_1q",
-			FT_UINT16, BASE_HEX, NULL, 0x00000080, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_802_3_2,
-		{
-			"Packet, IPv4 over 802.3/Ethernet", "wmx.reg.encap_ipv4_802_3",
-			FT_UINT16, BASE_HEX, NULL, 0x00000020, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_802_1q_2,
-		{
-			"Packet, IPv6 over 802.1Q VLAN", "wmx.reg.encap_ipv6_802_1q",
-			FT_UINT16, BASE_HEX, NULL, 0x00000100, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_802_3_2,
-		{
-			"Packet, IPv6 over 802.3/Ethernet", "wmx.reg.encap_ipv6_802_3",
-			FT_UINT16, BASE_HEX, NULL, 0x00000040, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2,
-		{
-			"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ECRTP header compression", "wmx.reg.encap_packet_802_3_ethernet_and_ecrtp_header_compression",
-			FT_UINT16, BASE_HEX, NULL, 0x00000400, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2,
-		{
-			"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ROHC header compression", "wmx.reg.encap_packet_802_3_ethernet_and_rohc_header_compression",
-			FT_UINT16, BASE_HEX, NULL, 0x00000200, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_ip_ecrtp_header_compression_2,
-		{
-			"Packet, IP (v4 or v6) with ECRTP header compression", "wmx.reg.encap_packet_ip_ecrtp_header_compression",
-			FT_UINT16, BASE_HEX, NULL, 0x00001000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_ip_rohc_header_compression_2,
-		{
-			"Packet, IP (v4 or v6) with ROHC header compression", "wmx.reg.encap_packet_ip_rohc_header_compression",
-			FT_UINT16, BASE_HEX, NULL, 0x00000800, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_rsvd_2,
-		{
-			"Reserved", "wmx.reg.encap_rsvd",
-			FT_UINT16, BASE_HEX, NULL, 0x0000E000, "", HFILL
-		}
-	},
-	/* When REG-REQ TLV 7 is length 4 */
-	{
-		&hf_reg_encap_802_1q_4,
-		{
-			"Packet, 802.1Q VLAN", "wmx.reg.encap_802_1q",
-			FT_UINT32, BASE_HEX, NULL, 0x0010, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_802_3_4,
-		{
-			"Packet, 802.3/Ethernet", "wmx.reg.encap_802_3",
-			FT_UINT32, BASE_HEX, NULL, 0x00000008, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_atm_4,
-		{
-			"ATM", "wmx.reg.encap_atm",
-			FT_UINT32, BASE_HEX, NULL, 0x00000001, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_4,
-		{
-			"Packet, IPv4", "wmx.reg.encap_ipv4",
-			FT_UINT32, BASE_HEX, NULL, 0x00000002, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_802_1q_4,
-		{
-			"Packet, IPv4 over 802.1Q VLAN", "wmx.reg.encap_ipv4_802_1q",
-			FT_UINT32, BASE_HEX, NULL, 0x00000080, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv4_802_3_4,
-		{
-			"Packet, IPv4 over 802.3/Ethernet", "wmx.reg.encap_ipv4_802_3",
-			FT_UINT32, BASE_HEX, NULL, 0x00000020, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_4,
-		{
-			"Packet, IPv6", "wmx.reg.encap_ipv6",
-			FT_UINT32, BASE_HEX, NULL, 0x00000004, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_802_1q_4,
-		{
-			"Packet, IPv6 over 802.1Q VLAN", "wmx.reg.encap_ipv6_802_1q",
-			FT_UINT32, BASE_HEX, NULL, 0x00000100, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_ipv6_802_3_4,
-		{
-			"Packet, IPv6 over 802.3/Ethernet", "wmx.reg.encap_ipv6_802_3",
-			FT_UINT32, BASE_HEX, NULL, 0x00000040, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4,
-		{
-			"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ECRTP header compression", "wmx.reg.encap_packet_802_3_ethernet_and_ecrtp_header_compression",
-			FT_UINT32, BASE_HEX, NULL, 0x00000400, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4,
-		{
-			"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ROHC header compression", "wmx.reg.encap_packet_802_3_ethernet_and_rohc_header_compression",
-			FT_UINT32, BASE_HEX, NULL, 0x00000200, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_ip_ecrtp_header_compression_4,
-		{
-			"Packet, IP (v4 or v6) with ECRTP header compression", "wmx.reg.encap_packet_ip_ecrtp_header_compression",
-			FT_UINT32, BASE_HEX, NULL, 0x00001000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_packet_ip_rohc_header_compression_4,
-		{
-			"Packet, IP (v4 or v6) with ROHC header compression", "wmx.reg.encap_packet_ip_rohc_header_compression",
-			FT_UINT32, BASE_HEX, NULL, 0x00000800, "", HFILL
-		}
-	},
-	{
-		&hf_reg_encap_rsvd_4,
-		{
-			"Reserved", "wmx.reg.encap_rsvd",
-			FT_UINT32, BASE_HEX, NULL, 0xFFFFE000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_22_mac_extended_rtps_support,
-		{
-			"MAC extended rtPS support", "wmx.reg.ext_rtps_support",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps,
-		{
-			"FBSS/MDHO DL RF Combining with monitoring MAPs from active BSs", "wmx.reg.fbss_mdho_dl_rf_combining",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_bandwidth_request_ul_tx_power_report_header_support,
-		{
-			"Bandwidth request and UL Tx Power Report header support",
-			"wimax.reg.bandwidth_request_ul_tx_pwr_report_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x1, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable,
-		{
-			"MDHO/FBSS HO. BS ignore all other bits when set to 1", "wmx.reg.fbss_mdho_ho_disable",
-			FT_BOOLEAN, 8, TFS(&tfs_reg_fbss_mdho_ho_disable), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_feedback_header_support,
-		{
-			"Feedback header support", "wmx.reg.feedback_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x40, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_feedback_request_extended_subheader,
-		{
-			"Feedback request extended subheader", "wmx.reg.feedback_request_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x1000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_46_handover_indication_readiness_timer,
-		{
-			"Handover indication readiness timer", "wmx.reg.handover_indication_readiness_timer",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_reserved,
-		{
-			"Reserved", "wmx.reg.handover_reserved",
-			FT_UINT8, BASE_DEC, NULL, 0xE0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_41_ho_connections_param_processing_time,
-		{
-			"MS HO connections parameters processing time", "wmx.reg.ho_connections_param_processing_time",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_29_ho_process_opt_ms_timer,
-		{
-			"HO Process Optimization MS Timer", "wmx.reg.ho_process_opt_ms_timer",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_42_ho_tek_processing_time,
-		{
-			"MS HO TEK processing time", "wmx.reg.ho_tek_processing_time",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_idle_mode_timeout,
-		{
-			"Idle Mode Timeout", "wmx.reg.idle_mode_timeout",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_ip_mgmt_mode,
-		{
-			"IP management mode", "wmx.reg.ip_mgmt_mode",
-			FT_BOOLEAN, 8, TFS(&tfs_reg_ip_mgmt_mode), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_ip_version,
-		{
-			"IP version", "wmx.reg.ip_version",
-			FT_UINT8, BASE_HEX, VALS(vals_reg_ip_version), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_mac_address,
-		{
-			"MAC Address of the SS", "wmx.reg.mac_address",
-			FT_ETHER, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_mac_crc_support,
-		{
-			"MAC CRC", "wmx.reg.mac_crc_support",
-			FT_BOOLEAN, 8, TFS(&tfs_mac_crc_support), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_max_classifiers,
-		{
-			"Maximum number of classification rules", "wmx.reg.max_classifiers",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_23_max_num_bursts_concurrently_to_the_ms,
-		{
-			"Maximum number of bursts transmitted concurrently to the MS", "wmx.reg.max_num_bursts_to_ms",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_mca_flow_control,
-		{
-			"MCA flow control", "wmx.reg.mca_flow_control",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_mcast_polling_cids,
-		{
-			"Multicast polling group CID support", "wmx.reg.mcast_polling_cids",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_mdho_ul_multiple,
-		{
-			"MDHO UL Multiple transmission", "wmx.reg.mdh_ul_multiple",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x10, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps,
-		{
-			"MDHO DL soft combining with monitoring MAPs from active BSs", "wmx.reg.mdho_dl_monitor_maps",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map,
-		{
-			"MDHO DL soft Combining with monitoring single MAP from anchor BS", "wmx.reg.mdho_dl_monitor_single_map",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_mimo_mode_feedback_extended_subheader,
-		{
-			"MIMO mode feedback request extended subheader", "wmx.reg.mimo_mode_feedback_request_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x2000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_mini_feedback_extended_subheader,
-		{
-			"Mini-feedback extended subheader", "wmx.reg.mini_feedback_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x8000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_31_mobility_handover,
-		{
-			"Mobility (handover)", "wmx.reg.mobility_handover",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_31_mobility_idle_mode,
-		{
-			"Idle mode", "wmx.reg.mobility_idle_mode",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_31_mobility_sleep_mode,
-		{
-			"Sleep mode", "wmx.reg.mobility_sleep_mode",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
-		}
-	},
-	{
-		&hf_reg_num_dl_trans_cid,
-		{
-			"Number of Downlink transport CIDs the SS can support", "wmx.reg.dl_cids_supported",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_21_packing_support,
-		{
-			"Packing support", "wmx.reg.packing.support",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_pdu_sn_long_extended_subheader,
-		{
-			"PDU SN (long) extended subheader", "wmx.reg.pdu_sn_long_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x40000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_pdu_sn_short_extended_subheader,
-		{
-			"PDU SN (short) extended subheader", "wmx.reg.pdu_sn_short_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x20000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_phs,
-		{
-			"PHS support", "wmx.reg.phs",
-			FT_UINT8, BASE_DEC, VALS(vals_reg_phs_support), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_phy_channel_report_header_support,
-		{
-			"PHY channel report header support", "wmx.reg.phy_channel_report_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x8, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_reserved,
-		{
-			"Reserved", "wmx.reg.reserved",
-			FT_UINT24, BASE_DEC, NULL, 0xf80000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_sdu_sn_extended_subheader_support_and_parameter,
-		{
-			"SDU_SN extended subheader support", "wmx.reg.sdu_sn_extended_subheader_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x80, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_sdu_sn_parameter,
-		{
-			"SDU_SN parameter", "wmx.reg.sdu_sn_parameter",
-			FT_UINT24, BASE_DEC, NULL, 0x700, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_sn_report_header_support,
-		{
-			"SN report header support", "wmx.reg.sn_report_header_support",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x20, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_sn_request_extended_subheader,
-		{
-			"SN request extended subheader", "wmx.reg.sn_request_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x10000, "", HFILL
-		}
-	},
-	{
-		&hf_reg_ss_mgmt_support,
-		{
-			"SS management support", "wmx.reg.ss_mgmt_support",
-			FT_BOOLEAN, 8, TFS(&tfs_reg_ss_mgmt_support), 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_ul_cids,
-		{
-			"Number of Uplink transport CIDs the SS can support", "wmx.reg.ul_cids_supported",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_43_ul_tx_power_report_extended_subheader,
-		{
-			"UL Tx power report extended subheader", "wmx.reg.ul_tx_power_report_extended_subheader",
-			FT_UINT24, BASE_DEC, VALS(tfs_support), 0x4000, "", HFILL
-		}
-	},
-	{
-		&hf_tlv_type,
-		{
-			"Unknown TLV Type", "wmx.reg.unknown_tlv_type",
-			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.reg_req",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_invalid_tlv,
-		{
-			"Invalid TLV", "wmx.reg_req.invalid_tlv",
-			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_20_1_max_mac_level_data_per_dl_frame,
-		{
-			"Maximum MAC level DL data per frame", "wmx.reg_req.max_mac_dl_data",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_tlv_t_20_2_max_mac_level_data_per_ul_frame,
-		{
-			"Maximum MAC level UL data per frame", "wmx.reg_req.max_mac_ul_data",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_min_time_for_inter_fa,
-		{
-			"Minimum time for inter-FA HO, default=3", "wmx.reg_req.min_time_for_inter_fa",
-			FT_UINT8, BASE_HEX, NULL, 0xF0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_min_time_for_intra_fa,
-		{
-			"Minimum time for intra-FA HO, default=2", "wmx.reg_req.min_time_for_intra_fa",
-			FT_UINT8, BASE_HEX, NULL, 0x0F, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_tlv_t_45_ms_periodic_ranging_timer,
-		{
-			"MS periodic ranging timer information", "wmx.reg_req.ms_periodic_ranging_timer_info",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{	/* IPv4 Mask */
-		&hf_ms_previous_ip_address_v4,
-		{
-			"MS Previous IP address", "wmx.reg_req.ms_prev_ip_addr_v4",
-			FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL
-		}
-	},
-	{	/* IPv6 Source Address */
-		&hf_ms_previous_ip_address_v6,
-		{
-			"MS Previous IP address", "wmx.reg_req.ms_prev_ip_addr_v6",
-			FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_secondary_mgmt_cid,
-		{
-			"Secondary Management CID", "wmx.reg_req.secondary_mgmt_cid",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_req_tlv_t_32_sleep_mode_recovery_time,
-		{
-			"Frames required for the MS to switch from sleep to awake-mode", "wmx.reg_req.sleep_recovery",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_power_saving_class_type_i,
-		{
-			"Power saving class type I supported", "wmx.reg.power_saving_class_type_i",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
-		}
-	},
-	{
-		&hf_reg_power_saving_class_type_ii,
-		{
-			"Power saving class type II supported", "wmx.reg.power_saving_class_type_ii",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
-		}
-	},
-	{
-		&hf_reg_power_saving_class_type_iii,
-		{
-			"Power saving class type III supported", "wmx.reg.power_saving_class_type_iii",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
-		}
-	},
-	{
-		&hf_reg_multi_active_power_saving_classes,
-		{
-			"Multiple active power saving classes supported", "wmx.reg.multi_active_power_saving_classes",
-			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
-		}
-	},
-	{
-		&hf_reg_total_power_saving_class_instances,
-		{
-			"Total number of power saving class instances of all", "wmx.reg_req.total_power_saving_class_instances",
-			FT_UINT16, BASE_DEC, NULL, 0x1F0, "", HFILL
-		}
-	},
-	{
-		&hf_reg_power_saving_class_reserved,
-		{
-			"Reserved", "wmx.reg.reserved",
-			FT_UINT16, BASE_DEC, NULL, 0xFE00, "", HFILL
-		}
-	}
-};
-
 /* Decode REG-REQ sub-TLV's. */
 void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry)
 {
@@ -1263,6 +527,743 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_reg_req(void)
 {
+	/* REG-REQ fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp,
+			{
+				"DHCP", "wmx.reg.alloc_sec_mgmt_dhcp",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6,
+			{
+				"DHCPv6", "wmx.reg.alloc_sec_mgmt_dhcpv6",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
+			}
+		},
+		{
+			&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6,
+			{
+				"IPv6 Stateless Address Autoconfiguration", "wmx.reg.alloc_sec_mgmt_ipv6",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
+			}
+		},
+		{
+			&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4,
+			{
+				"Mobile IPv4", "wmx.reg.alloc_sec_mgmt_mobile_ipv4",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
+			}
+		},
+		{
+			&hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_rsvd,
+			{
+				"Reserved", "wmx.reg.alloc_sec_mgmt_rsvd",
+				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_arq,
+			{
+				"ARQ support", "wmx.reg.arq",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_entry,
+			{
+				"Cumulative ACK entry", "wmx.reg.arq_ack_type_cumulative_ack_entry",
+				FT_UINT8, BASE_DEC, NULL, 0x2, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_40_arq_ack_type_cumulative_ack_with_block_sequence_ack,
+			{
+				"Cumulative ACK with Block Sequence ACK", "wmx.reg.arq_ack_type_cumulative_ack_with_block_sequence_ack",
+				FT_UINT8, BASE_DEC, NULL, 0x8, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_40_arq_ack_type_cumulative_with_selective_ack_entry,
+			{
+				"Cumulative with Selective ACK entry", "wmx.reg.arq_ack_type_cumulative_with_selective_ack_entry",
+				FT_UINT8, BASE_DEC, NULL, 0x4, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_40_arq_ack_type_reserved,
+			{
+				"Reserved", "wmx.reg.arq_ack_type_reserved",
+				FT_UINT8, BASE_DEC, NULL, 0xf0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_40_arq_ack_type_selective_ack_entry,
+			{
+				"Selective ACK entry", "wmx.reg.arq_ack_type_selective_ack_entry",
+				FT_UINT8, BASE_DEC, NULL, 0x1, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_bandwidth_request_cinr_report_header_support,
+			{
+				"Bandwidth request and CINR report header support", "wmx.reg.bandwidth_request_cinr_report_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x2, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_bandwidth_request_ul_sleep_control_header_support,
+			{
+				"Bandwidth request and uplink sleep control header support", "wmx.reg.bandwidth_request_ul_sleep_control_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x10, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_cqich_allocation_request_header_support,
+			{
+				"CQICH Allocation Request header support", "wmx.reg.cqich_allocation_request_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x4, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_dl_sleep_control_extended_subheader,
+			{
+				"Downlink sleep control extended subheader", "wmx.reg.dl_sleep_control_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x800, "", HFILL
+			}
+		},
+		{
+			&hf_reg_dsx_flow_control,
+			{
+				"DSx flow control", "wmx.reg.dsx_flow_control",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		/* When REG-REQ TLV 7 is length 2 */
+		{
+			&hf_reg_encap_802_1q_2,
+			{
+				"Packet, 802.1Q VLAN", "wmx.reg.encap_802_1q",
+				FT_UINT16, BASE_HEX, NULL, 0x0010, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_802_3_2,
+			{
+				"Packet, 802.3/Ethernet", "wmx.reg.encap_802_3",
+				FT_UINT16, BASE_HEX, NULL, 0x00000008, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_atm_2,
+			{
+				"ATM", "wmx.reg.encap_atm",
+				FT_UINT16, BASE_HEX, NULL, 0x00000001, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_2,
+			{
+				"Packet, IPv4", "wmx.reg.encap_ipv4",
+				FT_UINT16, BASE_HEX, NULL, 0x00000002, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_2,
+			{
+				"Packet, IPv6", "wmx.reg.encap_ipv6",
+				FT_UINT16, BASE_HEX, NULL, 0x00000004, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_802_1q_2,
+			{
+				"Packet, IPv4 over 802.1Q VLAN", "wmx.reg.encap_ipv4_802_1q",
+				FT_UINT16, BASE_HEX, NULL, 0x00000080, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_802_3_2,
+			{
+				"Packet, IPv4 over 802.3/Ethernet", "wmx.reg.encap_ipv4_802_3",
+				FT_UINT16, BASE_HEX, NULL, 0x00000020, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_802_1q_2,
+			{
+				"Packet, IPv6 over 802.1Q VLAN", "wmx.reg.encap_ipv6_802_1q",
+				FT_UINT16, BASE_HEX, NULL, 0x00000100, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_802_3_2,
+			{
+				"Packet, IPv6 over 802.3/Ethernet", "wmx.reg.encap_ipv6_802_3",
+				FT_UINT16, BASE_HEX, NULL, 0x00000040, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2,
+			{
+				"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ECRTP header compression", "wmx.reg.encap_packet_802_3_ethernet_and_ecrtp_header_compression",
+				FT_UINT16, BASE_HEX, NULL, 0x00000400, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2,
+			{
+				"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ROHC header compression", "wmx.reg.encap_packet_802_3_ethernet_and_rohc_header_compression",
+				FT_UINT16, BASE_HEX, NULL, 0x00000200, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_ip_ecrtp_header_compression_2,
+			{
+				"Packet, IP (v4 or v6) with ECRTP header compression", "wmx.reg.encap_packet_ip_ecrtp_header_compression",
+				FT_UINT16, BASE_HEX, NULL, 0x00001000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_ip_rohc_header_compression_2,
+			{
+				"Packet, IP (v4 or v6) with ROHC header compression", "wmx.reg.encap_packet_ip_rohc_header_compression",
+				FT_UINT16, BASE_HEX, NULL, 0x00000800, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_rsvd_2,
+			{
+				"Reserved", "wmx.reg.encap_rsvd",
+				FT_UINT16, BASE_HEX, NULL, 0x0000E000, "", HFILL
+			}
+		},
+		/* When REG-REQ TLV 7 is length 4 */
+		{
+			&hf_reg_encap_802_1q_4,
+			{
+				"Packet, 802.1Q VLAN", "wmx.reg.encap_802_1q",
+				FT_UINT32, BASE_HEX, NULL, 0x0010, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_802_3_4,
+			{
+				"Packet, 802.3/Ethernet", "wmx.reg.encap_802_3",
+				FT_UINT32, BASE_HEX, NULL, 0x00000008, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_atm_4,
+			{
+				"ATM", "wmx.reg.encap_atm",
+				FT_UINT32, BASE_HEX, NULL, 0x00000001, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_4,
+			{
+				"Packet, IPv4", "wmx.reg.encap_ipv4",
+				FT_UINT32, BASE_HEX, NULL, 0x00000002, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_802_1q_4,
+			{
+				"Packet, IPv4 over 802.1Q VLAN", "wmx.reg.encap_ipv4_802_1q",
+				FT_UINT32, BASE_HEX, NULL, 0x00000080, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv4_802_3_4,
+			{
+				"Packet, IPv4 over 802.3/Ethernet", "wmx.reg.encap_ipv4_802_3",
+				FT_UINT32, BASE_HEX, NULL, 0x00000020, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_4,
+			{
+				"Packet, IPv6", "wmx.reg.encap_ipv6",
+				FT_UINT32, BASE_HEX, NULL, 0x00000004, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_802_1q_4,
+			{
+				"Packet, IPv6 over 802.1Q VLAN", "wmx.reg.encap_ipv6_802_1q",
+				FT_UINT32, BASE_HEX, NULL, 0x00000100, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_ipv6_802_3_4,
+			{
+				"Packet, IPv6 over 802.3/Ethernet", "wmx.reg.encap_ipv6_802_3",
+				FT_UINT32, BASE_HEX, NULL, 0x00000040, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4,
+			{
+				"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ECRTP header compression", "wmx.reg.encap_packet_802_3_ethernet_and_ecrtp_header_compression",
+				FT_UINT32, BASE_HEX, NULL, 0x00000400, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4,
+			{
+				"Packet, 802.3/Ethernet (with optional 802.1Q VLAN tags) and ROHC header compression", "wmx.reg.encap_packet_802_3_ethernet_and_rohc_header_compression",
+				FT_UINT32, BASE_HEX, NULL, 0x00000200, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_ip_ecrtp_header_compression_4,
+			{
+				"Packet, IP (v4 or v6) with ECRTP header compression", "wmx.reg.encap_packet_ip_ecrtp_header_compression",
+				FT_UINT32, BASE_HEX, NULL, 0x00001000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_packet_ip_rohc_header_compression_4,
+			{
+				"Packet, IP (v4 or v6) with ROHC header compression", "wmx.reg.encap_packet_ip_rohc_header_compression",
+				FT_UINT32, BASE_HEX, NULL, 0x00000800, "", HFILL
+			}
+		},
+		{
+			&hf_reg_encap_rsvd_4,
+			{
+				"Reserved", "wmx.reg.encap_rsvd",
+				FT_UINT32, BASE_HEX, NULL, 0xFFFFE000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_22_mac_extended_rtps_support,
+			{
+				"MAC extended rtPS support", "wmx.reg.ext_rtps_support",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps,
+			{
+				"FBSS/MDHO DL RF Combining with monitoring MAPs from active BSs", "wmx.reg.fbss_mdho_dl_rf_combining",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_bandwidth_request_ul_tx_power_report_header_support,
+			{
+				"Bandwidth request and UL Tx Power Report header support",
+				"wimax.reg.bandwidth_request_ul_tx_pwr_report_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x1, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable,
+			{
+				"MDHO/FBSS HO. BS ignore all other bits when set to 1", "wmx.reg.fbss_mdho_ho_disable",
+				FT_BOOLEAN, 8, TFS(&tfs_reg_fbss_mdho_ho_disable), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_feedback_header_support,
+			{
+				"Feedback header support", "wmx.reg.feedback_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x40, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_feedback_request_extended_subheader,
+			{
+				"Feedback request extended subheader", "wmx.reg.feedback_request_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x1000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_46_handover_indication_readiness_timer,
+			{
+				"Handover indication readiness timer", "wmx.reg.handover_indication_readiness_timer",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_reserved,
+			{
+				"Reserved", "wmx.reg.handover_reserved",
+				FT_UINT8, BASE_DEC, NULL, 0xE0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_41_ho_connections_param_processing_time,
+			{
+				"MS HO connections parameters processing time", "wmx.reg.ho_connections_param_processing_time",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_29_ho_process_opt_ms_timer,
+			{
+				"HO Process Optimization MS Timer", "wmx.reg.ho_process_opt_ms_timer",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_42_ho_tek_processing_time,
+			{
+				"MS HO TEK processing time", "wmx.reg.ho_tek_processing_time",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_idle_mode_timeout,
+			{
+				"Idle Mode Timeout", "wmx.reg.idle_mode_timeout",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_ip_mgmt_mode,
+			{
+				"IP management mode", "wmx.reg.ip_mgmt_mode",
+				FT_BOOLEAN, 8, TFS(&tfs_reg_ip_mgmt_mode), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_ip_version,
+			{
+				"IP version", "wmx.reg.ip_version",
+				FT_UINT8, BASE_HEX, VALS(vals_reg_ip_version), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_mac_address,
+			{
+				"MAC Address of the SS", "wmx.reg.mac_address",
+				FT_ETHER, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_mac_crc_support,
+			{
+				"MAC CRC", "wmx.reg.mac_crc_support",
+				FT_BOOLEAN, 8, TFS(&tfs_mac_crc_support), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_max_classifiers,
+			{
+				"Maximum number of classification rules", "wmx.reg.max_classifiers",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_23_max_num_bursts_concurrently_to_the_ms,
+			{
+				"Maximum number of bursts transmitted concurrently to the MS", "wmx.reg.max_num_bursts_to_ms",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_mca_flow_control,
+			{
+				"MCA flow control", "wmx.reg.mca_flow_control",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_mcast_polling_cids,
+			{
+				"Multicast polling group CID support", "wmx.reg.mcast_polling_cids",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_mdho_ul_multiple,
+			{
+				"MDHO UL Multiple transmission", "wmx.reg.mdh_ul_multiple",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x10, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps,
+			{
+				"MDHO DL soft combining with monitoring MAPs from active BSs", "wmx.reg.mdho_dl_monitor_maps",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map,
+			{
+				"MDHO DL soft Combining with monitoring single MAP from anchor BS", "wmx.reg.mdho_dl_monitor_single_map",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_mimo_mode_feedback_extended_subheader,
+			{
+				"MIMO mode feedback request extended subheader", "wmx.reg.mimo_mode_feedback_request_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x2000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_mini_feedback_extended_subheader,
+			{
+				"Mini-feedback extended subheader", "wmx.reg.mini_feedback_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x8000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_31_mobility_handover,
+			{
+				"Mobility (handover)", "wmx.reg.mobility_handover",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_31_mobility_idle_mode,
+			{
+				"Idle mode", "wmx.reg.mobility_idle_mode",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_31_mobility_sleep_mode,
+			{
+				"Sleep mode", "wmx.reg.mobility_sleep_mode",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
+			}
+		},
+		{
+			&hf_reg_num_dl_trans_cid,
+			{
+				"Number of Downlink transport CIDs the SS can support", "wmx.reg.dl_cids_supported",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_21_packing_support,
+			{
+				"Packing support", "wmx.reg.packing.support",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_pdu_sn_long_extended_subheader,
+			{
+				"PDU SN (long) extended subheader", "wmx.reg.pdu_sn_long_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x40000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_pdu_sn_short_extended_subheader,
+			{
+				"PDU SN (short) extended subheader", "wmx.reg.pdu_sn_short_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x20000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_phs,
+			{
+				"PHS support", "wmx.reg.phs",
+				FT_UINT8, BASE_DEC, VALS(vals_reg_phs_support), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_phy_channel_report_header_support,
+			{
+				"PHY channel report header support", "wmx.reg.phy_channel_report_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x8, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_reserved,
+			{
+				"Reserved", "wmx.reg.reserved",
+				FT_UINT24, BASE_DEC, NULL, 0xf80000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_sdu_sn_extended_subheader_support_and_parameter,
+			{
+				"SDU_SN extended subheader support", "wmx.reg.sdu_sn_extended_subheader_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x80, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_sdu_sn_parameter,
+			{
+				"SDU_SN parameter", "wmx.reg.sdu_sn_parameter",
+				FT_UINT24, BASE_DEC, NULL, 0x700, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_sn_report_header_support,
+			{
+				"SN report header support", "wmx.reg.sn_report_header_support",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x20, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_sn_request_extended_subheader,
+			{
+				"SN request extended subheader", "wmx.reg.sn_request_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x10000, "", HFILL
+			}
+		},
+		{
+			&hf_reg_ss_mgmt_support,
+			{
+				"SS management support", "wmx.reg.ss_mgmt_support",
+				FT_BOOLEAN, 8, TFS(&tfs_reg_ss_mgmt_support), 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_ul_cids,
+			{
+				"Number of Uplink transport CIDs the SS can support", "wmx.reg.ul_cids_supported",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_43_ul_tx_power_report_extended_subheader,
+			{
+				"UL Tx power report extended subheader", "wmx.reg.ul_tx_power_report_extended_subheader",
+				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x4000, "", HFILL
+			}
+		},
+		{
+			&hf_tlv_type,
+			{
+				"Unknown TLV Type", "wmx.reg.unknown_tlv_type",
+				FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_req",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.reg_req.invalid_tlv",
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_20_1_max_mac_level_data_per_dl_frame,
+			{
+				"Maximum MAC level DL data per frame", "wmx.reg_req.max_mac_dl_data",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_tlv_t_20_2_max_mac_level_data_per_ul_frame,
+			{
+				"Maximum MAC level UL data per frame", "wmx.reg_req.max_mac_ul_data",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_min_time_for_inter_fa,
+			{
+				"Minimum time for inter-FA HO, default=3", "wmx.reg_req.min_time_for_inter_fa",
+				FT_UINT8, BASE_HEX, NULL, 0xF0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_min_time_for_intra_fa,
+			{
+				"Minimum time for intra-FA HO, default=2", "wmx.reg_req.min_time_for_intra_fa",
+				FT_UINT8, BASE_HEX, NULL, 0x0F, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_tlv_t_45_ms_periodic_ranging_timer,
+			{
+				"MS periodic ranging timer information", "wmx.reg_req.ms_periodic_ranging_timer_info",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{	/* IPv4 Mask */
+			&hf_ms_previous_ip_address_v4,
+			{
+				"MS Previous IP address", "wmx.reg_req.ms_prev_ip_addr_v4",
+				FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL
+			}
+		},
+		{	/* IPv6 Source Address */
+			&hf_ms_previous_ip_address_v6,
+			{
+				"MS Previous IP address", "wmx.reg_req.ms_prev_ip_addr_v6",
+				FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_secondary_mgmt_cid,
+			{
+				"Secondary Management CID", "wmx.reg_req.secondary_mgmt_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_req_tlv_t_32_sleep_mode_recovery_time,
+			{
+				"Frames required for the MS to switch from sleep to awake-mode", "wmx.reg_req.sleep_recovery",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_power_saving_class_type_i,
+			{
+				"Power saving class type I supported", "wmx.reg.power_saving_class_type_i",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_reg_power_saving_class_type_ii,
+			{
+				"Power saving class type II supported", "wmx.reg.power_saving_class_type_ii",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
+			}
+		},
+		{
+			&hf_reg_power_saving_class_type_iii,
+			{
+				"Power saving class type III supported", "wmx.reg.power_saving_class_type_iii",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
+			}
+		},
+		{
+			&hf_reg_multi_active_power_saving_classes,
+			{
+				"Multiple active power saving classes supported", "wmx.reg.multi_active_power_saving_classes",
+				FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
+			}
+		},
+		{
+			&hf_reg_total_power_saving_class_instances,
+			{
+				"Total number of power saving class instances of all", "wmx.reg_req.total_power_saving_class_instances",
+				FT_UINT16, BASE_DEC, NULL, 0x1F0, "", HFILL
+			}
+		},
+		{
+			&hf_reg_power_saving_class_reserved,
+			{
+				"Reserved", "wmx.reg.reserved",
+				FT_UINT16, BASE_DEC, NULL, 0xFE00, "", HFILL
+			}
+		}
+	};
+
+
 	if (proto_mac_mgmt_msg_reg_req_decoder == -1)
 	{
 		proto_mac_mgmt_msg_reg_req_decoder = proto_register_protocol (

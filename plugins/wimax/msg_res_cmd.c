@@ -62,26 +62,26 @@ static gint hf_res_cmd_message_type = -1;
 static gint hf_res_cmd_unknown_type = -1;
 static gint hf_res_cmd_invalid_tlv = -1;
 
-/* DSx display */
-static hf_register_info hf_res_cmd[] =
-{
-	{
-		&hf_res_cmd_message_type,
-		{"MAC Management Message Type", "wmx.macmgtmsgtype.res_cmd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_res_cmd_invalid_tlv,
-		{"Invalid TLV", "wmx.res_cmd.invalid_tlv", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}
-	},
-	{
-		&hf_res_cmd_unknown_type,
-		{"Unknown TLV type", "wmx.res_cmd.unknown_tlv_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-	}
-};
-
 /* Register Wimax Mac RES-CMD Message Dissector */
 void proto_register_mac_mgmt_msg_res_cmd(void)
 {
+	/* DSx display */
+	static hf_register_info hf_res_cmd[] =
+	{
+		{
+			&hf_res_cmd_message_type,
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.res_cmd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_res_cmd_invalid_tlv,
+			{"Invalid TLV", "wmx.res_cmd.invalid_tlv", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}
+		},
+		{
+			&hf_res_cmd_unknown_type,
+			{"Unknown TLV type", "wmx.res_cmd.unknown_tlv_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_res_cmd_decoder == -1)
 	{
 		proto_mac_mgmt_msg_res_cmd_decoder = proto_register_protocol (

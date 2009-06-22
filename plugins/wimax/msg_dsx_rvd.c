@@ -53,26 +53,26 @@ static gint hf_dsx_rvd_message_type = -1;
 static gint hf_dsx_rvd_transaction_id = -1;
 static gint hf_dsx_rvd_confirmation_code = -1;
 
-/* DSX_RVD display */
-static hf_register_info hf_dsx_rvd[] =
-{
-	{
-		&hf_dsx_rvd_message_type,
-		{"MAC Management Message Type", "wmx.macmgtmsgtype.dsx_rvd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_dsx_rvd_confirmation_code,
-		{ "Confirmation code", "wmx.dsx_rvd.confirmation_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
-	},
-	{
-		&hf_dsx_rvd_transaction_id,
-		{ "Transaction ID", "wmx.dsx_rvd.transaction_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
-	}
-};
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_dsx_rvd(void)
 {
+	/* DSX_RVD display */
+	static hf_register_info hf_dsx_rvd[] =
+	{
+		{
+			&hf_dsx_rvd_message_type,
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.dsx_rvd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_dsx_rvd_confirmation_code,
+			{ "Confirmation code", "wmx.dsx_rvd.confirmation_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		},
+		{
+			&hf_dsx_rvd_transaction_id,
+			{ "Transaction ID", "wmx.dsx_rvd.transaction_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_dsx_rvd_decoder == -1)
 	{
 		proto_mac_mgmt_msg_dsx_rvd_decoder = proto_register_protocol (

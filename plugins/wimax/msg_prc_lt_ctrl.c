@@ -67,45 +67,44 @@ static const value_string vals_turn_on[] = {
     {0,					NULL}
 };
 
-/* PRC-LT-CTRL fields display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_prc_lt_ctrl_message_type,
-		{
-			"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-		}
-	},
-	{
-		&hf_prc_lt_ctrl_invalid_tlv,
-		{
-			"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
-			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
-		}
-	},
-	{
-		&hf_prc_lt_ctrl_precoding,
-		{
-			"Setup/Tear-down long-term precoding with feedback",
-			"wimax.prc_lt_ctrl.precoding",
-			FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, "", HFILL
-		}
-	},
-	{
-		&hf_prc_lt_ctrl_precoding_delay,
-		{
-			"BS precoding application delay",
-			"wimax.prc_lt_ctrl.precoding_delay",
-			FT_UINT8, BASE_DEC, NULL, 0x60, "", HFILL
-		}
-	}
-};
-
-
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 {
+	/* PRC-LT-CTRL fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_prc_lt_ctrl_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_precoding,
+			{
+				"Setup/Tear-down long-term precoding with feedback",
+				"wimax.prc_lt_ctrl.precoding",
+				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, "", HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_precoding_delay,
+			{
+				"BS precoding application delay",
+				"wimax.prc_lt_ctrl.precoding_delay",
+				FT_UINT8, BASE_DEC, NULL, 0x60, "", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_mgmt_msg_prc_lt_ctrl_decoder == -1) {
 		proto_mac_mgmt_msg_prc_lt_ctrl_decoder = proto_register_protocol (
 							"WiMax PRC-LT-CTRL Message", /* name */

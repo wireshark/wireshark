@@ -325,357 +325,6 @@ static gint hf_308a_mult = -1;
 static gint hf_308a_rsv = -1;
 static gint hf_mac_header_compress_dlmap_crc = -1;
 
-/* DL-MAP fields display */
-static hf_register_info hf[] =
-{
-    {
-	    &hf_dlmap_message_type,
-	    {
-		    "MAC Management Message Type", "wmx.macmgtmsgtype.dlmap",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_bsid,
-	    {
-		    "Base Station ID", "wmx.dlmap.bsid",
-		    FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_dcd,
-	    {
-		    "DCD Count", "wmx.dlmap.dcd",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_fch_expected,
-	    {
-		    "FCH Expected", "wmx.dlmap.fch_expected",
-		    FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie,
-	    {
-		    "DL-MAP IE", "wmx.dlmap.ie",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_boosting,
-	    {
-		    "Boosting", "wmx.dlmap.ie.boosting",
-		    FT_UINT32, BASE_DEC, VALS(boost_msgs), 0x00038000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_boosting2,
-	    {
-		    "Boosting", "wmx.dlmap.ie.boosting",
-		    FT_UINT32, BASE_DEC, VALS(boost_msgs), 0x0000E000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_cid,
-	    {
-		    "CID", "wmx.dlmap.ie.cid",
-		    FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_diuc,
-	    {
-		    "DIUC", "wmx.dlmap.ie.diuc",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_ncid,
-	    {
-		    "N_CID", "wmx.dlmap.ie.ncid",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_numsub,
-	    {
-		    "Number of Subchannels", "wmx.dlmap.ie.numsub",
-		    FT_UINT32, BASE_DEC, NULL, 0x000000FC, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_numsym,
-	    {
-		    "Number of OFDMA Symbols", "wmx.dlmap.ie.numsym",
-		    FT_UINT32, BASE_DEC, NULL, 0x00007F00, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_numsub2,
-	    {
-		    "Number of Subchannels", "wmx.dlmap.ie.numsub",
-		    FT_UINT32, BASE_DEC, NULL, 0x000000FC, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_numsym2,
-	    {
-		    "Number of OFDMA Symbols", "wmx.dlmap.ie.numsym",
-		    FT_UINT32, BASE_DEC, NULL, 0x00001F00, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_offsub,
-	    {
-		    "Subchannel Offset", "wmx.dlmap.ie.offsub",
-		    FT_UINT32, BASE_DEC, NULL, 0x00FC0000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_offsym,
-	    {
-		    "OFDMA Symbol Offset", "wmx.dlmap.ie.offsym",
-		    FT_UINT32, BASE_DEC, NULL, 0xFF000000, "", HFILL
-	    }
-    },
-    /* alt ie format */
-    {
-	    &hf_dlmap_ie_offsub2,
-	    {
-		    "Subchannel Offset", "wmx.dlmap.ie.offsub",
-		    FT_UINT32, BASE_DEC, NULL, 0x00FF0000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_offsym2,
-	    {
-		    "OFDMA Symbol Offset", "wmx.dlmap.ie.offsym",
-		    FT_UINT32, BASE_DEC, NULL, 0xFF000000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_rep,
-	    {
-		    "Repetition Coding Indication", "wmx.dlmap.ie.rep",
-		    FT_UINT32, BASE_DEC, VALS(rep_msgs), 0x00000003, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ie_rep2,
-	    {
-		    "Repetition Coding Indication", "wmx.dlmap.ie.rep",
-		    FT_UINT32, BASE_DEC, VALS(rep_msgs), 0x00000003, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_ofdma_sym,
-	    {
-		    "Num OFDMA Symbols", "wmx.dlmap.ofdma_sym",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_phy_fdur,
-	    {
-		    "Frame Duration Code", "wmx.dlmap.phy_fdur",
-		    FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_phy_fnum,
-	    {
-		    "Frame Number", "wmx.dlmap.phy_fnum",
-		    FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_compr,
-	    {
-		    "Compressed map indicator", "wmx.dlmapc.compr",
-		    FT_UINT16, BASE_DEC, NULL, 0xe000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_count,
-	    {
-		    "DL IE Count", "wmx.dlmapc.count",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_len,
-	    {
-		    "Map message length", "wmx.dlmapc.len",
-		    FT_UINT16, BASE_DEC, NULL, 0x07FF, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_opid,
-	    {
-		    "Operator ID", "wmx.dlmapc.opid",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_rsv,
-	    {
-		    "Reserved", "wmx.dlmapc.rsv",
-		    FT_UINT16, BASE_DEC, NULL, 0x0800, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_secid,
-	    {
-		    "Sector ID", "wmx.dlmapc.secid",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_sync,
-	    {
-		    "PHY Synchronization Field", "wmx.dlmapc.sync",
-		    FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmapc_ulmap,
-	    {
-		    "UL-MAP appended", "wmx.dlmapc.ulmap",
-		    FT_UINT16, BASE_DEC, NULL, 0x1000, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_xie_diuc,
-	    {
-		    "Extended DIUC", "wmx.dlmapc.xie_diuc",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_dlmap_xie_len,
-	    {
-		    "Length", "wmx.dlmapc.xie_len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_cmi,
-	    {
-		    "SUB-DL-UL-MAP map indicator", "wmx.dlul.cmi",
-		    FT_UINT16, BASE_DEC, NULL, 0xE000, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_dl,
-	    {
-		    "DL HARQ ACK offset", "wmx.dlul.dl",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_dlie,
-	    {
-		    "DL IE Count", "wmx.dlul.dlie",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_haoi,
-	    {
-		    "HARQ ACK offset indicator", "wmx.dlul.haoi",
-		    FT_UINT16, BASE_DEC, NULL, 0x0001, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_len,
-	    {
-		    "Map message length - The length is limited to 735 bytes at most", "wmx.dlul.len",
-		    FT_UINT16, BASE_DEC, NULL, 0x1FF8, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_rcid,
-	    {
-		    "RCID_Type", "wmx.dlul.rcid",
-		    FT_UINT16, BASE_DEC, NULL, 0x0006, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_subofs,
-	    {
-		    "Subchannel offset", "wmx.dlul.subofs",
-		    FT_UINT8, BASE_DEC, NULL, 0xFE, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_symofs,
-	    {
-		    "OFDMA Symbol offset of subsequent sub-bursts "
-		    "in this Sub-DL-UL-MAP message with reference to "
-		    "the start of UL sub-frame.", "wmx.dlul.symofs",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_rsv,
-	    {
-		    "Reserved", "wmx.dlul.rsv",
-		    FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
-	    }
-    },
-    {
-	    &hf_109x_ul,
-	    {
-		    "UL HARQ ACK offset", "wmx.dlul.ul",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
-	    }
-    },
-    {
-	    &hf_308a_cmi,
-	    {
-		    "Compressed map indicator", "wmx.dlmap.reduced_aas_private.cmi",
-		    FT_UINT8, BASE_DEC, NULL, 0xe0, "", HFILL
-	    }
-    },
-    {
-	    &hf_308a_mult,
-	    {
-		    "Multiple IE", "wmx.dlmap.reduced_aas_private.mult",
-		    FT_UINT8, BASE_DEC, NULL, 0x02, "", HFILL
-	    }
-    },
-    {
-	    &hf_308a_rsv,
-	    {
-		    "Reserved", "wmx.dlmap.reduced_aas_private.rsv",
-		    FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
-	    }
-    },
-    {
-	    &hf_308a_type,
-	    {
-		    "Compressed Map Type", "wmx.dlmap.reduced_aas_private.type",
-		    FT_UINT8, BASE_DEC, NULL, 0x0d, "", HFILL
-	    }
-    },
-    {
-	    &hf_308a_ulmap,
-	    {
-		    "UL-MAP appended", "wmx.dlmap.reduced_aas_private.ulmap",
-		    FT_UINT8, BASE_DEC, NULL, 0x10, "", HFILL
-	    }
-    },
-    {
-	    &hf_mac_header_compress_dlmap_crc,
-	    {
-		    "CRC", "wmx.compress_dlmap_crc",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL
-	    }
-    }
-};
-
 /********************************************************************
  * DL-MAP Miscellaneous IEs and TLVs
  *******************************************************************/
@@ -2200,6 +1849,357 @@ extern gint wimax_decode_ulmapc(proto_tree *base_tree, const guint8 *bufptr, gin
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_dlmap(void)
 {
+	/* DL-MAP fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_dlmap_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dlmap",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_bsid,
+			{
+				"Base Station ID", "wmx.dlmap.bsid",
+				FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_dcd,
+			{
+				"DCD Count", "wmx.dlmap.dcd",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_fch_expected,
+			{
+				"FCH Expected", "wmx.dlmap.fch_expected",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie,
+			{
+				"DL-MAP IE", "wmx.dlmap.ie",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_boosting,
+			{
+				"Boosting", "wmx.dlmap.ie.boosting",
+				FT_UINT32, BASE_DEC, VALS(boost_msgs), 0x00038000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_boosting2,
+			{
+				"Boosting", "wmx.dlmap.ie.boosting",
+				FT_UINT32, BASE_DEC, VALS(boost_msgs), 0x0000E000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_cid,
+			{
+				"CID", "wmx.dlmap.ie.cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_diuc,
+			{
+				"DIUC", "wmx.dlmap.ie.diuc",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_ncid,
+			{
+				"N_CID", "wmx.dlmap.ie.ncid",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_numsub,
+			{
+				"Number of Subchannels", "wmx.dlmap.ie.numsub",
+				FT_UINT32, BASE_DEC, NULL, 0x000000FC, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_numsym,
+			{
+				"Number of OFDMA Symbols", "wmx.dlmap.ie.numsym",
+				FT_UINT32, BASE_DEC, NULL, 0x00007F00, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_numsub2,
+			{
+				"Number of Subchannels", "wmx.dlmap.ie.numsub",
+				FT_UINT32, BASE_DEC, NULL, 0x000000FC, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_numsym2,
+			{
+				"Number of OFDMA Symbols", "wmx.dlmap.ie.numsym",
+				FT_UINT32, BASE_DEC, NULL, 0x00001F00, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_offsub,
+			{
+				"Subchannel Offset", "wmx.dlmap.ie.offsub",
+				FT_UINT32, BASE_DEC, NULL, 0x00FC0000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_offsym,
+			{
+				"OFDMA Symbol Offset", "wmx.dlmap.ie.offsym",
+				FT_UINT32, BASE_DEC, NULL, 0xFF000000, "", HFILL
+			}
+		},
+		/* alt ie format */
+		{
+			&hf_dlmap_ie_offsub2,
+			{
+				"Subchannel Offset", "wmx.dlmap.ie.offsub",
+				FT_UINT32, BASE_DEC, NULL, 0x00FF0000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_offsym2,
+			{
+				"OFDMA Symbol Offset", "wmx.dlmap.ie.offsym",
+				FT_UINT32, BASE_DEC, NULL, 0xFF000000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_rep,
+			{
+				"Repetition Coding Indication", "wmx.dlmap.ie.rep",
+				FT_UINT32, BASE_DEC, VALS(rep_msgs), 0x00000003, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_rep2,
+			{
+				"Repetition Coding Indication", "wmx.dlmap.ie.rep",
+				FT_UINT32, BASE_DEC, VALS(rep_msgs), 0x00000003, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_ofdma_sym,
+			{
+				"Num OFDMA Symbols", "wmx.dlmap.ofdma_sym",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_phy_fdur,
+			{
+				"Frame Duration Code", "wmx.dlmap.phy_fdur",
+				FT_UINT8, BASE_HEX, NULL, 0x00, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_phy_fnum,
+			{
+				"Frame Number", "wmx.dlmap.phy_fnum",
+				FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_compr,
+			{
+				"Compressed map indicator", "wmx.dlmapc.compr",
+				FT_UINT16, BASE_DEC, NULL, 0xe000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_count,
+			{
+				"DL IE Count", "wmx.dlmapc.count",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_len,
+			{
+				"Map message length", "wmx.dlmapc.len",
+				FT_UINT16, BASE_DEC, NULL, 0x07FF, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_opid,
+			{
+				"Operator ID", "wmx.dlmapc.opid",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_rsv,
+			{
+				"Reserved", "wmx.dlmapc.rsv",
+				FT_UINT16, BASE_DEC, NULL, 0x0800, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_secid,
+			{
+				"Sector ID", "wmx.dlmapc.secid",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_sync,
+			{
+				"PHY Synchronization Field", "wmx.dlmapc.sync",
+				FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmapc_ulmap,
+			{
+				"UL-MAP appended", "wmx.dlmapc.ulmap",
+				FT_UINT16, BASE_DEC, NULL, 0x1000, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_xie_diuc,
+			{
+				"Extended DIUC", "wmx.dlmapc.xie_diuc",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_dlmap_xie_len,
+			{
+				"Length", "wmx.dlmapc.xie_len",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_109x_cmi,
+			{
+				"SUB-DL-UL-MAP map indicator", "wmx.dlul.cmi",
+				FT_UINT16, BASE_DEC, NULL, 0xE000, "", HFILL
+			}
+		},
+		{
+			&hf_109x_dl,
+			{
+				"DL HARQ ACK offset", "wmx.dlul.dl",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_109x_dlie,
+			{
+				"DL IE Count", "wmx.dlul.dlie",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_109x_haoi,
+			{
+				"HARQ ACK offset indicator", "wmx.dlul.haoi",
+				FT_UINT16, BASE_DEC, NULL, 0x0001, "", HFILL
+			}
+		},
+		{
+			&hf_109x_len,
+			{
+				"Map message length - The length is limited to 735 bytes at most", "wmx.dlul.len",
+				FT_UINT16, BASE_DEC, NULL, 0x1FF8, "", HFILL
+			}
+		},
+		{
+			&hf_109x_rcid,
+			{
+				"RCID_Type", "wmx.dlul.rcid",
+				FT_UINT16, BASE_DEC, NULL, 0x0006, "", HFILL
+			}
+		},
+		{
+			&hf_109x_subofs,
+			{
+				"Subchannel offset", "wmx.dlul.subofs",
+				FT_UINT8, BASE_DEC, NULL, 0xFE, "", HFILL
+			}
+		},
+		{
+			&hf_109x_symofs,
+			{
+				"OFDMA Symbol offset of subsequent sub-bursts "
+				"in this Sub-DL-UL-MAP message with reference to "
+				"the start of UL sub-frame.", "wmx.dlul.symofs",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_109x_rsv,
+			{
+				"Reserved", "wmx.dlul.rsv",
+				FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_109x_ul,
+			{
+				"UL HARQ ACK offset", "wmx.dlul.ul",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			}
+		},
+		{
+			&hf_308a_cmi,
+			{
+				"Compressed map indicator", "wmx.dlmap.reduced_aas_private.cmi",
+				FT_UINT8, BASE_DEC, NULL, 0xe0, "", HFILL
+			}
+		},
+		{
+			&hf_308a_mult,
+			{
+				"Multiple IE", "wmx.dlmap.reduced_aas_private.mult",
+				FT_UINT8, BASE_DEC, NULL, 0x02, "", HFILL
+			}
+		},
+		{
+			&hf_308a_rsv,
+			{
+				"Reserved", "wmx.dlmap.reduced_aas_private.rsv",
+				FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+			}
+		},
+		{
+			&hf_308a_type,
+			{
+				"Compressed Map Type", "wmx.dlmap.reduced_aas_private.type",
+				FT_UINT8, BASE_DEC, NULL, 0x0d, "", HFILL
+			}
+		},
+		{
+			&hf_308a_ulmap,
+			{
+				"UL-MAP appended", "wmx.dlmap.reduced_aas_private.ulmap",
+				FT_UINT8, BASE_DEC, NULL, 0x10, "", HFILL
+			}
+		},
+		{
+			&hf_mac_header_compress_dlmap_crc,
+			{
+				"CRC", "wmx.compress_dlmap_crc",
+				FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL
+			}
+		}
+	};
+
     if (proto_mac_mgmt_msg_dlmap_decoder == -1)
     {
         proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (

@@ -43,22 +43,21 @@ static int hf_opcua_security_tokenid = -1;
 static int hf_opcua_security_seq = -1;
 static int hf_opcua_security_rqid = -1;
 
-static hf_register_info hf[] =
-{
-    { &hf_opcua_security_tokenid,
-    {  "Security Token Id",        "security.tokenid",   FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_security_seq,
-    {  "Security Sequence Number", "security.seq",       FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    },
-    { &hf_opcua_security_rqid,
-    {  "Security RequestId",       "security.rqid",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
-    }
-};
-
 /** Register security layer types. */
 void registerSecurityLayerTypes(int proto)
 {
+    static hf_register_info hf[] =
+    {
+        { &hf_opcua_security_tokenid,
+        {  "Security Token Id",        "security.tokenid",   FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_security_seq,
+        {  "Security Sequence Number", "security.seq",       FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        },
+        { &hf_opcua_security_rqid,
+        {  "Security RequestId",       "security.rqid",      FT_UINT32, BASE_DEC,  NULL, 0x0,    "",    HFILL }
+        }
+    };
     proto_register_field_array(proto, hf, array_length(hf));
 }
 

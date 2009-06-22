@@ -215,219 +215,6 @@ static const value_string last_msgs[] =
 	{ 0,				NULL}
 };
 
-/* TLV display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_mac_header_type_1_value_bytes,
-		{
-			"Values", "wmx.type1ValueBytes",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_ht,
-		{
-			"MAC Header Type", "wmx.type1Ht",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_HT,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_ec,
-		{
-			"MAC Encryption Control", "wmx.type1Ec",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_EC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_type,
-		{
-			"MAC Sub-Type", "wmx.type1Type",
-			FT_UINT24, BASE_HEX, VALS(sub_types), WIMAX_MAC_HEADER_TYPE_1_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_br,
-		{
-			"Bandwidth Request", "wmx.type1Br",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_br_3,
-		{
-			"Bandwidth Request", "wmx.type1Br3",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR_3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_fb_type,
-		{
-			"Feedback Type", "wmx.type1FbType",
-			FT_UINT24, BASE_HEX, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_1_FB_TYPE,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_diuc,
-		{
-			"Preferred DIUC Index", "wmx.type1Diuc",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_DIUC,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_ultxpwr,
-		{
-			"UL TX Power", "wmx.type1UlTxPwr",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_ultxpwr_3,
-		{
-			"UL TX Power", "wmx.type1UlTxPwr3",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR_3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_ulhdrm,
-		{
-			"Headroom to UL Max Power Level", "wmx.type1HdRm",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_HDRM,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_cinr,
-		{
-			"CINR Value", "wmx.type1Cinr",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_CINR,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_dci,
-		{
-			"DCD Change Indication", "wmx.type1Dci",
-			FT_UINT24, BASE_HEX, VALS(dci_msgs), WIMAX_MAC_HEADER_TYPE_1_DCI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_pscid,
-		{
-			"Power Saving Class ID", "wmx.type1PsCid",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PSCID,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_op,
-		{
-			"Operation", "wmx.type1Op",
-			FT_UINT24, BASE_HEX, VALS(op_msgs), WIMAX_MAC_HEADER_TYPE_1_OP,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_last,
-		{
-			"Last ARQ BSN or SDU SN", "wmx.type1Last",
-			FT_UINT24, BASE_HEX, VALS(last_msgs), WIMAX_MAC_HEADER_TYPE_1_LAST,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_sdu_sn1,
-		{
-			"ARQ BSN or MAC SDU SN (1)", "wmx.type1SduSn1",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN1,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_sdu_sn2,
-		{
-			"ARQ BSN or MAC SDU SN (2)", "wmx.type1SduSn2",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_sdu_sn3,
-		{
-			"ARQ BSN or MAC SDU SN (3)", "wmx.type1SduSn3",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN3,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_fbssi,
-		{
-			"FBSS Indicator", "wmx.type1Fbssi",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_FBSSI,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_period,
-		{
-			"Preferred CQICH Allocation Period", "wmx.type1Period",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PERIOD,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_rsv_2,
-		{
-			"Reserved", "wmx.type1Rsv2",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_2,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_rsv_5,
-		{
-			"Reserved", "wmx.type1Rsv5",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_5,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_rsv_7,
-		{
-			"Reserved", "wmx.type1Rsv7",
-			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_7,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_cid,
-		{
-			"Connection ID", "wmx.type1Cid",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
-		}
-	},
-	{
-		&hf_mac_header_type_1_hcs,
-		{
-			"Header Check Sequence", "wmx.type1Hcs",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
-		}
-	}
-};
-
 /* Setup protocol subtree array */
 static gint *ett[] =
 {
@@ -437,6 +224,219 @@ static gint *ett[] =
 /* Register Wimax Mac Header Type II Protocol and Dissector */
 void proto_register_mac_header_type_1(void)
 {
+	/* TLV display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_mac_header_type_1_value_bytes,
+			{
+				"Values", "wmx.type1ValueBytes",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_ht,
+			{
+				"MAC Header Type", "wmx.type1Ht",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_HT,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_ec,
+			{
+				"MAC Encryption Control", "wmx.type1Ec",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_EC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_type,
+			{
+				"MAC Sub-Type", "wmx.type1Type",
+				FT_UINT24, BASE_HEX, VALS(sub_types), WIMAX_MAC_HEADER_TYPE_1_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_br,
+			{
+				"Bandwidth Request", "wmx.type1Br",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_br_3,
+			{
+				"Bandwidth Request", "wmx.type1Br3",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR_3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_fb_type,
+			{
+				"Feedback Type", "wmx.type1FbType",
+				FT_UINT24, BASE_HEX, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_1_FB_TYPE,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_diuc,
+			{
+				"Preferred DIUC Index", "wmx.type1Diuc",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_DIUC,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_ultxpwr,
+			{
+				"UL TX Power", "wmx.type1UlTxPwr",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_ultxpwr_3,
+			{
+				"UL TX Power", "wmx.type1UlTxPwr3",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR_3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_ulhdrm,
+			{
+				"Headroom to UL Max Power Level", "wmx.type1HdRm",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_HDRM,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_cinr,
+			{
+				"CINR Value", "wmx.type1Cinr",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_CINR,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_dci,
+			{
+				"DCD Change Indication", "wmx.type1Dci",
+				FT_UINT24, BASE_HEX, VALS(dci_msgs), WIMAX_MAC_HEADER_TYPE_1_DCI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_pscid,
+			{
+				"Power Saving Class ID", "wmx.type1PsCid",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PSCID,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_op,
+			{
+				"Operation", "wmx.type1Op",
+				FT_UINT24, BASE_HEX, VALS(op_msgs), WIMAX_MAC_HEADER_TYPE_1_OP,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_last,
+			{
+				"Last ARQ BSN or SDU SN", "wmx.type1Last",
+				FT_UINT24, BASE_HEX, VALS(last_msgs), WIMAX_MAC_HEADER_TYPE_1_LAST,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_sdu_sn1,
+			{
+				"ARQ BSN or MAC SDU SN (1)", "wmx.type1SduSn1",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN1,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_sdu_sn2,
+			{
+				"ARQ BSN or MAC SDU SN (2)", "wmx.type1SduSn2",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_sdu_sn3,
+			{
+				"ARQ BSN or MAC SDU SN (3)", "wmx.type1SduSn3",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN3,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_fbssi,
+			{
+				"FBSS Indicator", "wmx.type1Fbssi",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_FBSSI,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_period,
+			{
+				"Preferred CQICH Allocation Period", "wmx.type1Period",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PERIOD,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_rsv_2,
+			{
+				"Reserved", "wmx.type1Rsv2",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_2,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_rsv_5,
+			{
+				"Reserved", "wmx.type1Rsv5",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_5,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_rsv_7,
+			{
+				"Reserved", "wmx.type1Rsv7",
+				FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_7,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_cid,
+			{
+				"Connection ID", "wmx.type1Cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_mac_header_type_1_hcs,
+			{
+				"Header Check Sequence", "wmx.type1Hcs",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"", HFILL
+			}
+		}
+	};
+
 	if (proto_mac_header_type_1_decoder == -1)
 	{
 		proto_mac_header_type_1_decoder = proto_mac_header_generic_decoder;
