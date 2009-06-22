@@ -3077,12 +3077,12 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_engineid_data, {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
-		  { &hf_snmp_msgAuthentication,
-				{ "Authentication", "snmp.v3.auth", FT_BOOLEAN, BASE_NONE,
-					TFS(&auth_flags), 0x0, NULL, HFILL }},
-		  { &hf_snmp_decryptedPDU, {
-					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_NONE,
-					NULL, 0, "Decrypted PDU", HFILL }},
+		{ &hf_snmp_msgAuthentication, {
+		    "Authentication", "snmp.v3.auth", FT_BOOLEAN, 8,
+		    TFS(&auth_flags), 0, NULL, HFILL }},
+		{ &hf_snmp_decryptedPDU, {
+	  	    "Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_NONE,
+		    NULL, 0, "Decrypted PDU", HFILL }},
   { &hf_snmp_noSuchObject, { "noSuchObject", "snmp.noSuchObject", FT_NONE, BASE_NONE,  NULL, 0, NULL, HFILL }},
   { &hf_snmp_noSuchInstance, { "noSuchInstance", "snmp.noSuchInstance", FT_NONE, BASE_NONE,  NULL, 0, NULL, HFILL }},
   { &hf_snmp_endOfMibView, { "endOfMibView", "snmp.endOfMibView", FT_NONE, BASE_NONE,  NULL, 0, NULL, HFILL }},
