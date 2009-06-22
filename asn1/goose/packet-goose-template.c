@@ -122,16 +122,16 @@ void proto_register_goose(void) {
   static hf_register_info hf[] =
   {
   	{ &hf_goose_appid,
-	{ "APPID",	"goose.appid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "APPID",	"goose.appid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_length,
-	{ "Length",	"goose.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Length",	"goose.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_reserve1,
-	{ "Reserved 1",	"goose.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "Reserved 1",	"goose.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
   	{ &hf_goose_reserve2,
-	{ "Reserved 2",	"goose.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
+	{ "Reserved 2",	"goose.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
 #include "packet-goose-hfarr.c"
   };
