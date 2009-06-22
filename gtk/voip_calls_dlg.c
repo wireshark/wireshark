@@ -681,7 +681,8 @@ static void voip_calls_dlg_create (void)
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - VoIP Calls", title_name_ptr);
-	voip_calls_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, win_name);
+	voip_calls_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(voip_calls_dlg_w), TRUE);
 
 	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 840, 350);
 

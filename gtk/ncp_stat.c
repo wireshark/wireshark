@@ -519,7 +519,8 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
 
     ss=g_malloc(sizeof(ncpstat_t));
 
-    ss->win=window_new(GTK_WINDOW_TOPLEVEL, "ncp-stat");
+	ss->win = dlg_window_new("ncp-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 300, 400);
 
     ncpstat_set_title(ss);

@@ -315,7 +315,8 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 
 	radiusstat_reset(rs);
 
-	rs->win=window_new(GTK_WINDOW_TOPLEVEL, "RADIUS SRT");
+	rs->win = dlg_window_new("RADIUS SRT");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 600, 150);
 
 	rs->vbox=gtk_vbox_new(FALSE, 3);

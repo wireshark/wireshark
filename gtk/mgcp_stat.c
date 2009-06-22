@@ -264,7 +264,9 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 
 	mgcpstat_reset(ms);
 
-	ms->win=window_new(GTK_WINDOW_TOPLEVEL, "MGCP SRT");
+	ms->win = dlg_window_new("MGCP SRT");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(ms->win), TRUE);
+
 	gtk_window_set_default_size(GTK_WINDOW(ms->win), 550, 150);
 
 	ms->vbox=gtk_vbox_new(FALSE, 3);

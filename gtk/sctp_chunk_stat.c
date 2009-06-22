@@ -298,7 +298,8 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	hs->number_of_packets = 0;
 	sctpstat_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Chunk Statistics");
+	hs->win = dlg_window_new("Wireshark: SCTP Chunk Statistics");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(hs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(hs->win), 600, 200);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);

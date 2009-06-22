@@ -1985,11 +1985,11 @@ rtp_player_dlg_create(void)
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
-	rtp_player_dlg_w=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);	
-	gtk_window_set_title(GTK_WINDOW(rtp_player_dlg_w), win_name);
+
+	rtp_player_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rtp_player_dlg_w), TRUE);
 	gtk_window_set_position(GTK_WINDOW(rtp_player_dlg_w), GTK_WIN_POS_NONE);
 
 	gtk_window_set_default_size(GTK_WINDOW(rtp_player_dlg_w), 400, 50);
