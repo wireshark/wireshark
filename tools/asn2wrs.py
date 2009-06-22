@@ -4669,7 +4669,7 @@ class BooleanType (Type):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_BOOLEAN')
 
   def eth_ftype(self, ectx):
-    return ('FT_BOOLEAN', '8')
+    return ('FT_BOOLEAN', 'BASE_NONE')
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
