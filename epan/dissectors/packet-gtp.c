@@ -6364,167 +6364,168 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, FALSE);
-	gtp_tree = proto_item_add_subtree(ti, ett_gtp);
+		ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, FALSE);
+		gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-	tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
-	flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
+		tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
+		flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
-	proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-	
-	if(version>=2){
-		proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
-		pinfo->private_data = pd_save;
-		return;
-	}
-
-	proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
-
-	switch (gtp_version) {
-	case 0:
-	    proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
-	    proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
-	    break;
-	case 1:
-	    proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
-	    proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
-	    proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
-	    proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
-	    break;
-	default:
-	    break;
-	}
-
-	proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
-
-	gtp_hdr.length = g_ntohs(gtp_hdr.length);
-	proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
-
-	offset = 4;
-
-	if (gtp_prime) {
-	    seq_no = tvb_get_ntohs(tvb, offset);
-	    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-	    offset += 2;
-	} else
-	    switch (gtp_version) {
-	    case 0:
-		seq_no = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-		offset += 2;
-
-		flow_label = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
-		offset += 2;
-
-		pdu_no = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
-		offset += 4;
-
-		tid_val = tvb_get_ptr(tvb, offset, 8);
-		tid_str = id_to_str(tid_val);
-		proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
-		offset += 8;
-		break;
-	    case 1:
-		teid = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
-		offset += 4;
-
-		if (gtp_hdr.flags & 0x07) {
-		    seq_no = tvb_get_ntohs(tvb, offset);
-		    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-		    offset += 2;
-
-		    pdu_no = tvb_get_guint8(tvb, offset);
-		    proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
-		    offset++;
-
-		    next_hdr = tvb_get_guint8(tvb, offset);
-		    proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-		    if (!next_hdr)
-			offset++;
+		proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+		
+		if(version>=2){
+			proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
+			pinfo->private_data = pd_save;
+			return;
 		}
-		break;
-	    default:
-		break;
-	    }
 
-	if (gtp_hdr.message != GTP_MSG_TPDU) {
-	    /* TODO: This code should be cleaned up to handle more than one
-	     * header and possibly display the header content */
-	    if (next_hdr) {
-		offset++;
-		switch (next_hdr) {
+		proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
+
+		switch (gtp_version) {
+		case 0:
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
+			break;
 		case 1:
-		    /* MBMS support indication */
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
-		    offset += 3;
-		    break;
-		case 2:
-		    /* MS Info Change Reporting support indication */
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
-		    offset += 3;
-		    break;
-		case 0xc0:
-		    /* PDCP PDU number */
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
-		    offset += 3;
-		    break;
-		case 0xc1:
-		    /* Suspend Request */
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
-		    offset += 3;
-		    break;
-		case 0xc2:
-		    /* Suspend Response */
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
-		    offset += 3;
-		    break;
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
+			break;
 		default:
-		    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
-		    offset += 3;
-		    break;
-		}
-		next_hdr = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-		offset++;
-	    }
-	    proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");
-	    length = tvb_length(tvb);
-	    mandatory = 0;	/* check order of GTP fields against ETSI */
-	    for (;;) {
-		if (offset >= length)
-		    break;
-		if (next_hdr) {
-		    ext_hdr_val = next_hdr;
-		    next_hdr = 0;
-		} else
-		    ext_hdr_val = tvb_get_guint8(tvb, offset);
-		if (g_gtp_etsi_order) {
-		    checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
-		    switch (checked_field) {
-		    case -2:
-			proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
 			break;
-		    case -1:
-			proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
-			break;
-		    case 0:
-			break;
-		    default:
-			proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
-					    val_to_str(checked_field, gtp_val, "Unknown extension field"));
-			break;
-		    }
 		}
 
-		i = -1;
-		while (gtpopt[++i].optcode)
-		    if (gtpopt[i].optcode == ext_hdr_val)
-			break;
-		offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
-	    }
+		proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
+
+		gtp_hdr.length = g_ntohs(gtp_hdr.length);
+		proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
+
+		offset = 4;
+
+		if (gtp_prime) {
+			seq_no = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+			offset += 2;
+		} else
+			switch (gtp_version) {
+				case 0:
+					seq_no = tvb_get_ntohs(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+					offset += 2;
+
+					flow_label = tvb_get_ntohs(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
+					offset += 2;
+
+					pdu_no = tvb_get_guint8(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
+					offset += 4;
+
+					tid_val = tvb_get_ptr(tvb, offset, 8);
+					tid_str = id_to_str(tid_val);
+					proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
+					offset += 8;
+					break;
+				case 1:
+					teid = tvb_get_ntohl(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
+					offset += 4;
+
+					if (gtp_hdr.flags & 0x07) {
+						seq_no = tvb_get_ntohs(tvb, offset);
+						proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+						offset += 2;
+
+						pdu_no = tvb_get_guint8(tvb, offset);
+						proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
+						offset++;
+
+						next_hdr = tvb_get_guint8(tvb, offset);
+						proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+						if (!next_hdr)
+						offset++;
+					}
+					break;
+				default:
+					break;
+			}/*Switch */
+		}
+
+		if (gtp_hdr.message != GTP_MSG_TPDU) {
+			/* TODO: This code should be cleaned up to handle more than one
+			 * header and possibly display the header content */
+			if (next_hdr) {
+				offset++;
+				switch (next_hdr) {
+				case 1:
+					/* MBMS support indication */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
+					offset += 3;
+					break;
+				case 2:
+					/* MS Info Change Reporting support indication */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
+					offset += 3;
+					break;
+				case 0xc0:
+					/* PDCP PDU number */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
+					offset += 3;
+					break;
+				case 0xc1:
+					/* Suspend Request */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
+					offset += 3;
+					break;
+				case 0xc2:
+					/* Suspend Response */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
+					offset += 3;
+					break;
+				default:
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
+					offset += 3;
+					break;
+				}
+				next_hdr = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+				offset++;
+			}
+			proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");
+			length = tvb_length(tvb);
+			mandatory = 0;	/* check order of GTP fields against ETSI */
+			for (;;) {
+				if (offset >= length)
+					break;
+				if (next_hdr) {
+					ext_hdr_val = next_hdr;
+					next_hdr = 0;
+				} else
+					ext_hdr_val = tvb_get_guint8(tvb, offset);
+				if (g_gtp_etsi_order) {
+					checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
+					switch (checked_field) {
+						case -2:
+							proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
+							break;
+						case -1:
+							proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
+							break;
+						case 0:
+							break;
+						default:
+							proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
+										val_to_str(checked_field, gtp_val, "Unknown extension field"));
+							break;
+					}
+				}
+
+				i = -1;
+				while (gtpopt[++i].optcode)
+					if (gtpopt[i].optcode == ext_hdr_val)
+					break;
+				offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
+			}
 
             /*Use sequence number to track Req/Resp pairs*/
             if(seq_no) {
