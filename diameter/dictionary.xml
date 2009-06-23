@@ -2142,7 +2142,15 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			  <enum name="RAT CHANGE" code="2"/>
 			  <enum name="TFT CHANGE" code="3"/>
 			  <enum name="PLMN CHANGE" code="4"/>
-			  <enum name="TFT DELETED" code="1000"/>
+      <enum name="LOSS_OF_BEARER" 				code="5"/>
+      <enum name="RECOVERY_OF_BEARER" 			code="6"/>
+      <enum name="IP-CAN_CHANGE"				code="7"/>
+      <enum name="GW-PCEF-MALFUNCTION"			code="8"/>
+      <enum name="RESOURCES_LIMITATION"			code="9"/>
+      <enum name="MAX_NR_BEARERS_REACHED"			code="10"/>
+      <enum name="QOS_CHANGE_EXCEEDING_AUTHORIZATION"		code="11"/>
+      <enum name="NO_EVENT_TRIGGER"				code="12"/>
+      <enum name="TFT DELETED" code="1000"/>
 			  <enum name="LOSS OF BEARER" code="1001"/>
 			  <enum name="RECOVERY OF BEARER" code="1002"/>
 			  <enum name="POLICY ENFORCEMENT FAILED" code="1003"/>
@@ -2188,19 +2196,61 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			<type type-name="Unsigned32" />	
 			<enum name="PDP-SESSION-TERMINATION" code="0" />								
 		</avp>
-
-<!--
-  1016 QoS-Information Grouped   
-  1018 Charging-Rule-Report Grouped   
-  1019 PCC-Rule-Status Enumerated   
+		<avp name="QoS-Information" code="1016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="QoS-Class-Identifier"/>
+				<gavp name="Max-Requested-Bandwdith-DL"/>
+				<gavp name="Max-Requested-Bandwdith-UL"/>
+				<gavp name="Guaranteed-Bitrate-UL"/>
+				<gavp name="Guaranteed-Bitrate-DL"/>
+				<gavp name="Bearer-Identifier"/>
+			</grouped>
+		</avp>
+   		<avp name="Charging-Rule-Report" code="1018" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Charging-Rule-Base-Name"/>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="PCC-Rule-Status"/>
+			</grouped>
+		</avp>
+    <avp name="PCC-Rule-Status" code="1019" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+      <enum name="ACTIVE" 			code="0"/>
+      <enum name="INACTIVE" 	code="1"/>
+      <enum name="TEMPORARY_INACTIVE" 	code="2"/>
+    </avp>
+    <!--
   1020 Bearer-Identifier OctetString   
   1021 Bearer-Operation Enumerated   
   1022 Access-Network-Charging-Identifier-Gx Grouped   
   1023 Bearer-Control-Mode Enumerated   
   1024 Network-Request-Support Enumerated   
-  1025 Guaranteed-Bitrate-DL Unsigned32   
-  1026 Guaranteed-Bitrate-UL Unsigned32   
+  -->
+ 		<avp name="Guaranteed-Bitrate-DL" code="1025" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>		
+		<avp name="Guaranteed-Bitrate-UL" code="1026" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+    <!--
   1027 IP-CAN-Type Enumerated   
+  -->
+    
+		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+			<enum name="None" 			code="0"/>
+			<enum name="Conversational" 			code="1"/>
+			<enum name="Conversational" 			code="2"/>
+			<enum name="Streaming" 	code="3"/>
+			<enum name="Streaming" 		code="4"/>
+			<enum name="Interactive"			code="5"/>
+			<enum name="Interactive" 		code="6"/>
+			<enum name="Interactive" 		code="7"/>
+			<enum name="Interactive" 		code="8"/>
+			<enum name="Background" 		code="9"/>
+			<enum name="OTHER"			code="0xFFFFFFFF"/>
+		</avp>
+<!--  
   1028 QoS-Class-Identifier Enumerated 
 1029 QoS-Negotiation Enumerated
 1030 QoS-Upgrade Enumerated
@@ -3575,6 +3625,8 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
+  <application id="16777224" name="3GPP Gx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+  </application>
   <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
     <command name="3GPP-Update-Location" code="316" vendor-id="None"/>
     <command name="3GPP-Cancel-Location" code="317" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
