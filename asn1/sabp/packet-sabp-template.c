@@ -171,7 +171,7 @@ void proto_register_sabp(void) {
     { &hf_sabp_no_of_pages,
       { "Number-of-Pages", "sabp.no_of_pages",
         FT_UINT8, BASE_DEC, NULL, 0,
-        "Number-of-Pages", HFILL }},
+        NULL, HFILL }},
 
 #include "packet-sabp-hfarr.c"
   };

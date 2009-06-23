@@ -281,14 +281,14 @@ void proto_register_q932(void) {
                           FT_UINT8, BASE_DEC, NULL, 0x0,
                           "Information Element Length", HFILL }},
     { &hf_q932_ie_data, { "Data", "q932.ie.data",
-                          FT_BYTES, BASE_HEX, NULL, 0x0,
-                          "Data", HFILL }},
+                          FT_BYTES, BASE_NONE, NULL, 0x0,
+                          NULL, HFILL }},
     { &hf_q932_pp,      { "Protocol profile", "q932.pp",
                           FT_UINT8, BASE_HEX, VALS(str_pp), 0x1F,
-                          "Protocol profile", HFILL }},
+                          NULL, HFILL }},
     { &hf_q932_nd,      { "Notification description", "q932.nd",
                           FT_UINT8, BASE_HEX, VALS(str_nd), 0x0,
-                          "Notification description", HFILL }},
+                          NULL, HFILL }},
 #include "packet-q932-hfarr.c"
   };
 

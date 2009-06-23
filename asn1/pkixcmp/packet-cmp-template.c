@@ -335,7 +335,7 @@ void proto_register_cmp(void) {
 		{ &hf_cmp_tcptrans_next_poll_ref,
 			{ "Next Polling Reference", "cmp.tcptrans.next_poll_ref",
 				FT_UINT32, BASE_HEX, NULL, 0,
-				"TCP transport Next Polling Reference ", HFILL }},
+				"TCP transport Next Polling Reference", HFILL }},
 		{ &hf_cmp_tcptrans_ttcb,
 			{ "Time to check Back", "cmp.tcptrans.ttcb",
 				FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,

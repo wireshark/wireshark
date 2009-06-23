@@ -117,7 +117,7 @@ void proto_register_x509if(void) {
       { "Id", "x509if.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
     { &hf_x509if_any_string, 
-      { "AnyString", "x509if.any.String", FT_BYTES, BASE_HEX,
+      { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is any String", HFILL }},
 			 
 #include "packet-x509if-hfarr.c"

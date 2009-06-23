@@ -583,13 +583,13 @@ void proto_register_qsig(void) {
   static hf_register_info hf[] = {
     { &hf_qsig_operation, { "Operation", "qsig.operation",
                            FT_UINT8, BASE_DEC, VALS(qsig_str_operation), 0x0,
-                           "Operation", HFILL }},
+                           NULL, HFILL }},
     { &hf_qsig_service,   { "Service", "qsig.service",
                            FT_UINT8, BASE_DEC, VALS(qsig_str_service), 0x0,
                            "Supplementary Service", HFILL }},
     { &hf_qsig_error,     { "Error", "qsig.error",
                            FT_UINT8, BASE_DEC, VALS(qsig_str_error), 0x0,
-                           "Error", HFILL }},
+                           NULL, HFILL }},
     { &hf_qsig_ie_type, { "Type", "qsig.ie.type",
                           FT_UINT8, BASE_HEX, NULL, 0x0,
                           "Information Element Type", HFILL }},
@@ -604,13 +604,13 @@ void proto_register_qsig(void) {
                           "Information Element Length", HFILL }},
     { &hf_qsig_ie_data, { "Data", "qsig.ie.data",
                           FT_BYTES, BASE_HEX, NULL, 0x0,
-                          "Data", HFILL }},
+                          NULL, HFILL }},
     { &hf_qsig_tc,      { "Transit count", "qsig.tc",
                           FT_UINT8, BASE_DEC, NULL, 0x1F,
-                          "Transit count", HFILL }},
+                          NULL, HFILL }},
     { &hf_qsig_pc,      { "Party category", "qsig.pc",
                           FT_UINT8, BASE_HEX, VALS(qsig_str_pc), 0x07,
-                          "Party category", HFILL }},
+                          NULL, HFILL }},
 #include "packet-qsig-hfarr.c"
   };
 

@@ -267,29 +267,29 @@ proto_register_tcap(void)
 	{ &hf_tcap_tag,
 		{ "Tag",           "tcap.msgtype",
 		FT_UINT8, BASE_HEX, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_tcap_length,
 		{ "Length", "tcap.len",
 		FT_UINT8, BASE_DEC, NULL, 0,
-		"", HFILL }
+		NULL, HFILL }
 	},
 	{ &hf_tcap_data,
 		{ "Data", "tcap.data",
-		FT_BYTES, BASE_HEX, NULL, 0,
-		"", HFILL }
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }
 	},
 		{ &hf_tcap_tid,
 		{ "Transaction Id", "tcap.tid",
-		FT_BYTES, BASE_HEX, NULL, 0,
-		"", HFILL }
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL }
 	},
 	/* Tcap Service Response Time */
 	{ &hf_tcapsrt_SessionId,
 	  { "Session Id",
 	    "tcap.srt.session_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_tcapsrt_BeginSession,
 	  { "Begin Session",

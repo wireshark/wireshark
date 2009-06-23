@@ -192,11 +192,11 @@ void proto_register_s1ap(void) {
   static hf_register_info hf[] = {
     { &hf_s1ap_transportLayerAddressIPv4,
       { "transportLayerAddress(IPv4)", "s1ap.transportLayerAddressIPv4",
-        FT_IPv4, BASE_DEC, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_transportLayerAddressIPv6,
       { "transportLayerAddress(IPv6)", "s1ap.transportLayerAddressIPv6",
-        FT_IPv4, BASE_HEX, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
 #include "packet-s1ap-hfarr.c"

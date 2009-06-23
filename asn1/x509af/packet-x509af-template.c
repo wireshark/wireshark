@@ -100,11 +100,11 @@ void proto_register_x509af(void) {
     { &hf_x509af_algorithm_id,
       { "Algorithm Id", "x509af.algorithm.id",
         FT_OID, BASE_NONE, NULL, 0,
-        "Algorithm Id", HFILL }},
+        NULL, HFILL }},
     { &hf_x509af_extension_id,
       { "Extension Id", "x509af.extension.id",
         FT_OID, BASE_NONE, NULL, 0,
-        "Extension Id", HFILL }},
+        NULL, HFILL }},
 #include "packet-x509af-hfarr.c"
   };
 

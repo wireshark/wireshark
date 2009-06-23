@@ -154,13 +154,13 @@ void proto_register_smrse(void) {
 		NULL, 0, "Reserved byte, must be 126", HFILL }},
 	{ &hf_smrse_tag, {
 		"Tag", "smrse.tag", FT_UINT8, BASE_DEC,
-		VALS(tag_vals), 0, "Tag", HFILL }},
+		VALS(tag_vals), 0, NULL, HFILL }},
 	{ &hf_smrse_length, {
 		"Length", "smrse.length", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of SMRSE PDU", HFILL }},
     { &hf_smrse_Octet_Format,
       { "octet-Format", "smrse.octet_Format",
-        FT_STRING, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "SMS-Address/address-value/octet-format", HFILL }},
 
 #include "packet-smrse-hfarr.c"

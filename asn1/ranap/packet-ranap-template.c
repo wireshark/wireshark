@@ -279,7 +279,7 @@ void proto_register_ranap(void) {
 	{ &hf_ranap_imsi_digits,
       { "IMSI digits", "ranap.imsi_digits",
         FT_STRING, BASE_NONE, NULL, 0,
-        "IMSI digits", HFILL }},
+        NULL, HFILL }},
     { &hf_ranap_transportLayerAddress_ipv4,
       { "transportLayerAddress IPv4", "ranap.transportLayerAddress_ipv4",
         FT_IPv4, BASE_NONE, NULL, 0,

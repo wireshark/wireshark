@@ -116,7 +116,7 @@ void proto_register_pkix1explicit(void) {
 
     { &hf_pkix1explicit_addressFamily_afn,
       { "Address family(AFN)", "pkix1explicit.addressfamily", FT_UINT16, BASE_DEC, VALS(afn_vals), 0,
-	"Address family(AFN)", HFILL }},
+	NULL, HFILL }},
 
     { &hf_pkix1explicit_addressFamily_safi,
       { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
