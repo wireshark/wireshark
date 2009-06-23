@@ -2870,8 +2870,12 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	CAPWAP dissector
 }
 
-Varun Notibala		<nbvarun [AT] gmail.com {
+Varun Notibala		<nbvarun [AT] gmail.com> {
 	SCTP NR-SACK support
+}
+
+Nathan Hartwell		<nhartwell [AT] gmail.com> {
+	HP NIC Teaming dissector
 }
 
 and by:

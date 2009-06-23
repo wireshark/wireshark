@@ -88,6 +88,7 @@ static dissector_table_t dsap_subdissector_table;
 static dissector_table_t xid_subdissector_table;
 
 static dissector_table_t ethertype_subdissector_table;
+static dissector_table_t hpteam_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -219,6 +220,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SIEMENS,		"Siemens AG" },
 	{ OUI_APPLE_ATALK,	"Apple (AppleTalk)" },
 	{ OUI_HP,		"Hewlett-Packard" },
+	{ OUI_HP_2,		"Hewlett-Packard" },
 	{ 0,			NULL }
 };
 
@@ -607,6 +609,17 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	switch (oui) {
 
+	case OUI_HP_2:
+		oui_info = get_snap_oui_info(oui);
+		hf = *oui_info->field_info->p_id;
+		subdissector_table = oui_info->table;
+		proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2, etype);
+		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+
+		if(!dissector_try_port(hpteam_subdissector_table,etype, next_tvb, pinfo, tree))
+	 		call_dissector(data_handle, next_tvb, pinfo, tree);
+		break;
+
 	case OUI_ENCAP_ETHER:
 	case OUI_CISCO_90:
 	case OUI_APPLE_ATALK:
@@ -950,6 +963,7 @@ proto_reg_handoff_llc(void)
 	 * Get the Ethertype dissector table.
 	 */
 	ethertype_subdissector_table = find_dissector_table("ethertype");
+	hpteam_subdissector_table = find_dissector_table("llc.hpteam_pid");
 
 	llc_handle = find_dissector("llc");
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);

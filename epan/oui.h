@@ -70,6 +70,7 @@
 #define	OUI_SIEMENS		0x080006	/* Siemens AG */
 #define	OUI_APPLE_ATALK		0x080007	/* Appletalk */
 #define	OUI_HP			0x080009	/* Hewlett-Packard */
+#define	OUI_HP_2		0x00805F	/* Hewlett-Packard */
 
 /* 
  * Defined in packet-llc.c
