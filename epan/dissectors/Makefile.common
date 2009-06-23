@@ -264,6 +264,7 @@ DISSECTOR_SRC = \
 	packet-brdwlk.c		\
 	packet-bssap.c		\
 	packet-bssgp.c		\
+	packet-btamp.c		\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\

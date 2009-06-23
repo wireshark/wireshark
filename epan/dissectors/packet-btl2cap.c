@@ -52,7 +52,12 @@ static int hf_btl2cap_cmd_data = -1;
 static int hf_btl2cap_psm = -1;
 static int hf_btl2cap_scid = -1;
 static int hf_btl2cap_dcid = -1;
+static int hf_btl2cap_icid = -1;
+static int hf_btl2cap_controller = -1;
+static int hf_btl2cap_dcontroller = -1;
 static int hf_btl2cap_result = -1;
+static int hf_btl2cap_move_result = -1;
+static int hf_btl2cap_move_confirmation_result = -1;
 static int hf_btl2cap_status = -1;
 static int hf_btl2cap_rej_reason = -1;
 static int hf_btl2cap_sig_mtu = -1;
@@ -60,6 +65,19 @@ static int hf_btl2cap_info_mtu = -1;
 static int hf_btl2cap_info_flowcontrol = -1;
 static int hf_btl2cap_info_retransmission = -1;
 static int hf_btl2cap_info_bidirqos = -1;
+static int hf_btl2cap_info_enh_retransmission = -1;
+static int hf_btl2cap_info_streaming = -1;
+static int hf_btl2cap_info_fcs = -1;
+static int hf_btl2cap_info_flow_spec = -1;
+static int hf_btl2cap_info_fixedchan = -1;
+static int hf_btl2cap_info_fixedchans = -1;
+static int hf_btl2cap_info_fixedchans_null = -1;
+static int hf_btl2cap_info_fixedchans_signal = -1;
+static int hf_btl2cap_info_fixedchans_connless = -1;
+static int hf_btl2cap_info_fixedchans_amp_man = -1;
+static int hf_btl2cap_info_fixedchans_amp_test = -1;
+static int hf_btl2cap_info_window = -1;
+static int hf_btl2cap_info_unicast = -1;
 static int hf_btl2cap_info_type = -1;
 static int hf_btl2cap_info_result = -1;
 static int hf_btl2cap_continuation_flag = -1;
@@ -70,6 +88,7 @@ static int hf_btl2cap_option_type = -1;
 static int hf_btl2cap_option_length = -1;
 static int hf_btl2cap_option_mtu = -1;
 static int hf_btl2cap_option_flushTO = -1;
+static int hf_btl2cap_option_flush_to_us = -1;
 static int hf_btl2cap_option_flags = -1;
 static int hf_btl2cap_option_service_type = -1;
 static int hf_btl2cap_option_tokenrate = -1;
@@ -83,6 +102,12 @@ static int hf_btl2cap_option_maxtransmit = -1;
 static int hf_btl2cap_option_retransmittimeout = -1;
 static int hf_btl2cap_option_monitortimeout = -1;
 static int hf_btl2cap_option_mps = -1;
+static int hf_btl2cap_option_fcs = -1;
+static int hf_btl2cap_option_window = -1;
+static int hf_btl2cap_option_identifier = -1;
+static int hf_btl2cap_option_sdu_size = -1;
+static int hf_btl2cap_option_sdu_arrival_time = -1;
+static int hf_btl2cap_option_access_latency = -1;
 static int hf_btl2cap_control = -1;
 static int hf_btl2cap_control_sar = -1;
 static int hf_btl2cap_control_reqseq = -1;
@@ -100,11 +125,13 @@ static gint ett_btl2cap = -1;
 static gint ett_btl2cap_cmd = -1;
 static gint ett_btl2cap_option = -1;
 static gint ett_btl2cap_extfeatures = -1;
+static gint ett_btl2cap_fixedchans = -1;
 static gint ett_btl2cap_control = -1;
 
 
 /* Initialize dissector table */
 dissector_table_t l2cap_psm_dissector_table;
+dissector_table_t l2cap_cid_dissector_table;
 
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
@@ -134,6 +161,12 @@ static const value_string command_code_vals[] = {
 	{ 0x09,	"Echo Response" },
 	{ 0x0A,	"Information Request" },
 	{ 0x0B,	"Information Response" },
+	{ 0x0C,	"Create Channel Request" },
+	{ 0x0D,	"Create Channel Response" },
+	{ 0x0E,	"Move Channel Request" },
+	{ 0x0F,	"Move Channel Response" },
+	{ 0x10,	"Move Channel Confirmation" },
+	{ 0x11,	"Move Channel Confirmation Response" },
 	{ 0, NULL }
 };
 
@@ -157,9 +190,27 @@ static const value_string psm_vals[] = {
 static const value_string result_vals[] = {
 	{ 0x0000,	"Connection successful" },
 	{ 0x0001,	"Connection pending" },
-	{ 0x0002,	"Connection Refused - PSM not supported" },
+	{ 0x0002,	"Connection refused - PSM not supported" },
 	{ 0x0003,	"Connection refused - security block" },
 	{ 0x0004,	"Connection refused - no resources available" },
+	{ 0x0005,	"Connection refused - Controller ID not supported" },
+	{ 0, NULL }
+};
+
+static const value_string move_result_vals[] = {
+	{ 0x0000,	"Move success" },
+	{ 0x0001,	"Move pending" },
+	{ 0x0002,	"Move refused - Controller ID not supported" },
+	{ 0x0003,	"Move refused - New Controller ID is same as old" },
+	{ 0x0004,	"Move refused - Configuration not supported" },
+	{ 0x0005,	"Move refused - Move Channel collision" },
+	{ 0x0006,	"Move refused - Channel not allowed to be moved" },
+	{ 0, NULL }
+};
+
+static const value_string move_result_confirmation_vals[] = {
+	{ 0x0000,	"Move success - both sides succeed" },
+	{ 0x0001,	"Move failure - one or both sides refuse" },
 	{ 0, NULL }
 };
 
@@ -168,6 +219,8 @@ static const value_string configuration_result_vals[] = {
 	{ 0x0001, "Failure - unacceptable parameters" },
 	{ 0x0002, "Failure - reject (no reason provided)" },
 	{ 0x0003, "Failure - unknown options" },
+	{ 0x0004, "Pending" },
+	{ 0x0005, "Failure - flow spec rejected" },
 	{ 0, NULL }
 };
 
@@ -188,6 +241,7 @@ static const value_string reason_vals[] = {
 static const value_string info_type_vals[] = {
 	{ 0x0001, "Connectionless MTU" },
 	{ 0x0002, "Extended Features Mask" },
+	{ 0x0003, "Fixed Channels Supported" },
 	{ 0, NULL }
 };
 
@@ -209,6 +263,9 @@ static const value_string option_type_vals[] = {
 	{ 0x02, "Flush Timeout" },
 	{ 0x03, "Quality of Service" },
 	{ 0x04, "Retransmission and Flow Control" },
+	{ 0x05, "FCS" },
+	{ 0x06, "Extended Flow Specification" },
+	{ 0x07, "Extended Window Size" },
 	{ 0, NULL }
 };
 
@@ -216,6 +273,8 @@ static const value_string option_retransmissionmode_vals[] = {
 	{ 0x00, "Basic Mode" },
 	{ 0x01, "Retransmission Mode" },
 	{ 0x02, "Flow Control Mode" },
+	{ 0x03, "Enhanced Retransmission Mode" },
+	{ 0x04, "Streaming Mode" },
 	{ 0, NULL }
 };
 
@@ -230,12 +289,20 @@ static const value_string control_sar_vals[] = {
 static const value_string control_supervisory_vals[] = {
 	{ 0x00, "RR" },
 	{ 0x01, "REJ" },
+	{ 0x02, "RNR" },
+	{ 0x03, "SREJ" },
 	{ 0, NULL }
 };
 
 static const value_string control_type_vals[] = {
 	{ 0x00, "I-Frame" },
 	{ 0x01, "S-Frame" },
+	{ 0, NULL }
+};
+
+static const value_string option_fcs_vals[] = {
+	{ 0x00, "No FCS" },
+	{ 0x01, "16-bit FCS" },
 	{ 0, NULL }
 };
 
@@ -302,6 +369,50 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	return offset;
 }
 
+
+static int
+dissect_chanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint16 scid, psm;
+	psm_data_t *psm_data;
+
+	psm=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_btl2cap_psm, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	scid=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_btl2cap_controller, tvb, offset, 1, TRUE);
+	offset+=1;
+
+	if (pinfo->fd->flags.visited == 0) {
+		psm_data=se_alloc(sizeof(psm_data_t));
+		psm_data->psm=psm;
+		psm_data->in.mode=0;
+		psm_data->in.txwindow=0;
+		psm_data->in.start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_l2cap fragment starts");
+		psm_data->out.mode=0;
+		psm_data->out.txwindow=0;
+		psm_data->out.start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_l2cap fragment starts");
+		se_tree_insert32(cid_to_psm_table, scid|((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000), psm_data);
+
+	}
+	return offset;
+}
+
+static int
+dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_btl2cap_dcontroller, tvb, offset, 1, TRUE);
+	offset+=1;
+
+	return offset;
+}
 
 static int
 dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length, config_data_t *config_data)
@@ -391,6 +502,42 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 				proto_item_append_text(ti_option, "Retransmission and Flow Control");
 				break;
 
+			case 0x05: /* FCS */
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_fcs, tvb, offset, 1, TRUE);
+				offset+=1;
+
+				proto_item_append_text(ti_option, "FCS");
+				break;
+
+			case 0x06: /* Extended Flow Specification */
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_identifier, tvb, offset, 1, TRUE);
+				offset++;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_service_type, tvb, offset, 1, TRUE);
+				offset++;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_size, tvb, offset, 2, TRUE);
+				offset+=2;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_arrival_time, tvb, offset, 4, TRUE);
+				offset+=4;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_access_latency, tvb, offset, 4, TRUE);
+				offset+=4;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flush_to_us, tvb, offset, 4, TRUE);
+				offset+=4;
+
+				proto_item_append_text(ti_option, "Extended Flow Specification");
+				break;
+
+			case 0x07: /* Extended Window Size */
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_window, tvb, offset, 2, TRUE);
+				offset+=2;
+
+				proto_item_append_text(ti_option, "Extended Window Size");
+				break;
+
 			default:
 				proto_item_append_text(ti_option, "unknown");
 				offset+=option_length;
@@ -478,12 +625,50 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 				proto_item_append_text(ti_features, "Retransmission ");
 			if(features & 0x4)
 				proto_item_append_text(ti_features, "BiDirQOS ");
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flowcontrol, tvb, offset, 1, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_retransmission, tvb, offset, 1, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_bidirqos, tvb, offset, 1, TRUE);
+			if(features & 0x8)
+				proto_item_append_text(ti_features, "EnhRetransmission ");
+			if(features & 0x10)
+				proto_item_append_text(ti_features, "Streaming ");
+			if(features & 0x20)
+				proto_item_append_text(ti_features, "FCS ");
+			if(features & 0x40)
+				proto_item_append_text(ti_features, "FlowSpec ");
+			if(features & 0x80)
+				proto_item_append_text(ti_features, "FixedChan ");
+			if(features & 0x100)
+				proto_item_append_text(ti_features, "WindowSize ");
+			if(features & 0x200)
+				proto_item_append_text(ti_features, "Unicast ");
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flowcontrol, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_retransmission, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_bidirqos, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_enh_retransmission, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_streaming, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fcs, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flow_spec, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchan, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_window, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_unicast, tvb, offset, 4, TRUE);
 			offset+=4;
 
 			break;
+
+		case 0x0003: /* Fixed Channels Supported */
+			ti_features = proto_tree_add_none_format(tree,
+					hf_btl2cap_info_fixedchans, tvb,
+					offset, 8,
+					"Fixed Channels Supported:");
+			ti_features_subtree = proto_item_add_subtree(ti_features, ett_btl2cap_fixedchans);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_null, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_signal, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_connless, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_man, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_test, tvb, offset, 4, TRUE);
+			offset+=4;
+
+			break;
+
 		default:
 			proto_tree_add_item(tree, hf_btl2cap_cmd_data, tvb, offset, -1, TRUE);
 			offset+=tvb_length_remaining(tvb, offset);
@@ -556,17 +741,51 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	return offset;
 }
 
+static int
+dissect_chanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_connresponse(tvb, offset, pinfo, tree);
+}
+
+static int
+dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_btl2cap_move_result, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	return offset;
+}
+
+static int
+dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_btl2cap_move_confirmation_result, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	return offset;
+}
+
+static int
+dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	return offset;
+}
 
 static int
 dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint16 scid, dcid;
-
-	dcid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
 	offset+=2;
 
-	scid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
 	offset+=2;
 
@@ -782,7 +1001,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 length, cid;
 	guint16 psm;
 	guint16 control;
-	tvbuff_t *next_tvb;
+	tvbuff_t *next_tvb = NULL;
 	psm_data_t *psm_data;
 	bthci_acl_data_t *acl_data;
 	btl2cap_data_t *l2cap_data;
@@ -817,7 +1036,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pd_save = pinfo->private_data;
 	pinfo->private_data=l2cap_data;
 
-	if(cid==0x0001){ /* This is a command packet*/
+	if(cid==BTL2CAP_FIXED_CID_SIGNAL){ /* This is a command packet*/
 		while(offset<(length+4)) {
 			proto_tree *btl2cap_cmd_tree=NULL;
 			proto_item *ti_command=NULL;
@@ -931,13 +1150,61 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				break;
 
+			case 0x0c: /* Create Channel Request */
+				offset=dissect_chanrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Create Channel Request");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Request");
+				}
+				break;
+
+			case 0x0d: /* Create Channel Response */
+				offset=dissect_chanresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Create Channel Response");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Response");
+				}
+				break;
+
+			case 0x0e: /* Move Channel Request */
+				offset=dissect_movechanrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Move Channel Request");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Request");
+				}
+				break;
+
+			case 0x0f: /* Move Channel Response */
+				offset=dissect_movechanresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Move Channel Response");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Response");
+				}
+				break;
+
+			case 0x10: /* Move Channel Confirmation */
+				offset=dissect_movechanconfirmation(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Move Channel Confirmation");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation");
+				}
+				break;
+
+			case 0x11: /* Move Channel Confirmation Response */
+				offset=dissect_movechanconfirmationresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+				proto_item_append_text(ti_command, "Move Channel Confirmation Response");
+				if ((check_col(pinfo->cinfo, COL_INFO))){
+					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation Response");
+				}
+				break;
+
 				default:
 					proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, TRUE);
 					offset+=tvb_length_remaining(tvb, offset);
 					break;
 			}
 		}
-	} else if (cid == 0x0002) { /* Connectionless reception channel */
+	} else if (cid == BTL2CAP_FIXED_CID_CONNLESS) { /* Connectionless reception channel */
 		if(check_col(pinfo->cinfo, COL_INFO)){
 			col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 		}
@@ -956,7 +1223,47 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
 		}
 		offset+=tvb_length_remaining(tvb, offset);
-	} else if(cid >= 0x0040) { /* Connection oriented channel */
+	}
+	else if(cid < BTL2CAP_FIXED_CID_MAX) {
+		if (cid == BTL2CAP_FIXED_CID_AMP_MAN) {
+			guint16 control;
+
+			control = tvb_get_letohs(tvb, offset);
+			if(control & 0x1) {
+				dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, 0 /* unused */, length, offset, NULL /* unused */);
+			} else {
+				proto_item* ti_control;
+				proto_tree* ti_control_subtree;
+
+				ti_control = proto_tree_add_none_format(btl2cap_tree, hf_btl2cap_control, tvb,
+					offset, 2, "Control: %s reqseq:%d r:%d txseq:%d",
+					val_to_str((control & 0xC000) >> 14, control_sar_vals, "unknown"),
+					(control & 0x3F00) >> 8,
+					(control & 0x0080) >> 7,
+					(control & 0x007E) >> 1);
+				ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+				offset += 2;
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, tvb_length(tvb)-2, 2, TRUE);
+
+				next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset)-2, length);
+			}
+		}
+		else {
+			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
+		}
+		/* call next dissector */
+		if(next_tvb && !dissector_try_port(l2cap_cid_dissector_table, (guint32) cid,
+					next_tvb, pinfo, tree)){
+			/* unknown protocol. declare as data */
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+		}
+	}
+	else /* if(cid >= BTL2CAP_FIXED_CID_MAX) */ { /* Connection oriented channel */
 		if((psm_data=se_tree_lookup32(cid_to_psm_table, cid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000)))){
 			psm=psm_data->psm;
 			if(pinfo->p2p_dir==P2P_DIR_RECV)
@@ -977,14 +1284,6 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			psm=0;
 			dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset);
 		}
-
-	} else { /* Something else */
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_clear(pinfo->cinfo, COL_INFO);
-		}
-
-		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
-		offset+=length;
 	}
 	pinfo->private_data = pd_save;
 }
@@ -1052,9 +1351,34 @@ proto_register_btl2cap(void)
 				FT_UINT16, BASE_HEX, NULL, 0x0,          
 				"Destination Channel Identifier", HFILL }
 		},
+		{ &hf_btl2cap_icid,
+			{ "Initiator CID",			 "btl2cap.icid",
+				FT_UINT16, BASE_HEX, NULL, 0x0,
+				"Initiator Channel Identifier", HFILL }
+		},
+		{ &hf_btl2cap_controller,
+			{ "Controller ID",			 "btl2cap.ctrl_id",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_dcontroller,
+			{ "Controller ID",			 "btl2cap.dctrl_id",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Destination Controller ID", HFILL }
+		},
 		{ &hf_btl2cap_result,
 			{ "Result",           "btl2cap.result",
 				FT_UINT16, BASE_HEX, VALS(result_vals), 0x0,          
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_move_result,
+			{ "Move Result",		   "btl2cap.move_result",
+				FT_UINT16, BASE_HEX, VALS(move_result_vals), 0x0,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_move_confirmation_result,
+			{ "Move Result",		   "btl2cap.move_result",
+				FT_UINT16, BASE_HEX, VALS(move_result_confirmation_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_status,
@@ -1091,6 +1415,71 @@ proto_register_btl2cap(void)
 			{ "Bi-Directional QOS",          "btl2cap.info_bidirqos",
 				FT_UINT8, BASE_DEC, NULL, 0x04,
 				"Bi-Directional QOS support", HFILL }
+		},
+		{ &hf_btl2cap_info_enh_retransmission,
+			{ "Enhancded Retransmission Mode", "btl2cap.info_enh_retransmission",
+				FT_UINT8, BASE_DEC, NULL, 0x08,
+				"Enhancded Retransmission mode support", HFILL }
+		},
+		{ &hf_btl2cap_info_streaming,
+			{ "Streaming Mode", "btl2cap.info_streaming",
+				FT_UINT8, BASE_DEC, NULL, 0x10,
+				"Streaming mode support", HFILL }
+		},
+		{ &hf_btl2cap_info_fcs,
+			{ "FCS", "btl2cap.info_fcs",
+				FT_UINT8, BASE_DEC, NULL, 0x20,
+				"FCS support", HFILL }
+		},
+		{ &hf_btl2cap_info_flow_spec,
+			{ "Extended Flow Specification for BR/EDR", "btl2cap.info_flow_spec",
+				FT_UINT8, BASE_DEC, NULL, 0x40,
+				"Extended Flow Specification for BR/EDR support", HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchan,
+			{ "Fixed Channels", "btl2cap.info_fixedchan",
+				FT_UINT8, BASE_DEC, NULL, 0x80,
+				"Fixed Channels support", HFILL }
+		},
+		{ &hf_btl2cap_info_window,
+			{ "Extended Window Size", "btl2cap.info_window",
+				FT_UINT8, BASE_DEC, NULL, 0x01,
+				"Extended Window Size support", HFILL }
+		},
+		{ &hf_btl2cap_info_unicast,
+			{ "Unicast Connectionless Data Reception", "btl2cap.info_unicast",
+				FT_UINT8, BASE_DEC, NULL, 0x02,
+				"Unicast Connectionless Data Reception support", HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans,
+			{ "Fixed Channels", "btl2cap.info_fixedchans",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans_null,
+			{ "Null identifier", "btl2cap.info_fixedchans_null",
+				FT_UINT32, BASE_DEC, NULL, 0x1,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans_signal,
+			{ "L2CAP signaling channel", "btl2cap.info_fixedchans_signal",
+				FT_UINT32, BASE_DEC, NULL, 0x2,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans_connless,
+			{ "Connectionless reception", "btl2cap.info_fixedchans_connless",
+				FT_UINT32, BASE_DEC, NULL, 0x4,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans_amp_man,
+			{ "AMP Manager protocol", "btl2cap.info_fixedchans_amp_man",
+				FT_UINT32, BASE_DEC, NULL, 0x8,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_info_fixedchans_amp_test,
+			{ "AMP Test Manager", "btl2cap.info_fixedchans_amp_test",
+				FT_UINT32, BASE_DEC, NULL, 0x80000000,
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_info_type,
 			{ "Information Type",           "btl2cap.info_type",
@@ -1136,6 +1525,31 @@ proto_register_btl2cap(void)
 			{ "Flush Timeout (ms)",           "btl2cap.option_flushto",
 				FT_UINT16, BASE_DEC, NULL, 0x0,          
 				"Flush Timeout in milliseconds", HFILL }
+		},
+		{ &hf_btl2cap_option_flush_to_us,
+			{ "Flush Timeout (us)", 		  "btl2cap.option_flushto",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Flush Timeout (microseconds)", HFILL }
+		},
+		{ &hf_btl2cap_option_sdu_size,
+			{ "Maximum SDU Size",			"btl2cap.option_sdu_size",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
+		},
+		{ &hf_btl2cap_option_sdu_arrival_time,
+			{ "SDU Inter-arrival Time (us)",		   "btl2cap.option_sdu_arrival_time",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"SDU Inter-arrival Time (microseconds)", HFILL }
+		},
+		{ &hf_btl2cap_option_identifier,
+			{ "Identifier", 		  "btl2cap.option_ident",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"Flow Specification Identifier", HFILL }
+		},
+		{ &hf_btl2cap_option_access_latency,
+			{ "Access Latency (us)",		   "btl2cap.option_access_latency",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Access Latency (microseconds)", HFILL }
 		},
 		{ &hf_btl2cap_option_flags,
 			{ "Flags",           "btl2cap.option_flags",
@@ -1201,6 +1615,16 @@ proto_register_btl2cap(void)
 			{ "MPS",								"btl2cap.mps",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Maximum PDU Payload Size", HFILL }
+		},
+		{ &hf_btl2cap_option_fcs,
+			{ "FCS",		   "btl2cap.option_fcs",
+				FT_UINT16, BASE_HEX, VALS(option_fcs_vals), 0x0,
+				"Frame Check Sequence", HFILL }
+		},
+		{ &hf_btl2cap_option_window,
+			{ "Extended Window Size",			"btl2cap.option_window",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }
 		},
 		{ &hf_btl2cap_option,
 			{ "Configuration Parameter Option",           "btl2cap.conf_param_option",
@@ -1270,6 +1694,7 @@ proto_register_btl2cap(void)
 		&ett_btl2cap_cmd,
 		&ett_btl2cap_option,
 		&ett_btl2cap_extfeatures,
+		&ett_btl2cap_fixedchans,
 		&ett_btl2cap_control
 	};
 
@@ -1280,6 +1705,7 @@ proto_register_btl2cap(void)
 
 	/* subdissector code */
 	l2cap_psm_dissector_table = register_dissector_table("btl2cap.psm", "L2CAP PSM", FT_UINT16, BASE_HEX);
+	l2cap_cid_dissector_table = register_dissector_table("btl2cap.cid", "L2CAP CID", FT_UINT16, BASE_HEX);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_btl2cap, hf, array_length(hf));

@@ -28,7 +28,14 @@
 #define BTL2CAP_PSM_RFCOMM	0x0003
 #define BTL2CAP_PSM_BNEP	0x000f
 
-/* This structure is passed to higher layer protocols through 
+#define BTL2CAP_FIXED_CID_NULL		0x0000
+#define BTL2CAP_FIXED_CID_SIGNAL	0x0001
+#define BTL2CAP_FIXED_CID_CONNLESS	0x0002
+#define BTL2CAP_FIXED_CID_AMP_MAN	0x0003
+#define BTL2CAP_FIXED_CID_AMP_TEST	0x003F
+#define BTL2CAP_FIXED_CID_MAX		0x0040
+
+/* This structure is passed to higher layer protocols through
  * pinfo->private_data so that they can track "conversations" based on
  * chandle, cid and direction
  */
