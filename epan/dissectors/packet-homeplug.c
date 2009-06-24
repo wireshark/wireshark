@@ -412,7 +412,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_rce_rsvd,
       { "Reserved", "homeplug.rce.rsvd",
-      FT_NONE, BASE_NONE, NULL, HOMEPLUG_RCE_RSVD, NULL, HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_RCE_RSVD, NULL, HFILL }
     },
 
     /* Channel Estimation Response */
@@ -428,7 +428,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_cer_rsvd1,
       { "Reserved", "homeplug.cer.rsvd1",
-      FT_NONE, BASE_NONE, NULL, HOMEPLUG_CER_RSVD, NULL, HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rxtmi,
