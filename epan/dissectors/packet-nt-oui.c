@@ -44,11 +44,12 @@ static const value_string nortel_pid_vals[] = {
 void
 proto_register_nortel_oui(void)
 {
-	static hf_register_info hf = {
-	    &hf_llc_nortel_pid,
+	static hf_register_info hf[] = {
+	  { &hf_llc_nortel_pid,
 		{ "PID",	"llc.nortel_pid",  FT_UINT16, BASE_HEX,
-		  VALS(nortel_pid_vals), 0x0, "", HFILL },
+		  VALS(nortel_pid_vals), 0x0, NULL, HFILL }
+	  }
 	};
 
-	llc_add_oui(OUI_NORTEL, "llc.nortel_pid", "Nortel OUI PID", &hf);
+	llc_add_oui(OUI_NORTEL, "llc.nortel_pid", "Nortel OUI PID", hf);
 }

@@ -100,11 +100,12 @@ proto_register_cimetrics(void)
 			"value", HFILL }
 		}
 	};
-	static hf_register_info hf2 = {
-		&hf_llc_cimetrics_pid,
+	static hf_register_info hf2[] = {
+	  { &hf_llc_cimetrics_pid,
 			{ "PID", "llc.cimetrics_pid",
 			FT_UINT16, BASE_HEX, VALS(cimetrics_pid_vals), 0,
 			NULL, HFILL }
+	  }
 	};
 	static gint *ett[] = {
 		&ett_cimetrics_mstp
@@ -120,7 +121,7 @@ proto_register_cimetrics(void)
 		proto_cimetrics_mstp);
 	
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",
-		"Cimetrics OUI PID", &hf2);
+		"Cimetrics OUI PID", hf2);
 }
 
 void

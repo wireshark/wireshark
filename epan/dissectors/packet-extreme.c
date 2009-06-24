@@ -1501,11 +1501,12 @@ proto_reg_handoff_edp(void)
 void
 proto_register_extreme_oui(void)
 {
-	static hf_register_info hf = {
-	    &hf_llc_extreme_pid,
+	static hf_register_info hf[] = {
+	  { &hf_llc_extreme_pid,
 		{ "PID",	"llc.extreme_pid",  FT_UINT16, BASE_HEX,
-		  VALS(extreme_pid_vals), 0x0, "", HFILL },
+		  VALS(extreme_pid_vals), 0x0, NULL, HFILL }
+	  }
 	};
 
-	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "Extreme OUI PID", &hf);
+	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "Extreme OUI PID", hf);
 }
