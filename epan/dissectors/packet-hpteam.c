@@ -28,7 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/oui.h>
@@ -38,7 +37,7 @@
 
 static int proto_hpteam = -1;
 
-/* Handle of our "data" subdissector */
+/* Handle of the "data" subdissector */
 static dissector_handle_t data_handle;
 
 /* Known HP NIC teaming PID values */
@@ -58,7 +57,6 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *hpteam_item;
 	proto_tree *hpteam_tree;
-	proto_tree *hpteam_header_tree;
 	guint32 offset = 0;
 	const char   *strPtr, *HP_Mac;
 	const guint8 *mac_addr;
@@ -80,7 +78,6 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) { /* we are being asked for details */
 			hpteam_item = proto_tree_add_item(tree, proto_hpteam, tvb, 0, -1, FALSE);
 			hpteam_tree = proto_item_add_subtree(hpteam_item, ett_hpteam);
-			hpteam_header_tree = proto_item_add_subtree(hpteam_item, ett_hpteam);
 			proto_tree_add_item(hpteam_tree, hf_hpteam, tvb, offset, 58, FALSE);
 		}
 	}
