@@ -151,35 +151,6 @@ static gint hf_m2m_sequence_number = -1;
 static gint hf_m2m_frame_number = -1;
 static gint hf_m2m_tlv_count = -1;
 
-/* M2M TLV display */
-static hf_register_info hf[] =
-{
-	{
-		&hf_m2m_sequence_number,
-		{
-			"Packet Sequence Number", "m2m.seq_number",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_frame_number,
-		{
-			"Value", "m2m.frame_number",
-			FT_UINT24, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_tlv_count,
-		{
-			"Number of TLVs in the packet", "m2m.tlv_count",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	}
-};
-
 static gint hf_m2m_type = -1;
 static gint hf_m2m_len = -1;
 static gint hf_m2m_len_size = -1;
@@ -200,163 +171,6 @@ static gint hf_m2m_value_preamble_uint16 = -1;
 static gint hf_m2m_value_harq_ack_burst_bytes = -1;
 static gint hf_m2m_phy_attributes = -1;
 
-/* WiMax TLV display */
-static hf_register_info hf_tlv[] =
-{
-	{
-		&hf_m2m_type,
-		{
-			"Type", "m2m.tlv_type",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_len,
-		{
-			"Length", "m2m.tlv_len",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_len_size,
-		{
-			"Length Size", "m2m.tlv_len_size",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_bytes,
-		{
-			"Value (hex)", "m2m.multibyte_tlv_value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_protocol_vers_uint8,
-		{
-			"Value", "m2m.protocol_vers_tlv_value",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_burst_num_uint8,
-		{
-			"Value", "m2m.burst_num_tlv_value",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_frag_type_uint8,
-		{
-			"Value", "m2m.frag_type_tlv_value",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_frag_num_uint8,
-		{
-			"Value", "m2m.frag_num_tlv_value",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_pdu_burst,
-		{
-			"Value (hex)", "m2m.pdu_burst_tlv_value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_fast_fb,
-		{
-			"Value (hex)", "m2m.fast_fb_tlv_value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_fch_burst_uint24,
-		{
-			"Value", "m2m.fch_burst_tlv_value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_cdma_code_uint24,
-		{
-			"Value", "m2m.cdma_code_tlv_value",
-			FT_UINT24, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_crc16_status_uint8,
-		{
-			"Value", "m2m.crc16_status_tlv_value",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_burst_power_uint16,
-		{
-			"Value", "m2m.burst_power_tlv_value",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_burst_cinr_uint16,
-		{
-			"Value", "m2m.burst_cinr_tlv_value",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_preamble_uint16,
-		{
-			"Value", "m2m.preamble_tlv_value",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_value_harq_ack_burst_bytes,
-		{
-			"Value (hex)", "m2m.harq_ack_burst_tlv_value",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_m2m_phy_attributes,
-		{
-			"Value (hex)", "m2m.phy_attributes",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	},
-	{
-		&hf_wimax_invalid_tlv,
-		{
-			"Invalid TLV (hex)", "m2m.invalid_tlv",
-			FT_BYTES, BASE_HEX, NULL, 0x0,
-			NULL, HFILL
-		}
-	}
-};
-
 /* Register M2M defrag table init routine. */
 static void
 m2m_defragment_init(void)
@@ -376,6 +190,192 @@ void proto_reg_handoff_m2m(void)
 /* Register Wimax Mac to Mac Protocol */
 void proto_register_m2m(void)
 {
+	/* M2M TLV display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_m2m_sequence_number,
+			{
+				"Packet Sequence Number", "m2m.seq_number",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_frame_number,
+			{
+				"Value", "m2m.frame_number",
+				FT_UINT24, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_tlv_count,
+			{
+				"Number of TLVs in the packet", "m2m.tlv_count",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		}
+	};
+
+	/* WiMax TLV display */
+	static hf_register_info hf_tlv[] =
+	{
+		{
+			&hf_m2m_type,
+			{
+				"Type", "m2m.tlv_type",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_len,
+			{
+				"Length", "m2m.tlv_len",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_len_size,
+			{
+				"Length Size", "m2m.tlv_len_size",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_bytes,
+			{
+				"Value (hex)", "m2m.multibyte_tlv_value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_protocol_vers_uint8,
+			{
+				"Value", "m2m.protocol_vers_tlv_value",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_burst_num_uint8,
+			{
+				"Value", "m2m.burst_num_tlv_value",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_frag_type_uint8,
+			{
+				"Value", "m2m.frag_type_tlv_value",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_frag_num_uint8,
+			{
+				"Value", "m2m.frag_num_tlv_value",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_pdu_burst,
+			{
+				"Value (hex)", "m2m.pdu_burst_tlv_value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_fast_fb,
+			{
+				"Value (hex)", "m2m.fast_fb_tlv_value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_fch_burst_uint24,
+			{
+				"Value", "m2m.fch_burst_tlv_value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_cdma_code_uint24,
+			{
+				"Value", "m2m.cdma_code_tlv_value",
+				FT_UINT24, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_crc16_status_uint8,
+			{
+				"Value", "m2m.crc16_status_tlv_value",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_burst_power_uint16,
+			{
+				"Value", "m2m.burst_power_tlv_value",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_burst_cinr_uint16,
+			{
+				"Value", "m2m.burst_cinr_tlv_value",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_preamble_uint16,
+			{
+				"Value", "m2m.preamble_tlv_value",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_value_harq_ack_burst_bytes,
+			{
+				"Value (hex)", "m2m.harq_ack_burst_tlv_value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_m2m_phy_attributes,
+			{
+				"Value (hex)", "m2m.phy_attributes",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_wimax_invalid_tlv,
+			{
+				"Invalid TLV (hex)", "m2m.invalid_tlv",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		}
+	};
+
 	proto_m2m = proto_register_protocol (
 		"WiMax Mac to Mac Packet", /* name */
 		"M2M  (m2m)", /* short name */
