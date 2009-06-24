@@ -121,7 +121,7 @@ void proto_register_ocsp(void) {
     { &hf_ocsp_responseType_id,
       { "ResponseType Id", "x509af.responseType.id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "ResponseType Id", HFILL }},
+        NULL, HFILL }},
 #include "packet-ocsp-hfarr.c"
   };
 

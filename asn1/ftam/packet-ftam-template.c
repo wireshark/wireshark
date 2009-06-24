@@ -126,10 +126,10 @@ void proto_register_ftam(void) {
   {
      { &hf_ftam_unstructured_text,
        { "ISO FTAM unstructured text", "ftam.unstructured_text", FT_STRING,
-          BASE_DEC, NULL, 0x0, "ISO FTAM unstructured text", HFILL } },
+          BASE_NONE, NULL, 0x0, NULL, HFILL } },
      { &hf_ftam_unstructured_binary,
        { "ISO FTAM unstructured binary", "ftam.unstructured_binary", FT_BYTES,
-          BASE_DEC, NULL, 0x0, "ISO FTAM unstructured binary", HFILL } },
+          BASE_NONE, NULL, 0x0, NULL, HFILL } },
 #include "packet-ftam-hfarr.c"
   };
 

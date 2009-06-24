@@ -246,10 +246,10 @@ void proto_register_h450(void) {
   static hf_register_info hf[] = {
     { &hf_h450_operation, { "Operation", "h450.operation",
                            FT_UINT8, BASE_DEC, VALS(h450_str_operation), 0x0,
-                           "Operation", HFILL }},
+                           NULL, HFILL }},
     { &hf_h450_error,     { "Error", "h450.error",
                            FT_UINT8, BASE_DEC, VALS(h450_str_error), 0x0,
-                           "Error", HFILL }},
+                           NULL, HFILL }},
 #include "packet-h450-hfarr.c"
   };
 

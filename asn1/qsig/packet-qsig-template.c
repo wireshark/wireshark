@@ -603,7 +603,7 @@ void proto_register_qsig(void) {
                           FT_UINT8, BASE_DEC, NULL, 0x0,
                           "Information Element Length", HFILL }},
     { &hf_qsig_ie_data, { "Data", "qsig.ie.data",
-                          FT_BYTES, BASE_HEX, NULL, 0x0,
+                          FT_BYTES, BASE_NONE, NULL, 0x0,
                           NULL, HFILL }},
     { &hf_qsig_tc,      { "Transit count", "qsig.tc",
                           FT_UINT8, BASE_DEC, NULL, 0x1F,
