@@ -2308,6 +2308,10 @@ host_name_lookup_process(gpointer data _U_) {
   int nfds;
   fd_set rfds, wfds;
 
+  if (!c_ares_initialized)
+    /* c-ares not initialized. Bail out and cancel timers. */
+    return FALSE;
+
   c_ares_queue_head = g_list_first(c_ares_queue_head);
 
   while (c_ares_queue_head && c_ares_in_flight <= prefs.name_resolve_concurrency) {
