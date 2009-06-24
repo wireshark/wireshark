@@ -920,7 +920,7 @@ reginfo(int* hf_ptr, const char* name, const char* abbr, const char* desc,
 				base,
 				VALS(vs),
 				mask,
-				desc ? g_strdup(desc) : "",
+				g_strdup(desc),
 				HFILL }};
 
 	g_array_append_vals(build_dict.hf,&hf,1);
@@ -1001,19 +1001,19 @@ RFC3588
 
 	reginfo(&(t->hf_address_type), ep_strdup_printf("%s Address Family",name),
 		alnumerize(ep_strdup_printf("diameter.%s.addr_family",name)),
-		"", FT_UINT16, BASE_DEC, diameter_avp_data_addrfamily_vals, 0);
+		NULL, FT_UINT16, BASE_DEC, diameter_avp_data_addrfamily_vals, 0);
 
 	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
 		alnumerize(ep_strdup_printf("diameter.%s",name)),
-		"", FT_IPv4, BASE_NONE, NULL, 0);
+		NULL, FT_IPv4, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_ipv6), ep_strdup_printf("%s Address",name),
 		alnumerize(ep_strdup_printf("diameter.%s",name)),
-		"", FT_IPv6, BASE_NONE, NULL, 0);
+		NULL, FT_IPv6, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_other), ep_strdup_printf("%s Address",name),
 		alnumerize(ep_strdup_printf("diameter.%s",name)),
-		"", FT_BYTES, BASE_NONE, NULL, 0);
+		NULL, FT_BYTES, BASE_NONE, NULL, 0);
 
 	g_ptr_array_add(build_dict.ett,ettp);
 

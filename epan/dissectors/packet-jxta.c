@@ -219,7 +219,7 @@ static hf_register_info hf[] = {
       "JXTA Message Framing Header Value Length", HFILL}
      },
     {&hf_jxta_framing_header_value,
-     {"Value", "jxta.framing.header.value", FT_BYTES, BASE_HEX, NULL, 0x0,
+     {"Value", "jxta.framing.header.value", FT_BYTES, BASE_NONE, NULL, 0x0,
       "JXTA Message Framing Header Value", HFILL}
      },
     {&hf_jxta_message_address,
@@ -355,7 +355,7 @@ static hf_register_info hf[] = {
       "JXTA Message Element Content Length", HFILL}
      },
     {&hf_jxta_element_content,
-     {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_HEX, NULL, 0x0,
+     {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_NONE, NULL, 0x0,
       "JXTA Message Element Content", HFILL}
      },
 };

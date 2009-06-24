@@ -565,7 +565,6 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     tpncp_db_entry[0] = 0;
 
     /* Register common fields of hf_register_info struture. */
-    hf_entr.hfinfo.display        = BASE_DEC;
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
     hf_entr.hfinfo.blurb          = NULL;
@@ -594,6 +593,10 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
             hf_size--;
             break;
         }
+
+        /* Default to decimal display type */
+        hf_entr.hfinfo.display = BASE_DEC;
+
         if ((tmp = strtok(tpncp_db_entry, " ")) == NULL)
             continue; /* Badly formed data base entry - skip corresponding field's registration. */
         data_id = atoi(tmp);
@@ -646,7 +649,12 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         switch (tpncp_data_field_size) {
             case 1: case 2: case 3: case 4:
             case 5: case 6: case 7: case 8:
-                hf_entr.hfinfo.type = (tpncp_data_field_array_dim)?FT_STRING:((tpncp_data_field_sign)?FT_UINT8:FT_INT8);
+                if (tpncp_data_field_array_dim) {
+                    hf_entr.hfinfo.type = FT_STRING;
+                    hf_entr.hfinfo.display = BASE_NONE;
+                }
+                else
+                    hf_entr.hfinfo.type = (tpncp_data_field_sign)?FT_UINT8:FT_INT8;
                 break;
             case 16:
                 hf_entr.hfinfo.type = (tpncp_data_field_sign)?FT_UINT16:FT_INT16;

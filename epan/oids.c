@@ -659,7 +659,7 @@ void register_mibs(void) {
 					guint mask = 1 << (smiEnum->value.value.integer32 % 8);
 					char* base = alnumerize(oid_data->name);
 					char* ext = alnumerize(smiEnum->name);
-					hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, "", HFILL }};
+					hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, NULL, HFILL }};
 
 					bits->data[n].hfid = -1;
 					bits->data[n].offset = smiEnum->value.value.integer32 / 8;
@@ -684,7 +684,7 @@ void register_mibs(void) {
 						key->display,
 						NULL,
 						0,
-						"",
+						NULL,
 						HFILL }};
 
 					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",

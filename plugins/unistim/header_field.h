@@ -51,11 +51,11 @@ static hf_register_info hf[] = {
       },
       { &hf_uftp_filename,
          { "UFTP Filename","uftp.filename",FT_STRINGZ,
-            BASE_DEC,NULL,0x0,NULL,HFILL}
+            BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_uftp_datablock,
          { "UFTP Data Block","uftp.datablock",FT_BYTES,
-            BASE_DEC,NULL,0x0,NULL,HFILL}
+            BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_unistim_packet_type,
          { "RUDP Pkt type","unistim.type",FT_UINT8, 
@@ -123,7 +123,7 @@ static hf_register_info hf[] = {
       },
       { &hf_terminal_id,
          {"Terminal ID","unistim.terminal.id",FT_IPv4,
-            BASE_HEX,NULL,0x0,NULL,HFILL}
+            BASE_NONE,NULL,0x0,NULL,HFILL}
       },
       { &hf_broadcast_year,
          {"Year","unistim.broadcast.year",FT_UINT8,
@@ -309,7 +309,7 @@ static hf_register_info hf[] = {
       },
       { &hf_basic_switch_eeprom_data,
          {"EEProm Data","unistim.basic.eeprom.data",FT_BYTES,
-            BASE_HEX,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_basic_phone_eeprom_stat_cksum,
          {"Basic Phone EEProm Static Checksum","unistim.static.cksum",FT_UINT8,
@@ -325,7 +325,7 @@ static hf_register_info hf[] = {
       },
       { &hf_basic_phone_hw_id,
          {"Basic Phone Hardware ID","unistim.basic.hw.id",FT_BYTES,
-            BASE_HEX,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_basic_phone_fw_ver,
          {"Basic Phone Firmware Version","unistim.basic.fw.ver",FT_STRING,
@@ -477,7 +477,7 @@ static hf_register_info hf[] = {
       },
       { &hf_basic_switch_terminal_id,
          {"Terminal ID assigned by Switch","unistim.switch.terminal.id",FT_IPv4,
-            BASE_DEC,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_basic_it_type,
          {"IT (Phone) Type","unistim.it.type",FT_UINT8,
@@ -509,7 +509,7 @@ static hf_register_info hf[] = {
       },
       { &hf_net_phone_server_ip,
          {"IP address","unistim.server.ip.address",FT_IPv4,
-            BASE_DEC,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_audio_apb_number,
          {"APB Number","unistim.audio.apb.number",FT_UINT8,
@@ -525,7 +525,7 @@ static hf_register_info hf[] = {
       },
       { &hf_audio_apb_data,
          {"APB Operation Data","unistim.apb.operation.data",FT_BYTES,
-            BASE_HEX,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_display_write_address_numeric,
          {"Is Address Numeric","unistim.write.address.numeric",FT_BOOLEAN,
@@ -1324,7 +1324,7 @@ static hf_register_info hf[] = {
       },
       { &hf_generic_data,
          {"DATA","unistim.generic.data",FT_BYTES,
-            BASE_HEX,NULL,0x00,NULL,HFILL}
+            BASE_NONE,NULL,0x00,NULL,HFILL}
       }
 };
 

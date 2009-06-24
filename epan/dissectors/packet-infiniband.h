@@ -1316,7 +1316,7 @@ static hf_register_info hf[] = {
     /* Local Route Header (LRH) */
     { &hf_infiniband_LRH, {
             "Local Route Header", "infiniband.lrh",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_virtual_lane, {
             "Virtual Lane", "infiniband.lrh.vl",
@@ -1358,7 +1358,7 @@ static hf_register_info hf[] = {
     /* Global Route Header (GRH) */
     { &hf_infiniband_GRH, {
             "Global Route Header", "infiniband.grh",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_ip_version, {
             "IP Version", "infiniband.grh.ipver",
@@ -1386,17 +1386,17 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_source_gid, {
             "Source GID", "infiniband.grh.sgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_destination_gid, {
             "Destination GID", "infiniband.grh.dgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     
     /* Base Transport Header (BTH) */
     { &hf_infiniband_BTH, {
             "Base Transport Header", "infiniband.bth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_opcode, {
             "Opcode", "infiniband.bth.opcode",
@@ -1446,7 +1446,7 @@ static hf_register_info hf[] = {
     /* Raw Header (RWH) */
     { &hf_infiniband_RWH, {
             "Raw Header", "infiniband.rwh",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_reserved16_RWH, {
             "Reserved (16 bits)", "infiniband.rwh.reserved",
@@ -1460,7 +1460,7 @@ static hf_register_info hf[] = {
     /* Reliable Datagram Extended Transport Header (RDETH) */
     { &hf_infiniband_RDETH, {
             "Reliable Datagram Extended Transport Header", "infiniband.rdeth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_reserved8_RDETH, {
             "Reserved (8 bits)", "infiniband.rdeth.reserved8",
@@ -1474,7 +1474,7 @@ static hf_register_info hf[] = {
     /* Datagram Extended Transport Header (DETH) */
     { &hf_infiniband_DETH, {
             "Datagram Extended Transport Header", "infiniband.deth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_queue_key, {
             "Queue Key", "infiniband.deth.q_key",
@@ -1492,7 +1492,7 @@ static hf_register_info hf[] = {
     /* RDMA Extended Transport Header (RETH) */
     { &hf_infiniband_RETH, {
             "RDMA Extended Transport Header", "infiniband.reth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_virtual_address, {
             "Virtual Address", "infiniband.reth.va",
@@ -1510,7 +1510,7 @@ static hf_register_info hf[] = {
     /* Atomic Extended Transport Header (AtomicETH) */
     { &hf_infiniband_AtomicETH, {
             "Atomic Extended Transport Header", "infiniband.atomiceth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #if 0
     { &hf_infiniband_virtual_address_AtomicETH, {
@@ -1534,7 +1534,7 @@ static hf_register_info hf[] = {
     /* ACK Extended Transport Header (AETH) */
     { &hf_infiniband_AETH, {
             "ACK Extended Transport Header", "infiniband.aeth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_syndrome, {
             "Syndrome", "infiniband.aeth.syndrome",
@@ -1548,7 +1548,7 @@ static hf_register_info hf[] = {
     /* Atomic ACK Extended Transport Header (AtomicAckETH) */
     { &hf_infiniband_AtomicAckETH, {
             "Atomic ACK Extended Transport Header", "infiniband.atomicacketh",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_original_remote_data, {
             "Original Remote Data", "infiniband.atomicacketh.origremdt",
@@ -1558,19 +1558,19 @@ static hf_register_info hf[] = {
     /* Immediate Extended Transport Header (ImmDT) */
     { &hf_infiniband_IMMDT, {
             "Immediate Data", "infiniband.immdt",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* Invalidate Extended Transport Header (IETH) */
     { &hf_infiniband_IETH, {
             "RKey", "infiniband.ieth",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* Payload */
     { &hf_infiniband_payload, {
             "Payload", "infiniband.payload",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_invariant_crc, {
             "Invariant CRC", "infiniband.invariant.crc",
@@ -1582,18 +1582,18 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_raw_data, {
             "Raw Data", "infiniband.rawdata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     /* Unknown or Vendor Specific */
     { &hf_infiniband_vendor, {
             "Unknown/Vendor Specific Data", "infiniband.vendor",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* MAD Base Header */
     { &hf_infiniband_MAD, {
             "MAD (Management Datagram) Common Header", "infiniband.mad",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_base_version, {
             "Base Version", "infiniband.mad.baseversion",
@@ -1643,13 +1643,13 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_data, {
             "MAD Data Payload", "infiniband.mad.data",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* RMPP Header */
     { &hf_infiniband_RMPP, {
             "RMPP (Reliable Multi-Packet Transaction Protocol)", "infiniband.rmpp",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_rmpp_version, {
             "RMPP Type", "infiniband.rmpp.rmppversion",
@@ -1684,7 +1684,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_RMPP_DATA, {
             "RMPP Data (Reliable Multi-Packet Transaction Protocol)", "infiniband.rmpp.data",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_segment_number, {
@@ -1697,7 +1697,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_transferred_data, {
             "Transferred Data", "infiniband.rmpp.transferreddata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* RMPP ACK */
@@ -1707,19 +1707,19 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_reserved220, {
             "Segment Number", "infiniband.rmpp.reserved220",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* RMPP ABORT/STOP */
     { &hf_infiniband_optional_extended_error_data, {
             "Optional Extended Error Data", "infiniband.rmpp.extendederrordata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* SMP Data (LID Routed) */
     { &hf_infiniband_SMP_LID, {
             "Subnet Management Packet (LID Routed)", "infiniband.smplid",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_m_key, {
             "M_Key", "infiniband.smplid.mkey",
@@ -1727,22 +1727,22 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_smp_data, {
             "SMP Data", "infiniband.smplid.smpdata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_reserved1024, {
             "Reserved (1024 bits)", "infiniband.smplid.reserved1024",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_reserved256, {
             "Reserved (256 bits)", "infiniband.smplid.reserved256",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
 /* XX: All following verified/corrected against Infiniband 1.2.1 Specification */
     /* SMP Data Directed Route */
     { &hf_infiniband_SMP_DIRECTED, {
             "Subnet Management Packet (Directed Route)", "infiniband.smpdirected",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_smp_status, {
             "Status", "infiniband.smpdirected.smpstatus",
@@ -1766,7 +1766,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_reserved28, {
             "Reserved (224 bits)", "infiniband.smpdirected.reserved28",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_d, {
             "D (Direction Bit)", "infiniband.smpdirected.d",
@@ -1774,17 +1774,17 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_initial_path, {
             "Initial Path", "infiniband.smpdirected.initialpath",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_return_path, {
             "Return Path", "infiniband.smpdirected.returnpath",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* SA MAD Header */
     { &hf_infiniband_SA, {
             "SA Packet (Subnet Administration)", "infiniband.sa.drdlid",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_sm_key, {
             "SM_Key (Verification Key)", "infiniband.sa.smkey",
@@ -1800,13 +1800,13 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_subnet_admin_data, {
             "Subnet Admin Data", "infiniband.sa.subnetadmindata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* NodeDescription */
     { &hf_infiniband_NodeDescription_NodeString, {
             "NodeString", "infiniband.nodedescription.nodestring",
-            FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* NodeInfo */
@@ -1933,7 +1933,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_GUIDInfo_GUIDBlock, {
             "GUIDBlock", "infiniband.switchinfo.guidblock",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_GUIDInfo_GUID, {
@@ -2231,7 +2231,7 @@ static hf_register_info hf[] = {
     /* P_KeyTable */
     { &hf_infiniband_P_KeyTable_P_KeyTableBlock, {
             "P_KeyTableBlock", "infiniband.p_keytable.p_keytableblock",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_P_KeyTable_MembershipType, {
             "MembershipType", "infiniband.p_keytable.membershiptype",
@@ -2256,7 +2256,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_VLArbitrationTable_VLWeightPairs, {
             "VLWeightPairs", "infiniband.vlarbitrationtable.vlweightpairs",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_VLArbitrationTable_VL, {
@@ -2272,7 +2272,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock, {
             "LinearForwardingTableBlock", "infiniband.linearforwardingtable.linearforwardingtableblock",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_LinearForwardingTable_Port, {
@@ -2284,7 +2284,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock, {
             "RandomForwardingTableBlock", "infiniband.randomforwardingtable.randomforwardingtableblock",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_RandomForwardingTable_LID, {
@@ -2308,7 +2308,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock , {
             "MulticastForwardingTableBlock ", "infiniband.multicastforwardingtable.multicastforwardingtableblock",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
     { &hf_infiniband_MulticastForwardingTable_PortMask, {
@@ -2345,7 +2345,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_VendorDiag_DiagData, {
             "DiagData", "infiniband.vendordiag.diagdata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* LedInfo */
@@ -2361,7 +2361,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_LinkSpeedWidthPairsTable_PortMask, {
             "PortMask", "infiniband.linkspeedwidthpairstable.portmask",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },  
     { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive, {
             "Speed 2.5 Gbps", "infiniband.linkspeedwidthpairstable.speedtwofive",
@@ -2430,7 +2430,7 @@ static hf_register_info hf[] = {
     /* InformInfoRecord */
     { &hf_infiniband_InformInfoRecord_SubscriberGID, {
             "SubscriberGID", "infiniband.informinforecord.subscribergid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_InformInfoRecord_Enum, {
             "Enum", "infiniband.informinforecord.enum",
@@ -2440,7 +2440,7 @@ static hf_register_info hf[] = {
     /* InformInfo */
     { &hf_infiniband_InformInfo_GID, {
             "GID", "infiniband.informinfo.gid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_InformInfo_LIDRangeBegin, {
             "LIDRangeBegin", "infiniband.informinfo.lidrangebegin",
@@ -2504,7 +2504,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_ServiceRecord_ServiceGID, {
             "ServiceGID", "infiniband.linkrecord.servicegid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_ServiceRecord_ServiceP_Key, {
             "ServiceP_Key", "infiniband.linkrecord.servicep_key",
@@ -2516,35 +2516,35 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_ServiceRecord_ServiceKey, {
             "ServiceKey", "infiniband.linkrecord.servicekey",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_ServiceRecord_ServiceName, {
             "ServiceName", "infiniband.linkrecord.servicename",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_ServiceRecord_ServiceData, {
             "ServiceData", "infiniband.linkrecord.servicedata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* ServiceAssociationRecord */
     { &hf_infiniband_ServiceAssociationRecord_ServiceKey, {
             "ServiceKey", "infiniband.serviceassociationrecord.servicekey",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_ServiceAssociationRecord_ServiceName, {
             "ServiceName", "infiniband.serviceassociationrecord.servicename",
-            FT_STRING, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* PathRecord */
     { &hf_infiniband_PathRecord_DGID, {
             "DGID", "infiniband.pathrecord.dgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_PathRecord_SGID, {
             "SGID", "infiniband.pathrecord.sgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_PathRecord_DLID, {
             "DLID", "infiniband.pathrecord.dlid",
@@ -2618,11 +2618,11 @@ static hf_register_info hf[] = {
     /* MCMemberRecord */
     { &hf_infiniband_MCMemberRecord_MGID, {
             "MGID", "infiniband.mcmemberrecord.mgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_MCMemberRecord_PortGID, {
             "PortGID", "infiniband.mcmemberrecord.portgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_MCMemberRecord_Q_Key, {
             "Q_Key", "infiniband.mcmemberrecord.q_key",
@@ -2764,7 +2764,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_MultiPathRecord_SDGID, {
             "SDGID", "infiniband.multipathrecord.sdgid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* Notice */
@@ -2798,23 +2798,23 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_Notice_DataDetails, {
             "DataDetails", "infiniband.notice.datadetails",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #if 0
     { &hf_infiniband_Notice_IssuerGID, {
             "IssuerGID", "infiniband.notice.issuergid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_Notice_ClassTrapSpecificData, {
             "ClassTrapSpecificData", "infiniband.notice.classtrapspecificdata",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
 
     /* Traps 64,65,66,67 */
     { &hf_infiniband_Trap_GIDADDR, {
             "GIDADDR", "infiniband.trap.gidaddr",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     /* Traps 68,69 */
     { &hf_infiniband_Trap_COMP_MASK, {
@@ -2828,7 +2828,7 @@ static hf_register_info hf[] = {
 #if 0
     { &hf_infiniband_Trap_PATH_REC, {
             "PATH_REC", "infiniband.trap.path_rec",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 #endif
 
@@ -2907,7 +2907,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_Trap_DRNoticeReturnPath, {
             "DRNoticeReturnPath", "infiniband.trap.drnoticereturnpath",
-            FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* Trap 257, 258 */
@@ -2937,17 +2937,17 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_Trap_GIDADDR1, {
             "GIDADDR1", "infiniband.trap.gidaddr1",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_Trap_GIDADDR2, {
             "GIDADDR2", "infiniband.trap.gidaddr2",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
 
     /* Trap 259 */
     { &hf_infiniband_Trap_DataValid, {
             "DataValid", "infiniband.trap.datavalid",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_infiniband_Trap_PKEY, {
             "PKEY", "infiniband.trap.pkey",
@@ -2955,7 +2955,7 @@ static hf_register_info hf[] = {
     },
     { &hf_infiniband_Trap_SWLIDADDR, {
             "SWLIDADDR", "infiniband.trap.swlidaddr",
-            FT_IPv6, BASE_HEX, NULL, 0x0, NULL, HFILL}
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
     }
 };
 
