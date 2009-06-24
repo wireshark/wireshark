@@ -31,9 +31,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <etypes.h>
-#include <epan/emem.h>
-#include "packet-bthci_acl.h"
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
