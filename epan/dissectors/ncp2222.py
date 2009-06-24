@@ -6735,43 +6735,43 @@ proto_register_ncp2222(void)
 
 	static hf_register_info hf[] = {
 	{ &hf_ncp_func,
-	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_length,
-	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_subfunc,
-	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_completion_code,
-	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_group,
-	{ "NCP Group Type", "ncp.group", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NCP Group Type", "ncp.group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_fragment_handle,
-	{ "NDS Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_fragment_size,
-	{ "NDS Fragment Size", "ncp.ndsfragsize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Fragment Size", "ncp.ndsfragsize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_message_size,
-	{ "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_nds_flag,
-	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_nds_verb,
-	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, "", HFILL }},
+	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, NULL, HFILL }},
 
         { &hf_ping_version,
-        { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_version,
-	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_tree_name,
-	{ "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /*
 	 * XXX - the page at
@@ -6797,755 +6797,755 @@ proto_register_ncp2222(void)
 	 * underneath it?
 	 */
 	{ &hf_ncp_connection_status,
-	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, VALS(connection_status_vals), 0x0, "", HFILL }},
+	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, VALS(connection_status_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_req_frame_num,
 	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_FRAMENUM, BASE_NONE,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
                                            
 	{ &hf_ncp_req_frame_time,
 	{ "Time from Request", "ncp.time", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "Time between request and response in seconds", HFILL }},
 
     { &hf_nds_flags,
-    { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
  
     
     { &hf_nds_reply_depth,
-	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_nds_reply_rev,
-	{ "NDS Revision", "ncp.ndsrev", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Revision", "ncp.ndsrev", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_reply_flags,
-	{ "Flags", "ncp.ndsflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Flags", "ncp.ndsflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_p1type,
-	{ "NDS Parameter Type", "ncp.p1type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Parameter Type", "ncp.p1type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_nds_uint32value,
-	{ "NDS Value", "ncp.uint32value", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Value", "ncp.uint32value", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_nds_bit1,
-        { "Typeless", "ncp.nds_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Typeless", "ncp.nds_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_nds_bit2,
-        { "All Containers", "ncp.nds_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "All Containers", "ncp.nds_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_nds_bit3,
-        { "Slashed", "ncp.nds_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Slashed", "ncp.nds_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_nds_bit4,
-        { "Dotted", "ncp.nds_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Dotted", "ncp.nds_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_nds_bit5,
-        { "Tuned", "ncp.nds_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Tuned", "ncp.nds_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_nds_bit6,
-        { "Not Defined", "ncp.nds_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_nds_bit7,
-        { "Not Defined", "ncp.nds_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_nds_bit8,
-        { "Not Defined", "ncp.nds_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_nds_bit9,
-        { "Not Defined", "ncp.nds_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_nds_bit10,
-        { "Not Defined", "ncp.nds_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_nds_bit11,
-        { "Not Defined", "ncp.nds_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_nds_bit12,
-        { "Not Defined", "ncp.nds_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_nds_bit13,
-        { "Not Defined", "ncp.nds_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_nds_bit14,
-        { "Not Defined", "ncp.nds_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_nds_bit15,
-        { "Not Defined", "ncp.nds_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_nds_bit16,
-        { "Not Defined", "ncp.nds_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.nds_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1outflags,
-        { "Output Flags", "ncp.bit1outflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Output Flags", "ncp.bit1outflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2outflags,
-        { "Entry ID", "ncp.bit2outflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Entry ID", "ncp.bit2outflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3outflags,
-        { "Replica State", "ncp.bit3outflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Replica State", "ncp.bit3outflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4outflags,
-        { "Modification Timestamp", "ncp.bit4outflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Modification Timestamp", "ncp.bit4outflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5outflags,
-        { "Purge Time", "ncp.bit5outflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Purge Time", "ncp.bit5outflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6outflags,
-        { "Local Partition ID", "ncp.bit6outflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Local Partition ID", "ncp.bit6outflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7outflags,
-        { "Distinguished Name", "ncp.bit7outflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Distinguished Name", "ncp.bit7outflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8outflags,
-        { "Replica Type", "ncp.bit8outflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Replica Type", "ncp.bit8outflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9outflags,
-        { "Partition Busy", "ncp.bit9outflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Partition Busy", "ncp.bit9outflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10outflags,
-        { "Not Defined", "ncp.bit10outflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10outflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11outflags,
-        { "Not Defined", "ncp.bit11outflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11outflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12outflags,
-        { "Not Defined", "ncp.bit12outflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12outflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13outflags,
-        { "Not Defined", "ncp.bit13outflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13outflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14outflags,
-        { "Not Defined", "ncp.bit14outflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14outflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15outflags,
-        { "Not Defined", "ncp.bit15outflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15outflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16outflags,
-        { "Not Defined", "ncp.bit16outflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16outflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1nflags,
-        { "Entry ID", "ncp.bit1nflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Entry ID", "ncp.bit1nflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2nflags,
-        { "Readable", "ncp.bit2nflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Readable", "ncp.bit2nflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3nflags,
-        { "Writeable", "ncp.bit3nflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Writeable", "ncp.bit3nflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4nflags,
-        { "Master", "ncp.bit4nflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Master", "ncp.bit4nflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5nflags,
-        { "Create ID", "ncp.bit5nflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Create ID", "ncp.bit5nflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6nflags,
-        { "Walk Tree", "ncp.bit6nflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Walk Tree", "ncp.bit6nflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7nflags,
-        { "Dereference Alias", "ncp.bit7nflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Dereference Alias", "ncp.bit7nflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8nflags,
-        { "Not Defined", "ncp.bit8nflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8nflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9nflags,
-        { "Not Defined", "ncp.bit9nflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9nflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10nflags,
-        { "Not Defined", "ncp.bit10nflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10nflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11nflags,
-        { "Not Defined", "ncp.bit11nflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11nflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12nflags,
-        { "Not Defined", "ncp.bit12nflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12nflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13nflags,
-        { "Not Defined", "ncp.bit13nflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13nflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14nflags,
-        { "Prefer Referrals", "ncp.bit14nflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Prefer Referrals", "ncp.bit14nflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15nflags,
-        { "Prefer Only Referrals", "ncp.bit15nflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Prefer Only Referrals", "ncp.bit15nflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16nflags,
-        { "Not Defined", "ncp.bit16nflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16nflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1rflags,
-        { "Typeless", "ncp.bit1rflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Typeless", "ncp.bit1rflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2rflags,
-        { "Slashed", "ncp.bit2rflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Slashed", "ncp.bit2rflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3rflags,
-        { "Dotted", "ncp.bit3rflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Dotted", "ncp.bit3rflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4rflags,
-        { "Tuned", "ncp.bit4rflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Tuned", "ncp.bit4rflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5rflags,
-        { "Not Defined", "ncp.bit5rflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.bit5rflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6rflags,
-        { "Not Defined", "ncp.bit6rflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6rflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7rflags,
-        { "Not Defined", "ncp.bit7rflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7rflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8rflags,
-        { "Not Defined", "ncp.bit8rflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8rflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9rflags,
-        { "Not Defined", "ncp.bit9rflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9rflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10rflags,
-        { "Not Defined", "ncp.bit10rflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10rflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11rflags,
-        { "Not Defined", "ncp.bit11rflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11rflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12rflags,
-        { "Not Defined", "ncp.bit12rflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12rflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13rflags,
-        { "Not Defined", "ncp.bit13rflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13rflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14rflags,
-        { "Not Defined", "ncp.bit14rflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14rflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15rflags,
-        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16rflags,
-        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1eflags,
-        { "Alias Entry", "ncp.bit1eflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Alias Entry", "ncp.bit1eflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2eflags,
-        { "Partition Root", "ncp.bit2eflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Partition Root", "ncp.bit2eflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3eflags,
-        { "Container Entry", "ncp.bit3eflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Container Entry", "ncp.bit3eflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4eflags,
-        { "Container Alias", "ncp.bit4eflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Container Alias", "ncp.bit4eflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5eflags,
-        { "Matches List Filter", "ncp.bit5eflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Matches List Filter", "ncp.bit5eflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6eflags,
-        { "Reference Entry", "ncp.bit6eflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Reference Entry", "ncp.bit6eflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7eflags,
-        { "40x Reference Entry", "ncp.bit7eflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "40x Reference Entry", "ncp.bit7eflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8eflags,
-        { "Back Linked", "ncp.bit8eflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Back Linked", "ncp.bit8eflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9eflags,
-        { "New Entry", "ncp.bit9eflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "New Entry", "ncp.bit9eflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10eflags,
-        { "Temporary Reference", "ncp.bit10eflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Temporary Reference", "ncp.bit10eflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11eflags,
-        { "Audited", "ncp.bit11eflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Audited", "ncp.bit11eflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12eflags,
-        { "Entry Not Present", "ncp.bit12eflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Entry Not Present", "ncp.bit12eflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13eflags,
-        { "Entry Verify CTS", "ncp.bit13eflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Entry Verify CTS", "ncp.bit13eflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14eflags,
-        { "Entry Damaged", "ncp.bit14eflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Entry Damaged", "ncp.bit14eflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15eflags,
-        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16eflags,
-        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1infoflagsl,
-        { "Output Flags", "ncp.bit1infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Output Flags", "ncp.bit1infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2infoflagsl,
-        { "Entry ID", "ncp.bit2infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Entry ID", "ncp.bit2infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3infoflagsl,
-        { "Entry Flags", "ncp.bit3infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Entry Flags", "ncp.bit3infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4infoflagsl,
-        { "Subordinate Count", "ncp.bit4infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Subordinate Count", "ncp.bit4infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5infoflagsl,
-        { "Modification Time", "ncp.bit5infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Modification Time", "ncp.bit5infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6infoflagsl,
-        { "Modification Timestamp", "ncp.bit6infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Modification Timestamp", "ncp.bit6infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7infoflagsl,
-        { "Creation Timestamp", "ncp.bit7infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Creation Timestamp", "ncp.bit7infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8infoflagsl,
-        { "Partition Root ID", "ncp.bit8infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Partition Root ID", "ncp.bit8infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9infoflagsl,
-        { "Parent ID", "ncp.bit9infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Parent ID", "ncp.bit9infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10infoflagsl,
-        { "Revision Count", "ncp.bit10infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Revision Count", "ncp.bit10infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11infoflagsl,
-        { "Replica Type", "ncp.bit11infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Replica Type", "ncp.bit11infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12infoflagsl,
-        { "Base Class", "ncp.bit12infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Base Class", "ncp.bit12infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13infoflagsl,
-        { "Relative Distinguished Name", "ncp.bit13infoflagsl", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Relative Distinguished Name", "ncp.bit13infoflagsl", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14infoflagsl,
-        { "Distinguished Name", "ncp.bit14infoflagsl", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Distinguished Name", "ncp.bit14infoflagsl", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15infoflagsl,
-        { "Root Distinguished Name", "ncp.bit15infoflagsl", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Root Distinguished Name", "ncp.bit15infoflagsl", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16infoflagsl,
-        { "Parent Distinguished Name", "ncp.bit16infoflagsl", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Parent Distinguished Name", "ncp.bit16infoflagsl", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1infoflagsh,
-        { "Purge Time", "ncp.bit1infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Purge Time", "ncp.bit1infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2infoflagsh,
-        { "Dereference Base Class", "ncp.bit2infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Dereference Base Class", "ncp.bit2infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3infoflagsh,
-        { "Not Defined", "ncp.bit3infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Not Defined", "ncp.bit3infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4infoflagsh,
-        { "Not Defined", "ncp.bit4infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Not Defined", "ncp.bit4infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5infoflagsh,
-        { "Not Defined", "ncp.bit5infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.bit5infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6infoflagsh,
-        { "Not Defined", "ncp.bit6infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7infoflagsh,
-        { "Not Defined", "ncp.bit7infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8infoflagsh,
-        { "Not Defined", "ncp.bit8infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9infoflagsh,
-        { "Not Defined", "ncp.bit9infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10infoflagsh,
-        { "Not Defined", "ncp.bit10infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11infoflagsh,
-        { "Not Defined", "ncp.bit11infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12infoflagsh,
-        { "Not Defined", "ncp.bit12infoflagshs", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12infoflagshs", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13infoflagsh,
-        { "Not Defined", "ncp.bit13infoflagsh", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13infoflagsh", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14infoflagsh,
-        { "Not Defined", "ncp.bit14infoflagsh", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14infoflagsh", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15infoflagsh,
-        { "Not Defined", "ncp.bit15infoflagsh", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15infoflagsh", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16infoflagsh,
-        { "Not Defined", "ncp.bit16infoflagsh", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16infoflagsh", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1lflags,
-        { "List Typeless", "ncp.bit1lflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "List Typeless", "ncp.bit1lflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2lflags,
-        { "List Containers", "ncp.bit2lflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "List Containers", "ncp.bit2lflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3lflags,
-        { "List Slashed", "ncp.bit3lflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "List Slashed", "ncp.bit3lflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4lflags,
-        { "List Dotted", "ncp.bit4lflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "List Dotted", "ncp.bit4lflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5lflags,
-        { "Dereference Alias", "ncp.bit5lflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Dereference Alias", "ncp.bit5lflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6lflags,
-        { "List All Containers", "ncp.bit6lflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "List All Containers", "ncp.bit6lflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7lflags,
-        { "List Obsolete", "ncp.bit7lflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "List Obsolete", "ncp.bit7lflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8lflags,
-        { "List Tuned Output", "ncp.bit8lflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "List Tuned Output", "ncp.bit8lflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9lflags,
-        { "List External Reference", "ncp.bit9lflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "List External Reference", "ncp.bit9lflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10lflags,
-        { "Not Defined", "ncp.bit10lflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10lflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11lflags,
-        { "Not Defined", "ncp.bit11lflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11lflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12lflags,
-        { "Not Defined", "ncp.bit12lflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12lflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13lflags,
-        { "Not Defined", "ncp.bit13lflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13lflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14lflags,
-        { "Not Defined", "ncp.bit14lflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14lflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15lflags,
-        { "Not Defined", "ncp.bit15lflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15lflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16lflags,
-        { "Not Defined", "ncp.bit16lflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16lflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1l1flagsl,
-        { "Output Flags", "ncp.bit1l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Output Flags", "ncp.bit1l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2l1flagsl,
-        { "Entry ID", "ncp.bit2l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Entry ID", "ncp.bit2l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3l1flagsl,
-        { "Replica State", "ncp.bit3l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Replica State", "ncp.bit3l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4l1flagsl,
-        { "Modification Timestamp", "ncp.bit4l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Modification Timestamp", "ncp.bit4l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5l1flagsl,
-        { "Purge Time", "ncp.bit5l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Purge Time", "ncp.bit5l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6l1flagsl,
-        { "Local Partition ID", "ncp.bit6l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Local Partition ID", "ncp.bit6l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7l1flagsl,
-        { "Distinguished Name", "ncp.bit7l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Distinguished Name", "ncp.bit7l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8l1flagsl,
-        { "Replica Type", "ncp.bit8l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Replica Type", "ncp.bit8l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9l1flagsl,
-        { "Partition Busy", "ncp.bit9l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Partition Busy", "ncp.bit9l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10l1flagsl,
-        { "Not Defined", "ncp.bit10l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11l1flagsl,
-        { "Not Defined", "ncp.bit11l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12l1flagsl,
-        { "Not Defined", "ncp.bit12l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13l1flagsl,
-        { "Not Defined", "ncp.bit13l1flagsl", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13l1flagsl", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14l1flagsl,
-        { "Not Defined", "ncp.bit14l1flagsl", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14l1flagsl", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15l1flagsl,
-        { "Not Defined", "ncp.bit15l1flagsl", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15l1flagsl", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16l1flagsl,
-        { "Not Defined", "ncp.bit16l1flagsl", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16l1flagsl", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1l1flagsh,
-        { "Not Defined", "ncp.bit1l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Not Defined", "ncp.bit1l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2l1flagsh,
-        { "Not Defined", "ncp.bit2l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Not Defined", "ncp.bit2l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3l1flagsh,
-        { "Not Defined", "ncp.bit3l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Not Defined", "ncp.bit3l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4l1flagsh,
-        { "Not Defined", "ncp.bit4l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Not Defined", "ncp.bit4l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5l1flagsh,
-        { "Not Defined", "ncp.bit5l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.bit5l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6l1flagsh,
-        { "Not Defined", "ncp.bit6l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7l1flagsh,
-        { "Not Defined", "ncp.bit7l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8l1flagsh,
-        { "Not Defined", "ncp.bit8l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9l1flagsh,
-        { "Not Defined", "ncp.bit9l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10l1flagsh,
-        { "Not Defined", "ncp.bit10l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11l1flagsh,
-        { "Not Defined", "ncp.bit11l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12l1flagsh,
-        { "Not Defined", "ncp.bit12l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13l1flagsh,
-        { "Not Defined", "ncp.bit13l1flagsh", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13l1flagsh", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14l1flagsh,
-        { "Not Defined", "ncp.bit14l1flagsh", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14l1flagsh", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15l1flagsh,
-        { "Not Defined", "ncp.bit15l1flagsh", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15l1flagsh", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16l1flagsh,
-        { "Not Defined", "ncp.bit16l1flagsh", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16l1flagsh", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1vflags,
-        { "Naming", "ncp.bit1vflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Naming", "ncp.bit1vflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2vflags,
-        { "Base Class", "ncp.bit2vflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Base Class", "ncp.bit2vflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3vflags,
-        { "Present", "ncp.bit3vflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Present", "ncp.bit3vflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4vflags,
-        { "Value Damaged", "ncp.bit4vflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Value Damaged", "ncp.bit4vflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5vflags,
-        { "Not Defined", "ncp.bit5vflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.bit5vflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6vflags,
-        { "Not Defined", "ncp.bit6vflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6vflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7vflags,
-        { "Not Defined", "ncp.bit7vflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7vflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8vflags,
-        { "Not Defined", "ncp.bit8vflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8vflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9vflags,
-        { "Not Defined", "ncp.bit9vflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9vflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10vflags,
-        { "Not Defined", "ncp.bit10vflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10vflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11vflags,
-        { "Not Defined", "ncp.bit11vflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11vflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12vflags,
-        { "Not Defined", "ncp.bit12vflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12vflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13vflags,
-        { "Not Defined", "ncp.bit13vflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13vflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14vflags,
-        { "Not Defined", "ncp.bit14vflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14vflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15vflags,
-        { "Not Defined", "ncp.bit15vflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15vflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16vflags,
-        { "Not Defined", "ncp.bit16vflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16vflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1cflags,
-        { "Container", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Container", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2cflags,
-        { "Effective", "ncp.bit2cflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Effective", "ncp.bit2cflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3cflags,
-        { "Class Definition Cannot be Removed", "ncp.bit3cflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Class Definition Cannot be Removed", "ncp.bit3cflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4cflags,
-        { "Ambiguous Naming", "ncp.bit4cflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Ambiguous Naming", "ncp.bit4cflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5cflags,
-        { "Ambiguous Containment", "ncp.bit5cflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Ambiguous Containment", "ncp.bit5cflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6cflags,
-        { "Auxiliary", "ncp.bit6cflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Auxiliary", "ncp.bit6cflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7cflags,
-        { "Operational", "ncp.bit7cflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Operational", "ncp.bit7cflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8cflags,
-        { "Sparse Required", "ncp.bit8cflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Sparse Required", "ncp.bit8cflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9cflags,
-        { "Sparse Operational", "ncp.bit9cflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Sparse Operational", "ncp.bit9cflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10cflags,
-        { "Not Defined", "ncp.bit10cflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10cflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11cflags,
-        { "Not Defined", "ncp.bit11cflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11cflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12cflags,
-        { "Not Defined", "ncp.bit12cflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12cflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13cflags,
-        { "Not Defined", "ncp.bit13cflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13cflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14cflags,
-        { "Not Defined", "ncp.bit14cflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14cflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15cflags,
-        { "Not Defined", "ncp.bit15cflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15cflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16cflags,
-        { "Not Defined", "ncp.bit16cflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16cflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1acflags,
-        { "Single Valued", "ncp.bit1acflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Single Valued", "ncp.bit1acflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2acflags,
-        { "Sized", "ncp.bit2acflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Sized", "ncp.bit2acflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3acflags,
-        { "Non-Removable", "ncp.bit3acflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Non-Removable", "ncp.bit3acflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4acflags,
-        { "Read Only", "ncp.bit4acflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Read Only", "ncp.bit4acflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5acflags,
-        { "Hidden", "ncp.bit5acflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Hidden", "ncp.bit5acflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6acflags,
-        { "String", "ncp.bit6acflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "String", "ncp.bit6acflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7acflags,
-        { "Synchronize Immediate", "ncp.bit7acflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Synchronize Immediate", "ncp.bit7acflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8acflags,
-        { "Public Read", "ncp.bit8acflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Public Read", "ncp.bit8acflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9acflags,
-        { "Server Read", "ncp.bit9acflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Server Read", "ncp.bit9acflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10acflags,
-        { "Write Managed", "ncp.bit10acflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Write Managed", "ncp.bit10acflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11acflags,
-        { "Per Replica", "ncp.bit11acflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Per Replica", "ncp.bit11acflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12acflags,
-        { "Never Schedule Synchronization", "ncp.bit12acflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Never Schedule Synchronization", "ncp.bit12acflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13acflags,
-        { "Operational", "ncp.bit13acflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Operational", "ncp.bit13acflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14acflags,
-        { "Not Defined", "ncp.bit14acflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14acflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15acflags,
-        { "Not Defined", "ncp.bit15acflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15acflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16acflags,
-        { "Not Defined", "ncp.bit16acflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16acflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
 
         { &hf_nds_reply_error,
-	{ "NDS Error", "ncp.ndsreplyerror", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Error", "ncp.ndsreplyerror", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_nds_net,
-	{ "Network","ncp.ndsnet", FT_IPXNET, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Network","ncp.ndsnet", FT_IPXNET, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_node,
-	{ "Node",	"ncp.ndsnode", FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Node",	"ncp.ndsnode", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_socket,
-        { "Socket",	"ncp.ndssocket", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+        { "Socket",	"ncp.ndssocket", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_add_ref_ip,
-	{ "Address Referral", "ncp.ipref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.ipref", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_add_ref_udp,
-	{ "Address Referral", "ncp.udpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.udpref", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_add_ref_tcp,
-	{ "Address Referral", "ncp.tcpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.tcpref", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_referral_record,
-	{ "Referral Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Referral Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_referral_addcount,
-	{ "Address Count", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Count", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_port,
-        { "Port", "ncp.ndsport", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { "Port", "ncp.ndsport", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_mv_string,
-	{ "Attribute Name ", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Attribute Name ", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_syntax,
-	{ "Attribute Syntax ", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Attribute Syntax ", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_value_string,
-	{ "Value ", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Value ", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_stream_name,
-	{ "Stream Name ", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Stream Name ", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_buffer_size,
-	{ "NDS Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_ver,
-	{ "NDS Version", "ncp.nds_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Version", "ncp.nds_ver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_nflags,
-	{ "Flags", "ncp.nds_nflags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Flags", "ncp.nds_nflags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_rflags,
-	{ "Request Flags", "ncp.nds_rflags", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Request Flags", "ncp.nds_rflags", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_eflags,
-	{ "Entry Flags", "ncp.nds_eflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Entry Flags", "ncp.nds_eflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_scope,
-	{ "Scope", "ncp.nds_scope", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Scope", "ncp.nds_scope", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_name,
-	{ "Name", "ncp.nds_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Name", "ncp.nds_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_name_type,
-	{ "Name Type", "ncp.nds_name_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Name Type", "ncp.nds_name_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_comm_trans,
-	{ "Communications Transport", "ncp.nds_comm_trans", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Communications Transport", "ncp.nds_comm_trans", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_tree_trans,
-	{ "Tree Walker Transport", "ncp.nds_tree_trans", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Tree Walker Transport", "ncp.nds_tree_trans", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_iteration,
-	{ "Iteration Handle", "ncp.nds_iteration", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iteration Handle", "ncp.nds_iteration", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
  	
     { &hf_nds_iterator,
-	{ "Iterator", "ncp.nds_iterator", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iterator", "ncp.nds_iterator", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_file_handle,
-	{ "File Handle", "ncp.nds_file_handle", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "File Handle", "ncp.nds_file_handle", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_file_size,
-	{ "File Size", "ncp.nds_file_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "File Size", "ncp.nds_file_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_eid,
-	{ "NDS EID", "ncp.nds_eid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS EID", "ncp.nds_eid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_depth,
-	{ "Distance object is from Root", "ncp.nds_depth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Distance object is from Root", "ncp.nds_depth", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
                                
  	{ &hf_nds_info_type,
-	{ "Info Type", "ncp.nds_info_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Info Type", "ncp.nds_info_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_class_def_type,
-	{ "Class Definition Type", "ncp.nds_class_def_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Class Definition Type", "ncp.nds_class_def_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_all_attr,
 	{ "All Attributes", "ncp.nds_all_attr", FT_UINT32, BASE_DEC, NULL, 0x0, "Return all Attributes?", HFILL }},
@@ -7554,534 +7554,534 @@ proto_register_ncp2222(void)
 	{ "All Classes", "ncp.nds_return_all_classes", FT_STRING, BASE_NONE, NULL, 0x0, "Return all Classes?", HFILL }},
 
  	{ &hf_nds_req_flags,
-	{ "Request Flags", "ncp.nds_req_flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Request Flags", "ncp.nds_req_flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_attr,
-	{ "Attributes", "ncp.nds_attributes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Attributes", "ncp.nds_attributes", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_classes,
-	{ "Classes", "ncp.nds_classes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Classes", "ncp.nds_classes", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_crc,
-	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_referrals,
-	{ "Referrals", "ncp.nds_referrals", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Referrals", "ncp.nds_referrals", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_result_flags,
-	{ "Result Flags", "ncp.nds_result_flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Result Flags", "ncp.nds_result_flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_stream_flags,
-	{ "Streams Flags", "ncp.nds_stream_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Streams Flags", "ncp.nds_stream_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_tag_string,
-	{ "Tags", "ncp.nds_tags", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Tags", "ncp.nds_tags", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_value_bytes,
-	{ "Bytes", "ncp.value_bytes", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Bytes", "ncp.value_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_replica_type,
-	{ "Replica Type", "ncp.rtype", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Replica Type", "ncp.rtype", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_replica_state,
-	{ "Replica State", "ncp.rstate", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Replica State", "ncp.rstate", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_rnum,
-	{ "Replica Number", "ncp.rnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Replica Number", "ncp.rnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_revent,
-	{ "Event", "ncp.revent", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Event", "ncp.revent", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_replica_number,
-	{ "Replica Number", "ncp.rnum", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Replica Number", "ncp.rnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_min_nds_ver,
-	{ "Minimum NDS Version", "ncp.min_nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Minimum NDS Version", "ncp.min_nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_ver_include,
-	{ "Include NDS Version", "ncp.inc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Include NDS Version", "ncp.inc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_ver_exclude,
-	{ "Exclude NDS Version", "ncp.exc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Exclude NDS Version", "ncp.exc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_es,
-	{ "Input Entry Specifier", "ncp.nds_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Input Entry Specifier", "ncp.nds_es", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_es_type,
-	{ "Entry Specifier Type", "ncp.nds_es_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Entry Specifier Type", "ncp.nds_es_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_rdn_string,
-	{ "RDN", "ncp.nds_rdn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "RDN", "ncp.nds_rdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_delim_string,
-	{ "Delimiter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Delimiter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_dn_output_type,
-	{ "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_nested_output_type,
-	{ "Nested Output Entry Specifier Type", "ncp.nds_nested_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Nested Output Entry Specifier Type", "ncp.nds_nested_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_output_delimiter,
-	{ "Output Delimiter", "ncp.nds_out_delimiter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Output Delimiter", "ncp.nds_out_delimiter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_output_entry_specifier,
-	{ "Output Entry Specifier", "ncp.nds_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Output Entry Specifier", "ncp.nds_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_es_value,
-	{ "Entry Specifier Value", "ncp.nds_es_value", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Entry Specifier Value", "ncp.nds_es_value", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_es_rdn_count,
-	{ "RDN Count", "ncp.nds_es_rdn_count", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "RDN Count", "ncp.nds_es_rdn_count", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_replica_num,
-	{ "Replica Number", "ncp.nds_replica_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Replica Number", "ncp.nds_replica_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_es_seconds,
-	{ "Seconds", "ncp.nds_es_seconds", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Seconds", "ncp.nds_es_seconds", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_event_num,
-	{ "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_compare_results,
-	{ "Compare Results", "ncp.nds_compare_results", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Compare Results", "ncp.nds_compare_results", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_parent,
-	{ "Parent ID", "ncp.nds_parent", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Parent ID", "ncp.nds_parent", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_name_filter,
-	{ "Name Filter", "ncp.nds_name_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Name Filter", "ncp.nds_name_filter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_class_filter,
-	{ "Class Filter", "ncp.nds_class_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Class Filter", "ncp.nds_class_filter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_time_filter,
-	{ "Time Filter", "ncp.nds_time_filter", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Time Filter", "ncp.nds_time_filter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_partition_root_id,
-	{ "Partition Root ID", "ncp.nds_partition_root_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Partition Root ID", "ncp.nds_partition_root_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_replicas,
-	{ "Replicas", "ncp.nds_replicas", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Replicas", "ncp.nds_replicas", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_purge,
-	{ "Purge Time", "ncp.nds_purge", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Purge Time", "ncp.nds_purge", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_local_partition,
-	{ "Local Partition ID", "ncp.nds_local_partition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Local Partition ID", "ncp.nds_local_partition", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_partition_busy,
-    { "Partition Busy", "ncp.nds_partition_busy", FT_BOOLEAN, 16, NULL, 0x0, "", HFILL }},
+    { "Partition Busy", "ncp.nds_partition_busy", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_number_of_changes,
-	{ "Number of Attribute Changes", "ncp.nds_number_of_changes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Number of Attribute Changes", "ncp.nds_number_of_changes", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_sub_count,
-	{ "Subordinate Count", "ncp.sub_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Subordinate Count", "ncp.sub_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_revision,
-	{ "Revision Count", "ncp.nds_rev_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Revision Count", "ncp.nds_rev_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_base_class,
-	{ "Base Class", "ncp.nds_base_class", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Base Class", "ncp.nds_base_class", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_relative_dn,
-	{ "Relative Distinguished Name", "ncp.nds_relative_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Relative Distinguished Name", "ncp.nds_relative_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_root_dn,
-	{ "Root Distinguished Name", "ncp.nds_root_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Root Distinguished Name", "ncp.nds_root_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_parent_dn,
-	{ "Parent Distinguished Name", "ncp.nds_parent_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Parent Distinguished Name", "ncp.nds_parent_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_deref_base,
-    { "Dereference Base Class", "ncp.nds_deref_base", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { "Dereference Base Class", "ncp.nds_deref_base", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_base,
-    { "Base Class", "ncp.nds_base", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { "Base Class", "ncp.nds_base", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_super,
-    { "Super Class", "ncp.nds_super", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { "Super Class", "ncp.nds_super", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_entry_info,
-    { "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     
     { &hf_nds_privileges,
-    { "Privileges", "ncp.nds_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "Privileges", "ncp.nds_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_compare_attributes,
-    { "Compare Attributes?", "ncp.nds_compare_attributes", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+    { "Compare Attributes?", "ncp.nds_compare_attributes", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
     
     { &hf_nds_read_attribute,
-    { "Read Attribute?", "ncp.nds_read_attribute", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+    { "Read Attribute?", "ncp.nds_read_attribute", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
     
     { &hf_nds_write_add_delete_attribute,
-    { "Write, Add, Delete Attribute?", "ncp.nds_write_add_delete_attribute", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+    { "Write, Add, Delete Attribute?", "ncp.nds_write_add_delete_attribute", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
     
     { &hf_nds_add_delete_self,
-    { "Add/Delete Self?", "ncp.nds_add_delete_self", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+    { "Add/Delete Self?", "ncp.nds_add_delete_self", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
     
     { &hf_nds_privilege_not_defined,
-    { "Privilege Not defined", "ncp.nds_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+    { "Privilege Not defined", "ncp.nds_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
     
     { &hf_nds_supervisor,
-    { "Supervisor?", "ncp.nds_supervisor", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+    { "Supervisor?", "ncp.nds_supervisor", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
     
     { &hf_nds_inheritance_control,
-    { "Inheritance?", "ncp.nds_inheritance_control", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+    { "Inheritance?", "ncp.nds_inheritance_control", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
     { &hf_nds_browse_entry,
-    { "Browse Entry?", "ncp.nds_browse_entry", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+    { "Browse Entry?", "ncp.nds_browse_entry", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
     { &hf_nds_add_entry,
-    { "Add Entry?", "ncp.nds_add_entry", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+    { "Add Entry?", "ncp.nds_add_entry", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
     { &hf_nds_delete_entry,
-    { "Delete Entry?", "ncp.nds_delete_entry", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+    { "Delete Entry?", "ncp.nds_delete_entry", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
     { &hf_nds_rename_entry,
-    { "Rename Entry?", "ncp.nds_rename_entry", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+    { "Rename Entry?", "ncp.nds_rename_entry", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
     { &hf_nds_supervisor_entry,
-    { "Supervisor?", "ncp.nds_supervisor_entry", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+    { "Supervisor?", "ncp.nds_supervisor_entry", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
     
     { &hf_nds_entry_privilege_not_defined,
-    { "Privilege Not Defined", "ncp.nds_entry_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+    { "Privilege Not Defined", "ncp.nds_entry_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
     { &hf_nds_vflags,
-    { "Value Flags", "ncp.nds_vflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "Value Flags", "ncp.nds_vflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_value_len,
-    { "Value Length", "ncp.nds_vlength", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Value Length", "ncp.nds_vlength", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_cflags,
-    { "Class Flags", "ncp.nds_cflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "Class Flags", "ncp.nds_cflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_asn1,
-	{ "ASN.1 ID", "ncp.nds_asn1", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "ASN.1 ID", "ncp.nds_asn1", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acflags,
-    { "Attribute Constraint Flags", "ncp.nds_acflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "Attribute Constraint Flags", "ncp.nds_acflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_upper,
-    { "Upper Limit Value", "ncp.nds_upper", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Upper Limit Value", "ncp.nds_upper", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_lower,
-    { "Lower Limit Value", "ncp.nds_lower", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Lower Limit Value", "ncp.nds_lower", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_trustee_dn,
-	{ "Trustee Distinguished Name", "ncp.nds_trustee_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Trustee Distinguished Name", "ncp.nds_trustee_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_attribute_dn,
-	{ "Attribute Name", "ncp.nds_attribute_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Attribute Name", "ncp.nds_attribute_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acl_add,
-	{ "Access Control Lists to Add", "ncp.nds_acl_add", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Access Control Lists to Add", "ncp.nds_acl_add", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acl_del,
-	{ "Access Control Lists to Delete", "ncp.nds_acl_del", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Access Control Lists to Delete", "ncp.nds_acl_del", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_att_add,
-	{ "Attribute to Add", "ncp.nds_att_add", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Attribute to Add", "ncp.nds_att_add", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_att_del,
-	{ "Attribute to Delete", "ncp.nds_att_del", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Attribute to Delete", "ncp.nds_att_del", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_keep,
-    { "Delete Original RDN", "ncp.nds_keep", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+    { "Delete Original RDN", "ncp.nds_keep", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_new_rdn,
-	{ "New Relative Distinguished Name", "ncp.nds_new_rdn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "New Relative Distinguished Name", "ncp.nds_new_rdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_time_delay,
-	{ "Time Delay", "ncp.nds_time_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Time Delay", "ncp.nds_time_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_root_name,
-	{ "Root Most Object Name", "ncp.nds_root_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Root Most Object Name", "ncp.nds_root_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_new_part_id,
-	{ "New Partition Root ID", "ncp.nds_new_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "New Partition Root ID", "ncp.nds_new_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_child_part_id,
-	{ "Child Partition Root ID", "ncp.nds_child_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Child Partition Root ID", "ncp.nds_child_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_master_part_id,
-	{ "Master Partition Root ID", "ncp.nds_master_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Master Partition Root ID", "ncp.nds_master_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_target_name,
-	{ "Target Server Name", "ncp.nds_target_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Target Server Name", "ncp.nds_target_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 
         { &hf_bit1pingflags1,
-        { "Supported Fields", "ncp.bit1pingflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Supported Fields", "ncp.bit1pingflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2pingflags1,
-        { "Depth", "ncp.bit2pingflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Depth", "ncp.bit2pingflags1", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3pingflags1,
-        { "Build Number", "ncp.bit3pingflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Build Number", "ncp.bit3pingflags1", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4pingflags1,
-        { "Flags", "ncp.bit4pingflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Flags", "ncp.bit4pingflags1", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5pingflags1,
-        { "Verification Flags", "ncp.bit5pingflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Verification Flags", "ncp.bit5pingflags1", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6pingflags1,
-        { "Letter Version", "ncp.bit6pingflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Letter Version", "ncp.bit6pingflags1", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7pingflags1,
-        { "OS Version", "ncp.bit7pingflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "OS Version", "ncp.bit7pingflags1", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8pingflags1,
-        { "Not Defined", "ncp.bit8pingflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8pingflags1", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9pingflags1,
-        { "License Flags", "ncp.bit9pingflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "License Flags", "ncp.bit9pingflags1", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10pingflags1,
-        { "DS Time", "ncp.bit10pingflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "DS Time", "ncp.bit10pingflags1", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11pingflags1,
-        { "Server Time", "ncp.bit11pingflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Server Time", "ncp.bit11pingflags1", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12pingflags1,
-        { "Create Time", "ncp.bit12pingflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Create Time", "ncp.bit12pingflags1", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13pingflags1,
-        { "Not Defined", "ncp.bit13pingflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13pingflags1", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14pingflags1,
-        { "Not Defined", "ncp.bit14pingflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14pingflags1", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15pingflags1,
-        { "Not Defined", "ncp.bit15pingflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15pingflags1", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16pingflags1,
-        { "Not Defined", "ncp.bit16pingflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16pingflags1", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1pingflags2,
-        { "Sap Name", "ncp.bit1pingflags2", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Sap Name", "ncp.bit1pingflags2", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2pingflags2,
-        { "Tree Name", "ncp.bit2pingflags2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Tree Name", "ncp.bit2pingflags2", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3pingflags2,
-        { "OS Name", "ncp.bit3pingflags2", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "OS Name", "ncp.bit3pingflags2", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4pingflags2,
-        { "Hardware Name", "ncp.bit4pingflags2", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Hardware Name", "ncp.bit4pingflags2", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5pingflags2,
-        { "Vendor Name", "ncp.bit5pingflags2", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Vendor Name", "ncp.bit5pingflags2", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6pingflags2,
-        { "Not Defined", "ncp.bit6pingflags2", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6pingflags2", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7pingflags2,
-        { "Not Defined", "ncp.bit7pingflags2", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7pingflags2", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8pingflags2,
-        { "Not Defined", "ncp.bit8pingflags2", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8pingflags2", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9pingflags2,
-        { "Not Defined", "ncp.bit9pingflags2", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9pingflags2", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10pingflags2,
-        { "Not Defined", "ncp.bit10pingflags2", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10pingflags2", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11pingflags2,
-        { "Not Defined", "ncp.bit11pingflags2", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11pingflags2", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12pingflags2,
-        { "Not Defined", "ncp.bit12pingflags2", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12pingflags2", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13pingflags2,
-        { "Not Defined", "ncp.bit13pingflags2", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13pingflags2", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14pingflags2,
-        { "Not Defined", "ncp.bit14pingflags2", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14pingflags2", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15pingflags2,
-        { "Not Defined", "ncp.bit15pingflags2", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15pingflags2", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16pingflags2,
-        { "Not Defined", "ncp.bit16pingflags2", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16pingflags2", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1pingpflags1,
-        { "Root Most Master Replica", "ncp.bit1pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Root Most Master Replica", "ncp.bit1pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2pingpflags1,
-        { "Is Time Synchronized?", "ncp.bit2pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Is Time Synchronized?", "ncp.bit2pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3pingpflags1,
-        { "Is Time Valid?", "ncp.bit3pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Is Time Valid?", "ncp.bit3pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4pingpflags1,
-        { "Is DS Time Synchronized?", "ncp.bit4pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Is DS Time Synchronized?", "ncp.bit4pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5pingpflags1,
-        { "Does Agent Have All Replicas?", "ncp.bit5pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Does Agent Have All Replicas?", "ncp.bit5pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6pingpflags1,
-        { "Not Defined", "ncp.bit6pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7pingpflags1,
-        { "Not Defined", "ncp.bit7pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8pingpflags1,
-        { "Not Defined", "ncp.bit8pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9pingpflags1,
-        { "Not Defined", "ncp.bit9pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10pingpflags1,
-        { "Not Defined", "ncp.bit10pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11pingpflags1,
-        { "Not Defined", "ncp.bit11pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12pingpflags1,
-        { "Not Defined", "ncp.bit12pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13pingpflags1,
-        { "Not Defined", "ncp.bit13pingpflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13pingpflags1", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14pingpflags1,
-        { "Not Defined", "ncp.bit14pingpflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14pingpflags1", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15pingpflags1,
-        { "Not Defined", "ncp.bit15pingpflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15pingpflags1", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16pingpflags1,
-        { "Not Defined", "ncp.bit16pingpflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16pingpflags1", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_bit1pingvflags1,
-        { "Checksum", "ncp.bit1pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Checksum", "ncp.bit1pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2pingvflags1,
-        { "CRC32", "ncp.bit2pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "CRC32", "ncp.bit2pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3pingvflags1,
-        { "Not Defined", "ncp.bit3pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Not Defined", "ncp.bit3pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4pingvflags1,
-        { "Not Defined", "ncp.bit4pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Not Defined", "ncp.bit4pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5pingvflags1,
-        { "Not Defined", "ncp.bit5pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.bit5pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6pingvflags1,
-        { "Not Defined", "ncp.bit6pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7pingvflags1,
-        { "Not Defined", "ncp.bit7pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8pingvflags1,
-        { "Not Defined", "ncp.bit8pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9pingvflags1,
-        { "Not Defined", "ncp.bit9pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.bit9pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10pingvflags1,
-        { "Not Defined", "ncp.bit10pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11pingvflags1,
-        { "Not Defined", "ncp.bit11pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12pingvflags1,
-        { "Not Defined", "ncp.bit12pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13pingvflags1,
-        { "Not Defined", "ncp.bit13pingvflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13pingvflags1", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14pingvflags1,
-        { "Not Defined", "ncp.bit14pingvflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14pingvflags1", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15pingvflags1,
-        { "Not Defined", "ncp.bit15pingvflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15pingvflags1", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16pingvflags1,
-        { "Not Defined", "ncp.bit16pingvflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16pingvflags1", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
     { &hf_nds_letter_ver,
-	{ "Letter Version", "ncp.nds_letter_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Letter Version", "ncp.nds_letter_ver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_os_majver,
-	{ "OS Major Version", "ncp.nds_os_majver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "OS Major Version", "ncp.nds_os_majver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_os_minver,
-	{ "OS Minor Version", "ncp.nds_os_minver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "OS Minor Version", "ncp.nds_os_minver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_lic_flags,
-	{ "License Flags", "ncp.nds_lic_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "License Flags", "ncp.nds_lic_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_ds_time,
-	{ "DS Time", "ncp.nds_ds_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "DS Time", "ncp.nds_ds_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_svr_time,
-	{ "Server Time", "ncp.nds_svr_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Server Time", "ncp.nds_svr_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_crt_time,
-	{ "Agent Create Time", "ncp.nds_crt_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Agent Create Time", "ncp.nds_crt_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_ping_version,
-	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_search_scope,
-	{ "Search Scope", "ncp.nds_search_scope", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Search Scope", "ncp.nds_search_scope", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_num_objects,
-	{ "Number of Objects to Search", "ncp.nds_num_objects", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Number of Objects to Search", "ncp.nds_num_objects", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 
         { &hf_bit1siflags,
-        { "Names", "ncp.bit1siflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Names", "ncp.bit1siflags", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_bit2siflags,
-        { "Names and Values", "ncp.bit2siflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Names and Values", "ncp.bit2siflags", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_bit3siflags,
-        { "Effective Privileges", "ncp.bit3siflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Effective Privileges", "ncp.bit3siflags", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_bit4siflags,
-        { "Value Info", "ncp.bit4siflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Value Info", "ncp.bit4siflags", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_bit5siflags,
-        { "Abbreviated Value", "ncp.bit5siflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Abbreviated Value", "ncp.bit5siflags", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_bit6siflags,
-        { "Not Defined", "ncp.bit6siflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.bit6siflags", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_bit7siflags,
-        { "Not Defined", "ncp.bit7siflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.bit7siflags", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_bit8siflags,
-        { "Not Defined", "ncp.bit8siflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8siflags", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_bit9siflags,
-        { "Expanded Class", "ncp.bit9siflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Expanded Class", "ncp.bit9siflags", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_bit10siflags,
-        { "Not Defined", "ncp.bit10siflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.bit10siflags", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_bit11siflags,
-        { "Not Defined", "ncp.bit11siflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.bit11siflags", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_bit12siflags,
-        { "Not Defined", "ncp.bit12siflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.bit12siflags", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_bit13siflags,
-        { "Not Defined", "ncp.bit13siflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.bit13siflags", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_bit14siflags,
-        { "Not Defined", "ncp.bit14siflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.bit14siflags", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_bit15siflags,
-        { "Not Defined", "ncp.bit15siflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Not Defined", "ncp.bit15siflags", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_bit16siflags,
-        { "Not Defined", "ncp.bit16siflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Not Defined", "ncp.bit16siflags", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
         { &hf_nds_segment_overlap,
           { "Segment overlap",	"nds.segment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -8114,146 +8114,146 @@ proto_register_ncp2222(void)
     		NULL, 0x0, "NDPS Fragments", HFILL }},
 
         { &hf_nds_verb2b_req_flags,
-        { "Flags", "ncp.nds_verb2b_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        { "Flags", "ncp.nds_verb2b_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ncp_ip_address,
-	{ "IP Address", "ncp.ip_addr", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "IP Address", "ncp.ip_addr", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_copyright,
-	{ "Copyright", "ncp.copyright", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Copyright", "ncp.copyright", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 
         { &hf_ndsprot1flag,
-        { "Not Defined", "ncp.nds_prot_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, NULL, HFILL }},
 
         { &hf_ndsprot2flag,
-        { "Not Defined", "ncp.nds_prot_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, NULL, HFILL }},
 
         { &hf_ndsprot3flag,
-        { "Not Defined", "ncp.nds_prot_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, NULL, HFILL }},
 
         { &hf_ndsprot4flag,
-        { "Not Defined", "ncp.nds_prot_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, NULL, HFILL }},
 
         { &hf_ndsprot5flag,
-        { "Not Defined", "ncp.nds_prot_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, NULL, HFILL }},
 
         { &hf_ndsprot6flag,
-        { "Not Defined", "ncp.nds_prot_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, NULL, HFILL }},
 
         { &hf_ndsprot7flag,
-        { "Not Defined", "ncp.nds_prot_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, NULL, HFILL }},
 
         { &hf_ndsprot8flag,
-        { "Not Defined", "ncp.nds_prot_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, NULL, HFILL }},
 
         { &hf_ndsprot9flag,
-        { "Not Defined", "ncp.nds_prot_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, NULL, HFILL }},
 
         { &hf_ndsprot10flag,
-        { "Not Defined", "ncp.nds_prot_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, NULL, HFILL }},
 
         { &hf_ndsprot11flag,
-        { "Not Defined", "ncp.nds_prot_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, NULL, HFILL }},
 
         { &hf_ndsprot12flag,
-        { "Not Defined", "ncp.nds_prot_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, NULL, HFILL }},
 
         { &hf_ndsprot13flag,
-        { "Not Defined", "ncp.nds_prot_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, NULL, HFILL }},
 
         { &hf_ndsprot14flag,
-        { "Not Defined", "ncp.nds_prot_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Not Defined", "ncp.nds_prot_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, NULL, HFILL }},
 
         { &hf_ndsprot15flag,
-        { "Include CRC in NDS Header", "ncp.nds_prot_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Include CRC in NDS Header", "ncp.nds_prot_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, NULL, HFILL }},
 
         { &hf_ndsprot16flag,
-        { "Client is a Server", "ncp.nds_prot_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        { "Client is a Server", "ncp.nds_prot_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, NULL, HFILL }},
 
     { &hf_nds_svr_dst_name,
-	{ "Server Distinguished Name", "ncp.nds_svr_dist_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Server Distinguished Name", "ncp.nds_svr_dist_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_tune_mark,
-        { "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+        { "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_create_time,
-        { "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         
     { &hf_srvr_param_string,
-	{ "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         
     { &hf_srvr_param_number,
-    { "Set Parameter Value", "ncp.srvr_param_string", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Set Parameter Value", "ncp.srvr_param_string", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_srvr_param_boolean,
-    { "Set Parameter Value", "ncp.srvr_param_boolean", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+    { "Set Parameter Value", "ncp.srvr_param_boolean", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_number_of_items,
-    { "Number of Items", "ncp.ndsitems", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { "Number of Items", "ncp.ndsitems", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ncp_nds_iterverb,
-	{ "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_HEX, NULL /*VALS(iterator_subverbs)*/, 0x0, "", HFILL }},
+	{ "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_HEX, NULL /*VALS(iterator_subverbs)*/, 0x0, NULL, HFILL }},
 
    	{ &hf_iter_completion_code,
-	{ "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_iterobj,
-	{ "Iterator Object", "ncp.ndsiterobj", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iterator Object", "ncp.ndsiterobj", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
    	{ &hf_iter_verb_completion_code,
-	{ "Completion Code", "ncp.iter_verb_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Completion Code", "ncp.iter_verb_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_iter_ans,
-    { "Iterator Answer", "ncp.iter_answer", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+    { "Iterator Answer", "ncp.iter_answer", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_positionable,
-	{ "Positionable", "ncp.iterpositionable", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+	{ "Positionable", "ncp.iterpositionable", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	
     { &hf_num_skipped,
-	{ "Number Skipped", "ncp.iternumskipped", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Number Skipped", "ncp.iternumskipped", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	
     { &hf_num_to_skip,
-	{ "Number to Skip", "ncp.iternumtoskip", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Number to Skip", "ncp.iternumtoskip", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	
     { &hf_timelimit,
-	{ "Time Limit", "ncp.itertimelimit", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Time Limit", "ncp.itertimelimit", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_iter_index,
-	{ "Iterator Index", "ncp.iterindex", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iterator Index", "ncp.iterindex", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_num_to_get,
-	{ "Number to Get", "ncp.iternumtoget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Number to Get", "ncp.iternumtoget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ret_info_type,
-	{ "Return Information Type", "ncp.iterretinfotype", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Return Information Type", "ncp.iterretinfotype", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_data_size,
-	{ "Data Size", "ncp.iterdatasize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Data Size", "ncp.iterdatasize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_this_count,
-	{ "Number of Items", "ncp.itercount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Number of Items", "ncp.itercount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_max_entries,
-	{ "Maximum Entries", "ncp.itermaxentries", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Maximum Entries", "ncp.itermaxentries", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_move_position,
-	{ "Move Position", "ncp.itermoveposition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Move Position", "ncp.itermoveposition", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_iter_copy,
-	{ "Iterator Copy", "ncp.itercopy", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iterator Copy", "ncp.itercopy", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     	
     { &hf_iter_position,
-	{ "Iteration Position", "ncp.iterposition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Iteration Position", "ncp.iterposition", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_iter_search,
-	{ "Search Filter", "ncp.iter_search", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Search Filter", "ncp.iter_search", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_iter_other,
-	{ "Other Iteration", "ncp.iterother", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Other Iteration", "ncp.iterother", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_oid,
-	{ "Object ID", "ncp.nds_oid", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "Object ID", "ncp.nds_oid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     
 
