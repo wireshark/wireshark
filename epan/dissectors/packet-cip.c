@@ -1673,13 +1673,13 @@ proto_register_cip(void)
 		},
 		{ &hf_cip_epath,
 			{ "EPath", "cip.epath",
-			FT_BYTES, BASE_HEX, NULL, 0,
-			"EPath", HFILL }
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
 		},
 		{ &hf_cip_genstat,
 			{ "General Status", "cip.genstat",
 			FT_UINT8, BASE_HEX, VALS(cip_gs_vals), 0,
-			"General Status", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_port,
 			{ "Port", "cip.port",
@@ -1689,72 +1689,72 @@ proto_register_cip(void)
 		{ &hf_cip_link_address_byte,
 			{ "Link Address", "cip.linkaddress",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Link Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_link_address_string,
 			{ "Link Address", "cip.linkaddress",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"Link Address", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_class8,
 			{ "Class", "cip.class",
 			FT_UINT8, BASE_HEX, VALS(cip_class_names_vals), 0,
-			"Class", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_class16,
 			{ "Class", "cip.class",
 			FT_UINT16, BASE_HEX, VALS(cip_class_names_vals), 0,
-			"Class", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_class32,
 			{ "Class", "cip.class",
 			FT_UINT32, BASE_HEX, VALS(cip_class_names_vals), 0,
-			"Class", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_instance8,
 			{ "Instance", "cip.instance",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Instance", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_instance16,
 			{ "Instance", "cip.instance",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Instance", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_instance32,
 			{ "Instance", "cip.instance",
 			FT_UINT32, BASE_HEX, NULL, 0,
-			"Instance", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_attribute8,
 			{ "Attribute", "cip.attribute",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Attribute", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_attribute16,
 			{ "Attribute", "cip.attribute",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Attribute", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_attribute32,
 			{ "Attribute", "cip.attribute",
 			FT_UINT32, BASE_HEX, NULL, 0,
-			"Attribute", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_conpoint8,
 			{ "Connection Point", "cip.connpoint",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Connection Point", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_conpoint16,
 			{ "Connection Point", "cip.connpoint",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Connection Point", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_conpoint32,
 			{ "Connection Point", "cip.connpoint",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Connection Point", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_symbol,
 			{ "Symbol", "cip.symbol",
@@ -1764,12 +1764,12 @@ proto_register_cip(void)
 		{ &hf_cip_vendor,
 			{ "Vendor ID", "cip.vendor",
 			FT_UINT16, BASE_HEX, VALS(cip_vendor_vals), 0,
-			"Vendor ID", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_devtype,
 			{ "Device Type", "cip.devtype",
 			FT_UINT16, BASE_DEC, VALS(cip_devtype_vals), 0,
-			"Device Type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_cip_fwo_comp,
 			{ "Compatibility", "cip.fwo.cmp",
@@ -1824,7 +1824,7 @@ proto_register_cip(void)
 		{ &hf_cip_data,
 			{ "Data", "cip.data",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"Data", HFILL }
+			NULL, HFILL }
 		}
    };
 

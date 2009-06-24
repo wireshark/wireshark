@@ -771,7 +771,7 @@ proto_register_enip(void)
 		},
 		{ &hf_enip_sendercontex,
 			{ "Sender Context", "enip.context",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"Information pertinent to the sender", HFILL }
 		},
 		{ &hf_enip_options,
@@ -814,12 +814,12 @@ proto_register_enip(void)
 		},
       { &hf_enip_lir_sinaddr,
 			{ "sin_addr", "enip.lir.sa.sinaddr",
-			FT_IPv4, BASE_HEX, NULL, 0,
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"ListIdentity Reply: Socket Address.Sin Addr", HFILL }
 		},
       { &hf_enip_lir_sinzero,
 			{ "sin_zero", "enip.lir.sa.sinzero",
-			FT_BYTES, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			"ListIdentity Reply: Socket Address.Sin Zero", HFILL }
 		},
 		{ &hf_enip_lir_vendor,
