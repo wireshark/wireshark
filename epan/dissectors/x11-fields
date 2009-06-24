@@ -47,9 +47,9 @@ arc		NONE	NONE
 arc-mode	UINT8	DEC	VALS	Tell us if we're drawing an arc or a pie
 atom		UINT32	HEX
 authorization-protocol-name-length	UINT16	DEC
-authorization-protocol-name	STRING	HEX
+authorization-protocol-name	STRING	NONE
 authorization-protocol-data-length	UINT16	DEC
-authorization-protocol-data	STRING	HEX
+authorization-protocol-data	STRING	NONE
 auto-repeat-mode	UINT8	DEC	VALS
 
 bitmap-format-bit-order	UINT8	HEX	VALS(image_byte_order)
@@ -339,7 +339,7 @@ new		BOOLEAN	NONE
 number-of-formats-in-pixmap-formats	UINT8	DEC	number of formats in pixmap formats
 number-of-screens-in-roots	UINT8	DEC	number of screens in roots
 
-name		STRING	HEX
+name		STRING	NONE
 name-length	UINT16	DEC
 odd-length	BOOLEAN	NONE
 only-if-exists	BOOLEAN	NONE
@@ -353,7 +353,7 @@ parent		UINT32	HEX
 path	NONE	NONE
 	string			STRING	NONE
 
-pattern		STRING	HEX
+pattern		STRING	NONE
 pattern-length	UINT16	DEC
 percent		UINT8	DEC
 pid		UINT32	HEX
@@ -398,7 +398,7 @@ property-number	UINT16	DEC
 property-state	UINT8	DEC	VALS
 protocol-major-version	UINT16	DEC
 protocol-minor-version	UINT16	DEC
-reason		STRING	HEX	reason
+reason		STRING	NONE	reason
 rectangle-height	UINT16	DEC
 rectangles	NONE	NONE
 rectangle	NONE	NONE
@@ -456,9 +456,9 @@ stack-mode	UINT8	DEC	VALS
 stipple		UINT32	HEX
 stop		UINT32	DEC
 str-number-in-path	UINT16	DEC
-string		STRING	HEX
+string		STRING	NONE
 
-string16	STRING	HEX
+string16	STRING	NONE
 	bytes	BYTES	NONE
 
 string-length	UINT32	DEC
@@ -483,7 +483,7 @@ type		UINT32	HEX
 undecoded	NONE	NONE		Yet undecoded by dissector
 unused		NONE	NONE
 valuelength	UINT32	DEC	valuelength
-vendor		STRING	HEX	vendor
+vendor		STRING	NONE	vendor
 visibility-state UINT8  DEC	VALS
 visual		UINT32	HEX
 visual-blue	UINT16	DEC

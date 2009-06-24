@@ -118,6 +118,8 @@ while(<>) {
     $rest = join(' ', @fields);
     $longName = uc $name;
     $longName = $rest if ($rest);
+    # Don't allow empty blurbs
+    $longName = $longName eq "" ? "NULL" : "\"$longName\"";
 
     $variable = $field;
     $variable =~ s/-/_/go;
@@ -126,6 +128,6 @@ while(<>) {
     print DECL "static int hf_x11_$variable = -1;\n";
 
     print REG <<END;
-{ &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, "$longName", HFILL }},
+{ &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, $longName, HFILL }},
 END
 }
