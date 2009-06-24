@@ -501,6 +501,7 @@ DISSECTOR_SRC = \
 	packet-homeplug.c 	\
 	packet-hpext.c		\
 	packet-hpsw.c		\
+	packet-hpteam.c		\
 	packet-hsrp.c		\
 	packet-http.c		\
 	packet-hyperscsi.c	\

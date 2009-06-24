@@ -37,11 +37,9 @@
 
 
 static int proto_hpteam = -1;
-static dissector_handle_t data_handle;
 
-/* These are the handles of our subdissectors */
-static dissector_handle_t data_handle=NULL;
-static dissector_handle_t hpteam_handle=NULL;
+/* Handle of our "data" subdissector */
+static dissector_handle_t data_handle;
 
 /* Known HP NIC teaming PID values */
 static const value_string hpteam_pid_vals[] = {
@@ -58,9 +56,9 @@ static gint ett_hpteam = -1;
 static void
 dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *hpteam_item = NULL;
-	proto_tree *hpteam_tree = NULL;
-	proto_tree *hpteam_header_tree = NULL;
+	proto_item *hpteam_item;
+	proto_tree *hpteam_tree;
+	proto_tree *hpteam_header_tree;
 	guint32 offset = 0;
 	const char   *strPtr, *HP_Mac;
 	const guint8 *mac_addr;
@@ -87,7 +85,6 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	else {
-		data_handle = find_dissector("data");
 		call_dissector(data_handle, tvb, pinfo, tree);
 	}
 }
@@ -121,12 +118,10 @@ void proto_register_hpteam(void)
 
 void proto_reg_handoff_hpteam(void)
 {
-	static gboolean initialized = FALSE;
-	if (!initialized) {
-		data_handle = find_dissector("data");
-		hpteam_handle = create_dissector_handle(dissect_hpteam, proto_hpteam);
-		/* Register dissector to key off of known PID / OUI combination */
-		dissector_add("llc.hpteam_pid", 0x0002, hpteam_handle);
-		initialized = TRUE;
-	}
+	dissector_handle_t hpteam_handle;
+
+	data_handle   = find_dissector("data");
+	hpteam_handle = find_dissector("hpteam");
+	/* Register dissector to key off of known PID / OUI combination */
+	dissector_add("llc.hpteam_pid", 0x0002, hpteam_handle);
 }
