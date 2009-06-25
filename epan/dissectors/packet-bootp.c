@@ -1814,7 +1814,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		proto_item_append_text(vti, " = %s",
 		    ((time_secs == 0xffffffff) ?
 		      "infinity" :
-		      time_secs_to_str(time_secs)));
+		      time_secs_to_str_unsigned(time_secs)));
 		break;
 
 	default:
