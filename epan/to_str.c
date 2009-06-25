@@ -426,6 +426,61 @@ time_secs_to_str(gint32 time)
   return buf->str;
 }
 
+static void
+time_secs_to_str_buf_unsigned(guint32 time, guint32 frac, gboolean is_nsecs,
+			 emem_strbuf_t *buf)
+{
+  int hours, mins, secs;
+  const gchar *msign = "";
+  gboolean do_comma = FALSE;
+
+  secs = time % 60;
+  time /= 60;
+  mins = time % 60;
+  time /= 60;
+  hours = time % 24;
+  time /= 24;
+
+  if (time != 0) {
+    ep_strbuf_append_printf(buf, "%s%u day%s", msign, time, PLURALIZE(time));
+    do_comma = TRUE;
+  }
+  if (hours != 0) {
+    ep_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
+    do_comma = TRUE;
+  }
+  if (mins != 0) {
+    ep_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
+    do_comma = TRUE;
+  }
+  if (secs != 0 || frac != 0) {
+    if (frac != 0) {
+      if (is_nsecs)
+        ep_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
+      else
+        ep_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
+    } else
+      ep_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
+  }
+}
+
+gchar *
+time_secs_to_str_unsigned(guint32 time)
+{
+  emem_strbuf_t *buf;
+
+  buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+
+  if (time == 0) {
+    ep_strbuf_append(buf, "0 time");
+    return buf->str;
+  }
+
+  time_secs_to_str_buf_unsigned(time, 0, FALSE, buf);
+  return buf->str;
+}
+
+
 gchar *
 time_msecs_to_str(gint32 time)
 {
