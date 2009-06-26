@@ -2502,7 +2502,7 @@ Example: (from the SCSI dissector)
            VALS (scsi_qualifier_val), 0xE0, NULL, HFILL}},
         { &hf_scsi_inq_devtype,
           {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
-           VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
+           VALS (scsi_devtype_val), SCSI_DEV_BITS, NULL, HFILL}},
 	...
 
 Which provides very pretty dissection of this one byte bitmask.
