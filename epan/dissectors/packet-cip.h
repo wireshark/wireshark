@@ -8,8 +8,6 @@
  *
  * Added support for Connection Configuration Object
  *   ryan wamsley * Copyright 2007
- * Added Additional Status text in Forward Open Response
- *   ryan wamsley * Copyright 2008
  *
  * $Id$
  *
@@ -53,19 +51,19 @@
 #define SC_GET_MEMBER            0x18
 #define SC_SET_MEMBER            0x19
 /* Class specific services */
-#define SC_FWD_CLOSE             0x4E
-#define SC_UNCON_SEND            0x52
-#define SC_FWD_OPEN              0x54
+/* Connection Manager */
+#define SC_CM_FWD_CLOSE             0x4E
+#define SC_CM_UNCON_SEND            0x52
+#define SC_CM_FWD_OPEN              0x54
 /* Connection Configuration Object services */
-#define SC_KICK_TIMER            0x4B
-#define SC_OPEN_CONN             0x4C
-#define SC_CLOSE_CONN            0x4D
-#define SC_STOP_CONN             0x4E  /* collision with SC_FWD_CLOSE */
-#define SC_CHANGE_START          0x4F
-#define SC_GET_STATUS            0x50
-#define SC_CHANGE_COMPLETE       0x51
-#define SC_AUDIT_CHANGE          0x52  /* collision with SC_UNCON_SEND */
-
+#define SC_CCO_KICK_TIMER            0x4B
+#define SC_CCO_OPEN_CONN             0x4C
+#define SC_CCO_CLOSE_CONN            0x4D
+#define SC_CCO_STOP_CONN             0x4E
+#define SC_CCO_CHANGE_START          0x4F
+#define SC_CCO_GET_STATUS            0x50
+#define SC_CCO_CHANGE_COMPLETE       0x51
+#define SC_CCO_AUDIT_CHANGE          0x52
 
 /* CIP Genral status codes */
 #define CI_GRC_SUCCESS              0x00
@@ -111,47 +109,6 @@
 
 #define CI_GRC_STILL_PROCESSING     0xFF
 
-/* Extended Status Error Codes */
-#define CI_SREC_CONNECTION_IN_USE      0x0100
-#define CI_SREC_TCLASS_TRIGGER_ERR     0x0103
-#define CI_SREC_OWNERSHIP_CONFLICT     0x0106
-#define CI_SREC_CONN_NOT_FOUND         0x0107
-#define CI_SREC_INVALID_CONN_TYPE      0x0108
-#define CI_SREC_INVALID_CONN_SIZE      0x0109
-#define CI_SREC_DEV_NOT_CONFIGURED     0x0110
-#define CI_SREC_UNSUPPORTED_RPI        0x0111
-#define CI_SREC_NO_MORE_CONNS          0x0113
-#define CI_SREC_VEN_OR_PCODE_MISMATCH  0x0114
-#define CI_SREC_PRODTYPE_MISMATCH      0x0115
-#define CI_SREC_REVISION_MISMATCH      0x0116
-#define CI_SREC_BAD_CONN_POINT         0x0117
-#define CI_SREC_INVAL_CONFIG_FRMT      0x0118
-#define CI_SREC_NO_CONTROL_CONN        0x0119
-#define CI_SREC_NO_MORE_CONN_SUPPORT   0x011A
-#define CI_SREC_RPI_SMALLERTHAN_PIT    0x011B
-#define CI_SREC_CONN_ALREADY_CLOSED    0x0203
-#define CI_SREC_UNCONN_SND_TIMEOUT     0x0204
-#define CI_SREC_UNCONN_PARM_ERR        0x0205
-#define CI_SREC_UCONN_TOO_LARGE        0x0206
-#define CI_SREC_UCONN_ACK_NO_REP       0x0207
-#define CI_SREC_NO_MEMORY              0x0301
-#define CI_SREC_NO_NET_BANDWIDTH       0x0302
-#define CI_SREC_NO_SCREENERS           0x0303
-#define CI_SREC_NO_REALTIME_CONFIG     0x0304
-#define CI_SREC_INVALID_PORT           0x0311
-#define CI_SREC_LINKADDR_NOT_AVAIL     0x0312
-#define CI_SREC_INVALID_SEGMENT_TYP    0x0315
-#define CI_SREC_CLOSE_PATH_ERR         0x0316
-#define CI_SREC_NO_SCHED               0x0317
-#define CI_SREC_INVALID_LINK_ADDR      0x0318
-#define CI_SREC_UNAVAIL_RESOURCE       0x0319
-#define CI_SREC_CONN_ALREADY_ESTAB     0x031A
-#define CI_SREC_DCONN_ALREADY_ESTAB    0x031B
-#define CI_SREC_MISC                   0x031C
-#define CI_SREC_REDUNDANT_MISMATCH     0x031D
-#define CI_SREC_NO_CONSUME_RESRC       0x031E
-#define CI_SREC_NO_CONN_RESRC          0x031F
-
 
 /* IOI Path types */
 #define CI_SEGMENT_TYPE_MASK        0xE0
@@ -191,7 +148,7 @@
 
 /* Device Profile:s */
 #define DP_GEN_DEV                           0x00
-#define DP_AC_DRIVE	                        0x02
+#define DP_AC_DRIVE                          0x02
 #define DP_MOTOR_OVERLOAD                    0x03
 #define DP_LIMIT_SWITCH                      0x04
 #define DP_IND_PROX_SWITCH                   0x05
@@ -1005,8 +962,8 @@
    { 899,   "Practicon Ltd" }, \
    { 900,   "Schunk GmbH & Co. KG" }, \
    { 902,   "Defontaine Groupe" }, \
-   { 903,   "Emerson Process Management Power & Water Solutions" },
-
+   { 903,   "Emerson Process Management Power & Water Solutions" }, \
+   { 981,   "Siempelkamp Maschinen- und Anlagenbau GmbH & Co. KG" },
 
 /*
 ** Exported variables
