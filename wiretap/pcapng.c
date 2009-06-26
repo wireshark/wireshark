@@ -42,7 +42,7 @@
 #include "libpcap.h"
 #include "pcap-common.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -654,7 +654,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
 
 static int 
-pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_, gboolean enhanced)
+pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_, gboolean enhanced)
 {
 	int bytes_read;
 	int block_read;
@@ -719,6 +719,18 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 	}
 
+	if (wblock->data.packet.cap_len > wblock->data.packet.packet_len) {
+		pcapng_debug2("pcapng_read_packet_block:cap_len %d is larger than packet_len %u.",
+		              wblock->data.packet.cap_len, wblock->data.packet.packet_len);
+		*err = WTAP_ERR_BAD_RECORD;
+		return 0;
+	}
+	if (wblock->data.packet.cap_len > WTAP_MAX_PACKET_SIZE) {
+		pcapng_debug2("pcapng_read_packet_block:cap_len %d is larger than WTAP_MAX_PACKET_SIZE %u.",
+		              wblock->data.packet.cap_len, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return 0;
+	}
 	pcapng_debug3("pcapng_read_packet_block: packet data: packet_len %u captured_len %u interface_id %u",
 	              wblock->data.packet.packet_len,
 	              wblock->data.packet.cap_len,
@@ -728,6 +740,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* (or even better share the code with libpcap.c) */
 
 	/* Ethernet FCS length, might be overwritten by "per packet" options */
+	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 	((union wtap_pseudo_header *) wblock->pseudo_header)->eth.fcs_len = pn->if_fcslen;
 
 	/* "(Enhanced) Packet Block" read capture data */
@@ -739,7 +752,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			      wblock->data.packet.cap_len);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return 0;
 	}
 	block_read += bytes_read;
 
@@ -852,13 +865,20 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 					     - (guint32)sizeof(pcapng_simple_packet_block_t) 
 					     - (guint32)sizeof(bh->block_total_length);
 
-	/*g_pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
-			  wblock->data.simple_packet.packet_len);*/
+	if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
+		pcapng_debug2("pcapng_read_simple_packet_block:cap_len %d is larger than WTAP_MAX_PACKET_SIZE %u.",
+		              wblock->data.simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return 0;
+	}
+	pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
+	               wblock->data.simple_packet.packet_len);
 
 	/* XXX - implement other linktypes then Ethernet */
 	/* (or even better share the code with libpcap.c) */
 
 	/* Ethernet FCS length, might be overwritten by "per packet" options */
+	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 	((union wtap_pseudo_header *) wblock->pseudo_header)->eth.fcs_len = pn->if_fcslen;
 
 	/* "Simple Packet Block" read capture data */
@@ -870,12 +890,12 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 			      wblock->data.simple_packet.cap_len);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return 0;
 	}
 	block_read += bytes_read;
 
 	/* jump over potential padding bytes at end of the packet data */
-	if( (wblock->data.simple_packet.cap_len % 4) != 0) {
+	if ((wblock->data.simple_packet.cap_len % 4) != 0) {
 		file_offset64 = file_seek(fh, 4 - (wblock->data.simple_packet.cap_len % 4), SEEK_CUR, err);
 		if (file_offset64 <= 0) {
 			if (*err != 0)
@@ -1004,7 +1024,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 
 	/* add padding bytes to "block total length" */
 	/* (the "block total length" of some example files don't contain any padding bytes!) */
-	if(bh->block_total_length % 4) {
+	if (bh->block_total_length % 4) {
 		block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
 	} else {
 		block_total_length = bh->block_total_length;
@@ -1078,7 +1098,7 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 			bytes_read = pcapng_read_unknown_block(fh, &bh, pn, wblock, err, err_info);
 	}
 
-	if(bytes_read <= 0) {
+	if (bytes_read <= 0) {
 		return bytes_read;
 	}
 	block_read += bytes_read;
@@ -1089,14 +1109,16 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 	if (bytes_read != sizeof block_total_length) {
 		pcapng_debug0("pcapng_read_block: couldn't read second block length");
 		*err = file_error(fh);
+		if (*err != 0)
+			return -1;
 		return 0;
 	}
 	block_read += bytes_read;
 
-	if(pn->byte_swapped)
+	if (pn->byte_swapped)
 		block_total_length = BSWAP32(block_total_length);
 
-	if( !(block_total_length == bh.block_total_length) ) {
+	if (!(block_total_length == bh.block_total_length)) {
 		pcapng_debug2("pcapng_read_block: total block lengths (first %u and second %u) don't match", 
 			      bh.block_total_length, block_total_length);
 		return 0;
@@ -1127,18 +1149,16 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wblock.frame_buffer = NULL;
 	wblock.pseudo_header = NULL;
 
-
 	pcapng_debug0("pcapng_open: opening file");
 	/* read first block */
 	bytes_read = pcapng_read_block(wth->fh, &pn, &wblock, err, err_info);
 	if (bytes_read <= 0) {
-		*err = file_error(wth->fh);
 		pcapng_debug0("pcapng_open_new: couldn't read first SHB");
+		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-
 	wth->data_offset += bytes_read;
 
 	/* first block must be a "Section Header Block" */
@@ -1179,8 +1199,14 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	*data_offset = wth->data_offset;
 	pcapng_debug1("pcapng_read: *data_offset is initially set to %" G_GINT64_MODIFIER "u", *data_offset);
 
-	/* XXX - this probably won't work well with unlimited / per packet snapshot length */
-	buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+	/* XXX - This should be done in the packet block reading function and
+	 * should make use of the caplen of the packet.
+	 */
+	if (wth->snapshot_length > 0) {
+		buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+	} else {
+		buffer_assure_space(wth->frame_buffer, WTAP_MAX_PACKET_SIZE);
+	}
 
 	wblock.frame_buffer = buffer_start_ptr(wth->frame_buffer);
 	wblock.pseudo_header = &wth->pseudo_header;
@@ -1189,11 +1215,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	while (1) {
 		bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
-			*err = file_error(wth->fh);
-			/*pcapng_debug0("pcapng_read: couldn't read packet block");*/
-			if (*err != 0)
-				return -1;
-			return 0;
+			pcapng_debug0("pcapng_read: couldn't read packet block");
+			return FALSE;
 		}
 
 		/* block must be a "Packet Block" or an "Enhanced Packet Block" -> otherwise continue */
@@ -1226,6 +1249,9 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	} else {
 		pcapng_debug1("pcapng_read: interface_id %d too large", wblock.data.packet.interface_id);
 		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng: interface index %u is too large", wblock.data.packet.interface_id);
+		return FALSE;
 	}
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
@@ -1509,7 +1535,7 @@ pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, i
 
 static gboolean pcapng_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
+	const union wtap_pseudo_header *pseudo_header,
 	const guchar *pd, int *err)
 {
 	wtapng_block_t wblock;
