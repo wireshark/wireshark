@@ -42,7 +42,7 @@
 #include "libpcap.h"
 #include "pcap-common.h"
 
-#if 1
+#if 0
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
