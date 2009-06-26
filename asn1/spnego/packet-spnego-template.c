@@ -719,7 +719,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 		memcpy(outdata, output, tvb_length(tvb));
 		g_free(output);
 
-		pinfo->gssapi_decrypted_tvb=tvb_child_new_real_data(tvb,
+		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 			outdata,
 			datalen-16,
 			datalen-16);
