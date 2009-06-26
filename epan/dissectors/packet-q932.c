@@ -936,7 +936,7 @@ void proto_register_q932(void) {
         "q932.SubaddressInformation", HFILL }},
     { &hf_q932_oddCountIndicator,
       { "oddCountIndicator", "q932.oddCountIndicator",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "q932.BOOLEAN", HFILL }},
     { &hf_q932_sourceEntity,
       { "sourceEntity", "q932.sourceEntity",

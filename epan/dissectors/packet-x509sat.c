@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -1826,7 +1826,7 @@ void proto_register_x509sat(void) {
         "x509sat.Integer", HFILL }},
     { &hf_x509sat_Boolean_PDU,
       { "Boolean", "x509sat.Boolean",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "x509sat.Boolean", HFILL }},
     { &hf_x509sat_SyntaxGeneralizedTime_PDU,
       { "SyntaxGeneralizedTime", "x509sat.SyntaxGeneralizedTime",
@@ -2090,7 +2090,7 @@ void proto_register_x509sat(void) {
         "x509sat.Period", HFILL }},
     { &hf_x509sat_notThisTime,
       { "notThisTime", "x509sat.notThisTime",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "x509sat.BOOLEAN", HFILL }},
     { &hf_x509sat_timeZone,
       { "timeZone", "x509sat.timeZone",
@@ -2234,7 +2234,7 @@ void proto_register_x509sat(void) {
         "x509sat.T_between", HFILL }},
     { &hf_x509sat_entirely,
       { "entirely", "x509sat.entirely",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "x509sat.BOOLEAN", HFILL }},
     { &hf_x509sat_localeID1,
       { "localeID1", "x509sat.localeID1",

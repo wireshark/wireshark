@@ -674,7 +674,7 @@ void proto_register_h283(void) {
         "h283.INTEGER_0_65535", HFILL }},
     { &hf_h283_reliable,
       { "reliable", "h283.reliable",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h283.BOOLEAN", HFILL }},
     { &hf_h283_dataType,
       { "dataType", "h283.dataType",

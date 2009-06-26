@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p7.c                                                                */
-/* ../../tools/asn2wrs.py -b -e -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p p7 -c ./p7.cnf -s ./packet-p7-template -D . MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
 
 /* Input file: packet-p7-template.c */
 
@@ -4427,7 +4427,7 @@ void proto_register_p7(void) {
         "p7.Restrictions", HFILL }},
     { &hf_p7_ms_configuration_request,
       { "ms-configuration-request", "p7.ms_configuration_request",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_ua_registration_identifier,
       { "ua-registration-identifier", "p7.ua_registration_identifier",
@@ -4479,7 +4479,7 @@ void proto_register_p7(void) {
         "p7.AttributeType", HFILL }},
     { &hf_p7_alert_indication,
       { "alert-indication", "p7.alert_indication",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_content_types_supported,
       { "content-types-supported", "p7.content_types_supported",
@@ -4527,7 +4527,7 @@ void proto_register_p7(void) {
         "p7.OBJECT_IDENTIFIER", HFILL }},
     { &hf_p7_ua_registration_id_unknown,
       { "ua-registration-id-unknown", "p7.ua_registration_id_unknown",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_service_information,
       { "service-information", "p7.service_information",
@@ -4683,7 +4683,7 @@ void proto_register_p7(void) {
         "p7.T_attribute_value", HFILL }},
     { &hf_p7_child_entries,
       { "child-entries", "p7.child_entries",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_range,
       { "range", "p7.range",
@@ -4743,7 +4743,7 @@ void proto_register_p7(void) {
         "p7.EntryClass", HFILL }},
     { &hf_p7_disable_auto_modify,
       { "disable-auto-modify", "p7.disable_auto_modify",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_add_message_group_names,
       { "add-message-group-names", "p7.add_message_group_names",
@@ -5071,11 +5071,11 @@ void proto_register_p7(void) {
         "p7.MessageGroupName", HFILL }},
     { &hf_p7_immediate_descendants_only,
       { "immediate-descendants-only", "p7.immediate_descendants_only",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_omit_descriptors,
       { "omit-descriptors", "p7.omit_descriptors",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_algorithm_identifier,
       { "algorithm-identifier", "p7.algorithm_identifier",
@@ -5159,7 +5159,7 @@ void proto_register_p7(void) {
         "p7.MSExtensions", HFILL }},
     { &hf_p7_strict,
       { "strict", "p7.strict",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "p7.BOOLEAN", HFILL }},
     { &hf_p7_modification,
       { "modification", "p7.modification",

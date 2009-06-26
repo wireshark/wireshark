@@ -1059,7 +1059,7 @@ void proto_register_x509af(void) {
         "x509af.T_extnId", HFILL }},
     { &hf_x509af_critical,
       { "critical", "x509af.critical",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "x509af.BOOLEAN", HFILL }},
     { &hf_x509af_extnValue,
       { "extnValue", "x509af.extnValue",

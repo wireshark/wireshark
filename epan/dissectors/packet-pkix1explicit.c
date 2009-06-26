@@ -870,7 +870,7 @@ void proto_register_pkix1explicit(void) {
         "pkix1explicit.T_extnId", HFILL }},
     { &hf_pkix1explicit_critical,
       { "critical", "pkix1explicit.critical",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "pkix1explicit.BOOLEAN", HFILL }},
     { &hf_pkix1explicit_extnValue,
       { "extnValue", "pkix1explicit.extnValue",

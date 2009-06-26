@@ -1111,7 +1111,7 @@ void proto_register_crmf(void) {
         "crmf.KeyGenParameters", HFILL }},
     { &hf_crmf_archiveRemGenPrivKey,
       { "archiveRemGenPrivKey", "crmf.archiveRemGenPrivKey",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "crmf.BOOLEAN", HFILL }},
     { &hf_crmf_encryptedValue,
       { "encryptedValue", "crmf.encryptedValue",
