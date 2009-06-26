@@ -6,6 +6,7 @@
 
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
+	<!ENTITY eap SYSTEM "eap.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
 	<!ENTITY chargecontrol SYSTEM "chargecontrol.xml">
 	<!ENTITY sunping SYSTEM "sunping.xml">
@@ -1338,6 +1339,11 @@ http://www.iana.org/assignments/radius-types
 <!-- AVP:s 349-362        Unassigned -->
 <!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
 <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
+<!-- 462 EAP-Payload [RFC4072] 
+     463 EAP-Reissued-Payload [RFC4072] 
+     464 EAP-Master-Session-Key [RFC4072] 
+     465 Accounting-EAP-Auth-Method [RFC4072] 
+-->
 <!-- 466-479    Unallocated -->
 		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
@@ -3639,6 +3645,7 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
     <command name="3GPP-ME-Identity-Check" code="324" vendor-id="None"/> <!--[3GPP TS 29.272][RFC5516] -->
   </application>
   &nasreq;
+  &eap;
 	&mobileipv4;
 	&chargecontrol;
 	&sunping;

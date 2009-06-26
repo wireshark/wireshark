@@ -72,6 +72,7 @@ diameter_DATA = \
 	diameter/chargecontrol.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
+	diameter/eap.xml \
 	diameter/Ericsson.xml \
 	diameter/etsie2e4.xml \
 	diameter/gqpolicy.xml \
