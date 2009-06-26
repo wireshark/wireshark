@@ -2854,10 +2854,6 @@ Nick Lewis		<nick.lewis [AT] atltelecom.com> {
 	Show timestamp problems in RTP player
 }
 
-Benjamin Tse		<benjamin_tse [AT] agilent.com> {
-	Overlapped pipe I/O for dumpcap under Windows
-}
-
 Fred Fierling		<fff [AT] exegin.com> {
 	Daintree's Sensor Network Analyzer file support
 }
