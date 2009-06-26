@@ -81,6 +81,8 @@ column_prefs_show(GtkWidget *prefs_window) {
     GtkTreeIter        first_iter;
     gint               first_row = TRUE;
 
+    GtkTooltips   *tooltips = gtk_tooltips_new();
+
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -108,6 +110,8 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
     gtk_tree_view_set_reorderable(GTK_TREE_VIEW(column_l), TRUE);
+    gtk_tooltips_set_tip (tooltips, column_l, 
+        "Click on a title to change its name.\nDrag an item to change its order.", NULL);
 
     renderer = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer), "editable", TRUE, NULL);
