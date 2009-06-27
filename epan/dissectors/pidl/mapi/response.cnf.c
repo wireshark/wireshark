@@ -8,7 +8,7 @@ MANUAL mapi_dissect_element_EcDoRpc_response__
 NOEMIT response
 ETT_FIELD ett_mapi_mapi_response
 MANUAL mapi_dissect_struct_response
-HF_FIELD hf_mapi_mapi_response_mapi_repl "Mapi Repl" "mapi.mapi_response.mapi_repl" FT_NONE BASE_HEX NULL 0 "" HFILL
+HF_FIELD hf_mapi_mapi_response_mapi_repl "Mapi Repl" "mapi.mapi_response.mapi_repl" FT_NONE BASE_NONE NULL 0 "" HFILL
 
 #
 # EcDoRpc_MAPI_REPL

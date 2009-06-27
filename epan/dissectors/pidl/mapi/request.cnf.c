@@ -8,7 +8,7 @@ MANUAL mapi_dissect_element_EcDoRpc_request__
 NOEMIT request
 ETT_FIELD ett_mapi_mapi_request
 MANUAL mapi_dissect_struct_request
-HF_FIELD hf_mapi_mapi_request_mapi_req "Mapi Req" "mapi.mapi_request.mapi_req" FT_NONE BASE_HEX NULL 0 "" HFILL
+HF_FIELD hf_mapi_mapi_request_mapi_req "Mapi Req" "mapi.mapi_request.mapi_req" FT_NONE BASE_NONE NULL 0 "" HFILL
 
 #
 # EcDoRpc_MAPI_REQ

@@ -27,7 +27,7 @@ HF_FIELD hf_mapi_MAPI_OPNUM "Opnum" "mapi.EcDoRpc_MAPI_REQ.opnum" FT_UINT8 BASE_
 HF_RENAME hf_mapi_EcDoRpc_MAPI_REQ_opnum hf_mapi_MAPI_OPNUM
 
 HF_FIELD hf_mapi_pdu_len "Length" "mapi.pdu.len" FT_UINT16 BASE_HEX NULL 0x0 "Size of the command PDU" HFILL
-HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_HEX NULL 0x0 "Decrypted data" HFILL
+HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_NONE NULL 0 "" ""
 
 NOEMIT SBinary_short
 NOEMIT MV_LONG_STRUCT

@@ -102,9 +102,9 @@ proto_register_drsuapi(void)
 {
         static hf_register_info hf[] = {
         { &hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn,
-          { "nc_dn", "drsuapi.DsReplicaSyncRequest1Info.nc_dn", FT_STRING, BASE_DEC,
+          { "nc_dn", "drsuapi.DsReplicaSyncRequest1Info.nc_dn", FT_STRING, BASE_NONE,
           NULL, 0,
-         "", HFILL }},
+         NULL, HFILL }},
 
 ETH_HFARR
 	};

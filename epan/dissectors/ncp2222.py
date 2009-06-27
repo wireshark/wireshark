@@ -894,7 +894,7 @@ class boolean32(uint32):
 	ftype	= "FT_BOOLEAN"
 
 class nstring:
-	pass
+	disp	= "BASE_NONE"
 
 class nstring8(Type, nstring):
 	"""A string of up to (2^8)-1 characters. The first byte
@@ -927,6 +927,7 @@ class fw_string(Type):
 	"""A fixed-width string of n bytes."""
 
 	type	= "fw_string"
+	disp	= "BASE_NONE"
 	ftype	= "FT_STRING"
 
 	def __init__(self, abbrev, descr, bytes):
@@ -937,6 +938,7 @@ class stringz(Type):
 	"NUL-terminated string, with a maximum length"
 
 	type	= "stringz"
+	disp	= "BASE_NONE"
 	ftype	= "FT_STRINGZ"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, PROTO_LENGTH_UNKNOWN)
@@ -994,13 +996,14 @@ class val_string32(val_string):
 
 class bytes(Type):
 	type	= 'bytes'
+	disp	= "BASE_NONE"
 	ftype	= 'FT_BYTES'
 
 	def __init__(self, abbrev, descr, bytes):
 		Type.__init__(self, abbrev, descr, bytes, NA)
 
 class nbytes:
-	pass
+	disp	= "BASE_NONE"
 
 class nbytes8(Type, nbytes):
 	"""A series of up to (2^8)-1 bytes. The first byte
@@ -1070,7 +1073,7 @@ class bf_val_str32(bf_val_str, val_string32):
 	bytes	= 4
 
 class bf_boolean:
-    pass
+	disp	= "BASE_NONE"
 
 class bf_boolean8(bf_uint, boolean8, bf_boolean):
 	type	= "bf_boolean8"
@@ -8262,7 +8265,7 @@ proto_register_ncp2222(void)
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
 		print "\t{ &%s," % (var.HFName())
-		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
+		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, NULL, HFILL }},\n" % \
 			(var.Description(), var.DFilter(),
 			var.WiresharkFType(), var.Display(), var.ValuesName(),
 			var.Mask())

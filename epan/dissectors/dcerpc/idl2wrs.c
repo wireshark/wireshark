@@ -65,6 +65,7 @@ TODO
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 FILE *fh, *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
 char *uuid=NULL;
@@ -75,13 +76,15 @@ char hf_status[256];
 int lineno,linepos;
 char line[1024];
 
-
-#define FPRINTF(fh, ...) \
-	{\
-		fprintf(stderr, __VA_ARGS__ );\
-		if(fh)fprintf(fh, __VA_ARGS__ );\
-	}
-
+void FPRINTF(FILE *fh, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vfprintf (stderr, format, args);
+	if (fh)
+		vfprintf (fh, format, args);
+	va_end(args);
+}
 
 typedef struct _pointer_item_t {
 	struct _pointer_item_t *next;
@@ -323,7 +326,10 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 	FPRINTF(eth_hfarr, "        { &%s,\n", hf_name);
 	FPRINTF(eth_hfarr, "          { \"%s\", \"%s\", %s, %s,\n", title, filter_name, ft_type, base_type);
 	FPRINTF(eth_hfarr, "          %s, %s,\n", valsstring, mask);
-	FPRINTF(eth_hfarr, "         \"%s\", HFILL }},\n", blurb);
+	if (strlen(blurb) > 0)
+		FPRINTF(eth_hfarr, "         \"%s\", HFILL }},\n", blurb);
+	else
+		FPRINTF(eth_hfarr, "         NULL, HFILL }},\n");
 	FPRINTF(eth_hfarr, "\n");
 
 	return hf_name;
@@ -1112,7 +1118,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("unistr", dissectorname, "FT_STRING", "BASE_DEC", "0", "NULL", 4);
+			tmptype=register_new_type("unistr", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"ascstr")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1124,7 +1130,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("ascstr", dissectorname, "FT_STRING", "BASE_DEC", "0", "NULL", 4);
+			tmptype=register_new_type("ascstr", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"GUID")
 			||!strcmp(name,"uuid_t")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
@@ -1262,7 +1268,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("time_t", dissectorname, "FT_ABSOLUTE_TIME", "BASE_DEC", "0", "NULL", 4);
+			tmptype=register_new_type("time_t", dissectorname, "FT_ABSOLUTE_TIME", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"SID")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1278,7 +1284,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("SID", dissectorname, "FT_STRING", "BASE_DEC", "0", "NULL", 4);
+			tmptype=register_new_type("SID", dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"WERROR")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
