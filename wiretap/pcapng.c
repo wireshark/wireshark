@@ -199,6 +199,7 @@ typedef struct wtapng_packet_s {
 	/* pack_hash */
 
 	guint32 			pseudo_header_len;
+	int				wtap_encap;
 	/* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_packet_t;
 
@@ -208,6 +209,7 @@ typedef struct wtapng_simple_packet_s {
 	guint32				cap_len;        /* data length in the file */
 	guint32				packet_len;     /* data length on the wire */
 	guint32 			pseudo_header_len;
+	int				wtap_encap;
 	/* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_simple_packet_t;
 
@@ -252,8 +254,9 @@ typedef struct wtapng_block_s {
 
 	/* XXX - currently don't know how to handle these! */
 	const union wtap_pseudo_header *pseudo_header;
+	struct wtap_pkthdr *packet_header;
 	const guchar *frame_buffer;
-	int encap;
+	int *file_encap;
 } wtapng_block_t;
 
 typedef struct interface_data_s {
@@ -483,7 +486,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
 /* "Interface Description Block" */
 static int
-pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
+pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			   wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	guint64 time_units_per_second;
@@ -667,11 +670,11 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcap
 	}
 
 	encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
-	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
-		wth->file_encap = encap;
+	if (*wblock->file_encap == WTAP_ENCAP_UNKNOWN) {
+		*wblock->file_encap = encap;
 	} else {
-		if (wth->file_encap != encap) {
-			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		if (*wblock->file_encap != encap) {
+			*wblock->file_encap = WTAP_ENCAP_PER_PACKET;
 		}
 	}
 
@@ -684,7 +687,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcap
 
 
 static int 
-pcapng_read_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_, gboolean enhanced)
+pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_, gboolean enhanced)
 {
 	int bytes_read;
 	int block_read;
@@ -779,7 +782,7 @@ pcapng_read_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng
 	                                               pn->byte_swapped,
 	                                               wblock->data.packet.cap_len,
 	                                               TRUE,
-	                                               &wth->phdr,
+	                                               wblock->packet_header,
 	                                               (union wtap_pseudo_header *)wblock->pseudo_header,
 	                                               err,
 	                                               err_info);
@@ -887,7 +890,7 @@ pcapng_read_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng
 
 
 static int 
-pcapng_read_simple_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
+pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	int bytes_read;
 	int block_read;
@@ -937,7 +940,7 @@ pcapng_read_simple_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 	                                               pn->byte_swapped,
 	                                               wblock->data.simple_packet.cap_len,
 	                                               TRUE,
-	                                               &wth->phdr,
+	                                               wblock->packet_header,
 	                                               (union wtap_pseudo_header *)wblock->pseudo_header,
 	                                               err,
 	                                               err_info);
@@ -1120,9 +1123,9 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 	return block_read;
 }
 
-/* XXX Can we get rid of wth again? */
+
 static int 
-pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
+pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
 	int block_read;
 	int bytes_read;
@@ -1156,16 +1159,16 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
 			bytes_read = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
 			break;
 		case(BLOCK_TYPE_IDB):
-			bytes_read = pcapng_read_if_descr_block(wth, fh, &bh, pn, wblock, err, err_info);
+			bytes_read = pcapng_read_if_descr_block(fh, &bh, pn, wblock, err, err_info);
 			break;
 		case(BLOCK_TYPE_PB):
-			bytes_read = pcapng_read_packet_block(wth, fh, &bh, pn, wblock, err, err_info, FALSE);
+			bytes_read = pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info, FALSE);
 			break;
 		case(BLOCK_TYPE_SPB):
-			bytes_read = pcapng_read_simple_packet_block(wth, fh, &bh, pn, wblock, err, err_info);
+			bytes_read = pcapng_read_simple_packet_block(fh, &bh, pn, wblock, err, err_info);
 			break;
 		case(BLOCK_TYPE_EPB):
-			bytes_read = pcapng_read_packet_block(wth, fh, &bh, pn, wblock, err, err_info, TRUE);
+			bytes_read = pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info, TRUE);
 			break;
 		case(BLOCK_TYPE_ISB):
 			bytes_read = pcapng_read_interface_statistics_block(fh, &bh, pn, wblock, err, err_info);
@@ -1225,10 +1228,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	/* we don't expect any packet blocks yet */
 	wblock.frame_buffer = NULL;
 	wblock.pseudo_header = NULL;
+	wblock.packet_header = NULL;
+	wblock.file_encap = &wth->file_encap;
 
 	pcapng_debug0("pcapng_open: opening file");
 	/* read first block */
-	bytes_read = pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info);
+	bytes_read = pcapng_read_block(wth->fh, &pn, &wblock, err, err_info);
 	if (bytes_read <= 0) {
 		pcapng_debug0("pcapng_open: couldn't read first SHB");
 		*err = file_error(wth->fh);
@@ -1285,12 +1290,14 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		buffer_assure_space(wth->frame_buffer, WTAP_MAX_PACKET_SIZE);
 	}
 
-	wblock.frame_buffer = buffer_start_ptr(wth->frame_buffer);
+	wblock.frame_buffer  = buffer_start_ptr(wth->frame_buffer);
 	wblock.pseudo_header = &wth->pseudo_header;
+	wblock.packet_header = &wth->phdr;
+	wblock.file_encap    = &wth->file_encap;
 
 	/* read next block */
 	while (1) {
-		bytes_read = pcapng_read_block(wth, wth->fh, wth->capture.pcapng, &wblock, err, err_info);
+		bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read: couldn't read packet block");
 			return FALSE;
@@ -1359,9 +1366,11 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 
 	wblock.frame_buffer = pd;
 	wblock.pseudo_header = pseudo_header;
+	wblock.packet_header = &wth->phdr;
+	wblock.file_encap = &wth->file_encap;
 
 	/* read the block */
-	bytes_read = pcapng_read_block(wth, wth->random_fh, wth->capture.pcapng, &wblock, err, err_info);
+	bytes_read = pcapng_read_block(wth->random_fh, wth->capture.pcapng, &wblock, err, err_info);
 	if (bytes_read <= 0) {
 		*err = file_error(wth->fh);
 		pcapng_debug0("pcapng_seek_read: couldn't read packet block");
@@ -1522,7 +1531,7 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	guint32 pad_len;
 	guint32 phdr_len;
 	
-	phdr_len = (guint32)pcap_get_phdr_size(wblock->encap, wblock->pseudo_header);
+	phdr_len = (guint32)pcap_get_phdr_size(wblock->data.packet.wtap_encap, wblock->pseudo_header);
 	if ((phdr_len + wblock->data.packet.cap_len) % 4) {
 		pad_len = 4 - ((phdr_len + wblock->data.packet.cap_len) % 4);
 	} else {
@@ -1561,7 +1570,7 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	wdh->bytes_dumped += sizeof epb;
 
 	/* write pseudo header */
-	if (!pcap_write_phdr(wdh, wblock->encap, wblock->pseudo_header, err)) {
+	if (!pcap_write_phdr(wdh, wblock->data.packet.wtap_encap, wblock->pseudo_header, err)) {
 		return FALSE;
 	}
 	wdh->bytes_dumped += phdr_len;
@@ -1660,8 +1669,10 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	interface_id = pcapng_lookup_interface_id_by_encap(phdr->pkt_encap, wdh);
 	if (interface_id == G_MAXUINT32) {
 		/* write the interface description block */
-		wblock.frame_buffer = NULL;
-		wblock.pseudo_header = NULL;
+		wblock.frame_buffer            = NULL;
+		wblock.pseudo_header           = NULL;
+		wblock.packet_header           = NULL;
+		wblock.file_encap              = NULL;
 		wblock.type                    = BLOCK_TYPE_IDB;
 		wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
 		wblock.data.if_descr.snap_len  = wdh->snaplen; /* XXX */
@@ -1690,7 +1701,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
 	wblock.frame_buffer  = pd;
 	wblock.pseudo_header = pseudo_header;
-	wblock.encap         = phdr->pkt_encap;
+	wblock.packet_header = NULL;
+	wblock.file_encap    = NULL;
 
 	/* write the (enhanced) packet block */
 	wblock.type = BLOCK_TYPE_EPB;
@@ -1705,7 +1717,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	wblock.data.packet.cap_len      = phdr->caplen;
 	wblock.data.packet.packet_len   = phdr->len;
 	wblock.data.packet.interface_id = interface_id;
-	
+	wblock.data.packet.wtap_encap   = phdr->pkt_encap;
+
 	/* currently unused */
 	wblock.data.packet.drop_count   = -1;
 	wblock.data.packet.opt_comment  = NULL;
@@ -1736,9 +1749,10 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
 	wtapng_block_t wblock;
 
-	wblock.frame_buffer = NULL;
+	wblock.frame_buffer  = NULL;
 	wblock.pseudo_header = NULL;
-
+	wblock.packet_header = NULL;
+	wblock.file_encap    = NULL;
 
 	pcapng_debug0("pcapng_dump_open");
 	/* This is a pcapng file */
