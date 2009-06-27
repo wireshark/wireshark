@@ -704,7 +704,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type, wth->file_encap, wth->capture.pcap->byte_swapped, length,
+	phdr_len = pcap_process_pseudo_header(wth->random_fh, wth->file_type, wth->file_encap, wth->capture.pcap->byte_swapped, length,
 	    FALSE, NULL, pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
