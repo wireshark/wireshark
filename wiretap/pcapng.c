@@ -253,6 +253,7 @@ typedef struct wtapng_block_s {
 	/* XXX - currently don't know how to handle these! */
 	const union wtap_pseudo_header *pseudo_header;
 	const guchar *frame_buffer;
+	int encap;
 } wtapng_block_t;
 
 typedef struct interface_data_s {
@@ -1453,6 +1454,16 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	size_t nwritten;
 
 
+	if (wblock->data.if_descr.link_type == (guint16)-1) {
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
+
+	pcapng_debug3("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
+	              wblock->data.if_descr.link_type,
+	              wtap_encap_string(wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type)),
+	              wblock->data.if_descr.snap_len);
+
 	/* write block header */
 	bh.block_type = wblock->type;
 	bh.block_total_length = sizeof(bh) + sizeof(idb) /* + options */ + 4;
@@ -1505,17 +1516,20 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	pcapng_block_header_t bh;
 	pcapng_enhanced_packet_block_t epb;
 	size_t nwritten;
-	guint32 zero_pad = 0;
-
-
-	guint32 cap_pad_len = 0;
-	if (wblock->data.packet.cap_len % 4) {
-		cap_pad_len += 4 - (wblock->data.packet.cap_len % 4);
+	const guint32 zero_pad = 0;
+	guint32 pad_len;
+	guint32 phdr_len;
+	
+	phdr_len = (guint32)pcap_get_phdr_size(wblock->encap, wblock->pseudo_header);
+	if ((phdr_len + wblock->data.packet.cap_len) % 4) {
+		pad_len = 4 - ((phdr_len + wblock->data.packet.cap_len) % 4);
+	} else {
+		pad_len = 0;
 	}
 
 	/* write (enhanced) packet block header */
 	bh.block_type = wblock->type;
-	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) /* + pseudo header */ + wblock->data.packet.cap_len + cap_pad_len /* + options */ + 4;
+	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + wblock->data.packet.cap_len + pad_len /* + options */ + 4;
 
 	nwritten = wtap_dump_file_write(wdh, &bh, sizeof bh);
 	if (nwritten != sizeof bh) {
@@ -1531,8 +1545,8 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	epb.interface_id	= wblock->data.packet.interface_id;
 	epb.timestamp_high	= wblock->data.packet.ts_high;
 	epb.timestamp_low	= wblock->data.packet.ts_low;
-	epb.captured_len	= wblock->data.packet.cap_len;
-	epb.packet_len		= wblock->data.packet.packet_len;
+	epb.captured_len	= wblock->data.packet.cap_len + phdr_len;
+	epb.packet_len		= wblock->data.packet.packet_len + phdr_len;
 
 	nwritten = wtap_dump_file_write(wdh, &epb, sizeof epb);
 	if (nwritten != sizeof epb) {
@@ -1544,7 +1558,11 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	}
 	wdh->bytes_dumped += sizeof epb;
 
-	/* XXX - write pseudo header */
+	/* write pseudo header */
+	if (!pcap_write_phdr(wdh, wblock->encap, wblock->pseudo_header, err)) {
+		return FALSE;
+	}
+	wdh->bytes_dumped += phdr_len;
 
 	/* write packet data */
 	nwritten = wtap_dump_file_write(wdh, wblock->frame_buffer, wblock->data.packet.cap_len);
@@ -1558,16 +1576,16 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	wdh->bytes_dumped += wblock->data.packet.cap_len;
 
 	/* write padding (if any) */
-	if(cap_pad_len != 0) {
-		nwritten = wtap_dump_file_write(wdh, &zero_pad, cap_pad_len);
-		if (nwritten != cap_pad_len) {
+	if (pad_len != 0) {
+		nwritten = wtap_dump_file_write(wdh, &zero_pad, pad_len);
+		if (nwritten != pad_len) {
 			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
 				*err = wtap_dump_file_ferror(wdh);
 			else
 				*err = WTAP_ERR_SHORT_WRITE;
 			return FALSE;
 		}
-		wdh->bytes_dumped += cap_pad_len;
+		wdh->bytes_dumped += pad_len;
 	}
 
 	/* XXX - write (optional) block options */
@@ -1615,8 +1633,13 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	wtapng_block_t wblock;
 	guint64 ts;
 
-	wblock.frame_buffer = pd;
+	pcapng_debug2("pcapng_dump: encap = %d (%s)",
+	              phdr->pkt_encap,
+	              wtap_encap_string(phdr->pkt_encap));
+
+	wblock.frame_buffer  = pd;
 	wblock.pseudo_header = pseudo_header;
+	wblock.encap         = phdr->pkt_encap;
 
 	/* write the (enhanced) packet block */
 	wblock.type = BLOCK_TYPE_EPB;

@@ -1440,7 +1440,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 }
 
 gboolean
-pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
+pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
 	guint8 atm_hdr[SUNATM_LEN];
@@ -1454,7 +1454,7 @@ pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
 	size_t nwritten;
 	size_t size;
 
-	switch (wdh->encap) {
+	switch (encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
 		/*

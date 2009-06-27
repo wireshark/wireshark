@@ -33,5 +33,5 @@ extern int pcap_process_pseudo_header(wtap *wth, int encap, FILE_T fh, guint pac
 extern int pcap_get_phdr_size(int encap,
     const union wtap_pseudo_header *pseudo_header);
 
-extern gboolean pcap_write_phdr(wtap_dumper *wdh,
+extern gboolean pcap_write_phdr(wtap_dumper *wdh, int encap,
     const union wtap_pseudo_header *pseudo_header, int *err);

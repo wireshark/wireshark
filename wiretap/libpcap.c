@@ -1070,7 +1070,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += hdr_size;
 
-	if (!pcap_write_phdr(wdh, pseudo_header, err))
+	if (!pcap_write_phdr(wdh, wdh->encap, pseudo_header, err))
 		return FALSE;
 
 	nwritten = wtap_dump_file_write(wdh, pd, phdr->caplen);
