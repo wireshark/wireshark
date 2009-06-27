@@ -660,7 +660,7 @@ static const value_string wildcard_levels[] = {
 static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
 static gcp_wildcard_t wild_term;
-
+static guint8 wild_card = 0xFF; /* place to store wildcardField */
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
 	asn1_ctx_t asn1_ctx;

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h248.c                                                              */
-/* ../../tools/asn2wrs.py -b -p h248 -c ./h248.cnf -s ./packet-h248-template -D . h248v3.asn */
+/* ../../tools/asn2wrs.py -b -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
 
 /* Input file: packet-h248-template.c */
 
@@ -1122,7 +1122,7 @@ static const value_string wildcard_levels[] = {
 static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
 static gcp_wildcard_t wild_term;
-
+static guint8 wild_card = 0xFF; /* place to store wildcardField */
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
 	asn1_ctx_t asn1_ctx;
@@ -2060,6 +2060,8 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
 
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
+    /* limitation: assume only one wildcard is used */
+    wild_card = tvb_get_guint8(new_tvb,0);
     
 
 
@@ -2083,7 +2085,7 @@ dissect_h248_SEQUENCE_OF_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 292 "h248.cnf"
+#line 294 "h248.cnf"
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 	
@@ -2099,7 +2101,9 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
+		    actx->pinfo->private_data = &wild_card;		    
 			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
+			wild_card = 0xFF;		
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -4203,7 +4207,7 @@ dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 318 "h248.cnf"
+#line 322 "h248.cnf"
 
  tvbuff_t	*parameter_tvb;
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,

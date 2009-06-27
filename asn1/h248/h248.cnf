@@ -285,6 +285,8 @@ TransactionPending/transactionId	tpend_transactionId
     proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
 
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
+    /* limitation: assume only one wildcard is used */
+    wild_card = tvb_get_guint8(new_tvb,0);
     
 #.END
 
@@ -304,7 +306,9 @@ TransactionPending/transactionId	tpend_transactionId
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
+		    actx->pinfo->private_data = &wild_card;		    
 			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
+			wild_card = 0xFF;		
 		}
 	} else {
 		curr_info.term->len = 0;
