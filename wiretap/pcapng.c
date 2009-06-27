@@ -482,7 +482,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
 /* "Interface Description Block" */
 static int
-pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
+pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			   wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	guint64 time_units_per_second;
@@ -492,6 +492,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	pcapng_interface_description_block_t idb;
 	pcapng_option_header_t oh;
 	interface_data_t int_data;
+	gint encap;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
 
 
@@ -509,7 +510,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	block_read = bytes_read;
 
 	/* mandatory values */
-	if(pn->byte_swapped) {
+	if (pn->byte_swapped) {
 		wblock->data.if_descr.link_type = BSWAP16(idb.linktype);
 		wblock->data.if_descr.snap_len	= BSWAP32(idb.snaplen);
 	} else {
@@ -525,7 +526,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	/* XXX - sanity check of snapshot length */
 	/* XXX - while a very big snapshot length is valid, it's more likely that it's a bug in the file */
 	/* XXX - so do a sanity check for now, it's likely e.g. a byte swap order problem */
-	if(wblock->data.if_descr.snap_len > WTAP_MAX_PACKET_SIZE) {
+	if (wblock->data.if_descr.snap_len > WTAP_MAX_PACKET_SIZE) {
 		pcapng_debug1("pcapng_read_if_descr_block: snapshot length %u unrealistic", 
 			      wblock->data.if_descr.snap_len);
 		/*wblock->data.if_descr.snap_len = 65535;*/
@@ -554,7 +555,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
         - (int)sizeof(pcapng_block_header_t) 
         - (int)sizeof (pcapng_interface_description_block_t) 
         - (int)sizeof(bh->block_total_length);
-	while(to_read > 0) {
+	while (to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
 		if (bytes_read <= 0) {
@@ -663,7 +664,17 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				      oh.option_code, oh.option_length);
 		}
 	}
-	int_data.wtab_encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+
+	encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
+	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+		wth->file_encap = encap;
+	} else {
+		if (wth->file_encap != encap) {
+			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		}
+	}
+
+	int_data.wtab_encap = encap;
 	int_data.time_units_per_second = time_units_per_second;
 	g_array_append_val(pn->interface_data, int_data);
 	pn->number_of_interfaces++;
@@ -1142,7 +1153,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
 			bytes_read = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
 			break;
 		case(BLOCK_TYPE_IDB):
-			bytes_read = pcapng_read_if_descr_block(fh, &bh, pn, wblock, err, err_info);
+			bytes_read = pcapng_read_if_descr_block(wth, fh, &bh, pn, wblock, err, err_info);
 			break;
 		case(BLOCK_TYPE_PB):
 			bytes_read = pcapng_read_packet_block(wth, fh, &bh, pn, wblock, err, err_info, FALSE);
@@ -1235,7 +1246,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
-	wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 	wth->capture.pcapng = g_malloc(sizeof(pcapng_t));
