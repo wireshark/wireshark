@@ -26,12 +26,13 @@
 
 extern int wtap_wtap_encap_to_pcap_encap(int encap);
 
-extern int pcap_process_pseudo_header(wtap *wth, int encap, FILE_T fh, guint packet_size,
+extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
+    gboolean byte_swapped, guint packet_size,
     gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 
 extern int pcap_get_phdr_size(int encap,
     const union wtap_pseudo_header *pseudo_header);
 
-extern gboolean pcap_write_phdr(wtap_dumper *wdh, int encap,
+extern gboolean pcap_write_phdr(wtap_dumper *wdh, int wtap_encap,
     const union wtap_pseudo_header *pseudo_header, int *err);

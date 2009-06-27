@@ -916,8 +916,8 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 }
 
 static gboolean
-pcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err)
+pcap_read_linux_usb_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, gboolean byte_swapped, int *err)
 {
 	int	bytes_read;
 
@@ -931,7 +931,7 @@ pcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
 		return FALSE;
 	}
 
-	if (wth->capture.pcap->byte_swapped) {
+	if (byte_swapped) {
 		pseudo_header->linux_usb.id = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.id);
 		pseudo_header->linux_usb.bus_id = GUINT16_SWAP_LE_BE(pseudo_header->linux_usb.bus_id);
 		pseudo_header->linux_usb.ts_sec = GUINT64_SWAP_LE_BE(pseudo_header->linux_usb.ts_sec);
@@ -1115,17 +1115,17 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 }
 
 int
-pcap_process_pseudo_header(wtap *wth, int encap, FILE_T fh, guint packet_size,
+pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap, gboolean bytes_swapped, guint packet_size,
     gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
 	guint size;
 
-	switch (encap) {
+	switch (wtap_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
+		if (file_type == WTAP_FILE_PCAP_NOKIA) {
 			/*
 			 * Nokia IPSO ATM.
 			 */
@@ -1273,8 +1273,8 @@ pcap_process_pseudo_header(wtap *wth, int encap, FILE_T fh, guint packet_size,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_linux_usb_pseudoheader(wth, fh,
-		    pseudo_header, err))
+		if (!pcap_read_linux_usb_pseudoheader(fh,
+		    pseudo_header, bytes_swapped, err))
 			return -1;	/* Read error */
 
 		phdr_len = (int)sizeof (struct linux_usb_phdr);

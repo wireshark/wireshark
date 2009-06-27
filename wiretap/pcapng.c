@@ -773,9 +773,10 @@ pcapng_read_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcapng
 	              pcap_get_phdr_size(encap, wblock->pseudo_header));
 
 	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
-	pseudo_header_len = pcap_process_pseudo_header(wth, /* XXX get rid of... */
+	pseudo_header_len = pcap_process_pseudo_header(fh,
+	                                               WTAP_FILE_PCAPNG,
 	                                               encap,
-	                                               fh,
+	                                               pn->byte_swapped,
 	                                               wblock->data.packet.cap_len,
 	                                               TRUE,
 	                                               &wth->phdr,
@@ -930,9 +931,10 @@ pcapng_read_simple_packet_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 	              pcap_get_phdr_size(encap, wblock->pseudo_header));
 
 	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
-	pseudo_header_len = pcap_process_pseudo_header(wth, /* XXX get rid of... */
+	pseudo_header_len = pcap_process_pseudo_header(fh,
+	                                               WTAP_FILE_PCAPNG,
 	                                               encap,
-	                                               fh,
+	                                               pn->byte_swapped,
 	                                               wblock->data.simple_packet.cap_len,
 	                                               TRUE,
 	                                               &wth->phdr,
@@ -1770,7 +1772,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 int pcapng_dump_can_write_encap(int wtap_encap)
 {
 	pcapng_debug2("pcapng_dump_can_write_encap: encap = %d (%s)",
-	              encap,
+	              wtap_encap,
 	              wtap_encap_string(wtap_encap));
 	
 	/* Per-packet encapsulations is supported. */
