@@ -636,7 +636,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	phdr_len = pcap_process_pseudo_header(wth, wth->fh, packet_size,
+	phdr_len = pcap_process_pseudo_header(wth, wth->file_encap, wth->fh, packet_size,
 	    TRUE, &wth->phdr, &wth->pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
@@ -704,7 +704,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	phdr_len = pcap_process_pseudo_header(wth, wth->random_fh, length,
+	phdr_len = pcap_process_pseudo_header(wth, wth->file_encap, wth->random_fh, length,
 	    FALSE, NULL, pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
