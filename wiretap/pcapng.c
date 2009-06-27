@@ -257,7 +257,7 @@ typedef struct wtapng_block_s {
 } wtapng_block_t;
 
 typedef struct interface_data_s {
-	int wtab_encap;
+	int wtap_encap;
 	guint64 time_units_per_second;
 } interface_data_t;
 
@@ -269,7 +269,7 @@ pcapng_get_encap(gint id, pcapng_t *pn)
 
 	if ((id >= 0) && ((guint)id < pn->number_of_interfaces)) {
 		int_data = g_array_index(pn->interface_data, interface_data_t, id);
-		return int_data.wtab_encap;
+		return int_data.wtap_encap;
 	} else {
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 	}
@@ -675,7 +675,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh, pcap
 		}
 	}
 
-	int_data.wtab_encap = encap;
+	int_data.wtap_encap = encap;
 	int_data.time_units_per_second = time_units_per_second;
 	g_array_append_val(pn->interface_data, int_data);
 	pn->number_of_interfaces++;
@@ -1318,7 +1318,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		id = (gint)wblock.data.packet.interface_id;
 		int_data = g_array_index(wth->capture.pcapng->interface_data, interface_data_t, id);
 		time_units_per_second = int_data.time_units_per_second;
-		wth->phdr.pkt_encap = int_data.wtab_encap;
+		wth->phdr.pkt_encap = int_data.wtap_encap;
 		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
 	} else {
@@ -1454,15 +1454,15 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	size_t nwritten;
 
 
-	if (wblock->data.if_descr.link_type == (guint16)-1) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return FALSE;
-	}
-
 	pcapng_debug3("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
 	              wblock->data.if_descr.link_type,
 	              wtap_encap_string(wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type)),
 	              wblock->data.if_descr.snap_len);
+
+	if (wblock->data.if_descr.link_type == (guint16)-1) {
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
 
 	/* write block header */
 	bh.block_type = wblock->type;
@@ -1625,17 +1625,66 @@ pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, i
 }
 
 
+static guint32
+pcapng_lookup_interface_id_by_encap(int wtap_encap, wtap_dumper *wdh)
+{
+	gint i;
+	interface_data_t int_data;
+	
+	for(i = 0; i < (gint)wdh->dump.pcapng->number_of_interfaces; i++) {
+		int_data = g_array_index(wdh->dump.pcapng->interface_data, interface_data_t, i);
+		if (wtap_encap == int_data.wtap_encap) {
+			return (guint32)i;
+		}
+	}
+	return G_MAXUINT32;
+}
+
+
 static gboolean pcapng_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header,
 	const guchar *pd, int *err)
 {
 	wtapng_block_t wblock;
+	interface_data_t int_data;
+	guint32 interface_id;
 	guint64 ts;
 
 	pcapng_debug2("pcapng_dump: encap = %d (%s)",
 	              phdr->pkt_encap,
 	              wtap_encap_string(phdr->pkt_encap));
+
+	interface_id = pcapng_lookup_interface_id_by_encap(phdr->pkt_encap, wdh);
+	if (interface_id == G_MAXUINT32) {
+		/* write the interface description block */
+		wblock.frame_buffer = NULL;
+		wblock.pseudo_header = NULL;
+		wblock.type                    = BLOCK_TYPE_IDB;
+		wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
+		wblock.data.if_descr.snap_len  = wdh->snaplen; /* XXX */
+	
+		/* XXX - options unused */
+		wblock.data.if_descr.if_speed   = -1;
+		wblock.data.if_descr.if_tsresol = 6;    /* default: usec */
+		wblock.data.if_descr.if_os      = NULL;
+		wblock.data.if_descr.if_fcslen  = -1;
+	
+		if (!pcapng_write_block(wdh, &wblock, err)) {
+			return FALSE;
+		}
+
+		interface_id = wdh->dump.pcapng->number_of_interfaces;
+		int_data.wtap_encap = phdr->pkt_encap;
+		int_data.time_units_per_second = 0;
+		g_array_append_val(wdh->dump.pcapng->interface_data, int_data);
+		wdh->dump.pcapng->number_of_interfaces++;
+
+		pcapng_debug3("pcapng_dump: added interface description block with index %u for encap = %d (%s).",
+		              interface_id,
+		              phdr->pkt_encap,
+		              wtap_encap_string(phdr->pkt_encap));
+	}
 
 	wblock.frame_buffer  = pd;
 	wblock.pseudo_header = pseudo_header;
@@ -1653,7 +1702,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	
 	wblock.data.packet.cap_len      = phdr->caplen;
 	wblock.data.packet.packet_len   = phdr->len;
-	wblock.data.packet.interface_id = 0; /* XXX */
+	wblock.data.packet.interface_id = interface_id;
 	
 	/* currently unused */
 	wblock.data.packet.drop_count   = -1;
@@ -1663,6 +1712,17 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
+	return TRUE;
+}
+
+
+/* Finish writing to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
+{
+	pcapng_debug0("pcapng_dump_close");
+	g_array_free(wdh->dump.pcapng->interface_data, TRUE);
+	wdh->dump.pcapng->number_of_interfaces = 0;
 	return TRUE;
 }
 
@@ -1678,9 +1738,13 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	wblock.pseudo_header = NULL;
 
 
+	pcapng_debug0("pcapng_dump_open");
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
-	wdh->subtype_close = NULL;
+	wdh->subtype_close = pcapng_dump_close;
+	wdh->dump.pcapng = g_malloc(sizeof(pcapng_dump_t));
+	wdh->dump.pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
+	wdh->dump.pcapng->number_of_interfaces = 0;
 
 	/* write the section header block */
 	wblock.type = BLOCK_TYPE_SHB;
@@ -1695,21 +1759,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	if (!pcapng_write_block(wdh, &wblock, err)) {
 		return FALSE;
 	}
-
-	/* write the interface description block */
-	wblock.type                    = BLOCK_TYPE_IDB;
-	wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(wdh->encap);
-	wblock.data.if_descr.snap_len  = wdh->snaplen;
-
-	/* XXX - options unused */
-	wblock.data.if_descr.if_speed   = -1;
-	wblock.data.if_descr.if_tsresol = 6;    /* default: usec */
-	wblock.data.if_descr.if_os      = NULL;
-	wblock.data.if_descr.if_fcslen  = -1;
-
-	if (!pcapng_write_block(wdh, &wblock, err)) {
-		return FALSE;
-	}
+	pcapng_debug0("pcapng_dump_open: wrote section header block.");
 
 	return TRUE;
 }
@@ -1717,14 +1767,18 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int pcapng_dump_can_write_encap(int encap)
+int pcapng_dump_can_write_encap(int wtap_encap)
 {
+	pcapng_debug2("pcapng_dump_can_write_encap: encap = %d (%s)",
+	              encap,
+	              wtap_encap_string(wtap_encap));
+	
 	/* Per-packet encapsulations is supported. */
-	if (encap == WTAP_ENCAP_PER_PACKET)
+	if (wtap_encap == WTAP_ENCAP_PER_PACKET)
 		return 0;
 
 	/* Make sure we can figure out this DLT type */
-	if (wtap_wtap_encap_to_pcap_encap(encap) == -1)
+	if (wtap_wtap_encap_to_pcap_encap(wtap_encap) == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
