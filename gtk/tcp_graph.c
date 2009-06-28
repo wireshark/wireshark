@@ -76,6 +76,7 @@
 #define AXIS_HORIZONTAL		0
 #define AXIS_VERTICAL		1
 
+#define WINDOW_TITLE_LENGTH 256
 
 struct segment {
 	struct segment *next;
@@ -630,7 +631,6 @@ static void create_drawing_area (struct graph *g)
 {
 	GdkColormap *colormap;
 	GdkColor color;
-#define WINDOW_TITLE_LENGTH 64
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
 	struct tcpheader *thdr;
@@ -795,7 +795,6 @@ static void control_panel_create (struct graph *g)
     GtkWidget *toplevel, *notebook;
     GtkWidget *table;
     GtkWidget *help_bt, *close_bt, *bbox;
-#define WINDOW_TITLE_LENGTH 64
     char window_title[WINDOW_TITLE_LENGTH];
 
     debug(DBS_FENTRY) puts ("control_panel_create()");
