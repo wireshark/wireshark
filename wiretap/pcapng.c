@@ -341,7 +341,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 static int
 pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 				 pcapng_t *pn, wtapng_block_t *wblock, int *err,
-				 gchar **err_info _U_)
+				 gchar **err_info)
 {
 	int	bytes_read;
 	int	block_read;
@@ -392,14 +392,14 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	}
 
 	/* we currently only understand SHB V1.0 */
-	if(pn->version_major != 1 || pn->version_minor != 0) {
+	if (pn->version_major != 1 || pn->version_minor != 0) {
 		pcapng_debug2("pcapng_read_section_header_block: unknown SHB version %u.%u", 
 			      pn->version_major, pn->version_minor);
 		return 0;
 	}
 
 	/* 64bit section_length (currently unused) */
-	if(pn->byte_swapped) {
+	if (pn->byte_swapped) {
 		wblock->data.section.section_length = BSWAP64(shb.section_length);
 	} else {
 		wblock->data.section.section_length = shb.section_length;
@@ -475,7 +475,12 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 	}
 
 	if (pn->interface_data != NULL) {
+		pcapng_debug0("pcapng_read_section_header_block: Multiple section header blocks!");
 		g_array_free(pn->interface_data, TRUE);
+		pn->interface_data = NULL;
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng: multiple section header blocks not supported.");
+		return 0;
 	}
 	pn->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
 	pn->number_of_interfaces = 0;
@@ -697,7 +702,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	pcapng_packet_block_t pb;
 	guint32 block_total_length;
 	pcapng_option_header_t oh;
-	gint encap;
+	gint wtap_encap;
 	int pseudo_header_len;
 	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
 
@@ -771,14 +776,16 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	              wblock->data.packet.cap_len,
 	              wblock->data.packet.interface_id);
 
-	encap = pcapng_get_encap(wblock->data.packet.interface_id, pn);
-	pcapng_debug1("pcapng_read_packet_block: Need to read pseudo header of size %d",
-	              pcap_get_phdr_size(encap, wblock->pseudo_header));
+	wtap_encap = pcapng_get_encap(wblock->data.packet.interface_id, pn);
+	pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
+	               wtap_encap,
+	               wtap_encap_string(wtap_encap),
+	               pcap_get_phdr_size(wtap_encap, wblock->pseudo_header));
 
 	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 	pseudo_header_len = pcap_process_pseudo_header(fh,
 	                                               WTAP_FILE_PCAPNG,
-	                                               encap,
+	                                               wtap_encap,
 	                                               pn->byte_swapped,
 	                                               wblock->data.packet.cap_len,
 	                                               TRUE,
@@ -791,7 +798,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	}
 	wblock->data.packet.pseudo_header_len = (guint32)pseudo_header_len;
 	block_read += pseudo_header_len;
-	if (pseudo_header_len != pcap_get_phdr_size(encap, wblock->pseudo_header)) {
+	if (pseudo_header_len != pcap_get_phdr_size(wtap_encap, wblock->pseudo_header)) {
 		pcapng_debug1("pcapng_read_packet_block: Could only read %d bytes for pseudo header.",
 		              pseudo_header_len);
 	}
@@ -1372,8 +1379,9 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 	/* read the block */
 	bytes_read = pcapng_read_block(wth->random_fh, wth->capture.pcapng, &wblock, err, err_info);
 	if (bytes_read <= 0) {
-		*err = file_error(wth->fh);
-		pcapng_debug0("pcapng_seek_read: couldn't read packet block");
+		*err = file_error(wth->random_fh);
+		pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
+		              *err, errno, bytes_read);
 		return FALSE;
 	}
 
