@@ -33,10 +33,10 @@ then
 	AC_MSG_ERROR(I couldn't find yacc (or bison or ...); make sure it's installed and in your path)
 fi
 AM_PROG_LEX
-AC_PATH_PROG(LEXDUMMY, $LEX)
-if test "x$LEXDUMMY" = x
+AC_PATH_PROG(LEX, flex)
+if test "x$LEX" = x
 then
-	AC_MSG_ERROR(I couldn't find (f)lex; make sure it's installed and in your path)
+	AC_MSG_ERROR(I couldn't find flex; make sure it's installed and in your path)
 fi
 AC_PATH_PROG(POD2MAN, pod2man)
 if test "x$POD2MAN" = x
@@ -279,7 +279,7 @@ fi
 #
 # If we're running gcc, will enable a barrier "stop on warning".
 # This barrier is set for a very large part of the code. However, it is
-# typically not set for "generated" code  (lex, ans2wrs, idl2wrs, ...)
+# typically not set for "generated" code  (flex, ans2wrs, idl2wrs, ...)
 #
 warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
