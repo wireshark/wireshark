@@ -116,19 +116,15 @@ AC_ARG_WITH([gnutls],
 		  [use gnutls library @<:@default=yes@:>@]),
   with_gnutls="$withval", with_gnutls="yes")
 if test "x$with_gnutls" = "xyes"; then
-  AM_PATH_LIBGNUTLS(1.2.0,
+  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0],
         [
                 echo "gnuTLS found, enabling ssl decryption"
                 AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
                 tls_message="yes"
         ]
         , [
-                if test x$libgnutls_config_prefix != x ; then
-	                AC_MSG_ERROR([[gnuTLS not found; install gnuTLS-devel package for your system]])
-                else
-                        echo echo "gnuTLS not found, disabling ssl decryption"
-                        tls_message="no"
-                fi
+                echo echo "gnuTLS not found, disabling ssl decryption"
+                tls_message="no"
         ]
   )
 fi
