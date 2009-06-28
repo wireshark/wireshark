@@ -57,6 +57,8 @@ static void show_proto_selection(GtkListStore *proto_store);
 static gboolean set_proto_selection(GtkWidget *);
 static gboolean revert_proto_selection(void);
 
+static void proto_col_clicked_cb(GtkWidget *col _U_, GtkWidget *proto_list);
+
 static void toggle_all_cb(GtkWidget *button, gpointer parent_w);
 static void enable_all_cb(GtkWidget *button, gpointer parent_w);
 static void disable_all_cb(GtkWidget *button, gpointer parent_w);
@@ -97,7 +99,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   proto_w = dlg_conf_window_new("Wireshark: Enabled Protocols");
-  gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT);
+  gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH , DEF_HEIGHT);
 
   /* Container for each row of widgets */
 
@@ -131,23 +133,27 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   /* default sort on "abbrev" column */
   gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(proto_store), 1,
                                        GTK_SORT_ASCENDING);
+
   proto_list = tree_view_new(GTK_TREE_MODEL(proto_store));
   gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
+
   proto_rend = gtk_cell_renderer_toggle_new();
   g_signal_connect(proto_rend, "toggled", G_CALLBACK(status_toggled), proto_store);
-  proto_col = gtk_tree_view_column_new_with_attributes(titles[0], proto_rend,
-                                                    "active", 0, NULL);
+  proto_col = gtk_tree_view_column_new_with_attributes(titles[0], proto_rend, "active", 0, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 0);
+  g_signal_connect(proto_col, "clicked", G_CALLBACK(proto_col_clicked_cb), proto_list);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
+
   proto_rend = gtk_cell_renderer_text_new();
-  proto_col = gtk_tree_view_column_new_with_attributes(titles[1], proto_rend,
-                                                    "text", 1, NULL);
+  proto_col = gtk_tree_view_column_new_with_attributes(titles[1], proto_rend, "text", 1, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 1);
+  g_signal_connect(proto_col, "clicked", G_CALLBACK(proto_col_clicked_cb), proto_list);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
+
   proto_rend = gtk_cell_renderer_text_new();
-  proto_col = gtk_tree_view_column_new_with_attributes(titles[2], proto_rend,
-                                                    "text", 2, NULL);
+  proto_col = gtk_tree_view_column_new_with_attributes(titles[2], proto_rend, "text", 2, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 2);
+  g_signal_connect(proto_col, "clicked", G_CALLBACK(proto_col_clicked_cb), proto_list);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
 
   gtk_tree_view_set_search_column(GTK_TREE_VIEW(proto_list), 1); /* col 1 in the *model* */
@@ -159,7 +165,6 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_misc_set_alignment(GTK_MISC(label), 0.5f, 0.5f);
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(proto_vb), label, FALSE, FALSE, 5);
-
 
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
@@ -214,6 +219,17 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(proto_w);
 
+  gtk_widget_grab_focus(proto_list); /* XXX: force focus to the tree_view. This hack req'd so "type-ahead find"
+                                      *  will be effective after the window is displayed. The issue is
+                                      *  that any call to gtk_tree_view_column_set_sort_column_id above
+                                      *  apparently sets the focus to the column header button and thus
+                                      *  type-ahead find is, in effect, disabled on the column.
+                                      *  Also required: a grab_focus whenever the column header is
+                                      *  clicked to change the column sort order since the click
+                                      *  also changes the focus to the column header button.
+                                      *  Is there a better way to do this ?
+                                      */
+
   /* hide the Save button if the user uses implicit save */
   if(!prefs.gui_use_pref_save) {
     gtk_widget_hide(save_bt);
@@ -222,6 +238,15 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   window_present(proto_w);
 } /* proto_cb */
 
+/* protocol list column header clicked (to change sort)       */
+/*  grab_focus(treeview) req'd so that type-ahead find works. */
+/*  (See comment above).                                      */
+static void
+proto_col_clicked_cb(GtkWidget *col _U_, GtkWidget *proto_list) {
+  gtk_widget_grab_focus(proto_list);
+}
+
+/* Status toggled */
 static void
 status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
 {
@@ -244,7 +269,6 @@ status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
 } /* status toggled */
 
 /* XXX - We need callbacks for Gtk2 */
-
 
 /* Toggle All */
 static void
