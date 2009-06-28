@@ -332,6 +332,7 @@ static const struct {
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	{ 204,		WTAP_ENCAP_PPP_WITH_PHDR },
 	/* IPMB/I2C */
 	{ 209,		WTAP_ENCAP_I2C },
 	/* FlexRay frame */
@@ -571,14 +572,6 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 		 * so that's not fixable).
 		 */
 		return 10;	/* that's DLT_FDDI */
-
-	case WTAP_ENCAP_PPP_WITH_PHDR:
-		/*
-		 * Also special-case PPP with direction bits; map it to
-		 * PPP, even though that means that the direction of the
-		 * packet is lost.
-		 */
-		return 9;
 
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 		/*
@@ -965,6 +958,26 @@ pcap_read_bt_pseudoheader(FILE_T fh,
 }
 
 static gboolean
+pcap_read_ppp_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	int	bytes_read;
+	struct libpcap_ppp_phdr phdr;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&phdr, 1,
+	    sizeof (struct libpcap_ppp_phdr), fh);
+	if (bytes_read != sizeof (struct libpcap_ppp_phdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	pseudo_header->p2p.sent = (phdr.direction == LIBPCAP_PPP_PHDR_SENT) ? TRUE: FALSE;
+	return TRUE;
+}
+
+static gboolean
 pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
 			      union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
 {
@@ -1304,6 +1317,25 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap, gboolean by
 		phdr_len = (int)sizeof (struct libpcap_bt_phdr);
 		break;
 
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		if (check_packet_size &&
+		    packet_size < sizeof (struct libpcap_ppp_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcap: lipcap ppp file has a %u-byte packet, too small to have even a pseudo-header",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_ppp_pseudoheader(fh,
+		    pseudo_header, err))
+			return -1;	/* Read error */
+
+		phdr_len = (int)sizeof (struct libpcap_ppp_phdr);
+		break;
+
 	case WTAP_ENCAP_ERF:
 		if (check_packet_size &&
 		    packet_size < sizeof(struct erf_phdr) ) {
@@ -1431,6 +1463,10 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		hdrsize = (int)sizeof (struct libpcap_bt_phdr);
 		break;
 
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		hdrsize = (int)sizeof (struct libpcap_ppp_phdr);
+		break;
+
 	default:
 		hdrsize = 0;
 		break;
@@ -1451,6 +1487,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
 	struct i2c_file_hdr i2c_hdr;
 	struct libpcap_bt_phdr bt_hdr;
+	struct libpcap_ppp_phdr ppp_hdr;
 	size_t nwritten;
 	size_t size;
 
@@ -1678,7 +1715,19 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		}
 		wdh->bytes_dumped += sizeof bt_hdr;
 		break;
+
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		ppp_hdr.direction = (pseudo_header->p2p.sent ? LIBPCAP_PPP_PHDR_SENT : LIBPCAP_PPP_PHDR_RECV);
+		nwritten = wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr);
+		if (nwritten != sizeof ppp_hdr) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof ppp_hdr;
+		break;
 	}
- 
 	return TRUE;
 }

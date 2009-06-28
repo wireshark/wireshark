@@ -670,6 +670,16 @@ struct libpcap_bt_phdr {
     guint32 direction;     /* Bit 0 hold the frame direction. */
 };
 
+#define LIBPCAP_PPP_PHDR_RECV    0
+#define LIBPCAP_PPP_PHDR_SENT    1
+
+/*
+ * Header prepended by libpcap to each ppp frame.
+ */
+struct libpcap_ppp_phdr {
+    guint8 direction;
+};
+
 /*
  * Endace Record Format pseudo header
  */
