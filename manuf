@@ -9890,6 +9890,27 @@
 00:26:93	QvidiumTec             # QVidium Technologies, Inc.
 00:26:94	Senscient              # Senscient Ltd
 00:26:95	ZtGroupInt             # ZT Group Int'l Inc
+00:26:96	Noolix                 # NOOLIX Co., Ltd
+00:26:97	CheetahTec             # Cheetah Technologies, L.P.
+00:26:98	Cisco                  # Cisco Systems
+00:26:99	Cisco                  # Cisco Systems
+00:26:9A	CarinaSyst             # carina system co., ltd.
+00:26:9B	Sokrat                 # SOKRAT Ltd.
+00:26:9C	ItusJapan              # ITUS JAPAN CO. LTD
+00:26:9D	M2mnet                 # M2Mnet Co., Ltd.
+00:26:9E	QuantaComp             # Quanta Computer Inc
+00:26:9F	Private
+00:26:A0	Moblic
+00:26:A1	Megger
+00:26:A2	Instrument             # Instrumentation Technology Systems
+00:26:A3	FqIngenier             # FQ Ingenieria Electronica S.A.
+00:26:A4	NovusProdu             # Novus Produtos Eletronicos Ltda
+00:26:A5	Microrobot             # MICROROBOT.CO.,LTD
+00:26:A6	Trixell
+00:26:A7	ConnectSrl             # CONNECT SRL
+00:26:A8	DaehapHype             # DAEHAP HYPER-TECH
+00:26:A9	StrongTech             # Strong Technologies Pty Ltd
+00:26:AA	KenmecMech             # Kenmec Mechanical Engineering Co., Ltd.
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13367,6 +13388,12 @@
 00:50:C2:AE:40:00/36	AdvancedEl             # Advanced Electronic Designs, Inc.
 00:50:C2:AE:50:00/36	AbsGesells             # ABS Gesellschaft f. Automatisierung, Bildverarbeitung und Software mbH
 00:50:C2:AE:60:00/36	VecomUsa               # VECOM USA
+00:50:C2:AE:70:00/36	Redwood                # Redwood Systems
+00:50:C2:AE:80:00/36	Bit-LabPty             # Bit-Lab PTY LTD
+00:50:C2:AE:90:00/36	ClearcorpE             # ClearCorp Enterprises, Inc
+00:50:C2:AE:A0:00/36	Embedia
+00:50:C2:AE:B0:00/36	Umlogics               # UMLogics Corporation
+00:50:C2:AE:C0:00/36	FritzPauke             # Fritz Pauker Ingenieure GmbH
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
