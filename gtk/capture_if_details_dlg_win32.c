@@ -509,9 +509,11 @@ static const value_string win32_802_11_auth_mode_vals[] = {
 	{ Ndis802_11AuthModeWPA,        "WPA" },
 	{ Ndis802_11AuthModeWPAPSK,     "WPA-PSK (pre shared key)" },
 	{ Ndis802_11AuthModeWPANone,    "WPA (ad hoc)" },
+#if (_MSC_VER != 1400) /* These are not defined in Ntddndis.h in MSVC2005/MSVC2005EE PSDK */
 	{ Ndis802_11AuthModeWPA2,       "WPA2" },
 	{ Ndis802_11AuthModeWPA2PSK,    "WPA2-PSK (pre shared key)" },
-#endif	
+#endif
+#endif
     { 0, NULL }
 };
 
@@ -521,7 +523,9 @@ static const value_string win32_802_11_network_type_vals[] = {
 #if (_MSC_VER != 1310)
 	{ Ndis802_11OFDM5,      "5-GHz OFDM" },
 	{ Ndis802_11OFDM24,     "2.4-GHz OFDM" },
+#if (_MSC_VER != 1400) /* These are not defined in Ntddndis.h in MSVC2005/MSVC2005EE PSDK */
 	{ Ndis802_11Automode,   "Auto" },
+#endif
 #endif
     { 0, NULL }
 };
@@ -729,8 +733,10 @@ static const value_string oid_vals[] = {
 	{ OID_802_11_REMOVE_KEY, "OID_802_11_REMOVE_KEY (write only)" },
 	{ OID_802_11_ASSOCIATION_INFORMATION, "OID_802_11_ASSOCIATION_INFORMATION (unused)" }, /* XXX */
 	{ OID_802_11_TEST, "OID_802_11_TEST (write only)" },
+#if (_MSC_VER != 1400) /* These are not defined in Ntddndis.h in MSVC2005/MSVC2005EE PSDK */
 	{ OID_802_11_CAPABILITY, "OID_802_11_CAPABILITY (unsupp, unused)" },
 	{ OID_802_11_PMKID, "OID_802_11_PMKID (unsupp, unused)" },
+#endif
 
     /* Token-Ring list is utterly incomplete (contains only the values for MS Loopback Driver) */
     { OID_802_5_PERMANENT_ADDRESS, "OID_802_5_PERMANENT_ADDRESS (unused)" },
