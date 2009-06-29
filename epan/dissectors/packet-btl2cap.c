@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <etypes.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include "packet-bthci_acl.h"
 #include "packet-btl2cap.h"
 
@@ -875,10 +876,19 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/*Segmented frames with SAR = start have an extra SDU length header field*/
 	if(segment == 0x01) {
+		proto_item *pi;;
 		sdulen = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, TRUE);
+		pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, TRUE);
 		offset += 2;
 		length -= 6; /*Control, SDUlength, FCS*/
+
+		/* Detect malformed data */
+		if (sdulen < length) {
+			sdulen = length;
+			expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, 
+					"SDU length less than length of first packet");
+		}
+
 		if(!pinfo->fd->flags.visited){
 			mfp=se_alloc(sizeof(sdu_reassembly_t));
 			mfp->first_frame=pinfo->fd->num;
