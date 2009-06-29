@@ -30,8 +30,6 @@
 !define WEBSITE "www.wireshark.org"
 !define DEFAULTEXE "wireshark.exe"
 !define DEFAULTAPPDIR "Wireshark"
-!define DEFAULTWINPCAP "WinPcap_4_1_beta5.exe"
-!define DEFAULTMSVCREDIST "vcredist_x86.exe"
 
 !addplugindir "${EXTRA_PLUGINS}"
 
