@@ -128,7 +128,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		}
 
 		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),if_info);
-		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
+		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset, TRUE);
 		change_airpcap_settings = TRUE;
     }
     else /* Current interface is NOT an AirPcap one... */
@@ -224,7 +224,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   		}
 
   		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),if_info);
-  		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
+  		airpcap_update_channel_offset_combo(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset, TRUE);
   		change_airpcap_settings = TRUE;
   	}
     else
@@ -549,7 +549,7 @@ airpcap_channel_combo_set_by_frequency(GtkWidget* cb, guint chan_freq)
 /*
  * Change channel of Airpcap Adapter
  */
-gboolean
+static gboolean
 airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info)
 {
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -569,22 +569,42 @@ airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info)
 }
 
 /*
- * Changed callback for the channel combobox
+ * Changed callback for the channel combobox - common routine
  */
-void
-airpcap_channel_changed_cb(GtkWidget *channel_cb, gpointer channel_offset_cb)
+static void
+airpcap_channel_changed_common(GtkWidget *channel_cb, gpointer channel_offset_cb, gboolean set)
 {
     gint cur_chan_idx;
 
     if (channel_cb && channel_offset_cb && change_airpcap_settings && airpcap_if_active) {
         cur_chan_idx = gtk_combo_box_get_active(GTK_COMBO_BOX(channel_cb));
         if (cur_chan_idx >= 0 && cur_chan_idx < (gint) airpcap_if_active->numSupportedChannels) {
-            airpcap_if_active->channelInfo.Frequency = airpcap_if_active->pSupportedChannels[cur_chan_idx].Frequency;
+            if (set) {
+                airpcap_if_active->channelInfo.Frequency = airpcap_if_active->pSupportedChannels[cur_chan_idx].Frequency;
+            }
             airpcap_update_channel_offset_combo(airpcap_if_active,
                     airpcap_if_active->channelInfo.Frequency,
-                    GTK_WIDGET(channel_offset_cb));
-	}
+                    GTK_WIDGET(channel_offset_cb), set);
+    	}
     }
+}
+
+/*
+ * Changed callback for the channel combobox - set channel and offset
+ */
+void
+airpcap_channel_changed_set_cb(GtkWidget *channel_cb, gpointer channel_offset_cb)
+{
+    airpcap_channel_changed_common(channel_cb, channel_offset_cb, TRUE);
+}
+
+/*
+ * Changed callback for the channel combobox - don't set channel and offset
+ */
+void
+airpcap_channel_changed_noset_cb(GtkWidget *channel_cb, gpointer channel_offset_cb)
+{
+    airpcap_channel_changed_common(channel_cb, channel_offset_cb, FALSE);
 }
 
 static int
@@ -604,7 +624,7 @@ airpcap_get_selected_channel_offset(GtkWidget *channel_offset_cb) {
         if (airpcap_if_selected != NULL)
         {
             sscanf(off_str, "%d", &offset);
-            if (offset >= -1 && offset <= -1) {
+            if (offset >= -1 && offset <= 1) {
                 retval = offset;
             }
         }
@@ -628,7 +648,7 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
  * Update the channel offset of the given combobox according to the given frequency.
  */
 void
-airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_freq, GtkWidget *channel_offset_cb)
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_freq, GtkWidget *channel_offset_cb, gboolean set)
 {
     gint current_offset;
     gint new_offset;
@@ -642,12 +662,14 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_fre
         return;
     }
 
-    new_offset = current_offset = airpcap_get_selected_channel_offset(channel_offset_cb);
+    new_offset = current_offset = if_info->channelInfo.ExtChannel;
 
     /* Clear out the list */
     while (gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(channel_offset_cb)), NULL) > 0) {
         gtk_combo_box_remove_text(GTK_COMBO_BOX(channel_offset_cb), 0);
     }
+
+    gtk_widget_set_sensitive(GTK_WIDGET(channel_offset_cb), TRUE);
 
     for (i = 0; i < if_info->numSupportedChannels; i++) {
         if (if_info->pSupportedChannels[i].Frequency == chan_freq) {
@@ -685,11 +707,13 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_fre
     gtk_combo_box_set_active(GTK_COMBO_BOX(channel_offset_cb), active_idx);
 
 
-    change_airpcap_settings = TRUE;
-
-    if_info->channelInfo.ExtChannel = new_offset;
-    if (!airpcap_update_frequency_and_offset(if_info)){
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
+    if (set) {
+        change_airpcap_settings = TRUE;
+    
+        if_info->channelInfo.ExtChannel = new_offset;
+        if (!airpcap_update_frequency_and_offset(if_info)){
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
+        }
     }
     
     if (idx_count < 1) {
@@ -1188,7 +1212,7 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 
     if_description_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
     channel_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    toolbar_channel_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    toolbar_channel_cb  = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     channel_offset_cb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
     channel_offset_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
     fcs_lb				= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
@@ -1230,19 +1254,19 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 
     toolbar_tb = w;
 
-    if_description_lb	    = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    channel_lb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    toolbar_channel_cb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    channel_offset_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    channel_offset_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    fcs_lb				        = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    fcs_cb				        = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    advanced_bt			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    if_description_lb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    channel_lb                  = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    toolbar_channel_cb          = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    channel_offset_lb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    channel_offset_cb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    fcs_lb                      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    fcs_cb                      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    advanced_bt                 = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
 
-    if(fcs_cb != NULL)				gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(fcs_cb)->entry),"");
-    if(toolbar_channel_cb != NULL)		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(toolbar_channel_cb)->entry),"");
-    if(channel_offset_cb != NULL)			gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry),"");
-    if(if_description_lb != NULL)	gtk_label_set_text(GTK_LABEL(if_description_lb),"Current Wireless Interface: None");
+    if(fcs_cb != NULL)              gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(fcs_cb)->entry),"");
+    if(toolbar_channel_cb != NULL)  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(toolbar_channel_cb)->entry),"");
+    if(channel_offset_cb != NULL)   gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry),"");
+    if(if_description_lb != NULL)   gtk_label_set_text(GTK_LABEL(if_description_lb),"Current Wireless Interface: None");
 
     /*if(if_description_lb != NULL)	gtk_widget_set_sensitive(if_description_lb,FALSE);
     if(channel_lb != NULL)			gtk_widget_set_sensitive(channel_lb,FALSE);
@@ -1253,3 +1277,16 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 }
 
 #endif /* HAVE_AIRPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */

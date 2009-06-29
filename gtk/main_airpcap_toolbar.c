@@ -262,12 +262,12 @@ GtkWidget *airpcap_toolbar_new()
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY, channel_offset_cb);
 
     if(airpcap_if_active != NULL){
-        airpcap_update_channel_offset_combo(airpcap_if_active, airpcap_if_active->channelInfo.Frequency, channel_offset_cb);
+        airpcap_update_channel_offset_combo(airpcap_if_active, airpcap_if_active->channelInfo.Frequency, channel_offset_cb, FALSE);
     } else {
         gtk_combo_box_set_active(GTK_COMBO_BOX(channel_offset_cb), -1);
     }
 
-    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_offset_cb)->entry),
+    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(channel_offset_cb),
 		"Change channel offset", NULL);
 
     gtk_widget_set_size_request(channel_offset_cb, 50, 28);
@@ -280,9 +280,9 @@ GtkWidget *airpcap_toolbar_new()
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
     /* callback for channel combo box */
-    g_signal_connect(channel_cb,"changed", G_CALLBACK(airpcap_channel_changed_cb), channel_offset_cb);
+    g_signal_connect(channel_cb,"changed", G_CALLBACK(airpcap_channel_changed_set_cb), channel_offset_cb);
     /* callback for channel offset combo box */
-    g_signal_connect(GTK_COMBO(channel_offset_cb)->entry,"changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
+    g_signal_connect(GTK_COMBO_BOX(channel_offset_cb), "changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
     /* End: Channel offset combo box */
 
     /* Wrong CRC Label */

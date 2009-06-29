@@ -149,7 +149,7 @@ airpcap_validation_type_combo_set_by_type(GtkWidget* c,AirpcapValidationType typ
  * Update channel offset combo box to 'offset'.
  */
 void
-airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 ch_freq, GtkWidget *channel_offset_cb);
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 ch_freq, GtkWidget *channel_offset_cb, gboolean set);
 
 
 /*
@@ -173,7 +173,17 @@ airpcap_channel_combo_set_by_frequency(GtkWidget* w,guint channel);
  * @param channel_offset_cb The channel offset GtkComboBox
  */
 void
-airpcap_channel_changed_cb(GtkWidget *channel_cb, gpointer channel_offset_cb);
+airpcap_channel_changed_set_cb(GtkWidget *channel_cb, gpointer channel_offset_cb);
+
+/** Respond to the user changing the channel combo box.
+ * Update the offset combo box but not the channel.
+ * Requires AirPcap globals.
+ *
+ * @param channel_cb The channel GtkComboBox
+ * @param channel_offset_cb The channel offset GtkComboBox
+ */
+void
+airpcap_channel_changed_noset_cb(GtkWidget *channel_cb, gpointer channel_offset_cb);
 
 /** Respond to the user changing the channel offset combo box.
  * Update the active interface channel offset.
@@ -192,12 +202,6 @@ int
 airpcap_if_is_any(airpcap_if_info_t* if_info);
 
 /*
- * Change channel of Airpcap Adapter
- */
-gboolean
-airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info);
-
-/*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
 void
@@ -208,12 +212,6 @@ airpcap_add_keys_from_list(GtkWidget *w, airpcap_if_info_t *if_info);
  */
 void
 airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info);
-
-/*
- * Update the channel offset of the given combobox
- */
-void
-airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, guint32 ch_freq, GtkWidget *channel_offset_cb);
 
 /*
  * This function will take the current keys (widget list), specified for the

@@ -92,46 +92,6 @@ write_prefs_to_file(void)
 }
 
 /*
- * This struct will contain useful data for the selected (actual) airpcap device
- */
-void
-airpcap_fill_if_combo(GtkWidget *combo, GList* if_list)
-{
-    int ifn = 0;
-    GList* popdown_if_list = NULL;
-    GList* curr = NULL;
-    airpcap_if_info_t* if_info = NULL;
-
-    curr = g_list_nth(if_list, ifn);
-    if_info = NULL;
-    if (curr != NULL) if_info = curr->data;
-
-    popdown_if_list = NULL;
-    ifn = g_list_length(if_list) - 1;
-    while (ifn >= 0) /* reverse order */
-    {
-        curr = g_list_nth(if_list, ifn);
-        if_info = NULL;
-        if (curr != NULL)
-            if_info = curr->data;
-        if (if_info != NULL)
-            popdown_if_list = g_list_append( popdown_if_list , if_info->description) ;
-        ifn--;
-    }
-    gtk_combo_set_popdown_strings( GTK_COMBO(combo), popdown_if_list) ;
-    g_list_free(popdown_if_list);
-
-    if (airpcap_if_selected != NULL)
-    {
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), airpcap_if_selected->description);
-    }
-    else
-    {
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), "No Wireless Interfaces Found");
-    }
-}
-
-/*
  * Callback for the select row event in the key list widget
  */
 void
@@ -1893,7 +1853,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_offset_cb = gtk_combo_box_new_text();
     gtk_widget_set_name (channel_offset_cb, "channel_offset_cb");
 
-    airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb);
+    airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb, FALSE);
 
     gtk_widget_show(channel_offset_cb);
 
@@ -2030,15 +1990,15 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     if (!airpcap_if_is_any(airpcap_if_selected))
     {
-	g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_blink_bt_clicked), airpcap_advanced_w);
+        g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_blink_bt_clicked), airpcap_advanced_w);
     }
     else
     {
         g_signal_connect (blink_bt, "clicked", G_CALLBACK(on_what_s_this_bt_clicked), airpcap_advanced_w);
     }
 
-    g_signal_connect (channel_cb, "changed", G_CALLBACK(airpcap_channel_changed_cb), channel_offset_cb);
-    g_signal_connect (channel_offset_cb, "changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
+    g_signal_connect (channel_cb, "changed", G_CALLBACK(airpcap_channel_changed_noset_cb), channel_offset_cb);
+    /* We don't attach the channel offset combo because we don't want it changing anything yet. */
     g_signal_connect (capture_type_cb, "changed", G_CALLBACK(on_capture_type_cb_changed), airpcap_advanced_w);
     g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), airpcap_advanced_w);
     g_signal_connect (fcs_filter_cb, "changed", G_CALLBACK(on_fcs_filter_cb_changed), NULL);
@@ -2055,6 +2015,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     /* Store pointers to all widgets, for use by lookup_widget(). */
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_BLINK_KEY, blink_bt);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_CHANNEL_KEY,channel_cb);
+    g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY, channel_offset_cb);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_LINK_TYPE_KEY,capture_type_cb);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_FCS_CHECK_KEY, fcs_ck);
     g_object_set_data (G_OBJECT(airpcap_advanced_w), AIRPCAP_ADVANCED_FCS_FILTER_KEY, fcs_filter_cb);
@@ -2075,10 +2036,11 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
  * Callback for the Wireless Advanced Settings 'Apply' button.
  */
 void
-on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
+on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     /* advenced window */
     GtkWidget	*airpcap_advanced_w;
+    GtkWidget   *channel_cb, *channel_offset_cb;
 
     /* widgets in the toolbar */
     GtkWidget	*toolbar,
@@ -2089,6 +2051,13 @@ on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 
     /* retrieve main window */
     airpcap_advanced_w = GTK_WIDGET(data);
+    
+    /* Set the channel and offset */
+    channel_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_KEY));
+    channel_offset_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY));
+    airpcap_channel_offset_changed_cb(channel_offset_cb, NULL);
+    airpcap_channel_changed_set_cb(channel_cb, channel_offset_cb);
+
 
     toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_TOOLBAR_KEY));
 
@@ -2106,7 +2075,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
     {
         gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
         airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cb),airpcap_if_selected);
-        airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, toolbar_channel_offset_cb);
+        airpcap_update_channel_offset_combo(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, toolbar_channel_offset_cb, TRUE);
         airpcap_validation_type_combo_set_by_type(toolbar_fcs_filter_cb,airpcap_if_selected->CrcValidationOn);
     }
 }

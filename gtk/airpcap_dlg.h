@@ -32,7 +32,7 @@
 #define AIRPCAP_ADVANCED_FROM_OPTIONS 1
 
 /*
- * Returns FALSE if a text string has length 0, i.e. the first char 
+ * Returns FALSE if a text string has length 0, i.e. the first char
  * is '\0', TRUE otherwise
  */
 gboolean
@@ -49,12 +49,6 @@ on_edit_key_w_destroy(GtkWidget *button, gpointer data _U_);
  */
 void
 on_add_key_w_destroy(GtkWidget *button, gpointer data _U_);
-
-/*
- * Fill the interface combo box specified
- */
-void
-airpcap_fill_if_combo(GtkWidget *combo, GList* if_list);
 
 /*
  * Creates the list of available decryption modes, depending on the adapters found
@@ -138,7 +132,7 @@ on_key_management_destroy(GtkWidget *w _U_, gpointer data _U_);
 void
 on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_);
 
-/* 
+/*
  * Turns the decryption on or off
  */
 void
@@ -150,7 +144,7 @@ on_decryption_mode_cb_changed(GtkWidget *w, gpointer data);
 void
 update_decryption_mode(GtkWidget *w);
 
-/* 
+/*
  * Reset configuration
  */
 void
@@ -160,7 +154,7 @@ on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_);
  * Callback for the select row event in the key list widget
  */
 void
-on_key_ls_select_row(GtkWidget *widget, 
+on_key_ls_select_row(GtkWidget *widget,
                      gint row,
                      gint column,
                      GdkEventButton *event,
@@ -170,7 +164,7 @@ on_key_ls_select_row(GtkWidget *widget,
  * Callback for the unselect row event in the key list widget
  */
 void
-on_key_ls_unselect_row(GtkWidget *widget, 
+on_key_ls_unselect_row(GtkWidget *widget,
                      gint row,
                      gint column,
                      GdkEventButton *event,
@@ -192,7 +186,7 @@ gboolean update_blink(gpointer data _U_);
 /*
  * Blink button callback
  */
-void 
+void
 on_blink_bt_clicked(GtkWidget *blink_bt _U_, gpointer if_data);
 
 /*
@@ -214,7 +208,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data);
 
 /**/
 /*
- * Dialog box that appears whenever keys are not consistent between wieshark and airpcap 
+ * Dialog box that appears whenever keys are not consistent between wieshark and airpcap
  */
 void
 airpcap_keys_check_w(GtkWidget *w, gpointer data);
