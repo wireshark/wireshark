@@ -155,8 +155,8 @@ static const value_string glbp_vfstate_vals[] = {
 #if 0
 	{ x,	"Disabled" },
 	{ x,	"Initial" },
-	{ x,	"Listen" },
 #endif
+	{ 4,	"Listen" },
 	{ 0x20,	"Active" },
 
 	{ 0, NULL }
