@@ -56,12 +56,12 @@ static int hf_cw_frg = -1;
 static int hf_cw_len = -1;
 static int hf_cw_seq = -1;
 static int hf_payload = -1;
-static int hf_padding = -1;
-static int hf_padding_f = -1;
+static int hf_payload_l = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t pw_padding_handle;
 
-static const char pwc_longname_pw_satop[] = "SAToP (no RTP support)";
+const char pwc_longname_pw_satop[] = "SAToP (no RTP support)";
 static const char shortname[] = "SAToP (no RTP)";
 
 
@@ -80,7 +80,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 		,PAY_LIKE_OCTET_ALIGNED_T1
 	} payload_properties;
 
-	properties = 0;
+	properties = PWC_PACKET_PROPERTIES_T_INITIALIZER;
 	payload_properties = PAY_NO_IDEA;
 	packet_size = tvb_reported_length_remaining(tvb_original, 0);
 	/*
@@ -364,6 +364,9 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 					proto_item_append_text(item, "%s", s);
 					tree = proto_item_add_subtree(item, ett);
 					call_dissector(data_handle, tvb, pinfo, tree);
+					item = proto_tree_add_int(tree, hf_payload_l, tvb, 0, 0
+						,(int)payload_size); /* allow filtering */
+					PROTO_ITEM_SET_HIDDEN(item);
 				}
 			}
 		}
@@ -374,16 +377,9 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 			proto_tree* tree;
 			tree = proto_item_add_subtree(item, ett);
 			{
-				proto_item* item;
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
-				item = proto_tree_add_item(tree, hf_padding, tvb, 0, -1, FALSE);
-				pwc_item_append_text_n_items(item,(int)padding_size,"octet");
-				{
-					proto_tree* tree;
-					tree = proto_item_add_subtree(item, ett);
-					call_dissector(data_handle, tvb, pinfo, tree);
-				}
+				call_dissector(pw_padding_handle, tvb, pinfo, tree);
 			}
 		}	
 	}
@@ -421,11 +417,8 @@ void proto_register_pw_satop(void)
 		,{&hf_payload	,{"TDM payload"			,"pwsatop.payload"	
 				,FT_BYTES			,BASE_NONE		,NULL			
 				,0				,NULL			,HFILL }}
-		,{&hf_padding	,{"Padding"			,"pwsatop.padding"	
-				,FT_BYTES			,BASE_NONE		,NULL			
-				,0				,NULL			,HFILL }}
-		,{&hf_padding_f	,{"Padding (formatted)"		,""
-				,FT_BYTES			,BASE_NONE		,NULL
+		,{&hf_payload_l	,{"TDM payload length"		,"pwsatop.payload.len"
+				,FT_INT32			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 	};
 	
@@ -445,5 +438,6 @@ void proto_reg_handoff_pw_satop(void)
 	dissector_handle_t h;
 	h = find_dissector("pw_satop");
 	data_handle = find_dissector("data");
+	pw_padding_handle = find_dissector("pw_padding");
 	dissector_add("mpls.label", LABEL_INVALID, h);
 }

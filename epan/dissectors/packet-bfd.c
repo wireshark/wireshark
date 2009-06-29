@@ -685,6 +685,7 @@ void proto_register_bfd(void)
     proto_bfd = proto_register_protocol("Bidirectional Forwarding Detection Control Message",
                                         "BFD Control",
                                         "bfd");
+    register_dissector("bfd", dissect_bfd_control, proto_bfd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bfd, hf, array_length(hf));

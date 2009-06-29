@@ -1151,6 +1151,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ppi.h		\
 	packet-ppp.h	\
 	packet-pres.h	\
+	packet-pw-atm.h		\
 	packet-pw-common.h	\
 	packet-q931.h	\
 	packet-q932.h	\

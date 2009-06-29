@@ -39,6 +39,7 @@
 #include "packet-tr.h"
 #include "packet-llc.h"
 #include "prefs.h"
+#include "packet-pw-atm.h"
 
 static int proto_atm = -1;
 static int hf_atm_aal = -1;
@@ -50,7 +51,6 @@ static int proto_ilmi = -1;
 static int proto_aal1 = -1;
 static int proto_aal3_4 = -1;
 static int proto_oamaal = -1;
-static int proto_atm_4717 = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
@@ -934,6 +934,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t     *next_tvb;
   guint32      crc;
   guint32      calc_crc;
+  /* 
+   * ATM dissector is used as "sub-dissector" for ATM pseudowires.
+   * In such cases, pinfo->private_data is used to pass info from/to 
+   * PW dissector to ATM dissector. For decoding normal ATM traffic 
+   * private_data should be NULL.
+   */
+  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
 
   /*
    * This is reassembled traffic, so the cell headers are missing;
@@ -965,19 +972,20 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
     }
   }
-  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
+  if (!pseudowire_mode) {
+    proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
     		pinfo->pseudo_header->atm.vpi);
-  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
+    proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
 		pinfo->pseudo_header->atm.vci);
 
-  /* Also show vpi/vci in info column */
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
+    /* Also show vpi/vci in info column */
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
       col_append_fstr(pinfo->cinfo, COL_INFO, " VPI=%u, VCI=%u",
                       pinfo->pseudo_header->atm.vpi,
                       pinfo->pseudo_header->atm.vci);
+    }
   }
-
 
   next_tvb = tvb;
   if (truncated) {
@@ -1120,7 +1128,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb_memcpy(next_tvb, octet, 0, sizeof(octet)); 
 
             decoded = TRUE;
-            if ((pntohs(octet) & 0xff) == PPP_IP)
+            if (octet[0] == 0xaa
+             && octet[1] == 0xaa
+             && octet[2] == 0x03) /* LLC SNAP as per RFC2684 */
+            {
+                call_dissector(llc_handle, next_tvb, pinfo, tree);
+            }
+            else if ((pntohs(octet) & 0xff) == PPP_IP)
             {
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
             }
@@ -1413,13 +1427,14 @@ get_header_err(const guint8 *cell_header)
     return UNCORRECTIBLE_ERROR;
 }
 
-static const value_string pt_vals[] = {
+const value_string atm_pt_vals[] = {
 	{ 0, "User data cell, congestion not experienced, SDU-type = 0" },
 	{ 1, "User data cell, congestion not experienced, SDU-type = 1" },
 	{ 2, "User data cell, congestion experienced, SDU-type = 0" },
 	{ 3, "User data cell, congestion experienced, SDU-type = 1" },
 	{ 4, "Segment OAM F5 flow related cell" },
 	{ 5, "End-to-end OAM F5 flow related cell" },
+	{ 6, "VC resource management cell" },
 	{ 0, NULL }
 };
 
@@ -1522,6 +1537,19 @@ static const value_string ft_ad_vals[] = {
 	{ 0, NULL }
 };
 
+
+/*
+ * Check for OAM cells.
+ * OAM F4 is VCI 3 or 4 and PT 0X0.
+ * OAM F5 is PT 10X.
+ */
+gboolean atm_is_oam_cell(const guint16 vci, const guint8 pt) 
+{
+	return  (((vci == 3 || vci == 4) && ((pt & 0x5) == 0)) 
+	 	|| ((pt & 0x6) == 0x4));
+}
+
+
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree *atm_tree, guint aal, gboolean nni,
@@ -1540,8 +1568,10 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint         length;
   guint16      crc10;
   tvbuff_t     *next_tvb;
+  const pwatm_private_data_t * pwpd = pinfo->private_data;
 
-  if (!nni) {
+  if (NULL == pwpd) {
+    if (!nni) {
           /* 
            * FF: ITU-T I.361 (Section 2.2) defines the cell header format 
            * and encoding at UNI reference point as:
@@ -1565,7 +1595,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           octet = tvb_get_guint8(tvb, 1);
           vpi |= octet >> 4;
           proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
-  } else {
+    } else {
           /* 
            * FF: ITU-T I.361 (Section 2.3) defines the cell header format 
            * and encoding at NNI reference point as:
@@ -1588,21 +1618,21 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           octet = tvb_get_guint8(tvb, 1);
           vpi |= (octet & 0xF0) >> 4;
           proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
-  }
+    }
 
-  vci = (octet & 0x0F) << 12;
-  octet = tvb_get_guint8(tvb, 2);
-  vci |= octet << 4;
-  octet = tvb_get_guint8(tvb, 3);
-  vci |= octet >> 4;
-  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
-  pt = (octet >> 1) & 0x7;
-  proto_tree_add_text(atm_tree, tvb, 3, 1, "Payload Type: %s",
-        val_to_str(pt, pt_vals, "Unknown (%u)"));
-  proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
+    vci = (octet & 0x0F) << 12;
+    octet = tvb_get_guint8(tvb, 2);
+    vci |= octet << 4;
+    octet = tvb_get_guint8(tvb, 3);
+    vci |= octet >> 4;
+    proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
+    pt = (octet >> 1) & 0x7;
+    proto_tree_add_text(atm_tree, tvb, 3, 1, "Payload Type: %s",
+         val_to_str(pt, atm_pt_vals, "Unknown (%u)"));
+    proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
 	(octet & 0x01) ? "Low priority" : "High priority");
-
-  if (!crc_stripped) {
+  
+    if (!crc_stripped) {
           /*
            * FF: parse the Header Error Check (HEC).
            */
@@ -1617,13 +1647,22 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           else
                   proto_item_append_text(ti, " (error in bit %d)", err);
           offset = 5;
-  } else {
+    } else {
           /*
            * FF: in some encapsulation modes (e.g. RFC 4717, ATM N-to-One
            * Cell Mode) the Header Error Check (HEC) field is stripped.
            * So we do nothing here.
            */
           offset = 4;
+    }
+  }
+  else
+  {
+    offset = 0; /* For PWs. Header is decoded by PW dissector.*/
+    pwpd = pinfo->private_data;
+    vpi = pwpd->vpi;
+    vci = pwpd->vci; 
+    pt  = pwpd->pti;
   }
 
   /*
@@ -1632,13 +1671,9 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * Wiretap got from the file?
    */
   if (aal == AAL_USER) {
-	/*
-	 * OAM F4 is VCI 3 or 4 and PT 0X0.
-	 * OAM F5 is PT 10X.
-	 */
-	if (((vci == 3 || vci == 4) && ((pt & 0x5) == 0)) ||
-	    ((pt & 0x6) == 0x4))
-		aal = AAL_OAMCELL;
+    if (atm_is_oam_cell(vci,pt)) {
+      aal = AAL_OAMCELL;
+    }
   }
 
   switch (aal) {
@@ -1706,16 +1741,22 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case AAL_OAMCELL:
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+    if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
+    {
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
     ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
     octet = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+    if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
+    {
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+    }
     proto_tree_add_text(aal_tree, tvb, offset, 1, "OAM Type: %s",
 		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     switch (octet >> 4) {
@@ -1767,6 +1808,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_tree   *atm_tree = NULL;
   proto_item   *atm_ti = NULL;
+  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
   
   if ( pinfo->pseudo_header->atm.aal == AAL_5 &&
   	pinfo->pseudo_header->atm.type == TRAF_LANE &&
@@ -1777,23 +1819,25 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
-  switch (pinfo->pseudo_header->atm.channel) {
+  if (!pseudowire_mode) {
+    switch (pinfo->pseudo_header->atm.channel) {
 
-  case 0:
-    /* Traffic from DTE to DCE. */
-    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
-    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
-    break;
+    case 0:
+      /* Traffic from DTE to DCE. */
+      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+        col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+        col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+      break;
 
-  case 1:
-    /* Traffic from DCE to DTE. */
-    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-    break;
+    case 1:
+      /* Traffic from DCE to DTE. */
+      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+        col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+        col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+      break;
+    }
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1812,23 +1856,25 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
-    switch (pinfo->pseudo_header->atm.channel) {
+    if (!pseudowire_mode) {
+      switch (pinfo->pseudo_header->atm.channel) {
 
-    case 0:
-      /* Traffic from DTE to DCE. */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
-      break;
+      case 0:
+        /* Traffic from DTE to DCE. */
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
+        break;
 
-    case 1:
-      /* Traffic from DCE to DTE. */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
-      break;
+      case 1:
+        /* Traffic from DCE to DTE. */
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
+        break;
 
-    default:
-      /* Sniffers shouldn't provide anything other than 0 or 1. */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: %u",
+      default:
+        /* Sniffers shouldn't provide anything other than 0 or 1. */
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: %u",
  		pinfo->pseudo_header->atm.channel);
-      break;
+        break;
+      }
     }
 
     proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
@@ -1865,59 +1911,21 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree   *atm_tree = NULL;
   proto_item   *atm_ti = NULL;
+  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
   
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
-  if (tree) {
-    atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
-    atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
+  if (!pseudowire_mode) {
+    if (tree) {
+      atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+      atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
+    }
   }
 
   dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
 }
 
-/*
- * FF: this dissector is called directly from packet-pw-atm.c.
- * it checks pinfo->pw_atm_encap_type, pinfo->pw_atm_flags
- * in order to gather information about the used encapsulation
- * format (defined in RFC 4717).  The result (i.e. protocol tree
- * and cinfo) of this dissector should look like, as close as 
- * possible, to the legacy one (i.e. dissect_atm_[untruncated|oam_cell]).
- */
-static void
-dissect_atm_4717(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-        proto_tree *atm_tree = NULL;
-        proto_item *atm_ti = NULL;
-        
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
-        
-        if (tree) {
-                atm_ti = proto_tree_add_protocol_format(tree, 
-                                                        proto_atm, 
-                                                        tvb, 0, 0, "ATM");
-                atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
-        }
-
-        switch (pinfo->pw_atm_encap_type) {
-        case 1: /* ATM N-to-One Cell Mode */
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_str(pinfo->cinfo, COL_INFO, "Unknown AAL");
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                        " (%u cell%s)",
-                                        pinfo->pw_atm_ncells,
-                                        pinfo->pw_atm_ncells == 1 ? "" : "s");
-                }
-                proto_item_set_len(atm_ti, 4);
-                dissect_atm_cell(tvb, pinfo, tree, atm_tree, 
-                                 AAL_UNKNOWN, TRUE, TRUE);
-                break;
-        default:
-                break;
-        }
-}
 
 void
 proto_register_atm(void)
@@ -1971,8 +1979,8 @@ proto_register_atm(void)
 
 	register_dissector("lane", dissect_lane, proto_atm_lane);
 	register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+	register_dissector("atm_truncated", dissect_atm, proto_atm);
 	register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
-	register_dissector("atm_4717", dissect_atm_4717, proto_atm_4717);
 	
 	atm_module = prefs_register_protocol ( proto_atm, NULL );
 	prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
@@ -1983,7 +1991,7 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
-	dissector_handle_t atm_handle, atm_untruncated_handle, atm_4717_handle;
+	dissector_handle_t atm_handle, atm_untruncated_handle;
 
 	/*
 	 * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
@@ -2009,6 +2017,4 @@ proto_reg_handoff_atm(void)
 	    proto_atm);
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
 	    atm_untruncated_handle);
-
-	atm_4717_handle = create_dissector_handle(dissect_atm_4717, proto_atm);
 }

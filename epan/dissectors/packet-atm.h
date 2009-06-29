@@ -27,4 +27,8 @@
 void capture_atm(const union wtap_pseudo_header *, const guchar *, int,
     packet_counts *);
 
+gboolean atm_is_oam_cell(const guint16 vci, const guint8 pt); /*For pw-atm dissector*/
+
+extern const value_string atm_pt_vals[]; /*For pw-atm dissector*/
+
 #endif

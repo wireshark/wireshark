@@ -28,6 +28,7 @@
 #endif
 
 #include <string.h>
+#include <epan/packet.h>
 #include "packet-pw-common.h"
 
 static const char string_ok[] = "Ok";
@@ -57,22 +58,6 @@ pwc_vals_cw_frag[] = {
 };
 
 
-int pwc_value_listed_in_vals(const guint32 val, const value_string * vals)
-{
-	if (NULL != vals)
-	{
-		while (vals->strptr != NULL)
-		{
-			if (val == vals->value)
-			{
-				return (1==1);
-			}
-			++vals;
-		}
-	}
-	return 0;
-}
-
 void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean append_text)
 {
 	if (item != NULL)
@@ -90,8 +75,61 @@ void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean appen
 void pwc_item_append_text_n_items(proto_item* item, const int n, const char * const item_text)
 {
 	assert(item != 0);
-	proto_item_append_text(item, ", %d %s%s", n, item_text, plurality(n,"","s"));
+	if (n >=0)
+	{
+		proto_item_append_text(item, ", %d %s%s", n, item_text, plurality(n,"","s"));
+	}
 	return;
 }
 
 
+static gint proto_pw_padding = -1;
+static gint ett = -1;
+static int hf_padding_len = -1;
+static dissector_handle_t dh_data;
+
+static
+void dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+	/* do not touch columns */
+	if (tree)
+	{
+		gint size;
+		proto_item* item;
+		size = tvb_reported_length_remaining(tvb, 0);
+		item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, FALSE);
+		pwc_item_append_text_n_items(item,size,"byte");
+		{
+			proto_tree* tree;
+			tree = proto_item_add_subtree(item, ett);
+			call_dissector(dh_data, tvb, pinfo, tree);
+			item = proto_tree_add_int(tree, hf_padding_len, tvb, 0, 0, size);
+			PROTO_ITEM_SET_HIDDEN(item); /*allow filtering*/
+		}
+	}
+	return;
+}
+
+void proto_register_pw_padding(void)
+{
+	static hf_register_info hfpadding[] = {
+		{&hf_padding_len	,{"Length"			,"pw.padding.len"
+					,FT_INT32	,BASE_DEC	,NULL		,0
+					,NULL						,HFILL }}
+	};
+	static gint *ett_array[] = {
+		&ett
+	};
+	proto_pw_padding = proto_register_protocol("Pseudowire Padding","PW Padding","pwpadding");
+	proto_register_field_array(proto_pw_padding, hfpadding, array_length(hfpadding));
+	proto_register_subtree_array(ett_array, array_length(ett_array));
+	register_dissector("pw_padding", dissect_pw_padding, proto_pw_padding);
+	return;
+}
+
+
+void proto_reg_handoff_pw_padding(void)
+{
+	dh_data = find_dissector("data");
+	return;
+}

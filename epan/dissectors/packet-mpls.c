@@ -58,6 +58,7 @@
 #include <epan/addr_resolv.h>
 #include "packet-ppp.h"
 #include "packet-mpls.h"
+#include "packet-pw-common.h"
 
 static gint proto_mpls = -1;
 static gint proto_pw_ach = -1;
@@ -92,6 +93,7 @@ enum mpls_filter_keys {
 static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
+static dissector_handle_t dissector_bfd;
 static dissector_handle_t dissector_pw_eth_heuristic;
 static dissector_handle_t dissector_pw_fr;
 static dissector_handle_t dissector_pw_hdlc_nocw_fr;
@@ -100,6 +102,10 @@ static dissector_handle_t dissector_pw_eth_cw;
 static dissector_handle_t dissector_pw_eth_nocw;
 static dissector_handle_t dissector_pw_satop;
 static dissector_handle_t dissector_itdm;
+static dissector_handle_t dissector_mpls_pw_atm_n1_cw;
+static dissector_handle_t dissector_mpls_pw_atm_n1_nocw;
+static dissector_handle_t dissector_mpls_pw_atm_11_aal5pdu;
+static dissector_handle_t dissector_mpls_pw_atm_aal5_sdu;
 static dissector_handle_t dissector_pw_cesopsn;
 
 enum mpls_default_dissector_t {
@@ -113,6 +119,10 @@ enum mpls_default_dissector_t {
     ,MDD_MPLS_PW_ETH_NOCW
     ,MDD_MPLS_PW_GENERIC
     ,MDD_ITDM
+    ,MDD_MPLS_PW_ATM_N1_CW
+    ,MDD_MPLS_PW_ATM_N1_NOCW
+    ,MDD_MPLS_PW_ATM_11_OR_AAL5_PDU
+    ,MDD_MPLS_PW_ATM_AAL5_SDU
 };
 
 /* TODO the content of mpls_default_payload menu
@@ -123,12 +133,12 @@ enum mpls_default_dissector_t {
 static enum_val_t mpls_default_payload_defs[] = {
     {
         "pw satop"
-        ,"SAToP (no RTP support)"
+        ,pwc_longname_pw_satop
         ,MDD_PW_SATOP
     },
     {
         "pw cesopsn"
-        ,"CESoPSN basic NxDS0 mode (no RTP support)"
+        ,pwc_longname_pw_cesopsn
         ,MDD_PW_CESOPSN
     },
     {
@@ -172,6 +182,26 @@ static enum_val_t mpls_default_payload_defs[] = {
         ,MDD_ITDM
     },
     {
+        "mpls pw atm n_to_one cw"
+        ,pwc_longname_pw_atm_n1_cw
+        ,MDD_MPLS_PW_ATM_N1_CW
+    },
+    {
+        "mpls pw atm n_to_one no_cw"
+        ,pwc_longname_pw_atm_n1_nocw
+        ,MDD_MPLS_PW_ATM_N1_NOCW
+    },
+    {
+        "mpls pw atm one_to_one or aal5_pdu"
+        ,pwc_longname_pw_atm_11_or_aal5_pdu
+        ,MDD_MPLS_PW_ATM_11_OR_AAL5_PDU
+    },
+    {
+        "mpls pw atm aal5_sdu"
+        ,pwc_longname_pw_atm_aal5_sdu
+        ,MDD_MPLS_PW_ATM_AAL5_SDU
+    },
+    {
         NULL
         ,NULL
         ,-1
@@ -181,6 +211,9 @@ static enum_val_t mpls_default_payload_defs[] = {
 static int mpls_filter[MPLSF_MAX];
 
 static gint mpls_default_payload = 0;
+static gboolean mpls_pref_pwac_all_as_bfd_xipv4 = FALSE;
+static gboolean mpls_pref_pwac_0x0_as_bfd = FALSE;
+static gboolean mpls_pref_pwac_try_ppp = TRUE;
 
 static int hf_mpls_1st_nibble = -1;
 
@@ -236,6 +269,60 @@ static const value_string oam_defect_type_vals[] = {
     {0, NULL }
 };
 
+#if 0 /*not used yet*/
+/* 
+ * MPLS PW types 
+ * http://www.iana.org/assignments/pwe3-parameters
+ */
+static const value_string mpls_pw_types[] = {
+	{ 0x0001, "Frame Relay DLCI ( Martini Mode )"              }, 
+	{ 0x0002, "ATM AAL5 SDU VCC transport"                     },
+	{ 0x0003, "ATM transparent cell transport"                 },
+	{ 0x0004, "Ethernet Tagged Mode"                           },
+	{ 0x0005, "Ethernet"                                       },
+	{ 0x0006, "HDLC"                                           },
+	{ 0x0007, "PPP"                                            },
+	{ 0x0008, "SONET/SDH Circuit Emulation Service Over MPLS"  },
+	{ 0x0009, "ATM n-to-one VCC cell transport"                },
+	{ 0x000A, "ATM n-to-one VPC cell transport"                },
+	{ 0x000B, "IP Layer2 Transport"                            },
+	{ 0x000C, "ATM one-to-one VCC Cell Mode"                   },
+	{ 0x000D, "ATM one-to-one VPC Cell Mode"                   },
+	{ 0x000E, "ATM AAL5 PDU VCC transport"                     },
+	{ 0x000F, "Frame-Relay Port mode"                          },
+	{ 0x0010, "SONET/SDH Circuit Emulation over Packet"        },
+	{ 0x0011, "Structure-agnostic E1 over Packet"              },
+	{ 0x0012, "Structure-agnostic T1 (DS1) over Packet"        },
+	{ 0x0013, "Structure-agnostic E3 over Packet"              },
+	{ 0x0014, "Structure-agnostic T3 (DS3) over Packet"        },
+	{ 0x0015, "CESoPSN basic mode"                             },
+	{ 0x0016, "TDMoIP AAL1 Mode"                               },
+	{ 0x0017, "CESoPSN TDM with CAS"                           },
+	{ 0x0018, "TDMoIP AAL2 Mode"                               },
+	{ 0x0019, "Frame Relay DLCI"                               },
+	{ 0x001A, "ROHC Transport Header-compressed Packets"       },/*[RFC4995][RFC4901]*/
+	{ 0x001B, "ECRTP Transport Header-compressed Packets"      },/*[RFC3545][RFC4901]*/
+	{ 0x001C, "IPHC Transport Header-compressed Packets"       },/*[RFC2507][RFC4901]*/
+	{ 0x001D, "cRTP Transport Header-compressed Packets"       },/*[RFC2508][RFC4901]*/
+	{ 0x001E, "ATM VP Virtual Trunk"                           },/*[MFA9]*/
+	{ 0x001F, "Reserved"                                       },/*[Bryant]  2008-04-17*/
+	{ 0, NULL }
+};
+#endif
+
+/* 
+ * MPLS PW Associated Channel Types
+ * as per http://www.iana.org/assignments/pwe3-parameters
+ * and http://tools.ietf.org/html/draft-ietf-pwe3-vccv-bfd-05 clause 3.2 
+ */
+static const value_string mpls_pwac_types[] = {
+        { 0x0007, "BFD Control, PW-ACH-encapsulated (BFD Without IP/UDP Headers)" },
+	{ 0x0021, "IPv4 packet" },
+	{ 0x0057, "IPv6 packet" },
+	{ 0, NULL }
+};
+
+
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t mpls_subdissector_table;
 
@@ -289,20 +376,49 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    tvb, 0, 1, ver, "Version: %d", ver);
         ti = proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
                                         tvb, 1, 1, res, "Reserved: 0x%02x", res);
-        PROTO_ITEM_SET_HIDDEN(ti);
         if (res != 0)
             proto_tree_add_text(mpls_pw_ach_tree, tvb, 1, 1,
                 "Error: this byte is reserved and must be 0");
+        else
+            PROTO_ITEM_SET_HIDDEN(ti);
         proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                    tvb, 2, 2, channel_type,
                                    "Channel Type: %s (0x%04x)",
-                                   val_to_str(channel_type, ppp_vals, "Unknown"),
+                                   val_to_str(channel_type, mpls_pwac_types, "Unknown"),
                                               channel_type);
     }
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-    if (!dissector_try_port(ppp_subdissector_table, channel_type, 
+
+    if (0x21 == channel_type /*IPv4, RFC4385 clause 6.*/) 
+    {
+        call_dissector(dissector_ip, next_tvb, pinfo, tree);
+    } 
+    else if (0x7 == channel_type /*PWACH-encapsulated BFD, draft-ietf-pwe3-vccv-bfd-05 3.2*/
+            || mpls_pref_pwac_all_as_bfd_xipv4)
+    {
+        call_dissector(dissector_bfd, next_tvb, pinfo, tree);
+    }
+    else if (0x57 == channel_type /*IPv6, RFC4385 clause 6.*/)
+    {
+        call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+    }
+    else if (0x0 == channel_type && mpls_pref_pwac_0x0_as_bfd)
+    {
+        call_dissector(dissector_bfd, next_tvb, pinfo, tree);
+    }
+    else if (mpls_pref_pwac_try_ppp)
+    {
+        /* XXX perhaps this code should be reconsidered */
+        /* non-standard extension, therefore controlled by option*/
+        /* appeared in revision 10862 from Carlos M. Pignataro */
+        if (!dissector_try_port(ppp_subdissector_table, channel_type, 
                             next_tvb, pinfo, tree)) {
             call_dissector(dissector_data, next_tvb, pinfo, tree);
+        }
+    }
+    else
+    {
+        call_dissector(dissector_data, next_tvb, pinfo, tree);
     }
 }
 
@@ -683,8 +799,20 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case MDD_ITDM:
                call_dissector(dissector_itdm, next_tvb, pinfo, tree);
                break;
-        default: /*fallthrough*/
-        case MDD_MPLS_PW_GENERIC:
+        case MDD_MPLS_PW_ATM_N1_CW:
+               call_dissector(dissector_mpls_pw_atm_n1_cw, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_ATM_N1_NOCW:
+               call_dissector(dissector_mpls_pw_atm_n1_nocw, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_ATM_11_OR_AAL5_PDU:
+               call_dissector(dissector_mpls_pw_atm_11_aal5pdu, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_ATM_AAL5_SDU:
+               call_dissector(dissector_mpls_pw_atm_aal5_sdu, next_tvb, pinfo, tree);
+               break;
+        default: /*fallthrough*/        
+	case MDD_MPLS_PW_GENERIC:
                dissect_pw_mcw(next_tvb, pinfo, tree);
                break;
         }
@@ -806,6 +934,35 @@ proto_register_mpls(void)
 					&mpls_default_payload,
 					mpls_default_payload_defs,
 					FALSE );
+	prefs_register_bool_preference(module_mpls
+		,"mplspref.pwac_0x0_as_bfd"
+		,"Assume PWAC Channel Type 0x0 is raw BFD"
+		,"draft-ietf-pwe3-vccv-bfd-05 states that PWAC Channel Type 0x07 must be used"
+		" when VCCV carries PW-ACH-encapsulated BFD (i.e., BFD without IP/UDP Headers, or \"raw\" BFD)"
+		"\n\n"
+		"Legacy or buggy devices may not comply to this and use Channel Type 0x0 for BFD."
+		" Enable this preference to decode such BFD traffic."
+		" Disable for standard behavior of PWAC dissector (default)."
+		,&mpls_pref_pwac_0x0_as_bfd);
+	prefs_register_bool_preference(module_mpls
+		,"mplspref.pwac_all_as_bfd_xip"
+		,"Assume that all PWAC Channel Types (except 0x21) are raw BFD"
+		,"draft-ietf-pwe3-vccv-bfd-05 states that PWAC Channel Type 0x07 must be used"
+		" when VCCV carries PW-ACH-encapsulated BFD (i.e., \"raw\" BFD)"
+		"\n\n"
+		"Legacy or buggy devices may not comply to this and use voluntary Channel Type for BFD."
+		" Enable this preference to decode all PWAC Channel Types as raw BFD,"
+		" except Channel Type 0x21 (IPv4)."
+		" Disable for standard behavior of PWAC dissector (default)."
+		,&mpls_pref_pwac_all_as_bfd_xipv4);
+	prefs_register_bool_preference(module_mpls
+		,"mplspref.pwac_try_ppp"
+		,"As a last resort, try to decode PWAC payloads as PPP traffic"
+		,"Legacy devices may use MPLS PW Associated Channel for PPP traffic."
+		"\n\n"
+		"Enable this preference to allow PWAC dissector to try PPP,"
+		" if no other suitable dissector found (default)."
+		,&mpls_pref_pwac_try_ppp);
 }
 
 void
@@ -836,6 +993,7 @@ proto_reg_handoff_mpls(void)
 		dissector_data 			= find_dissector("data");
 		dissector_ipv6 			= find_dissector("ipv6");
 		dissector_ip 			= find_dissector("ip");
+		dissector_bfd			= find_dissector("bfd");
 		dissector_pw_eth_heuristic 	= find_dissector("pw_eth_heuristic");
 		dissector_pw_fr 		= find_dissector("pw_fr");
 		dissector_pw_hdlc_nocw_fr 	= find_dissector("pw_hdlc_nocw_fr");
@@ -844,6 +1002,10 @@ proto_reg_handoff_mpls(void)
 		dissector_pw_eth_nocw 		= find_dissector("pw_eth_nocw");
 		dissector_pw_satop 		= find_dissector("pw_satop");
 		dissector_itdm 			= find_dissector("itdm");
+		dissector_mpls_pw_atm_n1_cw	= find_dissector("mpls_pw_atm_n1_cw");
+		dissector_mpls_pw_atm_n1_nocw	= find_dissector("mpls_pw_atm_n1_nocw");
+		dissector_mpls_pw_atm_11_aal5pdu= find_dissector("mpls_pw_atm_11_or_aal5_pdu");
+		dissector_mpls_pw_atm_aal5_sdu	= find_dissector("mpls_pw_atm_aal5_sdu");
 		dissector_pw_cesopsn		= find_dissector("pw_cesopsn");
 
 		initialized = TRUE;
