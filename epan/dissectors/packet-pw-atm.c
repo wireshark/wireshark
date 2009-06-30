@@ -250,8 +250,8 @@ int number_of_cells(const pwatm_mode_t mode
 		,gint* const remainder_size)
 {
 	int cells;	
-	assert(payload_size >= 0);
-	assert(remainder_size != NULL);
+
+	DISSECTOR_ASSERT(payload_size >= 0);
 	
 	switch(mode)
 	{
