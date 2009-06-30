@@ -180,6 +180,8 @@ my %APIs = (
 	# APIs that make the program exit. Dissectors shouldn't call these
 	'abort' => { 'count_errors' => 1, 'functions' => [
 		'abort',
+		'assert',
+		'assert_perror',
 		'exit',
 		'g_assert',
 		'g_error',
