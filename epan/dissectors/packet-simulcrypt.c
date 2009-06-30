@@ -730,13 +730,9 @@ void proto_reg_handoff_simulcrypt(void)
 		initialized = TRUE;
 	}
 	else {
-		if (tcp_port != 0) {
-			dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
-		}
+		dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
 	}	
-	if (global_simulcrypt_tcp_port != 0) {
-		dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
-	}
+	dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
 	tcp_port = global_simulcrypt_tcp_port;
 
 	/* update tab_ecm_inter table (always do this) */
