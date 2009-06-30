@@ -477,7 +477,6 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree, void 
   proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
 
   /* Store the SI so that subidissectors know what SI this msg is */
-  assert(NULL != pd_save);
   *pd_save = pinfo->private_data;
   pinfo->private_data = GUINT_TO_POINTER(sio & SERVICE_INDICATOR_MASK);
 }
