@@ -492,6 +492,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Ne_xt", "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
     {"/Edit/Find Pre_vious", "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifndef NEW_PACKET_LIST
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
@@ -503,6 +504,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
                         REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
     {"/Edit/Find Next Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
@@ -568,8 +570,10 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_ZOOM_OUT,},
     {"/View/_Normal Size", "<control>equal", GTK_MENU_FUNC(view_zoom_100_cb),
                              0, "<StockItem>", GTK_STOCK_ZOOM_100,},
+#ifndef NEW_PACKET_LIST
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+#endif /* NEW_PACKET_LIST */
     {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/View/E_xpand Subtrees", "<shift>Right", GTK_MENU_FUNC(expand_tree_cb), 0, NULL, NULL,},
     {"/View/_Expand All", "<control>Right", GTK_MENU_FUNC(expand_all_cb),
@@ -623,6 +627,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Go/Go to _Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb),
                        0, NULL, NULL,},
     {"/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+ #ifndef NEW_PACKET_LIST
     {"/Go/Previous Packet", "<control>Up",
                              GTK_MENU_FUNC(packet_list_prev), 0, "<StockItem>", GTK_STOCK_GO_UP,},
     {"/Go/Next Packet", "<control>Down",
@@ -631,6 +636,7 @@ static GtkItemFactoryEntry menu_items[] =
                              GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
     {"/Go/_Last Packet", "<control>End",
                              GTK_MENU_FUNC(goto_bottom_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_BOTTOM,},
+#endif /* NEW_PACKET_LIST */
 #ifdef HAVE_LIBPCAP
     {"/_Capture", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Capture/_Interfaces...", "<control>I",
@@ -735,12 +741,15 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
+#ifndef NEW_PACKET_LIST
     {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_mark_frame_cb), 0, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Set Time Reference (toggle)", NULL, GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
+#ifndef NEW_PACKET_LIST */
     {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
     {"/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
@@ -753,7 +762,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
     {"/Apply as Filter/... o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-
     {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Prepare a Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE, NULL, NULL,},
@@ -767,7 +775,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL,},
     {"/Prepare a Filter/... o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_OR_NOT, NULL, NULL,},
-
+#endif /* NEW_PACKET_LIST */
     {"/Conversation Filter", NULL, NULL, 0, "<Branch>",NULL,},
     {"/Conversation Filter/Ethernet", NULL, GTK_MENU_FUNC(conversation_cb),
                        CONV_ETHER, NULL, NULL,},
@@ -921,13 +929,14 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        0, NULL, NULL,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
+#ifndef NEW_PACKET_LIST
     {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
     {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Copy/As Filter", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Copy/Bytes (Offset Hex Text)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_ALLINFO, NULL, NULL,},
     {"/Copy/Bytes (Offset Hex)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEXCOLUMNS, NULL, NULL,},
@@ -1594,8 +1603,10 @@ set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
             }
             gtk_widget_set_sensitive(menu_item, val);
         } else{
+#ifndef NEW_PACKET_LIST
             /* be sure this menu item *is* existing */
             g_assert_not_reached();
+#endif
         }
     }
 
@@ -2254,6 +2265,7 @@ menu_recent_read_finished(void) {
 }
 
 
+#ifndef NEW_PACKET_LIST
 gint
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -2332,6 +2344,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
     return FALSE;
 }
+#endif /* NEW_PACKET_LIST */
 
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved

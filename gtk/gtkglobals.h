@@ -42,8 +42,10 @@
 /** Application window. */
 extern GtkWidget *top_level;
 
+#ifndef NEW_PACKET_LIST
 /** Packet list pane. */
 extern GtkWidget *packet_list;
+#endif
 
 /** Tree view (packet details) pane. */
 extern GtkWidget *tree_view;

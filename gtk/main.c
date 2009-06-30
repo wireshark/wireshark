@@ -173,6 +173,10 @@
 #include <epan/crypt/airpdcap_ws.h>
 #endif
 
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#endif
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -490,6 +494,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
 }
 
+#ifndef NEW_PACKET_LIST
 static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {
@@ -513,6 +518,7 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
         action,
         get_filter_from_packet_list_row_and_column(data));
 }
+#endif /* NEW_PACKET_LIST */
 
 /* This function allows users to right click in the details window and copy the text
  * information to the operating systems clipboard.
@@ -2524,13 +2530,16 @@ main(int argc, char *argv[])
      is displayed.
 
      XXX - is that still true, with fixed-width columns? */
+#ifndef NEW_PACKET_LIST
   packet_list_set_column_titles();
+#endif
 
   menu_recent_read_finished();
 #ifdef HAVE_LIBPCAP
   menu_auto_scroll_live_changed(auto_scroll_live);
 #endif
 
+#ifndef NEW_PACKET_LIST
   switch (user_font_apply()) {
   case FA_SUCCESS:
       break;
@@ -2549,6 +2558,7 @@ main(int argc, char *argv[])
       recent.gui_zoom_level = 0;
       /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
   }
+#endif /* NEW_PACKET_LIST */
 
   dnd_init(top_level);
 
@@ -3136,8 +3146,10 @@ main_widgets_show_or_hide(void)
     }
 
     /* workaround for bug in GtkCList to ensure packet list scrollbar is updated */
+#ifndef NEW_PACKET_LIST
     packet_list_freeze ();
-    packet_list_thaw ();
+    packet_list_thaw (); 
+#endif
 }
 
 
@@ -3166,10 +3178,14 @@ static int
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
+#ifndef NEW_PACKET_LIST
 	packet_list_next();
+#endif
 	return TRUE;
     } else if (event->keyval == GDK_F7) {
+#ifndef NEW_PACKET_LIST
 	packet_list_prev();
+#endif
 	return TRUE;
     } else if (event->state & NO_SHIFT_MOD_MASK) {
         return FALSE; /* Skip control, alt, and other modifiers */
@@ -3243,9 +3259,15 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     filter_tb = filter_toolbar_new();
 
     /* Packet list */
+#ifdef NEW_PACKET_LIST
+    pkt_scrollw = new_packet_list_create();
+    gtk_widget_set_size_request(pkt_scrollw, -1, pl_size);
+    gtk_widget_show_all(pkt_scrollw);
+#else
     pkt_scrollw = packet_list_new(prefs);
     gtk_widget_set_size_request(packet_list, -1, pl_size);
     gtk_widget_show(pkt_scrollw);
+#endif
 
     /* Tree view */
     tv_scrollw = main_tree_view_new(prefs, &tree_view);
@@ -3254,8 +3276,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
                    "changed", G_CALLBACK(tree_view_selection_changed_cb), NULL);
+#ifndef NEW_PACKET_LIST
     g_signal_connect(tree_view, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
+#endif /* NEW_PACKET_LIST */
     gtk_widget_show(tree_view);
 
     /* Byte view. */
@@ -3263,9 +3287,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_size_request(byte_nb_ptr, -1, bv_size);
     gtk_widget_show(byte_nb_ptr);
 
+#ifndef NEW_PACKET_LIST
     g_signal_connect(byte_nb_ptr, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
-
+#endif /* NEW_PACKET_LIST */
 
     /* Panes for the packet list, tree, and byte view */
     main_pane_v1 = gtk_vpaned_new();
@@ -3394,10 +3419,12 @@ void change_configuration_profile (const gchar *profile_name)
    /* Reload list of interfaces on welcome page */
    welcome_if_panel_reload();
 
+#ifndef NEW_PACKET_LIST
    /* Recreate the packet list according to new preferences */
    packet_list_recreate ();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply();
+#endif
 }
 
 /** redissect packets and update UI */

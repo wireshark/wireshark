@@ -373,7 +373,9 @@ write_profile_recent(void)
 
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
+#ifndef NEW_PACKET_LIST
   packet_list_recent_write_all(rf);
+#endif
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -515,10 +517,12 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 {
   long num;
   char *p;
+#ifndef NEW_PACKET_LIST
   GList *col_l, *col_l_elt;
   col_width_data *cfmt;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
   int cust_format_len = (int) strlen(cust_format);
+#endif
 
   if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -618,7 +622,9 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
-  } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
+  }
+#ifndef NEW_PACKET_LIST
+  else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
       return PREFS_SET_SYNTAX_ERR;
@@ -679,6 +685,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     }
     prefs_clear_string_list(col_l);
   }
+#endif /* NEW_PACKET_LIST */
 
   return PREFS_SET_OK;
 }

@@ -518,8 +518,10 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 		case 1:
 			return byte_view_select(widget, event_button);
+#ifndef NEW_PACKET_LIST
 		case 3:
 			return popup_menu_handler(widget, event, data);
+#endif
 		default:
 			return FALSE;
 		}
@@ -588,13 +590,19 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
+
+#ifdef NEW_PACKET_LIST
+  style = gtk_widget_get_style(GTK_WIDGET(top_level));
+#else
   style = gtk_widget_get_style(GTK_WIDGET(packet_list));
+ #endif
   gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
   gtk_text_buffer_create_tag(buf, "reverse",
                              "font-desc", user_font_get_regular(),
                              "foreground-gdk", &style->text[GTK_STATE_SELECTED],
                              "background-gdk", &style->base[GTK_STATE_SELECTED],
                              NULL);
+
   gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);

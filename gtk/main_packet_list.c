@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#ifndef NEW_PACKET_LIST
+
 #include <gtk/gtk.h>
 #include <string.h>
 
@@ -378,6 +380,7 @@ void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
   mark_all_frames(FALSE);
 }
 
+#ifndef NEW_PACKET_LIST */
 gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                  gint *row, gint *column)
@@ -386,6 +389,7 @@ packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                  (gint) event_button->x, (gint) event_button->y,
                                   row, column);
 }
+#endif /* NEW_PACKET_LIST */
 
 static gint
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
@@ -988,3 +992,5 @@ packet_list_recent_write_all(FILE *rf)
    }
    fprintf (rf, "\n");
 }
+
+#endif /* NEW_PACKET_LIST */

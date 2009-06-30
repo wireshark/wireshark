@@ -87,7 +87,9 @@ WIRESHARK_GTK_SRC = \
 	main_toolbar.c	\
 	main_welcome.c		\
 	mcast_stream.c	\
+	new_packet_list.c	\
 	packet_history.c	\
+	packet_list_store.c	\
 	packet_win.c	\
 	pixmap_save.c	\
 	plugins_dlg.c	\
@@ -267,7 +269,9 @@ noinst_HEADERS = \
 	mcast_stream.h  \
 	mcast_stream_dlg.h \
 	mtp3_stat.h	\
+	new_packet_list.h \
 	packet_history.h	\
+	packet_list_store.h	\
 	packet_win.h	\
 	pixmap_save.h	\
 	plugins_dlg.h	\

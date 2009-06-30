@@ -76,7 +76,10 @@ static GtkToolItem *open_button, *save_button, *close_button, *reload_button;
 static GtkToolItem *print_button, *find_button, *history_forward_button, *history_back_button;
 static GtkToolItem *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkToolItem *display_filter_button;
-static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
+static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button;
+#ifndef NEW_PACKET_LIST
+static GtkToolItem *resize_columns_button;
+#endif
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
 #define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
@@ -202,8 +205,10 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 				 have_captured_packets);
         gtk_widget_set_sensitive(GTK_WIDGET(zoom_100_button),
 				 have_captured_packets);        
+#ifndef NEW_PACKET_LIST
         gtk_widget_set_sensitive(GTK_WIDGET(resize_columns_button),
 				 have_captured_packets);
+#endif
         /* XXX - I don't see a reason why this should be done (as it is in the
          * menus) */
         /* gtk_widget_set_sensitive(GTK_WIDGET(color_display_button),
@@ -381,8 +386,10 @@ toolbar_new(void)
     toolbar_item(zoom_100_button, main_tb, 
 	GTK_STOCK_ZOOM_100, tooltips, "Zoom 100%", view_zoom_100_cb, NULL);
 
+#ifndef NEW_PACKET_LIST
     toolbar_item(resize_columns_button, main_tb, 
 	WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", packet_list_resize_columns_cb, NULL);
+#endif
 
     toolbar_append_separator(main_tb);
     

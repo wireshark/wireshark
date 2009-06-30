@@ -54,6 +54,8 @@ extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_p
 
 /* packet_list.c */
 
+#ifndef NEW_PACKET_LIST
+
 /* packet list related functions */
 void packet_list_clear(void);
 void packet_list_freeze(void);
@@ -71,6 +73,7 @@ gint packet_list_get_sort_column(void);
 void packet_list_set_sort_column(void);
 gboolean packet_list_check_end(void);
 
+#endif /* NEW_PACKET_LIST */
 
 #ifdef __cplusplus
 }

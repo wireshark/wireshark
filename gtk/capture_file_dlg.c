@@ -690,7 +690,9 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
      "get_dirname()" does write over its argument. */
   s = get_dirname(cf_name);
   set_last_open_dir(s);
+#ifndef NEW_PACKET_LIST
   gtk_widget_grab_focus(packet_list);
+#endif
 
   g_free(cf_name);
 }
@@ -716,8 +718,13 @@ file_merge_cmd(GtkWidget *w)
 {
 #if _WIN32
   win32_merge_file(GDK_WINDOW_HWND(top_level->window));
+#ifdef NEW_PACKET_LIST
+  new_packet_list_freeze();
+  new_packet_list_thaw();
+#else
   packet_list_freeze();
   packet_list_thaw();
+#endif /* NEW_PACKET_LIST */
 #else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
@@ -1020,7 +1027,9 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
      "get_dirname()" does write over its argument. */
   s = get_dirname(tmpname);
   set_last_open_dir(s);
+#ifndef NEW_PACKET_LIST
   gtk_widget_grab_focus(packet_list);
+#endif
 }
 
 static void
@@ -1586,7 +1595,9 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
      "get_dirname()" does write over its argument. */
   s = get_dirname(cf_name);
   set_last_open_dir(s);
+#ifndef NEW_PACKET_LIST
   gtk_widget_grab_focus(packet_list);
+#endif
 
   g_free(cf_name);
 }

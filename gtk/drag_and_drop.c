@@ -194,7 +194,9 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 	return;
     }
 
+#ifndef NEW_PACKET_LIST
     gtk_widget_grab_focus(packet_list);
+#endif
 }
 
 /* open/merge the dnd file */

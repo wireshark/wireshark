@@ -203,7 +203,9 @@ stream_prefs_apply(GtkWidget *w _U_)
 {
 	follow_tcp_redraw_all();
 
+#ifndef NEW_PACKET_LIST
 	packet_list_update_marked_frames();
+#endif
 }
 
 void

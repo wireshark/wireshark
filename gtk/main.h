@@ -159,6 +159,7 @@ extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data, COPY_SELECTE
  */
 extern void colorize_selected_ptree_cb(GtkWidget *w, gpointer data, guint8 filt_nr);
 
+#ifndef NEW_PACKET_LIST
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by context menu of packet list.
  *
@@ -167,6 +168,7 @@ extern void colorize_selected_ptree_cb(GtkWidget *w, gpointer data, guint8 filt_
  * @param action the function to use
  */
 extern void match_selected_plist_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+#endif /* NEW_PACKET_LIST */
 
 /** User requested "Quit" by menu or toolbar.
  *

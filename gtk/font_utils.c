@@ -274,7 +274,9 @@ user_font_apply(void) {
     }
 
     /* the font(s) seem to be ok */
+#ifndef NEW_PACKET_LIST
     packet_list_set_font(new_r_font);
+#endif
     set_ptree_font_all(new_r_font);
     old_r_font = m_r_font;
     old_b_font = m_b_font;

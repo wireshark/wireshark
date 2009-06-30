@@ -64,8 +64,10 @@ static void color_filter_down_cb(GtkButton *button, gpointer user_data);
 static void remember_selected_row(GtkTreeSelection *sel, gpointer list);
 static void color_destroy_cb(GtkButton *button, gpointer user_data);
 static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
+#ifndef NEW_PACKET_LIST
 static void create_new_color_filter(GtkButton *button, const char *filter);
 static void color_new_cb(GtkButton *button, gpointer user_data);
+#endif
 static void color_edit_cb(GtkButton *button, gpointer user_data);
 static gint color_filters_button_cb(GtkWidget *, GdkEventButton *, gpointer);
 static void color_disable_cb(GtkWidget *widget, gboolean user_data);
@@ -400,7 +402,9 @@ colorize_dialog_new (char *filter)
   g_object_set_data(G_OBJECT(color_filters), COLOR_DISABLE_LB, color_disable);
   g_object_set_data(G_OBJECT(color_filters), COLOR_DELETE_LB, color_delete);
   g_object_set_data(G_OBJECT(color_new), COLOR_FILTERS_CL, color_filters);
+#ifndef NEW_PACKET_LIST
   g_signal_connect(color_new, "clicked", G_CALLBACK(color_new_cb), NULL);
+#endif
   g_object_set_data(G_OBJECT(color_edit), COLOR_FILTERS_CL, color_filters);
   g_signal_connect(color_edit, "clicked", G_CALLBACK(color_edit_cb), NULL);
   g_object_set_data(G_OBJECT(color_enable), COLOR_FILTERS_CL, color_filters);
@@ -439,7 +443,9 @@ colorize_dialog_new (char *filter)
   if(filter){
     /* if we specified a preset filter string, open the new dialog and
        set the filter */
+#ifndef NEW_PACKET_LIST
     create_new_color_filter(GTK_BUTTON(color_new), filter);
+#endif
   }
 
   return color_win;
@@ -698,6 +704,7 @@ color_destroy_cb                       (GtkButton       *button _U_,
 }
 
 
+#ifndef NEW_PACKET_LIST
 static void
 select_row(GtkWidget *color_filters, int row)
 {
@@ -713,7 +720,7 @@ select_row(GtkWidget *color_filters, int row)
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
   gtk_tree_selection_select_iter(sel, &iter);
 }
-
+#endif
 
 
 /* add a single color filter to the list */
@@ -760,6 +767,7 @@ color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
   gtk_widget_grab_focus(color_filters);
 }
 
+#ifndef NEW_PACKET_LIST
 /* Create a new filter, add it to the list, and pop up an
    "Edit color filter" dialog box to edit it. */
 static void
@@ -791,7 +799,9 @@ create_new_color_filter(GtkButton *button, const char *filter)
 
   gtk_widget_grab_focus(color_filters);
 }
+#endif /* NEW_PACKET_LIST */
 
+#ifndef NEW_PACKET_LIST
 /* User pressed the "New" button: Create a new filter in the list,
    and pop up an "Edit color filter" dialog box to edit it. */
 static void
@@ -799,6 +809,7 @@ color_new_cb(GtkButton *button, gpointer user_data _U_)
 {
   create_new_color_filter(button, "filter");
 }
+#endif
 
 /* User pressed the "Edit" button: Pop up an "Edit color filter" dialog box
  * to edit an existing filter. */

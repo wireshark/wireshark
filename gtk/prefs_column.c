@@ -602,7 +602,9 @@ column_prefs_apply(GtkWidget *w _U_)
 {
     /* Redraw the packet list if the columns were changed */
     if(cfile.cinfo.columns_changed) {
+#ifndef NEW_PACKET_LIST
         packet_list_recreate();
+#endif
         cfile.cinfo.columns_changed = FALSE; /* Reset value */
     }
 }
