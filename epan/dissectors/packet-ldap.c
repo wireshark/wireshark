@@ -114,7 +114,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 
-#define PNAME  "Lightweight-Directory-Access-Protocol"
+#define PNAME  "Lightweight Directory Access Protocol"
 #define PSNAME "LDAP"
 #define PFNAME "ldap"
 
