@@ -92,6 +92,7 @@
 #include <epan/emem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
+#include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-dcerpc.h>
@@ -196,7 +197,7 @@ static const char *object_identifier_id = NULL; /* LDAP OID */
 static gboolean do_protocolop = FALSE;
 static gchar    *attr_type = NULL;
 static gboolean is_binary_attr_type = FALSE;
-static guint32 last_frame_seen = 0;
+static gboolean ldap_found_in_frame = FALSE;
 
 #define TCP_PORT_LDAP			389
 #define TCP_PORT_LDAPS			636
@@ -562,8 +563,7 @@ static void ldap_do_protocolop(packet_info *pinfo)
 
     valstr = val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%%u)");
 
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", valstr, MessageID);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", valstr, MessageID);
 
     if(ldm_tree)
       proto_item_append_text(ldm_tree, " %s(%d)", valstr, MessageID);
@@ -806,6 +806,12 @@ one_more_pdu:
 }
 
 static void
+ldap_frame_end(void)
+{
+   ldap_found_in_frame = FALSE;
+}
+
+static void
 dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_mscldap)
 {
   int offset = 0;
@@ -888,18 +894,17 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
      * This is the first PDU, set the Protocol column and clear the
      * Info column.
      */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
 
-    if(last_frame_seen == pinfo->fd->num) {
+    if(ldap_found_in_frame) {
       /* we have already dissected an ldap PDU in this frame - add a separator and set a fence */
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_str(pinfo->cinfo, COL_INFO, "| ");
-	col_set_fence(pinfo->cinfo, COL_INFO);
-      }
-    } else
-      if (check_col(pinfo->cinfo, COL_INFO)) col_clear(pinfo->cinfo, COL_INFO);
-
-    last_frame_seen = pinfo->fd->num;
+      col_append_str(pinfo->cinfo, COL_INFO, " | ");
+      col_set_fence(pinfo->cinfo, COL_INFO);
+    } else {
+      col_clear(pinfo->cinfo, COL_INFO);
+      register_frame_end_routine (ldap_frame_end);
+      ldap_found_in_frame = TRUE;
+    }
 
     ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, FALSE);
     ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
@@ -1041,9 +1046,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
              * The LDAP message was encrypted in the packet, and has
              * been decrypted; dissect the decrypted LDAP message.
              */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
-            }
+	    col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
 
             if (sasl_tree) {
 	      enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
@@ -1061,9 +1064,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	     * The LDAP message wasn't encrypted in the packet;
 	     * dissect the plain LDAP message.
              */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
-            }
+	    col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
 
 	    if (sasl_tree) {
               plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
@@ -1079,11 +1080,10 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
              * The LDAP message was encrypted in the packet, and was
              * not decrypted; just show it as encrypted data.
              */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-        	    col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
-                                 sasl_len - ver_len,
-                                 plurality(sasl_len - ver_len, "", "s"));
-            }
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
+			 sasl_len - ver_len,
+			 plurality(sasl_len - ver_len, "", "s"));
+
 	    if (sasl_tree) {
               proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
                                 "GSS-API Encrypted payload (%d byte%s)",
@@ -1804,8 +1804,6 @@ ldap_reinit(void)
   }
 
   ldap_info_items = NULL;
-  last_frame_seen = 0;
-
 }
 
 void
