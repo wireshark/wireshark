@@ -2,6 +2,8 @@
  * Routines for Time Triggered Ethernet dissection
  *
  * Author: Valentin Ecker, valentin.ecker (AT) tttech.com
+ * Author: Benjamin Roch, benjamin.roch (AT) tttech.com
+ *
  * TTTech Computertechnik AG, Austria.
  * http://www.tttech.com/solutions/ttethernet/
  *
@@ -31,39 +33,36 @@
  #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
+#include <epan/proto.h>
 
 #include "packet-tte.h"
-
-
-/* Forward declaration we need below */
-void proto_reg_handoff_tte(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_tte = -1;
 
-static int hf_tte_macdest = -1;
-static int hf_tte_macdest_cf1 = -1;
-static int hf_tte_macdest_ctid = -1;
-static int hf_tte_macsrc = -1;
-static int hf_tte_ethertype = -1;
+static int hf_eth_dst       = -1;
+static int hf_tte_dst_cf    = -1;
+static int hf_tte_ctid      = -1;
+static int hf_eth_src       = -1;
+static int hf_eth_type      = -1;
 
 /* preference value pointers */
 static guint32    tte_pref_ct_marker    = 0xFFFFFFFF;
 static guint32    tte_pref_ct_mask      = 0x0;
+
+#if 0
 static dissector_table_t ethertype_dissector_table;
+#endif
 
 /* Initialize the subtree pointers */
 static gint ett_tte = -1;
 static gint ett_tte_macdest = -1;
-static gint ett_tte_macsrc = -1;
+static gint ett_tte_macsrc  = -1;
 
 
 
@@ -109,23 +108,23 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tte_tree = proto_item_add_subtree(tte_root_item, ett_tte);
 
         tte_macdest_item = proto_tree_add_item(tte_tree,
-            hf_tte_macdest, tvb, 0, TTE_MAC_LENGTH, FALSE);
+            hf_eth_dst, tvb, 0, TTE_MAC_LENGTH, FALSE);
 
         tte_macsrc_item = proto_tree_add_item(tte_tree,
-            hf_tte_macsrc, tvb, TTE_MAC_LENGTH, TTE_MAC_LENGTH, FALSE);
+            hf_eth_src, tvb, TTE_MAC_LENGTH, TTE_MAC_LENGTH, FALSE);
 
         proto_tree_add_item(tte_tree,
-            hf_tte_ethertype, tvb, TTE_MAC_LENGTH*2, TTE_ETHERTYPE_LENGTH,
+            hf_eth_type, tvb, TTE_MAC_LENGTH*2, TTE_ETHERTYPE_LENGTH,
             FALSE);
 
         tte_macdest_tree = proto_item_add_subtree(tte_macdest_item,
             ett_tte_macdest);
 
         proto_tree_add_item(tte_macdest_tree,
-            hf_tte_macdest_cf1, tvb, 0, TTE_MACDEST_CF_LENGTH, FALSE);
+            hf_tte_dst_cf, tvb, 0, TTE_MACDEST_CF_LENGTH, FALSE);
 
         proto_tree_add_item(tte_macdest_tree,
-            hf_tte_macdest_ctid, tvb, TTE_MACDEST_CF_LENGTH,
+            hf_tte_ctid, tvb, TTE_MACDEST_CF_LENGTH,
             TTE_MACDEST_CTID_LENGTH, FALSE);
     }
 
@@ -135,8 +134,14 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 
     /* call std Ethernet dissector */
+
+#if 0
     dissector_try_port(ethertype_dissector_table,
         tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2), tvb_next, pinfo, tree);
+
+#endif
+    ethertype (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2), tvb
+        , 14, pinfo, tree, NULL, hf_eth_type, 0, 0 );
 
     return tvb_length(tvb);
 }
@@ -149,29 +154,29 @@ proto_register_tte(void)
 
     static hf_register_info hf[] = {
 
-        { &hf_tte_macdest,
-            { "Destination", "tte.macdest",
-            FT_ETHER, BASE_HEX, NULL, 0x0,
+        { &hf_eth_dst,
+          { "Destination",      "eth.dst",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            "Destination Hardware Address", HFILL }
+        },
+        { &hf_eth_src,
+          { "Source",           "eth.src",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            "Source Hardware Address", HFILL }
+        },
+        { &hf_eth_type,
+          { "Type",             "eth.type",
+            FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_tte_macdest_cf1,
-            { "Constant Field", "tte.cf1",
+        { &hf_tte_dst_cf,
+          { "Constant Field",   "tte.cf",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tte_macdest_ctid,
-            { "Critical Traffic Identifier", "tte.ctid",
+        { &hf_tte_ctid,
+          { "Critical Traffic Identifier", "tte.ctid",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_tte_macsrc,
-            { "Source", "tte.macsrc",
-            FT_ETHER, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_tte_ethertype,
-            { "Type", "tte.type",
-            FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
             NULL, HFILL }
         }
     };
@@ -211,6 +216,8 @@ proto_reg_handoff_tte(void)
 {
     heur_dissector_add("eth", dissect_tte, proto_tte);
 
+#if 0
     /* find the ethertype dissector table */
     ethertype_dissector_table = find_dissector_table("ethertype");
+#endif
 }
