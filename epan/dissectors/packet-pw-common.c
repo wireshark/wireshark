@@ -74,10 +74,12 @@ void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean appen
 
 void pwc_item_append_text_n_items(proto_item* item, const int n, const char * const item_text)
 {
-	assert(item != 0);
-	if (n >=0)
+	if (item != NULL)
 	{
-		proto_item_append_text(item, ", %d %s%s", n, item_text, plurality(n,"","s"));
+		if (n >=0)
+		{
+			proto_item_append_text(item, ", %d %s%s", n, item_text, plurality(n,"","s"));
+		}
 	}
 	return;
 }
