@@ -380,7 +380,7 @@ void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
   mark_all_frames(FALSE);
 }
 
-#ifndef NEW_PACKET_LIST */
+#ifndef NEW_PACKET_LIST
 gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                  gint *row, gint *column)
