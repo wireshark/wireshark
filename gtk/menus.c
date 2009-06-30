@@ -749,7 +749,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-#ifndef NEW_PACKET_LIST */
+#ifndef NEW_PACKET_LIST
     {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
     {"/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
