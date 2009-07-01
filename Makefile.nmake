@@ -372,6 +372,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \
 	    -e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
 	    -e "s/@HAVE_GEOIP@/$(GEOIP_CONFIG)/" \
+	    -e "s/@HAVE_NEW_PACKET_LIST@/$(NEW_PACKET_LIST_CONFIG)/" \
 	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    -e "s/@HAVE_NTDDNDIS_H@/$(NTDDNDIS_CONFIG)/" \
 	    < config.h.win32 > $@
