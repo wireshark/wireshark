@@ -595,7 +595,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     FILE            *out_file;
     gchar           *file_uri;
     gboolean        uri_open;
-    char            map_data_filename[128+1];
+    char            *map_data_filename;
     int             temp_fd;
     char            *src_file_path;
     char            *temp_path;
@@ -644,7 +644,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 
     /* open the TSV output file */
     /* XXX - add error handling */
-    temp_fd = create_tempfile(map_data_filename, sizeof map_data_filename, "ipmap_");
+    temp_fd = create_tempfile(&map_data_filename, "ipmap_");
     if(temp_fd == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Could not create temporary file %s: %s",

@@ -45,39 +45,50 @@
 #include "mkstemp.h"
 #include <wsutil/file_util.h>
 
-static const char *
-setup_tmpdir(const char *dir)
-{
-	size_t len = strlen(dir);
-	char *newdir;
+#define INITIAL_PATH_SIZE 128
+#define TMP_FILE_SUFFIX "XXXXXXXXXX"
 
-	/* Append path separator if necessary */
-	if (len != 0 && dir[len - 1] == G_DIR_SEPARATOR) {
-		return dir;
-	}
-	else {
-		newdir = g_strdup_printf("%s%s", dir, G_DIR_SEPARATOR_S);
-		return newdir;
-	}
-}
-
-static int
-try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
+/**
+ * Create a tempfile with the given prefix (e.g. "wireshark").
+ * 
+ * @param namebuf If not NULL, receives the full path of the temp file.
+ *                Should NOT be freed.
+ * @param pfx A prefix for the temporary file.
+ * @return The file descriptor of the new tempfile, from mkstemp().
+ */
+int
+create_tempfile(char **namebuf, const char *pfx)
 {
-	static const char suffix[] = "XXXXXXXXXX";
-	int namelen = (int) (strlen(dir) + strlen(pfx) + sizeof(suffix));
+	static char *tf_path[3];
+	static int tf_path_len[3];
+	static int idx;
+	const char *tmp_dir;
 	int old_umask;
-	int tmp_fd;
+	int fd;
 
-	g_snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
-	if (namebuflen < namelen) {
-		/* Stick with the truncated name, so that if this error is
-		   reported with the file name, you at least get
-		   something. */
-		errno = ENAMETOOLONG;
-		return -1;
+	idx = (idx + 1) % 3;
+	
+	/*
+	 * Allocate the buffer if it's not already allocated.
+	 */
+	if (tf_path[idx] == NULL) {
+		tf_path_len[idx] = INITIAL_PATH_SIZE;
+		tf_path[idx] = g_malloc(tf_path_len[idx]);
 	}
 
+	/*
+	 * We can't use get_tempfile_path here because we're called from dumpcap.c.
+	 */
+	tmp_dir = g_get_tmp_dir();
+
+	while (g_snprintf(tf_path[idx], tf_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > tf_path_len[idx]) {
+		tf_path_len[idx] *= 2;
+		tf_path[idx] = g_realloc(tf_path[idx], tf_path_len[idx]);
+	}
+
+	if (namebuf) {
+		*namebuf = tf_path[idx];
+	}
 	/* The Single UNIX Specification doesn't say that "mkstemp()"
 	   creates the temporary file with mode rw-------, so we
 	   won't assume that all UNIXes will do so; instead, we set
@@ -85,62 +96,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	   permissions, attempt to create the file, and then put
 	   the umask back. */
 	old_umask = umask(0077);
-	tmp_fd = mkstemp(namebuf);
+	fd = mkstemp(tf_path[idx]);
 	umask(old_umask);
-	return tmp_fd;
-}
-
-static const char *tmpdir = NULL;
-#ifdef _WIN32
-static const char *temp = NULL;
-#endif
-static const char *E_tmpdir;
-
-#ifndef P_tmpdir
-#define P_tmpdir "/var/tmp"
-#endif
-
-/* create a tempfile with the given prefix (e.g. "wireshark")
- * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
- * returns the file descriptor of the new tempfile and
- * the name of the new file in namebuf 
- */
-int
-create_tempfile(char *namebuf, int namebuflen, const char *pfx)
-{
-	char *dir;
-	int fd;
-	static gboolean initialized;
-
-	if (!initialized) {
-		if ((dir = getenv("TMPDIR")) != NULL)
-			tmpdir = setup_tmpdir(dir);
-#ifdef _WIN32
-		if ((dir = getenv("TEMP")) != NULL)
-			temp = setup_tmpdir(dir);
-#endif
-
-		E_tmpdir = setup_tmpdir(P_tmpdir);
-		initialized = TRUE;
-	}
-
-	if (tmpdir != NULL) {
-		fd = try_tempfile(namebuf, namebuflen, tmpdir, pfx);
-		if (fd != -1)
-			return fd;
-	}
-
-#ifdef _WIN32
-	if (temp != NULL) {
-		fd = try_tempfile(namebuf, namebuflen, temp, pfx);
-		if (fd != -1)
-			return fd;
-	}
-#endif
-
-	fd = try_tempfile(namebuf, namebuflen, E_tmpdir, pfx);
-	if (fd != -1)
-		return fd;
-
-	return try_tempfile(namebuf, namebuflen, G_DIR_SEPARATOR_S "tmp", pfx);
+	return fd;
 }

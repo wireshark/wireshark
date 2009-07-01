@@ -395,7 +395,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 #ifdef _WIN32
 	gboolean         win_printer = FALSE;
 	int              tmp_fd;
-	char             tmp_namebuf[128+1];  /* see create_tmpfile which says [128+1]; why ? */
+	char             *tmp_namebuf;
 #endif
 
 	switch (prefs.pr_dest) {
@@ -410,10 +410,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 		/* Don't use tmpnam() or such, as this will fail under some ACL           */
 		/* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358  */
 		/* Also: tmpnam is "insecure" and should not be used.                     */
-		tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "wshprint");
+		tmp_fd = create_tempfile(tmp_namebuf, "wshprint");
 		if(tmp_fd == -1) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "Couldn't create a temporary file for printing.");
+				      "Couldn't create temporary file for printing:\n%s", tmp_namebuf);
 			return;
 		}
 		ws_close(tmp_fd);
@@ -967,6 +967,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 		break;
 	}
 
+	g_free(follow_info->data_out_filename);
 	g_free(follow_info->filter_out_filter);
 	g_free((gpointer)follow_info->client_ip.data);
 	forget_follow_info(follow_info);

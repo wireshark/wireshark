@@ -29,12 +29,21 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* create a tempfile with the given prefix (e.g. "ether")
- * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
- * returns the file descriptor of the new tempfile and
- * the name of the new file in namebuf 
+/** @file
+ * Convenience function for temporary file creation.
  */
-int create_tempfile(char *namebuf, int namebuflen, const char *pfx);
+
+
+/**
+ * Create a tempfile with the given prefix (e.g. "wireshark"). The path
+ * is created using g_get_tmp_dir and mkstemp.
+ * 
+ * @param namebuf If not NULL, receives the full path of the temp file.
+ *                Should NOT be freed.
+ * @param pfx A prefix for the temporary file.
+ * @return The file descriptor of the new tempfile, from mkstemp().
+ */
+int create_tempfile(char **namebuf, const char *pfx);
 
 #ifdef __cplusplus
 }

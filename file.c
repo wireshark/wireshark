@@ -1253,7 +1253,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   merge_in_file_t  *in_files;
   wtap             *wth;
   char             *out_filename;
-  char              tmpname[128+1];
+  char             *tmpname;
   int               out_fd;
   wtap_dumper      *pdh;
   int               open_err, read_err, write_err, close_err;
@@ -1288,7 +1288,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     if (out_fd == -1)
       open_err = errno;
   } else {
-    out_fd = create_tempfile(tmpname, sizeof tmpname, "wireshark");
+    out_fd = create_tempfile(&tmpname, "wireshark");
     if (out_fd == -1)
       open_err = errno;
     out_filename = g_strdup(tmpname);

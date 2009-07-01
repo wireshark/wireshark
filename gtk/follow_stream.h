@@ -68,7 +68,7 @@ typedef struct {
 	follow_type_t   follow_type;
 	show_stream_t	show_stream;
 	show_type_t	show_type;
-	char		data_out_filename[128 + 1];
+	char		*data_out_filename;
 	GtkWidget	*text;
 	GtkWidget	*ascii_bt;
 	GtkWidget	*ebcdic_bt;
@@ -99,12 +99,12 @@ void follow_stream(gchar *title, follow_info_t *follow_info,
 		   gchar *both_directions_string,
 		   gchar *server_to_client_string,
 		   gchar *client_to_server_string);
-frs_return_t follow_show(follow_info_t *follow_info, 
+frs_return_t follow_show(follow_info_t *follow_info,
 			 gboolean (*print_line)(char *, size_t, gboolean,
 						void *),
 			 char *buffer, size_t nchars, gboolean is_server,
 			 void *arg, guint32 *global_pos,
-			 guint32 *server_packet_count, 
+			 guint32 *server_packet_count,
 			 guint32 *client_packet_count);
 
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);

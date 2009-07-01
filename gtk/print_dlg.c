@@ -908,7 +908,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
   gboolean          win_printer = FALSE;
   int               tmp_fd;
-  char              tmp_namebuf[128+1];  /* XX: see create_tmpfile which says [128+1]; why ? */
+  char              *tmp_namebuf;
   char              *tmp_oldfile;
 #endif
   cf_print_status_t status;
@@ -951,10 +951,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     /* Don't use tmpnam() or such, as this will fail under some ACL           */
     /* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358  */
     /* Also: tmpnam is "insecure" and should not be used.                     */
-    tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "wshprint");
+    tmp_fd = create_tempfile(&tmp_namebuf, "wshprint");
     if(tmp_fd == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Couldn't create a temporary file for printing.");
+            "Couldn't create a temporary file for printing:\n%s", tmp_namebuf);
         return;
     }
     /* remember to restore these values later! */

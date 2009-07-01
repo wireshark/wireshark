@@ -203,8 +203,6 @@ struct _info_direction {
 	tap_rtp_save_info_t saveinfo;
 };
 
-#define TMPNAMSIZE 100
-
 #define SILENCE_PCMU	(guint8)0xFF
 #define SILENCE_PCMA	(guint8)0x55
 
@@ -226,8 +224,8 @@ typedef struct _user_data_t {
 	struct _info_direction forward;
 	struct _info_direction reversed;
 
-	char f_tempname[TMPNAMSIZE];
-	char r_tempname[TMPNAMSIZE];
+	char *f_tempname;
+	char *r_tempname;
 
 	/* dialog associated data */
 	dialog_data_t dlg;
@@ -777,6 +775,8 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exception using GTK1*/
 	g_signal_handler_disconnect(user_data->dlg.notebook, user_data->dlg.notebook_signal_id);
 
+	g_free(user_data->f_tempname);
+	g_free(user_data->r_tempname);
 	g_free(user_data);
 }
 
@@ -3580,6 +3580,7 @@ void rtp_analysis(
         	{0,     0x0000, 0xffff, 0x0000},
         	{0,     0x0000, 0x0000, 0xffff}
 	};
+        char *tempname;
 
 	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
@@ -3598,11 +3599,11 @@ void rtp_analysis(
 
 	/* file names for storing sound data */
 	/*XXX: check for errors*/
-	fd = create_tempfile(user_data->f_tempname, sizeof(user_data->f_tempname),
-		"ether_rtp_f");
+	fd = create_tempfile(&tempname, "wireshark_rtp_f");
+        user_data->f_tempname = g_strdup(tempname);
 	ws_close(fd);
-	fd = create_tempfile(user_data->r_tempname, sizeof(user_data->r_tempname),
-		"ether_rtp_r");
+	fd = create_tempfile(&tempname, "wireshark_rtp_r");
+        user_data->r_tempname = g_strdup(tempname);
 	ws_close(fd);
 	user_data->forward.saveinfo.fp = NULL;
 	user_data->reversed.saveinfo.fp = NULL;
