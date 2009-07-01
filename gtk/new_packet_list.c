@@ -24,11 +24,11 @@
  * USA.
  */
 
-#ifdef NEW_PACKET_LIST
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef NEW_PACKET_LIST
 
 #ifdef HAVE_STRING_H
 #include "string.h"
@@ -36,6 +36,8 @@
 
 #include <gtk/gtk.h>
 #include <glib.h>
+
+#include "../ui_util.h"
 
 #include "gui_utils.h"
 #include "packet_list_store.h"

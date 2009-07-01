@@ -28,15 +28,10 @@
 #ifdef NEW_PACKET_LIST
 
 #include <gtk/gtk.h>
-
-GtkWidget *new_packet_list_create(void);
 guint new_packet_list_append(column_info cinfo, gpointer fdata);
-void new_packet_list_freeze(void);
-void new_packet_list_thaw(void);
-void new_packet_list_next(void);
-void new_packet_list_prev(void);
-void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gpointer new_packet_list_get_row_data(gint row);
+GtkWidget *new_packet_list_create(void);
+void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 
 #endif /* NEW_PACKET_LIST */
 

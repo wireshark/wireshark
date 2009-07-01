@@ -26,11 +26,12 @@
 
 /* This code is based on the GTK+ Tree View tutorial at http://scentric.net */
 
-#ifdef NEW_PACKET_LIST
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef NEW_PACKET_LIST
 
 #include <string.h>
 

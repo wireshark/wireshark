@@ -73,9 +73,6 @@
 #include <epan/column-utils.h>
 #include <epan/strutil.h>
 
-#ifdef NEW_PACKET_LIST
-#include "gtk/new_packet_list.h"
-#endif
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;

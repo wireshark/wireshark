@@ -54,8 +54,12 @@ extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_p
 
 /* packet_list.c */
 
-#ifndef NEW_PACKET_LIST
-
+#ifdef NEW_PACKET_LIST
+void new_packet_list_freeze(void);
+void new_packet_list_thaw(void);
+void new_packet_list_next(void);
+void new_packet_list_prev(void);
+#else
 /* packet list related functions */
 void packet_list_clear(void);
 void packet_list_freeze(void);
