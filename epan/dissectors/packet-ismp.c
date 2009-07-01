@@ -48,6 +48,7 @@ static int hf_ismp_code_length = -1;
 static int hf_ismp_auth_data = -1;
 
 /* Enterasys/Cabletron Dicovery Protocol fields*/
+static int hf_ismp_edp = -1;
 static int hf_ismp_edp_version = -1;
 static int hf_ismp_edp_module_ip = -1;
 static int hf_ismp_edp_module_mac = -1;
@@ -252,17 +253,20 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	proto_tree *edp_tuples_leaf_tree;
 
 	/* add column iformation marking this as EDP (Enterasys Discover Protocol */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EDP Message");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISMP.EDP");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* create display subtree for EDP */
 	if (ismp_tree) {
-		edp_ti  = proto_tree_add_text(ismp_tree, tvb, offset, 0, "Enterasys Discovery Protocol");
+		edp_ti  = proto_tree_add_item(ismp_tree, hf_ismp_edp, tvb, offset,
+			tvb_length_remaining(tvb, offset), FALSE);
 		ismp_edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
-		
+		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
+			ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
+			ether_to_str(tvb_get_ptr(tvb, offset+6, 6)),
+			tvb_get_ntohl(tvb, offset+12));
+
 		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_version, tvb, offset, 2, FALSE);
 		offset += 2;
 		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, FALSE);
@@ -416,7 +420,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		{
 			tuples_ptr = tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
 			edp_tuples_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_tuples, tvb,
-				offset, tvb_reported_length_remaining(tvb, offset), tuples_ptr, "Tuples:");
+				offset, tvb_reported_length_remaining(tvb, offset), tuples_ptr, "Tuples");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
 			while ( (tuples_count < num_tuples) && (tvb_reported_length_remaining(tvb, offset) >= 4) )
@@ -449,6 +453,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 						case EDP_TUPLE_INT_NAME:
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
 								"Interface Name = %s", tvb_format_text(tvb, offset, tuple_length));
+							col_append_fstr(pinfo->cinfo, COL_INFO, ", ifName %s",
+								tvb_format_text(tvb, offset, tuple_length));
 							break;
 						case EDP_TUPLE_SYS_DESCRIPT:
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
@@ -505,10 +511,8 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ismp_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISMP");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/*
 	 * XXX - I've seen captures with packets that have the ISMP
@@ -578,6 +582,11 @@ proto_register_ismp(void)
 			{ "Auth Data", "ismp.authdata",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
+		},
+		{ &hf_ismp_edp,
+			{ "EDP", "ismp.edp",
+			FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			"Enterasys Discovery Protocol", HFILL }
 		},
 		{ &hf_ismp_edp_version,
 			{ "Version", "ismp.edp.version",
