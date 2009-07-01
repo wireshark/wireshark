@@ -73,6 +73,7 @@
 #include <epan/sminmpec.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
+#include <epan/expert.h>
 
 /* 4739 is IPFIX.
    2055 and 9996 are common defaults for Netflow
@@ -163,16 +164,16 @@ static const value_string v8_agg[] = {
 
 struct v9_template_entry {
 	guint16	type;
-	guint16	length;
+	guint	length;
 };
 
 struct v9_template {
 	guint16	id;
 	guint16	count;
-	guint32	length;
+	guint	length;
 	guint32 source_id;
 	address	source_addr;
-	guint16 option_template; /* 0=data template, 1=option template */
+	gboolean option_template; /* FALSE=data template, TRUE=option template */
 	guint16 count_scopes;
 	struct v9_template_entry *scopes;
 	struct v9_template_entry *entries;
@@ -491,8 +492,8 @@ static int	dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdu
 				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
 static guint	dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 			       int offset, struct v9_template * template);
-static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
-				   int offset, hdrinfo_t * hdrinfo);
+static int	dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
+				   int offset, hdrinfo_t *hdrinfo, guint16 flowset_id);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
 				    int offset, int len, hdrinfo_t * hdrinfo);
 static int	v9_template_hash(guint16 id, const address * net_src,
@@ -1150,7 +1151,7 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 
 		dissect_v9_template(pdutree, tvb, offset, length - 4, hdrinfo);
 	} else if ((flowset_id == 1) || (flowset_id == 3)) {
-		/* Options */
+		/* Option Template */
 		proto_tree_add_item(pdutree, hf_cflow_options_flowset_id, tvb,
 		    offset, 2, FALSE);
 		offset += 2;
@@ -1160,7 +1161,7 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_options(pdutree, tvb, offset, hdrinfo);
+		dissect_v9_options_template(tvb, pinfo, pdutree, offset, hdrinfo, flowset_id);
 	} else if (flowset_id >= 4 && flowset_id <= 255) {
 		/* Reserved */
 		proto_tree_add_item(pdutree, hf_cflow_flowset_id, tvb,
@@ -2699,28 +2700,46 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 }
 
 static int
-dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
+dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, hdrinfo_t *hdrinfo, guint16 flowset_id)
 {
-	guint16 length, option_scope_len, option_len, i, id, size;
+	guint16 option_scope_len, option_len, i, id, size;
 	guint16 type, scope_pen_count = 0, pen_count = 0;
 	struct v9_template template;
 	int template_offset;
 	int scopes_offset;
+	proto_item *ti;
 
 	id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
 
-	option_scope_len = length = tvb_get_ntohs(tvb, offset);
+	option_scope_len = tvb_get_ntohs(tvb, offset); /* IPFIX field count */
 	proto_tree_add_item(pdutree, hf_cflow_option_scope_length, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
 
-	option_len = length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
+	option_len = tvb_get_ntohs(tvb, offset); /* IPFIX scope field count */
+	ti = proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
+	
+	if (flowset_id == 3) { /* IPFIX */
+		if (option_len > option_scope_len) {
+			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+					       "More scope fields (%u) than fields (%u)",
+					       option_len, option_scope_len);
+			return 0;
+		}
+		
+		if (option_len == 0) {
+			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+					       "No scope fields");
+			return 0;
+		}
+
+		option_scope_len -= option_len;
+	}
 
 	scopes_offset = offset;
 
@@ -2730,7 +2749,6 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
@@ -2751,7 +2769,6 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
@@ -2776,7 +2793,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 	template.scopes      = g_malloc( size );
 	tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
 
-	template.option_template = 1; /* Option template */
+	template.option_template = TRUE; /* Option template */
 	size = template.count * sizeof(struct v9_template_entry) + pen_count * 4;
 	template.entries = g_malloc(size);
 	tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
@@ -2826,7 +2843,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 		template.source_id = hdrinfo->src_id;
 		template.count_scopes = 0;
 		template.scopes = NULL;
-		template.option_template = 0;   /* Data template */
+		template.option_template = FALSE;   /* Data template */
 		field_start_offset = offset;
 
 		for (i = 1; i <= count; i++) {
