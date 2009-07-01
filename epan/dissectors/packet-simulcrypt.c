@@ -239,6 +239,35 @@ static const value_string ecmg_parametertypenames[] = {
 	{ 0, NULL }
 };
 
+/* Simulcrypt ECMG protocol error values */
+static const value_string ecmg_error_values[] = {
+	{ 0x0000, "DVB Reserved" },
+	{ 0x0001, "Invalid message" },
+	{ 0x0002, "Unsupported protocol version" },
+	{ 0x0003, "Unknown message type value" },
+	{ 0x0004, "Message too long" },
+	{ 0x0005, "Unknown super CAS ID value" },
+	{ 0x0006, "Unknown ECM channel ID value" },
+	{ 0x0007, "Unknown ECM stream ID value" },
+	{ 0x0008, "Too many channels on this ECMG" },
+	{ 0x0009, "Too many ECM streams on this channel" },
+	{ 0x000A, "Too many ECM streams on this ECMG" },
+	{ 0x000B, "Not enough control words to compute ECM" },
+	{ 0x000C, "ECMG out of storage capacity" },
+	{ 0x000D, "ECMG out of computational resources" },
+	{ 0x000E, "Unknown parameter type value" },
+	{ 0x000F, "Inconsistent length for DVB parameter" },
+	{ 0x0010, "Missing mandatory DVB parameter" },
+	{ 0x0011, "Invalid value for DVB parameter" },
+	{ 0x0012, "Unknown ECM ID value" },
+	{ 0x0013, "ECM channel ID value already in use" },
+	{ 0x0014, "ECM stream ID value already in use" },
+	{ 0x0015, "ECM ID value already in use" },
+	{ 0x7000, "Unknown error" },
+	{ 0x7001, "Unrecoverable error" },
+	{ 0, NULL }
+};
+
 /* Simulcrypt EMMG Parameter Types */
 #define SIMULCRYPT_EMMG_DVB_RESERVED                    0x0000
 #define SIMULCRYPT_EMMG_CLIENT_ID                       0x0001
@@ -264,6 +293,34 @@ static const value_string emmg_parametertypenames[] = {
 	{ SIMULCRYPT_EMMG_DATA_ID,            "DATA_ID" },
 	{ SIMULCRYPT_EMMG_ERROR_STATUS,       "ERROR_STATUS" },
 	{ SIMULCRYPT_EMMG_ERROR_INFORMATION,  "ERROR_INFORMATION" },
+	{ 0, NULL }
+};
+
+/* Simulcrypt EMMG protocol error values */
+static const value_string emmg_error_values[] = {
+	{ 0x0000, "DVB Reserved" },
+	{ 0x0001, "Invalid message" },
+	{ 0x0002, "Unsupported protocol version" },
+	{ 0x0003, "Unknown message type value" },
+	{ 0x0004, "Message too long" },
+	{ 0x0005, "Unknown data stream ID value" },
+	{ 0x0006, "Unknown data channel ID value" },
+	{ 0x0007, "Too many channels on this MUX" },
+	{ 0x0008, "Too many data streams on this channel" },
+	{ 0x0009, "Too many data streams on this MUX" },
+	{ 0x000A, "Unknown parameter type" },
+	{ 0x000B, "Inconsistent length for DVB parameter" },
+	{ 0x000C, "Missing mandatory DVB parameter" },
+	{ 0x000D, "Invalid value for DVB parameter" },
+	{ 0x000E, "Unknown client ID value" },
+	{ 0x000F, "Exceeded bandwidth" },
+	{ 0x0010, "Unknown data ID value" },
+	{ 0x0011, "Data channel ID value already in use" },
+	{ 0x0012, "Data stream ID value already in use" },
+	{ 0x0013, "Data ID value already in use" },
+	{ 0x0014, "Client ID value already in use" },
+	{ 0x7000, "Unknown error" },
+	{ 0x7001, "Unrecoverable error" },
 	{ 0, NULL }
 };
 
@@ -316,7 +373,8 @@ static gint hf_simulcrypt_datagram = -1;
 static gint hf_simulcrypt_bandwidth = -1;
 static gint hf_simulcrypt_data_type = -1;
 static gint hf_simulcrypt_data_id = -1;
-static gint hf_simulcrypt_error_status = -1;
+static gint hf_simulcrypt_ecmg_error_status = -1;
+static gint hf_simulcrypt_emmg_error_status = -1;
 static gint hf_simulcrypt_error_information = -1;
 
 /* These are the ids of the subtrees that we may be creating */
@@ -538,7 +596,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_ECMG_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecmg_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_ECMG_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
@@ -581,7 +639,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_data_id, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EMMG_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_emmg_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EMMG_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
@@ -944,12 +1002,16 @@ void proto_register_simulcrypt (void)
 		{ "Data ID", "simulcrypt.data_id", FT_UINT16, BASE_DEC, NULL, 0x0,
 		 NULL, HFILL }},
 
-		{ &hf_simulcrypt_error_status,
-		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ &hf_simulcrypt_ecmg_error_status,
+		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, VALS(ecmg_error_values), 0x0,
+		 NULL, HFILL }},
+
+		{ &hf_simulcrypt_emmg_error_status,
+		{ "Error status", "simulcrypt.error_status", FT_UINT16, BASE_DEC, VALS(emmg_error_values), 0x0,
 		 NULL, HFILL }},
 
 		{ &hf_simulcrypt_error_information,
-		{ "Error information", "simulcrypt.error_information", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Error information", "simulcrypt.error_information", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 NULL, HFILL }}		 
 	};
 	
