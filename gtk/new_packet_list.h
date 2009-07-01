@@ -28,8 +28,6 @@
 #ifdef NEW_PACKET_LIST
 
 #include <gtk/gtk.h>
-guint new_packet_list_append(column_info cinfo, gpointer fdata);
-gpointer new_packet_list_get_row_data(gint row);
 GtkWidget *new_packet_list_create(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 

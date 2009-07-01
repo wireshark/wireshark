@@ -37,11 +37,10 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-#include "../ui_util.h"
-
 #include "gui_utils.h"
 #include "packet_list_store.h"
 #include "epan/column_info.h"
+#include "../ui_util.h"
 #include "epan/emem.h"
 #include "globals.h"
 #include "gtk/gtkglobals.h"

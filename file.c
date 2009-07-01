@@ -51,6 +51,7 @@
 #include "cfile.h"
 #include <epan/column.h>
 #include <epan/packet.h>
+#include <epan/column-utils.h>
 #include "packet-range.h"
 #include "print.h"
 #include "file.h"
@@ -70,7 +71,6 @@
 #include <epan/timestamp.h>
 #include <epan/dfilter/dfilter-macro.h>
 #include <wsutil/file_util.h>
-#include <epan/column-utils.h>
 #include <epan/strutil.h>
 
 
