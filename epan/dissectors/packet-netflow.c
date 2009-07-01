@@ -4423,14 +4423,14 @@ proto_register_netflow(void)
 		  "Option Scope Unknown", HFILL}
 		 },
 		{&hf_cflow_field_count,
-		 {"Option Template Field Count", "cflow.field_count",
+		 {"Field Count", "cflow.field_count",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Field Count", HFILL}
+		  "Options Template Field Count", HFILL}
 		 },
 		{&hf_cflow_scope_field_count,
-		 {"Option Template Scope Field Count", "cflow.scope_field_count",
+		 {"Scope Field Count", "cflow.scope_field_count",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Scope Field Count", HFILL}
+		  "Options Template Scope Field Count", HFILL}
 		 },
 
                 /* Private Information Elements */
