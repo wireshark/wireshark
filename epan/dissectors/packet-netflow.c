@@ -245,6 +245,8 @@ static int	hf_cflow_scope_cache = -1;
 static int	hf_cflow_scope_template = -1;
 static int	hf_cflow_scope_unknown = -1;
 /* IPFIX */
+static int      hf_cflow_field_count = -1;
+static int      hf_cflow_scope_field_count = -1;
 static int      hf_cflow_template_field_pen = -1;
 
 /*
@@ -2715,13 +2717,15 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	offset += 2;
 
 	option_scope_len = tvb_get_ntohs(tvb, offset); /* IPFIX field count */
-	proto_tree_add_item(pdutree, hf_cflow_option_scope_length, tvb,
-			    offset, 2, FALSE);
+	proto_tree_add_item(pdutree,
+			    flowset_id == 3? hf_cflow_field_count : hf_cflow_option_scope_length,
+			    tvb, offset, 2, FALSE);
 	offset += 2;
 
 	option_len = tvb_get_ntohs(tvb, offset); /* IPFIX scope field count */
-	ti = proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
-			    offset, 2, FALSE);
+	ti = proto_tree_add_item(pdutree,
+				 flowset_id == 3? hf_cflow_scope_field_count : hf_cflow_option_length,
+				 tvb, offset, 2, FALSE);
 	offset += 2;
 	
 	if (flowset_id == 3) { /* IPFIX */
@@ -4417,6 +4421,16 @@ proto_register_netflow(void)
 		 {"Scope Unknown", "cflow.scope",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope Unknown", HFILL}
+		 },
+		{&hf_cflow_field_count,
+		 {"Option Template Field Count", "cflow.field_count",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Field Count", HFILL}
+		 },
+		{&hf_cflow_scope_field_count,
+		 {"Option Template Scope Field Count", "cflow.scope_field_count",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Scope Field Count", HFILL}
 		 },
 
                 /* Private Information Elements */
