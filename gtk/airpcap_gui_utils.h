@@ -128,18 +128,6 @@ gchar*
 airpcap_get_link_name(AirpcapLinkType lt);
 
 /*
- * Sets the entry of the link type combo using the AirpcapLinkType.
- */
-void
-airpcap_link_type_combo_set_by_type(GtkWidget* c, AirpcapLinkType type);
-
-/*
- * Retrieves the name in link type the combo entry.
- */
-AirpcapLinkType
-airpcap_link_type_combo_get_type(GtkWidget* c);
-
-/*
  * Sets the entry of the validation combo using the AirpcapValidationType.
  */
 void
@@ -249,12 +237,5 @@ airpcap_save_decryption_keys(GList* key_list, GList* adapters_list);
  */
 void
 airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en);
-
-/*
- * This function sets up the correct airpcap toolbar that must
- * be displayed when no airpcap if is found on the system...
- */
-void
-airpcap_set_toolbar_no_if(GtkWidget* w);
 
 #endif

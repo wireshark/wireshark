@@ -576,7 +576,7 @@ on_reset_configuration_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 static void
 on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 {
-    GtkWidget	*type_cm,
+    GtkWidget	*type_cb,
     *key_en,
     *ssid_en;
 
@@ -601,7 +601,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 
     key_ls = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY);
     selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
-    type_cm = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY);
+    type_cb = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY);
     key_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_KEY_KEY);
     ssid_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY);
 
@@ -610,7 +610,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 
     keys_in_list = GTK_CLIST(key_ls)->rows;
 
-    type_entered = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(type_cm)->entry)));
+    type_entered = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
     key_entered  = g_strdup(gtk_entry_get_text(GTK_ENTRY(key_en)));
     ssid_entered = g_strdup(gtk_entry_get_text(GTK_ENTRY(ssid_en)));
 
@@ -618,6 +618,10 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
     new_type_string = g_string_new(type_entered);
     new_key_string = g_string_new(key_entered);
     new_ssid_string = g_string_new(ssid_entered);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
 
     g_strchug(new_key_string->str);
     g_strchomp(new_key_string->str);
@@ -637,9 +641,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -651,9 +652,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -667,9 +665,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
                 g_string_free(new_key_string, TRUE);
                 g_string_free(new_ssid_string,TRUE);
 
-                g_free(type_entered);
-                g_free(key_entered );
-                g_free(ssid_entered);
                 return;
             }
         }
@@ -692,9 +687,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -709,9 +701,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -733,9 +722,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -749,9 +735,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
                 g_string_free(new_key_string, TRUE);
                 g_string_free(new_ssid_string,TRUE);
 
-                g_free(type_entered);
-                g_free(key_entered );
-                g_free(ssid_entered);
                 return;
             }
         }
@@ -770,10 +753,6 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
 
-    g_free(type_entered);
-    g_free(key_entered );
-    g_free(ssid_entered);
-
     window_destroy(GTK_WIDGET(data));
     return;
 }
@@ -784,7 +763,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 static void
 on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 {
-    GtkWidget	*type_cm,
+    GtkWidget	*type_cb,
     *key_en,
     *ssid_en;
 
@@ -809,7 +788,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 
     key_ls = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY);
     selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_SELECTED_KEY);
-    type_cm = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY);
+    type_cb = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY);
     key_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY);
     ssid_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY);
 
@@ -818,7 +797,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
 
     keys_in_list = GTK_CLIST(key_ls)->rows;
 
-    type_entered = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(type_cm)->entry)));
+    type_entered = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
     key_entered  = g_strdup(gtk_entry_get_text(GTK_ENTRY(key_en)));
     ssid_entered = g_strdup(gtk_entry_get_text(GTK_ENTRY(ssid_en)));
 
@@ -826,6 +805,10 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
     new_type_string = g_string_new(type_entered);
     new_key_string = g_string_new(key_entered);
     new_ssid_string = g_string_new(ssid_entered);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
 
     g_strchug(new_key_string->str);
     g_strchomp(new_key_string->str);
@@ -845,9 +828,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -859,9 +839,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -875,9 +852,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
                 g_string_free(new_key_string, TRUE);
                 g_string_free(new_ssid_string,TRUE);
 
-                g_free(type_entered);
-                g_free(key_entered );
-                g_free(ssid_entered);
                 return;
             }
         }
@@ -900,9 +874,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -917,9 +888,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -941,9 +909,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
             g_string_free(new_key_string, TRUE);
             g_string_free(new_ssid_string,TRUE);
 
-            g_free(type_entered);
-            g_free(key_entered );
-            g_free(ssid_entered);
             return;
         }
 
@@ -957,9 +922,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
                 g_string_free(new_key_string, TRUE);
                 g_string_free(new_ssid_string,TRUE);
 
-                g_free(type_entered);
-                g_free(key_entered );
-                g_free(ssid_entered);
                 return;
             }
         }
@@ -977,10 +939,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data _U_)
     g_string_free(new_type_string,TRUE);
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
-
-    g_free(type_entered);
-    g_free(key_entered );
-    g_free(ssid_entered);
 
     window_destroy(GTK_WIDGET(data));
     return;

@@ -146,7 +146,6 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		gtk_widget_set_sensitive(airpcap_toolbar_decryption,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_decryption_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_keys_button,FALSE);
-		airpcap_set_toolbar_no_if(airpcap_tb);
     }
 }
 
@@ -242,7 +241,6 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   		gtk_widget_set_sensitive(airpcap_toolbar_decryption,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_decryption_lb,TRUE);
   		gtk_widget_set_sensitive(airpcap_toolbar_keys_button,TRUE);
-  		airpcap_set_toolbar_no_if(airpcap_tb);
   		change_airpcap_settings = FALSE;
     }
 }
@@ -484,31 +482,6 @@ airpcap_get_link_name(AirpcapLinkType lt)
 		return AIRPCAP_LINK_TYPE_NAME_UNKNOWN;
     }
     return NULL;
-}
-
-/*
- * Sets the entry of the link type combo using the AirpcapLinkType.
- */
-void
-airpcap_link_type_combo_set_by_type(GtkWidget* c, AirpcapLinkType type)
-{
-    gchar* s;
-
-    s = airpcap_get_link_name(type);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(c)->entry),s);
-}
-
-/*
- * Retrieves the name in link type the combo entry.
- */
-AirpcapLinkType
-airpcap_link_type_combo_get_type(GtkWidget* c)
-{
-    const gchar* s;
-
-    s = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(c)->entry));
-
-    return airpcap_get_link_type(s);
 }
 
 /*
@@ -1230,50 +1203,6 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
     if(advanced_bt != NULL)			gtk_widget_set_sensitive(advanced_bt,en);
 
     return;
-}
-
-/*
- * This function sets up the correct airpcap toolbar that must
- * be displayed when no airpcap if is found on the system...
- */
-void
-airpcap_set_toolbar_no_if(GtkWidget* w)
-{
-    GtkWidget	*toolbar_tb,
-		*if_description_lb,
-		*toolbar_channel_cb,
-		*channel_lb,
-    *channel_offset_cb,
-		*channel_offset_lb,
-		*fcs_cb,
-		*fcs_lb,
-		*advanced_bt;
-
-    if(w == NULL)
-	return;
-
-    toolbar_tb = w;
-
-    if_description_lb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    channel_lb                  = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    toolbar_channel_cb          = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    channel_offset_lb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    channel_offset_cb           = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    fcs_lb                      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    fcs_cb                      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    advanced_bt                 = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
-
-    if(fcs_cb != NULL)              gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(fcs_cb)->entry),"");
-    if(toolbar_channel_cb != NULL)  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(toolbar_channel_cb)->entry),"");
-    if(channel_offset_cb != NULL)   gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry),"");
-    if(if_description_lb != NULL)   gtk_label_set_text(GTK_LABEL(if_description_lb),"Current Wireless Interface: None");
-
-    /*if(if_description_lb != NULL)	gtk_widget_set_sensitive(if_description_lb,FALSE);
-    if(channel_lb != NULL)			gtk_widget_set_sensitive(channel_lb,FALSE);
-    if(channel_cb != NULL)			gtk_widget_set_sensitive(channel_cb,FALSE);
-    if(fcs_lb != NULL)				gtk_widget_set_sensitive(fcs_lb,FALSE);
-    if(fcs_cb != NULL)				gtk_widget_set_sensitive(fcs_cb,FALSE);
-    if(advanced_bt != NULL)			gtk_widget_set_sensitive(advanced_bt,FALSE);*/
 }
 
 #endif /* HAVE_AIRPCAP */

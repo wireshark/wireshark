@@ -292,7 +292,7 @@ GtkWidget *airpcap_toolbar_new()
                               "", "Private");
     gtk_widget_show(fcs_filter_lb);
 
-    /* FCS filter combo */
+    /* FCS filter combo box */
     fcs_filter_cb = gtk_combo_box_new_text();
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY,fcs_filter_cb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), fcs_filter_cb,
