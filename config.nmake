@@ -140,6 +140,10 @@ GLIB_VERSION=2.0
 GLIB_PKG=2.20.3-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
+##### To Use new packet list uncomment this line ####
+### Warning Experimental - work in progress
+#NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
+
 #
 # Mandatory: GTK (& related libs) settings
 #

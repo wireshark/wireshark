@@ -61,6 +61,7 @@
 #include "gtk/menus.h"
 #include "gtk/recent.h"
 #include "gtk/color_dlg.h"
+#include "gtk/new_packet_list.h " 
 #ifdef HAVE_LIBPCAP
 #include "gtk/capture_dlg.h"
 #endif
