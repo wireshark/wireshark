@@ -292,10 +292,10 @@ void col_append_pw_info(packet_info * pinfo
 	,const int padding_size)
 {
 	pwatm_private_data_t* pd;
-	assert(pinfo != NULL);
+	DISSECTOR_ASSERT(pinfo != NULL);
 
 	pd = pinfo->private_data;
-	assert(pd != NULL);
+	DISSECTOR_ASSERT(pd != NULL);
 
 	if (pd->props & PWC_ANYOF_CW_BAD)
 	{
@@ -353,8 +353,8 @@ void prepare_pseudo_header_atm(
 	const pwatm_private_data_t * const pdata,
 	const unsigned aal)
 {
-	assert(NULL != pdata);
-	assert(NULL != ph);
+	DISSECTOR_ASSERT(NULL != pdata);
+	DISSECTOR_ASSERT(NULL != ph);
 
 	memset(ph,0,sizeof(*ph)); /* it is OK to clear unknown values */
 	ph->atm.flags		= 0; /* status flags */
@@ -390,9 +390,9 @@ void dissect_payload_and_padding(
 	tvbuff_t* tvb_2;
 	pwatm_private_data_t* pd;
 
-	assert(NULL != pinfo);
+	DISSECTOR_ASSERT(NULL != pinfo);
 	pd = pinfo->private_data;
-	assert(NULL != pd);
+	DISSECTOR_ASSERT(NULL != pd);
 
 	for(dissected = 0, pd->pw_cell_number = 0;
 		payload_size > dissected;
@@ -1181,7 +1181,7 @@ static
 void proto_item_append_text_cwb3_fields(proto_item * item, const pwatm_private_data_t * const pd)
 {
 	if (NULL == item) return;
-	assert(NULL != pd);
+	DISSECTOR_ASSERT(NULL != pd);
 	if (pd->cwb3.m   >= 0)
 		proto_item_append_text(item, "M:%.1u  "  , (unsigned)(pd->cwb3.m));
 	if (pd->cwb3.v   >= 0)
@@ -1203,7 +1203,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 {
 	pwatm_private_data_t* pd;
 	pd = pinfo->private_data;
-	assert(pd != NULL);
+	DISSECTOR_ASSERT(pd != NULL);
 
 	/*
 	 * NB: do not touch columns -- keep info from previous dissector
@@ -1404,7 +1404,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	int dissect_size;
 	
 	pd = pinfo->private_data;
-	assert (NULL != pd);
+	DISSECTOR_ASSERT (NULL != pd);
 	pd->vpi = pd->vci = pd->pti = -1;
 	pd->cwb3.clp = pd->cwb3.m = pd->cwb3.v = pd->cwb3.rsv = pd->cwb3.u = pd->cwb3.e = -1;
 		
