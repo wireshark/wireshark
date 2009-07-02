@@ -40,8 +40,11 @@
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
 
-/* Written with info from:
+/* Official specifcation:
  *
+ * http://www.radiotap.org/
+ *
+ * Unofficial and historical specifications:
  * http://madwifi.org/wiki/DevDocs/RadiotapHeader
  * NetBSD's ieee80211_radiotap.h file
  */
