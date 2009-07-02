@@ -71,7 +71,7 @@ typedef enum {
 	BRA  = 2,
 	ACOA = 3,
 	NI   = 4,
-	BAD  = 5,
+	MBAD = 5,
 	MNP  = 6,
 	LLA  = 7,
 	MNID = 8,
