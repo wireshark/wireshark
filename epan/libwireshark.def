@@ -581,7 +581,6 @@ md5_append
 md5_finish
 md5_hmac
 md5_init
-mkstemp
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_octet_aligned_subset_bits
