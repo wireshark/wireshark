@@ -62,7 +62,7 @@
 #include "gtk/recent.h"
 #include "gtk/color_dlg.h"
 #ifdef NEW_PACKET_LIST
-#include "gtk/new_packet_list.h " 
+#include "gtk/new_packet_list.h"
 #endif
 #ifdef HAVE_LIBPCAP
 #include "gtk/capture_dlg.h"
