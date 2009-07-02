@@ -516,7 +516,7 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 
 	gtk_tree_path_free(path);
 
-	packet_list_resort(packet_list);
+	/* packet_list_resort(packet_list); */
 }
 
 static gboolean
