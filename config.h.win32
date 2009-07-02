@@ -56,7 +56,8 @@
 
 /* #undef NEED_STRERROR_H */
 
-#define NEED_MKSTEMP 1
+/* #undef HAVE_MKSTEMP */
+/* #undef HAVE_MKDTEMP */
 
 @HAVE_LIBPCAP@
 @HAVE_PCAP_BREAKLOOP@

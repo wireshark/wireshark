@@ -39,11 +39,23 @@ extern "C" {
  * is created using g_get_tmp_dir and mkstemp.
  * 
  * @param namebuf If not NULL, receives the full path of the temp file.
- *                Should NOT be freed.
+ *                Must NOT be freed.
  * @param pfx A prefix for the temporary file.
  * @return The file descriptor of the new tempfile, from mkstemp().
  */
 int create_tempfile(char **namebuf, const char *pfx);
+
+/**
+ * Create a directory with the given prefix (e.g. "wireshark"). The path
+ * is created using g_get_tmp_dir and mkdtemp.
+ * 
+ * @param namebuf If not NULL, receives the full path of the temp directory.
+ *                Must NOT be freed.
+ * @param pfx A prefix for the temporary directory.
+ * @return The temporary directory path on success, or NULL on failure.
+ *         Must NOT be freed.
+ */
+const char *create_tempdir(char **namebuf, const char *pfx);
 
 #ifdef __cplusplus
 }

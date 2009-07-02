@@ -238,7 +238,7 @@ include Makefile.common
 # by wireshark and tshark and stuff needed only by one or the
 # other.
 wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
-	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
+	@STRCASECMP_O@ @STRNCASECMP_O@ @STRPTIME_O@
 
 if ENABLE_STATIC
 wireshark_LDFLAGS = -Wl,-static -all-static

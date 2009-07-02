@@ -76,7 +76,6 @@ EXTRA_OBJECTS = \
 	getopt.obj	\
 	inet_ntop.obj	\
 	inet_pton.obj	\
-	mkstemp.obj	\
 	strptime.obj
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -329,10 +328,10 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj image\dumpcap.res
 <<
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1

@@ -595,11 +595,9 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     FILE            *out_file;
     gchar           *file_uri;
     gboolean        uri_open;
-    char            *map_data_filename;
-    int             temp_fd;
+    char            *map_path, *map_data_filename;
     char            *src_file_path;
-    char            *temp_path;
-    GString         *dst_file_path;
+    char            *dst_file_path;
     gboolean        hosts_written = FALSE;
 
     hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
@@ -644,14 +642,14 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 
     /* open the TSV output file */
     /* XXX - add error handling */
-    temp_fd = create_tempfile(&map_data_filename, "ipmap_");
-    if(temp_fd == -1) {
+    if (! create_tempdir(&map_path, "Wireshark IP Map ")) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not create temporary file %s: %s",
-                map_data_filename, strerror(errno));
+                "Could not create temporary directory\n%s",
+                map_path);
         return;
     }
-    out_file = fdopen(temp_fd, "w");
+    map_data_filename = g_strdup_printf("%s%cipmap.txt", map_path, G_DIR_SEPARATOR);
+    out_file = ws_fopen(map_data_filename, "w");
     if(out_file == NULL) {
         open_failure_alert_box(map_data_filename, errno, TRUE);
         return;
@@ -726,27 +724,22 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     }
 
     /* copy ipmap.html to temp dir */
-    temp_path = g_strdup(map_data_filename);
-    get_dirname(temp_path);
     src_file_path = get_datafile_path("ipmap.html");
-    dst_file_path = g_string_new("");
-    g_string_printf(dst_file_path, "%s%cipmap.html", temp_path, G_DIR_SEPARATOR);
-    g_free(temp_path);
+    dst_file_path = g_strdup_printf("%s%cipmap.html", map_path, G_DIR_SEPARATOR);
     
-    if (!copy_file_binary_mode(src_file_path, dst_file_path->str)) {
+    if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
         g_free(src_file_path);
-        g_string_free(dst_file_path, TRUE);
+        g_free(dst_file_path);
         return;
     }
     g_free(src_file_path);
 
     /* open the webbrowser */
-    g_string_append_printf(dst_file_path, "#%s", get_basename(map_data_filename));
-    file_uri = filename2uri(dst_file_path->str);
-    g_string_free(dst_file_path, TRUE);
+    file_uri = filename2uri(dst_file_path);
+    g_free(dst_file_path);
     uri_open = browser_open_url (file_uri);
     if(!uri_open) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in your web browser", file_uri);
         g_free(file_uri);
         return;
     }

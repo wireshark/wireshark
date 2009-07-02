@@ -1448,14 +1448,7 @@ fi
 AC_SUBST(STRNCASECMP_C)
 AC_SUBST(STRNCASECMP_O)
 
-AC_CHECK_FUNC(mkstemp, MKSTEMP_O="",
-  MKSTEMP_O="mkstemp.o")
-if test "$ac_cv_func_mkstemp" = no ; then
-  MKSTEMP_C="mkstemp.c"
-  MKSTEMP_O="mkstemp.o"
-fi
-AC_SUBST(MKSTEMP_C)
-AC_SUBST(MKSTEMP_O)
+AC_CHECK_FUNCS(mkstemp mkdtemp)
 
 #
 # XXX - if inet_aton isn't found, the build fails, with a complaint from
