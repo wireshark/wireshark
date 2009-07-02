@@ -652,6 +652,8 @@ static emem_tree_t *nfs_file_handles = NULL;
 
 static int dissect_nfs_stateid4(tvbuff_t *tvb, int offset, proto_tree *tree);
 
+static void reg_callback(int cbprog);
+
 /* This function will store one nfs filehandle in our global tree of
  * filehandles.
  * We store all filehandles we see in this tree so that every unique
@@ -8648,6 +8650,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
 	proto_tree *newftree = NULL;
+	int cbprog;
 
 	ops = tvb_get_ntohl(tvb, offset+0);
 
@@ -8958,6 +8961,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					hf_nfs_create_session_flags4, offset);
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+			cbprog = tvb_get_ntohl(tvb, offset);
+			reg_callback(cbprog);
 			offset = dissect_rpc_uint32(tvb, newftree,
 					hf_nfs_cb_program, offset);
 			offset = dissect_rpc_secparms4(tvb, offset, newftree);
@@ -9587,6 +9592,313 @@ static const value_string layoutreturn_names[] = {
 	{ 3, "RETURN_ALL"},
 	{ 0, NULL }
 };
+
+static const value_string layoutrecall_names[] = {
+	{ 1, "RECALL_FILE"},
+	{ 2, "RECALL_FSID"},
+	{ 3, "RECALL_ALL"},
+	{ 0, NULL }
+};
+
+/* NFS Callback */
+static int hf_nfs_cb_procedure = -1;
+static int hf_nfs_cb_argop = -1;
+static int hf_nfs_cb_resop = -1;
+static int hf_nfs_cb_truncate = -1;
+static int hf_nfs_cb_layoutrecall_type = -1;
+static int hf_nfs_cb_clorachanged = -1;
+
+static gint ett_nfs_cb_argop = -1;
+static gint ett_nfs_cb_resop = -1;
+static gint ett_nfs_cb_getattr = -1;
+static gint ett_nfs_cb_recall = -1;
+static gint ett_nfs_cb_layoutrecall = -1;
+static gint ett_nfs_cb_pushdeleg = -1;
+static gint ett_nfs_cb_recallany = -1;
+static gint ett_nfs_cb_recallableobjavail = -1;
+static gint ett_nfs_cb_recallslot = -1;
+static gint ett_nfs_cb_sequence = -1;
+static gint ett_nfs_cb_wantscancelled = -1;
+static gint ett_nfs_cb_notifylock = -1;
+static gint ett_nfs_cb_notifydeviceid = -1;
+static gint ett_nfs_cb_notify = -1;
+static gint ett_nfs_cb_illegal = -1;
+
+static const value_string names_nfs_cb_operation[] = {
+        {       NFS4_OP_CB_GETATTR,                             "CB_GETATTR" },
+        {       NFS4_OP_CB_RECALL,                              "CB_RECALL"     },
+        {       NFS4_OP_CB_LAYOUTRECALL,                        "CB_LAYOUTRECALL" },
+        {       NFS4_OP_CB_NOTIFY,                              "CB_NOTIFY" },
+        {       NFS4_OP_CB_PUSH_DELEG,                          "CB_PUSH_DELEG" },
+        {       NFS4_OP_CB_RECALL_ANY,                          "CB_RECALL_ANY" },
+        {       NFS4_OP_CB_RECALLABLE_OBJ_AVAIL,                "CB_RECALLABLE_OBJ_AVAIL" },
+        {       NFS4_OP_CB_RECALL_SLOT,                         "CB_RECALL_SLOT"},
+        {       NFS4_OP_CB_SEQUENCE,                            "CB_SEQUENCE"   },
+        {       NFS4_OP_CB_WANTS_CANCELLED,                     "CB_WANTS_CANCELLED" },
+        {       NFS4_OP_CB_NOTIFY_LOCK,                         "CB_NOTIFY_LOCK"},
+        {       NFS4_OP_CB_NOTIFY_DEVICEID,                     "CB_NOTIFY_DEVICEID"    },
+        {       NFS4_OP_CB_ILLEGAL,                             "CB_ILLEGAL"},
+        {       0,      NULL }
+};
+
+gint *nfs_cb_operation_ett[] =
+{
+         &ett_nfs_cb_getattr,
+         &ett_nfs_cb_recall,
+         &ett_nfs_cb_layoutrecall,
+         &ett_nfs_cb_notify,
+         &ett_nfs_cb_pushdeleg,
+         &ett_nfs_cb_recallany,
+         &ett_nfs_cb_recallableobjavail,
+         &ett_nfs_cb_recallslot,
+         &ett_nfs_cb_sequence,
+         &ett_nfs_cb_wantscancelled,
+         &ett_nfs_cb_notifylock,
+         &ett_nfs_cb_notifydeviceid,
+         &ett_nfs_cb_illegal
+};
+
+static int
+dissect_nfs_cb_layoutrecall(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
+{
+	guint recalltype = hf_nfs_layouttype4;
+
+	if (recalltype == 1) { /* RETURN_FILE */
+		offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle");  
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
+		offset = dissect_nfs_stateid4(tvb, offset, tree);
+	} else if (recalltype == 2) { /* RETURN_FSID */
+		offset = dissect_nfs_fsid4(tvb, offset, tree, "fsid");
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 ops, ops_counter;
+	guint opcode;
+	proto_item *fitem;
+	proto_tree *ftree = NULL;
+	proto_tree *newftree = NULL;
+
+	ops = tvb_get_ntohl(tvb, offset+0);
+
+	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Operations (count: %u)", ops);
+        offset += 4;
+
+	if (fitem)
+	  	ftree = proto_item_add_subtree(fitem, ett_nfs_cb_argop);
+
+	for (ops_counter=0; ops_counter<ops; ops_counter++)
+	{
+		opcode = tvb_get_ntohl(tvb, offset);
+		if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", ops_counter==0?' ':';',
+				  val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
+
+		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_argop, tvb, offset, 4, opcode);
+		offset += 4;
+
+	/* the opcodes are not contiguous */
+		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_NOTIFY_DEVICEID) &&
+		    (opcode != NFS4_OP_CB_ILLEGAL))
+		  	break;
+
+	/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
+		if (opcode == NFS4_OP_CB_ILLEGAL)
+		  	newftree = proto_item_add_subtree(fitem, ett_nfs_cb_illegal);
+		else if (nfs_cb_operation_ett[opcode - 3])
+		  	newftree = proto_item_add_subtree(fitem, *nfs_cb_operation_ett[opcode - 3]);
+		else
+		  	break;
+  
+		switch (opcode)  
+		{
+		case NFS4_OP_CB_RECALL:
+		  	offset = dissect_nfs_stateid4(tvb, offset, newftree);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cb_truncate, offset);
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, newftree, "filehandle");
+			break;
+		case NFS4_OP_CB_GETATTR:
+		case NFS4_OP_CB_LAYOUTRECALL:
+		  	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cb_clorachanged, offset);
+			offset = dissect_nfs_cb_layoutrecall(tvb, offset, newftree, pinfo);
+			break;
+		case NFS4_OP_CB_NOTIFY:
+		case NFS4_OP_CB_PUSH_DELEG:
+		case NFS4_OP_CB_RECALL_ANY:
+		case NFS4_OP_CB_RECALLABLE_OBJ_AVAIL:
+		case NFS4_OP_CB_RECALL_SLOT:
+		  break;
+		case NFS4_OP_CB_SEQUENCE:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL, hf_nfs_sessionid4, 
+							 TRUE, 16, FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
+			/* skip refs -- assume 0 */
+			offset = offset + 4;
+			break;
+		case NFS4_OP_CB_WANTS_CANCELLED:
+		case NFS4_OP_CB_NOTIFY_LOCK:
+		case NFS4_OP_CB_NOTIFY_DEVICEID:
+		  	break;                        
+		case NFS4_OP_ILLEGAL:
+		  	break;
+		default:
+		  	break;
+		}
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_cb_compound_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree)
+{
+	char *tag=NULL;
+
+	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_minorversion, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_callback_ident, offset);
+	offset = dissect_nfs_cb_argop(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+static int
+dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+  	guint32 ops, ops_counter;
+	guint32 opcode;
+	proto_item *fitem;
+	proto_tree *ftree = NULL;
+	proto_tree *newftree = NULL;
+	guint32 status;
+
+	ops = tvb_get_ntohl(tvb, offset+0);
+	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Operations (count: %u)", ops);
+	offset += 4;
+
+	if (fitem)
+	  	ftree = proto_item_add_subtree(fitem, ett_nfs_cb_resop);	
+
+	for (ops_counter = 0; ops_counter < ops; ops_counter++)
+	{
+		opcode = tvb_get_ntohl(tvb, offset);
+
+	/* sanity check for bogus packets */
+		if ((opcode < NFS4_OP_CB_GETATTR || opcode > NFS4_OP_CB_NOTIFY_DEVICEID) &&
+		    (opcode != NFS4_OP_ILLEGAL))
+			break;
+	  
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",	ops_counter==0?' ':';',
+					val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
+	  
+		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_resop, tvb, offset, 4, opcode);
+		offset += 4;
+	  
+	  /* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
+		if (opcode == NFS4_OP_ILLEGAL)
+		  newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
+		else if (nfs_cb_operation_ett[opcode - 3])
+		  newftree = proto_item_add_subtree(fitem, *nfs_cb_operation_ett[opcode - 3]);
+		else
+		  break;
+
+		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
+	  
+	  /* are there any ops that return data with a failure (?) */	   
+		if (status != NFS4_OK)
+			continue;
+
+	  /* These parsing routines are only executed if the status is NFS4_OK */
+		switch (opcode) 
+		{
+		case NFS4_OP_CB_RECALL:
+			break;
+		case NFS4_OP_CB_GETATTR:
+		case NFS4_OP_CB_LAYOUTRECALL:
+		    	break;
+		case NFS4_OP_CB_NOTIFY:
+		case NFS4_OP_CB_PUSH_DELEG:
+		case NFS4_OP_CB_RECALL_ANY:
+		case NFS4_OP_CB_RECALLABLE_OBJ_AVAIL:
+		case NFS4_OP_CB_RECALL_SLOT:
+			break;
+		case NFS4_OP_CB_SEQUENCE:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
+							 hf_nfs_sessionid4, TRUE, 16,
+							 FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			break;
+		case NFS4_OP_CB_WANTS_CANCELLED:
+		case NFS4_OP_CB_NOTIFY_LOCK:
+		case NFS4_OP_CB_NOTIFY_DEVICEID:
+		    	break;
+		case NFS4_OP_ILLEGAL:
+			break;		  
+		default:
+		    	break;
+		  }
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_cb_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree* tree)
+{
+	guint32 status;
+	char *tag=NULL;
+
+	offset = dissect_nfs_nfsstat4(tvb, offset, tree, &status);
+	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
+
+	offset = dissect_nfs_cb_resop(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+static const vsff nfs_cb_proc[] = {
+        { 0, "CB_NULL",
+	  dissect_nfs3_null_call, dissect_nfs3_null_reply },
+        { 1, "CB_COMPOUND",
+	  dissect_nfs_cb_compound_call, dissect_nfs_cb_compound_reply },
+        { 0, NULL, NULL, NULL }
+};
+
+static const value_string nfs_cb_proc_vals[] = {
+        { 0, "CB_NULL" },
+        { 1, "CB_COMPOUND" },
+        { 0, NULL }
+};
+
+void reg_callback(int cbprog) 
+{
+	/* Register the protocol as RPC */
+	rpc_init_prog(proto_nfs, cbprog, ett_nfs);
+	
+	/* Register the procedure tables */
+	rpc_init_proc_table(cbprog, 1, nfs_cb_proc, hf_nfs_cb_procedure);
+}
 
 void
 proto_register_nfs(void)
@@ -10939,11 +11251,28 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_cachethis4, {
 			"Cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
-
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},		 
+		{ &hf_nfs_cb_procedure, {
+		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
+			VALS(nfs_cb_proc_vals), 0, NULL, HFILL }},		
+		{ &hf_nfs_cb_argop, {
+		    "Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
+		    VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
+		{ &hf_nfs_cb_resop, {
+		      "Opcode", "nfs.reply.operation", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_cb_operation), 0, NULL, HFILL }},	
 		{ &hf_nfs_lrs_present, {
 			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+		{ &hf_nfs_cb_truncate, {
+		    "Truncate?", "nfs.truncate", FT_BOOLEAN, BASE_NONE,
+		    TFS(&tfs_yes_no), 0, NULL, HFILL }},
+		{ &hf_nfs_cb_layoutrecall_type, {
+			"recall type", "nfs.recalltype", FT_UINT32, BASE_DEC,
+			VALS(layoutrecall_names), 0, NULL, HFILL }},
+		{ &hf_nfs_cb_clorachanged, {
+			"Clora changed", "nfs.clorachanged", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
@@ -11108,8 +11437,23 @@ proto_register_nfs(void)
 		&ett_nfs_gid4,
 		&ett_nfs_service4,
 		&ett_nfs_sessionid4,
-		&ett_nfs_layoutseg,
-		&ett_nfs_layoutseg_fh
+		&ett_nfs_layoutseg,		
+		&ett_nfs_layoutseg_fh,
+		&ett_nfs_cb_argop,
+		&ett_nfs_cb_resop,
+		&ett_nfs_cb_getattr,
+		&ett_nfs_cb_recall,
+		&ett_nfs_cb_layoutrecall,
+		&ett_nfs_cb_pushdeleg,
+		&ett_nfs_cb_recallany,
+		&ett_nfs_cb_recallableobjavail,
+		&ett_nfs_cb_recallslot,
+		&ett_nfs_cb_sequence,
+		&ett_nfs_cb_wantscancelled,
+		&ett_nfs_cb_notifylock,
+		&ett_nfs_cb_notifydeviceid,
+		&ett_nfs_cb_notify,
+		&ett_nfs_cb_illegal,
 	};
 	module_t *nfs_module;
 
@@ -11145,8 +11489,8 @@ proto_register_nfs(void)
 	nfs_file_handles=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_file_handles");
 	nfs_fhandle_frame_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
 	register_init_routine(nfs_name_snoop_init);
-
 }
+
 
 void
 proto_reg_handoff_nfs(void)
@@ -11155,7 +11499,7 @@ proto_reg_handoff_nfs(void)
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
-
+	
 	/* Register the procedure tables */
 	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, hf_nfs_procedure_v2);
 	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, hf_nfs_procedure_v3);
@@ -11184,7 +11528,4 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
-
-
 }
-

@@ -127,6 +127,23 @@
 
 #define NFS4_OP_ILLEGAL						10044
 
+/*
+ * NFSv41 callback ops
+ */
+#define NFS4_OP_CB_GETATTR						3
+#define NFS4_OP_CB_RECALL						4
+#define NFS4_OP_CB_LAYOUTRECALL						5
+#define NFS4_OP_CB_NOTIFY						6
+#define NFS4_OP_CB_PUSH_DELEG						7
+#define NFS4_OP_CB_RECALL_ANY						8
+#define NFS4_OP_CB_RECALLABLE_OBJ_AVAIL					9
+#define NFS4_OP_CB_RECALL_SLOT						10
+#define NFS4_OP_CB_SEQUENCE						11
+#define NFS4_OP_CB_WANTS_CANCELLED					12
+#define NFS4_OP_CB_NOTIFY_LOCK						13
+#define NFS4_OP_CB_NOTIFY_DEVICEID					14
+#define NFS4_OP_CB_ILLEGAL						10044
+
 /* for write */
 #define UNSTABLE 0
 #define DATA_SYNC 1
