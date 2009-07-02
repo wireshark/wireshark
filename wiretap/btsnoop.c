@@ -132,14 +132,14 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 	case KHciLoggerDatalinkTypeBCSP:
 	case KHciLoggerDatalinkTypeH5:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: BCSP/H5 capture logs %u unsupported", hdr.version);
+		*err_info = g_strdup_printf("btsnoop: BCSP/H5 capture logs %u unsupported", hdr.datalink);
 		return -1;
 	case KHciLoggerDatalinkTypeH4:
 		file_encap=WTAP_ENCAP_BLUETOOTH_H4;
 		break;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: datalink %u unsupported", hdr.version);
+		*err_info = g_strdup_printf("btsnoop: datalink %u unsupported", hdr.datalink);
 		return -1;
 	}
 
