@@ -136,6 +136,7 @@ create_view_and_model(void)
 		gtk_tree_view_column_set_sort_column_id(col, i);
 		gtk_tree_view_column_set_resizable(col, TRUE);
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
+		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
 		col_width = recent_get_column_width(i);
 		if(col_width == -1) {
