@@ -2794,12 +2794,12 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	/* Option scopes */
 	template.count_scopes = option_scope_len/4;
 	size = template.count_scopes * sizeof(struct v9_template_entry) + scope_pen_count * 4;
-	template.scopes      = g_malloc( size );
+	template.scopes      = se_alloc( size );
 	tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
 
 	template.option_template = TRUE; /* Option template */
 	size = template.count * sizeof(struct v9_template_entry) + pen_count * 4;
-	template.entries = g_malloc(size);
+	template.entries = se_alloc(size);
 	tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
 
 	v9_template_add(&template);
@@ -2884,7 +2884,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			  offset += 4;
 			}
 		}
-		template.entries = g_malloc(count * sizeof(struct v9_template_entry) + pen_count * 4);
+		template.entries = se_alloc(count * sizeof(struct v9_template_entry) + pen_count * 4);
 		tvb_memcpy(tvb, (guint8 *)template.entries, field_start_offset,
 			   count * sizeof(struct v9_template_entry) + pen_count * 4);
 		v9_template_add(&template);
@@ -3336,19 +3336,7 @@ getprefix(const guint32 * address, int prefix)
 static void
 netflow_reinit(void)
 {
-	int i;
-
-	/*
-	 * Clear out the template cache.
-	 * Free the table of fields for each entry, and then zero out
-	 * the cache.
-	 */
-	for (i = 0; i < V9TEMPLATE_CACHE_MAX_ENTRIES; i++)
-	{
-		if (v9_template_cache[i].scopes)
-			g_free(v9_template_cache[i].scopes);
-		g_free(v9_template_cache[i].entries);
-	}
+	/* Clear out the template cache. */
 	memset(v9_template_cache, 0, sizeof v9_template_cache);
 }
 
