@@ -515,8 +515,10 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
 
 	gtk_tree_path_free(path);
-
-	/* packet_list_resort(packet_list); */
+	
+	/* Don't resort the list for every row, the list will be in packet order any way.
+	 * packet_list_resort(packet_list);
+	 */
 }
 
 static gboolean
