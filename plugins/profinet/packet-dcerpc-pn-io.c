@@ -5356,7 +5356,7 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
 static int
 dissect_IRTFrameBlock_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
-	guint16 u16BodyLength)
+	guint16 u16BodyLength _U_)
 {
     guint16 u16IOCRReference;
     guint8 u8IOCRTxPortsRedundantPort;
@@ -6834,8 +6834,8 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     /* is this a (none DFP) PNIO class 3 data packet? */
 	/* frame id must be in valid range (cyclic Real-Time, class=3) */
-	if (u16FrameID >= 0x0100 && u16FrameID <= 0x04ff || /* non redundant */
-		u16FrameID >= 0x0800 && u16FrameID <= 0x0fff) { /* redundant */
+	if ((u16FrameID >= 0x0100 && u16FrameID <= 0x04ff) || /* non redundant */
+	    (u16FrameID >= 0x0800 && u16FrameID <= 0x0fff)) { /* redundant */
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -6844,10 +6844,10 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 	/* frame id must be in valid range (cyclic Real-Time, class=2) and
      * first byte (CBA version field) has to be != 0x11 */
 	if ((
-		u16FrameID >= 0x5000 && u16FrameID <= 0x57ff || /* redundant */
-		u16FrameID >= 0x6000 && u16FrameID <= 0x67ff || /* non redundant */
-		u16FrameID >= 0x7000 && u16FrameID <= 0x77ff || /* redundant */
-		u16FrameID >= 0x8000 && u16FrameID <= 0xbfff)   /* non redundant */
+		(u16FrameID >= 0x5000 && u16FrameID <= 0x57ff) || /* redundant */
+		(u16FrameID >= 0x6000 && u16FrameID <= 0x67ff) || /* non redundant */
+		(u16FrameID >= 0x7000 && u16FrameID <= 0x77ff) || /* redundant */
+		(u16FrameID >= 0x8000 && u16FrameID <= 0xbfff))   /* non redundant */
 		&& u8CBAVersion != 0x11) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;

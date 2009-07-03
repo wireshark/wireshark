@@ -176,12 +176,12 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
 	/* possible FrameID ranges for DFP */
-	if (u16FrameID >= 0x0500 && u16FrameID < 0x05ff ||
-		u16FrameID >= 0x0600 && u16FrameID < 0x07ff ||
-		u16FrameID >= 0x4800 && u16FrameID < 0x4fff ||
-		u16FrameID >= 0x5800 && u16FrameID < 0x5fff ||
-		u16FrameID >= 0x6800 && u16FrameID < 0x6fff ||
-		u16FrameID >= 0x7800 && u16FrameID < 0x7fff ) {
+	if ((u16FrameID >= 0x0500 && u16FrameID < 0x05ff) ||
+	    (u16FrameID >= 0x0600 && u16FrameID < 0x07ff) ||
+	    (u16FrameID >= 0x4800 && u16FrameID < 0x4fff) ||
+	    (u16FrameID >= 0x5800 && u16FrameID < 0x5fff) ||
+	    (u16FrameID >= 0x6800 && u16FrameID < 0x6fff) ||
+	    (u16FrameID >= 0x7800 && u16FrameID < 0x7fff)) {
 		/* can't check this CRC, as the checked data bytes are not available */
 		u16SFCRC16 = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
