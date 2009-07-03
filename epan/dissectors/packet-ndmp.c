@@ -559,7 +559,7 @@ check_ndmp_rm(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 gboolean
-check_ndmp_hdr(tvbuff_t *tvb, packet_info *pinfo)
+check_ndmp_hdr(tvbuff_t *tvb )
 {
 	guint len;
 	guint32 tmp;
@@ -3201,7 +3201,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If it doesn't look like a valid NDMP header at this point, there is
 	 * no reason to move forward 
 	 */
-	if (!check_ndmp_hdr(new_tvb, pinfo))
+	if (!check_ndmp_hdr(new_tvb))
 	{
 		return;
 	}

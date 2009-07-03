@@ -142,7 +142,7 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
-#NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
+NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
 # Mandatory: GTK (& related libs) settings
