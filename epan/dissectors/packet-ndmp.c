@@ -224,6 +224,15 @@ static int hf_ndmp_data_bytes_processed = -1;
 static int hf_ndmp_data_est_bytes_remain = -1;
 static int hf_ndmp_data_est_time_remain = -1;
 
+static int hf_ndmp_fragments = -1;
+static int hf_ndmp_fragment = -1;
+static int hf_ndmp_fragment_overlap = -1;
+static int hf_ndmp_fragment_overlap_conflicts = -1;
+static int hf_ndmp_fragment_multiple_tails = -1;
+static int hf_ndmp_fragment_too_long_fragment = -1;
+static int hf_ndmp_fragment_error = -1;
+static int hf_ndmp_reassembled_in = -1;
+
 static gint ett_ndmp = -1;
 static gint ett_ndmp_fraghdr = -1;
 static gint ett_ndmp_header = -1;
@@ -242,6 +251,29 @@ static gint ett_ndmp_file_name = -1;
 static gint ett_ndmp_file_stats = -1;
 static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
+static gint ett_ndmp_fragment = -1;
+static gint ett_ndmp_fragments = -1;
+
+static const fragment_items ndmp_frag_items = {
+       /* Fragment subtrees */
+       &ett_ndmp_fragment,
+       &ett_ndmp_fragments,
+       /* Fragment fields */
+       &hf_ndmp_fragments,
+       &hf_ndmp_fragment,
+       &hf_ndmp_fragment_overlap,
+       &hf_ndmp_fragment_overlap_conflicts,
+       &hf_ndmp_fragment_multiple_tails,
+       &hf_ndmp_fragment_too_long_fragment,
+       &hf_ndmp_fragment_error,
+       /* Reassembled in field */
+       &hf_ndmp_reassembled_in,
+       /* Tag */
+       "NDMP fragments"
+};
+
+static GHashTable *ndmp_fragment_table = NULL;
+static GHashTable *ndmp_reassembled_table = NULL;
 
 /* XXX someone should start adding the new stuff from v3, v4 and v5*/
 #define NDMP_PROTOCOL_UNKNOWN	0
@@ -259,6 +291,11 @@ static enum_val_t ndmp_protocol_versions[] = {
 
 static gint ndmp_default_protocol_version = NDMP_PROTOCOL_V4;
 
+typedef struct _ndmp_frag_info {
+	guint32 first_seq;
+	guint16 offset;
+} ndmp_frag_info;
+
 typedef struct _ndmp_task_data_t {
 	guint32 request_frame;
 	guint32 response_frame;
@@ -270,6 +307,8 @@ typedef struct _ndmp_conv_data_t {
 	guint8 version;
 	emem_tree_t *tasks;	/* indexed by Sequence# */
 	emem_tree_t *itl;		/* indexed by packet# */
+	emem_tree_t *fragsA; /* indexed by Sequence# */
+	emem_tree_t *fragsB;
 	ndmp_task_data_t *task;
 	conversation_t *conversation;
 } ndmp_conv_data_t;
@@ -493,6 +532,82 @@ static const value_string msg_vals[] = {
 	{0, NULL}
 };
 
+gboolean
+check_ndmp_rm(tvbuff_t *tvb, packet_info *pinfo)
+{
+	guint len;
+	guint32 tmp;
+
+	/* verify that the tcp port is 10000, ndmp always runs on port 10000*/
+	if ((pinfo->srcport!=TCP_PORT_NDMP)&&(pinfo->destport!=TCP_PORT_NDMP)) {
+		return FALSE;
+	}
+
+	/* check that the header looks sane */
+	len=tvb_length(tvb);
+	/* check the record marker that it looks sane.
+	 * It has to be >=24 bytes or (arbitrary limit) <1Mbyte
+	 */
+	if(len>=4){
+		tmp=(tvb_get_ntohl(tvb, 0)&RPC_RM_FRAGLEN);
+		if( (tmp<24)||(tmp>1000000) ){
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+gboolean
+check_ndmp_hdr(tvbuff_t *tvb, packet_info *pinfo)
+{
+	guint len;
+	guint32 tmp;
+
+	len=tvb_length(tvb);
+
+	/* If the length is less than 24, it isn't a valid
+	   header */
+	if (len<24){
+		return FALSE;
+	}
+
+	/* check the timestamp,  timestamps are valid if they
+	 * (arbitrary) lie between 1980-jan-1 and 2030-jan-1
+	 */
+	if(len>=8){
+		tmp=tvb_get_ntohl(tvb, 4);
+		if( (tmp<0x12ceec50)||(tmp>0x70dc1ed0) ){
+			return FALSE;
+		}
+	}
+
+	/* check the type */
+	if(len>=12){
+		tmp=tvb_get_ntohl(tvb, 8);
+		if( tmp>1 ){
+			return FALSE;
+		}
+	}
+
+	/* check message */
+	if(len>=16){
+		tmp=tvb_get_ntohl(tvb, 12);
+		if( (tmp>0xa09) || (tmp==0) ){
+			return FALSE;
+		}
+	}
+
+	/* check error */
+	if(len>=24){
+		tmp=tvb_get_ntohl(tvb, 20);
+		if( (tmp>0x17) ){
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
 
 static int
 dissect_connect_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -520,7 +635,7 @@ dissect_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
 	if(err && check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-			" NDMP Error:%s",
+			" NDMP Error:%s ",
 			val_to_str(err, error_vals,
 			"Unknown NDMP error code %#x"));
 	}
@@ -2646,7 +2761,6 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-
 typedef struct _ndmp_command {
 	guint32 cmd;
 	int (*request) (tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -2807,7 +2921,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset=dissect_error(tvb, offset, pinfo, tree, nh->seq);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ",
 			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
 			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
@@ -2870,12 +2984,22 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 ndmp_rm;
 	struct ndmp_header nh;
 	guint32 size;
+	guint32 seq, len, nxt, frag_num;
+	gint nbytes;
+	int direction;
+	struct tcpinfo *tcpinfo;
+	ndmp_frag_info* nfi;
 	proto_item *ndmp_item = NULL;
 	proto_tree *ndmp_tree = NULL;
 	proto_item *hdr_item = NULL;
 	proto_tree *hdr_tree = NULL;
+	emem_tree_t *frags;
 	conversation_t *conversation;
 	proto_item *vers_item;
+	gboolean save_fragmented, save_writable; 
+	gboolean do_frag = TRUE;
+	tvbuff_t* new_tvb = NULL;
+	fragment_data *frag_msg = NULL;
 
 	top_tree=tree; /* scsi should open its expansions on the top level */
 
@@ -2889,6 +3013,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
+
 	ndmp_conv_data=conversation_get_proto_data(conversation, proto_ndmp);
 	if(!ndmp_conv_data){
 		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
@@ -2896,65 +3021,222 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_conv_data->tasks=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP tasks");
 		ndmp_conv_data->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP itl");
 		ndmp_conv_data->conversation=conversation;
+		ndmp_conv_data->fragsA=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP fragsA");
+		ndmp_conv_data->fragsB=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP fragsB");
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 	}
 
+	/*
+	 * Read the NDMP record marker, if we have it.
+	 */
+	ndmp_rm=tvb_get_ntohl(tvb, offset);
+
+	/* Reassemble if desegmentation and reassembly are enabled, otherwise
+	 * just pass through and use the data in tvb for dissection */
+	if (ndmp_defragment && ndmp_desegment)
+	{
+
+		/* Initialize the tables, if neccesary */
+		if (ndmp_fragment_table == NULL)
+		{
+			fragment_table_init(&ndmp_fragment_table);
+			reassembled_table_init(&ndmp_reassembled_table);
+		}
+
+		/* 
+		 * Determine the direction of the flow, so we can use the correct fragment tree
+		 */
+		direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+		if(direction==0) {
+			direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
+		}
+		if(direction>=0){
+			frags = ndmp_conv_data->fragsA;
+		} else {
+			frags = ndmp_conv_data->fragsB;
+		}
+
+		/*
+		 * Figure out the tcp seq and pdu length.  Fragment tree is indexed based on seq;
+		 */
+		if (pinfo == NULL || pinfo->private_data == NULL) {
+			return;
+		}
+		tcpinfo = pinfo->private_data;
+
+		if (tcpinfo == NULL) {
+			return;
+		}
+		seq = tcpinfo->seq;
+		len = (ndmp_rm & RPC_RM_FRAGLEN) + 4;
+		nxt = seq + len;
+
+		/* 
+		 * In case there are multiple PDUs in the same frame, advance the tcp seq
+		 * so that they can be distinguished from one another 
+		 */
+		tcpinfo->seq = nxt;
+
+		nfi = se_tree_lookup32(frags, seq);
+
+		if (!nfi)
+		{
+			frag_num = 0;
+
+			/*
+			 * If nfi doesn't exist, then there are no fragments before this one.
+			 * If there are fragments after this one, create the entry in the frag 
+			 * tree so the next fragment can find it.
+			 */
+			if (!(ndmp_rm & RPC_RM_LASTFRAG))
+			{
+				nfi=se_alloc(sizeof(ndmp_frag_info));
+				nfi->first_seq = seq;
+				nfi->offset = 1;
+				se_tree_insert32(frags, nxt, (void *)nfi);
+			}
+			/* 
+			 * If this is both the first and the last fragment, then there
+			 * is no reason to even engage the reassembly routines.  Just
+			 * create the new_tvb directly from tvb. 
+			 */
+			else
+			{
+				do_frag = FALSE;
+				new_tvb = tvb_new_subset(tvb, 4, -1, -1);
+			}
+		}
+		else
+		{
+			/* 
+			 * An entry was found, so we know the offset of this fragment
+			 */
+			frag_num = nfi->offset;
+			seq = nfi->first_seq;
+
+			/*
+			 * If this isn't the last frag, add another entry so the next fragment can find it.
+			 */
+			if (!(ndmp_rm & RPC_RM_LASTFRAG))
+			{
+				nfi=se_alloc(sizeof(ndmp_frag_info));
+				nfi->first_seq = seq;
+				nfi->offset = frag_num+1;
+				se_tree_insert32(frags, nxt, (void *)nfi);
+			}
+		}
+	
+		save_fragmented = pinfo->fragmented;
+
+		/* If fragmentation is neccessary */
+		if (do_frag)
+		{
+			pinfo->fragmented = TRUE;
+
+			frag_msg = fragment_add_seq_check(tvb, 4, pinfo,
+				seq,
+				ndmp_fragment_table,
+				ndmp_reassembled_table,
+				frag_num,
+				tvb_length_remaining(tvb, offset)-4,
+				!(ndmp_rm & RPC_RM_LASTFRAG));
+
+			new_tvb = process_reassembled_data(tvb, 4, pinfo, "Reassembled NDMP", frag_msg, &ndmp_frag_items, NULL, tree);
+		}
+
+		/*
+		 * Check if this is the last fragment.
+		 */
+		if (!(ndmp_rm & RPC_RM_LASTFRAG)) {
+			/*
+			 *  Update the column info.
+			 */
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+			
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_clear(pinfo->cinfo, COL_INFO);
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
+			}
+
+			/* 
+			 * Add the record marker information to the tree 
+			 */
+			if (tree) {
+				ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
+				ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
+			}
+			hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
+				"Fragment header: %s%u %s",
+				(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
+				ndmp_rm & RPC_RM_FRAGLEN, plurality(ndmp_rm & RPC_RM_FRAGLEN, "byte", "bytes"));
+			hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
+			proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
+			proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
+
+			/* 
+			 * Decode the remaining bytes as generic NDMP fragment data 
+			 */
+			nbytes = tvb_reported_length_remaining(tvb, 4);
+			proto_tree_add_text(ndmp_tree, tvb, 4, nbytes, "NDMP fragment data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
+
+			return;
+		}
+	}
+	else
+	{
+		new_tvb = tvb_new_subset(tvb, 4, -1, -1);
+	}
+
+
 	/* size of this NDMP PDU */
-	size = tvb_length_remaining(tvb, offset);
-	if (size < 28) {
+	size = tvb_length_remaining(new_tvb, offset);
+	if (size < 24) {
 		/* too short to be NDMP */
 		return;
 	}
 
-	/*
-	 * Read the NDMP header, if we have it.
+	/* 
+	 * If it doesn't look like a valid NDMP header at this point, there is
+	 * no reason to move forward 
 	 */
-	ndmp_rm=tvb_get_ntohl(tvb, offset);
-	nh.seq = tvb_get_ntohl(tvb, offset+4);
-	nh.time = tvb_get_ntohl(tvb, offset+8);
-	nh.type = tvb_get_ntohl(tvb, offset+12);
-	nh.msg = tvb_get_ntohl(tvb, offset+16);
-	nh.rep_seq = tvb_get_ntohl(tvb, offset+20);
-	nh.err = tvb_get_ntohl(tvb, offset+24);
-
-
-	/*
-	 * Check if this is the last fragment.
-	 */
-	if (!(ndmp_rm & RPC_RM_LASTFRAG)) {
-		/*
-		 * This isn't the last fragment.
-		 * If we're doing reassembly, just return
-		 * TRUE to indicate that this looks like
-		 * the beginning of an NDMP message,
-		 * and let them do reassembly.
-		 */
-		if (ndmp_defragment)
-			return;
+	if (!check_ndmp_hdr(new_tvb, pinfo))
+	{
+		return;
 	}
+
+	nh.seq = tvb_get_ntohl(new_tvb, offset);
+	nh.time = tvb_get_ntohl(new_tvb, offset+4);
+	nh.type = tvb_get_ntohl(new_tvb, offset+8);
+	nh.msg = tvb_get_ntohl(new_tvb, offset+12);
+	nh.rep_seq = tvb_get_ntohl(new_tvb, offset+16);
+	nh.err = tvb_get_ntohl(new_tvb, offset+20);
+
+	/* When the last fragment is small and the final frame contains
+	 * multiple fragments, the column becomes unwritable.
+	 * Temporarily change that so that the correct header can be 
+	 * applied */
+	save_writable = col_get_writable(pinfo->cinfo);
+	col_set_writable(pinfo->cinfo, TRUE);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
-
 	if (tree) {
-		ndmp_item = proto_tree_add_item(tree, proto_ndmp,
-		    tvb, 0, -1, FALSE);
+		ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 	}
 
-
 	/* ndmp version (and autodetection) */
 	if(ndmp_conv_data->version!=NDMP_PROTOCOL_UNKNOWN){
-		vers_item=proto_tree_add_uint(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_conv_data->version);
+		vers_item=proto_tree_add_uint(ndmp_tree, hf_ndmp_version, new_tvb, offset, 0, ndmp_conv_data->version);
 	} else {
-		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
+		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, new_tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
 	}
 	PROTO_ITEM_SET_GENERATED(vers_item);
-
 
 	/* request response matching */
 	ndmp_conv_data->task=NULL;
@@ -2972,7 +3254,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->response_frame){
 			proto_item *it;
-			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_response_frame, tvb, 0, 0, ndmp_conv_data->task->response_frame);
+			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_response_frame, new_tvb, 0, 0, ndmp_conv_data->task->response_frame);
+
 			PROTO_ITEM_SET_GENERATED(it);
 		}
 		break;
@@ -2989,17 +3272,18 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item *it;
 			nstime_t delta_ts;
 
-			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_request_frame, tvb, 0, 0, ndmp_conv_data->task->request_frame);
+			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_request_frame, new_tvb, 0, 0, ndmp_conv_data->task->request_frame);
+
 			PROTO_ITEM_SET_GENERATED(it);
 
 			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &ndmp_conv_data->task->ndmp_time);
-			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, tvb, 0, 0, &delta_ts);
+			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, new_tvb, 0, 0, &delta_ts);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
 		break;
 	}
 
-
+	/* Add the record marker information to the tree */
 	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
 		"Fragment header: %s%u %s",
 		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "",
@@ -3013,7 +3297,12 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * are implementations which pad some additional data after
 	 * the PDU.  We MUST use size.
 	 */
-	dissect_ndmp_cmd(tvb, offset+4, pinfo, ndmp_tree, &nh);
+	dissect_ndmp_cmd(new_tvb, offset, pinfo, ndmp_tree, &nh);
+
+	/* restore saved variabled */
+	pinfo->fragmented = save_fragmented;
+	col_set_writable(pinfo->cinfo, save_writable);
+
 	return;
 }
 
@@ -3092,7 +3381,16 @@ check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
 static int
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if(!check_if_ndmp(tvb, pinfo)) {
+	/* If we are doing defragmentation, don't check more than the record mark here,
+	 * because if this is a continuation of a fragmented NDMP PDU there won't be a 
+	 * NDMP header after the RM */
+	if(ndmp_defragment && !check_ndmp_rm(tvb, pinfo)) {
+		return 0;
+	}
+
+	/* If we aren't doing both defragmentation and reassembly, check for the entire 
+	 * NDMP header before proceeding */
+	if(!(ndmp_defragment && ndmp_desegment) && !check_if_ndmp(tvb, pinfo)) {
 		return 0;
 	}
 
@@ -3783,6 +4081,32 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_fraglen, {
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
 		NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
+	{&hf_ndmp_fragments, {
+		"NDMP fragments", "ndmp.fragments", FT_NONE, BASE_NONE, 
+		NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment,
+		{"NDMP fragment", "ndmp.fragment",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_overlap,
+		{"NDMP fragment overlap", "ndmp.fragment.overlap",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_overlap_conflicts,
+		{"NDMP fragment overlapping with conflicting data",
+		"msg.fragment.overlap.conflicts",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_multiple_tails,
+		{"NDMP has multiple tail fragments",
+		"msg.fragment.multiple_tails",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_too_long_fragment,
+		{"NDMP fragment too long", "ndmp.fragment.too_long_fragment",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_error,
+		{"NDMP defragmentation error", "ndmp.fragment.error",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_reassembled_in,
+		{"Reassembled in", "ndmp.reassembled.in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
   };
 
   static gint *ett[] = {
@@ -3804,6 +4128,8 @@ proto_register_ndmp(void)
     &ett_ndmp_file_stats,
     &ett_ndmp_file_invalids,
     &ett_ndmp_state_invalids,
+	&ett_ndmp_fragment,
+	&ett_ndmp_fragments,
   };
 
   module_t *ndmp_module;
