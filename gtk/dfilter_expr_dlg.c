@@ -189,13 +189,12 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
     case FT_INT24:
     case FT_INT32:
         /*
-         * If this has a value_string table associated with it,
-         * fill up the list of values, otherwise clear the list
-         * of values.
+         * If this has a value_string table (not a range_string table) associated with it,
+         * fill up the list of values, otherwise clear the list of values.
          */
-        if (hfinfo->strings != NULL) {
-            build_enum_values(value_list_scrolled_win, value_list,
-                              hfinfo->strings);
+	/* XXX: ToDo: Implement "range-string" filter ?   */
+        if ((hfinfo->strings != NULL) & !(hfinfo->display & BASE_RANGE_STRING)) {
+            build_enum_values(value_list_scrolled_win, value_list, hfinfo->strings);
         } else
             gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list))));
         break;
@@ -425,7 +424,7 @@ static void
 display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
                      GtkWidget *value_label, GtkWidget *value_entry,
                      GtkWidget *value_list_label,
-                     GtkWidget  *value_list _U_,
+                     GtkWidget *value_list _U_,
                      GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
                      GtkWidget *range_entry)
 {
@@ -484,7 +483,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		if (hfinfo->strings != NULL) {
+		if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
 			/*
 			 * We have a list of values to show.
 			 */
@@ -539,7 +538,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
     header_field_info *hfinfo = g_object_get_data(G_OBJECT(window),
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
-    gchar *value_string = NULL;
+    gchar *value_display_string = NULL;
 
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
@@ -557,16 +556,16 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          * testing for "false".
          */
         if (value != NULL)
-		value_string = g_strdup("1");
+		value_display_string = g_strdup("1");
         else
-		value_string = g_strdup("0");
+		value_display_string = g_strdup("0");
     } else {
         /*
          * Numeric type; get the value corresponding to the
          * selected item, and display it in the base for this
          * field.
          */
-        switch (hfinfo->display) {
+        switch ((hfinfo->display) & BASE_STRUCTURE_RESET) {
 
         case BASE_NONE:
         case BASE_DEC:
@@ -576,14 +575,14 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             case FT_UINT16:
             case FT_UINT24:
             case FT_UINT32:
-                value_string = g_strdup_printf("%u", value->value);
+                value_display_string = g_strdup_printf("%u", value->value);
                 break;
 
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
             case FT_INT32:
-                value_string = g_strdup_printf("%d", value->value);
+                value_display_string = g_strdup_printf("%d", value->value);
                 break;
 
             default:
@@ -592,11 +591,11 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             break;
 
         case BASE_HEX:
-            value_string = g_strdup_printf("0x%x", value->value);
+            value_display_string = g_strdup_printf("0x%x", value->value);
             break;
 
         case BASE_OCT:
-            value_string = g_strdup_printf("%#o", value->value);
+            value_display_string = g_strdup_printf("%#o", value->value);
             break;
 
         default:
@@ -604,8 +603,8 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
         }
     }
 
-    gtk_entry_set_text(GTK_ENTRY(value_entry), value_string);
-    g_free (value_string);
+    gtk_entry_set_text(GTK_ENTRY(value_entry), value_display_string);
+    g_free (value_display_string);
 }
 
 static void
@@ -1132,7 +1131,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	g_snprintf(str, TAG_STRING_LEN, "%s - %s", 
 		   proto_get_protocol_short_name(protocol),
 		   proto_get_protocol_long_name(protocol));
-	str[TAG_STRING_LEN]='\0';
 	strp=str;
 
 	hfinfo = proto_registrar_get_nth(i);
@@ -1153,7 +1151,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                 g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
                            hfinfo->name);
             }
-            str[TAG_STRING_LEN]='\0';
             gtk_tree_store_append(store, &child_iter, &iter);
             gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
 	}

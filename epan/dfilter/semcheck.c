@@ -152,7 +152,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 {
 	static const true_false_string  default_tf = { "True", "False" };
 	const true_false_string		*tf = &default_tf;
-	const value_string		*vals;
 
 	/* Early return? */
 	switch(hfinfo->type) {
@@ -177,7 +176,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_PCRE:
 		case FT_GUID:
 		case FT_OID:
-			return FALSE;
+			return NULL;
 
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
@@ -223,19 +222,26 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	if (!hfinfo->strings) {
 		dfilter_fail("%s cannot accept strings as values.",
 				hfinfo->abbrev);
-		return FALSE;
+		return NULL;
 	}
 
-	vals = hfinfo->strings;
-	while (vals->strptr != NULL) {
-		if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
-			return mk_uint32_fvalue(vals->value);
-		}
-		vals++;
+	if (hfinfo->display & BASE_RANGE_STRING) {
+		dfilter_fail("\"%s\" cannot accept [range] strings as values.",
+				hfinfo->abbrev);
+		return NULL;
 	}
-	dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
-			s, hfinfo->abbrev);
-	return FALSE;
+	else {
+		const value_string *vals = hfinfo->strings;
+		while (vals->strptr != NULL) {
+			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
+				return mk_uint32_fvalue(vals->value);
+			}
+			vals++;
+		}
+		dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
+				s, hfinfo->abbrev);
+	}
+	return NULL;
 }
 
 static gboolean
