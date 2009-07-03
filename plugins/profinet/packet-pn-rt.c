@@ -61,7 +61,8 @@ static int hf_pn_rt_frame_id = -1;
 static int hf_pn_rt_cycle_counter = -1;
 static int hf_pn_rt_transfer_status = -1;
 static int hf_pn_rt_data_status = -1;
-static int hf_pn_rt_data_status_res67 = -1;
+static int hf_pn_rt_data_status_ignore = -1;
+static int hf_pn_rt_data_status_subframe_sender_mode = -1;
 static int hf_pn_rt_data_status_ok = -1;
 static int hf_pn_rt_data_status_operate = -1;
 static int hf_pn_rt_data_status_res3 = -1;
@@ -76,6 +77,14 @@ static int hf_pn_rt_sf_position_control = -1;
 static int hf_pn_rt_sf_data_length = -1;
 static int hf_pn_rt_sf_cycle_counter = -1;
 
+static int hf_pn_rt_frag = -1;
+static int hf_pn_rt_frag_data_length = -1;
+static int hf_pn_rt_frag_status = -1;
+static int hf_pn_rt_frag_status_more_follows = -1;
+static int hf_pn_rt_frag_status_error = -1;
+static int hf_pn_rt_frag_status_fragment_number = -1;
+static int hf_pn_rt_frag_data = -1;
+
 
 /* 
  * Define the trees for pn-rt
@@ -84,6 +93,8 @@ static int hf_pn_rt_sf_cycle_counter = -1;
 static int ett_pn_rt = -1;
 static int ett_pn_rt_data_status = -1;
 static int ett_pn_rt_sf = -1;
+static int ett_pn_rt_frag = -1;
+static int ett_pn_rt_frag_status = -1;
 
 /* 
  * Here are the global variables associated with  
@@ -99,6 +110,18 @@ static heur_dissector_list_t heur_subdissector_list;
 static const value_string pn_rt_position_control[] = {
 	{ 0x00, "CRC16 and CycleCounter shall not be checked" },
 	{ 0x80, "CRC16 and CycleCounter valid" },
+    { 0, NULL }
+};
+
+static const value_string pn_rt_frag_status_error[] = {
+	{ 0x00, "No error" },
+	{ 0x01, "An error occured, all earlier fragments shall be dropped" },
+    { 0, NULL }
+};
+
+static const value_string pn_rt_frag_status_more_follows[] = {
+	{ 0x00, "Last fragment" },
+	{ 0x01, "More fragments follow" },
     { 0, NULL }
 };
 
@@ -119,7 +142,8 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataSta
 	    (u8DataStatus & 0x20) ? "Ok" : "Problem",
 	    (u8DataStatus & 0x10) ? "Run" : "Stop");
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_data_status);
-    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res67, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ignore, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_subframe_sender_mode, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ok, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_operate, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res3, tvb, offset, 1, u8DataStatus);
@@ -129,9 +153,9 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataSta
 }
 
 
-/* possibly dissect a SubFrame related PN-RT packet */
+/* possibly dissect a CSF_SDU related PN-RT packet */
 static gboolean
-dissect_SubFrame_heur(tvbuff_t *tvb,
+dissect_CSF_SDU_heur(tvbuff_t *tvb,
 	packet_info *pinfo, proto_tree *tree)
 {
 	guint16 u16FrameID;
@@ -151,8 +175,13 @@ dissect_SubFrame_heur(tvbuff_t *tvb,
     /* the sub tvb will NOT contain the frame_id here! */
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
-	/* XXX - add more of the possible FrameID ranges */
-	if (u16FrameID >= 0x7800 && u16FrameID < 0x7fff) {
+	/* possible FrameID ranges for DFP */
+	if (u16FrameID >= 0x0500 && u16FrameID < 0x05ff ||
+		u16FrameID >= 0x0600 && u16FrameID < 0x07ff ||
+		u16FrameID >= 0x4800 && u16FrameID < 0x4fff ||
+		u16FrameID >= 0x5800 && u16FrameID < 0x5fff ||
+		u16FrameID >= 0x6800 && u16FrameID < 0x6fff ||
+		u16FrameID >= 0x7800 && u16FrameID < 0x7fff ) {
 		/* can't check this CRC, as the checked data bytes are not available */
 		u16SFCRC16 = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
@@ -213,6 +242,61 @@ dissect_SubFrame_heur(tvbuff_t *tvb,
 
 			proto_item_set_len(sub_item, offset - u32SubStart);
 		}
+
+        return TRUE;
+    }
+
+    return FALSE;
+
+}
+
+
+/* possibly dissect a FRAG_PDU related PN-RT packet */
+static gboolean
+dissect_FRAG_PDU_heur(tvbuff_t *tvb,
+	packet_info *pinfo, proto_tree *tree)
+{
+	guint16 u16FrameID;
+	int offset = 0;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+	guint8  u8FragDataLength;
+    proto_item *status_item;
+    proto_tree *status_tree;
+	guint8  u8FragStatus;
+
+
+    /* the sub tvb will NOT contain the frame_id here! */
+    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
+
+	/* possible FrameID ranges for FRAG_PDU */
+	if (u16FrameID >= 0xFF80 && u16FrameID < 0xFF8F) {
+		sub_item = proto_tree_add_item(tree, hf_pn_rt_frag, tvb, offset, 0, FALSE);
+		sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_frag);
+
+		u8FragDataLength = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(sub_tree, hf_pn_rt_frag_data_length, tvb, offset, 1, u8FragDataLength);
+		offset += 1;
+
+		status_item = proto_tree_add_item(sub_tree, hf_pn_rt_frag_status, tvb, offset, 1, FALSE);
+		status_tree = proto_item_add_subtree(status_item, ett_pn_rt_frag_status);
+
+		u8FragStatus = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_more_follows, tvb, offset, 1, u8FragStatus);
+		proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_error, tvb, offset, 1, u8FragStatus);
+		proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_fragment_number, tvb, offset, 1, u8FragStatus);
+		offset += 1;
+		proto_item_append_text(status_item, ": Number: %u, %s, %s",
+			u8FragStatus & 0x3F,
+			val_to_str( (u8FragStatus & 0x80) >> 7, pn_rt_frag_status_more_follows, "Unknown"),
+			val_to_str( (u8FragStatus & 0x40) >> 6, pn_rt_frag_status_error, "Unknown"));
+
+
+		proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data", 
+			"FragData: %d bytes", tvb_length(tvb) - offset);
+
+		/* note: the actual defragmentation implementation is still missing here */
+		dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, tvb_length(tvb) - offset);
 
         return TRUE;
     }
@@ -314,71 +398,90 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtSummary  = "Real-Time";
         pszProtComment	= "0x0082-0x00FF: Reserved ID";
         bCyclic         = FALSE;
+
+	} else if (u16FrameID <= 0x04FF){
+        pszProtShort 	= "PN-RTC3";
+        pszProtAddInfo  = "RTC3, ";
+        pszProtSummary  = "Isochronous-Real-Time";
+        pszProtComment	= "0x0100-0x04FF: Isochronous-Real-Time(class=3): non redundant, normal";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0x05FF){
+        pszProtShort 	= "PN-RTC3";
+        pszProtAddInfo  = "RTC3, ";
+        pszProtSummary  = "Isochronous-Real-Time";
+        pszProtComment	= "0x0500-0x05FF: Isochronous-Real-Time(class=3): non redundant, DFP";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0x07FF){
+        pszProtShort 	= "PN-RTC3";
+        pszProtAddInfo  = "RTC3, ";
+        pszProtSummary  = "Isochronous-Real-Time";
+        pszProtComment	= "0x0600-0x07FF: Isochronous-Real-Time(class=3): redundant, DFP";
+        bCyclic         = TRUE;
     } else if (u16FrameID <= 0x0FFF){
         pszProtShort 	= "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment	= "0x0100-0x0FFF: Isochronous-Real-Time(class=3): RED, non redundant, redundant, normal, DFP";
+        pszProtComment	= "0x0800-0x0FFF: Isochronous-Real-Time(class=3): redundant, normal";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0x47FF) {
         pszProtShort 	= "PN-RT";
         pszProtAddInfo  = "reserved, ";
         pszProtSummary  = "Real-Time";
         pszProtComment	= "0x1000-0x47FF: Reserved ID";
-        bCyclic         = TRUE;
+        bCyclic         = FALSE;
     } else if (u16FrameID <= 0x4FFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x4800-0x4FFF: Real-Time(class=2): RED, redundant, DFP";
+        pszProtComment	= "0x4800-0x4FFF: Real-Time(class=2): redundant, DFP";
         bCyclic         = TRUE;
     } else if (u16FrameID < 0x57FF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x5000-0x57FF: Real-Time(class=2): RED, redundant, normal";
+        pszProtComment	= "0x5000-0x57FF: Real-Time(class=2): redundant, normal";
         bCyclic         = TRUE;
 	} else if (u16FrameID <= 0x5FFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x5800-0x5FFF: Real-Time(class=2): RED, non redundant, DFP";
+        pszProtComment	= "0x5800-0x5FFF: Real-Time(class=2): non redundant, DFP";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0x67FF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x6000-0x67FF: Real-Time(class=2): RED, non redundant, normal";
+        pszProtComment	= "0x6000-0x67FF: Real-Time(class=2): non redundant, normal";
         bCyclic         = TRUE;
 	} else if (u16FrameID <= 0x6FFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x6800-0x6FFF: Real-Time(class=2): ORANGE, redundant, DFP";
+        pszProtComment	= "0x6800-0x6FFF: Real-Time(class=2): redundant, DFP";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0x77FF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x7000-0x77FF: Real-Time(class=2): ORANGE, redundant, normal";
+        pszProtComment	= "0x7000-0x77FF: Real-Time(class=2): redundant, normal";
         bCyclic         = TRUE;
 	} else if (u16FrameID <= 0x7FFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x7800-0x7FFF: Real-Time(class=2): ORANGE, non redundant, DFP";
+        pszProtComment	= "0x7800-0x7FFF: Real-Time(class=2): non redundant, DFP";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0xBBFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x8000-0xBBFF: Real-Time(class=2): ORANGE, non redundant, normal";
+        pszProtComment	= "0x8000-0xBBFF: Real-Time(class=2): non redundant, normal";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0xBFFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0xBC00-0xBFFF: Real-Time(class=2 multicast): ORANGE, non redundant, normal";
+        pszProtComment	= "0xBC00-0xBFFF: Real-Time(class=2 multicast): non redundant, normal";
         bCyclic         = TRUE;
 	} else if (u16FrameID <= 0xF7FF){
         pszProtShort 	= "PN-RTC1/UDP";
@@ -477,11 +580,17 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtSummary	= "Real-Time";
         pszProtComment	= "0xFF44-0xFF7F: reserved ID";
         bCyclic         = FALSE;
+    } else if (u16FrameID <= 0xFF8F){
+		pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "Fragmentation, ";
+        pszProtSummary	= "Real-Time";
+        pszProtComment	= "0xFF80-0xFF8F: Fragmentation";
+        bCyclic         = FALSE;
     } else {
 		pszProtShort 	= "PN-RT";
         pszProtAddInfo  = "Reserved, ";
         pszProtSummary	= "Real-Time";
-        pszProtComment	= "0xFF80-0xFFFF: Fragmentation";
+        pszProtComment	= "0xFF90-0xFFFF: reserved ID";
         bCyclic         = FALSE;
 	}
 
@@ -586,8 +695,10 @@ proto_register_pn_rt(void)
 		"CycleCounter", "pn_rt.cycle_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_data_status, { 
 		"DataStatus", "pn_rt.ds", FT_UINT8, BASE_HEX, 0, 0x0, NULL, HFILL }},
-	{ &hf_pn_rt_data_status_res67, { 
-		"Reserved (should be zero)", "pn_rt.ds_res67", FT_UINT8, BASE_HEX, 0, 0xc0, NULL, HFILL }},
+	{ &hf_pn_rt_data_status_ignore, { 
+		"Ignore (1:Ignore/0:Evaluate)", "pn_rt.ds_ignore", FT_UINT8, BASE_HEX, 0, 0x80, NULL, HFILL }},
+	{ &hf_pn_rt_data_status_subframe_sender_mode, { 
+		"SubFrameSenderMode", "pn_rt.ds_subframe_sender_mode", FT_UINT8, BASE_HEX, 0, 0x40, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_ok, { 
 		"StationProblemIndicator (1:Ok/0:Problem)", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
 	{ &hf_pn_rt_data_status_operate, { 
@@ -614,11 +725,27 @@ proto_register_pn_rt(void)
 		"DataLength", "pn_rt.sf.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_rt_sf_cycle_counter, { 
 		"CycleCounter", "pn_rt.sf.cycle_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_pn_rt_frag, { 
+		"PROFINET Real-Time Fragment", "pn_rt.frag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_pn_rt_frag_data_length, { 
+		"FragDataLength", "pn_rt.frag_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_pn_rt_frag_status, { 
+		"FragStatus", "pn_rt.frag_status", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_pn_rt_frag_status_more_follows, { 
+		"MoreFollows", "pn_rt.frag_status.more_follows", FT_UINT8, BASE_HEX, VALS(pn_rt_frag_status_more_follows), 0x80, NULL, HFILL }},
+	{ &hf_pn_rt_frag_status_error, { 
+		"Error", "pn_rt.frag_status.error", FT_UINT8, BASE_HEX, VALS(pn_rt_frag_status_error), 0x40, NULL, HFILL }},
+	{ &hf_pn_rt_frag_status_fragment_number, { 
+		"FragmentNumber (zero based)", "pn_rt.frag_status.fragment_number", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
+	{ &hf_pn_rt_frag_data, { 
+		"FragData", "pn_rt.frag_data", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,
     &ett_pn_rt_data_status,
-	&ett_pn_rt_sf
+	&ett_pn_rt_sf,
+	&ett_pn_rt_frag,
+	&ett_pn_rt_frag_status
   };
   module_t *pn_rt_module; 
 
@@ -655,6 +782,7 @@ proto_reg_handoff_pn_rt(void)
   dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
   dissector_add("udp.port", 0x8892, pn_rt_handle);
 
-  heur_dissector_add("pn_rt", dissect_SubFrame_heur, proto_pn_rt);
+  heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, proto_pn_rt);
+  heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, proto_pn_rt);  
 }
 

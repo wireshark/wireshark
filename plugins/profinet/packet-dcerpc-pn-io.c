@@ -109,12 +109,21 @@ static int hf_pn_io_number_of_iocrs = -1;
 static int hf_pn_io_iocr_tree = -1;
 static int hf_pn_io_iocr_type = -1;
 static int hf_pn_io_iocr_reference = -1;
+static int hf_pn_io_iocr_txports_port = -1;
+static int hf_pn_io_iocr_txports_redundantport = -1;
+
 static int hf_pn_io_lt = -1;
 static int hf_pn_io_iocr_properties = -1;
 static int hf_pn_io_iocr_properties_rtclass = -1;
 static int hf_pn_io_iocr_properties_reserved_1 = -1;
 static int hf_pn_io_iocr_properties_media_redundancy = -1;
 static int hf_pn_io_iocr_properties_reserved_2 = -1;
+static int hf_pn_io_iocr_properties_reserved_3 = -1;
+static int hf_pn_io_iocr_properties_fast_forwarding_mac_adr = -1;
+static int hf_pn_io_iocr_properties_distributed_subframe_watchdog = -1;
+static int hf_pn_io_iocr_properties_full_subframe_structure = -1;
+
+
 static int hf_pn_io_data_length = -1;
 static int hf_pn_io_ir_frame_data = -1;
 static int hf_pn_io_frame_id = -1;
@@ -256,7 +265,6 @@ static int hf_pn_io_address_resolution_properties = -1;
 static int hf_pn_io_mci_timeout_factor = -1;
 static int hf_pn_io_provider_station_name = -1;
 
-static int hf_pn_io_subframe_wd_factor = -1;
 static int hf_pn_io_subframe_data = -1;
 static int hf_pn_io_subframe_data_position = -1;
 static int hf_pn_io_subframe_data_reserved1 = -1;
@@ -552,6 +560,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x8105, "PrmServerBlockRes"},
 	{ 0x0106, "MCRBlockReq"},
 	{ 0x0107, "SubFrameBlock"},
+	{ 0x0108, "IRTFrameBlock"},
 	{ 0x0110, "IODBlockReq"},
 	{ 0x8110, "IODBlockRes"},
 	{ 0x0111, "IODBlockReq"},
@@ -4397,7 +4406,15 @@ dissect_IOCRProperties(tvbuff_t *tvb, int offset,
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_iocr_properties, tvb, offset, 4, FALSE);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_iocr_properties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_iocr_properties_full_subframe_structure, &u32IOCRProperties);
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_iocr_properties_distributed_subframe_watchdog, &u32IOCRProperties);
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_iocr_properties_fast_forwarding_mac_adr, &u32IOCRProperties);
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_iocr_properties_reserved_3, &u32IOCRProperties);
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_iocr_properties_reserved_2, &u32IOCRProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_iocr_properties_media_redundancy, &u32IOCRProperties);
@@ -5283,7 +5300,7 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
 	guint16 u16BodyLength)
 {
     guint16 u16IOCRReference;
-    guint16 u16SubFrameWDFactor;
+    guint8 mac[6];
 	guint32 u32SubFrameData;
 	guint16 u16Tmp;
     proto_item *sub_item;
@@ -5301,12 +5318,12 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_iocr_reference, &u16IOCRReference);
 
-	/* SubFrameWDFactor 16 */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_subframe_wd_factor, &u16SubFrameWDFactor);
+	/* CMInitiatorMACAdd */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree,
+                        hf_pn_io_cminitiator_macadd, mac);
 
 	/* SubFrameData n*32 */
-	u16BodyLength -= 6;
+	u16BodyLength -= 10;
 	u16Tmp = u16BodyLength;
 	do {
 		sub_item = proto_tree_add_item(tree, hf_pn_io_subframe_data, tvb, offset, 4, FALSE);
@@ -5328,8 +5345,50 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
 			(u32SubFrameData & 0x0000FF00) >> 8, u32SubFrameData & 0x0000007F);
 	} while(u16Tmp -= 4);
 
-    proto_item_append_text(item, ", CRRef:%u, WDFactor:%u, %u*Data",
-        u16IOCRReference, u16SubFrameWDFactor, u16BodyLength/4);
+    proto_item_append_text(item, ", CRRef:%u, %u*Data",
+        u16IOCRReference, u16BodyLength/4);
+
+    return offset;
+}
+
+
+/* dissect the IRTFrameBlock */
+static int
+dissect_IRTFrameBlock_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+	guint16 u16BodyLength)
+{
+    guint16 u16IOCRReference;
+    guint8 u8IOCRTxPortsRedundantPort;
+    guint8 u8IOCRTxPortsPort;
+	guint32 u32FrameSendOffset;
+
+
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+	}
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+	/* IOCRReference */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_iocr_reference, &u16IOCRReference);
+
+	/* IOCRTxPortsRedundantPort */
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_iocr_txports_redundantport, &u8IOCRTxPortsRedundantPort);
+
+	/* IOCRTxPortsPort */
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_iocr_txports_port, &u8IOCRTxPortsPort);
+
+	/* FrameSendOffset */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_frame_send_offset, &u32FrameSendOffset);
+
+	proto_item_append_text(item, ", CRRef:%u, Port:%u, RedPort:%u, Offset:%u",
+        u16IOCRReference, u8IOCRTxPortsPort, u8IOCRTxPortsRedundantPort, u32FrameSendOffset);
 
     return offset;
 }
@@ -5912,6 +5971,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x0107):
         dissect_SubFrameBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case(0x0108):
+        dissect_IRTFrameBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0110):
     case(0x0111):
@@ -6770,10 +6832,10 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     u8CBAVersion = tvb_get_guint8 (tvb, 0);
 
-    /* is this a PNIO class 3 data packet? */
+    /* is this a (none DFP) PNIO class 3 data packet? */
 	/* frame id must be in valid range (cyclic Real-Time, class=3) */
-	if (u16FrameID >= 0x0100 && u16FrameID <= 0x0fff) {
-		/* XXX - how to detect DFP vs. normal? */
+	if (u16FrameID >= 0x0100 && u16FrameID <= 0x04ff || /* non redundant */
+		u16FrameID >= 0x0800 && u16FrameID <= 0x0fff) { /* redundant */
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -6781,11 +6843,12 @@ dissect_PNIO_heur(tvbuff_t *tvb,
     /* is this a (none DFP) PNIO class 2 data packet? */
 	/* frame id must be in valid range (cyclic Real-Time, class=2) and
      * first byte (CBA version field) has to be != 0x11 */
-	if (u16FrameID >= 0x5000 && u16FrameID <= 0x57ff && /* RED,    redundant */
-		u16FrameID >= 0x6000 && u16FrameID <= 0x67ff && /* RED,    non redundant */
-		u16FrameID >= 0x7000 && u16FrameID <= 0x77ff && /* ORANGE, redundant */
-		u16FrameID >= 0x8000 && u16FrameID <= 0xbfff && /* ORANGE, non redundant */
-		u8CBAVersion != 0x11) {
+	if ((
+		u16FrameID >= 0x5000 && u16FrameID <= 0x57ff || /* redundant */
+		u16FrameID >= 0x6000 && u16FrameID <= 0x67ff || /* non redundant */
+		u16FrameID >= 0x7000 && u16FrameID <= 0x77ff || /* redundant */
+		u16FrameID >= 0x8000 && u16FrameID <= 0xbfff)   /* non redundant */
+		&& u8CBAVersion != 0x11) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -6969,6 +7032,10 @@ proto_register_pn_io (void)
     { "IOCRType", "pn_io.iocr_type", FT_UINT16, BASE_HEX, VALS(pn_io_iocr_type), 0x0, NULL, HFILL }},
     { &hf_pn_io_iocr_reference,
     { "IOCRReference", "pn_io.iocr_reference", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_iocr_txports_port,
+    { "IOCRTxPorts.Port", "pn_io.iocr_txports_port", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_iocr_txports_redundantport,
+    { "IOCRTxPorts.RedundantPort", "pn_io.iocr_txports_redundantport", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_lt,
     { "LT", "pn_io.lt", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -6981,7 +7048,15 @@ proto_register_pn_io (void)
 	{ &hf_pn_io_iocr_properties_media_redundancy,
     { "MediaRedundancy", "pn_io.iocr_properties.media_redundancy", FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_media_redundancy), 0x00000800, NULL, HFILL }},
 	{ &hf_pn_io_iocr_properties_reserved_2,
-    { "Reserved2", "pn_io.iocr_properties.reserved2", FT_UINT32, BASE_HEX, NULL, 0xFFFFF000, NULL, HFILL }},
+    { "Reserved2", "pn_io.iocr_properties.reserved2", FT_UINT32, BASE_HEX, NULL, 0x00FFF000, NULL, HFILL }},
+	{ &hf_pn_io_iocr_properties_reserved_3,
+    { "Reserved3", "pn_io.iocr_properties.reserved3", FT_UINT32, BASE_HEX, NULL, 0x1F000000, NULL, HFILL }},
+	{ &hf_pn_io_iocr_properties_fast_forwarding_mac_adr,
+    { "FastForwardingMACAdr", "pn_io.iocr_properties.fast_forwarding_mac_adr", FT_UINT32, BASE_HEX, NULL, 0x20000000, NULL, HFILL }},
+	{ &hf_pn_io_iocr_properties_distributed_subframe_watchdog,
+    { "DistributedSubFrameWatchDog", "pn_io.iocr_properties.distributed_subframe_watchdog", FT_UINT32, BASE_HEX, NULL, 0x40000000, NULL, HFILL }},
+	{ &hf_pn_io_iocr_properties_full_subframe_structure,
+    { "FullSubFrameStructure", "pn_io.iocr_properties.full_subframe_structure", FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL }},
 
     { &hf_pn_io_data_length,
       { "DataLength", "pn_io.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7258,8 +7333,6 @@ proto_register_pn_io (void)
 	  { "UserStructureIdentifier", "pn_io.user_structure_identifier", FT_UINT16, BASE_HEX, VALS(pn_io_user_structure_identifier), 0x0, NULL, HFILL }},
 
 
-    { &hf_pn_io_subframe_wd_factor,
-      { "SubFrameWDFactor", "pn_io.subframe_wd_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_subframe_data,
       { "SubFrameData", "pn_io.subframe_data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_subframe_data_reserved2,
