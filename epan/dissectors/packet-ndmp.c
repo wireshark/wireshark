@@ -3032,6 +3032,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	ndmp_rm=tvb_get_ntohl(tvb, offset);
 
+	/* Save the flag indicating whether this packet is a fragment */
+	save_fragmented = pinfo->fragmented;
+
 	/* Reassemble if desegmentation and reassembly are enabled, otherwise
 	 * just pass through and use the data in tvb for dissection */
 	if (ndmp_defragment && ndmp_desegment)
@@ -3127,8 +3130,6 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	
-		save_fragmented = pinfo->fragmented;
-
 		/* If fragmentation is neccessary */
 		if (do_frag)
 		{
@@ -3299,7 +3300,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	dissect_ndmp_cmd(new_tvb, offset, pinfo, ndmp_tree, &nh);
 
-	/* restore saved variabled */
+	/* restore saved variables */
 	pinfo->fragmented = save_fragmented;
 	col_set_writable(pinfo->cinfo, save_writable);
 
