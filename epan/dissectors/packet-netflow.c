@@ -2788,17 +2788,17 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	/* Cache template */
 	memset(&template, 0, sizeof(template));
 	template.id = id;
-	template.count = option_len/4;
+	template.count = option_len;
 	SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
 	template.source_id = hdrinfo->src_id;
 	/* Option scopes */
-	template.count_scopes = option_scope_len/4;
-	size = template.count_scopes * sizeof(struct v9_template_entry) + scope_pen_count * 4;
+	template.count_scopes = option_scope_len;
+	size = (template.count_scopes + scope_pen_count) * sizeof(struct v9_template_entry);
 	template.scopes      = se_alloc( size );
 	tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
 
 	template.option_template = TRUE; /* Option template */
-	size = template.count * sizeof(struct v9_template_entry) + pen_count * 4;
+	size = (template.count + pen_count) * sizeof(struct v9_template_entry);
 	template.entries = se_alloc(size);
 	tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
 
@@ -2884,9 +2884,9 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			  offset += 4;
 			}
 		}
-		template.entries = se_alloc(count * sizeof(struct v9_template_entry) + pen_count * 4);
+		template.entries = se_alloc((count + pen_count) * sizeof(struct v9_template_entry));
 		tvb_memcpy(tvb, (guint8 *)template.entries, field_start_offset,
-			   count * sizeof(struct v9_template_entry) + pen_count * 4);
+			   (count + pen_count) * sizeof(struct v9_template_entry));
 		v9_template_add(&template);
 		remaining -= 4 + sizeof(struct v9_template_entry) * count;
 		if (pen_count > 0) {
