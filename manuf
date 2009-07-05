@@ -727,7 +727,7 @@
 00:02:A0	Flatstack              # Flatstack Ltd.
 00:02:A1	WorldWideP             # World Wide Packets
 00:02:A2	Hilscher               # Hilscher GmbH
-00:02:A3	AbbPowerAu             # ABB Power Automation
+00:02:A3	AbbSwitzer             # ABB Switzerland Ltd, Power Systems
 00:02:A4	AddpacTech             # AddPac Technology Co., Ltd.
 00:02:A5	HewlettPac             # Hewlett Packard
 00:02:A6	Effinet                # Effinet Systems Co., Ltd.
@@ -4587,7 +4587,7 @@
 00:11:DC	GlunzJense             # Glunz & Jensen
 00:11:DD	FromusTec              # FROMUS TEC. Co., Ltd.
 00:11:DE	Eurilogic
-00:11:DF	Arecont                # Arecont Systems
+00:11:DF	CurrentEne             # Current Energy
 00:11:E0	U-MediaCom             # U-MEDIA Communications, Inc.
 00:11:E1	BekoElectr             # BEKO Electronics Co.
 00:11:E2	HuaJungCom             # Hua Jung Components Co., Ltd.
@@ -9875,7 +9875,7 @@
 00:26:84	KisanSyste             # KISAN SYSTEM
 00:26:85	DigitalInn             # Digital Innovation
 00:26:86	QuantennaC             # Quantenna Communcations, Inc.
-00:26:87	CoregaKK               # corega K.K.
+00:26:87	AlliedTele             # ALLIED TELESIS, K.K
 00:26:88	JuniperNet             # Juniper Networks
 00:26:89	GeneralDyn             # General Dynamics Robotic Systems
 00:26:8A	TerrierSc              # Terrier SC Ltd
@@ -9911,6 +9911,26 @@
 00:26:A8	DaehapHype             # DAEHAP HYPER-TECH
 00:26:A9	StrongTech             # Strong Technologies Pty Ltd
 00:26:AA	KenmecMech             # Kenmec Mechanical Engineering Co., Ltd.
+00:26:AB	SeikoEpson             # SEIKO EPSON CORPORATION
+00:26:AC	ShanghaiLu             # Shanghai LUSTER Teraband photonic Co., Ltd.
+00:26:AD	Arada                  # Arada Systems, Inc.
+00:26:AE	WirelessMe             # Wireless Measurement Ltd
+00:26:AF	Duelco                 # Duelco A/S
+00:26:B0	Apple                  # Apple, Inc
+00:26:B1	Harman/Nav             # Harman/Navis
+00:26:B2	Setrix                 # Setrix AG
+00:26:B3	ThalesComm             # Thales Communications Inc
+00:26:B4	FordMotor              # Ford Motor Company
+00:26:B5	IcommTele              # ICOMM Tele Ltd
+00:26:B6	AskeyCompu             # Askey Computer
+00:26:B7	KingstonTe             # Kingston Technology Company, Inc.
+00:26:B8	ActiontecE             # Actiontec Electronics, Inc
+00:26:B9	Dell                   # Dell Inc
+00:26:BA	MotorolaMo             # Motorola Mobile Devices
+00:26:BB	Apple                  # Apple, Inc
+00:26:BC	GeneralJac             # General Jack Technology Ltd.
+00:26:BD	JtecCardCo             # JTEC Card & Communication Co., Ltd.
+00:26:BE	Schoonderb             # Schoonderbeek Elektronica Systemen B.V.
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13394,6 +13414,11 @@
 00:50:C2:AE:A0:00/36	Embedia
 00:50:C2:AE:B0:00/36	Umlogics               # UMLogics Corporation
 00:50:C2:AE:C0:00/36	FritzPauke             # Fritz Pauker Ingenieure GmbH
+00:50:C2:AE:D0:00/36	3roam
+00:50:C2:AE:E0:00/36	Iptec                  # IPtec, Inc.
+00:50:C2:AE:F0:00/36	NationalCi             # National CineMedia
+00:50:C2:AF:00:00/36	FrSauter               # Fr. Sauter AG
+00:50:C2:AF:10:00/36	GreenGoose             # Green Goose
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -13504,7 +13529,7 @@
 00:60:33	AcuityImag             # ACUITY IMAGING, INC.
 00:60:34	RobertBosc             # ROBERT BOSCH GmbH
 00:60:35	DallasSemi             # DALLAS SEMICONDUCTOR, INC.
-00:60:36	AustrianRe             # AUSTRIAN RESEARCH CENTER SEIBERSDORF
+00:60:36	AitAustria             # AIT Austrian Institute of Technology GmbH
 00:60:37	NxpSemicon             # NXP Semiconductors
 00:60:38	NortelNetw             # Nortel Networks
 00:60:39	SancomTech             # SanCom Technology, Inc.
