@@ -3056,7 +3056,7 @@ proto_register_slow_protocols(void)
 
     { &hf_esmc_itu_oui,
       { "ITU-OUI",    "slow.esmc.itu_oui",
-        FT_BYTES,     BASE_HEX,    NULL,    0,
+        FT_BYTES,     BASE_NONE,    NULL,    0,
         "IEEE assigned Organizationally Unique Identifier for ITU-T", HFILL }},
 
     { &hf_esmc_itu_subtype,
@@ -3134,7 +3134,7 @@ proto_register_slow_protocols(void)
 
     { &hf_esmc_padding,
       { "Padding",    "slow.esmc.padding",
-        FT_BYTES,     BASE_HEX,    NULL,    0x0,
+        FT_BYTES,     BASE_NONE,    NULL,    0x0,
         "This field contains necessary padding to achieve the minimum frame size of 64 bytes at least", HFILL }},
 
 /*

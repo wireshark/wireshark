@@ -1595,22 +1595,22 @@ proto_register_homeplug(void)
     /* Vendor Specific */
     { &hf_homeplug_vs,
       { "Vendor Specific", "homeplug.vs",
-      FT_NONE, BASE_HEX, NULL, 0x0, "Vendor Specific", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_vs_dir,
       { "Direction", "homeplug.vs.dir",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_VS_DIR, "Direction", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_VS_DIR, NULL, HFILL }
     },
 
     { &hf_homeplug_vs_mid,
       { "Message ID", "homeplug.vs.mid",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_VS_MID, "Message ID", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_VS_MID, NULL, HFILL }
     },
 
     { &hf_homeplug_vs_oui,
       { "OUI", "homeplug.vs.oui",
-      FT_UINT24, BASE_HEX, NULL, 0x0, "OUI", HFILL }
+      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     /* Set Network Encryption Key */
@@ -1703,234 +1703,234 @@ proto_register_homeplug(void)
     /* LOAD */
     { &hf_homeplug_loader,
       { "Loader", "homeplug.leader",
-      FT_NONE, BASE_HEX, NULL, 0x0, "Loader", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_mid,
       { "Message ID", "homeplug.loader.mid",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Message ID", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_length,
       { "Length", "homeplug.loader.length",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Length", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_status,
       { "Status", "homeplug.loader.status",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Status", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_version,
       { "Version", "homeplug.loader.version",
-      FT_STRING, BASE_NONE, NULL, 0x0, "Version", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_gdfv,
       { "Get Device/Firmware Version", "homeplug.loader.gdfv",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Device/Firmware Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lsf,
       { "Start Firmware", "homeplug.loader.lsf",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Start Firmware", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lwm,
       { "Write Memory", "homeplug.loader.lwm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Write Memory", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lrm,
       { "Read Memory", "homeplug.loader.lrm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Read Memory", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lrnvm,
       { "Read NVM Data", "homeplug.loader.lrnvm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Read NVM Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lwnvm,
       { "Write NVM Data", "homeplug.loader.lrnvm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Write NVM Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lreset,
       { "Reset", "homeplug.loader.mid",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Reset", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_gmd,
       { "Get Module Data", "homeplug.loader.gmd",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Module Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_smd,
       { "Set Module Data", "homeplug.loader.smd",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Set Module Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_module_id,
       { "Module ID", "homeplug.loader.module.id",
-      FT_UINT32, BASE_HEX, NULL, 0x0, "Module ID", HFILL }
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_module_offset,
       { "Offset", "homeplug.loader.module.offset",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Offset", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_module_size,
       { "Module size", "homeplug.loader.module.size",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Module size", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_data_length,
       { "Data length", "homeplug.loader.data.length",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Data length", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_data_address,
       { "Address", "homeplug.loader.data.address",
-      FT_UINT32, BASE_HEX, NULL, 0x0, "Address", HFILL }
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_data,
       { "Data", "homeplug.loader.data",
-      FT_BYTES, BASE_HEX, NULL, 0x0, "Data", HFILL }
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_cm,
       { "Commit Modules", "homeplug.loader.cm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Commit Modules", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lemd,
       { "Erase Module Data", "homeplug.loader.emd",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Erase Module Data", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lenvms,
       { "Erase NVM Sectors", "homeplug.loader.lenvms",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Erase NVM Sectors", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_gnvmp,
       { "Get NVM Parameters", "homeplug.loader.nvmp",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get NVM Parameters", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_nvmp_type,
       { "Type", "homeplug.loader.nvmp.type",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Type", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_nvmp_pagesize,
       { "Page Size", "homeplug.loader.nvmp.pagesize",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Page Size", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_nvmp_blocksize,
       { "Block Size", "homeplug.loader.nvmp.blocksize",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Block Size", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_nvmp_memorysize,
       { "Memory Size", "homeplug.loader.nvmp.memorysize",
-      FT_UINT32, BASE_DEC, NULL, 0x0, "Memory Size", HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_snvmp,
       { "Set NVM Parameters", "homeplug.loader.nvmp",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Set NVM Parameters", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* Host Request */
     { &hf_homeplug_hreq,
       { "Host Request", "homeplug.hreq",
-      FT_NONE, BASE_HEX, NULL, 0x0, "Host Request", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_mid,
       { "Message ID", "homeplug.hreq.mid",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Message ID", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gdv,
       { "Get Device Version", "homeplug.hreq.gdv",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Device Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gfv,
       { "Get Firmware Version", "homeplug.hreq.gfv",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Firmware Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gnek,
       { "Get Network Encryption Key", "homeplug.hreq.gnek",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Network Encryption Key", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gclbpl,
       { "Get/Clear Local Bridge Proxy List", "homeplug.hreq.gclbpl",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get/Clear Local Bridge Proxy List", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_nvds,
       { "Non-volatile Database Status", "homeplug.hreq.nvds",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Non-volatile Database Status", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_grbt,
       { "Get Remote Bridge Table", "homeplug.hreq.grbt",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Remote Bridge Table", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gslnm,
       { "Get/Set Logical Network Mapping", "homeplug.hreq.gslnm",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get/Set Logical Network Mapping", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_gsss,
       { "Get/Set Spectral Scaling", "homeplug.hreq.gsss",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get/Set Spectral Scaling", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_rsl,
       { "Reset Secondary Loader", "homeplug.hreq.rsl",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Reset Secondary Loader", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_reset,
       { "Reset", "homeplug.hreq.reset",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Reset", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_reset_type,
       { "Type", "homeplug.hreq.reset.type",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Type", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hreq_reset_delay,
       { "Delay", "homeplug.hreq.reset.delay",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "Delay", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     /* Host Response */
     { &hf_homeplug_hrsp,
       { "Host Response", "homeplug.hrsp",
-      FT_NONE, BASE_HEX, NULL, 0x0, "Host Response", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_mid,
       { "Message ID", "homeplug.hrsp.mid",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Message ID", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_gdvr,
       { "Get Device Version", "homeplug.hrsp.gdvr",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Device Version", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_gfvr,
@@ -1940,27 +1940,27 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_hrsp_gnekr,
       { "Get Network Encryption Key", "homeplug.hrsp.gnekr",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Get Network Encryption Key", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_gnekr_select,
       { "Key Select", "homeplug.hrsp.gnekr.select",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Key Select", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_gnekr_key,
       { "Key", "homeplug.hrsp.gnekr.key",
-      FT_UINT64, BASE_HEX, NULL, 0x0, "Key", HFILL }
+      FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_invalid,
       { "Invalid", "homeplug.hrsp.invalid",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "Invalid", HFILL }
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_hrsp_version,
       { "Version", "homeplug.hrsp.version",
-      FT_STRING, BASE_NONE, NULL, 0x0, "Version", HFILL }
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Network Statistics */

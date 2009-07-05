@@ -1863,7 +1863,7 @@ void proto_register_ldap(void) {
 
     { &hf_mscldap_netlogon_ipaddress_ipv4,
       { "IPv4", "mscldap.netlogon.ipaddress.ipv4",
-        FT_IPv4, BASE_DEC, NULL, 0x0,
+        FT_IPv4, BASE_NONE, NULL, 0x0,
         "IP Address", HFILL }},
 
     { &hf_mscldap_netlogon_ipaddress_port,
@@ -1874,7 +1874,7 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_ipaddress,
       { "IP Address","mscldap.netlogon.ipaddress",
         FT_IPv4, BASE_NONE, NULL, 0x0,
-        "Domain Controller IP Address ", HFILL }},
+        "Domain Controller IP Address", HFILL }},
 
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",
@@ -1898,7 +1898,7 @@ void proto_register_ldap(void) {
         
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
-        FT_BYTES, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_mscldap_forest,
