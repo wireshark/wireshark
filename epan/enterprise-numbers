@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-06-27)
+(last updated 2009-07-03)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -8158,9 +8158,9 @@ Decimal
     Bob Amen
       nic-tc&oreilly.com
 2036
-  ATL Products
-    Mary M. Hayes
-      mhayes&odetics.com
+  Quantum Corporation
+    Carsten Prigge
+      carsten.prigge&quantum.com
 2037
   Ernst and Young LLP
     Neil Forrester
@@ -67667,9 +67667,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Alan Broady
       alan.broady&marketxs.com
 17029
-  0mode
+  baumer it-services (previous was '0mode')
     Roman Baumer
-      ldap&zeromode.net
+      ldap&baumer-its.ch
 17030
   Velveo
     Francois TIFFREAU
@@ -92558,7 +92558,7 @@ Urzêdzie Wojewódzkim w Olsztynie
     Alexandre Oliveira
       lionbatata&nikotel.com
 23249
-  NCBI
+  National Center for Biotechnology Information (NCBI)
     Charles L. Montour
       montour&ncbi.nlm.nih.gov
 23250
@@ -129476,7 +129476,7 @@ Decentralization / Helenic Public Administra
       tarun.kumar&tikona.in
 32473
   Example Enterprise Number for Documentation Use
-    Internet Assigned Numbers Authority
+    See [RFC-eronen-enterprise-number-documentation-01]
       iana&iana.org
 32474
   Kialco Group
@@ -134034,7 +134034,7 @@ Decentralization / Helenic Public Administra
 33612
   Com Hem AB
     Jerry Lundström
-      jerry.lundstrom&comhem.com
+      advisory&comhem.com
 33613
   CRISPYLOGICS
     Jochen Schmidt
@@ -134743,6 +134743,138 @@ Decentralization / Helenic Public Administra
   Medical IT
     VILSON COBELLO JUNIOR
       vilson.cobello&medicalit.com.br
+33790
+  InFocus Corporation
+    Kevin Thompson
+      kevin.thompson&infocus.com
+33791
+  XelNet
+    Raphaël Barrois
+      oid&xelmail.com
+33792
+  Noisebridge
+    Jonathan Lassoff
+      ops&noisebridge.net
+33793
+  inviCRO, LLC
+    Christian Lackas
+      lackas&invicro.com
+33794
+  Myungmin Systems, Inc.
+    Ashuaria Lee
+      ashuaria&myungmin.com
+33795
+  SOLIT Information Security
+    Joerg Folz
+      info&solit.lu
+33796
+  ROMTELECOM S.A.
+    Mihai Cosma
+      ns_sa&romtelecom.ro
+33797
+  ESRI Portugal
+    Sandro Batista
+      sandro.batista&esri-portugal.pt
+33798
+  Suefke Softwareentwicklung
+    Martin Suefke
+      ianapen.20.masuefke&recursor.net
+33799
+  LinkSat
+    Jack Thomasson
+      jkt&linksat.com
+33800
+  CARFAX INC
+    Larry Dorman
+      mohelpdesk&carfax.com
+33801
+  Colorquick, LLC
+    Philip Panelli 
+      ppanelli&crwgraphics.com
+33802
+  Xensor Systems Incorporated
+    Kurt Van Laar
+      xtensor&xtensor.com
+33803
+  Manor AG
+    Urs Schmid
+      urs.usm.schmid&manor.ch
+33804
+  Chrisalys
+    Christopher Tarento
+      admin&chrisalys.org
+33805
+  Peak Drive Solutions Ltd
+    Andrew Eastham
+      andy-snmp-admin&peakdrive.com
+33806
+  UTILISE IT LIMITED
+    Andrew Douthwaite
+      hostmaster&utilise-it.co.uk
+33807
+  Internexo Ltda.
+    Danton Nunes
+      danton.nunes&inexo.com.br
+33808
+  Jim Montague Software LLC
+    Jim Montague
+      pennum&jimmontaguesoftwarellc.com
+33809
+  Topomaro
+    Roberto Giovanardi
+      roberto.giova&gmail.com
+33810
+  Masterhost, CJSC
+    Dmitry V Krikov
+      iana&masterhost.ru
+33811
+  Idendego Inc.
+    Brian Pederson
+      security&idendego.com
+33812
+  Goodus, Inc.
+    Yoonkwon Kim
+      yoonkwon.kim&goodus.com
+33813
+  Invenso
+    Brecht Yperman
+      brecht.yperman&invenso.com
+33814
+  IProNet Sistemas, S.A.
+    Mikel Martin
+      mikelmartin&ipronet.es
+33815
+  Archean Technologies
+    Julien Vermillard
+      jvermillard&archean.fr
+33816
+  PROFILAX, s.r.o.
+    Jozef Remenec
+      remenec&profilax.sk
+33817
+  CopyKnight Technologies Ltd
+    Martin North
+      hostmaster&copyknight.com
+33818
+  asco GmbH
+    Ralf Doeblitz
+      r.doeblitz&asco.de
+33819
+  StreetGeek
+    Michael Farrell
+      michael.farrell&streetgeek.com.au
+33820
+  DECOIT GmbH
+    Andre Brandt (Systemmanagement)
+      systemmanagement&decoit.de
+33821
+  Proliphix, Inc.
+    Paul Ciarfella
+      pciarfella&proliphix.com
+33822
+  Computer Task Group, Inc.
+    Mike Beekey
+      michael.beekey&ctg.com
 
 
 End of Document
