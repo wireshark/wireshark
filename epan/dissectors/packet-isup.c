@@ -2649,10 +2649,10 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 #define  BEARER_CONTROL_INFORMATION               	0x08
 #define  BEARER_CONTROL_TUNNELLING               	0x09
 #define  BEARER_CONTROL_UNIT_IDENTIFIER          	0x0A
-#define  SIGNAL			                      	0x0B
+#define  SIGNAL			                      		0x0B
 #define  BEARER_REDIRECTION_CAPABILITY            	0x0C
 #define  BEARER_REDIRECTION_INDICATORS            	0x0D
-#define  SIGNAL_TYPE                                 	0x0E
+#define  SIGNAL_TYPE                                0x0E
 #define  DURATION                                	0x0F
 
 
@@ -2669,7 +2669,7 @@ static const value_string bat_ase_list_of_Identifiers_vals[] = {
 	{ BEARER_CONTROL_INFORMATION               	,	"Bearer Control Information"},
 	{ BEARER_CONTROL_TUNNELLING               	,	"Bearer Control Tunnelling"},
 	{ BEARER_CONTROL_UNIT_IDENTIFIER          	,	"Bearer Control Unit Identifier" },
-	{ SIGNAL			               	,	"Signal"},
+	{ SIGNAL			               			,	"Signal"},
 	{ BEARER_REDIRECTION_CAPABILITY            	,	"Bearer Redirection Capability"},
 	{ BEARER_REDIRECTION_INDICATORS            	,	"Bearer Redirection Indicators"},
 	{ SIGNAL_TYPE                                  	,	"Signal Type"},
@@ -3249,7 +3249,6 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 			case BEARER_CONTROL_UNIT_IDENTIFIER :
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
 				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Network ID Length indicator= %u",tempdata);
-				offset = offset +1;
 				if ( tempdata > 0 ) {
 					offset = offset +1;
 
