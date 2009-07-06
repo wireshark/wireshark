@@ -1110,7 +1110,7 @@
    {  907,   "London Electronics Ltd." }, \
    {  908,   "HSD SpA" }, \
    {  909,   "Comtrol Corporation" }, \
-   {  910,   "TEAM, S.A. (Técnica Electrónica de Automatismo Y Medida)" }, \
+   {  910,   "TEAM, S.A. (Tecnica Electronica de Automatismo Y Medida)" }, \
    {  911,   "MAN B&W Diesel Ltd. Regulateurs Europa" }, \
    {  912,   "Reserved" }, \
    {  913,   "Reserved" }, \
@@ -1288,7 +1288,7 @@
    { 1085,   "Tata Elxsi Ltd." }, \
    { 1086,   "TPC Mechatronics, Co., Ltd." }, \
    { 1087,   "Cooper Bussmann" }, \
-   { 1088,   "Trinité Automatisering B.V." }, \
+   { 1088,   "Trinite Automatisering B.V." }, \
    { 1089,   "Peek Traffic B.V." }, \
    { 1090,   "Acrison, Inc" }, \
    { 1091,   "Applied Robotics, Inc." }, \
