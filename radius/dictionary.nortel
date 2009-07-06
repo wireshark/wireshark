@@ -1,0 +1,24 @@
+# -*- text -*-
+##############################################################################
+#
+#	Nortel Passport 8600 VSA's.
+#
+#	http://www142.nortelnetworks.com/bvdoc/setips/july04/engineeringtipstricksv12.pdf
+#
+#	$Id$
+#
+##############################################################################
+
+VENDOR		Nortel				562
+BEGIN-VENDOR	Nortel
+
+ATTRIBUTE	Passport-Command-Scope			200	integer
+ATTRIBUTE	Passport-Command-Impact			201	integer
+ATTRIBUTE	Passport-Customer-Identifier		202	integer
+ATTRIBUTE	Passport-Allowed-Access			203	integer
+ATTRIBUTE	Passport-AllowedOut-Access		204	integer
+ATTRIBUTE	Passport-Login-Directory		205	string
+ATTRIBUTE	Passport-Timeout-Protocol		206	integer
+ATTRIBUTE	Passport-Role				207	string
+
+END-VENDOR	Nortel

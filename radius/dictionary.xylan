@@ -1,0 +1,39 @@
+# -*- text -*-
+##############################################################################
+#
+#	Xylan dictionary
+#
+#	$Id$
+#
+##############################################################################
+
+VENDOR		Xylan				800
+
+BEGIN-VENDOR	Xylan
+
+ATTRIBUTE	Xylan-Auth-Group			1	integer
+ATTRIBUTE	Xylan-Slot-Port				2	string
+ATTRIBUTE	Xylan-Time-of-Day			3	string
+ATTRIBUTE	Xylan-Client-IP-Addr			4	ipaddr
+ATTRIBUTE	Xylan-Group-Desc			5	string
+ATTRIBUTE	Xylan-Port-Desc				6	string
+ATTRIBUTE	Xylan-Profil-Numb			7	integer
+ATTRIBUTE	Xylan-Auth-Group-Protocol		8	string
+ATTRIBUTE	Xylan-Asa-Access			9	string
+ATTRIBUTE	Xylan-Access-Priv			16	integer
+ATTRIBUTE	Xylan-Acce-Priv-R1			33	octets
+ATTRIBUTE	Xylan-Acce-Priv-R2			34	octets
+ATTRIBUTE	Xylan-Acce-Priv-W1			35	octets
+ATTRIBUTE	Xylan-Acce-Priv-W2			36	octets
+ATTRIBUTE	Xylan-Acce-Priv-G1			37	octets
+ATTRIBUTE	Xylan-Acce-Priv-G2			38	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-R1			39	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-R2			40	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-W1			41	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-W2			42	octets
+
+VALUE	Xylan-Access-Priv		Xylan-Read-Priv		1
+VALUE	Xylan-Access-Priv		Xylan-Write-Priv	2
+VALUE	Xylan-Access-Priv		Xylan-Admin-Priv	3
+
+END-VENDOR	Xylan
