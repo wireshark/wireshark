@@ -166,8 +166,8 @@ static int
 dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo, proto_tree *tlv_tree)
 {
-  guint16 addrtype;
-  guint16 addrlen;
+  guint8 addrtype;
+  guint8 addrlen;
   int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  FALSE);
@@ -250,8 +250,8 @@ static int
 dissect_glbp_auth(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
-  guint32 authtype;
-  guint32 authlength;
+  guint8 authtype;
+  guint8 authlength;
   int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_auth_authtype, tvb, offset, 1,  FALSE);
@@ -302,10 +302,10 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *glbp_tree = NULL;
   proto_tree *tlv_tree = NULL;
   proto_item *ti = NULL;
-  guint32 type;
+  guint8 type;
   int offset = 0;
-  guint32 length;
-  guint32 group;
+  guint8 length;
+  guint16 group;
 
   group = tvb_get_ntohs(tvb, 2);
 
