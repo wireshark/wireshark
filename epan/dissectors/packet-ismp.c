@@ -235,7 +235,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *edp_ti;
-	proto_tree *ismp_edp_tree;
+	proto_tree *edp_tree;
 	
 	proto_item *edp_options_ti;
 	proto_tree *edp_options_tree;
@@ -260,36 +260,36 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	if (ismp_tree) {
 		edp_ti  = proto_tree_add_item(ismp_tree, hf_ismp_edp, tvb, offset,
 			tvb_length_remaining(tvb, offset), FALSE);
-		ismp_edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
+		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
 			ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
 			ether_to_str(tvb_get_ptr(tvb, offset+6, 6)),
 			tvb_get_ntohl(tvb, offset+12));
 
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_version, tvb, offset, 2, FALSE);
 		offset += 2;
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, FALSE);
 		offset += 4;
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, FALSE);
 		offset += 6;
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_module_port, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_port, tvb, offset, 4, FALSE);
 		offset += 4;
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, FALSE);
 		offset += 6;
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, FALSE);
 		offset += 4;
 		device_type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, FALSE);
 		offset += 2;
-		proto_tree_add_uint_format(ismp_edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
+		proto_tree_add_uint_format(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
 			"Module Firmware Revision: %02x.%02x.%02x.%02x", tvb_get_guint8(tvb, offset),
 			tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2), tvb_get_guint8(tvb, offset+3));
 		offset += 4;
 
 		/* create display subtree for EDP options */
 		options = tvb_get_ntohl(tvb, offset);
-		edp_options_ti = proto_tree_add_uint_format(ismp_edp_tree, hf_ismp_edp_options, tvb, offset, 4,
+		edp_options_ti = proto_tree_add_uint_format(edp_tree, hf_ismp_edp_options, tvb, offset, 4,
 			options,"Options: 0x%08x",options);
 		edp_options_tree = proto_item_add_subtree(edp_options_ti, ett_ismp_edp_options);
 
@@ -357,7 +357,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		
 		/* determine the number of neighbors and create EDP neighbors subtree */
 		num_neighbors = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, FALSE);
 		offset += 2;
 		if (num_neighbors > 0)
 		{
@@ -365,13 +365,13 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			if (tvb_reported_length_remaining(tvb, offset) >= (num_neighbors *10))
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, (num_neighbors*10) );
-				edp_neighbors_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_neighbors, tvb, 
+				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb, 
 					offset, num_neighbors*10, neighbors_ptr, "Neighbors:");
 			}
 			else
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, tvb_reported_length_remaining(tvb, offset) );
-				edp_neighbors_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_neighbors, tvb, 
+				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb, 
 					offset, num_neighbors *10, neighbors_ptr, "Neighbors:");
 			}
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
@@ -390,7 +390,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			}
 			if (neighbors_count != num_neighbors)
 			{
-				proto_tree_add_text(ismp_edp_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+				proto_tree_add_text(edp_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 				"MALFORMED PACKET");
 				return;
 			}
@@ -402,11 +402,11 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			tvb_reported_length_remaining(tvb, offset) >= 2) 
 		{
 			num_tuples = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(ismp_edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, FALSE);
+			proto_tree_add_item(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, FALSE);
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_text(ismp_edp_tree, tvb, offset, 
+			proto_tree_add_text(edp_tree, tvb, offset, 
 				tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
 			return;
 		}
@@ -419,7 +419,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		if (num_tuples && tvb_reported_length_remaining(tvb, offset) >= 4)
 		{
 			tuples_ptr = tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
-			edp_tuples_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_tuples, tvb,
+			edp_tuples_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_tuples, tvb,
 				offset, tvb_reported_length_remaining(tvb, offset), tuples_ptr, "Tuples");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
@@ -481,7 +481,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			} 
 			if (tuples_count != num_tuples)
 			{
-				proto_tree_add_text(ismp_edp_tree, tvb, offset, 
+				proto_tree_add_text(edp_tree, tvb, offset, 
 					tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
 				return;
 			}
@@ -545,7 +545,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 		/* if Enterasys Discover Protocol, dissect it */
 		if(message_type == ISMPTYPE_EDP)
-			dissect_ismp_edp(tvb, pinfo, offset, ismp_tree);
+			dissect_ismp_edp(tvb, pinfo, offset, tree);
 	}
 
 }
@@ -558,6 +558,13 @@ proto_register_ismp(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
+#if 0
+		{ &hf_ismp,
+			{ "ISMP", "ismp",
+			FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			"Inter Switch Message Protocol", HFILL }
+		},
+#endif
 		{ &hf_ismp_version,
 			{ "Version",           "ismp.version",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
