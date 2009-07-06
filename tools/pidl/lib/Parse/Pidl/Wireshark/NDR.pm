@@ -380,7 +380,7 @@ sub Element($$$)
 			MASK => 0,
 			VALSSTRING => "NULL",
 			FT_TYPE => "FT_NONE",
-			BASE_TYPE => "BASE_HEX"
+			BASE_TYPE => "BASE_NONE"
 		};
 	}
 
@@ -389,7 +389,7 @@ sub Element($$$)
 			MASK => 0,
 			VALSSTRING => "NULL",
 			FT_TYPE => "FT_STRING",
-			BASE_TYPE => "BASE_DEC"
+			BASE_TYPE => "BASE_NONE"
 		};
 	}
 
@@ -874,7 +874,7 @@ sub Initialize($$)
 	$self->register_type("policy_handle", "offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_BYTES", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("NTTIME", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, \@HF\@);","FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("NTTIME_hyper", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, \@HF\@);","FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
-	$self->register_type("time_t", "offset = dissect_ndr_time_t(tvb, offset, pinfo,tree, drep, \@HF\@, NULL);","FT_ABSOLUTE_TIME", "BASE_DEC", 0, "NULL", 4);
+	$self->register_type("time_t", "offset = dissect_ndr_time_t(tvb, offset, pinfo,tree, drep, \@HF\@, NULL);","FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("NTTIME_1sec", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, \@HF\@);", "FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("SID", "
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
@@ -882,7 +882,7 @@ sub Initialize($$)
 		di->hf_index = \@HF\@;
 
 		offset = dissect_ndr_nt_SID_with_options(tvb, offset, pinfo, tree, drep, param);
-	","FT_STRING", "BASE_DEC", 0, "NULL", 4);
+	","FT_STRING", "BASE_NONE", 0, "NULL", 4);
 	$self->register_type("WERROR", 
 		"offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_UINT32", "BASE_DEC", 0, "VALS(WERR_errors)", 4);
 	$self->register_type("NTSTATUS", 
@@ -1051,6 +1051,20 @@ sub DumpHfDeclaration($)
 	return "$res\n";
 }
 
+sub make_str_or_null($)
+{
+	my $str = shift;
+	if (substr($str, 0, 1) eq "\"") {
+		$str = substr($str, 1, length($str)-2);
+	}
+	$str =~ s/^\s*//;
+	$str =~ s/\s*$//;
+	if ($str eq "") {
+		return "NULL";
+	}
+	return make_str($str);
+}
+
 sub DumpHfList($)
 {
 	my ($self) = @_;
@@ -1059,7 +1073,7 @@ sub DumpHfList($)
 	foreach (values %{$self->{conformance}->{header_fields}}) 
 	{
 		$res .= "\t{ &$_->{INDEX}, 
-	  { ".make_str($_->{NAME}).", ".make_str($_->{FILTER}).", $_->{FT_TYPE}, $_->{BASE_TYPE}, $_->{VALSSTRING}, $_->{MASK}, ".make_str($_->{BLURB}).", HFILL }},
+	  { ".make_str($_->{NAME}).", ".make_str($_->{FILTER}).", $_->{FT_TYPE}, $_->{BASE_TYPE}, $_->{VALSSTRING}, $_->{MASK}, ".make_str_or_null($_->{BLURB}).", HFILL }},
 ";
 	}
 

@@ -1720,11 +1720,11 @@ custom_fmt_func_t in epan/proto.h, specifically:
 The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
 and the second argument is the value to be formatted.
 
-For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
-the proto_tree how wide the parent bitfield is.  With integers this is
-not needed since the type of integer itself (FT_UINT8, FT_UINT16,
-FT_UINT24, FT_UINT32, etc.) tells the proto_tree how wide the parent
-bitfield is.
+For FT_BOOLEAN fields that are also bitfields (i.e. 'bitmask' is non-zero),
+'display' is used to tell the proto_tree how wide the parent bitfield is.
+With integers this is not needed since the type of integer itself
+(FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, etc.) tells the proto_tree how
+wide the parent bitfield is.
 
 Additionally, BASE_NONE is used for 'display' as a NULL-value. That is,
 for non-integers and non-bitfield FT_BOOLEANs, you'll want to use BASE_NONE
