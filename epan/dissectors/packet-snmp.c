@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3078,7 +3078,7 @@ void proto_register_snmp(void) {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_msgAuthentication, {
-		    "Authentication", "snmp.v3.auth", FT_BOOLEAN, 8,
+		    "Authentication", "snmp.v3.auth", FT_BOOLEAN, BASE_NONE,
 		    TFS(&auth_flags), 0, NULL, HFILL }},
 		{ &hf_snmp_decryptedPDU, {
 	  	    "Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_NONE,
