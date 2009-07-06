@@ -618,7 +618,9 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if(Brossa == TcpLen)   return;
 
 	/* Don't call ASDU dissector if it was called before */
-	if(apcih->Type == I_TYPE  &&  (!check_col(pinfo->cinfo, COL_INFO)))   call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_LEN), pinfo, tree);
+	if(apcih->Type == I_TYPE  &&  (!check_col(pinfo->cinfo, COL_INFO))){
+		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_LEN), pinfo, tree);
+	}
 
 	/* 'Packet Details': TREE */
 	trHead = proto_item_add_subtree(it104, ett_apci);
@@ -639,7 +641,9 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static void dissect_iec104reas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* 5th parameter = 6 = minimum bytes received to calculate the length. (Not 2 in order to find more APCIs in case of 'noisy' bytes between the APCIs) */
+	/* 5th parameter = 6 = minimum bytes received to calculate the length. 
+	 * (Not 2 in order to find more APCIs in case of 'noisy' bytes between the APCIs)
+	 */
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, APCI_LEN,
 			get_iec104apdu_len, dissect_iec104apci);
 }
@@ -749,7 +753,7 @@ proto_reg_handoff_iec104(void)
 {
 	dissector_handle_t iec104apci_handle;
 
-        iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
+	iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
 	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
 
 	dissector_add("tcp.port", iec104port, iec104apci_handle);
