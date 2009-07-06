@@ -171,46 +171,15 @@ static dissector_table_t   subdissector_symbol_table;
 
 /* Translate function to string - CIP Service codes */
 static const value_string cip_sc_vals[] = {
-   { SC_GET_ATT_ALL,          "Get Attribute All" },
-   { SC_SET_ATT_ALL,          "Set Attribute All" },
-   { SC_GET_ATT_LIST,         "Get Attribute List" },
-   { SC_SET_ATT_LIST,         "Set Attribute List" },
-   { SC_RESET,                "Reset" },
-   { SC_START,                "Start" },
-   { SC_STOP,                 "Stop" },
-   { SC_CREATE,               "Create" },
-   { SC_DELETE,               "Delete" },
-   { SC_APPLY_ATTRIBUTES,     "Apply Attributes" },
-   { SC_GET_ATT_SINGLE,       "Get Attribute Single" },
-   { SC_SET_ATT_SINGLE,       "Set Attribute Single" },
-   { SC_FIND_NEXT_OBJ_INST,   "Find Next Object Instance" },
-   { SC_RESTOR,               "Restore" },
-   { SC_SAVE,                 "Save" },
-   { SC_NO_OP,                "Nop" },
-   { SC_GET_MEMBER,           "Get Member" },
-   { SC_SET_MEMBER,           "Set Member" },
-
-   { 0,                       NULL }
-};
-
-/* Translate function to string - CIP Service codes for MR */
-static const value_string cip_sc_vals_mr[] = {
-   { SC_GET_ATT_ALL,          "Get Attribute All" },
-   { SC_SET_ATT_ALL,          "Set Attribute All" },
-   { SC_GET_ATT_LIST,         "Get Attribute List" },
-   { SC_SET_ATT_LIST,         "Set Attribute List" },
-   /* Some class specific services */
-   { SC_MULT_SERV_PACK,       "Multiple Service Packet" },
+   GENERIC_SC_LIST
 
    { 0,                       NULL }
 };
 
 /* Translate function to string - CIP Service codes for CM */
 static const value_string cip_sc_vals_cm[] = {
-   { SC_GET_ATT_ALL,          "Get Attribute All" },
-   { SC_SET_ATT_ALL,          "Set Attribute All" },
-   { SC_GET_ATT_LIST,         "Get Attribute List" },
-   { SC_SET_ATT_LIST,         "Set Attribute List" },
+   GENERIC_SC_LIST
+
    /* Some class specific services */
    { SC_CM_FWD_CLOSE,            "Forward Close" },
    { SC_CM_FWD_OPEN,             "Forward Open" },
@@ -221,6 +190,9 @@ static const value_string cip_sc_vals_cm[] = {
 
 /* Translate function to string - CIP Service codes for CCO */
 static const value_string cip_sc_vals_cco[] = {
+   GENERIC_SC_LIST
+
+   /* Some class specific services */
    { SC_CCO_KICK_TIMER,           "Kick Timer" },
    { SC_CCO_OPEN_CONN,            "Open Connection" },
    { SC_CCO_CLOSE_CONN,           "Close Connection" },
@@ -362,12 +334,16 @@ static const value_string cip_gs_vals[] = {
    { CI_GRC_CONN_RELATED_FAILURE,"Vendor specific error" },
    { CI_GRC_INVALID_PARAMETER,   "Invalid parameter" },
    { CI_GRC_WRITE_ONCE_FAILURE,  "Write-once value or medium already written" },
-   { CI_GRC_INVALID_REPLY,       "Invalid Reply Received" },
-   { CI_GRC_BAD_KEY_IN_PATH,     "Key Failure in path" },
-   { CI_GRC_BAD_PATH_SIZE,       "Path Size Invalid" },
+   { CI_GRC_INVALID_REPLY,       "Invalid reply received" },
+   { CI_GRC_BUFFER_OVERFLOW,     "Buffer overflow" },
+   { CI_GRC_MESSAGE_FORMAT,      "Invalid message format" },
+   { CI_GRC_BAD_KEY_IN_PATH,     "Key failure in path" },
+   { CI_GRC_BAD_PATH_SIZE,       "Path size invalid" },
    { CI_GRC_UNEXPECTED_ATTR,     "Unexpected attribute in list" },
    { CI_GRC_INVALID_MEMBER,      "Invalid Member ID" },
    { CI_GRC_MEMBER_NOT_SETTABLE, "Member not settable" },
+   { CI_GRC_G2_SERVER_FAILURE,   "Group 2 only server general failure" },
+   { CI_GRC_UNKNOWN_MB_ERROR,    "Unknown Modbus error" },
 
    { 0,                          NULL }
 };
@@ -450,6 +426,22 @@ static const value_string cip_class_names_vals[] = {
    { 0x35,     "Trip Point Object"                     },
    { 0x37,     "File Object"                           },
    { 0x38,     "S-Partial Pressure Object"             },
+   { 0x39,     "Safety Supervisor Object"              },
+   { 0x3A,     "Safety Validator Object"               },
+   { 0x3B,     "Safety Discrete Output Point Object"   },
+   { 0x3C,     "Safety Discrete Output Group Object"   },
+   { 0x3D,     "Safety Discrete Input Point Object"    },
+   { 0x3E,     "Safety Discrete Input Group Object"    },
+   { 0x3F,     "Safety Dual Channel Output Object"     },
+   { 0x40,     "S-Sensor Calibration Object"           },
+   { 0x41,     "Event Log Object"                      },
+   { 0x42,     "Motion Axis Object"                    },
+   { 0x43,     "Time Sync Object"                      },
+   { 0x44,     "Modbus Object"                         },
+   { 0x45,     "Originator Connection List Object"     },
+   { 0x46,     "Modbus Serial Link Object"             },
+   { 0x47,     "Device Level Ring (DLR) Object"        },
+   { 0x48,     "QoS Object"                            },
    { 0xF0,     "ControlNet Object"                     },
    { 0xF1,     "ControlNet Keeper Object"              },
    { 0xF2,     "ControlNet Scheduling Object"          },
@@ -457,6 +449,8 @@ static const value_string cip_class_names_vals[] = {
    { 0xF4,     "Port Object"                           },
    { 0xF5,     "TCP/IP Interface Object"               },
    { 0xF6,     "EtherNet Link Object"                  },
+   { 0xF7,     "CompoNet Object"                       },
+   { 0xF8,     "CompoNet Repeater Object"              },
 
    { 0,        NULL                                    }
 };
@@ -1398,7 +1392,7 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
       {
          col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                     cip_sc_vals , "Unknown Service (%x)") );
+                     cip_sc_vals , "Unknown Service (0x%02x)") );
       }
 
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
@@ -1511,7 +1505,7 @@ typedef struct mr_mult_req_info {
 
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals_mr , "Unknown Service (%x)"),
+                  cip_sc_vals, "Unknown Service (0x%02x)"),
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
                   cip_sc_rr, "") );
 
@@ -1641,7 +1635,7 @@ typedef struct mr_mult_req_info {
       {
          col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                     cip_sc_vals_mr, "Unknown Service (%x)") );
+                     cip_sc_vals, "Unknown Service (0x%02x)") );
       }
 
       /* Add path size to tree */
@@ -1869,7 +1863,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    service = tvb_get_guint8( tvb, offset );
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals_cm , "Unknown Service (%x)"),
+                  cip_sc_vals_cm , "Unknown Service (0x%02x)"),
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
                   cip_sc_rr, "") );
 
@@ -2080,7 +2074,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       {
          col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                     cip_sc_vals_cm , "Unknown Service (%x)") );
+                     cip_sc_vals_cm , "Unknown Service (0x%02x)") );
       }
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
@@ -2395,7 +2389,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
 
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals_cco , "Unknown Service (%x)"),
+                  cip_sc_vals_cco , "Unknown Service (0x%02x)"),
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
                   cip_sc_rr, "") );
 
@@ -2443,7 +2437,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
       {
          col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                     cip_sc_vals_cco , "Unknown Service (%x)") );
+                     cip_sc_vals_cco , "Unknown Service (0x%02x)") );
       }
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
@@ -2579,7 +2573,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    service = tvb_get_guint8( tvb, offset );
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals , "Unknown Service (%x)"),
+                  cip_sc_vals , "Unknown Service (0x%02x)"),
                val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x80 )>>7,
                   cip_sc_rr, "") );
 
