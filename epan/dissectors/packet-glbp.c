@@ -162,12 +162,13 @@ static const value_string glbp_vfstate_vals[] = {
 	{ 0, NULL }
 };
 
-static void
-dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length _U_,
+static int
+dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo, proto_tree *tlv_tree)
 {
   guint16 addrtype;
   guint16 addrlen;
+  int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  FALSE);
   offset ++;
@@ -210,13 +211,20 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length _U_,
 
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
     val_to_str(addrtype, glbp_addr_type_vals, "%d"));
+
+  if (offset < lastoffset)
+	offset = lastoffset;
+
+  return offset;
 }
 
 
-static void
-dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length _U_,
+static int
+dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
+  int lastoffset = offset + length;
+
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_forwarder, tvb, offset, 1, FALSE);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_vfstate, tvb, offset, 1, FALSE);
@@ -230,15 +238,21 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length _U_,
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown22, tvb, offset, 7, FALSE);
   offset += 7;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, FALSE);
-  offset += 6 ;
+  offset += 6;
+
+  if (offset < lastoffset)
+	offset = lastoffset;
+
+  return offset;
 }
 
-static void
+static int
 dissect_glbp_auth(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   guint32 authtype;
   guint32 authlength;
+  int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_auth_authtype, tvb, offset, 1,  FALSE);
   authtype = tvb_get_guint8(tvb, offset);
@@ -249,27 +263,37 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset, guint32 length,
   switch(authtype) {
   case 1:
     proto_tree_add_item(tlv_tree, hf_glbp_auth_plainpass, tvb, offset, authlength, FALSE);
+    offset += authlength;
     break;
   case 2:
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5hash, tvb, offset, authlength, FALSE);
+    offset += authlength;
     break;
   case 3:
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainindex, tvb, offset, 4, FALSE);
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainhash, tvb, offset+4, authlength-4, FALSE);
+    offset += authlength;
     break;
   default:
     proto_tree_add_item(tlv_tree, hf_glbp_auth_authunknown, tvb, offset, authlength, FALSE);
+    offset += authlength;
     break;
   }
-  offset += length;
+
+  if (offset < lastoffset)
+	offset = lastoffset;
+
+  return offset;
 }
 
-static void
+static int
 dissect_glbp_unknown(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   proto_tree_add_item(tlv_tree, hf_glbp_unknown_data, tvb, offset, length, FALSE);
   offset += length;
+
+  return offset;
 }
 
 static int
@@ -306,7 +330,9 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (tvb_length_remaining(tvb, offset) > 0) {
 
       type = tvb_get_guint8(tvb, offset);
-      length = tvb_get_guint8(tvb, offset+1) - 2;
+      length = tvb_get_guint8(tvb, offset+1);
+      DISSECTOR_ASSERT(length > 1);
+      length -= 2;
 
       ti = proto_tree_add_item(glbp_tree, hf_glbp_tlv, tvb, offset, length+2, FALSE);
       tlv_tree = proto_item_add_subtree(ti, ett_glbp_tlv);
@@ -322,19 +348,18 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
       switch(type) {
         case 1: /* Hello */
-	  dissect_glbp_hello(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_hello(tvb, offset, length, pinfo, tlv_tree);
   	break;
         case 2: /* Request/Response */
-	  dissect_glbp_reqresp(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_reqresp(tvb, offset, length, pinfo, tlv_tree);
   	break;
         case 3: /* Plaintext auth */
-	  dissect_glbp_auth(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_auth(tvb, offset, length, pinfo, tlv_tree);
   	break;
         default:
-	  dissect_glbp_unknown(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_unknown(tvb, offset, length, pinfo, tlv_tree);
   	break;
       }
-      offset += length;
     }
   }
   return offset;
@@ -352,6 +377,7 @@ test_glbp(tvbuff_t *tvb, packet_info *pinfo)
 		|| pinfo->srcport != pinfo->destport
 #if 0 /* XXX */
 		|| unknown1 == 0 && pinfo->net_dst != ipv4:224.0.0.102
+		                 && pinfo->net_dst != ipv6:...
 		|| unknown1 == 0 && pinfo->dl_src != ether:c2-00-7c-b8-00-00
 #endif
 	) {
