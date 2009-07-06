@@ -561,8 +561,8 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}else{ /* Dynamic PT */
 		if ( rtpinfo->info_payload_type_str != NULL ){
 			/* Is it a "telephone-event" ?
-			 * Timestamp is not increased for telepone-event packets inpacting
-			 * caluculation of Jitter Skew and clock drift.
+			 * Timestamp is not increased for telepone-event packets impacting
+			 * calculation of Jitter Skew and clock drift.
 			 * see 2.2.1 of RFC 4733
 			 */
 			if (g_ascii_strncasecmp("telephone-event",rtpinfo->info_payload_type_str,(strlen("telephone-event")))==0){
