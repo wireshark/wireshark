@@ -37,7 +37,7 @@
  ** http://www.cisco.com/warp/public/cc/pd/iosw/prodlit/tflow_wp.htm
  **
  ** for NetFlow v9 information.
- **
+ ** ( http://www.ietf.org/rfc/rfc3954.txt ?)
  ** http://www.ietf.org/rfc/rfc5101.txt
  ** http://www.ietf.org/rfc/rfc5102.txt
  ** http://www.ietf.org/rfc/rfc5103.txt
@@ -1478,9 +1478,6 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			if (length == 4) {
 				proto_tree_add_item(pdutree, hf_cflow_nexthop,
 				    tvb, offset, length, FALSE);
-			} else if (length == 16) {
-				proto_tree_add_item(pdutree, hf_cflow_nexthop_v6,
-				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree,
 				    tvb, offset, length,
@@ -1874,12 +1871,18 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 62: /* IPv6 BGP nexthop  */
-			proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
-			    tvb, offset, length, FALSE);
+		case 62: /* IPV6_NEXT_HOP */
+			if (length == 16) {
+				proto_tree_add_item(pdutree, hf_cflow_nexthop_v6,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "NextHop: length %u", length);
+			}
 			break;
 
-		case 63: /* bgpNexthopIPv6Address */
+		case 63: /* BGP_IPV6_NEXT_HOP */
 			if (length == 16) {
 				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
 				    tvb, offset, length, FALSE);
