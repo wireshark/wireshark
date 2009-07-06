@@ -113,9 +113,9 @@ dfilter_new(void)
 {
 	dfilter_t	*df;
 
-	df = g_new(dfilter_t, 1);
+	df = g_new0(dfilter_t, 1);
 	df->insns = NULL;
-        df->deprecated = NULL;
+    df->deprecated = NULL;
 
 	return df;
 }
@@ -170,17 +170,13 @@ dfwork_new(void)
 {
 	dfwork_t	*dfw;
 
-	dfw = g_new(dfwork_t, 1);
+	dfw = g_new0(dfwork_t, 1);
 
 	dfw->st_root = NULL;
-	dfw->syntax_error = FALSE;
 	dfw->insns = NULL;
 	dfw->consts = NULL;
 	dfw->loaded_fields = NULL;
 	dfw->interesting_fields = NULL;
-	dfw->next_insn_id = 0;
-	dfw->next_const_id = 0;
-	dfw->next_register = 0;
 	dfw->first_constant = -1;
 
 	return dfw;
