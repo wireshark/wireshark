@@ -57,7 +57,7 @@ typedef struct _radius_vendor_info_t {
 	const gchar *name;
 	guint code;
 	GHashTable* attrs_by_id;
-    gint ett;
+	gint ett;
 	guint type_octets;
 	guint length_octets;
 	gboolean has_flags; 
@@ -71,7 +71,7 @@ typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*);
 struct _radius_attr_info_t {
 	const gchar *name;
 	guint code;
-	gboolean encrypt;
+	gboolean encrypt;  /* True if attribute has "encrypt=1" option */
 	gboolean tagged;
 	radius_attr_dissector_t* type;
 	radius_avp_dissector_t* dissector;
@@ -101,6 +101,7 @@ radius_attr_dissector_t radius_ipv6prefix;
 radius_attr_dissector_t radius_ipxnet;
 radius_attr_dissector_t radius_date;
 radius_attr_dissector_t radius_abinary;
+radius_attr_dissector_t radius_ether;
 radius_attr_dissector_t radius_ifid;
 radius_attr_dissector_t radius_byte;
 radius_attr_dissector_t radius_short;

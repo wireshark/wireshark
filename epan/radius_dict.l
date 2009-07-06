@@ -200,6 +200,8 @@
 <ATTR_W_ID>ipv6prefix			{ attr_type = radius_ipv6prefix;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipxnet			{ attr_type = radius_ipxnet;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>date				{ attr_type = radius_date;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>abinary			{ attr_type = radius_abinary;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ether  			{ attr_type = radius_ether;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ifid				{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>byte				{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>short			{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
