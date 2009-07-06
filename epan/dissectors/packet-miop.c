@@ -6,6 +6,7 @@
  * According with Unreliable Multicast Draft Adopted Specification 
  * 2001 October (OMG)
  * Chapter 29: Unreliable Multicast Inter-ORB Protocol (MIOP)
+ * http://www.omg.org/technology/documents/specialized_corba.htm
  *
  * $Id$
  *
@@ -47,14 +48,22 @@
 
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
-#include "packet-miop.h"
 #include "packet-giop.h"
 #include "packet-tcp.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "g_ascii_strcasecmp.h"
 #endif
+
+/*
+ * Useful visible data/structs
+ */
+
+#define MIOP_MAX_UNIQUE_ID_LENGTH   252
+
+#define MIOP_HEADER_SIZE 16
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
@@ -85,15 +94,7 @@ static gint hf_miop_number_of_packets = -1;
 static gint hf_miop_unique_id_len = -1;
 static gint hf_miop_unique_id = -1;
 
-
-static gint ett_miop_magic = -1;
-static gint ett_miop_hdr_version = -1;
-static gint ett_miop_flags = -1;
-static gint ett_miop_packet_length = -1;
-static gint ett_miop_packet_number = -1;
-static gint ett_miop_number_of_packets = -1;
-static gint ett_miop_unique_id_len = -1;
-static gint ett_miop_unique_id = -1;
+static gint ett_miop = -1;
 
 #define MIOP_MAGIC 	 "MIOP"
 
@@ -134,137 +135,126 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 /* Main entry point */
 static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
-  PacketHeader header;
-  UniqueId unique_id;
 
-  tvbuff_t *miop_header_tvb;
-  tvbuff_t *unique_id_len_tvb;
-  tvbuff_t *unique_id_tvb;
-  tvbuff_t *payload_tvb;
-
-  proto_tree *clnp_tree = NULL;
+  proto_tree *miop_tree = NULL;
   proto_item *ti;
 
+  guint8 hdr_version;
   guint version_major;
   guint version_minor;
+  
+  guint8 flags;
 
   guint16 packet_length;
   guint packet_number;
   guint number_of_packets;
-  gboolean stream_is_big_endian;
+  gboolean little_endian;
+  
+  guint32 unique_id_len;
+  
+  emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
 
-  miop_header_tvb = tvb_new_subset (tvb, 0, MIOP_HEADER_SIZE, -1);
-  tvb_memcpy (miop_header_tvb, (guint8 *)&header, 0, MIOP_HEADER_SIZE );
-
-  unique_id_len_tvb = tvb_new_subset (tvb, MIOP_HEADER_SIZE, 4, -1);
-  tvb_memcpy (unique_id_len_tvb, (guint32 *)&(unique_id.id_len), 0, 4);
-
-  unique_id_tvb = tvb_new_subset (tvb, MIOP_HEADER_SIZE + 4, unique_id.id_len, -1);
-  /*unique_id.id = g_malloc(unique_id.id_len);*/
-  unique_id.id = ep_alloc(unique_id.id_len);
-  tvb_memcpy (unique_id_tvb, (guint8 *)(unique_id.id), 0, unique_id.id_len);
-
-  payload_tvb = tvb_new_subset (tvb, MIOP_HEADER_SIZE + 4 + unique_id.id_len, -1, -1);
-
-
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, MIOP_MAGIC);
-  }
-
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, MIOP_MAGIC);
   /* Clear out stuff in the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
-  /* Extract major and minor version numbers */ 
-  version_major = ((header.hdr_version & 0xf0) >> 4);
-  version_minor =  (header.hdr_version & 0x0f);
+  /* Extract major and minor version numbers */
+  hdr_version = tvb_get_guint8(tvb, 4);
+  version_major = ((hdr_version & 0xf0) >> 4);
+  version_minor =  (hdr_version & 0x0f);
 
-  if (header.hdr_version != 16)
+  if (hdr_version != 16)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	{
-	  col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
-			version_major, version_minor);
-	}
+      col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
+		    version_major, version_minor);
       if (tree)
 	{
 	  ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
-	  clnp_tree = proto_item_add_subtree (ti, ett_miop_hdr_version);
-	  proto_tree_add_text (clnp_tree, miop_header_tvb, 0, -1,
-			       "Version %u.%u not supported",
+	  miop_tree = proto_item_add_subtree (ti, ett_miop);
+	  proto_tree_add_text (miop_tree, tvb, 0, -1,
+			       "Version %u.%u",
+			       version_major, version_minor);
+	  expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+			       "MIOP version %u.%u not supported",
 			       version_major, version_minor);
 	}
       return;
     }
 
-  stream_is_big_endian = ((header.flags & 0x01) == 0);
+  flags = tvb_get_guint8(tvb, 5);
+  little_endian = flags & 0x01;
 
-  if (stream_is_big_endian) {
-    packet_length = pntohs (&header.packet_length);
-    packet_number = pntohl (&header.packet_number);
-    number_of_packets = pntohl (&header.number_of_packets);
-  } 
+  if (little_endian) {
+    packet_length = tvb_get_letohs(tvb, 6);
+    packet_number = tvb_get_letohl(tvb, 8);
+    number_of_packets = tvb_get_letohl(tvb, 12);
+    unique_id_len = tvb_get_letohl(tvb, 16);
+  }
   else {
-    packet_length = pletohs (&header.packet_length);
-    packet_number = pletohl (&header.packet_number);
-    number_of_packets = pletohl (&header.number_of_packets);
+    packet_length = tvb_get_ntohs(tvb, 6);
+    packet_number = tvb_get_ntohl(tvb, 8);
+    number_of_packets = tvb_get_ntohl(tvb, 12);
+    unique_id_len = tvb_get_ntohl(tvb, 16);
   }
 
-
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-  {
-      col_add_fstr (pinfo->cinfo, COL_INFO, "MIOP %u.%u Packet s=%d (%u of %u)",
-                    version_major, version_minor, header.packet_length, 
-                    header.packet_number + 1, 
-                    header.number_of_packets);
-  }
+  col_add_fstr (pinfo->cinfo, COL_INFO, "MIOP %u.%u Packet s=%d (%u of %u)",
+		version_major, version_minor, packet_length, 
+		packet_number + 1, 
+		number_of_packets);
 
   if (tree)
     {
+          
       ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_magic);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 4,
-			   "Magic number: %s", MIOP_MAGIC);
+      miop_tree = proto_item_add_subtree (ti, ett_miop);
+
+      /* XXX - Should we bail out if we don't have the right magic number? */
+      proto_tree_add_item(miop_tree, hf_miop_magic, tvb, offset, 4, FALSE);
       offset += 4;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_hdr_version);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 1,
+      proto_tree_add_uint_format(miop_tree, hf_miop_hdr_version, tvb, offset, 1, hdr_version,
 			   "Version: %u.%u", version_major, version_minor);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_flags);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 1,
-			   "Flags: 0x%02x (%s)", header.flags,
-                           (stream_is_big_endian) ? "big-endian" : "little-endian");
+      if (flags & 0x01) {
+	ep_strbuf_printf(flags_strbuf, "little-endian");
+      }
+      if (flags & 0x02) {
+	ep_strbuf_append_printf(flags_strbuf, "%s%s",
+				flags_strbuf->len ? ", " : "", "last message");
+      }
+      ti = proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
+					    flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_packet_length);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 2,
-			   "Packet length: %d", packet_length);
+      proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, little_endian);
       offset += 2;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_packet_number);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 4,
-			   "Packet number: %d", packet_number);
+      proto_tree_add_item(miop_tree, hf_miop_packet_number, tvb, offset, 4, little_endian);
       offset += 4;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_number_of_packets);
-      proto_tree_add_text (clnp_tree, miop_header_tvb, offset, 4,
-			   "Number of packets: %d", number_of_packets);
+      proto_tree_add_item(miop_tree, hf_miop_number_of_packets, tvb, offset, 4, little_endian);
 
-      offset = 0;
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_unique_id_len);
-      proto_tree_add_text (clnp_tree, unique_id_len_tvb, offset, 4,
-			   "Unique Id length:  %d", unique_id.id_len);
+      offset += 4;
+      ti = proto_tree_add_item(miop_tree, hf_miop_unique_id_len, tvb, offset, 4, little_endian);
 
-      clnp_tree = proto_item_add_subtree (ti, ett_miop_unique_id);
-      proto_tree_add_text (clnp_tree, unique_id_tvb, offset, unique_id.id_len,
-			   "Unique Id: (string) %s",
-                           make_printable_string(unique_id.id, unique_id.id_len));
+      if (unique_id_len >= MIOP_MAX_UNIQUE_ID_LENGTH) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                       "Unique Id length (%u) exceeds max value (%u)",
+                       unique_id_len, MIOP_MAX_UNIQUE_ID_LENGTH);
+        return;
+      }
 
-      if (header.packet_number == 0) 
+      offset += 4;
+      proto_tree_add_item(miop_tree, hf_miop_unique_id, tvb, offset, unique_id_len,
+			  little_endian);
+
+      if (packet_number == 0) {
         /*  It is the first packet of the collection
             We can call to GIOP dissector to show more about this first 
             uncompleted GIOP message 
         */
+        tvbuff_t *payload_tvb;
+      
+        offset += unique_id_len;
+        payload_tvb = tvb_new_subset (tvb, offset, -1, -1);
         dissect_giop(payload_tvb, pinfo, tree);
+      }
     }
 
 
@@ -282,7 +272,7 @@ void proto_register_miop (void) {
    */
   static hf_register_info hf[] = {
     { &hf_miop_magic,
-      { "Magic", "miop.magic", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Magic", "miop.magic", FT_STRING, BASE_NONE, NULL, 0x0,
         "PacketHeader magic", HFILL }},
     { &hf_miop_hdr_version,
       { "Version", "miop.hdr_version", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -303,25 +293,18 @@ void proto_register_miop (void) {
       { "UniqueIdLength", "miop.unique_id_len", FT_UINT32, BASE_DEC, NULL, 0x0,
         "UniqueId length", HFILL }},
     { &hf_miop_unique_id,
-      { "UniqueId", "miop.unique_id", FT_STRING, BASE_NONE, NULL, 0x0,
+      { "UniqueId", "miop.unique_id", FT_BYTES, BASE_NONE, NULL, 0x0,
         "UniqueId id", HFILL }},
   };
 
 
   static gint *ett[] = {
-    &ett_miop_magic,
-    &ett_miop_hdr_version,
-    &ett_miop_flags,
-    &ett_miop_packet_length,
-    &ett_miop_packet_number,
-    &ett_miop_number_of_packets,
-    &ett_miop_unique_id_len,
-    &ett_miop_unique_id,
+    &ett_miop
   };
 
   proto_miop = proto_register_protocol("Unreliable Multicast Inter-ORB Protocol", "MIOP",
 				       "miop");
-  proto_register_field_array (proto_miop, hf, array_length (ett));
+  proto_register_field_array (proto_miop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector("miop", dissect_miop, proto_miop);

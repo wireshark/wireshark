@@ -1103,7 +1103,6 @@ DISSECTOR_INCLUDES =	\
 	packet-mac-lte.h		\
 	packet-mgcp.h		\
 	packet-mikey.h	\
-	packet-miop.h	\
 	packet-mip6.h	\
 	packet-mms.h	\
 	packet-mount.h	\
