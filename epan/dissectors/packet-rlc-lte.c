@@ -960,7 +960,6 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
         }
 
-
         offset += 2;
     }
 
@@ -1007,6 +1006,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
+    }
+    else {
+        expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_WARN,
+                               "AM data PDU doesn't contain any data");
+
     }
 }
 
