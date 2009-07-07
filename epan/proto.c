@@ -2555,7 +2555,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 	}
 
 	if (hfinfo->type == FT_BOOLEAN) {
-		const true_false_string  *tfstring = &tfs_true_false;
+		const true_false_string  *tfstring = (const true_false_string *)&tfs_true_false;
 		if (hfinfo->strings) {
 			tfstring = (const struct true_false_string*) hfinfo->strings;
 		}
@@ -4196,7 +4196,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint32	value;
 
 	header_field_info		*hfinfo = fi->hfinfo;
-	const true_false_string		*tfstring = &tfs_true_false;
+	const true_false_string		*tfstring = (const true_false_string *)&tfs_true_false;
 
 	if (hfinfo->strings) {
 		tfstring = (const struct true_false_string*) hfinfo->strings;
