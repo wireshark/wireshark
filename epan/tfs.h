@@ -36,31 +36,31 @@ typedef struct true_false_string {
  * A default set of true/false strings that dissectors can use for
  * FT_BOOLEAN header fields.
  */
-WS_VAR_IMPORT const true_false_string tfs_true_false;
-WS_VAR_IMPORT const true_false_string tfs_yes_no;
-WS_VAR_IMPORT const true_false_string tfs_set_notset;
-WS_VAR_IMPORT const true_false_string tfs_enabled_disabled;
-WS_VAR_IMPORT const true_false_string tfs_ok_error;
-WS_VAR_IMPORT const true_false_string tfs_success_fail;
-WS_VAR_IMPORT const true_false_string tfs_on_off;
-WS_VAR_IMPORT const true_false_string tfs_ack_nack;
-WS_VAR_IMPORT const true_false_string tfs_odd_even;
-WS_VAR_IMPORT const true_false_string tfs_allow_block;
-WS_VAR_IMPORT const true_false_string tfs_restricted_allowed;
-WS_VAR_IMPORT const true_false_string tfs_accept_reject;
-WS_VAR_IMPORT const true_false_string tfs_more_nomore;
-WS_VAR_IMPORT const true_false_string tfs_present_absent;
-WS_VAR_IMPORT const true_false_string tfs_active_inactive;
-WS_VAR_IMPORT const true_false_string tfs_found_not_found;
-WS_VAR_IMPORT const true_false_string tfs_command_response;
-WS_VAR_IMPORT const true_false_string tfs_capable_not_capable;
-WS_VAR_IMPORT const true_false_string tfs_supported_not_supported;
-WS_VAR_IMPORT const true_false_string tfs_used_notused;
+WS_VAR_IMPORT const true_false_string tfs_true_false[];
+WS_VAR_IMPORT const true_false_string tfs_yes_no[];
+WS_VAR_IMPORT const true_false_string tfs_set_notset[];
+WS_VAR_IMPORT const true_false_string tfs_enabled_disabled[];
+WS_VAR_IMPORT const true_false_string tfs_ok_error[];
+WS_VAR_IMPORT const true_false_string tfs_success_fail[];
+WS_VAR_IMPORT const true_false_string tfs_on_off[];
+WS_VAR_IMPORT const true_false_string tfs_ack_nack[];
+WS_VAR_IMPORT const true_false_string tfs_odd_even[];
+WS_VAR_IMPORT const true_false_string tfs_allow_block[];
+WS_VAR_IMPORT const true_false_string tfs_restricted_allowed[];
+WS_VAR_IMPORT const true_false_string tfs_accept_reject[];
+WS_VAR_IMPORT const true_false_string tfs_more_nomore[];
+WS_VAR_IMPORT const true_false_string tfs_present_absent[];
+WS_VAR_IMPORT const true_false_string tfs_active_inactive[];
+WS_VAR_IMPORT const true_false_string tfs_found_not_found[];
+WS_VAR_IMPORT const true_false_string tfs_command_response[];
+WS_VAR_IMPORT const true_false_string tfs_capable_not_capable[];
+WS_VAR_IMPORT const true_false_string tfs_supported_not_supported[];
+WS_VAR_IMPORT const true_false_string tfs_used_notused[];
 
 /*
  * Old true_false_string from packet.c
  * Retained for backward compatibility until all dissectors are updated.
  */
-WS_VAR_IMPORT const true_false_string flags_set_truth;
+WS_VAR_IMPORT const true_false_string flags_set_truth[];
 
 #endif
