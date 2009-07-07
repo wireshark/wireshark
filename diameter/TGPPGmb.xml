@@ -136,7 +136,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 
-		<avp name="MBMS-Session-Identity-Repetition-Number " code="912" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MBMS-Session-Identity-Repetition-Number" code="912" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="MBMS-Required-QoS" code="913" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">

@@ -316,7 +316,7 @@ proto_register_x224(void)
 		&ett_x224,
 	};
 
-	proto_x224 = proto_register_protocol("ITU-T Rec X.224 ", "X.224", "x224");
+	proto_x224 = proto_register_protocol("ITU-T Rec X.224", "X.224", "x224");
 	proto_register_field_array(proto_x224, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("x224", dissect_x224, proto_x224);

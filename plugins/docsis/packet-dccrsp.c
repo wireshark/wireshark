@@ -251,7 +251,7 @@ proto_register_docsis_dccrsp (void)
 
 /* Register the protocol name and description */
   proto_docsis_dccrsp =
-    proto_register_protocol ("DOCSIS Downstream Channel Change Response ",
+    proto_register_protocol ("DOCSIS Downstream Channel Change Response",
 			     "DOCSIS DCC-RSP", "docsis_dccrsp");
 
 /* Required function calls to register the header fields and subtrees used */

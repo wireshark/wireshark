@@ -52,7 +52,7 @@
 #pragma warning(disable:4146)
 #endif
 
-#define PNAME  "S1 Application Protocol "
+#define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
 #define PFNAME "s1ap"
 

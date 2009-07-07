@@ -502,7 +502,7 @@ proto_register_cpfi(void)
 
 
   /* Register the protocol name and description */
-  proto_cpfi = proto_register_protocol("Cross Point Frame Injector ", "CPFI",  "cpfi");
+  proto_cpfi = proto_register_protocol("Cross Point Frame Injector", "CPFI",  "cpfi");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_cpfi, hf, array_length(hf));

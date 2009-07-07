@@ -79,7 +79,7 @@ proto_register_rdaclif (void)
     &ett_rdaclif,
   };
   proto_rdaclif =
-    proto_register_protocol ("DCE/RPC Directory Acl Interface ", "rdaclif",
+    proto_register_protocol ("DCE/RPC Directory Acl Interface", "rdaclif",
 			     "rdaclif");
   proto_register_field_array (proto_rdaclif, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

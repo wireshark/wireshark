@@ -70,7 +70,7 @@ proto_register_rs_prop_acct (void)
 	static gint *ett[] = {
 		&ett_rs_prop_acct,
 	};
-	proto_rs_prop_acct = proto_register_protocol ("DCE/RPC RS_PROP_ACCT ", "rs_prop_acct", "rs_prop_acct");
+	proto_rs_prop_acct = proto_register_protocol ("DCE/RPC RS_PROP_ACCT", "rs_prop_acct", "rs_prop_acct");
 	proto_register_field_array (proto_rs_prop_acct, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

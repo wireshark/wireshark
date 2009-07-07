@@ -594,7 +594,7 @@ proto_register_docsis_dccreq (void)
 
 /* Register the protocol name and description */
   proto_docsis_dccreq =
-    proto_register_protocol ("DOCSIS Downstream Channel Change Request ",
+    proto_register_protocol ("DOCSIS Downstream Channel Change Request",
 			     "DOCSIS DCC-REQ", "docsis_dccreq");
 
 /* Required function calls to register the header fields and subtrees used */

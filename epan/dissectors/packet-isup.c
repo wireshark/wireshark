@@ -8293,7 +8293,7 @@ proto_register_bicc(void)
 	static gint *ett[] = {
 		&ett_bicc
 	};
-	proto_bicc = proto_register_protocol("Bearer Independent Call Control ",
+	proto_bicc = proto_register_protocol("Bearer Independent Call Control",
 	    "BICC", "bicc");
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_bicc, hf, array_length(hf));

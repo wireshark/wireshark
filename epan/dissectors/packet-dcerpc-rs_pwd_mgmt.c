@@ -79,7 +79,7 @@ proto_register_rs_pwd_mgmt (void)
     &ett_rs_pwd_mgmt,
   };
   proto_rs_pwd_mgmt =
-    proto_register_protocol ("DCE/RPC Registry Password Management ",
+    proto_register_protocol ("DCE/RPC Registry Password Management",
 			     "rs_pwd_mgmt", "rs_pwd_mgmt");
   proto_register_field_array (proto_rs_pwd_mgmt, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

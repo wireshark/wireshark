@@ -7489,16 +7489,16 @@ proto_register_ncp2222(void)
         { "Port", "ncp.ndsport", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_mv_string,
-	{ "Attribute Name ", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Attribute Name", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_syntax,
-	{ "Attribute Syntax ", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Attribute Syntax", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_value_string,
-	{ "Value ", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Value", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_stream_name,
-	{ "Stream Name ", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Stream Name", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
  	{ &hf_nds_buffer_size,
 	{ "NDS Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

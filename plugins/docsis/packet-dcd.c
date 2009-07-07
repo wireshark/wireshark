@@ -840,7 +840,7 @@ proto_register_docsis_dcd (void)
 
 /* Register the protocol name and description */
   proto_docsis_dcd =
-    proto_register_protocol ("DOCSIS Downstream Channel Descriptor ",
+    proto_register_protocol ("DOCSIS Downstream Channel Descriptor",
 			     "DOCSIS DCD", "docsis_dcd");
 
 /* Required function calls to register the header fields and subtrees used */

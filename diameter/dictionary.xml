@@ -764,7 +764,7 @@
 			<enum name="xDSL - Digital Subscriber Line of unknown type" code="16"/>
 			<enum name="Cable" code="17"/>
 			<enum name="Wireless - Other" code="18"/>
-			<enum name="Wireless - IEEE 802.11  " code="19"/>
+			<enum name="Wireless - IEEE 802.11" code="19"/>
 			<enum name="Token-Ring" code="20"/>
 			<enum name="FDDI" code="21"/>
 			<enum name="Wireless - CDMA2000" code="22"/>
@@ -887,7 +887,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Invalid Request" code="404"/>
 			<enum name="Unsupported Service" code="405"/>
 			<enum name="Unsupported Extension" code="406"/>
-			<enum name="Invalid Attribute Value " code="407"/>              
+			<enum name="Invalid Attribute Value" code="407"/>              
 			<enum name="Administratively Prohibited" code="501"/>
 			<enum name="Request Not Routable (Proxy)" code="502"/>
 			<enum name="Session Context Not Found" code="503"/>
@@ -1149,7 +1149,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_CONTRADICTING_AVPS" code="5007"/>
 			<enum name="DIAMETER_AVP_NOT_ALLOWED" code="5008"/>
 			<enum name="DIAMETER_AVP_OCCURS_TOO_MANY_TIMES" code="5009"/>
-			<enum name="DIAMETER_NO_COMMON_APPLICATION " code="5010"/>
+			<enum name="DIAMETER_NO_COMMON_APPLICATION" code="5010"/>
 			<enum name="DIAMETER_UNSUPPORTED_VERSION" code="5011"/>
 			<enum name="DIAMETER_UNABLE_TO_COMPLY" code="5012"/>
 			<enum name="DIAMETER_INVALID_BIT_IN_HEADER" code="5013"/>
@@ -1641,7 +1641,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		<avp name="Terminating-IOI" code="840" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="IMS-Charging-Identifier " code="841" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
+		<avp name="IMS-Charging-Identifier" code="841" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="SDP-Session-Description" code="842" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
@@ -3065,7 +3065,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 		</avp>
 		<avp name="All-APN-Configurations-Included-Indicator" code="1428" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Enumerated"/>
-      <enum name="ALL_APN_CONFIGURATIONS_INCLUDED " code="0"/>
+      <enum name="ALL_APN_CONFIGURATIONS_INCLUDED" code="0"/>
       <enum name="MODIFIED/ADDED_APN_CONFIGURATIONS_INCLUDED" code="1"/>
 		</avp>
 		<avp name="APN-Configuration-Profile" code="1429" vendor-bit="must" vendor-id="TGPP">
@@ -3235,7 +3235,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     </avp>
 		<avp name="Complete-Data-List-Included-Indicator" code="1468" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
-      <enum name="ALL_PDP_CONTEXTS_INCLUDED " code="0"/>
+      <enum name="ALL_PDP_CONTEXTS_INCLUDED" code="0"/>
       <enum name="MODIFIED/ADDED_PDP CONTEXTS_INCLUDED" code="1"/>
     </avp>
 		<avp name="PDP-Context" code="1469" vendor-bit="must" vendor-id="TGPP">

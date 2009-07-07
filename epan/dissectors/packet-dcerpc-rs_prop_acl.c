@@ -72,7 +72,7 @@ proto_register_rs_prop_acl (void)
   };
   proto_rs_prop_acl =
     proto_register_protocol
-    ("DCE/RPC Registry server propagation interface - ACLs. ", "rs_prop_acl",
+    ("DCE/RPC Registry server propagation interface - ACLs", "rs_prop_acl",
      "rs_prop_acl");
   proto_register_field_array (proto_rs_prop_acl, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

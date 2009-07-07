@@ -163,7 +163,7 @@ proto_register_docsis_dccack (void)
 
 /* Register the protocol name and description */
   proto_docsis_dccack =
-    proto_register_protocol ("DOCSIS Downstream Channel Change Acknowledge ",
+    proto_register_protocol ("DOCSIS Downstream Channel Change Acknowledge",
 			     "DOCSIS DCC-ACK", "docsis_dccack");
 
 /* Required function calls to register the header fields and subtrees used */
