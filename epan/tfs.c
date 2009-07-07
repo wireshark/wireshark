@@ -35,7 +35,7 @@
  */
 const true_false_string tfs_true_false = { "True", "False" };
 const true_false_string tfs_yes_no = { "Yes", "No" };
-const true_false_string tfs_set_notset = { "Set", "Not Set" };
+const true_false_string tfs_set_notset = { "Set", "Not set" };
 const true_false_string tfs_enabled_disabled = { "Enabled", "Disabled" };
 const true_false_string tfs_ok_error = { "Ok", "Error" };
 const true_false_string tfs_success_fail = { "Success", "Fail" };
@@ -45,7 +45,7 @@ const true_false_string tfs_odd_even = { "Odd", "Even" };
 const true_false_string tfs_allow_block = { "Allow", "Block" };
 const true_false_string tfs_restricted_allowed = { "Restricted", "Allowed" };
 const true_false_string tfs_accept_reject = { "Accept", "Reject" };
-const true_false_string tfs_more_nomore = { "More", "No More" };
+const true_false_string tfs_more_nomore = { "More", "No more" };
 const true_false_string tfs_present_absent = { "Present", "Absent" };
 const true_false_string tfs_active_inactive = { "Active", "Inactive" };
 const true_false_string tfs_found_not_found = { "Found", "Not found" };
@@ -53,10 +53,3 @@ const true_false_string tfs_command_response = { "Command", "Response" };
 const true_false_string tfs_capable_not_capable = { "Capable", "Not capable" };
 const true_false_string tfs_supported_not_supported = { "Supported", "Not supported" };
 const true_false_string tfs_used_notused = { "Used", "Not used" };
-
-/* 
- * Old true_false_string from packet.c
- * Retained for backward compatibility until all dissectors are updated.
- */
-const true_false_string flags_set_truth = { "Set", "Not set" };
-

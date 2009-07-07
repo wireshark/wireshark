@@ -57,10 +57,4 @@ WS_VAR_IMPORT const true_false_string tfs_capable_not_capable[];
 WS_VAR_IMPORT const true_false_string tfs_supported_not_supported[];
 WS_VAR_IMPORT const true_false_string tfs_used_notused[];
 
-/*
- * Old true_false_string from packet.c
- * Retained for backward compatibility until all dissectors are updated.
- */
-WS_VAR_IMPORT const true_false_string flags_set_truth[];
-
 #endif
