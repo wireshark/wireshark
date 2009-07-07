@@ -3057,6 +3057,10 @@ Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
 his well-written library. The Kazlib home page can be found at
 http://users.footprints.net/~kaz/kazlib.html
 
+We use Lua BitOp, written by Mike Pall, for bitwise operations
+on numbers in Lua. The Lua BitOp home page can be found at
+http://bitop.luajit.org/
+
 Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his
 webbrowser calling routine to be used.
 
