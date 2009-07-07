@@ -643,10 +643,8 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
                                 tvb, 0, 0, ack_data->ack_id);
       PROTO_ITEM_SET_GENERATED (en);
 
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
-                         ack_data->ack_id, ack_data->ack_resend_count);
-      }
+      col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
+                       ack_data->ack_id, ack_data->ack_resend_count);
     }
   }    
 }
@@ -754,10 +752,8 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
       item_added = TRUE;
 
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
-                         pkg_data->pdu_id, pkg_data->msg_resend_count);
-      }
+      col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
+                       pkg_data->pdu_id, pkg_data->msg_resend_count);
     }
   }
 
@@ -804,11 +800,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   GString     *message_id_list = NULL;
   nstime_t    ts;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
+  col_clear (pinfo->cinfo, COL_INFO);
 
   /* First fetch PDU Type */
   pdu_type = tvb_get_guint8 (tvb, offset + 3) & 0x3F;
@@ -1302,7 +1295,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           "Reassembled Data", frag_msg,
                                           &p_mul_frag_items, NULL, tree);
       
-      if (check_col (pinfo->cinfo, COL_INFO) && frag_msg)
+      if (frag_msg)
         col_append_str (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
  
       if (new_tvb) {

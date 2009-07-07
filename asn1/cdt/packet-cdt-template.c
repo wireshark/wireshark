@@ -85,10 +85,8 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tree = proto_item_add_subtree (cdt_item, ett_cdt_CompressedData);
   }
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "CDT");
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "CDT");
+  col_clear (pinfo->cinfo, COL_INFO);
 
   dissect_CompressedData_PDU (tvb, pinfo, tree);
 }

@@ -25,10 +25,9 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                           val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
                                       "unknown"));
 
-  if (check_col (actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", 
-                     val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
-                                 "unknown"));
+  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", 
+                   val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
+                               "unknown"));
 
 #.FN_PARS ContentType-ShortForm
   VAL_PTR = &content_type
@@ -40,10 +39,9 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                           val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
                                       "unknown"));
 
-  if (check_col (actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", 
-                     val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
-                                 "unknown"));
+  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", 
+                   val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
+                               "unknown"));
 
 #.FN_PARS CompressedContentInfo/contentType/contentType-OID
   FN_VARIANT = _str  VAL_PTR = &obj_id
@@ -61,8 +59,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
     proto_item_append_text (cdt_item, ", %%s", name);
 
-    if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", name);
+    col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", name);
   }
 
 #.FN_PARS CompressedContent
@@ -79,9 +76,8 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                               "[Error: Unable to get compressed content]");
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to get compressed content");
-    if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_str (actx->pinfo->cinfo, COL_INFO, 
-                       "[Error: Unable to get compressed content]");
+    col_append_str (actx->pinfo->cinfo, COL_INFO, 
+                    "[Error: Unable to get compressed content]");
     return offset;
   }
   
@@ -92,9 +88,8 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                               "[Error: Unable to uncompress content]");
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to uncompress content");
-    if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_str (actx->pinfo->cinfo, COL_INFO, 
-                       "[Error: Unable to uncompress content]");
+    col_append_str (actx->pinfo->cinfo, COL_INFO, 
+                    "[Error: Unable to uncompress content]");
     return offset;
   }
 

@@ -91,11 +91,8 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gint offset = 0;
   guint8 opcode;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear (pinfo->cinfo, COL_INFO);
 
   ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, FALSE);
   nat_pmp_tree = proto_item_add_subtree (ti, ett_nat_pmp);
@@ -108,8 +105,7 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, FALSE);
   offset++;
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_set_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
+  col_set_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
 
   switch (opcode) {
 

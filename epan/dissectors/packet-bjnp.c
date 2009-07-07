@@ -94,11 +94,8 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      dev_type, cmd_code;
   gchar      *info;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear (pinfo->cinfo, COL_INFO);
 
   ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, FALSE);
   bjnp_tree = proto_item_add_subtree (ti, ett_bjnp);
@@ -118,9 +115,7 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
 
   proto_item_append_text (ti, ", %s", info);
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_set_str (pinfo->cinfo, COL_INFO, info);
+  col_set_str (pinfo->cinfo, COL_INFO, info);
 
   g_free (info);
 

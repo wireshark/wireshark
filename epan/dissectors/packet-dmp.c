@@ -3452,11 +3452,8 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   gint        length, offset = 0;
   gboolean    retrans_or_dup_ack = FALSE;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DMP");
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "DMP");
+  col_clear (pinfo->cinfo, COL_INFO);
 
   /* Initialize global data structure */
   memset (&dmp, 0, sizeof (dmp));
@@ -3470,10 +3467,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.version > DMP_VERSION) {
     /* Unsupported DMP Version, no point to continue */
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-      col_add_fstr (pinfo->cinfo, COL_INFO, "Unsupported Version: %d",
-		    dmp.version);
-    }
+    col_add_fstr (pinfo->cinfo, COL_INFO, "Unsupported Version: %d", dmp.version);
     return;
   }
 
