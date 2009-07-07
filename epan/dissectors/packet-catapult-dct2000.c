@@ -97,6 +97,7 @@ static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
 /* Variables used for preferences */
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
+static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -620,7 +621,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
    the data to the RRC dissector, according to direction and channel type.
    TODO: factor out common code between this function and dissect_pdcp_lte() */
 static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
-                     packet_info *pinfo _U_, proto_tree *tree)
+                            packet_info *pinfo, proto_tree *tree)
 {
     guint8  tag;
     dissector_handle_t protocol_handle = 0;
@@ -1806,8 +1807,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             else
-            if ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
-                (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0))
+            if (catapult_dct2000_dissect_lte_rrc &&
+                ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
+                 (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0)))
             {
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
@@ -2483,5 +2485,13 @@ void proto_register_catapult_dct2000(void)
                                    "dissector matching the DCT2000 protocol name, "
                                    "try parsing the payload using that dissector",
                                    &catapult_dct2000_try_sctpprim_heuristic);
+
+    /* Determines whether LTE RRC messages should be dissected */
+    prefs_register_bool_preference(catapult_dct2000_module, "decode_lte_rrc",
+                                   "Attempt to decode LTE RRC frames",
+                                   "When set, attempt to decode LTE RRC frames. "
+                                   "Note that this won't affect other protocols "
+                                   "that also call the LTE RRC dissector",
+                                   &catapult_dct2000_dissect_lte_rrc);
 }
 
