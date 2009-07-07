@@ -880,18 +880,22 @@ class uint64(Type, CountingNumber):
 class boolean8(uint8):
 	type	= "boolean8"
 	ftype	= "FT_BOOLEAN"
+	disp	= "BASE_NONE"
 
 class boolean16(uint16):
 	type	= "boolean16"
 	ftype	= "FT_BOOLEAN"
+	disp	= "BASE_NONE"
 
 class boolean24(uint24):
 	type	= "boolean24"
 	ftype	= "FT_BOOLEAN"
+	disp	= "BASE_NONE"
 
 class boolean32(uint32):
 	type	= "boolean32"
 	ftype	= "FT_BOOLEAN"
+	disp	= "BASE_NONE"
 
 class nstring:
 	disp	= "BASE_NONE"
@@ -2019,7 +2023,6 @@ EnumInfoMask  		        = bitfield8("enum_info_mask", "Return Information Mask",
 ])
 
 eventOffset 			= bytes("event_offset", "Event Offset", 8)
-eventOffset.Display("BASE_HEX")
 eventTime 			= uint32("event_time", "Event Time")
 eventTime.Display("BASE_HEX")
 ExpirationTime			= uint32("expiration_time", "Expiration Time")
@@ -2271,7 +2274,6 @@ GetSetFlag			= val_string8("get_set_flag", "Get Set Flag", [
 	[ 0x01, "Set the default support module ID" ],
 ])
 GUID				= bytes("guid", "GUID", 16)
-GUID.Display("BASE_HEX")
 
 HandleFlag			= val_string8("handle_flag", "Handle Flag", [
 	[ 0x00, "Short Directory Handle" ],
@@ -3689,11 +3691,9 @@ SoftwareMajorVersionNumber	= uint8("software_major_version_number", "Software Ma
 SoftwareMinorVersionNumber	= uint8("software_minor_version_number", "Software Minor Version Number")
 SourceDirHandle			= uint8("source_dir_handle", "Source Directory Handle")
 sourceOriginateTime 		= bytes("source_originate_time", "Source Originate Time", 8)
-sourceOriginateTime.Display("BASE_HEX")
 SourcePath			= nstring8("source_path", "Source Path")
 SourcePathComponentCount 	= uint8("source_component_count", "Source Path Component Count")
 sourceReturnTime 		= bytes("source_return_time", "Source Return Time", 8)
-sourceReturnTime.Display("BASE_HEX")
 SpaceUsed 			= uint32("space_used", "Space Used")
 SpaceMigrated 			= uint32("space_migrated", "Space Migrated")
 SrcNameSpace 			= val_string8("src_name_space", "Source Name Space", [
@@ -3766,11 +3766,9 @@ TargetFileOffset		= uint32("target_file_offset", "Target File Offset")
 TargetMessage			= nstring8("target_message", "Message")
 TargetPrinter			= uint8( "target_ptr", "Target Printer" )
 targetReceiveTime 		= bytes("target_receive_time", "Target Receive Time", 8)
-targetReceiveTime.Display("BASE_HEX")
 TargetServerIDNumber		= uint32("target_server_id_number", "Target Server ID Number", BE )
 TargetServerIDNumber.Display("BASE_HEX")
 targetTransmitTime 		= bytes("target_transmit_time", "Target Transmit Time", 8)
-targetTransmitTime.Display("BASE_HEX")
 TaskNumByte			= uint8("task_num_byte", "Task Number")
 TaskNumber			= uint32("task_number", "Task Number")
 TaskNumberWord			= uint16("task_number_word", "Task Number")

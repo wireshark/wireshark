@@ -820,7 +820,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct, {
 				"Header control bits", "iwarp_rdma.term_hdrct",
-				FT_NONE, BASE_NONE, NULL, IWARP_HDRCT,
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Terminate Control Field: Header control bits", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_m, {
 				"M bit", "iwarp_rdma.term_hdrct_m",
