@@ -898,7 +898,7 @@ class boolean32(uint32):
 	disp	= "BASE_NONE"
 
 class nstring:
-	disp	= "BASE_NONE"
+	pass
 
 class nstring8(Type, nstring):
 	"""A string of up to (2^8)-1 characters. The first byte
@@ -906,6 +906,7 @@ class nstring8(Type, nstring):
 
 	type	= "nstring8"
 	ftype	= "FT_UINT_STRING"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, 1)
 
@@ -915,6 +916,7 @@ class nstring16(Type, nstring):
 
 	type	= "nstring16"
 	ftype	= "FT_UINT_STRING"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 2, endianness)
 
@@ -924,6 +926,7 @@ class nstring32(Type, nstring):
 
 	type	= "nstring32"
 	ftype	= "FT_UINT_STRING"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 
@@ -1007,7 +1010,7 @@ class bytes(Type):
 		Type.__init__(self, abbrev, descr, bytes, NA)
 
 class nbytes:
-	disp	= "BASE_NONE"
+	pass
 
 class nbytes8(Type, nbytes):
 	"""A series of up to (2^8)-1 bytes. The first byte
@@ -1015,6 +1018,7 @@ class nbytes8(Type, nbytes):
 
 	type	= "nbytes8"
 	ftype	= "FT_UINT_BYTES"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 1, endianness)
 
@@ -1024,6 +1028,7 @@ class nbytes16(Type, nbytes):
 
 	type	= "nbytes16"
 	ftype	= "FT_UINT_BYTES"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 2, endianness)
 
@@ -1033,6 +1038,7 @@ class nbytes32(Type, nbytes):
 
 	type	= "nbytes32"
 	ftype	= "FT_UINT_BYTES"
+	disp	= "BASE_NONE"
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 

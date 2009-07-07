@@ -215,6 +215,6 @@ extern gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent);
   { &(gi.hf.ctx_term_type), { "Type", n ".ctx.term.type", FT_UINT32, BASE_HEX, VALS(gcp_term_types), 0, NULL, HFILL }}, \
   { &(gi.hf.ctx_term_bir), { "BIR", n ".ctx.term.bir", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}, \
   { &(gi.hf.ctx_term_nsap), { "NSAP", n ".ctx.term.nsap", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }}, \
-  { &(gi.hf.ctx_cmd), { "Command in Frame", n ".ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }}
+  { &(gi.hf.ctx_cmd), { "Command in Frame", n ".ctx.cmd", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }}
 
 #endif
