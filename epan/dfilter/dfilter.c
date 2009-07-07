@@ -171,12 +171,6 @@ dfwork_new(void)
 	dfwork_t	*dfw;
 
 	dfw = g_new0(dfwork_t, 1);
-
-	dfw->st_root = NULL;
-	dfw->insns = NULL;
-	dfw->consts = NULL;
-	dfw->loaded_fields = NULL;
-	dfw->interesting_fields = NULL;
 	dfw->first_constant = -1;
 
 	return dfw;
