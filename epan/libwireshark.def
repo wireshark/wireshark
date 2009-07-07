@@ -399,7 +399,6 @@ find_protocol_by_id
 find_stream_circ
 find_tap_id
 find_val_for_string
-flags_set_truth                 DATA
 follow_stats
 format_text
 format_uri
