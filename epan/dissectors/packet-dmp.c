@@ -2144,8 +2144,7 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
 
   en = proto_tree_add_boolean_format (field_tree, hf_addr_ext_action, tvb,
 				      offset, 1, value, "Action: %s",
-				      action ? tfs_yes_no.true_string :
-				      tfs_yes_no.false_string);
+				      action ? "Yes" : "No");
   addr_tree = proto_item_add_subtree (en, ett_address_ext_action);
   proto_tree_add_item (addr_tree, hf_addr_ext_action, tvb, offset,
 		       1, FALSE);
@@ -2433,9 +2432,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (envelope_tree,hf_envelope_rec_present,
 					tvb, offset, 1, envelope,
 					"Recipient Present: %s",
-					(envelope & 0x20) ?
-					tfs_present_absent.true_string :
-					tfs_present_absent.false_string);
+					(envelope & 0x20) ? "Present" : "Absent");
     field_tree = proto_item_add_subtree (tf, ett_envelope_rec_present);
     proto_tree_add_item (field_tree, hf_envelope_rec_present, tvb,
 			 offset, 1, FALSE);
@@ -2456,9 +2453,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_boolean_format (envelope_tree, hf_envelope_checksum,
 				      tvb, offset, 1, envelope,
 				      "Checksum: %s",
-				      (envelope & 0x08) ?
-				      tfs_used_notused.true_string :
-				      tfs_used_notused.false_string);
+				      (envelope & 0x08) ? "Used" : "Not used");
   field_tree = proto_item_add_subtree (tf, ett_envelope_checksum);
   proto_tree_add_item (field_tree, hf_envelope_checksum, tvb,
 		       offset, 1, FALSE);
@@ -2474,8 +2469,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_envelope_type, tvb,
 		       offset, 1, FALSE);
 
-  proto_item_append_text (en, ", Checksum %s", (envelope >> 3) & 0x01 ?
-			  tfs_used_notused.true_string : tfs_used_notused.false_string);
+  proto_item_append_text (en, ", Checksum %s", (envelope >> 3) & 0x01 ? "Used" : "Not used");
   offset += 1;
 
   if (dmp.msg_type >= ACK) {
@@ -2827,9 +2821,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     info_present = (report & 0x40);
     tf = proto_tree_add_boolean_format (report_tree,hf_report_info_present_dr,
 					tvb, offset, 1, report,
-					"Info Present: %s", (report & 0x40) ?
-					tfs_present_absent.true_string :
-					tfs_present_absent.false_string);
+					"Info Present: %s", (report & 0x40) ? "Present" : "Absent");
     field_tree = proto_item_add_subtree (tf, ett_report_info_present_dr);
     proto_tree_add_item (field_tree, hf_report_info_present_dr, tvb,
 			 offset, 1, FALSE);
@@ -2913,9 +2905,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (report_tree,
 					hf_report_info_present_ndr,
 					tvb, offset, 1, report,
-					"Info Present: %s", (report & 0x80) ?
-					tfs_present_absent.true_string :
-					tfs_present_absent.false_string);
+					"Info Present: %s", (report & 0x80) ? "Present" : "Absent");
     field_tree = proto_item_add_subtree (tf, ett_report_info_present_ndr);
     proto_tree_add_item (field_tree, hf_report_info_present_ndr, tvb,
 			 offset, 1, FALSE);
