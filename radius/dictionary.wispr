@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 # dictionary.wispr
 #
@@ -13,19 +14,23 @@
 #
 #	http://www.weca.net/OpenSection/downloads/WISPr_V1.0.pdf
 
-VENDOR        WISPr        14122
+VENDOR		WISPr				14122
 
 #
 #    Standard attribute
 #
-ATTRIBUTE	WISPr-Location-ID			1	string	WISPr
-ATTRIBUTE	WISPr-Location-Name			2	string	WISPr
-ATTRIBUTE	WISPr-Logoff-URL			3	string	WISPr
-ATTRIBUTE	WISPr-Redirection-URL			4	string	WISPr
-ATTRIBUTE	WISPr-Bandwidth-Min-Up			5	integer	WISPr
-ATTRIBUTE	WISPr-Bandwidth-Min-Down		6	integer	WISPr
-ATTRIBUTE	WISPr-Bandwidth-Max-Up			7	integer	WISPr
-ATTRIBUTE	WISPr-Bandwidth-Max-Down		8	integer	WISPr
-ATTRIBUTE	WISPr-Session-Terminate-Time		9	string	WISPr
-ATTRIBUTE	WISPr-Session-Terminate-End-Of-Day	10	string	WISPr
-ATTRIBUTE	WISPr-Billing-Class-Of-Service		11	string	WISPr
+BEGIN-VENDOR	WISPr
+
+ATTRIBUTE	WISPr-Location-ID			1	string
+ATTRIBUTE	WISPr-Location-Name			2	string
+ATTRIBUTE	WISPr-Logoff-URL			3	string
+ATTRIBUTE	WISPr-Redirection-URL			4	string
+ATTRIBUTE	WISPr-Bandwidth-Min-Up			5	integer
+ATTRIBUTE	WISPr-Bandwidth-Min-Down		6	integer
+ATTRIBUTE	WISPr-Bandwidth-Max-Up			7	integer
+ATTRIBUTE	WISPr-Bandwidth-Max-Down		8	integer
+ATTRIBUTE	WISPr-Session-Terminate-Time		9	string
+ATTRIBUTE	WISPr-Session-Terminate-End-Of-Day	10	string
+ATTRIBUTE	WISPr-Billing-Class-Of-Service		11	string
+
+END-VENDOR	WISPr

@@ -1,21 +1,26 @@
+# -*- text -*-
 #
 # Version:	$Id$
 #
-VENDOR  Nomadix  3309
+VENDOR		Nomadix				3309
 #
-ATTRIBUTE	Nomadix-Bw-Up		1	integer		Nomadix
-ATTRIBUTE	Nomadix-Bw-Down		2	integer		Nomadix
-ATTRIBUTE	Nomadix-URL-Redirection	3	string		Nomadix
-ATTRIBUTE	Nomadix-IP-Upsell	4	integer		Nomadix
-ATTRIBUTE	Nomadix-Expiration	5	string		Nomadix
-ATTRIBUTE	Nomadix-Subnet		6	string		Nomadix
-ATTRIBUTE	Nomadix-MaxBytesUp	7	integer		Nomadix
-ATTRIBUTE	Nomadix-MaxBytesDown	8	integer		Nomadix
-ATTRIBUTE	Nomadix-EndofSession	9	integer		Nomadix
-ATTRIBUTE	Nomadix-Logoff-URL	10	string		Nomadix
-ATTRIBUTE	Nomadix-Net-VLAN	11	integer		Nomadix
-ATTRIBUTE	Nomadix-Config-URL	12	string		Nomadix
-ATTRIBUTE	Nomadix-Goodbye-URL	13	string		Nomadix
+BEGIN-VENDOR	Nomadix
 
-VALUE		Nomadix-Ip-Upsell	PrivatePool		0
-VALUE		Nomadix-Ip-Upsell	PublicPool		1
+ATTRIBUTE	Nomadix-Bw-Up				1	integer
+ATTRIBUTE	Nomadix-Bw-Down				2	integer
+ATTRIBUTE	Nomadix-URL-Redirection			3	string
+ATTRIBUTE	Nomadix-IP-Upsell			4	integer
+ATTRIBUTE	Nomadix-Expiration			5	string
+ATTRIBUTE	Nomadix-Subnet				6	string
+ATTRIBUTE	Nomadix-MaxBytesUp			7	integer
+ATTRIBUTE	Nomadix-MaxBytesDown			8	integer
+ATTRIBUTE	Nomadix-EndofSession			9	integer
+ATTRIBUTE	Nomadix-Logoff-URL			10	string
+ATTRIBUTE	Nomadix-Net-VLAN			11	integer
+ATTRIBUTE	Nomadix-Config-URL			12	string
+ATTRIBUTE	Nomadix-Goodbye-URL			13	string
+
+VALUE	Nomadix-IP-Upsell		PrivatePool		0
+VALUE	Nomadix-IP-Upsell		PublicPool		1
+
+END-VENDOR	Nomadix

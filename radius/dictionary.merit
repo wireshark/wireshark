@@ -1,13 +1,15 @@
+# -*- text -*-
 #
 #	For Merit.
 #
 #	$Id$
 #
-VENDOR		Merit	61
+VENDOR		Merit				61
 
-ATTRIBUTE	Merit-Proxy-Action           	211     string	Merit
-ATTRIBUTE	Merit-User-Id                 	222     string	Merit
-ATTRIBUTE	Merit-User-Realm              	223     string	Merit
+BEGIN-VENDOR	Merit
 
+ATTRIBUTE	Merit-Proxy-Action			211	string
+ATTRIBUTE	Merit-User-Id				222	string
+ATTRIBUTE	Merit-User-Realm			223	string
 
-
+END-VENDOR	Merit

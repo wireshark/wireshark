@@ -1,3 +1,4 @@
+# -*- text -*-
 ##############################################################################
 #
 #               XEDIA, AP series routers
@@ -6,11 +7,17 @@
 #	$Id$
 #
 #############################################################################
-VENDOR          Xedia           838
+VENDOR		Xedia				838
 
-ATTRIBUTE       Xedia-DNS-Server        1       ipaddr  	Xedia
-ATTRIBUTE       Xedia-NetBios-Server    2       ipaddr  	Xedia
-ATTRIBUTE       Xedia-Address-Pool      3       string  	Xedia
-ATTRIBUTE       Xedia-PPP-Echo-Interval 4       integer 	Xedia
-ATTRIBUTE       Xedia-SSH-Privileges    5       integer 	Xedia
-ATTRIBUTE       Xedia-Client-Access-Network     6       string  Xedia
+BEGIN-VENDOR	Xedia
+
+ATTRIBUTE	Xedia-DNS-Server			1	ipaddr
+ATTRIBUTE	Xedia-NetBios-Server			2	ipaddr
+ATTRIBUTE	Xedia-Address-Pool			3	string
+ATTRIBUTE	Xedia-PPP-Echo-Interval			4	integer
+ATTRIBUTE	Xedia-SSH-Privileges			5	integer
+ATTRIBUTE	Xedia-Client-Access-Network		6	string
+ATTRIBUTE	Xedia-Client-Firewall-Setting		7	integer
+ATTRIBUTE	Xedia-Save-Password			8	integer
+
+END-VENDOR	Xedia

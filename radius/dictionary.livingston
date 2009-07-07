@@ -1,59 +1,64 @@
+# -*- text -*-
 #
 # Vendor-Specific attributes use the SMI Network Management Private
 # Enterprise Code from the "Assigned Numbers" RFC
 #
-VENDOR		Livingston	307
+VENDOR		Livingston			307
 
 #
 # Livingston Vendor-Specific Attributes (requires ComOS 3.8)
 #
-ATTRIBUTE	LE-Terminate-Detail		2	string	Livingston
-ATTRIBUTE	LE-Advice-of-Charge		3	string	Livingston
-ATTRIBUTE	LE-Connect-Detail		4	string	Livingston
+BEGIN-VENDOR	Livingston
 
-ATTRIBUTE	LE-IP-Pool			6	string	Livingston
-ATTRIBUTE	LE-IP-Gateway			7	ipaddr	Livingston
-ATTRIBUTE	LE-Modem-Info			8	string	Livingston
-ATTRIBUTE	LE-IPSec-Log-Options		9	integer	Livingston
-ATTRIBUTE	LE-IPSec-Deny-Action		10	integer	Livingston
-ATTRIBUTE	LE-IPSec-Active-Profile		11	string	Livingston
-ATTRIBUTE	LE-IPSec-Outsource-Profile	12	string	Livingston
-ATTRIBUTE	LE-IPSec-Passive-Profile	13	string	Livingston
-ATTRIBUTE	LE-NAT-TCP-Session-Timeout	14	integer	Livingston
-ATTRIBUTE	LE-NAT-Other-Session-Timeout	15	integer	Livingston
-ATTRIBUTE	LE-NAT-Log-Options		16	integer	Livingston
-ATTRIBUTE	LE-NAT-Sess-Dir-Fail-Action	17	integer	Livingston
-ATTRIBUTE	LE-NAT-Inmap			18	string	Livingston
-ATTRIBUTE	LE-NAT-Outmap			19	string	Livingston
-ATTRIBUTE	LE-NAT-Outsource-Inmap		20	string	Livingston
-ATTRIBUTE	LE-NAT-Outsource-Outmap		21	string	Livingston
-ATTRIBUTE	LE-Admin-Group			22	string	Livingston
-ATTRIBUTE	LE-Multicast-Client		23	integer	Livingston
+ATTRIBUTE	LE-Terminate-Detail			2	string
+ATTRIBUTE	LE-Advice-of-Charge			3	string
+ATTRIBUTE	LE-Connect-Detail			4	string
 
-VALUE		LE-IPSec-Deny-Action		Drop			1
-VALUE		LE-IPSec-Deny-Action		ICMP-Reject		2
-VALUE		LE-IPSec-Deny-Action		Pass-Through		3
+ATTRIBUTE	LE-IP-Pool				6	string
+ATTRIBUTE	LE-IP-Gateway				7	ipaddr
+ATTRIBUTE	LE-Modem-Info				8	string
+ATTRIBUTE	LE-IPSec-Log-Options			9	integer
+ATTRIBUTE	LE-IPSec-Deny-Action			10	integer
+ATTRIBUTE	LE-IPSec-Active-Profile			11	string
+ATTRIBUTE	LE-IPSec-Outsource-Profile		12	string
+ATTRIBUTE	LE-IPSec-Passive-Profile		13	string
+ATTRIBUTE	LE-NAT-TCP-Session-Timeout		14	integer
+ATTRIBUTE	LE-NAT-Other-Session-Timeout		15	integer
+ATTRIBUTE	LE-NAT-Log-Options			16	integer
+ATTRIBUTE	LE-NAT-Sess-Dir-Fail-Action		17	integer
+ATTRIBUTE	LE-NAT-Inmap				18	string
+ATTRIBUTE	LE-NAT-Outmap				19	string
+ATTRIBUTE	LE-NAT-Outsource-Inmap			20	string
+ATTRIBUTE	LE-NAT-Outsource-Outmap			21	string
+ATTRIBUTE	LE-Admin-Group				22	string
+ATTRIBUTE	LE-Multicast-Client			23	integer
 
-VALUE		LE-IPSec-Log-Options		SA-Success-On		1
-VALUE		LE-IPSec-Log-Options		SA-Failure-On		2
-VALUE		LE-IPSec-Log-Options		Console-On		3
-VALUE		LE-IPSec-Log-Options		Syslog-On		4
-VALUE		LE-IPSec-Log-Options		SA-Success-Off		5
-VALUE		LE-IPSec-Log-Options		SA-Failure-Off		6
-VALUE		LE-IPSec-Log-Options		Console-Off		7
-VALUE		LE-IPSec-Log-Options		Syslog-Off		8
+VALUE	LE-IPSec-Deny-Action		Drop			1
+VALUE	LE-IPSec-Deny-Action		ICMP-Reject		2
+VALUE	LE-IPSec-Deny-Action		Pass-Through		3
 
-VALUE		LE-NAT-Sess-Dir-Fail-Action	Drop			1
-VALUE		LE-NAT-Sess-Dir-Fail-Action	ICMP-Reject		2
-VALUE		LE-NAT-Sess-Dir-Fail-Action	Pass-Through		3
+VALUE	LE-IPSec-Log-Options		SA-Success-On		1
+VALUE	LE-IPSec-Log-Options		SA-Failure-On		2
+VALUE	LE-IPSec-Log-Options		Console-On		3
+VALUE	LE-IPSec-Log-Options		Syslog-On		4
+VALUE	LE-IPSec-Log-Options		SA-Success-Off		5
+VALUE	LE-IPSec-Log-Options		SA-Failure-Off		6
+VALUE	LE-IPSec-Log-Options		Console-Off		7
+VALUE	LE-IPSec-Log-Options		Syslog-Off		8
 
-VALUE		LE-NAT-Log-Options		Session-Success-On	1
-VALUE		LE-NAT-Log-Options		Session-Failure-On	2
-VALUE		LE-NAT-Log-Options		Console-On		3
-VALUE		LE-NAT-Log-Options		Syslog-On		4
-VALUE		LE-NAT-Log-Options		Success-Off		5
-VALUE		LE-NAT-Log-Options		Failure-Off		6
-VALUE		LE-NAT-Log-Options		Console-Off		7
-VALUE		LE-NAT-Log-Options		Syslog-Off		8
+VALUE	LE-NAT-Sess-Dir-Fail-Action	Drop			1
+VALUE	LE-NAT-Sess-Dir-Fail-Action	ICMP-Reject		2
+VALUE	LE-NAT-Sess-Dir-Fail-Action	Pass-Through		3
 
-VALUE		LE-Multicast-Client		On			1
+VALUE	LE-NAT-Log-Options		Session-Success-On	1
+VALUE	LE-NAT-Log-Options		Session-Failure-On	2
+VALUE	LE-NAT-Log-Options		Console-On		3
+VALUE	LE-NAT-Log-Options		Syslog-On		4
+VALUE	LE-NAT-Log-Options		Success-Off		5
+VALUE	LE-NAT-Log-Options		Failure-Off		6
+VALUE	LE-NAT-Log-Options		Console-Off		7
+VALUE	LE-NAT-Log-Options		Syslog-Off		8
+
+VALUE	LE-Multicast-Client		On			1
+
+END-VENDOR	Livingston

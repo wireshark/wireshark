@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 # dictionary.bristol
 #
@@ -6,13 +7,17 @@
 # Version:      $Id$
 #
 
-VENDOR          Bristol          4363
+VENDOR		Bristol				4363
 
 #
 #       Standard attribute
 #
-ATTRIBUTE	NN-Data-Rate			1	integer	Bristol
-ATTRIBUTE	NN-Data-Rate-Ceiling		2	integer	Bristol
-ATTRIBUTE	NN-Homenode			3	ipaddr	Bristol
-ATTRIBUTE	NN-Homeservice			4	ipaddr	Bristol
-ATTRIBUTE	NN-Homeservice-Name		5	string	Bristol
+BEGIN-VENDOR	Bristol
+
+ATTRIBUTE	NN-Data-Rate				1	integer
+ATTRIBUTE	NN-Data-Rate-Ceiling			2	integer
+ATTRIBUTE	NN-Homenode				3	ipaddr
+ATTRIBUTE	NN-Homeservice				4	ipaddr
+ATTRIBUTE	NN-Homeservice-Name			5	string
+
+END-VENDOR	Bristol

@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 # dictionary.navini
 #
@@ -7,9 +8,13 @@
 # Version:      $Id$
 #
 
-VENDOR          Navini          6504
+VENDOR		Navini				6504
 
 #
 #       Standard attribute
 #
-ATTRIBUTE       Navini-AVPair           1       string          Navini
+BEGIN-VENDOR	Navini
+
+ATTRIBUTE	Navini-AVPair				1	string
+
+END-VENDOR	Navini

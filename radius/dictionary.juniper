@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 #  dictionary.juniper
 #
@@ -6,10 +7,14 @@
 # Version:	$Id$
 #
 
-VENDOR		Juniper		2636
+VENDOR		Juniper				2636
 
-ATTRIBUTE       Juniper-Local-User-Name		1	string		Juniper
-ATTRIBUTE       Juniper-Allow-Commands		2	string		Juniper
-ATTRIBUTE       Juniper-Deny-Commands		3	string		Juniper
-ATTRIBUTE       Juniper-Allow-Configuration	4	string		Juniper
-ATTRIBUTE       Juniper-Deny-Configuration	5	string		Juniper
+BEGIN-VENDOR	Juniper
+
+ATTRIBUTE	Juniper-Local-User-Name			1	string
+ATTRIBUTE	Juniper-Allow-Commands			2	string
+ATTRIBUTE	Juniper-Deny-Commands			3	string
+ATTRIBUTE	Juniper-Allow-Configuration		4	string
+ATTRIBUTE	Juniper-Deny-Configuration		5	string
+
+END-VENDOR	Juniper

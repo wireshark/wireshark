@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 #  dictionary.foundry
 #
@@ -6,25 +7,30 @@
 # Version:	$Id$
 #
 
-VENDOR		Foundry		1991
+VENDOR		Foundry				1991
 
-ATTRIBUTE       Foundry-Privilege-Level		1	integer		Foundry
-ATTRIBUTE       Foundry-Command-String		2	string		Foundry
-ATTRIBUTE       Foundry-Command-Exception-Flag	3	integer		Foundry
-ATTRIBUTE	Foundry-INM-Privilege		4	integer		Foundry
-VALUE		Foundry-INM-Privilege	AAA_pri_0	0
-VALUE		Foundry-INM-Privilege	AAA_pri_1	1
-VALUE		Foundry-INM-Privilege	AAA_pri_2	2
-VALUE		Foundry-INM-Privilege	AAA_pri_3	3
-VALUE		Foundry-INM-Privilege	AAA_pri_4	4
-VALUE		Foundry-INM-Privilege	AAA_pri_5	5
-VALUE		Foundry-INM-Privilege	AAA_pri_6	6
-VALUE		Foundry-INM-Privilege	AAA_pri_7	7
-VALUE		Foundry-INM-Privilege	AAA_pri_8	8
-VALUE		Foundry-INM-Privilege	AAA_pri_9	9
-VALUE		Foundry-INM-Privilege	AAA_pri_10	10
-VALUE		Foundry-INM-Privilege	AAA_pri_11	11
-VALUE		Foundry-INM-Privilege	AAA_pri_12	12
-VALUE		Foundry-INM-Privilege	AAA_pri_13	13
-VALUE		Foundry-INM-Privilege	AAA_pri_14	14
-VALUE		Foundry-INM-Privilege	AAA_pri_15	15
+BEGIN-VENDOR	Foundry
+
+ATTRIBUTE	Foundry-Privilege-Level			1	integer
+ATTRIBUTE	Foundry-Command-String			2	string
+ATTRIBUTE	Foundry-Command-Exception-Flag		3	integer
+ATTRIBUTE	Foundry-INM-Privilege			4	integer
+
+VALUE	Foundry-INM-Privilege		AAA_pri_0		0
+VALUE	Foundry-INM-Privilege		AAA_pri_1		1
+VALUE	Foundry-INM-Privilege		AAA_pri_2		2
+VALUE	Foundry-INM-Privilege		AAA_pri_3		3
+VALUE	Foundry-INM-Privilege		AAA_pri_4		4
+VALUE	Foundry-INM-Privilege		AAA_pri_5		5
+VALUE	Foundry-INM-Privilege		AAA_pri_6		6
+VALUE	Foundry-INM-Privilege		AAA_pri_7		7
+VALUE	Foundry-INM-Privilege		AAA_pri_8		8
+VALUE	Foundry-INM-Privilege		AAA_pri_9		9
+VALUE	Foundry-INM-Privilege		AAA_pri_10		10
+VALUE	Foundry-INM-Privilege		AAA_pri_11		11
+VALUE	Foundry-INM-Privilege		AAA_pri_12		12
+VALUE	Foundry-INM-Privilege		AAA_pri_13		13
+VALUE	Foundry-INM-Privilege		AAA_pri_14		14
+VALUE	Foundry-INM-Privilege		AAA_pri_15		15
+
+END-VENDOR	Foundry

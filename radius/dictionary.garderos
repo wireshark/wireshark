@@ -1,3 +1,4 @@
+# -*- text -*-
 #
 # dictionary.garderos
 #
@@ -7,10 +8,16 @@
 #
 #	http://www.garderos.com
 
-VENDOR	Garderos	16108
+VENDOR		Garderos			16108
 
 #
 #    Standard attribute
 #
-ATTRIBUTE	Garderos-Location-Name		1	string	Garderos
-ATTRIBUTE	Garderos-Service-Name		2	string	Garderos
+BEGIN-VENDOR	Garderos
+
+ATTRIBUTE	Garderos-Location-Name			1	string
+ATTRIBUTE	Garderos-Service-Name			2	string
+ATTRIBUTE	Garderos-MSISDN				3	string
+ATTRIBUTE	Garderos-Proxy				4	string
+
+END-VENDOR	Garderos
