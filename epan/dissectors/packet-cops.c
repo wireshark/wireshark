@@ -14,7 +14,7 @@
  *    Based on PKT-SP-DQOS-I09-040402 (April 2, 2004)
  *
  *    PacketCable Multimedia Specification
- *    Based on PKT-SP-MM-I02-040930
+ *    Based on PKT-SP-MM-I04-080522
  *
  *    www.packetcable.com
  *
@@ -3230,15 +3230,17 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 	offset += 2;
     }
 
+    if (extended) {
+	/* ClassifierID */
+	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
+	offset += 2;
+    }
+    
     /* Priority */
     info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
     offset += 1;
 
     if (extended) {
-	/* ClassifierID */
-	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
-	offset += 2;
-
 	/* Activation State */
 	info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
 	offset += 1;
