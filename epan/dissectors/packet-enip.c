@@ -1340,12 +1340,12 @@ proto_register_enip(void)
       /* Request/Response Matching */
       { &hf_enip_response_in,
          { "Response In", "enip.response_in",
-         FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
          "The response to this ENIP request is in this frame", HFILL }
       },
       { &hf_enip_response_to,
          { "Request In", "enip.response_to",
-         FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
          "This is a response to the ENIP request in this frame", HFILL }
       },
       { &hf_enip_time,

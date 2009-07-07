@@ -3490,7 +3490,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sourceuuid,
             { "sourceUuid",           "ptp.sourceuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_sourceportid,
@@ -3584,7 +3584,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_grandmasterclockuuid,
             { "grandMasterClockUuid",           "ptp.sdr.grandmasterclockuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_sdr_grandmasterportid,
@@ -3654,7 +3654,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_sdr_parentuuid,
             { "parentUuid",           "ptp.sdr.parentuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_sdr_parentportfield,
@@ -3721,7 +3721,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_dr_requestingsourceuuid,
             { "requestingSourceUuid",           "ptp.dr.requestingsourceuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_dr_requestingsourceportid,
@@ -3742,7 +3742,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_targetuuid,
             { "targetUuid",           "ptp.mm.targetuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_targetportid,
@@ -3784,7 +3784,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_clock_identity_clockuuidfield,
             { "clockUuidField",           "ptp.mm.clock.identity.clockuuidfield",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_clock_identity_clockportfield,
@@ -3818,7 +3818,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_default_data_set_clockuuidfield,
             { "clockUuidField",           "ptp.mm.default.data.set.clockuuidfield",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_default_data_set_clockportfield,
@@ -3961,7 +3961,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_parentuuid,
             { "parentUuid",           "ptp.mm.parent.data.set.parentuuid",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_parentportid,
@@ -4016,7 +4016,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_parent_data_set_grandmasteruuidfield,
             { "grandmasterUuidField",           "ptp.mm.parent.data.set.grandmasteruuidfield",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_parent_data_set_grandmasterportidfield,
@@ -4082,7 +4082,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_port_data_set_portuuidfield,
             { "portUuidField",           "ptp.mm.port.data.set.portuuidfield",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_port_data_set_portidfield,
@@ -4207,7 +4207,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_mm_foreign_data_set_foreignmasteruuidfield,
             { "foreignMasterUuidField",           "ptp.mm.foreign.data.set.foreignmasteruuidfield",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_mm_foreign_data_set_foreignmasterportidfield,
@@ -4355,7 +4355,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_correctionsubns,
             { "correctionSubNs",           "ptp.v2.correction.subns",
-            FT_DOUBLE, BASE_DEC, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_clockidentity,
@@ -5057,7 +5057,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_offset_subns,
             { "SubNs",           "ptp.v2.mm.offset.subns",
-            FT_DOUBLE, BASE_DEC, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_ns,
@@ -5067,7 +5067,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_pathDelay_subns,
             { "SubNs",           "ptp.v2.mm.pathDelay.subns",
-            FT_DOUBLE, BASE_DEC, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_PortNumber,
@@ -5092,7 +5092,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_subns,
                 { "SubNs",           "ptp.v2.mm.peerMeanPathDelay.subns",
-                FT_DOUBLE, BASE_DEC, NULL, 0x00,
+                FT_DOUBLE, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logAnnounceInterval,

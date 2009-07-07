@@ -236,7 +236,7 @@ proto_register_rmp(void)
 		{ "Machine Type", "rmp.machtype", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_rmp_filename,
-		{ "Filename", "rmp.filename", FT_UINT_STRING, BASE_DEC,
+		{ "Filename", "rmp.filename", FT_UINT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_rmp_offset,
 		{ "Offset", "rmp.offset", FT_UINT32, BASE_HEX,

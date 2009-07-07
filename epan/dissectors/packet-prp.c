@@ -288,12 +288,12 @@ void proto_register_prp(void)
         },
         { &hf_prp_supervision_frame_source_mac_address_A,
             { "sourceMacAddressA", "prp.supervision_frame.prp_source_mac_address_A",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_prp_supervision_frame_source_mac_address_B,
             { "sourceMacAddressB", "prp.supervision_frame.prp_source_mac_address_B",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 	{ &hf_prp_supervision_frame_type2,
@@ -308,12 +308,12 @@ void proto_register_prp(void)
         },
         { &hf_prp_supervision_frame_red_box_mac_address,
             { "redBoxMacAddress", "prp.supervision_frame.prp_red_box_mac_address",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_prp_supervision_frame_vdan_mac_address,
             { "vdanMacAddress", "prp.supervision_frame.prp_vdan_mac_address",
-            FT_ETHER, BASE_DEC, NULL, 0x00,
+            FT_ETHER, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 

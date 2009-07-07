@@ -1125,7 +1125,7 @@ proto_register_bpdu(void)
       	NULL, HFILL }},
     { &hf_bpdu_msti_regional_root_mac,
       { "Regional Root",		"mstp.msti.root.hw",
-	FT_ETHER,	BASE_DEC,	NULL,	0x0,
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	NULL, HFILL }},
     { &hf_bpdu_msti_internal_root_path_cost,
       { "Internal root path cost",		"mstp.msti.root_cost",

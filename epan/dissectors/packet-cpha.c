@@ -516,7 +516,7 @@ proto_register_cpha(void)
     { &hf_num_reported_ifs,
     { "Reported Interfaces", "cpha.reported_ifs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ethernet_add,
-    { "Ethernet Address", "cpha.ethernet_addr", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    { "Ethernet Address", "cpha.ethernet_addr", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_is_if_trusted,
     { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_ip,

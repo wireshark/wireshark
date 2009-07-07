@@ -1146,7 +1146,7 @@ ipmi_register_app(gint proto_ipmi)
 
 		{ &hf_ipmi_app_08_guid,
 			{ "GUID",
-				"ipmi.app08.guid", FT_GUID, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.app08.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_ipmi_app_24_timer_use_dont_log,
 			{ "Don't log",

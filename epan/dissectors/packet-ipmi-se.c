@@ -3062,7 +3062,7 @@ ipmi_register_se(gint proto_ipmi)
 				"ipmi.cp10.useval", FT_BOOLEAN, 8, TFS(&cp10_use_tfs), 0x01, NULL, HFILL }},
 		{ &hf_ipmi_se_cp10_guid,
 			{ "GUID",
-				"ipmi.cp10.guid", FT_GUID, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.cp10.guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_se_cp11_num_alertstr,
 			{ "Number of Alert Strings",
 				"ipmi.cp11.num_alertstr", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},

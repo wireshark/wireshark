@@ -1612,7 +1612,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_mac_address, 
       { "MAC", "wps.mac_address", 
-        FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_manufacturer, 
       { "Manufacturer", "wps.manufacturer", 

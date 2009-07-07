@@ -1729,7 +1729,7 @@ proto_register_alcap(void)
     { &hf_alcap_leg_sugr, { "Leg's SUGR",    "alcap.leg.sugr", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_dnsea, { "Leg's destination NSAP",    "alcap.leg.dnsea", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_onsea, { "Leg's originating NSAP",    "alcap.leg.onsea", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_frame, { "a message of this leg",    "alcap.leg.msg", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_alcap_leg_frame, { "a message of this leg",    "alcap.leg.msg", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_release_cause, { "Leg's cause value in REL",    "alcap.leg.cause", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0, NULL, HFILL }},
         
     };

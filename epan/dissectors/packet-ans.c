@@ -128,7 +128,7 @@ proto_register_ans(void)
 		},
 		{ &hf_ans_team_id,
 			{ "Team ID", "ans.team_id",
-				FT_ETHER, BASE_HEX, NULL, 0,
+				FT_ETHER, BASE_NONE, NULL, 0,
 				"Intel ANS Team ID", HFILL }
 		},
 	};

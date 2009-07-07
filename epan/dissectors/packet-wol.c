@@ -301,7 +301,7 @@ proto_register_wol(void)
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_wol_mac,
             { "MAC", "wol.mac",
-            FT_ETHER, BASE_HEX, NULL, 0, NULL, HFILL }},
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_wol_passwd,
             { "Password", "wol.passwd",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}

@@ -2067,7 +2067,7 @@ proto_register_artnet(void) {
     { &hf_artnet_poll_reply_mac,
       { "MAC",
         "artnet.poll_reply.mac",
-        FT_ETHER, BASE_HEX, NULL, 0x0,
+        FT_ETHER, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     /* ArtOutput */

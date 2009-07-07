@@ -398,7 +398,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_naun,
-		{ "NAUN",				"trmac.naun", FT_ETHER, BASE_DEC, NULL, 0x0,
+		{ "NAUN",				"trmac.naun", FT_ETHER, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
         };
 	static gint *ett[] = {

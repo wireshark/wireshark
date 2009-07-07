@@ -489,7 +489,7 @@ proto_register_tzsp(void)
 			"Unknown tag", "tzsp.unknown", FT_BYTES, BASE_NONE,
 			NULL, 0, "Unknown", HFILL }},
 		{ &hf_sensormac, {
-			"Sensor Address", "tzsp.sensormac", FT_ETHER, BASE_HEX,
+			"Sensor Address", "tzsp.sensormac", FT_ETHER, BASE_NONE,
 			NULL, 0, "Sensor MAC", HFILL }}
 	};
 

@@ -3859,7 +3859,7 @@ proto_register_rtcp(void)
 				"MOS - Listening Quality",
 				"rtcp.xr.voipmetrics.moslq",
 				FT_FLOAT,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
@@ -3871,7 +3871,7 @@ proto_register_rtcp(void)
 				"MOS - Conversational Quality",
 				"rtcp.xr.voipmetrics.moscq",
 				FT_FLOAT,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL

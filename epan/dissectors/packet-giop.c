@@ -4269,7 +4269,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_double,
       { "TypeCode double data", "giop.tcdouble",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, NULL, HFILL }
+	FT_DOUBLE, BASE_NONE,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_enum,
@@ -4283,7 +4283,7 @@ proto_register_giop (void)
 
     { &hf_giop_type_float,
       { "TypeCode float data", "giop.tcfloat",
-	FT_DOUBLE, BASE_DEC,  NULL, 0x0, NULL, HFILL }
+	FT_DOUBLE, BASE_NONE,  NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_giop_type_long,

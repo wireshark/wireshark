@@ -653,10 +653,10 @@ proto_register_linx(void)
 			{ "Publish Conn ID", "linx.publcid", FT_UINT32, BASE_DEC, NULL, 0x000000ff, NULL, HFILL },
 		},
 		{ &hf_linx_conn_srcmac, /* in ETHCM_CONN */
-			{ "Source", "linx.srcmaddr_ether", FT_ETHER, BASE_DEC, NULL, 0x0, "Source Media Address (ethernet)", HFILL },
+			{ "Source", "linx.srcmaddr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, "Source Media Address (ethernet)", HFILL },
 		},
 		{ &hf_linx_conn_dstmac, /* in ETHCM_CONN */
-			{ "Destination", "linx.destmaddr_ether", FT_ETHER, BASE_DEC, NULL, 0x0, "Destination Media Address (ethernet)", HFILL },
+			{ "Destination", "linx.destmaddr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, "Destination Media Address (ethernet)", HFILL },
 		},
 		{ &hf_linx_conn_feat_neg_str, /* in ETHCM_CONN */
 		        { "Feature Negotiation String", "linx.feat_neg_str", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL },

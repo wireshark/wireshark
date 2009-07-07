@@ -490,11 +490,11 @@ void proto_register_ros(void) {
   {
     { &hf_ros_response_in,
       { "Response In", "ros.response_in",
-	FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+	FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"The response to this remote operation invocation is in this frame", HFILL }},
     { &hf_ros_response_to,
       { "Response To", "ros.response_to",
-	FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+	FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"This is a response to the remote operation invocation in this frame", HFILL }},
     { &hf_ros_time,
       { "Time", "ros.time",

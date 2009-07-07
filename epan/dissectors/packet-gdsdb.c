@@ -1510,7 +1510,7 @@ proto_register_gdsdb(void)
 		/* gdsdb_open_blob2 */
 		{ &hf_gdsdb_openblob2_bpb,
 			{ "Blob parameter block", "gdsdb.openblob2.bpb",
-			FT_UINT_STRING, BASE_DEC, NULL, 0x0,
+			FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		/* gdsdb_open_blob */

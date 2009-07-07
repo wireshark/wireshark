@@ -9942,7 +9942,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, NULL, HFILL }},
 
     {&ff_beacon_interval,
-     {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
+     {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_fixed_parameters,

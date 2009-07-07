@@ -3717,10 +3717,10 @@ proto_register_rpc(void)
 			"Duplicate Call/Reply", "rpc.dup", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_call_dup, {
-			"Duplicate to the call in", "rpc.call.dup", FT_FRAMENUM, BASE_DEC,
+			"Duplicate to the call in", "rpc.call.dup", FT_FRAMENUM, BASE_NONE,
 			NULL, 0, "This is a duplicate to the call in frame", HFILL }},
 		{ &hf_rpc_reply_dup, {
-			"Duplicate to the reply in", "rpc.reply.dup", FT_FRAMENUM, BASE_DEC,
+			"Duplicate to the reply in", "rpc.reply.dup", FT_FRAMENUM, BASE_NONE,
 			NULL, 0, "This is a duplicate to the reply in frame", HFILL }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,

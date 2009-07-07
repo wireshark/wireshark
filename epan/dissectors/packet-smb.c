@@ -19047,11 +19047,11 @@ proto_register_smb(void)
 		TFS(&tfs_pipe_info_flag), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_logged_in,
-	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_DEC,
+	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_logged_out,
-	  { "Logged Out", "smb.logged_out", FT_FRAMENUM, BASE_DEC,
+	  { "Logged Out", "smb.logged_out", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_offset,

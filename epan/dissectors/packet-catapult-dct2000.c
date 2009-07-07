@@ -2191,7 +2191,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_timestamp,
             { "Timestamp",
-              "dct2000.timestamp", FT_DOUBLE, BASE_DEC, NULL, 0x0,
+              "dct2000.timestamp", FT_DOUBLE, BASE_NONE, NULL, 0x0,
               "File timestamp", HFILL
             }
         },

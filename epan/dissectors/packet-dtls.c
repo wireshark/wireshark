@@ -1977,7 +1977,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_record_sequence_number,
       { "Sequence Number", "dtls.record.sequence_number",
-	FT_DOUBLE, BASE_DEC, NULL, 0x0,
+	FT_DOUBLE, BASE_NONE, NULL, 0x0,
 	NULL, HFILL }
     },
     { &hf_dtls_record_length,

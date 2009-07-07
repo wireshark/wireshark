@@ -6620,9 +6620,9 @@ void proto_register_gtp(void)
     static hf_register_info hf_gtp[] = {
 
 	{&hf_gtp_response_in,
-	 {"Response In", "gtp.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "The response to this GTP request is in this frame", HFILL}},
+	 {"Response In", "gtp.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The response to this GTP request is in this frame", HFILL}},
 	{&hf_gtp_response_to,
-	 {"Response To", "gtp.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "This is a response to the GTP request in this frame", HFILL}},
+	 {"Response To", "gtp.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "This is a response to the GTP request in this frame", HFILL}},
 	{&hf_gtp_time, {"Time", "gtp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL}},
 	{&hf_gtp_apn, {"APN", "gtp.apn", FT_STRING, BASE_NONE, NULL, 0, "Access Point Name", HFILL}},
 	{&hf_gtp_cause, {"Cause", "gtp.cause", FT_UINT8, BASE_DEC, VALS(cause_type), 0, "Cause of operation", HFILL}},

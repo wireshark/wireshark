@@ -1412,8 +1412,8 @@ proto_register_ipmi(void)
 		{ &hf_ipmi_header_completion, { "Completion Code", "ipmi.header.completion", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_header_sig, { "Signature", "ipmi.header.signature", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_data_crc, { "Data checksum", "ipmi.data.crc", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-		{ &hf_ipmi_response_to, { "Response to", "ipmi.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }},
-		{ &hf_ipmi_response_in, { "Response in", "ipmi.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_response_to, { "Response to", "ipmi.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_response_in, { "Response in", "ipmi.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_response_time, { "Responded in", "ipmi.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_bad_checksum, { "Bad checksum", "ipmi.bad_checksum", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};

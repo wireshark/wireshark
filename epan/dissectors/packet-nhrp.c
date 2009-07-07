@@ -940,7 +940,7 @@ proto_register_nhrp(void)
 		{ &hf_nhrp_src_nbma_addr,
 		  { "Source NBMA Address",			"nhrp.src.nbma.addr",FT_IPv4, 	BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_src_nbma_saddr,
-		  { "Source NBMA Sub Address",		"nhrp.src.nbma.saddr",FT_UINT_BYTES,BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "Source NBMA Sub Address",		"nhrp.src.nbma.saddr",FT_UINT_BYTES,BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_src_prot_addr,
 		  { "Source Protocol Address",		"nhrp.src.prot.addr",FT_IPv4, 	BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_dst_prot_addr,
@@ -975,7 +975,7 @@ proto_register_nhrp(void)
 		{ &hf_nhrp_client_nbma_addr,
 		  { "Client NBMA Address",		"nhrp.client.nbma.addr", FT_IPv4, 		BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_client_nbma_saddr,
-		  { "Client NBMA Sub Address",	"nhrp.client.nbma.saddr",FT_UINT_BYTES,	BASE_HEX,  NULL, 0x0, NULL, HFILL }},
+		  { "Client NBMA Sub Address",	"nhrp.client.nbma.saddr",FT_UINT_BYTES,	BASE_NONE,  NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_client_prot_addr,
 		  { "Client Protocol Address",	"nhrp.client.prot.addr", FT_IPv4, 		BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -986,12 +986,12 @@ proto_register_nhrp(void)
 		{ &hf_nhrp_ext_len,
 		  { "Extension length", 		"nhrp.ext.len",			FT_UINT16,	BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_ext_value,
-		  { "Extension Value", 			"nhrp.ext.val",			FT_UINT_BYTES,BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "Extension Value", 			"nhrp.ext.val",			FT_UINT_BYTES,BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_nhrp_error_offset,
 		  { "Error Offset", 			"nhrp.err.offset",		FT_UINT16,	BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_error_packet,
-		  { "Errored Packet", 			"nhrp.err.pkt",			FT_UINT_BYTES,BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "Errored Packet", 			"nhrp.err.pkt",			FT_UINT_BYTES,BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	
 	static gint *ett[] = {

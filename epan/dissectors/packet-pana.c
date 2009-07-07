@@ -760,12 +760,12 @@ proto_register_pana(void)
        static hf_register_info hf[] = {
                { &hf_pana_response_in,
                        { "Response In", "pana.response_in",
-                       FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+                       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
                        "The response to this PANA request is in this frame", HFILL }
                },
                { &hf_pana_response_to,
                        { "Request In", "pana.response_to",
-                       FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+                       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
                        "This is a response to the PANA request in this frame", HFILL }
                },
                { &hf_pana_time,

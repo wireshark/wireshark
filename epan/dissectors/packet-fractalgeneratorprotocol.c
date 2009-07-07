@@ -211,11 +211,11 @@ proto_register_fractalgeneratorprotocol(void)
     { &hf_parameter_height,        { "Height",        "fractalgeneratorprotocol.parameter_height",        FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_parameter_maxiterations, { "MaxIterations", "fractalgeneratorprotocol.parameter_maxiterations", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_parameter_algorithmid,   { "AlgorithmID",   "fractalgeneratorprotocol.parameter_algorithmid",   FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
     { &hf_buffer,                  { "Buffer",        "fractalgeneratorprotocol.buffer",                  FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
   };
 

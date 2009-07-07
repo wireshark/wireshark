@@ -535,7 +535,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_dadr_eth,
 			{ "Destination ISO 8802-3 MAC Address", "bacnet.dadr_eth",
-			FT_ETHER, BASE_HEX, NULL, 0,
+			FT_ETHER, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 		{ &hf_bacnet_dadr_mstp,
@@ -560,7 +560,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_sadr_eth,
 			{ "SADR", "bacnet.sadr_eth",
-			FT_ETHER, BASE_HEX, NULL, 0,
+			FT_ETHER, BASE_NONE, NULL, 0,
 			"Source ISO 8802-3 MAC Address", HFILL }
 		},
 		{ &hf_bacnet_sadr_mstp,

@@ -412,7 +412,7 @@ proto_register_enttec(void)
 			  NULL, HFILL } },
 		{ &hf_enttec_poll_reply_mac,
 			{ "MAC", "enttec.poll_reply.mac",
-			  FT_ETHER, BASE_HEX, NULL, 0x0,
+			  FT_ETHER, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL } },
 		{ &hf_enttec_poll_reply_node_type,
 			{ "Node Type", "enttec.poll_reply.node_type",

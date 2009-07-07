@@ -305,7 +305,7 @@ proto_register_banana(void)
 		},
 		{ &hf_banana_float,
 			{ "Float", "banana.float",
-				FT_DOUBLE, BASE_DEC, NULL, 0,
+				FT_DOUBLE, BASE_NONE, NULL, 0,
 				"Banana float", HFILL }
 		},
 		{ &hf_banana_lg_int,

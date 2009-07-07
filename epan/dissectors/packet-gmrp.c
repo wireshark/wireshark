@@ -366,7 +366,7 @@ proto_register_gmrp(void)
 	},
 	{ &hf_gmrp_attribute_value_group_membership,
 	    { "Value",       "gmrp.attribute_value_group_membership",
-	    FT_ETHER,        BASE_HEX,      NULL,  0x0,
+	    FT_ETHER,        BASE_NONE,      NULL,  0x0,
 	    NULL , HFILL }
 	},
 	{ &hf_gmrp_attribute_value_service_requirement,

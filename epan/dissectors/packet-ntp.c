@@ -852,10 +852,10 @@ proto_register_ntp(void)
 			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rootdelay, {
-			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
+			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rootdispersion, {
-			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC,
+			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_refid, {
 			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,

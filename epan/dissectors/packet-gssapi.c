@@ -526,7 +526,7 @@ proto_register_gssapi(void)
 		{ "Defragmentation error", "gss-api.segment.error", FT_FRAMENUM, BASE_NONE, 
 		  NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 	{ &hf_gssapi_reassembled_in,
-		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_DEC, 
+		{ "Reassembled In", "gss-api.reassembled_in", FT_FRAMENUM, BASE_NONE, 
 		  NULL, 0x0, "The frame where this pdu is reassembled", HFILL }},
 
 	};

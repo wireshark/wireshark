@@ -946,19 +946,19 @@ proto_register_ldss (void) {
 		{   &hf_ldss_response_in,
 		    { "Response In",
 		      "ldss.response_in",
-		      FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		      "The response to this file pull request is in this frame", HFILL }
 		},
 		{   &hf_ldss_response_to,
 		    { "Request In",
 		      "ldss.response_to",
-		      FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		      "This is a response to the file pull request in this frame", HFILL }
 		},
 		{   &hf_ldss_initiated_by,
 		    { "Initiated by",
 		      "ldss.initiated_by",
-		      FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		      "The broadcast that initiated this file transfer", HFILL }
 		},
 		{   &hf_ldss_transfer_response_time,

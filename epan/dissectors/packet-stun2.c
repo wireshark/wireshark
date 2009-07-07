@@ -1157,11 +1157,11 @@ proto_register_stun2(void)
 		},
 		{ &hf_stun2_response_in,
 			{ "Response In",	"stun2.response-in", FT_FRAMENUM, 
-			BASE_DEC, NULL, 0x0, "The response to this STUN2 query is in this frame", HFILL }
+			BASE_NONE, NULL, 0x0, "The response to this STUN2 query is in this frame", HFILL }
 		},
 		{ &hf_stun2_response_to,
 			{ "Request In", "stun2.response-to", FT_FRAMENUM, 
-			BASE_DEC, NULL, 0x0, "This is a response to the STUN2 Request in this frame", HFILL }
+			BASE_NONE, NULL, 0x0, "This is a response to the STUN2 Request in this frame", HFILL }
 		},
 		{ &hf_stun2_time,
 			{ "Time", "stun2.time", FT_RELATIVE_TIME, 
@@ -1169,7 +1169,7 @@ proto_register_stun2(void)
 		},
 		{ &hf_stun2_duplicate,
 			{ "Duplicated original message in", "stun2.reqduplicate", FT_FRAMENUM, 
-			BASE_DEC, NULL, 0x0, "This is a duplicate of STUN2 message in this frame", HFILL }
+			BASE_NONE, NULL, 0x0, "This is a duplicate of STUN2 message in this frame", HFILL }
 		},
 		/* ////////////////////////////////////// */
 		{ &stun2_att_type,

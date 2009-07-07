@@ -3423,7 +3423,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_afh_channel_map,
 			{"AFH Channel Map", "bthci_evt.afh_channel_map",
-				FT_UINT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_simple_pairing_mode,

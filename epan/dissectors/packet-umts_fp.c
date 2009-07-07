@@ -3249,7 +3249,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_transmit_power_level,
             { "Transmit Power Level",
-              "fp.transmit-power-level", FT_FLOAT, BASE_DEC, 0, 0x0,
+              "fp.transmit-power-level", FT_FLOAT, BASE_NONE, 0, 0x0,
               "Transmit Power Level (dB)", HFILL
             }
         },
@@ -3621,7 +3621,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_ul_sir_target,
             { "UL_SIR_TARGET",
-              "fp.ul-sir-target", FT_FLOAT, BASE_DEC, 0, 0x0,
+              "fp.ul-sir-target", FT_FLOAT, BASE_NONE, 0, 0x0,
               "Value (in dB) of the SIR target to be used by the UL inner loop power control", HFILL
             }
         },

@@ -2083,7 +2083,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_bcn_brda,
       { "Address of Bridge", "homeplug.bcn.brda",
-      FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_bcn_bp_das,

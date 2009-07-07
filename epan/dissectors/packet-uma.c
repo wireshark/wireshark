@@ -1933,7 +1933,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_radio_id,
 			{ "Radio Identity","uma.urr.radio_id",
-			FT_ETHER, BASE_DEC, NULL, 0x00,
+			FT_ETHER, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 
@@ -2345,7 +2345,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_ms_radio_id,
 			{ "MS Radio Identity","uma.urr.ms_radio_id",
-			FT_ETHER, BASE_DEC, NULL, 0x00,
+			FT_ETHER, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_uma_service_zone_str,

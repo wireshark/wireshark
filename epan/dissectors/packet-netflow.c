@@ -3980,12 +3980,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_srcmac,
 		 {"Source Mac Address", "cflow.srcmac",
-		  FT_ETHER, BASE_DEC, NULL, 0x0,
+		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_post_dstmac,
 		 {"Post Destination Mac Address", "cflow.post_dstmac",
-		  FT_ETHER, BASE_DEC, NULL, 0x0,
+		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_vlanid,
@@ -4005,12 +4005,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_dstmac,
 		 {"Destination Mac Address", "cflow.dstmac",
-		  FT_ETHER, BASE_DEC, NULL, 0x0,
+		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_post_srcmac,
 		 {"Post Source Mac Address", "cflow.post_srcmac",
-		  FT_ETHER, BASE_DEC, NULL, 0x0,
+		  FT_ETHER, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_fragment_offset,

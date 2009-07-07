@@ -6507,7 +6507,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_ig_control_time_tag,
             { "Timing Value (microseconds)", "cigi.ig_control.time_tag",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies synchronous operation", HFILL }
         },
 
@@ -6670,42 +6670,42 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_entity_control_opacity,
             { "Percent Opacity", "cigi.entity_control.opacity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the degree of opacity of the entity", HFILL }
         },
         { &hf_cigi2_entity_control_internal_temp,
             { "Internal Temperature (degrees C)", "cigi.entity_control.internal_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the internal temperature of the entity in degrees Celsius", HFILL }
         },
         { &hf_cigi2_entity_control_roll,
             { "Roll (degrees)", "cigi.entity_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the roll angle of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_pitch,
             { "Pitch (degrees)", "cigi.entity_control",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the pitch of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_heading,
             { "Heading (degrees)", "cigi.entity_control",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the heading of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_alt,
             { "Altitude (m)", "cigi.entity_control.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Identifies the altitude position of the reference point of the entity in meters", HFILL }
         },
         { &hf_cigi2_entity_control_lat,
             { "Latitude (degrees)", "cigi.entity_control.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Identifies the latitude position of the reference point of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_lon,
             { "Longitude (degrees)", "cigi.entity_control.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Identifies the longitude position of the reference point of the entity in degrees", HFILL }
         },
 
@@ -6777,32 +6777,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_entity_control_roll,
             { "Roll (degrees)", "cigi.entity_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the roll angle of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_pitch,
             { "Pitch (degrees)", "cigi.entity_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the pitch angle of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_yaw,
             { "Yaw (degrees)", "cigi.entity_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the instantaneous heading of the entity", HFILL }
         },
         { &hf_cigi3_entity_control_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.entity_control.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic latitude or the distance from the parent's reference point along its parent's X axis", HFILL }
         },
         { &hf_cigi3_entity_control_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.entity_control.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic longitude or the distance from the parent's reference point along its parent's Y axis", HFILL }
         },
         { &hf_cigi3_entity_control_alt_zoff,
             { "Altitude (m)/Z Offset (m)", "cigi.entity_control.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's altitude or the distance from the parent's reference point along its parent's Z axis", HFILL }
         },
 
@@ -6879,32 +6879,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_entity_control_roll,
             { "Roll (degrees)", "cigi.entity_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the roll angle of the entity", HFILL }
         },
         { &hf_cigi3_3_entity_control_pitch,
             { "Pitch (degrees)", "cigi.entity_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the pitch angle of the entity", HFILL }
         },
         { &hf_cigi3_3_entity_control_yaw,
             { "Yaw (degrees)", "cigi.entity_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the instantaneous heading of the entity", HFILL }
         },
         { &hf_cigi3_3_entity_control_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.entity_control.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic latitude or the distance from the parent's reference point along its parent's X axis", HFILL }
         },
         { &hf_cigi3_3_entity_control_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.entity_control.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic longitude or the distance from the parent's reference point along its parent's Y axis", HFILL }
         },
         { &hf_cigi3_3_entity_control_alt_zoff,
             { "Altitude (m)/Z Offset (m)", "cigi.entity_control.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's altitude or the distance from the parent's reference point along its parent's Z axis", HFILL }
         },
 
@@ -6921,17 +6921,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_conformal_clamped_entity_control_yaw,
             { "Yaw (degrees)", "cigi.conformal_clamped_entity_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the instantaneous heading of the entity", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_lat,
             { "Latitude (degrees)", "cigi.conformal_clamped_entity_control.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic latitude", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_lon,
             { "Longitude (degrees)", "cigi.conformal_clamped_entity_control.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the entity's geodetic longitude", HFILL }
         },
 
@@ -6963,12 +6963,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_component_control_component_val1,
             { "Component Value 1", "cigi.component_control.component_val1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies a continuous value to be applied to a component", HFILL }
         },
         { &hf_cigi2_component_control_component_val2,
             { "Component Value 2", "cigi.component_control.component_val2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies a continuous value to be applied to a component", HFILL }
         },
 
@@ -7213,32 +7213,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_articulated_parts_control_x_offset,
             { "X Offset (m)", "cigi.art_part_control.x_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the distance along the X axis by which the articulated part should be moved", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_y_offset,
             { "Y Offset (m)", "cigi.art_part_control.y_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the distance along the Y axis by which the articulated part should be moved", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_z_offset,
             { "Z Offset (m)", "cigi.art_part_control.z_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the distance along the Z axis by which the articulated part should be moved", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_roll,
             { "Roll (degrees)", "cigi.art_part_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the roll of this part with respect to the submodel coordinate system", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_pitch,
             { "Pitch (degrees)", "cigi.art_part_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the pitch of this part with respect to the submodel coordinate system", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_yaw,
             { "Yaw (degrees)", "cigi.art_part_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the yaw of this part with respect to the submodel coordinate system", HFILL }
         },
 
@@ -7295,32 +7295,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_articulated_part_control_xoff,
             { "X Offset (m)", "cigi.art_part_control.xoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the distance of the articulated part along its X axis", HFILL }
         },
         { &hf_cigi3_articulated_part_control_yoff,
             { "Y Offset (m)", "cigi.art_part_control.yoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the distance of the articulated part along its Y axis", HFILL }
         },
         { &hf_cigi3_articulated_part_control_zoff,
             { "Z Offset (m)", "cigi.art_part_control.zoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the distance of the articulated part along its Z axis", HFILL }
         },
         { &hf_cigi3_articulated_part_control_roll,
             { "Roll (degrees)", "cigi.art_part_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_articulated_part_control_pitch,
             { "Pitch (degrees)", "cigi.art_part_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_articulated_part_control_yaw,
             { "Yaw (degrees)", "cigi.art_part_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part about its Z axis", HFILL }
         },
 
@@ -7367,12 +7367,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_short_articulated_part_control_dof_1,
             { "DOF 1", "cigi.short_art_part_control.dof_1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies either an offset or an angular position for the part identified by Articulated Part ID 1", HFILL }
         },
         { &hf_cigi3_short_articulated_part_control_dof_2,
             { "DOF 2", "cigi.short_art_part_control.dof_2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies either an offset or an angular position for the part identified by Articulated Part ID 2", HFILL }
         },
 
@@ -7394,32 +7394,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_rate_control_x_rate,
             { "X Linear Rate (m/s)", "cigi.rate_control.x_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the x component of the velocity vector for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_y_rate,
             { "Y Linear Rate (m/s)", "cigi.rate_control.y_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the y component of the velocity vector for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_z_rate,
             { "Z Linear Rate (m/s)", "cigi.rate_control.z_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the z component of the velocity vector for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_roll_rate,
             { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the roll angular rate for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_pitch_rate,
             { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the pitch angular rate for the entity being represented", HFILL }
         },
         { &hf_cigi2_rate_control_yaw_rate,
             { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the yaw angular rate for the entity being represented", HFILL }
         },
 
@@ -7446,32 +7446,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_rate_control_x_rate,
             { "X Linear Rate (m/s)", "cigi.rate_control.x_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_rate_control_y_rate,
             { "Y Linear Rate (m/s)", "cigi.rate_control.y_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_rate_control_z_rate,
             { "Z Linear Rate (m/s)", "cigi.rate_control.z_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_rate_control_roll_rate,
             { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_rate_control_pitch_rate,
             { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_rate_control_yaw_rate,
             { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part about its Z axis when its X axis is parallel to that of the entity", HFILL }
         },
 
@@ -7503,32 +7503,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_rate_control_x_rate,
             { "X Linear Rate (m/s)", "cigi.rate_control.x_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_2_rate_control_y_rate,
             { "Y Linear Rate (m/s)", "cigi.rate_control.y_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_2_rate_control_z_rate,
             { "Z Linear Rate (m/s)", "cigi.rate_control.z_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z component of a linear velocity vector", HFILL }
         },
         { &hf_cigi3_2_rate_control_roll_rate,
             { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_2_rate_control_pitch_rate,
             { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_2_rate_control_yaw_rate,
             { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part about its Z axis when its X axis is parallel to that of the entity", HFILL }
         },
 
@@ -7580,7 +7580,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_celestial_sphere_control_star_intensity,
             { "Star Field Intensity (%)", "cigi.celestial_sphere_control.star_intensity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the intensity of the star field within the sky model", HFILL }
         },
 
@@ -7602,32 +7602,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_atmosphere_control_air_temp,
             { "Global Air Temperature (degrees C)", "cigi.atmosphere_control.air_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global air temperature of the environment", HFILL }
         },
         { &hf_cigi3_atmosphere_control_visibility_range,
             { "Global Visibility Range (m)", "cigi.atmosphere_control.visibility_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global visibility range through the atmosphere", HFILL }
         },
         { &hf_cigi3_atmosphere_control_horiz_wind,
             { "Global Horizontal Wind Speed (m/s)", "cigi.atmosphere_control.horiz_wind",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
         },
         { &hf_cigi3_atmosphere_control_vert_wind,
             { "Global Vertical Wind Speed (m/s)", "cigi.atmosphere_control.vert_wind",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global vertical wind speed", HFILL }
         },
         { &hf_cigi3_atmosphere_control_wind_direction,
             { "Global Wind Direction (degrees)", "cigi.atmosphere_control.wind_direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global wind direction", HFILL }
         },
         { &hf_cigi3_atmosphere_control_barometric_pressure,
             { "Global Barometric Pressure (mb or hPa)", "cigi.atmosphere_control.barometric_pressure",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the global atmospheric pressure", HFILL }
         },
 
@@ -7669,32 +7669,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_environment_control_air_temp,
             { "Air Temperature (degrees C)", "cigi.env_control.air_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the global temperature of the environment", HFILL }
         },
         { &hf_cigi2_environment_control_global_visibility,
             { "Global Visibility (m)", "cigi.env_control.global_visibility",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the global visibility", HFILL }
         },
         { &hf_cigi2_environment_control_wind_speed,
             { "Wind Speed (m/s)", "cigi.env_control.wind_speed",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the global wind speed", HFILL }
         },
         { &hf_cigi2_environment_control_wind_direction,
             { "Wind Direction (degrees)", "cigi.env_control.wind_direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the global wind direction", HFILL }
         },
         { &hf_cigi2_environment_control_pressure,
             { "Barometric Pressure (mb)", "cigi.env_control.pressure",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Controls the atmospheric pressure input into MODTRAN", HFILL }
         },
         { &hf_cigi2_environment_control_aerosol,
             { "Aerosol (gm/m^3)", "cigi.env_control.aerosol",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Controls the liquid water content for the defined atmosphere", HFILL }
         },
 
@@ -7736,37 +7736,37 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_environmental_region_control_lat,
             { "Latitude (degrees)", "cigi.env_region_control.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the geodetic latitude of the center of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_lon,
             { "Longitude (degrees)", "cigi.env_region_control.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the geodetic longitude of the center of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_size_x,
             { "Size X (m)", "cigi.env_region_control.size_x",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of the environmental region along its X axis at the geoid surface", HFILL }
         },
         { &hf_cigi3_environmental_region_control_size_y,
             { "Size Y (m)", "cigi.env_region_control.size_y",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of the environmental region along its Y axis at the geoid surface", HFILL }
         },
         { &hf_cigi3_environmental_region_control_corner_radius,
             { "Corner Radius (m)", "cigi.env_region_control.corner_radius",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius of the corner of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_rotation,
             { "Rotation (degrees)", "cigi.env_region_control.rotation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the yaw angle of the rounded rectangle", HFILL }
         },
         { &hf_cigi3_environmental_region_control_transition_perimeter,
             { "Transition Perimeter (m)", "cigi.env_region_control.transition_perimeter",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the width of the transition perimeter around the environmental region", HFILL }
         },
 
@@ -7808,47 +7808,47 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_weather_control_air_temp,
             { "Air Temperature (degrees C)", "cigi.weather_control.air_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the local temperature inside the weather phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_opacity,
             { "Opacity (%)", "cigi.weather_control.opacity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the opacity of the weather phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_scud_frequency,
             { "Scud Frequency (%)", "cigi.weather_control.scud_frequency",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the frequency for the scud effect", HFILL }
         },
         { &hf_cigi2_weather_control_coverage,
             { "Coverage (%)", "cigi.weather_control.coverage",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the amount of area coverage a particular phenomenon has over the specified global visibility range given in the environment control data packet", HFILL }
         },
         { &hf_cigi2_weather_control_elevation,
             { "Elevation (m)", "cigi.weather_control.elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the base altitude of the weather phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_thickness,
             { "Thickness (m)", "cigi.weather_control.thickness",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the vertical thickness of the weather phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_transition_band,
             { "Transition Band (m)", "cigi.weather_control.transition_band",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates a vertical transition band both above and below a phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_wind_speed,
             { "Winds Aloft Speed", "cigi.weather_control.wind_speed",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the local wind speed applied to the phenomenon", HFILL }
         },
         { &hf_cigi2_weather_control_wind_direction,
             { "Winds Aloft Direction (degrees)", "cigi.weather_control.wind_direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates local direction of the wind applied to the phenomenon", HFILL }
         },
 
@@ -7910,62 +7910,62 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_weather_control_air_temp,
             { "Air Temperature (degrees C)", "cigi.weather_control.air_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the temperature within the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_visibility_range,
             { "Visibility Range (m)", "cigi.weather_control.visibility_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the visibility range through the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_scud_frequency,
             { "Scud Frequency (%)", "cigi.weather_control.scud_frequency",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the frequency of scud within the transition bands above and/or below a cloud or fog layer", HFILL }
         },
         { &hf_cigi3_weather_control_coverage,
             { "Coverage (%)", "cigi.weather_control.coverage",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the amount of area coverage for the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_base_elevation,
             { "Base Elevation (m)", "cigi.weather_control.base_elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the base of the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_thickness,
             { "Thickness (m)", "cigi.weather_control.thickness",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the vertical thickness of the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_transition_band,
             { "Transition Band (m)", "cigi.weather_control.transition_band",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the height of a vertical transition band both above and below the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_horiz_wind,
             { "Horizontal Wind Speed (m/s)", "cigi.weather_control.horiz_wind",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
         },
         { &hf_cigi3_weather_control_vert_wind,
             { "Vertical Wind Speed (m/s)", "cigi.weather_control.vert_wind",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the local vertical wind speed", HFILL }
         },
         { &hf_cigi3_weather_control_wind_direction,
             { "Wind Direction (degrees)", "cigi.weather_control.wind_direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the local wind direction", HFILL }
         },
         { &hf_cigi3_weather_control_barometric_pressure,
             { "Barometric Pressure (mb or hPa)", "cigi.weather_control.barometric_pressure",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the atmospheric pressure within the weather layer", HFILL }
         },
         { &hf_cigi3_weather_control_aerosol_concentration,
             { "Aerosol Concentration (g/m^3)", "cigi.weather_control.aerosol_concentration",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the concentration of water, smoke, dust, or other particles suspended in the air", HFILL }
         },
 
@@ -7997,17 +7997,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_maritime_surface_conditions_control_sea_surface_height,
             { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_control.sea_surface_height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the height of the water above MSL at equilibrium", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_surface_water_temp,
             { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_control.surface_water_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the water temperature at the surface", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_surface_clarity,
             { "Surface Clarity (%)", "cigi.maritime_surface_conditions_control.surface_clarity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the clarity of the water at its surface", HFILL }
         },
 
@@ -8044,32 +8044,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_wave_control_height,
             { "Wave Height (m)", "cigi.wave_control.height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the average vertical distance from trough to crest produced by the wave", HFILL }
         },
         { &hf_cigi3_wave_control_wavelength,
             { "Wavelength (m)", "cigi.wave_control.wavelength",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the distance from a particular phase on a wave to the same phase on an adjacent wave", HFILL }
         },
         { &hf_cigi3_wave_control_period,
             { "Period (s)", "cigi.wave_control.period",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the time required for one complete oscillation of the wave", HFILL }
         },
         { &hf_cigi3_wave_control_direction,
             { "Direction (degrees)", "cigi.wave_control.direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the direction in which the wave propagates", HFILL }
         },
         { &hf_cigi3_wave_control_phase_offset,
             { "Phase Offset (degrees)", "cigi.wave_control.phase_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a phase offset for the wave", HFILL }
         },
         { &hf_cigi3_wave_control_leading,
             { "Leading (degrees)", "cigi.wave_control.leading",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the phase angle at which the crest occurs", HFILL }
         },
 
@@ -8163,32 +8163,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_control_x_offset,
             { "X Offset (m)", "cigi.view_control.x_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the X component of the view offset vector along the entity's longitudinal axis", HFILL }
         },
         { &hf_cigi2_view_control_y_offset,
             { "Y Offset", "cigi.view_control.y_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the Y component of the view offset vector along the entity's lateral axis", HFILL }
         },
         { &hf_cigi2_view_control_z_offset,
             { "Z Offset", "cigi.view_control.z_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the Z component of the view offset vector along the entity's vertical axis", HFILL }
         },
         { &hf_cigi2_view_control_roll,
             { "Roll (degrees)", "cigi.view_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "The rotation about the view's X axis", HFILL }
         },
         { &hf_cigi2_view_control_pitch,
             { "Pitch (degrees)", "cigi.view_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "The rotation about the view's Y axis", HFILL }
         },
         { &hf_cigi2_view_control_yaw,
             { "Yaw (degrees)", "cigi.view_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "The rotation about the view's Z axis", HFILL }
         },
 
@@ -8245,32 +8245,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_view_control_xoff,
             { "X Offset (m)", "cigi.view_control.xoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the position of the view eyepoint along the X axis of the entity specified by the Entity ID parameter", HFILL }
         },
         { &hf_cigi3_view_control_yoff,
             { "Y Offset (m)", "cigi.view_control.yoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the position of the view eyepoint along the Y axis of the entity specified by the Entity ID parameter", HFILL }
         },
         { &hf_cigi3_view_control_zoff,
             { "Z Offset (m)", "cigi.view_control.zoff",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the position of the view eyepoint along the Z axis of the entity specified by the Entity ID parameter", HFILL }
         },
         { &hf_cigi3_view_control_roll,
             { "Roll (degrees)", "cigi.view_control.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its X axis after yaw and pitch have been applied", HFILL }
         },
         { &hf_cigi3_view_control_pitch,
             { "Pitch (degrees)", "cigi.view_control.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its Y axis after yaw has been applied", HFILL }
         },
         { &hf_cigi3_view_control_yaw,
             { "Yaw (degrees)", "cigi.view_control.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the view or view group about its Z axis", HFILL }
         },
 
@@ -8322,22 +8322,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_sensor_control_gain,
             { "Gain", "cigi.sensor_control.gain",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the gain value for the weapon sensor option", HFILL }
         },
         { &hf_cigi2_sensor_control_level,
             { "Level", "cigi.sensor_control.level",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the level value for the weapon sensor option", HFILL }
         },
         { &hf_cigi2_sensor_control_ac_coupling,
             { "AC Coupling", "cigi.sensor_control.ac_coupling",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the AC Coupling decay rate for the weapon sensor option", HFILL }
         },
         { &hf_cigi2_sensor_control_noise,
             { "Noise", "cigi.sensor_control.noise",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the detector-noise gain for the weapon sensor option", HFILL }
         },
 
@@ -8394,22 +8394,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_control_gain,
             { "Gain", "cigi.sensor_control.gain",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the contrast for the sensor display", HFILL }
         },
         { &hf_cigi3_sensor_control_level,
             { "Level", "cigi.sensor_control.level",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the brightness for the sensor display", HFILL }
         },
         { &hf_cigi3_sensor_control_ac_coupling,
             { "AC Coupling (microseconds)", "cigi.sensor_control.ac_coupling",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the AC coupling decay constant for the sensor display", HFILL }
         },
         { &hf_cigi3_sensor_control_noise,
             { "Noise", "cigi.sensor_control.noise",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the amount of detector noise for the sensor", HFILL }
         },
 
@@ -8488,12 +8488,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_earth_reference_model_definition_equatorial_radius,
             { "Equatorial Radius (m)", "cigi.earth_ref_model_def.equatorial_radius",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the semi-major axis of the ellipsoid", HFILL }
         },
         { &hf_cigi3_earth_reference_model_definition_flattening,
             { "Flattening (m)", "cigi.earth_ref_model_def.flattening",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the flattening of the ellipsoid", HFILL }
         },
 
@@ -8510,17 +8510,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_trajectory_definition_acceleration,
             { "Acceleration Factor (m/s^2)", "cigi.trajectory_def.acceleration",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the acceleration factor that will be applied to the Vz component of the velocity vector over time to simulate the effects of gravity on the object", HFILL }
         },
         { &hf_cigi2_trajectory_definition_retardation,
             { "Retardation Rate (m/s)", "cigi.trajectory_def.retardation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates what retardation factor will be applied to the object's motion", HFILL }
         },
         { &hf_cigi2_trajectory_definition_terminal_velocity,
             { "Terminal Velocity (m/s)", "cigi.trajectory_def.terminal_velocity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates what final velocity the object will be allowed to obtain", HFILL }
         },
 
@@ -8537,27 +8537,27 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_trajectory_definition_acceleration_x,
             { "Acceleration X (m/s^2)", "cigi.trajectory_def.acceleration_x",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_acceleration_y,
             { "Acceleration Y (m/s^2)", "cigi.trajectory_def.acceleration_y",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_acceleration_z,
             { "Acceleration Z (m/s^2)", "cigi.trajectory_def.acceleration_z",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z component of the acceleration vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_retardation_rate,
             { "Retardation Rate (m/s^2)", "cigi.trajectory_def.retardation_rate",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the magnitude of an acceleration applied against the entity's instantaneous linear velocity vector", HFILL }
         },
         { &hf_cigi3_trajectory_definition_terminal_velocity,
             { "Terminal Velocity (m/s)", "cigi.trajectory_def.terminal_velocity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum velocity the entity can sustain", HFILL }
         },
 
@@ -8599,22 +8599,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_special_effect_definition_x_scale,
             { "X Scale", "cigi.special_effect_def.x_scale",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a scale factor to apply along the effect's X axis", HFILL }
         },
         { &hf_cigi2_special_effect_definition_y_scale,
             { "Y Scale", "cigi.special_effect_def.y_scale",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a scale factor to apply along the effect's Y axis", HFILL }
         },
         { &hf_cigi2_special_effect_definition_z_scale,
             { "Z Scale", "cigi.special_effect_def.z_scale",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a scale factor to apply along the effect's Z axis", HFILL }
         },
         { &hf_cigi2_special_effect_definition_time_scale,
             { "Time Scale", "cigi.special_effect_def.time_scale",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies a scale factor to apply to the time period for the effect's animation sequence", HFILL }
         },
         { &hf_cigi2_special_effect_definition_effect_count,
@@ -8624,17 +8624,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_special_effect_definition_separation,
             { "Separation (m)", "cigi.special_effect_def.separation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the distance between particles within a burst", HFILL }
         },
         { &hf_cigi2_special_effect_definition_burst_interval,
             { "Burst Interval (s)", "cigi.special_effect_def.burst_interval",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the time between successive bursts", HFILL }
         },
         { &hf_cigi2_special_effect_definition_duration,
             { "Duration (s)", "cigi.special_effect_def.duration",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates how long an effect or sequence of burst will be active", HFILL }
         },
 
@@ -8706,32 +8706,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_definition_fov_near,
             { "Field of View Near (m)", "cigi.view_def.fov_near",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the near clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_far,
             { "Field of View Far (m)", "cigi.view_def.fov_far",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the far clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_left,
             { "Field of View Left (degrees)", "cigi.view_def.fov_left",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the left clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_right,
             { "Field of View Right (degrees)", "cigi.view_def.fov_right",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the right clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_top,
             { "Field of View Top (degrees)", "cigi.view_def.fov_top",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the top clipping plane for the view", HFILL }
         },
         { &hf_cigi2_view_definition_fov_bottom,
             { "Field of View Bottom (degrees)", "cigi.view_def.fov_bottom",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Defines the bottom clipping plane for the view", HFILL }
         },
 
@@ -8808,32 +8808,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_view_definition_near,
             { "Near (m)", "cigi.view_def.near",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the position of the view's near clipping plane", HFILL }
         },
         { &hf_cigi3_view_definition_far,
             { "Far (m)", "cigi.view_def.far",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the position of the view's far clipping plane", HFILL }
         },
         { &hf_cigi3_view_definition_left,
             { "Left (degrees)", "cigi.view_def.left",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the left half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_right,
             { "Right (degrees)", "cigi.view_def.right",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the right half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_top,
             { "Top (degrees)", "cigi.view_def.top",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the top half-angle of the view frustum", HFILL }
         },
         { &hf_cigi3_view_definition_bottom,
             { "Bottom (degrees)", "cigi.view_def.bottom",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the bottom half-angle of the view frustum", HFILL }
         },
 
@@ -8865,32 +8865,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_collision_detection_segment_definition_x_start,
             { "Segment X Start (m)", "cigi.coll_det_seg_def.x_start",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the starting point of the collision segment in the X-axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_y_start,
             { "Segment Y Start (m)", "cigi.coll_det_seg_def.y_start",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the starting point of the collision segment in the Y-axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_z_start,
             { "Segment Z Start (m)", "cigi.coll_det_seg_def.z_start",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the starting point of the collision segment in the Z-axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_x_end,
             { "Segment X End (m)", "cigi.coll_det_seg_def.x_end",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the ending point of the collision segment in the X-axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_y_end,
             { "Segment Y End (m)", "cigi.coll_det_seg_def.y_end",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the ending point of the collision segment in the Y-axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_z_end,
             { "Segment Z End (m)", "cigi.coll_det_seg_def.z_end",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the ending point of the collision segment in the Z-axis with respect to the entity's reference point", HFILL }
         },
 
@@ -8917,32 +8917,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_collision_detection_segment_definition_x1,
             { "X1 (m)", "cigi.coll_det_seg_def.x1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_y1,
             { "Y1 (m)", "cigi.coll_det_seg_def.y1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_z1,
             { "Z1 (m)", "cigi.coll_det_seg_def.z1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_x2,
             { "X2 (m)", "cigi.coll_det_seg_def.x2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_y2,
             { "Y2 (m)", "cigi.coll_det_seg_def.y2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_z2,
             { "Z2 (m)", "cigi.coll_det_seg_def.z2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z offset of one endpoint of the collision segment", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_material_mask,
@@ -8974,32 +8974,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_collision_detection_volume_definition_x_offset,
             { "Centroid X Offset (m)", "cigi.coll_det_vol_def.x_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the offset of the volume's centroid along the X axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_y_offset,
             { "Centroid Y Offset (m)", "cigi.coll_det_vol_def.y_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the offset of the volume's centroid along the Y axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_z_offset,
             { "Centroid Z Offset (m)", "cigi.coll_det_vol_def.z_offset",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the offset of the volume's centroid along the Z axis with respect to the entity's reference point", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_height,
             { "Height (m)", "cigi.coll_det_vol_def.height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the height of the volume", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_width,
             { "Width (m)", "cigi.coll_det_vol_def.width",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the width of the volume", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_depth,
             { "Depth (m)", "cigi.coll_det_vol_def.depth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the depth of the volume", HFILL }
         },
 
@@ -9031,47 +9031,47 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_collision_detection_volume_definition_x,
             { "X (m)", "cigi.coll_det_vol_def.x",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X offset of the center of the volume", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_y,
             { "Y (m)", "cigi.coll_det_vol_def.y",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y offset of the center of the volume", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_z,
             { "Z (m)", "cigi.coll_det_vol_def.z",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z offset of the center of the volume", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_radius_height,
             { "Radius (m)/Height (m)", "cigi.coll_det_vol_def.radius_height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius of the sphere or specifies the length of the cuboid along its Z axis", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_width,
             { "Width (m)", "cigi.coll_det_vol_def.width",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of the cuboid along its Y axis", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_depth,
             { "Depth (m)", "cigi.coll_det_vol_def.depth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of the cuboid along its X axis", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_roll,
             { "Roll (degrees)", "cigi.coll_det_vol_def.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the roll of the cuboid with respect to the entity's coordinate system", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_pitch,
             { "Pitch (degrees)", "cigi.coll_det_vol_def.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the pitch of the cuboid with respect to the entity's coordinate system", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_yaw,
             { "Yaw (degrees)", "cigi.coll_det_vol_def.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the yaw of the cuboid with respect to the entity's coordinate system", HFILL }
         },
 
@@ -9088,17 +9088,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_above_terrain_request_alt,
             { "Altitude (m)", "cigi.hat_request.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude from which the HAT request is being made", HFILL }
         },
         { &hf_cigi2_height_above_terrain_request_lat,
             { "Latitude (degrees)", "cigi.hat_request.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position from which the HAT request is being made", HFILL }
         },
         { &hf_cigi2_height_above_terrain_request_lon,
             { "Longitude (degrees)", "cigi.hat_request.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position from which the HAT request is being made", HFILL }
         },
 
@@ -9115,32 +9115,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_line_of_sight_occult_request_source_alt,
             { "Source Altitude (m)", "cigi.los_occult_request.source_alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_source_lat,
             { "Source Latitude (degrees)", "cigi.los_occult_request.source_lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position of the source point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_source_lon,
             { "Source Longitude (degrees)", "cigi.los_occult_request.source_lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position of the source point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_dest_alt,
             { "Destination Altitude (m)", "cigi.los_occult_request.dest_alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the destination point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_dest_lat,
             { "Destination Latitude (degrees)", "cigi.los_occult_request.dest_lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position for the destination point for the LOS request segment", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_dest_lon,
             { "Destination Longitude (degrees)", "cigi.los_occult_request.dest_lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position of the destination point for the LOS request segment", HFILL }
         },
 
@@ -9157,37 +9157,37 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_line_of_sight_range_request_azimuth,
             { "Azimuth (degrees)", "cigi.los_range_request.azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the azimuth of the LOS vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_elevation,
             { "Elevation (degrees)", "cigi.los_range_request.elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the elevation for the LOS vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_min_range,
             { "Minimum Range (m)", "cigi.los_range_request.min_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the distance from the source position specified in this data packet to a point along the LOS vector where intersection testing will begin", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_max_range,
             { "Maximum Range (m)", "cigi.los_range_request.max_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum extent from the source position specified in this data packet to a point along the LOS vector where intersection testing will end", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_source_alt,
             { "Source Altitude (m)", "cigi.los_range_request.source_alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source point of the LOS request vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_source_lat,
             { "Source Latitude (degrees)", "cigi.los_range_request.source_lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position of the source point of the LOS request vector", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_source_lon,
             { "Source Longitude (degrees)", "cigi.los_range_request.source_lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position of the source point of the LOS request vector", HFILL }
         },
 
@@ -9204,12 +9204,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_of_terrain_request_lat,
             { "Latitude (degrees)", "cigi.hot_request.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position from which the HOT request is made", HFILL }
         },
         { &hf_cigi2_height_of_terrain_request_lon,
             { "Longitude (degrees)", "cigi.hot_request.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position from which the HOT request is made", HFILL }
         },
 
@@ -9241,17 +9241,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_request_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.hat_hot_request.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude from which the HAT/HOT request is being made or specifies the X offset of the point from which the HAT/HOT request is being made", HFILL }
         },
         { &hf_cigi3_hat_hot_request_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.hat_hot_request.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude from which the HAT/HOT request is being made or specifies the Y offset of the point from which the HAT/HOT request is being made", HFILL }
         },
         { &hf_cigi3_hat_hot_request_alt_zoff,
             { "Altitude (m)/Z Offset (m)", "cigi.hat_hot_request.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude from which the HAT/HOT request is being made or specifies the Z offset of the point from which the HAT/HOT request is being made", HFILL }
         },
 
@@ -9288,17 +9288,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_request_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.hat_hot_request.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude from which the HAT/HOT request is being made or specifies the X offset of the point from which the HAT/HOT request is being made", HFILL }
         },
         { &hf_cigi3_2_hat_hot_request_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.hat_hot_request.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude from which the HAT/HOT request is being made or specifies the Y offset of the point from which the HAT/HOT request is being made", HFILL }
         },
         { &hf_cigi3_2_hat_hot_request_alt_zoff,
             { "Altitude (m)/Z Offset (m)", "cigi.hat_hot_request.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude from which the HAT/HOT request is being made or specifies the Z offset of the point from which the HAT/HOT request is being made", HFILL }
         },
 
@@ -9345,32 +9345,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_segment_request_source_lat_xoff,
             { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_segment_request.source_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the source endpoint of the LOS test segment or specifies the X offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_source_lon_yoff,
             { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_segment_request.source_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the source endpoint of the LOS test segment or specifies the Y offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_source_alt_zoff,
             { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_segment_request.source_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source endpoint of the LOS test segment or specifies the Z offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_lat_xoff,
             { "Destination Latitude (degrees)/ Destination X Offset (m)", "cigi.los_segment_request.destination_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the destination endpoint of the LOS test segment or specifies the X offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_lon_yoff,
             { "Destination Longitude (degrees)/Destination Y Offset (m)", "cigi.los_segment_request.destination_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the destination endpoint of the LOS test segment or specifies the Y offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_destination_alt_zoff,
             { "Destination Altitude (m)/ Destination Z Offset (m)", "cigi.los_segment_request.destination_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the destination endpoint of the LOS test segment or specifies the Z offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_material_mask,
@@ -9427,32 +9427,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_segment_request_source_lat_xoff,
             { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_segment_request.source_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the source endpoint of the LOS test segment or specifies the X offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_source_lon_yoff,
             { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_segment_request.source_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the source endpoint of the LOS test segment or specifies the Y offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_source_alt_zoff,
             { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_segment_request.source_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source endpoint of the LOS test segment or specifies the Z offset of the source endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_lat_xoff,
             { "Destination Latitude (degrees)/ Destination X Offset (m)", "cigi.los_segment_request.destination_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the destination endpoint of the LOS test segment or specifies the X offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_lon_yoff,
             { "Destination Longitude (degrees)/Destination Y Offset (m)", "cigi.los_segment_request.destination_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the destination endpoint of the LOS test segment or specifies the Y offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_alt_zoff,
             { "Destination Altitude (m)/ Destination Z Offset (m)", "cigi.los_segment_request.destination_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the destination endpoint of the LOS test segment or specifies the Z offset of the destination endpoint of the LOS test segment", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_material_mask,
@@ -9509,37 +9509,37 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_vector_request_azimuth,
             { "Azimuth (degrees)", "cigi.los_vector_request.azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the horizontal angle of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_elevation,
             { "Elevation (degrees)", "cigi.los_vector_request.elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the vertical angle of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_min_range,
             { "Minimum Range (m)", "cigi.los_vector_request.min_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the minimum range along the LOS test vector at which intersection testing should occur", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_max_range,
             { "Maximum Range (m)", "cigi.los_vector_request.max_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum range along the LOS test vector at which intersection testing should occur", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_lat_xoff,
             { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_vector_request.source_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_lon_yoff,
             { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_vector_request.source_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_source_alt_zoff,
             { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_vector_request.source_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source point of the LOS test vector or specifies the Z offset of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_material_mask,
@@ -9586,37 +9586,37 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_vector_request_azimuth,
             { "Azimuth (degrees)", "cigi.los_vector_request.azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the horizontal angle of the LOS test vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_elevation,
             { "Elevation (degrees)", "cigi.los_vector_request.elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the vertical angle of the LOS test vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_min_range,
             { "Minimum Range (m)", "cigi.los_vector_request.min_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the minimum range along the LOS test vector at which intersection testing should occur", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_max_range,
             { "Maximum Range (m)", "cigi.los_vector_request.max_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum range along the LOS test vector at which intersection testing should occur", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_source_lat_xoff,
             { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_vector_request.source_lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitude of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_source_lon_yoff,
             { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_vector_request.source_lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitude of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_source_alt_zoff,
             { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_vector_request.source_alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the source point of the LOS test vector or specifies the Z offset of the source point of the LOS test vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_material_mask,
@@ -9680,17 +9680,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_environmental_conditions_request_lat,
             { "Latitude (degrees)", "cigi.env_cond_request.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the geodetic latitude at which the environmental state is requested", HFILL }
         },
         { &hf_cigi3_environmental_conditions_request_lon,
             { "Longitude (degrees)", "cigi.env_cond_request.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the geodetic longitude at which the environmental state is requested", HFILL }
         },
         { &hf_cigi3_environmental_conditions_request_alt,
             { "Altitude (m)", "cigi.env_cond_request.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the geodetic altitude at which the environmental state is requested", HFILL }
         },
 
@@ -9732,62 +9732,62 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_surface_definition_xoff_left,
             { "X Offset (m)/Left", "cigi.symbl_srfc_def.xoff_left",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the x offset or leftmost boundary for the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_yoff_right,
             { "Y Offset (m)/Right", "cigi.symbl_srfc_def.yoff_right",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the y offset or rightmost boundary for the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_zoff_top,
             { "Z Offset (m)/Top", "cigi.symbl_srfc_def.zoff_top",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the z offset or topmost boundary for the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_yaw_bottom,
             { "Yaw (degrees)/Bottom", "cigi.symbl_srfc_def.yaw_bottom",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the rotation about the surface's Z axis or bottommost boundary for the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_pitch,
             { "Pitch (degrees)", "cigi.symbl_srfc_def.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the rotation about the surface's Y axis", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_roll,
             { "Roll (degrees)", "cigi.symbl_srfc_def.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the rotation about the surface's X axis", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_width,
             { "Width (m/degrees)", "cigi.symbl_srfc_def.width",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the width of the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_height,
             { "Height (m/degrees)", "cigi.symbl_srfc_def.height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the height of the symbol surface", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_min_u,
             { "Min U (surface horizontal units)", "cigi.symbl_srfc_def.min_u",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the minimum U coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_max_u,
             { "Max U (surface horizontal units)", "cigi.symbl_srfc_def.max_u",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum U coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_min_v,
             { "Min V (surface vertical units)", "cigi.symbl_srfc_def.min_v",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the minimum V coordinate of the symbol surface's viewable area", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_max_v,
             { "Max V (surface vertical units)", "cigi.symbl_srfc_def.max_v",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the maximum V coordinate of the symbol surface's viewable area", HFILL }
         },
 
@@ -9819,7 +9819,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_text_definition_font_size,
             { "Font Size", "cigi.symbol_text_def.font_size",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the font size", HFILL }
         },
         { &hf_cigi3_3_symbol_text_definition_text,
@@ -9851,282 +9851,282 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_circle_definition_line_width,
             { "Line Width (scaled symbol surface units)", "cigi.symbol_circle_def.line_width",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the thickness of the line", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_stipple_pattern_length,
             { "Stipple Pattern Length (scaled symbol surface units)", "cigi.symbol_circle_def.stipple_pattern_length",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of one complete repetition of the stipple pattern", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[0],
             { "Center U 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[0],
             { "Center V 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[0],
             { "Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.radius1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[0],
             { "Inner Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[0],
             { "Start Angle 1 (degrees)", "cigi.symbol_circle_def.start_angle1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[0],
             { "End Angle 1 (degrees)", "cigi.symbol_circle_def.end_angle1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[1],
             { "Center U 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[1],
             { "Center V 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[1],
             { "Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.radius2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[1],
             { "Inner Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[1],
             { "Start Angle 2 (degrees)", "cigi.symbol_circle_def.start_angle2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[1],
             { "End Angle 2 (degrees)", "cigi.symbol_circle_def.end_angle2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[2],
             { "Center U 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[2],
             { "Center V 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[2],
             { "Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.radius3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[2],
             { "Inner Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[2],
             { "Start Angle 3 (degrees)", "cigi.symbol_circle_def.start_angle3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[2],
             { "End Angle 3 (degrees)", "cigi.symbol_circle_def.end_angle3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[3],
             { "Center U 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[3],
             { "Center V 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[3],
             { "Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.radius4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[3],
             { "Inner Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[3],
             { "Start Angle 4 (degrees)", "cigi.symbol_circle_def.start_angle4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[3],
             { "End Angle 4 (degrees)", "cigi.symbol_circle_def.end_angle4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[4],
             { "Center U 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[4],
             { "Center V 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[4],
             { "Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.radius5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[4],
             { "Inner Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[4],
             { "Start Angle 5 (degrees)", "cigi.symbol_circle_def.start_angle5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[4],
             { "End Angle 5 (degrees)", "cigi.symbol_circle_def.end_angle5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[5],
             { "Center U 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[5],
             { "Center V 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[5],
             { "Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.radius6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[5],
             { "Inner Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[5],
             { "Start Angle 6 (degrees)", "cigi.symbol_circle_def.start_angle6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[5],
             { "End Angle 6 (degrees)", "cigi.symbol_circle_def.end_angle6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[6],
             { "Center U 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[6],
             { "Center V 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[6],
             { "Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.radius7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[6],
             { "Inner Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[6],
             { "Start Angle 7 (degrees)", "cigi.symbol_circle_def.start_angle7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[6],
             { "End Angle 7 (degrees)", "cigi.symbol_circle_def.end_angle7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[7],
             { "Center U 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[7],
             { "Center V 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[7],
             { "Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.radius8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[7],
             { "Inner Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[7],
             { "Start Angle 8 (degrees)", "cigi.symbol_circle_def.start_angle8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[7],
             { "End Angle 8 (degrees)", "cigi.symbol_circle_def.end_angle8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_u[8],
             { "Center U 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_center_v[8],
             { "Center V 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the center", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_radius[8],
             { "Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.radius9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_inner_radius[8],
             { "Inner Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the inner radius", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_start_angle[8],
             { "Start Angle 9 (degrees)", "cigi.symbol_circle_def.start_angle9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the start angle", HFILL }
         },
         { &hf_cigi3_3_symbol_circle_definition_end_angle[8],
             { "End Angle 9 (degrees)", "cigi.symbol_circle_def.end_angle9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the end angle", HFILL }
         },
 
@@ -10153,302 +10153,302 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_line_definition_line_width,
             { "Line Width (scaled symbol surface units)", "cigi.symbol_line_def.line_width",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the thickness of the line", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_stipple_pattern_length,
             { "Stipple Pattern Length (scaled symbol surface units)", "cigi.symbol_line_def.stipple_pattern_length",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the length of one complete repetition of the stipple pattern", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[0],
             { "Vertex U 1 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[0],
             { "Vertex V 1 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[1],
             { "Vertex U 2 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[1],
             { "Vertex V 2 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[2],
             { "Vertex U 3 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[2],
             { "Vertex V 3 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v3",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[3],
             { "Vertex U 4 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[3],
             { "Vertex V 4 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v4",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[4],
             { "Vertex U 5 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[4],
             { "Vertex V 5 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v5",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[5],
             { "Vertex U 6 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[5],
             { "Vertex V 6 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v6",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[6],
             { "Vertex U 7 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[6],
             { "Vertex V 7 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v7",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[7],
             { "Vertex U 8 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[7],
             { "Vertex V 8 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v8",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[8],
             { "Vertex U 9 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[8],
             { "Vertex V 9 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v9",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[9],
             { "Vertex U 10 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u10",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[9],
             { "Vertex V 10 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v10",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[10],
             { "Vertex U 11 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u11",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[10],
             { "Vertex V 11 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v11",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[11],
             { "Vertex U 12 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u12",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[11],
             { "Vertex V 12 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v12",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[12],
             { "Vertex U 13 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u13",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[12],
             { "Vertex V 13 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v13",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[13],
             { "Vertex U 14 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u14",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[13],
             { "Vertex V 14 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v14",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[14],
             { "Vertex U 15 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u15",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[14],
             { "Vertex V 15 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v15",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[15],
             { "Vertex U 16 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u16",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[15],
             { "Vertex V 16 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v16",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[16],
             { "Vertex U 17 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u17",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[16],
             { "Vertex V 17 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v17",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[17],
             { "Vertex U 18 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u18",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[17],
             { "Vertex V 18 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v18",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[18],
             { "Vertex U 19 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u19",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[18],
             { "Vertex V 19 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v19",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[19],
             { "Vertex U 20 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u20",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[19],
             { "Vertex V 20 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v20",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[20],
             { "Vertex U 21 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u21",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[20],
             { "Vertex V 21 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v21",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[21],
             { "Vertex U 22 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u22",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[21],
             { "Vertex V 22 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v22",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[22],
             { "Vertex U 23 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u23",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[22],
             { "Vertex V 23 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v23",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[23],
             { "Vertex U 24 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u24",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[23],
             { "Vertex V 24 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v24",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[24],
             { "Vertex U 25 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u25",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[24],
             { "Vertex V 25 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v25",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[25],
             { "Vertex U 26 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u26",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[25],
             { "Vertex V 26 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v26",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[26],
             { "Vertex U 27 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u27",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[26],
             { "Vertex V 27 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v27",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[27],
             { "Vertex U 28 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u28",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[27],
             { "Vertex V 28 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v28",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_u[28],
             { "Vertex U 29 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_u29",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position of the vertex", HFILL }
         },
         { &hf_cigi3_3_symbol_line_definition_vertex_v[28],
             { "Vertex V 29 (scaled symbol surface units)", "cigi.symbol_line_def.vertex_v29",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position of the vertex", HFILL }
         },
 
@@ -10527,22 +10527,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_control_flash_period,
             { "Flash Period (seconds)", "cigi.symbol_control.flash_period",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the duration of a single flash cycle", HFILL }
         },
         { &hf_cigi3_3_symbol_control_position_u,
             { "Position U (scaled symbol surface units)", "cigi.symbol_control.position_u",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u position", HFILL }
         },
         { &hf_cigi3_3_symbol_control_position_v,
             { "Position V (scaled symbol surface units)", "cigi.symbol_control.position_v",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v position", HFILL }
         },
         { &hf_cigi3_3_symbol_control_rotation,
             { "Rotation (degrees)", "cigi.symbol_control.rotation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the rotation", HFILL }
         },
         { &hf_cigi3_3_symbol_control_red,
@@ -10567,12 +10567,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_control_scale_u,
             { "Scale U", "cigi.symbol_control.scale_u",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the u scaling factor", HFILL }
         },
         { &hf_cigi3_3_symbol_control_scale_v,
             { "Scale V", "cigi.symbol_control.scale_v",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the v scaling factor", HFILL }
         },
 
@@ -10629,12 +10629,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value1f,
             { "Value 1", "cigi.short_symbol_control.value1",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the value for attribute 1", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value2f,
             { "Value 2", "cigi.short_symbol_control.value2",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the value for attribute 2", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_red1,
@@ -10706,7 +10706,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_start_of_frame_time_tag,
             { "Timing Value (microseconds)", "cigi.sof.time_tag",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Contains a timing value that is used to time-tag the ethernet message during asynchronous operation", HFILL }
         },
 
@@ -10822,7 +10822,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_above_terrain_response_alt,
             { "Altitude (m)", "cigi.hat_response.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Represents the altitude above or below the terrain for the position requested", HFILL }
         },
 
@@ -10849,7 +10849,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_response_height,
             { "Height", "cigi.hat_hot_response.height",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Contains the requested height", HFILL }
         },
 
@@ -10881,7 +10881,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_response_height,
             { "Height", "cigi.hat_hot_response.height",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Contains the requested height", HFILL }
         },
 
@@ -10903,12 +10903,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_extended_response_hat,
             { "HAT", "cigi.hat_hot_ext_response.hat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the height of the test point above the terrain", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_hot,
             { "HOT", "cigi.hat_hot_ext_response.hot",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the height of terrain above or below the test point", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_material_code,
@@ -10918,12 +10918,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_extended_response_normal_vector_azimuth,
             { "Normal Vector Azimuth (degrees)", "cigi.hat_hot_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the azimuth of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_normal_vector_elevation,
             { "Normal Vector Elevation (degrees)", "cigi.hat_hot_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the elevation of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
 
@@ -10950,12 +10950,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_extended_response_hat,
             { "HAT", "cigi.hat_hot_ext_response.hat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the height of the test point above the terrain", HFILL }
         },
         { &hf_cigi3_2_hat_hot_extended_response_hot,
             { "HOT", "cigi.hat_hot_ext_response.hot",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the height of terrain above or below the test point", HFILL }
         },
         { &hf_cigi3_2_hat_hot_extended_response_material_code,
@@ -10965,12 +10965,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_extended_response_normal_vector_azimuth,
             { "Normal Vector Azimuth (degrees)", "cigi.hat_hot_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the azimuth of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
         { &hf_cigi3_2_hat_hot_extended_response_normal_vector_elevation,
             { "Normal Vector Elevation (degrees)", "cigi.hat_hot_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the elevation of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
 
@@ -11002,22 +11002,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_line_of_sight_response_range,
             { "Range (m)", "cigi.los_response.range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Used to respond to the Line of Sight Range Request data packet", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_alt,
             { "Intersection Altitude (m)", "cigi.los_response.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the altitude of the point of intersection of the LOS request vector with an object", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_lat,
             { "Intersection Latitude (degrees)", "cigi.los_response.lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the latitudinal position of the intersection point of the LOS request vector with an object", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_lon,
             { "Intersection Longitude (degrees)", "cigi.los_response.lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Specifies the longitudinal position of the intersection point of the LOS request vector with an object", HFILL }
         },
 
@@ -11059,7 +11059,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_response_range,
             { "Range (m)", "cigi.los_response.range",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with a polygon surface", HFILL }
         },
 
@@ -11106,7 +11106,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_response_range,
             { "Range (m)", "cigi.los_response.range",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with a polygon surface", HFILL }
         },
 
@@ -11158,22 +11158,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_extended_response_range,
             { "Range (m)", "cigi.los_ext_response.range",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with an object", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.los_ext_response.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic latitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's X axis", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.los_ext_response.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic longitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Y axis", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_alt_zoff,
             { "Altitude (m)/Z Offset(m)", "cigi.los_ext_response.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic altitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Z axis", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_red,
@@ -11203,12 +11203,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth,
             { "Normal Vector Azimuth (degrees)", "cigi.los_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the azimuth of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_normal_vector_elevation,
             { "Normal Vector Elevation (degrees)", "cigi.los_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the elevation of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
 
@@ -11260,22 +11260,22 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_extended_response_range,
             { "Range (m)", "cigi.3_2_los_ext_response.range",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with an object", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.3_2_los_ext_response.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic latitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's X axis", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.3_2_los_ext_response.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic longitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Y axis", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_alt_zoff,
             { "Altitude (m)/Z Offset(m)", "cigi.3_2_los_ext_response.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic altitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Z axis", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_red,
@@ -11305,12 +11305,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_extended_response_normal_vector_azimuth,
             { "Normal Vector Azimuth (degrees)", "cigi.3_2_los_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the azimuth of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_normal_vector_elevation,
             { "Normal Vector Elevation (degrees)", "cigi.3_2_los_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the elevation of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
         },
 
@@ -11347,17 +11347,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_collision_detection_segment_response_collision_x,
             { "Collision Point X (m)", "cigi.coll_det_seg_response.collision_x",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X component of a vector, which lies along the defined segment where the segment intersected a surface", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_response_collision_y,
             { "Collision Point Y (m)", "cigi.coll_det_seg_response.collision_y",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y component of a vector, which lies along the defined segment where the segment intersected a surface", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_response_collision_z,
             { "Collision Point Z (m)", "cigi.coll_det_seg_response.collision_z",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z component of a vector, which lies along the defined segment where the segment intersected a surface", HFILL }
         },
 
@@ -11436,12 +11436,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_response_gate_x_pos,
             { "Gate X Position (degrees)", "cigi.sensor_response.gate_x_pos",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the gate symbol's position along the view's X axis", HFILL }
         },
         { &hf_cigi3_sensor_response_gate_y_pos,
             { "Gate Y Position (degrees)", "cigi.sensor_response.gate_y_pos",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the gate symbol's position along the view's Y axis", HFILL }
         },
         { &hf_cigi3_sensor_response_frame_ctr,
@@ -11493,12 +11493,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_extended_response_gate_x_pos,
             { "Gate X Position (degrees)", "cigi.sensor_ext_response.gate_x_pos",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the gate symbol's position along the view's X axis", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_gate_y_pos,
             { "Gate Y Position (degrees)", "cigi.sensor_ext_response.gate_y_pos",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the gate symbol's position along the view's Y axis", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_frame_ctr,
@@ -11508,17 +11508,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_extended_response_track_lat,
             { "Track Point Latitude (degrees)", "cigi.sensor_ext_response.track_lat",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic latitude of the point being tracked by the sensor", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_track_lon,
             { "Track Point Longitude (degrees)", "cigi.sensor_ext_response.track_lon",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic longitude of the point being tracked by the sensor", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_track_alt,
             { "Track Point Altitude (m)", "cigi.sensor_ext_response.track_alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic altitude of the point being tracked by the sensor", HFILL }
         },
 
@@ -11545,7 +11545,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_of_terrain_response_alt,
             { "Altitude (m)", "cigi.hot_response.alt",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Represents the altitude of the terrain for the position requested in the HOT request data packet", HFILL }
         },
 
@@ -11604,32 +11604,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_position_response_lat_xoff,
             { "Latitude (degrees)/X Offset (m)", "cigi.pos_response.lat_xoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic latitude of the entity, articulated part, view, or view group or indicates the X offset from the parent entity's origin to the child entity, articulated part, view or view group", HFILL }
         },
         { &hf_cigi3_position_response_lon_yoff,
             { "Longitude (degrees)/Y Offset (m)", "cigi.pos_response.lon_yoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic longitude of the entity, articulated part, view, or view group or indicates the Y offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
         },
         { &hf_cigi3_position_response_alt_zoff,
             { "Altitude (m)/Z Offset (m)", "cigi.pos_response.alt_zoff",
-                FT_DOUBLE, BASE_DEC, NULL, 0x0,
+                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 "Indicates the geodetic altitude of the entity, articulated part, view, or view group or indicates the Z offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
         },
         { &hf_cigi3_position_response_roll,
             { "Roll (degrees)", "cigi.pos_response.roll",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the roll angle of the specified entity, articulated part, view, or view group", HFILL }
         },
         { &hf_cigi3_position_response_pitch,
             { "Pitch (degrees)", "cigi.pos_response.pitch",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the pitch angle of the specified entity, articulated part, view, or view group", HFILL }
         },
         { &hf_cigi3_position_response_yaw,
             { "Yaw (degrees)", "cigi.pos_response.yaw",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the yaw angle of the specified entity, articulated part, view, or view group", HFILL }
         },
 
@@ -11651,32 +11651,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_weather_conditions_response_air_temp,
             { "Air Temperature (degrees C)", "cigi.wea_cond_response.air_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the air temperature at the requested location", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_visibility_range,
             { "Visibility Range (m)", "cigi.wea_cond_response.visibility_range",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the visibility range at the requested location", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_horiz_speed,
             { "Horizontal Wind Speed (m/s)", "cigi.wea_cond_response.horiz_speed",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_vert_speed,
             { "Vertical Wind Speed (m/s)", "cigi.wea_cond_response.vert_speed",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the local vertical wind speed", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_wind_direction,
             { "Wind Direction (degrees)", "cigi.wea_cond_response.wind_direction",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the local wind direction", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_barometric_pressure,
             { "Barometric Pressure (mb or hPa)", "cigi.wea_cond_response.barometric_pressure",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the atmospheric pressure at the requested location", HFILL }
         },
 
@@ -11698,7 +11698,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_aerosol_concentration_response_aerosol_concentration,
             { "Aerosol Concentration (g/m^3)", "cigi.aerosol_concentration_response.aerosol_concentration",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the concentration of airborne particles", HFILL }
         },
 
@@ -11715,17 +11715,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_maritime_surface_conditions_response_sea_surface_height,
             { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_response.sea_surface_height",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the height of the sea surface at equilibrium", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_response_surface_water_temp,
             { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_response.surface_water_temp",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the water temperature at the sea surface", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_response_surface_clarity,
             { "Surface Clarity (%)", "cigi.maritime_surface_conditions_response.surface_clarity",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the clarity of the water at its surface", HFILL }
         },
 
@@ -11779,7 +11779,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_collision_detection_segment_notification_intersection_distance,
             { "Intersection Distance (m)", "cigi.coll_det_seg_notification.intersection_distance",
-                FT_FLOAT, BASE_DEC, NULL, 0x0,
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Indicates the distance along the collision test vector from the source endpoint to the point of intersection", HFILL }
         },
 
