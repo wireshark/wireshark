@@ -564,7 +564,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_power_level_adjust,
 			{
 				"Power Level Adjust", "wmx.rng_rsp.power_level_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
@@ -627,7 +627,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_ss_mac_address,
 			{
 				"SS MAC Address", "wmx.rng_rsp.ss_mac_address",
-				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
@@ -648,7 +648,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_timing_adjust,
 			{
 				"Timing Adjust", "wmx.rng_rsp.timing_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{

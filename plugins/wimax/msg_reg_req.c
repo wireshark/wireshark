@@ -943,7 +943,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_mac_address,
 			{
 				"MAC Address of the SS", "wmx.reg.mac_address",
-				FT_ETHER, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

@@ -386,7 +386,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_bs_id,
 			{
 				"Base Station ID", "wmx.dcd.bs_id",
-				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 			{
@@ -407,14 +407,14 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_burst_diuc_entry_threshold,
 			{
 				"DIUC Minimum Entry Threshold (in 0.25 dB units)", "wmx.dcd.burst.diuc_entry_threshold",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_burst_diuc_exit_threshold,
 			{
 				"DIUC Mandatory Exit Threshold (in 0.25 dB units)", "wmx.dcd.burst.diuc_exit_threshold",
-				FT_FLOAT, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{

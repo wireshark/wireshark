@@ -2292,7 +2292,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_cpe_ethernet,
      {"14 CPE Ethernet Addr", "docsis_tlv.cpe_ether",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       "CPE Ethernet Addr", HFILL}
      },
     {&hf_docsis_tlv_bpi,
@@ -2447,12 +2447,12 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_ethclsfr_dmac,
      {"..1 Dest Mac Address", "docsis_tlv.clsfr.eth.dmac",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       "Destination Mac Address", HFILL}
      },
     {&hf_docsis_tlv_ethclsfr_smac,
      {"..2 Source Mac Address", "docsis_tlv.clsfr.eth.smac",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       "Source Mac Address", HFILL}
      },
     {&hf_docsis_tlv_ethclsfr_ethertype,

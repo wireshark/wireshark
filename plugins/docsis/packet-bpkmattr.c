@@ -414,7 +414,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_mac_addr,
      {"3 Mac Address", "docsis_bpkmattr.macaddr",
-      FT_ETHER, BASE_HEX, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       "Mac Address", HFILL}
      },
     {&hf_docsis_bpkmattr_rsa_pub_key,

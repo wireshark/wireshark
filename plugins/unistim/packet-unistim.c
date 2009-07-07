@@ -975,7 +975,7 @@ proto_register_unistim(void){
          },
          { &hf_basic_ether_address,
             {"Phone Ethernet Address","unistim.phone.ether",FT_ETHER,
-               BASE_HEX,NULL,0x00,NULL,HFILL}
+               BASE_NONE,NULL,0x00,NULL,HFILL}
          },
          { &hf_audio_rtcp_bucket_id,
             {"RTCP Bucket ID","unistim.audio.rtcp.bucket.id",FT_UINT8,

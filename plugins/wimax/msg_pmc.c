@@ -153,14 +153,14 @@ void proto_register_mac_mgmt_msg_pmc_req(void)
 			&hf_pmc_rsp_offset_BS_per_MS,
 			{
 				"Offset_BS per MS.	Signed change in power level (incr of 0.25 dB) that the MS shall apply to the open loop power control formula in 8.4.10.3.2", "wmx.pmc_rsp.offset_BS_per_MS",
-				FT_FLOAT, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_pmc_rsp_power_adjust,
 			{
 				"Power adjust.	Signed change in power level (incr of 0.25 dB) the MS shall apply to its current transmission power. When subchannelization is employed, the SS shall interpret as a required change to the Tx power density", "wmx.pmc_rsp.power_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

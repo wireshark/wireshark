@@ -221,7 +221,7 @@ proto_register_pn_mrrt (void)
 	{ &hf_pn_mrrt_sequence_id,
 		{ "SequenceID", "pn_mrrt.sequence_id", FT_UINT16, BASE_HEX, NULL, 0x0, "Unique sequence number to each outstanding service request", HFILL }},
 	{ &hf_pn_mrrt_sa,
-        { "SA", "pn_mrrt.sa", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+        { "SA", "pn_mrrt.sa", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrrt_domain_uuid,
 		{ "DomainUUID", "pn_mrrt.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };

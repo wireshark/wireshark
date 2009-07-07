@@ -209,12 +209,12 @@ proto_register_docsis_mgmt (void)
      },
     {&hf_docsis_mgt_dst_addr,
      {"Destination Address", "docsis_mgmt.dst",
-      FT_ETHER, BASE_HEX, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
      },
     {&hf_docsis_mgt_src_addr,
      {"Source Address", "docsis_mgmt.src",
-      FT_ETHER, BASE_HEX, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
      },
     {&hf_docsis_mgt_msg_len,

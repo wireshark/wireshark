@@ -465,14 +465,14 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 			&hf_rng_req_serving_bs_id,
 			{
 				"Former serving BS ID", "wmx.rng_req.serving_bs_id",
-				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_rng_req_ss_mac_address,
 			{
 				"SS MAC Address", "wmx.rng_req.ss_mac_address",
-				FT_ETHER, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		}
 	};

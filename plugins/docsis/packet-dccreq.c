@@ -559,7 +559,7 @@ proto_register_docsis_dccreq (void)
       {
       "CMTS Mac Address",
       "docsis_dccreq.cmts_mac_addr",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL,
       HFILL
       }

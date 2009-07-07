@@ -102,7 +102,7 @@ void proto_register_mac_mgmt_msg_fpc(void)
 			&hf_fpc_power_adjust,
 			{
 				"Power Adjust.	Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
-				FT_FLOAT, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

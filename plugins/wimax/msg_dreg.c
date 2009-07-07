@@ -219,7 +219,7 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 			&hf_paging_controller_id,
 			{
 				"Paging Controller ID", "wmx.dreg.paging_controller_id",
-				FT_ETHER, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

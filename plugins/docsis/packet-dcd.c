@@ -721,7 +721,7 @@ proto_register_docsis_dcd (void)
       {
       "DSG Rule Client ID Known MAC Address", 
       "docsis_dcd.clid_known_mac_addr",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL, 
       HFILL
       }
@@ -748,7 +748,7 @@ proto_register_docsis_dcd (void)
       {
       "DSG Rule Tunnel MAC Address", 
       "docsis_dcd.rule_tunl_addr",
-      FT_ETHER, BASE_DEC, NULL, 0x0,
+      FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL, 
       HFILL
       }

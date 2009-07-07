@@ -877,12 +877,12 @@ proto_register_pn_ptcp (void)
         { "TypeLength.Type", "pn_ptcp.tl_type", FT_UINT16, BASE_DEC, 0x0, 0xFE00, NULL, HFILL }},
 
 	{ &hf_pn_ptcp_master_source_address,
-        { "MasterSourceAddress", "pn_ptcp.master_source_address", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+        { "MasterSourceAddress", "pn_ptcp.master_source_address", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_ptcp_subdomain_uuid,
         { "SubdomainUUID", "pn_ptcp.subdomain_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 
     { &hf_pn_ptcp_port_mac_address,
-        { "PortMACAddress", "pn_ptcp.port_mac_address", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+        { "PortMACAddress", "pn_ptcp.port_mac_address", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 
 	{ &hf_pn_ptcp_t2portrxdelay,
         { "T2PortRxDelay (ns)", "pn_ptcp.t2portrxdelay", FT_UINT32, BASE_DEC, 0x0, 0x0, NULL, HFILL }},

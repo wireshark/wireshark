@@ -1275,7 +1275,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{
 			&hf_cmac_tuple_bsid,
-			{"BSID", "wmx.cmac_tuple.bsid", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}
+			{"BSID", "wmx.cmac_tuple.bsid", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{
 			&hf_cmac_tuple_cmac_value,
@@ -1567,7 +1567,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 11.9.26 - type 39 */
 			&hf_pkm_attr_ms_mac_address,
-			{"MS-MAC Address", "wmx.pkm_msg.pkm_attr.ms_mac_address",FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}
+			{"MS-MAC Address", "wmx.pkm_msg.pkm_attr.ms_mac_address",FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 		{	/* 11.9.27 - type 40 */
 			&hf_pkm_attr_cmac_digest,

@@ -6980,7 +6980,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_ar_type,
     { "ARType", "pn_io.ar_type", FT_UINT16, BASE_HEX, VALS(pn_io_ar_type), 0x0, NULL, HFILL }},
 	{ &hf_pn_io_cminitiator_macadd,
-      { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+      { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_io_cminitiator_objectuuid,
       { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
         { &hf_pn_io_parameter_server_objectuuid,
@@ -7020,7 +7020,7 @@ proto_register_pn_io (void)
 		{ "ParameterServerStationName", "pn_io.parameter_server_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_pn_io_cmresponder_macadd,
-      { "CMResponderMacAdd", "pn_io.cmresponder_macadd", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+      { "CMResponderMacAdd", "pn_io.cmresponder_macadd", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_io_cmresponder_udprtport,
 		{ "CMResponderUDPRTPort", "pn_io.cmresponder_udprtport", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
 
@@ -7081,7 +7081,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_iocr_tag_header,
       { "IOCRTagHeader", "pn_io.iocr_tag_header", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_iocr_multicast_mac_add,
-      { "IOCRMulticastMACAdd", "pn_io.iocr_multicast_mac_add", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOCRMulticastMACAdd", "pn_io.iocr_multicast_mac_add", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_number_of_apis,
       { "NumberOfAPIs", "pn_io.number_of_apis", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_number_of_io_data_objects,

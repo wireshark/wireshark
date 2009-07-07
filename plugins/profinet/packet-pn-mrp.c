@@ -422,7 +422,7 @@ proto_register_pn_mrp (void)
 	{ &hf_pn_mrp_sequence_id,
 		{ "SequenceID", "pn_mrp.sequence_id", FT_UINT16, BASE_HEX, NULL, 0x0, "Unique sequence number to each outstanding service request", HFILL }},
 	{ &hf_pn_mrp_sa,
-        { "SA", "pn_mrp.sa", FT_ETHER, BASE_HEX, 0x0, 0x0, NULL, HFILL }},
+        { "SA", "pn_mrp.sa", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_prio,
 		{ "Prio", "pn_mrp.prio", FT_UINT16, BASE_HEX, VALS(pn_mrp_prio_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_port_role,
