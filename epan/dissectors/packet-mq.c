@@ -2505,28 +2505,28 @@ proto_register_mq(void)
       { "Padding", "mq.tsh.padding", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Padding", HFILL }},
 
     { &hf_mq_tsh_tcf_confirmreq,
-      { "Confirm request", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL }},
+      { "Confirm request", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL }},
 
     { &hf_mq_tsh_tcf_error,
-      { "Error", "mq.tsh.tcf.error", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_ERROR, "TSH TCF Error", HFILL }},
+      { "Error", "mq.tsh.tcf.error", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_ERROR, "TSH TCF Error", HFILL }},
 
     { &hf_mq_tsh_tcf_reqclose,
-      { "Request close", "mq.tsh.tcf.reqclose", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_REQUEST_CLOSE, "TSH TCF Request close", HFILL }},
+      { "Request close", "mq.tsh.tcf.reqclose", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_REQUEST_CLOSE, "TSH TCF Request close", HFILL }},
 
     { &hf_mq_tsh_tcf_closechann,
-      { "Close channel", "mq.tsh.tcf.closechann", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_CLOSE_CHANNEL, "TSH TCF Close channel", HFILL }},
+      { "Close channel", "mq.tsh.tcf.closechann", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_CLOSE_CHANNEL, "TSH TCF Close channel", HFILL }},
 
     { &hf_mq_tsh_tcf_first,
-      { "First", "mq.tsh.tcf.first", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_FIRST, "TSH TCF First", HFILL }},
+      { "First", "mq.tsh.tcf.first", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_FIRST, "TSH TCF First", HFILL }},
 
     { &hf_mq_tsh_tcf_last,
-      { "Last", "mq.tsh.tcf.last", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_LAST, "TSH TCF Last", HFILL }},
+      { "Last", "mq.tsh.tcf.last", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_LAST, "TSH TCF Last", HFILL }},
 
     { &hf_mq_tsh_tcf_reqacc,
-      { "Request accepted", "mq.tsh.tcf.reqacc", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_REQUEST_ACCEPTED, "TSH TCF Request accepted", HFILL }},
+      { "Request accepted", "mq.tsh.tcf.reqacc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_REQUEST_ACCEPTED, "TSH TCF Request accepted", HFILL }},
 
     { &hf_mq_tsh_tcf_dlq,
-      { "DLQ used", "mq.tsh.tcf.dlq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_TCF_DLQ_USED, "TSH TCF DLQ used", HFILL }},
+      { "DLQ used", "mq.tsh.tcf.dlq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_DLQ_USED, "TSH TCF DLQ used", HFILL }},
 
     { &hf_mq_api_replylength,
       { "Reply length", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
@@ -2541,22 +2541,22 @@ proto_register_mq(void)
       { "Object handle", "mq.api.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
 
     { &hf_mq_id_icf_msgseq,
-      { "Message sequence", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_MSG_SEQ, "ID ICF Message sequence", HFILL }},
+      { "Message sequence", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_MSG_SEQ, "ID ICF Message sequence", HFILL }},
 
     { &hf_mq_id_icf_convcap,
-      { "Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL }},
+      { "Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL }},
 
     { &hf_mq_id_icf_splitmsg,
-      { "Split messages", "mq.id.icf.splitmsg", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_SPLIT_MESSAGE, "ID ICF Split message", HFILL }},
+      { "Split messages", "mq.id.icf.splitmsg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_SPLIT_MESSAGE, "ID ICF Split message", HFILL }},
 
     { &hf_mq_id_icf_mqreq,
-      { "MQ request", "mq.id.icf.mqreq", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_MQREQUEST, "ID ICF MQ request", HFILL }},
+      { "MQ request", "mq.id.icf.mqreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_MQREQUEST, "ID ICF MQ request", HFILL }},
 
     { &hf_mq_id_icf_svrsec,
-      { "Server connection security", "mq.id.icf.svrsec", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_SVRCONN_SECURITY, "ID ICF Server connection security", HFILL }},
+      { "Server connection security", "mq.id.icf.svrsec", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_SVRCONN_SECURITY, "ID ICF Server connection security", HFILL }},
 
     { &hf_mq_id_icf_runtime,
-      { "Runtime application", "mq.id.icf.runtime", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_ICF_RUNTIME, "ID ICF Runtime application", HFILL }},
+      { "Runtime application", "mq.id.icf.runtime", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_RUNTIME, "ID ICF Runtime application", HFILL }},
 
     { &hf_mq_msh_structid,
       { "MSH structid", "mq.msh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2637,28 +2637,28 @@ proto_register_mq(void)
       { "Unknown6", "mq.id.unknown6", FT_UINT16, BASE_HEX, NULL, 0x0, "ID unknown6", HFILL }},
 
     { &hf_mq_id_ief_ccsid,
-      { "Invalid CCSID", "mq.id.ief.ccsid", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_CCSID, "ID invalid CCSID", HFILL }},
+      { "Invalid CCSID", "mq.id.ief.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_CCSID, "ID invalid CCSID", HFILL }},
 
     { &hf_mq_id_ief_enc,
-      { "Invalid encoding", "mq.id.ief.enc", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_ENCODING, "ID invalid encoding", HFILL }},
+      { "Invalid encoding", "mq.id.ief.enc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_ENCODING, "ID invalid encoding", HFILL }},
 
     { &hf_mq_id_ief_mxtrsz,
-      { "Invalid maximum transmission size", "mq.id.ief.mxtrsz", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_MAX_TRANSMISSION_SIZE, "ID invalid maximum transmission size", HFILL }},
+      { "Invalid maximum transmission size", "mq.id.ief.mxtrsz", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_MAX_TRANSMISSION_SIZE, "ID invalid maximum transmission size", HFILL }},
 
     { &hf_mq_id_ief_fap,
-      { "Invalid FAP level", "mq.id.ief.fap", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_FAP_LEVEL, "ID invalid FAP level", HFILL }},
+      { "Invalid FAP level", "mq.id.ief.fap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_FAP_LEVEL, "ID invalid FAP level", HFILL }},
 
     { &hf_mq_id_ief_mxmsgsz,
-      { "Invalid message size", "mq.id.ief.mxmsgsz", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_MAX_MSG_SIZE, "ID invalid message size", HFILL }},
+      { "Invalid message size", "mq.id.ief.mxmsgsz", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_MAX_MSG_SIZE, "ID invalid message size", HFILL }},
 
     { &hf_mq_id_ief_mxmsgpb,
-      { "Invalid maximum message per batch", "mq.id.ief.mxmsgpb", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_MAX_MSG_PER_BATCH, "ID maximum message per batch", HFILL }},
+      { "Invalid maximum message per batch", "mq.id.ief.mxmsgpb", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_MAX_MSG_PER_BATCH, "ID maximum message per batch", HFILL }},
 
     { &hf_mq_id_ief_seqwrap,
-      { "Invalid sequence wrap value", "mq.id.ief.seqwrap", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_SEQ_WRAP_VALUE, "ID invalid sequence wrap value", HFILL }},
+      { "Invalid sequence wrap value", "mq.id.ief.seqwrap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_SEQ_WRAP_VALUE, "ID invalid sequence wrap value", HFILL }},
 
     { &hf_mq_id_ief_hbint,
-      { "Invalid heartbeat interval", "mq.id.ief.hbint", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_IEF_HEARTBEAT_INTERVAL, "ID invalid heartbeat interval", HFILL }},
+      { "Invalid heartbeat interval", "mq.id.ief.hbint", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_HEARTBEAT_INTERVAL, "ID invalid heartbeat interval", HFILL }},
 
     { &hf_mq_uid_structid,
       { "UID structid", "mq.uid.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2775,13 +2775,13 @@ proto_register_mq(void)
       { "Size", "mq.spgo.size", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Get Output size", HFILL }},
 
     { &hf_mq_spi_options_blank,
-      { "Blank padded", "mq.spi.options.blank", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_SPI_OPTIONS_BLANK_PADDED, "SPI Options blank padded", HFILL }},
+      { "Blank padded", "mq.spi.options.blank", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_SPI_OPTIONS_BLANK_PADDED, "SPI Options blank padded", HFILL }},
 
     { &hf_mq_spi_options_syncpoint,
-      { "Syncpoint", "mq.spi.options.sync", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_SPI_OPTIONS_SYNCPOINT, "SPI Options syncpoint", HFILL }},
+      { "Syncpoint", "mq.spi.options.sync", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_SPI_OPTIONS_SYNCPOINT, "SPI Options syncpoint", HFILL }},
 
     { &hf_mq_spi_options_deferred,
-      { "Deferred", "mq.spi.options.deferred", FT_BOOLEAN, 8, TFS(&flags_set_truth), MQ_SPI_OPTIONS_DEFERRED, "SPI Options deferred", HFILL }},
+      { "Deferred", "mq.spi.options.deferred", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_SPI_OPTIONS_DEFERRED, "SPI Options deferred", HFILL }},
 
     { &hf_mq_put_length,
       { "Data length", "mq.put.length", FT_UINT32, BASE_DEC, NULL, 0x0, "PUT Data length", HFILL }},
@@ -3159,28 +3159,28 @@ proto_register_mq(void)
       { "Number of Xid", "mq.xa.nbxid", FT_UINT32, BASE_DEC, NULL, 0x0, "XA Number of Xid", HFILL }},
 
     { &hf_mq_xa_tmflags_join,
-      { "JOIN", "mq.xa.tmflags.join", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMJOIN, "XA TM Flags JOIN", HFILL }},
+      { "JOIN", "mq.xa.tmflags.join", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMJOIN, "XA TM Flags JOIN", HFILL }},
 
     { &hf_mq_xa_tmflags_endrscan,
-      { "ENDRSCAN", "mq.xa.tmflags.endrscan", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMENDRSCAN, "XA TM Flags ENDRSCAN", HFILL }},
+      { "ENDRSCAN", "mq.xa.tmflags.endrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMENDRSCAN, "XA TM Flags ENDRSCAN", HFILL }},
 
     { &hf_mq_xa_tmflags_startrscan,
-      { "STARTRSCAN", "mq.xa.tmflags.startrscan", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSTARTRSCAN, "XA TM Flags STARTRSCAN", HFILL }},
+      { "STARTRSCAN", "mq.xa.tmflags.startrscan", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSTARTRSCAN, "XA TM Flags STARTRSCAN", HFILL }},
 
     { &hf_mq_xa_tmflags_suspend,
-      { "SUSPEND", "mq.xa.tmflags.suspend", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSUSPEND, "XA TM Flags SUSPEND", HFILL }},
+      { "SUSPEND", "mq.xa.tmflags.suspend", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSUSPEND, "XA TM Flags SUSPEND", HFILL }},
 
     { &hf_mq_xa_tmflags_success,
-      { "SUCCESS", "mq.xa.tmflags.success", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMSUCCESS, "XA TM Flags SUCCESS", HFILL }},
+      { "SUCCESS", "mq.xa.tmflags.success", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMSUCCESS, "XA TM Flags SUCCESS", HFILL }},
 
     { &hf_mq_xa_tmflags_resume,
-      { "RESUME", "mq.xa.tmflags.resume", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMRESUME, "XA TM Flags RESUME", HFILL }},
+      { "RESUME", "mq.xa.tmflags.resume", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMRESUME, "XA TM Flags RESUME", HFILL }},
 
     { &hf_mq_xa_tmflags_fail,
-      { "FAIL", "mq.xa.tmflags.fail", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMFAIL, "XA TM Flags FAIL", HFILL }},
+      { "FAIL", "mq.xa.tmflags.fail", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMFAIL, "XA TM Flags FAIL", HFILL }},
 
     { &hf_mq_xa_tmflags_onephase,
-      { "ONEPHASE", "mq.xa.tmflags.onephase", FT_BOOLEAN, 32, TFS(&flags_set_truth), MQ_XA_TMONEPHASE, "XA TM Flags ONEPHASE", HFILL }},
+      { "ONEPHASE", "mq.xa.tmflags.onephase", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_XA_TMONEPHASE, "XA TM Flags ONEPHASE", HFILL }},
 
     { &hf_mq_xa_xid_formatid,
       { "Format ID", "mq.xa.xid.formatid", FT_INT32, BASE_DEC, NULL, 0x0, "XA Xid Format ID", HFILL }},

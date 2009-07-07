@@ -829,16 +829,16 @@ proto_register_drda(void)
       { "Format", "drda.ddm.format", FT_UINT8, BASE_HEX, NULL, 0x0, "DDM format", HFILL }},
 
    { &hf_drda_ddm_fmt_reserved,
-      { "Reserved", "drda.ddm.fmt.bit0", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_RESERVED, "DSSFMT reserved", HFILL }},
+      { "Reserved", "drda.ddm.fmt.bit0", FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_RESERVED, "DSSFMT reserved", HFILL }},
 
    { &hf_drda_ddm_fmt_chained,
-      { "Chained", "drda.ddm.fmt.bit1", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_CHAINED, "DSSFMT chained", HFILL }},
+      { "Chained", "drda.ddm.fmt.bit1", FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_CHAINED, "DSSFMT chained", HFILL }},
 
    { &hf_drda_ddm_fmt_errcont,
-      { "Continue", "drda.ddm.fmt.bit2", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_CONTINUE, "DSSFMT continue on error", HFILL }},
+      { "Continue", "drda.ddm.fmt.bit2", FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_CONTINUE, "DSSFMT continue on error", HFILL }},
 
    { &hf_drda_ddm_fmt_samecorr,
-      { "Same correlation", "drda.ddm.fmt.bit3", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_SAME_CORR, "DSSFMT same correlation", HFILL }},
+      { "Same correlation", "drda.ddm.fmt.bit3", FT_BOOLEAN, 4, TFS(&tfs_set_notset), DRDA_DSSFMT_SAME_CORR, "DSSFMT same correlation", HFILL }},
 
    { &hf_drda_ddm_fmt_dsstyp,
       { "DSS type", "drda.ddm.fmt.dsstyp", FT_UINT8, BASE_DEC, VALS(drda_dsstyp_abbr), 0x0, "DSSFMT type", HFILL }},

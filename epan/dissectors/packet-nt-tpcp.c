@@ -194,19 +194,19 @@ proto_register_tpcp(void)
 		"PDU type", HFILL }},
 		
 		{ &hf_tpcp_flags_tcp,
-		{ "UDP/TCP",		"tpcp.flags.tcp", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_UDPTCP,
+		{ "UDP/TCP",		"tpcp.flags.tcp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TF_TPCP_UDPTCP,
 		"Protocol type", HFILL }},
 		
 		{ &hf_tpcp_flags_redir,
-		{ "No Redirect",	"tpcp.flags.redir", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_DONTREDIRECT,
+		{ "No Redirect",	"tpcp.flags.redir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TF_TPCP_DONTREDIRECT,
 		"Don't redirect client", HFILL }},
 		
 		{ &hf_tpcp_flags_xon,
-		{ "XON",		"tpcp.flags.xon", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_XON,
+		{ "XON",		"tpcp.flags.xon", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TF_TPCP_XON,
 		NULL, HFILL }},
 		
 		{ &hf_tpcp_flags_xoff,
-		{ "XOFF",		"tpcp.flags.xoff", FT_BOOLEAN, 8, TFS(&flags_set_truth), TF_TPCP_XOFF,
+		{ "XOFF",		"tpcp.flags.xoff", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TF_TPCP_XOFF,
 		NULL, HFILL }},
 		
 		{ &hf_tpcp_id,

@@ -861,16 +861,16 @@ void proto_register_fr(void)
 	  NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 	{ &hf_fr_p, {
 	  "Poll", "fr.control.p", FT_BOOLEAN, 8,
-	  TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+	  TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 	{ &hf_fr_p_ext, {
 	  "Poll", "fr.control.p", FT_BOOLEAN, 16,
-	  TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+	  TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 	{ &hf_fr_f, {
 	  "Final", "fr.control.f", FT_BOOLEAN, 8,
-	  TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+	  TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 	{ &hf_fr_f_ext, {
 	  "Final", "fr.control.f", FT_BOOLEAN, 16,
-	  TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+	  TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 	{ &hf_fr_s_ftype, {
 	  "Supervisory frame type", "fr.control.s_ftype", FT_UINT16, BASE_HEX,
 	  VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},

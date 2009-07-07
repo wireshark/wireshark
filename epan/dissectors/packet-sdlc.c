@@ -169,11 +169,11 @@ proto_register_sdlc(void)
 
 		{ &hf_sdlc_p,
 		    { "Poll", "sdlc.control.p", FT_BOOLEAN, 8,
-		      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+		      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_f,
 		    { "Final", "sdlc.control.f", FT_BOOLEAN, 8,
-		      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+		      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_sdlc_s_ftype,
 		    { "Supervisory frame type", "sdlc.control.s_ftype", FT_UINT8, BASE_HEX,

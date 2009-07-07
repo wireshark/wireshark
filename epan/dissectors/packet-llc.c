@@ -837,19 +837,19 @@ proto_register_llc(void)
 
 		{ &hf_llc_p,
 		{ "Poll", "llc.control.p", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+			TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_llc_p_ext,
 		{ "Poll", "llc.control.p", FT_BOOLEAN, 16,
-			TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+			TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 		{ &hf_llc_f,
 		{ "Final", "llc.control.f", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+			TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 		{ &hf_llc_f_ext,
 		{ "Final", "llc.control.f", FT_BOOLEAN, 16,
-			TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+			TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 		{ &hf_llc_s_ftype,
 		{ "Supervisory frame type", "llc.control.s_ftype", FT_UINT16, BASE_HEX,

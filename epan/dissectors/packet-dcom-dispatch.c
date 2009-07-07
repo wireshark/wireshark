@@ -578,13 +578,13 @@ proto_register_dcom_dispatch(void)
 		{ "VarResult", "dispatch_varresult", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_dispatch_flags_method,
-        { "Method", "dispatch_flags_method", FT_BOOLEAN, 32, TFS (&flags_set_truth), DISPATCH_FLAGS_METHOD, NULL, HFILL }},
+        { "Method", "dispatch_flags_method", FT_BOOLEAN, 32, TFS (&tfs_set_notset), DISPATCH_FLAGS_METHOD, NULL, HFILL }},
         { &hf_dispatch_flags_propget,
-        { "PropertyGet", "dispatch_flags_propget", FT_BOOLEAN, 32, TFS (&flags_set_truth), DISPATCH_FLAGS_PROPGET, NULL, HFILL }},
+        { "PropertyGet", "dispatch_flags_propget", FT_BOOLEAN, 32, TFS (&tfs_set_notset), DISPATCH_FLAGS_PROPGET, NULL, HFILL }},
         { &hf_dispatch_flags_propput,
-        { "PropertyPut", "dispatch_flags_propput", FT_BOOLEAN, 32, TFS (&flags_set_truth), DISPATCH_FLAGS_PROPPUT, NULL, HFILL }},
+        { "PropertyPut", "dispatch_flags_propput", FT_BOOLEAN, 32, TFS (&tfs_set_notset), DISPATCH_FLAGS_PROPPUT, NULL, HFILL }},
         { &hf_dispatch_flags_propputref,
-        { "PropertyPutRef", "dispatch_flags_propputref", FT_BOOLEAN, 32, TFS (&flags_set_truth), DISPATCH_FLAGS_PROPPUTREF, NULL, HFILL }},
+        { "PropertyPutRef", "dispatch_flags_propputref", FT_BOOLEAN, 32, TFS (&tfs_set_notset), DISPATCH_FLAGS_PROPPUTREF, NULL, HFILL }},
 
         { &hf_dispatch_code,
         { "Code", "dispatch_code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},

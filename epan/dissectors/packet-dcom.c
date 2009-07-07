@@ -2242,27 +2242,27 @@ proto_register_dcom (void)
 		{ "LowBound", "dcom.sa.low_bound", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_dcom_sa_features_auto,
-		{ "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_AUTO, NULL, HFILL }},
+		{ "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_AUTO, NULL, HFILL }},
 		{ &hf_dcom_sa_features_static,
-		{ "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_STATIC, NULL, HFILL }},
+		{ "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_STATIC, NULL, HFILL }},
 		{ &hf_dcom_sa_features_embedded,
-		{ "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_EMBEDDED, NULL, HFILL }},
+		{ "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_EMBEDDED, NULL, HFILL }},
 		{ &hf_dcom_sa_features_fixedsize,
-		{ "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_FIXEDSIZE, NULL, HFILL }},
+		{ "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_FIXEDSIZE, NULL, HFILL }},
 		{ &hf_dcom_sa_features_record,
-		{ "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_RECORD, NULL, HFILL }},
+		{ "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_RECORD, NULL, HFILL }},
 		{ &hf_dcom_sa_features_have_iid,
-		{ "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEIID, NULL, HFILL }},
+		{ "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_HAVEIID, NULL, HFILL }},
 		{ &hf_dcom_sa_features_have_vartype,
-		{ "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEVARTYPE, NULL, HFILL }},
+		{ "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_HAVEVARTYPE, NULL, HFILL }},
 		{ &hf_dcom_sa_features_bstr,
-		{ "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_BSTR, NULL, HFILL }},
+		{ "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_BSTR, NULL, HFILL }},
 		{ &hf_dcom_sa_features_unknown,
-		{ "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_UNKNOWN, NULL, HFILL }},
+		{ "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_UNKNOWN, NULL, HFILL }},
 		{ &hf_dcom_sa_features_dispatch,
-		{ "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_DISPATCH, NULL, HFILL }},
+		{ "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_DISPATCH, NULL, HFILL }},
 		{ &hf_dcom_sa_features_variant,
-		{ "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_VARIANT, NULL, HFILL }}
+		{ "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&tfs_set_notset), WIRESHARK_FADF_VARIANT, NULL, HFILL }}
 	};
 
 	static gint *ett_dcom[] = {

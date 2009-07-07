@@ -105,7 +105,7 @@ static int m_numOfOtherStatement = 0;
 static int m_numOfTransaction = 0;
 /* static int m_bReAssembling = 0; */
 /* SQLORACLE flags */
-/*static const true_false_string flags_set_truth =
+/*static const true_false_string tfs_set_notset =
 {
   " ",
   "No "

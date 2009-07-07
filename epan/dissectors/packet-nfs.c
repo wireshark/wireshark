@@ -10989,23 +10989,23 @@ proto_register_nfs(void)
 
 		{ &hf_gxfh3_sfhflags_striped, {
 			"striped", "nfs.gxfh3.sfhflags.striped", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), SPINNP_FH_FLAG_STRIPED_MASK, NULL, HFILL }},
+			TFS(&tfs_set_notset), SPINNP_FH_FLAG_STRIPED_MASK, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags_empty, {
 			"empty", "nfs.gxfh3.sfhflags.empty", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), SPINNP_FH_FLAG_EMPTY_MASK, NULL, HFILL }},
+			TFS(&tfs_set_notset), SPINNP_FH_FLAG_EMPTY_MASK, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags_snapdirent, {
 			"snap dir ent", "nfs.gxfh3.sfhflags.snapdirent", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), SPINNP_FH_FLAG_SNAPDIR_ENT_MASK, NULL, HFILL }},
+			TFS(&tfs_set_notset), SPINNP_FH_FLAG_SNAPDIR_ENT_MASK, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags_snapdir, {
 			"snap dir", "nfs.gxfh3.sfhflags.snapdir", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), SPINNP_FH_FLAG_SNAPDIR_MASK, NULL, HFILL }},
+			TFS(&tfs_set_notset), SPINNP_FH_FLAG_SNAPDIR_MASK, NULL, HFILL }},
 
 		{ &hf_gxfh3_sfhflags_streamdir, {
 			"stream dir", "nfs.gxfh3.sfhflags.streamdir", FT_BOOLEAN, 8,
-			TFS(&flags_set_truth), SPINNP_FH_FLAG_STREAMDIR_MASK, NULL, HFILL }},
+			TFS(&tfs_set_notset), SPINNP_FH_FLAG_STREAMDIR_MASK, NULL, HFILL }},
 
 		{ &hf_gxfh3_spinfid, {
 			"spin file id", "nfs.gxfh3.spinfid", FT_UINT32, BASE_HEX,

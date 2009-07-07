@@ -3701,35 +3701,35 @@ proto_register_tcp(void)
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_cwr,
-		{ "Congestion Window Reduced (CWR)",			"tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_CWR,
+		{ "Congestion Window Reduced (CWR)",			"tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_CWR,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_ecn,
-		{ "ECN-Echo",			"tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ECN,
+		{ "ECN-Echo",			"tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_ECN,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_urg,
-		{ "Urgent",			"tcp.flags.urg", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_URG,
+		{ "Urgent",			"tcp.flags.urg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_URG,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_ack,
-		{ "Acknowledgement",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
+		{ "Acknowledgement",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_ACK,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_push,
-		{ "Push",			"tcp.flags.push", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_PUSH,
+		{ "Push",			"tcp.flags.push", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_PUSH,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_reset,
-		{ "Reset",			"tcp.flags.reset", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_RST,
+		{ "Reset",			"tcp.flags.reset", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_RST,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_syn,
-		{ "Syn",			"tcp.flags.syn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_SYN,
+		{ "Syn",			"tcp.flags.syn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_SYN,
 			NULL, HFILL }},
 
 		{ &hf_tcp_flags_fin,
-		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_FIN,
+		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TH_FIN,
 			NULL, HFILL }},
 
 		/* 32 bits so we can present some values adjusted to window scaling */
@@ -3999,42 +3999,42 @@ proto_register_tcp(void)
 		{ &hf_tcp_scpsoption_flags_bets,
 		  { "Partial Reliability Capable (BETS)",
 		    "tcp.options.scpsflags.bets", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x80, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_snack1,
 		  { "Short Form SNACK Capable (SNACK1)",
 		    "tcp.options.scpsflags.snack1", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x40, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_snack2,
 		  { "Long Form SNACK Capable (SNACK2)",
 		    "tcp.options.scpsflags.snack2", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x20, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_compress,
 		  { "Lossless Header Compression (COMP)",
 		    "tcp.options.scpsflags.compress", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x10, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x10, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_nlts,
 		  { "Network Layer Timestamp (NLTS)",
 		    "tcp.options.scpsflags.nlts", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x8, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x8, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv1,
 		  { "Reserved Bit 1",
 		    "tcp.options.scpsflags.reserved1", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x4, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x4, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv2,
 		  { "Reserved Bit 2",
 		    "tcp.options.scpsflags.reserved2", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x2, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x2, NULL, HFILL }},
 
 		{ &hf_tcp_scpsoption_flags_resv3,
 		  { "Reserved Bit 3",
 		    "tcp.options.scpsflags.reserved3", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), 0x1, NULL, HFILL }},
+		    TFS(&tfs_set_notset), 0x1, NULL, HFILL }},
 
 		{ &hf_tcp_pdu_time,
 		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,

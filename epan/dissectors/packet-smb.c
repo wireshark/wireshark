@@ -18868,79 +18868,79 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_capability_fcntl,
 	  { "FCNTL Capability", "smb.unix.capability.fcntl", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_unix_capability_posix_acl,
 	  { "POSIX ACL Capability", "smb.unix.capability.posix_acl", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_data,
 	  { "Read Data", "smb.file.accessmask.read_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_data,
 	  { "Write Data", "smb.file.accessmask.write_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_append_data,
 	  { "Append Data", "smb.file.accessmask.append_data", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000004, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_ea,
 	  { "Read EA", "smb.file.accessmask.read_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000008, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_ea,
 	  { "Write EA", "smb.file.accessmask.write_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000010, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_execute,
 	  { "Execute", "smb.file.accessmask.execute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000020, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_read_attribute,
 	  { "Read Attribute", "smb.file.accessmask.read_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000080, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000080, NULL, HFILL }},
 
 	{ &hf_smb_file_access_mask_write_attribute,
 	  { "Write Attribute", "smb.file.accessmask.write_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000100, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000100, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_list,
 	  { "List", "smb.dir.accessmask.list", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000001, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_add_file,
 	  { "Add File", "smb.dir.accessmask.add_file", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000002, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_add_subdir,
 	  { "Add Subdir", "smb.dir.accessmask.add_subdir", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000004, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_read_ea,
 	  { "Read EA", "smb.dir.accessmask.read_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000008, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_write_ea,
 	  { "Write EA", "smb.dir.accessmask.write_ea", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000010, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_traverse,
 	  { "Traverse", "smb.dir.accessmask.traverse", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000020, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_delete_child,
 	  { "Delete Child", "smb.dir.accessmask.delete_child", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000040, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_read_attribute,
 	  { "Read Attribute", "smb.dir.accessmask.read_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000080, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000080, NULL, HFILL }},
 
 	{ &hf_smb_dir_access_mask_write_attribute,
 	  { "Write Attribute", "smb.dir.accessmask.write_attribute", FT_BOOLEAN, 32,
-		TFS(&flags_set_truth), 0x00000100, NULL, HFILL }},
+		TFS(&tfs_set_notset), 0x00000100, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_size,
 	  { "File size", "smb.unix.file.size", FT_UINT64, BASE_DEC,

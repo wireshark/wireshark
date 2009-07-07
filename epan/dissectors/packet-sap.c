@@ -299,7 +299,7 @@ void proto_register_sap(void)
 
     { &hf_sap_flags_r,
       { "Reserved",               "sap.flags.r",
-	FT_BOOLEAN, 8, TFS(&flags_set_truth), MCAST_SAP_BIT_R,
+	FT_BOOLEAN, 8, TFS(&tfs_set_notset), MCAST_SAP_BIT_R,
       	NULL, HFILL }},
 
     { &hf_sap_flags_t,

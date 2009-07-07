@@ -1231,7 +1231,7 @@ proto_register_edp(void)
 			0x0, NULL, HFILL }},
 
 		{ &hf_edp_vlan_flags_ip,
-		{ "Flags-IP",	"edp.vlan.flags.ip", FT_BOOLEAN, 8, TFS(&flags_set_truth),
+		{ "Flags-IP",	"edp.vlan.flags.ip", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			0x80, "Vlan has IP address configured", HFILL }},
 
 		{ &hf_edp_vlan_flags_reserved,
@@ -1239,7 +1239,7 @@ proto_register_edp(void)
 			0x7e, NULL, HFILL }},
 
 		{ &hf_edp_vlan_flags_unknown,
-		{ "Flags-Unknown",	"edp.vlan.flags.unknown", FT_BOOLEAN, 8, TFS(&flags_set_truth),
+		{ "Flags-Unknown",	"edp.vlan.flags.unknown", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			0x01, NULL, HFILL }},
 
 		{ &hf_edp_vlan_reserved1,

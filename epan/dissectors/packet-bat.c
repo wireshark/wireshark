@@ -745,12 +745,12 @@ void proto_register_bat(void)
 		},
 		{ &hf_bat_batman_flags_unidirectional,
 		  { "Unidirectional", "bat.batman.flags.unidirectional",
-		    FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x80,
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_flags_directlink,
 		  { "DirectLink", "bat.batman.flags.directlink",
-		    FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x40,
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
 		    NULL, HFILL }
 		},
 		{ &hf_bat_batman_hna_network,

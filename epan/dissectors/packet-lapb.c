@@ -193,11 +193,11 @@ proto_register_lapb(void)
 
 	{ &hf_lapb_p,
 	    { "Poll", "lapb.control.p", FT_BOOLEAN, 8,
-	      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+	      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapb_f,
 	    { "Final", "lapb.control.f", FT_BOOLEAN, 8,
-	      TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+	      TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapb_s_ftype,
 	    { "Supervisory frame type", "lapb.control.s_ftype", FT_UINT8, BASE_HEX,

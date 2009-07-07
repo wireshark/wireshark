@@ -601,19 +601,19 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_p,
 	    { "Poll", "lapd.control.p", FT_BOOLEAN, 8,
-		TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapd_p_ext,
 	    { "Poll", "lapd.control.p", FT_BOOLEAN, 16,
-		TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_lapd_f,
 	    { "Final", "lapd.control.f", FT_BOOLEAN, 8,
-		TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
+		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapd_f_ext,
 	    { "Final", "lapd.control.f", FT_BOOLEAN, 16,
-		TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
+		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_lapd_s_ftype,
 	    { "Supervisory frame type", "lapd.control.s_ftype", FT_UINT16, BASE_HEX,

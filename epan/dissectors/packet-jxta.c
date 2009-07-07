@@ -2198,11 +2198,11 @@ void proto_register_jxta(void)
           "JXTA Message Flags", HFILL}
          },
         {&hf_jxta_message_flag_utf16be,
-         {"UTF16BE", "jxta.message.flags.UTF-16BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x01,
+         {"UTF16BE", "jxta.message.flags.UTF-16BE", FT_BOOLEAN, 2, TFS(&tfs_set_notset), 0x01,
           "JXTA Message Element Flag -- UTF16-BE Strings", HFILL}
          },
         {&hf_jxta_message_flag_ucs32be,
-         {"UCS32BE", "jxta.message.flags.UCS32BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x02,
+         {"UCS32BE", "jxta.message.flags.UCS32BE", FT_BOOLEAN, 2, TFS(&tfs_set_notset), 0x02,
           "JXTA Message Flag -- UCS32-BE Strings", HFILL}
          },
         {&hf_jxta_message_names_count,
@@ -2238,39 +2238,39 @@ void proto_register_jxta(void)
           "JXTA Message Element Flags", HFILL}
          },
         {&hf_jxta_element1_flag_hasType,
-         {"hasType", "jxta.message.element.flags.hasType", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x01,
+         {"hasType", "jxta.message.element.flags.hasType", FT_BOOLEAN, 3, TFS(&tfs_set_notset), 0x01,
           "JXTA Message Element Flag -- hasType", HFILL}
          },
         {&hf_jxta_element1_flag_hasEncoding,
-         {"hasEncoding", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x02,
+         {"hasEncoding", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 3, TFS(&tfs_set_notset), 0x02,
           "JXTA Message Element Flag -- hasEncoding", HFILL}
          },
         {&hf_jxta_element1_flag_hasSignature,
-         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x04,
+         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 3, TFS(&tfs_set_notset), 0x04,
           "JXTA Message Element Flag -- hasSignature", HFILL}
          },
         {&hf_jxta_element2_flag_64bitlens,
-         {"uint64Lens", "jxta.message.element.flags.uint64Lens", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x01,
+         {"uint64Lens", "jxta.message.element.flags.uint64Lens", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x01,
           "JXTA Message Element Flag -- uint64Lens", HFILL}
          },
         {&hf_jxta_element2_flag_nameLiteral,
-         {"nameLiteral", "jxta.message.element.flags.nameLiteral", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x02,
+         {"nameLiteral", "jxta.message.element.flags.nameLiteral", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x02,
           "JXTA Message Element Flag -- nameLiteral", HFILL}
          },
         {&hf_jxta_element2_flag_hasType,
-         {"hasEncoding", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x04,
+         {"hasEncoding", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04,
           "JXTA Message Element Flag -- hasType", HFILL}
          },
         {&hf_jxta_element2_flag_hasSignature,
-         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x08,
+         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x08,
           "JXTA Message Element Flag -- hasSignature", HFILL}
          },
         {&hf_jxta_element2_flag_hasEncoding,
-         {"hasSignature", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x10,
+         {"hasSignature", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10,
           "JXTA Message Element Flag -- hasEncoding", HFILL}
          },
         {&hf_jxta_element2_flag_sigOfEncoded,
-         {"sigOfEncoded", "jxta.message.element.flags.sigOfEncoded", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x20,
+         {"sigOfEncoded", "jxta.message.element.flags.sigOfEncoded", FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20,
           "JXTA Message Element Flag -- sigOfEncoded", HFILL}
          },
         {&hf_jxta_element2_nameid,

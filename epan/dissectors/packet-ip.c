@@ -2675,15 +2675,15 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_flags_rf,
-		{ "Reserved bit",	"ip.flags.rb", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_RF >> 12,
+		{ "Reserved bit",	"ip.flags.rb", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_RF >> 12,
 			NULL, HFILL }},
 
 		{ &hf_ip_flags_df,
-		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_DF >> 12,
+		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_DF >> 12,
 			NULL, HFILL }},
 
 		{ &hf_ip_flags_mf,
-		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_MF >> 12,
+		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_MF >> 12,
 			NULL, HFILL }},
 
 		{ &hf_ip_frag_offset,
@@ -2981,7 +2981,7 @@ proto_register_icmp(void)
 			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_s,
-		{ "Stack bit",	"icmp.mpls.s", FT_BOOLEAN, 24, TFS(&flags_set_truth), 0x01,
+		{ "Stack bit",	"icmp.mpls.s", FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x01,
 			NULL, HFILL }},
 
 	{ &hf_icmp_mpls_ttl,

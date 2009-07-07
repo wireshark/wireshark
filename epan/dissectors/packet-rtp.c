@@ -1855,7 +1855,7 @@ proto_register_rtp(void)
 				"rtp.follow",
 				FT_BOOLEAN,
 				8,
-				TFS(&flags_set_truth),
+				TFS(&tfs_set_notset),
 				0x80,
 				"Next header follows", HFILL
 			}

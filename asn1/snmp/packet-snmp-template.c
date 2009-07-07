@@ -1851,13 +1851,13 @@ void proto_register_snmp(void) {
   static hf_register_info hf[] = {
 		{ &hf_snmp_v3_flags_auth,
 		{ "Authenticated", "snmp.v3.flags.auth", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_AUTH, NULL, HFILL }},
+		    TFS(&tfs_set_notset), TH_AUTH, NULL, HFILL }},
 		{ &hf_snmp_v3_flags_crypt,
 		{ "Encrypted", "snmp.v3.flags.crypt", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_CRYPT, NULL, HFILL }},
+		    TFS(&tfs_set_notset), TH_CRYPT, NULL, HFILL }},
 		{ &hf_snmp_v3_flags_report,
 		{ "Reportable", "snmp.v3.flags.report", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_REPORT, NULL, HFILL }},
+		    TFS(&tfs_set_notset), TH_REPORT, NULL, HFILL }},
 		{ &hf_snmp_engineid_conform, {
 		    "Engine ID Conformance", "snmp.engineid.conform", FT_BOOLEAN, 8,
 		    TFS(&tfs_snmp_engineid_conform), F_SNMP_ENGINEID_CONFORM, "Engine ID RFC3411 Conformance", HFILL }},
