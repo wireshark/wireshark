@@ -54,13 +54,14 @@ typedef union _EslFlagsUnion
 	guint	flags;
 }EslFlagsUnion;
 
-/*
+#if 0
 typedef struct _EslHeader
 {	
-	guint8					eslCookie[6];		// 01 01 05 10 00 00
+guint8					eslCookie[6];		/* 01 01 05 10 00 00 */
 	EslFlagsUnion			flags;
 	guint64					timeStamp;
-} EslHeader, *PEslHeader;*/
+} EslHeader, *PEslHeader;
+#endif
 
 
 #define SIZEOF_ESLHEADER 16

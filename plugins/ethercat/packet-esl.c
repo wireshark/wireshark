@@ -34,7 +34,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/tfs.h>
 
 #include "packet-esl.h"
 
@@ -225,6 +224,12 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return result;
 }
 
+static void esl_enable_dissector_cb(void) {
+	proto_set_decoding(proto_esl, esl_enable_dissector);
+}
+
+static const true_false_string tfs_esl_yes_no = { "Yes", "No" };
+
 void
 proto_register_esl(void) {
   static hf_register_info hf[] = {				
@@ -235,12 +240,12 @@ proto_register_esl(void) {
 	},		
 	{ &hf_esl_crcerror,
 		{ "Crc Error", "esl.crcerror",
-			FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,          
+			FT_BOOLEAN, 16, TFS(&tfs_esl_yes_no), 0x1000,          
 			NULL, HFILL }
 	},
 	{ &hf_esl_alignerror,
 		{ "Alignment Error", "esl.alignerror",
-			FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0800,          
+			FT_BOOLEAN, 16, TFS(&tfs_esl_yes_no), 0x0800,          
 			NULL, HFILL }
 	},
 	{ &hf_esl_timestamp, 
@@ -258,7 +263,7 @@ proto_register_esl(void) {
   proto_esl = proto_register_protocol("EtherCAT Switch Link",
 				      "ESL","esl");
 
-  esl_module = prefs_register_protocol(proto_esl, proto_reg_handoff_esl);
+  esl_module = prefs_register_protocol(proto_esl, esl_enable_dissector_cb);
 
   prefs_register_bool_preference(esl_module, "enable", "Enable dissector",
 				   "Enable this dissector (default is false)",
@@ -273,11 +278,8 @@ proto_register_esl(void) {
 
 void
 proto_reg_handoff_esl(void) {
-  static dissector_handle_t esl_handle;
-  
-  esl_handle = create_dissector_handle(dissect_esl_header, proto_esl);    
+
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
   heur_dissector_add("eth", dissect_esl_heur, proto_esl);
-  proto_set_decoding(proto_esl, esl_enable_dissector);
 }
