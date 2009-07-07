@@ -37,7 +37,6 @@ DISSECTOR_INCLUDES =   \
 	broadcast.h    \
 	defines.h      \
 	display.h      \
-	header_field.h \
 	key.h          \
 	network.h      \
 	uftp.h         \
