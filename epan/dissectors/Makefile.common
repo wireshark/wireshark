@@ -422,7 +422,6 @@ DISSECTOR_SRC = \
 	packet-erf.c		\
 	packet-esis.c		\
 	packet-eth.c		\
-	packet-etheric.c	\
 	packet-etherip.c	\
 	packet-ethertype.c	\
 	packet-evrc.c		\
@@ -559,7 +558,6 @@ DISSECTOR_SRC = \
 	packet-ismp.c		\
 	packet-isns.c		\
 	packet-isup.c		\
-	packet-isup_thin.c	\
 	packet-itdm.c		\
 	packet-iua.c		\
 	packet-iuup.c		\
