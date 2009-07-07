@@ -28,18 +28,20 @@ PLUGIN_NAME = ethercat
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-ethercat-frame.c \
-	packet-ioraw.c \
-	packet-nv.c \
 	packet-ams.c \
 	packet-ecatmb.c \
-	packet-ethercat-datagram.c
+	packet-esl.c \
+	packet-ethercat-datagram.c \
+	packet-ethercat-frame.c \
+	packet-ioraw.c \
+	packet-nv.c
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	packet-ams.h \
-	packet-ethercat-frame.h \
 	packet-ecatmb.h \
+	packet-esl.h \
 	packet-ethercat-datagram.h \
+	packet-ethercat-frame.h \
 	packet-ioraw.h \
 	packet-nv.h

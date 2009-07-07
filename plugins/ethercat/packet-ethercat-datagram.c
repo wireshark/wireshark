@@ -157,20 +157,20 @@ static const value_string EcCmdShort[] =
 static const value_string EcCmdLong[] =
 {
    {   0, "No operation" },
-   {   1, "Auto increment read" },
-   {   2, "Auto increment write" },
-   {   3, "Auto increment read write" },
-   {   4, "Configured address read" },
-   {   5, "Configured address write" },
-   {   6, "Configured address read write" },
-   {   7, "Broadcast read" },
-   {   8, "Broadcast write" },
-   {   9, "Broadcast read write" },
-   {   10, "Logical memory read" },
-   {   11, "Logical memory write" },
-   {   12, "Logical memory read write" },
-   {   13, "Auto increment read multiple write" },
-   {   14, "Configured read multiple write" },
+   {   1, "Auto Increment Physical Read" },
+   {   2, "Auto Increment Physical Write" },
+   {   3, "Auto Increment Physical ReadWrite" },
+   {   4, "Configured address Physical Read" },
+   {   5, "Configured address Physical Write" },
+   {   6, "Configured address Physical ReadWrite" },
+   {   7, "Broadcast Read" },
+   {   8, "Broadcast Write" },
+   {   9, "Broadcast ReadWrite" },
+   {   10, "Logical Read" },
+   {   11, "Logical Write" },
+   {   12, "Logical ReadWrite" },
+   {   13, "Auto Increment Physical Read Multiple Write" },
+   {   14, "Configured Address Physical Read Multiple Write" },
    {   255, "EXT" },
    {   0, NULL }
 };
@@ -393,6 +393,18 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
          nSub, nLen, convertEcCmdToText(ecFirst.cmd, EcCmdShort));
 }
 
+static void EcCmdFormatter(guint8 cmd, char *szText, gint nMax)
+{
+	gint idx=0;
+	const gchar *szCmd = match_strval_idx((guint32)cmd, EcCmdLong, &idx);
+
+	if ( idx != -1 )
+		g_snprintf(szText, nMax, "Cmd        : %d (%s)", cmd, szCmd);
+	else
+		g_snprintf(szText, nMax, "Cmd        : %d (Unknown command)", cmd);
+}
+
+
 static void EcSubFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
 {
    EcParserHDR ecParser;
@@ -548,7 +560,9 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          aitem = proto_tree_add_text(ecat_datagram_tree, tvb, offset, EcParserHDR_Len, "Header");
          ecat_header_tree = proto_item_add_subtree(aitem, ett_ecat_header);
 
+         EcCmdFormatter(ecHdr.cmd, szText, nMax);       
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
+         proto_item_set_text(aitem, "%s", szText);
          if( subCount < 10 ){
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_cmd[subCount], tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
 			PROTO_ITEM_SET_HIDDEN(aitem);
@@ -969,47 +983,47 @@ void proto_register_ecat(void)
       },
       { &hf_ecat_cmd,
       { "Command", "ecat.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[0],
       { "Command", "ecat.sub1.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[1],
       { "Command", "ecat.sub2.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[2],
       { "Command", "ecat.sub3.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[3],
       { "Command", "ecat.sub4.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[4],
       { "Command", "ecat.sub5.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[5],
       { "Command", "ecat.sub6.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[6],
       { "Command", "ecat.sub7.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[7],
       { "Command", "ecat.sub8.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[8],
       { "Command", "ecat.sub9.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_sub_cmd[9],
       { "Command", "ecat.sub10.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, NULL, HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdShort), 0x0, NULL, HFILL }
       },
       { &hf_ecat_idx,
       { "Index", "ecat.idx",
