@@ -140,226 +140,6 @@ static int hf_jxta_element_content_len = -1;
 static int hf_jxta_element_content_len64 = -1;
 static int hf_jxta_element_content = -1;
 
-/** our header fields */
-static hf_register_info hf[] = {
-    {&hf_uri_addr,
-     {"Address", "uri.addr", FT_STRING, BASE_NONE, NULL, 0x0,
-      "URI Address (source or destination)", HFILL}
-     },
-    {&hf_uri_src,
-     {"Source", "uri.src", FT_STRING, BASE_NONE, NULL, 0x0,
-      "URI Source", HFILL}
-     },
-    {&hf_uri_dst,
-     {"Destination", "uri.dst", FT_STRING, BASE_NONE, NULL, 0x0,
-      "URI Destination", HFILL}
-     },
-    {&hf_jxta_udp,
-     {"JXTA UDP", "jxta.udp", FT_NONE, BASE_NONE, NULL, 0x0,
-      "JXTA UDP", HFILL}
-     },
-    {&hf_jxta_udpsig,
-     {"Signature", "jxta.udpsig", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA UDP Signature", HFILL}
-     },
-    {&hf_jxta_welcome,
-     {"Welcome", "jxta.welcome", FT_NONE, BASE_NONE, NULL, 0x00,
-      "JXTA Connection Welcome Message", HFILL}
-     },
-    {&hf_jxta_welcome_initiator,
-     {"Initiator", "jxta.welcome.initiator", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-      "JXTA Connection Welcome Message Initiator", HFILL}
-     },
-    {&hf_jxta_welcome_sig,
-     {"Signature", "jxta.welcome.signature", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Signature", HFILL}
-     },
-    {&hf_jxta_welcome_destAddr,
-     {"Destination Address", "jxta.welcome.destAddr", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Destination Address", HFILL}
-     },
-    {&hf_jxta_welcome_pubAddr,
-     {"Public Address", "jxta.welcome.pubAddr", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Public Address", HFILL}
-     },
-    {&hf_jxta_welcome_peerid,
-     {"PeerID", "jxta.welcome.peerid", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message PeerID", HFILL}
-     },
-    {&hf_jxta_welcome_noProp,
-     {"No Propagate Flag", "jxta.welcome.noPropFlag", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message No Propagate Flag", HFILL}
-     },
-    {&hf_jxta_welcome_msgVers,
-     {"Preferred Message Version", "jxta.welcome.msgVersion", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Preferred Message Version", HFILL}
-     },
-    {&hf_jxta_welcome_variable,
-     {"Variable Parameter", "jxta.welcome.variable", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Variable Parameter", HFILL}
-     },
-    {&hf_jxta_welcome_version,
-     {"Version", "jxta.welcome.version", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message Version", HFILL}
-     },
-    {&hf_jxta_framing,
-     {"Framing", "jxta.framing", FT_NONE, BASE_NONE, NULL, 0x0,
-      "JXTA Message Framing", HFILL}
-     },
-    {&hf_jxta_framing_header,
-     {"Header", "jxta.framing.header", FT_NONE, BASE_NONE, NULL, 0x0,
-      "JXTA Message Framing Header", HFILL}
-     },
-    {&hf_jxta_framing_header_name,
-     {"Name", "jxta.framing.header.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Framing Header Name", HFILL}
-     },
-    {&hf_jxta_framing_header_value_length,
-     {"Value Length", "jxta.framing.header.valuelen", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Framing Header Value Length", HFILL}
-     },
-    {&hf_jxta_framing_header_value,
-     {"Value", "jxta.framing.header.value", FT_BYTES, BASE_NONE, NULL, 0x0,
-      "JXTA Message Framing Header Value", HFILL}
-     },
-    {&hf_jxta_message_address,
-     {"Address", "jxta.message.address", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Address (source or destination)", HFILL}
-     },
-    {&hf_jxta_message_src,
-     {"Source", "jxta.message.source", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Source", HFILL}
-     },
-    {&hf_jxta_message_dst,
-     {"Destination", "jxta.message.destination", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Destination", HFILL}
-     },
-    {&hf_jxta_message_sig,
-     {"Signature", "jxta.message.signature", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Signature", HFILL}
-     },
-    {&hf_jxta_message_version,
-     {"Version", "jxta.message.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-      "JXTA Message Version", HFILL}
-     },
-    {&hf_jxta_message_flags,
-     {"Flags", "jxta.message.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-      "JXTA Message Flags", HFILL}
-     },
-    {&hf_jxta_message_flag_utf16be,
-     {"UTF16BE", "jxta.message.flags.UTF-16BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x01,
-      "JXTA Message Element Flag -- UTF16-BE Strings", HFILL}
-     },
-    {&hf_jxta_message_flag_ucs32be,
-     {"UCS32BE", "jxta.message.flags.UCS32BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x02,
-      "JXTA Message Flag -- UCS32-BE Strings", HFILL}
-     },
-    {&hf_jxta_message_names_count,
-     {"Names Count", "jxta.message.names", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Names Table", HFILL}
-     },
-    {&hf_jxta_message_names_name,
-     {"Names Table Name", "jxta.message.names.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Names Table Name", HFILL}
-     },
-    {&hf_jxta_message_element_count,
-     {"Element Count", "jxta.message.elements", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Count", HFILL}
-     },
-    {&hf_jxta_element,
-     {"JXTA Message Element", "jxta.message.element", FT_NONE, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element", HFILL}
-     },
-    {&hf_jxta_element_sig,
-     {"Signature", "jxta.message.element.signature", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Signature", HFILL}
-     },
-    {&hf_jxta_element1_namespaceid,
-     {"Namespace ID", "jxta.message.element.namespaceid", FT_UINT8, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Namespace ID", HFILL}
-     },
-    {&hf_jxta_element2_namespaceid,
-     {"Namespace ID", "jxta.message.element.namespaceid", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Namespace ID", HFILL}
-     },
-    {&hf_jxta_element_flags,
-     {"Flags", "jxta.message.element.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-      "JXTA Message Element Flags", HFILL}
-     },
-    {&hf_jxta_element1_flag_hasType,
-     {"hasType", "jxta.message.element.flags.hasType", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x01,
-      "JXTA Message Element Flag -- hasType", HFILL}
-     },
-    {&hf_jxta_element1_flag_hasEncoding,
-     {"hasEncoding", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x02,
-      "JXTA Message Element Flag -- hasEncoding", HFILL}
-     },
-    {&hf_jxta_element1_flag_hasSignature,
-     {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x04,
-      "JXTA Message Element Flag -- hasSignature", HFILL}
-     },
-    {&hf_jxta_element2_flag_64bitlens,
-     {"uint64Lens", "jxta.message.element.flags.uint64Lens", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x01,
-      "JXTA Message Element Flag -- uint64Lens", HFILL}
-     },
-    {&hf_jxta_element2_flag_nameLiteral,
-     {"nameLiteral", "jxta.message.element.flags.nameLiteral", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x02,
-      "JXTA Message Element Flag -- nameLiteral", HFILL}
-     },
-    {&hf_jxta_element2_flag_hasType,
-     {"hasEncoding", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x04,
-      "JXTA Message Element Flag -- hasType", HFILL}
-     },
-    {&hf_jxta_element2_flag_hasSignature,
-     {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x08,
-      "JXTA Message Element Flag -- hasSignature", HFILL}
-     },
-    {&hf_jxta_element2_flag_hasEncoding,
-     {"hasSignature", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x10,
-      "JXTA Message Element Flag -- hasEncoding", HFILL}
-     },
-    {&hf_jxta_element2_flag_sigOfEncoded,
-     {"sigOfEncoded", "jxta.message.element.flags.sigOfEncoded", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x20,
-      "JXTA Message Element Flag -- sigOfEncoded", HFILL}
-     },
-    {&hf_jxta_element2_nameid,
-     {"Name ID", "jxta.message.element.nameid", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Name ID", HFILL}
-     },
-    {&hf_jxta_element_name,
-     {"Element Name", "jxta.message.element.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Name", HFILL}
-     },
-    {&hf_jxta_element2_mimeid,
-     {"MIME ID", "jxta.message.element.mimeid", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element MIME ID", HFILL}
-     },
-    {&hf_jxta_element2_encodingid,
-     {"Encoding ID", "jxta.message.element.encodingid", FT_UINT16, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Encoding ID", HFILL}
-     },
-    {&hf_jxta_element_type,
-     {"Element Type", "jxta.message.element.type", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Name", HFILL}
-     },
-    {&hf_jxta_element_encoding,
-     {"Element Type", "jxta.message.element.encoding", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Encoding", HFILL}
-     },
-    {&hf_jxta_element_content_len,
-     {"Element Content Length", "jxta.message.element.content.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Content Length", HFILL}
-     },
-    {&hf_jxta_element_content_len64,
-     {"Element Content Length", "jxta.message.element.content.length", FT_UINT64, BASE_DEC, NULL, 0x0,
-      "JXTA Message Element Content Length", HFILL}
-     },
-    {&hf_jxta_element_content,
-     {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_NONE, NULL, 0x0,
-      "JXTA Message Element Content", HFILL}
-     },
-};
-
 /**
 *    JXTA Protocol subtree handles
 **/
@@ -2310,6 +2090,226 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 void proto_register_jxta(void)
 {
     module_t *jxta_module;
+
+    /** our header fields */
+    static hf_register_info hf[] = {
+        {&hf_uri_addr,
+         {"Address", "uri.addr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "URI Address (source or destination)", HFILL}
+         },
+        {&hf_uri_src,
+         {"Source", "uri.src", FT_STRING, BASE_NONE, NULL, 0x0,
+          "URI Source", HFILL}
+         },
+        {&hf_uri_dst,
+         {"Destination", "uri.dst", FT_STRING, BASE_NONE, NULL, 0x0,
+          "URI Destination", HFILL}
+         },
+        {&hf_jxta_udp,
+         {"JXTA UDP", "jxta.udp", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+         },
+        {&hf_jxta_udpsig,
+         {"Signature", "jxta.udpsig", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA UDP Signature", HFILL}
+         },
+        {&hf_jxta_welcome,
+         {"Welcome", "jxta.welcome", FT_NONE, BASE_NONE, NULL, 0x00,
+          "JXTA Connection Welcome Message", HFILL}
+         },
+        {&hf_jxta_welcome_initiator,
+         {"Initiator", "jxta.welcome.initiator", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+          "JXTA Connection Welcome Message Initiator", HFILL}
+         },
+        {&hf_jxta_welcome_sig,
+         {"Signature", "jxta.welcome.signature", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Signature", HFILL}
+         },
+        {&hf_jxta_welcome_destAddr,
+         {"Destination Address", "jxta.welcome.destAddr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Destination Address", HFILL}
+         },
+        {&hf_jxta_welcome_pubAddr,
+         {"Public Address", "jxta.welcome.pubAddr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Public Address", HFILL}
+         },
+        {&hf_jxta_welcome_peerid,
+         {"PeerID", "jxta.welcome.peerid", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message PeerID", HFILL}
+         },
+        {&hf_jxta_welcome_noProp,
+         {"No Propagate Flag", "jxta.welcome.noPropFlag", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message No Propagate Flag", HFILL}
+         },
+        {&hf_jxta_welcome_msgVers,
+         {"Preferred Message Version", "jxta.welcome.msgVersion", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Preferred Message Version", HFILL}
+         },
+        {&hf_jxta_welcome_variable,
+         {"Variable Parameter", "jxta.welcome.variable", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Variable Parameter", HFILL}
+         },
+        {&hf_jxta_welcome_version,
+         {"Version", "jxta.welcome.version", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Connection Welcome Message Version", HFILL}
+         },
+        {&hf_jxta_framing,
+         {"Framing", "jxta.framing", FT_NONE, BASE_NONE, NULL, 0x0,
+          "JXTA Message Framing", HFILL}
+         },
+        {&hf_jxta_framing_header,
+         {"Header", "jxta.framing.header", FT_NONE, BASE_NONE, NULL, 0x0,
+          "JXTA Message Framing Header", HFILL}
+         },
+        {&hf_jxta_framing_header_name,
+         {"Name", "jxta.framing.header.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Framing Header Name", HFILL}
+         },
+        {&hf_jxta_framing_header_value_length,
+         {"Value Length", "jxta.framing.header.valuelen", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Framing Header Value Length", HFILL}
+         },
+        {&hf_jxta_framing_header_value,
+         {"Value", "jxta.framing.header.value", FT_BYTES, BASE_NONE, NULL, 0x0,
+          "JXTA Message Framing Header Value", HFILL}
+         },
+        {&hf_jxta_message_address,
+         {"Address", "jxta.message.address", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Address (source or destination)", HFILL}
+         },
+        {&hf_jxta_message_src,
+         {"Source", "jxta.message.source", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Source", HFILL}
+         },
+        {&hf_jxta_message_dst,
+         {"Destination", "jxta.message.destination", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Destination", HFILL}
+         },
+        {&hf_jxta_message_sig,
+         {"Signature", "jxta.message.signature", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Signature", HFILL}
+         },
+        {&hf_jxta_message_version,
+         {"Version", "jxta.message.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "JXTA Message Version", HFILL}
+         },
+        {&hf_jxta_message_flags,
+         {"Flags", "jxta.message.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "JXTA Message Flags", HFILL}
+         },
+        {&hf_jxta_message_flag_utf16be,
+         {"UTF16BE", "jxta.message.flags.UTF-16BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x01,
+          "JXTA Message Element Flag -- UTF16-BE Strings", HFILL}
+         },
+        {&hf_jxta_message_flag_ucs32be,
+         {"UCS32BE", "jxta.message.flags.UCS32BE", FT_BOOLEAN, 2, TFS(&flags_set_truth), 0x02,
+          "JXTA Message Flag -- UCS32-BE Strings", HFILL}
+         },
+        {&hf_jxta_message_names_count,
+         {"Names Count", "jxta.message.names", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Names Table", HFILL}
+         },
+        {&hf_jxta_message_names_name,
+         {"Names Table Name", "jxta.message.names.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Names Table Name", HFILL}
+         },
+        {&hf_jxta_message_element_count,
+         {"Element Count", "jxta.message.elements", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Count", HFILL}
+         },
+        {&hf_jxta_element,
+         {"JXTA Message Element", "jxta.message.element", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+         },
+        {&hf_jxta_element_sig,
+         {"Signature", "jxta.message.element.signature", FT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Element Signature", HFILL}
+         },
+        {&hf_jxta_element1_namespaceid,
+         {"Namespace ID", "jxta.message.element.namespaceid", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Namespace ID", HFILL}
+         },
+        {&hf_jxta_element2_namespaceid,
+         {"Namespace ID", "jxta.message.element.namespaceid", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Namespace ID", HFILL}
+         },
+        {&hf_jxta_element_flags,
+         {"Flags", "jxta.message.element.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "JXTA Message Element Flags", HFILL}
+         },
+        {&hf_jxta_element1_flag_hasType,
+         {"hasType", "jxta.message.element.flags.hasType", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x01,
+          "JXTA Message Element Flag -- hasType", HFILL}
+         },
+        {&hf_jxta_element1_flag_hasEncoding,
+         {"hasEncoding", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x02,
+          "JXTA Message Element Flag -- hasEncoding", HFILL}
+         },
+        {&hf_jxta_element1_flag_hasSignature,
+         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 3, TFS(&flags_set_truth), 0x04,
+          "JXTA Message Element Flag -- hasSignature", HFILL}
+         },
+        {&hf_jxta_element2_flag_64bitlens,
+         {"uint64Lens", "jxta.message.element.flags.uint64Lens", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x01,
+          "JXTA Message Element Flag -- uint64Lens", HFILL}
+         },
+        {&hf_jxta_element2_flag_nameLiteral,
+         {"nameLiteral", "jxta.message.element.flags.nameLiteral", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x02,
+          "JXTA Message Element Flag -- nameLiteral", HFILL}
+         },
+        {&hf_jxta_element2_flag_hasType,
+         {"hasEncoding", "jxta.message.element.flags.hasType", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x04,
+          "JXTA Message Element Flag -- hasType", HFILL}
+         },
+        {&hf_jxta_element2_flag_hasSignature,
+         {"hasSignature", "jxta.message.element.flags.hasSignature", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x08,
+          "JXTA Message Element Flag -- hasSignature", HFILL}
+         },
+        {&hf_jxta_element2_flag_hasEncoding,
+         {"hasSignature", "jxta.message.element.flags.hasEncoding", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x10,
+          "JXTA Message Element Flag -- hasEncoding", HFILL}
+         },
+        {&hf_jxta_element2_flag_sigOfEncoded,
+         {"sigOfEncoded", "jxta.message.element.flags.sigOfEncoded", FT_BOOLEAN, 6, TFS(&flags_set_truth), 0x20,
+          "JXTA Message Element Flag -- sigOfEncoded", HFILL}
+         },
+        {&hf_jxta_element2_nameid,
+         {"Name ID", "jxta.message.element.nameid", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Name ID", HFILL}
+         },
+        {&hf_jxta_element_name,
+         {"Element Name", "jxta.message.element.name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Element Name", HFILL}
+         },
+        {&hf_jxta_element2_mimeid,
+         {"MIME ID", "jxta.message.element.mimeid", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element MIME ID", HFILL}
+         },
+        {&hf_jxta_element2_encodingid,
+         {"Encoding ID", "jxta.message.element.encodingid", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Encoding ID", HFILL}
+         },
+        {&hf_jxta_element_type,
+         {"Element Type", "jxta.message.element.type", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Element Name", HFILL}
+         },
+        {&hf_jxta_element_encoding,
+         {"Element Type", "jxta.message.element.encoding", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "JXTA Message Element Encoding", HFILL}
+         },
+        {&hf_jxta_element_content_len,
+         {"Element Content Length", "jxta.message.element.content.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Content Length", HFILL}
+         },
+        {&hf_jxta_element_content_len64,
+         {"Element Content Length", "jxta.message.element.content.length", FT_UINT64, BASE_DEC, NULL, 0x0,
+          "JXTA Message Element Content Length", HFILL}
+         },
+        {&hf_jxta_element_content,
+         {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_NONE, NULL, 0x0,
+          "JXTA Message Element Content", HFILL}
+         },
+    };
 
     proto_jxta = proto_register_protocol("JXTA P2P", "JXTA", "jxta");
 
