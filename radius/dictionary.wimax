@@ -365,3 +365,5 @@ ATTRIBUTE	WiMAX-vDHCPv6-Server			74	ipv6addr
 ATTRIBUTE	WiMAX-vDHCP-RK				75	octets encrypt=2
 ATTRIBUTE	WiMAX-vDHCP-RK-Key-ID			76	integer
 ATTRIBUTE	WiMAX-vDHCP-RK-Lifetime			77	integer
+
+END-VENDOR	WIMAX
