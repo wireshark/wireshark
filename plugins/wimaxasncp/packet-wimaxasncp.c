@@ -2386,13 +2386,13 @@ static void add_tlv_reg_info(
         g_free((gpointer*)blurb);
 
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, 
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE,
             "value for unknown type");
         break;
 
     case WIMAXASNCP_TLV_TBD:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
         break;
 
     case WIMAXASNCP_TLV_COMPOUND:
@@ -2404,7 +2404,7 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_BYTES:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
         break;
 
     case WIMAXASNCP_TLV_ENUM8:
@@ -2531,7 +2531,7 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_PROTOCOL_LIST:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
@@ -2547,7 +2547,7 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_PORT_RANGE_LIST:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
@@ -2571,7 +2571,7 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
@@ -2611,7 +2611,7 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_VENDOR_SPECIFIC:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
@@ -2630,7 +2630,7 @@ static void add_tlv_reg_info(
                 "wimaxasncp.tlv.%s.value.vendor_rest_of_info", tlv->name));
 
         add_reg_info(
-            &tlv->hf_vendor_rest_of_info, name, abbrev, FT_BYTES, BASE_HEX, 
+            &tlv->hf_vendor_rest_of_info, name, abbrev, FT_BYTES, BASE_NONE,
             blurb);
 
         break;
@@ -2639,13 +2639,13 @@ static void add_tlv_reg_info(
         blurb = g_strdup_printf("EAP payload embedded in %s", name);
 
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
         break;
 
 
     default:
         add_reg_info(
-            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
         if (debug_enabled)
         {

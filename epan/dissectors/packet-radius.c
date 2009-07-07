@@ -1639,10 +1639,10 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	gint* ett = &(a->ett);
 	gchar* abbrev = g_strconcat("radius.",a->name,NULL);
 	hf_register_info hfri[] = {
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
-		{ NULL, { NULL,NULL, FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }}
+		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL,NULL, FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 	guint len_hf = 2;
 	hfett_t* ri = p;
