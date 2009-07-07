@@ -48,7 +48,6 @@
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/tfs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include "packet-ntp.h"
