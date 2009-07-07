@@ -947,6 +947,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
    that "col_set_addr()" need know nothing whatsoever about particular
    address types */
 /* convert an address struct into a printable string */
+
 gchar*
 address_to_str(const address *addr)
 {
@@ -955,6 +956,16 @@ address_to_str(const address *addr)
   str=ep_alloc(MAX_ADDR_STR_LEN);
   address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
   return str;
+}
+
+/* The called routines use ep_alloc:ed memory */
+gchar*
+se_address_to_str(const address *addr)
+{
+  gchar *str;
+
+  str = address_to_str(addr);
+  return se_strdup(str);
 }
 
 void
