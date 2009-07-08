@@ -528,8 +528,15 @@ Do *NOT* use "g_assert()" or "g_assert_not_reached()" in dissectors.
 that it's a problem with the dissector if found; if it cannot do
 anything else with a particular value from a packet's data, the
 dissector should put into the protocol tree an indication that the
-value is invalid, and should return. You can use the DISSECTOR_ASSERT
-macro for that purpose.
+value is invalid, and should return.  The "expert" mechanism should be
+used for that purpose.
+
+If there is a case where you are checking not for an invalid data item
+in the packet, but for a bug in the dissector (for example, an
+assumption being made at a particular point in the code about the
+internal state of the dissector), use the DISSECTOR_ASSERT macro for
+that purpose; this will put into the protocol tree an indication that
+the dissector has a bug in it, and will not crash the application.
 
 If you are allocating a chunk of memory to contain data from a packet,
 or to contain information derived from data in a packet, and the size of
