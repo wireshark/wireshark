@@ -535,6 +535,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 
     ProtoField f = g_malloc(sizeof(wslua_field_t));
     value_string* vs;
+    const gchar *blob;
     
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
     f->hfid = -2;
@@ -567,8 +568,13 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     /* XXX: need BASE_ERROR */
     f->base = string_to_base(luaL_optstring(L, WSLUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
     f->mask = luaL_optint(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
-    f->blob = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,""));
-    
+    blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
+    if (blob && strcmp(blob, f->name) != 0) {
+      f->blob = g_strdup(blob);
+    } else {
+      f->blob = NULL;
+    }
+
     pushProtoField(L,f);
     
     WSLUA_RETURN(1); /* The newly created ProtoField object */ 
@@ -582,7 +588,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     base_display_e base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
-    const gchar* blob = luaL_optstring(L,6,"");
+    const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L,2,"Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
@@ -598,8 +604,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     f->vs = vs;
     f->base = base;
     f->mask = mask;
-    f->blob = g_strdup(blob);
-    
+    if (blob && strcmp(blob, f->name) != 0) {
+      f->blob = g_strdup(blob);
+    } else {
+      f->blob = NULL;
+    }
     
     pushProtoField(L,f);
     
@@ -722,7 +731,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f = g_malloc(sizeof(wslua_field_t));
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
-    const gchar* blob = luaL_optstring(L,3,"");
+    const gchar* blob = luaL_optstring(L,3,NULL);
     
     f->hfid = -2;
     f->ett = -1;
@@ -732,7 +741,11 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->vs = NULL;
     f->base = ( type == FT_FLOAT || type == FT_DOUBLE) ? BASE_DEC : BASE_NONE;
     f->mask = 0;
-    f->blob = g_strdup(blob);
+    if (blob && strcmp(blob, f->name) != 0) {
+      f->blob = g_strdup(blob);
+    } else {
+      f->blob = NULL;
+    }
     
     pushProtoField(L,f);
     
