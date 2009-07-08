@@ -1611,6 +1611,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    *
    * Flag a low TTL if the packet is not destined for a multicast address
    * (e.g. 224.0.0.0/4).
+   *
+   * FIXME: Add an exception list, as Some protocols seem to insist on
+   *   doing differently:
+   *   - IETF's VRRP (rfc3768) always uses 224.0.0.18 with 255
+   *   - Cisco's GLPB always uses 224.0.0.102 with 255
+   *   Even more, VRRP and GLBP should probably be flagged as an error, if
+   *   seen with any TTL except 255.
    */
   if (is_a_local_network_control_block_addr(dst32)) {
     if (iph->ip_ttl != 1) {
