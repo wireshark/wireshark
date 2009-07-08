@@ -45,6 +45,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 static int proto_glbp = -1;
 /* glbp header? */
@@ -163,12 +164,11 @@ static const value_string glbp_vfstate_vals[] = {
 };
 
 static int
-dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length,
+dissect_glbp_hello(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tlv_tree)
 {
   guint8 addrtype;
   guint8 addrlen;
-  int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  FALSE);
   offset ++;
@@ -198,9 +198,17 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length,
   offset++;
   switch (addrtype) {
     case 1:
+    if (addrlen != 4) {
+      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv4 address length: %u", addrlen);
+      return offset + addrlen;
+    }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv4, tvb, offset, addrlen, FALSE);
     break;
   case 2:
+    if (addrlen != 16) {
+      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv6 address length: %u", addrlen);
+      return offset + addrlen;
+    }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, FALSE);
     break;
   default:
@@ -212,19 +220,14 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset, guint32 length,
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
     val_to_str(addrtype, glbp_addr_type_vals, "%d"));
 
-  if (offset < lastoffset)
-	offset = lastoffset;
-
   return offset;
 }
 
 
 static int
-dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length,
+dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
-  int lastoffset = offset + length;
-
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_forwarder, tvb, offset, 1, FALSE);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_vfstate, tvb, offset, 1, FALSE);
@@ -240,19 +243,15 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset, guint32 length,
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, FALSE);
   offset += 6;
 
-  if (offset < lastoffset)
-	offset = lastoffset;
-
   return offset;
 }
 
 static int
-dissect_glbp_auth(tvbuff_t *tvb, int offset, guint32 length,
+dissect_glbp_auth(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   guint8 authtype;
   guint8 authlength;
-  int lastoffset = offset + length;
 
   proto_tree_add_item(tlv_tree, hf_glbp_auth_authtype, tvb, offset, 1,  FALSE);
   authtype = tvb_get_guint8(tvb, offset);
@@ -280,9 +279,6 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset, guint32 length,
     break;
   }
 
-  if (offset < lastoffset)
-	offset = lastoffset;
-
   return offset;
 }
 
@@ -304,6 +300,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti = NULL;
   guint8 type;
   int offset = 0;
+  int lastoffset;
   guint8 length;
   guint16 group;
 
@@ -331,7 +328,10 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       type = tvb_get_guint8(tvb, offset);
       length = tvb_get_guint8(tvb, offset+1);
-      DISSECTOR_ASSERT(length > 1);
+      if (length < 2) {
+	expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
+	return offset;
+      }
       length -= 2;
 
       ti = proto_tree_add_item(glbp_tree, hf_glbp_tlv, tvb, offset, length+2, FALSE);
@@ -346,19 +346,24 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
         val_to_str(type, glbp_type_vals, "%d"));
   
+      lastoffset = offset;
       switch(type) {
         case 1: /* Hello */
-	  offset = dissect_glbp_hello(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_hello(tvb, offset, pinfo, tlv_tree);
   	break;
         case 2: /* Request/Response */
-	  offset = dissect_glbp_reqresp(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_reqresp(tvb, offset, pinfo, tlv_tree);
   	break;
         case 3: /* Plaintext auth */
-	  offset = dissect_glbp_auth(tvb, offset, length, pinfo, tlv_tree);
+	  offset = dissect_glbp_auth(tvb, offset, pinfo, tlv_tree);
   	break;
         default:
 	  offset = dissect_glbp_unknown(tvb, offset, length, pinfo, tlv_tree);
   	break;
+      }
+      if (lastoffset >= offset) {
+	expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
+	return lastoffset;
       }
     }
   }
