@@ -365,6 +365,9 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
 	return lastoffset;
       }
+      /* Skip over trailing bytes before starting with the next element */
+      if (lastoffset + length > offset)
+        offset = lastoffset + length;
     }
   }
   return offset;
