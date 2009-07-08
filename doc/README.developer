@@ -1696,6 +1696,12 @@ represent unsigned integers, and the FT_INT* variables all represent
 signed integers; the number on the end represent how many bits are used
 to represent the number.
 
+Some constraints are imposed on the header fields depending on the type
+(e.g. FT_BYTES) of the field. Non integral types (e.g. types that are _not_
+FT_INT* and FT_UINT*) must use 'BASE_NONE', NULL, 0x0' as values for the
+'display', 'strings', 'bitmask' fields. The reason is simply that the type
+itself implictly defines the nature of 'display', 'strings', 'bitmask'.
+
 display
 -------
 The display field has a couple of overloaded uses. This is unfortunate,
@@ -3610,7 +3616,7 @@ boundary is set in stone.
 static hf_register_info hf[] = {
     {&hf_cstring,
      {"C String", "c.string", FT_STRING, BASE_NONE, NULL, 0x0,
-      "C String", HFILL}
+      NULL, HFILL}
      }
    };
 
