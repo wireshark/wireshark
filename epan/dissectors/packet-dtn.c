@@ -216,15 +216,15 @@ static gint ett_admin_record = -1;
 static gint ett_admin_rec_status = -1;
 static gint ett_metadata_hdr = -1;
 
-static uint bundle_tcp_port = 4556;
-static uint bundle_udp_port = 4556;
+static guint bundle_tcp_port = 4556;
+static guint bundle_udp_port = 4556;
 
 static dissector_handle_t tcp_bundle_handle;
 static dissector_handle_t udp_bundle_handle;
 
 /* Needed to allow entering port option */
-static uint tcp_port = 0;
-static uint udp_port = 0;
+static guint tcp_port = 0;
+static guint udp_port = 0;
 
 static const value_string custody_signal_reason_codes[] = {
     {0x3, "Redundant Reception"},
