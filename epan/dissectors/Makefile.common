@@ -398,6 +398,7 @@ DISSECTOR_SRC = \
 	packet-drda.c 		\
 	packet-dsi.c		\
 	packet-dtls.c		\
+	packet-dtn.c		\
 	packet-dtp.c		\
 	packet-dtpt.c		\
 	packet-dua.c		\
@@ -1010,6 +1011,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dns.h	\
 	packet-dop.h	\
 	packet-dsp.h	\
+	packet-dtn.h	\
 	packet-enip.h	\
 	packet-erf.h	\
 	packet-dvmrp.h	\

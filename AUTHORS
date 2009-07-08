@@ -2874,6 +2874,10 @@ Nathan Hartwell		<nhartwell [AT] gmail.com> {
 	HP NIC Teaming dissector
 }
 
+Don Chirieleison	<donc [AT] mitre.org> {
+	DTN Bundle Protocol
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
