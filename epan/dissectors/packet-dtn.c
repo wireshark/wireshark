@@ -837,11 +837,11 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, &string_length);
 
     proto_tree_add_text(dict_tree, tvb, offset + dest_scheme_offset, 
-				strlen((char *) (dict_ptr + dest_scheme_offset)),
+				(gint)strlen((char *) (dict_ptr + dest_scheme_offset)),
 						"Destination Scheme: %s", string_ptr);
     string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, &string_length);
     dest_item = proto_tree_add_text(dict_tree, tvb, offset + dest_ssp_offset, 
-				strlen((char *) (dict_ptr + dest_ssp_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), " "); 
     proto_item_set_text(dest_item, "Destination: %s", string_ptr);
 
     /*
@@ -851,12 +851,12 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + source_scheme_offset, &string_length);
     source_scheme_item = proto_tree_add_text(dict_tree, tvb, offset+source_scheme_offset,  
-				strlen((char *) (dict_ptr + source_scheme_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + source_scheme_offset)), " "); 
     proto_item_set_text(source_scheme_item, "Source Scheme: %s", string_ptr);
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + source_ssp_offset, &string_length);
     source_item = proto_tree_add_text(dict_tree, tvb, offset + source_ssp_offset, 
-				strlen((char *) (dict_ptr + source_ssp_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + source_ssp_offset)), " "); 
     proto_item_set_text(source_item, "Source: %s", string_ptr);
 
     /*
@@ -866,12 +866,12 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + report_scheme_offset, &string_length);
     rpt_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + report_scheme_offset, 
-				strlen((char *) (dict_ptr + report_scheme_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + report_scheme_offset)), " "); 
     proto_item_set_text(rpt_scheme_item, "Report To Scheme: %s", string_ptr);
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + report_ssp_offset, &string_length);
     rpt_item = proto_tree_add_text(dict_tree, tvb, offset + report_ssp_offset, 
-				strlen((char *) (dict_ptr + report_ssp_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + report_ssp_offset)), " "); 
     proto_item_set_text(rpt_item, "Report To: %s", string_ptr);
 
     /*
@@ -881,12 +881,12 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + cust_scheme_offset, &string_length);
     cust_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + cust_scheme_offset, 
-				strlen((char *) (dict_ptr + cust_scheme_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), " "); 
     proto_item_set_text(cust_scheme_item, "Custodian Scheme: %s", string_ptr);
     string_ptr = tvb_get_ephemeral_stringz(tvb, 
 				offset + cust_ssp_offset, &string_length);
     cust_item = proto_tree_add_text(dict_tree, tvb, offset + cust_ssp_offset, 
-				strlen((char *) (dict_ptr + cust_ssp_offset)), " "); 
+				(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), " "); 
     proto_item_set_text(cust_item, "Custodian: %s", string_ptr);
 
     /* 
@@ -1203,10 +1203,10 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
     tvb_ensure_bytes_exist(tvb, offset, dest_scheme_offset);
     proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dest_scheme_offset, 
-				strlen((char *) (dict_ptr + dest_scheme_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + dest_scheme_offset)), FALSE);
     tvb_ensure_bytes_exist(tvb, offset, dest_ssp_offset);
     proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dest_ssp_offset, 
-				strlen((char *) (dict_ptr + dest_ssp_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), FALSE);
 
     /*
      * Destination info
@@ -1214,10 +1214,10 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
     tvb_ensure_bytes_exist(tvb, offset, source_scheme_offset);
     proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + source_scheme_offset, 
-				strlen((char *) (dict_ptr + source_scheme_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + source_scheme_offset)), FALSE);
     tvb_ensure_bytes_exist(tvb, offset, source_ssp_offset);
     proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + source_ssp_offset, 
-				strlen((char *) (dict_ptr + source_ssp_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + source_ssp_offset)), FALSE);
 
     /*
      * Report to info
@@ -1225,10 +1225,10 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
     tvb_ensure_bytes_exist(tvb, offset, report_scheme_offset);
     proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + report_scheme_offset, 
-				strlen((char *) (dict_ptr + report_scheme_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + report_scheme_offset)), FALSE);
     tvb_ensure_bytes_exist(tvb, offset, report_ssp_offset);
     proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + report_ssp_offset, 
-				strlen((char *) (dict_ptr + report_ssp_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + report_ssp_offset)), FALSE);
 
     /*
      * Custodian info
@@ -1236,11 +1236,11 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
     tvb_ensure_bytes_exist(tvb, offset, cust_scheme_offset);
     proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + cust_scheme_offset, 
-				strlen((char *) (dict_ptr + cust_scheme_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), FALSE);
 
     tvb_ensure_bytes_exist(tvb, offset, cust_ssp_offset);
     proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset, 
-				strlen((char *) (dict_ptr + cust_ssp_offset)), FALSE);
+				(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), FALSE);
 
     /* 
      * Add Source/Destination to INFO Field 
