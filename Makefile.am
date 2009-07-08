@@ -539,6 +539,7 @@ EXTRA_DIST = \
 	debian/pycompat		\
 	debian/pyversions	\
 	debian/rules		\
+	debian/README.source	\
 	debian/tshark.files	\
 	debian/tshark.manpages	\
 	debian/watch		\
