@@ -36,6 +36,12 @@
  * information.
  */
 
+/*
+  See:
+       PacketCable(TM) 1.5 Specification: Event Messages [PKT-SP-EM1.5-I03-070412]
+       PacketCable(TM) Specification: Multimedia Specification [PKT-SP-MM-I04-080522]
+*/
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
