@@ -264,9 +264,6 @@ static gboolean reassemble_over_tcp = TRUE;
 /* Tap */
 static int smpp_tap             = -1;
 
-/* Stats Tree */
-static gchar* st_str_smpp = "SMPP Operations";
-
 /*
  * Value-arrays for field-contents
  */
@@ -3541,7 +3538,7 @@ proto_reg_handoff_smpp(void)
     DISSECTOR_ASSERT(gsm_sms_handle);
 
     /* Tapping setup */
-    stats_tree_register_with_group("smpp","smpp_commands", st_str_smpp, 0,
+    stats_tree_register_with_group("smpp","smpp_commands", "SM_PP Operations", 0,
                                    smpp_stats_tree_per_packet, smpp_stats_tree_init, 
                                    NULL, REGISTER_STAT_GROUP_TELEPHONY);
 }

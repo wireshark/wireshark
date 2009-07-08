@@ -3805,6 +3805,6 @@ register_tap_listener_rtp_analysis(void)
 {
 	register_stat_cmd_arg("rtp", rtp_analysis_init,NULL);
 
-	register_stat_menu_item("RTP/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
+	register_stat_menu_item("_RTP/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtp_analysis_cb, NULL, NULL, NULL);
 }

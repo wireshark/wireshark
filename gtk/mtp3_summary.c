@@ -424,6 +424,6 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkmtp3_summary(void)
 {
-    register_stat_menu_item("MTP3/MSU Summary",  REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_MTP3/MSU Summary",  REGISTER_STAT_GROUP_TELEPHONY,
         mtp3_sum_gtk_sum_cb, NULL, NULL, NULL);
 }

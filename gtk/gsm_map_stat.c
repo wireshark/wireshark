@@ -486,7 +486,7 @@ register_tap_listener_gtkgsm_map_stat(void)
 	exit(1);
     }
 
-    register_stat_menu_item("GSM/MAP Operation",  REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_GSM/MAP Operation",  REGISTER_STAT_GROUP_TELEPHONY,
         gsm_map_stat_gtk_cb, NULL, NULL, NULL);
     register_stat_cmd_arg("gsm_map", gsm_map_stat_gtk_init,NULL);
 }

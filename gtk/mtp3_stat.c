@@ -450,7 +450,7 @@ register_tap_listener_gtkmtp3_stat(void)
 	exit(1);
     }
 
-    register_stat_menu_item("MTP3/MSUs",  REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_MTP3/MSUs",  REGISTER_STAT_GROUP_TELEPHONY,
         mtp3_stat_gtk_cb, NULL, NULL, NULL);
     register_stat_cmd_arg("mtp3,msus", mtp3_stat_gtk_init,NULL);
 }

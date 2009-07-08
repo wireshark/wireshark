@@ -854,7 +854,7 @@ static void mac_lte_stat_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_mac_lte_stat(void)
 {
-    register_stat_menu_item("LTE MAC...", REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_LTE MAC...", REGISTER_STAT_GROUP_TELEPHONY,
                             mac_lte_stat_launch, NULL, NULL, NULL);
 }
 

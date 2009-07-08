@@ -406,11 +406,11 @@ register_tap_listener_gtkansi_a_stat(void)
 	exit(1);
     }
 
-    register_stat_menu_item("ANSI/A-Interface BSMAP", REGISTER_STAT_GROUP_TELEPHONY, 
+    register_stat_menu_item("_ANSI/A-Interface BSMAP", REGISTER_STAT_GROUP_TELEPHONY, 
         ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
     register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init,NULL);
 
-    register_stat_menu_item("ANSI/A-Interface DTAP", REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_ANSI/A-Interface DTAP", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
     register_stat_cmd_arg("ansi_a,dtap", ansi_a_stat_gtk_dtap_init, NULL);
 }

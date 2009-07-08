@@ -382,7 +382,7 @@ register_tap_listener_gtkansi_map_stat(void)
 	exit(1);
     }
 
-    register_stat_menu_item("ANSI/MAP Operation", REGISTER_STAT_GROUP_TELEPHONY,
+    register_stat_menu_item("_ANSI/MAP Operation", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
     register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init,NULL);
 }

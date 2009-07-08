@@ -86,6 +86,6 @@ register_tap_listener_t38_analysis(void)
 	register_stat_cmd_arg("t38", t38_analysis_init,NULL);
 
 
-	register_stat_menu_item("Fax T38 Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
+	register_stat_menu_item("_Fax T38 Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    t38_analysis_cb, NULL, NULL, NULL);
 }

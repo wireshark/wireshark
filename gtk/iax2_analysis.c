@@ -3654,7 +3654,7 @@ register_tap_listener_iax2_analysis(void)
 {
 	register_stat_cmd_arg("IAX2", iax2_analysis_init,NULL);
 
-	register_stat_menu_item("IAX2/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
+	register_stat_menu_item("IA_X2/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    iax2_analysis_cb, NULL, NULL, NULL);
 }
 
