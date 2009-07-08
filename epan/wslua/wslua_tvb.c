@@ -191,10 +191,10 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
 
 
 WSLUA_METHOD ByteArray_get_index(lua_State* L) {
-	/* Set the value of a byte in a ByteArray */
-#define WSLUA_ARG_ByteArray_set_index_INDEX 2 /* The position of the byte to be set */
+	/* Get the value of a byte in a ByteArray */
+#define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the byte to get */
     ByteArray ba = checkByteArray(L,1);
-    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_INDEX);
+    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_get_index_INDEX);
 
     if (!ba) return 0;
 
