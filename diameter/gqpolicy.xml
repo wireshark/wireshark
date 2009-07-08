@@ -6,7 +6,7 @@
         <!-- ************************** Gq AVPS ********************* -->
 		<!-- ETSI TS 129 209 V6.7.0 (2007-06) -->
 
-		<avp name="Abort-Cause" code="500" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" may-encrypt="yes" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="BEARER_RELEASED" code="0"/>
 			<enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
@@ -76,7 +76,7 @@
                 <enum name="RTCP" code="1"/>
         </avp>
 
-        <avp name="Specific-Action" code="513" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+        <avp name="Specific-Action" code="513" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
             <type type-name="Enumerated"/>
                 <enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
                 <enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
@@ -84,6 +84,8 @@
                 <enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
                 <enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
                 <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
+                <enum name="INDICATION_OF_SUBSCRIBER_DETACHMENT" code="6"/>
+                <enum name="INDICATION_OF_RESERVATION_EXPIRATION" code="7"/>
         </avp>
 
         <avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">

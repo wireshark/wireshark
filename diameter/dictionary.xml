@@ -551,7 +551,7 @@
 			<enum name="X25" code="259"/>
 			<enum name="Xylogics" code="5"/>
 		</avp>
-		<avp name="Framed-IP-Address" code="8" mandatory="may">
+		<avp name="Framed-IP-Address" code="8" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot"">
 			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Framed-IP-Netmask" code="9" mandatory="may">
@@ -867,7 +867,7 @@
 		<avp name="Framed-Interface-Id" code="96" mandatory="may">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<avp name="Framed-IPv6-Prefix" code="97" mandatory="may">
+		<avp name="Framed-IPv6-Prefix" code="97" mandatory="must" may-encrypt="yes" protected="may">
 			<type type-name="OctetString"/>
 		</avp>
 <!--
@@ -969,7 +969,7 @@ http://www.iana.org/assignments/radius-types
 
 -->
 		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
-		<avp name="Host-IP-Address" code="257" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+		<avp name="Host-IP-Address" code="257" mandatory="must" protected="may" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1076,8 +1076,8 @@ http://www.iana.org/assignments/radius-types
 				<gavp name="Acct-Application-Id"/>
 			</grouped>
 		</avp>
-		<avp name="Redirect-Host-Usage" code="261" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+		<avp name="Redirect-Host-Usage" code="261" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
 			<enum name="Don't Care" code="0"/>
 			<enum name="All Session" code="1"/>
 			<enum name="All Realm" code="2"/>
@@ -1092,16 +1092,16 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Session-Id" code="263" mandatory="must" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="Origin-Host" code="264" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+		<avp name="Origin-Host" code="264" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
 		</avp>
-		<avp name="Supported-Vendor-Id" code="265" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+		<avp name="Supported-Vendor-Id" code="265" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="VendorId"/>
 		</avp>
-		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
 			<type type-name="VendorId"/>
 		</avp>
-		<avp name="Firmware-Revision" code="267" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+		<avp name="Firmware-Revision" code="267" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
@@ -1193,7 +1193,7 @@ http://www.iana.org/assignments/radius-types
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="REBOOTING" code="0"/>
 			<enum name="BUSY" code="1"/>
 			<enum name="DO_NOT_WANT_TO_TALK_TO_YOU" code="2"/>
@@ -1227,7 +1227,7 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
 		</avp>
-		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+		<avp name="Error-Message" code="281" mandatory="mustnot" protected="may" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
@@ -1254,17 +1254,17 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Integer32"/>
 		</avp>
- 		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="DiameterIdentity"/>
+ 		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Destination-Host" code="293" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
 		</avp>
-		<avp name="Error-Reporting-Host" code="294" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+		<avp name="Error-Reporting-Host" code="294" mandatory="mustnot" protected="may" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
 		</avp>
-		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
 			<enum name="DIAMETER_LOGOUT" code="1"/>
 			<enum name="DIAMETER_SERVICE_NOT_PROVIDED" code="2"/>
 			<enum name="DIAMETER_BAD_ANSWER" code="3"/>

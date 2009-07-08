@@ -170,10 +170,11 @@
 				<enum name="LATCH" code="0"/>
 				<enum name="RELATCH" code="1"/>
 		</avp>
-		<avp name="Reservation-priority" code="458" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+		<avp name="Reservation-Priority" code="458" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Enumerated"/>
-				<enum name="PRIORITY-ONE" code="1"/>
-				<enum name="PRIORITY-TWO" code="2"/>
+      <enum name="DEFAULT" code="0"/>
+      <enum name="PRIORITY-ONE" code="1"/>
+      <enum name="PRIORITY-TWO" code="2"/>
 				<enum name="PRIORITY-THREE" code="3"/>
 				<enum name="PRIORITY-FOUR" code="4"/>
 				<enum name="PRIORITY-FIVE" code="5"/>
