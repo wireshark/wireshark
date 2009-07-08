@@ -219,9 +219,6 @@ static gint ett_metadata_hdr = -1;
 static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
 
-static dissector_handle_t tcp_bundle_handle;
-static dissector_handle_t udp_bundle_handle;
-
 /* Needed to allow entering port option */
 static guint tcp_port = 0;
 static guint udp_port = 0;
@@ -380,7 +377,7 @@ static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	    /*
 	     * If we could be sure that the current tvb buffer ended with the CL segment,
-	     * we could return here. But the buffer could contain multiple complete setments
+	     * we could return here. But the buffer could contain multiple complete segments
 	     * or bundles or a bundle plus other CL messages. In order to process whatever
 	     * follow the current segment, we have to continue through the buffer until
 	     * frame_offset indicates everything in the buffer has been processed.
@@ -1861,6 +1858,12 @@ add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_i
     return sdnv_length;
 }
 
+static void
+bundle_defragment_init(void) {
+    fragment_table_init(&msg_fragment_table);
+    reassembled_table_init(&msg_reassembled_table);
+}
+
 void
 proto_register_bundle(void)
 {
@@ -2283,24 +2286,24 @@ proto_register_bundle(void)
 
   proto_register_field_array(proto_bundle, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(bundle_defragment_init);
 }	
 
 void
 proto_reg_handoff_bundle(void)
 {
-    static int Initialized=FALSE;
+    static dissector_handle_t tcp_bundle_handle;
+    static dissector_handle_t udp_bundle_handle;
+    static int Initialized = FALSE;
 
     if (!Initialized) {
 	tcp_bundle_handle = create_dissector_handle(dissect_tcp_bundle, proto_bundle);
 	udp_bundle_handle = create_dissector_handle(dissect_udp_bundle, proto_bundle);
-	fragment_table_init(&msg_fragment_table);
-	reassembled_table_init(&msg_reassembled_table);
 	Initialized = TRUE;
     }
     else {
 	dissector_delete("tcp.port", tcp_port, tcp_bundle_handle);
 	dissector_delete("udp.port", udp_port, udp_bundle_handle);
-
     }
     tcp_port = bundle_tcp_port;
     udp_port = bundle_udp_port;
