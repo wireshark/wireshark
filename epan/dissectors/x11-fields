@@ -78,7 +78,7 @@ border-width	UINT16	DEC
 button		UINT8	DEC	VALS
 byte-order	UINT8	HEX	VALS
 
-childwindow	UINT32	HEX	childwindow
+childwindow	UINT32	HEX
 cap-style	UINT8	DEC	VALS
 change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
@@ -126,7 +126,7 @@ dashes-length	UINT16	DEC
 do-acceleration	BOOLEAN	NONE
 do-threshold	BOOLEAN	NONE
 
-detail	UINT8	DEC	detail
+detail	UINT8	DEC
 do-not-propagate-mask	UINT32	HEX
 	KeyPress		BOOLEAN 32	0x00000001
 	KeyRelease		BOOLEAN 32	0x00000002
@@ -141,16 +141,16 @@ do-not-propagate-mask	UINT32	HEX
 	ButtonMotion		BOOLEAN 32	0x00002000
 	erroneous-bits		BOOLEAN 32	0xffffc0b0
 
-event-sequencenumber	UINT16	DEC	event sequencenumber
-error	UINT8	DEC	error
+event-sequencenumber	UINT16	DEC
+error	UINT8	DEC
 error-badvalue	UINT32	DEC	error badvalue
 error_sequencenumber	UINT16	DEC	error sequencenumber
-errorcode	UINT8	DEC	VALS	errrorcode
+errorcode	UINT8	DEC	VALS
 event-x	UINT16	DEC	event x
 event-y	UINT16	DEC	event y
-eventbutton	UINT8	DEC	eventbutton
-eventcode	UINT8	DEC	VALS	eventcode
-eventwindow	UINT32	HEX	eventwindow
+eventbutton	UINT8	DEC
+eventcode	UINT8	DEC	VALS
+eventwindow	UINT32	HEX
 
 first-event	UINT8	DEC
 first-error	UINT8	DEC
@@ -266,7 +266,7 @@ key-click-percent	INT8	DEC
 keyboard-key	UINT8	DEC
 keyboard-mode	UINT8	DEC	VALS(pointer_keyboard_mode)
 keybut-mask-erroneous-bits	BOOLEAN	16	0xe000	keybut mask erroneous bits
-keycode	UINT8	HEX	keycode
+keycode	UINT8	HEX
 
 keyboard-value-mask	UINT32	HEX
 	key-click-percent	BOOLEAN	32	0x0001
@@ -398,7 +398,7 @@ property-number	UINT16	DEC
 property-state	UINT8	DEC	VALS
 protocol-major-version	UINT16	DEC
 protocol-minor-version	UINT16	DEC
-reason		STRING	NONE	reason
+reason		STRING	NONE
 rectangle-height	UINT16	DEC
 rectangles	NONE	NONE
 rectangle	NONE	NONE
@@ -413,21 +413,21 @@ request-length	UINT16	DEC		Request length
 resource	UINT32	HEX	VALS(all_temporary)
 revert-to	UINT8	DEC	VALS
 release-number	UINT32	DEC	release number
-reply	UINT8	DEC	reply
+reply	UINT8	DEC
 reply-sequencenumber	UINT16	DEC	VALS(opcode)
-replylength	UINT32	DEC	replylength
+replylength	UINT32	DEC
 replyopcode	UINT8	DEC	VALS(opcode)
 resource-id-base	UINT32	HEX	resource id base
 resource-id-mask	UINT32	HEX	resource id mask
 root-x	UINT16	DEC	root x
 root-y	UINT16	DEC	root y
-rootwindow	UINT32	HEX	rootwindow
+rootwindow	UINT32	HEX
 
 same-screen	BOOLEAN	NONE	same screen
 same-screen-focus-mask	UINT8	HEX
 	focus			BOOLEAN	8	0x01
 	same-screen		BOOLEAN	8	0x02
-success		UINT8	DEC	success
+success		UINT8	DEC
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
 screen-saver-mode	UINT8	DEC	VALS
@@ -482,8 +482,8 @@ timeout		INT16	DEC
 type		UINT32	HEX
 undecoded	NONE	NONE		Yet undecoded by dissector
 unused		NONE	NONE
-valuelength	UINT32	DEC	valuelength
-vendor		STRING	NONE	vendor
+valuelength	UINT32	DEC
+vendor		STRING	NONE
 visibility-state UINT8  DEC	VALS
 visual		UINT32	HEX
 visual-blue	UINT16	DEC

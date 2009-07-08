@@ -90,7 +90,7 @@ dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
     /* PHBID subtree */
     sub_ti = proto_tree_add_item(tree2, hf_phbid, tvb, offset, 2, FALSE);
     phbid_subtree = proto_item_add_subtree(sub_ti, ett_map_phbid);
-    proto_item_set_text(sub_ti, "%s: ", (type == 1) ? "PHBID" : "PSC");
+    proto_item_set_text(sub_ti, "%s: ", (type == 1) ? PHBID_DESCRIPTION : "PSC");
     phbid = tvb_get_ntohs(tvb, offset);
 
     if ((phbid & 1) == 0) {

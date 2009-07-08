@@ -5868,8 +5868,8 @@ proto_register_rsvp(void)
 		   EXP_DESCRIPTION, HFILL }},
 
 		{&rsvp_filter[RSVPF_DIFFSERV_PHBID],
-		 { "PHBID", "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
-		   PHBID_DESCRIPTION, HFILL }},
+		 { PHBID_DESCRIPTION, "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
+		   NULL, HFILL }},
 
 		{&rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
 		 { PHBID_DSCP_DESCRIPTION, "rsvp.diffserv.phbid.dscp", FT_UINT16,

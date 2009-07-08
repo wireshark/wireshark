@@ -3165,24 +3165,24 @@ proto_register_ldp(void)
 	0, EXP_DESCRIPTION, HFILL}},
 
     { &hf_ldp_tlv_diffserv_phbid,
-      { "PHBID", "ldp.msg.tlv.diffserv.phbid", FT_NONE, BASE_NONE, NULL,
-	0, PHBID_DESCRIPTION, HFILL}},
+      { PHBID_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid", FT_NONE, BASE_NONE, NULL,
+	0, NULL, HFILL}},
 
     { &hf_ldp_tlv_diffserv_phbid_dscp,
-      { "DSCP", "ldp.msg.tlv.diffserv.phbid.dscp", FT_UINT16, BASE_DEC,
-	NULL, PHBID_DSCP_MASK, PHBID_DSCP_DESCRIPTION, HFILL}},
+      { PHBID_DSCP_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid.dscp", FT_UINT16, BASE_DEC,
+	NULL, PHBID_DSCP_MASK, NULL, HFILL}},
 
     { &hf_ldp_tlv_diffserv_phbid_code,
-      { "PHB id code", "ldp.msg.tlv.diffserv.phbid.code", FT_UINT16, BASE_DEC,
-	NULL, PHBID_CODE_MASK, PHBID_CODE_DESCRIPTION, HFILL}},
+      { PHBID_CODE_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid.code", FT_UINT16, BASE_DEC,
+	NULL, PHBID_CODE_MASK, NULL, HFILL}},
 
     { &hf_ldp_tlv_diffserv_phbid_bit14,
-      { "Bit 14", "ldp.msg.tlv.diffserv.phbid.bit14", FT_UINT16, BASE_DEC,
-	VALS(phbid_bit14_vals), PHBID_BIT14_MASK, PHBID_BIT14_DESCRIPTION, HFILL}},
+      { PHBID_BIT14_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid.bit14", FT_UINT16, BASE_DEC,
+	VALS(phbid_bit14_vals), PHBID_BIT14_MASK, NULL, HFILL}},
 
     { &hf_ldp_tlv_diffserv_phbid_bit15,
-      { "Bit 15", "ldp.msg.tlv.diffserv.phbid.bit15", FT_UINT16, BASE_DEC,
-	VALS(phbid_bit15_vals), PHBID_BIT15_MASK, PHBID_BIT15_DESCRIPTION, HFILL}}
+      { PHBID_BIT15_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid.bit15", FT_UINT16, BASE_DEC,
+	VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL}}
 
   };
 
