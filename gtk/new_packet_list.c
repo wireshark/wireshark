@@ -87,7 +87,7 @@ new_packet_list_append(column_info cinfo, frame_data *fdata)
 	gint i;
 	row_data_t *row_data;
 
-	row_data = g_new0(row_data_t, NUM_COL_FMTS+1);
+	row_data = g_new0(row_data_t, 1);
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		row_data->col_text[cinfo.col_fmt[i]] =
