@@ -616,12 +616,14 @@ void register_mibs(void) {
 					typedata->display,
 					NULL,
 					0,
-#if !defined _WIN32 || (_MSC_VER == 1200)
 					smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL),
-#else
-					g_strdup (smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
-#endif
 					HFILL }};
+
+				/* Don't allow duplicate blurb/name */
+				if (strcmp(hf.hfinfo.blurb, hf.hfinfo.name) == 0) {
+					smi_free((void *) hf.hfinfo.blurb);
+					hf.hfinfo.blurb = NULL;
+				}
 
 				oid_data->value_hfid = -1;
 
