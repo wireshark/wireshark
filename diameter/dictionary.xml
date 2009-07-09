@@ -2260,7 +2260,7 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
       <type type-name="OctetString"/>
     </avp>
     <avp name="Bearer-Operation" code="1021" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="TERMINATION" 			code="0"/>
       <enum name="ESTABLISHMENT" 	code="1"/>
       <enum name="MODIFICATION" 	code="2"/>
@@ -2273,13 +2273,13 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
       </grouped>
     </avp>
     <avp name="Bearer-Control-Mode" code="1023" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="UE_ONLY" 			code="0"/>
       <enum name="RESERVED" 	code="1"/>
       <enum name="UE_NW" 	code="2"/>
     </avp>
     <avp name="Network-Request-Support" code="1024" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="NETWORK_REQUEST NOT SUPPORTED" 			code="0"/>
       <enum name="NETWORK_REQUEST SUPPORTED" 	code="1"/>
     </avp>
@@ -2290,7 +2290,7 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			<type type-name="Unsigned32"/>
 		</avp>
     <avp name="IP-CAN-Type" code="1027" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="3GPP-GPRS" 			code="0"/>
       <enum name="DOCSIS" 	code="1"/>
       <enum name="xDSL" 	code="2"/>
@@ -2313,12 +2313,12 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			<enum name="OTHER"			code="0xFFFFFFFF"/>
 		</avp>
     <avp name="QoS-Negotiation" code="1029" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="NO_QoS_NEGOTIATION" 			code="0"/>
       <enum name="QoS_NEGOTIATION_SUPPORTED" 	code="1"/>
     </avp>
     <avp name="QoS-Upgrade" code="1030" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="QoS_UPGRADE_NOT_SUPPORTED" 			code="0"/>
       <enum name="QoS_UPGRADE_SUPPORTED" 	code="1"/>
     </avp>
@@ -2406,7 +2406,7 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
       <type type-name="Time"/>
     </avp>
     <avp name="Session-Release-Cause" code="1045" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated,"/>
+      <type type-name="Enumerated"/>
       <enum name="UNSPECIFIED_REASON" 			code="0"/>
       <enum name="UE_SUBSCRIPTION_REASON" 	code="1"/>
       <enum name="INSUFFICIENT_SERVER_RESOURCES" 	code="2"/>
