@@ -69,6 +69,8 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * if it is really just SNAP
 	 */
 	if (memcmp(strPtr, HP_Mac, 17) == 0) {
+		mac_addr = pinfo->dl_src.data;
+		strPtr = ether_to_str(mac_addr);
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP NIC Team");
 		/* Clear out stuff in the info column */
 		col_clear(pinfo->cinfo, COL_INFO);
