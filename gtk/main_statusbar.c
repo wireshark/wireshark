@@ -682,6 +682,7 @@ statusbar_capture_fixed_finished_cb(capture_options *capture_opts _U_)
 
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
+    welcome_header_pop_msg();
 
     /* Pop the "<capturing>" message off the status bar */
     gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
