@@ -1419,6 +1419,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint message_length;
 	int start_offset = offset;
 	guint32 version = 0;
+	tvbuff_t	*next_tvb;
 
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
@@ -1487,11 +1488,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * OK, try to read the "Sequence Of" header; this gets the total
 	 * length of the SNMP message.
 	 */
-	/* Set tree to 0 to not display internakl BER fields if option used.*/
+	/* Set tree to 0 to not display internal BER fields if option used.*/
 	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &class, &pc, &tag);
+	/*Get the total octet length of the SNMP data*/
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
-
 	message_length = len + 2;
+
+	/*Get the SNMP version data*/
 	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
 
 
@@ -1512,7 +1515,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			pinfo->desegment_offset = start_offset;
 			pinfo->desegment_len =
-			    message_length - length_remaining;
+			message_length - length_remaining;
 
 			/*
 			 * Return 0, which means "I didn't dissect anything
@@ -1531,7 +1534,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, offset,
+		item = proto_tree_add_item(tree, proto, tvb, start_offset,
 		    message_length, FALSE);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
@@ -1558,8 +1561,17 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return length_remaining;
 		break;
 	}
-
-	next_tvb_call(&var_list, pinfo, tree, NULL, data_handle);
+	
+	/* There may be appended data after the SNMP data, so treat as raw
+	 * data which needs to be dissected in case of UDP as UDP is PDU oriented.
+ 	 */
+	if((!is_tcp) && (length_remaining > (guint)offset)) {
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
+	else{
+		next_tvb_call(&var_list, pinfo, tree, NULL, data_handle);
+	}
 
 	return offset;
 }
@@ -1591,8 +1603,18 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	/* then comes a length which spans the rest of the tvb */
 	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
-	if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){
-		return 0;
+	/* if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){ 
+	 * Losen the heuristic a bit to handle the case where data has intentionally
+	 * been added after the snmp PDU ( UDP case)
+	 */
+	if ( pinfo->ptype == PT_UDP ){
+		if(tmp_length>(guint32)tvb_reported_length_remaining(tvb, offset)){
+			return 0;
+		}
+	}else{
+		if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){
+			return 0;
+		}
 	}
 	/* then comes an INTEGER (version)*/
 	offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
