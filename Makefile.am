@@ -110,71 +110,135 @@ dtds_DATA = \
 #
 radiusdir = $(pkgdatadir)/radius
 radius_DATA = \
+	radius/README.radius_dictionary  \
 	radius/dictionary  \
 	radius/dictionary.3com  \
 	radius/dictionary.3gpp  \
 	radius/dictionary.3gpp2  \
 	radius/dictionary.acc  \
+	radius/dictionary.airespace \
 	radius/dictionary.alcatel  \
 	radius/dictionary.alteon  \
 	radius/dictionary.altiga  \
+	radius/dictionary.alvarion \
+	radius/dictionary.apc \
 	radius/dictionary.aptis  \
-	radius/dictionary.ascend  \
 	radius/dictionary.aruba  \
+	radius/dictionary.ascend  \
+	radius/dictionary.asn \
+	radius/dictionary.avaya \
+	radius/dictionary.azaire \
 	radius/dictionary.bay  \
 	radius/dictionary.bintec  \
 	radius/dictionary.bristol  \
 	radius/dictionary.cablelabs  \
 	radius/dictionary.cabletron  \
+	radius/dictionary.chillispot \
 	radius/dictionary.cisco  \
 	radius/dictionary.cisco.bbsm  \
 	radius/dictionary.cisco.vpn3000  \
 	radius/dictionary.cisco.vpn5000  \
+	radius/dictionary.clavister \
 	radius/dictionary.colubris  \
 	radius/dictionary.columbia_university  \
 	radius/dictionary.compat  \
 	radius/dictionary.cosine  \
+	radius/dictionary.dhcp \
+	radius/dictionary.digium \
+	radius/dictionary.epygi \
 	radius/dictionary.ericsson  \
 	radius/dictionary.erx  \
 	radius/dictionary.extreme  \
+	radius/dictionary.fortinet \
 	radius/dictionary.foundry  \
 	radius/dictionary.freeradius  \
+	radius/dictionary.freeradius.internal  \
+	radius/dictionary.freeswitch \
 	radius/dictionary.gandalf  \
 	radius/dictionary.garderos  \
 	radius/dictionary.gemtek  \
+	radius/dictionary.h3c \
+	radius/dictionary.hp \
+	radius/dictionary.huawei \
+	radius/dictionary.infonet \
+	radius/dictionary.ipunplugged \
+	radius/dictionary.issanni \
 	radius/dictionary.itk  \
+	radius/dictionary.jradius \
 	radius/dictionary.juniper  \
 	radius/dictionary.karlnet  \
+	radius/dictionary.lancom \
 	radius/dictionary.livingston  \
 	radius/dictionary.localweb  \
+	radius/dictionary.lucent \
+	radius/dictionary.manzara \
 	radius/dictionary.merit  \
 	radius/dictionary.microsoft  \
 	radius/dictionary.mikrotik  \
+	radius/dictionary.motorola \
 	radius/dictionary.navini  \
 	radius/dictionary.netscreen  \
+	radius/dictionary.networkphysics \
+	radius/dictionary.nexans \
 	radius/dictionary.nokia  \
+	radius/dictionary.nokia.conflict \
 	radius/dictionary.nomadix  \
+	radius/dictionary.nortel \
+	radius/dictionary.ntua \
+	radius/dictionary.openser \
+	radius/dictionary.packeteer \
+	radius/dictionary.patton \
 	radius/dictionary.propel  \
+	radius/dictionary.prosoft \
+	radius/dictionary.quiconnect \
 	radius/dictionary.quintum  \
 	radius/dictionary.redback  \
 	radius/dictionary.redcreek  \
+	radius/dictionary.rfc2865 \
+	radius/dictionary.rfc2866 \
+	radius/dictionary.rfc2867 \
+	radius/dictionary.rfc2868 \
+	radius/dictionary.rfc2869 \
+	radius/dictionary.rfc3162 \
+	radius/dictionary.rfc3576 \
+	radius/dictionary.rfc3580 \
+	radius/dictionary.rfc4072 \
+	radius/dictionary.rfc4372 \
+	radius/dictionary.rfc4675 \
+	radius/dictionary.rfc4679 \
+	radius/dictionary.rfc4818 \
+	radius/dictionary.rfc4849 \
+	radius/dictionary.rfc5090 \
+	radius/dictionary.rfc5176 \
+	radius/dictionary.riverstone \
+	radius/dictionary.roaringpenguin \
 	radius/dictionary.shasta  \
 	radius/dictionary.shiva  \
+	radius/dictionary.slipstream \
+	radius/dictionary.sofaware \
 	radius/dictionary.sonicwall  \
 	radius/dictionary.springtide  \
 	radius/dictionary.starent  \
 	radius/dictionary.t_systems_nova  \
 	radius/dictionary.telebit  \
+	radius/dictionary.telkom \
 	radius/dictionary.trapeze  \
+	radius/dictionary.tropos \
 	radius/dictionary.tunnel  \
 	radius/dictionary.unisphere  \
 	radius/dictionary.unix  \
 	radius/dictionary.usr  \
+	radius/dictionary.utstarcom \
 	radius/dictionary.valemount  \
 	radius/dictionary.versanet  \
+	radius/dictionary.vqp \
+	radius/dictionary.walabi \
+	radius/dictionary.waverider \
 	radius/dictionary.wimax  \
 	radius/dictionary.wispr  \
-	radius/dictionary.xedia
+	radius/dictionary.xedia \
+	radius/dictionary.xylan \
+	radius/dictionary.zyxel
 
 #
 # Install the tpncp directory files in the "tpncp" subdirectory
