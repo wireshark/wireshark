@@ -45,6 +45,7 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/etypes.h>
 #include "packet-tcp.h"
 #include "packet-enip.h"
 #include "packet-cip.h"
@@ -140,6 +141,40 @@ static dissector_handle_t  data_handle;
 
 static gboolean enip_desegment = TRUE;
 
+static int proto_dlr     = -1;
+
+static int hf_dlr_ringsubtype      = -1;
+static int hf_dlr_ringprotoversion = -1;
+static int hf_dlr_frametype        = -1;
+static int hf_dlr_sourceport       = -1;
+static int hf_dlr_sourceip         = -1;
+static int hf_dlr_sequenceid       = -1;
+
+static int hf_dlr_ringstate            = -1;
+static int hf_dlr_supervisorprecedence = -1;
+static int hf_dlr_beaconinterval       = -1;
+static int hf_dlr_beacontimeout        = -1;
+static int hf_dlr_beaconreserved       = -1;
+
+static int hf_dlr_nreqreserved = -1;
+
+static int hf_dlr_nressourceport = -1;
+static int hf_dlr_nresreserved   = -1;
+
+static int hf_dlr_lnknbrstatus   = -1;
+static int hf_dlr_lnknbrreserved = -1;
+
+static int hf_dlr_lfreserved = -1;
+
+static int hf_dlr_anreserved = -1;
+
+static int hf_dlr_sonumnodes = -1;
+static int hf_dlr_somac      = -1;
+static int hf_dlr_soip       = -1;
+static int hf_dlr_soreserved = -1;
+
+static gint ett_dlr = -1;
+
 /* Translate function to string - Encapsulation commands */
 static const value_string encap_cmd_vals[] = {
    { NOP,               "NOP"                },
@@ -199,6 +234,46 @@ static const value_string enip_interface_handle_vals[] = {
    { 0,        "CIP" },
 
    { 0,        NULL  }
+};
+
+/* Translate function to DLR Frame Type values */
+static const value_string dlr_frame_type_vals[] = {
+   { DLR_FT_BEACON,           "Beacon" },
+   { DLR_FT_NEIGHBOR_REQ,     "Neighbor_Check_Request" },
+   { DLR_FT_NEIGHBOR_RES,     "Neighbor_Check_Response" },
+   { DLR_FT_LINK_STAT,        "Link_Status / Neighbor_Status" },
+   { DLR_FT_LOCATE_FLT,       "Locate_Fault" },
+   { DLR_FT_ANNOUNCE,         "Announce" },
+   { DLR_FT_SIGN_ON,          "Sign_On" },
+
+   { 0,                    NULL }
+};
+
+/* Translate function to DLR Source Port values */
+static const value_string dlr_source_port_vals[] = {
+   { 0,     "Port 1 or Port 2" },
+   { 1,     "Port 1" },
+   { 2,     "Port 2" },
+
+   { 0,                    NULL }
+};
+
+/* Translate function to DLR Ring State values */
+static const value_string dlr_ring_state_vals[] = {
+   { 1,     "RING_NORMAL_STATE" },
+   { 2,     "RING_FAULT_STATE" },
+
+   { 0,                    NULL }
+};
+
+
+/* Translate function to DLR Link_Status/Neighbor_Status Status values */
+static const value_string dlr_lnk_nbr_status_vals[] = {
+   { 0x01,     "PORT_1_UP" },
+   { 0x02,     "PORT_2_UP" },
+   { 0x80,     "NEIGHBOR_STATUS_FLAG" },
+
+   { 0,                    NULL }
 };
 
 static GHashTable *enip_request_hashtable = NULL;
@@ -1206,6 +1281,127 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 } /* end of dissect_enipio() */
 
 
+static gboolean
+dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+   proto_item *ti;
+   proto_tree *dlr_tree = NULL;
+   guint8      dlr_subtype;
+   guint8      dlr_protover;
+   guint8      dlr_frametype;
+
+   /* Make entries in Protocol column and Info column on summary display */
+   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
+      col_set_str( pinfo->cinfo, COL_PROTOCOL, "DLR" );
+
+   if (check_col( pinfo->cinfo, COL_INFO ) )
+      col_clear( pinfo->cinfo, COL_INFO );
+
+   if( tree )
+   {
+      /* Create display subtree for the protocol */
+      ti = proto_tree_add_item(tree, proto_dlr, tvb, 0, -1, FALSE);
+      dlr_tree = proto_item_add_subtree( ti, ett_dlr );
+   }
+
+   /* Get values for the Common Frame Header Format */
+   dlr_subtype  = tvb_get_guint8(tvb, DLR_CFH_SUB_TYPE);
+   dlr_protover = tvb_get_guint8(tvb, DLR_CFH_PROTO_VERSION);
+
+   /* Dissect the Common Frame Header Format */
+   proto_tree_add_uint( dlr_tree, hf_dlr_ringsubtype, tvb, DLR_CFH_SUB_TYPE, 1, dlr_subtype );
+   proto_tree_add_uint( dlr_tree, hf_dlr_ringprotoversion, tvb, DLR_CFH_PROTO_VERSION, 1, dlr_protover );
+
+   /* Get values for the DLR Message Payload Fields */
+   dlr_frametype  = tvb_get_guint8(tvb, DLR_MPF_FRAME_TYPE);
+
+   /* Dissect the DLR Message Payload Fields */
+   proto_tree_add_item( dlr_tree, hf_dlr_frametype, tvb, DLR_MPF_FRAME_TYPE, 1, FALSE );
+   proto_tree_add_item( dlr_tree, hf_dlr_sourceport, tvb, DLR_MPF_SOURCE_PORT, 1, FALSE );
+   proto_tree_add_item( dlr_tree, hf_dlr_sourceip, tvb, DLR_MPF_SOURCE_IP, 4, FALSE );
+   proto_tree_add_item( dlr_tree, hf_dlr_sequenceid, tvb, DLR_MPF_SEQUENCE_ID, 4, FALSE );
+
+   /* Add frame type to col info */
+   if( check_col(pinfo->cinfo, COL_INFO) )
+   {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                "%s", val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
+   }
+
+   if( dlr_frametype == DLR_FT_BEACON )
+   {
+      /* Beacon */
+      proto_tree_add_item( dlr_tree, hf_dlr_ringstate, tvb, DLR_BE_RING_STATE, 1, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_supervisorprecedence, tvb, DLR_BE_SUPERVISOR_PRECEDENCE, 1, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_beaconinterval, tvb, DLR_BE_BEACON_INTERVAL, 4, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_beacontimeout, tvb, DLR_BE_BEACON_TIMEOUT, 4, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_beaconreserved, tvb, DLR_BE_RESERVED, 20, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_NEIGHBOR_REQ )
+   {
+      /* Neighbor_Check_Request */
+      proto_tree_add_item( dlr_tree, hf_dlr_nreqreserved, tvb, DLR_NREQ_RESERVED, 30, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_NEIGHBOR_RES )
+   {
+      /* Neighbor_Check_Response */
+      proto_tree_add_item( dlr_tree, hf_dlr_nressourceport, tvb, DLR_NRES_SOURCE_PORT, 1, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_nresreserved, tvb, DLR_NRES_RESERVED, 29, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_LINK_STAT )
+   {
+      /* Link_Status/Neighbor_Status */
+      proto_tree_add_item( dlr_tree, hf_dlr_lnknbrstatus, tvb, DLR_LNS_SOURCE_PORT, 1, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_lnknbrreserved, tvb, DLR_LNS_RESERVED, 29, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_LOCATE_FLT )
+   {
+      /* Locate_Fault */
+      proto_tree_add_item( dlr_tree, hf_dlr_lfreserved, tvb, DLR_LF_RESERVED, 30, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_ANNOUNCE )
+   {
+      /* Announce */
+      proto_tree_add_item( dlr_tree, hf_dlr_ringstate, tvb, DLR_AN_RING_STATE, 1, FALSE );
+      proto_tree_add_item( dlr_tree, hf_dlr_anreserved, tvb, DLR_AN_RESERVED, 29, FALSE );
+   }
+   else if( dlr_frametype == DLR_FT_SIGN_ON )
+   {
+      guint16  nCnt;
+      guint16  nNumNodes;
+      guint16  nOffset;
+
+
+      /* Sign_On */
+      nNumNodes = tvb_get_ntohs(tvb, DLR_SO_NUM_NODES);
+
+      proto_tree_add_uint( dlr_tree, hf_dlr_sonumnodes, tvb, DLR_SO_NUM_NODES, 2, nNumNodes );
+
+      /* Add each node in the list */
+      for( nCnt = 0, nOffset = DLR_SO_NODE_1_MAC; nCnt < nNumNodes; nCnt++ )
+      {
+         proto_tree_add_item( dlr_tree, hf_dlr_somac, tvb, nOffset, 6, FALSE );
+         nOffset += 6;
+         proto_tree_add_item( dlr_tree, hf_dlr_soip, tvb, nOffset, 4, FALSE );
+         nOffset += 4;
+      }
+
+      if( nOffset < 42 )
+      {
+         proto_tree_add_item( dlr_tree, hf_dlr_soreserved, tvb, nOffset, 42 - nOffset, FALSE );
+         nOffset += (42 - nOffset);
+      }
+   }
+   else
+   {
+      /* Unknown Frame type */
+   }
+
+   return tvb_length(tvb);
+
+} /* end of dissect_dlr() */
+
+
 /* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
@@ -1365,6 +1561,148 @@ proto_register_enip(void)
       &ett_sockadd,
       &ett_lsrcf,
    };
+
+   /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
+	static hf_register_info hfdlr[] = {
+	   /* Ring Sub-type */
+      { &hf_dlr_ringsubtype,
+         { "Subtype", "enip.dlr.ringsubtype",
+         FT_UINT8, BASE_HEX, NULL, 0,
+         "Ring Sub-Type", HFILL }
+      },
+      /* Ring Protocol Version */
+      { &hf_dlr_ringprotoversion,
+         { "Version", "enip.dlr.protversion",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         "Ring Protocol Version", HFILL }
+      },
+      /* Frame Type */
+      { &hf_dlr_frametype,
+         { "Frametype", "enip.dlr.frametype",
+         FT_UINT8, BASE_HEX, VALS(dlr_frame_type_vals), 0,
+         "Frame Type", HFILL }
+      },
+      /* Source Port */
+      { &hf_dlr_sourceport,
+         { "Sourceport", "enip.dlr.sourceport",
+         FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
+         "Source Port", HFILL }
+      },
+      /* Source IP Address */
+      { &hf_dlr_sourceip,
+         { "Source IP", "enip.dlr.sourceip",
+         FT_IPv4, BASE_HEX, NULL, 0,
+         "Source IP Address", HFILL }
+      },
+      /* Sequence ID*/
+      { &hf_dlr_sequenceid,
+         { "Sequence Id", "enip.dlr.seqid",
+         FT_UINT32, BASE_HEX, NULL, 0,
+         NULL, HFILL }
+      },
+      /* Ring State */
+      { &hf_dlr_ringstate,
+         { "Ring State", "enip.dlr.state",
+         FT_UINT8, BASE_HEX, VALS(dlr_ring_state_vals), 0,
+         NULL, HFILL }
+      },
+      /* Supervisor Precedence */
+      { &hf_dlr_supervisorprecedence,
+         { "Supervisor Precedence", "enip.dlr.supervisorprecedence",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+      },
+      /* Beacon Interval */
+      { &hf_dlr_beaconinterval,
+         { "Beacon Interval", "enip.dlr.beaconinterval",
+         FT_UINT32, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+      },
+      /* Beacon Timeout */
+      { &hf_dlr_beacontimeout,
+         { "Beacon Timeout", "enip.dlr.beacontimeout",
+         FT_UINT32, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+      },
+      /* Beacon Reserved */
+      { &hf_dlr_beaconreserved,
+         { "Reserved", "enip.dlr.beaconreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Beacon Reserved", HFILL }
+      },
+      /* Neighbor_Check_Request Reserved */
+      { &hf_dlr_nreqreserved,
+         { "Reserved", "enip.dlr.nreqreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Neighbor_Check_Request Reserved", HFILL }
+      },
+      /* Neighbor_Check_Response Source Port */
+      { &hf_dlr_nressourceport,
+         { "Sourceport", "enip.dlr.nressourceport",
+         FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
+         "Neighbor_Check_Response Source Port", HFILL }
+      },
+      /* Neighbor_Check_Response Reserved */
+      { &hf_dlr_nresreserved,
+         { "Reserved", "enip.dlr.nresreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Neighbor_Check_Response Reserved", HFILL }
+      },
+      /* Link_Status/Neighbor_Status Status */
+      { &hf_dlr_lnknbrstatus,
+         { "Status", "enip.dlr.lnknbrstatus",
+         FT_UINT8, BASE_HEX, VALS(dlr_lnk_nbr_status_vals), 0,
+         "Link_Status/Neighbor_Status Status", HFILL }
+      },
+      /* Link_Status/Neighbor_Status Reserved */
+      { &hf_dlr_lnknbrreserved,
+         { "Reserved", "enip.dlr.lnknbrreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Link_Status/Neighbor_Status Reserved", HFILL }
+      },
+      /* Locate_Fault Reserved */
+      { &hf_dlr_lfreserved,
+         { "Reserved", "enip.dlr.lfreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Locate_Fault Reserved", HFILL }
+      },
+      /* Announce Reserved */
+      { &hf_dlr_anreserved,
+         { "Reserved", "enip.dlr.anreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Announce Reserved", HFILL }
+      },
+      /* Number of Nodes in List */
+      { &hf_dlr_sonumnodes,
+         { "Num nodes", "enip.dlr.sonumnodes",
+         FT_UINT16, BASE_DEC, NULL, 0,
+         "Number of Nodes in List", HFILL }
+      },
+      /* Sign_On Node # MAC Address */
+      { &hf_dlr_somac,
+         { "MAC Address", "enip.dlr.somac",
+         FT_ETHER, BASE_HEX, NULL, 0,
+         "Sign_On Node MAC Address", HFILL }
+      },
+      /*  Node # IP Address */
+      { &hf_dlr_soip,
+         { "IP Address", "enip.dlr.soip",
+         FT_IPv4, BASE_HEX, NULL, 0,
+         "Sign_On Node IP Address", HFILL }
+      },
+      /* Sign_On Reserved */
+      { &hf_dlr_soreserved,
+         { "Reserved", "enip.dlr.soreserved",
+         FT_BYTES, BASE_HEX, NULL, 0,
+         "Sign_On Reserved", HFILL }
+      }
+   };
+
+   /* Setup protocol subtree array for DLR */
+	static gint *ettdlr[] = {
+		&ett_dlr
+	};
+
    module_t *enip_module;
 
 /* Register the protocol name and description */
@@ -1388,6 +1726,14 @@ proto_register_enip(void)
       "SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
 
    register_init_routine(&enip_init_protocol);
+
+   /* Register the protocol name and description */
+   proto_dlr = proto_register_protocol("Device Level Ring", "DLR", "dlr");
+
+   /* Required function calls to register the header fields and subtrees used */
+   proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
+   proto_register_subtree_array(ettdlr, array_length(ettdlr));
+
 } /* end of proto_register_enip() */
 
 
@@ -1400,6 +1746,7 @@ proto_reg_handoff_enip(void)
 {
    dissector_handle_t enip_udp_handle, enip_tcp_handle;
    dissector_handle_t enipio_handle;
+   dissector_handle_t dlr_handle;
 
    /* Register for EtherNet/IP, using TCP */
    enip_tcp_handle = new_create_dissector_handle(dissect_enip_tcp, proto_enip);
@@ -1415,5 +1762,9 @@ proto_reg_handoff_enip(void)
 
    /* Find dissector for data packet */
    data_handle = find_dissector("data");
+
+   /* Register for EtherNet/IP Device Level Ring protocol */
+   dlr_handle = new_create_dissector_handle(dissect_dlr, proto_dlr);
+   dissector_add("ethertype", ETHERTYPE_DLR, dlr_handle);
 
 } /* end of proto_reg_handoff_enip() */

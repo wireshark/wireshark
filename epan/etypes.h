@@ -170,6 +170,10 @@
 #define ETHERTYPE_SNA		0x80d5
 #endif
 
+#ifndef ETHERTYPE_DLR
+#define ETHERTYPE_DLR		0x80e1  /* Allen-Bradley Company, Inc. */
+#endif								/* EtherNet/IP Device Level Ring */
+
 #ifndef ETHERTYPE_AARP
 #define ETHERTYPE_AARP		0x80f3
 #endif
@@ -304,7 +308,7 @@
 
 #ifndef ETHERTYPE_XIMETA
 #define ETHERTYPE_XIMETA       0x88AD /* XiMeta Technology Americas Inc. */
-#endif								  /* proprietary communication protocol */	
+#endif								  /* proprietary communication protocol */
 
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE

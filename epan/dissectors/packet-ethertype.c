@@ -62,6 +62,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_LB,					"DEC LanBridge"			},
     {ETHERTYPE_ATALK,					"Appletalk"			},
     {ETHERTYPE_SNA,						"SNA-over-Ethernet"		},
+    {ETHERTYPE_DLR,					   "EtherNet/IP Device Level Ring" },
     {ETHERTYPE_AARP,					"AARP"				},
     {ETHERTYPE_IPX,						"Netware IPX/SPX"		},
     {ETHERTYPE_VINES_IP,				"Vines IP"			},
@@ -290,7 +291,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			description = match_strval(etype, etype_vals);
 			if (description) {
-				col_add_str(pinfo->cinfo, COL_INFO, 
+				col_add_str(pinfo->cinfo, COL_INFO,
 				    description);
 			}
 		}
