@@ -1301,18 +1301,6 @@ static const value_string gtp_cipher_algorithm[] = {
     {0, NULL}
 };
 
-static const value_string gtp_ext_rat_type_vals[] = {
-    {0, "Reserved"},
-    {1, "UTRAN"},
-    {2, "GERAN"},
-    {3, "WLAN"},
-    {4, "GAN"},
-    {5, "HSPA Evolution"},
-    {0, NULL}
-};
-
-
-
 #define MM_PROTO_GROUP_CALL_CONTROL	0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL	0x01
 #define MM_PROTO_PDSS1			0x02
@@ -5003,14 +4991,6 @@ static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  * Type = 151 (Decimal)
  */
 
-static const gchar *dissect_radius_rat_type(proto_tree * tree, tvbuff_t * tvb)
-{
-    guint8 octet;
-    octet = tvb_get_guint8(tvb, 0);
-    proto_tree_add_item(tree, hf_gtp_ext_rat_type, tvb, 0, 1, FALSE);
-    return val_to_str(octet, gtp_ext_rat_type_vals, "Unknown");
-}
-
 static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -6843,11 +6823,6 @@ void proto_register_gtp(void)
 	  FT_UINT8, BASE_DEC, NULL, 0x0,
 	  NULL, HFILL}
 	 },
-	{&hf_gtp_ext_rat_type,
-	 {"RAT Type", "gtp.ext_rat_type",
-	  FT_UINT8, BASE_DEC, VALS(gtp_ext_rat_type_vals), 0x0,
-	  NULL, HFILL}
-	 },
 	{&hf_gtp_ext_geo_loc_type,
 	 {"Geographic Location Type", "gtp.ext_geo_loc_type",
 	  FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7076,7 +7051,6 @@ void proto_reg_handoff_gtp(void)
 
 	radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
 	radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
-	radius_register_avp_dissector(VENDOR_THE3GPP, 21, dissect_radius_rat_type);
 	radius_register_avp_dissector(VENDOR_THE3GPP, 22, dissect_radius_user_loc);
 
 	ip_handle = find_dissector("ip");
