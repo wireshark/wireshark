@@ -511,6 +511,7 @@ DISSECTOR_SRC = \
 	packet-iax2.c		\
 	packet-icap.c		\
 	packet-icep.c		\
+	packet-icmp.c		\
 	packet-icmpv6.c		\
 	packet-icp.c		\
 	packet-icq.c		\
