@@ -1352,7 +1352,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Interim Record" code="3"/>
 			<enum name="Stop Record" code="4"/>
 		</avp>
-<!-- 481-482    Unallocated -->
+<!-- 481-482    Unallocated http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xhtml -->
 
 		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -2117,7 +2117,11 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 				<gavp name="Charging-Rule-Definition"/>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
-			</grouped>
+        <gavp name="Bearer-Identifier"/>
+        <gavp name="Rule-Activation-Time"/>
+        <gavp name="Rule-Deactivation-Time"/>
+        <gavp name="Resource-Allocation-Notification"/>
+      </grouped>
 		</avp>
 		<avp name="Charging-Rule-Remove" code="1002" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -2127,13 +2131,21 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		</avp>
 		<avp name="Charging-Rule-Definition" code="1003" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Rating-Group"/>
-				<gavp name="Charging-Rule-Name"/>
-				<gavp name="Flow-Description"/>
-				<gavp name="Flow-Status"/>
-				<gavp name="Precedence"/>
-				<gavp name="Reporting-Level"/>
-			</grouped>
+        <gavp name="Charging-Rule-Name"/>
+        <gavp name="Service-Identifier"/>
+        <gavp name="Rating-Group"/>
+        <gavp name="Flow-Description"/>
+        <gavp name="Flow-Informatio"/>
+        <gavp name="Flow-Status"/>
+        <gavp name="QoS-Information"/>
+        <gavp name="Reporting-Level"/>
+        <gavp name="Online"/>
+        <gavp name="Offline"/>
+        <gavp name="Metering-Method"/>
+        <gavp name="Precedence"/>
+        <gavp name="AF-Charging-Identifier"/>
+        <gavp name="Flows"/>
+      </grouped>
 		</avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -2148,14 +2160,25 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			  <enum name="RAT CHANGE" code="2"/>
 			  <enum name="TFT CHANGE" code="3"/>
 			  <enum name="PLMN CHANGE" code="4"/>
-      <enum name="LOSS_OF_BEARER" 				code="5"/>
-      <enum name="RECOVERY_OF_BEARER" 			code="6"/>
-      <enum name="IP-CAN_CHANGE"				code="7"/>
-      <enum name="GW-PCEF-MALFUNCTION"			code="8"/>
-      <enum name="RESOURCES_LIMITATION"			code="9"/>
-      <enum name="MAX_NR_BEARERS_REACHED"			code="10"/>
-      <enum name="QOS_CHANGE_EXCEEDING_AUTHORIZATION"		code="11"/>
-      <enum name="NO_EVENT_TRIGGER"				code="12"/>
+        <enum name="LOSS_OF_BEARER" 				code="5"/>
+        <enum name="RECOVERY_OF_BEARER" 			code="6"/>
+        <enum name="IP-CAN_CHANGE"				code="7"/>
+        <enum name="GW-PCEF-MALFUNCTION"			code="8"/>
+        <enum name="RESOURCES_LIMITATION"			code="9"/>
+        <enum name="MAX_NR_BEARERS_REACHED"			code="10"/>
+        <enum name="QOS_CHANGE_EXCEEDING_AUTHORIZATION"		code="11"/>
+        <enum name="NO_EVENT_TRIGGER"				code="12"/>
+      <enum name="USER_LOCATION_CHANGE"				code="13"/>
+      <enum name="NO_EVENT_TRIGGERS"				code="14"/>
+      <enum name="OUT_OF_CREDIT"				code="15"/>
+      <enum name="REALLOCATION_OF_CREDIT"				code="16"/>
+      <enum name="REVALIDATION_TIMEOUT"				code="17"/>
+      <enum name="UE_IP_ADDRESS_ALLOCATE"				code="18"/>
+      <enum name="UE_IP_ADDRESS_RELEASE"				code="19"/>
+      <enum name="DEFAULT_EPS_BEARER_QOS_CHANGE"				code="20"/>
+      <enum name="AN_GW_CHANGE"				code="21"/>
+      <enum name="SUCCESSFUL_RESOURCE_ALLOCATION"				code="22"/>
+      <enum name="RESOURCE_MODIFICATION_REQUEST"				code="23"/>
       <enum name="TFT DELETED" code="1000"/>
 			  <enum name="LOSS OF BEARER" code="1001"/>
 			  <enum name="RECOVERY OF BEARER" code="1002"/>
@@ -2192,8 +2215,10 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			<grouped>
 				<gavp name="Precedence"/>
 				<gavp name="TFT-Filter"/>
-				<gavp name="TOS-Traffic-Class"/>
-			</grouped>		
+        <gavp name="TOS-Traffic-Class"/>
+        <gavp name="Security-Parameter-Index"/>
+        <gavp name="Flow-Label"/>
+      </grouped>		
 		</avp>
 		<avp name="ToS-Traffic-Class" code="1014" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
@@ -2210,14 +2235,20 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 				<gavp name="Guaranteed-Bitrate-UL"/>
 				<gavp name="Guaranteed-Bitrate-DL"/>
 				<gavp name="Bearer-Identifier"/>
-			</grouped>
+        <gavp name="Allocation-Retention-Priority"/>
+        <gavp name="APN-Aggregate-Max-Bitrate-UL"/>
+        <gavp name="APN-Aggregate-Max-Bitrate-DL"/>
+      </grouped>
 		</avp>
    		<avp name="Charging-Rule-Report" code="1018" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Charging-Rule-Base-Name"/>
 				<gavp name="Charging-Rule-Name"/>
-				<gavp name="PCC-Rule-Status"/>
-			</grouped>
+        <gavp name="Bearer-Identifier"/>
+        <gavp name="PCC-Rule-Status"/>
+        <gavp name="Rule-Failure-Code"/>
+        <gavp name="[Final-Unit-Indication"/>
+      </grouped>
 		</avp>
     <avp name="PCC-Rule-Status" code="1019" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
@@ -2225,25 +2256,50 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
       <enum name="INACTIVE" 	code="1"/>
       <enum name="TEMPORARY_INACTIVE" 	code="2"/>
     </avp>
-    <!--
-  1020 Bearer-Identifier OctetString   
-  1021 Bearer-Operation Enumerated   
-  1022 Access-Network-Charging-Identifier-Gx Grouped   
-  1023 Bearer-Control-Mode Enumerated   
-  1024 Network-Request-Support Enumerated   
-  -->
+    <avp name="Bearer-Identifier" code="1020" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Bearer-Operation" code="1021" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="TERMINATION" 			code="0"/>
+      <enum name="ESTABLISHMENT" 	code="1"/>
+      <enum name="MODIFICATION" 	code="2"/>
+    </avp>
+    <avp name="Access-Network-Charging-Identifier-Gx" code="1022" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Access-Network-Charging-Identifier-Value"/>
+        <gavp name="Charging-Rule-Base-Name"/>
+        <gavp name="Charging-Rule-Name"/>
+      </grouped>
+    </avp>
+    <avp name="Bearer-Control-Mode" code="1023" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="UE_ONLY" 			code="0"/>
+      <enum name="RESERVED" 	code="1"/>
+      <enum name="UE_NW" 	code="2"/>
+    </avp>
+    <avp name="Network-Request-Support" code="1024" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="NETWORK_REQUEST NOT SUPPORTED" 			code="0"/>
+      <enum name="NETWORK_REQUEST SUPPORTED" 	code="1"/>
+    </avp>
  		<avp name="Guaranteed-Bitrate-DL" code="1025" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>		
 		<avp name="Guaranteed-Bitrate-UL" code="1026" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-    <!--
-  1027 IP-CAN-Type Enumerated   
-  -->
-    
+    <avp name="IP-CAN-Type" code="1027" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="3GPP-GPRS" 			code="0"/>
+      <enum name="DOCSIS" 	code="1"/>
+      <enum name="xDSL" 	code="2"/>
+      <enum name="WiMAX" 	code="3"/>
+      <enum name="3GPP2" 	code="4"/>
+      <enum name="3GPP-EPS" 	code="5"/>
+    </avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="None" 			code="0"/>
 			<enum name="Conversational" 			code="1"/>
 			<enum name="Conversational" 			code="2"/>
@@ -2256,11 +2312,31 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 			<enum name="Background" 		code="9"/>
 			<enum name="OTHER"			code="0xFFFFFFFF"/>
 		</avp>
-<!--  
-  1028 QoS-Class-Identifier Enumerated 
-1029 QoS-Negotiation Enumerated
-1030 QoS-Upgrade Enumerated
-1031 Rule-Failure-Code Enumerated
+    <avp name="QoS-Negotiation" code="1029" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="NO_QoS_NEGOTIATION" 			code="0"/>
+      <enum name="QoS_NEGOTIATION_SUPPORTED" 	code="1"/>
+    </avp>
+    <avp name="QoS-Upgrade" code="1030" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="QoS_UPGRADE_NOT_SUPPORTED" 			code="0"/>
+      <enum name="QoS_UPGRADE_SUPPORTED" 	code="1"/>
+    </avp>
+    <avp name="Rule-Failure-Code" code="1031" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="UNKNOWN_RULE_NAME" 			code="1"/>
+      <enum name="RATING_GROUP_ERROR" 			code="2"/>
+      <enum name="SERVICE_IDENTIFIER_ERROR" 	code="3"/>
+      <enum name="GW/PCEF_MALFUNCTION" 		code="4"/>
+      <enum name="RESOURCES_LIMITATION"			code="5"/>
+      <enum name="MAX_NR_BEARERS_REACHED" 		code="6"/>
+      <enum name="UNKNOWN_BEARER_ID" 		code="7"/>
+      <enum name="MISSING_BEARER_ID" 		code="8"/>
+      <enum name="MISSING_FLOW_DESCRIPTION" 		code="9"/>
+      <enum name="RESOURCE_ALLOCATION_FAILURE"			code="10"/>
+      <enum name="UNSUCCESSFUL_QOS_VALIDATION"			code="11"/>
+    </avp>
+    <!--  
 29.210 [15]
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
@@ -2277,20 +2353,66 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
       <enum name="HRPD" code="2001" />
       <enum name="UMB" code="2002" />
     </avp>
-<!--
-1033 Event-Report-Indication Grouped
-1034 Allocation-Retention-Priority Grouped
-1035 CoA-IP-Address Address
-1036 Tunnel-Header-Filter IPFilterRule
-1037 Tunnel-Header-Length Unsigned32
-1038 Tunnel-Information Grouped
-1039 CoA-Information Grouped
-1040 APN-Aggregate-Max-Bitrate-DL Unsigned32
-1041 APN-Aggregate-Max-Bitrate-UL Unsigned32
-1042 Revalidation-Time Time
-1043 Rule-Activation-Time Time
-1044 Rule-DeActivation-Time Time
-1045 Session-Release-Cause Enumerated
+    <avp name="Event-Report-Indication" code="1033" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Event-Trigger"/>
+        <gavp name="RAT-Type"/>
+        <gavp name="QoS-Information"/>
+        <gavp name="RAI"/>
+        <gavp name="3GPP-User-Location-Info"/>
+      </grouped>
+    </avp>
+    <avp name="Allocation-Retention-Priority" code="1034" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Priority-Level"/>
+        <gavp name="Pre-emption-Capability"/>
+        <gavp name="Pre-emption-Vulnerability"/>
+      </grouped>
+    </avp>
+    <avp name="CoA-IP-Address" code="1035" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPAddress"/>
+    </avp>
+    <avp name="Tunnel-Header-Filter" code="1036" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPFilterRule"/>
+    </avp>
+    <avp name="Tunnel-Header-Length" code="1037" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Tunnel-Information" code="1038" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Tunnel-Header-Length"/>
+        <gavp name="Tunnel-Header-Filter"/>
+      </grouped>
+    </avp>
+    <avp name="CoA-Information" code="1039" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Tunnel-Information"/>
+        <gavp name="CoA-IP-Address"/>
+      </grouped>
+    </avp>
+    <avp name="APN-Aggregate-Max-Bitrate-DL" code="1040" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="APN-Aggregate-Max-Bitrate-UL" code="1041" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Revalidation-Time" code="1042" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Time"/>
+    </avp>
+    <avp name="Rule-Activation-Time" code="1043" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Time"/>
+    </avp>
+    <avp name="Rule-DeActivation-Time" code="1044" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Time"/>
+    </avp>
+    <avp name="Session-Release-Cause" code="1045" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated,"/>
+      <enum name="UNSPECIFIED_REASON" 			code="0"/>
+      <enum name="UE_SUBSCRIPTION_REASON" 	code="1"/>
+      <enum name="INSUFFICIENT_SERVER_RESOURCES" 	code="2"/>
+    </avp>
+
+    <!--
 1046 Priority-Level Unsigned32
 1047 Pre-emption-Capability Enumerated
 1048 Pre-emption-Vulnerability Enumerated
@@ -3631,9 +3753,10 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
-  <application id="16777224" name="3GPP Gx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+  <application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
-  <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+  <application id="16777251" name="3GPP S6a/S6d" uri="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
+    <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
     <command name="3GPP-Update-Location" code="316" vendor-id="None"/>
     <command name="3GPP-Cancel-Location" code="317" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
     <command name="3GPP-Authentication-Information" code="318" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
