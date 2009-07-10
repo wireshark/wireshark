@@ -3950,6 +3950,7 @@ void proto_register_rsl(void)
 	proto_register_field_array(proto_rsl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
 }
 

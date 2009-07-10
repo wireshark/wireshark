@@ -2878,6 +2878,10 @@ Don Chirieleison	<donc [AT] mitre.org> {
 	DTN Bundle Protocol
 }
 
+Harald Welte		<laforge [AT] gnumonks.org> {
+	GSM A-bis over IP dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
