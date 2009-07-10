@@ -100,7 +100,7 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 
 	int offset = base_offs;
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		attr_type = tvb_get_guint8(tvb, offset);
 
 		switch (attr_type) {
@@ -168,7 +168,7 @@ dissect_abisip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Abis/IP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_item *ti;
 		proto_tree *abisip_tree;
 		guint8 len, msg_type;
