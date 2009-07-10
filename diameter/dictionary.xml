@@ -1291,10 +1291,13 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
 			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2004"/>
 			<enum name="SDIAMETER_SERVER_SELECTION" code="2005"/>
+      
 			<enum name="DIAMETER_USER_DATA_NOT_AVAILABLE" code="4100"/>
 			<enum name="DIAMETER_PRIOR_UPDATE_IN_PROGRESS" code="4101"/>
-			<enum name="DIAMETER_ERROR_OUT_OF_RESOURCES" code="4121"/>
-			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
+      <enum name="DIAMETER_ERROR_OUT_OF_RESOURCES" code="4121"/>
+      <enum name="DIAMETER_PCC_BEARER_EVENT" code="4141"/>
+
+      <enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5001"/>
 			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5002"/>
 			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5003"/>
 			<enum name="DIAMETER_ERROR_ROAMING_NOT_ALLOWED" code="5004"/>
@@ -1321,7 +1324,13 @@ http://www.iana.org/assignments/radius-types
 			<enum name="DIAMETER_ERROR_SERVICE_AREA" code="5123"/>
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
-		</avp>
+      <enum name="DIAMETER_BEARER_EVENT" code="5142"/>
+      <enum name="DIAMETER_ERROR_BEARER_NOT_AUTHORIZED" code="5143"/>
+      <enum name="DIAMETER_ERROR_TRAFFIC_MAPPING_INFO_REJECTED" code="5144"/>
+      <enum name="DIAMETER_QOS_RULE_EVENT" code="5145"/>
+      <enum name="DIAMETER_ERROR_TRAFFIC_MAPPING_INFO_REJECTED" code="5146"/>
+      <enum name="DIAMETER_ERROR_CONFLICTING_REQUEST" code="5147"/>
+    </avp>
 		<!-- RFC3588 AVP -->   
 		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">   
 			<type type-name="Unsigned32"/>   
@@ -1946,7 +1955,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 				<gavp name="Originator-Address"/>
 				<gavp name="Recipient-Address"/>
 				<gavp name="Submission-Time"/>
-				<gavp name="MM-Content Type"/>	
+				<gavp name="MM-Content-Type"/>	
 				<gavp name="Priority"/>
 				<gavp name="Message-ID"/>
 				<gavp name="Message-Type"/>
@@ -2021,7 +2030,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="Controlling PoC Server" code="1"/>
 		</avp>
 
-		<avp name="PoC-Server-Role" code="884" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+		<avp name="PoC-Session-Type" code="884" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="1 to 1 PoC session" code="0"/>
 			<enum name="chat PoC group session" code="1"/>
@@ -2102,7 +2111,27 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
     </avp>
 
 <!--
-Note: The AVP codes from 900 to 999 are reserved for TS 29.061
+900 TMGI OctectString
+901 Required-MBMS-Bearer-Capabilities UTF8String
+902 MBMS-StartStop-Indication Enumerated
+903 MBMS-Service-Area OctectString
+904 MBMS-Session-Duration Unsigned32
+905 Alternative-APN UTF8String
+906 MBMS-Service-Type Enumerated
+907 MBMS-2G-3G-Indicator Enumerated
+908 MBMS-Session-Identity OctetString
+909 RAI UTF8String
+910 Additional-MBMS-Trace-Info OctetString
+911 MBMS-Time-To-Data-Transfer Unsigned32
+912 MBMS-Session-Identity-Repetition-Number Unsigned32
+913 MBMS-Required-QoS UTF8String
+914 MBMS-Counting-Information Enumerated
+915 MBMS-User-Data-Mode-Indication Enumerated
+916 MBMS-GGSN-Address UTF8String
+917 MBMS-GGSN-IPv6-Address UTF8String
+918 MBMS-BMSC-SSM-IP-Address UTF8String
+919 MBMS-BMSC-SSM-IPv6-Address UTF8Strin
+Note: The AVP codes from 920 to 999 are reserved for TS 29.061
 29.210
 ******** Found in TGPPGmb.xml ********
 -->
@@ -2247,7 +2276,7 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
         <gavp name="Bearer-Identifier"/>
         <gavp name="PCC-Rule-Status"/>
         <gavp name="Rule-Failure-Code"/>
-        <gavp name="[Final-Unit-Indication"/>
+        <gavp name="Final-Unit-Indication"/>
       </grouped>
 		</avp>
     <avp name="PCC-Rule-Status" code="1019" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -2336,11 +2365,6 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
       <enum name="RESOURCE_ALLOCATION_FAILURE"			code="10"/>
       <enum name="UNSUCCESSFUL_QOS_VALIDATION"			code="11"/>
     </avp>
-    <!--  
-29.210 [15]
-Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
-
--->
     <avp name="RAT-Type" code="1032" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
       <type type-name="Enumerated" />
       <enum name="WLAN" code="0" />
@@ -2411,14 +2435,92 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
       <enum name="UE_SUBSCRIPTION_REASON" 	code="1"/>
       <enum name="INSUFFICIENT_SERVER_RESOURCES" 	code="2"/>
     </avp>
-
-    <!--
-1046 Priority-Level Unsigned32
-1047 Pre-emption-Capability Enumerated
-1048 Pre-emption-Vulnerability Enumerated
-1049 Default-EPS-Bearer-QoS Grouped
-1050 AN-GW-Address Address
--->
+    <avp name="Priority-Level" code="1046" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Pre-emption-Capability" code="1047" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="PRE-EMPTION_CAPABILITY_ENABLED" 			code="0"/>
+      <enum name="PRE-EMPTION_CAPABILITY_DISABLED" 	code="1"/>
+    </avp>
+    <avp name="Pre-emption-Vulnerability" code="1048" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="PRE-EMPTION_VULNERABILITY_ENABLED" 			code="0"/>
+      <enum name="PRE-EMPTION_VULNERABILITY_DISABLED" 	code="1"/>
+    </avp>
+    <avp name="Default-EPS-Bearer-QoS" code="1049" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="QoS-Class-Identifier"/>
+        <gavp name="Allocation-Retention-Priority"/>
+      </grouped>
+    </avp>
+    <avp name="AN-GW-Address" code="1050" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPAddress"/>
+    </avp>
+    <avp name="Resource-Allocation-Notification" code="1051" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="ENABLE_NOTIFICATION" 			code="0"/>
+    </avp>
+    <avp name="QoS-Rule-Remove" code="1052" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="QoS-Rule-Name"/>
+      </grouped>
+    </avp>
+    <avp name="QoS-Rule-Definition" code="1053" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="QoS-Rule-Name"/>
+        <gavp name="Flow-Information"/>
+        <gavp name="QoS-Information"/>
+        <gavp name="Precedence"/>
+      </grouped>
+    </avp>
+    <avp name="QoS-Rule-Name" code="1054" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString,"/>
+    </avp>
+    <avp name="QoS-Rule-Report" code="1055" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="QoS-Rule-Name"/>
+        <gavp name="PCC-Rule-Status"/>
+        <gavp name="Rule-Failure-Code"/>
+      </grouped>
+    </avp>
+    <avp name="Security-Parameter-Index" code="1056" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Flow-Label" code="1057" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Flow-Information" code="1058" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Flow-Description"/>
+        <gavp name="Packet-Filter-Identifier"/>
+        <gavp name="ToS-Traffic-Class"/>
+        <gavp name="Security-Parameter-Index"/>
+        <gavp name="Flow-Label"/>
+      </grouped>
+    </avp>
+    <avp name="Packet-Filter-Content" code="1059" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPFilterRule"/>
+    </avp>
+    <avp name="Packet-Filter-Identifier" code="1060" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Packet-Filter-Information" code="1061" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Packet-Filter-Identifier"/>
+        <gavp name="Precedence"/>
+        <gavp name="Packet-Filter-Content"/>
+        <gavp name="ToS-Traffic-Class"/>
+        <gavp name="Security-Parameter-Index"/>
+        <gavp name="Flow-Label"/>
+      </grouped>
+    </avp>
+    <avp name="Packet-Filter-Operation" code="1062" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="DELETION" 			code="0"/>
+      <enum name="ADDITION" 	code="1"/>
+      <enum name="MODIFICATION" 	code="2"/>
+    </avp>
     <!-- Note: The AVP codes from 1051 to 1099 are reserved for TS 29.210 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -2643,7 +2745,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
         <gavp name="Content-Size"/>
 			</grouped>
     </avp>
-    <avp name="Addressee-Type AVP" code="1208" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Addressee-Type" code="1208" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="TO" code="0"/>
       <enum name="CC" code="1"/>
@@ -3051,7 +3153,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 3GPP TS 29.272 V8.1.1 (2009-01
 -->
 		<avp name="Subscription-Data" code="1400" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="Subscriber-Status"/>
 					<gavp name="MSISDN"/> 
 					<gavp name="STN-SR"/> 
@@ -3066,16 +3168,17 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 					<gavp name="APN-Configuration-Profile"/>
 					<gavp name="RAT-Frequency-Selection-Priority-ID"/>
 					<gavp name="Trace-Data"/>
-					<gavp name="GPRS-Subscription Data"/>
+					<gavp name="GPRS-Subscription-Data"/>
 					<gavp name="CSG-Subscription-Data"/> 
 					<gavp name="Roaming-Restricted-Due-To-Unsupported-Feature"/>
-
+        </grouped>
 		</avp>
 		<avp name="Terminal-Information" code="1401" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="IMEI"/> 
 					<gavp name="3GPP2-MEID"/>
 					<gavp name="Software-Version"/>
+       </grouped>
 		</avp>
 		<avp name="IMEI" code="1402" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="UTF8String"/>
@@ -3093,16 +3196,18 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     	<type type-name="OctetString"/>
 		</avp>
 		<avp name="Requested-EUTRAN-Authentication-Info" code="1408" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="Number-Of-Requested-Vectors"/>
 					<gavp name="Immediate-Response-Preferred"/>
 					<gavp name="Re-synchronization-Info"/>
+      </grouped>
 		</avp>
 		<avp name="Requested-UTRAN-GERAN-Authentication-Info" code="1409" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="Number-Of-Requested-Vectors"/>
 					<gavp name="Immediate-Response-Preferred"/>
 					<gavp name="Re-synchronization-Info"/>
+      </grouped>
 		</avp>
 		<avp name="Number-Of-Requested-Vectors" code="1410" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Unsigned32"/>
@@ -3114,34 +3219,38 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     	<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Authentication-Info" code="1413" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="E-UTRAN-Vector"/> 
 					<gavp name="UTRAN-Vector"/>
 					<gavp name="GERAN-Vector"/>
+      </grouped>
 		</avp>    
 		<avp name="E-UTRAN-Vector"	code="1414" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="Item-Number"/>
 					<gavp name="RAND"/>
 					<gavp name="XRES"/>
 					<gavp name="AUTN"/>
 					<gavp name="KASME"/>
+      </grouped>
 		</avp>
 		<avp name="UMTS-Vector" code="1415" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+      <grouped>
 					<gavp name="Item-Number"/>
 					<gavp name="RAND"/>
 					<gavp name="XRES"/>
 					<gavp name="AUTN"/>
 					<gavp name="Confidentiality-Key"/>
 					<gavp name="Integrity-Key"/>
+        </grouped>
 		</avp>
 		<avp name="GERAN-Vector" code="1416" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+    	<grouped>
 					<gavp name="Item-Number"/>
 					<gavp name="RAND"/>
 					<gavp name="SRES"/>
 					<gavp name="Kc"/>
+      </grouped>
 		</avp>
 		<avp name="Network-Access-Mode" code="1417" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Enumerated"/>
@@ -3191,29 +3300,32 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <enum name="MODIFIED/ADDED_APN_CONFIGURATIONS_INCLUDED" code="1"/>
 		</avp>
 		<avp name="APN-Configuration-Profile" code="1429" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+    	<grouped>
 					<gavp name="Context-Identifier"/>
 					<gavp name="All-APN-Configurations-Included-Indicator"/>
           <gavp name="APN-Configuration"/>
+      </grouped>
     </avp>
 		<avp name="APN-Configuration" code="1430" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+    	<grouped>
 					<gavp name="Context-Identifier"/> 
  					<gavp name="Served-Party-IP-Address"/>
  					<gavp name="Served-Party-IP-Address"/>
 					<gavp name="PDN-Type"/>
-					<gavp name="Service-Selection}
-					<gavp name="EPS-Subscribed-QoS Profile"/>
+					<gavp name="Service-Selection"/>
+					<gavp name="EPS-Subscribed-QoS-Profile"/>
 					<gavp name="VPLMN-Dynamic-Address-Allowed"/>
 					<gavp name="MIP6-Agent-Info"/>
 					<gavp name="PDN-GW-Allocation-Type"/>
 					<gavp name="3GPP-Charging-Characteristics"/>
 					<gavp name="AMBR"/>
+       </grouped>
 		</avp>
 		<avp name="EPS-Subscribed-QoS-Profile" code="1431" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+    	<grouped>
 					<gavp name="QoS-Class-Identifier"/>
 					<gavp name="ARP"/>
+      </grouped>
 		</avp>
 		<avp name="VPLMN-Dynamic-Address-Allowed" code="1432" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Enumerated"/>
@@ -3227,9 +3339,10 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     	<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="AMBR" code="1435" vendor-bit="must" vendor-id="TGPP">
-    	<type type-name="Grouped"/>
+    	<grouped>
 					<gavp name="Max-Requested-Bandwidth-UL"/>
 					<gavp name="Max-Requested-Bandwidth-DL"/>
+      </grouped>
 		</avp>
   <avp name="PDN-GW-Allocation-Type" code="1438" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Enumerated"/>
@@ -3300,21 +3413,23 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
     	<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Trace-Data" code="1458" vendor-bit="must" vendor-id="TGPP">	
-      <type type-name="Grouped"/>
+      <grouped>
       <gavp name="Trace-Reference"/>
       <gavp name="Trace-Depth-List"/>
       <gavp name="Trace-NE-Type-List"/>
       <gavp name="Trace-Interface-List"/>
       <gavp name="Trace-Event-List"/>
       <gavp name="OMC-Id"/>
+      </grouped>
     </avp>
 		<avp name="Trace-Reference" code="1459" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>	
 		</avp>
 		<avp name="Trace-Depth-List" code="1460" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Grouped"/>
+      <grouped>
       <gavp name="Network-Element-Type"/>
       <gavp name="Trace-Depth"/>
+      </grouped>
     </avp>
 		<avp name="Network-Element-Type" code="1461" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
@@ -3351,9 +3466,10 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <type type-name="OctetString"/>
 		</avp>
 		<avp name="GPRS-Subscription-Data" code="1467" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Grouped"/>
+      <grouped>
       <gavp name="Complete-Data-List-Included-Indicator"/>
       <gavp name="PDP-Context"/>
+      </grouped>
     </avp>
 		<avp name="Complete-Data-List-Included-Indicator" code="1468" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
@@ -3361,7 +3477,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <enum name="MODIFIED/ADDED_PDP CONTEXTS_INCLUDED" code="1"/>
     </avp>
 		<avp name="PDP-Context" code="1469" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Grouped"/>
+      <grouped>
       <gavp name="Context-Identifier"/>
       <gavp name="PDP-Type"/>
       <gavp name="PDP-Address"/>
@@ -3369,26 +3485,112 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <gavp name="VPLMN-Dynamic-Address-Allowed"/>
       <gavp name="Service-Selection"/>
       <gavp name="3GPP-Charging-Characteristics"/>
+      </grouped>
     </avp>
 		<avp name="PDP-Type" code="1470" vendor-bit="must" vendor-id="TGPP">
      <type type-name="OctetString"/>	
 		</avp>
-		<avp name="PDP-Address" code="1471" vendor-bit="must" vendor-id="TGPP"> 
+		<avp name="3GPP2-MEID" code="1471" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="OctetString"/>
 		</avp>
+    <avp name="Specific-APN-Info" code="1472" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Service-Selection"/>
+        <gavp name="MIP6-Agent-Info"/>
+      </grouped>
+    </avp>
+    <avp name="LCS-Info" code="1473" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="GMLC-Address"/>
+        <gavp name="LCS-PrivacyException"/>
+        <gavp name="MO-LR"/>
+      </grouped>
+    </avp>
+    <avp name="GMLC-Address" code="1474" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="LCS-PrivacyException" code="1475" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="SS-Code"/>
+        <gavp name="SS-Status"/>
+        <gavp name="Notification-To-UE-User"/>
+        <gavp name="External-Client"/>
+        <gavp name="PLMN-Client"/>
+        <gavp name="Service-Type"/>
+      </grouped>
+    </avp>
+    <avp name="SS-Code" code="1476" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="SS-Status" code="1477" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Notification-To-UE-User" code="1478" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NOTIFY_LOCATION_ALLOWED" code="0"/>
+      <enum name="NOTIFYANDVERIFY_LOCATION_ALLOWED_IF_NO_RESPONSE" code="1"/>
+      <enum name="NOTIFYANDVERIFY_LOCATION_NOT_ALLOWED_IF_NO_RESPONSE" code="2"/>
+      <enum name="LOCATION_NOT_ALLOWED" code="3"/>
+    </avp>
+    <avp name="External-Client" code="1479" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Client-Identity"/>
+        <gavp name="GMLC-Restriction"/>
+        <gavp name="Notification-To-UE-User"/>
+      </grouped>
+    </avp>
+    <avp name="Client-Identity" code="1480" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="GMLC-Restriction" code="1481" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="GMLC_LIST" code="0"/>
+      <enum name="HOME_COUNTRY" code="1"/>
+    </avp>
+    <avp name="PLMN-Client" code="1482" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="BROADCAST_SERVICE" code="0"/>
+      <enum name="O_AND_M_HPLMN" code="1"/>
+      <enum name="O_AND_M_VPLMN" code="2"/>
+      <enum name="ANONYMOUS_LOCATION" code="4"/>
+      <enum name="TARGET_UE_SUBSCRIBED_SERVICE" code="4"/>
+    </avp>
+    <avp name="Service-Type" code="1483" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="ServiceTypeIdentity"/>
+        <gavp name="GMLC-Restriction"/>
+        <gavp name="Notification-To-UE-User"/>
+      </grouped>
+    </avp>
+    <avp name="ServiceTypeIdentity" code="1484" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="MO-LR" code="1485" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="SS-Code"/>
+        <gavp name="SS-Status"/>
+      </grouped>
+    </avp>
+    <avp name="Teleservice-List" code="1486" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="TS-Code"/>
+      </grouped>
+    </avp>
+    <avp name="TS-Code" code="1487" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Call-Barring-Infor-List" code="1488" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="SS-Code"/>
+      </grouped>
+    </avp>
+    <avp name="SGSN-Number" code="1489" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="IDR-Flags" code="1490" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
     <!--    
-1473 LCS-Info Grouped
-1474 GMLC-Address OctetString
-1475 LCS-PrivacyException Grouped
-1476 SS-Code OctetString
-1477 SS-Status Grouped
-1478 Notification-To-UE-User Enumerated
-1479 External-Client Grouped
-1480 Client-Identity OctetString
-1481 GMLC-Restriction Enumerated
-1482 PLMN-Client Enumerated
-1483 Service-Type Grouped
-1484 ServiceTypeIdentity Unsigned32    
 Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
 1500	Non-3GPP-User-Data	Grouped	29.273 [20]
 1501	Non-3GPP-IP-Access	Enumerated	
@@ -3454,7 +3656,7 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
 		<avp name="Originating-SCCP-Address" code="2008" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="Address"/>
 		</avp>
-		<avp name="Destination-Interface" code="2009" vendor-bit="must" vendor-id="TGPP"> 
+		<avp name="Originator-Interface" code="2009" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="Interface-Id"/>
       <gavp name="Interface-Text"/>
@@ -3586,23 +3788,34 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <enum name="SDP Answer" code="1"/>
 		</avp>
  <!--  
-Change-Condition 2037 X - - - Enumerated V,M P N
-Change-Time 2038 X - - - Time V,M P N
-		<avp name="Non-3GPP-Access-Information" code="2050" vendor-bit="must" vendor-id="TGPP"> 
-     <grouped>
-      </grouped>
-    </avp>
-Service-Condition-Change 2039 X - - - Enumerated V,M P N
-Service-Data-Container 2040 X - - - Grouped V,M P N
-Start-Time 2041 X - - - Time V,M P N
-Stop-Time 2042 X - - - Time V,M P N
-Time-First-Usage 2043 X - - - Time V,M P N
-Time-Last-Usage 2044 X - - - Time V,M P N
-Time-Usage 2045 X - - - Unsigned32 V,M P N
-Traffic-Data-Volumes 2046 X - - - Grouped V,M P N
-Non-3GPP-Access-Information 2050 X - X - Grouped V,M P N
-
-Note: The AVP codes from 2023 to 2099 are reserved for TS 32.299
+2037 Change-Condition Integer32
+2038 Change-Time Time
+2039 Diagnostics Integer32
+2040 Service-Data-Container Grouped
+2041 Start-Time Time
+2042 Stop-Time Time
+2043 Time-First-Usage Time
+2044 Time-Last-Usage Time
+2045 Time-Usage Unsigned32
+2046 Traffic-Data-Volumes Grouped
+2047 Serving-Node-Type Enumerated
+2048 Supplementary-Service Grouped
+2049 Participant-Action-Type Enumerated
+2050 Reserved -
+2051 Dynamic-Address-Flag Enumerated
+2052 Accumulated-Cost Grouped
+2053 AoC-Cost-Information Grouped
+2054 AoC-Information Grouped
+2055 AoC-Request-Type Enumerated
+2056 Current-Tariff Grouped
+2057 Next-Tariff Grouped
+2058 Rate-Element Grouped
+2059 Scale-Factor Grouped
+2060 Tariff-Information Grouped
+2061 Unit-Cost Grouped
+2062 Incremental-Cost Grouped
+2063 Local-Sequence-Number Unsigned32
+Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
 2100	reserved	-	32.299 [5]
 2101	Application-Server-ID	UTF8String	
 2102	Application-Service-Type	Enumerated	
@@ -3635,9 +3848,11 @@ Note: The AVP codes from 2023 to 2099 are reserved for TS 32.299
       <gavp name="Associated-Party-Address"/>
      </grouped>
 		</avp>
-
-Note: The AVP codes from 2115 to 2199 are reserved for TS 32.299
-2200 Subsession-Decision-Info Grouped
+2115 DCD-Information Grouped
+2116 Content-ID UTF8String
+2117 Content-provider-ID UTF8String
+32.299 [5]
+Note: The AVP codes from 2118 to 2199 are reserved for TS 32.2992200 Subsession-Decision-Info Grouped
 2201 Subsession-Enforcement-Info Grouped
 2202 Subsession-Id Unsigned32
 2203 Subsession-Operation Enumerated
