@@ -2,7 +2,7 @@
  *
  * $Id$
  * Routines for DICOM packet dissection
- * Copyright 2008, David Aggeler <david_aggeler@hispeed.ch>
+ * Copyright 2009, David Aggeler <david_aggeler@hispeed.ch>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -33,7 +33,7 @@ typedef struct _dicom_eo_t {
 	gchar   *filename;
 	gchar   *content_type;
 	guint32  payload_len;
-	const guint8 *payload_data;
+	guint8	*payload_data;
 } dicom_eo_t;
 
 #endif  /* PACKET_DCM_H */
