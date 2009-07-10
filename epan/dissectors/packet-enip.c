@@ -1591,7 +1591,7 @@ proto_register_enip(void)
       /* Source IP Address */
       { &hf_dlr_sourceip,
          { "Source IP", "enip.dlr.sourceip",
-         FT_IPv4, BASE_HEX, NULL, 0,
+         FT_IPv4, BASE_NONE, NULL, 0,
          "Source IP Address", HFILL }
       },
       /* Sequence ID*/
@@ -1627,13 +1627,13 @@ proto_register_enip(void)
       /* Beacon Reserved */
       { &hf_dlr_beaconreserved,
          { "Reserved", "enip.dlr.beaconreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Beacon Reserved", HFILL }
       },
       /* Neighbor_Check_Request Reserved */
       { &hf_dlr_nreqreserved,
          { "Reserved", "enip.dlr.nreqreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Neighbor_Check_Request Reserved", HFILL }
       },
       /* Neighbor_Check_Response Source Port */
@@ -1645,7 +1645,7 @@ proto_register_enip(void)
       /* Neighbor_Check_Response Reserved */
       { &hf_dlr_nresreserved,
          { "Reserved", "enip.dlr.nresreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Neighbor_Check_Response Reserved", HFILL }
       },
       /* Link_Status/Neighbor_Status Status */
@@ -1657,19 +1657,19 @@ proto_register_enip(void)
       /* Link_Status/Neighbor_Status Reserved */
       { &hf_dlr_lnknbrreserved,
          { "Reserved", "enip.dlr.lnknbrreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Link_Status/Neighbor_Status Reserved", HFILL }
       },
       /* Locate_Fault Reserved */
       { &hf_dlr_lfreserved,
          { "Reserved", "enip.dlr.lfreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Locate_Fault Reserved", HFILL }
       },
       /* Announce Reserved */
       { &hf_dlr_anreserved,
          { "Reserved", "enip.dlr.anreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Announce Reserved", HFILL }
       },
       /* Number of Nodes in List */
@@ -1681,19 +1681,19 @@ proto_register_enip(void)
       /* Sign_On Node # MAC Address */
       { &hf_dlr_somac,
          { "MAC Address", "enip.dlr.somac",
-         FT_ETHER, BASE_HEX, NULL, 0,
+         FT_ETHER, BASE_NONE, NULL, 0,
          "Sign_On Node MAC Address", HFILL }
       },
       /*  Node # IP Address */
       { &hf_dlr_soip,
          { "IP Address", "enip.dlr.soip",
-         FT_IPv4, BASE_HEX, NULL, 0,
+         FT_IPv4, BASE_NONE, NULL, 0,
          "Sign_On Node IP Address", HFILL }
       },
       /* Sign_On Reserved */
       { &hf_dlr_soreserved,
          { "Reserved", "enip.dlr.soreserved",
-         FT_BYTES, BASE_HEX, NULL, 0,
+         FT_BYTES, BASE_NONE, NULL, 0,
          "Sign_On Reserved", HFILL }
       }
    };
