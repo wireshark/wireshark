@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_abisip = -1;
@@ -50,7 +49,7 @@ static gint ett_ipaccess = -1;
 enum {
 	SUB_OML,
 	SUB_RSL,
-	SUB_IPACCESS,
+/*	SUB_IPACCESS, */
 
 	SUB_MAX
 };
