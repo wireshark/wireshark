@@ -76,6 +76,8 @@ static int proto_iec104asdu = -1;
 /* Protocol constants */
 #define APCI_START	0x68
 #define APCI_LEN	6
+#define APCI_START_LEN	2
+#define APCI_DATA_LEN	(APCI_LEN- APCI_START_LEN)
 #define APDU_MIN_LEN	4
 #define APDU_MAX_LEN	253
 
@@ -600,7 +602,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (check_col(pinfo->cinfo, COL_INFO))  {
 		col_add_str(pinfo->cinfo, COL_INFO, res->str);
 		if(apcih->Type == I_TYPE  &&  Brossa != TcpLen)   {
-			call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_LEN), pinfo, tree);
+			call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_DATA_LEN), pinfo, tree);
 		} else {
 			col_set_fence(pinfo->cinfo, COL_INFO);
 		}
@@ -619,7 +621,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* Don't call ASDU dissector if it was called before */
 	if(apcih->Type == I_TYPE  &&  (!check_col(pinfo->cinfo, COL_INFO))){
-		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_LEN), pinfo, tree);
+		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, apcih->ApduLen- APCI_DATA_LEN), pinfo, tree);
 	}
 
 	/* 'Packet Details': TREE */
@@ -675,7 +677,7 @@ proto_register_iec104apci(void)
 	};
 
 	proto_iec104apci = proto_register_protocol(
-		"IEC 60870-5-104,Apci",
+		"IEC 60870-5-104-Apci",
 		"104apci",
 		"104apci"
 		);
@@ -736,7 +738,7 @@ proto_register_iec104asdu(void)
 	};
 
 	proto_iec104asdu = proto_register_protocol(
-		"IEC 60870-5-104,Asdu",
+		"IEC 60870-5-104-Asdu",
 		"104asdu",
 		"104asdu"
 		);
