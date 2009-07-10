@@ -161,16 +161,19 @@ static const value_string v8_agg[] = {
 
 /* Version 9 template cache structures */
 #define V9TEMPLATE_CACHE_MAX_ENTRIES	100
+/* Max number of entries/scopes per template */
+#define V9TEMPLATE_MAX_FIELDS 20
 
 struct v9_template_entry {
 	guint16	type;
 	guint	length;
+	guint32 pen;
 };
 
 struct v9_template {
+	guint	length;
 	guint16	id;
 	guint16	count;
-	guint	length;
 	guint32 source_id;
 	address	source_addr;
 	gboolean option_template; /* FALSE=data template, TRUE=option template */
@@ -493,14 +496,13 @@ static int	dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 static int	dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
 				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
 static guint	dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree,
-			       int offset, struct v9_template * template);
+			       int offset, struct v9_template * tplt);
 static int	dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
 				   int offset, hdrinfo_t *hdrinfo, guint16 flowset_id);
-static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
+static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo,
 				    int offset, int len, hdrinfo_t * hdrinfo);
 static int	v9_template_hash(guint16 id, const address * net_src,
 				 guint32 src_id);
-static void	v9_template_add(struct v9_template * template);
 static struct v9_template *v9_template_get(guint16 id, address  * net_src,
 					   guint32 src_id);
 static const char *   decode_v9_template_types(int type);
@@ -1140,25 +1142,31 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 		return (0);
 
 	flowset_id = tvb_get_ntohs(tvb, offset);
+	length = tvb_get_ntohs(tvb, offset + 2);
+	
+	if (length < 4) {
+		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
+				       "Length (%u) too short", length);
+		return tvb_length_remaining(tvb, offset);
+	}
+
 	if ((flowset_id == 0) || (flowset_id == 2)) {
 		/* Template */
 		proto_tree_add_item(pdutree, hf_cflow_template_flowset_id, tvb,
-				    offset, 2, FALSE);
+		    offset, 2, FALSE);
 		offset += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_flowset_length, tvb,
-				    offset, 2, FALSE);
+		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_template(pdutree, tvb, offset, length - 4, hdrinfo);
+		dissect_v9_template(pdutree, tvb, pinfo, offset, length - 4, hdrinfo);
 	} else if ((flowset_id == 1) || (flowset_id == 3)) {
 		/* Option Template */
 		proto_tree_add_item(pdutree, hf_cflow_options_flowset_id, tvb,
 		    offset, 2, FALSE);
 		offset += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_flowset_length, tvb,
 		    offset, 2, FALSE);
 		offset += 2;
@@ -1170,7 +1178,6 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 		    offset, 2, FALSE);
 		offset += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_flowset_length, tvb,
 		    offset, 2, FALSE);
 		offset += 2;
@@ -1180,20 +1187,12 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 				    offset, 2, FALSE);
 		offset += 2;
 
-		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, (ver == 9) ? hf_cflow_flowset_length : hf_cflow_datarecord_length, tvb,
 				    offset, 2, FALSE);
 		offset += 2;
 
-		/*
-		 * The length includes the length of the FlowSet ID and
-		 * the length field itself.
-		 */
-		length -= 4;
-		if (length > 0) {
-			dissect_v9_data(tvb, pinfo, pdutree, offset, flowset_id,
-					(guint)length, hdrinfo);
-		}
+		dissect_v9_data(tvb, pinfo, pdutree, offset, flowset_id,
+				(guint)length - 4, hdrinfo);
 	}
 
 	return (length);
@@ -1203,24 +1202,24 @@ static int
 dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
 		guint16 id, guint length, hdrinfo_t * hdrinfo)
 {
-	struct v9_template *template;
+	struct v9_template *tplt;
 	proto_tree *data_tree;
 	proto_item *data_item;
         guint       pdu_len;
 
-	template = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
-	if (template != NULL && template->length != 0) {
+	tplt = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
+	if (tplt != NULL && tplt->length != 0) {
 		int count = 1;
 
-		while (length >= template->length) {
+		while (length >= tplt->length) {
 			data_item = proto_tree_add_text(pdutree, tvb,
-							offset, template->length, "Flow %d", count++);
+							offset, tplt->length, "Flow %d", count++);
 			data_tree = proto_item_add_subtree(data_item,
 			    ett_dataflowset);
 
-			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, template);
+			pdu_len = dissect_v9_pdu(tvb, pinfo, data_tree, offset, tplt);
 
-			offset += template->length;
+			offset += tplt->length;
                         /* XXX - Throw an exception */
 			length -= pdu_len < length ? pdu_len : length;
 		}
@@ -1263,7 +1262,7 @@ dissect_v9_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int o
 
 static guint
 dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
-    struct v9_template * template)
+    struct v9_template * tplt)
 {
         int             orig_offset = offset;
 	int             i;
@@ -1275,7 +1274,6 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 	guint32         msec_delta;
 	proto_tree *    timetree = 0;
 	proto_item *    timeitem = 0;
-	guint16         pen_count = 0;
         address         local_addr, remote_addr;
         guint16         local_port = 0, remote_port = 0, ipv4_id = 0, icmp_id = 0;
         guint32         uid = 0, pid = 0;
@@ -1284,33 +1282,30 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
         int             cmd_len;
         gchar *         cmd_str = NULL;
         guint16         got_flags = 0;
+	proto_item *    ti;
 
 	offset_s[0] = offset_s[1] = offset_e[0] = offset_e[1] = 0;
 	msec_start[0] = msec_start[1] = msec_end[0] = msec_end[1] = 0;
 
-	if( (template->count_scopes > 0) && (template->scopes != NULL)) {
-		for(i = 0; i < template->count_scopes; i++) {
-			guint16 type = template->scopes[i].type;
-	    		guint16 length = template->scopes[i].length;
+	if(tplt->scopes != NULL) {
+		for(i = 0; i < tplt->count_scopes; i++) {
+			guint16 type = tplt->scopes[i].type;
+	    		guint16 length = tplt->scopes[i].length;
 	   		switch( type ) {
 	   		case 1: /* system */
-				if( length == 4) {
-				 	 proto_tree_add_item(pdutree, hf_cflow_scope_system,
-						tvb, offset, length, FALSE);
-				} else if (length > 0) {
-				 	 proto_tree_add_text(pdutree,
-						tvb, offset, length,
-						"ScopeSystem: invalid size %d", length );
+				ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
+				       tvb, offset, length, FALSE);
+				if (length > 0 && length != 4) {
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+							       "ScopeSystem: invalid size %u", length);
 				} /* zero-length system scope is valid */
 				break;
 	   		case 2: /* interface */
-				if( length == 4) {
-				 	 proto_tree_add_item(pdutree, hf_cflow_scope_interface,
-						tvb, offset, length, FALSE);
-				} else {
-				 	 proto_tree_add_text(pdutree,
-						tvb, offset, length,
-						"ScopeInterface: invalid size %d", length );
+				ti = proto_tree_add_item(pdutree, hf_cflow_scope_interface,
+				       tvb, offset, length, FALSE);
+				if (length != 4) {
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+							       "ScopeInterface: invalid size %u", length);
 				}
 				break;
 	   		case 3: /* linecard */
@@ -1321,7 +1316,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 				proto_tree_add_item(pdutree, hf_cflow_scope_cache,
 						tvb, offset, length, FALSE);
 				break;
-	   		case 5: /* template */
+	   		case 5: /* tplt */
 				proto_tree_add_item(pdutree, hf_cflow_scope_template,
 						tvb, offset, length, FALSE);
 				break;
@@ -1334,17 +1329,16 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
  		}
 	}
 
-	for (i = 0; i < template->count; i++) {
+	for (i = 0; i < tplt->count; i++) {
                 guint64 pen_type;
 		guint16 type, length;
 		guint32 pen = 0;
 
 		rev = 0;
-		type = template->entries[i + pen_count].type;
-		length = template->entries[i + pen_count].length;
+		type = tplt->entries[i].type;
+		length = tplt->entries[i].length;
 		if (type & 0x8000) {
-		  pen_count++;
-		  pen = *(guint32 *)&template->entries[i + pen_count];
+                  pen = tplt->entries[i].pen;
 		  if (pen == REVPEN) { /* reverse PEN */
 		    type &= 0x7fff;
 		    rev = 1;
@@ -2693,10 +2687,10 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 	}
 
         /* XXX - These IDs are currently hard-coded in procflow.py. */
-        if (got_flags == GOT_TCP_UDP && (template->id == 256 || template->id == 258)) {
+        if (got_flags == GOT_TCP_UDP && (tplt->id == 256 || tplt->id == 258)) {
                 add_tcp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
         }
-        if (got_flags == GOT_TCP_UDP && (template->id == 257 || template->id == 259)) {
+        if (got_flags == GOT_TCP_UDP && (tplt->id == 257 || tplt->id == 259)) {
                 add_udp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
         }
 
@@ -2707,10 +2701,10 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 static int
 dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, hdrinfo_t *hdrinfo, guint16 flowset_id)
 {
-	guint16 option_scope_len, option_len, i, id, size;
-	guint16 type, scope_pen_count = 0, pen_count = 0;
-	struct v9_template template;
-	int template_offset;
+	guint16 option_scope_len, option_len, i, id;
+	guint16 type;
+	struct v9_template tplt;
+	int tplt_offset;
 	int scopes_offset;
 	proto_item *ti;
 
@@ -2747,124 +2741,172 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 
 		option_scope_len -= option_len;
 	}
+	
+	if (option_len > V9TEMPLATE_MAX_FIELDS) {
+		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+				       "More options (%u) than we can handle",
+				       option_len);
+	}
+
+	if (option_scope_len > V9TEMPLATE_MAX_FIELDS) {
+		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+				       "More scopes (%u) than we can handle",
+				       option_scope_len);
+	}
 
 	scopes_offset = offset;
 
+	/* Cache template */
+	memset(&tplt, 0, sizeof(tplt));
+	tplt.id = id;
+	tplt.count = option_len;
+	SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
+	tplt.source_id = hdrinfo->src_id;
+	/* Option scopes */
+	tplt.option_template = TRUE; /* Option template */
+	tplt.count_scopes = option_scope_len;
+	if (v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id) && option_len && option_scope_len && option_len <= V9TEMPLATE_MAX_FIELDS && option_scope_len <= V9TEMPLATE_MAX_FIELDS) {
+		tplt.scopes = se_alloc0(option_scope_len * sizeof(struct v9_template_entry));
+		tplt.entries = se_alloc0(option_len * sizeof(struct v9_template_entry));
+	}
+
 	for(i=0; i<option_scope_len; i++) {
+		guint16 scope_length;
+		
 		type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_type, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
+		scope_length = tvb_get_ntohs(tvb,offset);
 
+		if (tplt.scopes) {
+			tplt.scopes[i].type = type;
+			tplt.scopes[i].length = scope_length == VARIABLE_LENGTH ? 0 : scope_length;
+			tplt.length += tplt.scopes[i].length;
+		}
 		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
 
 		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+			if (tplt.scopes) {
+				tplt.scopes[i].pen = tvb_get_ntohl(tvb,offset);
+			}
 			proto_tree_add_item(pdutree,
 					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-			scope_pen_count++;
 			offset += 4; i += 4;
 		}
 	}
 
-	template_offset = offset;
+	tplt_offset = offset;
 
 	for(i=0; i<option_len;) {
+		guint16 entry_length;
+		
 		type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(pdutree, hf_cflow_template_field_type, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
+		entry_length = tvb_get_ntohs(tvb, offset);
 
+		if (tplt.entries) {
+			tplt.entries[i].type = type;
+			tplt.entries[i].length = entry_length == VARIABLE_LENGTH ? 0 : entry_length;
+			tplt.length += tplt.entries[i].length;
+		}
 		proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
 				    offset, 2, FALSE);
 		offset += 2; i += 2;
 
 		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+			if (tplt.entries) {
+				tplt.entries[i].pen = tvb_get_ntohl(tvb,offset);
+			}
 			proto_tree_add_item(pdutree,
 					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-			pen_count++;
 			offset += 4; i += 4;
 		}
 	}
 
-	/* Cache template */
-	memset(&template, 0, sizeof(template));
-	template.id = id;
-	template.count = option_len;
-	SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
-	template.source_id = hdrinfo->src_id;
-	/* Option scopes */
-	template.count_scopes = option_scope_len;
-	size = (template.count_scopes + scope_pen_count) * sizeof(struct v9_template_entry);
-	template.scopes      = se_alloc( size );
-	tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
-
-	template.option_template = TRUE; /* Option template */
-	size = (template.count + pen_count) * sizeof(struct v9_template_entry);
-	template.entries = se_alloc(size);
-	tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
-
-	v9_template_add(&template);
+	if (tplt.scopes || tplt.entries) {
+		memcpy(&v9_template_cache[v9_template_hash(tplt.id,
+			    &tplt.source_addr, tplt.source_id)],
+			    &tplt, sizeof(tplt));
+	}
 
 	return (0);
 }
 
 static int
-dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, hdrinfo_t * hdrinfo)
+dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, packet_info *pinfo, int offset, int length, hdrinfo_t * hdrinfo)
 {
-	struct v9_template template;
-	proto_tree *template_tree;
-	proto_item *template_item;
+	struct v9_template tplt;
+	proto_tree *tplt_tree;
+	proto_item *tplt_item;
 	proto_tree *field_tree;
-	proto_item *field_item;
+	proto_item *field_item, *ti;
 	guint16 id, count;
-	int remaining = len;
+	int remaining = length;
 	gint32 i;
-	guint16 pen_count = 0;
 	int field_start_offset;
+	int orig_offset;
 
 	while (remaining > 0) {
 
+		orig_offset = offset;
 		id = tvb_get_ntohs(tvb, offset);
 		count = tvb_get_ntohs(tvb, offset + 2);
 
-		template_item = proto_tree_add_text(pdutree, tvb, offset,
+		tplt_item = proto_tree_add_text(pdutree, tvb, offset,
 						    4 + sizeof(struct v9_template_entry) * count,
 						    "Template (Id = %u, Count = %u)", id, count);
-		template_tree = proto_item_add_subtree(template_item, ett_template);
+		tplt_tree = proto_item_add_subtree(tplt_item, ett_template);
 
-		proto_tree_add_item(template_tree, hf_cflow_template_id, tvb,
+		proto_tree_add_item(tplt_tree, hf_cflow_template_id, tvb,
 				    offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(template_tree, hf_cflow_template_field_count,
+		ti = proto_tree_add_item(tplt_tree, hf_cflow_template_field_count,
 				    tvb, offset, 2, FALSE);
 		offset += 2;
 
+		if (count > V9TEMPLATE_MAX_FIELDS) {
+			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+					       "More entries (%u) than we can handle",
+					       count);
+		}
+
 		/* Cache template */
-		memset(&template, 0, sizeof(template));
-		template.id = id;
-		template.count = count;
-		SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
-		template.source_id = hdrinfo->src_id;
-		template.count_scopes = 0;
-		template.scopes = NULL;
-		template.option_template = FALSE;   /* Data template */
+		memset(&tplt, 0, sizeof(tplt));
+		tplt.id = id;
+		tplt.count = count;
+		SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
+		tplt.source_id = hdrinfo->src_id;
 		field_start_offset = offset;
+		if (!v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id) && count && count <= V9TEMPLATE_MAX_FIELDS) {
+			tplt.entries = se_alloc0(count * sizeof(struct v9_template_entry));
+		}
 
-		for (i = 1; i <= count; i++) {
-			guint16 type, length;
-			guint32 pen = 0;
+		for (i = 0; i < count; i++) {
+			guint16 type, entry_length;
+			guint32 pen;
 
-			field_item = proto_tree_add_text(template_tree, tvb,
+			pen = 0;
+			field_item = proto_tree_add_text(tplt_tree, tvb,
 							 offset, 4, "Field (%u/%u)", i, count);
 			field_tree = proto_item_add_subtree(field_item, ett_field);
 
 			type = tvb_get_ntohs(tvb, offset);
-			length = tvb_get_ntohs(tvb, offset + 2);
+			entry_length = tvb_get_ntohs(tvb, offset + 2);
 			if (type & 0x8000) {
 			  pen = tvb_get_ntohl(tvb, offset + 4);
+			}
+
+			if (tplt.entries) {
+				tplt.entries[i].type = type;
+				tplt.entries[i].length = entry_length == VARIABLE_LENGTH ? 0 : entry_length;
+				tplt.length += tplt.entries[i].length;
+				tplt.entries[i].pen = pen;
 			}
 
 			if ((type & 0x8000) && (pen != REVPEN)) { /* except reverse pen */
@@ -2883,18 +2925,16 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
 			  proto_tree_add_item(field_tree,
 					      hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-			  pen_count++;
 			  offset += 4;
 			}
 		}
-		template.entries = se_alloc((count + pen_count) * sizeof(struct v9_template_entry));
-		tvb_memcpy(tvb, (guint8 *)template.entries, field_start_offset,
-			   (count + pen_count) * sizeof(struct v9_template_entry));
-		v9_template_add(&template);
-		remaining -= 4 + sizeof(struct v9_template_entry) * count;
-		if (pen_count > 0) {
-		  remaining -= 4 * pen_count;
+
+		if (tplt.entries) {
+			memcpy(&v9_template_cache[v9_template_hash(tplt.id,
+				    &tplt.source_addr, tplt.source_id)],
+				    &tplt, sizeof(tplt));
 		}
+		remaining -= offset - orig_offset;
 	}
 
 	return (0);
@@ -3161,53 +3201,20 @@ v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
 	return val % V9TEMPLATE_CACHE_MAX_ENTRIES;
 }
 
-static void
-v9_template_add(struct v9_template *template)
-{
-	int i;
-	int pen_count = 0;
-        guint tmp_length;
-	/* Add up the actual length of the data and store in proper byte order */
-	template->length = 0;
-	/* Options scope */
-	for(i = 0; i < template->count_scopes; i++) {
-		template->scopes[i].type   = g_ntohs(template->scopes[i].type);
-		tmp_length = g_ntohs(template->scopes[i].length);
-		template->scopes[i].length = tmp_length == VARIABLE_LENGTH ? 0 : tmp_length;
-		template->length += template->scopes[i].length;
-	}
-
-	for (i = 0; i < template->count; i++) {
-		template->entries[i + pen_count].type = g_ntohs(template->entries[i + pen_count].type);
-		tmp_length = g_ntohs(template->entries[i + pen_count].length);
-		template->entries[i + pen_count].length = tmp_length == VARIABLE_LENGTH ? 0 : tmp_length;
-		template->length += template->entries[i + pen_count].length;
-		if (template->entries[i + pen_count].type & 0x8000) {
-		  pen_count++;
-		  *(guint32 *)&template->entries[i + pen_count] =
-		    g_ntohl(*(guint32 *)&template->entries[i + pen_count]);
-		}
-	}
-
-	memcpy(&v9_template_cache[v9_template_hash(template->id,
-		    &template->source_addr, template->source_id)],
-	    template, sizeof(*template));
-}
-
 static struct v9_template *
 v9_template_get(guint16 id, address * net_src, guint32 src_id)
 {
-	struct v9_template *template;
+	struct v9_template *tplt;
 
-	template = &v9_template_cache[v9_template_hash(id, net_src, src_id)];
+	tplt = &v9_template_cache[v9_template_hash(id, net_src, src_id)];
 
-	if (template->id != id ||
-	    !ADDRESSES_EQUAL(&template->source_addr, net_src) ||
-	    template->source_id != src_id) {
-		template = NULL;
+	if (tplt->id != id ||
+	    !ADDRESSES_EQUAL(&tplt->source_addr, net_src) ||
+	    tplt->source_id != src_id) {
+		tplt = NULL;
 	}
 
-	return (template);
+	return (tplt);
 }
 
 /*
