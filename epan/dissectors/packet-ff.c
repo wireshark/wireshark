@@ -4204,7 +4204,7 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
 	length -= 2;
 
 	proto_tree_add_item(sub_tree,
-		hf_ff_fms_init_req_ver_od_calling, tvb, offset, 1, FALSE);
+		hf_ff_fms_init_req_ver_od_calling, tvb, offset, 2, FALSE);
 	offset += 2;
 	length -= 2;
 
