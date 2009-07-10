@@ -1,4 +1,4 @@
-/* column.h
+/* column_info.h
  * Definitions for column structures and routines
  *
  * $Id$
