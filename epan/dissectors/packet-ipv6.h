@@ -276,7 +276,12 @@ struct icmp6_hdr {
 #define ICMP6_MIP6_MPA				147	/* Mobile IPv6 MPA */
 #define ICMP6_CERT_PATH_SOL			148 /* Certification Path Solicitation Message          [RFC3971] */
 #define ICMP6_CERT_PATH_AD			149 /* Certification Path Advertisement Message         [RFC3971] */
-#define ICMP6_MAXTYPE				153
+#define ICMP6_EXPERIMENTAL_MOBILITY	150	/* ICMP Experimental Mobility Protocol Type */
+
+#define ICMP6_MCAST_ROUTER_ADVERT		151 /* Multicast Router Advertisement                   [RFC4286] */
+#define ICMP6_MCAST_ROUTER_SOLICIT		152 /* Multicast Router Solicitation                    [RFC4286] */
+#define ICMP6_MCAST_ROUTER_TERM			153 /* Multicast Router Termination                     [RFC4286] */
+#define ICMP6_FMIPV6_MESSAGES			154 /* FMIPv6 Messages       [RFC-ietf-mipshop-rfc5268bis-01.txt] */
 
 #define ICMP6_DST_UNREACH_NOROUTE		0	/* no route to destination */
 #define ICMP6_DST_UNREACH_ADMIN	 		1	/* administratively prohibited */
@@ -624,8 +629,6 @@ struct rr_result {		/* router renumbering result message */
 /*
  * FMIPv6
  */
-
-#define ICMP6_EXPERIMENTAL_MOBILITY	150	/* ICMP Experimental Mobility Protocol Type */
 
 #define FMIP6_SUBTYPE_RTSOLPR   2   /* Router Solicitation for Proxy Advertisement                  */
 #define FMIP6_RTSOLPR_CODE      0   /* Currently the only code for RTSOLPR                          */

@@ -131,6 +131,70 @@ static gint ett_cga_param_name = -1;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 
+static const value_string icmpv6_type_str[] = {
+    { ICMP6_DST_UNREACH,           "Unreachable" },
+    { ICMP6_PACKET_TOO_BIG,        "Too big" },
+    { ICMP6_TIME_EXCEEDED,         "Time exceeded" },
+    { ICMP6_PARAM_PROB,            "Parameter problem" },
+    { ICMP6_ECHO_REQUEST,          "Echo request" },
+    { ICMP6_ECHO_REPLY,            "Echo reply" },
+    { ICMP6_MEMBERSHIP_QUERY,      "Multicast listener query" },
+    { ICMP6_MEMBERSHIP_REPORT,     "Multicast listener report" },
+    { ICMP6_MEMBERSHIP_REDUCTION,  "Multicast listener done" },
+    { ND_ROUTER_SOLICIT,           "Router solicitation" },
+    { ND_ROUTER_ADVERT,            "Router advertisement" },
+    { ND_NEIGHBOR_SOLICIT,         "Neighbor solicitation" },
+    { ND_NEIGHBOR_ADVERT,          "Neighbor advertisement" },
+    { ND_REDIRECT,                 "Redirect" },
+    { ICMP6_ROUTER_RENUMBERING,    "Router renumbering" },
+    { ICMP6_NI_QUERY,              "Node information query" },
+    { ICMP6_NI_REPLY,              "Node information reply" },
+    { ICMP6_IND_SOLICIT,           "Inverse neighbor discovery solicitation" },
+    { ICMP6_IND_ADVERT,            "Inverse neighbor discovery advertisement" },
+    { ICMP6_MLDV2_REPORT,          "Multicast Listener Report Message v2" },
+    { ICMP6_MIP6_DHAAD_REQUEST,    "Dynamic Home Agent Address Discovery Request" },
+    { ICMP6_MIP6_DHAAD_REPLY,      "Dynamic Home Agent Address Discovery Reply" },
+    { ICMP6_MIP6_MPS,              "Mobile Prefix Solicitation" },
+    { ICMP6_MIP6_MPA,              "Mobile Prefix Advertisement" },
+    { ICMP6_CERT_PATH_SOL,         "Certification Path Solicitation" },
+    { ICMP6_CERT_PATH_AD,          "Certification Path Advertisement" },
+    { ICMP6_EXPERIMENTAL_MOBILITY, "Experimental Mobility" },
+    { ICMP6_MCAST_ROUTER_ADVERT,   "Multicast Router Advertisement" },
+    { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },
+    { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },
+    { ICMP6_FMIPV6_MESSAGES,       "FMIPv6 Messages" },
+    { 0, NULL }
+};
+
+static const value_string icmpv6_unreach_code_str[] = {
+    { ICMP6_DST_UNREACH_NOROUTE,     "Route unreachable" },
+    { ICMP6_DST_UNREACH_ADMIN,       "Administratively prohibited" },
+    { ICMP6_DST_UNREACH_NOTNEIGHBOR, "Not a neighbor" },
+    { ICMP6_DST_UNREACH_ADDR,        "Address unreachable" },
+    { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
+    { 0, NULL }
+};
+
+static const value_string icmpv6_timeex_code_str[] = {
+    { ICMP6_TIME_EXCEED_TRANSIT,    "In-transit" },
+    { ICMP6_TIME_EXCEED_REASSEMBLY, "Reassembly" },
+    { 0, NULL }
+};
+
+static const value_string icmpv6_paramprob_code_str[] = {
+    { ICMP6_PARAMPROB_HEADER,     "Header" },
+    { ICMP6_PARAMPROB_NEXTHEADER, "Next header" },
+    { ICMP6_PARAMPROB_OPTION,     "Option" },
+    { 0, NULL }
+};
+
+static const value_string icmpv6_router_renum_code_str[] = {
+    { ICMP6_ROUTER_RENUMBERING_COMMAND,      "Command" },
+    { ICMP6_ROUTER_RENUMBERING_RESULT,       "Result" },
+    { ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET, "Sequence number reset" },
+    { 0, NULL }
+};
+
 static const value_string names_nodeinfo_qtype[] = {
     { NI_QTYPE_NOOP,		"NOOP" },
     { NI_QTYPE_SUPTYPES,	"Supported query types" },
@@ -206,6 +270,13 @@ static const value_string names_fmip6_naack_opt_status[] = {
 	{ FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID_NEW,	"New CoA is invalid, use the supplied CoA" },
 	{ FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_UNRECOGNIZED,	"LLA is unrecognized" },
 	{ 0,			NULL }
+};
+
+static const value_string fmip6_opt_type_str[] = {
+    { FMIP6_OPT_IP_ADDRESS,             "IP Address" },
+    { FMIP6_OPT_NEW_ROUTER_PREFIX_INFO, "New Router Prefix Information" },
+    { FMIP6_OPT_LINK_LAYER_ADDRESS,     "Link-layer Address" },
+    { 0, NULL }
 };
 
 /* http://www.iana.org/assignments/icmpv6-parameters */
@@ -788,20 +859,7 @@ again:
 		return; /* we must not try to decode this */
 	}
 
-	switch (opt->fmip6_opt_type) {
-		case FMIP6_OPT_IP_ADDRESS:
-			typename = "IP Address";
-			break;
-		case FMIP6_OPT_NEW_ROUTER_PREFIX_INFO:
-			typename = "New Router Prefix Information";
-			break;
-		case FMIP6_OPT_LINK_LAYER_ADDRESS:
-			typename = "Link-layer Address";
-			break;
-		default:
-			typename = "Unknown";
-			break;
-	}
+	typename = val_to_str (opt->fmip6_opt_type, fmip6_opt_type_str, "Unknown");
 
 	proto_tree_add_text(icmp6opt_tree, tvb,
 			offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_type), 1,
@@ -1458,131 +1516,49 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     tvbuff_t *next_tvb;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     offset = 0;
     tvb_memcpy(tvb, (guint8 *)&icmp6_hdr, offset, sizeof icmp6_hdr);
     dp = &icmp6_hdr;
-    codename = typename = colcodename = coltypename = "Unknown";
+    typename = coltypename = val_to_str (dp->icmp6_type, icmpv6_type_str, "Unknown");
+    codename = colcodename = NULL;
+
     len = sizeof(*dp);
     switch (dp->icmp6_type) {
     case ICMP6_DST_UNREACH:
-	typename = coltypename = "Unreachable";
-	switch (dp->icmp6_code) {
-	case ICMP6_DST_UNREACH_NOROUTE:
-	    codename = colcodename = "Route unreachable";
-	    break;
-	case ICMP6_DST_UNREACH_ADMIN:
-	    codename = colcodename = "Administratively prohibited";
-	    break;
-	case ICMP6_DST_UNREACH_NOTNEIGHBOR:
-	    codename = colcodename = "Not a neighbor";
-	    break;
-	case ICMP6_DST_UNREACH_ADDR:
-	    codename = colcodename = "Address unreachable";
-	    break;
-	case ICMP6_DST_UNREACH_NOPORT:
-	    codename = colcodename = "Port unreachable";
-	    break;
-	}
-	break;
-    case ICMP6_PACKET_TOO_BIG:
-	typename = coltypename = "Too big";
-	codename = colcodename = NULL;
+        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_unreach_code_str, "Unknown");
 	break;
     case ICMP6_TIME_EXCEEDED:
-	typename = coltypename = "Time exceeded";
-	switch (dp->icmp6_code) {
-	case ICMP6_TIME_EXCEED_TRANSIT:
-	    codename = colcodename = "In-transit";
-	    break;
-	case ICMP6_TIME_EXCEED_REASSEMBLY:
-	    codename = colcodename = "Reassembly";
-	    break;
-	}
+        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_timeex_code_str, "Unknown");
         break;
     case ICMP6_PARAM_PROB:
-	typename = coltypename = "Parameter problem";
-	switch (dp->icmp6_code) {
-	case ICMP6_PARAMPROB_HEADER:
-	    codename = colcodename = "Header";
-	    break;
-	case ICMP6_PARAMPROB_NEXTHEADER:
-	    codename = colcodename = "Next header";
-	    break;
-	case ICMP6_PARAMPROB_OPTION:
-	    codename = colcodename = "Option";
-	    break;
-	}
+        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_paramprob_code_str, "Unknown");
         break;
-    case ICMP6_ECHO_REQUEST:
-	typename = coltypename = "Echo request";
-	codename = colcodename = NULL;
-	break;
-    case ICMP6_ECHO_REPLY:
-	typename = coltypename = "Echo reply";
-	codename = colcodename = NULL;
-	break;
-    case ICMP6_MEMBERSHIP_QUERY:
-	typename = coltypename = "Multicast listener query";
-	codename = colcodename = NULL;
-	break;
-    case ICMP6_MEMBERSHIP_REPORT:
-	typename = coltypename = "Multicast listener report";
-	codename = colcodename = NULL;
-	break;
-    case ICMP6_MEMBERSHIP_REDUCTION:
-	typename = coltypename = "Multicast listener done";
-	codename = colcodename = NULL;
-	break;
     case ND_ROUTER_SOLICIT:
-	typename = coltypename = "Router solicitation";
-	codename = colcodename = NULL;
 	len = sizeof(struct nd_router_solicit);
 	break;
     case ND_ROUTER_ADVERT:
-	typename = coltypename = "Router advertisement";
-	codename = colcodename = NULL;
 	len = sizeof(struct nd_router_advert);
 	break;
     case ND_NEIGHBOR_SOLICIT:
-	typename = coltypename = "Neighbor solicitation";
-	codename = colcodename = NULL;
 	len = sizeof(struct nd_neighbor_solicit);
 	break;
     case ND_NEIGHBOR_ADVERT:
-	typename = coltypename = "Neighbor advertisement";
-	codename = colcodename = NULL;
 	len = sizeof(struct nd_neighbor_advert);
 	break;
     case ND_REDIRECT:
-	typename = coltypename = "Redirect";
-	codename = colcodename = NULL;
 	len = sizeof(struct nd_redirect);
 	break;
     case ICMP6_ROUTER_RENUMBERING:
-	typename = coltypename = "Router renumbering";
-	switch (dp->icmp6_code) {
-	case ICMP6_ROUTER_RENUMBERING_COMMAND:
-	    codename = colcodename = "Command";
-	    break;
-	case ICMP6_ROUTER_RENUMBERING_RESULT:
-	    codename = colcodename = "Result";
-	    break;
-	case ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET:
-	    codename = colcodename = "Sequence number reset";
-	    break;
-	}
+        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_router_renum_code_str, "Unknown");
 	len = sizeof(struct icmp6_router_renum);
 	break;
     case ICMP6_NI_QUERY:
     case ICMP6_NI_REPLY:
 	ni = (struct icmp6_nodeinfo *)dp;
 	if (ni->ni_type == ICMP6_NI_QUERY) {
-	    typename = coltypename = "Node information query";
 	    switch (ni->ni_code) {
 	    case ICMP6_NI_SUBJ_IPV6:
 		codename = "Query subject = IPv6 addresses";
@@ -1596,9 +1572,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case ICMP6_NI_SUBJ_IPV4:
 		codename = "Query subject = IPv4 addresses";
 		break;
+	    default:
+	  	codename = "Unknown";
+		break;
 	    }
 	} else {
-	    typename = coltypename = "Node information reply";
 	    switch (ni->ni_code) {
 	    case ICMP6_NI_SUCCESS:
 		codename = "Successful";
@@ -1609,72 +1587,49 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case ICMP6_NI_UNKNOWN:
 		codename = "Unknown query type";
 		break;
+	    default:
+	  	codename = "Unknown";
+		break;
 	    }
 	}
-	colcodename = val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
-	    "Unknown");
+	colcodename = val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype, "Unknown");
 	len = sizeof(struct icmp6_nodeinfo);
 	break;
     case ICMP6_MIP6_DHAAD_REQUEST:
-	typename = coltypename = "Dynamic Home Agent Address Discovery Request";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
     case ICMP6_MIP6_DHAAD_REPLY:
-	typename = coltypename = "Dynamic Home Agent Address Discovery Reply";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
     case ICMP6_MIP6_MPS:
-	typename = coltypename = "Mobile Prefix Solicitation";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
     case ICMP6_MIP6_MPA:
-	typename = coltypename = "Mobile Prefix Advertisement";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
-	case ICMP6_CERT_PATH_SOL:
-		typename = coltypename = "Certification Path Solicitation";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
-	case ICMP6_CERT_PATH_AD:
-		typename = coltypename = "Certification Path Advertisement";
-	codename = "Should always be zero";
-	colcodename = NULL;
-	break;
+    case ICMP6_CERT_PATH_SOL:
+    case ICMP6_CERT_PATH_AD:
     case ICMP6_MLDV2_REPORT:
-	typename = coltypename = "Multicast Listener Report Message v2";
 	codename = "Should always be zero";
-	colcodename = NULL;
 	break;
-		case ICMP6_EXPERIMENTAL_MOBILITY:
-			typename = coltypename ="Experimental Mobility";
-			switch (dp->icmp6_data8[0]) {
-				case FMIP6_SUBTYPE_RTSOLPR:
-					typename = coltypename ="RtSolPr (ICMPv6 Experimental Mobility)";
-					codename = "Should always be zero";
-					colcodename = NULL;
-					break;
-				case FMIP6_SUBTYPE_PRRTADV:
-					typename = coltypename ="PrRtAdv (ICMPv6 Experimental Mobility)";
-					codename = val_to_str(dp->icmp6_code, names_fmip6_prrtadv_code, "Unknown");
-					colcodename = NULL;
-					break;
-				case FMIP6_SUBTYPE_HI:
-					typename = coltypename ="HI (ICMPv6 Experimental Mobility)";
-					codename = val_to_str(dp->icmp6_code, names_fmip6_hi_code, "Unknown");
-					colcodename = NULL;
-					break;
-				case FMIP6_SUBTYPE_HACK:
-					typename = coltypename ="HAck (ICMPv6 Experimental Mobility)";
-					codename = val_to_str(dp->icmp6_code, names_fmip6_hack_code, "Unknown");
-					colcodename = NULL;
-					break;
-			}
-			break;
+    case ICMP6_EXPERIMENTAL_MOBILITY:
+	switch (dp->icmp6_data8[0]) {
+	case FMIP6_SUBTYPE_RTSOLPR:
+	    typename = coltypename = "RtSolPr (ICMPv6 Experimental Mobility)";
+	    codename = "Should always be zero";
+	    break;
+	case FMIP6_SUBTYPE_PRRTADV:
+	    typename = coltypename = "PrRtAdv (ICMPv6 Experimental Mobility)";
+	    codename = val_to_str(dp->icmp6_code, names_fmip6_prrtadv_code, "Unknown");
+	    break;
+	case FMIP6_SUBTYPE_HI:
+	    typename = coltypename = "HI (ICMPv6 Experimental Mobility)";
+	    codename = val_to_str(dp->icmp6_code, names_fmip6_hi_code, "Unknown");
+	    break;
+	case FMIP6_SUBTYPE_HACK:
+	    typename = coltypename = "HAck (ICMPv6 Experimental Mobility)";
+	    codename = val_to_str(dp->icmp6_code, names_fmip6_hack_code, "Unknown");
+	    break;
+	default:
+	    codename = colcodename = "Unknown";
+	    break;
+	}
+	break;
+    default:
+        codename = colcodename = "Unknown";
+	break;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2261,28 +2216,28 @@ proto_register_icmpv6(void)
     { &hf_icmpv6_opt_cga_ext_length,
         { "Ext Length", "icmpv6.option.cga.ext_length", FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
-	{ &hf_icmpv6_opt_rsa_key_hash,
+    { &hf_icmpv6_opt_rsa_key_hash,
       { "Key Hash",           "icmpv6.option.rsa.key_hash", FT_BYTES,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_opt_name_type,
+    { &hf_icmpv6_opt_name_type,
       { "Name Type",           "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_opt_name_x501,
+    { &hf_icmpv6_opt_name_x501,
       { "DER Encoded X.501 Name",           "icmpv6.option.name_x501", FT_BYTES,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_opt_name_fqdn,
+    { &hf_icmpv6_opt_name_fqdn,
       { "FQDN",           "icmpv6.option.name_type.fqdn", FT_STRING,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_opt_cert_type,
+    { &hf_icmpv6_opt_cert_type,
       { "Cert Type",           "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_identifier,
+    { &hf_icmpv6_identifier,
       { "Identifier",           "icmpv6.identifier", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_all_comp,
+    { &hf_icmpv6_all_comp,
       { "All Components",           "icmpv6.all_comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	NULL, HFILL }},
-	{ &hf_icmpv6_comp,
+    { &hf_icmpv6_comp,
       { "Component",           "icmpv6.comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	NULL, HFILL }},
     { &hf_icmpv6_x509if_Name,
