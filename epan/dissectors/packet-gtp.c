@@ -1300,6 +1300,15 @@ static const value_string gtp_cipher_algorithm[] = {
     {7, "GEA/7"},
     {0, NULL}
 };
+static const value_string gtp_ext_rat_type_vals[] = {   
+      {0, "Reserved"},   
+      {1, "UTRAN"},   
+      {2, "GERAN"},   
+      {3, "WLAN"},   
+      {4, "GAN"},   
+      {5, "HSPA Evolution"},   
+      {0, NULL}   
+}; 
 
 #define MM_PROTO_GROUP_CALL_CONTROL	0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL	0x01
@@ -5167,7 +5176,8 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
      */
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     digit_str = unpack_digits(next_tvb, 0);
-    proto_tree_add_string(tree, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
+    proto_tree_add_string(ext_imeisv, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
+	proto_item_append_text(te, ": %s", digit_str);
 
     return 3 + length;
 }
@@ -6823,6 +6833,11 @@ void proto_register_gtp(void)
 	  FT_UINT8, BASE_DEC, NULL, 0x0,
 	  NULL, HFILL}
 	 },
+	{&hf_gtp_ext_rat_type,   
+      {"RAT Type", "gtp.ext_rat_type",   
+       FT_UINT8, BASE_DEC, VALS(gtp_ext_rat_type_vals), 0x0,   
+       NULL, HFILL}   
+     }, 
 	{&hf_gtp_ext_geo_loc_type,
 	 {"Geographic Location Type", "gtp.ext_geo_loc_type",
 	  FT_UINT8, BASE_DEC, NULL, 0x0,
