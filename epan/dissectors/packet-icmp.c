@@ -109,6 +109,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define ICMP_UNREACH       3
 #define ICMP_SOURCEQUENCH  4
 #define ICMP_REDIRECT      5
+#define ICMP_ALTHOST       6
 #define ICMP_ECHO          8
 #define ICMP_RTRADVERT     9
 #define ICMP_RTRSOLICIT   10
@@ -120,6 +121,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define ICMP_IREQREPLY    16
 #define ICMP_MASKREQ      17
 #define ICMP_MASKREPLY    18
+#define ICMP_PHOTURIS     40
 
 /* ICMP UNREACHABLE */
 
@@ -148,6 +150,103 @@ static gint ett_icmp_mpls_stack_object = -1;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
+static const value_string icmp_type_str[] = {
+  { ICMP_ECHOREPLY,    "Echo (ping) reply" },
+  { 1,                 "Reserved" },
+  { 2,                 "Reserved" },
+  { ICMP_UNREACH,      "Destination unreachable" },
+  { ICMP_SOURCEQUENCH, "Source quench (flow control)" },
+  { ICMP_REDIRECT,     "Redirect" },
+  { ICMP_ALTHOST,      "Alternate host address" },
+  { ICMP_ECHO,         "Echo (ping) request" },
+  { ICMP_RTRADVERT,    "Router advertisement" },
+  { ICMP_RTRSOLICIT,   "Router solicitation" },
+  { ICMP_TIMXCEED,     "Time-to-live exceeded" },
+  { ICMP_PARAMPROB,    "Parameter problem" },
+  { ICMP_TSTAMP,       "Timestamp request" },
+  { ICMP_TSTAMPREPLY,  "Timestamp reply" },
+  { ICMP_IREQ,         "Information request" },
+  { ICMP_IREQREPLY,    "Information reply" },
+  { ICMP_MASKREQ,      "Address mask request" },
+  { ICMP_MASKREPLY,    "Address mask reply" },
+  { 19,                "Reserved (for security)" },
+  { 30,                "Traceroute" },
+  { 31,                "Datagram Conversion Error" },
+  { 32,                "Mobile Host Redirect" },
+  { 33,                "IPv6 Where-Are-You" },
+  { 34,                "IPv6 I-Am-Here" },
+  { 35,                "Mobile Registration Request" },
+  { 36,                "Mobile Registration Reply" },
+  { 37,                "Domain Name Request" },
+  { 38,                "Domain Name Reply" },
+  { 39,                "SKIP" },
+  { ICMP_PHOTURIS,     "Photuris" },
+  { 41,                "Experimental mobility protocols" },
+  { 0, NULL }
+};
+
+static const value_string unreach_code_str[] = {
+  { ICMP_NET_UNREACH,    "Network unreachable" },
+  { ICMP_HOST_UNREACH,   "Host unreachable" },
+  { ICMP_PROT_UNREACH,   "Protocol unreachable" },
+  { ICMP_PORT_UNREACH,   "Port unreachable" },
+  { ICMP_FRAG_NEEDED,    "Fragmentation needed" },
+  { ICMP_SR_FAILED,      "Source route failed" },
+  { ICMP_NET_UNKNOWN,    "Destination network unknown" },
+  { ICMP_HOST_UNKNOWN,   "Destination host unknown" },
+  { ICMP_HOST_ISOLATED,  "Source host isolated" },
+  { ICMP_NET_ANO,        "Network administratively prohibited" },
+  { ICMP_HOST_ANO,       "Host administratively prohibited" },
+  { ICMP_NET_UNR_TOS,    "Network unreachable for TOS" },
+  { ICMP_HOST_UNR_TOS,   "Host unreachable for TOS" },
+  { ICMP_PKT_FILTERED,   "Communication administratively filtered" },
+  { ICMP_PREC_VIOLATION, "Host precedence violation" },
+  { ICMP_PREC_CUTOFF,    "Precedence cutoff in effect" },
+  { 0, NULL }
+};
+
+static const value_string redir_code_str[] = {
+  { 0, "Redirect for network" },
+  { 1, "Redirect for host" },
+  { 2, "Redirect for TOS and network" },
+  { 3, "Redirect for TOS and host"},
+  { 0, NULL }
+};
+
+static const value_string alt_host_code_str[] = {
+  { 0, "Alternate address for host" },
+  { 0, NULL }
+};
+
+static const value_string rtradvert_code_str[] = {
+  { 0,  "Normal router advertisement" },
+  { 16, "Does not route common traffic" },
+  { 0, NULL }
+};
+
+static const value_string ttl_code_str[] = {
+  { 0, "Time to live exceeded in transit" },
+  { 1, "Fragment reassembly time exceeded" },
+  { 0, NULL }
+};
+
+static const value_string par_code_str[] = {
+  { 0, "Pointer indicates the error" },
+  { 1, "Required option missing" },
+  { 2, "Bad length" },
+  { 0, NULL }
+};
+
+static const value_string photuris_code_str[] = {
+  { 0, "Bad SPI" },
+  { 1, "Authentication Failed" },
+  { 2, "Decompression Failed" },
+  { 3, "Decryption Failed" },
+  { 4, "Need Authentication" },
+  { 5, "Need Authorization" },
+  { 0, NULL }
+};
+
 static const value_string mip_extensions[] = {
   { ICMP_MIP_EXTENSION_PAD, "One byte padding extension"},  /* RFC 2002 */
   { ICMP_MIP_MOB_AGENT_ADV, "Mobility Agent Advertisement Extension"},
@@ -156,6 +255,21 @@ static const value_string mip_extensions[] = {
   { ICMP_MIP_CHALLENGE, "Challenge Extension"},             /* RFC 3012 */
   { 0, NULL}
 };
+
+#define MPLS_STACK_ENTRY_OBJECT_CLASS           1
+#define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS      2
+
+#define MPLS_STACK_ENTRY_C_TYPE                 1
+#define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
+
+/* XXX no header defines these macros ??? */
+#ifndef min
+#define min(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef max
+#define max(a,b) (((a)>(b))?(a):(b))
+#endif
 
 /*
  * Dissect the mobile ip advertisement extensions.
@@ -290,21 +404,6 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
   } /* end while */
 
 } /* dissect_mip_extensions */
-
-#define MPLS_STACK_ENTRY_OBJECT_CLASS           1
-#define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS      2
-
-#define MPLS_STACK_ENTRY_C_TYPE                 1
-#define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
-
-/* XXX no header defines these macros ??? */
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-
-#ifndef max
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
 
 /*
  * Dissect the MPLS extensions
@@ -568,41 +667,6 @@ dissect_mpls_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
     } /* end while */
 } /* end dissect_mpls_extensions */
 
-static const gchar *unreach_str[] = {"Network unreachable",
-                                     "Host unreachable",
-                                     "Protocol unreachable",
-                                     "Port unreachable",
-                                     "Fragmentation needed",
-                                     "Source route failed",
-                                     "Destination network unknown",
-                                     "Destination host unknown",
-                                     "Source host isolated",
-                                     "Network administratively prohibited",
-                                     "Host administratively prohibited",
-                                     "Network unreachable for TOS",
-                                     "Host unreachable for TOS",
-                                     "Communication administratively filtered",
-                                     "Host precedence violation",
-                                     "Precedence cutoff in effect"};
-
-#define	N_UNREACH	(sizeof unreach_str / sizeof unreach_str[0])
-
-static const gchar *redir_str[] = {"Redirect for network",
-                                   "Redirect for host",
-                                   "Redirect for TOS and network",
-                                   "Redirect for TOS and host"};
-
-#define	N_REDIRECT	(sizeof redir_str / sizeof redir_str[0])
-
-static const gchar *ttl_str[] = {"Time to live exceeded in transit",
-                                 "Fragment reassembly time exceeded"};
-
-#define	N_TIMXCEED	(sizeof ttl_str / sizeof ttl_str[0])
-
-static const gchar *par_str[] = {"IP header bad", "Required option missing"};
-
-#define	N_PARAMPROB	(sizeof par_str / sizeof par_str[0])
-
 /*
  * RFC 792 for basic ICMP.
  * RFC 1191 for ICMP_FRAG_NEEDED (with MTU of next hop).
@@ -613,6 +677,7 @@ static void
 dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *icmp_tree = NULL;
+  proto_item *ti;
   guint8     icmp_type;
   guint8     icmp_code;
   guint      length, reported_length;
@@ -625,143 +690,88 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
   proto_item *item;
 
-  type_str="";
-  code_str="";
-
-
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* To do: check for runts, errs, etc. */
   icmp_type = tvb_get_guint8(tvb, 0);
   icmp_code = tvb_get_guint8(tvb, 1);
   cksum = tvb_get_ntohs(tvb, 2);
 
+  type_str = val_to_str (icmp_type, icmp_type_str, "Unknown ICMP (obsolete or malformed?)");
+
   switch (icmp_type) {
-    case ICMP_ECHOREPLY:
-      type_str="Echo (ping) reply";
-      break;
     case ICMP_UNREACH:
-      type_str="Destination unreachable";
-      if (icmp_code < N_UNREACH) {
-        code_str = unreach_str[icmp_code];
-      } else {
-        code_str = "Unknown - error?";
-      }
-      break;
-    case ICMP_SOURCEQUENCH:
-      type_str="Source quench (flow control)";
+      code_str = val_to_str (icmp_code, unreach_code_str, "Unknown code: %u");
       break;
     case ICMP_REDIRECT:
-      type_str="Redirect";
-      if (icmp_code < N_REDIRECT) {
-        code_str = redir_str[icmp_code];
-      } else {
-        code_str = "Unknown - error?";
-      }
+      code_str = val_to_str (icmp_code, redir_code_str, "Unknown code: %u");
       break;
-    case ICMP_ECHO:
-      type_str="Echo (ping) request";
+    case ICMP_ALTHOST:
+      code_str = val_to_str (icmp_code, alt_host_code_str, "Unknown code: %u");
       break;
     case ICMP_RTRADVERT:
       switch (icmp_code) {
       case 0: /* Mobile-Ip */
       case 16: /* Mobile-Ip */
-        type_str="Mobile IP Advertisement";
-        break;
-      default:
-        type_str="Router advertisement";
+        type_str = "Mobile IP Advertisement";
         break;
       } /* switch icmp_code */
-      break;
-    case ICMP_RTRSOLICIT:
-      type_str="Router solicitation";
+      code_str = val_to_str (icmp_code, rtradvert_code_str, "Unknown code: %u");
       break;
     case ICMP_TIMXCEED:
-      type_str="Time-to-live exceeded";
-      if (icmp_code < N_TIMXCEED) {
-        code_str = ttl_str[icmp_code];
-      } else {
-        code_str = "Unknown - error?";
-      }
+      code_str = val_to_str (icmp_code, ttl_code_str, "Unknown code: %u");
       break;
     case ICMP_PARAMPROB:
-      type_str="Parameter problem";
-      if (icmp_code < N_PARAMPROB) {
-        code_str = par_str[icmp_code];
-      } else {
-        code_str = "Unknown - error?";
-      }
+      code_str = val_to_str (icmp_code, par_code_str, "Unknown code: %u");
       break;
-    case ICMP_TSTAMP:
-      type_str="Timestamp request";
-      break;
-    case ICMP_TSTAMPREPLY:
-      type_str="Timestamp reply";
-      break;
-    case ICMP_IREQ:
-      type_str="Information request";
-      break;
-    case ICMP_IREQREPLY:
-      type_str="Information reply";
-      break;
-    case ICMP_MASKREQ:
-      type_str="Address mask request";
-      break;
-    case ICMP_MASKREPLY:
-      type_str="Address mask reply";
+    case ICMP_PHOTURIS:
+      code_str = val_to_str (icmp_code, photuris_code_str, "Unknown code: %u");
       break;
     default:
-      type_str="Unknown ICMP (obsolete or malformed?)";
+      code_str = "";
       break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, type_str);
-    if (code_str[0] != '\0')
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, type_str);
+  if (code_str[0] != '\0')
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
 
   length = tvb_length(tvb);
   reported_length = tvb_reported_length(tvb);
 
-  if (tree) {
-    proto_item *ti;
+  ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
+  icmp_tree = proto_item_add_subtree(ti, ett_icmp);
+  proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1,
+			     icmp_type,
+			     "Type: %u (%s)",
+			     icmp_type, type_str);
+  proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1,
+			     icmp_code,
+			     "Code: %u (%s)",
+			     icmp_code, code_str);
 
-    ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
-    icmp_tree = proto_item_add_subtree(ti, ett_icmp);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1,
-			       icmp_type,
-			       "Type: %u (%s)",
-			       icmp_type, type_str);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1,
-			       icmp_code,
-			       "Code: %u (%s)",
-			       icmp_code, code_str);
-    if (!pinfo->fragmented && length >= reported_length) {
-      /* The packet isn't part of a fragmented datagram and isn't
-         truncated, so we can checksum it. */
+  if (!pinfo->fragmented && length >= reported_length) {
+    /* The packet isn't part of a fragmented datagram and isn't
+       truncated, so we can checksum it. */
 
-      computed_cksum = ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
-	  			     reported_length);
-      if (computed_cksum == 0) {
-        proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
- 			  cksum,
-			  "Checksum: 0x%04x [correct]", cksum);
-      } else {
-        item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
-			  tvb, 2, 2, TRUE);
-        PROTO_ITEM_SET_HIDDEN(item);
-        proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
-		  cksum,
-		  "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-		  cksum, in_cksum_shouldbe(cksum, computed_cksum));
-      }
+    computed_cksum = ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
+				 reported_length);
+    if (computed_cksum == 0) {
+      proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
+				 cksum,
+				 "Checksum: 0x%04x [correct]", cksum);
     } else {
-      proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2, cksum);
+      item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
+				    tvb, 2, 2, TRUE);
+      PROTO_ITEM_SET_HIDDEN(item);
+      proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
+				 cksum,
+				 "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+				 cksum, in_cksum_shouldbe(cksum, computed_cksum));
     }
+  } else {
+    proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2, cksum);
   }
 
   /* Decode the second 4 bytes of the packet. */
@@ -899,88 +909,88 @@ proto_register_icmp(void)
   static hf_register_info hf[] = {
 
     { &hf_icmp_type,
-      { "Type",		"icmp.type",		FT_UINT8, BASE_DEC,	NULL, 0x0,
-      	NULL, HFILL }},
+      { "Type",         "icmp.type",            FT_UINT8, BASE_DEC,     NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_code,
-      { "Code",		"icmp.code",		FT_UINT8, BASE_HEX,	NULL, 0x0,
-      	NULL, HFILL }},
+      { "Code",         "icmp.code",            FT_UINT8, BASE_HEX,     NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_checksum,
-      { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	NULL, HFILL }},
+      { "Checksum",     "icmp.checksum",        FT_UINT16, BASE_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_checksum_bad,
-      { "Bad Checksum",	"icmp.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	NULL, HFILL }},
+      { "Bad Checksum", "icmp.checksum_bad",    FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_ident,
-      {"Identifier", "icmp.ident",              FT_UINT16, BASE_HEX,    NULL, 0x0,
-       NULL, HFILL }},
+      { "Identifier", "icmp.ident",              FT_UINT16, BASE_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_seq_num,
-      {"Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
-       NULL, HFILL }},
+      { "Sequence number", "icmp.seq",           FT_UINT16, BASE_DEC_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_mtu,
-      {"MTU of next hop", "icmp.mtu",           FT_UINT16, BASE_DEC,    NULL, 0x0,
-       NULL, HFILL}},
+      { "MTU of next hop", "icmp.mtu",           FT_UINT16, BASE_DEC,    NULL, 0x0,
+        NULL, HFILL}},
 
     { &hf_icmp_redir_gw,
-      {"Gateway address", "icmp.redir_gw",      FT_IPv4, BASE_NONE,     NULL, 0x0,
-       NULL, HFILL }},
+      { "Gateway address", "icmp.redir_gw",      FT_IPv4, BASE_NONE,     NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_mip_type,
-      { "Extension Type", "icmp.mip.type",	FT_UINT8, BASE_DEC,
-	VALS(mip_extensions), 0x0,NULL, HFILL}},
+      { "Extension Type", "icmp.mip.type",      FT_UINT8, BASE_DEC,
+        VALS(mip_extensions), 0x0,NULL, HFILL}},
 
     { &hf_icmp_mip_length,
-      { "Length", "icmp.mip.length",		FT_UINT8, BASE_DEC, NULL, 0x0,
-	NULL, HFILL}},
+      { "Length", "icmp.mip.length",            FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}},
 
     { &hf_icmp_mip_prefix_length,
       { "Prefix Length", "icmp.mip.prefixlength",  FT_UINT8, BASE_DEC, NULL, 0x0,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mip_seq,
-      { "Sequence Number", "icmp.mip.seq",	FT_UINT16, BASE_DEC, NULL, 0x0,
-	NULL, HFILL}},
+      { "Sequence Number", "icmp.mip.seq",      FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}},
 
     { &hf_icmp_mip_life,
       { "Registration Lifetime", "icmp.mip.life",  FT_UINT16, BASE_DEC, NULL, 0x0,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mip_flags,
       { "Flags", "icmp.mip.flags",            FT_UINT16, BASE_HEX, NULL, 0x0,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mip_r,
       { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 16, NULL, 32768,
-	"Registration with this FA is required", HFILL }},
+        "Registration with this FA is required", HFILL }},
 
     { &hf_icmp_mip_b,
       { "Busy", "icmp.mip.b", FT_BOOLEAN, 16, NULL, 16384,
-	"This FA will not accept requests at this time", HFILL }},
+        "This FA will not accept requests at this time", HFILL }},
 
     { &hf_icmp_mip_h,
       { "Home Agent", "icmp.mip.h", FT_BOOLEAN, 16, NULL, 8192,
-	"Home Agent Services Offered", HFILL }},
+        "Home Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_f,
       { "Foreign Agent", "icmp.mip.f", FT_BOOLEAN, 16, NULL, 4096,
-	"Foreign Agent Services Offered", HFILL }},
+        "Foreign Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_m,
       { "Minimal Encapsulation", "icmp.mip.m", FT_BOOLEAN, 16, NULL, 2048,
-	"Minimal encapsulation tunneled datagram support", HFILL }},
+        "Minimal encapsulation tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_g,
       { "GRE", "icmp.mip.g", FT_BOOLEAN, 16, NULL, 1024,
-	"GRE encapsulated tunneled datagram support", HFILL }},
+        "GRE encapsulated tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_v,
       { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 16, NULL, 512,
-	"Van Jacobson Header Compression Support", HFILL }},
+        "Van Jacobson Header Compression Support", HFILL }},
 
     { &hf_icmp_mip_rt,
       { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 16, NULL, 256,
@@ -997,74 +1007,73 @@ proto_register_icmp(void)
 
     { &hf_icmp_mip_reserved,
       { "Reserved", "icmp.mip.reserved",     FT_UINT16, BASE_HEX, NULL, 0x003f,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mip_coa,
       { "Care-Of-Address", "icmp.mip.coa",    FT_IPv4, BASE_NONE, NULL, 0x0,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mip_challenge,
       { "Challenge", "icmp.mip.challenge",    FT_BYTES, BASE_NONE, NULL, 0x0,
-	NULL, HFILL}},
+        NULL, HFILL}},
 
     { &hf_icmp_mpls,
-      { "ICMP Extensions for MPLS",	"icmp.mpls",	FT_NONE, BASE_NONE,	NULL, 0x0,
-	NULL, HFILL }},
+      { "ICMP Extensions for MPLS",     "icmp.mpls",    FT_NONE, BASE_NONE,     NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_version,
-		{ "Version",		"icmp.mpls.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_version,
+      { "Version",              "icmp.mpls.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_icmp_mpls_reserved,
-      { "Reserved",	"icmp.mpls.res",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	NULL, HFILL }},
+      { "Reserved",     "icmp.mpls.res",        FT_UINT16, BASE_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_checksum,
-      { "Checksum",	"icmp.mpls.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	NULL, HFILL }},
+    { &hf_icmp_mpls_checksum,
+      { "Checksum",     "icmp.mpls.checksum",   FT_UINT16, BASE_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_checksum_bad,
-      { "Bad Checksum",	"icmp.mpls.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	NULL, HFILL }},
+    { &hf_icmp_mpls_checksum_bad,
+      { "Bad Checksum", "icmp.mpls.checksum_bad",       FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_length,
-      { "Length",	"icmp.mpls.length",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	NULL, HFILL }},
+    { &hf_icmp_mpls_length,
+      { "Length",       "icmp.mpls.length",     FT_UINT16, BASE_HEX,    NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_class,
-		{ "Class",	"icmp.mpls.class", FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_class,
+      { "Class",        "icmp.mpls.class", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_c_type,
-		{ "C-Type",	"icmp.mpls.ctype", FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_c_type,
+      { "C-Type",       "icmp.mpls.ctype", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_label,
-		{ "Label",	"icmp.mpls.label", FT_UINT24, BASE_DEC, NULL, 0x00fffff0,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_label,
+      { "Label",        "icmp.mpls.label", FT_UINT24, BASE_DEC, NULL, 0x00fffff0,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_exp,
-		{ "Experimental",	"icmp.mpls.exp", FT_UINT24, BASE_DEC,
-			NULL, 0x0e,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_exp,
+      { "Experimental", "icmp.mpls.exp", FT_UINT24, BASE_DEC, NULL, 0x0e,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_s,
-		{ "Stack bit",	"icmp.mpls.s", FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x01,
-			NULL, HFILL }},
+    { &hf_icmp_mpls_s,
+      { "Stack bit",    "icmp.mpls.s", FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x01,
+        NULL, HFILL }},
 
-	{ &hf_icmp_mpls_ttl,
-		{ "Time to live",	"icmp.mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }}
-
+    { &hf_icmp_mpls_ttl,
+      { "Time to live", "icmp.mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }}
   };
+
   static gint *ett[] = {
     &ett_icmp,
-	&ett_icmp_mip,
-	&ett_icmp_mip_flags,
-	/* MPLS extensions */
-	&ett_icmp_mpls,
-	&ett_icmp_mpls_object,
-	&ett_icmp_mpls_stack_object
+    &ett_icmp_mip,
+    &ett_icmp_mip_flags,
+    /* MPLS extensions */
+    &ett_icmp_mpls,
+    &ett_icmp_mpls_object,
+    &ett_icmp_mpls_stack_object
   };
 
   module_t *icmp_module;
