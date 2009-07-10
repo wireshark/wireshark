@@ -90,6 +90,7 @@ static const value_string ipaccess_idtag_vals[] = {
 	{ 0x06,		"IP Address" },
 	{ 0x07,		"MAC Address" },
 	{ 0x08,		"Unit ID" },
+	{ 0,		NULL }
 };
 
 static gint
@@ -118,7 +119,7 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 		default:
 			len = 0;
 			proto_tree_add_text(tree, tvb, offset+1, 1,
-					    "unknonw attribute type 0x%02x",
+					    "unknown attribute type 0x%02x",
 					    attr_type);
 			break;
 		};
