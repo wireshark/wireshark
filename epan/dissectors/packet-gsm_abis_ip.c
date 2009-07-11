@@ -76,7 +76,11 @@ static const value_string ipaccess_msgtype_vals[] = {
 	{ 0x01, 	"PONG!" },
 	{ 0x04, 	"IDENTITY REQUEST" },
 	{ 0x05, 	"IDENTITY RESPONSE" },
-	{ 0x06, 	"IDENTITY CONF" },
+	{ 0x06, 	"IDENTITY ACK" },
+	{ 0x07, 	"IDENTITY NACK" },
+	{ 0x08,		"PROXY REQUEST" },
+	{ 0x09,		"PROXY ACK" },
+	{ 0x0a,		"PROXY NACK" },
 	{ 0,		NULL }
 };
 
@@ -84,6 +88,7 @@ static const value_string ipaccess_idtag_vals[] = {
 	{ 0x00,		"Serial Number" },
 	{ 0x01,		"Unit Name" },
 	{ 0x02,		"Location" },
+	{ 0x03,		"Unit Type" },
 	{ 0x04,		"Equipment Version" },
 	{ 0x05,		"Software Version" },
 	{ 0x06,		"IP Address" },
