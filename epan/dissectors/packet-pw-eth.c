@@ -50,6 +50,8 @@ static int hf_pw_eth_cw = -1;
 static int hf_pw_eth_cw_sequence_number = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t pw_eth_handle_cw;
+static dissector_handle_t pw_eth_handle_nocw;
 
 static void
 dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -86,7 +88,25 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            sequence_number);
         }
         next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+        {
+                /*
+                 * When Ethernet frames being decoded, pinfo->ethertype is extracted 
+                 * from the top-level Ethernet frame. Dissection of Ethernet PW payload
+                 * overwrites this value as the same dissector is invoked again.
+                 * This may lead to undesired behavior (like disappearance of "Link"
+                 * tab from the "Decode as" menu).
+                 *
+                 * Let's save/restore ethertype. --ATA 
+                 *
+                 * XXX it looks that more pinfo members (or even the whole pinfo) 
+                 * XXX should be saved/restored in PW cases. Multilayer encapsulations, 
+                 * XXX like ethernet/mpls/ethernet-pw/ip/vlan, may lead to undesired 
+                 * XXX changes if pinfo->ipproto, ptype etc.
+                 */
+                guint32 etype_save = pinfo->ethertype;
+                call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+                pinfo->ethertype = etype_save;
+        }
 }
 
 static void
@@ -100,7 +120,11 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_HIDDEN(ti);
         }
         next_tvb = tvb_new_subset(tvb, 0, -1, -1);
-        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+        {
+                guint32 etype_save = pinfo->ethertype;
+                call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+                pinfo->ethertype = etype_save;
+        }
 }
 
 /* 
@@ -131,9 +155,9 @@ static void
 dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         if (looks_like_plain_eth(tvb)) {
-                call_dissector(find_dissector("pw_eth_nocw"), tvb, pinfo, tree);
+                call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
         } else {
-                call_dissector(find_dissector("pw_eth_cw"), tvb, pinfo, tree);
+                call_dissector(pw_eth_handle_cw, tvb, pinfo, tree);
         }
 }
 
@@ -195,8 +219,6 @@ proto_register_pw_eth(void)
 void
 proto_reg_handoff_pw_eth(void)
 {
-        dissector_handle_t pw_eth_handle_cw;
-        dissector_handle_t pw_eth_handle_nocw;
         dissector_handle_t pw_eth_handle_heuristic;
 
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
