@@ -85,20 +85,21 @@ guint
 new_packet_list_append(column_info cinfo, frame_data *fdata)
 {
 	gint i;
-	row_data_t *row_data;
+	row_data_t row_data;
 
-	row_data = g_new0(row_data_t, 1);
+	/* Allocate the array holding column data, the size is the current number of columns */
+	row_data.col_text = se_alloc0(sizeof(row_data.col_text)*cfile.cinfo.num_cols);
+	row_data.col_fmt = (gint *) se_alloc(sizeof(gint) * cfile.cinfo.num_cols);
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
-		row_data->col_text[cinfo.col_fmt[i]] =
+		row_data.col_text[i] =
 			se_strdup(cinfo.col_data[i]);
+		row_data.col_fmt[i] = cinfo.col_fmt[i];
 	}
 
-	row_data->fdata = fdata;
+	row_data.fdata = fdata;
 
-	packet_list_append_record(packetlist, row_data);
-
-	g_free(row_data);
+	packet_list_append_record(packetlist, &row_data);
 
 	return packetlist->num_rows; /* XXX - Check that this is the right # */
 }

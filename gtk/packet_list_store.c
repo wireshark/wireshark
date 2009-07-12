@@ -38,6 +38,11 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#if 0
+#include "epan/column_info.h"
+#include "epan/column.h"
+#endif
+
 #include "packet_list_store.h"
 #include "globals.h"
 
@@ -201,8 +206,25 @@ static void
 packet_list_init(PacketList *packet_list)
 {
 	guint i;
+#if 0
+	gint fmt;
 
-	for(i = 0; i <= NUM_COL_FMTS; i++) { /* XXX - Temporary? */
+	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
+		/* Get the format of the column, see column_info.h */
+		fmt = get_column_format(i);
+		switch(fmt){
+			/* if we wish to store data rater than strings for some
+			 * colum types add case statements to the switch.
+			 */
+			case COL_NUMBER:
+			default:
+				packet_list->column_types[i] = G_TYPE_STRING;
+				break;
+		}
+	}
+#endif
+
+	for(i = 0; i < NUM_COL_FMTS; i++) { /* XXX - Temporary? */
 		packet_list->column_types[i] = G_TYPE_STRING;
 	}
 	
@@ -496,8 +518,9 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 
 	newrecord = se_alloc0(sizeof(PacketListRecord));
 
-	for(i = 0; i < NUM_COL_FMTS; i++)
-		newrecord->col_text[i] = row_data->col_text[i];
+	/* XXX newrecord->col_text still uses the fmt index */
+	for(i = 0; i < cfile.cinfo.num_cols; i++)
+		newrecord->col_text[row_data->col_fmt[i]] = row_data->col_text[i];
 
 	newrecord->fdata = row_data->fdata;
 

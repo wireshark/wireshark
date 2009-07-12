@@ -38,7 +38,9 @@
 #define PACKETLIST_LIST_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), PACKETLIST_TYPE_LIST, PacketListClass))
 
 typedef struct {
-	gchar *col_text[NUM_COL_FMTS], *col_filter[NUM_COL_FMTS];
+	gint *col_fmt;
+	gchar **col_text;
+	gchar **col_filter;
 	frame_data *fdata;
 } row_data_t;
 
@@ -51,7 +53,7 @@ struct _PacketListRecord
 
 {
 	frame_data *fdata;
-	gchar *col_text[NUM_COL_FMTS];
+	gchar **col_text;
 
 	/* admin stuff used by the custom list model */
 	guint pos; /* position within the array */
