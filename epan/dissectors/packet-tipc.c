@@ -1579,7 +1579,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 		/* The Name Type is not always explicitly set in a TIPC Data
 		 * Message.
 		 *
-		 * On the tipc-discussion mailinglist, Allan Stephens described
+		 * On the tipc-discussion mailing list, Allan Stephens described
 		 * where the Port Name is not set with the following words:
 		 *
 		 * <cite>
@@ -2290,7 +2290,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (user < 4 && dissect_tipc_data) { /* DATA type user */
 			tvbuff_t *next_tvb;
-			guint32 *name_type_p = (guint32*)&msg_type;
+			guint32 msg_type32 = msg_type;
+			guint32 *name_type_p = &msg_type32;
 			switch (msg_type) {
 				case TIPC_CONNECTED_MSG:
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
