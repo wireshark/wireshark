@@ -9929,6 +9929,29 @@
 00:26:BC	GeneralJac             # General Jack Technology Ltd.
 00:26:BD	JtecCardCo             # JTEC Card & Communication Co., Ltd.
 00:26:BE	Schoonderb             # Schoonderbeek Elektronica Systemen B.V.
+00:26:BF	ShenzhenTe             # ShenZhen Temobi Science&Tech Development Co.,Ltd
+00:26:C0	Energyhub
+00:26:C1	Artray                 # ARTRAY CO., LTD.
+00:26:C2	Scdi                   # SCDI Co. LTD
+00:26:C3	Insightek              # Insightek Corp.
+00:26:C4	CadmosMicr             # Cadmos microsystems S.r.l.
+00:26:C5	GuangdongG             # Guangdong Gosun Telecommunications Co.,Ltd
+00:26:C6	IntelCorpo             # Intel Corporate
+00:26:C7	IntelCorpo             # Intel Corporate
+00:26:C8	SystemSens             # System Sensor
+00:26:C9	Proventix              # Proventix Systems, Inc.
+00:26:CA	Cisco                  # Cisco Systems
+00:26:CB	Cisco                  # Cisco Systems
+00:26:CC	NokiaDanma             # Nokia Danmark A/S
+00:26:CD	Purplecomm             # PurpleComm, Inc.
+00:26:CE	KozumiUsa              # Kozumi USA Corp.
+00:26:CF	DekaR&D                # DEKA R&D
+00:26:D0	Semihalf
+00:26:D1	SSquaredIn             # S Squared Innovations Inc.
+00:26:D2	Pcube                  # Pcube Systems, Inc.
+00:26:D3	ZenoInform             # Zeno Information System
+00:26:D4	IrcaSpa                # IRCA SpA
+00:26:D5	OrySolucoe             # Ory Solucoes em Comercio de Informatica Ltda.
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13417,6 +13440,19 @@
 00:50:C2:AE:F0:00/36	NationalCi             # National CineMedia
 00:50:C2:AF:00:00/36	FrSauter               # Fr. Sauter AG
 00:50:C2:AF:10:00/36	GreenGoose             # Green Goose
+00:50:C2:AF:20:00/36	AcdElektro             # ACD Elektronik Gmbh
+00:50:C2:AF:30:00/36	PalomarPro             # Palomar Products, Inc.
+00:50:C2:AF:40:00/36	DixellSPA              # Dixell S.p.A.
+00:50:C2:AF:50:00/36	KramaraSRO             # Kramara s.r.o.
+00:50:C2:AF:60:00/36	Energid
+00:50:C2:AF:70:00/36	MidwestMic             # Midwest Microwave Solutions Inc.
+00:50:C2:AF:80:00/36	GlobalSate             # Global Satellite Engineering
+00:50:C2:AF:90:00/36	Ingenieurb             # Ingenieurbuero Bickele und Buehler GmbH
+00:50:C2:AF:A0:00/36	AbsoluteFi             # Absolute Fire Solutions Inc.
+00:50:C2:AF:C0:00/36	OdusTechno             # Odus Technologies SA
+00:50:C2:AF:D0:00/36	Homescenar             # HomeScenario, Inc.
+00:50:C2:AF:E0:00/36	Trolex                 # Trolex Limited
+00:50:C2:AF:F0:00/36	XobyteLlc              # XoByte LLC
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
