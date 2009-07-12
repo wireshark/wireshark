@@ -517,6 +517,8 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 				    packet_list->num_rows);
 
 	newrecord = se_alloc0(sizeof(PacketListRecord));
+	newrecord->col_text = se_alloc0(sizeof(row_data->col_text)* NUM_COL_FMTS);
+
 
 	/* XXX newrecord->col_text still uses the fmt index */
 	for(i = 0; i < cfile.cinfo.num_cols; i++)
