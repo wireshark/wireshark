@@ -485,6 +485,7 @@ get_column_title
 get_column_width_string
 get_datafile_dir
 get_datafile_path
+get_data_source_name
 get_dirname
 get_dissector_table_selector_type
 get_dissector_table_ui_name

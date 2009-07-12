@@ -771,7 +771,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 	GSList *src_le;
 	data_source *src;
 	tvbuff_t *tvb;
-	char *name;
+	const char *name;
 	char *line;
 	const guchar *cp;
 	guint length;
@@ -789,7 +789,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 		src = src_le->data;
 		tvb = src->tvb;
 		if (multiple_sources) {
-			name = src->name;
+			name = get_data_source_name(src);
 			print_line(stream, 0, "");
 			line = g_strdup_printf("%s:", name);
 			print_line(stream, 0, line);

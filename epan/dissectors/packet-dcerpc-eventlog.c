@@ -1586,7 +1586,7 @@ eventlog_dissect_element_ReadEventLogW_handle_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_element_ReadEventLogW_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_flags, 0);
+	offset = eventlog_dissect_bitmap_eventlogReadFlags(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_flags, 0);
 
 	return offset;
 }

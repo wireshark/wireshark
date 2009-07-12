@@ -67,7 +67,8 @@ typedef struct _frame_data {
  */
 typedef struct {
   tvbuff_t *tvb;
-  char *name;
+  gboolean name_initialized;
+  const char *name;
 } data_source;
 
 /* Utility routines used by packet*.c */
