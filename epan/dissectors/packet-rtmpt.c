@@ -312,7 +312,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	struct tcpinfo* tcpinfo = pinfo->private_data;
 
-	guint16 iCommand = -1;
+	guint8  iCommand = -1;
 	guint32 iLength = 1;
 	guint16 iHeaderType = 4;
 	guint16 iHeaderLength;
