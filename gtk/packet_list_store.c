@@ -38,10 +38,8 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-#if 0
 #include "epan/column_info.h"
 #include "epan/column.h"
-#endif
 
 #include "packet_list_store.h"
 #include "globals.h"
@@ -206,7 +204,6 @@ static void
 packet_list_init(PacketList *packet_list)
 {
 	guint i;
-#if 0
 	gint fmt;
 
 	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
@@ -222,14 +219,8 @@ packet_list_init(PacketList *packet_list)
 				break;
 		}
 	}
-#endif
-
-	for(i = 0; i < NUM_COL_FMTS; i++) { /* XXX - Temporary? */
-		packet_list->column_types[i] = G_TYPE_STRING;
-	}
 	
-
-	packet_list->n_columns = NUM_COL_FMTS;
+	packet_list->n_columns = (guint)cfile.cinfo.num_cols;
 	packet_list->num_rows = 0;
 	packet_list->rows = NULL;
 
@@ -517,12 +508,12 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 				    packet_list->num_rows);
 
 	newrecord = se_alloc0(sizeof(PacketListRecord));
-	newrecord->col_text = se_alloc0(sizeof(row_data->col_text)* NUM_COL_FMTS);
+	newrecord->col_text = se_alloc0(sizeof(row_data->col_text)* cfile.cinfo.num_cols);
 
 
 	/* XXX newrecord->col_text still uses the fmt index */
 	for(i = 0; i < cfile.cinfo.num_cols; i++)
-		newrecord->col_text[row_data->col_fmt[i]] = row_data->col_text[i];
+		newrecord->col_text[i] = row_data->col_text[i];
 
 	newrecord->fdata = row_data->fdata;
 

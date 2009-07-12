@@ -132,8 +132,7 @@ create_view_and_model(void)
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
-		gtk_tree_view_column_add_attribute(col, renderer, "text",
-						   cfile.cinfo.col_fmt[i]);
+		gtk_tree_view_column_add_attribute(col, renderer, "text",i);
 		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
 		gtk_tree_view_column_set_sort_column_id(col, i);
 		gtk_tree_view_column_set_resizable(col, TRUE);
