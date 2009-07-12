@@ -624,7 +624,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 			*hb = NULL;
 		}
 	} else {
-		/* we foun no entry in the table add one (using reversed ports and src addresss) so that it can be matched later */
+		/* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
 		*(hb = se_alloc(sizeof(void*))) = ha;
 		k = make_address_key(spt, dpt, &(pinfo->src));
 		emem_tree_insert32_array(dirs_by_ptaddr, k, hb);
