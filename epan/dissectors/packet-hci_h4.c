@@ -88,7 +88,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!dissector_try_port(hci_h4_table, type, next_tvb, pinfo, tree)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 						pinfo->p2p_dir==P2P_DIR_SENT ? "Sent" : "Rcvd",
-						val_to_str(type, hci_h4_type_vals, "Unknown 0x%02x"));
+						val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
