@@ -247,6 +247,9 @@ static int hf_smb2_lock_flags_shared = -1;
 static int hf_smb2_lock_flags_exclusive = -1;
 static int hf_smb2_lock_flags_unlock = -1;
 static int hf_smb2_lock_flags_fail_immediately = -1;
+static int hf_smb2_error_byte_count = -1;
+static int hf_smb2_error_data = -1;
+static int hf_smb2_error_reserved = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -2051,21 +2054,29 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	gint byte_count;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* Reserved (2 bytes) */
+	proto_tree_add_item(tree, hf_smb2_error_reserved, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* ByteCount (4 bytes): The number of bytes of data contained in ErrorData[]. */
+	byte_count = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* bug */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-	offset += tvb_length_remaining(tvb, offset);
+	/* If the ByteCount field is zero then the server MUST supply an ErrorData field 
+	   that is one byte in length */
+	if (byte_count == 0) byte_count = 1;
+
+	/* ErrorData (variable): A variable-length data field that contains extended 
+	   error information.*/
+	proto_tree_add_item(tree, hf_smb2_error_data, tvb, offset, byte_count, TRUE);
+	offset += byte_count;
 
 	return offset;
 }
@@ -6246,6 +6257,18 @@ proto_register_smb2(void)
 	{ &hf_smb2_lock_flags_fail_immediately,
 		{ "Fail Immediately", "smb2.lock_flags.fail_immediately", FT_BOOLEAN, 32,
 		NULL, 0x00000010, NULL, HFILL }},
+
+	{ &hf_smb2_error_reserved,
+		{ "Reserved", "smb2.error.reserved", FT_UINT16, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_error_byte_count,
+		{ "Byte Count", "smb2.error.byte_count", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_error_data,
+		{ "Error Data", "smb2.error.data", FT_BYTES, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
 
 	};
 
