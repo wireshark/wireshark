@@ -68,11 +68,8 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti=NULL;
 	proto_tree *hci_h4_tree=NULL;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI H4");
-
-	if(check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI H4");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	type = tvb_get_guint8(tvb, 0);
 
@@ -81,23 +78,18 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hci_h4_tree = proto_item_add_subtree(ti, ett_hci_h4);
 	}
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",val_to_str(type, hci_h4_type_vals, "Unknown 0x%02x"));
-	}
 	ti=proto_tree_add_uint(hci_h4_tree, hf_hci_h4_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
-	proto_item_append_text(hci_h4_tree, " %s %s", val_to_str(pinfo->p2p_dir, hci_h4_direction_vals, "0x%02x"), val_to_str(type, hci_h4_type_vals, "Unknown 0x%02x"));
 
 	proto_tree_add_item(hci_h4_tree, hf_hci_h4_type,
 		tvb, 0, 1, TRUE);
 
 	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
 	if(!dissector_try_port(hci_h4_table, type, next_tvb, pinfo, tree)) {
-/*
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown HCI H4 payload type 0x%02x", type);
-		}
-*/
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+						pinfo->p2p_dir==P2P_DIR_SENT ? "Sent" : "Rcvd",
+						val_to_str(type, hci_h4_type_vals, "Unknown 0x%02x"));
+
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
