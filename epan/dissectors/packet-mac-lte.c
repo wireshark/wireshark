@@ -40,8 +40,8 @@
 
 
 /* TODO:
-   - more testing of control bodies
-   - TDD mode
+   - TDD mode?
+   - compare Msg3 with contention resolution body
    - add a preference so that padding can be verified against an expected pattern?
 */
 
@@ -568,10 +568,8 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item_append_text(rar_body_ti, " RAPID=%u (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
                            rapid, timing_advance, ul_grant, temp_crnti);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  (RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                        rapid, timing_advance, ul_grant, temp_crnti);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "  (RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+                    rapid, timing_advance, ul_grant, temp_crnti);
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
 
@@ -593,10 +591,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *rar_headers_ti;
     int        start_headers_offset = offset;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u)",
-                        p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u)",
+                    p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
     ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, FALSE);
@@ -661,10 +657,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item_append_text(rar_header_ti, " (Backoff Indicator=%sms)",
                                    val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Backoff Indicator=%sms)",
-                                val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Backoff Indicator=%sms)",
+                            val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
             if (number_of_rars > 0) {
                 expert_add_info_format(pinfo, bi_ti, PI_MALFORMED, PI_WARN,
                                        "Backoff Indicator should only appear as first subheader");
@@ -721,13 +715,11 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "BCH PDU (%u bytes, on %s transport)  ",
-                        tvb_length_remaining(tvb, offset),
-                        val_to_str(p_mac_lte_info->rntiType,
-                                   bch_transport_channel_vals,
-                                   "Unknown"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "BCH PDU (%u bytes, on %s transport)  ",
+                    tvb_length_remaining(tvb, offset),
+                    val_to_str(p_mac_lte_info->rntiType,
+                               bch_transport_channel_vals,
+                               "Unknown"));
 
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_lte_context_bch_transport_channel,
@@ -782,10 +774,8 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "PCH PDU (%u bytes)  ",
-                        tvb_length_remaining(tvb, offset));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "PCH PDU (%u bytes)  ",
+                    tvb_length_remaining(tvb, offset));
 
     /****************************************/
     /* Whole frame is PCH data              */
@@ -888,11 +878,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) ",
-                        (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
-                        p_mac_lte_info->subframeNumber);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) ",
+                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
+                    p_mac_lte_info->subframeNumber);
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
@@ -948,20 +936,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (direction == DIRECTION_UPLINK) {
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_ulsch_lcid,
                                           tvb, offset, 1, FALSE);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
-                                val_to_str(lcids[number_of_headers],
-                                           ulsch_lcid_vals, "(Unknown LCID)"));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
+                            val_to_str(lcids[number_of_headers],
+                                       ulsch_lcid_vals, "(Unknown LCID)"));
         }
         else {
             lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_dlsch_lcid,
                                           tvb, offset, 1, FALSE);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
-                                val_to_str(lcids[number_of_headers],
-                                           dlsch_lcid_vals, "(Unknown LCID)"));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s",
+                            val_to_str(lcids[number_of_headers],
+                                       dlsch_lcid_vals, "(Unknown LCID)"));
         }
         offset++;
 
@@ -1034,19 +1018,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
         /* Close off description in info column */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            switch (pdu_lengths[number_of_headers]) {
-                case 0:
-                    col_append_str(pinfo->cinfo, COL_INFO, ") ");
-                    break;
-                case -1:
-                    col_append_str(pinfo->cinfo, COL_INFO, ":remainder) ");
-                    break;
-                default:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ":%u bytes) ",
-                                    pdu_lengths[number_of_headers]);
-                    break;
-            }
+        switch (pdu_lengths[number_of_headers]) {
+            case 0:
+                col_append_str(pinfo->cinfo, COL_INFO, ") ");
+                break;
+            case -1:
+                col_append_str(pinfo->cinfo, COL_INFO, ":remainder) ");
+                break;
+            default:
+                col_append_fstr(pinfo->cinfo, COL_INFO, ":%u bytes) ",
+                                pdu_lengths[number_of_headers]);
+                break;
         }
 
         /* Append summary to subheader root */
@@ -1343,9 +1325,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     memset(&tap_info, 0, sizeof(mac_lte_tap_info));
 
     /* Set protocol name */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
 
     /* Create protocol tree. */
     ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, FALSE);
@@ -1365,9 +1345,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Clear info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
 
 
     /*****************************************/
@@ -1433,9 +1411,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "Frame has CRC error");
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
         }
     }
 
@@ -1455,9 +1431,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->isPredefinedData) {
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Predefined data (%u bytes)", tvb_length_remaining(tvb, offset));
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Predefined data (%u bytes)", tvb_length_remaining(tvb, offset));
 
         /* Queue tap info */
         if (!pinfo->in_error_pkt) {

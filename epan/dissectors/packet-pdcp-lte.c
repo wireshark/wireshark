@@ -469,9 +469,7 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree _U_,
                                      struct pdcp_lte_info *p_pdcp_info _U_,
                                      packet_info *pinfo)
 {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " IRDYN");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " IRDYN");
     proto_item_append_text(root_item, " (IRDYN)");
 
     /* Large CID */
@@ -507,9 +505,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 {
     unsigned char dynamic_chain_present;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " IR");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " IR");
     proto_item_append_text(root_item, " (IR)");
 
     /* Is dynamic chain present? */
@@ -652,9 +648,7 @@ static int dissect_pdcp_feedback_feedback1(proto_tree *tree,
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_feedback1, tvb, offset, 1, FALSE);
     offset++;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
 
     return offset;
 }
@@ -699,22 +693,18 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_mode, tvb, offset, 1, FALSE);
 
     /* Show ACK-TYPE(Mode) in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        full_mode_name = val_to_str(mode, rohc_mode_vals, "Error");
+    full_mode_name = val_to_str(mode, rohc_mode_vals, "Error");
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%c)",
-                        val_to_str(ack_type, feedback_ack_vals, "Unknown"),
-                        full_mode_name[0]);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%c)",
+                    val_to_str(ack_type, feedback_ack_vals, "Unknown"),
+                    full_mode_name[0]);
 
     /* 11 bits of SN */
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_sn, tvb, offset, 2, FALSE);
     sn = tvb_get_ntohs(tvb, offset) & 0x7ff;
     offset += 2;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
 
     /* Loop over any remaining feedback options */
     size_remaining = size - 2;
@@ -738,9 +728,7 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
                 /* CRC */
                 one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_crc, tvb, offset, 1, FALSE);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " CRC=%u ", one_byte_value);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " CRC=%u ", one_byte_value);
                 break;
             case 2:
                 /* REJECT: TODO */
@@ -752,17 +740,13 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
                 /* SN */
                 one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_sn, tvb, offset, 1, FALSE);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u ", one_byte_value);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u ", one_byte_value);
                 break;
             case 5:
                 /* Clock */
                 one_byte_value = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_clock, tvb, offset, 1, FALSE);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " Clock=%u ", one_byte_value);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Clock=%u ", one_byte_value);
                 break;
             case 6:
                 /* Jitter: TODO */
@@ -800,9 +784,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
     proto_item *feedback_ti;
     proto_tree *feedback_tree;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " Feedback");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " Feedback");
     proto_item_append_text(root_item, " (Feedback)");
 
     /* Create feedback tree root */
@@ -868,9 +850,7 @@ static int dissect_pdcp_r_0_packet(proto_tree *tree,
 {
     guint8 sn;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " R-0");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " R-0");
     proto_item_append_text(root_item, " (R-0)");
 
     /* 6 bits of sn */
@@ -883,9 +863,7 @@ static int dissect_pdcp_r_0_packet(proto_tree *tree,
         offset = dissect_large_cid(tree, tvb, offset);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
 
     return offset;
 }
@@ -902,9 +880,7 @@ static int dissect_pdcp_r_0_crc_packet(proto_tree *tree,
 {
     guint8 sn;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " R-0-CRC");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " R-0-CRC");
     proto_item_append_text(root_item, " (R-0-CRC)");
 
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_r_0_crc, tvb, offset, -1, FALSE);
@@ -928,9 +904,7 @@ static int dissect_pdcp_r_0_crc_packet(proto_tree *tree,
     offset++;
 
     /* Show SN in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
 
     return offset;
 }
@@ -947,9 +921,7 @@ static int dissect_pdcp_uo_0_packet(proto_tree *tree,
 {
     guint8 sn;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " U0-0");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " U0-0");
     proto_item_append_text(root_item, " (UO-0)");
 
     /* SN */
@@ -967,9 +939,7 @@ static int dissect_pdcp_uo_0_packet(proto_tree *tree,
     }
 
     /* Show SN in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
 
     return offset;
 }
@@ -984,9 +954,7 @@ static int  dissect_pdcp_r_1_packet(proto_tree *tree,
                                     struct pdcp_lte_info *p_pdcp_info,
                                     packet_info *pinfo)
 {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " R-1");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " R-1");
     proto_item_append_text(root_item, " (R-1)");
 
     /* TODO: octet before large-cid */
@@ -1031,15 +999,11 @@ static int  dissect_pdcp_r_1_ts_or_id_packet(proto_tree *tree,
     T = tvb_get_guint8(tvb, ++offset) >> 7;
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_type1_t, tvb, offset, 1, FALSE);
     if (T) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " R-1-TS");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " R-1-TS");
         proto_item_append_text(root_item, " (R-1-TS)");
     }
     else {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " R-1-ID");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " R-1-ID");
         proto_item_append_text(root_item, " (R-1-ID)");
     }
 
@@ -1063,9 +1027,7 @@ static int  dissect_pdcp_uo_1_packet(proto_tree *tree,
                                      struct pdcp_lte_info *p_pdcp_info,
                                      packet_info *pinfo)
 {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " UO-1");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " UO-1");
     proto_item_append_text(root_item, " (UO-1)");
 
     /* TODO: octet before large-cid */
@@ -1110,15 +1072,11 @@ static int  dissect_pdcp_uo_1_ts_or_id_packet(proto_tree *tree,
     T = tvb_get_guint8(tvb, ++offset) >> 5;
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_type0_t, tvb, offset, 1, FALSE);
     if (T) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " UO-1-TS");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " UO-1-TS");
         proto_item_append_text(root_item, " (UO-1-TS)");
     }
     else {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " UO-1-ID");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " UO-1-ID");
         proto_item_append_text(root_item, " (UO-1-ID)");
     }
 
@@ -1147,9 +1105,7 @@ static int  dissect_pdcp_uor_2_packet(proto_tree *tree,
 {
     guint8 ts;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, " U0R-2");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, " U0R-2");
     proto_item_append_text(root_item, " (UOR-2)");
 
     /* TS straddles CID */
@@ -1209,15 +1165,11 @@ static int  dissect_pdcp_uor_2_ts_or_id_packet(proto_tree *tree,
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_type2_t, tvb, offset, 1, FALSE);
 
     if (T) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " U0R-2-TS");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " U0R-2-TS");
         proto_item_append_text(root_item, " (UOR-2-TS)");
     }
     else {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " U0R-2-ID");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " U0R-2-ID");
         proto_item_append_text(root_item, " (UOR-2-ID)");
     }
 
@@ -1358,10 +1310,8 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     PROTO_ITEM_SET_GENERATED(configuration_ti);
 
     /* Show plane in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
-                        val_to_str(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
+                    val_to_str(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
 }
 
@@ -1420,8 +1370,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean           ip_id_needed = TRUE;
 
     /* Append this protocol name rather than replace. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
     /* Create pdcp tree. */
     if (tree) {
@@ -1447,9 +1396,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Show ROHC mode */
-    if (p_pdcp_info->rohc_compression &&
-        check_col(pinfo->cinfo, COL_INFO)) {
-
+    if (p_pdcp_info->rohc_compression) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (mode=%c)", mode[0]);
     }
 
@@ -1465,10 +1412,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /* 5-bit sequence number */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, FALSE);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ",
-                                tvb_get_guint8(tvb, offset) & 0x1f);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ",
+                            tvb_get_guint8(tvb, offset) & 0x1f);
             offset++;
 
 
@@ -1505,10 +1450,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, FALSE);
             offset += 4;
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
-                                mac, data_length);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
+                            mac, data_length);
 
             return;
         }
@@ -1557,9 +1500,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     return;
                 }
 
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ", seqnum);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%u ", seqnum);
             }
             else {
                 /*******************************/
@@ -1604,11 +1545,9 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             }
 
                             proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
-                            if (check_col(pinfo->cinfo, COL_INFO)) {
-                                col_append_fstr(pinfo->cinfo, COL_INFO,
-                                               " Status Report (fms=%u) not-received=%u",
-                                               fms, not_received);
-                            }
+                            col_append_fstr(pinfo->cinfo, COL_INFO,
+                                           " Status Report (fms=%u) not-received=%u",
+                                           fms, not_received);
                         }
                         return;
 
@@ -1623,18 +1562,14 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         else {
             /* Invalid plane setting...! */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - INVALID PLANE (%u)",
-                                p_pdcp_info->plane);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - INVALID PLANE (%u)",
+                            p_pdcp_info->plane);
             return;
         }
     }
     else {
         /* Show that its a no-header PDU */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " No-Header ");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " No-Header ");
     }
 
 
@@ -1673,10 +1608,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
                 }
 
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
-                                    tvb_length_remaining(tvb, offset));
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
+                                tvb_length_remaining(tvb, offset));
             }
         }
         return;
@@ -1687,16 +1620,14 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* ROHC packets            */
     /***************************/
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                        val_to_str(p_pdcp_info->profile, rohc_profile_vals, "Unkown"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
+                    val_to_str(p_pdcp_info->profile, rohc_profile_vals, "Unkown"));
 
     /* Only attempt ROHC if configured to */
     if (!global_pdcp_dissect_rohc) {
         return;
     }
-    
+
     /* Create pdcp tree. */
     if (pdcp_tree) {
         rohc_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_rohc, tvb, offset, -1, FALSE);

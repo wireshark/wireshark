@@ -318,13 +318,11 @@ static void show_PDU_in_info(packet_info *pinfo,
                              gboolean last_includes_end)
 {
     /* Reflect this PDU in the info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  %s%u-byte%s%s",
-                        (first_includes_start) ? "[" : "..",
-                        length,
-                        (length > 1) ? "s" : "",
-                        (last_includes_end) ? "]" : "..");
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "  %s%u-byte%s%s",
+                    (first_includes_start) ? "[" : "..",
+                    length,
+                    (length > 1) ? "s" : "",
+                    (last_includes_end) ? "]" : "..");
 }
 
 
@@ -685,10 +683,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Show SN in info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  SN=%04u",
-                        (guint16)sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "  SN=%04u", (guint16)sn);
 
     /* Show SN in UM header root */
     proto_item_append_text(um_header_ti, " (SN=%u)", (guint16)sn);
@@ -778,10 +773,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
                                 bit_offset, 10, &ack_sn, FALSE);
     bit_offset += 10;
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
-    }
-
+    col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -802,9 +794,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
                                    "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
 
@@ -830,13 +820,11 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                         bit_offset, 15, &so_end, FALSE);
             bit_offset += 15;
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
-                                (guint16)so_start, (guint16)so_end);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
+                            (guint16)so_start, (guint16)so_end);
 
-                if ((guint16)so_end == 0x7fff) {
-                    col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
-                }
+            if ((guint16)so_end == 0x7fff) {
+                col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
             }
 
             /* Reset this flag here */
@@ -893,9 +881,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /**************************************************/
     if (!is_data) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
+
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);
         return;
@@ -908,17 +895,13 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     is_segment = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, (is_segment) ? " [DATA-SEGMENT]" : " [DATA]");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, (is_segment) ? " [DATA-SEGMENT]" : " [DATA]");
 
 
     /* Polling bit */
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, FALSE);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, (polling) ? " (P) " : "     ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, (polling) ? " (P) " : "     ");
     if (polling) {
         proto_item_append_text(am_header_ti, " (P)");
     }
@@ -936,9 +919,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, FALSE);
     offset += 2;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "sn=%u", sn);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "sn=%u", sn);
 
 
     /* Show SN in AM header root */
@@ -956,9 +937,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* SO */
         segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
 
         offset += 2;
     }
@@ -1029,9 +1008,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rlc_lte_info    *p_rlc_lte_info = NULL;
 
     /* Set protocol name */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
 
     /* Create protocol tree. */
     ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, offset, -1, FALSE);
@@ -1095,23 +1072,21 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Append context highlights to info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "[%s] [%s] ",
-                     (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
-                     val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
-        if (p_rlc_lte_info->ueid != 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%u ", p_rlc_lte_info->ueid);
-        }
-        if (p_rlc_lte_info->channelId == 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                            val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
-        }
-        else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s:%u",
-                            val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                            p_rlc_lte_info->channelId);
-        }
+    col_add_fstr(pinfo->cinfo, COL_INFO,
+                 "[%s] [%s] ",
+                 (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
+                 val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
+    if (p_rlc_lte_info->ueid != 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%u ", p_rlc_lte_info->ueid);
+    }
+    if (p_rlc_lte_info->channelId == 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                        val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+    }
+    else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s:%u",
+                        val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                        p_rlc_lte_info->channelId);
     }
 
     /* Reset this count */
@@ -1123,10 +1098,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case RLC_TM_MODE:
             /* Remaining bytes are all data */
             proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
-                               tvb_length_remaining(tvb, offset));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
+                            tvb_length_remaining(tvb, offset));
             break;
 
         case RLC_UM_MODE:
