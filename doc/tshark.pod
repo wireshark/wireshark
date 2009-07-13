@@ -410,10 +410,10 @@ memory, or saved to disk.  A value of 0 specifies a snapshot length of
 Decode and display packets even while writing raw packet data using the
 B<-w> option.
 
-=item -t  ad|a|r|d|e
+=item -t  ad|a|r|d|dd|e
 
-Set the format of the packet timestamp printed in summary lines, the default 
-is relative. The format can be one of:
+Set the format of the packet timestamp printed in summary lines.
+The format can be one of:
 
 B<ad> absolute with date: The absolute date and time is the actual time and 
 date the packet was captured
@@ -431,6 +431,8 @@ B<dd> delta_displayed: The delta_displayed time is the time since the
 previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+The default format is relative. 
 
 =item -T  pdml|psml|ps|text|fields
 

@@ -440,7 +440,7 @@ memory, or saved to disk.  A value of 0 specifies a snapshot length of
 =item -t  ad|a|r|d|dd|e
 
 Set the format of the packet timestamp displayed in the packet list
-window, the default is relative. The format can be one of:
+window. The format can be one of:
 
 B<ad> absolute with date: The absolute date and time is the actual time and
 date the packet was captured
@@ -458,6 +458,8 @@ B<dd> delta_displayed: The delta_displayed time is the time since the
 previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+The default format is relative. 
 
 =item -v
 
