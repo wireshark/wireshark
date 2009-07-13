@@ -79,6 +79,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/crypt/wep-wpadefs.h>
+#include <epan/expert.h>
 
 #include <ctype.h>
 #include "isprint.h"
@@ -4021,7 +4022,10 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   cap_item = proto_tree_add_item(tree, vs ? ampduparam_vs : ampduparam, tvb,
                     offset, 1, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_ampduparam_tree);
-  proto_tree_add_uint_format(cap_tree, ampduparam_mpdu, tvb, offset, 1, capability, decode_numeric_bitfield(capability, 0x03, 8,"Maximum Rx A-MPDU Length: %%04.0Lf [Bytes]"), pow(2,13+(capability & 0x3))-1);
+  proto_tree_add_uint_format(cap_tree, ampduparam_mpdu, tvb, offset, 1, capability,
+                             "%sMaximum Rx A-MPDU Length: %04.0f [Bytes]",
+                             decode_numeric_bitfield(capability, 0x03, 8, ""),
+                             pow(2,13+(capability & 0x3))-1);
   proto_tree_add_uint(cap_tree, ampduparam_mpdu_start_spacing, tvb, offset, 1, capability);
   proto_tree_add_uint(cap_tree, ampduparam_reserved, tvb, offset, 1, capability);
   offset += 1;
@@ -4510,7 +4514,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 #ifdef HAVE_AIRPDCAP
         AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
 #endif
-        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+        ti = proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                                tag_len, (char *) ssid);
         if (check_col (pinfo->cinfo, COL_INFO)) {
           if (tag_len > 0) {
@@ -4520,10 +4524,15 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
           }
         }
+        if (tag_len > MAX_SSID_LEN) {
+          expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                 "SSID length (%u) greater than maximum (%u)",
+                                 tag_len, MAX_SSID_LEN);
+        }
         if (tag_len > 0) {
           proto_item_append_text(ti, ": \"%s\"",
                                  format_text(ssid, tag_len));
-          memcpy(wlan_stats.ssid, ssid, MAX_SSID_LEN);
+          memcpy(wlan_stats.ssid, ssid, MIN(tag_len, MAX_SSID_LEN));
           wlan_stats.ssid_len = tag_len;
         } else {
           proto_item_append_text(ti, ": Broadcast");
