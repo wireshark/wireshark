@@ -307,7 +307,7 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 		return;
 	}
 	if (is_snap)
-		capture_snap(pd, offset+3, len, ld);
+		capture_snap(pd, offset+llc_header_len, len, ld);
 	else {
 		/* non-SNAP */
 		switch (pd[offset]) {
@@ -518,7 +518,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, llc_header_len);
 
 	if (is_snap) {
-		dissect_snap(tvb, 3, pinfo, tree, llc_tree, control,
+		dissect_snap(tvb, 2+XDLC_CONTROL_LEN(control, TRUE), pinfo, tree, llc_tree, control,
 		    hf_llc_oui, hf_llc_type, hf_llc_pid, 2);
 	}
 	else {
