@@ -55,6 +55,11 @@ static PacketList *packetlist;
 static GtkWidget *create_view_and_model(void);
 static guint row_from_iter(GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
+static void show_cell_data_func(GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer data);
 
 GtkWidget *
 new_packet_list_create(void)
@@ -132,6 +137,10 @@ create_view_and_model(void)
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(col, renderer,
+							show_cell_data_func,
+							GINT_TO_POINTER(i),
+							NULL);
 		gtk_tree_view_column_add_attribute(col, renderer, "text",i);
 		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
 		gtk_tree_view_column_set_sort_column_id(col, i);
@@ -229,6 +238,19 @@ row_from_iter(GtkTreeIter *iter)
 	record = iter->user_data;
 
 	return record->pos;
+}
+
+static void
+show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
+		    GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
+{
+	gchar *cell_text;
+
+	gtk_tree_model_get(model, iter, GPOINTER_TO_INT(data), &cell_text, -1);
+
+	g_object_set(renderer, "text", cell_text, NULL);
+
+	g_free(cell_text);
 }
 
 #endif /* NEW_PACKET_LIST */
