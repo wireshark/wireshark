@@ -2662,8 +2662,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 
 	curr_offset = offset;
 
-	/* curr_offset + 1 is a hack, the length part here is 2 octets and we are off by one */
-	proto_tree_add_text(tree, tvb, curr_offset+1, len, "APDU");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "APDU");
 
 	/*
 	 * dissect the embedded APDU message
@@ -2673,15 +2672,17 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	 * equivalent octet in the APDU element of 3GPP TS 49.031 BSSAP-LE.
 	 */
 
-	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset+1);
-	proto_tree_add_item(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset+1, 1, FALSE);
+	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	len--;
 
 	switch(apdu_protocol_id){
 	case 1:
 		/* BSSLAP
 		 * the embedded message is as defined in 3GPP TS 08.71(3GPP TS 48.071 version 7.2.0 Release 7)
 		 */
-		APDU_tvb = tvb_new_subset(tvb, curr_offset+2, len-1, len-1);
+		APDU_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 		if(gsm_bsslap_handle)
 			call_dissector(gsm_bsslap_handle, APDU_tvb, g_pinfo, g_tree);
 		break;
