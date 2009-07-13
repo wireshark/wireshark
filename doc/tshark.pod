@@ -175,7 +175,7 @@ I<value> kilobytes (where a kilobyte is 1024 bytes).
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).
 
-=item -B  E<lt>capture buffer size (Win32 only)E<gt>
+=item -B  E<lt>capture buffer sizeE<gt> (Win32 only)
 
 Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
 the capture driver to buffer packet data until that data can be written to 
@@ -275,7 +275,7 @@ without a value will list the available formats.
 
 Print the version and options and exits.
 
-=item -i  E<lt>capture interfaceE<gt>|-
+=item -i  E<lt>capture interfaceE<gt> | -
 
 Set the name of the network interface or pipe to use for live packet
 capture. 
@@ -332,7 +332,7 @@ link types can be used for the B<-y> option.
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
-names), the B<-N> flag might override this one.
+names); the B<-N> flag might override this one.
 
 =item -N  E<lt>name resolving flagsE<gt>
 
@@ -462,7 +462,7 @@ Print the version and exit.
 Cause B<TShark> to print a view of the packet details rather
 than a one-line summary of the packet.
 
-=item -w  E<lt>outfileE<gt>|-
+=item -w  E<lt>outfileE<gt> | -
 
 Write raw packet data to I<outfile> or to the standard output if
 I<outfile> is '-'.  
@@ -476,7 +476,6 @@ option for this.
 Cause B<TShark> to print a hex and ASCII dump of the packet data
 after printing the summary or details.
 
-
 =item -X E<lt>eXtension optionsE<gt>
 
 Specify an option to be passed to a B<TShark> module. The eXtension option
@@ -484,7 +483,6 @@ is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
-
 
 =item -y  E<lt>capture link typeE<gt>
 
@@ -509,37 +507,40 @@ to be printed.
 
 Currently implemented statistics are:
 
-B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
+=over 4
+
+=item B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
 
 Collect call/reply RTT data for DCERPC interface I<uuid>, 
 version I<major>.I<minor>.
-Data collected is number of calls for each procedure, MinRTT, MaxRTT 
+Data collected is the number of calls for each procedure, MinRTT, MaxRTT 
 and AvgRTT. 
-Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0> to collect data for CIFS SAMR Interface.  
-This option can be used multiple times on the command line. 
 
-If the optional filterstring is provided, the stats will only be calculated
+Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.  
+
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4> to collect SAMR
+
+Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> willcollect SAMR
 RTT statistics for a specific host.
 
+This option can be used multiple times on the command line. 
 
-B<-z> io,phs[,I<filter>]
+=item B<-z> io,phs[,I<filter>]
 
 Create Protocol Hierarchy Statistics listing both number of packets and bytes.
 If no I<filter> is specified the statistics will be calculated for all packets.
-If a I<filters> is specified statistics will be only calculated for those
+If a I<filter> is specified statistics will be only calculated for those
 packets that match the filter.
 
 This option can be used multiple times on the command line. 
 
-
-B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
+=item B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
 
 Collect packet/bytes statistics for the capture in intervals of
-I<interval> seconds.  I<Intervals> can be specified either as whole or
-fractional seconds.  Interval can be specified in ms resolution.
-If Interval is 0, the statistics will be calculated over all packets.
+I<interval> seconds.  I<Interval> can be specified either as a whole or
+fractional second and can be specified with ms resolution.
+If I<interval> is 0, the statistics will be calculated over all packets.
 
 If no I<filter> is specified the statistics will be calculated for all packets.
 If one or more I<filters> are specified statistics will be calculated for
@@ -547,11 +548,10 @@ all filters and presented with one column of statistics for each filter.
 
 This option can be used multiple times on the command line. 
 
-
-Example: B<-z io,stat,1,ip.addr==1.2.3.4> to generate 1 second
+Example: B<-z io,stat,1,ip.addr==1.2.3.4> will generate 1 second
 statistics for all traffic to/from host 1.2.3.4.
 
-Example: B<-z "io,stat,0.001,smb&&ip.addr==1.2.3.4"> to generate 1ms
+Example: B<-z "io,stat,0.001,smb&&ip.addr==1.2.3.4"> will generate 1ms
 statistics for all SMB packets to/from host 1.2.3.4.
 
 The examples above all use the standard syntax for generating statistics
@@ -575,18 +575,19 @@ NOTE: A second important thing to note is that the system setting for
 decimal separator is set to "."! If it is set to "," the statistics 
 will not be displayed per filter.
 
-
 COUNT(<field>) can be used on any type which has a display filter name. 
 It will count how many times this particular field is encountered in the
 filtered packet list.
 
 Example: B<-z io,stat,0.010,COUNT(smb.sid)smb.sid>
+
 This will count the total number of SIDs seen in each 10ms interval.
 
 SUM(<field>) can only be used on named fields of integer type.
 This will sum together every occurence of this fields value for each interval.
 
 Example: B<-z io,stat,0.010,SUM(frame.pkt_len)frame.pkt_len>
+
 This will report the total number of bytes seen in all the packets within
 an interval.
 
@@ -604,9 +605,7 @@ host 1.1.1.1 in 10ms intervals.  The output will be displayed in 4
 columns; number of packets/bytes, minimum response time, maximum response
 time and average response time.
 
-
-
-B<-z> conv,I<type>[,I<filter>]
+=item B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the capture.
 I<type> specifies which type of conversation we want to generate the 
@@ -621,7 +620,7 @@ statistics for; currently the supported ones are
   "tr"    Token Ring
   "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
 
-If the optional filter string is specified, only those packets that match the
+If the optional I<filter> is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
@@ -629,8 +628,7 @@ number of packets/bytes in each direction as well as total number of
 packets/bytes.
 The table is sorted according to total number of bytes.
 
-
-B<-z> proto,colinfo,I<filter>,I<field>
+=item B<-z> proto,colinfo,I<filter>,I<field>
 
 Append all I<field> values for the packet to the Info column of the
 one-line summary output.
@@ -638,7 +636,7 @@ This feature can be used to append arbitrary fields to the Info column
 in addition to the normal content of that column.
 I<field> is the display-filter name of a field which value should be placed
 in the Info column.
-I<filter> is a filter string that controls for which packets the field value
+I<filter> is a filterstring that controls for which packets the field value
 will be presented in the info column. I<field> will only be presented in the
 Info column for the packets which match I<filter>.
 
@@ -651,7 +649,6 @@ for all packets containing the "nfs.fh.hash" field, use
 
 B<-z proto,colinfo,nfs.fh.hash,nfs.fh.hash>
 
-
 To put "nfs.fh.hash" in the Info column but only for packets coming from
 host 1.2.3.4 use:
 
@@ -659,38 +656,37 @@ B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
 
 This option can be used multiple times on the command line. 
 
-
-B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
+=item B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
 is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
-Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
-option can be used multiple times on the command line. 
+Example: B<-z rpc,rtt,100003,3> will collect data for NFS v3.
 
-If the optional filterstring is provided, the stats will only be calculated
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
+
+Example: B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> will collect NFS v3
 RTT statistics for a specific file.
 
+This option can be used multiple times on the command line. 
 
-B<-z> rpc,programs
+=item B<-z> rpc,programs
 
 Collect call/reply RTT data for all known ONC-RPC programs/versions.  
 Data collected is number of calls for each protocol/version, MinRTT, 
 MaxRTT and AvgRTT. 
 This option can only be used once on the command line.
 
-B<-z> rtp,streams
+=item B<-z> rtp,streams
 
 Collect statistics for all RTP streams and calculate max. delta, max. and
 mean jitter and packet loss percentages.
 
-
-B<-z> smb,rtt[,I<filter>]
+=item B<-z> smb,rtt[,I<filter>]
 
 Collect call/reply RTT data for SMB.  Data collected
 is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
-Example: use B<-z smb,rtt>.
+Example: B<-z smb,rtt>.
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
 Only those commands that are seen in the capture will have its stats
@@ -702,12 +698,13 @@ This is a flaw that might be fixed in the future.
 
 This option can be used multiple times on the command line. 
 
-If the optional filterstring is provided, the stats will only be calculated
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
+
+Example: B<-z "smb,rtt,ip.addr==1.2.3.4"> will only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
-B<-z> smb,sids
+=item B<-z> smb,sids
 
 When this feature is used B<TShark> will print a report with all the
 discovered SID and account name mappings.  Only those SIDs where the
@@ -716,91 +713,93 @@ account name is known will be presented in the table.
 For this feature to work you will need to either to enable
 "Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
 preferences or you can override the preferences by specifying
-B<-o "smb.sid_name_snooping:TRUE"> on the B<TShark> command line.
+S<B<-o "smb.sid_name_snooping:TRUE">> on the B<TShark> command line.
 
-The current methods used by B<TShark> to find the SID->name mapping
-is relatively restricted but is hoped to be expanded in the future.
+The current method used by B<TShark> to find the SID->name mapping
+is relatively restricted with a hope of future expansion.
 
-B<-z> mgcp,rtd[I<,filter>]
+=item B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP. 
-This is similar to B<-z smb,rtt>). Data collected is number of calls
+(This is similar to B<-z smb,rtt>). Data collected is the number of calls
 for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses, 
 unresponded requests, responses ,which don't match with
 any request. 
-Example: use B<-z mgcp,rtd>.
+Example: B<-z mgcp,rtd>.
 
 This option can be used multiple times on the command line. 
 
-If the optional filterstring is provided, the stats will only be calculated
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
+Example: B<-z "mgcp,rtd,ip.addr==1.2.3.4"> will only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
-B<-z> megaco,rtd[I<,filter>]
+=item B<-z> megaco,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MEGACO. 
-This is similar to B<-z smb,rtt>). Data collected is number of calls
+(This is similar to B<-z smb,rtt>). Data collected is the number of calls
 for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses, 
 unresponded requests, responses ,which don't match with
 any request. 
-Example: use B<-z megaco,rtd>.
+Example: B<-z megaco,rtd>.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "megaco,rtd,ip.addr==1.2.3.4"> will only collect stats for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
 
 This option can be used multiple times on the command line. 
 
-If the optional filterstring is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: use B<-z "megaco,rtd,ip.addr==1.2.3.4"> to only collect stats for
-MEGACO packets exchanged by the host at IP address 1.2.3.4 .
-
-B<-z> h225,counter[I<,filter>]
+=item B<-z> h225,counter[I<,filter>]
 
 Count ITU-T H.225 messages and their reasons. In the first column you get a 
 list of H.225 messages and H.225 message reasons, which occur in the current
 capture file. The number of occurences of each message or reason is displayed 
 in the second column.
 
-Example: use B<-z h225,counter>.
+Example: B<-z h225,counter>.
 
-This option can be used multiple times on the command line. 
-
-If the optional filterstring is provided, the stats will only be calculated
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
-B<-z> h225,srt[I<,filter>]
+This option can be used multiple times on the command line. 
+
+=item B<-z> h225,srt[I<,filter>]
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
 Data collected is number of calls of each ITU-T H.225 RAS Message Type,
 Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
 You will also get the number of Open Requests (Unresponded Requests), 
 Discarded Responses (Responses without matching request) and Duplicate Messages.
-Example: use B<-z h225,srt>.
+Example: B<-z h225,srt>.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
+ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 This option can be used multiple times on the command line. 
 
-If the optional filterstring is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: use B<-z "h225,srt,ip.addr==1.2.3.4"> to only collect stats for
-ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
-
-B<-z> sip,stat[I<,filter>]
+=item B<-z> sip,stat[I<,filter>]
 
 This option will activate a counter for SIP messages. You will get the number 
 of occurences of each SIP Method and of each SIP Status-Code. Additionally you 
 also get the number of resent SIP Messages (only for SIP over UDP).  
 
-Example: use B<-z sip,stat>.
+Example: B<-z sip,stat>.
 
 This option can be used multiple times on the command line. 
 
-If the optional filter string is provided, the stats will only be calculated
+If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z "sip,stat,ip.addr==1.2.3.4"> to only collect stats for
+Example: B<-z "sip,stat,ip.addr==1.2.3.4"> will only collect stats for
 SIP packets exchanged by the host at IP address 1.2.3.4 .
+
+=back
 
 =back
 
