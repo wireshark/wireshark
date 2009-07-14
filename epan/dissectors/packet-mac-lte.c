@@ -572,7 +572,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item_append_text(rar_body_ti, " RAPID=%u (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
                            rapid, timing_advance, ul_grant, temp_crnti);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "  (RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
                     rapid, timing_advance, ul_grant, temp_crnti);
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
@@ -595,7 +595,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *rar_headers_ti;
     int        start_headers_offset = offset;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u)",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RAR (RA-RNTI=%u, SF=%u) ",
                     p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
@@ -658,14 +658,17 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        "MAC RAR PDU has > 1 Backoff Indicator subheader present");
             }
             backoff_indicator_seen = TRUE;
-            proto_item_append_text(rar_header_ti, " (Backoff Indicator=%sms)",
-                                   val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Backoff Indicator=%sms)",
-                            val_to_str(backoff_indicator, rar_bi_vals, "Illegal value"));
+            proto_item_append_text(rar_header_ti, "(Backoff Indicator=%sms)",
+                                   val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value "));
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Backoff Indicator=%s ms) ",
+                            val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value"));
+
+            /* If present, it must be the first subheader */
             if (number_of_rars > 0) {
                 expert_add_info_format(pinfo, bi_ti, PI_MALFORMED, PI_WARN,
-                                       "Backoff Indicator should only appear as first subheader");
+                                       "Backoff Indicator must appear as first subheader");
             }
 
         }
@@ -674,7 +677,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
             proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, FALSE);
 
-            proto_item_append_text(rar_header_ti, " (RAPID=%u)", rapids[number_of_rars]);
+            proto_item_append_text(rar_header_ti, "(RAPID=%u)", rapids[number_of_rars]);
 
             number_of_rars++;
         }
