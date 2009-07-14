@@ -39,7 +39,6 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/prefs.h>
 
 static int proto_v52 					= -1;
 static int hf_v52_discriminator			= -1;
@@ -128,8 +127,6 @@ static int hf_sequence_number 	    	= -1;
 static int hf_v5_multi_slot_elements	= -1;
 
 static int message_type_tmp				= -1;
-
-#define SCTP_PORT_V52         5675
 
 static void
 dissect_v52_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -2533,3 +2530,4 @@ void
 proto_reg_handoff_v52(void)
 {
 }
+
