@@ -82,6 +82,7 @@ static int hf_mac_lte_sch_sdu = -1;
 static int hf_mac_lte_bch_pdu = -1;
 static int hf_mac_lte_pch_pdu = -1;
 static int hf_mac_lte_predefined_pdu = -1;
+static int hf_mac_lte_raw_pdu = -1;
 static int hf_mac_lte_padding_data = -1;
 static int hf_mac_lte_padding_length = -1;
 
@@ -369,6 +370,9 @@ static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
 
 /* Control whether decoding details of RAR UL grant or not */
 static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
+
+/* Whether should attempt to dissect frames failing CRC check */
+static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 
 /* Forward declarations */
 void proto_reg_handoff_mac_lte(void);
@@ -1411,7 +1415,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "Frame has CRC error");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
+            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE> ");
         }
     }
 
@@ -1440,6 +1444,23 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         return;
     }
+
+    /* IF CRC status failed, just do decode as raw bytes */
+    if (!global_mac_lte_dissect_crc_failures &&
+        (p_mac_lte_info->crcStatusValid && !p_mac_lte_info->crcStatus)) {
+
+        proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, FALSE);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
+
+        /* Queue tap info */
+        if (!pinfo->in_error_pkt) {
+            tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+        }
+
+        return;
+    }
+
+
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
     switch (p_mac_lte_info->rntiType) {
@@ -1643,6 +1664,12 @@ void proto_register_mac_lte(void)
             { "Predefined data",
               "mac-lte.predefined-data", FT_BYTES, BASE_NONE, 0, 0x0,
               "Predefined test data", HFILL
+            }
+        },
+        { &hf_mac_lte_raw_pdu,
+            { "Raw data",
+              "mac-lte.raw-data", FT_BYTES, BASE_NONE, 0, 0x0,
+              "Raw bytes of PDU (e.g. if CRC failed)", HFILL
             }
         },
         { &hf_mac_lte_padding_data,
@@ -1914,6 +1941,11 @@ void proto_register_mac_lte(void)
         "Attempt to decode details of RAR UL grant field",
         "Attempt to decode details of RAR UL grant field",
         &global_mac_lte_decode_rar_ul_grant);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_to_dissect_crc_failures",
+        "Dissect frames that have failed CRC check",
+        "Attempt to dissect frames that have failed CRC check",
+        &global_mac_lte_dissect_crc_failures);
 
     prefs_register_bool_preference(mac_lte_module, "heuristic_mac_lte_over_udp",
         "Try Heuristic LTE-MAC over UDP framing",
