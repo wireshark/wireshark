@@ -44,8 +44,14 @@
         <enum name="Resume traffic"
               code="0x0003"/>
 
-        <enum name="MS terminate current normal operations with BS"
+        <enum name="MS shall be put to Idle state"
               code="0x0004"/>
+
+        <enum name="Initial authentication Failure"
+              code="0xFFFE"/>
+
+        <enum name="MS shall be put to RES-CMD by BS"
+              code="0xFFFF"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -80,7 +86,7 @@
 
     <tlv name="AK Lifetime"
          type="8"
-         decoder="WIMAXASNCP_TLV_DEC16">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -125,10 +131,10 @@
          decoder="WIMAXASNCP_TLV_ENUM8">
 
         <enum name="accept"
-              code="0xff"/>
+              code="0x00"/>
 
         <enum name="refuse"
-              code="0x00"/>
+              code="0x01"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -140,9 +146,21 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Anchor Authenticator ID"
+    <tlv name="FA Revoke Reason"
          type="16"
-         decoder="WIMAXASNCP_TLV_ID">
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+	 <enum name="DHCP Release"
+              code="0x00"/>
+
+        <enum name="DHCP Expiary"
+		code="0x01"/>
+	
+        <enum name="FA Initiated Release"
+              code="0x02"/>
+
+        <enum name="HA Initiated Release"
+              code="0x03"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -159,10 +177,10 @@
          decoder="WIMAXASNCP_TLV_ENUM8">
 
         <enum name="Success"
-              code="0"/>
+              code="0x00"/>
 
         <enum name="Failure"
-              code="1"/>
+              code="0x01"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -174,70 +192,37 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Auth-IND"
+    <tlv name="RRQ"
          type="20"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="Initial authentication"
-              code="0"/>
-
-        <enum name="Re-authentication"
-              code="1"/>
+         decoder="WIMAXASNCP_TLV_BYTES">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="Authorization Policy"
          type="21"
-         decoder="WIMAXASNCP_TLV_BITFLAGS16">
+         decoder="WIMAXASNCP_TLV_ENUM8">
 
         <enum name="RSA authorization"
-              code="WIMAXASNCP_BIT16(0)"/>
+              code="0x01"/>
 
         <enum name="EAP authorization"
-              code="WIMAXASNCP_BIT16(1)"/>
+              code="0x02"/>
 
         <enum name="Authenticated-EAP authorization"
-              code="WIMAXASNCP_BIT16(2)"/>
+              code="0x04"/>
 
         <enum name="HMAC supported"
-              code="WIMAXASNCP_BIT16(3)"/>
+              code="0x08"/>
 
-        <enum name="CMAC supported"
-              code="WIMAXASNCP_BIT16(4)"/>
+        <enum name="RSA Authentication at Re-entry"
+              code="0x10"/>
 
-        <enum name="64-bit Short-HMAC"
-              code="WIMAXASNCP_BIT16(5)"/>
+        <enum name="EAP Authentication at Re-entry"
+              code="0x20"/>
 
-        <enum name="80-bit Short-HMAC"
-              code="WIMAXASNCP_BIT16(6)"/>
-
-        <enum name="96-bit Short-HMAC"
-              code="WIMAXASNCP_BIT16(7)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(8)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(9)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(10)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(11)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(12)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(13)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(14)"/>
-
-        <enum name="Reauthentication Policy (TBD)"
-              code="WIMAXASNCP_BIT16(15)"/>
+        <enum name="Authenticated EAP-based authorization at reentry"
+              code="0x30"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -293,14 +278,14 @@
 
     <tlv name="CID"
          type="29"
-         decoder="WIMAXASNCP_TLV_HEX16">
+         decoder="WIMAXASNCP_TLV_DEC16">
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Classifier"
+    <tlv name="Classification Rule Index"
          type="30"
-         decoder="WIMAXASNCP_TLV_COMPOUND">
+         decoder="WIMAXASNCP_TLV_DEC16">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -324,46 +309,6 @@
     <tlv name="Classifier Rule Priority"
          type="32"
          decoder="WIMAXASNCP_TLV_DEC8">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="Classifier Type"
-         type="33"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="IP TOS/DSCP Range and Mask"
-              code="1"/>
-
-        <enum name="Protocol"
-              code="2"/>
-
-        <enum name="IP Source Address and Mask"
-              code="3"/>
-
-        <enum name="IP Destination Address and Mask"
-              code="4"/>
-
-        <enum name="Protocol Source Port Range"
-              code="5"/>
-
-        <enum name="Protocol Destination Port Range"
-              code="6"/>
-
-        <enum name="IEEE 802.3/Ethernet Destination MAC address"
-              code="7"/>
-
-        <enum name="IEEE 802.3/Ethernet Source MAC address"
-              code="8"/>
-
-        <enum name="Ethertype/IEEE 802.2 SAP"
-              code="9"/>
-
-        <enum name="IEEE 802.1D User_Priority"
-              code="10"/>
-
-        <enum name="IEEE 802.1Q VLAN_ID"
-              code="11"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -395,24 +340,51 @@
         <enum name="MS AK Context"
               code="WIMAXASNCP_BIT32(0)"/>
 
-        <enum name="MS Network Context"
+        <enum name="MS MAC Context"
               code="WIMAXASNCP_BIT32(1)"/>
 
-        <enum name="MS MAC Context"
+        <enum name="MS Authorization Context"
               code="WIMAXASNCP_BIT32(2)"/>
 
-        <enum name="Service Authorization Context"
+        <enum name="Anchor MM Context"
               code="WIMAXASNCP_BIT32(3)"/>
 
-        <enum name="FA Context"
+        <enum name="Accounting context"
               code="WIMAXASNCP_BIT32(4)"/>
+
+        <enum name="MS Security History"
+              code="WIMAXASNCP_BIT32(5)"/>
+
+        <enum name="SA Context"
+              code="WIMAXASNCP_BIT32(6)"/>
+
+        <enum name="MN-FA key context"
+              code="WIMAXASNCP_BIT32(7)"/>
+
+        <enum name="FA-HA key context"
+              code="WIMAXASNCP_BIT32(8)"/>
+
+        <enum name="DHCP-Relay-Info"
+              code="WIMAXASNCP_BIT32(9)"/>
+
+        <enum name="Security Context Delivery"
+              code="WIMAXASNCP_BIT32(10)"/>
+
+        <enum name="MIP6 handover successful"
+              code="WIMAXASNCP_BIT32(11)"/>
+
+        <enum name="Online Accounting context"
+              code="WIMAXASNCP_BIT32(12)"/>
+
+        <enum name="Offline Accounting context"
+              code="WIMAXASNCP_BIT32(13)"/>
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="Correlation ID"
          type="37"
-         decoder="WIMAXASNCP_TLV_HEX32">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -455,23 +427,26 @@
          type="39"
          decoder="WIMAXASNCP_TLV_ENUM8">
 
+        <enum name="All CS types"
+              code="0x00"/>
+
         <enum name="Packet, IPv4"
-              code="1"/>
+              code="0x01"/>
 
         <enum name="Packet, IPv6"
-              code="2"/>
+              code="0x02"/>
 
         <enum name="Packet, 802.3"
-              code="3"/>
+              code="0x03"/>
 
         <enum name="Packet, 802.1Q"
-              code="4"/>
+              code="0x04"/>
 
         <enum name="Packet, IPv4over802.3"
-              code="5"/>
+              code="0x05"/>
 
         <enum name="Packet, IPv6over802.3"
-              code="6"/>
+              code="0x06"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -488,13 +463,6 @@
 
         <enum name="Data delay jitter sensitive"
               code="0x2"/>
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="Data Integrity Info"
-         type="41"
-         decoder="WIMAXASNCP_TLV_TBD">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -576,18 +544,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Device Authentication Indicator"
+    <tlv name="OFDMA Parameter Set"
          type="50"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="Reserved"
-              code="0"/>
-
-        <enum name="Certificate-based device authentication has been successfully performed"
-              code="1"/>
-
-        <enum name="Device authentication has been successfully performed."
-              code="2"/>
+         decoder="WIMAXASNCP_TLV_HEX8">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -622,7 +581,7 @@
 
     <tlv name="DHCP Relay Address"
          type="55"
-         decoder="WIMAXASNCP_TLV_IPV4_ADDRESS">
+         decoder="WIMAXASNCP_TLV_ID">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -636,7 +595,7 @@
 
     <tlv name="DHCP Server Address"
          type="57"
-         decoder="WIMAXASNCP_TLV_IPV4_ADDRESS">
+         decoder="WIMAXASNCP_TLV_ID">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -653,24 +612,24 @@
          decoder="WIMAXASNCP_TLV_ENUM16">
 
         <enum name="For Uplink"
-              code="0x001"/>
+              code="0x0000"/>
 
         <enum name="For Downlink"
-              code="0x002"/>
+              code="0x0001"/>
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="DL PHY Quality Info"
          type="60"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX32">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="DL PHY Service Level"
          type="61"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -682,13 +641,6 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="EIK"
-         type="63"
-         decoder="WIMAXASNCP_TLV_BYTES">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
     <tlv name="ERT-VR Data Delivery Service"
          type="64"
          decoder="WIMAXASNCP_TLV_COMPOUND">
@@ -696,15 +648,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Exit IDLE Mode Operation Indication"
+    <tlv name="PPAC"
          type="65"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="No"
-              code="0"/>
-
-        <enum name="Yes"
-              code="1"/>
+         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -737,10 +683,10 @@
         <enum name="Unspecified Error"
               code="0"/>
 
-        <enum name="Incompatible Version Number"
+        <enum name="Protocol Version not understood"
               code="1"/>
 
-        <enum name="Invalid Function Type"
+        <enum name="Unrecognised Function Type"
               code="2"/>
 
         <enum name="Invalid Message Type"
@@ -761,6 +707,27 @@
         <enum name="Invalid Message Header"
               code="8"/>
 
+        <enum name="Invalid OP ID"
+              code="9"/>
+
+        <enum name="Destination Identifier missing or erroneous"
+              code="10"/>
+
+        <enum name="Source Identifier TLV missing or erroneous"
+              code="11"/>
+
+        <enum name="Message type unknown or inopportune"
+              code="12"/>
+
+        <enum name="Unresolved error"
+              code="13"/>
+
+        <enum name="Unspecific Message Header Failure"
+              code="14"/>
+
+        <enum name="Unspecific Message Header Failure"
+              code="15"/>
+
         <enum name="Invalid message format"
               code="16"/>
 
@@ -773,8 +740,89 @@
         <enum name="Unsupported Options"
               code="19"/>
 
+        <enum name="TLV Unknown"
+              code="20"/>
+
+        <enum name="TLV Unexpected"
+              code="21"/>
+
+        <enum name="TLV parsing error"
+              code="22"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="23"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="24"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="25"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="26"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="27"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="28"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="29"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="30"/>
+
+        <enum name="Unspecific General Message Body Failure"
+              code="31"/>
+
         <enum name="Timer expired without response"
               code="32"/>
+
+        <enum name="BSID out of service"
+              code="33"/>
+
+        <enum name="Unknown BSID"
+              code="34"/>
+
+        <enum name="BSID Unreachable"
+              code="35"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="36"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="37"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="38"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="39"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="40"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="41"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="42"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="43"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="44"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="45"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="46"/>
+
+        <enum name="Unspecific Message Generic Failure"
+              code="47"/>
 
         <enum name="Requested Context Unavailable"
               code="48"/>
@@ -787,13 +835,44 @@
 
         <enum name="No Resources"
               code="51"/>
+
+        <enum name="Failure by rejection of MS"
+              code="52"/>
+
+        <enum name="Authenticator relocated"
+              code="53"/>
+
+        <enum name="Does not support periodic reporting of RRM messages"
+              code="54"/>
+
+        <enum name="Location Update Failure"
+              code="55"/>
+
+        <enum name="Idle Mode Authorization Failure"
+              code="56"/>
+
+        <enum name="Target BS doesnt support this HO Type"
+              code="57"/>
+
+        <enum name="Insufficient Target BS airlink resource"
+              code="58"/>
+
+        <enum name="Target BS CPU overload"
+              code="59"/>
+
+        <enum name="Unspecific Message-specific Failure"
+              code="60"/>
+
+        <enum name="Unspecific Message-specific Failure"
+              code="61"/>
+		  
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="FA IP Address"
+    <tlv name="Target FA IP Address"
          type="70"
-         decoder="WIMAXASNCP_TLV_IPV4_ADDRESS">
+         decoder="WIMAXASNCP_TLV_ID">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -825,9 +904,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Global Service Class Change"
+    <tlv name="Global Service Class Name"
          type="74"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_BYTES">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -867,7 +946,7 @@
 
     <tlv name="HO Process Optimization"
          type="78"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX8">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -878,6 +957,12 @@
 
         <enum name="HHO"
               code="0"/>
+
+        <enum name="FBSS"
+              code="1"/>
+
+        <enum name="MDHO"
+              code="2"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -891,7 +976,7 @@
 
     <tlv name="IDLE Mode Retain Info"
          type="81"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX8">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -948,21 +1033,39 @@
          type="88"
          decoder="WIMAXASNCP_TLV_ENUM8">
 
-        <enum name="Refuse"
-              code="0"/>
-
         <enum name="Accept"
-              code="1"/>
+              code="0"/>
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Location Update Success/Failure Indication"
+    <tlv name="Available Client"
          type="89"
-         decoder="WIMAXASNCP_TLV_ENUM8">
+         decoder="WIMAXASNCP_TLV_ENUM32">
 
-        <enum name="Success"
+        <enum name="Reserved"
               code="0"/>
+
+        <enum name="Volume metering supported"
+              code="1"/>
+
+        <enum name="Duration metering supported"
+              code="2"/>
+
+        <enum name="Resource metering supported"
+              code="4"/>
+
+        <enum name="Pools supported"
+              code="8"/>
+
+        <enum name="Rating groups supported"
+              code="16"/>
+
+        <enum name="Multi-Services supported"
+              code="32"/>
+
+        <enum name="Tariff Switch supported"
+              code="64"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1003,7 +1106,46 @@
 
     <tlv name="Media Flow Type"
          type="94"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_ENUM8">
+
+        <enum name="Voice over IP"
+              code="1"/>
+
+        <enum name="Robust Browser"
+              code="2"/>
+
+        <enum name="Secure Browser/ VPN"
+              code="3"/>
+
+        <enum name="Streaming video on demand"
+              code="4"/>
+
+        <enum name="Streaming live TV"
+              code="5"/>
+
+        <enum name="Music and Photo Download"
+              code="6"/>
+
+        <enum name="Multi-player gaming"
+              code="7"/>
+
+        <enum name="Location-based services"
+              code="8"/>
+
+        <enum name="Text and Audio Books with Graphics"
+              code="9"/>
+
+        <enum name="Video Conversation"
+              code="10"/>
+
+        <enum name="Message"
+              code="11"/>
+
+        <enum name="Control"
+              code="12"/>
+
+        <enum name="Data"
+              code="13"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1022,9 +1164,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="MIP4 Security Info"
+    <tlv name="RRP"
          type="97"
-         decoder="WIMAXASNCP_TLV_COMPOUND">
+         decoder="WIMAXASNCP_TLV_BYTES">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1050,9 +1192,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="MS FA Context"
+    <tlv name="Target Care-of Address"
          type="101"
-         decoder="WIMAXASNCP_TLV_COMPOUND">
+         decoder="WIMAXASNCP_TLV_IP_ADDRESS">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1073,7 +1215,16 @@
 
     <tlv name="MS Mobility Mode"
          type="104"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_ENUM16">
+
+        <enum name="PMIP4"
+              code="0"/>
+
+        <enum name="CMIP4"
+              code="1"/>
+
+        <enum name="CMIP6"
+              code="2"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1081,20 +1232,6 @@
     <tlv name="MS NAI"
          type="105"
          decoder="WIMAXASNCP_TLV_ASCII_STRING">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="MS Networking Context"
-         type="106"
-         decoder="WIMAXASNCP_TLV_COMPOUND">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="MS Security Context"
-         type="107"
-         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1165,14 +1302,12 @@
          type="116"
          decoder="WIMAXASNCP_TLV_ENUM8">
 
-        <enum name="LCS"
+        <enum name="Location Update"
               code="1"/>
 
-        <enum name="Incoming Data for Idle MS"
+        <enum name="Network Re-entry"
               code="2"/>
 
-        <enum name="Acknowledge Exiting Idle Mode"
-              code="3"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1207,19 +1342,19 @@
 
     <tlv name="Paging Start/Stop"
          type="121"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX8">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="PC Relocation Indication"
          type="122"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX8">
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="PGID - Paging Group ID"
+    <tlv name="Paging Group ID"
          type="123"
          decoder="WIMAXASNCP_TLV_HEX16">
     </tlv>
@@ -1293,19 +1428,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="PKM Context"
+    <tlv name="PPAQ"
          type="131"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="PKM Capabilities defined in the MTG Profile."
-              code="0"/>
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="PMIP4 Client Location"
-         type="132"
-         decoder="WIMAXASNCP_TLV_IPV4_ADDRESS">
+         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1317,12 +1442,12 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="PKM2"
+    <tlv name="PKM2 Message Code"
          type="134"
          decoder="WIMAXASNCP_TLV_ENUM8">
 
         <enum name="EAP Transfer"
-              code="18"/>
+              code="12"/>
 
         <enum name="Authenticated EAP Transfer"
               code="19"/>
@@ -1333,16 +1458,16 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="PMK2 SN"
+    <tlv name="Paging Interval Length"
          type="135"
-         decoder="WIMAXASNCP_TLV_HEX8">
+         decoder="WIMAXASNCP_TLV_Dec16">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="PN Counter"
          type="136"
-         decoder="WIMAXASNCP_TLV_HEX32">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1389,19 +1514,9 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Reduced Resources Code"
-         type="143"
-         decoder="WIMAXASNCP_TLV_FLAG0">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
     <tlv name="REG Context"
          type="144"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="REG handshake related capabilities defined in the MTG Profile"
-              code="0"/>
+         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1421,6 +1536,15 @@
 
         <enum name="MS Network Exit"
               code="3"/>
+
+        <enum name="Idle Mode Entry"
+              code="4"/>
+
+        <enum name="Idle Mode Exit"
+              code="5"/>
+
+        <enum name="Anchor DPF Relocation"
+              code="6"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1432,16 +1556,16 @@
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Relocation Destination ID"
+    <tlv name="Registeration Lifetime"
          type="147"
-         decoder="WIMAXASNCP_TLV_ID">
+         decoder="WIMAXASNCP_TLV_DEC16">
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="Relocation Response"
+    <tlv name="Quota Identifier"
          type="148"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1449,6 +1573,12 @@
     <tlv name="Relocation Success Indication"
          type="149"
          decoder="WIMAXASNCP_TLV_TBD">
+
+        <enum name="Accept"
+              code="0"/>
+
+        <enum name="Refuse"
+              code="1"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1548,8 +1678,20 @@
         <enum name="Success"
               code="0"/>
 
-        <enum name="Failure"
+        <enum name="Failure No resources"
               code="1"/>
+
+        <enum name="Failure Not supported"
+              code="2"/>
+
+        <enum name="Partial Response"
+              code="3"/>
+
+        <enum name="Multiple Not Supported"
+              code="4"/>
+
+        <enum name="Request Failure"
+              code="5"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1648,31 +1790,28 @@
 
     <tlv name="RxPN Counter"
          type="166"
-         decoder="WIMAXASNCP_TLV_HEX32">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="R3 Operation Status"
+    <tlv name="Volume Quota"
          type="167"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
 
-    <tlv name="R3 Release Reason"
+    <tlv name="Volume Threshold"
          type="168"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="MS power down"
-              code="0"/>
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="SAID"
          type="169"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX16">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1680,13 +1819,6 @@
     <tlv name="SA Descriptor"
          type="170"
          decoder="WIMAXASNCP_TLV_COMPOUND">
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="SA Index"
-         type="171"
-         decoder="WIMAXASNCP_TLV_HEX32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1725,7 +1857,7 @@
 
     <tlv name="SBC Context"
          type="174"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1746,7 +1878,7 @@
 
     <tlv name="SDU Size"
          type="177"
-         decoder="WIMAXASNCP_TLV_DEC8">
+         decoder="WIMAXASNCP_TLV_DEC16">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1774,7 +1906,13 @@
 
     <tlv name="Service Authorization Code"
          type="181"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_ENUM8">
+
+        <enum name="Service authorized"
+              code="0"/>
+
+        <enum name="Service not authorized"
+              code="1"/>
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1787,19 +1925,6 @@
               code="0"/>
 
         <enum name="Target"
-              code="1"/>
-    </tlv>
-
-    <!-- ****************************************************************** -->
-
-    <tlv name="SF Classification"
-         type="183"
-         decoder="WIMAXASNCP_TLV_ENUM8">
-
-        <enum name="SF classification not supported"
-              code="0"/>
-
-        <enum name="SF classification supported"
               code="1"/>
     </tlv>
 
@@ -1898,14 +2023,14 @@
 
     <tlv name="UL PHY Quality Info"
          type="197"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_HEX32">
     </tlv>
 
     <!-- ****************************************************************** -->
 
     <tlv name="UL PHY Service Level"
          type="198"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_DEC32">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1934,6 +2059,880 @@
     <tlv name="VAAA Realm"
          type="202"
          decoder="WIMAXASNCP_TLV_ASCII_STRING">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="BS HO RSP Code"
+         type="203"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="Void"
+              code="0x00"/>
+			  
+        <enum name="Target BS doesnot support this HO Type"
+              code="0x01"/>
+			  
+        <enum name="Target BS air link resource is not enough"
+              code="0x02"/>
+			  
+        <enum name="Target BS CPU overload"
+              code="0x03"/>	
+			  
+        <enum name="Target BS rejects for other reasons"
+              code="0x04"/>					  
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Accounting Context"
+         type="204"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="HO ID"
+         type="205"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="Combined Resource Indicator"
+         type="206"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Media Flow Description in SDP Format"
+         type="228"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Reduced Resources Code"
+         type="237"
+         decoder="WIMAXASNCP_TLV_FLAG0">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Accounting Session/Flow Volume Counts"
+         type="244"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Accounting Number of Bulk Sessions/Flows"
+         type="245"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Accounting Bulk Session/Flow"
+         type="246"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Cumulative Uplink Octets"
+         type="249"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Cumulative Downlink Octets"
+         type="250"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Cumulative Uplink Packets"
+         type="251"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Cumulative Downlink Packets"
+         type="252"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Uplink Octets at Tariff Switch"
+         type="257"
+         decoder="WIMAXASNCP_TLV_BYTES">
+   </tlv>
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Downlink Octets at Tariff Switch"
+         type="258"
+         decoder="WIMAXASNCP_TLV_BYTES">
+   </tlv>
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Uplink Packets at Tariff Switch"
+         type="259"
+         decoder="WIMAXASNCP_TLV_BYTES">
+   </tlv>
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Downlink Packets at Tariff Switch"
+         type="260"
+         decoder="WIMAXASNCP_TLV_BYTES">
+   </tlv>
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Paging Preference"
+         type="262"
+         decoder="WIMAXASNCP_TLV_HEX8">
+   </tlv>
+   
+    <!-- ****************************************************************** -->
+
+    <tlv name="Accounting IP Address"
+         type="264"
+         decoder="WIMAXASNCP_TLV_IP_ADDRESS">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+
+    <tlv name="Data Delivery Trigger"
+         type="265"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="No trigger"
+              code="0x00"/>
+			  
+        <enum name="Triggers immediate delivery of data for the specified Service Flow"
+              code="0x01"/>				  
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="MIP4 Security Info"
+         type="266"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="MN-FA Key Lifetime"
+         type="267"
+         decoder="WIMAXASNCP_TLV_DEC32">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="Idle Mode Timeout"
+         type="268"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="Classification Result"
+         type="269"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="None"
+              code="0x00"/>
+        <enum name="Discard packet"
+              code="0x01"/>	
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+
+    <tlv name="Network assisted HO Supported"
+         type="270"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="Network Assisted HO not supported"
+              code="0x00"/>
+        <enum name="Network Assisted HO supported"
+              code="0x01"/>	
+    </tlv>
+ 
+    <!-- ****************************************************************** -->
+
+    <tlv name="Duration Quota"
+         type="275"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>
+ 
+   <!-- ****************************************************************** -->
+
+    <tlv name="Duration Threshold"
+         type="276"
+         decoder="WIMAXASNCP_TLV_DEC32">
+	</tlv>	 
+		 	 
+    <!-- ****************************************************************** -->
+
+    <tlv name="Resource Quota"
+         type="277"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>	
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Resource Threshold"
+         type="278"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>
+   
+    <!-- ****************************************************************** -->
+ 
+    <tlv name="Update Reason"
+         type="279"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+   		 
+	 
+        <enum name="Pre-initialization"
+              code="0x01"/>
+        <enum name="Initial-Request"
+              code="0x02"/>	
+        <enum name="Threshold Reached"
+              code="0x03"/>
+        <enum name="Quota Reached"
+              code="0x04"/>
+        <enum name="TITSU Approaching"
+              code="0x05"/>
+        <enum name="Remote Forced Disconnect"
+              code="0x06"/>	
+        <enum name="Client Service Termination"
+              code="0x07"/>
+        <enum name="Access Service Terminatedt"
+              code="0x08"/>	
+        <enum name="Service not established"
+              code="0x09"/>
+        <enum name="One-time Charging"
+              code="0x0A"/>	
+   </tlv>
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Service-ID"
+         type="280"
+         decoder="WIMAXASNCP_TLV_BYTES">
+   </tlv>	
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Rating-Group-ID"
+         type="281"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>	
+   
+    <!-- ****************************************************************** -->
+ 
+    <tlv name="Termination Action"
+         type="282"
+         decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="Terminate"
+              code="0x01"/>
+        <enum name="Request more quota"
+              code="0x02"/>	
+        <enum name="Redirect/Filter"
+              code="0x03"/>
+   </tlv>	
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Pool-ID"
+         type="283"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>	
+   
+	<!-- ****************************************************************** -->
+	
+    <tlv name="Pool-Multiplier"
+         type="284"
+         decoder="WIMAXASNCP_TLV_DEC32">
+   </tlv>
+   
+    <!-- ****************************************************************** -->
+
+    <tlv name="Prepaid Server"
+         type="285"
+         decoder="WIMAXASNCP_TLV_IP_ADDRESS">
+    </tlv>
+	
+	<!-- ****************************************************************** -->
+  
+    <tlv name="Number of UL Transport CIDs Support" 
+		 type="288" 
+		 decoder="WIMAXASNCP_TLV_DEC16">
+	</tlv>
+  
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Number of DL Transport CIDs Support" 
+        type="289" 
+		decoder="WIMAXASNCP_TLV_DEC16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+     <tlv name="Classification/PHS Options and SDU Encapsulation Support Type"
+		  type="290" 
+		  decoder="WIMAXASNCP_TLV_BYTES">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+  
+    <tlv name="Maximum Number of Classifier"
+		 type="291" 
+	     decoder="WIMAXASNCP_TLV_DEC16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="PHS Support" 
+		 type="292" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+  
+    <tlv name="ARQ Support" 
+	     type="293" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+   <!-- ****************************************************************** -->
+   
+    <tlv name="DSx Flow Control" 
+	     type="294" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+   <!-- ****************************************************************** -->
+   
+    <tlv name="Total Number of Provisioned Service Flows" 
+	     type="295" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+    
+	<tlv name="Maximum MAC Data per Frame Support" 
+         type="296" 
+	    decoder="WIMAXASNCP_TLV_COMPOUND">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Maximum amount of MAC Level Data per DL Frame" 
+	     type="297" 
+		 decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Maximum amount of MAC Level Data per UL Frame" 
+	     type="298" 
+		 decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Packing Support" 
+	     type="299" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+    <tlv name="MAC ertPS Support" 
+	     type="300" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Maximum Number of Bursts Transmitted Concurrently to the MS" 
+	     type="301" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="HO Supported" 
+	     type="302" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="HO Process Optimization MS Timer" 
+	     type="303" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Mobility Features Supported" 
+	     type="304" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Sleep Mode Recovery Time" 
+	     type="305" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="ARQ Ack Type" 
+	     type="307" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="MS HO Connections Parameters Proc Time" 
+	     type="308" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="MS HO TEK Proc Time" 
+	     type="309" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="MAC Header and Extended Sub-Header Support" 
+	     type="310" 
+		 decoder="WIMAXASNCP_TLV_BYTES">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="System Resource Retain Timer" 
+	     type="311" 
+		 decoder="WIMAXASNCP_TLV_DEC16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+    <tlv name="MS Handover Retransmission Timer" 
+	     type="312" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Handover Indication Readiness Timer" 
+	     type="313" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="BS Switching Timer" 
+	     type="314" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Power Saving Class Capability" 
+	     type="315" 
+		 decoder="WIMAXASNCP_TLV_HEX16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Subscriber Transition Gaps" 
+	     type="316" 
+		 decoder="WIMAXASNCP_TLV_HEX16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Maximum Transmit Power" 
+	     type="317" 
+		 decoder="WIMAXASNCP_TLV_HEX32">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Capabilities for Construction and Transmission of MAC PDUs" 
+	     type="318" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="PKM Flow Control" 
+	     type="319" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Maximum Number of Supported Security Associations" 
+	     type="320" 
+		 decoder="WIMAXASNCP_TLV_DEC8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Security Negotiation Parameters" 
+	     type="321" 
+		 decoder="WIMAXASNCP_TLV_COMPOUND">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="MAC Mode" 
+	     type="323" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="PN Window Size" 
+	     type="324" 
+		 decoder="WIMAXASNCP_TLV_DEC16">
+	</tlv>
+	
+    <!-- ****************************************************************** -->
+	
+    <tlv name="Extended Subheader Capability" 
+	     type="325" 
+		 decoder="WIMAXASNCP_TLV_HEX8">
+	</tlv>
+
+   <!-- ****************************************************************** -->
+
+    <tlv name="HO Trigger Metric Support"
+         type="326"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Current Transmit Power"
+         type="327"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS FFT Sizes"
+         type="328"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS demodulator"
+         type="329"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS modulator"
+         type="330"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="The number of UL HARQ Channel"
+         type="331"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS Permutation support"
+         type="332"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS CINR Measurement Capability"
+         type="333"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="The number of DL HARQ Channels"
+         type="334"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="HARQ Chase Combining and CC-IR Buffer Capability"
+         type="335"
+         decoder="WIMAXASNCP_TLV_HEX16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS Uplink Power Control Support"
+         type="336"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS Uplink Power Control Scheme Switching Delay"
+         type="337"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA MAP Capability"
+         type="338"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Uplink Control Channel Support"
+         type="339"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA MS CSIT Capability"
+         type="340"
+         decoder="WIMAXASNCP_TLV_HEX16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Maximum Number of Burst per Frame Capability in HARQ"
+         type="341"
+         decoder="WIMAXASNCP_TLV_DEC8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS demodulator for MIMO Support"
+         type="342"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="OFDMA SS modulator for MIMO Support"
+         type="343"
+         decoder="WIMAXASNCP_TLV_HEX16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ Context"
+         type="344"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ Enable"
+         type="345"
+	 decoder="WIMAXASNCP_TLV_ENUM8">
+	 
+        <enum name="ARQ Not Requested/Accepted"
+              code="0"/>
+
+        <enum name="ARQ Requested/Accepted"
+              code="1"/>
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ WINDOW SIZE"
+         type="346"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_RETRY_TIMEOUT-Transmitter Delay"
+         type="347"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_RETRY_TIMEOUT-Receiver Delay"
+         type="348"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_BLOCK_LIFETIME"
+         type="349"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_SYNC_LOSS_TIMEOUT"
+         type="350"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_DELIVER_IN_ORDER"
+         type="351"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_RX_PURGE_TIMEOUT"
+         type="352"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="ARQ_BLOCK_SIZE"
+         type="353"
+         decoder="WIMAXASNCP_TLV_DEC16">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="RECEIVER_ARQ_ACK_PROCESSING TIME"
+         type="354"
+         decoder="WIMAXASNCP_TLV_HEX8">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="State"
+         type="355"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="R3 Media Flow Description in SDP format"
+         type="356"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="VolumeUsed"
+         type="357"
+         decoder="WIMAXASNCP_TLV_DEC32">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Time Stamp"
+         type="358"
+         decoder="WIMAXASNCP_TLV_DEC32">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Accounting Bulk Session Flow Volume Counts"
+         type="359"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Offline Accounting Context"
+         type="360"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="HO Authorization policy support"
+         type="367"
+	 decoder="WIMAXASNCP_TLV_ENUM8">
+	 	 	 
+        <enum name="RSA authorization"
+              code="0x00"/>
+
+        <enum name="EAP authorization"
+              code="0x01"/>
+	 	 
+        <enum name="HMAC supported"
+              code="0x08"/>
+
+        <enum name="CMAC supported"
+              code="0x10"/>
+	 	 
+        <enum name="64-bit Short-HMAC"
+              code="0x20"/>
+
+        <enum name="MS in Idle Mode"
+              code="1"/>
+	 	 
+        <enum name="80-bit Short-HMAC"
+              code="0x40"/>
+
+        <enum name="96-bit Short-HMAC"
+              code="0x80"/>
+
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="NSP ID"
+         type="368"
+         decoder="WIMAXASNCP_TLV_BYTES">
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="Idle Mode Exit Indicator"
+         type="369"
+	 decoder="WIMAXASNCP_TLV_ENUM8">
+	 	 
+        <enum name="Idle Mode Exit"
+              code="0"/>
+
+        <enum name="MS in Idle Mode"
+              code="1"/>
+    </tlv>
+
+    <!-- ****************************************************************** -->
+
+    <tlv name="FA Security Infop"
+         type="372"
+         decoder="WIMAXASNCP_TLV_COMPOUND">
     </tlv>
 
     <!-- ****************************************************************** -->
@@ -1982,5 +2981,4 @@
          type="0xffff"
          decoder="WIMAXASNCP_TLV_VENDOR_SPECIFIC">
     </tlv>
-
 </dictionary>
