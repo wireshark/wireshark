@@ -1,4 +1,17 @@
 /* packet-v5ua.c
+ *
+ * Extension of all V5.2-User Adaptation Layer dissection elements
+ * References:
+ * RFC 3807
+ * RFC 4233
+ * RFC 5133
+ *
+ * Copyright 2009
+ *
+ * ISKRATEL d.o.o. 		|	4S d.o.o.
+ * http://www.iskratel.si/ 	|	http://www.4es.si/
+ * <info@iskratel.si>		|	<projects@4es.si>
+ *
  * Routines for V5.2-User Adaptation Layer dissection
  *
  * $Id$
@@ -11,17 +24,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -43,13 +56,14 @@
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>      /* include V5UA payload protocol ID */
 
+static int paddingl = 0;
+static int dlci_efa = -1;
 
 /* Initialize the protocol and registered fields */
-
 static int proto_v5ua                    = -1;
 
-
 static dissector_handle_t q931_handle;
+static dissector_handle_t v52_handle;
 
 	/* round up parameter length to multiple of four */
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -68,6 +82,7 @@ static int hf_adaptation_layer_id   = -1;
 static int hf_text_if_id            = -1;
 static int hf_scn_protocol_id       = -1;
 static int hf_info_string           = -1;
+static int hf_asp_identifier        = -1;
 static int hf_dlci_zero_bit         = -1;
 static int hf_dlci_spare_bit        = -1;
 static int hf_dlci_sapi             = -1;
@@ -75,14 +90,12 @@ static int hf_dlci_one_bit          = -1;
 static int hf_dlci_tei              = -1;
 static int hf_efa                   = -1;
 static int hf_spare_efa             = -1;
-
    /* variable length parameter (msg) */
 static int hf_parameter_tag         = -1;
 static int hf_parameter_tag_draft   = -1;
 static int hf_parameter_length      = -1;
 static int hf_parameter_value       = -1;
 static int hf_parameter_padding     = -1;
-
 
 	/* parameter fields */
 static int hf_link_status           = -1;
@@ -103,59 +116,6 @@ static int hf_tei_status            = -1;
 static int hf_tei_draft_status      = -1;
 static int hf_release_reason        = -1;
 
-	/* Layer 3 message fields */
-static int hf_l3_protocol_discriminator  = -1;
-static int hf_l3_adress                  = -1;
-static int hf_l3_low_adress              = -1;
-static int hf_l3_msg_type                = -1;
-static int hf_l3_info_element            = -1;
-
-static int hf_l3_sequence_number         = -1;
-static int hf_l3_v5_link_id              = -1;
-static int hf_l3_v5_time_slot            = -1;
-
-		/*PSTN Message*/
-static int hf_l3_line_info               = -1;
-static int hf_l3_cad_ringing             = -1;
-static int hf_l3_pulse_type              = -1;
-static int hf_l3_suppression_indicator   = -1;
-static int hf_l3_pulse_duration          = -1;
-static int hf_l3_ack_request_indicator   = -1;
-static int hf_l3_number_of_pulses        = -1;
-static int hf_l3_steady_signal           = -1;
-static int hf_l3_auto_signalling_sequence= -1;
-static int hf_l3_pulse_notify            = -1;
-static int hf_l3_sequence_response       = -1;
-static int hf_l3_digit_ack               = -1;
-static int hf_l3_digit_info              = -1;
-static int hf_l3_res_unavailable         = -1;
-static int hf_l3_state                   = -1;
-static int hf_l3_cause_type              = -1;
-static int hf_l3_pstn_sequence_number    = -1;
-static int hf_l3_duration_type           = -1;
-		/*link control*/
-static int hf_l3_link_control_function   = -1;
-		/*Protection protocol*/
-static int hf_l3_rejection_cause_type    = -1;
-		/*BCC protocol*/
-static int hf_l3_pstn_user_port_id            = -1;
-static int hf_l3_pstn_user_port_id_lower      = -1;
-static int hf_l3_isdn_user_port_id            = -1;
-static int hf_l3_isdn_user_port_id_lower      = -1;
-static int hf_l3_isdn_user_port_ts_num        = -1;
-static int hf_l3_override                     = -1;
-static int hf_l3_reject_cause_type            = -1;
-static int hf_l3_bcc_protocol_error_cause     = -1;
-static int hf_l3_connection_incomplete_reason = -1;
-		/*Control protocol*/
-static int hf_l3_control_function_element = -1;
-static int hf_l3_control_function_id      = -1;
-static int hf_l3_variant                  = -1;
-static int hf_l3_if_id                    = -1;
-static int hf_l3_performance_grading      = -1;
-static int hf_l3_cp_rejection_cause       = -1;
-
-
 /* Initialize the subtree pointers */
 static gint ett_v5ua              = -1;
 static gint ett_v5ua_common_header= -1;
@@ -170,11 +130,11 @@ static int iua_version = RFC;
 static int msg_class   = -1;
 static int msg_type    = -1;
 static int msg_length  = -1;
-
-
+static int messageclassCopy = -1;
+static int sa_bit_id	= -1;
+static int link_status_operational = -1;
 
 /* Code to actually dissect the packets */
-
 
 	/* define the parameters for the Tags: Tag-Type,Tag-Length,Tag-Value (Payload) */
 #define PARAMETER_TAG_OFFSET    0
@@ -186,28 +146,45 @@ static int msg_length  = -1;
 #define PARAMETER_HEADER_LENGTH (PARAMETER_TAG_LENGTH + PARAMETER_LENGTH_LENGTH)
 
 
-/*----------------------V5UA Interface Identifier (int) (Draft,RFC)------------*/ 
+/*----------------------V5UA Interface Identifier (int) (Draft,RFC)------------*/
 
 	/* define parameter for the format of the integer formatted Interface Identifier */
 #define INT_IF_ID_LINK_OFFSET PARAMETER_VALUE_OFFSET
 #define INT_IF_ID_LINK_LENGTH 4
 #define INT_IF_ID_CHNL_OFFSET INT_IF_ID_LINK_OFFSET
 #define INT_IF_ID_CHNL_LENGTH 1
+#define INT_INTERFACE_ID_LENGTH 4
+
+static int linkIdentifier = -1;
 
 static void
 dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 identifier;
+  guint16 number_of_ids, id_number;
+  gint offset;
 
-  proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, INT_IF_ID_LINK_OFFSET, INT_IF_ID_LINK_LENGTH, FALSE);
+  number_of_ids= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INT_INTERFACE_ID_LENGTH;
+
+  offset = INT_IF_ID_LINK_OFFSET;
   identifier = tvb_get_ntohl(parameter_tvb,INT_IF_ID_LINK_OFFSET)>>5;
-  proto_item_append_text(parameter_item, "  Link: %d ",identifier);
+  proto_item_append_text(parameter_item, "(");
+  for (id_number = 1; id_number <= number_of_ids; id_number++) {
+    proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, offset, INT_IF_ID_LINK_LENGTH, FALSE);
+    identifier = tvb_get_ntohl(parameter_tvb,offset)>>5;
+    if (id_number < 2) {
+	proto_item_append_text(parameter_item, "L:%d",identifier);
+    } else {
+	proto_item_append_text(parameter_item, " | L:%d",identifier);
+    }
+    linkIdentifier = identifier;
 
-  proto_tree_add_item(parameter_tree, hf_chnl_id, parameter_tvb, INT_IF_ID_CHNL_OFFSET+3, INT_IF_ID_CHNL_LENGTH, FALSE);
-  identifier = tvb_get_guint8(parameter_tvb,INT_IF_ID_CHNL_OFFSET+3)&0x1f;
-  proto_item_append_text(parameter_item, " Chnl: %d ", identifier);
-
-
+    proto_tree_add_item(parameter_tree, hf_chnl_id, parameter_tvb, offset+3, INT_IF_ID_CHNL_LENGTH, FALSE);
+    identifier = tvb_get_guint8(parameter_tvb,offset+3)&0x1f;
+    proto_item_append_text(parameter_item, " C:%d", identifier);
+    offset += INT_INTERFACE_ID_LENGTH;
+    }
+  proto_item_append_text(parameter_item, ")");
 }
 /*----------------------V5UA Interface Identifier (int) (Draft,RFC)------------*/
 
@@ -237,7 +214,7 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 static const value_string efa_values[] = {
 	{ 8175, "ISDN Protocol" },
 	{ 8176, "PSTN Protocol" },
-	{ 8177, "CC Protocol" },
+	{ 8177, "CONTROL Protocol" },
 	{ 8178, "BCC Protocol" },
 	{ 8179, "PROT Protocol" },
 	{ 8180, "Link Control Protocol" },
@@ -253,9 +230,13 @@ static const value_string efa_values[] = {
 #define EFA_LENGTH         2
 
 static void
-dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, packet_info *pinfo)
 {
-  guint16 efa = 0, offset=0;
+  guint16 efa = 0, offset = 0;
+
+guint8 sapi = -1;
+guint8 tei = -1;
+
 
   if     (iua_version == RFC)   offset = DLCI_SAPI_OFFSET;
   else if(iua_version == DRAFT) offset = DLCI_HEADER_LENGTH + tvb_get_ntohs(parameter_tvb, DLCI_LENGTH_OFFSET);
@@ -268,26 +249,84 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   proto_tree_add_item(parameter_tree, hf_dlci_one_bit,   parameter_tvb, offset,  DLCI_TEI_LENGTH,   FALSE);
   proto_tree_add_item(parameter_tree, hf_dlci_tei,       parameter_tvb, offset,  DLCI_TEI_LENGTH,   FALSE);
 
+sapi = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH-DLCI_SAPI_LENGTH)>>2;
+tei = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH)>>1;
+
   /* if SAPI & TEI not set to ZERO, value of EFA must be decode (EFA = 0 -> ISDN protocol)*/
   if(tvb_get_ntohs(parameter_tvb,offset-DLCI_TEI_LENGTH) != 0x01){
 
 	  offset += DLCI_TEI_LENGTH;
 	  efa = tvb_get_ntohs(parameter_tvb, offset);
-	  /* EFA-Values for ISDN-Protocal. For the "value_string"-function value must set to 8175 */
-	  if(efa < 8175) efa = 8175;
-	  /* Reserved values. For the "value_string"-function value must set to 8191 */
-	  else if ((efa >= 8181) && (efa < 8191)) efa = 8191;
-	  proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+	  dlci_efa = tvb_get_ntohs(parameter_tvb, offset);
+
+	if (dlci_efa >= 0 && dlci_efa <= 8175) { col_append_fstr(pinfo->cinfo, COL_INFO, " | ISDN: %u", dlci_efa); }
+	else if (dlci_efa == 8176) { col_append_str(pinfo->cinfo, COL_INFO, " | PSTN"); }
+	else if (dlci_efa == 8177) { col_append_str(pinfo->cinfo, COL_INFO, " | Ctrl"); }
+	else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
+	else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
+	else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
+	else {};
+
+	  if(efa <= 8175) {
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: ISDN (%u)", efa);
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
+	  }
+	  else if (efa > 8175 && efa <= 8180){
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
 		"Envelope function address: %s (%u)", val_to_str(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
-	  proto_item_append_text(parameter_item, " (EFA: %s )",val_to_str(efa, efa_values, "unknown EFA-value"));
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str(efa, efa_values, "unknown EFA-value"),efa);
+	  }
+	  else if(efa >= 8181){
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: RESERVED (%u)", efa);
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
+	  }
+	  else {
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: %u", efa);
+	  	proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%u)",sapi,tei,efa);
+	  }
   }
   /* if SAPI & TEI set to ZERO, EFA also shall be set to ZERO and didn't comply with value for ISDN protocol */
   else{
-	  proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-		"Envelope function address: 0");
-	  proto_item_append_text(parameter_item, " (EFA: 0 )");
-  }
+   	  offset += DLCI_TEI_LENGTH;
+	  efa = tvb_get_ntohs(parameter_tvb, offset);
+	  dlci_efa = tvb_get_ntohs(parameter_tvb, offset);
 
+	if (dlci_efa >= 0 && dlci_efa <= 8175) { col_append_fstr(pinfo->cinfo, COL_INFO, " | ISDN: %u", dlci_efa); }
+	else if (dlci_efa == 8176) { col_append_str(pinfo->cinfo, COL_INFO, " | PSTN"); }
+	else if (dlci_efa == 8177) { col_append_str(pinfo->cinfo, COL_INFO, " | Ctrl"); }
+	else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
+	else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
+	else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
+	else {};
+
+	  if(efa <= 8175) {
+
+	  proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: ISDN (%u)", efa);
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
+
+	  }
+	  else if (efa > 8175 && efa <= 8180){
+
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: %s (%u)", val_to_str(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str(efa, efa_values, "unknown EFA-value"),efa);
+
+	  }
+	  else if(efa >= 8181){
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: RESERVED (%u)", efa);
+	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
+	  }
+	  else {
+	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+		"Envelope function address: %u", efa);
+	  	proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%u)",sapi,tei,efa);
+	  }
+  }
 }
 /*----------------------DLCI & Envelope Function Address------------------------*/
 
@@ -347,7 +386,7 @@ dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 static const value_string error_code_values[] = {
   { MGMT_ERROR_INVALID_VERSION,                       "Invalid version" },
   { MGMT_ERROR_INVALID_IF_ID,                         "Invalid interface identifier" },
-  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsupported message class" },
+  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsuported message class" },
   { MGMT_ERROR_UNSUPPORTED_MSG_TYPE,                  "Unsupported message type" },
   { MGMT_ERROR_UNSUPPORTED_TRAFFIC_HANDLING_MODE,     "Unsupported traffic handling mode" },
   { MGMT_ERROR_UNEXPECTED_MSG,                        "Unexpected message" },
@@ -591,366 +630,6 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 /*----------------------ASP Active,Inactive (RFC)------------------------------*/
 
 /*----------------------Data Request,Indication (Draft,RFC)--------------------*/
-/* message types of PSTN */
-#define ESTABLISH           0x00
-#define ESTABLISH_ACK       0x01
-#define SIGNAL              0x02
-#define SIGNAL_ACK          0x03
-#define DISCONNECT          0x08
-#define DISCONNECT_COMPLETE 0x09
-#define STATUS_ENQUIRY      0x0c
-#define STATUS              0x0d
-#define PROTOCOL_PARAMETER  0x0e
-/* message types of Control protocol */
-#define PORT_CONTROL        0x10
-#define PORT_CONTROL_ACK    0x11
-#define COMMON_CONTROL      0x12
-#define COMMON_CONTROL_ACK  0x13
-/* message types of PROT protocol */
-#define SWITCH_OVER_REQ     0x18
-#define SWITCH_OVER_COM     0x19
-#define OS_SWITCH_OVER_COM  0x1a
-#define SWITCH_OVER_ACK     0x1b
-#define SWITCH_OVER_REJECT  0x1c
-#define PROT_PROTOCOL_ERROR 0x1d
-#define RESET_SN_COM        0x1e
-#define RESET_SN_ACK        0x1f
-/* message types of BCC */
-#define ALLOCATION             0x20
-#define ALLOCATION_COMPLETE    0x21
-#define ALLOCATION_REJECT      0x22
-#define DE_ALLOCATION          0x23
-#define DE_ALLOCATION_COMPLETE 0x24
-#define DE_ALLOCATION_REJECT   0x25
-#define AUDIT                  0x26
-#define AUDIT_COMPLETE         0x27
-#define AN_FAULT               0x28
-#define AN_FAULT_ACKNOWLEDGE   0x29
-#define BCC_PROTOCOL_ERROR     0x2a
-/* message types of Link Control protocol */
-#define LINK_CONTROL        0x30
-#define LINK_CONTROL_ACK    0x31
-
-static const value_string l3_msg_type_values [] = {
-	{ ESTABLISH,             "Establish" },
-	{ ESTABLISH_ACK,         "Establish Ack" },
-	{ SIGNAL,                "Signal" },
-	{ SIGNAL_ACK,            "Signal Ack" },
-	{ DISCONNECT,            "Disconnect" },
-	{ DISCONNECT_COMPLETE,   "Disconnect Complete" },
-	{ STATUS_ENQUIRY,        "Status Enquiry" },
-	{ STATUS,                "Status" },
-	{ PROTOCOL_PARAMETER,    "Protocol Parameter" },
-	{ PORT_CONTROL,          "Port Control" },
-	{ PORT_CONTROL_ACK,      "Port Control Ack" },
-	{ COMMON_CONTROL,        "Common Control" },
-	{ COMMON_CONTROL_ACK,    "Common Control Ack" },
-	{ SWITCH_OVER_REQ,       "Switch-Over Request" },
-	{ SWITCH_OVER_COM,       "Switch-Over Com" },
-	{ OS_SWITCH_OVER_COM,    "OS-Switch-Over Com" },
-	{ SWITCH_OVER_ACK,       "Switch-Over Ack" },
-	{ SWITCH_OVER_REJECT,    "Switch-Over Reject" },
-	{ PROT_PROTOCOL_ERROR,   "Protection Protocol Error" },
-	{ RESET_SN_COM,          "Reset SN Com" },
-	{ RESET_SN_ACK,          "Reset SN Ack" },
-	{ ALLOCATION,            "Allocation" },
-	{ ALLOCATION_COMPLETE,   "Allocation Complete" },
-	{ ALLOCATION_REJECT,     "Allocation Reject" },
-	{ DE_ALLOCATION,         "DE Allocation" },
-	{ DE_ALLOCATION_COMPLETE,"DE Allocation Complete" },
-	{ DE_ALLOCATION_REJECT,  "DE Allocation Reject" },
-	{ AUDIT,                 "Audit" },
-	{ AUDIT_COMPLETE,        "Audit Complete" },
-	{ AN_FAULT,              "AN Fault" },
-	{ AN_FAULT_ACKNOWLEDGE,  "AN Fault Ack" },
-	{ BCC_PROTOCOL_ERROR,    "BCC Protocol Error" },
-	{ LINK_CONTROL,          "Link Control" },
-	{ LINK_CONTROL_ACK,      "Link Control Ack" },
-	{ 0,                     NULL } };
-
-/* PSTN protocol message info elements */
-#define PULSE_NOTIFICATION   0xc0
-#define LINE_INFORMATION     0x80
-#define STATE                0x90
-#define AUTO_SIG_SEQUENCE    0xa0
-#define SEQUENCE_RESPONSE    0xb0
-#define PSTN_SEQUENCE_NUMBER 0x00
-#define CADENCED_RINGING     0x01
-#define PULSED_SIGNAL        0x02
-#define STEADY_SIGNAL        0x03
-#define DIGIT_SIGNAL         0x04
-#define RECOGNITION_TIME     0x10
-#define ENABLE_AUTO_ACK      0x11
-#define DISABLE_AUTO_ACK     0x12
-#define CAUSE                0x13
-#define RESOURCE_UNAVAILABLE 0x14
-
-static const value_string l3_line_info_values [] = {
-	{ 0x00, "Impedance marker reset" },
-	{ 0x01, "Impedance marker set" },
-	{ 0x02, "Low loop impedance" },
-	{ 0x03, "Anomalous loop impedance" },
-	{ 0x04, "Anomalous line condition received"},
-	{ 0,    NULL } };
-
-static const value_string l3_pulse_type_values [] = {
-	{ 0xff, "Pulsed normal polarity" },
-	{ 0xfe, "Pulsed reversed polarity" },
-	{ 0xfd, "Pulsed battery on c-wire" },
-	{ 0xfc, "Pulsed on hook" },
-	{ 0xfb, "Pulsed reduced battery" },
-	{ 0xfa, "Pulsed no battery" },
-	{ 0xf9, "Initial ring" },
-	{ 0xf8, "Meter pulse" },
-	{ 0xf7, "50 Hz pulse" },
-	{ 0xf6, "Register recall (timed loop open)" },
-	{ 0xf5, "Pulsed off hook (pulsed loop closed)" },
-	{ 0xf4, "Pulsed b-wire connected to earth" },
-	{ 0xf3, "Earth loop pulse" },
-	{ 0xf2, "Pulsed b-wire connected to battery" },
-	{ 0xf1, "Pulsed a-wire connected to earth" },
-	{ 0xf0, "Pulsed a-wire connected to battery" },
-	{ 0xef, "Pulsed c-wire connected to earth" },
-	{ 0xee, "Pulsed c-wire disconnected" },
-	{ 0xed, "Pulsed normal battery" },
-	{ 0xec, "Pulsed a-wire disconnected" },
-	{ 0xeb, "Pulsed b-wire disconnected" },
-	{ 0,    NULL } };
-
-static const value_string l3_suppression_indication_values [] = {
-	{ 0x0, "No suppression" },
-	{ 0x1, "Suppression allowed by pre-defined V5.1 SIGNAL msg from LE" },
-	{ 0x2, "Suppression allowed by pre-defined line signal from TE" },
-	{ 0x3, "Suppression allowed by pre-defined V5.1 SIGNAL msg from LE or line signal from TE" },
-	{ 0,   NULL } };
-
-static const value_string l3_ack_request_indication_values [] = {
-	{ 0x0, "No acknowledgement requested" },
-	{ 0x1, "Ending acknowledgement requested when finished each pulses" },
-	{ 0x2, "Ending acknowledgement requested when finished all pulses" },
-	{ 0x3, "Start of pulse acknowledgement requested" },
-	{ 0,   NULL } };
-
-static const value_string l3_digit_ack_values [] = {
-	{ 0x0, "No ending acknowledgement requested" },
-	{ 0x1, "Ending acknowledgement requested when digit transmission is finished" },
-	{ 0,   NULL } };
-
-static const value_string l3_state_values [] = {
-	{ 0x00, "AN0" },
-	{ 0x01, "AN1" },
-	{ 0x02, "AN2" },
-	{ 0x03, "AN3" },
-	{ 0x04, "AN4" },
-	{ 0x05, "AN5" },
-	{ 0x06, "AN6" },
-	{ 0x07, "AN7" },
-	{ 0,    NULL } };
-
-static const value_string l3_steady_signal_values [] = {
-	{ 0x80, "Normal polarity" },
-	{ 0x81, "Reversed polarity" },
-	{ 0x82, "Battery on c-wire" },
-	{ 0x83, "No battery on c-wire" },
-	{ 0x84, "Off hook (loop closed)" },
-	{ 0x85, "On hook (loop open)" },
-	{ 0x86, "Battery on a-wire" },
-	{ 0x87, "A-wire on earth" },
-	{ 0x88, "No battery on a-wire" },
-	{ 0x89, "No battery on b-wire" },
-	{ 0x8a, "Reduced battery" },
-	{ 0x8b, "No battery" },
-	{ 0x8c, "Alternate reduced power / no power" },
-	{ 0x8d, "Normal battery" },
-	{ 0x8e, "Stop ringing" },
-	{ 0x8f, "Start pilot frequency" },
-	{ 0x90, "Stop pilot frequency" },
-	{ 0x91, "Low impedance on b-wire" },
-	{ 0x92, "B-wire connected to earth" },
-	{ 0x93, "B-wire disconnected from earth" },
-	{ 0x94, "Battery on b-wire" },
-	{ 0x95, "Low loop impedance" },
-	{ 0x96, "High loop impedance" },
-	{ 0x97, "Anomalous loop impedance" },
-	{ 0x98, "A-wire disconnected from earth" },
-	{ 0x99, "C-wire on earth" },
-	{ 0x9a, "C-wire disconnected from earth" },
-	{ 0,    NULL } };
-
-static const value_string l3_cause_type_values [] = {
-	{ 0x00, "Response to STATUS ENQUIRY" },
-	{ 0x01, "Protocol discriminator error" },
-	{ 0x03, "L3 address error" },
-	{ 0x04, "Message type unrecognized" },
-	{ 0x05, "Out of sequence information element" },
-	{ 0x06, "Repeated optional information element" },
-	{ 0x07, "Mandatory information element missing" },
-	{ 0x08, "Unrecognized information element" },
-	{ 0x09, "Mandatory information element content error" },
-	{ 0x0a, "Optional information element content error" },
-	{ 0x0b, "Message not compatible with path state" },
-	{ 0x0c, "Repeated mandatory information element" },
-	{ 0x0d, "Too many information elements" },
-	{ 0,    NULL } };
-
-/* BCC protocol message info elements */
-#define USER_PORT_ID             0x40
-#define ISDN_PORT_CHNL_ID        0x41
-#define V5_TIME_SLOT_ID          0x42
-#define MULTI_SLOT_MAP           0x43
-#define BCC_REJECT_CAUSE         0x44
-#define BCC_PROTOCOL_ERROR_CAUSE 0x45
-#define CONNECTION_INCOMPLETE    0x46
-
-static const value_string l3_reject_cause_type_values [] = {
-	{ 0x00, "Unspecified" },
-	{ 0x01, "Access network fault" },
-	{ 0x02, "Access network blocked (internally)" },
-	{ 0x03, "Connection already present at the PSTN user port to a different V5 time slot" },
-	{ 0x04, "Connection already present at the V5 time slot(s) to a different port or ISDN user port time slot(s)" },
-	{ 0x05, "Connection already present at the ISDN user port time slot(s) to a different V5 time slot(s)" },
-	{ 0x06, "User port unavailable (blocked)" },
-	{ 0x07, "De-allocation cannot complete due to incompatible data content" },
-	{ 0x08, "De-allocation cannot complete due to V5 time slot(s) data incompatibility" },
-	{ 0x09, "De-allocation cannot complete due to port data incompatibility" },
-	{ 0x0a, "De-allocation cannot complete due to user port time slot(s) data incompatibility" },
-	{ 0x0b, "User port not provisioned" },
-	{ 0x0c, "Invalid V5 time slot(s) indication(s)" },
-	{ 0x0d, "Invalid V5 2048 kbit/s link indication" },
-	{ 0x0e, "Invalid user time slot(s) indication(s)" },
-	{ 0x0f, "V5 time slot(s) being used as physical C-channel(s)" },
-	{ 0x10, "V5 link unavailable (blocked)" },
-	{ 0,    NULL } };
-
-static const value_string l3_bcc_protocol_error_cause_type_values [] = {
-	{ 0x01, "Protocol discriminator error" },
-	{ 0x04, "Message type unrecognized" },
-	{ 0x05, "Out of sequence information element" },
-	{ 0x06, "Repeated optional information element" },
-	{ 0x07, "Mandatory information element missing" },
-	{ 0x08, "Unrecognized information element" },
-	{ 0x09, "Mandatory information element content error" },
-	{ 0x0a, "Optional information element content error" },
-	{ 0x0b, "Message not compatible with the BCC protocol state" },
-	{ 0x0c, "Repeated mandatory information element" },
-	{ 0x0d, "Too many information element" },
-	{ 0x0f, "BCC Reference Number coding error" },
-	{ 0,    NULL } };
-
-static const value_string l3_connection_incomplete_reason_values [] = {
-	{ 0x00, "Incomplete normal" },
-	{ 0x01, "Access network fault" },
-	{ 0x02, "User port not provisioned" },
-	{ 0x03, "Invalid V5 time slot identification" },
-	{ 0x04, "Invalid V5 2048 kbit/s link identification" },
-	{ 0x05, "Time slot being used as physical C-channel" },
-	{ 0,    NULL } };
-
-
-/* Link control protocol message info elements */
-#define LINK_CONTROL_FUNCTION 0x30
-
-static const value_string l3_link_control_function_values [] = {
-	{ 0x00, "FE-IDReq" },
-	{ 0x01, "FE-IDAck" },
-	{ 0x02, "FE-IDRel" },
-	{ 0x03, "FE-IDRej" },
-	{ 0x04, "FE301/302 (link unblock)" },
-	{ 0x05, "FE303/304 (link block)" },
-	{ 0x06, "FE305 (deferred link block request" },
-	{ 0x07, "FE306 (non-deferred link block request)" },
-	{ 0,    NULL } };
-
-/* Protection protocol message info elements */
-#define SEQUENCE_NUMBER    0x50
-#define C_CHANNEL_ID       0x51
-#define PP_REJECTION_CAUSE 0x52
-#define PROTOCOL_ERROR     0x53
-
-/* Control protocolmessage info elements  */
-#define PERFORMANCE_GRADING      0xe0
-#define CP_REJECTION_CAUSE       0xf0
-#define CONTROL_FUNCTION_ELEMENT 0x20
-#define CONTROL_FUNCTION_ID      0x21
-#define VARIANT                  0x22
-#define INTERFACE_ID             0x23
-
-static const value_string l3_performance_grading_values [] = {
-	{ 0x00, "normal grade" },
-	{ 0x01, "degraded" },
-	{ 0,    NULL } };
-
-static const value_string l3_cp_rejection_cause_values [] = {
-	{ 0x00, "variant unknown" },
-	{ 0x01, "variant known, not ready" },
-	{ 0x02, "re-provisioning in progress (re-pro)" },
-	{ 0,    NULL } };
-
-static const value_string l3_control_function_element_values [] = {
-	{ 0x01, "FE101 (activate access)" },
-	{ 0x02, "FE102 (activation initiated by user)" },
-	{ 0x03, "FE103 (DS activated)" },
-	{ 0x04, "FE104 (access activated)" },
-	{ 0x05, "FE105 (deactivate access)" },
-	{ 0x06, "FE106 (access deactivated)" },
-	{ 0x11, "FE201/202 (unblock)" },
-	{ 0x13, "FE203/204 (block)" },
-	{ 0x15, "FE205 (block request)" },
-	{ 0x16, "FE206 (performance grading)" },
-	{ 0x17, "FE207 (D-channel block)" },
-	{ 0x18, "FE208 (D-channel unblock)" },
-	{ 0,    NULL } };
-
-static const value_string l3_control_function_id_values [] = {
-	{ 0x00, "Verify re-provisioning" },
-	{ 0x01, "Ready for re-provisioning" },
-	{ 0x02, "Not ready for re-provisioning" },
-	{ 0x03, "Switch-over to new variant" },
-	{ 0x04, "Re-provisioning started" },
-	{ 0x05, "Cannot re-provision" },
-	{ 0x06, "Request variant and interface ID" },
-	{ 0x07, "Variant and interface ID" },
-	{ 0x08, "Blocking started" },
-	{ 0x10, "Restart request" },
-	{ 0x11, "Restart complete" },
-	{ 0,    NULL } };
-
-static const value_string l3_info_element_values [] = {
-	{ PULSE_NOTIFICATION,      "Pulse notification" },
-	{ LINE_INFORMATION,        "Line information" },
-	{ STATE,                   "State" },
-	{ AUTO_SIG_SEQUENCE,       "Autonomous signal sequence" },
-	{ SEQUENCE_RESPONSE,       "Sequence response" },
-	{ PSTN_SEQUENCE_NUMBER,    "Sequence number" },
-	{ CADENCED_RINGING,        "Cadenced ringing" },
-	{ PULSED_SIGNAL,           "Pulsed signal" },
-	{ STEADY_SIGNAL,           "Steady signal" },
-	{ DIGIT_SIGNAL,            "Digit signal" },
-	{ RECOGNITION_TIME,        "Recognition time" },
-	{ ENABLE_AUTO_ACK,         "Enable autonomous acknowledge" },
-	{ DISABLE_AUTO_ACK,        "Disable autonomous acknowledge" },
-	{ CAUSE,                   "Cause" },
-	{ RESOURCE_UNAVAILABLE,    "Resource unavailable" },
-	{ PERFORMANCE_GRADING,     "Performance grading" },
-	{ CP_REJECTION_CAUSE,      "Rejection cause" },
-	{ CONTROL_FUNCTION_ELEMENT,"Control function element" },
-	{ CONTROL_FUNCTION_ID,     "Control function ID" },
-	{ VARIANT,                 "Variant" },
-	{ INTERFACE_ID,            "Interface ID" },
-	{ LINK_CONTROL_FUNCTION,   "Link control function" },
-	{ USER_PORT_ID,            "User port ID" },
-	{ ISDN_PORT_CHNL_ID,       "ISDN port channel ID" },
-	{ V5_TIME_SLOT_ID,         "V5 time slot ID" },
-	{ MULTI_SLOT_MAP,          "Multi slot map" },
-	{ BCC_REJECT_CAUSE,        "Reject cause" },
-	{ BCC_PROTOCOL_ERROR_CAUSE,"Protocol error cause" },
-	{ CONNECTION_INCOMPLETE,   "Connection incomplete" },
-	{ SEQUENCE_NUMBER,         "Sequence number" },
-	{ C_CHANNEL_ID,            "C-Channel ID" },
-	{ PP_REJECTION_CAUSE,      "Rejection cause" },
-	{ PROTOCOL_ERROR,          "Protocol error" },
-	{ 0,                       NULL } };
-
 
 #define DISCRIMINATOR_OFFSET 0
 #define DISCRIMINATOR_LENGTH 1
@@ -958,6 +637,10 @@ static const value_string l3_info_element_values [] = {
 #define ADDRESS_LENGTH       1
 #define LOW_ADDRESS_OFFSET   2
 #define LOW_ADDRESS_LENGTH   1
+
+#define ALL_ADDRESS_OFFSET   1
+#define ALL_ADDRESS_LENGTH   2
+
 #define MSG_TYPE_OFFSET      3
 #define MSG_TYPE_LENGTH      1
 #define MSG_HEADER_LENGTH    4
@@ -967,10 +650,10 @@ static const value_string l3_info_element_values [] = {
 static void
 dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_item *parameter_item, packet_info *pinfo)
 {
-  proto_item *layer3_header_item,*layer3_item, *hidden_item;
-  proto_tree *layer3_header_tree,*layer3_tree;
   guint16 discriminator_offset, address_offset, low_address_offset, msg_type_offset,  info_element_offset;
-  guint8  info_element, info_element_length, buffer;
+
+
+  guint32 all_address_offset;
 
   if(iua_version == DRAFT){
 	  discriminator_offset = DISCRIMINATOR_OFFSET;
@@ -983,302 +666,24 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 	  discriminator_offset = DISCRIMINATOR_OFFSET + PARAMETER_HEADER_LENGTH;
 	  address_offset       = ADDRESS_OFFSET + PARAMETER_HEADER_LENGTH;
 	  low_address_offset   = LOW_ADDRESS_OFFSET + PARAMETER_HEADER_LENGTH;
+
+	  all_address_offset   = address_offset;
+
 	  msg_type_offset      = MSG_TYPE_OFFSET + PARAMETER_HEADER_LENGTH;
 	  info_element_offset  = INFO_ELEMENT_OFFSET + PARAMETER_HEADER_LENGTH;
   }
 
+  if (tvb_get_guint8(layer3_data_tvb, discriminator_offset) == 0x48){
+	  guint16 protocol_data_length;
+	  tvbuff_t *protocol_data_tvb;
 
-  if(tvb_get_guint8(layer3_data_tvb, discriminator_offset) == 0x48){
-	  layer3_header_item   = proto_tree_add_text(v5ua_tree, layer3_data_tvb, discriminator_offset, MSG_HEADER_LENGTH,"Layer3 header");
-	  layer3_header_tree   = proto_item_add_subtree(layer3_header_item, ett_v5ua_layer3);
+	  protocol_data_length = tvb_get_ntohs(layer3_data_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
+	  protocol_data_tvb    = tvb_new_subset(layer3_data_tvb, PARAMETER_VALUE_OFFSET, protocol_data_length, protocol_data_length);
 
-	  proto_tree_add_item(layer3_header_tree, hf_l3_protocol_discriminator, layer3_data_tvb, discriminator_offset, DISCRIMINATOR_LENGTH, FALSE);
-	  proto_tree_add_item(layer3_header_tree, hf_l3_adress, layer3_data_tvb, address_offset, ADDRESS_LENGTH, FALSE);
-	  proto_tree_add_item(layer3_header_tree, hf_l3_low_adress, layer3_data_tvb, low_address_offset, LOW_ADDRESS_LENGTH, FALSE);
-	  proto_tree_add_item(layer3_header_tree, hf_l3_msg_type, layer3_data_tvb, msg_type_offset, MSG_TYPE_LENGTH, FALSE);
-	  proto_item_append_text(layer3_header_item, "  Msg Type: %s",
-		  val_to_str(tvb_get_guint8(layer3_data_tvb, msg_type_offset), l3_msg_type_values, "Unknown layer3 msg type"));
+	  call_dissector(v52_handle, protocol_data_tvb, pinfo, v5ua_tree);
 
-	  if(tvb_length_remaining(layer3_data_tvb,info_element_offset)){
-		  layer3_item   = proto_tree_add_text(v5ua_tree, layer3_data_tvb, info_element_offset, tvb_length(layer3_data_tvb)-MSG_HEADER_LENGTH,"Layer3 message");
-		  layer3_tree   = proto_item_add_subtree(layer3_item, ett_v5ua_layer3);
+	  proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
 
-		  info_element_offset  = INFO_ELEMENT_OFFSET;
-
-		  while(tvb_length_remaining(layer3_data_tvb,info_element_offset)){
-			  info_element = tvb_get_guint8(layer3_data_tvb, info_element_offset);
-			  hidden_item = proto_tree_add_item(layer3_tree, hf_l3_info_element, layer3_data_tvb,info_element_offset,INFO_ELEMENT_LENGTH,FALSE);
-			  PROTO_ITEM_SET_HIDDEN(hidden_item);
-			  switch(tvb_get_guint8(layer3_data_tvb, msg_type_offset) & 0xf0){
-			  case 0x00:
-				  /* Variable Length */
-				  if(info_element < 0x80){
-				  switch(info_element){
-				  case PSTN_SEQUENCE_NUMBER:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_pstn_sequence_number,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case CADENCED_RINGING:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_cad_ringing,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case PULSED_SIGNAL:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-  					  proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);/*info_element_length,FALSE); */
-					  proto_tree_add_item(layer3_tree,hf_l3_suppression_indicator,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_pulse_duration,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_ack_request_indicator,layer3_data_tvb,info_element_offset+4,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_number_of_pulses,layer3_data_tvb,info_element_offset+4,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case STEADY_SIGNAL:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  proto_item_append_text(layer3_item, "  Steady Signal: %s",
-						val_to_str(tvb_get_guint8(layer3_data_tvb, info_element_offset+2), l3_steady_signal_values, "Unknown Signal"));
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case DIGIT_SIGNAL:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  buffer = tvb_get_guint8(layer3_data_tvb, info_element_offset+2)>>6;
-					  buffer = buffer&0x01;
-					  proto_tree_add_uint_format(layer3_tree, hf_l3_digit_ack,layer3_data_tvb,info_element_offset+2,1,buffer,
-						"Digit ack request indication: %s",val_to_str(buffer,l3_digit_ack_values,"unknown"));
-					  proto_tree_add_item(layer3_tree,hf_l3_digit_info,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case RECOGNITION_TIME:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
- 					  buffer = tvb_get_guint8(layer3_data_tvb,info_element_offset+2)&0x7f;
-					  /*Signal = Coding of pulse type*/
-					  if(buffer>=0x6b)
-						proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  /*Signal = Coding of steady signal type*/
-					  else if(buffer<=0x1a)
-						proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_duration_type,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case ENABLE_AUTO_ACK:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-  					  buffer = tvb_get_guint8(layer3_data_tvb,info_element_offset+2)&0x7f;
-					  /*Signal*/
-					  if(buffer>=0x6b)
-						proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  else if(buffer<=0x1a)
-						proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+2,1,FALSE);
-
-					  buffer = tvb_get_guint8(layer3_data_tvb,info_element_offset+3)&0x7f;
-					  /*Response*/
-					  if(buffer>=0x6b)
-						proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  else if(buffer<=0x1a)
-						proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+3,1,FALSE);
-						
-					  if(tvb_length_remaining(layer3_data_tvb, info_element_offset+4)){
-						proto_tree_add_item(layer3_tree,hf_l3_suppression_indicator,layer3_data_tvb,info_element_offset+4,1,FALSE);
-						proto_tree_add_item(layer3_tree,hf_l3_pulse_duration,layer3_data_tvb,info_element_offset+4,1,FALSE);
-					  }
-					  if(tvb_length_remaining(layer3_data_tvb, info_element_offset+5)){
-						proto_tree_add_item(layer3_tree,hf_l3_ack_request_indicator,layer3_data_tvb,info_element_offset+5,1,FALSE);
-						proto_tree_add_item(layer3_tree,hf_l3_number_of_pulses,layer3_data_tvb,info_element_offset+5,1,FALSE);
-					  }
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case DISABLE_AUTO_ACK:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  buffer = tvb_get_guint8(layer3_data_tvb,info_element_offset+2)&0x7f;
-					  if(buffer>=0x6b)
-						proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  else if(buffer<=0x1a)
-						proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case CAUSE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_cause_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
-		  			  if(tvb_length_remaining(layer3_data_tvb, info_element_offset+3))
-					  proto_tree_add_uint_format(layer3_tree, hf_l3_msg_type,layer3_data_tvb, info_element_offset+3,1,tvb_get_guint8(layer3_data_tvb,info_element_offset+3),
-						"Diagnostic: %s",val_to_str(tvb_get_guint8(layer3_data_tvb,info_element_offset+3),l3_msg_type_values,"unknown"));
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case RESOURCE_UNAVAILABLE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_res_unavailable,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  default:
-					  info_element_offset += 1;
-					  break;
-				  }
-				  }
-				  /* Single Octet */
-				  else if(info_element >= 0x80){
-					  switch(info_element & 0xf0){
-					  case PULSE_NOTIFICATION:
-						  proto_tree_add_item(layer3_tree,hf_l3_pulse_notify,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  case LINE_INFORMATION:
-						  proto_tree_add_item(layer3_tree,hf_l3_line_info,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  case STATE:
-						  proto_tree_add_item(layer3_tree,hf_l3_state,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  case AUTO_SIG_SEQUENCE:
-						  proto_tree_add_item(layer3_tree,hf_l3_auto_signalling_sequence,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  case SEQUENCE_RESPONSE:
-						  proto_tree_add_item(layer3_tree,hf_l3_sequence_response,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  default:
-						  break;
-					  }
-					  info_element_offset += 1;
-				  }
-				  break;
-
-			  case 0x10:
-				  /* Variable Length */
-				  if(info_element < 0x80){
-				  switch(info_element){
-				  case CONTROL_FUNCTION_ELEMENT:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_control_function_element,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case CONTROL_FUNCTION_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_control_function_id,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case VARIANT:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_variant,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case INTERFACE_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_if_id,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case SEQUENCE_NUMBER:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_sequence_number,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case C_CHANNEL_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_v5_link_id,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_v5_time_slot,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case PP_REJECTION_CAUSE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_rejection_cause_type,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case PROTOCOL_ERROR:
-					  break;
-				  default:
-					  info_element_offset += 1;
-					  break;
-				  }
-				  }
-				  /* Single Octet */
-				  else if(info_element >= 0x80){
-					  switch(info_element & 0xf0){
-					  case PERFORMANCE_GRADING:
-						  proto_tree_add_item(layer3_tree,hf_l3_performance_grading,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  case CP_REJECTION_CAUSE:
-						  proto_tree_add_item(layer3_tree,hf_l3_cp_rejection_cause,layer3_data_tvb,info_element_offset,1,FALSE);
-						  break;
-					  default:
-						  break;
-					  }
-					  info_element_offset += 1;
-				  }
-				  break;
-
-			  case 0x20:
-				  /* Variable Length */
-				  switch(info_element){
-				  case USER_PORT_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  buffer = tvb_get_guint8(layer3_data_tvb,info_element_offset+2)&0x01;
-					  if(buffer==0x01){
-						  proto_tree_add_item(layer3_tree,hf_l3_pstn_user_port_id,layer3_data_tvb,info_element_offset+2,1,FALSE);
-						  proto_tree_add_item(layer3_tree,hf_l3_pstn_user_port_id_lower,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  }
-					  else if(buffer == 0x00){
-						  proto_tree_add_item(layer3_tree,hf_l3_isdn_user_port_id,layer3_data_tvb,info_element_offset+2,1,FALSE);
-						  proto_tree_add_item(layer3_tree,hf_l3_isdn_user_port_id_lower,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  }
-					  info_element_offset +=info_element_length+2;			  
-					  break;
-				  case ISDN_PORT_CHNL_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_isdn_user_port_ts_num,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case V5_TIME_SLOT_ID:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_v5_link_id,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_override,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  proto_tree_add_item(layer3_tree,hf_l3_v5_time_slot,layer3_data_tvb,info_element_offset+3,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case MULTI_SLOT_MAP:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_v5_link_id,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  /* add ts upts here */
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case BCC_REJECT_CAUSE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_reject_cause_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  /* add diagnostic */
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case BCC_PROTOCOL_ERROR_CAUSE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_bcc_protocol_error_cause,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  /* add diagnostic */
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  case CONNECTION_INCOMPLETE:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_connection_incomplete_reason,layer3_data_tvb,info_element_offset+2,1,FALSE);
-					  info_element_offset +=info_element_length+2;
-					  break;
-				  default:
-					  info_element_offset += 1;
-					  break;
-				  }
-				  break;
-
-			  case 0x30:
-				  /* Variable Length */
-				  switch(info_element){
-				  case LINK_CONTROL_FUNCTION:
-					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-					  proto_tree_add_item(layer3_tree,hf_l3_link_control_function,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
-					  info_element_offset += info_element_length+2;
-					  break;
-				  default:
-					  info_element_offset += 1;
-					  break;
-				  }
-				  break;
-
-			  default:
-				  info_element_offset += 1;
-				  break;
-			  }
-		  }
-	  }
   }
   else{
 	  guint16 protocol_data_length;
@@ -1344,8 +749,8 @@ dissect_release_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 #define LINK_STATUS_NON_OPERTIONAL  0x1
 
 static const value_string link_status_values[] = {
-  { LINK_STATUS_OPERTIONAL,      "Link is in operation" },
-  { LINK_STATUS_NON_OPERTIONAL,  "Link is not in operation" },
+  { LINK_STATUS_OPERTIONAL,      "Link operational" },
+  { LINK_STATUS_NON_OPERTIONAL,  "Link not operational" },
   { 0,                           NULL } };
 
 #define LINK_STATUS_OFFSET   PARAMETER_VALUE_OFFSET
@@ -1354,9 +759,11 @@ static const value_string link_status_values[] = {
 static void
 dissect_link_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_link_status, parameter_tvb, LINK_STATUS_OFFSET, LINK_STATUS_LENGTH, FALSE);
-  proto_item_append_text(parameter_item, " (%s)",
+	proto_tree_add_item(parameter_tree, hf_link_status, parameter_tvb, LINK_STATUS_OFFSET, LINK_STATUS_LENGTH, FALSE);
+	proto_item_append_text(parameter_item, " (%s)",
 	  val_to_str(tvb_get_ntohl(parameter_tvb, LINK_STATUS_OFFSET),link_status_values, "Unknown Link status"));
+
+link_status_operational = tvb_get_ntohl(parameter_tvb, LINK_STATUS_OFFSET);
 }
 /*----------------------Link Status Indication (Draft,RFC)---------------------*/
 
@@ -1368,9 +775,9 @@ dissect_link_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 #define SA_BIT_VALUE_SA7   0x7
 
 static const value_string sa_bit_values[] = {
-	{ SA_BIT_ID_ZERO,    "set to ZERO" },
-	{ SA_BIT_ID_ONE,     "set to ONE" },
-	{ SA_BIT_VALUE_SA7,  "Sa7 Bit" },
+	{ SA_BIT_ID_ZERO,    "set value ZERO" },
+	{ SA_BIT_ID_ONE,     "set value ONE" },
+	{ SA_BIT_VALUE_SA7,  "Addresses the Sa7 Bit" },
 	{ 0,                 NULL } };
 
 #define SA_BIT_ID_OFFSET     PARAMETER_VALUE_OFFSET
@@ -1387,6 +794,7 @@ dissect_sa_bit_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_ID_OFFSET), sa_bit_values, "unknown"),
 	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_VALUE_OFFSET), sa_bit_values, "unknown Bit"));
 
+sa_bit_id = tvb_get_ntohs(parameter_tvb, SA_BIT_VALUE_OFFSET);
 }
 /*----------------------Sa-Bit (Draft,RFC)-------------------------------------*/
 
@@ -1410,6 +818,18 @@ dissect_error_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 }
 /*----------------------Error Indication (RFC)---------------------------------*/
 
+/*--------------------------ASP identifier-------------------------------------*/
+#define ASP_IDENTIFIER_LENGTH 4
+#define ASP_IDENTIFIER_OFFSET PARAMETER_VALUE_OFFSET
+
+static void
+dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_tree_add_item(parameter_tree, hf_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, FALSE);
+    proto_item_append_text(parameter_item, " (%d) ",tvb_get_ntohl(parameter_tvb,ASP_IDENTIFIER_OFFSET));
+}
+/*--------------------------ASP identifier-------------------------------------*/
+
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
@@ -1427,24 +847,27 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   }
 }
 
+
 static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+
   guint16 parameter_value_length;
 
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (parameter_value_length > 0)
     proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, FALSE);
+
   proto_item_append_text(parameter_item, " with tag %u and %u byte%s value",
-	  tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
+  tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
-
+#define Reserved_TAG 	         			 0x00
 #define INT_INTERFACE_IDENTIFIER_PARAMETER_TAG           0x01
 #define ASP_MSG_PARAMETER_TAG                            0x02
 #define TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG          0x03
 #define INFO_PARAMETER_TAG                               0x04
-#define DLCI_PARAMETER_TAG                               0x05
+#define DLCI_PARAMETER_TAG                               0x81
 #define DIAGNOSTIC_INFORMATION_PARAMETER_TAG             0x07
 #define INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG 0x08
 #define HEARTBEAT_DATA_PARAMETER_TAG                     0x09
@@ -1455,41 +878,45 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define PROTOCOL_DATA_PARAMETER_TAG                      0x0e
 #define RELEASE_REASON_PARAMETER_TAG                     0x0f
 #define TEI_STATUS_PARAMETER_TAG                         0x10
-#define LINK_STATUS_PARAMETER_TAG                        0x11
-#define SA_BIT_STATUS_PARAMETER_TAG                      0x12
-#define ERROR_INDICATION_PARAMETER_TAG                   0x13
+#define ASP_IDENTIFIER_PARAMETER_TAG                     0x11
+#define NOT_USED_IN_IUA_PARAMETER_TAG                    0x12
+#define LINK_STATUS_PARAMETER_TAG                        0x82
+#define SA_BIT_STATUS_PARAMETER_TAG                      0x83
+#define ERROR_INDICATION_PARAMETER_TAG                   0x84
 
 static const value_string parameter_tag_values[] = {
-  { INT_INTERFACE_IDENTIFIER_PARAMETER_TAG,              "V5UA Interface Identifier (int)" },
-  { TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG,             "Text Interface Identifier" },
-  { INFO_PARAMETER_TAG,                                  "Info" },
+  { Reserved_TAG,              				 "Reserved" },
+  { INT_INTERFACE_IDENTIFIER_PARAMETER_TAG,              "Interface Identifier (integer)" },
+  { TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG,             "Interface Identifier (text)" },
+  { INFO_PARAMETER_TAG,                                  "Info string" },
   { DLCI_PARAMETER_TAG,                                  "DLCI" },
   { DIAGNOSTIC_INFORMATION_PARAMETER_TAG,                "Diagnostic information" },
-  { INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG,    "Integer range interface identifier" },
-  { HEARTBEAT_DATA_PARAMETER_TAG,                        "Heartbeat data" },
+  { INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG,    "Interface Identifier Range" },
+  { HEARTBEAT_DATA_PARAMETER_TAG,                        "Hearbeat data" },
   { ASP_DOWN_REASON_PARAMETER_TAG,                       "ASP DOWN Reason" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,                     "Traffic mode type" },
   { ERROR_CODE_PARAMETER_TAG,                            "Error code" },
   { STATUS_TYPE_INDENTIFICATION_PARAMETER_TAG,           "Status type/identification" },
   { PROTOCOL_DATA_PARAMETER_TAG,                         "Protocol Data" },
-  { RELEASE_REASON_PARAMETER_TAG,                        "Reason" },
+  { RELEASE_REASON_PARAMETER_TAG,                        "Release Reason" },
   { TEI_STATUS_PARAMETER_TAG,                            "TEI status" },
+  { ASP_IDENTIFIER_PARAMETER_TAG,                        "ASP Identifier" },
+  { NOT_USED_IN_IUA_PARAMETER_TAG,                       "Not used in IUA" },
   { LINK_STATUS_PARAMETER_TAG,                           "Link status" },
   { SA_BIT_STATUS_PARAMETER_TAG,                         "SA-Bit status" },
   { ERROR_INDICATION_PARAMETER_TAG,                      "Error reason" },
-  { 0,                                                   NULL } };
+  { 0,                                                    NULL } };
 
 static const value_string parameter_tag_draft_values[] = {
   { INT_INTERFACE_IDENTIFIER_PARAMETER_TAG,              "V5UA Interface Identifier (int)" },
   { ASP_MSG_PARAMETER_TAG,                               "ASP Adaption Layer ID" },
   { TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG,             "SCN Protocol Identifier" },
   { INFO_PARAMETER_TAG,                                  "Info" },
+  { PROTOCOL_DATA_PARAMETER_TAG,                         "Protocol Data" },
   { LINK_STATUS_PARAMETER_TAG,                           "Link status" },
   { SA_BIT_STATUS_PARAMETER_TAG,                         "SA-Bit status" },
   { ERROR_INDICATION_PARAMETER_TAG,                      "Error reason" },
   { 0,                                                   NULL } };
-
-
 
 static void
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_tree)
@@ -1512,19 +939,17 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
         length = msg_length;
   }
   padding_length = tvb_length(parameter_tvb) - length;
+  paddingl = padding_length;
 
   /* create proto_tree stuff */
-
   switch(iua_version){
   case RFC:
 	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
 		val_to_str(tag, parameter_tag_values, "Unknown parameter"));
 	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
-
 	  /* add tag to the v5ua tree */
 	  proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
 	  break;
-
   case DRAFT:
   default:
 	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
@@ -1534,7 +959,6 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 	  /* add tag to the v5ua tree */
 	  proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
 	  break;
-
   };
 
   /* add length to the v5ua tree */
@@ -1545,7 +969,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 	if(iua_version == RFC) dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
 	if(iua_version == DRAFT){
 		dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
-		dissect_dlci_parameter(parameter_tvb, parameter_tree, parameter_item);
+		dissect_dlci_parameter(parameter_tvb, parameter_tree, parameter_item, pinfo);
 
 		/* for the following parameters no tag- and length-informations available. Parameters must be dissect with info from common msg header */
 		if(msg_class==0 && msg_type==0)    dissect_draft_error_code_parameter(parameter_tvb, parameter_tree);
@@ -1580,7 +1004,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
     dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DLCI_PARAMETER_TAG:
-    dissect_dlci_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_dlci_parameter(parameter_tvb, parameter_tree, parameter_item, pinfo);
     break;
   case DIAGNOSTIC_INFORMATION_PARAMETER_TAG:
     dissect_diagnostic_information_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1612,6 +1036,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
   case TEI_STATUS_PARAMETER_TAG:
     dissect_tei_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
+  case ASP_IDENTIFIER_PARAMETER_TAG:
+    dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
   case LINK_STATUS_PARAMETER_TAG:
     dissect_link_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -1630,7 +1057,6 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, FALSE);
   }
 }
-
 /* dissect the V5UA-Parameters into subsets which are separated by Tag-Length-Header and call up the dissector for the subsets */
 static void
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *v5ua_tree)
@@ -1638,7 +1064,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   gint tag, offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
 
-  
+
   offset = 0;
   while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
 	tag = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_TAG_OFFSET);
@@ -1650,7 +1076,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 		/* add the parameters which are not separated by tag-length-header to the V5UA header */
 		if((msg_class==0 || msg_class==1 || msg_class==9)&&msg_type<=10)
 			length = msg_length;
-	}	 
+	}
 	total_length = ADD_PADDING(length);
 	if (remaining_length >= length)
 	  total_length = MIN(total_length, remaining_length);
@@ -1661,7 +1087,6 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 	offset += total_length;
 	}
 }
-
 
 
 	/* define the common header fields of V5UA MSG */
@@ -1687,7 +1112,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 #define V5UA_PROTOCOL_VERSION_RELEASE_1     1
 
 static const value_string v5ua_protocol_version_values[] = {
-  { V5UA_PROTOCOL_VERSION_RELEASE_1,  "Release 1" },
+  { V5UA_PROTOCOL_VERSION_RELEASE_1,  "Release 1.0" },
   { 0,                                NULL } };
 
 	/* define V5UA MSGs */
@@ -1701,11 +1126,11 @@ static const value_string v5ua_protocol_version_values[] = {
 static const value_string msg_class_values[] = {
 	{ MSG_CLASS_MGMT_MSG,  "Management Messages" },
 	{ MSG_CLASS_MGMT_MSG_DRAFT,"Management Messages"},
-	{ MSG_CLASS_ASPSM_MSG, "ASP state maintenance message" },
-	{ MSG_CLASS_ASPTM_MSG, "ASP traffic maintenance message" },
+	{ MSG_CLASS_ASPSM_MSG, "ASP State Maintenance Message" },
+	{ MSG_CLASS_ASPTM_MSG, "ASP Traffic Maintenance Message" },
 	{ MSG_CLASS_V5PTM_MSG_DRAFT, "V5 Boundary Primitives Transport Message" },
 	{ MSG_CLASS_V5PTM_MSG, "V5 Boundary Primitives Transport Message" },
-	{ 0,                           NULL } }; 
+	{ 0,                           NULL } };
 
 	/* message types for MGMT messages */
 #define MGMT_MSG_TYPE_ERR                  0
@@ -1713,13 +1138,20 @@ static const value_string msg_class_values[] = {
 #define MGMT_MSG_TYPE_TEI_STATUS_REQ       2
 #define MGMT_MSG_TYPE_TEI_STATUS_CON       3
 #define MGMT_MSG_TYPE_TEI_STATUS_IND       4
+#define MGMT_MSG_TYPE_TEI_QUERY_REQUEST5  5
+#define MGMT_MSG_TYPE_TEI_QUERY_REQUEST   8
+ /* end */
+
 	/* MGMT messages for Nortel draft version*/
 #define MGMT_MSG_DRAFT_TYPE_TEI_STATUS_REQ       1
 #define MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON       2
 #define MGMT_MSG_DRAFT_TYPE_TEI_STATUS_IND       3
-
+#define MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST5  5
+#define MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST   8
+ /* end */
 
 	/* message types for ASPSM messages */
+#define ASPSM_MSG_TYPE_Reserved             0
 #define ASPSM_MSG_TYPE_UP                   1
 #define ASPSM_MSG_TYPE_DOWN                 2
 #define ASPSM_MSG_TYPE_BEAT                 3
@@ -1728,12 +1160,14 @@ static const value_string msg_class_values[] = {
 #define ASPSM_MSG_TYPE_BEAT_ACK             6
 
 	/* message types for ASPTM messages */
+#define ASPTM_MSG_TYPE_Reserved             0
 #define ASPTM_MSG_TYPE_ACTIVE               1
 #define ASPTM_MSG_TYPE_INACTIVE             2
 #define ASPTM_MSG_TYPE_ACTIVE_ACK           3
 #define ASPTM_MSG_TYPE_INACTIVE_ACK         4
 
 	/* message types for V5PTM messages */
+#define V5PTM_MSG_TYPE_Reserved                     0
 #define V5PTM_MSG_TYPE_DATA_REQUEST                 1
 #define V5PTM_MSG_TYPE_DATA_INDICATION              2
 #define V5PTM_MSG_TYPE_UNIT_DATA_REQUEST            3
@@ -1753,17 +1187,26 @@ static const value_string msg_class_values[] = {
 #define V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION    17
 #define V5PTM_MSG_TYPE_ERROR_INDICATION            18
 
+#define MGMT_MSG_TYPE_TEI_STATUS_REQUEST5  5
+#define MGMT_MSG_TYPE_TEI_STATUS_REQUEST   8
+
 static const value_string msg_class_type_values[] = {
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_ERR,                         "Error" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_NTFY,                        "Notify" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_REQ,              "TEI status request" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_CON,              "TEI status confirmation" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_IND,              "TEI status indication" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_QUERY_REQUEST,           "TEI query request" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_QUERY_REQUEST5,          "TEI query request" },
 
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_REQ,   "TEI status request" },
-  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confirmation" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confimation" },
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_IND,   "TEI status indication" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST,  "TEI query request" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST5, "TEI query request" },
 
+
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_Reserved,                   "Reserved" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP,                         "ASP up" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN,                       "ASP down" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT,                       "Heartbeat" },
@@ -1771,11 +1214,13 @@ static const value_string msg_class_type_values[] = {
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN_ACK,                   "ASP down ack" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT_ACK,                   "Heartbeat ack" },
 
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_Reserved ,                  "Reserved" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE ,                    "ASP active" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE ,                  "ASP inactive" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE_ACK ,                "ASP active ack" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE_ACK ,              "ASP inactive ack" },
 
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_Reserved,                   "Reserved" },
   { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data request" },
   { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data indication" },
   { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "Unit data request" },
@@ -1795,6 +1240,7 @@ static const value_string msg_class_type_values[] = {
   { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION,   "Sa-Bit status indication" },
   { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ERROR_INDICATION,           "Error indication" },
 
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_Reserved,                   "Reserved" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data request" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data indication" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "Unit data request" },
@@ -1816,6 +1262,78 @@ static const value_string msg_class_type_values[] = {
 
   { 0,                                                                                  NULL } };
 
+static const value_string msg_class_type_values_short[] = {
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_ERR,                         "Error" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_NTFY,                        "Notify" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_REQ,              "TEI status request" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_CON,              "TEI status confirmation" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_IND,              "TEI status indication" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_QUERY_REQUEST,           "TEI query request" },
+  { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_QUERY_REQUEST5,          "TEI query request" },
+
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_REQ,   "TEI status request" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confimation" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_IND,   "TEI status indication" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST,  "TEI query request" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_QUERY_REQUEST5, "TEI query request" },
+
+
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_Reserved,                   "Reserved" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP,                         "ASP up" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN,                       "ASP down" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT,                       "Heartbeat" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP_ACK,                     "ASP up ack" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN_ACK,                   "ASP down ack" },
+  { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT_ACK,                   "Heartbeat ack" },
+
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_Reserved ,                  "Reserved" },
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE ,                    "ASP active" },
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE ,                  "ASP inactive" },
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE_ACK ,                "ASP active ack" },
+  { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE_ACK ,              "ASP inactive ack" },
+
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_Reserved,                   "Reserved" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "Unit data request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_UNIT_DATA_INDICATION,       "Unit data indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_REQUEST,          "Establish request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_CONFIRM,          "Establish confirmation" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_INDICATION,       "Establish indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_REQUEST,            "Release request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_CONFIRM,            "Release confirmation" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_INDICATION,         "Release indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_START_REPORTING,"Link status start reporting" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_STOP_REPORTING, "Link status stop reporting" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_INDICATION,     "Link status indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_REQUEST,         "Sa-Bit set request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_CONFIRM,         "Sa-Bit set confirm" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_REQUEST,      "Sa-Bit status request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION,   "Sa-Bit status indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ERROR_INDICATION,           "Error indication" },
+
+
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_Reserved,                   "Reserved" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "U Data Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_UNIT_DATA_INDICATION,       "U Data Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_ESTABLISH_REQUEST,          "Est Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_ESTABLISH_CONFIRM,          "Est Conf" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_ESTABLISH_INDICATION,       "Est Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_RELEASE_REQUEST,            "Rel Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_RELEASE_CONFIRM,            "Rel Con" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_RELEASE_INDICATION,         "Rel Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_LINK_STATUS_START_REPORTING,"Link Status Start Rep" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_LINK_STATUS_STOP_REPORTING, "Link Status Stop Rep" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_LINK_STATUS_INDICATION,     "Link Status Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_REQUEST,         "Sa-Bit Set Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_CONFIRM,         "Sa-Bit set Conf" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_REQUEST,      "Sa-Bit Status Req" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION,   "Sa-Bit Status Ind" },
+  { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_ERROR_INDICATION,           "Error Ind" },
+  { 0,                                                                                  NULL } };
+
 
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *v5ua_tree)
@@ -1829,10 +1347,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_type   = tvb_get_guint8(common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET);
 
   /* Add message type into info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, msg_class_type_values, "UNKNOWN"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
-  }
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, msg_class_type_values_short, "UNKNOWN"));
+
 
   if (v5ua_tree) {
 
@@ -1848,12 +1364,11 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
                               common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET, COMMON_HEADER_MSG_TYPE_LENGTH,
                               message_type, "Message type: %s ( %u )",
                               val_to_str(message_class * 256 + message_type, msg_class_type_values, "reserved"), message_type);
-    proto_tree_add_uint(common_header_tree, hf_msg_type_id, common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET, COMMON_HEADER_MSG_TYPE_LENGTH,
-                              message_class * 256 + message_type);
     proto_tree_add_item(common_header_tree, hf_msg_length, common_header_tvb, COMMON_HEADER_MSG_LENGTH_OFFSET, COMMON_HEADER_MSG_LENGTH_LENGTH, FALSE);
 
 	/* Add message type to the Common Msg-Header line */
     proto_item_append_text(common_header_item, " (%s)",val_to_str(message_class * 256 + message_type, msg_class_type_values, "Unknown Msg-Type"));
+    messageclassCopy = message_class;
   }
 
 	/* the following info are required to dissect IUA-Draft messages.
@@ -1876,9 +1391,35 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
   parameters_tvb    = tvb_new_subset(tvb, COMMON_HEADER_LENGTH, -1, -1);
   dissect_parameters(parameters_tvb, pinfo, tree, v5ua_tree);
+    if (dlci_efa >= 0 && dlci_efa <= 8175) {
+	  if ((messageclassCopy == 0) || (messageclassCopy == 3) || (messageclassCopy == 4)) {
+	  	messageclassCopy = -1;
+	  }
+	  else {
+		  col_append_str(pinfo->cinfo, COL_INFO, " | ");
+		  col_append_fstr(pinfo->cinfo, COL_INFO, "LinkId: %u", linkIdentifier);
+	  }
+   } else {};
+
+   if (sa_bit_id > -1) {
+		col_append_str(pinfo->cinfo, COL_INFO, " | ");
+		col_append_fstr(pinfo->cinfo, COL_INFO, "SA7bit: %u", sa_bit_id);
+		sa_bit_id = -1;
+   } else {};
+
+   if (link_status_operational > -1) {
+	if (link_status_operational == 0) { 
+		col_append_str(pinfo->cinfo, COL_INFO, " | operational"); 
+	}
+	else if (link_status_operational == 1) { 
+		col_append_str(pinfo->cinfo, COL_INFO, " | non-operational"); 
+	}else {
+	}
+	link_status_operational = -1;
+   } else {};
+
 }
-	
-	
+
 static void
 dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1891,12 +1432,9 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA");
-
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
-
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA");
+/* end */
+	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree) {
 /* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_v5ua, tvb, 0, -1, FALSE);
@@ -1919,7 +1457,7 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			length = tvb_get_ntohs(tvb, offset+2);
 			tag = tvb_get_ntohs(tvb, offset+length);
 			/* tag 0x5 indicates the DLCI in the V5UA-Header accoriding to RFC spec */
-			if(tag==0x5){
+			if(tag==0x81){
 				remaining_length = FALSE;
 			}
 			else{
@@ -1950,6 +1488,9 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			iua_version = RFC;
 			remaining_length = FALSE;
 		}
+		else if(tag==0x11){
+			remaining_length = FALSE;
+		}
 		/*ASP, Notify and Error messages (RFC) only contain common msg header followed by parameter*/
 		else if(tag==0x04 || tag == 0x0a || tag == 0x0b || tag == 0x0c || tag == 0x0d){
 			remaining_length = FALSE;
@@ -1960,23 +1501,19 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		/* add a notice for the draft version */
 		if(iua_version == DRAFT){
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA (draft)");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA (draft)");
 		}
    }
- 
 
    /* dissect the message */
   dissect_v5ua_message(tvb, pinfo, tree, v5ua_tree);
 }
 
 
-
 /* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration. */
-
 
 void
 proto_register_v5ua(void)
@@ -2010,12 +1547,13 @@ proto_register_v5ua(void)
 			   NULL, HFILL } },
 		{ &hf_link_id,
 			{ "Link Identifier",        "v5ua.link_id",
-			   FT_UINT32,   BASE_DEC, NULL,                           ~0x1f,
+			   FT_UINT32,   BASE_DEC, NULL,                           0xffffffe0,
 			   NULL, HFILL } },
 		{ &hf_chnl_id,
 			{ "Channel Identifier",     "v5ua.channel_id",
 			   FT_UINT8,    BASE_DEC, NULL,                            0x1f,
 			   NULL, HFILL } },
+
 		{ &hf_adaptation_layer_id,
 			{ "Adaptation Layer ID",    "v5ua.adaptation_layer_id",
 			   FT_STRING,   BASE_NONE,NULL,                             0x0,
@@ -2031,6 +1569,10 @@ proto_register_v5ua(void)
 		{ &hf_info_string,
 			{ "Info String",            "v5ua.info_string",
 			   FT_STRING,   BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
+		{ &hf_asp_identifier,
+			{ "ASP Identifier",          "v5ua.asp_identifier",
+			   FT_UINT32,   BASE_HEX, NULL,						        0x0,
 			   NULL, HFILL } },
 		{ &hf_dlci_zero_bit,
 			{ "Zero bit",               "v5ua.dlci_zero_bit",
@@ -2078,7 +1620,7 @@ proto_register_v5ua(void)
 			   NULL, HFILL } },
 		{ &hf_link_status,
 			{ "Link Status",            "v5ua.link_status",
-			   FT_UINT32,   BASE_HEX, NULL,                             0x0,
+			   FT_UINT32,   BASE_HEX, VALS(link_status_values),         0x0,
 			   NULL, HFILL } },
 		{ &hf_sa_bit_id,
 			{ "BIT ID",                 "v5ua.sa_bit_id",
@@ -2096,7 +1638,7 @@ proto_register_v5ua(void)
 			{ "Parameter Tag",          "v5ua.parameter_tag",
 			   FT_UINT16,   BASE_HEX, VALS(parameter_tag_draft_values), 0x0,
 			   NULL, HFILL } },
-		{ &hf_parameter_length, 
+		{ &hf_parameter_length,
 			{ "Parameter length",       "v5ua.parameter_length",
 			   FT_UINT16,   BASE_DEC, NULL,                             0x0,
 			   NULL, HFILL } },
@@ -2147,176 +1689,6 @@ proto_register_v5ua(void)
 		{ &hf_error_reason,
 			{ "Error Reason",           "v5ua.error_reason",
 			   FT_UINT32,   BASE_HEX, VALS(error_reason_values),        0x0,
-			   NULL, HFILL } },
-
-		/* header fields for layer 3 content*/
-		{ &hf_l3_protocol_discriminator,
-			{ "Protocol Discriminator", "v5ua.l3_protocol_disc",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   NULL, HFILL } },
-		{ &hf_l3_adress,
-			{ "Layer3 address",        "v5ua.l3_address",
-			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
-			   NULL, HFILL } },
-		{ &hf_l3_low_adress,
-			{ "Layer3 low address",    "v5ua.l3_low_address",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   NULL, HFILL } },
-		{&hf_l3_msg_type,
-			{ "Layer3 message type",   "v5ua.l3_msg_type",
-			   FT_UINT8,    BASE_HEX, VALS(l3_msg_type_values),         0x0,
-			   NULL, HFILL } },
-		{&hf_l3_info_element,
-			{ "Layer3 information element",   "v5ua.l3_info_element",
-			   FT_UINT8,    BASE_HEX, VALS(l3_info_element_values),     0x0,
-			   NULL, HFILL } },
-		{&hf_l3_line_info,
-			{ "Line_Information",      "v5ua.l3_line_info",
-			   FT_UINT8,    BASE_HEX, VALS(l3_line_info_values),        0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_cad_ringing,
-			{"Cadenced ringing type",  "v5ua.l3_cad_ringing",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_pulse_type,
-			{ "Pulse Type",            "v5ua.l3_pulse_type",
-			   FT_UINT8,    BASE_HEX, VALS(l3_pulse_type_values),       0x0,
-			   NULL, HFILL } },
-		{&hf_l3_suppression_indicator,
-			{ "Suppression indicator",  "v5ua.l3_suppression_indicator",
-			   FT_UINT8,    BASE_HEX, VALS(l3_suppression_indication_values),0x60,
-			   NULL, HFILL } },
-		{&hf_l3_pulse_duration,
-			{ "Pulse duration type",   "v5ua.l3_pulse_duration",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x1f,
-			   NULL, HFILL } },
-		{&hf_l3_ack_request_indicator,
-			{ "Ack request indicator",    "v5ua.l3_ack_request_indicator",
-			   FT_UINT8,    BASE_HEX, VALS(l3_ack_request_indication_values),0x60,
-			   NULL, HFILL } },
-		{&hf_l3_number_of_pulses,
-			{ "Number of pulses",      "v5ua.l3_number_of_pulses",
-			   FT_UINT8,    BASE_DEC, NULL,                             0x1f,
-			   NULL, HFILL } },
-		{&hf_l3_steady_signal,
-			{ "Steady Signal",         "v5ua.l3_steady_signal",
-			   FT_UINT8,    BASE_HEX, VALS(l3_steady_signal_values),    0x0,
-			   NULL, HFILL } },
-		{&hf_l3_auto_signalling_sequence,
-			{ "Autonomous signalling sequence","v5ua.l3_auto_signalling_sequence",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_sequence_number,
-			{ "Sequence number",    "v5ua.l3_sequence_number",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_pulse_notify,
-			{ "Pulse notification",    "v5ua.l3_pulse_notification",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   NULL, HFILL } },
-		{&hf_l3_sequence_response,
-			{ "Sequence response",    "v5ua.l3_sequence_response",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_digit_ack,
-			{ "Digit ack request indication","v5ua.l3_digit_ack",
-			   FT_UINT8,    BASE_HEX, VALS(l3_digit_ack_values),        0x40,
-			   NULL, HFILL } },
-		{&hf_l3_digit_info,
-			{ "Digit information",    "v5ua.l3_digit_info",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_res_unavailable,
-			{ "Resource unavailable", "v5ua.l3_res_unavailable",
-			   FT_STRING,   BASE_NONE,NULL,                             0x0,
-			   NULL, HFILL } },
-		{&hf_l3_state,
-			{ "PSTN FSM state",       "v5ua.l3_state",
-			   FT_UINT8,    BASE_HEX, VALS(l3_state_values),            0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_cause_type,
-			{ "Cause type",           "v5ua.l3_cause_type",
-			   FT_UINT8,    BASE_HEX, VALS(l3_cause_type_values),       0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_link_control_function,
-			{ "Link control function","v5ua.l3_link_control_function",
-			   FT_UINT8,    BASE_HEX, VALS(l3_link_control_function_values),0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_pstn_user_port_id,
-			{ "PSTN User Port identification Value","v5ua.l3_pstn_user_port_id",
-			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
-			   NULL, HFILL } },
-		{&hf_l3_pstn_user_port_id_lower,
-			{ "PSTN User Port Identification Value (lower)","v5ua.l3_pstn_user_port_id_lower",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   NULL, HFILL } },
-		{&hf_l3_isdn_user_port_id,
-			{ "ISDN User Port Identification Value","v5ua.l3_isdn_user_port_id",
-			   FT_UINT8,    BASE_HEX, NULL,                             0xfc,
-			   NULL, HFILL } },
-		{&hf_l3_isdn_user_port_id_lower,
-			{ "ISDN User Port Identification Value (lower)","v5ua.l3_user_port_id_lower",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0fe,
-			   NULL, HFILL } },
-		{&hf_l3_isdn_user_port_ts_num,
-			{ "ISDN user port time slot number","v5ua.l3_isdn_user_port_ts_num",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x1f,
-			   NULL, HFILL } },
-		{&hf_l3_override,
-			{ "Override",    "v5ua.l3_override",
-			   FT_BOOLEAN,  8,        NULL,                             0x20,
-			   NULL, HFILL } },
-		{&hf_l3_v5_link_id,
-			{ "V5 2048 kbit/s Link Identifier",    "v5ua.l3_link_id",
-			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   NULL, HFILL } },
-		{&hf_l3_v5_time_slot,
-			{ "V5 Time Slot Number",    "v5ua.l3_v5_time_slot",
-			   FT_UINT8,    BASE_DEC, NULL,                             0x1f,
-			   NULL, HFILL } },
-		{&hf_l3_reject_cause_type,
-			{ "Reject cause type",    "v5ua.l3_reject_cause_type",
-			   FT_UINT8,    BASE_HEX, VALS(l3_reject_cause_type_values),0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_bcc_protocol_error_cause,
-			{ "BCC Protocol error cause type",    "v5ua.l3_bcc_protocol_cause",
-			   FT_UINT8,    BASE_HEX, VALS(l3_bcc_protocol_error_cause_type_values),0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_connection_incomplete_reason,
-			{ "Reason",    "v5ua.l3_connection_incomplete_reason",
-			   FT_UINT8,    BASE_HEX, VALS(l3_connection_incomplete_reason_values), 0x0,
-			   NULL, HFILL } },
-		{&hf_l3_control_function_element,
-			{ "Control function element",    "v5ua.l3_control_function_element",
-			   FT_UINT8,    BASE_HEX, VALS(l3_control_function_element_values),     0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_control_function_id,
-			{ "Control function ID",    "v5ua.l3_control_function",
-			   FT_UINT8,    BASE_HEX, VALS(l3_control_function_id_values),          0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_variant,
-			{ "Variant",    "v5ua.l3_variant",
-			   FT_UINT8,    BASE_DEC, NULL,                                         0x0,
-			   NULL, HFILL } },
-		{&hf_l3_if_id,
-			{ "Interface ID",    "v5ua.l3_interface_id",
-			   FT_UINT32,   BASE_HEX, NULL,                                         0x0,
-			   NULL, HFILL } },
-		{&hf_l3_performance_grading,
-			{ "Performance grading",    "v5ua.l3_performance_grading",
-			   FT_UINT8,    BASE_HEX, VALS(l3_performance_grading_values),          0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_cp_rejection_cause,
-			{ "Rejection cause",    "v5ua.l3_cp_rejection_cause",
-			   FT_UINT8,    BASE_HEX, VALS(l3_cp_rejection_cause_values),           0x0f,
-			   NULL, HFILL } },
-		{&hf_l3_pstn_sequence_number,
-			{ "Sequence number",    "v5ua.l3_pstn_sequence_number",
-			   FT_UINT8,    BASE_HEX, NULL,                                         0x7f,
-			   NULL, HFILL } },
-		{&hf_l3_duration_type,
-			{ "Duration Type",    "v5ua.l3_duration_type",
-			   FT_UINT8,    BASE_HEX, NULL,                                         0x3f,
 			   NULL, HFILL } }
 		};
 
@@ -2348,6 +1720,7 @@ proto_reg_handoff_v5ua(void)
 
 	v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
 	q931_handle = find_dissector("q931");
+	v52_handle = find_dissector("v52");
 
 	dissector_add("sctp.port", SCTP_PORT_V5UA_DRAFT, v5ua_handle);
 	dissector_add("sctp.port", SCTP_PORT_V5UA_RFC, v5ua_handle);
