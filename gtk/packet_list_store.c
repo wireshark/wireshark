@@ -619,24 +619,26 @@ static gint
 packet_list_compare_records(gint sort_id, PacketListRecord *a,
 			    PacketListRecord *b)
 {
-	/* The following is necessary because sort_id is a column number as
-	 * seen by the user, whereas the col_text array from a and b is a
-	 * column format number. This matches them to each other to get
-	 * the right column text. */
-	gchar *a_col_text = a->col_text[cfile.cinfo.col_fmt[sort_id]];
-	gchar *b_col_text = b->col_text[cfile.cinfo.col_fmt[sort_id]];
 
-	if((a_col_text) && (b_col_text))
-		return strcmp(a_col_text, b_col_text);
+	/* XXX If we want to store other things than text, we need other sort functions */ 
 
-	if(a_col_text == b_col_text)
+	/* Get the frame number from frame data
+	 * Is this a bit hackish??
+	 */
+	if( cfile.cinfo.col_fmt[sort_id]==COL_NUMBER){
+		return (b->fdata->num - a->fdata->num);
+	}
+
+	if((a->col_text[sort_id]) && (b->col_text[sort_id]))
+		return strcmp(a->col_text[sort_id], b->col_text[sort_id]);
+
+	if(a->col_text[sort_id] == b->col_text[sort_id])
 		return 0; /* both are NULL */
 	else
-		return (a_col_text == NULL) ? -1 : 1;
+		return (a->col_text[sort_id] == NULL) ? -1 : 1;
 
 	g_return_val_if_reached(0);
-}
-		
+}		
 static gint
 packet_list_qsort_compare_func(PacketListRecord **a, PacketListRecord **b,
 			       PacketList *packet_list)
