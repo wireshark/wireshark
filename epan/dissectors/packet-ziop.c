@@ -5,6 +5,7 @@
  *
  * According with GIOP Compression RFP revised submission
  * OMG mars/2008-12-20
+ * http://www.omg.org/docs/ptc/09-01-03.pdf
  *
  * $Id$
  *
@@ -82,14 +83,7 @@ static gint hf_ziop_message_size = -1;
 static gint hf_ziop_compressor_id = -1;
 static gint hf_ziop_original_length = -1;
 
-static gint ett_ziop_magic = -1;
-static gint ett_ziop_giop_version_major = -1;
-static gint ett_ziop_giop_version_minor = -1;
-static gint ett_ziop_flags = -1;
-static gint ett_ziop_message_type = -1;
-static gint ett_ziop_message_size = -1;
-static gint ett_ziop_compressor_id = -1;
-static gint ett_ziop_original_length = -1;
+static gint ett_ziop = -1;
 
 
 static dissector_handle_t data_handle;
@@ -131,22 +125,21 @@ static void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 static guint
 get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-
-  ZIOPHeader header;
+  guint8 flags;
   guint message_size;
   gboolean stream_is_big_endian;
 
   if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
     return 0;
 
-  tvb_memcpy (tvb, (guint8 *)&header, offset, ZIOP_HEADER_SIZE);
+  flags = tvb_get_guint8(tvb, offset + 6);
   
-  stream_is_big_endian =  ((header.flags & 0x1) == 0);
+  stream_is_big_endian =  ((flags & 0x1) == 0);
   
   if (stream_is_big_endian)
-    message_size = pntohl (&header.message_size);
+    message_size = tvb_get_ntohl(tvb, offset + 8);
   else
-    message_size = pletohl (&header.message_size);
+    message_size = tvb_get_letohl(tvb, offset + 8);
   
   return message_size + ZIOP_HEADER_SIZE;
 }
@@ -226,134 +219,80 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 static void 
 dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
-  ZIOPHeader header;
-  CompressionData compression_data;
-  tvbuff_t *ziop_header_tvb;
-  tvbuff_t *compression_data_tvb;
-  tvbuff_t *payload_tvb;
-
-  proto_tree *clnp_tree = NULL;
+  guint8 giop_version_major, giop_version_minor, message_type;
+  
+  proto_tree *ziop_tree = NULL;
   proto_item *ti;
 
-  gboolean stream_is_big_endian;
-  guint32 message_size;
-  guint32 original_len;
-  guint16 compressor_id;
-
-  ziop_header_tvb = tvb_new_subset (tvb, 0, ZIOP_HEADER_SIZE, -1);
-  tvb_memcpy (ziop_header_tvb, (guint8 *)&header, 0, ZIOP_HEADER_SIZE );
-
-
-  compression_data_tvb = tvb_new_subset (tvb, ZIOP_HEADER_SIZE, 8 , -1);
-  tvb_memcpy (compression_data_tvb, (guint8 *)&compression_data, 0, 8 );
-
-  payload_tvb = tvb_new_subset (tvb, ZIOP_HEADER_SIZE + 8, -1, -1);
-
-
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, ZIOP_MAGIC);
-  }
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, ZIOP_MAGIC);
 
   /* Clear out stuff in the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
+  giop_version_major = tvb_get_guint8(tvb, 4);
+  giop_version_minor = tvb_get_guint8(tvb, 5);
+  message_type = tvb_get_guint8(tvb, 7);
 
-
-  if ( (header.giop_version_major != 1) || 
-       (header.giop_version_minor != 2) ) /* > 2?? */
+  if ( (giop_version_major < 1) || 
+       (giop_version_minor < 2) )  // minor than GIOP 1.2
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	{
-	  col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
-			header.giop_version_major, header.giop_version_minor);
-	}
+      col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
+		    giop_version_major, giop_version_minor);
       if (tree)
 	{
 	  ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
-	  clnp_tree = proto_item_add_subtree (ti, ett_ziop_giop_version_major);
-	  proto_tree_add_text (clnp_tree, ziop_header_tvb, 0, -1,
+	  ziop_tree = proto_item_add_subtree (ti, ett_ziop);
+	  proto_tree_add_text (ziop_tree, tvb, 4, 2,
 			       "Version %u.%u not supported",
-			       header.giop_version_major,
-			       header.giop_version_minor);
+			       giop_version_major,
+			       giop_version_minor);
 	}
       call_dissector(data_handle, tvb, pinfo, tree);
       return;
     }
 
-  stream_is_big_endian = ((header.flags & 0x01) == 0);
-
-  if (stream_is_big_endian) {
-    message_size = pntohl (&header.message_size);
-    compressor_id = pntohs (&compression_data.compressor_id);
-    original_len = pntohl (&compression_data.original_length);
-  }
-  else {
-    message_size = pletohl (&header.message_size);
-    compressor_id = pletohs (&compression_data.compressor_id);
-    original_len = pletohl (&compression_data.original_length);
-  }
-
-
-
-  if (check_col (pinfo->cinfo, COL_INFO))
-  {
-      col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s", 
-                    header.giop_version_major, 
-                    header.giop_version_minor,
-                    val_to_str(header.message_type, giop_message_types,
-                    	       "Unknown message type (0x%02x)")
-                    );
-  }
+  col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s", 
+		giop_version_major, 
+		giop_version_minor,
+		val_to_str(message_type, giop_message_types,
+			   "Unknown message type (0x%02x)")
+		);
 
   if (tree)
     {
+      guint8 flags;
+      gboolean little_endian;
+      emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
+
       ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
+      ziop_tree = proto_item_add_subtree (ti, ett_ziop);
 
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_magic);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 4,
-			   "Magic number: %s", ZIOP_MAGIC);
+      proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, FALSE);
       offset += 4;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_giop_version_major);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 1,
-			   "Version major: %u", header.giop_version_major);
+      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, FALSE);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_giop_version_minor);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 1,
-			   "Version minor: %u", header.giop_version_minor);
+      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, FALSE);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_flags);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 1,
-			   "Flags: 0x%02x (%s)", header.flags, 
-                           (stream_is_big_endian) ? "big-endian" : "little-endian");
+
+      flags = tvb_get_guint8(tvb, offset);
+      little_endian = flags & 0x01;
+
+      if (flags & 0x01) {
+	ep_strbuf_printf(flags_strbuf, "little-endian");
+      }
+      ti = proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
+					    flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_message_type);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 1,
-			   "Type: %s", 
-                           val_to_str(header.message_type, giop_message_types, 
-                                      "(0x%x)")
-                           );
+
+      proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, FALSE);
       offset++;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_message_size);
-      proto_tree_add_text (clnp_tree, ziop_header_tvb, offset, 4,
-			   "Size: %d", message_size);
-      offset = 0;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_compressor_id);
-      proto_tree_add_text (clnp_tree, compression_data_tvb, offset, 2,
-			   "Compressor Id: %s" , 
-                           val_to_str(compressor_id, ziop_compressor_ids, 
-                                      "(0x%x)")
-                           );
+
+      proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, little_endian);
       offset += 4;
-      clnp_tree = proto_item_add_subtree (ti, ett_ziop_original_length);
-      proto_tree_add_text (clnp_tree, compression_data_tvb, offset, 4,
-			   "Original length:  %d", original_len);
-
-
+      proto_tree_add_item(ziop_tree, hf_ziop_compressor_id, tvb, offset, 2, little_endian);
+      offset += 4;
+      proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, little_endian);
     }
-
-
 }
 
 
@@ -368,7 +307,7 @@ void proto_register_ziop (void) {
    */
   static hf_register_info hf[] = {
     { &hf_ziop_magic,
-      { "Header magic", "ziop.magic", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Header magic", "ziop.magic", FT_STRING, BASE_NONE, NULL, 0x0,
         "ZIOPHeader magic", HFILL }},
     { &hf_ziop_giop_version_major,
       { "Header major version", "ziop.giop_version_major", FT_UINT8, BASE_OCT, NULL, 0x0,
@@ -380,13 +319,13 @@ void proto_register_ziop (void) {
       { "Header flags", "ziop.flags", FT_UINT8, BASE_OCT, NULL, 0x0,
         "ZIOPHeader flags", HFILL }},
     { &hf_ziop_message_type,
-      { "Header type", "ziop.message_type", FT_UINT8, BASE_OCT, NULL, 0x0,
+      { "Header type", "ziop.message_type", FT_UINT8, BASE_OCT, VALS(giop_message_types), 0x0,
         "ZIOPHeader message_type", HFILL }},
     { &hf_ziop_message_size,
       { "Header size", "ziop.message_size",  FT_UINT32, BASE_DEC, NULL, 0x0,
         "ZIOPHeader message_size", HFILL }},
     { &hf_ziop_compressor_id,
-      { "Header compressor id", "ziop.compressor_id", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Header compressor id", "ziop.compressor_id", FT_UINT16, BASE_DEC, VALS(ziop_compressor_ids), 0x0,
         "ZIOPHeader compressor_id", HFILL }},
     { &hf_ziop_original_length,
       { "Header original length", "ziop.original_length", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -395,19 +334,12 @@ void proto_register_ziop (void) {
 
 
   static gint *ett[] = {
-    &ett_ziop_magic,
-    &ett_ziop_giop_version_major,
-    &ett_ziop_giop_version_minor,
-    &ett_ziop_flags,
-    &ett_ziop_message_type,
-    &ett_ziop_message_size,
-    &ett_ziop_compressor_id,
-    &ett_ziop_original_length
+    &ett_ziop,
   };
 
   proto_ziop = proto_register_protocol("Zipped Inter-ORB Protocol", "ZIOP",
 				       "ziop");
-  proto_register_field_array (proto_ziop, hf, array_length (ett));
+  proto_register_field_array (proto_ziop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
   register_dissector("ziop", dissect_ziop, proto_ziop);
