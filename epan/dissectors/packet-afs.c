@@ -818,7 +818,6 @@ static gint ett_afs_vldb_flags = -1;
 		OUT_RXString(hf_afs_kauth_realm); \
 	}
 
-#define MAX_GETSTR_LEN 200 /* Arbitrary */
 #define GETSTR (tvb_format_text(tvb,offset,tvb_length_remaining(tvb,offset)))
 
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
