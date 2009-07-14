@@ -6267,7 +6267,7 @@ proto_register_smb2(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_error_data,
-		{ "Error Data", "smb2.error.data", FT_BYTES, BASE_HEX,
+		{ "Error Data", "smb2.error.data", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	};
