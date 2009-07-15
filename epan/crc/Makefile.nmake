@@ -8,7 +8,7 @@ include Makefile.common
 
 ############### no need to modify below this line #########
 
-CFLAGS=-WX -DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
+CFLAGS=-WX /MP -DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
