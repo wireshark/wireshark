@@ -39,6 +39,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 
 static int proto_v52 					= -1;
 static int hf_v52_discriminator			= -1;
@@ -1937,8 +1938,10 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 4;
 	guint8		info_element, info_element_length;
+	int		old_offset;
 
 	while(tvb_length_remaining(tvb,offset)){
+		old_offset = offset;
 		info_element = tvb_get_guint8(tvb, offset);
 		switch(info_element){
 			case PSTN_SEQUENCE_NUMBER:
@@ -2097,6 +2100,10 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			default:
 				offset += 1;
 			break;
+		}
+		if (old_offset <= offset) {
+			expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN, "Zero-length information element");
+			return;
 		}
 	}
 }
