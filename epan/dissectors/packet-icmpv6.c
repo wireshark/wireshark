@@ -1866,8 +1866,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 	}
 #define ND_RA_CURHOPLIMIT_OFFSET 4
-#define ND_RA_FLAGS_RESERVED_OFFSET 4
-#define ND_RA_ROUTER_LIFETIME_OFFSET 5
+#define ND_RA_FLAGS_RESERVED_OFFSET 5
+#define ND_RA_ROUTER_LIFETIME_OFFSET 6
 	case ND_ROUTER_ADVERT:
 	  {
 	    struct nd_router_advert nd_router_advert, *ra;

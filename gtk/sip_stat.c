@@ -566,7 +566,8 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
     /* Create sip stats window structure */
     sp = g_malloc(sizeof(sipstat_t));
-    sp->win = window_new(GTK_WINDOW_TOPLEVEL, "sip-stat");
+	sp->win = dlg_window_new("sip-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
 
     /* Set title to include any filter given */
     if (filter)

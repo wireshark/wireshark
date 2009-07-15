@@ -879,7 +879,8 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable->filter=filter;
     hosttable->use_dfilter=FALSE;
     g_snprintf(title, sizeof(title), "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
-    hosttable->win=window_new(GTK_WINDOW_TOPLEVEL, title);
+	hosttable->win = dlg_window_new(title);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(hosttable->win), TRUE);
 
     gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
 
@@ -1132,7 +1133,9 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
 
-    win=window_new(GTK_WINDOW_TOPLEVEL, "hostlist");
+	win = dlg_window_new("hostlist");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
+
     g_snprintf(title, sizeof(title), "Endpoints: %s", cf_get_display_name(&cfile));
     gtk_window_set_title(GTK_WINDOW(win), title);
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);

@@ -147,7 +147,8 @@ gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 
 	ss=g_malloc(sizeof(smb2stat_t));
 
-	ss->win=window_new(GTK_WINDOW_TOPLEVEL, "smb2-stat");
+	ss->win = dlg_window_new("smb2-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 400);
 	smb2stat_set_title(ss);
 

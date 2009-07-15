@@ -344,7 +344,8 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	}
 
 	title_string = rpcprogs_gen_title();
-	win=window_new(GTK_WINDOW_TOPLEVEL, title_string);
+	win = dlg_window_new(title_string);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(win), vbox);

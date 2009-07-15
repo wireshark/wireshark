@@ -289,7 +289,8 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  fs_w = window_new(GTK_WINDOW_TOPLEVEL, "");
+  fs_w = dlg_window_new("");  /* transient_for top_level */
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(fs_w), TRUE);
 
   tooltips = gtk_tooltips_new();
 

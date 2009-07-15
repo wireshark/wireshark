@@ -1346,10 +1346,8 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	GtkTooltips *tooltip_in, *tooltip_out;
 
 	/* create the main window */
-
-	u_data->io->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-	gtk_widget_set_name(u_data->io->window, "SCTP Graphics");
+	u_data->io->window= dlg_window_new("WSCTP Graphics");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(u_data->io->window), TRUE);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(u_data->io->window), vbox);

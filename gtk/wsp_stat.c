@@ -323,7 +323,9 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	}
 
 	sp = g_malloc( sizeof(wspstat_t) );
-	sp->win = window_new(GTK_WINDOW_TOPLEVEL, "wsp-stat");
+	sp->win = dlg_window_new("wsp-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
+
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
 	for (i=0 ; vals_status[i].strptr ; i++ )
 	{

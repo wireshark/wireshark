@@ -93,7 +93,7 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_)
 }
 
 static gboolean
-packetlogger_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
+packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	packetlogger_header_t pl_hdr;
 	guint bytes_read;
@@ -103,6 +103,12 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err))
 		return FALSE;
 
+	if (pl_hdr.len < 8) {
+		*err_info = g_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+	
 	buffer_assure_space(wth->frame_buffer, pl_hdr.len - 8);
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			       pl_hdr.len - 8,

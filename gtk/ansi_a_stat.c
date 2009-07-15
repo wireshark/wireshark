@@ -295,7 +295,9 @@ ansi_a_stat_gtk_win_create(
     GtkWidget		*bbox;
 
 
-    dlg_p->win = window_new(GTK_WINDOW_TOPLEVEL, title);
+	dlg_p->win= dlg_window_new(title);  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(dlg_p->win), TRUE);
+
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 480, 450);
 
     vbox=gtk_vbox_new(FALSE, 3);

@@ -256,7 +256,8 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	hf_index=rpc_prog_hf(rpc_program, rpc_version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	rs->win=window_new(GTK_WINDOW_TOPLEVEL, "rpc-stat");
+	rs->win = dlg_window_new("rpc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	rpcstat_set_title(rs);
 

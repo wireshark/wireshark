@@ -1115,14 +1115,14 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 }
 
 int
-pcap_process_pseudo_header(wtap *wth, FILE_T fh, guint packet_size,
+pcap_process_pseudo_header(wtap *wth, int encap, FILE_T fh, guint packet_size,
     gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
 	guint size;
 
-	switch (wth->file_encap) {
+	switch (encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
 		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
@@ -1440,7 +1440,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 }
 
 gboolean
-pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
+pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
 	guint8 atm_hdr[SUNATM_LEN];
@@ -1454,7 +1454,7 @@ pcap_write_phdr(wtap_dumper *wdh, const union wtap_pseudo_header *pseudo_header,
 	size_t nwritten;
 	size_t size;
 
-	switch (wdh->encap) {
+	switch (encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
 		/*

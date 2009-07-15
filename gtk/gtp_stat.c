@@ -167,7 +167,9 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 
 	gtp=g_malloc(sizeof(gtpstat_t));
 
-	gtp->win=window_new(GTK_WINDOW_TOPLEVEL, "gtp-stat");
+	gtp->win = dlg_window_new("gtp-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(gtp->win), TRUE);
+
 	gtk_window_set_default_size(GTK_WINDOW(gtp->win), 550, 400);
 	gtpstat_set_title(gtp);
 

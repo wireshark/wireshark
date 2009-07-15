@@ -95,7 +95,8 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;
 
-  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "GSM MAP Statistics: Summary");
+  sum_open_w = dlg_window_new("GSM MAP Statistics: Summary");  /* transient_for top_level */
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(sum_open_w), TRUE);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);

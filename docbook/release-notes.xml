@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0">
+  <!ENTITY WiresharkCurrentVersion "1.2.1">
 
 ]>
 
@@ -30,41 +30,100 @@ Wireshark Info
     <section id="BugFixes"><title>Bug Fixes</title>
     <para>
 
-    Too many bugs have been fixed since the 1.0 release to list here. Some
-    notable fixes are:
+      The following vulnerabilities have been fixed.  See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-02.html">security advisory</ulink> for details and a workaround.
 
-    <itemizedlist>
+      <itemizedlist>
 
-      <listitem><para>
-        Type-ahead search now works properly.
-      </para></listitem>
+        <listitem>
+          <para>
+            The IPMI dissector could overrun a buffer.
+            <!-- Fixed in trunk: r28801 -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3559">Bug
+            3559</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
 
-      <listitem><para>
-        Several bugs that affected capture from pipes have been fixed.
-      </para></listitem>
+        <listitem>
+          <para>
+            The AFS dissector could crash.
+            <!-- Fixed in trunk: r28815 -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3564">Bug
+            3564</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
 
-      <listitem><para>
-        Many Lua-related bugs have been fixed.
-      </para></listitem>
+        <listitem>
+          <para>
+            The Infiniband dissector could crash on some platforms.
+            <!-- Fixed in trunk: r28839 -->
+            <!-- Fixed in trunk-1.2: r????? -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
 
-      <listitem><para>
-        Several memory leaks have been found and fixed.
-      </para></listitem>
+      </itemizedlist>
 
-      <listitem><para>
-        The "Follow TCP Stream" feature could show two streams at the same time
-        The hex dump view has been narrowed.
-      </para></listitem>
+    </para>
 
-      <listitem><para>
-        WPA and SSL decryption bugs have been fixed.
-      </para></listitem>
+    <para>
 
-      <listitem><para>
-        Readability problems on 256-color displays on Windows have been fixed.
-      </para></listitem>
+    The following bugs have been fixed:
 
-    </itemizedlist>
+      <itemizedlist>
+
+        <listitem><para>
+          Wireshark could crash while reading a pcap-ng file.
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark could crash while reading a PacketLogger file.
+        </para></listitem>
+
+        <listitem><para>
+          Pcap-ng breaks VoIP call data
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3539">Bug
+          3539</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ANSI MAP legInformation BER Error
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3541">Bug
+          3541</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          On Windows, Wireshark could crash on startup.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3555">Bug
+          3555</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          USB Packets in pcap-ng Files Not Dissected Properly
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3560">Bug
+          3560</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          802.11 decryption is broken
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3590">Bug
+          3590</ulink>)
+        </para></listitem>
+
+      </itemizedlist>
 
     </para>
 
@@ -72,133 +131,8 @@ Wireshark Info
 
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
-      The following features are new (or have been significantly updated)
-      since version 1.0:
 
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            Wireshark has a spiffy new start page.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Display filters now autocomplete.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            A 64-bit Windows (x64) installer is now provided.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for the c-ares resolver library has been added. It
-            has many advantages over ADNS.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Many new protocol dissectors and capture file formats have been
-            added (see below for a complete list).
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Macintosh OS X support has been improved.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.maxmind.com/app/ip-location">GeoIP database
-            lookups.</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://openstreetmap.org/">OpenStreetMap</ulink> + GeoIP
-            integration.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Improved <trademark class="registered">Postscript</trademark> print
-            output.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The preference handling code is now much smarter about changes.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for <ulink url="http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html">Pcap-ng</ulink>,
-            the next-generation capture file format.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for process information correlation via IPFIX.
-          </para>
-        </listitem>  
-
-        <listitem>
-          <para>
-            Column widths are now saved.
-          </para>
-        </listitem>  
-
-        <listitem>
-          <para>
-            The last used configuration profile is now saved.
-          </para>
-        </listitem>  
-
-        <listitem>
-          <para>
-            Protocol preferences are changeable from the packet details context menu.
-          </para>
-        </listitem>  
-      
-        <listitem>
-          <para>
-            Support for IP packet comparison.
-          </para>
-        </listitem>  
-      
-        <listitem>
-          <para>
-            Capinfos now shows the average packet rate.
-          </para>
-        </listitem>  
-      
-        <listitem>
-          <para>
-            GTK1 is no longer supported. (Yes, this is a feature.)
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Official Windows packages are now built using Microsoft Visual C++
-            2008 SP1.
-          </para>
-        </listitem>
-
-      </itemizedlist>
+There are no new or updated features in this release.
 
     </para>
     </section>
@@ -206,100 +140,7 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
-Anything in Anything Protocol,
-ATM PW, N-to-one Cell Mode,
-B.A.T.M.A.N. Layer 3 Protocol,
-BACnet MS/TP,
-BSS LCS Assistance Protocol,
-Canon BJNP,
-CESoPSN basic NxDS0 mode (no RTP support),
-Charging ASE,
-Cimetrics MS/TP,
-DECT Protocol,
-Digital Private Signalling System No 1 Link Layer,
-DOCSIS Mac Domain Description,
-DOCSIS Registration Request Multipart,
-DOCSIS Registration Response Multipart,
-DOCSIS Synchronisation Message,
-E100 Encapsulation,
-EHS,
-Enhanced Variable Rate Codec,
-Ethernet Global Data,
-Ethernet PW,
-Exchange 2003 Directory Request For Response,
-Far End Failure Detection,
-FCoE Initialization Protocol,
-GOOSE,
-GPEF,
-GPRS Tunneling Protocol V2,
-GSM A-I/F COMMON,
-GSM A-I/F GPRS Mobility and Session Management,
-GSM SACCH,
-GSM Um Interface,
-HDLC PW, FR port mode (no CW),
-HDLC-like framing for PPP,
-IEC 60870-5-104,Apci,
-IEC 60870-5-104,Asdu,
-IEEE 802.15.4 Low-Rate Wireless PAN non-ASK PHY,
-IEEE C37.118 Synchrophasor Protocol,
-Intelligent Platform Management Interface (Session Wrapper),
-Inter-Integrated Circuit,
-Internal TDM,
-IPSICTL,
-ISMACryp Protocol,
-iWARP Direct Data Placement and Remote Direct Memory Access Protocol,
-iWARP Marker Protocol data unit Aligned framing,
-Kontiki Delivery Protocol,
-LANforge Traffic Generator,
-Layer 1 Event Messages,
-Lb-I/F BSSMAP LE,
-LeCroy VICP,
-Link Access Procedure, Channel Dm (LAPDm),
-Local Download Sharing Service,
-LTE Radio Resource Control (RRC) protocol,
-MAC-LTE,
-Memcache Protocol,
-Mesh Header,
-MP4V-ES,
-Nasdaq TotalView-ITCH,
-Nasdaq-SoupTCP version 2.0,
-NAT Port Mapping Protocol,
-Netdump Protocol,
-Non-Access-Stratum (NAS)PDU,
-PacketLogger,
-Paltalk Messenger Protocol,
-PDCP-LTE,
-PW Associated Channel Header,
-PW Ethernet Control Word,
-PW Frame Relay DLCI Control Word,
-PW MPLS Control Word (generic/preferred),
-Real-Time Publish-Subscribe Wire Protocol 2.x,
-Remote Packet Capture,
-RLC-LTE,
-SAToP (no RTP support),
-SERCOS III V1.1,
-SIMULCRYPT Protocol,
-Subnetwork Dependent Convergence Protocol XID,
-Teamspeak2 Protocol,
-TTEthernet,
-TTEthernet Protocol Control Frame,
-Turbocell Aggregate Data,
-Turbocell Header,
-TURN Channel,
-Unreliable Multicast Inter-ORB Protocol,
-VCDU,
-Wave Short Message Protocol(IEEE P1609.3),
-Wireless Access Station Session Protocol,
-Wireshark Expert Info,
-World of Warcraft,
-Xpress Transport Protocol,
-ZigBee Application Framework,
-ZigBee Application Support Layer,
-ZigBee Device Profile,
-ZigBee Encapsulation Protocol,
-ZigBee Network Layer,
-Zipped Inter-ORB Protocol,
-ZRTP
+There are no new protocols in this release.
 
     </para>
     </section>
@@ -314,11 +155,7 @@ There are too many updates to list here.
     <section id="NewCapture"><title>New Capture File Support</title>
     <para>
 
-Apple Bluetooth PacketLogger,
-Daintree's Sensor Network Analyzer,
-dct3trace,
-Pcap-NG,
-TNEF (yes, those silly winmail.dat attachments)
+There are no new or updated capture file formats in this release.
 
     </para>
     </section>

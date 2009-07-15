@@ -263,7 +263,9 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	rs->uuid=uuid;
 	rs->ver=ver;
 
-	rs->win=window_new(GTK_WINDOW_TOPLEVEL, "dcerpc-stat");
+	rs->win = dlg_window_new("dcerpc-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
+
 	dcerpcstat_set_title(rs);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 

@@ -101,7 +101,7 @@ typedef struct {
 	gboolean byte_swapped;
 	guint16 version_major;
 	guint16 version_minor;
-	guint8 if_fcslen;
+	gint8 if_fcslen;
 	GArray *interface_data;
 	guint number_of_interfaces;
 } pcapng_t;

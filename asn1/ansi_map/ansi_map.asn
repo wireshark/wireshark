@@ -1346,7 +1346,7 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- (Serving MSC) O 6.5.2.65 e
 	imsi									[242] IMPLICIT IMSI OPTIONAL,
 	-- O 6.5.2.bu
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 f
@@ -2172,7 +2172,7 @@ RedirectionRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.110
 	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
 	-- O 6.5.2.f
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 a
 	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 6.5.2.83 b
@@ -2458,7 +2458,7 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.60 f
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 f
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 g
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 f, h
@@ -2788,7 +2788,7 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.f
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 b
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 c
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Originating) O 6.5.2.82 d
@@ -2959,7 +2959,7 @@ UnsolicitedResponseRes ::= [PRIVATE 18] SET {
 	-- (Originating MSC) O 6.5.2.64 e
 	extendedSystemMyTypeCode				[54] IMPLICIT ExtendedSystemMyTypeCode OPTIONAL,
 	-- (Originating MSC) O 6.5.2.65 f
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 d
@@ -3116,7 +3116,7 @@ ServiceRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.ej c, u
 	groupInformation						[163] GroupInformation OPTIONAL,
 	-- O 6.5.2.69 c
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 c
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 c
@@ -3396,7 +3396,7 @@ FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 c
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 c
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 c
@@ -3561,7 +3561,7 @@ TBusy ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63 f
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 f
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 g
@@ -3666,7 +3666,7 @@ TNoAnswer ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63 f
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 f
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 g
@@ -5626,7 +5626,7 @@ IntersystemTermination ::= SEQUENCE {
 	-- O 6.5.2.63 e
 	imsi									[242] IMPLICIT IMSI OPTIONAL,
 	-- 6.5.2.bu e, k
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 d, e
@@ -5644,7 +5644,7 @@ IntersystemTermination ::= SEQUENCE {
 -- 6.5.2.75
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
--- 0 0 0 1 0 0 0 0 (0x10)(288)
+-- 0 0 0 1 0 0 0 0 (0x10)(144)
 LegInformation ::= OCTET STRING
 
 -- 6.5.2.76
@@ -5663,7 +5663,7 @@ LocalTermination ::= SEQUENCE {
 	-- O 6.5.2.56 d, e
 	imsi									[242] IMPLICIT IMSI OPTIONAL,
 	-- 6.5.2.bu e, k
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 a
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 b, f
@@ -5905,7 +5905,7 @@ PSTNTermination ::= SEQUENCE {
 	-- O 6.5.2.63 c
 	imsi									[242] IMPLICIT IMSI,
 	-- 6.5.2.bu
-	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
+	legInformation							[144] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 d
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	-- O 6.5.2.81 c, e

@@ -940,9 +940,6 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_reserved16_RWH, tvb,
                             local_offset, 2, tvb_get_ntohs(tvb, local_offset));
 
-
-            } else {
-                tvb_free(next_tvb);
             }
                 
         }

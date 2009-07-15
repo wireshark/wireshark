@@ -12123,7 +12123,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     len=dec_caplen-offset;
 
     /* decrypt successful, let's set up a new data tvb.              */
-    decr_tvb = tvb_new_child_real_data(tvb, tmp, len-8, len-8);
+    decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
     tvb_set_free_cb(decr_tvb, g_free);
   } else
     g_free(tmp);

@@ -235,7 +235,8 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 		break;
 	}
 
-	rs->win=window_new(GTK_WINDOW_TOPLEVEL, "scsi-stat");
+	rs->win = dlg_window_new("scsi-stat");  /* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	scsistat_set_title(rs);
 

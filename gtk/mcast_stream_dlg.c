@@ -407,7 +407,8 @@ mcast_on_params                      (GtkButton       *button _U_,
                 return;
         }
 
-	mcast_params_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Set parameters for Multicast Stream Analysis");
+	mcast_params_dlg = dlg_window_new("Wireshark: Set parameters for Multicast Stream Analysis");  
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(mcast_params_dlg), TRUE);
         gtk_window_set_default_size(GTK_WINDOW(mcast_params_dlg), 210, 210);
 
         gtk_widget_show(mcast_params_dlg);
