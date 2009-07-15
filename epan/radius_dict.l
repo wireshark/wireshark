@@ -305,10 +305,14 @@ void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_octets, 
 		v->code = vendor_id;
 		v->ett = -1;
 		v->name = NULL;
-		v->type_octets = vendor_type_octets;
-		v->length_octets = vendor_length_octets;
-		v->has_flags = vendor_has_flags; 
 	}
+        /* Assume that the dictionary knows the 'ground truth' about the 
+         * type/length/has_flags information and thus allow the dictionary to
+         * overwrite these values even for vendors that have already been loaded.
+         */
+	v->type_octets = vendor_type_octets;
+	v->length_octets = vendor_length_octets;
+	v->has_flags = vendor_has_flags; 
 
 	if (v->name)
 		g_free((gpointer) v->name);

@@ -1780,6 +1780,11 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 			vendor->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 			vendor->ett = no_vendor.ett;
 
+			/* XXX: Default "standard" values: Should be parameters ?  */
+			vendor->type_octets   = 1;
+			vendor->length_octets = 1;
+			vendor->has_flags     = FALSE; 
+
 			g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(vendor->code),vendor);
 			g_hash_table_insert(dict->vendors_by_name,(gpointer)(vendor->name),vendor);
 		}

@@ -8,7 +8,7 @@ EXTRA_DIST = \
 	macosx/Info.plist.in		\
 	ws-manifest.pl				\
 	portableapps/win32/Installer.nsi		\
-	portableapps/win32/WiresharkPortable.ini	\
+	portableapps/win32/WiresharkPortable.tmpl	\
 	portableapps/win32/WiresharkPortable.nsi	\
 	portableapps/win32/appinfo.tmpl			\
 	portableapps/win32/makefile.nmake		\

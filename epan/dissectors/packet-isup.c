@@ -2312,8 +2312,8 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 		cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
 		offset ++;
 		length--;
+		proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, q850_cause_code_vals, "spare"),cause_value );
 		if (length == 0) {
-			proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, q850_cause_code_vals, "spare"),cause_value );
 			return;
 		}
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset,
@@ -2330,11 +2330,11 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 		if (length == 0)
 			return;
 		proto_tree_add_item(parameter_tree, hf_ansi_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
+		cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
+		proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, ansi_isup_cause_code_vals, "spare"),cause_value );
 		offset ++;
 		length--;
-		cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
 		if (length == 0) {
-			proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, ansi_isup_cause_code_vals, "spare"),cause_value );
 			return;
 		}
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset,

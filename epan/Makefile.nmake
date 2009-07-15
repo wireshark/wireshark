@@ -63,7 +63,6 @@ EXTRA_OBJECTS = \
 	inet_aton.obj	\
 	inet_pton.obj	\
 	inet_ntop.obj	\
-	mkstemp.obj	\
 	strptime.obj	\
 !IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	asm_utils_win32_x86.obj
@@ -279,10 +278,6 @@ asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
 # It is a cleaner to compile these sources separately with this makefile than
 # using the object code compiled by the makefile in /trunk for both dynamically
 # and statically linking
-
-mkstemp.c: ..\mkstemp.c
-	set copycmd=/y
-	xcopy ..\mkstemp.c . /d
 
 strptime.c: ..\strptime.c
 	set copycmd=/y

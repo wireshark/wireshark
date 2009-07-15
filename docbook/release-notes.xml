@@ -156,6 +156,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark crashes when range_string is the data type
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3536">Bug
+          3536</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Pcap-ng breaks VoIP call data
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3539">Bug
           3539</ulink>)
@@ -198,9 +204,15 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          configure.in uses depracated autoconf test for gnutls detection
+          configure.in uses deprecated autoconf test for gnutls detection
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3627">Bug
           3627</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Radius Malformed Packet error message
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3635">Bug
+          3635</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -213,6 +225,18 @@ Wireshark Info
           btsnoop: Incorrect error message for not supported datalink type
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3645">Bug
           3645</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          radius_register_avp_dissector() can stop RADIUS dissector from working correctly
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3651">Bug
+          3651</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ANSI ISUP Cause indicators with coding standard=ANSI fail to dissect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3654">Bug
+          3654</ulink>)
         </para></listitem>
 
       </itemizedlist>
