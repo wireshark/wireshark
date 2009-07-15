@@ -1,21 +1,22 @@
 #!/bin/sh
 #
 # This script returns the flags to be fed to "aclocal" to ensure that
-# it finds GTK+'s aclocal macros.
+# it finds GLib's aclocal macros.  (We assume GTK+ is installed in the
+# same place as GLib.)
 #
 # aclocal will search, by default, only in a directory in the same
 # tree where it was installed - e.g., if installed in "/usr/bin", it'll
 # search only in "/usr/share/aclocal", and if installed in "/usr/local/bin",
 # it'll search only in "/usr/local/share/aclocal".
 #
-# However, there is no guarantee that GTK+ has been installed there; if
-# it's not, it won't find the GTK+ autoconf macros, and will complain
+# However, there is no guarantee that GLib has been installed there; if
+# it's not, it won't find the GLib autoconf macros, and will complain
 # bitterly.
 #
 # So, if the "share/local" directory under the directory reported by
-# "gtk-config --prefix" isn't the same directory as the directory
-# reported by "aclocal --print-ac-dir", we return a "-I" flag with
-# the first of those directories as the argument.
+# "pkg-config --variable=prefix glib-2.0" isn't the same directory as
+# the directory reported by "aclocal --print-ac-dir", we return a "-I"
+# flag with the first of those directories as the argument.
 #
 # (If they *are* the same directory, and we supply that "-I" flag,
 # "aclocal" will look in that directory twice, and get well and truly
@@ -32,13 +33,13 @@ aclocal_dir=`aclocal --print-ac-dir`
 #
 # And where do we want to make sure it looks?
 #
-gtk_prefix=`gtk-config --prefix 2>/dev/null`
+glib_prefix=`pkg-config --variable=prefix glib-2.0 2>/dev/null`
 
-if [ -z "$gtk_prefix" ]
+if [ -z "$glib_prefix" ]
 then
-	gtk_aclocal_dir=""
+	glib_aclocal_dir=""
 else
-	gtk_aclocal_dir=$gtk_prefix/share/aclocal
+	glib_aclocal_dir=$glib_prefix/share/aclocal
 fi
 
 ac_missing_dir=`dirname $0`
@@ -46,15 +47,16 @@ echo "-I $ac_missing_dir/aclocal-fallback" | tr -d '\012' | tr -d '\015'
 
 #
 # If there's no "aclocal", the former will be empty; if there's no
-# "gtk-config", the latter will be empty.
+# "pkg-config" or it doesn't know about glib-2.0, the latter will be
+# empty.
 #
 # Add the "-I" flag only if neither of those strings are empty, and
 # they're different.
 #
-if [ ! -z "$aclocal_dir" -a ! -z "$gtk_aclocal_dir" \
-    -a "$aclocal_dir" != "$gtk_aclocal_dir" ]
+if [ ! -z "$aclocal_dir" -a ! -z "$glib_aclocal_dir" \
+    -a "$aclocal_dir" != "$glib_aclocal_dir" ]
 then
-	echo " -I $gtk_aclocal_dir" | tr -d '\012' | tr -d '\015'
+	echo " -I $glib_aclocal_dir" | tr -d '\012' | tr -d '\015'
 fi
 echo
 exit 0

@@ -252,6 +252,11 @@ typedef struct {
     struct wtap_nstime start_time;
 } dct2000_dump_t;
 
+typedef struct {
+	GArray *interface_data;
+	guint number_of_interfaces;
+} pcapng_dump_t;
+
 struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
@@ -269,6 +274,7 @@ struct wtap_dumper {
 		niobserver_dump_t	*niobserver;
 		k12_dump_t		*k12;
 		dct2000_dump_t		*dct2000;
+		pcapng_dump_t		*pcapng;
 	} dump;
 
 	subtype_write_func	subtype_write;

@@ -67,6 +67,7 @@
 #define AIRPCAP_ADVANCED_INTERFACE_KEY		"airpcap_advanced_if_key"
 #define AIRPCAP_ADVANCED_LINK_TYPE_KEY		"airpcap_advanced_lt_key" 
 #define AIRPCAP_ADVANCED_CHANNEL_KEY		"airpcap_advanced_ch_key"
+#define AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY	"airpcap_advanced_ch_offset_key"
 #define AIRPCAP_ADVANCED_FCS_CHECK_KEY		"airpcap_advanced_fcs_check_key"
 #define AIRPCAP_ADVANCED_FCS_FILTER_KEY		"airpcap_advanced_fcs_filter_key"
 #define AIRPCAP_ADVANCED_BLINK_KEY			"airpcap_advanced_blink_key"

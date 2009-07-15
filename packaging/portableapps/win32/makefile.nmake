@@ -77,12 +77,18 @@ appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
             -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
 	< appinfo.tmpl > appinfo.ini
 
+WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
+	sed -e 's/$$(PCAP_VERSION)/$(PCAP_VERSION)/g' \
+            -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
+	< WiresharkPortable.tmpl > WiresharkPortable.ini
+
 appinfo: appinfo.ini
 	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
 
-source:
+source:  WiresharkPortable.ini
 	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	$(COPY) readme.txt $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 
@@ -96,6 +102,8 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
+	/DDEFAULTWINPCAP=WinPcap_$(PCAP_VERSION).exe \
+	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
@@ -112,6 +120,7 @@ clean:
 	cd portableapps/win32
 	rm -rf $(FILES)
 	rm -rf appinfo.ini
+	rm -rf WiresharkPortable.ini
 	rm -rf distribution.nmake
 	rm -rf WiresharkPortable-$(VERSION).paf.exe
    	rm -rf *~ *.*~

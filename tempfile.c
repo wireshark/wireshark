@@ -33,6 +33,10 @@
 #include <stdio.h>
 #include <errno.h>
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -41,43 +45,152 @@
 #include <windows.h>
 #endif
 
+#ifdef _WIN32
+#include <process.h>    /* For getpid() */
+#endif
+
 #include "tempfile.h"
-#include "mkstemp.h"
 #include <wsutil/file_util.h>
 
-static const char *
-setup_tmpdir(const char *dir)
-{
-	size_t len = strlen(dir);
-	char *newdir;
+#ifndef __set_errno
+#define __set_errno(x) errno=(x)
+#endif
 
-	/* Append path separator if necessary */
-	if (len != 0 && dir[len - 1] == G_DIR_SEPARATOR) {
-		return dir;
-	}
-	else {
-		newdir = g_strdup_printf("%s%s", dir, G_DIR_SEPARATOR_S);
-		return newdir;
-	}
+#ifndef HAVE_MKSTEMP
+/* Generate a unique temporary file name from TEMPLATE.
+   The last six characters of TEMPLATE must be "XXXXXX";
+   they are replaced with a string that makes the filename unique.
+   Returns a file descriptor open on the file for reading and writing.  */
+static int
+mkstemp (template)
+     char *template;
+{
+  static const char letters[]
+    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  size_t len;
+  size_t i;
+
+  len = strlen (template);
+  if (len < 6 || strcmp (&template[len - 6], "XXXXXX"))
+    {
+      __set_errno (EINVAL);
+      return -1;
+    }
+
+  if (g_snprintf (&template[len - 5], 6, "%.5u",
+	       (unsigned int) getpid () % 100000) != 5)
+    /* Inconceivable lossage.  */
+    return -1;
+
+  for (i = 0; i < sizeof (letters); ++i)
+    {
+      int fd;
+
+      template[len - 6] = letters[i];
+
+      fd = ws_open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
+      if (fd >= 0)
+	return fd;
+    }
+
+  /* We return the null string if we can't find a unique file name.  */
+
+  template[0] = '\0';
+  return -1;
 }
 
-static int
-try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
-{
-	static const char suffix[] = "XXXXXXXXXX";
-	int namelen = (int) (strlen(dir) + strlen(pfx) + sizeof(suffix));
-	int old_umask;
-	int tmp_fd;
+#endif /* HAVE_MKSTEMP */
 
-	g_snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
-	if (namebuflen < namelen) {
-		/* Stick with the truncated name, so that if this error is
-		   reported with the file name, you at least get
-		   something. */
-		errno = ENAMETOOLONG;
-		return -1;
+#ifndef HAVE_MKDTEMP
+/* Generate a unique temporary directory name from TEMPLATE.
+   The last six characters of TEMPLATE must be "XXXXXX";
+   they are replaced with a string that makes the filename unique.
+   Returns 0 on success or -1 on error (from mkdir(2)).  */
+char *
+mkdtemp (template)
+     char *template;
+{
+  static const char letters[]
+    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  size_t len;
+  size_t i;
+
+  len = strlen (template);
+  if (len < 6 || strcmp (&template[len - 6], "XXXXXX"))
+    {
+      __set_errno (EINVAL);
+      return NULL;
+    }
+
+  if (g_snprintf (&template[len - 5], 6, "%.5u",
+	       (unsigned int) getpid () % 100000) != 5)
+    /* Inconceivable lossage.  */
+    return NULL;
+
+  for (i = 0; i < sizeof (letters); ++i)
+    {
+      int ret;
+
+      template[len - 6] = letters[i];
+
+      ret = ws_mkdir(template, 0700);
+      if (ret >= 0)
+	return template;
+    }
+
+  /* We return the null string if we can't find a unique file name.  */
+
+  template[0] = '\0';
+  return NULL;
+}
+
+#endif /* HAVE_MKDTEMP */
+
+
+#define INITIAL_PATH_SIZE 128
+#define TMP_FILE_SUFFIX "XXXXXXXXXX"
+
+/**
+ * Create a tempfile with the given prefix (e.g. "wireshark").
+ * 
+ * @param namebuf If not NULL, receives the full path of the temp file.
+ *                Should NOT be freed.
+ * @param pfx A prefix for the temporary file.
+ * @return The file descriptor of the new tempfile, from mkstemp().
+ */
+int
+create_tempfile(char **namebuf, const char *pfx)
+{
+	static char *tf_path[3];
+	static int tf_path_len[3];
+	static int idx;
+	const char *tmp_dir;
+	int old_umask;
+	int fd;
+
+	idx = (idx + 1) % 3;
+	
+	/*
+	 * Allocate the buffer if it's not already allocated.
+	 */
+	if (tf_path[idx] == NULL) {
+		tf_path_len[idx] = INITIAL_PATH_SIZE;
+		tf_path[idx] = g_malloc(tf_path_len[idx]);
 	}
 
+	/*
+	 * We can't use get_tempfile_path here because we're called from dumpcap.c.
+	 */
+	tmp_dir = g_get_tmp_dir();
+
+	while (g_snprintf(tf_path[idx], tf_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > tf_path_len[idx]) {
+		tf_path_len[idx] *= 2;
+		tf_path[idx] = g_realloc(tf_path[idx], tf_path_len[idx]);
+	}
+
+	if (namebuf) {
+		*namebuf = tf_path[idx];
+	}
 	/* The Single UNIX Specification doesn't say that "mkstemp()"
 	   creates the temporary file with mode rw-------, so we
 	   won't assume that all UNIXes will do so; instead, we set
@@ -85,62 +198,49 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	   permissions, attempt to create the file, and then put
 	   the umask back. */
 	old_umask = umask(0077);
-	tmp_fd = mkstemp(namebuf);
+	fd = mkstemp(tf_path[idx]);
 	umask(old_umask);
-	return tmp_fd;
+	return fd;
 }
 
-static const char *tmpdir = NULL;
-#ifdef _WIN32
-static const char *temp = NULL;
-#endif
-static const char *E_tmpdir;
-
-#ifndef P_tmpdir
-#define P_tmpdir "/var/tmp"
-#endif
-
-/* create a tempfile with the given prefix (e.g. "wireshark")
- * namebuf (and namebuflen) should be 128+1 bytes long (BTW: why?)
- * returns the file descriptor of the new tempfile and
- * the name of the new file in namebuf 
+/**
+ * Create a directory with the given prefix (e.g. "wireshark"). The path
+ * is created using g_get_tmp_dir and mkdtemp.
+ * 
+ * @param pfx A prefix for the temporary directory.
+ * @return The temporary directory path on success, or NULL on failure.
+ *         Must NOT be freed.
  */
-int
-create_tempfile(char *namebuf, int namebuflen, const char *pfx)
+const char *
+create_tempdir(char **namebuf, const char *pfx)
 {
-	char *dir;
-	int fd;
-	static gboolean initialized;
+	static char *td_path[3];
+	static int td_path_len[3];
+	static int idx;
+	const char *tmp_dir;
 
-	if (!initialized) {
-		if ((dir = getenv("TMPDIR")) != NULL)
-			tmpdir = setup_tmpdir(dir);
-#ifdef _WIN32
-		if ((dir = getenv("TEMP")) != NULL)
-			temp = setup_tmpdir(dir);
-#endif
-
-		E_tmpdir = setup_tmpdir(P_tmpdir);
-		initialized = TRUE;
+	idx = (idx + 1) % 3;
+	
+	/*
+	 * Allocate the buffer if it's not already allocated.
+	 */
+	if (td_path[idx] == NULL) {
+		td_path_len[idx] = INITIAL_PATH_SIZE;
+		td_path[idx] = g_malloc(td_path_len[idx]);
 	}
 
-	if (tmpdir != NULL) {
-		fd = try_tempfile(namebuf, namebuflen, tmpdir, pfx);
-		if (fd != -1)
-			return fd;
+	/*
+	 * We can't use get_tempfile_path here because we're called from dumpcap.c.
+	 */
+	tmp_dir = g_get_tmp_dir();
+
+	while (g_snprintf(td_path[idx], td_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > td_path_len[idx]) {
+		td_path_len[idx] *= 2;
+		td_path[idx] = g_realloc(td_path[idx], td_path_len[idx]);
 	}
 
-#ifdef _WIN32
-	if (temp != NULL) {
-		fd = try_tempfile(namebuf, namebuflen, temp, pfx);
-		if (fd != -1)
-			return fd;
+	if (namebuf) {
+		*namebuf = td_path[idx];
 	}
-#endif
-
-	fd = try_tempfile(namebuf, namebuflen, E_tmpdir, pfx);
-	if (fd != -1)
-		return fd;
-
-	return try_tempfile(namebuf, namebuflen, G_DIR_SEPARATOR_S "tmp", pfx);
+	return mkdtemp(td_path[idx]);
 }

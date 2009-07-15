@@ -51,6 +51,7 @@
 #include "../globals.h"
 #include "../color.h"
 #include "../alert_box.h"
+#include "../tempfile.h"
 
 #include "gtk/hostlist_table.h"
 #include "gtk/filter_utils.h"
@@ -591,10 +592,13 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     guint32         i;
     gchar           *table_entry;
     gint32          col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
-    char            *file_path;
     FILE            *out_file;
     gchar           *file_uri;
     gboolean        uri_open;
+    char            *map_path, *map_data_filename;
+    char            *src_file_path;
+    char            *dst_file_path;
+    gboolean        hosts_written = FALSE;
 
     hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
     if (!hosts)
@@ -638,14 +642,18 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 
     /* open the TSV output file */
     /* XXX - add error handling */
-    file_path = get_tempfile_path("ipmap.txt");
-    out_file = ws_fopen(file_path, "w+b");
-    if(out_file == NULL) {
-        open_failure_alert_box(file_path, errno, TRUE);
-        g_free(file_path);
+    if (! create_tempdir(&map_path, "Wireshark IP Map ")) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Could not create temporary directory\n%s",
+                map_path);
         return;
     }
-    g_free(file_path);
+    map_data_filename = g_strdup_printf("%s%cipmap.txt", map_path, G_DIR_SEPARATOR);
+    out_file = ws_fopen(map_data_filename, "w");
+    if(out_file == NULL) {
+        open_failure_alert_box(map_data_filename, errno, TRUE);
+        return;
+    }
 
     fputs("lat\tlon\ttitle\tdescription\t\n", out_file);
 
@@ -705,34 +713,33 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
         /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
 
         fputs("\n", out_file);                     /* new row */
+        hosts_written = TRUE;
     }
 
     fclose(out_file);
 
-    /* copy ipmap.html to temp dir */
-    {
-        char * src_file_path;
-        char * dst_file_path;
-
-        src_file_path = get_datafile_path("ipmap.html");
-        dst_file_path = get_tempfile_path("ipmap.html");
-
-        if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
-            g_free(src_file_path);
-            g_free(dst_file_path);
-            return;
-        }
-        g_free(src_file_path);
-        g_free(dst_file_path);
+    if(!hosts_written) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No latitude/longitude data found");
+        return;
     }
 
+    /* copy ipmap.html to temp dir */
+    src_file_path = get_datafile_path("ipmap.html");
+    dst_file_path = g_strdup_printf("%s%cipmap.html", map_path, G_DIR_SEPARATOR);
+    
+    if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
+        g_free(src_file_path);
+        g_free(dst_file_path);
+        return;
+    }
+    g_free(src_file_path);
+
     /* open the webbrowser */
-    file_path = get_tempfile_path("ipmap.html");
-    file_uri = filename2uri(file_path);
-    g_free(file_path);
+    file_uri = filename2uri(dst_file_path);
+    g_free(dst_file_path);
     uri_open = browser_open_url (file_uri);
     if(!uri_open) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in your web browser", file_uri);
         g_free(file_uri);
         return;
     }

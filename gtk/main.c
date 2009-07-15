@@ -3371,7 +3371,6 @@ void change_configuration_profile (const gchar *profile_name)
    }
    timestamp_set_type (recent.gui_time_format);
    color_filters_enable(recent.packet_list_colorize);
-   menu_recent_read_finished();
    main_pane_load_window_geometry();
    recent.gui_time_format = timestamp_get_type ();
 
@@ -3398,6 +3397,9 @@ void change_configuration_profile (const gchar *profile_name)
    packet_list_recreate ();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply();
+
+   /* Update menus with new recent values */
+   menu_recent_read_finished();
 }
 
 /** redissect packets and update UI */

@@ -106,6 +106,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info_t	*follow_info;
 	tcp_stream_chunk sc;
 	size_t              nchars;
+	gchar           *data_out_filename;
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
@@ -138,13 +139,14 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	   append stuff to the text widget for the TCP stream window,
 	   if we can arrange that said window not pop up until we're
 	   done. */
-	tmp_fd = create_tempfile(follow_info->data_out_filename,
-			sizeof follow_info->data_out_filename, "follow");
+	tmp_fd = create_tempfile(&data_out_filename, "follow");
+	follow_info->data_out_filename = g_strdup(data_out_filename);
 
 	if (tmp_fd == -1) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
+	    g_free(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    g_free(follow_filter);
 	    return;
@@ -157,6 +159,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			  follow_info->data_out_filename, strerror(errno));
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
+	    g_free(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    g_free(follow_filter);
 	    return;
@@ -201,6 +204,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			  "The packets in the capture file for that stream have no data.");
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
+	    g_free(follow_info->data_out_filename);
 	    g_free(follow_info->filter_out_filter);
 	    g_free(follow_info);
 	    return;
@@ -232,6 +236,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	    }
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
+	    g_free(follow_info->data_out_filename);
 	    g_free(follow_info->filter_out_filter);
 	    g_free(follow_info);
 	    return;

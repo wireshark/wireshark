@@ -54,6 +54,7 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/sminmpec.h>
+#include <epan/expert.h>
 
 #define SFLOW_UDP_PORTS "6343"
 
@@ -1115,7 +1116,7 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 
 /* dissect a counters sample */
 static gint
-dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
+dissect_sflow_counters_sample(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint offset, proto_item *parent, guint32 version)
 {
 	guint32	sequence_number, num_records, counters_type, record_length, j;
@@ -1129,6 +1130,11 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 		proto_tree_add_item(tree, hf_sflow_sample_length, tvb, offset, 4, FALSE);
 		offset += 4;
 		return_offset = offset + sample_length;
+		if (return_offset < offset) {
+			expert_add_info_format(pinfo, tree, PI_MALFORMED,
+					       PI_ERROR, "Huge sample length");
+			return offset;
+		}
 	}
 	sequence_number = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_sflow_cs_seqno, tvb, offset, 4, FALSE);
@@ -1173,6 +1179,11 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 			proto_tree_add_item(record_tree, hf_sflow_cs_recordlength, tvb, offset, 4, FALSE);
 			offset += 4;
 			nextoffset = offset + record_length;
+			if (nextoffset < offset) {
+				expert_add_info_format(pinfo, record_tree, PI_MALFORMED,
+						       PI_ERROR, "Huge record length");
+				return offset;
+			}
 		}
 	
 		/* most counters types have the "generic" counters first */
@@ -1337,7 +1348,7 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	case COUNTERSSAMPLE:
 	case EXPCOUNTERSAMPLES:
-		offset = dissect_sflow_counters_sample(tvb, sflow_sample_tree, offset, ti, version);
+		offset = dissect_sflow_counters_sample(tvb, pinfo, sflow_sample_tree, offset, ti, version);
 		break;
 	default:
 		break;
@@ -1357,7 +1368,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		version, sub_agent_id, seqnum;
 	guint32		agent_address_type;
 	guint32		numsamples;
-	volatile guint	offset=0;
+	guint		offset = 0, old_offset;
 	guint 		i=0;
 	union {
 		guint8	v4[4];
@@ -1438,8 +1449,15 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 	i = 0;
-	while (i++ < numsamples)
+	while (i++ < numsamples) {
+		old_offset = offset;
 		offset = dissect_sflow_samples(tvb, pinfo, sflow_tree, offset, version);
+		if (old_offset >= offset) {
+			expert_add_info_format(pinfo, sflow_tree, PI_MALFORMED,
+					       PI_ERROR, "Bad offset");
+			return offset;
+		}
+	}
 
 	return tvb_length(tvb);
 }

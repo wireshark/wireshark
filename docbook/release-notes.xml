@@ -39,7 +39,7 @@ Wireshark Info
           <para>
             The IPMI dissector could overrun a buffer.
             <!-- Fixed in trunk: r28801 -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.2: r29099 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3559">Bug
             3559</ulink>) -->
           </para>
@@ -53,7 +53,7 @@ Wireshark Info
           <para>
             The AFS dissector could crash.
             <!-- Fixed in trunk: r28815 -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.2: r29099 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3564">Bug
             3564</ulink>) -->
           </para>
@@ -67,7 +67,63 @@ Wireshark Info
           <para>
             The Infiniband dissector could crash on some platforms.
             <!-- Fixed in trunk: r28839 -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.2: r29099 -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The Bluetooth L2CAP dissector could crash.
+            <!-- Fixed in trunk: r28884 -->
+            <!-- Fixed in trunk-1.2: r29101 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3572">Bug
+            3572</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The RADIUS dissector could crash.
+            <!-- Fixed in trunk: r28891 -->
+            <!-- Fixed in trunk-1.2: r29101 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578">Bug
+            3578</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The MIOP dissector could crash.
+            <!-- Fixed in trunk: r28963 -->
+            <!-- Fixed in trunk-1.2: rr29101 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3652">Bug
+            3652</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The sFlow dissector could use excessive CPU and memory.
+            <!-- Fixed in trunk: r28897 -->
+            <!-- Fixed in trunk-1.2: rr29101 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3570">Bug
+            3570</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
           <para>
@@ -94,6 +150,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          GeoIP map should use random temporary file name
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3530">Bug
+          3530</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Pcap-ng breaks VoIP call data
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3539">Bug
           3539</ulink>)
@@ -106,9 +168,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Starting Wireshark Portable 1.2.0 gives error message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3547">Bug
+          3547</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           On Windows, Wireshark could crash on startup.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3555">Bug
           3555</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The title in the TCP sequence graphs is too short.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3556">Bug
+          3556</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -121,6 +195,24 @@ Wireshark Info
           802.11 decryption is broken
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3590">Bug
           3590</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          configure.in uses depracated autoconf test for gnutls detection
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3627">Bug
+          3627</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark could crash when loading a profile.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3640">Bug
+          3640</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          btsnoop: Incorrect error message for not supported datalink type
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3645">Bug
+          3645</ulink>)
         </para></listitem>
 
       </itemizedlist>

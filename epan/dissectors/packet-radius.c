@@ -854,12 +854,13 @@ static gboolean vsa_buffer_destroy(gpointer k _U_, gpointer v, gpointer p _U_) {
 	return TRUE;
 }
 
-static void vsa_buffer_table_destroy(GHashTable *table) {
+static void vsa_buffer_table_destroy(void *table) {
 	if (table) {
-		g_hash_table_foreach_remove(table, vsa_buffer_destroy, NULL);
-		g_hash_table_destroy(table);
+		g_hash_table_foreach_remove((GHashTable *)table, vsa_buffer_destroy, NULL);
+		g_hash_table_destroy((GHashTable *)table);
 	}
 }
+
 
 static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
     proto_item* item;
@@ -878,6 +879,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
      * allocated (if any).
      */
     CLEANUP_PUSH(g_free, eap_buffer);
+    CLEANUP_PUSH(vsa_buffer_table_destroy, (void *)vsa_buffer_table);
 
     while (length > 0) {
         radius_attr_info_t* dictionary_entry = NULL;
@@ -894,7 +896,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
             item = proto_tree_add_text(tree, tvb, offset, 0,
                         "Not enough room in packet for AVP header");
             PROTO_ITEM_SET_GENERATED(item);
-            return;
+            break;  /* exit outer loop, then cleanup & return */
         }
         avp_type = tvb_get_guint8(tvb,offset);
         avp_length = tvb_get_guint8(tvb,offset+1);
@@ -903,14 +905,14 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
             item = proto_tree_add_text(tree, tvb, offset, 0,
                         "AVP too short: length %u < 2", avp_length);
             PROTO_ITEM_SET_GENERATED(item);
-            return;
+            break;  /* exit outer loop, then cleanup & return */
         }
 
         if (length < avp_length) {
             item = proto_tree_add_text(tree, tvb, offset, 0,
                         "Not enough room in packet for AVP");
             PROTO_ITEM_SET_GENERATED(item);
-            return;
+            break;  /* exit outer loop, then cleanup & return */
         }
 
         length -= avp_length;
@@ -939,7 +941,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
             if (avp_length < 4) {
                 proto_item_append_text(avp_item, " [AVP too short; no room for vendor ID]");
                 offset += avp_length;
-                continue;
+                continue; /* while (length > 0) */
             }
             vendor_id = tvb_get_ntohl(tvb,offset);
 
@@ -1002,7 +1004,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
                 if (avp_vsa_len < avp_vsa_header_len) {
                     proto_tree_add_text(tree, tvb, offset+1, 1,
                                             "[VSA too short]");
-                    return;
+                    break; /* exit while (offset < max_offset) loop */
                 }
 
                 avp_vsa_len -= avp_vsa_header_len;
@@ -1084,8 +1086,8 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		}
 
                 offset += avp_vsa_len;
-            };
-            continue;
+            }; /* while (offset < max_offset) */
+            continue;  /* while (length > 0) */
         }
 
         avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
@@ -1222,9 +1224,10 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
             offset += avp_length;
         }
 
-    }
+    }  /* while (length > 0) */
 
-    vsa_buffer_table_destroy(vsa_buffer_table);
+    CLEANUP_CALL_AND_POP; /* vsa_buffer_table_destroy(vsa_buffer_table) */
+
     /*
      * Call the cleanup handler to free any reassembled data we haven't
      * attached to a tvbuff, and pop the handler.
