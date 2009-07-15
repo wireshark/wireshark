@@ -39,7 +39,15 @@
  * - Show Association Headers as individual items
  * - Support item 56-59 in Accociation Request
  *
- * May 17, 2009 - David Aggeler 
+ * May 27, 2009 - David Aggeler 
+ *
+ * - Fixed corrupt files on DICOM Export
+ * - Fixed memory limitation on DICOM Export
+ * - Removed minimum packet lenght for static port mode
+ * - Simplified checks for heuristic mode
+ * - Removed unused functions
+ *
+ * May 17, 2009 - David Aggeler (SVN 28392)
  *
  * - Spelling
  * - Added expert_add_info() for status responses with warning & error level
@@ -409,8 +417,8 @@ typedef struct dcm_state_pctx {
     guint8 id;			/* 0x20 Presentation Context ID */
     gchar *abss_uid;		/* 0x30 Abstract syntax */
     gchar *abss_desc;		/* 0x30 Abstract syntax decoded*/
-    gchar *xfer_uid;		/* 0x40 Acepted Transfer syntax */
-    gchar *xfer_desc;		/* 0x40 Acepted Transfer syntax decoded*/
+    gchar *xfer_uid;		/* 0x40 Accepted Transfer syntax */
+    gchar *xfer_desc;		/* 0x40 Accepted Transfer syntax decoded*/
     guint8 syntax;		/* Decoded transfer syntax */
 #define DCM_ILE  0x01		/* implicit, little endian */
 #define DCM_EBE  0x02           /* explicit, big endian */
@@ -3625,7 +3633,7 @@ static dcm_state_pdv_t*	    dcm_state_pdv_get	(dcm_state_pctx_t *pctx, guint32 p
 /* Following three functions by purpose only return int, since we request data consolidation */
 static int  dissect_dcm_static	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int  dissect_dcm_heuristic   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int  dissect_dcm_main	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean require_assoc_req);
+static int  dissect_dcm_main	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_port_static);
 
 /* And from here on, only use unsigned 32 bit values. Offset is always positive number in respect to the tvb buffer start */
 static guint32  dissect_dcm_pdu	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset);
@@ -4460,7 +4468,13 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     if (dcm_header_len + pdv_combined_len >= global_dcm_export_minsize) {
 	/* Allocate the final size */
-	pdv_combined = ep_alloc0(dcm_header_len + pdv_combined_len);
+
+	/* The complete eo_info structure and its elements will be freed in 
+	   export_object.c -> eo_win_destroy_cb() using g_free()
+	*/
+
+	pdv_combined = g_malloc(dcm_header_len + pdv_combined_len);
+	memset(pdv_combined, 0, dcm_header_len + pdv_combined_len);
 
 	pdv_combined_curr = pdv_combined;
 
@@ -4470,18 +4484,21 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 	/* Copy PDV per PDV to target buffer */
 	while (!pdv_curr->is_last_fragment) {
 	    memmove(pdv_combined_curr, pdv_curr->data, pdv_curr->data_len);	    /* this is a copy not move */
+	    g_free(pdv_curr->data);
 	    pdv_combined_curr += pdv_curr->data_len;
 	    pdv_curr = pdv_curr->next;
 	}
 
 	/* Last packet */
 	memmove(pdv_combined_curr, pdv->data, pdv->data_len);	    /* this is a copy not a move */
+	g_free(pdv_curr->data);
 
 	/* Add to list */
-	eo_info = ep_alloc0(sizeof(dicom_eo_t));
-	eo_info->hostname = hostname;
-	eo_info->filename = filename;
-	eo_info->content_type = pdv->desc;
+	eo_info = g_malloc(sizeof(dicom_eo_t));
+	memset(eo_info, 0, sizeof(dicom_eo_t));
+	eo_info->hostname = g_strdup(hostname);
+	eo_info->filename = g_strdup(filename);
+	eo_info->content_type = g_strdup(pdv->desc);
 
 	eo_info->payload_data = pdv_combined;
 	eo_info->payload_len  = dcm_header_len + pdv_combined_len;
@@ -6005,16 +6022,15 @@ dissect_dcm_pdv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* During DICOM Export, perform a few extra steps */
     if (have_tap_listener(dicom_eo_tap)) {
-	if (pdv->data_len == 0) {
-	    /* If not yet done, copy pure DICOM data to buffer */
-	    pdv->data_len = pdv_len;
-	    pdv->data = se_alloc0(pdv->data_len);
-	    if (pdv->data) {
-		memmove(pdv->data, tvb_get_ptr(tvb, startpos, pdv->data_len), pdv->data_len);
-	    }
-	    else {
-		pdv->data_len = 0;		/* Failed to allocate memory. Don't copy anything */
-	    }
+
+	/* Copy pure DICOM data to buffer, no PDV flags */
+	pdv->data_len = pdv_len-2;
+	pdv->data = g_malloc(pdv->data_len);      /* will be freed in dcm_export_create_object() */
+	if (pdv->data) {
+	    memmove(pdv->data, tvb_get_ptr(tvb, startpos+2, pdv->data_len), pdv->data_len);
+	}
+	else {
+	    pdv->data_len = 0;           /* Failed to allocate memory. Don't copy anything */
 	}
 
 	if ((pdv->data_len > 0) && (pdv->is_last_fragment)) {
@@ -6140,99 +6156,8 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-#if 0
-static guint32
-dcm_make_complete_pdu(tvbuff_t *tvb, guint32 offset, gboolean one_pdu_only)
-{
-
-    /* Return the number of missing bytes, to complete started PDU(s) in the buffer */
-
-    guint32 pdu_len = 0;
-    guint32 tlen = 0;
-    guint32 bytes_remaining = 0;
-    guint   no_of_complete_pdu = 0;
-
-    tlen = tvb_reported_length(tvb);
-
-    while ((offset < tlen - 6) && !(one_pdu_only && (no_of_complete_pdu == 1))) {
-	/* We got at least 6 bytes of the next PDU still in the buffer */
-
-	offset += 2;	    /* PDU header */
-	pdu_len = tvb_get_ntohl(tvb, offset);
-	offset += 4;	    /* PDU Length */
-
-	bytes_remaining = tlen - offset;
-
-	if (pdu_len >  bytes_remaining) {
-	    return pdu_len - bytes_remaining;
-	}
-
-	no_of_complete_pdu += 1;
-
-	/* Next PDU */
-	offset +=  pdu_len;
-    }
-    return 0;
-
-}
-
-
-
-static gboolean
-dcm_has_more_fragment(tvbuff_t *tvb, guint32 offset, guint32 pdu_len)
-{
-
-    /* Check last PDV in a Data PDU, and return true, if that PDV does not have the last
-       fragment bit set
-    */
-
-    gboolean has_more_fragments = FALSE;
-
-    guint32 endpos = 0;
-    guint32 pdv_len = 0;
-
-    guint8  pdu_type = 0;
-    guint8  flags = 0;
-
-    endpos = offset + pdu_len + 6;
-
-    pdu_type = tvb_get_guint8(tvb, offset);
-
-    if (pdu_type == 4) {
-
-	offset += 6;	/* Skip PDU header */
-
-	/* Loop through multiple PDVs */
-	while (offset < endpos) {
-
-	    pdv_len = tvb_get_ntohl(tvb, offset);
-	    if (pdv_len + 4 > pdu_len) {
-		return FALSE;		/* Invalid condition */
-	    }
-	    offset += 4;
-
-	    flags = tvb_get_guint8(tvb, offset + 1);
-	    if (flags == 0 || flags == 1) {
-		/* Set, if bit, 0000 00010 is not present.
-		   Currently only bit 0 & 1 are defined, so be very restritive here
-		*/
-		has_more_fragments = TRUE;
-	    }
-	    else {
-		/* Also reset, i.e. if last PDV in a PDU does not have the flage set */
-		has_more_fragments = FALSE;
-	    }
-
-	    offset += pdv_len;
-	}
-    }
-
-    return has_more_fragments;
-}
-#endif
-
 static int
-dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean require_assoc_req)
+dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_port_static)
 {
     /* Code to actually dissect the packets */
 
@@ -6274,8 +6199,6 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean r
 	The length check is tricky. If not a PDV continuation, 10 Bytes are required. For PDV continuation
 	anything seems to be possible, depending on the buffer alignment of the sending process.
 
-	I have seen a 4 Byte PDU 'Header' just at the end of a TCP packet, which will come in here
-	as tlen with 4 bytes.
     */
 
     tlen = tvb_reported_length(tvb);
@@ -6284,63 +6207,59 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean r
     if (pdu_type == 0 || pdu_type > 7) 		/* Wrong PDU type. 'Or' is slightly more efficient than 'and' */
 	return 0;				/* No bytes taken from the stack */
 
-    if ((tlen == 1) && (!require_assoc_req)) {
-	/* This may be a DVTk stream. It only sends one byte PDU type messages :-/
-	   Request 10 bytes
+    if (is_port_static) {
+	/* Port is defined explicitly, or association request was previously found succesfully.
+	   Be more tolerant on minimum packet size. Also accept < 6 
 	*/
-
-	pinfo->desegment_offset = 0;
-	pinfo->desegment_len = 9;
-
-        return TRUE;
-    }
-
-    if (pdu_type == 4) {
-	if (tlen < 2) {
-	    /* Hopefully we don't have 1 Byte PDUs in PDV continuations, otherwise reduce to 1 */
-	    return 0;
-	}
-	else if (tlen < 6) {
+ 
+	if (tlen < 6) {
 	    /* we need 6 bytes at least to get PDU length */
 	    pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return TRUE;
 	}
     }
-    else if (tlen < 10) {
-	return 0;
-    }
+    else {
+	/* We operate in heuristic mode, be picky out of performance reasons:
 
-    pdu_len = tvb_get_ntohl(tvb, 2);
-    if (pdu_len < 4) 				/* The smallest PDUs are ASSOC Rejects & Release Msgs */
-	return 0;
+	   - Minimum 10 Bytes
+	   - Look for the association request
+	   - Reasonable PDU size
 
-    if (require_assoc_req) {
+	   Tried find_conversation() and dcm_state_get() with no benefit
+	
+	   But since we are called in static mode, once we decoded the associtaion reqest and 
+	   called conversation_set_dissector(), we really only need to filter for an associtaion reqest
+	
+	*/ 
+ 
+        if (tlen < 10) {
+	    /* For all association handling ones, 10 bytes would be needed. Be happy with 6 */
+	    return 0;
+	}
 
-	/* find_conversation() seems to return a converstation, even if we never saw
-	   any packet yet. Not really my interpretation of this function.
+	pdu_len = tvb_get_ntohl(tvb, 2);
+	vers = tvb_get_ntohs(tvb, 6);
 
-	   Therefore also check, if we already stored configuration data for converstation
+	/* Exit, if not a association request at version 1*/
+	if (!(pdu_type == 1 && vers == 1)) {
+	    return 0;
+	}
+
+	/* Exit if TCP payload is bigger than PDU length (plus header)
+	   ok. for PRESENTATION_DATA, questionable for ASSOCIATION requests
 	*/
-
-	if (dcm_state_get(pinfo, FALSE) == NULL) {
-
-	    /* config data does not exist, check for association request */
-
-	    vers = tvb_get_ntohs(tvb, 6);
-
-	    if (!(pdu_type == 1 && vers == 1)) {    /* Not PDU type 0x01 or not Version 1 */
-		return 0;
-	    }
-
-	    /* Exit if TCP payload is bigger than PDU length (plues header)
-	       ok. for PRESENTATION_DATA, questionable for ASSOCIATION requests
-	    */
-	    if (pdu_len+6 < tlen)
-		return 0;
-
+	if (pdu_len+6 < tlen) {
+	    return 0;
 	}
     }
+
+ 
+    /* Passing this point, we should always have tlen >= 6 */
+
+    pdu_len = tvb_get_ntohl(tvb, 2);
+    if (pdu_len < 4)                /* The smallest PDUs are ASSOC Rejects & Release Msgs */
+	return 0;
 
     /* Mark it. This is a DICOM packet */
 
@@ -6388,7 +6307,7 @@ static int
 dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Less checking on ports that match */
-    return dissect_dcm_main(tvb, pinfo, tree, 0);
+    return dissect_dcm_main(tvb, pinfo, tree, TRUE);
 }
 
 static int
@@ -6396,7 +6315,7 @@ dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Only decode conerstations, which include an Association Request */
     /* This will be potentially called for every packet */
-    return dissect_dcm_main(tvb, pinfo, tree, TRUE);
+    return dissect_dcm_main(tvb, pinfo, tree, FALSE);
 }
 
 static guint32

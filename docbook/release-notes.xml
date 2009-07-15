@@ -150,6 +150,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          CFLOW decoding is wrong for IPv6 fields
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3328">Bug
+          3328</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packet-dcm, corrupt DICOM export files
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3493">Bug
+          3493</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GeoIP map should use random temporary file name
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3530">Bug
           3530</ulink>)
@@ -204,6 +216,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          SMB2 Error Response doesn't decode properly
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3609">Bug
+          3609</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           configure.in uses deprecated autoconf test for gnutls detection
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3627">Bug
           3627</ulink>)
@@ -222,9 +240,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Analyze-&gt;Decode as... menu item becomes unavailable
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3642">Bug
+          3642</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           btsnoop: Incorrect error message for not supported datalink type
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3645">Bug
           3645</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Decode error for network-id in BICC BCU-ID
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3648">Bug
+          3648</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IEC 60870-5-104 dissector decodes nothing
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3650">Bug
+          3650</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -237,6 +273,36 @@ Wireshark Info
           ANSI ISUP Cause indicators with coding standard=ANSI fail to dissect.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3654">Bug
           3654</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong field position in PacketCable Multimedia Extended Classifier
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3656">Bug
+          3656</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          FF Protocol "FMS Initiate - Version OD Calling" field packet data not unpacked properly
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3694">Bug
+          3694</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          hci_h4: Optimize column/field handling
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3703">Bug
+          3703</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BSSLAP Protocol Not Decoded In BSSMAP-LE Messages
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3711">Bug
+          3711</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Description of tshark -t dd missing from tshark.pod
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3723">Bug
+          3723</ulink>)
         </para></listitem>
 
       </itemizedlist>

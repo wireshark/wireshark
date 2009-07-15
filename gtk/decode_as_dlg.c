@@ -1634,6 +1634,7 @@ decode_as_ok(void)
 {
     return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto ||
 	cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP || 
+        cfile.edt->pi.mpls_label || 
         cfile.cd_t == WTAP_FILE_BER;
 }
 

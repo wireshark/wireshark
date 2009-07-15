@@ -49,20 +49,21 @@ eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	export_object_entry_t *entry;
 
 	if (eo_info) { /* We have data waiting for us */
-		/* These values will be freed when the Export Object window is closed.
+		/* 
+		   Don't copy any data. dcm_export_create_object() is already g_malloc() the items	
+		   Still, the values will be freed when the export Object window is closed. 
 		   Therefore, strings and buffers must be copied
 		*/
 		entry = g_malloc(sizeof(export_object_entry_t));
 
 		entry->pkt_num = pinfo->fd->num;
-		entry->hostname = g_strdup(eo_info->hostname);
-		entry->content_type = g_strdup(eo_info->content_type);
+		entry->hostname = eo_info->hostname;
+		entry->content_type = eo_info->content_type;
 		entry->filename = g_strdup(g_path_get_basename(eo_info->filename));
 		entry->payload_len  = eo_info->payload_len;
-		entry->payload_data = g_memdup(eo_info->payload_data, eo_info->payload_len);
+		entry->payload_data = eo_info->payload_data;
 
-		object_list->entries =
-			g_slist_append(object_list->entries, entry);
+		object_list->entries = g_slist_append(object_list->entries, entry);
 
 		return 1; /* State changed - window should be redrawn */
 	} else {

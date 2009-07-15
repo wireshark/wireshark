@@ -22,7 +22,7 @@ ifeq (alpha-linux,$(DEB_HOST_GNU_TYPE))
   CFLAGS += -mieee
 endif
 
-CONFIGURE_FLAGS=--prefix=/usr --sysconfdir=/usr/share --datadir=/usr/share --libdir=/usr/lib/wireshark --disable-static --enable-gtk2 --enable-warnings-as-errors=no --enable-setuid-install --with-plugins=/usr/lib/wireshark/plugins --with-lua=/usr/
+CONFIGURE_FLAGS=--prefix=/usr --sysconfdir=/usr/share --datadir=/usr/share --libdir=/usr/lib/wireshark --disable-static --enable-warnings-as-errors=no --enable-setuid-install --with-plugins=/usr/lib/wireshark/plugins --with-lua=/usr/
 
 configure: configure-stamp
 configure-stamp: patch
@@ -116,7 +116,7 @@ binary-arch: install check
 	dh_fixperms -Xdumpcap
 
 	dh_installdeb
-	LD_LIBRARY_PATH=/usr/lib/wireshark/ dh_shlibdeps
+	LD_LIBRARY_PATH=/usr/lib/wireshark/:/usr/lib/libfakeroot/ dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

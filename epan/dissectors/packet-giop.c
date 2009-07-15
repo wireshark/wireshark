@@ -3963,59 +3963,61 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
    if (header.flags & 0x08)
    {
       payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, tvb_length_remaining(tvb, GIOP_HEADER_SIZE ) );
-      add_new_data_source (pinfo, payload_tvb, "decompressed Content");
    }
 
-  switch (header.message_type)
-    {
-
-    case Request:
-      if(header.GIOP_version.minor < 2)
-      {
-	   dissect_giop_request_1_1 (payload_tvb, pinfo, tree,
-				     &header, stream_is_big_endian);
-      }
-      else
-      {
-           dissect_giop_request_1_2 (payload_tvb, pinfo, tree,
-				     &header, stream_is_big_endian);
-      }
-
-      break;
-
-
-    case Reply:
-      if(header.GIOP_version.minor < 2)
-	{
-           dissect_giop_reply (payload_tvb, pinfo, tree, &header,
-			       stream_is_big_endian);
-	}
-      else
+   if (payload_tvb) {
+      add_new_data_source (pinfo, payload_tvb, "decompressed Content");
+      switch (header.message_type)
         {
-	   dissect_giop_reply_1_2 (payload_tvb, pinfo, tree,
-				   &header, stream_is_big_endian);
-	}
-      break;
-    case CancelRequest:
-        dissect_giop_cancel_request(payload_tvb, pinfo, tree,
-				    stream_is_big_endian);
-	break;
-    case LocateRequest:
-	dissect_giop_locate_request(payload_tvb, pinfo, tree, &header,
-				    stream_is_big_endian);
-	break;
-    case LocateReply:
-	dissect_giop_locate_reply(payload_tvb, pinfo, tree, &header,
-				  stream_is_big_endian);
-	break;
-    case Fragment:
-        dissect_giop_fragment(payload_tvb, pinfo, tree,
-			      stream_is_big_endian);
-        break;
-    default:
-      break;
-
-    }				/* switch message_type */
+    
+        case Request:
+          if(header.GIOP_version.minor < 2)
+          {
+               dissect_giop_request_1_1 (payload_tvb, pinfo, tree,
+                                         &header, stream_is_big_endian);
+          }
+          else
+          {
+               dissect_giop_request_1_2 (payload_tvb, pinfo, tree,
+                                         &header, stream_is_big_endian);
+          }
+    
+          break;
+    
+    
+        case Reply:
+          if(header.GIOP_version.minor < 2)
+            {
+               dissect_giop_reply (payload_tvb, pinfo, tree, &header,
+                                   stream_is_big_endian);
+            }
+          else
+            {
+               dissect_giop_reply_1_2 (payload_tvb, pinfo, tree,
+                                       &header, stream_is_big_endian);
+            }
+          break;
+        case CancelRequest:
+            dissect_giop_cancel_request(payload_tvb, pinfo, tree,
+                                        stream_is_big_endian);
+            break;
+        case LocateRequest:
+            dissect_giop_locate_request(payload_tvb, pinfo, tree, &header,
+                                        stream_is_big_endian);
+            break;
+        case LocateReply:
+            dissect_giop_locate_reply(payload_tvb, pinfo, tree, &header,
+                                      stream_is_big_endian);
+            break;
+        case Fragment:
+            dissect_giop_fragment(payload_tvb, pinfo, tree,
+                                  stream_is_big_endian);
+            break;
+        default:
+          break;
+    
+        }				/* switch message_type */
+   }
 
 
   /*
