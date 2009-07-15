@@ -1552,7 +1552,7 @@ proto_register_enip(void)
    };
 
 
-/* Setup protocol subtree array */
+   /* Setup protocol subtree array */
    static gint *ett[] = {
       &ett_enip,
       &ett_count_tree,
@@ -1705,11 +1705,11 @@ proto_register_enip(void)
 
    module_t *enip_module;
 
-/* Register the protocol name and description */
+   /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)",
 					"ENIP", "enip");
 
-/* Required function calls to register the header fields and subtrees used */
+   /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
