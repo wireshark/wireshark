@@ -325,7 +325,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
-		{ "Text item",	"", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Text item",	"text", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
 
@@ -4058,12 +4058,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-		case FT_FRAMENUM:
 			if (hfinfo->bitmask) {
 				fill_label_bitfield(fi, label_str);
 			} else {
 				fill_label_uint(fi, label_str);
 			}
+			break;
+
+		case FT_FRAMENUM:
+			fill_label_uint(fi, label_str);
 			break;
 
 		case FT_UINT64:
@@ -5632,7 +5635,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-		case FT_FRAMENUM:
 			if (filter != NULL) {
 				format = hfinfo_numeric_format(hfinfo);
 				if(is_signed_num) {
@@ -5644,6 +5646,16 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 						   hfinfo->abbrev,
 					           fvalue_get_uinteger(&finfo->value));
 				}
+			}
+			break;
+
+		case FT_FRAMENUM:
+			DISSECTOR_ASSERT(!is_signed_num);
+			if (filter != NULL) {
+				format = hfinfo_numeric_format(hfinfo);
+				*filter = ep_strdup_printf(format,
+					   hfinfo->abbrev,
+				           fvalue_get_uinteger(&finfo->value));
 			}
 			break;
 
