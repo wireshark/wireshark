@@ -234,7 +234,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   message_type = tvb_get_guint8(tvb, 7);
 
   if ( (giop_version_major < 1) || 
-       (giop_version_minor < 2) )  // minor than GIOP 1.2
+       (giop_version_minor < 2) )  /* earlier than GIOP 1.2 */
     {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
 		    giop_version_major, giop_version_minor);
