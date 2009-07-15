@@ -1964,7 +1964,7 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_steady_signal(tvb, pinfo, tree, offset);
 				offset +=info_element_length+2;
 			break;
-				case DIGIT_SIGNAL:
+			case DIGIT_SIGNAL:
 				info_element_length = tvb_get_guint8(tvb,offset+1);
 				dissect_digit_signal(tvb, pinfo, tree, offset);
 				offset +=info_element_length+2;
@@ -2538,3 +2538,15 @@ proto_reg_handoff_v52(void)
 {
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */
