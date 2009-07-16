@@ -5553,8 +5553,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
-    SET_ADDRESS(&request_key.source_info.source,
-		rsvph->source.type, rsvph->source.len, rsvph->source.data);
+    SE_COPY_ADDRESS(&request_key.source_info.source, &rsvph->source);
     request_key.source_info.udp_source_port = rsvph->udp_source_port;
 
     /* See if a request with this key already exists */
