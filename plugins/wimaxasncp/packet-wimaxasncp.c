@@ -206,9 +206,9 @@ static const value_string wimaxasncp_function_type_vals[] =
 
 static const value_string wimaxasncp_qos_msg_vals[] =
 {
-    { 1,  "RR_Ack"},
-    { 2,  "RR_Req"},
-    { 3,  "RR_Rsp"},
+    { 1,  "RR_Req"},
+    { 2,  "RR_Rsp"},
+    { 3,  "RR_Ack"},
     { 0,   NULL}
 };
 
@@ -216,11 +216,14 @@ static const value_string wimaxasncp_qos_msg_vals[] =
 
 static const value_string wimaxasncp_ho_control_msg_vals[] =
 {
-    { 1,  "HO_Ack"},
-    { 2,  "HO_Complete"},
-    { 3,  "HO_Cnf"},
-    { 4,  "HO_Req"},
-    { 5,  "HO_Rsp"},
+    { 1,  "HO_Req"},
+    { 2,  "HO_Rsp"},
+    { 3,  "HO_Ack"},
+    { 4,  "HO_Cnf"},
+    { 5,  "HO_Complete"},
+    { 6,  "HO_Directive"},
+    { 7,  "HO_Directive_Rsp"},
+    /* TODO: Add others */
     { 0,   NULL}
 };
 
@@ -228,35 +231,33 @@ static const value_string wimaxasncp_ho_control_msg_vals[] =
 
 static const value_string wimaxasncp_data_path_control_msg_vals[] =
 {
-    { 1,   "Path_Dereg_Ack"},
-    { 2,   "Path_Dereg_Req"},
-    { 3,   "Path_Dereg_Rsp"},
-    { 4,   "Path_Modification_Ack"},
-    { 5,   "Path_Modification_Req"},
-    { 6,   "Path_Modification_Rsp"},
-    { 7,   "Path_Prereg_Ack"},
-    { 8,   "Path_Prereg_Req"},
-    { 9,   "Path_Prereg_Rsp"},
-    { 10,  "Path_Reg_Ack"},
-    { 11,  "Path_Reg_Req"},
-    { 12,  "Path_Reg_Rsp"},
-
-    /* see also wimaxasncp_ms_state_msg_vals[] */
-    { 13,  "MS_Attachment_Req (DPC)"},
-    { 14,  "MS_Attachment_Rsp (DPC)"},
-    { 15,  "MS_Attachment_Ack (DPC)"},
-
-    { 16,  "Key_Change_Directive"},
+    { 1,   "Path_Dereg_Req"},
+    { 2,   "Path_Dereg_Rsp"},
+    { 3,   "Path_Dereg_Ack"},
+    { 4,   "Path_Modification_Req"},
+    { 5,   "Path_Modification_Rsp"},
+    { 6,   "Path_Modification_Ack"},
+    { 7,   "Path_Prereg_Req"},
+    { 8,   "Path_Prereg_Rsp"},
+    { 9,   "Path_Prereg_Ack"},
+    { 10,  "Path_Reg_Req"},
+    { 11,  "Path_Reg_Rsp"},
+    { 12,  "Path_Reg_Ack"},
+    { 13,  "IM_Exit_State_Ind"},
+    { 14,  "IM_Exit_State_Ind_Ack"},
     { 0,   NULL}
+
 };
 
 /* ------------------------------------------------------------------------- */
 
 static const value_string wimaxasncp_context_delivery_msg_vals[] =
 {
-    { 1,  "Context_Rpt"},
-    { 2,  "Context_Req"},
+    { 1,  "Context_Req"},
+    { 2,  "Context_Rpt"},
     { 3,  "Context_Ack"},
+    { 4,  "CMAC_Key_Count_Update"},
+    { 5,  "CMAC_Key_Count_Update_ACK"},
     { 0,   NULL}
 };
 
@@ -280,14 +281,9 @@ static const value_string wimaxasncp_r3_mobility_msg_vals[] =
 
 static const value_string wimaxasncp_paging_msg_vals[] =
 {
-    { 1,  "Initiate_Paging_Req"},
-    { 2,  "Initiate_Paging_Rsp"},
-    { 3,  "LU_Cnf"},
-    { 4,  "LU_Req"},
-    { 5,  "LU_Rsp"},
-    { 6,  "Paging_Announce"},
-    { 7,  "CMAC_Key_Count_Req"},
-    { 8,  "CMAC_Key_Count_Rsp"},
+    { 1,  "Paging_Announce"},
+    { 2,  "Delete_MS_Entry_Req"},
+    { 5,  "Delete_MS_Entry_Rsp"},
     { 0,   NULL}
 };
 
@@ -302,6 +298,7 @@ static const value_string wimaxasncp_rrm_msg_vals[] =
     { 5,  "R6 Neighbor_BS_Resource_Status_Update"},
     { 6,  "R4/R6 Radio_Config_Update_Req"},
     { 7,  "R4/R6 Radio_Config_Update_Rpt"},
+    { 8,  "R4/R6 Radio_Config_Update_Ack"},
     { 0,   NULL}
 };
 
@@ -309,13 +306,10 @@ static const value_string wimaxasncp_rrm_msg_vals[] =
 
 static const value_string wimaxasncp_authentication_msg_vals[] =
 {
-    { 1,  "AR_Authenticated_EAP_Start"},
-    { 2,  "AR_Authenticated_EAP_Transfer"},
-    { 3,  "AR_EAP_Start"},
-    { 4,  "AR_EAP_Transfer"},
-    { 5,  "AR_EAP_Complete"},
-    { 6,  "CMAC_Key_Count_Update"},       /* Nokia recommended value */
-    { 7,  "CMAC_Key_Count_Update_Ack"},   /* Nokia recommended value */
+    { 1,  "AR_EAP_Start"},
+    { 2,  "AR_EAP_Transfer"},
+    { 3,  "Bulk_Interim_Update"},
+    { 4,  "Bulk_Interim_Update_Ack"},
     { 0,   NULL}
 };
 
@@ -323,18 +317,15 @@ static const value_string wimaxasncp_authentication_msg_vals[] =
 
 static const value_string wimaxasncp_ms_state_msg_vals[] =
 {
-    { 1,  "IM_Entry_State_Change_Req"},
-    { 2,  "IM_Entry_State_Change_Rsp"},
-    { 3,  "IM_Exit_State_Change_Req"},
-    { 4,  "IM_Exit_State_Change_Rsp"},
-    { 5,  "NW_ReEntry_State_Change_Directive"},
-    { 6,  "MS_PreAttachment_Req"},
-    { 7,  "MS_PreAttachment_Rsp"},
-    { 8,  "MS_PreAttachment_Ack"},
-    { 9,  "MS_Attachment_Req"},
-    { 10, "MS_Attachment_Rsp"},
-    { 11, "MS_Attachment_Ack"},
-    { 12, "IM_Entry_State_Change_Ack"},
+    { 1,  "MS_PreAttachment_Req"},
+    { 2,  "MS_PreAttachment_Rsp"},
+    { 3,  "MS_PreAttachment_Ack"},
+    { 4,  "MS_Attachment_Req"},
+    { 5,  "MS_Attachment_Rsp"},
+    { 6,  "MS_Attachment_Ack"},
+    { 7,  "Key_Change_Directive"},
+    { 8,  "Key_Change_Cnf"},
+    { 9,  "Key_Change_Ack"},
     { 0,   NULL}
 };
 
@@ -342,16 +333,17 @@ static const value_string wimaxasncp_ms_state_msg_vals[] =
 
 static const value_string wimaxasncp_reauthentication_msg_vals[] =
 {
-    { 1,  "AR_EAP_Start"},
-    { 2,  "Key_Change_Directive"},
-    { 3,  "Key_Change_Cnf"},
-    { 4,  "Relocation_Cnf"},
-    { 5,  "Relocation_Confirm_Ack"},
-    { 6,  "Relocation_Notify"},
-    { 7,  "Relocation_Notify_Ack"},
-    { 8,  "Relocation_Req"},
-    { 9,  "Relocation_Rsp"},
-    { 10, "Key_Change_Ack"},
+/* IM */
+    { 1,  "IM_Entry_State_Change_Req"},
+    { 2,  "IM_Entry_State_Change_Rsp"},
+    { 3,  "IM_Entry_State_Change_Ack"},
+    { 4,  "IM_Exit_State_Change_Req"},
+    { 5,  "IM_Exit_State_Change_Rsp"},
+    { 6,  "Initiate_Paging_Req"},
+    { 7,  "Initiate_Paging_Rsp"},
+    { 8,  "LU_Req"},
+    { 9,  "LU_Rsp"},
+    { 10,  "LU_Cnf"},
     { 0,   NULL}
 };
 
@@ -1696,12 +1688,15 @@ static guint dissect_wimaxasncp_tlvs(
         tlv_info = wimaxasncp_get_tlv_info(type);
 
         length = tvb_get_ntohs(tvb, offset + 2);
+        /* Commented out padding; As there is no mention of padding in
+           the Latest specification
         pad = 4 - (length % 4);
         if (pad == 4)
         {
             pad = 0;
         }
-
+        */
+        pad = 0;
         if (tree)
         {
             proto_item *type_item;
