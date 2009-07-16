@@ -57,6 +57,16 @@ AES-XCBC-MAC-96 [RFC3566] : Not available because no implementation found.
 - Add ESP Authentication checking for the following Authentication Algorithm :
 HMAC-SHA256 : any keylen
 HMAC-RIPEMD160-96 [RFC2857] : any keylen
+
+- Added/Modified Authentication checking (David Dahlberg <dahlberg@fgan.de>):
+CHG: HMAC-SHA256 is now HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]
+     -> It is implemented this way in USAGI/KAME (Linux/BSD).
+ADD: HMAC-SHA-256-128 [RFC4868]
+     ICV length of HMAC-SHA-256 was changed in draft-ietf-ipsec-ciph-sha-256-01 
+     to 128 bit. This is "SHOULD" be the standard now!
+ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
+     This follows RFC 4868 for the SHA-256+ family.
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -125,11 +135,15 @@ static dissector_table_t ip_dissector_table;
 /* Authentication algorithms defined in RFC 4305 */
 #define IPSEC_AUTH_NULL 0
 #define IPSEC_AUTH_HMAC_SHA1_96 1
-#define IPSEC_AUTH_HMAC_SHA256 2
-#define IPSEC_AUTH_HMAC_MD5_96 3
-#define IPSEC_AUTH_HMAC_RIPEMD160_96 4
-#define IPSEC_AUTH_ANY_12BYTES 5
+#define IPSEC_AUTH_HMAC_SHA256_96 2
+#define IPSEC_AUTH_HMAC_SHA256_128 3
+#define IPSEC_AUTH_HMAC_MD5_96 4
+#define IPSEC_AUTH_HMAC_RIPEMD160_96 5
 /* define IPSEC_AUTH_AES_XCBC_MAC_96 6 */
+#define IPSEC_AUTH_ANY_96BIT 7
+#define IPSEC_AUTH_ANY_128BIT 8
+#define IPSEC_AUTH_ANY_192BIT 9
+#define IPSEC_AUTH_ANY_256BIT 10
 #endif
 
 /* well-known algorithm number (in CPI), from RFC2409 */
@@ -1746,9 +1760,15 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		  }
 
-		case IPSEC_AUTH_HMAC_SHA256:
+		case IPSEC_AUTH_HMAC_SHA256_96:
 		  {
 		    esp_auth_len = 12;
+		    break;
+		  }
+
+		case IPSEC_AUTH_HMAC_SHA256_128:
+		  {
+		    esp_auth_len = 16;
 		    break;
 		  }
 
@@ -1778,7 +1798,25 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		  }
 
-		case IPSEC_AUTH_ANY_12BYTES:
+		case IPSEC_AUTH_ANY_256BIT:
+		  {
+		    esp_auth_len = 32;
+		    break;
+		  }
+
+		case IPSEC_AUTH_ANY_192BIT:
+		  {
+		    esp_auth_len = 24;
+		    break;
+		  }
+
+		case IPSEC_AUTH_ANY_128BIT:
+		  {
+		    esp_auth_len = 16;
+		    break;
+		  }
+
+		case IPSEC_AUTH_ANY_96BIT:
 		default:
 		  {
 		    esp_auth_len = 12;
@@ -1829,7 +1867,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		      */
 
-		    case IPSEC_AUTH_HMAC_SHA256:
+		    case IPSEC_AUTH_HMAC_SHA256_96:
+		    case IPSEC_AUTH_HMAC_SHA256_128:
 		      {
 			auth_algo_libgcrypt = GCRY_MD_SHA256;
 			authentication_check_using_hmac_libgcrypt = TRUE;
@@ -1870,7 +1909,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		      }
 
-		    case IPSEC_AUTH_ANY_12BYTES:
+		    case IPSEC_AUTH_ANY_96BIT:
+		    case IPSEC_AUTH_ANY_128BIT:
+		    case IPSEC_AUTH_ANY_192BIT:
+		    case IPSEC_AUTH_ANY_256BIT:
 		    default:
 		      {
 			authentication_ok = FALSE;
@@ -2690,12 +2732,16 @@ proto_register_ipsec(void)
   static enum_val_t esp_authentication_algo[] = {
 
     {"null", "NULL", IPSEC_AUTH_NULL},
-    {"hmacsha196", "HMAC-SHA1-96 [RFC2404]", IPSEC_AUTH_HMAC_SHA1_96},
-    {"hmacsha256", "HMAC-SHA256", IPSEC_AUTH_HMAC_SHA256},
+    {"hmacsha196", "HMAC-SHA-1-96 [RFC2404]", IPSEC_AUTH_HMAC_SHA1_96},
+    {"hmacsha25696", "HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]", IPSEC_AUTH_HMAC_SHA256_96},
+    {"hmacsha256128", "HMAC-SHA-256-128 [RFC4868]", IPSEC_AUTH_HMAC_SHA256_128},
     {"hmacmd596", "HMAC-MD5-96 [RFC2403]", IPSEC_AUTH_HMAC_MD5_96},
-    {"hmacripemd160", "HMAC-RIPEMD", IPSEC_AUTH_HMAC_RIPEMD160_96},
+    {"hmacripemd160", "MAC-RIPEMD-160-96 [RFC2857]", IPSEC_AUTH_HMAC_RIPEMD160_96},
     /*    {"aesxcbcmac96", "AES-XCBC-MAC-96 [RFC3566]", IPSEC_AUTH_AES_XCBC_MAC_96}, */
-    {"any12bytes", "ANY 12-bytes of Authentication [No Checking]", IPSEC_AUTH_ANY_12BYTES},
+    {"any96bit",   "ANY 96 bit authentication [no checking]", IPSEC_AUTH_ANY_96BIT},
+    {"any128bit", "ANY 128 bit authentication [no checking]", IPSEC_AUTH_ANY_128BIT},
+    {"any192bit", "ANY 192 bit authentication [no checking]", IPSEC_AUTH_ANY_192BIT},
+    {"any256bit", "ANY 256 bit authentication [no checking]", IPSEC_AUTH_ANY_256BIT},
     {NULL,NULL,0}
   };
 #endif
