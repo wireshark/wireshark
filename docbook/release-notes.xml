@@ -305,6 +305,12 @@ Wireshark Info
           3723</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          [SNMP] Crash when dissecting packet (custom MIB)
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3746">Bug
+          3746</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
