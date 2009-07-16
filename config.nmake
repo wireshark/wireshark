@@ -149,7 +149,7 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
-# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
@@ -378,7 +378,7 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
-# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
@@ -730,7 +730,7 @@ MSC_VER_REQUIRED=1500
 # /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this
 # /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
-# /MP [<number of processes>]       [MSVC2008]: Compiles multiple source files by using multiple processes 
+# /MP [<number of processes>]       [MSVC2008]: Compiles multiple source files by using multiple processes
 #                                               Add if desired for compile speedup on machines with 2 or more "effective processors"
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load a second copy of the CRT.
 #
@@ -745,17 +745,17 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE 
 # http://msdn.microsoft.com/en-us/library/bb385193.aspx
 # /MP (Build with Multiple Processes)
 # /MP[processMax]
-# If you omit the processMax argument, the compiler retrieves the number of effective processors 
+# If you omit the processMax argument, the compiler retrieves the number of effective processors
 # on your computer from the operating system, and creates a process for each processor.
 #
 # The following compiler options and language features that are incompatible with the /MP option:
-# #import preprocessor directive 
-# /E, /EP 
-# /Gm 
-# /showIncludes 
-# /Yc 
+# #import preprocessor directive
+# /E, /EP
+# /Gm
+# /showIncludes
+# /Yc
 
-!IF "$(MSVC_VARIANT)" == "MSVC2008"
+!IF "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 # Linker flags:
@@ -765,7 +765,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
 #
 LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
-DLL_LDFLAGS = 
+DLL_LDFLAGS =
 !IF $(MSC_VER_REQUIRED) >= 1400
 DLL_LDFLAGS = /MANIFEST:no
 !ENDIF
