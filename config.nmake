@@ -742,6 +742,22 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE 
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
+# http://msdn.microsoft.com/en-us/library/bb385193.aspx
+# /MP (Build with Multiple Processes)
+# /MP[processMax]
+# If you omit the processMax argument, the compiler retrieves the number of effective processors 
+# on your computer from the operating system, and creates a process for each processor.
+#
+# The following compiler options and language features that are incompatible with the /MP option:
+# #import preprocessor directive 
+# /E, /EP 
+# /Gm 
+# /showIncludes 
+# /Yc 
+
+!IF "$(MSVC_VARIANT)" == "MSVC2008"
+LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
+!ENDIF
 # Linker flags:
 # /DEBUG  generate debug info
 # /PROFILE generate map file(s) for profiling

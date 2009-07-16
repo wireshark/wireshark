@@ -11,7 +11,7 @@ include ..\Makefile.nmake.inc
 
 include Makefile.common
 
-CFLAGS=-WX /MP -DHAVE_CONFIG_H /I. /I.. $(GLIB_CFLAGS) \
+CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL

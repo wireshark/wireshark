@@ -6,7 +6,7 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-WX /MP -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) $(LUA_CFLAGS) \
+CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) $(LUA_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
