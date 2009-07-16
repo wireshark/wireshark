@@ -5431,7 +5431,7 @@ static int
 dissect_nfs3_readdirplus_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3    (tvb, offset, pinfo, tree, "dir", &hash);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_cookie3, offset);
@@ -5441,9 +5441,7 @@ dissect_nfs3_readdirplus_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_count3_maxcount,
 		offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
 	proto_item_append_text(tree, ", READDIRPLUS Call FH:0x%08x", hash);
 
 	return offset;
