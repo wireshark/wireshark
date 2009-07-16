@@ -694,7 +694,7 @@ show_oid_index:
 	}
 indexing_done:
 
-	if (oid_info_is_ok) {
+	if (oid_info_is_ok && oid_info->value_type) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
 		}  else {
