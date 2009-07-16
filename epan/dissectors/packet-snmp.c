@@ -796,7 +796,7 @@ show_oid_index:
 	}
 indexing_done:
 
-	if (oid_info_is_ok) {
+	if (oid_info_is_ok && oid_info->value_type) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
 		}  else {
@@ -3128,7 +3128,7 @@ void proto_register_snmp(void) {
         "snmp.PDUs", HFILL }},
     { &hf_snmp_parameters,
       { "parameters", "snmp.parameters",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.OCTET_STRING", HFILL }},
     { &hf_snmp_datav2u,
       { "datav2u", "snmp.datav2u",
@@ -3140,11 +3140,11 @@ void proto_register_snmp(void) {
         "snmp.PDUs", HFILL }},
     { &hf_snmp_encrypted,
       { "encrypted", "snmp.encrypted",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.OCTET_STRING", HFILL }},
     { &hf_snmp_msgAuthoritativeEngineID,
       { "msgAuthoritativeEngineID", "snmp.msgAuthoritativeEngineID",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_msgAuthoritativeEngineID", HFILL }},
     { &hf_snmp_msgAuthoritativeEngineBoots,
       { "msgAuthoritativeEngineBoots", "snmp.msgAuthoritativeEngineBoots",
@@ -3160,11 +3160,11 @@ void proto_register_snmp(void) {
         "snmp.T_msgUserName", HFILL }},
     { &hf_snmp_msgAuthenticationParameters,
       { "msgAuthenticationParameters", "snmp.msgAuthenticationParameters",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_msgAuthenticationParameters", HFILL }},
     { &hf_snmp_msgPrivacyParameters,
       { "msgPrivacyParameters", "snmp.msgPrivacyParameters",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_msgPrivacyParameters", HFILL }},
     { &hf_snmp_msgVersion,
       { "msgVersion", "snmp.msgVersion",
@@ -3176,7 +3176,7 @@ void proto_register_snmp(void) {
         "snmp.HeaderData", HFILL }},
     { &hf_snmp_msgSecurityParameters,
       { "msgSecurityParameters", "snmp.msgSecurityParameters",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_msgSecurityParameters", HFILL }},
     { &hf_snmp_msgData,
       { "msgData", "snmp.msgData",
@@ -3192,7 +3192,7 @@ void proto_register_snmp(void) {
         "snmp.INTEGER_484_2147483647", HFILL }},
     { &hf_snmp_msgFlags,
       { "msgFlags", "snmp.msgFlags",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_msgFlags", HFILL }},
     { &hf_snmp_msgSecurityModel,
       { "msgSecurityModel", "snmp.msgSecurityModel",
@@ -3204,15 +3204,15 @@ void proto_register_snmp(void) {
         "snmp.ScopedPDU", HFILL }},
     { &hf_snmp_encryptedPDU,
       { "encryptedPDU", "snmp.encryptedPDU",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.T_encryptedPDU", HFILL }},
     { &hf_snmp_contextEngineID,
       { "contextEngineID", "snmp.contextEngineID",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.SnmpEngineID", HFILL }},
     { &hf_snmp_contextName,
       { "contextName", "snmp.contextName",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.OCTET_STRING", HFILL }},
     { &hf_snmp_get_request,
       { "get-request", "snmp.get_request",
@@ -3352,11 +3352,11 @@ void proto_register_snmp(void) {
         "snmp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_snmp_description,
       { "description", "snmp.description",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.DisplayString", HFILL }},
     { &hf_snmp_password,
       { "password", "snmp.password",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "snmp.OCTET_STRING", HFILL }},
     { &hf_snmp_subtree,
       { "subtree", "snmp.subtree",
@@ -3473,10 +3473,11 @@ void proto_register_snmp(void) {
 								"Table of engine-user associations used for authentication and decryption",
 								assocs_uat);
 
-
+#ifdef HAVE_LIBSMI
   prefs_register_static_text_preference(snmp_module, "info_mibs",
       "MIB settings can be changed in the Name Resolution preferences",
       "MIB settings can be changed in the Name Resolution preferences");
+#endif
 
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
 
