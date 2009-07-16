@@ -160,6 +160,17 @@ static const guint16 bit_mask16[] = {
     0x01ff
 };
 
+static const guint16 bit_mask16_unalligned[] = {
+    0xff00,
+    0x8000,
+    0xc000,
+    0xe000,
+    0xf000,
+    0xf800,
+    0xfc00,
+    0xfe00
+};
+
 /* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
  * (add proceeding zeros in case of aligned PER)
  */
@@ -223,8 +234,12 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
       }
     }
     /* get the 'odd' bits */
-    word = tvb_get_ntohs(tvb,boffset+i) << shift1;
-    word = word & ~bit_mask16[remainder];
+    if ((no_of_bits - 8*i) > shift0){
+      word = tvb_get_ntohs(tvb,boffset+i) << shift1;
+    }else{
+      word = tvb_get_guint8(tvb,boffset+i) << (shift1 + 8);
+    }
+    word = word & bit_mask16_unalligned[remainder];
     word = word >> 8;
     buf[i] = (guint8) (word & 0x00ff);
   }
