@@ -1416,5 +1416,10 @@ proto_register_fc(void)
 void
 proto_reg_handoff_fc (void)
 {
+    dissector_handle_t fc_handle;
+
+    fc_handle = find_dissector("fc");
+    dissector_add("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
+
     data_handle = find_dissector("data");
 }

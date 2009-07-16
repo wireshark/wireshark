@@ -349,6 +349,8 @@ static const struct {
 	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
 	/* USB packets with padded Linux-specified header */
 	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAPPED },
+	/* Fibre Channel FC-2 frame */
+	{ 224,          WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
 
 	/*
 	 * To repeat:
