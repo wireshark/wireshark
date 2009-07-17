@@ -40,6 +40,7 @@
 #include <epan/emem.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
+#include "packet-tn3270.h"
 
 static int proto_telnet = -1;
 static int hf_telnet_auth_cmd = -1;
@@ -93,6 +94,7 @@ static gint ett_charset_subopt = -1;
 static gint ett_rsp_subopt = -1;
 static gint ett_comport_subopt = -1;
 
+static dissector_handle_t tn3270_handle;
 
 /* Some defines for Telnet */
 
@@ -118,6 +120,7 @@ static gint ett_comport_subopt = -1;
 #define TN_ABORT 238
 #define TN_SUSP  237
 #define TN_EOF   236
+#define TN_ARE   1
 
 
 typedef enum {
@@ -137,6 +140,24 @@ typedef struct tn_opt {
 } tn_opt;
 
 static void
+check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *terminaltype)
+{
+
+  if (strcmp(optname,"Terminal Type") != 0) {
+      return;
+  }
+
+  if ((strcmp(terminaltype,"IBM-3278-2-E") == 0) || (strcmp(terminaltype,"IBM-3278-2") == 0) ||
+      (strcmp(terminaltype,"IBM-3278-3") == 0) || (strcmp(terminaltype,"IBM-3278-4") == 0) ||
+      (strcmp(terminaltype,"IBM-3278-5") == 0) || (strcmp(terminaltype,"IBM-3277-2") == 0) ||
+      (strcmp(terminaltype,"IBM-3279-3") == 0) || (strcmp(terminaltype,"IBM-3279-4") == 0) ||
+      (strcmp(terminaltype,"IBM-3279-2-E") == 0) || (strcmp(terminaltype,"IBM-3279-2") == 0) ||
+      (strcmp(terminaltype,"IBM-3279-4-E") == 0))
+      add_tn3270_conversation(pinfo, 0);
+
+}
+
+static void
 dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
                       proto_tree *tree)
 {
@@ -153,6 +174,7 @@ dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb
       proto_tree_add_text(tree, tvb, offset, len, "Value: %s",
                           tvb_format_text(tvb, offset, len));
     }
+    check_for_tn3270(pinfo, optname, tvb_format_text(tvb, offset, len));
     break;
 
   case 1:	/* SEND */
@@ -172,6 +194,201 @@ dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb
       proto_tree_add_text(tree, tvb, offset, len, "Subcommand data");
     break;
   }
+}
+
+static void
+dissect_tn3270_regime_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
+                       int len, proto_tree *tree)
+{
+#define TN3270_REGIME_ARE          0x01
+#define TN3270_REGIME_IS           0x00
+
+
+  guint8 cmd;
+  while (len > 0) {
+    cmd = tvb_get_guint8(tvb, offset);
+    switch (cmd) {
+      case TN3270_REGIME_ARE:
+      case TN3270_REGIME_IS:
+        if (cmd == TN3270_REGIME_ARE) {
+            proto_tree_add_text(tree, tvb, offset, 1, "ARE");
+            add_tn3270_conversation(pinfo, 0);
+        } else {
+            proto_tree_add_text(tree, tvb, offset, 1, "IS");
+        }
+        proto_tree_add_text(tree, tvb, offset + 1, len - 1, "%s",
+                tvb_format_text(tvb, offset + 1, len - 1));
+        offset += len;
+        len -= len;
+        return;
+      default:
+        proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
+        break;
+    }
+    offset++;
+    len --;
+  }
+
+}
+
+#define TN3270_ASSOCIATE          0x00
+#define TN3270_CONNECT            0x01
+#define TN3270_DEVICE_TYPE        0x02
+#define TN3270_FUNCTIONS          0x03
+#define TN3270_IS                 0x04
+#define TN3270_REASON             0x05
+#define TN3270_REJECT             0x06
+#define TN3270_REQUEST            0x07
+#define TN3270_SEND               0x08
+/*       Reason_codes*/
+#define TN3270_CONN_PARTNER       0x00
+#define TN3270_DEVICE_IN_USE      0x01
+#define TN3270_INV_ASSOCIATE      0x02
+#define TN3270_INV_DEVICE_NAME    0x03
+#define TN3270_INV_DEVICE_TYPE    0x04
+#define TN3270_TYPE_NAME_ERROR    0x05
+#define TN3270_UNKNOWN_ERROR      0x06
+#define TN3270_UNSUPPORTED_REQ    0x07
+/*       Function Names*/
+#define TN3270_BIND_IMAGE         0x00
+#define TN3270_DATA_STREAM_CTL    0x01
+#define TN3270_RESPONSES          0x02
+#define TN3270_SCS_CTL_CODES      0x03
+#define TN3270_SYSREQ             0x04
+
+static void
+dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
+                       int len, proto_tree *tree)
+{
+
+  guint8 cmd;
+  int datalen;
+  int connect_offset = 0;
+  int device_type = 0;
+  int rsn = 0;
+  while (len > 0) {
+    cmd = tvb_get_guint8(tvb, offset);
+    switch (cmd) {
+      case TN3270_ASSOCIATE:
+            proto_tree_add_text(tree, tvb, offset, 1, "ASSOCIATE");
+            break;
+      case TN3270_CONNECT:
+            proto_tree_add_text(tree, tvb, offset, 1, "CONNECT");
+            proto_tree_add_text(tree, tvb, offset + 1, len, "%s",
+                                tvb_format_text(tvb, offset + 1, len - 1));
+            offset += (len - 1);
+            len -= (len - 1);
+            break;
+      case TN3270_DEVICE_TYPE:
+            proto_tree_add_text(tree, tvb, offset, 1, "DEVICE-TYPE");
+            break;
+      case TN3270_FUNCTIONS:
+            proto_tree_add_text(tree, tvb, offset, 1, "FUNCTIONS");
+            break;
+      case TN3270_IS:
+            proto_tree_add_text(tree, tvb, offset, 1, "IS");
+            device_type = tvb_get_guint8(tvb, offset-1);
+            if (device_type == TN3270_DEVICE_TYPE) {
+                /* If there is a terminal type to display, then it will be followed by CONNECT */
+                connect_offset = tvb_find_guint8(tvb, offset + 1, len, TN3270_CONNECT);
+                if (connect_offset != -1) {
+                  datalen = connect_offset - (offset + 1);
+                  if (datalen > 0) {
+                    proto_tree_add_text(tree, tvb, offset + 1, datalen, "%s",
+                                        tvb_format_text(tvb, offset + 1, datalen));
+                    offset += datalen;
+                    len -= datalen;
+                  }
+                }
+            }
+            break;
+      case TN3270_REASON:
+            proto_tree_add_text(tree, tvb, offset, 1, "REASON");
+            offset++;
+            len--;
+            rsn = tvb_get_guint8(tvb, offset);
+            switch (rsn) {
+              case TN3270_CONN_PARTNER:
+                    proto_tree_add_text(tree, tvb, offset, 1, "CONN-PARTNER");
+                    break;
+              case TN3270_DEVICE_IN_USE:
+                    proto_tree_add_text(tree, tvb, offset, 1, "DEVICE-IN-USE");
+                    break;
+              case TN3270_INV_ASSOCIATE:
+                    proto_tree_add_text(tree, tvb, offset, 1, "INV-ASSOCIATE");
+                    break;
+              case TN3270_INV_DEVICE_NAME:
+                    proto_tree_add_text(tree, tvb, offset, 1, "INV-DEVICE-NAME");
+                    break;
+              case TN3270_INV_DEVICE_TYPE:
+                    proto_tree_add_text(tree, tvb, offset, 1, "INV-DEVICE-TYPE");
+                    break;
+              case TN3270_TYPE_NAME_ERROR:
+                    proto_tree_add_text(tree, tvb, offset, 1, "TYPE-NAME-ERROR");
+                    break;
+              case TN3270_UNKNOWN_ERROR:
+                    proto_tree_add_text(tree, tvb, offset, 1, "UNKNOWN-ERROR");
+                    break;
+              case TN3270_UNSUPPORTED_REQ:
+                    proto_tree_add_text(tree, tvb, offset, 1, "UNSUPPORTED-REQ");
+                    break;
+              default:
+                    proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", rsn);
+                    break;
+            }
+            break;
+      case TN3270_REJECT:
+            proto_tree_add_text(tree, tvb, offset, 1, "REJECT");
+            break;
+      case TN3270_REQUEST:
+            add_tn3270_conversation(pinfo, 1);
+            proto_tree_add_text(tree, tvb, offset, 1, "REQUEST");
+            device_type = tvb_get_guint8(tvb, offset-1);
+            if (device_type == TN3270_DEVICE_TYPE) {
+              proto_tree_add_text(tree, tvb, offset + 1, len, "%s",
+                                  tvb_format_text(tvb, offset + 1, len - 1));
+              offset += (len - 1);
+              len -= (len - 1);
+            }else if (device_type == TN3270_FUNCTIONS) {
+              int fn = 0;
+              while (len > 0 && fn < 5) {
+                rsn = tvb_get_guint8(tvb, offset);
+                switch (rsn) {
+                  case TN3270_BIND_IMAGE:
+                        proto_tree_add_text(tree, tvb, offset, 1, "BIND-IMAGE");
+                        break;
+                  case TN3270_DATA_STREAM_CTL:
+                        proto_tree_add_text(tree, tvb, offset, 1, "DATA-STREAM-CTL");
+                        break;
+                  case TN3270_RESPONSES:
+                        proto_tree_add_text(tree, tvb, offset, 1, "RESPONSES");
+                        break;
+                  case TN3270_SCS_CTL_CODES:
+                        proto_tree_add_text(tree, tvb, offset, 1, "SCS-CTL-CODES");
+                        break;
+                  case TN3270_SYSREQ:
+                        proto_tree_add_text(tree, tvb, offset, 1, "SYSREQ");
+                        break;
+                  default:
+                        fn = 5;
+                        break;
+                }
+                offset++;
+                len--;
+              }
+            }
+            break;
+      case TN3270_SEND:
+            proto_tree_add_text(tree, tvb, offset, 1, "SEND");
+            break;
+      default:
+            proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
+            break;
+    }
+    offset++;
+    len--;
+  }
+
 }
 
 static void
@@ -1165,7 +1382,7 @@ static tn_opt options[] = {
     &ett_tn3270reg_subopt,
     VARIABLE_LENGTH,
     1,
-    NULL					/* XXX - fill me in */
+    dissect_tn3270_regime_subopt
   },
   {
     "X.3 PAD",					/* RFC 1053 */
@@ -1242,7 +1459,7 @@ static tn_opt options[] = {
     &ett_tn3270e_subopt,
     VARIABLE_LENGTH,
     1,
-    NULL					/* XXX - fill me in */
+    dissect_tn3270e_subopt
   },
   {
     "XAUTH",					/* XAUTH  */
@@ -1604,11 +1821,29 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
   }
 }
 
+static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
+{
+    int iac_offset = offset;
+
+    /* If we find an IAC (0XFF), make sure it is not followed by another 0XFF.
+       Such cases indicate that it is not an IAC at all */
+    while ((iac_offset = tvb_find_guint8(tvb, iac_offset, len, TN_IAC)) != -1 &&
+           (tvb_get_guint8(tvb, iac_offset + 1) == TN_IAC))
+    {
+        iac_offset+=2;
+        len = tvb_length_remaining(tvb, iac_offset);
+    }
+    return iac_offset;
+}
+
 static void
 dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_tree      *telnet_tree, *ti;
-
+	proto_tree      *telnet_tree, *ti;
+	tvbuff_t *next_tvb;
+	gint offset = 0;
+	guint len = 0;
+	guint is_tn3270 = 0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
@@ -1616,9 +1851,9 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
 
+	is_tn3270 = find_tn3270_conversation(pinfo);
+
 	if (tree) {
-	  gint offset = 0;
-	  guint len;
 	  int data_len;
 	  gint iac_offset;
 
@@ -1629,7 +1864,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * Scan through the buffer looking for an IAC byte.
 	   */
 	  while ((len = tvb_length_remaining(tvb, offset)) > 0) {
-	    iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
+	    iac_offset = find_unescaped_iac(tvb, offset, len);
 	    if (iac_offset != -1) {
 	      /*
 	       * We found an IAC byte.
@@ -1637,15 +1872,24 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	       * tree, a line at a time.
 	       */
 	      data_len = iac_offset - offset;
-	      if (data_len > 0)
-	      	telnet_add_text(telnet_tree, tvb, offset, data_len);
-
+	      if (data_len > 0) {
+	        if (is_tn3270) {
+	          next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
+	          call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
+	        } else
+	          telnet_add_text(telnet_tree, tvb, offset, data_len);
+	      }
 	      /*
 	       * Now interpret the command.
 	       */
 	      offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
-	    }
-	    else {
+	    } else {
+	      /* get more data if tn3270 */
+	      if (is_tn3270) {
+	        pinfo->desegment_offset = offset;
+	        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+	        return;
+	      }
 	      /*
 	       * We found no IAC byte, so what remains in the buffer
 	       * is the last of the data in the packet.
@@ -1734,8 +1978,8 @@ proto_register_telnet(void)
 		&ett_comport_subopt
 	};
 
-        proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
-        proto_register_field_array(proto_telnet, hf, array_length(hf));
+	proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
+	proto_register_field_array(proto_telnet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -1746,4 +1990,5 @@ proto_reg_handoff_telnet(void)
 
 	telnet_handle = create_dissector_handle(dissect_telnet, proto_telnet);
 	dissector_add("tcp.port", TCP_PORT_TELNET, telnet_handle);
+	tn3270_handle = find_dissector("tn3270");
 }
