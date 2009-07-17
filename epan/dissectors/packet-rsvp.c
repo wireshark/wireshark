@@ -5772,8 +5772,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_type = tvb_get_guint8(tvb, 1);
     msg_length = tvb_get_ntohs(tvb, 6);
 
-    rsvph = ep_alloc(sizeof(rsvp_conversation_info));
-    rsvph->session_type = 0;
+    rsvph = ep_alloc0(sizeof(rsvp_conversation_info));
 
     /* Copy over the source and destination addresses from the pinfo strucutre */
     SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -5824,6 +5823,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Now build the request key */
+    memset(&request_key, 0, sizeof(request_key));
     request_key.conversation = conversation->index;
     request_key.session_type = rsvph->session_type;
 
@@ -5878,8 +5878,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
-    SET_ADDRESS(&request_key.source_info.source,
-		rsvph->source.type, rsvph->source.len, rsvph->source.data);
+    SE_COPY_ADDRESS(&request_key.source_info.source, &rsvph->source);
     request_key.source_info.udp_source_port = rsvph->udp_source_port;
 
     /* See if a request with this key already exists */
@@ -5889,8 +5888,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If not, insert the new request key into the hash table */
     if (!request_val) {
-	new_request_key = se_alloc(sizeof(struct rsvp_request_key));
-	*new_request_key = request_key;
+	new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
 
 	request_val = se_alloc(sizeof(struct rsvp_request_val));
 	request_val->value = conversation->index;

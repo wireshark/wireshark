@@ -710,10 +710,11 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	 * check it. Someone might play overlap and TTL games.
 	 */
 	if (fd_head->flags & FD_DEFRAGMENTED) {
+		guint32 end_offset = fd->offset + fd->len;
 		fd->flags      |= FD_OVERLAP;
 		fd_head->flags |= FD_OVERLAP;
 		/* make sure it's not too long */
-		if (fd->offset + fd->len > fd_head->datalen) {
+		if (end_offset > fd_head->datalen || end_offset < fd->offset || end_offset < fd->len) {
 			fd->flags      |= FD_TOOLONGFRAGMENT;
 			fd_head->flags |= FD_TOOLONGFRAGMENT;
 		}

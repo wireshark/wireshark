@@ -156,6 +156,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Buildbot crash output: fuzz-2009-04-24-2891.pcap
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3438">Bug
+          3438</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           packet-dcm, corrupt DICOM export files
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3493">Bug
           3493</ulink>)
@@ -303,6 +309,12 @@ Wireshark Info
           Description of tshark -t dd missing from tshark.pod
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3723">Bug
           3723</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Problem in packet-per.c for ASN.1 PER Encoding
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3733">Bug
+          3733</ulink>)
         </para></listitem>
 
         <listitem><para>

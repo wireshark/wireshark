@@ -384,22 +384,19 @@ airpcap_fill_key_list(GtkWidget *keylist)
 AirpcapValidationType
 airpcap_get_validation_type(const gchar* name)
 {
-    if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
-    {
-	return AIRPCAP_VT_ACCEPT_EVERYTHING;
-    }
-    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
-    {
-	return AIRPCAP_VT_ACCEPT_CORRECT_FRAMES;
-    }
-    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
-    {
-	return AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES;
-    }
-    else
-    {
+	if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
+	{
+		return AIRPCAP_VT_ACCEPT_EVERYTHING;
+	}
+	else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
+	{
+		return AIRPCAP_VT_ACCEPT_CORRECT_FRAMES;
+	}
+	else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
+	{
+		return AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES;
+	}
 	return AIRPCAP_VT_UNKNOWN;
-    }
 }
 
 /*
@@ -409,23 +406,23 @@ airpcap_get_validation_type(const gchar* name)
 gchar*
 airpcap_get_validation_name(AirpcapValidationType vt)
 {
-    if(vt == AIRPCAP_VT_ACCEPT_EVERYTHING)
-    {
-	return AIRPCAP_VALIDATION_TYPE_NAME_ALL;
-    }
-    else if(vt == AIRPCAP_VT_ACCEPT_CORRECT_FRAMES)
-    {
-	return AIRPCAP_VALIDATION_TYPE_NAME_CORRECT;
-    }
-    else if(vt == AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES)
-    {
-	return AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT;
-    }
-    else if(vt == AIRPCAP_VT_UNKNOWN)
-    {
-	return AIRPCAP_VALIDATION_TYPE_NAME_UNKNOWN;
-    }
-    return NULL;
+	if(vt == AIRPCAP_VT_ACCEPT_EVERYTHING)
+	{
+		return AIRPCAP_VALIDATION_TYPE_NAME_ALL;
+	}
+	else if(vt == AIRPCAP_VT_ACCEPT_CORRECT_FRAMES)
+	{
+		return AIRPCAP_VALIDATION_TYPE_NAME_CORRECT;
+	}
+	else if(vt == AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES)
+	{
+		return AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT;
+	}
+	else if(vt == AIRPCAP_VT_UNKNOWN)
+	{
+		return AIRPCAP_VALIDATION_TYPE_NAME_UNKNOWN;
+	}
+	return NULL;
 }
 
 /*
@@ -614,6 +611,12 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
 {
     airpcap_if_selected->channelInfo.ExtChannel = airpcap_get_selected_channel_offset(channel_offset_cb);
     airpcap_if_selected->saved = FALSE;
+	change_airpcap_settings = TRUE;
+	if (!airpcap_update_frequency_and_offset(airpcap_if_selected)){
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,
+					  "Unable to set extension channel %d",
+					  airpcap_if_selected->channelInfo.ExtChannel);
+	}
 }
 
 
