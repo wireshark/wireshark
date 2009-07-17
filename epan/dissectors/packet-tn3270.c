@@ -5462,11 +5462,3 @@ proto_register_tn3270(void)
 
 }
 
-void
-proto_reg_handoff_tn3270(void)
-{
-  dissector_handle_t tn3270_handle;
-  tn3270_handle = find_dissector("tn3270");
-  dissector_add_handle("tcp.port", tn3270_handle); /* for "decode-as" */
-}
-
