@@ -282,7 +282,7 @@ GtkWidget *airpcap_toolbar_new()
     /* callback for channel combo box */
     g_signal_connect(channel_cb,"changed", G_CALLBACK(airpcap_channel_changed_set_cb), channel_offset_cb);
     /* callback for channel offset combo box */
-    g_signal_connect(GTK_COMBO_BOX(channel_offset_cb), "changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
+    g_signal_connect(channel_offset_cb, "changed", G_CALLBACK(airpcap_channel_offset_changed_cb), NULL);
     /* End: Channel offset combo box */
 
     /* Wrong CRC Label */
