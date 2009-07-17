@@ -2633,11 +2633,11 @@ const gchar *get_addr_name(address *addr)
 } /* get_addr_name */
 
 
-void get_addr_name_buf(address *addr, gchar *buf, guint size)
+void get_addr_name_buf(address *addr, gchar *buf, gsize size)
 {
   const gchar *result = get_addr_name(addr);
 
-  g_snprintf(buf, size, "%s", result);
+  g_strlcpy(buf, result, size);
 } /* get_addr_name_buf */
 
 

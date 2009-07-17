@@ -583,42 +583,39 @@ void
 display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
     time_res_t units)
 {
-	const char *sign;
-
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
-	sign = "";
 	if (frac < 0) {
 		frac = -frac;
 		if (sec >= 0)
-			sign = "-";
-	}
+			buf[0] = '-';
+			++buf;	}
 	switch (units) {
 
 	case SECS:
-		g_snprintf(buf, buflen, "%s%d", sign, sec);
+		g_snprintf(buf, buflen, "%d", sec);
 		break;
 
 	case DSECS:
-		g_snprintf(buf, buflen, "%s%d.%01d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%01d", sec, frac);
 		break;
 
 	case CSECS:
-		g_snprintf(buf, buflen, "%s%d.%02d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%02d", sec, frac);
 		break;
 
 	case MSECS:
-		g_snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%03d", sec, frac);
 		break;
 
 	case USECS:
-		g_snprintf(buf, buflen, "%s%d.%06d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%06d", sec, frac);
 		break;
 
 	case NSECS:
-		g_snprintf(buf, buflen, "%s%d.%09d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%09d", sec, frac);
 		break;
 	}
 }
@@ -628,7 +625,6 @@ void
 display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
     time_res_t units)
 {
-	const char *sign;
 	double elapsed_secs;
 
 	elapsed_secs = difftime(sec,(time_t)0);
@@ -639,36 +635,36 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
-	sign = "";
 	if (frac < 0) {
 		frac = -frac;
 		if (elapsed_secs >= 0)
-			sign = "-";
+			buf[0] = '-';
+			++buf;
 	}
 	switch (units) {
 
 	case SECS:
-		g_snprintf(buf, buflen, "%s%0.0f", sign, elapsed_secs);
+		g_snprintf(buf, buflen, "%0.0f", elapsed_secs);
 		break;
 
 	case DSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%01d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
 		break;
 
 	case CSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%02d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
 		break;
 
 	case MSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%03d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
 		break;
 
 	case USECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%06d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
 		break;
 
 	case NSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%09d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
 		break;
 	}
 }
