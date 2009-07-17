@@ -525,7 +525,7 @@ dissect_query_reply_resbytes(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
   return (offset - start);
 }
 
-int
+static int
 dissect_wcc(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
 
@@ -3841,6 +3841,71 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
+add_tn3270_conversation(packet_info *pinfo, int tn3270e)
+{
+  conversation_t *conversation;
+  tn3270_conv_info_t *tn3270_info = NULL;
+
+    /*
+    * Do we have a conversation for this connection?
+    */
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport,
+                                    pinfo->destport, 0);
+    if (conversation == NULL) {
+      /* We don't yet have a conversation, so create one. */
+      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                      pinfo->ptype, pinfo->srcport,
+                                      pinfo->destport, 0);
+    }
+
+    /*
+    * Do we already have a type and mechanism?
+    */
+    tn3270_info = conversation_get_proto_data(conversation, proto_tn3270);
+    if (tn3270_info == NULL) {
+      /* No.  Attach that information to the conversation, and add
+      * it to the list of information structures.
+      */
+      tn3270_info = se_alloc(sizeof(tn3270_conv_info_t));
+      COPY_ADDRESS(&(tn3270_info->outbound_addr),&(pinfo->dst));
+      tn3270_info->outbound_port = pinfo->destport;
+      COPY_ADDRESS(&(tn3270_info->inbound_addr),&(pinfo->src));
+      tn3270_info->inbound_port = pinfo->srcport;
+      conversation_add_proto_data(conversation, proto_tn3270, tn3270_info);
+      tn3270_info->next = tn3270_info_items;
+      tn3270_info_items = tn3270_info;
+    }
+
+    tn3270_info->extended = tn3270e;
+
+}
+
+int
+find_tn3270_conversation(packet_info *pinfo)
+{
+  conversation_t *conversation = NULL;
+  tn3270_conv_info_t *tn3270_info = NULL;
+
+  /*
+  * Do we have a conversation for this connection?
+  */
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                  pinfo->ptype, pinfo->srcport,
+                                  pinfo->destport, 0);
+  if (conversation != NULL) {
+      tn3270_info = conversation_get_proto_data(conversation, proto_tn3270);
+      if (tn3270_info != NULL) {
+          /*
+          * Do we already have a type and mechanism?
+          */
+          return 1;
+      }
+  }
+  return 0;
+}
+
+void
 proto_register_tn3270(void)
 {
   static hf_register_info hf[] = {
@@ -5401,71 +5466,7 @@ void
 proto_reg_handoff_tn3270(void)
 {
   dissector_handle_t tn3270_handle;
-  tn3270_handle = create_dissector_handle(dissect_tn3270, proto_tn3270);
+  tn3270_handle = find_dissector("tn3270");
   dissector_add_handle("tcp.port", tn3270_handle); /* for "decode-as" */
 }
 
-void
-add_tn3270_conversation(packet_info *pinfo, int tn3270e)
-{
-  conversation_t *conversation;
-  tn3270_conv_info_t *tn3270_info = NULL;
-
-    /*
-    * Do we have a conversation for this connection?
-    */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                    pinfo->ptype, pinfo->srcport,
-                                    pinfo->destport, 0);
-    if (conversation == NULL) {
-      /* We don't yet have a conversation, so create one. */
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
-                                      pinfo->destport, 0);
-    }
-
-    /*
-    * Do we already have a type and mechanism?
-    */
-    tn3270_info = conversation_get_proto_data(conversation, proto_tn3270);
-    if (tn3270_info == NULL) {
-      /* No.  Attach that information to the conversation, and add
-      * it to the list of information structures.
-      */
-      tn3270_info = se_alloc(sizeof(tn3270_conv_info_t));
-      COPY_ADDRESS(&(tn3270_info->outbound_addr),&(pinfo->dst));
-      tn3270_info->outbound_port = pinfo->destport;
-      COPY_ADDRESS(&(tn3270_info->inbound_addr),&(pinfo->src));
-      tn3270_info->inbound_port = pinfo->srcport;
-      conversation_add_proto_data(conversation, proto_tn3270, tn3270_info);
-      tn3270_info->next = tn3270_info_items;
-      tn3270_info_items = tn3270_info;
-    }
-
-    tn3270_info->extended = tn3270e;
-
-}
-
-int
-find_tn3270_conversation(packet_info *pinfo)
-{
-  conversation_t *conversation = NULL;
-  tn3270_conv_info_t *tn3270_info = NULL;
-
-  /*
-  * Do we have a conversation for this connection?
-  */
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                  pinfo->ptype, pinfo->srcport,
-                                  pinfo->destport, 0);
-  if (conversation != NULL) {
-      tn3270_info = conversation_get_proto_data(conversation, proto_tn3270);
-      if (tn3270_info != NULL) {
-          /*
-          * Do we already have a type and mechanism?
-          */
-          return 1;
-      }
-  }
-  return 0;
-}
