@@ -589,9 +589,15 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 	   a "-" in front of the entire time stamp. */
 	if (frac < 0) {
 		frac = -frac;
-		if (sec >= 0)
-			buf[0] = '-';
-			++buf;	}
+		if (sec >= 0) {
+			if (buflen < 1) {
+			  return;
+			}
+			buf[0] = '\0';
+			buf++;
+			buflen--;
+		}
+	}
 	switch (units) {
 
 	case SECS:
@@ -637,9 +643,14 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 	   a "-" in front of the entire time stamp. */
 	if (frac < 0) {
 		frac = -frac;
-		if (elapsed_secs >= 0)
-			buf[0] = '-';
-			++buf;
+		if (elapsed_secs >= 0) {
+			if (buflen < 1) {
+			  return;
+			}
+			buf[0] = '\0';
+			buf++;
+			buflen--;
+		}
 	}
 	switch (units) {
 
