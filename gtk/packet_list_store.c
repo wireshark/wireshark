@@ -337,12 +337,14 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 {
 	PacketListRecord *record;
 	PacketList *packet_list;
+	GType type;
 
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
 	g_return_if_fail(iter != NULL);
 	g_return_if_fail(column < PACKET_LIST(tree_model)->n_columns);
 
-	g_value_init(value, PACKET_LIST(tree_model)->column_types[column]);
+	type = PACKET_LIST(tree_model)->column_types[column];
+	g_value_init(value, type);
 
 	packet_list = PACKET_LIST(tree_model);
 
@@ -351,7 +353,21 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	if(record->pos >= packet_list->num_rows)
 		g_return_if_reached();
 
-	g_value_set_string(value, record->col_text[column]);
+	/* XXX Probably the switch should be on column or 
+	 * should we allways return the pointer and read the data as required??
+	 * If we use FOREGROUND_COLOR_COL etc we'll need a couple of "internal" columns
+	 */ 
+	switch(type){
+		case G_TYPE_POINTER:
+			g_value_set_pointer(value, record);
+			break;
+		case G_TYPE_STRING:
+			g_value_set_string(value, record->col_text[column]);
+			break;
+		default:
+			g_warning ("%s: Unsupported type (%s) retrieved.", G_STRLOC, g_type_name (value->g_type));
+			break;
+	}
 }
 
 /* Takes an iter structure and sets it to point to the next row. */
