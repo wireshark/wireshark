@@ -159,6 +159,12 @@ typedef enum {
 	BASE_CUSTOM	/**< call custom routine (in ->strings) to format */
 } base_display_e;
 
+typedef enum {
+    HF_REF_TYPE_NONE,       /**< Field is not referenced */
+    HF_REF_TYPE_INDIRECT,   /**< Field is indirectly referenced (only applicable for FT_PROTOCOL) via. its child */
+    HF_REF_TYPE_DIRECT,     /**< Field is directly referenced */
+} hf_ref_type;
+
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
 
 /** information describing a header field */
@@ -181,7 +187,7 @@ struct _header_field_info {
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
 	int				id;         /**< Field ID */
 	int				parent;     /**< parent protocol tree */
-	int				ref_count;  /**< is this field referenced by a filter and how often */
+	hf_ref_type			ref_count;  /**< is this field referenced by a filter */
 	int				bitshift;   /**< bits to shift */
 	header_field_info		*same_name_next; /**< Link to next hfinfo with same abbrev */
 	header_field_info		*same_name_prev; /**< Link to previous hfinfo with same abbrev */
@@ -192,7 +198,7 @@ struct _header_field_info {
  * _header_field_info. If new fields are added or removed, it should
  * be changed as necessary.
  */
-#define HFILL 0, 0, 0, 0, NULL, NULL
+#define HFILL 0, 0, HF_REF_TYPE_NONE, 0, NULL, NULL
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
@@ -1470,6 +1476,12 @@ extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
  @param hfindex primed hfindex
  @return GPtrArry pointer */
 extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
+
+/** Return whether we're tracking any interesting fields.
+    Only works with primed trees, and is fast.
+ @param tree tree of interest
+ @return TRUE if we're tracking interesting fields */
+extern gboolean proto_tracking_interesting_fields(proto_tree *tree);
 
 /** Return GPtrArray* of field_info pointers for all hfindex that appear in
     tree. Works with any tree, primed or unprimed, and is slower than

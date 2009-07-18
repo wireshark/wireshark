@@ -101,7 +101,7 @@ wrs_count_bitshift(guint32 bitmask)
 		if(PITEM_FINFO(tree)){					\
 			register header_field_info *hfinfo;		\
 			PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
-			if((hfinfo->ref_count == 0)			\
+			if((hfinfo->ref_count == HF_REF_TYPE_NONE)	\
 			&& (hfinfo->type!=FT_PROTOCOL)){		\
 				/* just return tree back to the caller */\
 				return tree;				\
@@ -506,19 +506,18 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 	gint hfid = (gint)(long)key;
 	header_field_info *hfinfo;
 
-
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
-	if(hfinfo->ref_count){
+	if(hfinfo->ref_count != HF_REF_TYPE_NONE) {
 		/* when a field is referenced by a filter this also
 		   affects the refcount for the parent protocol so we need
 		   to adjust the refcount for the parent as well
 		*/
-		if( (hfinfo->parent != -1) && (hfinfo->ref_count) ){
+		if( hfinfo->parent != -1 ) {
 			header_field_info *parent_hfinfo;
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
-			parent_hfinfo->ref_count -= hfinfo->ref_count;
+			parent_hfinfo->ref_count = HF_REF_TYPE_NONE;
 		}
-		hfinfo->ref_count = 0;
+		hfinfo->ref_count = HF_REF_TYPE_NONE;
 	}
 
 	g_ptr_array_free(ptrs, TRUE);
@@ -527,15 +526,17 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 static void
 free_node_tree_data(tree_data_t *tree_data)
 {
-        /* Free all the GPtrArray's in the interesting_hfids hash. */
-        g_hash_table_foreach(tree_data->interesting_hfids,
-            free_GPtrArray_value, NULL);
+	if (tree_data->interesting_hfids) {
+		/* Free all the GPtrArray's in the interesting_hfids hash. */
+		g_hash_table_foreach(tree_data->interesting_hfids,
+			free_GPtrArray_value, NULL);
 
-        /* And then destroy the hash. */
-        g_hash_table_destroy(tree_data->interesting_hfids);
+		/* And then destroy the hash. */
+		g_hash_table_destroy(tree_data->interesting_hfids);
+	}
 
-        /* And finally the tree_data_t itself. */
-        g_free(tree_data);
+	/* And finally the tree_data_t itself. */
+	g_free(tree_data);
 }
 
 #define FREE_NODE_FIELD_INFO(finfo)	\
@@ -627,7 +628,7 @@ proto_field_is_referenced(proto_tree *tree, int proto_id)
 		return TRUE;
 
 	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
-	if (hfinfo->ref_count != 0)
+	if (hfinfo->ref_count != HF_REF_TYPE_NONE)
 		return TRUE;
 
 	return FALSE;
@@ -1073,10 +1074,38 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 	return value;
 }
 
+static GPtrArray *proto_lookup_or_create_interesting_hfids(proto_tree *tree,
+                                                     header_field_info	*hfinfo)
+{
+	GPtrArray *ptrs = NULL;
+
+	DISSECTOR_ASSERT(tree);
+	DISSECTOR_ASSERT(hfinfo);
+
+	if (hfinfo->ref_count == HF_REF_TYPE_DIRECT) {
+		if (PTREE_DATA(tree)->interesting_hfids == NULL) {
+			/* Initialize the hash because we now know that it is needed */
+			PTREE_DATA(tree)->interesting_hfids =
+				g_hash_table_new(g_direct_hash, NULL /* g_direct_equal */);
+		}
+
+		ptrs = g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
+								GINT_TO_POINTER(hfinfo->id));
+		if (!ptrs) {
+			/* First element triggers the creation of pointer array */
+			ptrs = g_ptr_array_new();
+			g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids, 
+								GINT_TO_POINTER(hfinfo->id), ptrs);
+		}
+	}
+
+	return ptrs;
+}
+
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 static proto_item *
-proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
+proto_tree_new_item(field_info *new_fi, proto_tree *tree,
     tvbuff_t *tvb, gint start, gint length, gboolean little_endian)
 {
 	proto_item	*pi;
@@ -1084,7 +1113,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 	float		floatval;
 	double		doubleval;
 	char		*string;
-	GHashTable	*hash;
 	GPtrArray	*ptrs;
 
 	/* there is a possibility here that we might raise an exception
@@ -1312,14 +1340,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
-	if (new_fi->hfinfo->ref_count) {
-		/*HERE*/
-		hash = PTREE_DATA(tree)->interesting_hfids;
-		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-		if (ptrs) {
-			g_ptr_array_add(ptrs, new_fi);
-		}
-	}
+	ptrs = proto_lookup_or_create_interesting_hfids(tree, new_fi->hfinfo);
+	if (ptrs)
+		g_ptr_array_add(ptrs, new_fi);
 
 	return pi;
 }
@@ -1358,7 +1381,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	if (new_fi == NULL)
 		return NULL;
 
-	return proto_tree_new_item(new_fi, ptvc->tree, hfindex, ptvc->tvb,
+	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
 	    offset, length, little_endian);
 }
 
@@ -1380,7 +1403,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	if (new_fi == NULL)
 		return(NULL);
 
-	return proto_tree_new_item(new_fi, tree, hfindex, tvb, start,
+	return proto_tree_new_item(new_fi, tree, tvb, start,
 	    length, little_endian);
 }
 
@@ -2858,7 +2881,6 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 {
 	proto_item	*pi;
 	field_info	*fi;
-	GHashTable	*hash;
 	GPtrArray	*ptrs;
 
 	if (!tree)
@@ -2869,14 +2891,9 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
-	if (fi->hfinfo->ref_count) {
-		/*HERE*/
-		hash = PTREE_DATA(tree)->interesting_hfids;
-		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-		if (ptrs) {
-			g_ptr_array_add(ptrs, fi);
-		}
-	}
+	ptrs = proto_lookup_or_create_interesting_hfids(tree, fi->hfinfo);
+	if (ptrs)
+		g_ptr_array_add(ptrs, fi);
 
 	/* Does the caller want to know the fi pointer? */
 	if (pfi) {
@@ -3286,9 +3303,8 @@ proto_tree_create_root(void)
 	pnode->finfo = NULL;
 	pnode->tree_data = g_new(tree_data_t, 1);
 
-	/* Initialize the tree_data_t */
-	pnode->tree_data->interesting_hfids =
-	    g_hash_table_new(g_direct_hash, g_direct_equal);
+	/* Don't initialize the tree_data_t. Wait until we know we need it */
+	pnode->tree_data->interesting_hfids = NULL;
 
 	/* Set the default to FALSE so it's easier to
 	 * find errors; if we expect to see the protocol tree
@@ -3306,18 +3322,15 @@ proto_tree_create_root(void)
 /* "prime" a proto_tree with a single hfid that a dfilter
  * is interested in. */
 void
-proto_tree_prime_hfid(proto_tree *tree, gint hfid)
+proto_tree_prime_hfid(proto_tree *tree _U_, gint hfid)
 {
 	header_field_info *hfinfo;
-
-	g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
-		GINT_TO_POINTER(hfid), g_ptr_array_new());
 
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
 	/* this field is referenced by a filter so increase the refcount.
 	   also increase the refcount for the parent, i.e the protocol.
 	*/
-	hfinfo->ref_count++;
+	hfinfo->ref_count = HF_REF_TYPE_DIRECT;
 	/* only increase the refcount if there is a parent.
 	   if this is a protocol and not a field then parent will be -1
 	   and there is no parent to add any refcounting for.
@@ -3325,7 +3338,12 @@ proto_tree_prime_hfid(proto_tree *tree, gint hfid)
 	if (hfinfo->parent != -1) {
 		header_field_info *parent_hfinfo;
 		PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
-		parent_hfinfo->ref_count++;
+
+		/* Mark parent as indirectly referenced unless it is already directly
+		 * referenced, i.e. the user has specified the parent in a filter.
+		 */
+		if (parent_hfinfo->ref_count != HF_REF_TYPE_DIRECT)
+			parent_hfinfo->ref_count = HF_REF_TYPE_INDIRECT;
 	}
 }
 
@@ -3536,7 +3554,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     hfinfo->strings = protocol;
     hfinfo->bitmask = 0;
     hfinfo->bitshift = 0;
-    hfinfo->ref_count = 0;
+    hfinfo->ref_count = HF_REF_TYPE_NONE;
     hfinfo->blurb = NULL;
     hfinfo->parent = -1; /* this field differentiates protos and fields */
 
@@ -5013,10 +5031,18 @@ proto_check_for_protocol_or_field(proto_tree* tree, int id)
 GPtrArray*
 proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
-	return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
-	    GINT_TO_POINTER(id));
+	if (PTREE_DATA(tree)->interesting_hfids != NULL)
+		return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
+								GINT_TO_POINTER(id));
+	else
+		return NULL;
 }
 
+gboolean
+proto_tracking_interesting_fields(proto_tree *tree)
+{
+	return (PTREE_DATA(tree)->interesting_hfids != NULL);
+}
 
 /* Helper struct for proto_find_info() and  proto_all_finfos() */
 typedef struct {

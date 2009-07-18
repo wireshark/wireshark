@@ -707,6 +707,7 @@ proto_registrar_is_protocol
 proto_registrar_n
 proto_set_cant_toggle
 proto_set_decoding
+proto_tracking_interesting_fields
 proto_tree_add_bitmask
 proto_tree_add_bits_item
 proto_tree_add_bits_ret_val

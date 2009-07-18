@@ -36,7 +36,7 @@ struct _mate_range {
 
 typedef struct _tmp_pdu_data {
 	GPtrArray* ranges;
-	GHashTable* interesting;
+	proto_tree* tree;
 	mate_pdu* pdu;
 } tmp_pdu_data;
 
@@ -676,7 +676,7 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 	gchar* s;
 		
 
-	fis = (GPtrArray*) g_hash_table_lookup(data->interesting,GINT_TO_POINTER(hfid));
+	fis = proto_get_finfo_ptr_array(data->tree, hfid);
 	
 	if (fis) {
 		for (i = 0; i < fis->len; i++) {
@@ -711,7 +711,7 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 	}
 }
 
-static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, GHashTable* interesting) {
+static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, proto_tree* tree) {
 	mate_pdu* pdu = g_mem_chunk_alloc(rd->mate_items);
 	field_info* cfi;
 	GPtrArray* ptrs;
@@ -748,7 +748,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	
 	data.ranges = g_ptr_array_new();
 	data.pdu  = pdu;
-	data.interesting = interesting;
+	data.tree = tree;
 	
 	/* first we create the proto range */
 	proto_range = g_malloc(sizeof(mate_range));
@@ -763,7 +763,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	/* we move forward in the tranport */
 	for (i = cfg->transport_ranges->len; i--; ) {
 		hfid = *((int*)g_ptr_array_index(cfg->transport_ranges,i));
-		ptrs = (GPtrArray*) g_hash_table_lookup(interesting,GINT_TO_POINTER(hfid));
+		ptrs = proto_get_finfo_ptr_array(tree, hfid);
 		min_dist = 99999;
 		range_fi = NULL;
 		
@@ -799,7 +799,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 		
 		for (i = 0 ; i < cfg->payload_ranges->len; i++) {
 			hfid = *((int*)g_ptr_array_index(cfg->payload_ranges,i));
-			ptrs = (GPtrArray*) g_hash_table_lookup(interesting,GINT_TO_POINTER(hfid));
+			ptrs = proto_get_finfo_ptr_array(tree, hfid);
 			min_dist = 99999;
 			range_fi = NULL;
 			
@@ -853,14 +853,14 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 
 	rd->now = (float) nstime_to_sec(&pinfo->fd->rel_ts);
 
-	if ( tree->tree_data && tree->tree_data->interesting_hfids
+	if ( proto_tracking_interesting_fields(tree)
 		 && rd->highest_analyzed_frame < pinfo->fd->num ) {
 		for ( i = 0; i < mc->pducfglist->len; i++ ) {
 			
 			cfg = g_ptr_array_index(mc->pducfglist,i);
 			
 			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: trying to extract: %s",cfg->name);
-			protos = (GPtrArray*) g_hash_table_lookup(tree->tree_data->interesting_hfids,GINT_TO_POINTER(cfg->hfid_proto));
+			protos = proto_get_finfo_ptr_array(tree, cfg->hfid_proto);
 			
 			if (protos)  {
 				pdu = NULL;
@@ -870,7 +870,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 					dbg_print (dbg_pdu,3,dbg_facility,"mate_analyze_frame: found matching proto, extracting: %s",cfg->name);
 					
 					proto = (field_info*) g_ptr_array_index(protos,j);
-					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree->tree_data->interesting_hfids);
+					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree);
 					
 					if (cfg->criterium) {
 						criterium_match = new_avpl_from_match(cfg->criterium_match_mode,"",pdu->avpl,cfg->criterium,FALSE);

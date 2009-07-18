@@ -70,7 +70,7 @@ void hf_register_info_add(hf_register_info *hf, guint8 index,
   hf[index].hfinfo.blurb = blurb;
   hf[index].hfinfo.id = 0;
   hf[index].hfinfo.parent = 0;
-  hf[index].hfinfo.ref_count = 0;
+  hf[index].hfinfo.ref_count = HF_REF_TYPE_NONE;
   hf[index].hfinfo.bitshift = 0;
   hf[index].hfinfo.same_name_next = NULL;
   hf[index].hfinfo.same_name_prev = NULL;
