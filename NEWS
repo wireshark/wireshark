@@ -1,4 +1,4 @@
-Wireshark 1.2.0 Release Notes
+Wireshark 1.2.1 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,115 +12,116 @@ What's New
 
   Bug Fixes
 
-   Too many bugs have been fixed since the 1.0 release to list here.
-   Some notable fixes are:
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
 
-     o Type-ahead search now works properly.
+     o The IPMI dissector could overrun a buffer.
 
-     o Several bugs that affected capture from pipes have been fixed.
+       Versions affected: 1.2.0
 
-     o Many Lua-related bugs have been fixed.
+     o The AFS dissector could crash.
 
-     o Several memory leaks have been found and fixed.
+       Versions affected: 1.2.0
 
-     o The "Follow TCP Stream" feature could show two streams at the
-       same time The hex dump view has been narrowed.
+     o The Infiniband dissector could crash on some platforms.
 
-     o WPA and SSL decryption bugs have been fixed.
+       Versions affected: 1.2.0
 
-     o Readability problems on 256-color displays on Windows have
-       been fixed.
+     o The Bluetooth L2CAP dissector could crash.
+
+       Versions affected: 1.2.0
+
+     o The RADIUS dissector could crash.
+
+       Versions affected: 1.2.0
+
+     o The MIOP dissector could crash.
+
+       Versions affected: 1.2.0
+
+     o The sFlow dissector could use excessive CPU and memory.
+
+       Versions affected: 1.2.0
+
+   The following bugs have been fixed:
+
+     o Wireshark could crash while reading a pcap-ng file.
+
+     o Wireshark could crash while reading a PacketLogger file.
+
+     o CFLOW decoding is wrong for IPv6 fields (Bug 3328)
+
+     o Buildbot crash output: fuzz-2009-04-24-2891.pcap (Bug 3438)
+
+     o packet-dcm, corrupt DICOM export files (Bug 3493)
+
+     o GeoIP map should use random temporary file name (Bug 3530)
+
+     o Wireshark crashes when range_string is the data type (Bug
+       3536)
+
+     o Pcap-ng breaks VoIP call data (Bug 3539)
+
+     o ANSI MAP legInformation BER Error (Bug 3541)
+
+     o Starting Wireshark Portable 1.2.0 gives error message. (Bug
+       3547)
+
+     o On Windows, Wireshark could crash on startup. (Bug 3555)
+
+     o The title in the TCP sequence graphs is too short. (Bug 3556)
+
+     o USB Packets in pcap-ng Files Not Dissected Properly (Bug 3560)
+
+     o 802.11 decryption is broken (Bug 3590)
+
+     o SMB2 Error Response doesn't decode properly (Bug 3609)
+
+     o configure.in uses deprecated autoconf test for gnutls
+       detection (Bug 3627)
+
+     o Radius Malformed Packet error message (Bug 3635)
+
+     o Wireshark could crash when loading a profile. (Bug 3640)
+
+     o Analyze->Decode as... menu item becomes unavailable (Bug 3642)
+
+     o btsnoop: Incorrect error message for not supported datalink
+       type (Bug 3645)
+
+     o Decode error for network-id in BICC BCU-ID (Bug 3648)
+
+     o IEC 60870-5-104 dissector decodes nothing (Bug 3650)
+
+     o radius_register_avp_dissector() can stop RADIUS dissector from
+       working correctly (Bug 3651)
+
+     o ANSI ISUP Cause indicators with coding standard=ANSI fail to
+       dissect. (Bug 3654)
+
+     o Wrong field position in PacketCable Multimedia Extended
+       Classifier (Bug 3656)
+
+     o FF Protocol "FMS Initiate - Version OD Calling" field packet
+       data not unpacked properly (Bug 3694)
+
+     o hci_h4: Optimize column/field handling (Bug 3703)
+
+     o BSSLAP Protocol Not Decoded In BSSMAP-LE Messages (Bug 3711)
+
+     o Description of tshark -t dd missing from tshark.pod (Bug 3723)
+
+     o Problem in packet-per.c for ASN.1 PER Encoding (Bug 3733)
+
+     o [SNMP] Crash when dissecting packet (custom MIB) (Bug 3746)
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 1.0:
-
-     o Wireshark has a spiffy new start page.
-
-     o Display filters now autocomplete.
-
-     o A 64-bit Windows (x64) installer is now provided.
-
-     o Support for the c-ares resolver library has been added. It has
-       many advantages over ADNS.
-
-     o Many new protocol dissectors and capture file formats have
-       been added (see below for a complete list).
-
-     o Macintosh OS X support has been improved.
-
-     o GeoIP database lookups.
-
-     o OpenStreetMap + GeoIP integration.
-
-     o Improved Postscript(R) print output.
-
-     o The preference handling code is now much smarter about
-       changes.
-
-     o Support for Pcap-ng, the next-generation capture file format.
-
-     o Support for process information correlation via IPFIX.
-
-     o Column widths are now saved.
-
-     o The last used configuration profile is now saved.
-
-     o Protocol preferences are changeable from the packet details
-       context menu.
-
-     o Support for IP packet comparison.
-
-     o Capinfos now shows the average packet rate.
-
-     o GTK1 is no longer supported. (Yes, this is a feature.)
-
-     o Official Windows packages are now built using Microsoft Visual
-       C++ 2008 SP1.
+   There are no new or updated features in this release.
 
   New Protocol Support
 
-   Anything in Anything Protocol, ATM PW, N-to-one Cell Mode,
-   B.A.T.M.A.N. Layer 3 Protocol, BACnet MS/TP, BSS LCS Assistance
-   Protocol, Canon BJNP, CESoPSN basic NxDS0 mode (no RTP support),
-   Charging ASE, Cimetrics MS/TP, DECT Protocol, Digital Private
-   Signalling System No 1 Link Layer, DOCSIS Mac Domain Description,
-   DOCSIS Registration Request Multipart, DOCSIS Registration
-   Response Multipart, DOCSIS Synchronisation Message, E100
-   Encapsulation, EHS, Enhanced Variable Rate Codec, Ethernet Global
-   Data, Ethernet PW, Exchange 2003 Directory Request For Response,
-   Far End Failure Detection, FCoE Initialization Protocol, GOOSE,
-   GPEF, GPRS Tunneling Protocol V2, GSM A-I/F COMMON, GSM A-I/F GPRS
-   Mobility and Session Management, GSM SACCH, GSM Um Interface, HDLC
-   PW, FR port mode (no CW), HDLC-like framing for PPP, IEC
-   60870-5-104,Apci, IEC 60870-5-104,Asdu, IEEE 802.15.4 Low-Rate
-   Wireless PAN non-ASK PHY, IEEE C37.118 Synchrophasor Protocol,
-   Intelligent Platform Management Interface (Session Wrapper),
-   Inter-Integrated Circuit, Internal TDM, IPSICTL, ISMACryp
-   Protocol, iWARP Direct Data Placement and Remote Direct Memory
-   Access Protocol, iWARP Marker Protocol data unit Aligned framing,
-   Kontiki Delivery Protocol, LANforge Traffic Generator, Layer 1
-   Event Messages, Lb-I/F BSSMAP LE, LeCroy VICP, Link Access
-   Procedure, Channel Dm (LAPDm), Local Download Sharing Service, LTE
-   Radio Resource Control (RRC) protocol, MAC-LTE, Memcache Protocol,
-   Mesh Header, MP4V-ES, Nasdaq TotalView-ITCH, Nasdaq-SoupTCP
-   version 2.0, NAT Port Mapping Protocol, Netdump Protocol,
-   Non-Access-Stratum (NAS)PDU, PacketLogger, Paltalk Messenger
-   Protocol, PDCP-LTE, PW Associated Channel Header, PW Ethernet
-   Control Word, PW Frame Relay DLCI Control Word, PW MPLS Control
-   Word (generic/preferred), Real-Time Publish-Subscribe Wire
-   Protocol 2.x, Remote Packet Capture, RLC-LTE, SAToP (no RTP
-   support), SERCOS III V1.1, SIMULCRYPT Protocol, Subnetwork
-   Dependent Convergence Protocol XID, Teamspeak2 Protocol,
-   TTEthernet, TTEthernet Protocol Control Frame, Turbocell Aggregate
-   Data, Turbocell Header, TURN Channel, Unreliable Multicast
-   Inter-ORB Protocol, VCDU, Wave Short Message Protocol(IEEE
-   P1609.3), Wireless Access Station Session Protocol, Wireshark
-   Expert Info, World of Warcraft, Xpress Transport Protocol, ZigBee
-   Application Framework, ZigBee Application Support Layer, ZigBee
-   Device Profile, ZigBee Encapsulation Protocol, ZigBee Network
-   Layer, Zipped Inter-ORB Protocol, ZRTP
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
@@ -128,9 +129,7 @@ What's New
 
   New Capture File Support
 
-   Apple Bluetooth PacketLogger, Daintree's Sensor Network Analyzer,
-   dct3trace, Pcap-NG, TNEF (yes, those silly winmail.dat
-   attachments)
+   There are no new or updated capture file formats in this release.
 
 Getting Wireshark
 

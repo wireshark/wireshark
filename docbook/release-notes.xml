@@ -44,9 +44,11 @@ Wireshark Info
             3559</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -58,9 +60,11 @@ Wireshark Info
             3564</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -70,9 +74,11 @@ Wireshark Info
             <!-- Fixed in trunk-1.2: r29099 -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -84,9 +90,11 @@ Wireshark Info
             3572</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -98,9 +106,11 @@ Wireshark Info
             3578</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -112,9 +122,11 @@ Wireshark Info
             3652</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
         <listitem>
@@ -126,9 +138,11 @@ Wireshark Info
             3570</ulink>) -->
           </para>
           <para>Versions affected: 1.2.0</para>
+          <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
+          -->
         </listitem>
 
       </itemizedlist>
