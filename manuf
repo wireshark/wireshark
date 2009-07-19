@@ -9954,6 +9954,20 @@
 00:26:D3	ZenoInform             # Zeno Information System
 00:26:D4	Irca                   # IRCA SpA
 00:26:D5	OrySolucoe             # Ory Solucoes em Comercio de Informatica Ltda.
+00:26:D6	NingboAndy             # Ningbo Andy Optoelectronic Co., Ltd.
+00:26:D7	XiamenBbEl             # Xiamen BB Electron & Technology Co., Ltd.
+00:26:D8	MagicPoint             # Magic Point Inc.
+00:26:D9	PaceMicroT             # Pace Micro Technology plc
+00:26:DA	UniversalM             # Universal Media Corporation /Slovakia/ s.r.o.
+00:26:DB	IonicsEms              # Ionics EMS Inc.
+00:26:DC	OpticalDes             # Optical Systems Design
+00:26:DD	Fival                  # Fival Corporation
+00:26:DE	FdiMatelec             # FDI MATELEC
+00:26:DF	TaidocTech             # TaiDoc Technology Corp.
+00:26:E0	Asiteq
+00:26:E1	StanfordUn             # Stanford University, OpenFlow Group
+00:26:E2	LgElectron             # LG Electronics
+00:26:E3	Dti
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13455,6 +13469,9 @@
 00:50:C2:AF:D0:00/36	Homescenar             # HomeScenario, Inc.
 00:50:C2:AF:E0:00/36	Trolex                 # Trolex Limited
 00:50:C2:AF:F0:00/36	XobyteLlc              # XoByte LLC
+00:50:C2:B0:00:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:B0:10:00/36	HsrHaraldL             # HSR Harald L. Reuter
+00:50:C2:B0:20:00/36	Master                 # MASTER CO LTD
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.

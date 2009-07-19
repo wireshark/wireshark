@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-07-11)
+(last updated 2009-07-19)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -30034,9 +30034,9 @@ Decimal
     Dallas Wrege
       dwrege&rateintegration.com
 7520
-  M/A-COM, Inc.
-    Andrew E. Moysenko
-      moysenka&tycoelectronics.com
+  Harris Corporation (previous was 'M/A-COM Private Radio Systems, Inc.')
+    Harris Corp SNMP
+      Harris-SNMP&harris.com
 7521
   NetStar Networks
     Garry Thomas
@@ -77440,9 +77440,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Tatu Mannisto
       tatu.mannisto&secgo.com
 19472
-  STAER s.r.l.
+  Staer Sistemi s.r.l.
     Massimo Marini
-      massimo.marini&staer.it
+      massimo.marini&staersistemi.it
 19473
   North American Electric Reliabiity Council
     Lynn P. Costantini
@@ -134257,7 +134257,7 @@ Decentralization / Helenic Public Administra
       nicky.parseghian&sadasystems.com
 33668
   ECtel LTD.
-    Eyal Zamir , Cheif System Architect
+    Eyal Zamir , Chief System Architect
       eyalz&ectel.com
 33669
   Kevin R. James Enterprise Services
@@ -135079,6 +135079,202 @@ Decentralization / Helenic Public Administra
   ARC Créations
     Marc Laflutte
       m.laflutte&arc-cre.com
+33874
+  Novita
+    Gregor Malensek
+      info&novita.si
+33875
+  National Bank of Ukraine
+    Max Kozlovsky
+      nbumailprog&gmail.com
+33876
+  Van Hameren ICT diensten
+    Peter van Hameren
+      peter&hameren.com
+33877
+  Publications Office
+    Marita Logan
+      opoce-liso&publications.europa.eu
+33878
+  Children's Miracle Network
+    Scott Lance
+      slance&childrensmiraclenetwork.org
+33879
+  Global IT Bilisim Hizmetleri Ltd.
+    Kivanc Oskay
+      koskay&globalit.com.tr
+33880
+  Isca Networks Corporation Ltd
+    Martin Cole
+      martin_cole&iscanetworks.com
+33881
+  ETM Electromatic Inc.
+    Wei Qin
+      wqin&etm-inc.com
+33882
+  Four Color Studio
+    Jason Silkey
+      jason&fourcolorstudio.com
+33883
+  The Bank of Lithuania
+    Rimvydas Zilinskas
+      rzilinskas&lb.lt
+33884
+  NSG
+    Steve Barrass
+      steve.barrass&nsg.com
+33885
+  Abhineet Singh Chauhan
+    Abhineet Singh Chauhan
+      ronin_b007&yahoo.com
+33886
+  UNICEF
+    Sean Boyd
+      SBoyd&unicef.org
+33887
+  Integrasul Solucoes em Informatica Ltda.
+    Edson Dino Salvati
+      edson&integrasul.com.br
+33888
+  Aqua Cooler Pty Ltd
+    Andrew Blackmore
+      andrew&aquacooler.com.au
+33889
+  Do-Style,INC.
+    Toshiaki Sakazume
+      toshiaki&do-style.com
+33890
+  KUB Ltd.
+    Khaustov Ivan
+      pavel&tomline.ru
+33891
+  goettert.net Internet Service
+    Daniel Goettert
+      info&goettert.net
+33892
+  Be IP s.a.
+    Steve Frécinaux
+      sfrecinaux&beip.be
+33893
+  Specialized Information Systems Ltd.
+    Vitaliy Verveyko
+      office&specinfosystems.com.ua
+33894
+  Aulofée
+    Cuir Lionel
+      aulofee&aulofee.com
+33895
+  The Joint Commission
+    Kurt Stehlik
+      kstehlik&jcaho.org
+33896
+  DDO Organisation sarl
+    Donnet, Sylvain
+      sdonnet&ddo.net
+33897
+  GSA
+    Raju Bhupatiraju
+      raju.bhupatiraju&gsa.gov
+33898
+  Synovel Software Technologies Pvt. Ltd.
+    Siva Edupuganti
+      sivakrishna&synovel.com
+33899
+  rahmn.com, llc
+    Michael Rahmn
+      michael&rahmn.com
+33900
+  Next Level Security Systems, Inc.
+    Peter Jankowski
+      pete&nlss.com
+33901
+  ezwww.ch
+    Thierry Bagnoud
+      hosting&ezwww.ch
+33902
+  Tiju Paul
+    Tiju Paul
+      tijupi&yahoo.com
+33903
+  nenunic
+    Yingzhe Hou
+      houyz&nenu.edu.cn
+33904
+  Sergei Butakov
+    Sergei Butakov
+      sergei&bslos.com
+33905
+  iVoltaire.org
+    Nicolas A. Bérard-Nault
+      nicobn&gmail.com
+33906
+  WANTS Inc.
+    Hidehiro Sasaki
+      sasaki07&wantsinc.jp
+33907
+  SECURITAS DIRECT ESPAÑA S.A.U.
+    Jose Antonio Aparicio Rubio
+      joseantonio.aparicio&securitasdirect.es
+33908
+  Seowonintech Co., Ltd
+    Jude Jung
+      gsjung&seowonintech.co.kr
+33909
+  Open Joint Stock Company Belvnesheconombank
+    Sergey Kazuk
+      kss&bveb.minsk.by
+33910
+  BSN Medical GmbH
+    Hartmut Volkmar
+      hartmut.volkmar&bsnmedical.com
+33911
+  Cerillion Technologies Limited
+    David Ball
+      david.ball&cerillion.com
+33912
+  FULLSEE Electronics Co., Ltd. Beijing
+    Scan Li
+      fullseetech&126.com
+33913
+  ClusterDB.com
+    Andrew Morgan
+      andrew&clusterdb.com
+33914
+  Monmouth Telecom
+    Mark Stevens
+      oid-admin&monmouth.com
+33915
+  Middle East Number Thirteen -Financial Services
+    Mohamad Amin Peelechi
+      m.amin.peelechi&gmail.com
+33916
+  Freeman Decorating Services, Inc.
+    Tommy Mhire
+      tommy.mhire&freemanco.com
+33917
+  Intact Financial Corporation
+    Richard Daigle
+      richard.daigle&intact.net
+33918
+  Top Producer Systems
+    Morgan Crocker
+      morgan.crocker&topproducersystems.com
+33919
+  Magenta Video Networks
+    Ciro Noronha
+      ciro&magentavideo.com
+33920
+  Remote Management Systems Limited
+    Darren Lucinsky
+      Darren.L&RMSnewzealand.com
+33921
+  Molowa
+    Olivier Pallière
+      olivier&molowa.com
+33922
+  Byzoro Networks Ltd.
+    xie yongjiu
+      xieyongjiu&byzoro.com
 
 
 End of Document
