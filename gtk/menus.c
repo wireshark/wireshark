@@ -2112,7 +2112,9 @@ menu_colorize_changed(gboolean packet_list_colorize) {
     if(packet_list_colorize != recent.packet_list_colorize) {
         recent.packet_list_colorize = packet_list_colorize;
         color_filters_enable(packet_list_colorize);
+#ifndef NEW_PACKET_LIST
         cf_colorize_packets(&cfile);
+#endif
     }
 }
 

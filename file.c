@@ -1131,12 +1131,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 #endif
 
 #ifdef NEW_PACKET_LIST
+    /* This function returns the color_t that was applied to the packet (in
+     * the old packet list).  Applying the color to the packet is only done
+     * in the following function when not using the new packet list. */
+    fdata->color_filter = color_filters_colorize_packet(0, edt); 
+
     row = new_packet_list_append(cf->cinfo, fdata);
 #else
     row = packet_list_append(cf->cinfo.col_data, fdata);
-#endif
 
-#ifndef NEW_PACKET_LIST
     /* colorize packet: first apply color filters
      * then if packet is marked, use preferences to overwrite color
      * we do both to make sure that when a packet gets un-marked, the

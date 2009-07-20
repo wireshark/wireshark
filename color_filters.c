@@ -408,7 +408,11 @@ tmp_color_filters_used(void)
 void
 color_filters_enable(gboolean enable)
 {
+#ifdef NEW_PACKET_LIST
+	new_packet_list_enable_color(enable);
+#else
         filters_enabled = enable;
+#endif
 }
 
 
@@ -431,10 +435,11 @@ color_filters_prime_edt(epan_dissect_t *edt)
 	g_slist_foreach(color_filter_list, prime_edt, edt);
 }
 
-#ifndef NEW_PACKET_LIST
-/* Colorize a single packet of the packet list */
+/* Colorize a single packet of the packet list (old packet list)
+ * (row is only _U_ for the NEW_PACKET_LIST case
+ * Return the color_t for later use (new packet list) */
 color_filter_t *
-color_filters_colorize_packet(gint row, epan_dissect_t *edt)
+color_filters_colorize_packet(gint row _U_, epan_dissect_t *edt)
 {
     GSList *curr;
     color_filter_t *colorf;
@@ -450,6 +455,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
                  dfilter_apply_edt(colorf->c_colorfilter, edt)) {
                     /* this is the filter to use, apply it to the packet list */
 #ifndef NEW_PACKET_LIST
+		    /* We'll do this in the column cell function instead. */
                     packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
 #endif
                     return colorf;
@@ -460,7 +466,6 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
 
     return NULL;
 }
-#endif /* NEW_PACKET_LIST */
 
 /* read filters from the given file */
 /* XXX - Would it make more sense to use GStrings here instead of reallocing

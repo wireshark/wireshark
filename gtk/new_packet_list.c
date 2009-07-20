@@ -49,8 +49,13 @@
 #include "gtk/recent.h"
 #include "gtk/keys.h"
 #include "gtk/menus.h"
+#include "color.h"
+#include "color_filters.h"
+#include "gtk/color_utils.h"
 
 static PacketList *packetlist;
+
+static gboolean enable_color;
 
 static GtkWidget *create_view_and_model(void);
 static guint row_from_iter(GtkTreeIter *iter);
@@ -125,13 +130,16 @@ create_view_and_model(void)
 	gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(packetlist->view),
 					    TRUE);
 #endif
+
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
 
 	/*     	g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
 
 	renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer, "ypad", 0, "font-desc", user_font_get_regular(),
+	g_object_set(renderer,
+		     "ypad", 0,
+		     "font-desc", user_font_get_regular(),
 		     NULL);		     
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
@@ -141,7 +149,6 @@ create_view_and_model(void)
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
 							NULL);
-		gtk_tree_view_column_add_attribute(col, renderer, "text",i);
 		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
 		gtk_tree_view_column_set_sort_column_id(col, i);
 		gtk_tree_view_column_set_resizable(col, TRUE);
@@ -244,13 +251,38 @@ static void
 show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		    GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
 {
+	guint row = row_from_iter(iter);
+	guint col_num = GPOINTER_TO_INT(data);
+	frame_data *fdata = new_packet_list_get_row_data(row);
+	color_filter_t *color_filter = fdata->color_filter;
+	color_t fg_color_t = color_filter->fg_color;
+	color_t bg_color_t = color_filter->bg_color;
+	GdkColor fg_gdk;
+	GdkColor bg_gdk;
 	gchar *cell_text;
 
-	gtk_tree_model_get(model, iter, GPOINTER_TO_INT(data), &cell_text, -1);
+	gtk_tree_model_get(model, iter,
+			   col_num, &cell_text,
+			   -1);
 
-	g_object_set(renderer, "text", cell_text, NULL);
+	color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
+	color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
+
+	g_object_set(renderer,
+		     "text", cell_text,
+		     "foreground-gdk", &fg_gdk,
+		     "foreground-set", enable_color,
+		     "background-gdk", &bg_gdk,
+		     "background-set", enable_color,
+		     NULL);
 
 	g_free(cell_text);
+}
+
+void
+new_packet_list_enable_color(gboolean enable)
+{
+	enable_color = enable;
 }
 
 #endif /* NEW_PACKET_LIST */
