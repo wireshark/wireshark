@@ -593,7 +593,7 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 			if (buflen < 1) {
 			  return;
 			}
-			buf[0] = '\0';
+			buf[0] = '-';
 			buf++;
 			buflen--;
 		}
@@ -647,7 +647,7 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 			if (buflen < 1) {
 			  return;
 			}
-			buf[0] = '\0';
+			buf[0] = '-';
 			buf++;
 			buflen--;
 		}
@@ -659,7 +659,7 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 		break;
 
 	case DSECS:
-		g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
 		break;
 
 	case CSECS:
