@@ -72,7 +72,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gint               i;
     gchar             *fmt;
     gint               cur_fmt;
-    const gchar       *column_titles[] = {"Title", "Format"};
+    const gchar       *column_titles[] = {"Title", "Field type"};
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
@@ -140,6 +140,11 @@ column_prefs_show(GtkWidget *prefs_window) {
         if (cur_fmt == COL_CUSTOM) {
             fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
         } else {
+            if (cfmt->custom_field) {
+                /* Delete custom_field from previous changes */
+                g_free (cfmt->custom_field);
+                cfmt->custom_field = NULL;
+            }
             fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
         }
         gtk_list_store_append(store, &iter);
@@ -159,20 +164,24 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(bottom_hb);
 
     /* Add / remove buttons */
-    add_remove_vb = gtk_vbox_new (FALSE, 0);
-    gtk_container_set_border_width  (GTK_CONTAINER (add_remove_vb), 5);
-    gtk_box_pack_start (GTK_BOX (bottom_hb), add_remove_vb, FALSE, TRUE, 0);
+    add_remove_vb = gtk_vbox_new (TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (add_remove_vb), 5);
+    gtk_box_pack_start (GTK_BOX (bottom_hb), add_remove_vb, FALSE, FALSE, 0);
     gtk_widget_show(add_remove_vb);
 
     add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(add_bt, "clicked", G_CALLBACK(column_list_new_cb), column_l);
-    gtk_box_pack_start (GTK_BOX (add_remove_vb), add_bt, FALSE, FALSE, 5);
+    gtk_box_pack_start (GTK_BOX (add_remove_vb), add_bt, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, add_bt,
+                          "Add a new column at the end of the list.", NULL);
     gtk_widget_show(add_bt);
 
     remove_bt = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_widget_set_sensitive(remove_bt, FALSE);
     g_signal_connect(remove_bt, "clicked", G_CALLBACK(column_list_delete_cb), column_l);
-    gtk_box_pack_start (GTK_BOX (add_remove_vb), remove_bt, FALSE, FALSE, 5);
+    gtk_box_pack_start (GTK_BOX (add_remove_vb), remove_bt, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, remove_bt,
+                          "Remove the selected column.", NULL);
     gtk_widget_show(remove_bt);
   
     /* properties frame */
@@ -181,26 +190,34 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(props_fr);
 
     /* Column name entry and format selection */
-    tb = gtk_table_new(1, 4, FALSE);
+    tb = gtk_table_new(2, 2, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(tb), 5);
     gtk_container_add(GTK_CONTAINER(props_fr), tb);
     gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(tb), 15);
     gtk_widget_show(tb);
 
-    lb = gtk_label_new("Format:");
+    lb = gtk_label_new("Field type:");
     gtk_misc_set_alignment(GTK_MISC(lb), 1.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 0, 1);
+    gtk_tooltips_set_tip (tooltips, lb,
+                          "Select which packet information to present in the column.", NULL);
     gtk_widget_show(lb);
 
     props_hb = gtk_hbox_new(FALSE, 5);
     gtk_table_attach(GTK_TABLE(tb), props_hb, 1, 2, 0, 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_tooltips_set_tip (tooltips, props_hb,
+                          "Select which packet information to present in the column.", NULL);
     gtk_widget_show(props_hb);
 
     field_lb = gtk_label_new("Field name:");
     gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 2, 3, 0, 1);
-    gtk_widget_hide(field_lb);
+    gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 0, 1, 1, 2);
+    gtk_widget_set_sensitive(field_lb, FALSE);
+    gtk_tooltips_set_tip (tooltips, field_lb,
+                          "Field name used when field type is \"Custom\". "
+                          "This string has the same syntax as a display filter string.", NULL);
+    gtk_widget_show(field_lb);
 
     field_te = gtk_entry_new();
     g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
@@ -216,9 +233,12 @@ column_prefs_show(GtkWidget *prefs_window) {
     g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
     g_signal_connect(prefs_window, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     colorize_filter_te_as_empty(field_te);
-    gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 3, 4, 0, 1);
+    gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 1, 2, 1, 2);
     gtk_widget_set_sensitive(field_te, FALSE);
-    gtk_widget_hide(field_te);
+    gtk_tooltips_set_tip (tooltips, field_te,
+                          "Field name used when field type is \"Custom\". "
+                          "This string has the same syntax as a display filter string.", NULL);
+    gtk_widget_show(field_te);
 
     fmt_cmb = gtk_combo_box_new_text();
 
@@ -404,17 +424,16 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
         g_signal_handler_block  (field_te, column_field_changed_handler_id);
         if (cur_fmt == COL_CUSTOM) {
             gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
-            gtk_widget_show(field_lb);
-            gtk_widget_show(field_te);
+            gtk_widget_set_sensitive(field_lb, TRUE);
+            gtk_widget_set_sensitive(field_te, TRUE);
         } else {
             gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
-            gtk_widget_hide(field_lb);
-            gtk_widget_hide(field_te);
+            gtk_widget_set_sensitive(field_lb, FALSE);
+            gtk_widget_set_sensitive(field_te, FALSE);
         }
         g_signal_handler_unblock(field_te, column_field_changed_handler_id);
 
         gtk_widget_set_sensitive(remove_bt, TRUE);
-        gtk_widget_set_sensitive(field_te, TRUE);
         gtk_widget_set_sensitive(fmt_cmb, TRUE);
     }
     else
@@ -471,28 +490,29 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     /*  (IE: combo-box format != current selected row format) */
     /* Update field widgets, list_store, column format array  */
     /*  entry as appropriate.                                 */
+    g_signal_handler_block  (field_te, column_field_changed_handler_id);
     if (cur_fmt == COL_CUSTOM) {
         /* Changing from custom to non-custom   */
-        g_free(cfmt->custom_field);
-        cfmt->custom_field = NULL;
+        gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
         fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
-        gtk_widget_hide(field_lb);
-        gtk_widget_hide(field_te);
+        gtk_widget_set_sensitive(field_lb, FALSE);
+        gtk_widget_set_sensitive(field_te, FALSE);
 
     } else if (cur_cb_fmt == COL_CUSTOM) {
         /* Changing from non-custom to custom   */
-        g_assert (cfmt->custom_field == NULL);
-        cfmt->custom_field = g_strdup("");
+        if (cfmt->custom_field == NULL)
+            cfmt->custom_field = g_strdup("");
         /* The following doesn't trigger a call to menu_field_changed_cb()    */
-        gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
+        gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
         fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_cb_fmt), cfmt->custom_field);
-        gtk_widget_show(field_lb);
-        gtk_widget_show(field_te);
+        gtk_widget_set_sensitive(field_lb, TRUE);
+        gtk_widget_set_sensitive(field_te, TRUE);
 
     } else {
         /* Changing from non-custom to non-custom */
         fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
     }
+    g_signal_handler_unblock(field_te, column_field_changed_handler_id);
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
     g_free(fmt);
