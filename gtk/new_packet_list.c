@@ -254,9 +254,9 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	guint row = row_from_iter(iter);
 	guint col_num = GPOINTER_TO_INT(data);
 	frame_data *fdata = new_packet_list_get_row_data(row);
-	color_filter_t *color_filter = fdata->color_filter;
-	color_t fg_color_t = color_filter->fg_color;
-	color_t bg_color_t = color_filter->bg_color;
+	color_filter_t *color_filter;
+	color_t fg_color_t;
+	color_t bg_color_t;
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
 	gchar *cell_text;
@@ -265,16 +265,24 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 			   col_num, &cell_text,
 			   -1);
 
-	color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
-	color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
-
-	g_object_set(renderer,
+	if(fdata->color_filter){
+		color_filter = fdata->color_filter;
+		fg_color_t = color_filter->fg_color;
+		bg_color_t = color_filter->bg_color;
+		color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
+		color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
+		g_object_set(renderer,
 		     "text", cell_text,
 		     "foreground-gdk", &fg_gdk,
 		     "foreground-set", enable_color,
 		     "background-gdk", &bg_gdk,
 		     "background-set", enable_color,
 		     NULL);
+	}else{
+		g_object_set(renderer,
+		     "text", cell_text,
+		     NULL);
+	}
 
 	g_free(cell_text);
 }
