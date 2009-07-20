@@ -140,7 +140,7 @@ create_view_and_model(void)
 	g_object_set(renderer,
 		     "ypad", 0,
 		     "font-desc", user_font_get_regular(),
-		     NULL);		     
+		     NULL);		   
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		col = gtk_tree_view_column_new();
@@ -206,6 +206,55 @@ void
 new_packet_list_prev(void)
 {
 	g_warning("*** new_packet_list_prev() not yet implemented.");
+}
+
+gint
+new_packet_list_find_row_from_data(gpointer data, gboolean select)
+{
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeSelection *selection;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+	frame_data *fdata;
+	gint row;
+
+	/* Initializes iter with the first iterator in the tree (the one at the path "0") 
+	 * and returns TRUE. Returns FALSE if the tree is empty
+	 */
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return -1;
+
+	row = row_from_iter(&iter);
+	fdata = new_packet_list_get_row_data(row);
+	
+	if(fdata == (frame_data*)data)
+		return row;
+
+	while (gtk_tree_model_iter_next (model,&iter)) {
+		row = row_from_iter(&iter);
+		fdata = new_packet_list_get_row_data(row);
+		
+		if(fdata == (frame_data*)data){
+			if(select){
+				/* Select the row */
+				selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+				gtk_tree_selection_select_iter (selection, &iter);
+				path = gtk_tree_model_get_path(model, &iter);
+				gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
+						path,
+						NULL, 
+						TRUE,	/* use_align */
+						0.5,	/* row_align determines where the row is placed, 0.5 means center */
+						0);		/* The horizontal alignment of the column */
+
+				/* Needed to get the middle and bottom panes updated? */
+				new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view),data);
+				return row;
+			}
+		}
+	}
+
+    return -1;
 }
 
 static void

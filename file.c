@@ -2775,7 +2775,9 @@ cf_change_time_formats(capture_file *cf)
     /* Find what row this packet is in. */
     if (!sorted_by_frame_column) {
       /* This function is O(N), so we try to avoid using it... */
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+	  row = new_packet_list_find_row_from_data(fdata, FALSE);
+#else
       row = packet_list_find_row_from_data(fdata);
 #endif
     } else {
@@ -2799,7 +2801,8 @@ cf_change_time_formats(capture_file *cf)
              "command-line-specified" format; update it. */
           cf->cinfo.col_buf[i][0] = '\0';
           col_set_fmt_time(fdata, &cf->cinfo, cf->cinfo.col_fmt[i], i);
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+#else
           packet_list_set_text(row, i, cf->cinfo.col_data[i]);
 #endif
         }
@@ -3173,9 +3176,7 @@ find_packet(capture_file *cf,
   int         count;
   int         err;
   gchar      *err_info;
-#ifndef NEW_PACKET_LIST
   int         row;
-#endif
   float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
@@ -3332,9 +3333,13 @@ find_packet(capture_file *cf,
   }
 
   if (new_fd != NULL) {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+	  /* Find and select */
+	  row = new_packet_list_find_row_from_data(fdata, TRUE);
+#else
     /* We found a frame.  Find what row it's in. */
     row = packet_list_find_row_from_data(new_fd);
+#endif /* NEW_PACKET_LIST */
     if (row == -1) {
         /* We didn't find a row even though we know that a frame
          * exists that satifies the search criteria. This means that the
@@ -3346,6 +3351,7 @@ find_packet(capture_file *cf,
         return FALSE;
     }
 
+#ifndef NEW_PACKET_LIST
     /* Select that row, make it the focus row, and make it visible. */
     packet_list_set_selected_row(row);
 #endif /* NEW_PACKET_LIST */
@@ -3358,9 +3364,7 @@ gboolean
 cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
-#ifndef NEW_PACKET_LIST
   int row;
-#endif
 
   for (fdata = cf->plist; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
@@ -3379,7 +3383,9 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     return FALSE;	/* we failed to go to that packet */
   }
 
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+  row = new_packet_list_find_row_from_data(fdata, TRUE);
+#else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(fdata);
@@ -3395,9 +3401,7 @@ gboolean
 cf_goto_top_frame(capture_file *cf)
 {
   frame_data *fdata;
-#ifndef NEW_PACKET_LIST
   int row;
-#endif
   frame_data *lowest_fdata = NULL;
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
@@ -3411,7 +3415,10 @@ cf_goto_top_frame(capture_file *cf)
       return FALSE;
   }
 
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+  /* Find and select */
+  row = new_packet_list_find_row_from_data(fdata, TRUE);
+#else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(lowest_fdata);
@@ -3427,9 +3434,7 @@ gboolean
 cf_goto_bottom_frame(capture_file *cf)
 {
   frame_data *fdata;
-#ifndef NEW_PACKET_LIST
   int row;
-#endif
   frame_data *highest_fdata = NULL;
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
@@ -3442,7 +3447,10 @@ cf_goto_bottom_frame(capture_file *cf)
       return FALSE;
   }
 
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+  /* Find and select */
+  row = new_packet_list_find_row_from_data(fdata, TRUE);
+#else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(highest_fdata);
