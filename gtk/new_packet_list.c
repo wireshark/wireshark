@@ -291,6 +291,7 @@ void
 new_packet_list_enable_color(gboolean enable)
 {
 	enable_color = enable;
+	gtk_widget_queue_draw (packetlist->view);
 }
 
 #endif /* NEW_PACKET_LIST */
