@@ -652,7 +652,7 @@ static int
 dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, FALSE );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -662,15 +662,15 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 	offset = dissect_rtcp_length_field(tree, tvb, offset);
 
 	/* SSRC  */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	/* FSN, 16 bits */
-	proto_tree_add_uint( tree, hf_rtcp_fsn, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_fsn, tvb, offset, 2, FALSE );
 	offset += 2;
 
 	/* BLP, 16 bits */
-	proto_tree_add_uint( tree, hf_rtcp_blp, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_blp, tvb, offset, 2, FALSE );
 	offset += 2;
 
 	return offset;
@@ -705,13 +705,11 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
 
     /* SSRC of packet sender, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Transport-Layer Feedback Message Elements */
@@ -784,13 +782,11 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
 
     /* SSRC of packet sender, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, 
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Feedback Control Information (FCI) */
@@ -805,7 +801,7 @@ static int
 dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, FALSE );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -815,7 +811,7 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 	offset = dissect_rtcp_length_field(tree, tvb, offset);
 
 	/* SSRC  */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	return offset;
@@ -838,7 +834,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 
 	/* SSRC / CSRC */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 	packet_len -= 4;
 
@@ -1498,7 +1494,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
 
 		/* SSRC_n source identifier, 32 bits */
-		proto_tree_add_uint( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ssrc );
+		proto_tree_add_item( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 		offset += 4;
 
 		/* Create a subtree for the SDES items; we don't yet know
@@ -1584,18 +1580,18 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
     case RTCP_XR_LOSS_RLE:
     case RTCP_XR_DUP_RLE:
     case RTCP_XR_PKT_RXTIMES:
-        proto_tree_add_uint(tree, hf_rtcp_xr_thinning, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, FALSE);
         break;
         
     case RTCP_XR_STATS_SUMRY:
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_jitter_flag, tvb, offset, 1, flags);
-        proto_tree_add_uint(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, FALSE);
         break;
 
     default:
-        proto_tree_add_uint(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, FALSE);
         break;
     }
 }
@@ -1682,7 +1678,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             
         switch (block_type) {
         case RTCP_XR_VOIP_METRCS: {
-            guint fraction_rate, value;
+            guint fraction_rate;
             
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
@@ -1759,10 +1755,9 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             offset++;
             
             /* PLC, JB Adaptive, JB Rate */
-            value = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, value);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, value);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, value);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, FALSE);
             offset += 2; /* skip over reseved bit */
             
             /* JB Nominal */
@@ -1887,7 +1882,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
             offset += 2;
 
             /* End Seq */
@@ -1916,7 +1911,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
             offset += 2;
 
             /* End Seq */
@@ -2015,7 +2010,6 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree *high_sec_tree = (proto_tree*) NULL;
 	proto_item *ti = (proto_item*) NULL;
 	guint8 rr_flt;
-	unsigned int cum_nr = 0;
 	int rr_offset = offset; 
 
 	while ( counter <= count ) {
@@ -2040,17 +2034,16 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		offset++;
 
 		/* Cumulative number of packets lost, 24 bits */
-		cum_nr = tvb_get_ntohl( tvb, offset ) >> 8;
-		proto_tree_add_uint( ssrc_sub_tree, hf_rtcp_ssrc_cum_nr, tvb,
-		    offset, 3, cum_nr );
+		proto_tree_add_item( ssrc_sub_tree, hf_rtcp_ssrc_cum_nr, tvb,
+		    offset, 3, FALSE );
 		offset += 3;
 
 		/* Extended highest sequence nr received, 32 bits
 		 * Just for the sake of it, let's add another subtree
 		 * because this might be a little clearer
 		 */
-		ti = proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_ext_high_seq,
-		    tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		ti = proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_ext_high_seq,
+		    tvb, offset, 4, FALSE );
 		high_sec_tree = proto_item_add_subtree( ti, ett_ssrc_ext_high );
 		/* Sequence number cycles */
 		proto_tree_add_item( high_sec_tree, hf_rtcp_ssrc_high_cycles,
@@ -2068,14 +2061,14 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 
 		/* Last SR timestamp */
 		lsr = tvb_get_ntohl( tvb, offset );
-		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
-		                     offset, 4, lsr );
+		proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
+		                     offset, 4, FALSE );
 		offset += 4;
 
 		/* Delay since last SR timestamp */
 		dlsr = tvb_get_ntohl( tvb, offset );
-		ti = proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
-		                          offset, 4, dlsr );
+		ti = proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
+		                          offset, 4, FALSE );
 		proto_item_append_text(ti, " (%d milliseconds)",
 		                       (int)(((double)dlsr/(double)65536) * 1000.0));
 		offset += 4;
@@ -2123,13 +2116,13 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	offset += 8;
 
 	/* RTP timestamp, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, FALSE );
 	offset += 4;
 	/* Sender's packet count, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_sender_pkt_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_sender_pkt_cnt, tvb, offset, 4, FALSE );
 	offset += 4;
 	/* Sender's octet count, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	/* Record the time of this packet in the sender's conversation */
@@ -2614,8 +2607,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
         temp_byte = tvb_get_guint8( tvb, offset );
 
-        proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
-                             offset, 1, temp_byte);
+        proto_tree_add_item( rtcp_tree, hf_rtcp_version, tvb,
+                             offset, 1, FALSE);
         padding_set = RTCP_PADDING( temp_byte );
         padding_offset = offset + packet_length - 1;
 
@@ -2635,7 +2628,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
                 /* Sender Synchronization source, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
                 offset += 4;
 
                 if (srtcp_encrypted) { /* rest of the payload is encrypted - do not try to dissect */
@@ -2970,7 +2963,7 @@ proto_register_rtcp(void)
 			{
 				"Cumulative number of packets lost",
 				"rtcp.ssrc.cum_nr",
-				FT_UINT32,
+				FT_INT24,
 				BASE_DEC,
 				NULL,
 				0x0,
