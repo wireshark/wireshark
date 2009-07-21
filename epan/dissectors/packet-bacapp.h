@@ -28,17 +28,6 @@
 #ifndef __BACAPP_H__
 #define __BACAPP_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <glib.h>
-
-#include <epan/packet.h>
 
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -1463,7 +1452,7 @@ static guint
 fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset);
 #endif
 
-#if 0
+
 /**
  * BACnetDeviceObjectPropertyReference ::= SEQUENCE {
  *  objectIdentifier    [0] BACnetObjectIdentifier,
@@ -1478,7 +1467,6 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
-#endif
 
 /**
  * BACnetDeviceObjectReference ::= SEQUENCE {
@@ -1550,7 +1538,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset);
 #endif
 
 
-#if 0
+
 /**
  * BACnetLogRecord ::= SEQUENCE {
  *	timestamp [0] BACnetDateTime,
@@ -1576,7 +1564,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset);
-#endif
+
 
 /**
  * BACnetNotificationParameters ::= CHOICE {
@@ -1695,6 +1683,12 @@ fBACnetPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 
 
 static guint
 fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+static guint
+fLOPR (tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+static guint
+fRestartReason (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * BACnetPropertyValue ::= SEQUENCE {
@@ -2082,6 +2076,9 @@ proto_reg_handoff_bacapp(void);
  */
 guint32
 fConvertXXXtoUTF8(gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesleft, const gchar *fromcoding);
+
+static void
+uni_to_string(char * data, guint32 str_length, char *dest_buf);
 
 #endif /* __BACAPP_H__ */
 

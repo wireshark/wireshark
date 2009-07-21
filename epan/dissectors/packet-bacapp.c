@@ -27,7 +27,24 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <glib.h>
+
+#include <epan/packet.h>
+#include <epan/reassemble.h>
+
 #include "packet-bacapp.h"
+
+/* some hashes for segmented messages */
+static GHashTable *msg_fragment_table = NULL;
+static GHashTable *msg_reassembled_table = NULL;
 
 /* some necessary forward function prototypes */
 static guint
@@ -85,6 +102,9 @@ BACnetMaxSegmentsAccepted [] = {
 	{0,NULL }
 };
 
+/* if BACnet uses the reserved values, then patch the corresponding values here */
+static const guint MaxAPDUSize [] = { 50,128,206,480,1024,1476,50,50,50,50,50,50,50,50,50,50 };
+
 static const value_string
 BACnetMaxAPDULengthAccepted [] = {
 	{0,"Up to MinimumMessageSize (50 octets)"},
@@ -118,6 +138,19 @@ BACnetRejectReason [] = {
 	{7,"too-many-arguments"},
 	{8,"undefined-enumeration"},
 	{9,"unrecognized-service"},
+	{0,NULL}
+};
+
+static const value_string
+BACnetRestartReason [] = {
+	{0,"unknown"},
+	{1,"coldstart"},
+	{2,"warmstart"},
+	{3,"detected-power-lost"},
+	{4,"detected-powered-off"},
+	{5,"hardware-watchdog"},
+	{6,"software-watchdog"},
+	{7,"suspended"},
 	{0,NULL}
 };
 
@@ -1697,7 +1730,19 @@ static int hf_bacapp_vpart = -1;
 static int hf_bacapp_uservice = -1;
 static int hf_BACnetPropertyIdentifier = -1;
 static int hf_BACnetVendorIdentifier = -1;
+static int hf_BACnetRestartReason = -1;
+/* some more variables for segmented messages */
+static int hf_msg_fragments = -1;
+static int hf_msg_fragment = -1;
+static int hf_msg_fragment_overlap = -1;
+static int hf_msg_fragment_overlap_conflicts = -1;
+static int hf_msg_fragment_multiple_tails = -1;
+static int hf_msg_fragment_too_long_fragment = -1;
+static int hf_msg_fragment_error = -1;
+static int hf_msg_reassembled_in = -1;
 
+static gint ett_msg_fragment = -1;
+static gint ett_msg_fragments = -1;
 
 static gint ett_bacapp = -1;
 static gint ett_bacapp_control = -1;
@@ -1713,6 +1758,23 @@ static guint32 object_type = 4096;
 static guint8 bacapp_flags = 0;
 static guint8 bacapp_seq = 0;
 
+static const fragment_items msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_msg_fragment,
+	&ett_msg_fragments,
+	/* Fragment fields */
+	&hf_msg_fragments,
+	&hf_msg_fragment,
+	&hf_msg_fragment_overlap,
+	&hf_msg_fragment_overlap_conflicts,
+	&hf_msg_fragment_multiple_tails,
+	&hf_msg_fragment_too_long_fragment,
+	&hf_msg_fragment_error,
+	/* Reassembled in field */
+	&hf_msg_reassembled_in,
+	/* Tag */
+	"Message fragments"
+};
 /* Used when there are ranges of reserved and proprietary enumerations */
 static const char*
 val_to_split_str(guint32 val, guint32 split_val, const value_string *vs,
@@ -1888,11 +1950,17 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 	}
 	if (tree)
 	{
+		if (tag_is_opening(tag))
+			ti = proto_tree_add_text(tree, tvb, offset, tag_len, "{" );
+		else if (tag_is_closing(tag))
+			ti = proto_tree_add_text(tree, tvb, offset, tag_len, "}" );
+/* this is mostly too much information
 		if (tag_is_closing(tag) || tag_is_opening(tag))
 			ti = proto_tree_add_text(tree, tvb, offset, tag_len,
 				"%s: %u", val_to_str(
 					tag & 0x07, BACnetTagNames, "Unknown (%d)"),
 				*tag_no);
+*/
 		else if (tag_is_context_specific(tag)) {
 			ti = proto_tree_add_text(tree, tvb, offset, tag_len,
 				"Context Tag: %u, Length/Value/Type: %u",
@@ -1904,6 +1972,7 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 					BACnetApplicationTagNumber,
 					ASHRAE_Reserved_Fmt),
 					*lvt);
+
 		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 		/* details if needed */
 		proto_tree_add_item(subtree, hf_BACnetTagClass, tvb, offset, 1, FALSE);
@@ -2682,7 +2751,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 	guint32 lvt, l;
 	size_t inbytesleft, outbytesleft = 512;
 	guint offs, extra = 1;
-	guint8 *str_val;
+	guint8 *str_val, *coding;
 	guint8 bf_arr[512], *out = &bf_arr[0];
 	proto_item *ti;
 	proto_tree *subtree;
@@ -2724,27 +2793,34 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 			switch (character_set) {
 			case ANSI_X34:
 				fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "ANSI_X3.4");
+				coding = "ANSI X3.4";
 				break;
 			case IBM_MS_DBCS:
 				out = str_val;
+				coding = "IBM MS DBCS";
 				break;
 			case JIS_C_6226:
 				out = str_val;
+				coding = "JIS C 6226";
 				break;
 			case ISO_10646_UCS4:
 				fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UCS-4BE");
+				coding = "ISO 10646 UCS-4";
 				break;
 			case ISO_10646_UCS2:
 				fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "UCS-2BE");
+				coding = "ISO 10646 UCS-2";
 				break;
 			case ISO_18859_1:
 				fConvertXXXtoUTF8(str_val, &inbytesleft, out, &outbytesleft, "ISO8859-1");
+				coding = "ISO 8859-1";
 				break;
 			default:
 				out = str_val;
+				coding = "unknown";
 				break;
 			}
-			ti = proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", label, out);
+			ti = proto_tree_add_text(tree, tvb, offset, l, "%s%s'%s'", label, coding, out);
 			lvt-=l;
 			offset+=l;
 		} while (lvt > 0);
@@ -3003,6 +3079,9 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		case 30: /* BACnetAddressBinding */
 			offset = fAddressBinding (tvb,tree,offset);
 			break;
+		case 54: /* list of object property reference */
+			offset = fLOPR (tvb,tree,offset);
+			break;
 		case 55: /* list-of-session-keys */
 			fSessionKey (tvb, tree, offset);
 			break;
@@ -3043,8 +3122,20 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		case 38:	/* exception-schedule */
 			if (object_type < 128)
 			{
-				offset = fSpecialEvent (tvb,tree,offset);
+				if (propertyArrayIndex == 0) {
+					/* BACnetARRAY index 0 refers to the length
+					of the array, not the elements of the array */
+					offset = fApplicationTypes (tvb, tree, offset, ar);
+				} else {
+					offset = fSpecialEvent (tvb,tree,offset);
+				}
 			}
+			break;
+		case 19:  /* controlled-variable-reference */
+		case 60:  /* manipulated-variable-reference */
+		case 109: /* setpoint-reference */
+		case 132: /* log-device-object-property */
+			offset = fDeviceObjectPropertyReference (tvb, tree, offset);
 			break;
 		case 123:	/* weekly-schedule -- accessed as a BACnetARRAY */
 			if (object_type < 128)
@@ -3058,9 +3149,15 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				}
 			}
 			break;
+		case 131:  /* log-buffer */
+			offset = fLogRecord (tvb, tree, offset);
+			break;
 		case 159: /* member-of */
 		case 165: /* zone-members */
 			offset = fDeviceObjectReference (tvb, tree, offset);
+			break;
+		case 196: /* last-restart-reason */
+			offset = fRestartReason (tvb, tree, offset);
 			break;
 		case 212: /* actual-shed-level */
 		case 214: /* expected-shed-level */
@@ -3100,8 +3197,8 @@ static guint
 fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset)
 {
 	guint lastoffset = offset;
-	proto_item *tt;
-	proto_tree *subtree;
+/*	proto_item *tt; */
+	proto_tree *subtree = tree;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
@@ -3111,8 +3208,8 @@ fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset)
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_no == tagoffset+2) {  /* Value - might not be present in ReadAccessResult */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+/*				tt = proto_tree_add_text(tree, tvb, offset, 1, "propertyValue");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -3346,6 +3443,33 @@ fVendorIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	proto_tree_add_item(subtree, hf_BACnetVendorIdentifier, tvb,
+		offset+tag_len, lvt, FALSE);
+
+	return offset+tag_len+lvt;
+}
+
+static guint
+fRestartReason (tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+	guint32 val = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	guint tag_len;
+	proto_item *ti;
+	proto_tree *subtree;
+	const gchar *label = "Restart Reason";
+
+	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	if (fUnsigned32 (tvb, offset + tag_len, lvt, &val))
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"%s: %s (%u)", label,
+			val_to_str(val,BACnetRestartReason,"Unknown reason"), val);
+	else
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"%s - %u octets (Unsigned)", label, lvt);
+	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	proto_tree_add_item(subtree, hf_BACnetRestartReason, tvb,
 		offset+tag_len, lvt, FALSE);
 
 	return offset+tag_len+lvt;
@@ -4114,6 +4238,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -4127,7 +4252,8 @@ fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		switch (fTagNo(tvb, offset)) {
 		case 0: /* timestamp */
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fDateTime (tvb,tree,offset,NULL);
+			offset = fDate (tvb,tree,offset,"Date: ");
+			offset = fTime (tvb,tree,offset,"Time: ");
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		case 1: /* logDatum: don't loop, it's a CHOICE */
@@ -4176,7 +4302,7 @@ fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 2:
 			offset = fEnumeratedTag (tvb, tree, offset,
-				"status Flags: ", BACnetStatusFlags);
+				"Status Flags: ", BACnetStatusFlags);
 			break;
 		default:
 			return offset;
@@ -4184,7 +4310,7 @@ fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
-#endif
+
 
 static guint
 fConfirmedEventNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -4508,6 +4634,27 @@ flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
+fLOPR (tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+	guint lastoffset = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	proto_tree* subtree = tree;
+	proto_item* ti = 0;
+
+	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+		lastoffset = offset;
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* we are finished here if we spot a closing tag */
+		if (tag_is_closing(tag_info)) {
+			break;
+		}
+		offset = fDeviceObjectPropertyReference(tvb, tree, offset);
+	}
+	return offset;
+}
+
+static guint
 fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
@@ -4750,7 +4897,7 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-	proto_item *tt;
+/*	proto_item *tt; */
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
@@ -4758,7 +4905,7 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
-			offset += fTagHeaderTree (tvb, subtree, offset,
+			offset += fTagHeaderTree (tvb, tree, offset,
 				&tag_no, &tag_info, &lvt);
 			subtree = tree;
 			continue;
@@ -4775,8 +4922,8 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 3:	/* propertyValue */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+/*				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				break;
@@ -4797,7 +4944,7 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-	proto_item *tt;
+/*	proto_item *tt; */
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
@@ -4823,8 +4970,8 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 3:	/* propertyValue */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+/*				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				break;
@@ -6150,161 +6297,241 @@ fAbortPDU(tvbuff_t *tvb, proto_tree *bacapp_tree, guint offset)
 	return offset;
 }
 
+guint
+do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 flag, bacapp_type;
+	guint offset = 0;
+
+	flag = (gint) tvb_get_guint8(tvb, 0);
+	bacapp_type = (flag >> 4) & 0x0f;
+
+	if (tvb == NULL || tree == NULL) {
+		return 0;
+	}
+
+	/* ASHRAE 135-2001 20.1.1 */
+	switch (bacapp_type) {
+	case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:	/* BACnet-Confirmed-Service-Request */
+		offset = fConfirmedRequestPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:	/* BACnet-Unconfirmed-Request-PDU */
+		offset = fUnconfirmedRequestPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_SIMPLE_ACK:	/* BACnet-Simple-Ack-PDU */
+		offset = fSimpleAckPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_COMPLEX_ACK:	/* BACnet-Complex-Ack-PDU */
+		offset = fComplexAckPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_SEGMENT_ACK:	/* BACnet-SegmentAck-PDU */
+		offset = fSegmentAckPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_ERROR:	/* BACnet-Error-PDU */
+		offset = fErrorPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_REJECT:	/* BACnet-Reject-PDU */
+		offset = fRejectPDU(tvb, tree, offset);
+		break;
+	case BACAPP_TYPE_ABORT:	/* BACnet-Abort-PDU */
+		offset = fAbortPDU(tvb, tree, offset);
+		break;
+	}
+	return offset;
+}
+
 void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint8 tmp, bacapp_type;
-	tvbuff_t *next_tvb;
+	guint8 flag, bacapp_type;
+	guint save_fragmented = false, data_offset = 0, bacapp_apdu_size = MaxAPDUSize[0], fragment = false;
+	tvbuff_t* new_tvb = NULL;
 	guint offset = 0;
-	guint8 bacapp_service, bacapp_reason;
+	gint8 bacapp_seqno = -1;
+	guint8 bacapp_service, bacapp_reason, bacapp_prop_win_size;
 	guint8 bacapp_invoke_id;
 	proto_item *ti;
-	proto_tree *bacapp_tree;
+	proto_tree *bacapp_tree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "BACnet APDU ");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
+	col_clear (pinfo->cinfo, COL_INFO);
 
-	tmp = (gint) tvb_get_guint8(tvb, 0);
-	bacapp_type = (tmp >> 4) & 0x0f;
+	flag = tvb_get_guint8(tvb, 0);
+	bacapp_type = (flag >> 4) & 0x0f;
 
 	/* show some descriptive text in the INFO column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(bacapp_type, BACnetTypeName, "#### unknown APDU ##### "));
-		switch (bacapp_type)
-		{
-			case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
-				/* segmented messages have 2 additional bytes */
-				if (tmp & BACAPP_SEGMENTED_REQUEST)
-				{
-					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 4);
-					bacapp_service = tvb_get_guint8(tvb, offset + 5);
-				}
-				else
-				{
-					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
-					bacapp_service = tvb_get_guint8(tvb, offset + 3);
-				}
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+	}
+	switch (bacapp_type)
+	{
+		case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:
+			/* segmented messages have 2 additional bytes */
+			if (flag & BACAPP_SEGMENTED_REQUEST)
+			{
+				fragment = true;
+				bacapp_apdu_size = MaxAPDUSize[tvb_get_guint8(tvb, offset + 1) & 0x0f]; /* has 16 values, reserved are 50 Bytes */
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
+				bacapp_seqno = tvb_get_guint8(tvb, offset + 3);
+				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4);
+				bacapp_service = tvb_get_guint8(tvb, offset + 5);
+				data_offset = 6;
+			}
+			else
+			{
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
+				bacapp_service = tvb_get_guint8(tvb, offset + 3);
+			}
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[invokeID:%d]: %s",
 					bacapp_invoke_id,
 					val_to_str(bacapp_service,
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
-				break;
-			case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
-				bacapp_service = tvb_get_guint8(tvb, offset + 1);
+			break;
+		case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
+			bacapp_service = tvb_get_guint8(tvb, offset + 1);
+			if (check_col(pinfo->cinfo, COL_INFO))
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 					val_to_str(bacapp_service,
 						BACnetUnconfirmedServiceChoice,
 						bacapp_unknown_service_str));
-				break;
-			case BACAPP_TYPE_SIMPLE_ACK:
+			break;
+		case BACAPP_TYPE_SIMPLE_ACK:
+			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
+			bacapp_service = tvb_get_guint8(tvb, offset + 2);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[original-invokeID:%d]: %s",
+					bacapp_invoke_id,
+					val_to_str(bacapp_service,
+						BACnetConfirmedServiceChoice,
+						bacapp_unknown_service_str));
+			break;
+		case BACAPP_TYPE_COMPLEX_ACK:
+			/* segmented messages have 2 additional bytes */
+			if (flag & BACAPP_SEGMENTED_REQUEST)
+			{
+				fragment = true;
+				bacapp_apdu_size = MaxAPDUSize[0]; /* has minimum of 50 Bytes */
+				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
+				bacapp_seqno = tvb_get_guint8(tvb, offset + 2);
+				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 3);
+				bacapp_service = tvb_get_guint8(tvb, offset + 4);
+				data_offset = 5;
+			}
+			else
+			{
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+			}
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[original-invokeID:%d]: %s",
 					bacapp_invoke_id,
 					val_to_str(bacapp_service,
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
-				break;
-			case BACAPP_TYPE_COMPLEX_ACK:
-				/* segmented messages have 2 additional bytes */
-				if (tmp & BACAPP_SEGMENTED_REQUEST)
-				{
-					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 3);
-					bacapp_service = tvb_get_guint8(tvb, offset + 4);
-				}
-				else
-				{
-					bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-					bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				}
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+			break;
+		case BACAPP_TYPE_SEGMENT_ACK:
+			/* nothing more to add */
+			break;
+		case BACAPP_TYPE_ERROR:
+			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
+			bacapp_service = tvb_get_guint8(tvb, offset + 2);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[original-invokeID:%d]: %s",
 					bacapp_invoke_id,
 					val_to_str(bacapp_service,
 						BACnetConfirmedServiceChoice,
 						bacapp_unknown_service_str));
-				break;
-			case BACAPP_TYPE_SEGMENT_ACK:
-				/* nothing more to add */
-				break;
-			case BACAPP_TYPE_ERROR:
-				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-				bacapp_service = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
-					bacapp_invoke_id,
-					val_to_str(bacapp_service,
-						BACnetConfirmedServiceChoice,
-						bacapp_unknown_service_str));
-				break;
-			case BACAPP_TYPE_REJECT:
-				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-				bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+			break;
+		case BACAPP_TYPE_REJECT:
+			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
+			bacapp_reason = tvb_get_guint8(tvb, offset + 2);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[original-invokeID:%d]: %s",
 					bacapp_invoke_id,
 					val_to_split_str(bacapp_reason,
 						64,
 						BACnetRejectReason,
 						ASHRAE_Reserved_Fmt,
 						Vendor_Proprietary_Fmt));
-				break;
-			case BACAPP_TYPE_ABORT:
-				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-				bacapp_reason = tvb_get_guint8(tvb, offset + 2);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[invoke:%d]: %s",
+			break;
+		case BACAPP_TYPE_ABORT:
+			bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
+			bacapp_reason = tvb_get_guint8(tvb, offset + 2);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[original-invokeID:%d]: %s",
 					bacapp_invoke_id,
 					val_to_split_str(bacapp_reason,
 						64,
 						BACnetAbortReason,
 						ASHRAE_Reserved_Fmt,
 						Vendor_Proprietary_Fmt));
-				break;
-			/* UNKNOWN */
-			default:
-				/* nothing more to add */
-				break;
-		}
+			break;
+		/* UNKNOWN */
+		default:
+			/* nothing more to add */
+			break;
 	}
+
+	save_fragmented = pinfo->fragmented;
 
 	if (tree) {
+
 		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
+		
+		if (!fragment)
+			offset = do_the_dissection(tvb,pinfo,bacapp_tree);
+	}
 
-		/* ASHRAE 135-2001 20.1.1 */
-		switch (bacapp_type) {
-		case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:	/* BACnet-Confirmed-Service-Request */
-			offset = fConfirmedRequestPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:	/* BACnet-Unconfirmed-Request-PDU */
-			offset = fUnconfirmedRequestPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_SIMPLE_ACK:	/* BACnet-Simple-Ack-PDU */
-			offset = fSimpleAckPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_COMPLEX_ACK:	/* BACnet-Complex-Ack-PDU */
-			offset = fComplexAckPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_SEGMENT_ACK:	/* BACnet-SegmentAck-PDU */
-			offset = fSegmentAckPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_ERROR:	/* BACnet-Error-PDU */
-			offset = fErrorPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_REJECT:	/* BACnet-Reject-PDU */
-			offset = fRejectPDU(tvb, bacapp_tree, offset);
-			break;
-		case BACAPP_TYPE_ABORT:	/* BACnet-Abort-PDU */
-			offset = fAbortPDU(tvb, bacapp_tree, offset);
-			break;
+	if (fragment) { /* fragmented */
+		fragment_data *frag_msg = NULL;
+		guint real_size = 0;
+
+		pinfo->fragmented = TRUE;
+		frag_msg = fragment_add_seq_check(tvb, bacapp_seqno == 0 ? 0 : data_offset, pinfo,
+			bacapp_invoke_id, /* ID for fragments belonging together */
+			msg_fragment_table, /* list of message fragments */
+			msg_reassembled_table, /* list of reassembled messages */
+			bacapp_seqno, /* fragment sequence number */
+			tvb_length_remaining(tvb, bacapp_seqno == 0 ? 0 : data_offset), /* fragment length - to the end */
+			flag & BACAPP_MORE_SEGMENTS); /* Last fragment reached? */
+		new_tvb = process_reassembled_data(tvb, bacapp_seqno == 0 ? 0 : data_offset, pinfo,
+				"Reassembled Message", frag_msg, &msg_frag_items,
+				NULL, tree);
+
+		if (frag_msg) { /* Reassembled */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+				" (Message Reassembled)");
+		} else { /* Not last packet of reassembled Short Message */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+				" (Message fragment %u)", bacapp_seqno);
+		}
+		if (new_tvb) { /* take it all */
+			real_size = tvb_length_remaining(new_tvb, 0);
+			if (real_size > bacapp_apdu_size) { /* enter this, if we really have more than one chunk */
+				offset = do_the_dissection(new_tvb,pinfo,bacapp_tree);
+			}
 		}
 	}
 
-	next_tvb = tvb_new_subset(tvb,offset,-1,tvb_length_remaining(tvb,offset));
-	call_dissector(data_handle,next_tvb, pinfo, tree);
+/*	next_tvb = tvb_new_subset(tvb,offset,-1,tvb_length_remaining(tvb,offset));
+	call_dissector(data_handle,next_tvb, pinfo, tree); */
+
+	pinfo->fragmented = save_fragmented;
+
+}
+
+void
+bacapp_init_routine(void)
+{
+	fragment_table_init(&msg_fragment_table);
+	reassembled_table_init(&msg_reassembled_table);
 }
 
 void
@@ -6354,6 +6581,10 @@ proto_register_bacapp(void)
 		{ &hf_BACnetVendorIdentifier,
 			{ "Vendor Identifier", "bacapp.vendor_identifier",
 			FT_UINT16, BASE_DEC, VALS(BACnetVendorIdentifiers), 0, NULL, HFILL }
+		},
+		{ &hf_BACnetRestartReason,
+			{ "Restart Reason", "bacapp.restart_reason",
+			FT_UINT8, BASE_DEC, VALS(BACnetRestartReason), 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_invoke_id,
 			{ "Invoke ID",           "bacapp.invoke_id",
@@ -6466,21 +6697,52 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_tag_initiatingObjectType,
 			{ "ObjectType",           "bacapp.objectType",
 			FT_UINT16, BASE_DEC, VALS(BACnetObjectType), 0x00, "Object Type", HFILL }
-		}
+		},
+		{&hf_msg_fragments,
+			{"Message fragments", "msg.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } },
+		{&hf_msg_fragment,
+			{"Message fragment", "msg.fragment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_fragment_overlap,
+			{"Message fragment overlap", "msg.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_fragment_overlap_conflicts,
+			{"Message fragment overlapping with conflicting data",
+			"msg.fragment.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_fragment_multiple_tails,
+			{"Message has multiple tail fragments",
+			"msg.fragment.multiple_tails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_fragment_too_long_fragment,
+			{"Message fragment too long", "msg.fragment.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_fragment_error,
+			{"Message defragmentation error", "msg.fragment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_msg_reassembled_in,
+			{"Reassembled in", "msg.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } }
 	};
 	static gint *ett[] = {
 		&ett_bacapp,
 		&ett_bacapp_control,
 		&ett_bacapp_tag,
 		&ett_bacapp_list,
-		&ett_bacapp_value
+		&ett_bacapp_value,
+		&ett_msg_fragment,
+		&ett_msg_fragments
+
 	};
+
 	proto_bacapp = proto_register_protocol("Building Automation and Control Network APDU",
 					       "BACapp", "bacapp");
 
 	proto_register_field_array(proto_bacapp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("bacapp", dissect_bacapp, proto_bacapp);
+	register_init_routine (&bacapp_init_routine);
 
 }
 
@@ -6505,7 +6767,8 @@ fConvertXXXtoUTF8 (gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesl
 		return i;
 	}
 
-	memcpy (out, in, *inbytesleft);
+	uni_to_string(in,*inbytesleft,out);
+/*	memcpy (out, in, *inbytesleft); */
 	out[*inbytesleft] = '\0';
 	*outbytesleft -= *inbytesleft;
 	*inbytesleft = 0;
@@ -6513,3 +6776,50 @@ fConvertXXXtoUTF8 (gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesl
 	return 0;
 }
 
+static void
+uni_to_string(char * data, guint32 str_length, char *dest_buf)
+{
+        gint i;
+        guint16 c_char;
+        gint length_remaining = 0;
+
+        length_remaining = str_length;
+        dest_buf[0] = '\0';
+        if(str_length == 0)
+        {
+                return;
+        }
+        for ( i = 0; i < (gint) str_length; i++ )
+        {
+                c_char = data[i];
+                if (c_char<0x20 || c_char>0x7e)
+                {
+                        if (c_char != 0x00)
+                        {
+                                c_char = '.';
+                                dest_buf[i] = c_char & 0xff;
+                        }
+                        else
+                        {
+                                i--;
+                                str_length--;
+                        }
+                }
+                else
+                {
+                        dest_buf[i] = c_char & 0xff;
+                }
+                length_remaining--;
+
+                if(length_remaining==0)
+                {
+                        dest_buf[i+1] = '\0';
+                        return;
+                }
+        }
+        if (i < 0) {
+                i = 0;
+        }
+        dest_buf[i] = '\0';
+        return;
+}
