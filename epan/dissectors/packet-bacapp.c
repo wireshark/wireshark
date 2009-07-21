@@ -2749,7 +2749,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 {
 	guint8 tag_no, tag_info, character_set;
 	guint32 lvt, l;
-	size_t inbytesleft, outbytesleft = 512;
+	int inbytesleft, outbytesleft = 512;
 	guint offs, extra = 1;
 	guint8 *str_val, *coding;
 	guint8 bf_arr[512], *out = &bf_arr[0];
@@ -6751,7 +6751,7 @@ proto_reg_handoff_bacapp(void)
 }
 
 guint32
-fConvertXXXtoUTF8 (gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesleft, const gchar *fromcoding)
+fConvertXXXtoUTF8 (gchar *in, int *inbytesleft, gchar *out, int *outbytesleft, const gchar *fromcoding)
 {
 	guint32 i;
 	GIConv icd;

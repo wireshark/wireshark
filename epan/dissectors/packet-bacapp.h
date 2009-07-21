@@ -2075,7 +2075,7 @@ proto_reg_handoff_bacapp(void);
  * @return count of modified characters of returned string, -1 for errors
  */
 guint32
-fConvertXXXtoUTF8(gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesleft, const gchar *fromcoding);
+fConvertXXXtoUTF8(gchar *in, int *inbytesleft, gchar *out, int *outbytesleft, const gchar *fromcoding);
 
 static void
 uni_to_string(char * data, guint32 str_length, char *dest_buf);
