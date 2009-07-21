@@ -6513,8 +6513,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (new_tvb) { /* take it all */
 			real_size = tvb_reported_length_remaining(new_tvb, 0);
 			if (real_size > bacapp_apdu_size) { /* enter this, if we really have more than one chunk */
-				offset = do_the_dissection(new_tvb,4643
-				bacapp_tree);
+				offset = do_the_dissection(new_tvb,bacapp_tree);
 			}
 		}
 	}
