@@ -6751,7 +6751,7 @@ proto_reg_handoff_bacapp(void)
 }
 
 guint32
-fConvertXXXtoUTF8 (gchar *in, int *inbytesleft, gchar *out, int *outbytesleft, const gchar *fromcoding)
+fConvertXXXtoUTF8 (gchar *in, gsize *inbytesleft, gchar *out, gsize *outbytesleft, const gchar *fromcoding)
 {
 	guint32 i;
 	GIConv icd;
