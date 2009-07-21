@@ -2078,7 +2078,7 @@ guint32
 fConvertXXXtoUTF8(gchar *in, gsize *inbytesleft, gchar *out, gsize *outbytesleft, const gchar *fromcoding);
 
 static void
-uni_to_string(char * data, guint32 str_length, char *dest_buf);
+uni_to_string(char * data, gsize str_length, char *dest_buf);
 
 #endif /* __BACAPP_H__ */
 

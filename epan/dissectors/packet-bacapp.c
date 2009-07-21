@@ -6775,11 +6775,11 @@ fConvertXXXtoUTF8 (gchar *in, gsize *inbytesleft, gchar *out, gsize *outbyteslef
 }
 
 static void
-uni_to_string(char * data, guint32 str_length, char *dest_buf)
+uni_to_string(char * data, gsize str_length, char *dest_buf)
 {
         gint i;
         guint16 c_char;
-        gint length_remaining = 0;
+        gsize length_remaining = 0;
 
         length_remaining = str_length;
         dest_buf[0] = '\0';
