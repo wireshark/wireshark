@@ -501,14 +501,37 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
     gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
     frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
+    epan_dissect_t *edt;
+    gchar      *buf=NULL;
+    int         err;
+    gchar       *err_info;
 
-    if(strlen(fdata->col_expr.col_expr[column]) != 0 &&
-       strlen(fdata->col_expr.col_expr_val[column]) != 0)
-	    return ep_strdup_printf("%s == %s",
-				    fdata->col_expr.col_expr[column],
-				    fdata->col_expr.col_expr_val[column]);
-    else
+    if (fdata != NULL) {
+	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+		       cfile.pd, fdata->cap_len, &err, &err_info)) {
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		          cf_read_error_message(err, err_info), cfile.filename);
 	    return NULL;
+	}
+	/* proto tree, visible. We need a proto tree if there's custom columns */
+	edt = epan_dissect_new(have_custom_cols(&cfile.cinfo), FALSE);
+	col_custom_prime_edt(edt, &cfile.cinfo);
+	    
+	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata,
+			 &cfile.cinfo);
+	epan_dissect_fill_in_columns(edt);
+
+	if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
+	    strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
+	    /* leak a little but safer than ep_ here*/
+	    buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
+		     cfile.cinfo.col_expr.col_expr_val[column]);
+    	}
+
+	epan_dissect_free(edt);
+    }
+
+    return buf;
 }
 
 void

@@ -330,12 +330,6 @@ cf_reset_state(capture_file *cf)
   cf->user_saved = FALSE;
 
   if (cf->plist_chunk != NULL) {
-    frame_data *fdata = cf->plist;
-    while (fdata) {
-      g_strfreev(fdata->col_expr.col_expr);
-      g_strfreev(fdata->col_expr.col_expr_val);
-      fdata = fdata->next;
-    }
     g_mem_chunk_destroy(cf->plist_chunk);
     cf->plist_chunk = NULL;
   }
@@ -1111,25 +1105,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-    /* XXX - GLIB1 implementation provided to support backport of this feature. */
-#if (GLIB_MAJOR_VERSION >= 2)
-    fdata->col_expr.col_expr = g_strdupv(cf->cinfo.col_expr.col_expr);
-    fdata->col_expr.col_expr_val = g_strdupv(cf->cinfo.col_expr.col_expr_val);
-#else
-    {
-      gint i;
-
-      fdata->col_expr.col_expr = (gchar **) g_malloc(sizeof(gchar *) * (cf->cinfo.num_cols + 1));
-      fdata->col_expr.col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * (cf->cinfo.num_cols + 1));
-
-      for (i=0; i <= cf->cinfo.num_cols; i++)
-      {
-        fdata->col_expr.col_expr[i] = g_strdup(cf->cinfo.col_expr.col_expr[i]);
-        fdata->col_expr.col_expr_val[i] = g_strdup(cf->cinfo.col_expr.col_expr_val[i]);
-      }
-    }
-#endif
-
 #ifdef NEW_PACKET_LIST
     /* This function returns the color_t that was applied to the packet (in
      * the old packet list).  Applying the color to the packet is only done
@@ -1196,8 +1171,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
-  fdata->col_expr.col_expr = NULL;
-  fdata->col_expr.col_expr_val = NULL;
 
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
@@ -1241,8 +1214,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
        ...but, at least in one test I did, where I just made the chunk
        a G_ALLOC_ONLY chunk and read in a huge capture file, it didn't
        seem to save a noticeable amount of time or space. */
-    g_strfreev(fdata->col_expr.col_expr);
-    g_strfreev(fdata->col_expr.col_expr_val);
     g_mem_chunk_free(cf->plist_chunk, fdata);
   }
 

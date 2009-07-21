@@ -58,7 +58,6 @@ typedef struct _frame_data {
 	unsigned int ref_time		: 1; /* 1 = marked as a reference time frame, 0 = normal */
   } flags;
   void *color_filter;       /* Per-packet matching color_filter_t object */
-  col_expr_t   col_expr;   /* Column expressions & values */
 } frame_data;
 
 /*
