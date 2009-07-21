@@ -6342,7 +6342,7 @@ void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 flag, bacapp_type;
-	guint save_fragmented = false, data_offset = 0, bacapp_apdu_size = MaxAPDUSize[0], fragment = false;
+	guint save_fragmented = FALSE, data_offset = 0, bacapp_apdu_size = MaxAPDUSize[0], fragment = FALSE;
 	tvbuff_t* new_tvb = NULL;
 	guint offset = 0;
 	gint8 bacapp_seqno = -1;
@@ -6369,7 +6369,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* segmented messages have 2 additional bytes */
 			if (flag & BACAPP_SEGMENTED_REQUEST)
 			{
-				fragment = true;
+				fragment = TRUE;
 				bacapp_apdu_size = MaxAPDUSize[tvb_get_guint8(tvb, offset + 1) & 0x0f]; /* has 16 values, reserved are 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 3);
@@ -6411,7 +6411,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* segmented messages have 2 additional bytes */
 			if (flag & BACAPP_SEGMENTED_REQUEST)
 			{
-				fragment = true;
+				fragment = TRUE;
 				bacapp_apdu_size = MaxAPDUSize[0]; /* has minimum of 50 Bytes */
 				bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
 				bacapp_seqno = tvb_get_guint8(tvb, offset + 2);
