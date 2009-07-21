@@ -6347,7 +6347,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint offset = 0;
 	gint8 bacapp_seqno = -1;
 	guint8 bacapp_service, bacapp_reason, bacapp_prop_win_size;
-	guint8 bacapp_invoke_id;
+	guint8 bacapp_invoke_id = 0;
 	proto_item *ti;
 	proto_tree *bacapp_tree = NULL;
 
