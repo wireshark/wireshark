@@ -2353,7 +2353,7 @@ fTimeValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {   /* closing Tag, but not for me */
@@ -2396,7 +2396,7 @@ static guint fTimeStamp (tvbuff_t *tvb, proto_tree *tree,
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
 
-	if (tvb_length_remaining(tvb, offset) > 0) {	/* don't loop, it's a CHOICE */
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {	/* don't loop, it's a CHOICE */
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* time */
 			offset = fTime (tvb, tree, offset, label?label:"timestamp: ");
@@ -2424,7 +2424,7 @@ fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
@@ -2444,7 +2444,7 @@ fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         offset = fApplicationTypes(tvb,tree,offset, "increment: ");
     }
     return offset;
@@ -2465,7 +2465,7 @@ BACnetDaysOfWeek [] = {
 static guint
 fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = fApplicationTypesEnumerated(tvb,tree,offset,
 			"valid Days: ", BACnetDaysOfWeek);
 		offset = fTime (tvb,tree,offset,"from time: ");
@@ -2592,7 +2592,7 @@ fRecipientProcess (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8  tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
@@ -2630,7 +2630,7 @@ fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -2757,7 +2757,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 	proto_tree *subtree;
 	guint start = offset;
 
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 		offs = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
@@ -2918,7 +2918,7 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 	guint32 lvt;
 	guint tag_len;
 
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 		tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (!tag_is_context_specific(tag_info))
@@ -2983,7 +2983,7 @@ fShedLevel (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -3030,7 +3030,7 @@ fContextTaggedValue(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *
 	(void)label;
 	tag_len = fTagHeader(tvb, offset, &tag_no, &tag_info, &lvt);
 	/* cap the the suggested length in case of bad data */
-	tvb_len = tvb_length_remaining(tvb, offset+tag_len);
+	tvb_len = tvb_reported_length_remaining(tvb, offset+tag_len);
 	if ((tvb_len >= 0) && ((guint32)tvb_len < lvt))
 	{
 		lvt = tvb_len;
@@ -3064,7 +3064,7 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	{
 		g_snprintf (ar, sizeof(ar), "Abstract Type: ");
 	}
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) { /* closing tag, but not for me */
@@ -3226,7 +3226,7 @@ fBACnetPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fPropertyValue(tvb, tree, offset, 0);
 		if (offset > lastoffset)
@@ -3250,7 +3250,7 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -3305,7 +3305,7 @@ fWhoHas (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
@@ -3340,7 +3340,7 @@ fDailySchedule (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	if (tag_is_opening(tag_info) && tag_no == 0)
 	{
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt); /* opening context tag 0 */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 			lastoffset = offset;
 			fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 			if (tag_is_closing(tag_info)) {
@@ -3380,7 +3380,7 @@ fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		then that specific array element is referenced. */
 		i = propertyArrayIndex;
 	}
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -3397,7 +3397,7 @@ fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fUTCTimeSynchronizationRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) <= 0)
+	if (tvb_reported_length_remaining(tvb, offset) <= 0)
 		return offset;
 
 	return fDateTime (tvb, tree, offset, "UTC-Time: ");
@@ -3406,7 +3406,7 @@ fUTCTimeSynchronizationRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fTimeSynchronizationRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) <= 0)
+	if (tvb_reported_length_remaining(tvb, offset) <= 0)
 		return offset;
 
 	return fDateTime (tvb, tree, offset, NULL);
@@ -3415,10 +3415,10 @@ fTimeSynchronizationRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fDateRange  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) <= 0)
-		return offset;
+    if (tvb_reported_length_remaining(tvb, offset) <= 0)
+        return offset;
     offset = fDate (tvb,tree,offset,"Start Date: ");
-	return fDate (tvb, tree, offset, "End Date: ");
+    return fDate (tvb, tree, offset, "End Date: ");
 }
 
 static guint
@@ -3480,7 +3480,7 @@ fConfirmedTextMessageRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 
@@ -3527,7 +3527,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_item *tt;
 
 	/* exit loop if nothing happens inside */
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -3594,7 +3594,7 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 	}
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
@@ -3700,7 +3700,7 @@ fDeviceObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 		lastoffset = offset;
 		/* check the tag.  A closing tag means we are done */
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -3751,7 +3751,7 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 		lastoffset = offset;
 		/* check the tag.  A closing tag means we are done */
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -3797,8 +3797,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	switch (tag_no) {
 	case 0: /* change-of-bitstring */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset = fBitStringTag (tvb, subtree, offset,
@@ -3814,8 +3814,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 1: /* change-of-state */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -3833,8 +3833,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 2: /* change-of-value */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -3862,8 +3862,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 3: /* command-failure */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0: /* "command-value: " */
 				/* from BACnet Table 13-3,
@@ -3889,8 +3889,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 4: /* floating-limit */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset = fRealTag (tvb, subtree, offset, "reference-value: ");
@@ -3911,8 +3911,8 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 5: /* out-of-range */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset = fRealTag (tvb, subtree, offset, "exceeding-value: ");
@@ -3933,14 +3933,14 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 	    break;
 	case 6:
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-	       	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			offset =fBACnetPropertyValue (tvb,subtree,offset);
 		}
 		break;
 	case 7: /* buffer-ready */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
-        	lastoffset = offset;
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
 				offset = fObjectIdentifier (tvb, subtree, offset); /* buffer-device */
@@ -3964,7 +3964,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 8: /* change-of-life-safety */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
@@ -3989,7 +3989,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 9: /* extended */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
@@ -4011,7 +4011,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 10: /* buffer ready */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0: /* buffer-property */
@@ -4033,7 +4033,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		}
 		break;
 	case 11: /* unsigned range */
-		while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 			lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0:
@@ -4069,11 +4069,11 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0: /* change-of-bitstring */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4092,7 +4092,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 1: /* change-of-state */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
         		lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4108,7 +4108,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 2: /* change-of-value */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
         		lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4132,7 +4132,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 3: /* command-failure */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
         		lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4146,7 +4146,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 4: /* floating-limit */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
         		lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4170,7 +4170,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 5: /* out-of-range */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4194,7 +4194,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fBACnetPropertyValue (tvb,tree,offset);
 			break;
 		case 7: /* buffer-ready */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4210,7 +4210,7 @@ fEventParameter (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			}
 			break;
 		case 8: /* change-of-life-safety */
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -4247,7 +4247,7 @@ fLogRecord (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0: /* timestamp */
@@ -4319,7 +4319,7 @@ fConfirmedEventNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offse
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -4392,7 +4392,7 @@ fConfirmedCOVNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -4446,7 +4446,7 @@ fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* acknowledgingProcessId */
@@ -4484,7 +4484,7 @@ fGetAlarmSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fApplicationTypes (tvb, tree, offset, "Object Identifier: ");
 		offset = fApplicationTypesEnumeratedSplit (tvb, tree, offset,
@@ -4502,7 +4502,7 @@ fGetEnrollmentSummaryRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* acknowledgmentFilter */
@@ -4543,7 +4543,7 @@ fGetEnrollmentSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fApplicationTypes (tvb, tree, offset, "Object Identifier: ");
 		offset = fApplicationTypesEnumeratedSplit (tvb, tree, offset,
@@ -4560,7 +4560,7 @@ fGetEnrollmentSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fGetEventInformationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		if (fTagNo(tvb, offset) == 0) {
 			offset = fObjectIdentifier (tvb, tree, offset);
 		}
@@ -4577,7 +4577,7 @@ flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree* subtree = tree;
 	proto_item* ti = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		/* we are finished here if we spot a closing tag */
@@ -4639,10 +4639,8 @@ fLOPR (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-	proto_tree* subtree = tree;
-	proto_item* ti = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		/* we are finished here if we spot a closing tag */
@@ -4661,7 +4659,7 @@ fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* listOfEventSummaries */
@@ -4688,7 +4686,7 @@ fAddListElementRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -4730,7 +4728,7 @@ fDeviceCommunicationControlRequest(tvbuff_t *tvb, proto_tree *tree, guint offset
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
@@ -4756,7 +4754,7 @@ fReinitializeDeviceRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
@@ -4794,7 +4792,7 @@ fVtCloseRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset= fApplicationTypes (tvb,tree,offset,"remote VT Session ID: ");
 	}
@@ -4814,7 +4812,7 @@ fVtDataAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -4836,7 +4834,7 @@ fAuthenticateRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -4901,7 +4899,7 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -4948,7 +4946,7 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -4995,7 +4993,7 @@ fWriteAccessSpecification (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -5041,7 +5039,7 @@ fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoff
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) { /* closing Tag, but not for me */
@@ -5075,7 +5073,7 @@ fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -5102,7 +5100,7 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree* subtree = tree;
 	proto_item* tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -5157,7 +5155,7 @@ fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		then that specific array element is referenced. */
 		i = propertyArrayIndex;
 	}
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 		/* exit loop if nothing happens inside */
 		lastoffset = offset;
 		g_snprintf (ar, sizeof(ar), "%s[%d]: ",
@@ -5182,7 +5180,7 @@ fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb,offset)) {
@@ -5206,7 +5204,7 @@ fSpecialEvent (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint32 lvt;
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -5251,7 +5249,7 @@ fSelectionCriteria (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {  /* stop when we hit outer closing tag */
@@ -5288,7 +5286,7 @@ fObjectSelectionCriteria (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {  /* stop when we hit outer closing tag */
@@ -5324,7 +5322,7 @@ fReadPropertyConditionalRequest(tvbuff_t *tvb, proto_tree *subtree, guint offset
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
@@ -5355,7 +5353,7 @@ fReadAccessSpecification (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_item *tt;
 	proto_tree *subtree = tree;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		switch (tag_no) {
@@ -5394,7 +5392,7 @@ fReadAccessResult (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
@@ -5454,7 +5452,7 @@ fCreateObjectRequest(tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0) && (offset > lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0) && (offset > lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
@@ -5506,7 +5504,7 @@ fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	offset = fBACnetObjectPropertyReference(tvb, subtree, offset);
 
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* optional range choice */
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_opening(tag_info)) {
@@ -5566,7 +5564,7 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	}
 	/* firstSequenceNumber - OPTIONAL */
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = fUnsignedTag (tvb, subtree, offset, "first Sequence Number: ");
 	}
 
@@ -5593,7 +5591,7 @@ static guint fAccessMethod(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 		if (tag_no == 1)
 		{
-			while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset))
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset))
 			{  /* exit loop if nothing happens inside */
 				lastoffset = offset;
 				offset = fApplicationTypes (tvb, subtree, offset, "Record Data: ");
@@ -5677,7 +5675,7 @@ fReadPropertyMultipleAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fConfirmedServiceRequest (tvbuff_t *tvb, proto_tree *tree, guint offset, gint service_choice)
 {
-	if (tvb_length_remaining(tvb,offset) <= 0)
+	if (tvb_reported_length_remaining(tvb,offset) <= 0)
 		return offset;
 
 	switch (service_choice) {
@@ -5779,7 +5777,7 @@ fConfirmedServiceRequest (tvbuff_t *tvb, proto_tree *tree, guint offset, gint se
 static guint
 fConfirmedServiceAck (tvbuff_t *tvb, proto_tree *tree, guint offset, gint service_choice)
 {
-	if (tvb_length_remaining(tvb,offset) <= 0)
+	if (tvb_reported_length_remaining(tvb,offset) <= 0)
 		return offset;
 
 	switch (service_choice) {
@@ -5867,7 +5865,7 @@ fWhoIsRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* DeviceInstanceRangeLowLimit Optional */
@@ -5886,7 +5884,7 @@ fWhoIsRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fUnconfirmedServiceRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset, gint service_choice)
 {
-	if (tvb_length_remaining(tvb,offset) <= 0)
+	if (tvb_reported_length_remaining(tvb,offset) <= 0)
 		return offset;
 
 	switch (service_choice) {
@@ -6091,7 +6089,7 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 		/* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -6134,7 +6132,7 @@ fCreateObjectError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* errorType */
@@ -6186,7 +6184,7 @@ fWritePropertyMultipleError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* errorType */
@@ -6298,7 +6296,7 @@ fAbortPDU(tvbuff_t *tvb, proto_tree *bacapp_tree, guint offset)
 }
 
 guint
-do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+do_the_dissection(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint8 flag, bacapp_type;
 	guint offset = 0;
@@ -6484,7 +6482,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 		
 		if (!fragment)
-			offset = do_the_dissection(tvb,pinfo,bacapp_tree);
+			offset = do_the_dissection(tvb,bacapp_tree);
 	}
 
 	if (fragment) { /* fragmented */
@@ -6497,7 +6495,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			msg_fragment_table, /* list of message fragments */
 			msg_reassembled_table, /* list of reassembled messages */
 			bacapp_seqno, /* fragment sequence number */
-			tvb_length_remaining(tvb, bacapp_seqno == 0 ? 0 : data_offset), /* fragment length - to the end */
+			tvb_reported_length_remaining(tvb, bacapp_seqno == 0 ? 0 : data_offset), /* fragment length - to the end */
 			flag & BACAPP_MORE_SEGMENTS); /* Last fragment reached? */
 		new_tvb = process_reassembled_data(tvb, bacapp_seqno == 0 ? 0 : data_offset, pinfo,
 				"Reassembled Message", frag_msg, &msg_frag_items,
@@ -6513,14 +6511,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				" (Message fragment %u)", bacapp_seqno);
 		}
 		if (new_tvb) { /* take it all */
-			real_size = tvb_length_remaining(new_tvb, 0);
+			real_size = tvb_reported_length_remaining(new_tvb, 0);
 			if (real_size > bacapp_apdu_size) { /* enter this, if we really have more than one chunk */
-				offset = do_the_dissection(new_tvb,pinfo,bacapp_tree);
+				offset = do_the_dissection(new_tvb,4643
+				bacapp_tree);
 			}
 		}
 	}
 
-/*	next_tvb = tvb_new_subset(tvb,offset,-1,tvb_length_remaining(tvb,offset));
+/*	next_tvb = tvb_new_subset(tvb,offset,-1,tvb_reported_length_remaining(tvb,offset));
 	call_dissector(data_handle,next_tvb, pinfo, tree); */
 
 	pinfo->fragmented = save_fragmented;
