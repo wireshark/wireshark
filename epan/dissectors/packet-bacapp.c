@@ -2749,7 +2749,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 {
 	guint8 tag_no, tag_info, character_set;
 	guint32 lvt, l;
-	int inbytesleft, outbytesleft = 512;
+	gsize inbytesleft, outbytesleft = 512;
 	guint offs, extra = 1;
 	guint8 *str_val, *coding;
 	guint8 bf_arr[512], *out = &bf_arr[0];
