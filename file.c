@@ -1031,7 +1031,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 	we have tap listeners with filters;
 
-        we have tap listeners that require a protocol tree;
+    we have tap listeners that require a protocol tree;
 
 	we have custom columns;
 
@@ -1715,16 +1715,16 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * "init_dissection()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
       if (fdata->pfd) {
-	g_slist_free(fdata->pfd);
+		g_slist_free(fdata->pfd);
         fdata->pfd = NULL;
       }
     }
 
     if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len, &err, &err_info)) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      cf_read_error_message(err, err_info), cf->filename);
-	break;
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    cf_read_error_message(err, err_info), cf->filename);
+			break;
     }
 
     /* If the previous frame is displayed, and we haven't yet seen the
@@ -1778,7 +1778,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     for (; fdata != NULL; fdata = fdata->next) {
       fdata->flags.visited = 0;
       if (fdata->pfd) {
-	g_slist_free(fdata->pfd);
+		g_slist_free(fdata->pfd);
         fdata->pfd = NULL;
       }
     }
@@ -1823,7 +1823,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
         selected_row = following_row;
       } else {
         /* Frames before and after the selected frame passed the filter, so
-	   we'll select the previous frame */
+		   we'll select the previous frame */
         selected_row = preceding_row;
       }
     }
