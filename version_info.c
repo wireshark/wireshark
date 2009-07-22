@@ -96,7 +96,7 @@
 #endif
 
 #ifdef SVNVERSION
-	const char *wireshark_svnversion = " (" SVNVERSION ")";
+	const char *wireshark_svnversion = " (" SVNVERSION " from " SVNPATH ")";
 #else
 	const char *wireshark_svnversion = "";
 #endif

@@ -563,7 +563,7 @@ usage(void)
 {
   fprintf(stderr, "Editcap %s"
 #ifdef SVNVERSION
-	  " (" SVNVERSION ")"
+	  " (" SVNVERSION " from " SVNPATH ")"
 #endif
 	  "\n", VERSION);
   fprintf(stderr, "Edit and/or translate the format of capture files.\n");

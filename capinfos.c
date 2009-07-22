@@ -241,7 +241,7 @@ usage(gboolean is_error)
 
   fprintf(output, "Capinfos %s"
 #ifdef SVNVERSION
-	  " (" SVNVERSION ")"
+	  " (" SVNVERSION " from " SVNPATH ")"
 #endif
 	  "\n", VERSION);
   fprintf(output, "Prints information about capture files.\n");

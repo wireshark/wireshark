@@ -1028,7 +1028,7 @@ usage (void)
     fprintf(stderr,
             "Text2pcap %s"
 #ifdef SVNVERSION
-            " (" SVNVERSION ")"
+            " (" SVNVERSION " from " SVNPATH ")"
 #endif
             "\n"
             "Generate a capture file from an ASCII hexdump of packets.\n"

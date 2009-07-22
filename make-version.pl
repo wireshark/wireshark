@@ -45,7 +45,7 @@
 # Default configuration:
 #
 # enable: 1
-# svn_client: 0
+# svn_client: 1
 # format: SVN %Y%m%d%H%M%S
 # pkg_enable: 1
 # pkg_format: -SVN-%#
@@ -64,10 +64,11 @@ my $package_string = "";
 my $vconf_file = 'version.conf';
 my $last_change = 0;
 my $revision = 0;
+my $repo_path = "unknown";
 my $pkg_version = 0;
 my %version_pref = (
 	"enable"     => 1,
-	"svn_client" => 0,
+	"svn_client" => 1,
 	"format"     => "SVN %Y%m%d%H%M%S",
 
 	# Normal development builds
@@ -90,17 +91,46 @@ sub read_svn_info {
 	my $in_entries = 0;
 	my $svn_name;
 	my $repo_version;
+	my $repo_root = undef;
+	my $repo_url = undef;
+	my $do_hack = 1;
 
 	if ($version_pref{"pkg_enable"}) {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if (!$version_pref{"svn_client"}) {
+	if ($version_pref{"svn_client"}) {
+		eval {
+			use warnings "all";
+			no warnings "all";
+			$line = qx{svn info $srcdir};
+			if (!defined($line)) {
+				exit 1;
+			}
+			if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+				$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+			}
+			if ($line =~ /Last Changed Rev: (\d+)/) {
+				$revision = $1;
+			}
+			if ($line =~ /URL: (\S+)/) {
+				$repo_url = $1;
+			}
+			if ($line =~ /Repository Root: (\S+)/) {
+				$repo_root = $1;
+			}
+		};
+
+		if ($last_change && $revision && $repo_url && $repo_root) {
+			$do_hack = 0;
+		}
+	}
+
+	# 'svn info' failed or the user really wants us to dig around in .svn/entries
+	if ($do_hack) {
 		# Start of ugly internal SVN file hack
 		if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
-			print ("Unable to open $srcdir/.svn/entries, trying 'svn info'\n");
-			# Fall back to "svn info"
-			$version_pref{"svn_client"} = 1;
+			print ("Unable to open $srcdir/.svn/entries\n");
 		} else {
 			# We need to find out whether our parser can handle the entries file
 			$line = <ENTRIES>;
@@ -112,46 +142,33 @@ sub read_svn_info {
 			} else {
 				$repo_version = "unknown";
 			}
-		}
-	}
-	if ($version_pref{"svn_client"} || ($repo_version ne "pre1.4")) {
-		if (!$version_pref{"svn_client"}) {
+
+			if ($repo_version eq "pre1.4") {
+				# The entries schema is flat, so we can use regexes to parse its contents.
+				while ($line = <ENTRIES>) {
+					if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
+						$in_entries = 1;
+						$svn_name = "";
+					}
+					if ($in_entries) {
+						if ($line =~ /name="(.*)"/) { $svn_name = $1; }
+						if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
+							$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+						}
+						if ($line =~ /revision="(\d+)"/) { $revision = $1; }
+					}
+					if ($line =~ /\/>/) {
+						if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
+								$last_change && $revision) {
+							$in_entries = 0;
+							last;
+						}
+					}
+					# XXX - Fetch the repository root & URL
+				}
+			}
 			close ENTRIES;
 		}
-		$line = qx{svn info $srcdir};
-		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-			$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-		}
-		if ($line =~ /Last Changed Rev: (\d+)/) {
-			$revision = $1;
-		}
-		if ($line =~ /^\s*$/ || $revision =~ /^\s*$/) {
-			$last_change = "unknown";
-			$revision = "unknown";
-		}
-	} else {
-		# The entries schema is flat, so we can use regexes to parse its contents.
-		while ($line = <ENTRIES>) {
-			if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
-				$in_entries = 1;
-				$svn_name = "";
-			}
-			if ($in_entries) {
-				if ($line =~ /name="(.*)"/) { $svn_name = $1; }
-				if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
-					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-				}
-				if ($line =~ /revision="(\d+)"/) { $revision = $1; }
-			}
-			if ($line =~ /\/>/) {
-				if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
-						$last_change && $revision) {
-					$in_entries = 0;
-					last;
-				}
-			}
-		}
-		close ENTRIES;
 	}
 
 	# If we picked up the revision and modification time, 
@@ -160,6 +177,10 @@ sub read_svn_info {
 		$version_format =~ s/%#/$revision/;
 		$package_format =~ s/%#/$revision/;
 		$package_string = strftime($package_format, gmtime($last_change));
+	}
+	
+	if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
+		$repo_path = substr($repo_url, length($repo_root));
 	}
 }
 
@@ -229,9 +250,11 @@ sub print_svn_version
 
 	if ($last_change && $revision) {
 		$svn_version = "#define SVNVERSION \"SVN Rev " . 
-			$revision . "\"\n";
+			$revision . "\"\n" .
+			"#define SVNPATH \"" . $repo_path . "\"\n";
 	} else {
-		$svn_version = "/* #define SVNVERSION \"\" */\n";
+		$svn_version = "/* #define SVNVERSION \"\" */\n" .
+			"/* #define SVNPATH \"\" */\n";
 	}
 	if (open(OLDVER, "<$version_file")) {
 		if (<OLDVER> eq $svn_version) {
