@@ -324,8 +324,8 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		     "text", cell_text,
 		     "foreground-gdk", &fg_gdk,
 		     "foreground-set", enable_color,
-		     "background-gdk", &bg_gdk,
-		     "background-set", enable_color,
+		     "cell-background-gdk", &bg_gdk,
+		     "cell-background-set", enable_color,
 		     NULL);
 	}else{
 		g_object_set(renderer,
