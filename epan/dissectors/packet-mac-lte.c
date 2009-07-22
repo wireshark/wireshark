@@ -118,6 +118,7 @@ static int hf_mac_lte_control_bsr_buffer_size_3 = -1;
 static int hf_mac_lte_control_bsr_buffer_size_4 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
+static int hf_mac_lte_control_timing_advance_reserved = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom = -1;
@@ -520,7 +521,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, FALSE);
     if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                      "MAC RAR header Reserved bit not zero (found 0x%x)", reserved);
+                      "RAR body Reserved bit not zero (found 0x%x)", reserved);
     }
 
     /* Timing Advance */
@@ -645,7 +646,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, FALSE);
             if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                       "MAC RAR header Reserved bits not zero (found 0x%x)", reserved);
+                                       "RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
 
             /* Backoff Indicator */
@@ -674,6 +675,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
             /* RAPID case */
+            /* TODO: complain if the same RAPID appears twice in same frame? */
             rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
             proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, FALSE);
 
@@ -930,7 +932,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                  tvb, offset, 1, FALSE);
         if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                   "MAC U/DL-SCH header Reserved bits not zero");
+                                   "U/DL-SCH header Reserved bits not zero");
         }
 
         /* Extended bit */
@@ -1169,10 +1171,21 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         offset += 6;
                         break;
                     case TIMING_ADVANCE_LCID:
-                        /* TODO: check 2 reserved bits? */
-                        proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
+                        {
+                            proto_item *reserved_ti;
+                            guint8      reserved;
+
+                            /* Check 2 reserved bits */
+                            reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+                            reserved_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance_reserved, tvb, offset, 1, FALSE);
+                            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+                                expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
+                                                       "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
+                            }
+                            proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+                        }
                         break;
                     case DRX_COMMAND_LCID:
                         /* No payload */
@@ -1219,7 +1232,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                      tvb, offset, 1, FALSE);
                             if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
                                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                          "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
+                                                       "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                             }
                         }
 
@@ -1862,6 +1875,12 @@ void proto_register_mac_lte(void)
             { "Timing Advance",
               "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x3f,
               "Timing Advance (0-1282 - see 36.213, 4.2.3)", HFILL
+            }
+        },
+        { &hf_mac_lte_control_timing_advance_reserved,
+            { "Reserved",
+              "mac-lte.control.timing-advance.reserved", FT_UINT8, BASE_DEC, 0, 0xc0,
+              "Reserved bits", HFILL
             }
         },
         { &hf_mac_lte_control_ue_contention_resolution_identity,
