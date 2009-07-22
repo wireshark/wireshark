@@ -92,19 +92,19 @@ new_packet_list_create(void)
 }
 
 guint
-new_packet_list_append(column_info cinfo, frame_data *fdata)
+new_packet_list_append(column_info *cinfo, frame_data *fdata)
 {
 	gint i;
 	row_data_t row_data;
 
 	/* Allocate the array holding column data, the size is the current number of columns */
-	row_data.col_text = se_alloc0(sizeof(row_data.col_text)*cfile.cinfo.num_cols);
-	row_data.col_fmt = (gint *) se_alloc(sizeof(gint) * cfile.cinfo.num_cols);
+	row_data.col_text = se_alloc0(sizeof(row_data.col_text)*cinfo->num_cols);
+	row_data.col_fmt = (gint *) se_alloc(sizeof(gint) * cinfo->num_cols);
 
-	for(i = 0; i < cfile.cinfo.num_cols; i++) {
+	for(i = 0; i < cinfo->num_cols; i++) {
 		row_data.col_text[i] =
-			se_strdup(cinfo.col_data[i]);
-		row_data.col_fmt[i] = cinfo.col_fmt[i];
+			se_strdup(cinfo->col_data[i]);
+		row_data.col_fmt[i] = cinfo->col_fmt[i];
 	}
 
 	row_data.fdata = fdata;

@@ -59,7 +59,7 @@ void new_packet_list_freeze(void);
 void new_packet_list_thaw(void);
 void new_packet_list_next(void);
 void new_packet_list_prev(void);
-guint new_packet_list_append(column_info cinfo, frame_data *fdata);
+guint new_packet_list_append(column_info *cinfo, frame_data *fdata);
 frame_data * new_packet_list_get_row_data(gint row);
 void new_packet_list_enable_color(gboolean enable);
 gint new_packet_list_find_row_from_data(gpointer data, gboolean select);
