@@ -204,8 +204,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   tree=parent_tree;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
 
   src_addr=tvb_get_ptr(tvb, 6, 6);
   SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, src_addr);
@@ -265,10 +264,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     is_802_2 = check_is_802_2(tvb);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
+     col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
 		(is_802_2 ? "" : "Raw "));
-    }
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"IEEE 802.3 Ethernet %s", (is_802_2 ? "" : "Raw "));
@@ -312,8 +309,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-      col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
+    col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (parent_tree) {
       if (PTREE_DATA(parent_tree)->visible) {
           ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,

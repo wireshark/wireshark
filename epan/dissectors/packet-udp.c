@@ -322,17 +322,14 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDPlite");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDPlite");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   udph->uh_sport=tvb_get_ntohs(tvb, offset);
   udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
-	    get_udp_port(udph->uh_sport), get_udp_port(udph->uh_dport));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
+    get_udp_port(udph->uh_sport), get_udp_port(udph->uh_dport));
 
   if (tree) {
     if (udp_summary_in_tree) {
@@ -369,8 +366,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u < 8", udph->uh_ulen);
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
     if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented && ! pinfo->in_error_pkt) {
@@ -378,8 +374,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u > IP payload length", udph->uh_ulen);
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
     } else {
       if (tree) {
         proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
@@ -405,8 +400,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
           udph->uh_sum_cov, udph->uh_ulen);
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value %u < 8 or > %u",
                              udph->uh_sum_cov, udph->uh_ulen);
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
                         udph->uh_sum_cov, udph->uh_ulen);
       if (!udplite_ignore_checksum_coverage)
         return;
@@ -438,8 +432,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (Illegal)", 0);
       expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)");
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
       item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
@@ -512,8 +505,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         PROTO_ITEM_SET_GENERATED(item);
         expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
       }
     } else {
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,

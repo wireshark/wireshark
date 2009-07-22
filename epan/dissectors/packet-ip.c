@@ -1283,10 +1283,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph=ep_alloc(sizeof(ws_ip));
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   iph->ip_v_hl = tvb_get_guint8(tvb, offset);
   if ( hi_nibble(iph->ip_v_hl) == 6){
@@ -1313,8 +1311,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   if (hlen < IPH_MIN_LEN) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP header length (%u, must be at least %u)",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP header length (%u, must be at least %u)",
        hlen, IPH_MIN_LEN);
     if (tree) {
       proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
@@ -1330,9 +1327,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
-  if (check_col(pinfo->cinfo, COL_DSCP_VALUE)) {
-	col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
-  }
+  col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
 
   if (tree) {
     if (g_ip_dscp_actif) {
@@ -1375,8 +1370,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  iph->ip_len = tvb_reported_length(tvb);
 
   if (iph->ip_len < hlen) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP length (%u, less than header length %u)",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP length (%u, less than header length %u)",
        iph->ip_len, hlen);
     if (tree) {
       proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len,
@@ -1619,16 +1613,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u, ID=%04x)",
-	ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8,
-	iph->ip_id);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u, ID=%04x)",
+		ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8,
+		iph->ip_id);
     if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
           ipfd_head->reassembled_in);
-      }
     }
 
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
@@ -1658,8 +1648,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   } else if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
     }
     call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }

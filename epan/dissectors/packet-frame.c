@@ -328,9 +328,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
                 tvb, pinfo, parent_tree)) {
 
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-			if (check_col(pinfo->cinfo, COL_INFO))
 				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %u",
 				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, parent_tree);
@@ -440,8 +438,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (exception) {
 
 	case ScsiBoundsError:
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[SCSI transfer limited due to allocation_length too small]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[SCSI transfer limited due to allocation_length too small]");
 		/*item =*/ proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"SCSI transfer limited due to allocation_length too small: %s truncated]", pinfo->current_proto);
 		/* Don't record ScsiBoundsError exceptions as expert events - they merely
@@ -451,8 +448,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case BoundsError:
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Packet size limited during capture]");
+		col_append_str(pinfo->cinfo, COL_INFO, "[Packet size limited during capture]");
 		/*item =*/ proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Packet size limited during capture: %s truncated]", pinfo->current_proto);
 		/* Don't record BoundsError exceptions as expert events - they merely
@@ -467,12 +463,11 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case DissectorError:
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-			    "[Dissector bug, protocol %s: %s]",
-			    pinfo->current_proto,
-			    exception_message == NULL ?
-			        dissector_error_nomsg : exception_message);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "[Dissector bug, protocol %s: %s]",
+		    pinfo->current_proto,
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
 		item = proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
 		    "[Dissector bug, protocol %s: %s]",
 		    pinfo->current_proto,
@@ -508,18 +503,16 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * problem is that the dissector expected something
 		 * but it wasn't in the fragment we dissected.
 		 */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-			    "[Unreassembled Packet%s] ",
-			    pinfo->noreassembly_reason);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "[Unreassembled Packet%s] ",
+		    pinfo->noreassembly_reason);
 		item = proto_tree_add_protocol_format(tree, proto_unreassembled,
 		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
 		    pinfo->noreassembly_reason, pinfo->current_proto);
 		expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "Unreassembled Packet (Exception occurred)");
 	} else {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
-			    "[Malformed Packet]");
+		col_append_str(pinfo->cinfo, COL_INFO,
+		    "[Malformed Packet]");
 		item = proto_tree_add_protocol_format(tree, proto_malformed,
 		    tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occurred)");
