@@ -130,7 +130,6 @@ create_view_and_model(void)
 	gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(packetlist->view),
 					    TRUE);
 #endif
-
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
 
@@ -249,8 +248,8 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 
 				/* Needed to get the middle and bottom panes updated? */
 				new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view),data);
-				return row;
 			}
+			return row;
 		}
 	}
 
@@ -324,8 +323,8 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		     "text", cell_text,
 		     "foreground-gdk", &fg_gdk,
 		     "foreground-set", enable_color,
-		     "cell-background-gdk", &bg_gdk,
-		     "cell-background-set", enable_color,
+		     "background-gdk", &bg_gdk,
+		     "background-set", enable_color,
 		     NULL);
 	}else{
 		g_object_set(renderer,

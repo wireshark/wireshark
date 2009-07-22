@@ -179,6 +179,14 @@ packet_list_class_init(PacketListClass *klass)
 	object_class = (GObjectClass*) klass;
 
 	object_class->finalize = packet_list_finalize;
+
+	gtk_rc_parse_string (
+		"style \"PacketList-style\"\n"
+		"{\n"
+		"  GtkTreeView::horizontal-separator = 0\n"
+		"} widget_class \"*TreeView*\""
+		" style \"PacketList-style\"");
+
 }
 
 static void
