@@ -638,11 +638,17 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 
 	/* XXX If we want to store other things than text, we need other sort functions */ 
 
-	/* Get the frame number from frame data
-	 * Is this a bit hackish??
-	 */
-	if( cfile.cinfo.col_fmt[sort_id]==COL_NUMBER){
-		return (b->fdata->num - a->fdata->num);
+	switch (cfile.cinfo.col_fmt[sort_id]) {
+		case COL_NUMBER:
+		case COL_CLS_TIME:
+		case COL_ABS_TIME:
+		case COL_ABS_DATE_TIME:
+		case COL_REL_TIME:
+		case COL_DELTA_TIME:
+		case COL_DELTA_TIME_DIS:
+		case COL_PACKET_LENGTH:
+		case COL_CUMULATIVE_BYTES:
+			return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
 	}
 
 	if((a->col_text[sort_id]) && (b->col_text[sort_id]))

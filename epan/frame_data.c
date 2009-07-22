@@ -30,6 +30,7 @@
 #include "frame_data.h"
 #include "packet.h"
 #include "emem.h"
+#include "timestamp.h"
 
 #include <glib.h>
 
@@ -111,3 +112,77 @@ p_remove_proto_data(frame_data *fd, int proto)
     fd->pfd = g_slist_remove(fd->pfd, item->data);
   }
 }
+
+#define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \
+                                 (fdata1->num > fdata2->num) ? 1 : \
+                                 0)
+
+#define COMPARE_NUM(f)  ((fdata1->f < fdata2->f) ? -1 : \
+                         (fdata1->f > fdata2->f) ? 1 : \
+                         COMPARE_FRAME_NUM())
+
+/* Compare time stamps.
+   A packet whose time is a reference time is considered to have
+   a lower time stamp than any frame with a non-reference time;
+   if both packets' times are reference times, we compare the
+   times of the packets. */
+#define COMPARE_TS(ts) \
+                ((fdata1->flags.ref_time && !fdata2->flags.ref_time) ? -1 : \
+                 (!fdata1->flags.ref_time && fdata2->flags.ref_time) ? 1 : \
+                 (fdata1->ts.secs < fdata2->ts.secs) ? -1 : \
+                 (fdata1->ts.secs > fdata2->ts.secs) ? 1 : \
+                 (fdata1->ts.nsecs < fdata2->ts.nsecs) ? -1 :\
+                 (fdata1->ts.nsecs > fdata2->ts.nsecs) ? 1 : \
+                 COMPARE_FRAME_NUM())
+
+gint
+frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field)
+{
+	switch (field) {
+		case COL_NUMBER:
+			return COMPARE_FRAME_NUM();
+
+		case COL_CLS_TIME:
+			switch (timestamp_get_type()) {
+				case TS_ABSOLUTE:
+				case TS_ABSOLUTE_WITH_DATE:
+				case TS_EPOCH:
+					return COMPARE_TS(abs_ts);
+
+				case TS_RELATIVE:
+					return COMPARE_TS(rel_ts);
+
+				case TS_DELTA:
+					return COMPARE_TS(del_cap_ts);
+
+				case TS_DELTA_DIS:
+					return COMPARE_TS(del_dis_ts);
+
+				case TS_NOT_SET:
+					return 0;
+			}
+			return 0;
+
+		case COL_ABS_TIME:
+		case COL_ABS_DATE_TIME:
+			return COMPARE_TS(abs_ts);
+
+		case COL_REL_TIME:
+			return COMPARE_TS(rel_ts);
+
+		case COL_DELTA_TIME:
+			return COMPARE_TS(del_cap_ts);
+
+		case COL_DELTA_TIME_DIS:
+			return COMPARE_TS(del_dis_ts);
+
+		case COL_PACKET_LENGTH:
+			return COMPARE_NUM(pkt_len);
+
+		case COL_CUMULATIVE_BYTES:
+			return COMPARE_NUM(cum_bytes);
+
+	}
+	g_return_val_if_reached(0);
+}
+

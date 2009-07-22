@@ -76,4 +76,7 @@ extern void p_add_proto_data(frame_data *fd, int proto, void *proto_data);
 extern void *p_get_proto_data(frame_data *fd, int proto);
 extern void p_remove_proto_data(frame_data *fd, int proto);
 
+/* compare two frame_datas */
+extern gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
+
 #endif  /* __FRAME_DATA__ */
