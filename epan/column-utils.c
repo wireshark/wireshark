@@ -55,17 +55,17 @@ col_setup(column_info *cinfo, gint num_cols)
   int i;
 
   cinfo->num_cols	= num_cols;
-  cinfo->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
-  cinfo->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
-  cinfo->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
-  cinfo->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
-  cinfo->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  cinfo->col_custom_field = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  cinfo->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  cinfo->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  cinfo->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
-  cinfo->col_expr.col_expr = (gchar **) g_malloc(sizeof(gchar *) * (num_cols + 1));
-  cinfo->col_expr.col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * (num_cols + 1));
+  cinfo->col_fmt	= g_new(gint, num_cols);
+  cinfo->fmt_matx	= g_new(gboolean*, num_cols);
+  cinfo->col_first	= g_new(int, NUM_COL_FMTS);
+  cinfo->col_last 	= g_new(int, NUM_COL_FMTS);
+  cinfo->col_title	= g_new(gchar*, num_cols);
+  cinfo->col_custom_field = g_new(gchar*, num_cols);
+  cinfo->col_data	= (const gchar **)g_new(gchar*, num_cols);
+  cinfo->col_buf	= g_new(gchar*, num_cols);
+  cinfo->col_fence	= g_new(int, num_cols);
+  cinfo->col_expr.col_expr = g_new(gchar*, num_cols + 1);
+  cinfo->col_expr.col_expr_val = g_new(gchar*, num_cols + 1);
 
   for (i = 0; i < NUM_COL_FMTS; i++) {
     cinfo->col_first[i] = -1;
