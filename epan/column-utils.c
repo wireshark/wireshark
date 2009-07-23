@@ -61,6 +61,7 @@ col_setup(column_info *cinfo, gint num_cols)
   cinfo->col_last 	= g_new(int, NUM_COL_FMTS);
   cinfo->col_title	= g_new(gchar*, num_cols);
   cinfo->col_custom_field = g_new(gchar*, num_cols);
+  cinfo->col_custom_dfilter = g_new(dfilter_t*, num_cols);
   cinfo->col_data	= (const gchar **)g_new(gchar*, num_cols);
   cinfo->col_buf	= g_new(gchar*, num_cols);
   cinfo->col_fence	= g_new(int, num_cols);
@@ -287,7 +288,8 @@ col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
   for (i = ci->col_first[COL_CUSTOM];
        i <= ci->col_last[COL_CUSTOM]; i++) {
     if (ci->fmt_matx[i][COL_CUSTOM] &&
-	strcmp(ci->col_custom_field[i], hfinfo->abbrev) == 0) {
+        ci->col_custom_field[i] &&
+        strcmp(ci->col_custom_field[i], hfinfo->abbrev) == 0) {
       ci->col_data[i] = ci->col_buf[i];
       g_vsnprintf(ci->col_buf[i], COL_MAX_LEN, format, ap);
 
@@ -313,7 +315,6 @@ void
 col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
-  dfilter_t *dfilter_code;
 
   ci = cinfo; /* Save this into the static variable ci for use by
 	       * col_custom_set_fstr() later. */
@@ -324,12 +325,8 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
-	strlen(cinfo->col_custom_field[i]) > 0) {
-      if(dfilter_compile(cinfo->col_custom_field[i], &dfilter_code)) {
-        epan_dissect_prime_dfilter(edt, dfilter_code);
-        dfilter_free(dfilter_code);
-      }
-    }
+        cinfo->col_custom_dfilter[i])
+        epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
   }
 }
 

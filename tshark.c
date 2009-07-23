@@ -1420,8 +1420,15 @@ main(int argc, char *argv[])
     cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
     if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
       cfile.cinfo.col_custom_field[i] = g_strdup(get_column_custom_field(i));
+      if(!dfilter_compile(cfile.cinfo.col_custom_field[i], &cfile.cinfo.col_custom_dfilter[i])) {
+        /* XXX: Should we issue a warning? */
+        g_free(cfile.cinfo.col_custom_field[i]);
+        cfile.cinfo.col_custom_field[i] = NULL;
+        cfile.cinfo.col_custom_dfilter[i] = NULL;
+      }
     } else {
       cfile.cinfo.col_custom_field[i] = NULL;
+      cfile.cinfo.col_custom_dfilter[i] = NULL;
     }
     cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);

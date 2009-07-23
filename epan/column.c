@@ -668,8 +668,15 @@ build_column_format_array(column_info *cinfo, gboolean reset_fences)
     cinfo->col_title[i] = g_strdup(get_column_title(i));
     if (cinfo->col_fmt[i] == COL_CUSTOM) {
       cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
+      if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i])) {
+        /* XXX: Should we issue a warning? */
+        g_free(cinfo->col_custom_field[i]);
+        cinfo->col_custom_field[i] = NULL;
+        cinfo->col_custom_dfilter[i] = NULL;
+      }
     } else {
       cinfo->col_custom_field[i] = NULL;
+      cinfo->col_custom_dfilter[i] = NULL;
     }
     cinfo->fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
 						     NUM_COL_FMTS);

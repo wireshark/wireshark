@@ -729,7 +729,8 @@ proto_registrar_get_byname(const char *field_name)
 	header_field_info* hfinfo;
 	prefix_initializer_t pi;
 	
-	DISSECTOR_ASSERT(field_name != NULL);
+	if (!field_name)
+		return NULL;
 
 	hfinfo = g_tree_lookup(gpa_name_tree, field_name);
 	

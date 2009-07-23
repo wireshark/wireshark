@@ -27,6 +27,9 @@
 
 #include <glib.h>
 
+/* Forward declaration (epan/dfilter/dfilter.h) */
+typedef struct _dfilter_t dfilter_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -47,6 +50,7 @@ typedef struct _column_info {
   gint         *col_last;    /* Last column number with a given format */
   gchar       **col_title;   /* Column titles */
   gchar       **col_custom_field;   /* Custom column field */
+  dfilter_t   **col_custom_dfilter; /* Compiled custom column field */
   const gchar **col_data;    /* Column data */
   gchar       **col_buf;     /* Buffer into which to copy data for column */
   int         *col_fence;    /* Stuff in column buffer before this index is immutable */
