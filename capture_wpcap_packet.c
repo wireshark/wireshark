@@ -326,7 +326,7 @@ wpcap_packet_load(void)
  * Local variables:
  * c-basic-offset: 4
  * tab-width: 4
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=4 tabstop=4 noexpandtab
