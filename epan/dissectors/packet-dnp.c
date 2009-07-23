@@ -1,4 +1,4 @@
-/* packet-dnp.c
+/* packet-dnp.c
  * Routines for DNP dissection
  * Copyright 2003, 2006, 2007, Graham Bloice <graham.bloice@trihedral.com>
  *
