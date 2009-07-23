@@ -839,7 +839,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
     radiotap_info = &rtp_info_arr[0];
 
- 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
     col_clear(pinfo->cinfo, COL_INFO);
     offset = 0;
 
@@ -849,20 +849,20 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
     radiotap_info->radiotap_length = length;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%u, Length %u",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%u, Length %u",
 		version, length);
 
     /* Dissect the packet */
     if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_radiotap,
-			tvb, 0, length, "Radiotap Header v%u, Length %u", version, length);
-		radiotap_tree = proto_item_add_subtree(ti, ett_radiotap);
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
-			tvb, offset, 1, version);
-		proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
-			tvb, offset + 1, 1, FALSE);
-		ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
-			tvb, offset + 2, 2, length);
+	ti = proto_tree_add_protocol_format(tree, proto_radiotap,
+		tvb, 0, length, "Radiotap Header v%u, Length %u", version, length);
+	radiotap_tree = proto_item_add_subtree(ti, ett_radiotap);
+	proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
+		tvb, offset, 1, version);
+	proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
+		tvb, offset + 1, 1, FALSE);
+	ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
+		tvb, offset + 2, 2, length);
     }
     length_remaining = length;
 
@@ -972,14 +972,14 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	    rate = tvb_get_guint8(tvb, offset);
 	    if (rate & 0x80) {
-			/* XXX adjust by CW and short GI like other sniffers? */
-			rate = ieee80211_htrates[rate & 0xf];
+		/* XXX adjust by CW and short GI like other sniffers? */
+		rate = ieee80211_htrates[rate & 0xf];
 	    }
-		col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
-		    rate / 2, rate & 1 ? 5 : 0);
+	    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+		rate / 2, rate & 1 ? 5 : 0);
 	    if (tree) {
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
-			tvb, offset, 1, tvb_get_guint8(tvb, offset)/2,
+			tvb, offset, 1, rate,
 			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    offset++;
@@ -990,12 +990,12 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (length_remaining < 1)
 		break;
 	    dbm = (gint8) tvb_get_guint8(tvb, offset);
-		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
+	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 	    if (tree) {
-			proto_tree_add_int_format(radiotap_tree,
-						  hf_radiotap_dbm_antsignal,
-						  tvb, offset, 1, dbm,
-						  "SSI Signal: %d dBm", dbm);
+		proto_tree_add_int_format(radiotap_tree,
+					  hf_radiotap_dbm_antsignal,
+					  tvb, offset, 1, dbm,
+					  "SSI Signal: %d dBm", dbm);
 	    }
 	    offset++;
 	    length_remaining--;
@@ -1005,12 +1005,12 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (length_remaining < 1)
 		break;
 	    db = tvb_get_guint8(tvb, offset);
-		col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
+	    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
 	    if (tree) {
-			proto_tree_add_uint_format(radiotap_tree,
-						   hf_radiotap_db_antsignal,
-						   tvb, offset, 1, db,
-						   "SSI Signal: %u dB", db);
+		proto_tree_add_uint_format(radiotap_tree,
+					   hf_radiotap_db_antsignal,
+					   tvb, offset, 1, db,
+					   "SSI Signal: %u dB", db);
 	    }
 	    offset++;
 	    length_remaining--;
@@ -1074,44 +1074,44 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (length_remaining < 2)
 		break;
 	    if (tree) {
-			freq = tvb_get_letohs(tvb, offset);
-			flags = tvb_get_letohs(tvb, offset+2);
-			chan_str = ieee80211_mhz_to_str(freq);
-			col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
-			proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
-					tvb, offset, 2, freq,
-					"Channel frequency: %s", chan_str);
-			g_free(chan_str);
-			/* We're already 2-byte aligned. */
-			it = proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
-				tvb, offset+2, 2, flags);
-			flags_tree = proto_item_add_subtree(it, ett_radiotap_channel_flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_turbo,
-				tvb, offset+2, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_cck,
-				tvb, offset+2, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_ofdm,
-				tvb, offset+2, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_2ghz,
-				tvb, offset+2, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_5ghz,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_passive,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_dynamic,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_gfsk,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_gsm,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_sturbo,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_half,
-				tvb, offset+3, 1, flags);
-			proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_quarter,
-				tvb, offset+3, 1, flags);
-					radiotap_info->freq=freq;
-					radiotap_info->flags=flags;
+		freq = tvb_get_letohs(tvb, offset);
+		flags = tvb_get_letohs(tvb, offset+2);
+		chan_str = ieee80211_mhz_to_str(freq);
+		col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
+		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
+				tvb, offset, 2, freq,
+				"Channel frequency: %s", chan_str);
+		g_free(chan_str);
+		/* We're already 2-byte aligned. */
+		it = proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
+			tvb, offset+2, 2, flags);
+		flags_tree = proto_item_add_subtree(it, ett_radiotap_channel_flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_turbo,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_cck,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_ofdm,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_2ghz,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_5ghz,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_passive,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_dynamic,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_gfsk,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_gsm,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_sturbo,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_half,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_quarter,
+			tvb, offset+3, 1, flags);
+		radiotap_info->freq=freq;
+		radiotap_info->flags=flags;
 	    }
 	    offset+=4 /* Channel + flags */;
 	    length_remaining-=4;
