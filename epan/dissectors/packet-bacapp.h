@@ -1310,10 +1310,11 @@ fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar 
  * @param tvb
  * @param tree
  * @param offset
+ * @param matching tag number
  * @return modified offset
  */
 static guint
-fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tag_match);
 
 /**
  * BACnetActionList ::= SEQUENCE {

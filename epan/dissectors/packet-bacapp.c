@@ -2620,20 +2620,22 @@ fAddressBinding (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
+fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tag_match)
 {
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-	proto_item *tt;
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
 	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-		if (tag_is_closing(tag_info)) {
+		if (tag_is_closing(tag_info) ) {
+			if (tag_no == tag_match) {
+				return offset;
+			}
 			offset += fTagHeaderTree (tvb, subtree, offset,
 				&tag_no, &tag_info, &lvt);
 			subtree = tree;
@@ -2654,14 +2656,7 @@ fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 4: /* propertyValue */
-			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fAbstractSyntaxNType (tvb, subtree, offset);
-				break;
-			}
-			FAULT;
+			offset = fPropertyValue (tvb, subtree, offset, tag_info);
 			break;
 		case 5: /* priority */
 			offset = fUnsignedTag (tvb,subtree,offset,"Priority: ");
@@ -2684,10 +2679,43 @@ fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+/* BACnetActionList ::= SEQUENCE{
+      action [0] SEQUENCE OF BACnetActionCommand
+      }
+*/
 static guint
 fActionList (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	return fActionCommand (tvb,tree,offset);
+	guint lastoffset = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	proto_tree *subtree = tree;
+	proto_item *ti;
+
+	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		lastoffset = offset;
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		if (tag_is_closing(tag_info)) {
+			offset += fTagHeaderTree (tvb, subtree, offset,
+				&tag_no, &tag_info, &lvt);
+			subtree = tree;
+			continue;
+		}
+		if (tag_is_opening(tag_info)) {
+			ti = proto_tree_add_text(tree, tvb, offset, 1, "Action List");
+			subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+			offset += fTagHeaderTree (tvb, subtree, offset, 
+				&tag_no, &tag_info, &lvt);
+		}
+		switch (tag_no) {
+			case 0: /* BACnetActionCommand */
+				offset = fActionCommand (tvb, subtree, offset, tag_no);
+				break;
+			default:
+				break;
+		}
+	}
+	return offset;
 }
 
 static guint
@@ -3073,8 +3101,17 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 		/* Application Tags */
 		switch (propertyIdentifier) {
-		case 2: /* BACnetActionList */
-			offset = fActionList (tvb,tree,offset);
+		case 2: /* action */
+			/* loop object is application tagged, 
+				command object is context tagged */
+			if (tag_is_context_specific(tag_info)) {
+				/* BACnetActionList */
+				offset = fActionList (tvb,tree,offset);
+			} else {
+				/* BACnetAction */
+				offset = fApplicationTypesEnumerated (tvb, tree, offset, ar,
+					BACnetAction);
+			}
 			break;
 		case 30: /* BACnetAddressBinding */
 			offset = fAddressBinding (tvb,tree,offset);
@@ -3194,11 +3231,33 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset)
+fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tag_info)
+{
+	guint8 tag_no;
+	guint32 lvt;
+
+	if (tag_is_opening(tag_info)) {
+		offset += fTagHeaderTree(tvb, tree, offset, 
+			&tag_no, &tag_info, &lvt);
+		offset = fAbstractSyntaxNType (tvb, tree, offset);
+		if (tvb_length_remaining(tvb, offset) > 0) {
+			offset += fTagHeaderTree(tvb, tree, offset, 
+				&tag_no, &tag_info, &lvt);
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, offset, tvb_length(tvb) - offset, 
+			"expected Opening Tag!"); \
+		offset = tvb_length(tvb);
+	}
+	
+	return offset;
+}
+
+
+static guint
+fPropertyIdentifierValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset)
 {
 	guint lastoffset = offset;
-/*	proto_item *tt; */
-	proto_tree *subtree = tree;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
@@ -3207,13 +3266,7 @@ fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset)
 	{
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_no == tagoffset+2) {  /* Value - might not be present in ReadAccessResult */
-			if (tag_is_opening(tag_info)) {
-/*				tt = proto_tree_add_text(tree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
-				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fAbstractSyntaxNType (tvb, subtree, offset);
-				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-			}
+			offset = fPropertyValue (tvb, tree, offset, tag_info);
 		}
 	}
 	return offset;
@@ -3228,7 +3281,7 @@ fBACnetPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		offset = fPropertyValue(tvb, tree, offset, 0);
+		offset = fPropertyIdentifierValue(tvb, tree, offset, 0);
 		if (offset > lastoffset)
 		{
 			/* detect optional priority
@@ -4895,7 +4948,6 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-/*	proto_item *tt; */
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
@@ -4919,14 +4971,7 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 3:	/* propertyValue */
-			if (tag_is_opening(tag_info)) {
-/*				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fAbstractSyntaxNType (tvb, subtree, offset);
-				break;
-			}
-			FAULT;
+			offset = fPropertyValue (tvb, subtree, offset, tag_info);
 			break;
 		default:
 			break;
@@ -4942,7 +4987,6 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-/*	proto_item *tt; */
 
 	/* set the optional global properties to indicate not-used */
 	propertyArrayIndex = -1;
@@ -4967,14 +5011,7 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 3:	/* propertyValue */
-			if (tag_is_opening(tag_info)) {
-/*				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value); */
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fAbstractSyntaxNType (tvb, subtree, offset);
-				break;
-			}
-			FAULT;
+			offset = fPropertyValue (tvb, subtree, offset, tag_info);
 			break;
 		case 4: /* Priority (only used for write) */
 			offset = fUnsignedTag (tvb, subtree, offset, "Priority: ");
@@ -5119,14 +5156,7 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fUnsignedTag (tvb, subtree, offset, "property Array Index: ");
 			break;
 		case 3:  /* Value */
-			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyValue");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-				offset = fAbstractSyntaxNType   (tvb, subtree, offset);
-				break;
-			}
-			FAULT;
+			offset = fPropertyValue (tvb, subtree, offset, tag_info);
 			break;
 		case 4:  /* Priority */
 			offset = fUnsignedTag (tvb, subtree, offset, "Priority: ");
@@ -5416,7 +5446,7 @@ fReadAccessResult (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			FAULT;
 			break;
 		case 2:	/* propertyIdentifier */
-			offset = fPropertyValue(tvb, subtree, offset, 2);
+			offset = fPropertyIdentifierValue(tvb, subtree, offset, 2);
 			break;
 		case 5:	/* propertyAccessError */
 			if (tag_is_opening(tag_info)) {
