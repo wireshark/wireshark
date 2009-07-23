@@ -43,6 +43,7 @@
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
+#include "packet-e212.h"
 
 /* nasty globals as a result of the split of packet-gsm_a.c in need of further restructure */
 /* nasty static for handling half octet mandatory V IEs */
@@ -52,7 +53,7 @@ const value_string gsm_common_elem_strings[] = {
 	/* Common Information Elements 10.5.1 */
 	{ 0x00,	"Cell Identity" },
 	{ 0x00,	"Ciphering Key Sequence Number" },
-	{ 0x00,	"Location Area Identification" },
+	{ 0x00,	"Location Area Identification (LAI)" },
 	{ 0x00,	"Mobile Identity" },
 	{ 0x00,	"Mobile Station Classmark 1" },
 	{ 0x00,	"Mobile Station Classmark 2" },
@@ -1421,14 +1422,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	mcc_mnc_aux(octs, mcc, mnc);
 
-
-	proto_tree_add_text(subtree,
-		tvb, curr_offset, 3,
-		"Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
-		mcc,
-		mnc);
-
-	curr_offset += 3;
+	curr_offset = dissect_e212_mcc_mnc(tvb, subtree, curr_offset);
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
@@ -1438,7 +1432,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 		value,
 		value);
 
-	proto_item_append_text(item, " - LAC (0x%04x)", value);
+	proto_item_append_text(item, " - %s/%s/%u", mcc,mnc,value);
 
 	curr_offset += 2;
 
