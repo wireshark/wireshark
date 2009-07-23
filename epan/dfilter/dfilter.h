@@ -26,7 +26,9 @@
 #include <glib.h>
 
 /* Passed back to user */
+#ifndef dfilter_t
 typedef struct _dfilter_t dfilter_t;
+#endif
 
 #include <epan/epan.h>
 #include <epan/proto.h>

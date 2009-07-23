@@ -27,6 +27,9 @@
 
 #include <glib.h>
 
+/* Forward declaration (epan/dfilter/dfilter.h) */
+typedef struct _dfilter_t dfilter_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

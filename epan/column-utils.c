@@ -29,8 +29,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "dfilter/dfilter.h"
-
 #include "column-utils.h"
 #include "timestamp.h"
 #include "sna-utils.h"
