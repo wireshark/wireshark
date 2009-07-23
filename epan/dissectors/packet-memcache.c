@@ -2182,6 +2182,6 @@ proto_reg_handoff_memcache (void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=2 noexpandtab
- * :indentSize=2:tabSize=2:noTabs=false:
+ * ex: set shiftwidth=2 tabstop=2 expandtab
+ * :indentSize=2:tabSize=2:noTabs=true:
  */

@@ -1,4 +1,4 @@
-/* packet-dnp.c
+/* packet-dnp.c
  * Routines for DNP dissection
  * Copyright 2003, 2006, 2007, Graham Bloice <graham.bloice@trihedral.com>
  *
@@ -3098,10 +3098,10 @@ proto_reg_handoff_dnp3(void)
  * Local Variables:
  * c-basic-offset: 2
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 noexpandtab
- * :indentSize=2:tabSize=8:noTabs=false:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
 

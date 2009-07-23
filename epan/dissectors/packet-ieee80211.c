@@ -87,7 +87,7 @@
 #include "packet-wps.h"
 
 #ifndef roundup2
-#define	roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
+#define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
 
 /* Defragment fragmented 802.11 datagrams */
@@ -464,46 +464,46 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
 /* ************************************************************************* */
-#define TAG_SSID                  0x00
-#define TAG_SUPP_RATES            0x01
-#define TAG_FH_PARAMETER          0x02
-#define TAG_DS_PARAMETER          0x03
-#define TAG_CF_PARAMETER          0x04
-#define TAG_TIM                   0x05
-#define TAG_IBSS_PARAMETER        0x06
-#define TAG_COUNTRY_INFO          0x07
-#define TAG_FH_HOPPING_PARAMETER  0x08
-#define TAG_FH_HOPPING_TABLE      0x09
-#define TAG_REQUEST               0x0A
-#define TAG_QBSS_LOAD             0x0B
-#define TAG_EDCA_PARAM_SET        0x0C
-#define TAG_TSPEC                 0x0D
-#define TAG_TCLAS                 0x0E
-#define TAG_SCHEDULE              0x0F
-#define TAG_CHALLENGE_TEXT        0x10
-#define TAG_POWER_CONSTRAINT      0x20
-#define TAG_POWER_CAPABILITY      0x21
-#define TAG_TPC_REQUEST           0x22
-#define TAG_TPC_REPORT            0x23
-#define TAG_SUPPORTED_CHANNELS    0x24
-#define TAG_CHANNEL_SWITCH_ANN    0x25
-#define TAG_MEASURE_REQ           0x26
-#define TAG_MEASURE_REP           0x27
-#define TAG_QUIET                 0x28
-#define TAG_IBSS_DFS              0x29
-#define TAG_ERP_INFO              0x2A
-#define TAG_TS_DELAY              0x2B
-#define TAG_TCLAS_PROCESS         0x2C
-#define TAG_HT_CAPABILITY         0x2D  /* IEEE Stc 802.11n/D2.0 */
-#define TAG_QOS_CAPABILITY        0x2E
-#define TAG_ERP_INFO_OLD          0x2F  /* IEEE Std 802.11g/D4.0 */
-#define TAG_RSN_IE                0x30
+#define TAG_SSID                     0x00
+#define TAG_SUPP_RATES               0x01
+#define TAG_FH_PARAMETER             0x02
+#define TAG_DS_PARAMETER             0x03
+#define TAG_CF_PARAMETER             0x04
+#define TAG_TIM                      0x05
+#define TAG_IBSS_PARAMETER           0x06
+#define TAG_COUNTRY_INFO             0x07
+#define TAG_FH_HOPPING_PARAMETER     0x08
+#define TAG_FH_HOPPING_TABLE         0x09
+#define TAG_REQUEST                  0x0A
+#define TAG_QBSS_LOAD                0x0B
+#define TAG_EDCA_PARAM_SET           0x0C
+#define TAG_TSPEC                    0x0D
+#define TAG_TCLAS                    0x0E
+#define TAG_SCHEDULE                 0x0F
+#define TAG_CHALLENGE_TEXT           0x10
+#define TAG_POWER_CONSTRAINT         0x20
+#define TAG_POWER_CAPABILITY         0x21
+#define TAG_TPC_REQUEST              0x22
+#define TAG_TPC_REPORT               0x23
+#define TAG_SUPPORTED_CHANNELS       0x24
+#define TAG_CHANNEL_SWITCH_ANN       0x25
+#define TAG_MEASURE_REQ              0x26
+#define TAG_MEASURE_REP              0x27
+#define TAG_QUIET                    0x28
+#define TAG_IBSS_DFS                 0x29
+#define TAG_ERP_INFO                 0x2A
+#define TAG_TS_DELAY                 0x2B
+#define TAG_TCLAS_PROCESS            0x2C
+#define TAG_HT_CAPABILITY            0x2D  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_QOS_CAPABILITY           0x2E
+#define TAG_ERP_INFO_OLD             0x2F  /* IEEE Std 802.11g/D4.0 */
+#define TAG_RSN_IE                   0x30
 /* Reserved 49 */
-#define TAG_EXT_SUPP_RATES        0x32
-#define TAG_NEIGHBOR_REPORT       0x34
-#define TAG_HT_INFO               0x3D  /* IEEE Stc 802.11n/D2.0 */
+#define TAG_EXT_SUPP_RATES           0x32
+#define TAG_NEIGHBOR_REPORT          0x34
+#define TAG_HT_INFO                  0x3D  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
-#define TAG_WSIE	                 0x45   /* tag of the Wave Service Information (802.11p) */
+#define TAG_WSIE                     0x45   /* tag of the Wave Service Information (802.11p) */
 #define TAG_20_40_BSS_CO_EX          0x48   /* IEEE P802.11n/D6.0 */
 #define TAG_20_40_BSS_INTOL_CH_REP   0x49   /* IEEE P802.11n/D6.0 */
 #define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
@@ -544,31 +544,31 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
 static const value_string frame_type_subtype_vals[] = {
-  {MGT_ASSOC_REQ,        "Association Request"},
-  {MGT_ASSOC_RESP,       "Association Response"},
-  {MGT_REASSOC_REQ,      "Reassociation Request"},
-  {MGT_REASSOC_RESP,     "Reassociation Response"},
-  {MGT_PROBE_REQ,        "Probe Request"},
-  {MGT_PROBE_RESP,       "Probe Response"},
-  {MGT_MEASUREMENT_PILOT,"Measurement Pilot"},
-  {MGT_BEACON,           "Beacon frame"},
-  {MGT_ATIM,             "ATIM"},
-  {MGT_DISASS,           "Disassociate"},
-  {MGT_AUTHENTICATION,   "Authentication"},
-  {MGT_DEAUTHENTICATION, "Deauthentication"},
-  {MGT_ACTION,           "Action"},
-  {MGT_ACTION_NO_ACK,    "Action No Ack"},
-  {MGT_ARUBA_WLAN,       "Aruba Management"},
+  {MGT_ASSOC_REQ,             "Association Request"},
+  {MGT_ASSOC_RESP,            "Association Response"},
+  {MGT_REASSOC_REQ,           "Reassociation Request"},
+  {MGT_REASSOC_RESP,          "Reassociation Response"},
+  {MGT_PROBE_REQ,             "Probe Request"},
+  {MGT_PROBE_RESP,            "Probe Response"},
+  {MGT_MEASUREMENT_PILOT,     "Measurement Pilot"},
+  {MGT_BEACON,                "Beacon frame"},
+  {MGT_ATIM,                  "ATIM"},
+  {MGT_DISASS,                "Disassociate"},
+  {MGT_AUTHENTICATION,        "Authentication"},
+  {MGT_DEAUTHENTICATION,      "Deauthentication"},
+  {MGT_ACTION,                "Action"},
+  {MGT_ACTION_NO_ACK,         "Action No Ack"},
+  {MGT_ARUBA_WLAN,            "Aruba Management"},
 
-  {CTRL_CONTROL_WRAPPER, "Control Wrapper"},
-  {CTRL_BLOCK_ACK_REQ,   "802.11 Block Ack Req"},
-  {CTRL_BLOCK_ACK,       "802.11 Block Ack"},
-  {CTRL_PS_POLL,         "Power-Save poll"},
-  {CTRL_RTS,             "Request-to-send"},
-  {CTRL_CTS,             "Clear-to-send"},
-  {CTRL_ACKNOWLEDGEMENT, "Acknowledgement"},
-  {CTRL_CFP_END,         "CF-End (Control-frame)"},
-  {CTRL_CFP_ENDACK,      "CF-End + CF-Ack (Control-frame)"},
+  {CTRL_CONTROL_WRAPPER,      "Control Wrapper"},
+  {CTRL_BLOCK_ACK_REQ,        "802.11 Block Ack Req"},
+  {CTRL_BLOCK_ACK,            "802.11 Block Ack"},
+  {CTRL_PS_POLL,              "Power-Save poll"},
+  {CTRL_RTS,                  "Request-to-send"},
+  {CTRL_CTS,                  "Clear-to-send"},
+  {CTRL_ACKNOWLEDGEMENT,      "Acknowledgement"},
+  {CTRL_CFP_END,              "CF-End (Control-frame)"},
+  {CTRL_CFP_ENDACK,           "CF-End + CF-Ack (Control-frame)"},
 
   {DATA,                      "Data"},
   {DATA_CF_ACK,               "Data + CF-Ack"},
@@ -773,10 +773,10 @@ static int hf_fc_protected = -1;
 static int hf_fc_order = -1;
 
 typedef struct retransmit_key {
-	guint8  bssid[6];
-	guint8  src[6];
-	guint16 seq_control;
-	guint   fnum;
+  guint8  bssid[6];
+  guint8  src[6];
+  guint16 seq_control;
+  guint   fnum;
 } retransmit_key;
 
 static GHashTable *fc_analyse_retransmit_table = NULL;
@@ -878,12 +878,12 @@ static int proto_wlan_mgt = -1;
 /* ************************************************************************* */
 static int hf_pst_timingquality = -1;
 static int hf_pst_providercount = -1;
-static int hf_pst_length = -1;
-static int hf_pst_contents = -1;
+static int hf_pst_length =        -1;
+static int hf_pst_contents =      -1;
 
 static int hf_pst_acid =        -1;
 static int hf_pst_acm_length =  -1;
-static int hf_pst_acm = -1;
+static int hf_pst_acm =         -1;
 static int hf_pst_acm_contents =-1;
 static int hf_pst_acf =         -1;
 static int hf_pst_priority =    -1;
@@ -893,13 +893,13 @@ static int hf_pst_addressing =  -1;
 static int hf_pst_macaddr =     -1;
 static int hf_pst_channel =     -1;
 
-static int hf_chan_noc = -1;
-static int hf_chan_length = -1;
-static int hf_chan_content =	-1;
-static int hf_chan_channel =	-1;
-static int hf_chan_adapt   =	-1;
-static int hf_chan_rate    =	-1;
-static int hf_chan_tx_pow  =	-1;
+static int hf_chan_noc =        -1;
+static int hf_chan_length =     -1;
+static int hf_chan_content =    -1;
+static int hf_chan_channel =    -1;
+static int hf_chan_adapt   =    -1;
+static int hf_chan_rate    =    -1;
+static int hf_chan_tx_pow  =    -1;
 
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
@@ -2092,22 +2092,22 @@ capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld
  * drivers, and various patches to the orinoco_cs drivers to add
  * Prism headers, that:
  *
- *	the "did" identifies what the value is (i.e., what it's the value
- *	of);
+ *      the "did" identifies what the value is (i.e., what it's the value
+ *      of);
  *
- *	"status" is 0 if the value is present or 1 if it's absent;
+ *      "status" is 0 if the value is present or 1 if it's absent;
  *
- *	"len" is the length of the value (always 4, in that code);
+ *      "len" is the length of the value (always 4, in that code);
  *
- *	"data" is the value of the data (or 0 if not present).
+ *      "data" is the value of the data (or 0 if not present).
  *
  * Note: all of those values are in the *host* byte order of the machine
  * on which the capture was written.
  */
 struct val_80211 {
-    unsigned int did;
-    unsigned short status, len;
-    unsigned int data;
+  unsigned int did;
+  unsigned short status, len;
+  unsigned int data;
 };
 
 /*
@@ -2116,12 +2116,12 @@ struct val_80211 {
  * At least according to one paper I've seen, the Prism 2.5 chip set
  * provides:
  *
- *	RSSI (receive signal strength indication) is "the total power
- *	received by the radio hardware while receiving the frame,
- *	including signal, interfereence, and background noise";
+ *      RSSI (receive signal strength indication) is "the total power
+ *      received by the radio hardware while receiving the frame,
+ *      including signal, interfereence, and background noise";
  *
- *	"silence value" is "the total power observed just before the
- *	start of the frame".
+ *      "silence value" is "the total power observed just before the
+ *      start of the frame".
  *
  * None of the drivers I looked at supply the "rssi" or "sq" value,
  * but they do supply "signal" and "noise" values, along with a "rate"
@@ -2139,10 +2139,10 @@ struct val_80211 {
  * old versions of the MadWifi driver?
  */
 struct prism_hdr {
-    unsigned int msgcode, msglen;
-    char devname[16];
-    struct val_80211 hosttime, mactime, channel, rssi, sq, signal,
-        noise, rate, istx, frmlen;
+  unsigned int msgcode, msglen;
+  char devname[16];
+  struct val_80211 hosttime, mactime, channel, rssi, sq, signal,
+    noise, rate, istx, frmlen;
 };
 
 void
@@ -3140,7 +3140,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 oui = tvb_get_ntoh24(tvb, offset);
                 tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
                 proto_tree_add_bytes_format (action_tree, tag_oui, tvb, offset, 3,
-              	  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+                                             tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
                 offset += 3;
                 switch (oui)
                   {
@@ -3841,95 +3841,95 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
 static void
 dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _U_)
 {
-	proto_item *pst_item, *cap_item, *chan_noc_item, *chnl_item;
-	proto_tree *pst_tree, *cap_tree, *chan_noc_tree, *chnl_tree;
+  proto_item *pst_item, *cap_item, *chan_noc_item, *chnl_item;
+  proto_tree *pst_tree, *cap_tree, *chan_noc_tree, *chnl_tree;
 
-	guint8 providercount, pst_contents, pst_acm_length;
-	int i;
-	guint16 pst_length = 0;
-	guint16 chan_noc;
-	guint8 chan_length = 0;
-	int local_offset;
+  guint8 providercount, pst_contents, pst_acm_length;
+  int i;
+  guint16 pst_length = 0;
+  guint16 chan_noc;
+  guint8 chan_length = 0;
+  int local_offset;
 
-	proto_tree_add_item(tree, hf_pst_timingquality, tvb, offset, 2, TRUE);
-	offset+=2;
+  proto_tree_add_item(tree, hf_pst_timingquality, tvb, offset, 2, TRUE);
+  offset+=2;
 
-	providercount = tvb_get_guint8 (tvb, offset);
-	pst_item = proto_tree_add_item(tree, hf_pst_providercount, tvb, offset, 1, TRUE);
-	pst_tree = proto_item_add_subtree(pst_item,ett_pst_tree);
-	offset++;
+  providercount = tvb_get_guint8 (tvb, offset);
+  pst_item = proto_tree_add_item(tree, hf_pst_providercount, tvb, offset, 1, TRUE);
+  pst_tree = proto_item_add_subtree(pst_item,ett_pst_tree);
+  offset++;
 
-	for (i=0;i<providercount;i++) {
+  for (i=0;i<providercount;i++) {
 
-		local_offset = offset;
-		cap_item = proto_tree_add_text (pst_tree, tvb, local_offset, pst_length, "Capabilities of Provider :%u", i+1);
-		cap_tree = proto_item_add_subtree(cap_item, ett_pst_cap_tree);
+    local_offset = offset;
+    cap_item = proto_tree_add_text (pst_tree, tvb, local_offset, pst_length, "Capabilities of Provider :%u", i+1);
+    cap_tree = proto_item_add_subtree(cap_item, ett_pst_cap_tree);
 
-		pst_length = tvb_get_letohl(tvb, local_offset);
-		proto_tree_add_item(cap_tree, hf_pst_length, tvb, local_offset, 2, TRUE);
-		local_offset+=2;
+    pst_length = tvb_get_letohl(tvb, local_offset);
+    proto_tree_add_item(cap_tree, hf_pst_length, tvb, local_offset, 2, TRUE);
+    local_offset+=2;
 
-		pst_contents = tvb_get_guint8 (tvb, local_offset);
-		proto_tree_add_item(cap_tree, hf_pst_contents, tvb, local_offset, 1, TRUE);
-		local_offset++;
+    pst_contents = tvb_get_guint8 (tvb, local_offset);
+    proto_tree_add_item(cap_tree, hf_pst_contents, tvb, local_offset, 1, TRUE);
+    local_offset++;
 
-		if (pst_contents & WAVE_ACID) {
-			proto_tree_add_item(cap_tree, hf_pst_acid, tvb, local_offset, 1, TRUE);
-			local_offset++;
-		}
+    if (pst_contents & WAVE_ACID) {
+      proto_tree_add_item(cap_tree, hf_pst_acid, tvb, local_offset, 1, TRUE);
+      local_offset++;
+    }
 
-		if (pst_contents & WAVE_ACM) {
-			pst_acm_length = tvb_get_guint8 (tvb, local_offset);
-			proto_tree_add_item(cap_tree, hf_pst_acm_length, tvb, local_offset, 1, TRUE);
-			local_offset++;
-			proto_tree_add_item(cap_tree, hf_pst_acm, tvb, local_offset, pst_acm_length, FALSE);
-		}
-		if (pst_contents & WAVE_ACF) {
-			local_offset +=32;
-		}
-		if (pst_contents & WAVE_PRIORITY) {
-			proto_tree_add_item(cap_tree, hf_pst_priority, tvb, local_offset, 1, TRUE);
-			local_offset++;
-		}
-		if (pst_contents & WAVE_IPV6ADDR) {
-			proto_tree_add_item(cap_tree, hf_pst_ipv6addr, tvb, local_offset, 16, FALSE);
-			local_offset +=16;
-			proto_tree_add_item(cap_tree, hf_pst_serviceport, tvb, local_offset, 2, FALSE);
-			local_offset +=2;
-			proto_tree_add_item(cap_tree, hf_pst_addressing, tvb, local_offset, 1, FALSE);
-			local_offset++;
-		}
-		if (pst_contents & WAVE_PEERMAC) {
-			proto_tree_add_item(cap_tree, hf_pst_macaddr, tvb, local_offset, 6, FALSE);
-			local_offset +=6;
-		}
-		if (pst_contents & WAVE_CHANNEL) {
-			proto_tree_add_item(cap_tree, hf_pst_channel, tvb, local_offset, 1, FALSE);
-			local_offset++;
-		}
+    if (pst_contents & WAVE_ACM) {
+      pst_acm_length = tvb_get_guint8 (tvb, local_offset);
+      proto_tree_add_item(cap_tree, hf_pst_acm_length, tvb, local_offset, 1, TRUE);
+      local_offset++;
+      proto_tree_add_item(cap_tree, hf_pst_acm, tvb, local_offset, pst_acm_length, FALSE);
+    }
+    if (pst_contents & WAVE_ACF) {
+      local_offset +=32;
+    }
+    if (pst_contents & WAVE_PRIORITY) {
+      proto_tree_add_item(cap_tree, hf_pst_priority, tvb, local_offset, 1, TRUE);
+      local_offset++;
+    }
+    if (pst_contents & WAVE_IPV6ADDR) {
+      proto_tree_add_item(cap_tree, hf_pst_ipv6addr, tvb, local_offset, 16, FALSE);
+      local_offset +=16;
+      proto_tree_add_item(cap_tree, hf_pst_serviceport, tvb, local_offset, 2, FALSE);
+      local_offset +=2;
+      proto_tree_add_item(cap_tree, hf_pst_addressing, tvb, local_offset, 1, FALSE);
+      local_offset++;
+    }
+    if (pst_contents & WAVE_PEERMAC) {
+      proto_tree_add_item(cap_tree, hf_pst_macaddr, tvb, local_offset, 6, FALSE);
+      local_offset +=6;
+    }
+    if (pst_contents & WAVE_CHANNEL) {
+      proto_tree_add_item(cap_tree, hf_pst_channel, tvb, local_offset, 1, FALSE);
+      local_offset++;
+    }
 
-		offset = offset + pst_length;
-	}
+    offset = offset + pst_length;
+  }
 
-	chan_noc = tvb_get_guint8 (tvb, offset);
-	chan_noc_item = proto_tree_add_item(tree, hf_chan_noc, tvb, offset, 1, TRUE);
-	chan_noc_tree = proto_item_add_subtree(chan_noc_item,ett_chan_noc_tree);
-	offset++;
+  chan_noc = tvb_get_guint8 (tvb, offset);
+  chan_noc_item = proto_tree_add_item(tree, hf_chan_noc, tvb, offset, 1, TRUE);
+  chan_noc_tree = proto_item_add_subtree(chan_noc_item,ett_chan_noc_tree);
+  offset++;
 
-	if (chan_noc != 0){
-		for (i=0;i<chan_noc;i++) {
-			chan_length = tvb_get_guint8 (tvb, offset);
-			chnl_item = proto_tree_add_text (chan_noc_tree, tvb, offset, chan_length, "Channel :%u Information ", i+1);
-			chnl_tree = proto_item_add_subtree(chnl_item, ett_wave_chnl_tree);
-			proto_tree_add_item(chnl_tree, hf_chan_length, tvb, offset, 1, TRUE);
-			proto_tree_add_item(chnl_tree, hf_chan_content, tvb, offset+1, 1, TRUE);
-			proto_tree_add_item(chnl_tree, hf_chan_channel, tvb, offset+2, 1, TRUE);
-			proto_tree_add_item(chnl_tree, hf_chan_adapt, tvb, offset+3, 1, TRUE);
-			proto_tree_add_item(chnl_tree, hf_chan_rate, tvb, offset+4, 1, TRUE);
-			proto_tree_add_item(chnl_tree, hf_chan_tx_pow, tvb, offset+5, 1, TRUE);
-			offset = offset + chan_length;
-		}
-	}
+  if (chan_noc != 0){
+    for (i=0;i<chan_noc;i++) {
+      chan_length = tvb_get_guint8 (tvb, offset);
+      chnl_item = proto_tree_add_text (chan_noc_tree, tvb, offset, chan_length, "Channel :%u Information ", i+1);
+      chnl_tree = proto_item_add_subtree(chnl_item, ett_wave_chnl_tree);
+      proto_tree_add_item(chnl_tree, hf_chan_length, tvb, offset, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_chan_content, tvb, offset+1, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_chan_channel, tvb, offset+2, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_chan_adapt, tvb, offset+3, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_chan_rate, tvb, offset+4, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_chan_tx_pow, tvb, offset+5, 1, TRUE);
+      offset = offset + chan_length;
+    }
+  }
 }
 
 /*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
@@ -4478,11 +4478,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
   tag_no = tvb_get_guint8(tvb, offset);
   if(tag_no == TAG_WSIE){
-	  tag_len_len = 2;
-	  tag_len = tvb_get_letohl(tvb, offset + 1);
+    tag_len_len = 2;
+    tag_len = tvb_get_letohl(tvb, offset + 1);
   }else{
-	  tag_len_len = 1;
-	  tag_len = tvb_get_guint8(tvb, offset + 1);
+    tag_len_len = 1;
+    tag_len = tvb_get_guint8(tvb, offset + 1);
   }
 
   if (tree) {
@@ -5059,44 +5059,44 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     /*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
 
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
-	case TAG_WSIE:
-		dissect_wsie_ie(tree, tvb, offset + 3, tag_len);
-		break;
+    case TAG_WSIE:
+      dissect_wsie_ie(tree, tvb, offset + 3, tag_len);
+      break;
     /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 
-	/*** Begin: Power Capability Tag - Dustin Johnson ***/
+    /*** Begin: Power Capability Tag - Dustin Johnson ***/
     case TAG_POWER_CAPABILITY:
+    {
+      offset += 2;
+      if (tag_len != 2)
       {
-        offset += 2;
-        if (tag_len != 2)
-        {
-          proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Power Capability: Error: Tag length must be exactly 2 bytes long");
-        }
-
-        proto_tree_add_item(tree, hf_tag_power_capability_min, tvb, offset, 1, TRUE);
-        proto_tree_add_item(tree, hf_tag_power_capability_max, tvb, offset+1, 1, TRUE);
-        break;
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+                             "Power Capability: Error: Tag length must be exactly 2 bytes long");
       }
+
+      proto_tree_add_item(tree, hf_tag_power_capability_min, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_tag_power_capability_max, tvb, offset+1, 1, TRUE);
+      break;
+    }
     /*** End: Power Capability Tag - Dustin Johnson ***/
-	  /* 
-	   * 7.3.2.18 TPC Report element
-	   *
-	   */
-	case TAG_TPC_REPORT:
-		if(tag_len !=2)
-	        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-	            "TPC Report: Error: Tag length must be 2 bytes long");
-		/* Transmit Power field
-		 * The field is coded as a signed integer in units of decibels relative to 1 mW
-		 */
-		offset += 2;
-		proto_tree_add_item(tree, hf_tag_tpc_report_trsmt_pow, tvb, offset, 1, TRUE);
-		offset++;
-		/* Link Margin */
-		proto_tree_add_item(tree, hf_tag_tpc_report_link_mrg, tvb, offset, 1, TRUE);
-		offset++;
-		break;
+    /* 
+     * 7.3.2.18 TPC Report element
+     *
+     */
+    case TAG_TPC_REPORT:
+      if(tag_len !=2)
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+                             "TPC Report: Error: Tag length must be 2 bytes long");
+      /* Transmit Power field
+       * The field is coded as a signed integer in units of decibels relative to 1 mW
+       */
+      offset += 2;
+      proto_tree_add_item(tree, hf_tag_tpc_report_trsmt_pow, tvb, offset, 1, TRUE);
+      offset++;
+      /* Link Margin */
+      proto_tree_add_item(tree, hf_tag_tpc_report_link_mrg, tvb, offset, 1, TRUE);
+      offset++;
+      break;
     /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     case TAG_SUPPORTED_CHANNELS:
       {
@@ -5108,16 +5108,16 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         if (tag_len > 8) /* XXX Is this a sane limit? */
         {
           proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Channels: Error: Tag length too long");
+                               "Supported Channels: Error: Tag length too long");
         } else if (tag_len % 2 == 1) {
           proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Channels: Error: Tag length must be even");
+                               "Supported Channels: Error: Tag length must be even");
         }
 
         for (i=0; i<(tag_len/2); i++)
         {
           chan_item = proto_tree_add_uint_format(tree, hf_tag_supported_channels, tvb, offset, 2, i,
-            "Supported Channels Set #%d", i);
+                                                 "Supported Channels Set #%d", i);
           chan_tree = proto_item_add_subtree(chan_item , ett_tag_supported_channels);
           proto_tree_add_item(chan_tree, hf_tag_supported_channels_first, tvb, offset++, 1, TRUE);
           proto_tree_add_item(chan_tree, hf_tag_supported_channels_range, tvb, offset++, 1, TRUE);
@@ -5131,7 +5131,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len < 3)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Measurement Request: Error: Tag length must be at least 3 bytes long");
+                             "Measurement Request: Error: Tag length must be at least 3 bytes long");
       } else {
         guint8 info, request_type;
         guint tag_offset;
@@ -5142,11 +5142,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         tag_offset = offset;
         info = tvb_get_guint8 (tvb, offset);
         proto_tree_add_uint_format(tree, hf_tag_measure_request_measurement_token, tvb,
-            offset, 1, info, "Measurement Token: 0x%02X", info);
+                                   offset, 1, info, "Measurement Token: 0x%02X", info);
 
         info = tvb_get_guint8 (tvb, ++offset);
         parent_item = proto_tree_add_uint_format(tree, hf_tag_measure_request_mode, tvb,
-            offset, 1, info, "Measurement Request Mode: 0x%02X", info);
+                                                 offset, 1, info, "Measurement Request Mode: 0x%02X", info);
         sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
         proto_tree_add_uint(sub_tree, hf_tag_measure_request_mode_reserved1, tvb, offset, 1, info);
         proto_tree_add_boolean(sub_tree, hf_tag_measure_request_mode_enable, tvb, offset, 1, info);
@@ -5314,10 +5314,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     /* End: Measure Request Tag - Dustin Johnson */
     /* Begin: Measure Report Tag - Dustin Johnson */
-	/* 7.3.2.22 Measurement Report element
-	 * The Length field is variable and depends on the length of the 
-	 * Measurement Report field. The minimum value of the Length field is 3.
-	 */
+        /* 7.3.2.22 Measurement Report element
+         * The Length field is variable and depends on the length of the 
+         * Measurement Report field. The minimum value of the Length field is 3.
+         */
     case TAG_MEASURE_REP:
       if (tag_len < 3)
       {
@@ -5536,14 +5536,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     /*** End: Measure Report Tag - Dustin Johnson ***/
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     /* The Capabilities field is a bit field indicating the capabilities being advertised 
-	 * by the STA transmitting the information element
-	 */
+     * by the STA transmitting the information element
+     */
     case TAG_EXTENDED_CAPABILITIES:
     {
       guint tag_offset;
       guint8 info_exchange;
-	  proto_item *ti;
-	  proto_tree *ex_cap_tree;
+      proto_item *ti;
+      proto_tree *ex_cap_tree;
 
       if (tag_len < 1)
       {
@@ -5555,12 +5555,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       tag_offset = offset;
 
       info_exchange = tvb_get_guint8 (tvb, offset);
-	  ti = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
-	  ex_cap_tree = proto_item_add_subtree (ti, ett_tag_ex_cap);
-	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b0, tvb, offset, 1, FALSE);
-	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
-	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
-	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b3, tvb, offset, 1, FALSE);
+      ti = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
+      ex_cap_tree = proto_item_add_subtree (ti, ett_tag_ex_cap);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b0, tvb, offset, 1, FALSE);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b3, tvb, offset, 1, FALSE);
 
       if (tag_len > (offset - tag_offset))
       {
@@ -6840,11 +6840,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             if (qos_field_content == 0) {
               proto_tree_add_uint_format_value (qos_tree, hf_qos_txop_limit, tvb,
                   qosoff + 1, 1, qos_field_content,
-		  "transmit one frame immediately (0)");
+                                                "transmit one frame immediately (0)");
             } else {
               proto_tree_add_uint (qos_tree, hf_qos_txop_limit, tvb,
-                  qosoff + 1, 1, qos_field_content);
-	    }
+                                   qosoff + 1, 1, qos_field_content);
+            }
           } else {
             /* qap ps buffer state */
             proto_item *qos_ps_buf_state_fields;
@@ -6856,7 +6856,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
             proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state_indicated,
-	        tvb, 1, 1, qos_field_content);
+                                    tvb, 1, 1, qos_field_content);
 
             if (QOS_PS_BUF_STATE_INDICATED(qos_field_content)) {
               proto_tree_add_uint (qos_ps_buf_state_tree, hf_qos_highest_pri_buf_ac, tvb,
@@ -6897,25 +6897,25 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
             case 0:
               proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
-	          tvb, qosoff + 1, 1, qos_field_content,
+                                                tvb, qosoff + 1, 1, qos_field_content,
                   "no buffered traffic in the queue (0)");
               break;
 
             default:
               proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
-	          tvb, qosoff + 1, 1, qos_field_content,
-	          "%u bytes (%u)", qos_field_content*256, qos_field_content);
+                                                tvb, qosoff + 1, 1, qos_field_content,
+                                                "%u bytes (%u)", qos_field_content*256, qos_field_content);
               break;
 
             case 254:
               proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
-	          tvb, qosoff + 1, 1, qos_field_content,
+                                                tvb, qosoff + 1, 1, qos_field_content,
                   "more than 64768 octets (254)");
               break;
 
             case 255:
               proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
-	          tvb, qosoff + 1, 1, qos_field_content,
+                                                tvb, qosoff + 1, 1, qos_field_content,
                   "unspecified or unknown (256)");
               break;
             }
@@ -6923,12 +6923,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             /* txop duration requested */
             if (qos_field_content == 0) {
               proto_tree_add_uint_format_value (qos_tree, hf_qos_txop_dur_req,
-	          tvb, qosoff + 1, 1, qos_field_content,
-	          "no TXOP requested (0)");
+                                                tvb, qosoff + 1, 1, qos_field_content,
+                                                "no TXOP requested (0)");
             } else {
               proto_tree_add_uint (qos_tree, hf_qos_txop_dur_req,
-	          tvb, qosoff + 1, 1, qos_field_content);
-	    }
+                                   tvb, qosoff + 1, 1, qos_field_content);
+            }
           }
         }
 
@@ -7644,18 +7644,18 @@ free_all(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
 static guint
 retransmit_hash(gconstpointer k)
 {
-	const retransmit_key *key = (const retransmit_key *)k;
-	guint hash_val;
-	int i;
+  const retransmit_key *key = (const retransmit_key *)k;
+  guint hash_val;
+  int i;
 
-	hash_val = 0;
-	for (i = 0; i < 6; i++)
-		hash_val += key->bssid[i];
+  hash_val = 0;
+  for (i = 0; i < 6; i++)
+    hash_val += key->bssid[i];
 
-	for (i = 0; i < 6; i++)
-		hash_val += key->src[i];
+  for (i = 0; i < 6; i++)
+    hash_val += key->src[i];
 
-	return hash_val;
+  return hash_val;
 }
 
 static gint
@@ -7714,35 +7714,35 @@ wlan_retransmit_init(void)
  * below more readable
  * XXX - This should be rewritten to use ptvcursors, then.
  */
-#define FIELD_PRESENT(name)	(hdr.name.status == 0 && hdr.name.did != 0)
+#define FIELD_PRESENT(name)     (hdr.name.status == 0 && hdr.name.did != 0)
 #define IFHELP(size, name, var, str) \
-        if(tree) {						  \
+        if(tree) {                                                \
             proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
-                tvb, offset, size, hdr.var, str, hdr.var);		  \
-        }								  \
+                tvb, offset, size, hdr.var, str, hdr.var);                \
+        }                                                                 \
         offset += (size)
-#define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
+#define INTFIELD(size, name, str)       IFHELP(size, name, name, str)
 #define VALFIELD(name, str) \
-        if (FIELD_PRESENT(name)) {					\
-            if(tree) {							\
-                proto_tree_add_uint_format(prism_tree, hf_ ## name,	\
-                    tvb, offset, 12, hdr.name.data,			\
-                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	\
-                    hdr.name.data, hdr.name.did,			\
-                    hdr.name.status, hdr.name.len);			\
-            }								\
-        }								\
+        if (FIELD_PRESENT(name)) {                                      \
+            if(tree) {                                                  \
+                proto_tree_add_uint_format(prism_tree, hf_ ## name,     \
+                    tvb, offset, 12, hdr.name.data,                     \
+                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",  \
+                    hdr.name.data, hdr.name.did,                        \
+                    hdr.name.status, hdr.name.len);                     \
+            }                                                           \
+        }                                                               \
         offset += 12
 #define VALFIELD_PRISM(name, str) \
-        if (FIELD_PRESENT(name)) {					\
-            if(tree) {						  \
+        if (FIELD_PRESENT(name)) {                                      \
+            if(tree) {                                            \
                 proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
-                    tvb, offset, 12, hdr.name.data,			   \
-                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	   \
-                    hdr.name.data, hdr.name.did,			   \
-                    hdr.name.status, hdr.name.len);			   \
-            }								   \
-        }								   \
+                    tvb, offset, 12, hdr.name.data,                        \
+                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",     \
+                    hdr.name.data, hdr.name.did,                           \
+                    hdr.name.status, hdr.name.len);                        \
+            }                                                              \
+        }                                                                  \
         offset += 12
 
 static void
@@ -7760,9 +7760,9 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* handle the new capture type. */
     msgcode = tvb_get_ntohl(tvb, offset);
     if ((msgcode == WLANCAP_MAGIC_COOKIE_V1) ||
-	(msgcode == WLANCAP_MAGIC_COOKIE_V2)) {
-	    call_dissector(wlancap_handle, tvb, pinfo, tree);
-	    return;
+        (msgcode == WLANCAP_MAGIC_COOKIE_V2)) {
+      call_dissector(wlancap_handle, tvb, pinfo, tree);
+      return;
     }
 
     tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
@@ -7873,12 +7873,12 @@ a considerable hack.  The document covers a redesign of that format.
 2. Frame Format
 All sniff frames follow the same format:
 
-	Offset	Name		Size		Description
-	--------------------------------------------------------------------
-	0	CaptureHeader			AVS capture metadata header
-	64	802.11Header	[10-30]		802.11 frame header
-	??	802.11Payload	[0-2312]	802.11 frame payload
-	??	802.11FCS	4		802.11 frame check sequence
+        Offset  Name            Size            Description
+        --------------------------------------------------------------------
+        0       CaptureHeader                   AVS capture metadata header
+        64      802.11Header    [10-30]         802.11 frame header
+        ??      802.11Payload   [0-2312]        802.11 frame payload
+        ??      802.11FCS       4               802.11 frame check sequence
 
 Note that the header and payload are variable length and the payload
 may be empty.
@@ -7895,28 +7895,28 @@ according to their respective standards.
 4. Capture Header Format
 The following fields make up the AVS capture header:
 
-	Offset	Name		Type
-	------------------------------
-	0	version		uint32
-	4	length		uint32
-	8	mactime		uint64
-	16	hosttime	uint64
-	24	phytype		uint32
-	28	frequency	uint32
-	32	datarate	uint32
-	36	antenna		uint32
-	40	priority	uint32
-	44	ssi_type	uint32
-	48	ssi_signal	int32
-	52	ssi_noise	int32
-	56	preamble	uint32
-	60	encoding	uint32
-	64	sequence	uint32
-	68      drops           uint32
+        Offset  Name            Type
+        ------------------------------
+        0       version         uint32
+        4       length          uint32
+        8       mactime         uint64
+        16      hosttime        uint64
+        24      phytype         uint32
+        28      frequency       uint32
+        32      datarate        uint32
+        36      antenna         uint32
+        40      priority        uint32
+        44      ssi_type        uint32
+        48      ssi_signal      int32
+        52      ssi_noise       int32
+        56      preamble        uint32
+        60      encoding        uint32
+        64      sequence        uint32
+        68      drops           uint32
         72      receiver_addr   uint8[6]
         78      padding         uint8[2]
-	------------------------------
-	80
+        ------------------------------
+        80
 
 The following subsections detail the fields of the capture header.
 
@@ -7951,17 +7951,17 @@ of microseconds elapsed since the UNIX epoch.
 The phytype field identifies what type of PHY is employed by the WLAN 
 device used to capture this frame.  The valid values are:
 
-	PhyType				Value
-	-------------------------------------
-	phytype_fhss_dot11_97		 1
-	phytype_dsss_dot11_97		 2
-	phytype_irbaseband		 3
-	phytype_dsss_dot11_b		 4
-	phytype_pbcc_dot11_b		 5
-	phytype_ofdm_dot11_g		 6
-	phytype_pbcc_dot11_g		 7
-	phytype_ofdm_dot11_a		 8
-	phytype_dss_ofdm_dot11_g	 9
+        PhyType                         Value
+        -------------------------------------
+        phytype_fhss_dot11_97            1
+        phytype_dsss_dot11_97            2
+        phytype_irbaseband               3
+        phytype_dsss_dot11_b             4
+        phytype_pbcc_dot11_b             5
+        phytype_ofdm_dot11_g             6
+        phytype_pbcc_dot11_g             7
+        phytype_ofdm_dot11_a             8
+        phytype_dss_ofdm_dot11_g         9
 
 4.6 frequency
 
@@ -7971,18 +7971,18 @@ time the frame was received.  It is interpreted as follows:
 For frequency hopping radios, this field is broken in to the 
 following subfields:
 
-	Byte	Subfield
-	------------------------
-	Byte0	Hop Set
-	Byte1	Hop Pattern
-	Byte2	Hop Index
-	Byte3	reserved
+        Byte    Subfield
+        ------------------------
+        Byte0   Hop Set
+        Byte1   Hop Pattern
+        Byte2   Hop Index
+        Byte3   reserved
 
 For non-hopping radios, the frequency is interpreted as follows:
 
        Value                Meaning
     -----------------------------------------
-       < 256	       Channel number (using externally-defined
+       < 256           Channel number (using externally-defined
                          channelization)
        < 10000         Center frequency, in MHz
       >= 10000         Center frequency, in KHz
@@ -8013,12 +8013,12 @@ indicate stronger signal.  "dBm" values indicate an actual signal
 strength measurement quantity and are usually in the range [-108 - 10].
 The following values indicate the three types:
 
-	Value	Description
-	---------------------------------------------
-	0	None
-	1	Normalized RSSI
-	2	dBm
-	3 	Raw RSSI
+        Value   Description
+        ---------------------------------------------
+        0       None
+        1       Normalized RSSI
+        2       dBm
+        3       Raw RSSI
 
 4.11 ssi_signal
 The ssi_signal field contains the signal strength value reported by
@@ -8036,24 +8036,24 @@ shall equal 0xffffffff.
 For PHYs that support variable preamble lengths, the preamble field
 indicates the preamble type used for this frame.  The values are:
 
-	Value	Description
-	---------------------------------------------
-	0	Undefined
-	1	Short Preamble
-	2	Long Preamble
+        Value   Description
+        ---------------------------------------------
+        0       Undefined
+        1       Short Preamble
+        2       Long Preamble
 
 4.13 encoding
 This specifies the encoding of the received packet.  For PHYs that support
 multiple encoding types, this will tell us which one was used.
 
-	Value	Description
-	---------------------------------------------
-	0	Unknown
-	1	CCK           
-	2	PBCC
-	3	OFDM
-	4	DSSS-OFDM
-	5       BPSK
+        Value   Description
+        ---------------------------------------------
+        0       Unknown
+        1       CCK           
+        2       PBCC
+        3       OFDM
+        4       DSSS-OFDM
+        5       BPSK
         6       QPSK
         7       16QAM
         8       64QAM
@@ -8099,10 +8099,10 @@ Changes: v2.1->v2.1.1
 /*
  * Signal/noise strength type values.
  */
-#define SSI_NONE	0	/* no SSI information */
-#define SSI_NORM_RSSI	1	/* normalized RSSI - 0-1000 */
-#define SSI_DBM		2	/* dBm */
-#define SSI_RAW_RSSI	3	/* raw RSSI from the hardware */
+#define SSI_NONE        0       /* no SSI information */
+#define SSI_NORM_RSSI   1       /* normalized RSSI - 0-1000 */
+#define SSI_DBM         2       /* dBm */
+#define SSI_RAW_RSSI    3       /* raw RSSI from the hardware */
 
 static void
 dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -9240,7 +9240,7 @@ proto_register_ieee80211 (void)
     {&hf_wep_icv,
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
-	/***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+    /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
     {&hf_pst_timingquality,
      {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Timing Quality", HFILL }},
@@ -9434,33 +9434,33 @@ proto_register_ieee80211 (void)
     {&hf_wlan_magic,
      {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0, NULL, HFILL } },
     { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32,
-			  BASE_DEC, NULL, 0xF, NULL, HFILL } },
+                          BASE_DEC, NULL, 0xF, NULL, HFILL } },
     { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32,
-			 BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                         BASE_DEC, NULL, 0x0, NULL, HFILL } },
     {&hf_wlan_phytype,
      {"PHY type", "wlan.phytype", FT_UINT32, BASE_DEC, VALS(phy_type), 0x0,
       NULL, HFILL } },
 
     { &hf_wlan_priority, { "Priority", "wlancap.priority", FT_UINT32, BASE_DEC,
-			   NULL, 0x0, NULL, HFILL } },
+                           NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
-			   VALS(ssi_type), 0x0, NULL, HFILL } },
+                           VALS(ssi_type), 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
-			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
-			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
-			   BASE_DEC, VALS(preamble_type), 0x0, NULL, HFILL } },
+                           BASE_DEC, VALS(preamble_type), 0x0, NULL, HFILL } },
     { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
-			   BASE_DEC, VALS(encoding_type), 0x0, NULL, HFILL } },
+                           BASE_DEC, VALS(encoding_type), 0x0, NULL, HFILL } },
     { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32,
-			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
-			   BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
-			   BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
+                           BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
     { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
-			   BASE_NONE, NULL, 0x0, NULL, HFILL } }
+                           BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -11832,7 +11832,7 @@ proto_register_ieee80211 (void)
 
   static hf_register_info aggregate_fields[] = {
     {&amsdu_msdu_header_text,
-     {"MAC Service Data Unit (MSDU)",	"wlan_aggregate.msduheader", FT_UINT16,
+     {"MAC Service Data Unit (MSDU)", "wlan_aggregate.msduheader", FT_UINT16,
       BASE_DEC, 0, 0x0000, NULL, HFILL }}
   };
 
@@ -11872,7 +11872,7 @@ proto_register_ieee80211 (void)
     &ett_msdu_aggregation_parent_tree,
     &ett_msdu_aggregation_subframe_tree,
     &ett_tag_measure_request_tree,
-	&ett_tag_ex_cap,
+    &ett_tag_ex_cap,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
@@ -11935,9 +11935,9 @@ proto_register_ieee80211 (void)
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);
   prefs_register_bool_preference(wlan_module, "defragment",
-      "Reassemble fragmented 802.11 datagrams",
-      "Whether fragmented 802.11 datagrams should be reassembled",
-      &wlan_defragment);
+    "Reassemble fragmented 802.11 datagrams",
+    "Whether fragmented 802.11 datagrams should be reassembled",
+     &wlan_defragment);
 
   prefs_register_bool_preference(wlan_module, "ignore_draft_ht",
     "Ignore vendor-specific HT elements",
@@ -11957,10 +11957,10 @@ proto_register_ieee80211 (void)
   /* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"    */
   /*    (according to the document IEEE Std 802.11i-2004)              */
   prefs_register_enum_preference(wlan_module, "ignore_wep",
-      "Ignore the Protection bit",
-      "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
-      "and some also leave the IV (initialization vector).",
-      &wlan_ignore_wep, wlan_ignore_wep_options, TRUE);
+    "Ignore the Protection bit",
+    "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
+    "and some also leave the IV (initialization vector).",
+    &wlan_ignore_wep, wlan_ignore_wep_options, TRUE);
 
 #ifndef USE_ENV
 
@@ -11969,27 +11969,27 @@ proto_register_ieee80211 (void)
 #ifdef HAVE_AIRPDCAP
   /* Davide Schiera (2006-11-26): added reference to WPA/WPA2 decryption    */
   prefs_register_bool_preference(wlan_module, "enable_decryption",
-      "Enable decryption", "Enable WEP and WPA/WPA2 decryption",
-      &enable_decryption);
+    "Enable decryption", "Enable WEP and WPA/WPA2 decryption",
+    &enable_decryption);
 #else
   prefs_register_bool_preference(wlan_module, "enable_decryption",
-      "Enable decryption", "Enable WEP decryption",
-      &enable_decryption);
+    "Enable decryption", "Enable WEP decryption",
+    &enable_decryption);
 #endif
 
 #ifdef HAVE_AIRPDCAP
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
-      "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
-      "010203040506070809101111213 (104/128-bit WEP),\n"
-      "wpa-pwd:MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
-      "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
-      "Invalid keys will be ignored.",
-      "Valid key formats");
+    "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
+    "010203040506070809101111213 (104/128-bit WEP),\n"
+    "wpa-pwd:MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
+    "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
+    "Invalid keys will be ignored.",
+    "Valid key formats");
 #else
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
-      "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
-      "010203040506070809101111213 (104/128-bit WEP)",
-      "Valid key formats");
+    "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
+    "010203040506070809101111213 (104/128-bit WEP)",
+    "Valid key formats");
 #endif
 
   for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
@@ -12011,15 +12011,15 @@ proto_register_ieee80211 (void)
       "   wpa-pwd:<passphrase>[:<ssid>];"
       "   wpa-psk:<wpa hexadecimal key>", i + 1);
 #else
-      g_string_printf(key_name, "wep_key%d", i + 1);
-      g_string_printf(key_title, "WEP key #%d", i + 1);
-      g_string_printf(key_desc, "WEP key #%d can be:"
-        "   <wep hexadecimal key>;"
-        "   wep:<wep hexadecimal key>", i + 1);
+    g_string_printf(key_name, "wep_key%d", i + 1);
+    g_string_printf(key_title, "WEP key #%d", i + 1);
+    g_string_printf(key_desc, "WEP key #%d can be:"
+                    "   <wep hexadecimal key>;"
+                    "   wep:<wep hexadecimal key>", i + 1);
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
-        key_title->str, key_desc->str, (const char **) &wep_keystr[i]);
+                                     key_title->str, key_desc->str, (const char **) &wep_keystr[i]);
 
     g_string_free(key_name, FALSE);
     g_string_free(key_title, FALSE);
@@ -12174,7 +12174,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   }
 
   if (!decr_tvb)
-  	g_free(tmp);
+    g_free(tmp);
 
 #if 0
   printf("de-wep %p\n", decr_tvb);
@@ -12490,26 +12490,26 @@ static void init_wepkeys(void) {
 static int
 weak_iv(guchar *iv)
 {
-        guchar sum, k;
+  guchar sum, k;
 
-        if (iv[1] == 255 && iv[0] > 2 && iv[0] < 16) {
-                return iv[0] -3;
-        }
+  if (iv[1] == 255 && iv[0] > 2 && iv[0] < 16) {
+    return iv[0] -3;
+  }
 
-        sum = iv[0] + iv[1];
-        if (sum == 1) {
-                if (iv[2] <= 0x0a) {
-                        return iv[2] +2;
-                }
-                else if (iv[2] == 0xff){
-                        return 0;
-                }
-        }
-        k = 0xfe - iv[2];
-        if (sum == k  && (iv[2] >= 0xf2 && iv[2] <= 0xfe && iv[2] != 0xfd)){
-                return k;
-        }
-        return -1;
+  sum = iv[0] + iv[1];
+  if (sum == 1) {
+    if (iv[2] <= 0x0a) {
+      return iv[2] +2;
+    }
+    else if (iv[2] == 0xff){
+      return 0;
+    }
+  }
+  k = 0xfe - iv[2];
+  if (sum == k  && (iv[2] >= 0xf2 && iv[2] <= 0xfe && iv[2] != 0xfd)){
+    return k;
+  }
+  return -1;
 }
 
 /*

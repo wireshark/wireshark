@@ -193,6 +193,6 @@ void proto_reg_handoff_bjnp (void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 noexpandtab
- * :indentSize=2:tabSize=8:noTabs=false:
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
  */
