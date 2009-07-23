@@ -34,7 +34,7 @@
  */
 
 /****************************************************************************/
-/*	File includes								*/
+/*      File includes                                                           */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -62,25 +62,25 @@
 /****************************************************************************/
 
 /****************************************************************************/
-/*	Constant definitions							*/
+/*      Constant definitions                                                    */
 
-#define	AIRPDCAP_SHA_DIGEST_LEN	20
+#define AIRPDCAP_SHA_DIGEST_LEN 20
 
-/*	EAPOL definitions							*/
+/*      EAPOL definitions                                                       */
 /**
  * Length of the EAPOL-Key key confirmation key (KCK) used to calculate
  * MIC over EAPOL frame and validate an EAPOL packet (128 bits)
  */
-#define	AIRPDCAP_WPA_KCK_LEN	16
+#define AIRPDCAP_WPA_KCK_LEN    16
 /**
  *Offset of the Key MIC in the EAPOL packet body
  */
-#define	AIRPDCAP_WPA_MICKEY_OFFSET	77
+#define AIRPDCAP_WPA_MICKEY_OFFSET      77
 /**
  * Maximum length of the EAPOL packet (it depends on the maximum MAC
  * frame size)
  */
-#define	AIRPDCAP_WPA_MAX_EAPOL_LEN	4095
+#define AIRPDCAP_WPA_MAX_EAPOL_LEN      4095
 /**
  * EAPOL Key Descriptor Version 1, used for all EAPOL-Key frames to and
  * from a STA when neither the group nor pairwise ciphers are CCMP for
@@ -88,7 +88,7 @@
  * @note
  * Defined in 802.11i-2004, page 78
  */
-#define	AIRPDCAP_WPA_KEY_VER_NOT_CCMP	1
+#define AIRPDCAP_WPA_KEY_VER_NOT_CCMP   1
 /**
  * EAPOL Key Descriptor Version 2, used for all EAPOL-Key frames to and
  * from a STA when either the pairwise or the group cipher is AES-CCMP
@@ -96,7 +96,7 @@
  * /note
  * Defined in 802.11i-2004, page 78
  */
-#define	AIRPDCAP_WPA_KEY_VER_AES_CCMP	2
+#define AIRPDCAP_WPA_KEY_VER_AES_CCMP   2
 
 /** Define EAPOL Key Descriptor type values:  use 254 for WPA and 2 for WPA2 **/
 #define AIRPDCAP_RSN_WPA_KEY_DESCRIPTOR 254
@@ -107,21 +107,21 @@
 
 
 /****************************************************************************/
-/*	Macro definitions							*/
+/*      Macro definitions                                                       */
 
 extern const UINT32 crc32_table[256];
-#define CRC(crc, ch)	 (crc = (crc >> 8) ^ crc32_table[(crc ^ (ch)) & 0xff])
+#define CRC(crc, ch)     (crc = (crc >> 8) ^ crc32_table[(crc ^ (ch)) & 0xff])
 
-#define	AIRPDCAP_GET_TK(ptk)	(ptk + 32)
-
-/****************************************************************************/
+#define AIRPDCAP_GET_TK(ptk)    (ptk + 32)
 
 /****************************************************************************/
-/*	Type definitions							*/
 
-/*	Internal function prototype declarations				*/
+/****************************************************************************/
+/*      Type definitions                                                        */
 
-#ifdef	__cplusplus
+/*      Internal function prototype declarations                                */
+
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -243,20 +243,20 @@ static void AirPDcapRsnaPrfX(
     AIRPDCAP_SEC_ASSOCIATION *sa,
     const UCHAR pmk[32],
     const UCHAR snonce[32],
-    const INT x,	/*	for TKIP 512, for CCMP 384	*/
+    const INT x,        /*      for TKIP 512, for CCMP 384      */
     UCHAR *ptk)
     ;
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 
 /****************************************************************************/
 
 /****************************************************************************/
-/* Exported function definitions						*/
+/* Exported function definitions                                                */
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -267,33 +267,33 @@ const guint8 broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
    we would need to change the structure since it could be variable length depending on the number
    of unicast OUI and auth OUI. */
 typedef struct {
-	guint8 bElementID;
-	guint8 bLength;
-	guint8  OUI[4];
-	guint16 iVersion;
-	guint8  multicastOUI[4];
-	guint16 iUnicastCount;  /* this should always be 1 for WPA client */
-	guint8  unicastOUI[4];
-	guint16 iAuthCount;		/* this should always be 1 for WPA client */
-	guint8  authOUI[4];
-	guint16 iWPAcap;
+    guint8 bElementID;
+    guint8 bLength;
+    guint8  OUI[4];
+    guint16 iVersion;
+    guint8  multicastOUI[4];
+    guint16 iUnicastCount;      /* this should always be 1 for WPA client */
+    guint8  unicastOUI[4];
+    guint16 iAuthCount;         /* this should always be 1 for WPA client */
+    guint8  authOUI[4];
+    guint16 iWPAcap;
 } RSN_IE;
 
-#define EAPKEY_MIC_LEN	16  /* length of the MIC key for EAPoL_Key packet's MIC	using MD5 */
+#define EAPKEY_MIC_LEN  16  /* length of the MIC key for EAPoL_Key packet's MIC using MD5 */
 #define NONCE_LEN 32
 
 typedef struct {
-	guint8			type;
-	guint8			key_information[2];  /* Make this an array to avoid alignment issues */
-	guint8			key_length[2];  /* Make this an array to avoid alignment issues */
-	guint8			replay_counter[8];
-	guint8  		key_nonce[NONCE_LEN];
-	guint8			key_iv[16];
-	guint8			key_sequence_counter[8];  /* also called the RSC */
-	guint8			key_id[8];
-	guint8  		key_mic[EAPKEY_MIC_LEN];
-	guint8			key_data_len[2];  /* Make this an array rather than a U16 to avoid alignment shifting */
-	guint8  		ie[sizeof(RSN_IE)]; /* Make this an array to avoid alignment issues */
+    guint8  type;
+    guint8  key_information[2];  /* Make this an array to avoid alignment issues */
+    guint8  key_length[2];  /* Make this an array to avoid alignment issues */
+    guint8  replay_counter[8];
+    guint8  key_nonce[NONCE_LEN];
+    guint8  key_iv[16];
+    guint8  key_sequence_counter[8];  /* also called the RSC */
+    guint8  key_id[8];
+    guint8  key_mic[EAPKEY_MIC_LEN];
+    guint8  key_data_len[2];  /* Make this an array rather than a U16 to avoid alignment shifting */
+    guint8  ie[sizeof(RSN_IE)]; /* Make this an array to avoid alignment issues */
 } EAPOL_RSN_KEY,  * P_EAPOL_RSN_KEY;
 
 
@@ -336,126 +336,126 @@ decrypted version.  Then Wireshark wouldn't have to decrypt packets on the fly i
 static void
 AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa)
 {
-	guint8  new_key[32];
-	guint8 key_version;
-	guint8  *szEncryptedKey;
-	guint16 key_len = 0;
-	static AIRPDCAP_KEY_ITEM dummy_key; /* needed in case AirPDcapRsnaMng() wants the key structure */
+    guint8  new_key[32];
+    guint8 key_version;
+    guint8  *szEncryptedKey;
+    guint16 key_len = 0;
+    static AIRPDCAP_KEY_ITEM dummy_key; /* needed in case AirPDcapRsnaMng() wants the key structure */
 
-	/* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
+    /* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
 
-	/* Preparation for decrypting the group key -  determine group key data length */
-	/* depending on whether it's a TKIP or AES encryption key */
-	key_version = AIRPDCAP_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
-	if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
-		/* TKIP */
-		key_len = pntohs(pEAPKey->key_length);
-	}else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
-		/* AES */
-		key_len = pntohs(pEAPKey->key_data_len);
-	}
+    /* Preparation for decrypting the group key -  determine group key data length */
+    /* depending on whether it's a TKIP or AES encryption key */
+    key_version = AIRPDCAP_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
+    if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
+        /* TKIP */
+        key_len = pntohs(pEAPKey->key_length);
+    }else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
+        /* AES */
+        key_len = pntohs(pEAPKey->key_data_len);
+    }
     if (key_len > sizeof(RSN_IE) || key_len == 0) { /* Don't read past the end of pEAPKey->ie */
         return;
     }
 
-	/* Encrypted key is in the information element field of the EAPOL key packet */
-	szEncryptedKey = g_memdup(pEAPKey->ie, key_len);
+    /* Encrypted key is in the information element field of the EAPOL key packet */
+    szEncryptedKey = g_memdup(pEAPKey->ie, key_len);
 
-	DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_len);
-	DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
-	DEBUG_DUMP("decryption_key:", decryption_key, 16);
+    DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_len);
+    DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
+    DEBUG_DUMP("decryption_key:", decryption_key, 16);
 
-	/* Build the full decryption key based on the IV and part of the pairwise key */
-	memcpy(new_key, pEAPKey->key_iv, 16);
-	memcpy(new_key+16, decryption_key, 16);
-	DEBUG_DUMP("FullDecrKey:", new_key, 32);
+    /* Build the full decryption key based on the IV and part of the pairwise key */
+    memcpy(new_key, pEAPKey->key_iv, 16);
+    memcpy(new_key+16, decryption_key, 16);
+    DEBUG_DUMP("FullDecrKey:", new_key, 32);
 
-	if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
-		guint8 dummy[256];
-		/* TKIP key */
-		/* Per 802.11i, Draft 3.0 spec, section 8.5.2, p. 97, line 4-8, */
-		/* group key is decrypted using RC4.  Concatenate the IV with the 16 byte EK (PTK+16) to get the decryption key */
+    if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
+        guint8 dummy[256];
+        /* TKIP key */
+        /* Per 802.11i, Draft 3.0 spec, section 8.5.2, p. 97, line 4-8, */
+        /* group key is decrypted using RC4.  Concatenate the IV with the 16 byte EK (PTK+16) to get the decryption key */
 
-		rc4_state_struct rc4_state;
-		crypt_rc4_init(&rc4_state, new_key, sizeof(new_key));
+        rc4_state_struct rc4_state;
+        crypt_rc4_init(&rc4_state, new_key, sizeof(new_key));
 
-		/* Do dummy 256 iterations of the RC4 algorithm (per 802.11i, Draft 3.0, p. 97 line 6) */
-		crypt_rc4(&rc4_state, dummy, 256);
-		crypt_rc4(&rc4_state, szEncryptedKey, key_len);
+        /* Do dummy 256 iterations of the RC4 algorithm (per 802.11i, Draft 3.0, p. 97 line 6) */
+        crypt_rc4(&rc4_state, dummy, 256);
+        crypt_rc4(&rc4_state, szEncryptedKey, key_len);
 
-	} else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
-		/* AES CCMP key */
+    } else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
+        /* AES CCMP key */
 
-		guint8 key_found;
-		guint16 key_index;
-		guint8 *decrypted_data;
+        guint8 key_found;
+        guint16 key_index;
+        guint8 *decrypted_data;
 
-		/* This storage is needed for the AES_unwrap function */
-		decrypted_data = (guint8 *) g_malloc(key_len);
+        /* This storage is needed for the AES_unwrap function */
+        decrypted_data = (guint8 *) g_malloc(key_len);
 
-		AES_unwrap(decryption_key, 16, szEncryptedKey,  key_len, decrypted_data);
+        AES_unwrap(decryption_key, 16, szEncryptedKey,  key_len, decrypted_data);
 
-		/* With WPA2 what we get after Broadcast Key decryption is an actual RSN structure.
-		   The key itself is stored as a GTK KDE
-		   WPA2 IE (1 byte) id = 0xdd, length (1 byte), GTK OUI (4 bytes), key index (1 byte) and 1 reserved byte. Thus we have to
-		   pass pointer to the actual key with 8 bytes offset */
+        /* With WPA2 what we get after Broadcast Key decryption is an actual RSN structure.
+           The key itself is stored as a GTK KDE
+           WPA2 IE (1 byte) id = 0xdd, length (1 byte), GTK OUI (4 bytes), key index (1 byte) and 1 reserved byte. Thus we have to
+           pass pointer to the actual key with 8 bytes offset */
 
-		key_found = FALSE;
-		key_index = 0;
-		while(key_index < key_len && !key_found){
-			guint8 rsn_id;
+        key_found = FALSE;
+        key_index = 0;
+        while(key_index < key_len && !key_found){
+            guint8 rsn_id;
 
-			/* Get RSN ID */
-			rsn_id = decrypted_data[key_index];
+            /* Get RSN ID */
+            rsn_id = decrypted_data[key_index];
 
-			if (rsn_id != 0xdd){
-				key_index += decrypted_data[key_index+1]+2;
-			}else{
-				key_found = TRUE;
-			}
-		}
+            if (rsn_id != 0xdd){
+                key_index += decrypted_data[key_index+1]+2;
+            }else{
+                key_found = TRUE;
+            }
+        }
 
-		if (key_found){
-			/* Skip over the GTK header info, and don't copy past the end of the encrypted data */
-			memcpy(szEncryptedKey, decrypted_data+key_index+8, key_len-key_index-8);
-		}
+        if (key_found){
+            /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
+            memcpy(szEncryptedKey, decrypted_data+key_index+8, key_len-key_index-8);
+        }
 
-		g_free(decrypted_data);
-	}
+        g_free(decrypted_data);
+    }
 
-	/* Decrypted key is now in szEncryptedKey with len of key_len */
-	DEBUG_DUMP("Broadcast key:", szEncryptedKey, key_len);
+    /* Decrypted key is now in szEncryptedKey with len of key_len */
+    DEBUG_DUMP("Broadcast key:", szEncryptedKey, key_len);
 
-	/* Load the proper key material info into the SA */
-	sa->key = &dummy_key;  /* we just need key to be not null because it is checked in AirPDcapRsnaMng().  The WPA key materials are actually in the .wpa structure */
-	sa->validKey = TRUE;
-	sa->wpa.key_ver = key_version;
+    /* Load the proper key material info into the SA */
+    sa->key = &dummy_key;  /* we just need key to be not null because it is checked in AirPDcapRsnaMng().  The WPA key materials are actually in the .wpa structure */
+    sa->validKey = TRUE;
+    sa->wpa.key_ver = key_version;
 
-	/* Since this is a GTK and it's size is only 32 bytes (vs. the 64 byte size of a PTK), we fake it and put it in at a 32-byte offset so the  */
-	/* AirPDcapRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
-	memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
-	memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);
-	g_free(szEncryptedKey);
+    /* Since this is a GTK and it's size is only 32 bytes (vs. the 64 byte size of a PTK), we fake it and put it in at a 32-byte offset so the  */
+    /* AirPDcapRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
+    memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
+    memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);
+    g_free(szEncryptedKey);
 }
 
 
 /* Return a pointer the the requested SA. If it doesn't exist create it. */
 PAIRPDCAP_SEC_ASSOCIATION
 AirPDcapGetSaPtr(
-	PAIRPDCAP_CONTEXT ctx,
+    PAIRPDCAP_CONTEXT ctx,
     AIRPDCAP_SEC_ASSOCIATION_ID *id)
 {
     int sa_index;
 
-	/* search for a cached Security Association for supplied BSSID and STA MAC	*/
-	if ((sa_index=AirPDcapGetSa(ctx, id))==-1) {
-		/* create a new Security Association if it doesn't currently exist	*/
-		if ((sa_index=AirPDcapStoreSa(ctx, id))==-1) {
-			return NULL;
-		}
-	}
-	/* get the Security Association structure	*/
-	return &ctx->sa[sa_index];
+    /* search for a cached Security Association for supplied BSSID and STA MAC  */
+    if ((sa_index=AirPDcapGetSa(ctx, id))==-1) {
+        /* create a new Security Association if it doesn't currently exist      */
+        if ((sa_index=AirPDcapStoreSa(ctx, id))==-1) {
+            return NULL;
+        }
+    }
+    /* get the Security Association structure   */
+    return &ctx->sa[sa_index];
 }
 
 #define GROUP_KEY_PAYLOAD_LEN (8+4+sizeof(EAPOL_RSN_KEY))
@@ -480,119 +480,119 @@ INT AirPDcapScanForGroupKey(
         0x88, 0x8E        /* Type: 802.1X authentication */
     };
 
-	P_EAPOL_RSN_KEY pEAPKey;
+    P_EAPOL_RSN_KEY pEAPKey;
 #ifdef _DEBUG
     CHAR msgbuf[255];
 #endif
 
-	AIRPDCAP_DEBUG_TRACE_START("AirPDcapScanForGroupKey");
+    AIRPDCAP_DEBUG_TRACE_START("AirPDcapScanForGroupKey");
 
-        if (mac_header_len + GROUP_KEY_PAYLOAD_LEN < tot_len) {
-            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Message too short", AIRPDCAP_DEBUG_LEVEL_3);
-            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-        }
+    if (mac_header_len + GROUP_KEY_PAYLOAD_LEN < tot_len) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Message too short", AIRPDCAP_DEBUG_LEVEL_3);
+        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+    }
 
-	/* cache offset in the packet data */
-	offset = mac_header_len;
+    /* cache offset in the packet data */
+    offset = mac_header_len;
 
-    /* check if the packet has an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
+    /* check if the packet has an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24) */
     if (memcmp(data+offset, dot1x_header, 8) == 0) {
 
-		AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
-        /* skip LLC header	*/
+        /* skip LLC header */
         offset+=8;
 
 
-       /*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
+        /* check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25) */
         if (data[offset+1]!=3) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
 
-        /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
+        /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
         bodyLength=pntohs(data+offset+2);
         if ((tot_len-offset-4) < bodyLength) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
 
-        /* skip EAPOL MPDU and go to the first byte of the body	*/
+        /* skip EAPOL MPDU and go to the first byte of the body */
         offset+=4;
 
-		pEAPKey = (P_EAPOL_RSN_KEY) (data+offset);
+        pEAPKey = (P_EAPOL_RSN_KEY) (data+offset);
 
-        /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
-        if (/*pEAPKey->type!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
-            pEAPKey->type != AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR &&		/* IEEE 802.11 Key Descriptor Type	 (WPA2)		*/
-            pEAPKey->type != AIRPDCAP_RSN_WPA_KEY_DESCRIPTOR)		/* 254 = RSN_KEY_DESCRIPTOR - WPA, 					*/
+        /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
+        if (/*pEAPKey->type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
+            pEAPKey->type != AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR &&             /* IEEE 802.11 Key Descriptor Type  (WPA2) */
+            pEAPKey->type != AIRPDCAP_RSN_WPA_KEY_DESCRIPTOR)           /* 254 = RSN_KEY_DESCRIPTOR - WPA,              */
         {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
 
-        /* start with descriptor body	*/
+        /* start with descriptor body */
         offset+=1;
 
-		/* Verify the bitfields: Key = 0(groupwise) Mic = 1 Ack = 1 Secure = 1 */
-		if (AIRPDCAP_EAP_KEY(data[offset+1])!=0 ||
-			AIRPDCAP_EAP_ACK(data[offset+1])!=1 ||
-			AIRPDCAP_EAP_MIC(data[offset]) != 1 ||
-			AIRPDCAP_EAP_SEC(data[offset]) != 1){
+        /* Verify the bitfields: Key = 0(groupwise) Mic = 1 Ack = 1 Secure = 1 */
+        if (AIRPDCAP_EAP_KEY(data[offset+1])!=0 ||
+            AIRPDCAP_EAP_ACK(data[offset+1])!=1 ||
+            AIRPDCAP_EAP_MIC(data[offset]) != 1 ||
+            AIRPDCAP_EAP_SEC(data[offset]) != 1){
 
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Key bitfields not correct", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-		}
+        }
 
-		/* get BSSID */
-		if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-			memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
+        /* get BSSID */
+        if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+            memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
-			sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
+            sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
 #endif
-			AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
-		} else {
-			AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
-			return AIRPDCAP_RET_REQ_DATA;
-		}
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+        } else {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
+            return AIRPDCAP_RET_REQ_DATA;
+        }
 
-		/* force STA address to be the broadcast MAC so we create an SA for the groupkey	*/
-		memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
+        /* force STA address to be the broadcast MAC so we create an SA for the groupkey */
+        memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
 
-		/* get the Security Association structure for the broadcast MAC and AP */
-		sa = AirPDcapGetSaPtr(ctx, &id);
-		if (sa == NULL){
-			return AIRPDCAP_RET_UNSUCCESS;
-		}
+        /* get the Security Association structure for the broadcast MAC and AP */
+        sa = AirPDcapGetSaPtr(ctx, &id);
+        if (sa == NULL){
+            return AIRPDCAP_RET_UNSUCCESS;
+        }
 
-		/* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
+        /* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
 
-		/* get STA address	*/
-		if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
-			memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
+        /* get STA address */
+        if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
+            memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
-			sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+            sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
 #endif
-			AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
-		} else {
-			AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
-			return AIRPDCAP_RET_REQ_DATA;
-		}
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+        } else {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
+            return AIRPDCAP_RET_REQ_DATA;
+        }
 
-		sta_sa = AirPDcapGetSaPtr(ctx, &id);
-		if (sta_sa == NULL){
-			return AIRPDCAP_RET_UNSUCCESS;
-		}
+        sta_sa = AirPDcapGetSaPtr(ctx, &id);
+        if (sta_sa == NULL){
+            return AIRPDCAP_RET_UNSUCCESS;
+        }
 
-		/* Extract the group key and install it in the SA */
-		AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa);
+        /* Extract the group key and install it in the SA */
+        AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa);
 
-	}else{
-		AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Skipping: not an EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
-	}
+    }else{
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Skipping: not an EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
+    }
 
-	AIRPDCAP_DEBUG_TRACE_END("AirPDcapScanForGroupKey");
-	return 0;
+    AIRPDCAP_DEBUG_TRACE_END("AirPDcapScanForGroupKey");
+    return 0;
 }
 
 
@@ -637,13 +637,13 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
-    /* check if the packet is of data type	*/
+    /* check if the packet is of data type */
     if (AIRPDCAP_TYPE(data[0])!=AIRPDCAP_TYPE_DATA) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "not data packet", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_NO_DATA;
     }
 
-    /* check correct packet size, to avoid wrong elaboration of encryption algorithms	*/
+    /* check correct packet size, to avoid wrong elaboration of encryption algorithms */
     if (tot_len < (UINT)(mac_header_len+AIRPDCAP_CRYPTED_DATA_MINLEN)) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "minimum length violated", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_WRONG_DATA_SIZE;
@@ -661,7 +661,7 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_REQ_DATA;
     }
 
-    /* get STA address	*/
+    /* get STA address */
     if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
@@ -673,62 +673,64 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_REQ_DATA;
     }
 
-	/* get the Security Association structure for the STA and AP */
-	sa = AirPDcapGetSaPtr(ctx, &id);
-	if (sa == NULL){
-		return AIRPDCAP_RET_UNSUCCESS;
-	}
+    /* get the Security Association structure for the STA and AP */
+    sa = AirPDcapGetSaPtr(ctx, &id);
+    if (sa == NULL){
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
 
-    /* cache offset in the packet data (to scan encryption data)	*/
+    /* cache offset in the packet data (to scan encryption data) */
     offset = mac_header_len;
 
-    /*	check if data is encrypted (use the WEP bit in the Frame Control field)	*/
+    /* check if data is encrypted (use the WEP bit in the Frame Control field) */
     if (AIRPDCAP_WEP(data[1])==0)
     {
         if (mngHandshake) {
-            /* data is sent in cleartext, check if is an authentication message or end the process	*/
+            /* data is sent in cleartext, check if is an authentication message or end the process */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
-            /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
+            /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24) */
             if (memcmp(data+offset, dot1x_header, 8) == 0) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
-                /* skip LLC header	*/
+                /* skip LLC header */
                 offset+=8;
 
-                /* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24)	*/
-                /* TODO EAPOL protocol version to check?	*/
-                /*if (data[offset]!=2) {
+                /* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24) */
+                /* TODO EAPOL protocol version to check? */
+#if 0
+                if (data[offset]!=2) {
                     AIRPDCAP_DEBUG_PRINT_LINE("EAPOL protocol version not recognized", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                }*/
+                }
+#endif
 
-                /*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
+                /* check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25) */
                 if (data[offset+1]!=3) {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
 
-                /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
+                /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
                 bodyLength=pntohs(data+offset+2);
                 if ((tot_len-offset-4) < bodyLength) {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
 
-                /* skip EAPOL MPDU and go to the first byte of the body	*/
+                /* skip EAPOL MPDU and go to the first byte of the body */
                 offset+=4;
 
-                /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
-                if (/*data[offset]!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
-                    data[offset]!=0x2 &&		/* IEEE 802.11 Key Descriptor Type			*/
-                    data[offset]!=0xFE)		/* TODO what's this value???					*/
+                /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
+                if (/*data[offset]!=0x1 &&*/    /* RC4 Key Descriptor Type (deprecated) */
+                    data[offset]!=0x2 &&        /* IEEE 802.11 Key Descriptor Type      */
+                    data[offset]!=0xFE)         /* TODO what's this value???            */
                 {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
 
-                /* start with descriptor body	*/
+                /* start with descriptor body */
                 offset+=1;
 
                 /* manage the 4-way handshake to define the key */
@@ -745,55 +747,56 @@ INT AirPDcapPacketProcess(
             if (decrypt_data==NULL)
                 return AIRPDCAP_RET_UNSUCCESS;
 
-            /*	create new header and data to modify	*/
+            /* create new header and data to modify */
             *decrypt_len = tot_len;
             memcpy(decrypt_data, data, *decrypt_len);
 
-            /* encrypted data	*/
+            /* encrypted data */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Encrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
-            /* check the Extension IV to distinguish between WEP encryption and WPA encryption	*/
-            /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,	*/
-            /*		IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,		*/
-            /*		IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP			*/
+            /* check the Extension IV to distinguish between WEP encryption and WPA encryption */
+            /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,    */
+            /*          IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,  */
+            /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
             if (AIRPDCAP_EXTIV(data[offset+3])==0) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "WEP encryption", AIRPDCAP_DEBUG_LEVEL_3);
                 return AirPDcapWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
             } else {
-				INT status;
+                INT status;
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "TKIP or CCMP encryption", AIRPDCAP_DEBUG_LEVEL_3);
 
-				/* If index >= 1, then use the group key.  This will not work if the AP is using
-				   more than one group key simultaneously.  I've not seen this in practice, however. Usually an AP
-				   will rotate between the two key index values of 1 and 2 whenever it needs to change the group key to be used. */
-				if (AIRPDCAP_KEY_INDEX(data[offset+3])>=1){
+                /* If index >= 1, then use the group key.  This will not work if the AP is using
+                   more than one group key simultaneously.  I've not seen this in practice, however.
+                   Usually an AP will rotate between the two key index values of 1 and 2 whenever 
+                   it needs to change the group key to be used. */
+                if (AIRPDCAP_KEY_INDEX(data[offset+3])>=1){
 
-					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "The key index = 1. This is encrypted with a group key.", AIRPDCAP_DEBUG_LEVEL_3);
+                    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "The key index = 1. This is encrypted with a group key.", AIRPDCAP_DEBUG_LEVEL_3);
 
-					/* force STA address to broadcast MAC so we load the SA for the groupkey	*/
-					memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
+                    /* force STA address to broadcast MAC so we load the SA for the groupkey */
+                    memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
 
 #ifdef _DEBUG
-					sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
-					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+                    sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+                    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
 #endif
 
-					/* search for a cached Security Association for current BSSID and broadcast MAC	*/
-					sa = AirPDcapGetSaPtr(ctx, &id);
-					if (sa == NULL){
-						return AIRPDCAP_RET_UNSUCCESS;
-					}
-				}
+                    /* search for a cached Security Association for current BSSID and broadcast MAC */
+                    sa = AirPDcapGetSaPtr(ctx, &id);
+                    if (sa == NULL){
+                        return AIRPDCAP_RET_UNSUCCESS;
+                    }
+                }
 
-				/* Decrypt the packet using the appropriate SA */
+                /* Decrypt the packet using the appropriate SA */
                 status = AirPDcapRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
 
-				 /* If we successfully decrypted a packet, scan it to see if it contains a group key handshake.
-				   The group key handshake could be sent at any time the AP wants to change the key (such as when
-				   it is using key rotation) so we must scan every packet. */
-				if (status == AIRPDCAP_RET_SUCCESS)
-					AirPDcapScanForGroupKey(ctx, decrypt_data, mac_header_len, *decrypt_len);
-				return status;
+                /* If we successfully decrypted a packet, scan it to see if it contains a group key handshake.
+                   The group key handshake could be sent at any time the AP wants to change the key (such as when
+                   it is using key rotation) so we must scan every packet. */
+                if (status == AIRPDCAP_RET_SUCCESS)
+                    AirPDcapScanForGroupKey(ctx, decrypt_data, mac_header_len, *decrypt_len);
+                return status;
             }
         }
     }
@@ -822,17 +825,17 @@ INT AirPDcapSetKeys(
         return 0;
     }
 
-    /* clean key and SA collections before setting new ones	*/
+    /* clean key and SA collections before setting new ones */
     AirPDcapInitContext(ctx);
 
-    /* check and insert keys	*/
+    /* check and insert keys */
     for (i=0, success=0; i<(INT)keys_nr; i++) {
         if (AirPDcapValidateKey(keys+i)==TRUE) {
             if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a WPA-PWD key", AIRPDCAP_DEBUG_LEVEL_4);
                 AirPDcapRsnaPwd2Psk(keys[i].UserPwd.Passphrase, keys[i].UserPwd.Ssid, keys[i].UserPwd.SsidLen, keys[i].KeyData.Wpa.Psk);
             }
-#ifdef	_DEBUG
+#ifdef _DEBUG
             else if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a WPA-PMK key", AIRPDCAP_DEBUG_LEVEL_4);
             } else if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WEP) {
@@ -968,16 +971,16 @@ INT AirPDcapDestroyContext(
     return AIRPDCAP_RET_SUCCESS;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
 /****************************************************************************/
 
 /****************************************************************************/
-/* Internal function definitions						*/
+/* Internal function definitions                                         */
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -1012,23 +1015,23 @@ AirPDcapRsnaMng(
        memcpy(try_data, decrypt_data, *decrypt_len);
 
        if (sa->wpa.key_ver==1) {
-           /*	CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm	*/
+           /* CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm */
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP", AIRPDCAP_DEBUG_LEVEL_3);
 
-		   DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
-		   DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
+           DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
+           DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
 
            ret_value=AirPDcapTkipDecrypt(try_data+offset, *decrypt_len-offset, try_data+AIRPDCAP_TA_OFFSET, AIRPDCAP_GET_TK(sa->wpa.ptk));
-		   if (ret_value){
-	           AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP failed!", AIRPDCAP_DEBUG_LEVEL_3);
+           if (ret_value){
+               AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP failed!", AIRPDCAP_DEBUG_LEVEL_3);
                continue;
-		   }
+           }
 
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) and ICV (4bytes) from the end of packet	*/
+           /* remove MIC (8bytes) and ICV (4bytes) from the end of packet */
            *decrypt_len-=12;
        } else {
-           /*	AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm	*/
+           /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
 
            ret_value=AirPDcapCcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
@@ -1036,7 +1039,7 @@ AirPDcapRsnaMng(
               continue;
 
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) from the end of packet	*/
+           /* remove MIC (8bytes) from the end of packet */
            *decrypt_len-=8;
        }
     }
@@ -1044,15 +1047,15 @@ AirPDcapRsnaMng(
 
     /* non of the keys workd */
     if(sa == NULL)
-      return ret_value;
+        return ret_value;
 
     /* copy the decrypted data into the decrypt buffer GCS*/
     memcpy(decrypt_data, try_data, *decrypt_len);
 
-    /* remove protection bit	*/
+    /* remove protection bit */
     decrypt_data[1]&=0xBF;
 
-    /* remove TKIP/CCMP header	*/
+    /* remove TKIP/CCMP header */
     offset = mac_header_len;
     *decrypt_len-=8;
     memmove(decrypt_data+offset, decrypt_data+offset+8, *decrypt_len-offset);
@@ -1091,7 +1094,7 @@ AirPDcapWepMng(
         useCache=TRUE;
 
     for (key_index=0; key_index<(INT)ctx->keys_nr; key_index++) {
-        /* use the cached one, or try all keys	*/
+        /* use the cached one, or try all keys */
         if (!useCache) {
             tmp_key=&ctx->keys[key_index];
         } else {
@@ -1104,7 +1107,7 @@ AirPDcapWepMng(
             }
         }
 
-        /* obviously, try only WEP keys...	*/
+        /* obviously, try only WEP keys... */
         if (tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WEP)
         {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapWepMng", "Try WEP key...", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1112,7 +1115,7 @@ AirPDcapWepMng(
             memset(wep_key, 0, sizeof(wep_key));
             memcpy(try_data, decrypt_data, *decrypt_len);
 
-            /* Costruct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36)	*/
+            /* Costruct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36) */
             memcpy(wep_key, try_data+mac_header_len, AIRPDCAP_WEP_IVLEN);
             keylen=tmp_key->KeyData.Wep.WepKeyLen;
             memcpy(wep_key+AIRPDCAP_WEP_IVLEN, tmp_key->KeyData.Wep.WepKey, keylen);
@@ -1127,7 +1130,7 @@ AirPDcapWepMng(
         }
 
         if (!ret_value && tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WEP) {
-            /* the tried key is the correct one, cached in the Security Association	*/
+            /* the tried key is the correct one, cached in the Security Association */
 
             sa->key=tmp_key;
 
@@ -1138,7 +1141,7 @@ AirPDcapWepMng(
 
             break;
         } else {
-            /* the cached key was not valid, try other keys	*/
+            /* the cached key was not valid, try other keys */
 
             if (useCache==TRUE) {
                 useCache=FALSE;
@@ -1152,13 +1155,13 @@ AirPDcapWepMng(
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapWepMng", "WEP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
 
-    /* remove ICV (4bytes) from the end of packet	*/
+    /* remove ICV (4bytes) from the end of packet */
     *decrypt_len-=4;
 
-    /* remove protection bit	*/
+    /* remove protection bit */
     decrypt_data[1]&=0xBF;
 
-    /* remove IC header	*/
+    /* remove IC header */
     offset = mac_header_len;
     *decrypt_len-=4;
     memcpy(decrypt_data+offset, decrypt_data+offset+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN, *decrypt_len-offset);
@@ -1166,7 +1169,7 @@ AirPDcapWepMng(
     return AIRPDCAP_RET_SUCCESS;
 }
 
-/* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85	*/
+/* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85 */
 static INT
 AirPDcapRsna4WHandshake(
     PAIRPDCAP_CONTEXT ctx,
@@ -1186,7 +1189,7 @@ AirPDcapRsna4WHandshake(
     if (sa->key!=NULL)
         useCache=TRUE;
 
-    /* a 4-way handshake packet use a Pairwise key type (IEEE 802.11i-2004, pg. 79)	*/
+    /* a 4-way handshake packet use a Pairwise key type (IEEE 802.11i-2004, pg. 79) */
     if (AIRPDCAP_EAP_KEY(data[offset+1])!=1) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Group/STAKey message (not used)", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
@@ -1201,30 +1204,30 @@ AirPDcapRsna4WHandshake(
         sa->next=tmp_sa;
     }
 
-    /* TODO consider key-index	*/
+    /* TODO consider key-index */
 
-    /* TODO considera Deauthentications	*/
+    /* TODO considera Deauthentications */
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake...", AIRPDCAP_DEBUG_LEVEL_5);
 
-    /* manage 4-way handshake packets; this step completes the 802.1X authentication process (IEEE 802.11i-2004, pag. 85)	*/
+    /* manage 4-way handshake packets; this step completes the 802.1X authentication process (IEEE 802.11i-2004, pag. 85) */
 
-    /* message 1: Authenticator->Supplicant (Sec=0, Mic=0, Ack=1, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=ANonce, MIC=0)	*/
+    /* message 1: Authenticator->Supplicant (Sec=0, Mic=0, Ack=1, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=ANonce, MIC=0) */
     if (AIRPDCAP_EAP_INST(data[offset+1])==0 &&
         AIRPDCAP_EAP_ACK(data[offset+1])==1 &&
         AIRPDCAP_EAP_MIC(data[offset])==0)
     {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 1", AIRPDCAP_DEBUG_LEVEL_3);
 
-        /* On reception of Message 1, the Supplicant determines whether the Key Replay Counter field value has been			*/
-        /* used before with the current PMKSA. If the Key Replay Counter field value is less than or equal to the current	*/
-        /* local value, the Supplicant discards the message.																					*/
-        /* -> not checked, the Authenticator will be send another Message 1 (hopefully!)												*/
+        /* On reception of Message 1, the Supplicant determines whether the Key Replay Counter field value has been        */
+        /* used before with the current PMKSA. If the Key Replay Counter field value is less than or equal to the current  */
+        /* local value, the Supplicant discards the message.                                                               */
+        /* -> not checked, the Authenticator will be send another Message 1 (hopefully!)                                   */
 
-        /* save ANonce (from authenticator)	to derive the PTK with the SNonce (from the 2 message)	*/
+        /* save ANonce (from authenticator) to derive the PTK with the SNonce (from the 2 message) */
         memcpy(sa->wpa.nonce, data+offset+12, 32);
 
-        /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-)	*/
+        /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
         sa->wpa.key_ver=AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1]);
 
         sa->handshake=1;
@@ -1232,34 +1235,34 @@ AirPDcapRsna4WHandshake(
         return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
     }
 
-    /* message 2|4: Supplicant->Authenticator (Sec=0|1, Mic=1, Ack=0, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=SNonce|0, MIC=MIC(KCK,EAPOL))	*/
+    /* message 2|4: Supplicant->Authenticator (Sec=0|1, Mic=1, Ack=0, Inst=0, Key=1(pairwise), KeyRSC=0, Nonce=SNonce|0, MIC=MIC(KCK,EAPOL)) */
     if (AIRPDCAP_EAP_INST(data[offset+1])==0 &&
         AIRPDCAP_EAP_ACK(data[offset+1])==0 &&
         AIRPDCAP_EAP_MIC(data[offset])==1)
     {
         if (AIRPDCAP_EAP_SEC(data[offset])==0) {
 
-            /* PATCH:	some implementations set secure bit to 0 also in the 4th message		*/
-            /*		to recognize which message is this check if wep_key data length is 0		*/
-            /*		in the 4th message								*/
+            /* PATCH: some implementations set secure bit to 0 also in the 4th message */
+            /*          to recognize which message is this check if wep_key data length is 0     */
+            /*          in the 4th message                                                       */
             if (data[offset+92]!=0 || data[offset+93]!=0) {
-                /* message 2	*/
+                /* message 2 */
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 2", AIRPDCAP_DEBUG_LEVEL_3);
 
-                /* On reception of Message 2, the Authenticator checks that the key replay counter corresponds to the	*/
-                /* outstanding Message 1. If not, it silently discards the message.												*/
-                /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame,	*/
-                /* the Authenticator silently discards Message 2.																		*/
-                /* -> not checked; the Supplicant will send another message 2 (hopefully!)										*/
+                /* On reception of Message 2, the Authenticator checks that the key replay counter corresponds to the */
+                /* outstanding Message 1. If not, it silently discards the message.                                   */
+                /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame,  */
+                /* the Authenticator silently discards Message 2.                                                     */
+                /* -> not checked; the Supplicant will send another message 2 (hopefully!)                            */
 
-                /* now you can derive the PTK	*/
+                /* now you can derive the PTK */
                 for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
-                    /* use the cached one, or try all keys	*/
+                    /* use the cached one, or try all keys */
                     if (!useCache) {
                         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Try WPA key...", AIRPDCAP_DEBUG_LEVEL_3);
                         tmp_key=&ctx->keys[key_index];
                     } else {
-                        /* there is a cached key in the security association, if it's a WPA key try it...	*/
+                        /* there is a cached key in the security association, if it's a WPA key try it... */
                         if (sa->key!=NULL &&
                             (sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD ||
                              sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
@@ -1272,7 +1275,7 @@ AirPDcapRsna4WHandshake(
                         }
                     }
 
-                    /* obviously, try only WPA keys...	*/
+                    /* obviously, try only WPA keys... */
                     if (tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD ||
                         tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
                         tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK)
@@ -1287,26 +1290,26 @@ AirPDcapRsna4WHandshake(
                             tmp_key = &pkt_key;
                         }
 
-                        /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce	*/
-                        AirPDcapRsnaPrfX(sa,			/* authenticator nonce, bssid, station mac	*/
-                            tmp_key->KeyData.Wpa.Pmk,	/* PMK	*/
-                            data+offset+12,		/* supplicant nonce	*/
-                            512,
-                            sa->wpa.ptk);
+                        /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+                        AirPDcapRsnaPrfX(sa,                            /* authenticator nonce, bssid, station mac */
+                                         tmp_key->KeyData.Wpa.Pmk,      /* PMK */
+                                         data+offset+12,                /* supplicant nonce */
+                                         512,
+                                         sa->wpa.ptk);
 
-                        /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK)	*/
+                        /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                         eapol_len=pntohs(data+offset-3)+4;
                         memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
-                        ret_value=AirPDcapRsnaMicCheck(eapol,						/*	eapol frame (header also)		*/
-                            eapol_len,													/*	eapol frame length				*/
-                            sa->wpa.ptk,												/*	Key Confirmation Key				*/
-                            AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1]));		/*	EAPOL-Key description version	*/
+                        ret_value=AirPDcapRsnaMicCheck(eapol,           /*      eapol frame (header also) */
+                                                       eapol_len,       /*      eapol frame length        */
+                                                       sa->wpa.ptk,     /*      Key Confirmation Key      */
+                                                       AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1])); /*  EAPOL-Key description version */
 
-                        /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches		*/
-                        /* that from the (Re)Association Request message.																		*/
-                        /*		i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request	*/
-                        /* primitive to terminate the association.																				*/
-                        /*		ii) If they do match bit-wise, the Authenticator constructs Message 3.									*/
+                        /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches       */
+                        /* that from the (Re)Association Request message.                                                        */
+                        /*              i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request */
+                        /* primitive to terminate the association.                                                               */
+                        /*              ii) If they do match bit-wise, the Authenticator constructs Message 3.                   */
                     }
 
                     if (!ret_value &&
@@ -1314,7 +1317,7 @@ AirPDcapRsna4WHandshake(
                         tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
                         tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK))
                     {
-                        /* the temporary key is the correct one, cached in the Security Association	*/
+                        /* the temporary key is the correct one, cached in the Security Association */
 
                         sa->key=tmp_key;
 
@@ -1328,7 +1331,7 @@ AirPDcapRsna4WHandshake(
 
                         break;
                     } else {
-                        /* the cached key was not valid, try other keys	*/
+                        /* the cached key was not valid, try other keys */
 
                         if (useCache==TRUE) {
                             useCache=FALSE;
@@ -1346,15 +1349,15 @@ AirPDcapRsna4WHandshake(
 
                 return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
             } else {
-                /* message 4	*/
+                /* message 4 */
 
-                /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear."	*/
+                /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear." */
 
-                /* TODO check MIC and Replay Counter																							*/
-                /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one	*/
-                /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.						*/
-                /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the	*/
-                /* Authenticator silently discards Message 4.																				*/
+                /* TODO check MIC and Replay Counter                                                                     */
+                /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one  */
+                /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.                 */
+                /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the */
+                /* Authenticator silently discards Message 4.                                                            */
 
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 4 (patched)", AIRPDCAP_DEBUG_LEVEL_3);
 
@@ -1364,18 +1367,18 @@ AirPDcapRsna4WHandshake(
 
                 return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
             }
-            /* END OF PATCH																					*/
-            /*																										*/
+            /* END OF PATCH      */
+            /*                   */
         } else {
-            /* message 4	*/
+            /* message 4 */
 
-            /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear."	*/
+            /* TODO "Note that when the 4-Way Handshake is first used Message 4 is sent in the clear." */
 
-            /* TODO check MIC and Replay Counter																							*/
-            /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one	*/
-            /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.						*/
-            /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the	*/
-            /* Authenticator silently discards Message 4.																				*/
+            /* TODO check MIC and Replay Counter                                                                     */
+            /* On reception of Message 4, the Authenticator verifies that the Key Replay Counter field value is one  */
+            /* that it used on this 4-Way Handshake; if it is not, it silently discards the message.                 */
+            /* If the calculated MIC does not match the MIC that the Supplicant included in the EAPOL-Key frame, the */
+            /* Authenticator silently discards Message 4.                                                            */
 
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 4", AIRPDCAP_DEBUG_LEVEL_3);
 
@@ -1387,36 +1390,36 @@ AirPDcapRsna4WHandshake(
         }
     }
 
-    /* message 3: Authenticator->Supplicant (Sec=1, Mic=1, Ack=1, Inst=0/1, Key=1(pairwise), KeyRSC=???, Nonce=ANonce, MIC=1)	*/
+    /* message 3: Authenticator->Supplicant (Sec=1, Mic=1, Ack=1, Inst=0/1, Key=1(pairwise), KeyRSC=???, Nonce=ANonce, MIC=1) */
     if (AIRPDCAP_EAP_ACK(data[offset+1])==1 &&
         AIRPDCAP_EAP_MIC(data[offset])==1)
     {
-		P_EAPOL_RSN_KEY pEAPKey;
+        P_EAPOL_RSN_KEY pEAPKey;
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 3", AIRPDCAP_DEBUG_LEVEL_3);
 
-        /* On reception of Message 3, the Supplicant silently discards the message if the Key Replay Counter field		*/
-        /* value has already been used or if the ANonce value in Message 3 differs from the ANonce value in Message 1.	*/
-        /* -> not checked, the Authenticator will send another message 3 (hopefully!)												*/
+        /* On reception of Message 3, the Supplicant silently discards the message if the Key Replay Counter field     */
+        /* value has already been used or if the ANonce value in Message 3 differs from the ANonce value in Message 1. */
+        /* -> not checked, the Authenticator will send another message 3 (hopefully!)                                  */
 
-        /*	TODO check page 88 (RNS)	*/
+        /* TODO check page 88 (RNS) */
 
-		/* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
-				 In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key.*/
-		pEAPKey = (P_EAPOL_RSN_KEY)(&(data[offset-1]));
-		if (pEAPKey->type == AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR){
-			PAIRPDCAP_SEC_ASSOCIATION broadcast_sa;
-			AIRPDCAP_SEC_ASSOCIATION_ID id;
+        /* If using WPA2 PSK, message 3 will contain an RSN for the group key (GTK KDE).
+           In order to properly support decrypting WPA2-PSK packets, we need to parse this to get the group key. */
+        pEAPKey = (P_EAPOL_RSN_KEY)(&(data[offset-1]));
+        if (pEAPKey->type == AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR){
+            PAIRPDCAP_SEC_ASSOCIATION broadcast_sa;
+            AIRPDCAP_SEC_ASSOCIATION_ID id;
 
-			/* Get broadcacst SA for the current BSSID */
-			memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
-			memcpy(id.bssid, sa->saId.bssid, AIRPDCAP_MAC_LEN);
-			broadcast_sa = AirPDcapGetSaPtr(ctx, &id);
+            /* Get broadcacst SA for the current BSSID */
+            memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
+            memcpy(id.bssid, sa->saId.bssid, AIRPDCAP_MAC_LEN);
+            broadcast_sa = AirPDcapGetSaPtr(ctx, &id);
 
-			if (broadcast_sa == NULL){
-				return AIRPDCAP_RET_UNSUCCESS;
-			}
-			AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa);
-		}
+            if (broadcast_sa == NULL){
+                return AIRPDCAP_RET_UNSUCCESS;
+            }
+            AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa);
+        }
 
         return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
     }
@@ -1432,16 +1435,16 @@ AirPDcapRsnaMicCheck(
     USHORT key_ver)
 {
     UCHAR mic[AIRPDCAP_WPA_MICKEY_LEN];
-    UCHAR c_mic[20];	/* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
+    UCHAR c_mic[20];  /* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
 
-    /* copy the MIC from the EAPOL packet	*/
+    /* copy the MIC from the EAPOL packet */
     memcpy(mic, eapol+AIRPDCAP_WPA_MICKEY_OFFSET+4, AIRPDCAP_WPA_MICKEY_LEN);
 
     /* set to 0 the MIC in the EAPOL packet (to calculate the MIC) */
     memset(eapol+AIRPDCAP_WPA_MICKEY_OFFSET+4, 0, AIRPDCAP_WPA_MICKEY_LEN);
 
     if (key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP) {
-        /* use HMAC-MD5 for the EAPOL-Key MIC	*/
+        /* use HMAC-MD5 for the EAPOL-Key MIC */
         md5_hmac(eapol, eapol_len, KCK, AIRPDCAP_WPA_KCK_LEN, c_mic);
     } else if (key_ver==AIRPDCAP_WPA_KEY_VER_AES_CCMP) {
         /* use HMAC-SHA1-128 for the EAPOL-Key MIC */
@@ -1470,7 +1473,7 @@ AirPDcapValidateKey(
 
     switch (key->KeyType) {
         case AIRPDCAP_KEY_TYPE_WEP:
-            /* check key size limits	*/
+            /* check key size limits */
             len=key->KeyData.Wep.WepKeyLen;
             if (len<AIRPDCAP_WEP_KEY_MINLEN || len>AIRPDCAP_WEP_KEY_MAXLEN) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WEP key: key length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
@@ -1479,19 +1482,19 @@ AirPDcapValidateKey(
             break;
 
         case AIRPDCAP_KEY_TYPE_WEP_40:
-            /* set the standard length	and use a generic WEP key type	*/
+            /* set the standard length and use a generic WEP key type */
             key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_40_KEY_LEN;
             key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
             break;
 
         case AIRPDCAP_KEY_TYPE_WEP_104:
-            /* set the standard length	and use a generic WEP key type	*/
+            /* set the standard length and use a generic WEP key type */
             key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_104_KEY_LEN;
             key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
             break;
 
         case AIRPDCAP_KEY_TYPE_WPA_PWD:
-            /* check passphrase and SSID size limits	*/
+            /* check passphrase and SSID size limits */
             len=strlen(key->UserPwd.Passphrase);
             if (len<AIRPDCAP_WPA_PASSPHRASE_MIN_LEN || len>AIRPDCAP_WPA_PASSPHRASE_MAX_LEN) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: passphrase length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
@@ -1528,8 +1531,8 @@ AirPDcapGetSa(
     INT sa_index;
 
     if (ctx->sa_index!=-1) {
-        /* at least one association was stored														*/
-        /* search for the association from sa_index to 0 (most recent added)	*/
+        /* at least one association was stored                               */
+        /* search for the association from sa_index to 0 (most recent added) */
         for (sa_index=ctx->sa_index; sa_index>=0; sa_index--) {
             if (ctx->sa[sa_index].used) {
                 if (memcmp(id, &(ctx->sa[sa_index].saId), sizeof(AIRPDCAP_SEC_ASSOCIATION_ID))==0) {
@@ -1551,37 +1554,37 @@ AirPDcapStoreSa(
     INT last_free;
 
     if (ctx->sa[ctx->first_free_index].used) {
-        /* last addition was in the middle of the array (and the first_free_index was just incremented by 1)	*/
-        /* search for a free space from the first_free_index to AIRPDCAP_STA_INFOS_NR (to avoid free blocks in	*/
-        /*		the middle)																													*/
+        /* last addition was in the middle of the array (and the first_free_index was just incremented by 1)   */
+        /* search for a free space from the first_free_index to AIRPDCAP_STA_INFOS_NR (to avoid free blocks in */
+        /*              the middle)                                                                            */
         for (last_free=ctx->first_free_index; last_free<AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR; last_free++)
             if (!ctx->sa[last_free].used)
                 break;
 
         if (last_free>=AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR) {
-            /* there is no empty space available. FAILURE	*/
+            /* there is no empty space available. FAILURE */
             return -1;
         }
 
-        /* store first free space index	*/
+        /* store first free space index */
         ctx->first_free_index=last_free;
     }
 
-    /* use this info	*/
+    /* use this info */
     ctx->index=ctx->first_free_index;
 
-    /* reset the info structure	*/
+    /* reset the info structure */
     memset(ctx->sa+ctx->index, 0, sizeof(AIRPDCAP_SEC_ASSOCIATION));
 
     ctx->sa[ctx->index].used=1;
 
-    /* set the info structure	*/
+    /* set the info structure */
     memcpy(&(ctx->sa[ctx->index].saId), id, sizeof(AIRPDCAP_SEC_ASSOCIATION_ID));
 
-    /* increment by 1 the first_free_index (heuristic)	*/
+    /* increment by 1 the first_free_index (heuristic) */
     ctx->first_free_index++;
 
-    /* set the sa_index if the added index is greater the the sa_index	*/
+    /* set the sa_index if the added index is greater the the sa_index */
     if (ctx->index > ctx->sa_index)
         ctx->sa_index=ctx->index;
 
@@ -1633,13 +1636,13 @@ AirPDcapGetBssidAddress(
     }
 }
 
-/* Function used to derive the PTK. Refer to IEEE 802.11I-2004, pag. 74	*/
+/* Function used to derive the PTK. Refer to IEEE 802.11I-2004, pag. 74 */
 static void
 AirPDcapRsnaPrfX(
     AIRPDCAP_SEC_ASSOCIATION *sa,
     const UCHAR pmk[32],
     const UCHAR snonce[32],
-    const INT x,	/*	for TKIP 512, for CCMP 384	*/
+    const INT x,        /*      for TKIP 512, for CCMP 384 */
     UCHAR *ptk)
 {
     UINT8 i;
@@ -1650,7 +1653,7 @@ AirPDcapRsnaPrfX(
 
     memcpy(R, "Pairwise key expansion", offset);
 
-    /*	Min(AA, SPA) || Max(AA, SPA)	*/
+    /* Min(AA, SPA) || Max(AA, SPA) */
     if (memcmp(sa->saId.sta, sa->saId.bssid, AIRPDCAP_MAC_LEN) < 0)
     {
         memcpy(R + offset, sa->saId.sta, AIRPDCAP_MAC_LEN);
@@ -1664,7 +1667,7 @@ AirPDcapRsnaPrfX(
 
     offset+=AIRPDCAP_MAC_LEN*2;
 
-    /*	Min(ANonce,SNonce) || Max(ANonce,SNonce)	*/
+    /* Min(ANonce,SNonce) || Max(ANonce,SNonce) */
     if( memcmp(snonce, sa->wpa.nonce, 32) < 0 )
     {
         memcpy(R + offset, snonce, 32);
@@ -1994,7 +1997,7 @@ get_key_string(decryption_key_t* dk)
     return output_string;
 }
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
