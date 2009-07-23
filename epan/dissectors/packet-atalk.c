@@ -210,9 +210,9 @@ static gint ett_zip_network_list = -1;
 #define ASPERR_TOOMANY  (-1074)
 #define ASPERR_NOACK    (-1075)
 
-static int proto_asp = -1;
-static int hf_asp_func = -1;
-static int hf_asp_error = -1;
+static int proto_asp            = -1;
+static int hf_asp_func          = -1;
+static int hf_asp_error         = -1;
 static int hf_asp_socket	= -1;
 static int hf_asp_version	= -1;
 static int hf_asp_session_id	= -1;
@@ -260,13 +260,13 @@ static gint ett_asp_utf8_name = -1;
 static gint ett_asp_status_server_flag = -1;
 
 typedef struct {
-	guint32 conversation;
-	guint8  src[4];
-	guint16	seq;
+  guint32 conversation;
+  guint8  src[4];
+  guint16	seq;
 } asp_request_key;
 
 typedef struct {
-	guint8	value;	/* command for asp, bitmap for atp */
+  guint8	value;	/* command for asp, bitmap for atp */
 } asp_request_val;
 
 static GHashTable *asp_request_hash = NULL;
@@ -274,21 +274,21 @@ static GHashTable *asp_request_hash = NULL;
 /* Hash Functions */
 static gint  asp_equal (gconstpointer v, gconstpointer v2)
 {
-	const asp_request_key *val1 = (const asp_request_key*)v;
-	const asp_request_key *val2 = (const asp_request_key*)v2;
+  const asp_request_key *val1 = (const asp_request_key*)v;
+  const asp_request_key *val2 = (const asp_request_key*)v2;
 
-	if (val1->conversation == val2->conversation &&
-			val1->seq == val2->seq &&
-			!memcmp(val1->src, val2->src, 4)) {
-		return 1;
-	}
-	return 0;
+  if (val1->conversation == val2->conversation &&
+      val1->seq == val2->seq &&
+      !memcmp(val1->src, val2->src, 4)) {
+    return 1;
+  }
+  return 0;
 }
 
 static guint asp_hash  (gconstpointer v)
 {
-        const asp_request_key *asp_key = (const asp_request_key*)v;
-        return asp_key->seq;
+  const asp_request_key *asp_key = (const asp_request_key*)v;
+  return asp_key->seq;
 }
 
 /* ------------------------------------ */
@@ -338,17 +338,17 @@ static gint ett_llap = -1;
 static gint ett_pstring = -1;
 
 static const fragment_items atp_frag_items = {
-	&ett_atp_segment,
-	&ett_atp_segments,
-	&hf_atp_segments,
-	&hf_atp_segment,
-	&hf_atp_segment_overlap,
-	&hf_atp_segment_overlap_conflict,
-	&hf_atp_segment_multiple_tails,
-	&hf_atp_segment_too_long_segment,
-	&hf_atp_segment_error,
-	&hf_atp_reassembled_in,
-	"segments"
+  &ett_atp_segment,
+  &ett_atp_segments,
+  &hf_atp_segments,
+  &hf_atp_segment,
+  &hf_atp_segment_overlap,
+  &hf_atp_segment_overlap_conflict,
+  &hf_atp_segment_multiple_tails,
+  &hf_atp_segment_too_long_segment,
+  &hf_atp_segment_error,
+  &hf_atp_reassembled_in,
+  "segments"
 };
 
 /* -------------------------------- */
@@ -542,35 +542,35 @@ const value_string asp_error_vals[] = {
  * Are these always in the Mac extended character set?
  */
 static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
-	int hf_index)
+                                 int hf_index)
 {
-	int len;
-	char *tmp;
+  int len;
+  char *tmp;
 
-	len = tvb_get_guint8(tvb, offset);
-	offset++;
+  len = tvb_get_guint8(tvb, offset);
+  offset++;
 
-	if ( tree )
-	{
-		proto_tree *item;
-		proto_tree *subtree;
+  if ( tree )
+  {
+    proto_tree *item;
+    proto_tree *subtree;
 
-		/*
-		 * XXX - if we could do this inside the protocol tree
-		 * code, we could perhaps avoid allocating and freeing
-		 * this string buffer.
-		 */
-		tmp = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
-		item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
+    /*
+     * XXX - if we could do this inside the protocol tree
+     * code, we could perhaps avoid allocating and freeing
+     * this string buffer.
+     */
+    tmp = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
+    item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
-		subtree = proto_item_add_subtree(item, ett_pstring);
-		proto_tree_add_text(subtree, tvb, offset-1, 1, "Length: %d", len);
-		proto_tree_add_text(subtree, tvb, offset, len, "Data: %s", tmp);
+    subtree = proto_item_add_subtree(item, ett_pstring);
+    proto_tree_add_text(subtree, tvb, offset-1, 1, "Length: %d", len);
+    proto_tree_add_text(subtree, tvb, offset, len, "Data: %s", tmp);
 
-	}
-	offset += len;
+  }
+  offset += len;
 
-	return offset;
+  return offset;
 }
 
 static void
@@ -588,7 +588,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
-	val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
+                val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, FALSE);
@@ -787,8 +787,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   t = bitmap;
   while(t) {
-	nbe++;
-	t >>= 1;
+    nbe++;
+    t >>= 1;
   }
 
   op = ctrlinfo >> 6;
@@ -800,59 +800,59 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   query = (!aspinfo.reply && !aspinfo.release);
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
+                                   pinfo->srcport, pinfo->destport, 0);
 
   if (conversation == NULL)
   {
-	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   }
 
   if (atp_defragment) {
-  	asp_request_key request_key;
+    asp_request_key request_key;
 
-  	request_key.conversation = conversation->index;
-  	memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
-  	request_key.seq = aspinfo.seq;
+    request_key.conversation = conversation->index;
+    memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
+    request_key.seq = aspinfo.seq;
 
-  	request_val = (asp_request_val *) g_hash_table_lookup(atp_request_hash, &request_key);
+    request_val = (asp_request_val *) g_hash_table_lookup(atp_request_hash, &request_key);
 
-  	if (!request_val && query && nbe > 1)  {
-  		asp_request_key *new_request_key;
+    if (!request_val && query && nbe > 1)  {
+      asp_request_key *new_request_key;
 
-  		/* only save nbe packets if more than 1 requested
-  	   	   save some memory and help the defragmentation if tid wraparound, ie
-  	   	   we have both a request for 1 packet and a request for n packets,
-  	   	   hopefully most of the time ATP_EOM will be set in the last packet.
-  	    */
-	 	new_request_key = se_alloc(sizeof(asp_request_key));
-	 	*new_request_key = request_key;
+      /* only save nbe packets if more than 1 requested
+         save some memory and help the defragmentation if tid wraparound, ie
+         we have both a request for 1 packet and a request for n packets,
+         hopefully most of the time ATP_EOM will be set in the last packet.
+      */
+      new_request_key = se_alloc(sizeof(asp_request_key));
+      *new_request_key = request_key;
 
-	    request_val = se_alloc(sizeof(asp_request_val));
-	    request_val->value = nbe;
+      request_val = se_alloc(sizeof(asp_request_val));
+      request_val->value = nbe;
 
-	 	g_hash_table_insert(atp_request_hash, new_request_key,request_val);
-	}
+      g_hash_table_insert(atp_request_hash, new_request_key,request_val);
+    }
   }
 
   /*
-     ATP_EOM is not mandatory. Some implementations don't always set it
-     if the query is only one packet.
+    ATP_EOM is not mandatory. Some implementations don't always set it
+    if the query is only one packet.
 
-     So it needs to keep the number of packets asked in request.
-    */
+    So it needs to keep the number of packets asked in request.
+  */
 
   if (aspinfo.reply) {
-     more_fragment = !(ATP_EOM & ctrlinfo) && request_val;
-     frag_number = bitmap;
+    more_fragment = !(ATP_EOM & ctrlinfo) && request_val;
+    frag_number = bitmap;
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
-    	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
+                 val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
     if (more_fragment)
-	col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
+      col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
   }
 
   if (tree) {
@@ -881,12 +881,12 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, FALSE);
 
     if (aspinfo.release)
-    	proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, FALSE);
+      proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, FALSE);
 
   }
 
   if (aspinfo.release)
-  	return;
+    return;
 
   save_fragmented = pinfo->fragmented;
 
@@ -895,64 +895,64 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      move asp back in atp?
   */
   if (atp_defragment && aspinfo.reply && (more_fragment || frag_number != 0)) {
-     fragment_data *fd_head;
-     int hdr;
+    fragment_data *fd_head;
+    int hdr;
 
-     hdr = ATP_HDRSIZE -1;
-     if (frag_number != 0)
-     	hdr += 4;	/* asp header */
-     len = tvb_reported_length_remaining(tvb, hdr);
-     fd_head = fragment_add_seq_check(tvb, hdr, pinfo, tid,
+    hdr = ATP_HDRSIZE -1;
+    if (frag_number != 0)
+      hdr += 4;	/* asp header */
+    len = tvb_reported_length_remaining(tvb, hdr);
+    fd_head = fragment_add_seq_check(tvb, hdr, pinfo, tid,
 				     atp_fragment_table,
 				     atp_reassembled_table,
 				     frag_number,
 				     len,
 				     more_fragment);
-     new_tvb = process_reassembled_data(tvb, ATP_HDRSIZE -1, pinfo,
-				"Reassembled ATP", fd_head, &atp_frag_items,
-				NULL, atp_tree);
+    new_tvb = process_reassembled_data(tvb, ATP_HDRSIZE -1, pinfo,
+                                       "Reassembled ATP", fd_head, &atp_frag_items,
+                                       NULL, atp_tree);
   }
   else {
-      /* full packet */
-     new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1,- 1);
+    /* full packet */
+    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1,- 1);
   }
 
   if (new_tvb) {
-     void* pd_save;
-     pd_save = pinfo->private_data;
-     pinfo->private_data = &aspinfo;
-     /* if port == 6 it's not an ASP packet but a ZIP packet */
-     if (pinfo->srcport == 6 || pinfo->destport == 6 )
-    	call_dissector(zip_atp_handle, new_tvb, pinfo, tree);
-     else {
-        /* XXX need a conversation_get_dissector function ? */
-        if (!aspinfo.reply && !conversation->dissector_handle) {
-        	dissector_handle_t sub;
+    void* pd_save;
+    pd_save = pinfo->private_data;
+    pinfo->private_data = &aspinfo;
+    /* if port == 6 it's not an ASP packet but a ZIP packet */
+    if (pinfo->srcport == 6 || pinfo->destport == 6 )
+      call_dissector(zip_atp_handle, new_tvb, pinfo, tree);
+    else {
+      /* XXX need a conversation_get_dissector function ? */
+      if (!aspinfo.reply && !conversation->dissector_handle) {
+        dissector_handle_t sub;
 
-            /* if it's a known ASP function call ASP dissector
-               else assume it's a PAP connection ID.
-               the test is wrong because PAP conn IDs overlapped with ASP fn
-               but I don't want to keep track of NBP msgs and open connection
-               port allocation.
-            */
-            guint8 fn = tvb_get_guint8(new_tvb, 0);
+        /* if it's a known ASP function call ASP dissector
+           else assume it's a PAP connection ID.
+           the test is wrong because PAP conn IDs overlapped with ASP fn
+           but I don't want to keep track of NBP msgs and open connection
+           port allocation.
+        */
+        guint8 fn = tvb_get_guint8(new_tvb, 0);
 
-            if (!fn || fn > ASPFUNC_ATTN) {
-     	        sub = pap_handle;
-            }
-            else {
-     	        sub = asp_handle;
-     	    }
-     	    call_dissector(sub, new_tvb, pinfo, tree);
-     	    conversation_set_dissector(conversation, sub);
+        if (!fn || fn > ASPFUNC_ATTN) {
+          sub = pap_handle;
         }
-        else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype,
-        						pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree)) {
-    		call_dissector(data_handle, new_tvb, pinfo, tree);
-
+        else {
+          sub = asp_handle;
         }
-     }
-     pinfo->private_data = pd_save;
+        call_dissector(sub, new_tvb, pinfo, tree);
+        conversation_set_dissector(conversation, sub);
+      }
+      else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype,
+                                           pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree)) {
+        call_dissector(data_handle, new_tvb, pinfo, tree);
+
+      }
+    }
+    pinfo->private_data = pd_save;
   }
   else {
     /* Just show this as a fragment. */
@@ -964,224 +964,224 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /*
-	copy and paste from dsi
-	XXX - is the format of this reply dependent on the type of server,
-	with this format being the format for AFP servers?
+  copy and paste from dsi
+  XXX - is the format of this reply dependent on the type of server,
+  with this format being the format for AFP servers?
 */
 static gint
 dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-        proto_tree      *sub_tree;
-	proto_item	*ti;
+  proto_tree      *sub_tree;
+  proto_item	*ti;
 
-	guint16 ofs;
-	guint16 flag;
-	guint16 machine_ofs;
-	guint16 sign_ofs = 0;
-	guint16 adr_ofs = 0;
-	guint16 dir_ofs = 0;
-	guint16 utf_ofs = 0;
-	guint8	nbe;
-	guint   len;
-	guint   i;
+  guint16 ofs;
+  guint16 flag;
+  guint16 machine_ofs;
+  guint16 sign_ofs = 0;
+  guint16 adr_ofs = 0;
+  guint16 dir_ofs = 0;
+  guint16 utf_ofs = 0;
+  guint8	nbe;
+  guint   len;
+  guint   i;
 
-  	proto_tree *adr_tree;
-  	char *tmp;
-  	const guint8 *ip;
-  	guint16 net;
-  	guint8  node;
-  	guint16 port;
+  proto_tree *adr_tree;
+  char *tmp;
+  const guint8 *ip;
+  guint16 net;
+  guint8  node;
+  guint16 port;
 
-	guint16 ulen;
+  guint16 ulen;
 
-	if (!tree)
-		return offset;
+  if (!tree)
+    return offset;
 
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
-	tree = proto_item_add_subtree(ti, ett_asp_status);
+  ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
+  tree = proto_item_add_subtree(ti, ett_asp_status);
 
-	machine_ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", machine_ofs);
-	if (machine_ofs)
-		machine_ofs += offset;
+  machine_ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
+  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", machine_ofs);
+  if (machine_ofs)
+    machine_ofs += offset;
 
-	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %u", ofs);
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %u", ofs);
 
-	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %u", ofs);
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %u", ofs);
 
-	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %u", ofs);
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %u", ofs);
 
-	ofs = offset +AFPSTATUS_FLAGOFF;
-	ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, FALSE);
-	sub_tree = proto_item_add_subtree(ti, ett_asp_status_server_flag);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_copyfile      , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_passwd        , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_no_save_passwd, tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_msg       , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_tcpip         , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
+  ofs = offset +AFPSTATUS_FLAGOFF;
+  ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, FALSE);
+  sub_tree = proto_item_add_subtree(ti, ett_asp_status_server_flag);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_copyfile      , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_passwd        , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_no_save_passwd, tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_msg       , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_tcpip         , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
-	proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
+  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
 
-	flag = tvb_get_ntohs(tvb, ofs);
-	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
-		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN) +1;
-		if ((ofs & 1))
-			ofs++;
+  flag = tvb_get_ntohs(tvb, ofs);
+  if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
+    ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN) +1;
+    if ((ofs & 1))
+      ofs++;
 
-		sign_ofs = tvb_get_ntohs(tvb, ofs);
-		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %u", sign_ofs);
-		sign_ofs += offset;
-		ofs += 2;
+    sign_ofs = tvb_get_ntohs(tvb, ofs);
+    proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %u", sign_ofs);
+    sign_ofs += offset;
+    ofs += 2;
 
-		if ((flag & AFPSRVRINFO_TCPIP) && ofs < machine_ofs ) {
-			adr_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %u", adr_ofs);
-			adr_ofs += offset;
-			ofs += 2;
-		}
+    if ((flag & AFPSRVRINFO_TCPIP) && ofs < machine_ofs ) {
+      adr_ofs =  tvb_get_ntohs(tvb, ofs);
+      proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %u", adr_ofs);
+      adr_ofs += offset;
+      ofs += 2;
+    }
 
-		if ((flag & AFPSRVRINFO_SRVDIRECTORY) && ofs < machine_ofs) {
-			dir_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %u", dir_ofs);
-			dir_ofs += offset;
-			ofs += 2;
-		}
+    if ((flag & AFPSRVRINFO_SRVDIRECTORY) && ofs < machine_ofs) {
+      dir_ofs =  tvb_get_ntohs(tvb, ofs);
+      proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %u", dir_ofs);
+      dir_ofs += offset;
+      ofs += 2;
+    }
 
-		if ((flag & AFPSRVRINFO_SRVUTF8) && ofs < machine_ofs) {
-			utf_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 Server name offset: %u", utf_ofs);
-			utf_ofs += offset;
-		}
-	}
+    if ((flag & AFPSRVRINFO_SRVUTF8) && ofs < machine_ofs) {
+      utf_ofs =  tvb_get_ntohs(tvb, ofs);
+      proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 Server name offset: %u", utf_ofs);
+      utf_ofs += offset;
+    }
+  }
 
-	if (machine_ofs)
-		proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, FALSE);
+  if (machine_ofs)
+    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, FALSE);
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
-	if (ofs) {
-		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %u", nbe);
-		ofs++;
-		sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
-		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
-			ofs += len + 1;
-		}
-	}
+  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+  if (ofs) {
+    nbe = tvb_get_guint8(tvb, ofs);
+    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %u", nbe);
+    ofs++;
+    sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
+    for (i = 0; i < nbe; i++) {
+      len = tvb_get_guint8(tvb, ofs);
+      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
+      ofs += len + 1;
+    }
+  }
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
-	if (ofs) {
-		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %u", nbe);
-		ofs++;
-		sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
-		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
-			ofs += len + 1;
-		}
-	}
+  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+  if (ofs) {
+    nbe = tvb_get_guint8(tvb, ofs);
+    ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %u", nbe);
+    ofs++;
+    sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
+    for (i = 0; i < nbe; i++) {
+      len = tvb_get_guint8(tvb, ofs);
+      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
+      ofs += len + 1;
+    }
+  }
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-	if (ofs)
-		proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, FALSE);
+  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+  if (ofs)
+    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, FALSE);
 
-	if (sign_ofs) {
-		proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, FALSE);
-	}
+  if (sign_ofs) {
+    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, FALSE);
+  }
 
-	if (adr_ofs) {
+  if (adr_ofs) {
 
-		ofs = adr_ofs;
-		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %u", nbe);
-		ofs++;
-		adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
-		for (i = 0; i < nbe; i++) {
-			guint8 type;
+    ofs = adr_ofs;
+    nbe = tvb_get_guint8(tvb, ofs);
+    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %u", nbe);
+    ofs++;
+    adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
+    for (i = 0; i < nbe; i++) {
+      guint8 type;
 
-			len = tvb_get_guint8(tvb, ofs);
-			type =  tvb_get_guint8(tvb, ofs +1);
-			switch (type) {
-			case 1:	/* IP */
-				ip = tvb_get_ptr(tvb, ofs+2, 4);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
-				break;
-			case 2: /* IP + port */
-				ip = tvb_get_ptr(tvb, ofs+2, 4);
-				port = tvb_get_ntohs(tvb, ofs+6);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",ip_to_str(ip),port);
-				break;
-			case 3: /* DDP, atalk_addr_to_str want host order not network */
-				net  = tvb_get_ntohs(tvb, ofs+2);
-				node = tvb_get_guint8(tvb, ofs +4);
-				port = tvb_get_guint8(tvb, ofs +5);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
-					net, node, port);
-				break;
-			case 5: /* IP + port ssh tunnel */
-				ip = tvb_get_ptr(tvb, ofs+2, 4);
-				port = tvb_get_ntohs(tvb, ofs+6);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",ip_to_str(ip),port);
-				break;
-			case 4: /* DNS */
-				if (len > 2) {
-					tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs +2, len -2);
-					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
-					break;
-				}
-				/* else fall to default malformed record */
-			default:
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %u", type);
-				break;
-			}
-			len -= 2;
-			sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
-			proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, FALSE);
-			ofs++;
-			proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE);
-			ofs++;
-			proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, FALSE);
-			ofs += len;
-		}
-	}
+      len = tvb_get_guint8(tvb, ofs);
+      type =  tvb_get_guint8(tvb, ofs +1);
+      switch (type) {
+      case 1:	/* IP */
+        ip = tvb_get_ptr(tvb, ofs+2, 4);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
+        break;
+      case 2: /* IP + port */
+        ip = tvb_get_ptr(tvb, ofs+2, 4);
+        port = tvb_get_ntohs(tvb, ofs+6);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",ip_to_str(ip),port);
+        break;
+      case 3: /* DDP, atalk_addr_to_str want host order not network */
+        net  = tvb_get_ntohs(tvb, ofs+2);
+        node = tvb_get_guint8(tvb, ofs +4);
+        port = tvb_get_guint8(tvb, ofs +5);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
+                                 net, node, port);
+        break;
+      case 5: /* IP + port ssh tunnel */
+        ip = tvb_get_ptr(tvb, ofs+2, 4);
+        port = tvb_get_ntohs(tvb, ofs+6);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",ip_to_str(ip),port);
+        break;
+      case 4: /* DNS */
+        if (len > 2) {
+          tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs +2, len -2);
+          ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
+          break;
+        }
+        /* else fall to default malformed record */
+      default:
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %u", type);
+        break;
+      }
+      len -= 2;
+      sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, FALSE);
+      ofs++;
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE);
+      ofs++;
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, FALSE);
+      ofs += len;
+    }
+  }
 
-	if (dir_ofs) {
-		ofs = dir_ofs;
-		nbe = tvb_get_guint8(tvb, ofs);
-		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %u", nbe);
-		ofs++;
-		sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
-		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
-			ofs += len + 1;
-		}
-	}
-	if (utf_ofs) {
+  if (dir_ofs) {
+    ofs = dir_ofs;
+    nbe = tvb_get_guint8(tvb, ofs);
+    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %u", nbe);
+    ofs++;
+    sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
+    for (i = 0; i < nbe; i++) {
+      len = tvb_get_guint8(tvb, ofs);
+      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
+      ofs += len + 1;
+    }
+  }
+  if (utf_ofs) {
 
-		ofs = utf_ofs;
-		ulen = tvb_get_ntohs(tvb, ofs);
-		tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs + 2, ulen);
-		ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
-		sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
-		proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
-		ofs += 2;
-		proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
-		ofs += ulen;
-	}
-	/* FIXME: offset is not updated */
-	return offset;
+    ofs = utf_ofs;
+    ulen = tvb_get_ntohs(tvb, ofs);
+    tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs + 2, ulen);
+    ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
+    sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
+    proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
+    ofs += 2;
+    proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
+    ofs += ulen;
+  }
+  /* FIXME: offset is not updated */
+  return offset;
 }
 
 /* -----------------------------
@@ -1218,60 +1218,60 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset++;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-	 col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
-      				val_to_str(fn, pap_function_vals, "Unknown (0x%01x)"), connID);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
+                 val_to_str(fn, pap_function_vals, "Unknown (0x%01x)"), connID);
   }
   switch(fn) {
   case PAPOpenConn:
-  	PAD(2);
-  	proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
-  	offset++;
-  	proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
-  	offset++;
-  	proto_tree_add_item(pap_tree, hf_pap_waittime, tvb, offset, 2, FALSE);
-  	offset += 2;
-  	break;
+    PAD(2);
+    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(pap_tree, hf_pap_waittime, tvb, offset, 2, FALSE);
+    offset += 2;
+    break;
 
   case PAPOpenConnReply:
-  	PAD(2);
-  	proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
-  	offset++;
-  	proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
-  	offset++;
-  	proto_tree_add_item(pap_tree, hf_pap_result, tvb, offset, 2, FALSE);
-  	offset += 2;
+    PAD(2);
+    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(pap_tree, hf_pap_result, tvb, offset, 2, FALSE);
+    offset += 2;
     offset = dissect_pascal_string(tvb, offset, pap_tree, hf_pap_status);
-  	break;
+    break;
 
   case PAPSendData:
-  	proto_tree_add_item(pap_tree, hf_pap_seq, tvb, offset, 2, FALSE);
-  	offset += 2;
-  	break;
+    proto_tree_add_item(pap_tree, hf_pap_seq, tvb, offset, 2, FALSE);
+    offset += 2;
+    break;
 
   case PAPData:
-  	proto_tree_add_item(pap_tree, hf_pap_eof, tvb, offset, 1, FALSE);
-  	offset++;
-  	PAD(1);
-  	/* follow by data */
-	len = tvb_reported_length_remaining(tvb,offset);
-	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
-  	break;
+    proto_tree_add_item(pap_tree, hf_pap_eof, tvb, offset, 1, FALSE);
+    offset++;
+    PAD(1);
+    /* follow by data */
+    len = tvb_reported_length_remaining(tvb,offset);
+    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+    break;
 
   case PAPTickle:
   case PAPCloseConn:
   case PAPCloseConnReply:
-  	PAD(2);
-  	break;
+    PAD(2);
+    break;
 
   case PAPSendStatus:
-  	PAD(2);
-  	break;
+    PAD(2);
+    break;
 
   case PAPStatus:
-  	PAD(2);
-  	PAD(4);
+    PAD(2);
+    PAD(4);
     offset = dissect_pascal_string(tvb, offset, pap_tree, hf_pap_status);
-  	break;
+    break;
 
   default:  /* unknown */
     break;
@@ -1291,34 +1291,32 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
   guint8 fn;
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-		pinfo->srcport, pinfo->destport, 0);
+                                   pinfo->srcport, pinfo->destport, 0);
 
   if (conversation == NULL)
   {
-	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   }
 
   request_key.conversation = conversation->index;
   memcpy(request_key.src, (!aspinfo->reply)?pinfo->src.data:pinfo->dst.data, 4);
   request_key.seq = aspinfo->seq;
 
-  request_val = (asp_request_val *) g_hash_table_lookup(
-								asp_request_hash, &request_key);
+  request_val = (asp_request_val *) g_hash_table_lookup(asp_request_hash, &request_key);
   if (!request_val && !aspinfo->reply )  {
-	 fn = tvb_get_guint8(tvb, 0);
-	 new_request_key = se_alloc(sizeof(asp_request_key));
-	 *new_request_key = request_key;
+    fn = tvb_get_guint8(tvb, 0);
+    new_request_key = se_alloc(sizeof(asp_request_key));
+    *new_request_key = request_key;
 
-	 request_val = se_alloc(sizeof(asp_request_val));
-	 request_val->value = fn;
+    request_val = se_alloc(sizeof(asp_request_val));
+    request_val->value = fn;
 
-	 g_hash_table_insert(asp_request_hash, new_request_key,
-								request_val);
+    g_hash_table_insert(asp_request_hash, new_request_key, request_val);
   }
 
   if (!request_val)
-	return NULL;
+    return NULL;
 
   aspinfo->command = request_val->value;
   return aspinfo;
@@ -1347,11 +1345,11 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fn = (guint8) aspinfo->command;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-	if (aspinfo->reply)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
-	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-      				val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
+    if (aspinfo->reply)
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+    else
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
+                   val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
   if (tree) {
@@ -1359,112 +1357,112 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     asp_tree = proto_item_add_subtree(ti, ett_asp);
   }
   if (!aspinfo->reply) {
-	tvbuff_t   *new_tvb;
-	/* let the called deal with asp_tree == NULL */
+    tvbuff_t   *new_tvb;
+    /* let the called deal with asp_tree == NULL */
 
-      	proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
-	offset++;
-  	switch(fn) {
-  	case ASPFUNC_OPEN:
-		proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_version, tvb, offset, 2, FALSE);
-		offset += 2;
-		break;
-	case ASPFUNC_TICKLE:
-  	case ASPFUNC_CLOSE:
-		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
-		offset +=2;
-  		break;
-	case ASPFUNC_STAT:
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
-		offset += 2;
-		break;
-	case ASPFUNC_ATTN:
-		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_attn_code, tvb, offset, 2, FALSE);
-		offset +=2;
-  		break;
-  	case ASPFUNC_CMD:
-  	case ASPFUNC_WRITE:
-    		proto_item_set_len(asp_tree, 4);
-		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
-		offset += 2;
-		len = tvb_reported_length_remaining(tvb,offset);
-		new_tvb = tvb_new_subset(tvb, offset,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);
-  		break;
-  	case ASPFUNC_WRTCONT:
-		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
-		offset += 2;
-		proto_tree_add_item(asp_tree, hf_asp_size, tvb, offset, 2, FALSE);
-		offset += 2;
-		break;
-  	default:
-    		proto_item_set_len(asp_tree, 4);
-    		offset += 3;
-		len = tvb_reported_length_remaining(tvb,offset);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
-		break;
-  	}
+    proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
+    offset++;
+    switch(fn) {
+    case ASPFUNC_OPEN:
+      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_version, tvb, offset, 2, FALSE);
+      offset += 2;
+      break;
+    case ASPFUNC_TICKLE:
+    case ASPFUNC_CLOSE:
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      offset +=2;
+      break;
+    case ASPFUNC_STAT:
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      offset += 2;
+      break;
+    case ASPFUNC_ATTN:
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_attn_code, tvb, offset, 2, FALSE);
+      offset +=2;
+      break;
+    case ASPFUNC_CMD:
+    case ASPFUNC_WRITE:
+      proto_item_set_len(asp_tree, 4);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
+      offset += 2;
+      len = tvb_reported_length_remaining(tvb,offset);
+      new_tvb = tvb_new_subset(tvb, offset,-1,len);
+      call_dissector(afp_handle, new_tvb, pinfo, tree);
+      break;
+    case ASPFUNC_WRTCONT:
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
+      offset += 2;
+      proto_tree_add_item(asp_tree, hf_asp_size, tvb, offset, 2, FALSE);
+      offset += 2;
+      break;
+    default:
+      proto_item_set_len(asp_tree, 4);
+      offset += 3;
+      len = tvb_reported_length_remaining(tvb,offset);
+      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+      break;
+    }
   }
   else {
-	tvbuff_t   *new_tvb;
+    tvbuff_t   *new_tvb;
 
-	proto_tree_add_uint(asp_tree, hf_asp_func, tvb, 0, 0, fn);
-  	switch(fn) {
-  	case ASPFUNC_OPEN:
-		proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_init_error, tvb, offset, 2, FALSE);
-		offset += 2;
-  		break;
-  	case ASPFUNC_CLOSE:
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
-		offset += 2;
-		break;
-	case ASPFUNC_STAT:
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
-		offset += 4;
-		dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
-		break;
-	case ASPFUNC_CMD:
-  	case ASPFUNC_WRITE:
-    		proto_item_set_len(asp_tree, 4);
-		aspinfo->code = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
-		offset += 4;
-		len = tvb_reported_length_remaining(tvb,offset);
-		new_tvb = tvb_new_subset(tvb, offset,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);
-  		break;
-	case ASPFUNC_TICKLE:
-  	case ASPFUNC_WRTCONT:
-		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
-		/* fall */
-	case ASPFUNC_ATTN:	/* FIXME capture and spec disagree */
-  	default:
-    		proto_item_set_len(asp_tree, 4);
-    		offset += 4;
-		len = tvb_reported_length_remaining(tvb,offset);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
-		break;
-  	}
+    proto_tree_add_uint(asp_tree, hf_asp_func, tvb, 0, 0, fn);
+    switch(fn) {
+    case ASPFUNC_OPEN:
+      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_init_error, tvb, offset, 2, FALSE);
+      offset += 2;
+      break;
+    case ASPFUNC_CLOSE:
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      offset += 2;
+      break;
+    case ASPFUNC_STAT:
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
+      offset += 4;
+      dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
+      break;
+    case ASPFUNC_CMD:
+    case ASPFUNC_WRITE:
+      proto_item_set_len(asp_tree, 4);
+      aspinfo->code = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
+      offset += 4;
+      len = tvb_reported_length_remaining(tvb,offset);
+      new_tvb = tvb_new_subset(tvb, offset,-1,len);
+      call_dissector(afp_handle, new_tvb, pinfo, tree);
+      break;
+    case ASPFUNC_TICKLE:
+    case ASPFUNC_WRTCONT:
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
+      /* fall */
+    case ASPFUNC_ATTN:	/* FIXME capture and spec disagree */
+    default:
+      proto_item_set_len(asp_tree, 4);
+      offset += 4;
+      len = tvb_reported_length_remaining(tvb,offset);
+      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+      break;
+    }
   }
 }
 
@@ -1495,56 +1493,56 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fn = (guint8) aspinfo->command;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-	if (aspinfo->reply)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
-	else
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-      				val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
+    if (aspinfo->reply)
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+    else
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
+                   val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
   if (!tree)
-     return;
+    return;
 
   ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, FALSE);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
   if (!aspinfo->reply) {
-     proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, FALSE);
-     offset++;
-     switch(fn) {
-     case 7:	/* start_index = 0 */
-     case 8:
-     case 9:
-         proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
-         offset++;
-         proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, FALSE);
-         break;
-     }
+    proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, FALSE);
+    offset++;
+    switch(fn) {
+    case 7:	/* start_index = 0 */
+    case 8:
+    case 9:
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, FALSE);
+      break;
+    }
   }
   else {
-  guint i;
+    guint i;
 
-     proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
-     switch(fn) {
-     case 7:
-     case 8:
-     case 9:
-         proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, FALSE);
-         offset++;
+    proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
+    switch(fn) {
+    case 7:
+    case 8:
+    case 9:
+      proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, FALSE);
+      offset++;
 
-         proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
-         offset++;
-	 count = tvb_get_ntohs(tvb, offset);
-         ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, FALSE);
-         offset += 2;
-      	 sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
-	 for (i= 0; i < count; i++) {
-	     len = tvb_get_guint8(tvb, offset);
-             proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-	     offset += len +1;
-	 }
-         break;
-     }
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+      offset++;
+      count = tvb_get_ntohs(tvb, offset);
+      ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, FALSE);
+      offset += 2;
+      sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
+      for (i= 0; i < count; i++) {
+        len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+        offset += len +1;
+      }
+      break;
+    }
   }
 }
 
@@ -1572,11 +1570,11 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fn = tvb_get_guint8(tvb, 0);
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str(fn, zip_function_vals, "Unknown ZIP function (%02x)"));
+                val_to_str(fn, zip_function_vals, "Unknown ZIP function (%02x)"));
   }
 
   if (!tree)
-     return;
+    return;
 
   ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, FALSE);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
@@ -1586,96 +1584,96 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* fn 1,7,2,8 are not tested */
   switch (fn) {
   case 1: /* Query */
-      count = tvb_get_guint8(tvb, offset);
-      ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
-      offset++;
-      sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-      for (i= 0; i < count; i++) {
-          proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, FALSE);
-          offset += 2;
-      }
-      break;
+    count = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+    offset++;
+    sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+    for (i= 0; i < count; i++) {
+      proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, FALSE);
+      offset += 2;
+    }
+    break;
   case 7: /* Notify */
-      flag = tvb_get_guint8(tvb, offset);
-      ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-      flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-      proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
-      proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
-      proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
-      offset++;
+    flag = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
+    flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
+    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+    offset++;
 
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
-      offset += 4;
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+    offset += 4;
 
-      len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-      offset += len +1;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    offset += len +1;
 
-      len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
-      offset++;
-      proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
-      offset += len;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+    offset++;
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+    offset += len;
 
-      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-      break;
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    break;
 
   case 2: /* Reply */
   case 8: /* Extended Reply */
-      count = tvb_get_guint8(tvb, offset);
-      ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
-      offset++;
-      sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-      for (i= 0; i < count; i++) {
-          net = tvb_get_ntohs(tvb, offset);
-          ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %u", net);
-          net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-          proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
-          offset += 2;
-          len = tvb_get_guint8(tvb, offset);
-          proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-          offset += len +1;
-      }
-      break;
+    count = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+    offset++;
+    sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+    for (i= 0; i < count; i++) {
+      net = tvb_get_ntohs(tvb, offset);
+      ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %u", net);
+      net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
+      proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
+      offset += 2;
+      len = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      offset += len +1;
+    }
+    break;
 
   case 5 :  /* GetNetInfo request */
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
-      offset++;
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
-      offset += 4;
-      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-      break;
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    break;
 
   case 6 :  /* GetNetInfo reply */
-      flag = tvb_get_guint8(tvb, offset);
-      ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
-      flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-      proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
-      proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
-      proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
-      offset++;
+    flag = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
+    flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
+    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+    offset++;
 
-      proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, FALSE);
-      offset += 2;
+    proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, FALSE);
+    offset += 2;
 
-      proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, FALSE);
-      offset += 2;
+    proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, FALSE);
+    offset += 2;
 
-      len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
-      offset += len +1;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    offset += len +1;
 
-      len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
-      offset++;
-      proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
-      offset += len;
-      if ((flag & 0x80) != 0)
-         proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,FALSE);
-      break;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+    offset++;
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+    offset += len;
+    if ((flag & 0x80) != 0)
+      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,FALSE);
+    break;
 
   default:
-      break;
+    break;
   }
 }
 
@@ -1704,7 +1702,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   }
   len = tvb_get_ntohs(tvb, 0);
   if (tree)
-      proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+    proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
   dport = tvb_get_guint8(tvb, 2);
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 2, 1, dport);
@@ -1728,15 +1726,15 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
+                val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
   }
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-				 4, 3, atalk_addr_to_str(&src));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+                                        4, 3, atalk_addr_to_str(&src));
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-				 6, 3, atalk_addr_to_str(&dst));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+                                        6, 3, atalk_addr_to_str(&dst));
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
   }
@@ -1790,11 +1788,11 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
 				 4, 3, atalk_addr_to_str(&src));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
 				 6, 3, atalk_addr_to_str(&dst));
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
 			ddp_hops(ddp.hops_len));
@@ -1895,14 +1893,14 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 atp_init(void)
 {
-  	/* fragment */
-  	fragment_table_init(&atp_fragment_table);
-  	reassembled_table_init(&atp_reassembled_table);
-  	/* bitmap */
-	if (atp_request_hash)
-		g_hash_table_destroy(atp_request_hash);
+  /* fragment */
+  fragment_table_init(&atp_fragment_table);
+  reassembled_table_init(&atp_reassembled_table);
+  /* bitmap */
+  if (atp_request_hash)
+    g_hash_table_destroy(atp_request_hash);
 
-	atp_request_hash = g_hash_table_new(asp_hash, asp_equal);
+  atp_request_hash = g_hash_table_new(asp_hash, asp_equal);
 
 }
 
@@ -1910,10 +1908,10 @@ static void
 asp_reinit( void)
 {
 
-	if (asp_request_hash)
-		g_hash_table_destroy(asp_request_hash);
+  if (asp_request_hash)
+    g_hash_table_destroy(asp_request_hash);
 
-	asp_request_hash = g_hash_table_new(asp_hash, asp_equal);
+  asp_request_hash = g_hash_table_new(asp_hash, asp_equal);
 
 }
 
@@ -2388,36 +2386,36 @@ proto_register_atalk(void)
   };
 
   static gint *ett[] = {
-  	&ett_llap,
-	&ett_ddp,
-	&ett_atp,
-	&ett_atp_info,
-	&ett_atp_segments,
-	&ett_atp_segment,
-	&ett_asp,
-	&ett_pap,
+    &ett_llap,
+    &ett_ddp,
+    &ett_atp,
+    &ett_atp_info,
+    &ett_atp_segments,
+    &ett_atp_segment,
+    &ett_asp,
+    &ett_pap,
 
-	/* asp dsi afp */
-	&ett_asp_status,
-	&ett_asp_status_server_flag,
-	&ett_asp_vers,
-	&ett_asp_uams,
-	&ett_asp_addr,
-	&ett_asp_addr_line,
-	&ett_asp_directory,
-	&ett_asp_utf8_name,
+    /* asp dsi afp */
+    &ett_asp_status,
+    &ett_asp_status_server_flag,
+    &ett_asp_vers,
+    &ett_asp_uams,
+    &ett_asp_addr,
+    &ett_asp_addr_line,
+    &ett_asp_directory,
+    &ett_asp_utf8_name,
 
-	&ett_nbp,
-	&ett_nbp_info,
-	&ett_nbp_node,
-	&ett_pstring,
-	&ett_rtmp,
-	&ett_rtmp_tuple,
+    &ett_nbp,
+    &ett_nbp_info,
+    &ett_nbp_node,
+    &ett_pstring,
+    &ett_rtmp,
+    &ett_rtmp_tuple,
 
-	&ett_zip,
-	&ett_zip_flags,
-        &ett_zip_zones_list,
-        &ett_zip_network_list,
+    &ett_zip,
+    &ett_zip_flags,
+    &ett_zip_zones_list,
+    &ett_zip_network_list,
   };
   module_t *atp_module;
 
@@ -2502,3 +2500,16 @@ proto_reg_handoff_atalk(void)
   afp_handle = find_dissector("afp");
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
