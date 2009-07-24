@@ -597,12 +597,15 @@ cf_read(capture_file *cf)
 
   cf_callback_invoke(cf_cb_file_read_finished, cf);
 
-#ifndef NEW_PACKET_LIST
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
-  if (cf->first_displayed != NULL)
+  if (cf->first_displayed != NULL){
+#ifdef NEW_PACKET_LIST
+    new_packet_list_select_first_row();
+#else
     packet_list_select_row(0);
 #endif /* NEW_PACKET_LIST */
+  }
 
   if(stop_flag) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,

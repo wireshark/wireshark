@@ -206,6 +206,20 @@ new_packet_list_prev(void)
 {
 	g_warning("*** new_packet_list_prev() not yet implemented.");
 }
+void
+new_packet_list_select_first_row(void)
+{
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	gtk_tree_selection_select_iter (selection, &iter);
+	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
+
+}
 
 gint
 new_packet_list_find_row_from_data(gpointer data, gboolean select)
