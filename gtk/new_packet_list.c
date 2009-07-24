@@ -45,6 +45,7 @@
 #include "globals.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/font_utils.h"
+#include "gtk/packet_history.h"
 #include "epan/column.h"
 #include "gtk/recent.h"
 #include "gtk/keys.h"
@@ -237,13 +238,7 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 	if(!gtk_tree_model_get_iter_first(model, &iter))
 		return -1;
 
-	row = row_from_iter(&iter);
-	fdata = new_packet_list_get_row_data(row);
-	
-	if(fdata == (frame_data*)data)
-		return row;
-
-	while (gtk_tree_model_iter_next (model,&iter)) {
+	do {
 		row = row_from_iter(&iter);
 		fdata = new_packet_list_get_row_data(row);
 		
@@ -265,7 +260,7 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 			}
 			return row;
 		}
-	}
+	} while (gtk_tree_model_iter_next (model,&iter));
 
     return -1;
 }
@@ -276,6 +271,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	guint row;
+	frame_data *fdata;
 
 	selection = gtk_tree_view_get_selection(tree_view);
 	gtk_tree_selection_get_selected(selection, NULL, &iter);
@@ -287,6 +283,11 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	row = row_from_iter(&iter);
 
 	cf_select_packet(&cfile, row);
+
+	/* Add newly selected frame to packet history (breadcrumbs) */
+	fdata = new_packet_list_get_row_data(row);
+	if (fdata != NULL)
+		packet_history_add(fdata->num);
 }
 
 frame_data *

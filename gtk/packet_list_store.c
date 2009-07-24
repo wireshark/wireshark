@@ -180,6 +180,9 @@ packet_list_class_init(PacketListClass *klass)
 
 	object_class->finalize = packet_list_finalize;
 
+	/* XXX this seems to affect TreeView Application wide
+	 * Move to main.c ??? as it's not a bad thing(tm)
+	 */
 	gtk_rc_parse_string (
 		"style \"PacketList-style\"\n"
 		"{\n"
