@@ -75,7 +75,14 @@ typedef struct _capture_file {
   /* packet data */
   union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
+  /* memory chunks have been deprecated in favor of the slice allocator, 
+   * which has been added in 2.10
+   */
+#if GLIB_CHECK_VERSION(2,10,0)
+
+#else
   GMemChunk   *plist_chunk;     /* Memory chunk for frame_data structures */
+#endif
   frame_data  *plist;           /* Packet list */
   frame_data  *plist_end;       /* Last packet in list */
   frame_data  *first_displayed; /* First frame displayed */

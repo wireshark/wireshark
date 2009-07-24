@@ -277,12 +277,17 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
 
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
+  /* memory chunks have been deprecated in favor of the slice allocator, 
+   * which has been added in 2.10
+   */
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
 	sizeof(frame_data),
 	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
-
+#endif
   /* change the time formats now, as we might have a new precision */
   cf_change_time_formats(cf);
 
@@ -329,10 +334,16 @@ cf_reset_state(capture_file *cf)
   /* ...which means we have nothing to save. */
   cf->user_saved = FALSE;
 
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
+  /* memory chunks have been deprecated in favor of the slice allocator, 
+   * which has been added in 2.10
+   */
   if (cf->plist_chunk != NULL) {
     g_mem_chunk_destroy(cf->plist_chunk);
     cf->plist_chunk = NULL;
   }
+#endif
   if (cf->rfcode != NULL) {
     dfilter_free(cf->rfcode);
     cf->rfcode = NULL;
@@ -1158,9 +1169,15 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   epan_dissect_t *edt;
   int row = -1;
 
-  /* Allocate the next list entry, and add it to the list. */
+  /* Allocate the next list entry, and add it to the list. 
+   * memory chunks have been deprecated in favor of the slice allocator, 
+   * which has been added in 2.10
+   */
+#if GLIB_CHECK_VERSION(2,10,0)
+  fdata = g_slice_new(frame_data);
+#else
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
-
+#endif
   fdata->num = 0;
   fdata->next = NULL;
   fdata->prev = NULL;
@@ -1217,7 +1234,14 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
        ...but, at least in one test I did, where I just made the chunk
        a G_ALLOC_ONLY chunk and read in a huge capture file, it didn't
        seem to save a noticeable amount of time or space. */
+#if GLIB_CHECK_VERSION(2,10,0)
+  /* memory chunks have been deprecated in favor of the slice allocator, 
+   * which has been added in 2.10
+   */
+   	g_slice_free(frame_data,fdata);
+#else
     g_mem_chunk_free(cf->plist_chunk, fdata);
+#endif
   }
 
   return row;
