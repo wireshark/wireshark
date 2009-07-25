@@ -3398,6 +3398,10 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 gboolean
 cf_goto_top_frame(capture_file *cf)
 {
+#ifdef NEW_PACKET_LIST
+  /* Find and select */
+  new_packet_list_select_first_row();
+#else
   frame_data *fdata;
   int row;
   frame_data *lowest_fdata = NULL;
@@ -3413,10 +3417,6 @@ cf_goto_top_frame(capture_file *cf)
       return FALSE;
   }
 
-#ifdef NEW_PACKET_LIST
-  /* Find and select */
-  row = new_packet_list_find_row_from_data(fdata, TRUE);
-#else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(lowest_fdata);
@@ -3431,6 +3431,10 @@ cf_goto_top_frame(capture_file *cf)
 gboolean
 cf_goto_bottom_frame(capture_file *cf)
 {
+#ifdef NEW_PACKET_LIST
+  /* Find and select */
+  new_packet_list_select_last_row();
+#else
   frame_data *fdata;
   int row;
   frame_data *highest_fdata = NULL;
@@ -3445,10 +3449,6 @@ cf_goto_bottom_frame(capture_file *cf)
       return FALSE;
   }
 
-#ifdef NEW_PACKET_LIST
-  /* Find and select */
-  row = new_packet_list_find_row_from_data(fdata, TRUE);
-#else
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(highest_fdata);
