@@ -27,6 +27,10 @@
 #ifndef __UI_UTIL_H__
 #define __UI_UTIL_H__
 
+#ifndef NEW_PACKET_LIST
+#include "color.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
