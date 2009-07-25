@@ -627,12 +627,10 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Go/Go to _Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb),
                        0, NULL, NULL,},
     {"/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
- #ifndef NEW_PACKET_LIST
     {"/Go/Previous Packet", "<control>Up",
-                             GTK_MENU_FUNC(packet_list_prev), 0, "<StockItem>", GTK_STOCK_GO_UP,},
+                             GTK_MENU_FUNC(goto_previous_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_UP,},
     {"/Go/Next Packet", "<control>Down",
-                             GTK_MENU_FUNC(packet_list_next), 0, "<StockItem>", GTK_STOCK_GO_DOWN,},
-#endif /* NEW_PACKET_LIST */
+                             GTK_MENU_FUNC(goto_next_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_DOWN,},
     {"/Go/F_irst Packet", "<control>Home",
                              GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
     {"/Go/_Last Packet", "<control>End",

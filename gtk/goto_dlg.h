@@ -59,4 +59,18 @@ extern void goto_top_frame_cb(GtkWidget *widget, gpointer data);
  */
 extern void goto_bottom_frame_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Go To Next Packet" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_next_frame_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Go To Previous Packet" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_previous_frame_cb(GtkWidget *widget, gpointer data);
+
 #endif /* goto_dlg.h */

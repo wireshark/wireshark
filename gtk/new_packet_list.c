@@ -60,6 +60,8 @@ static gboolean enable_color;
 
 static GtkWidget *create_view_and_model(void);
 static guint row_from_iter(GtkTreeIter *iter);
+static gboolean iter_from_row(GtkTreeIter *iter, guint row);
+static void scroll_to_and_select_iter(GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
 static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkCellRenderer *renderer,
@@ -199,16 +201,43 @@ new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 void
 new_packet_list_next(void)
 {
-	g_warning("*** new_packet_list_next() not yet implemented.");
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	guint row;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return;
+
+	row = row_from_iter(&iter);
+	if (!iter_from_row(&iter, row+1))
+		return;
+
+	scroll_to_and_select_iter(&iter);
 }
 
 void
 new_packet_list_prev(void)
 {
-	g_warning("*** new_packet_list_prev() not yet implemented.");
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	guint row;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return;
+
+	row = row_from_iter(&iter);
+	if (!iter_from_row(&iter, row-1))
+		return;
+
+	scroll_to_and_select_iter(&iter);
 }
 
-static void scroll_to_and_select_iter(GtkTreeIter *iter)
+static void
+scroll_to_and_select_iter(GtkTreeIter *iter)
 {
 	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
 	GtkTreeSelection *selection;
@@ -255,7 +284,7 @@ new_packet_list_select_last_row(void)
 	if((children = gtk_tree_model_iter_n_children(model, NULL)) == 0)
 		return;
 
-	if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, children-1))
+	if(!iter_from_row(&iter, children-1))
 		return;
 
 	scroll_to_and_select_iter(&iter);
@@ -333,6 +362,15 @@ row_from_iter(GtkTreeIter *iter)
 	record = iter->user_data;
 
 	return record->pos;
+}
+
+/* XXX: will this work with display filters? */
+static gboolean
+iter_from_row(GtkTreeIter *iter, guint row)
+{
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+
+	return gtk_tree_model_iter_nth_child(model, iter, NULL, row);
 }
 
 static void

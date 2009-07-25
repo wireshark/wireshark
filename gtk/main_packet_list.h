@@ -107,14 +107,6 @@ extern void packet_list_set_font(PangoFontDescription *font);
  */
 extern void packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
-/** Move to the next packet
- */
-extern void packet_list_next(void);
-
-/** Move to the previous packet
- */
-extern void packet_list_prev(void);
-
 /** Check to see if the packet list is at its end.  Toggles automatic
  * scrolling if needed.
  *

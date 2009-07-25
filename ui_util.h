@@ -70,6 +70,8 @@ gint new_packet_list_find_row_from_data(gpointer data, gboolean select);
 void packet_list_clear(void);
 void packet_list_freeze(void);
 void packet_list_thaw(void);
+void packet_list_next(void);
+void packet_list_prev(void);
 void packet_list_select_row(gint);
 void packet_list_moveto_end(void);
 gint packet_list_append(const gchar *text[], gpointer data);
