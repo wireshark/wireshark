@@ -1,6 +1,6 @@
 /* packet_list_store.c
  * Routines to implement a custom GTK+ list model for Wireshark's packet list
- * Copyright 2008-2009, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
  *
