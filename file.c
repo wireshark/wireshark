@@ -3396,7 +3396,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 }
 
 gboolean
-cf_goto_top_frame(capture_file *cf)
+cf_goto_top_frame(capture_file *cf _U_)
 {
 #ifdef NEW_PACKET_LIST
   /* Find and select */
@@ -3429,7 +3429,7 @@ cf_goto_top_frame(capture_file *cf)
 }
 
 gboolean
-cf_goto_bottom_frame(capture_file *cf)
+cf_goto_bottom_frame(capture_file *cf _U_) /* cf is unused w/ NEW_PACKET_LIST */
 {
 #ifdef NEW_PACKET_LIST
   /* Find and select */

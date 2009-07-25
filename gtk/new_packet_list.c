@@ -201,7 +201,6 @@ new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 void
 new_packet_list_next(void)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	guint row;
@@ -220,7 +219,6 @@ new_packet_list_next(void)
 void
 new_packet_list_prev(void)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	guint row;
