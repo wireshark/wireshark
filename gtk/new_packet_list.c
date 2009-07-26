@@ -172,6 +172,15 @@ create_view_and_model(void)
 }
 
 void
+new_packet_list_clear(void)
+{
+	packet_history_clear();
+
+	new_packet_list_store_clear(packetlist);
+	gtk_widget_queue_draw(packetlist->view);
+}
+
+void
 new_packet_list_freeze(void)
 {
 	/* So we don't lose the model by the time we want to thaw it */

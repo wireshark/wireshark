@@ -517,6 +517,32 @@ new_packet_list_new(void)
 }
 
 void
+new_packet_list_store_clear(PacketList *packet_list)
+{
+	GtkTreePath *path;
+	guint i;
+
+	g_return_if_fail(packet_list != NULL);
+	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
+
+	if(packet_list->num_rows == 0)
+		return;
+
+	path = gtk_tree_path_new();
+
+	for(i = 0; i < packet_list->num_rows; ++i) {
+		gtk_tree_model_row_deleted(GTK_TREE_MODEL(packet_list), path);
+	}
+
+	gtk_tree_path_free(path);
+
+	/* XXX - hold on to these rows and reuse them instead */
+	g_free(packet_list->rows);
+	packet_list->rows = NULL;
+	packet_list->num_rows = 0;
+}
+
+void
 packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 {
 	GtkTreeIter iter;

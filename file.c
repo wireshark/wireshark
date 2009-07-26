@@ -362,6 +362,7 @@ cf_reset_state(capture_file *cf)
   /* Clear the packet list. */
 #ifdef NEW_PACKET_LIST
   new_packet_list_freeze();
+  new_packet_list_clear();
   new_packet_list_thaw();
 #else
   packet_list_freeze();
@@ -1635,6 +1636,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
     /* Initialize all data structures used for dissection. */
     init_dissection();
+
+#ifdef NEW_PACKET_LIST
+    /* We need to redissect the packets so we have to discard our old
+     * packet list store. */
+    new_packet_list_clear();
+#endif
   }
 
   /* Freeze the packet list while we redo it, so we don't get any
