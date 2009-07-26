@@ -290,7 +290,8 @@ extern "C" {
 
 /*
  * Maximum packet size we'll support.
- * It must be at least 65535.
+ * 65535 is the largest snapshot length that libpcap supports, so we
+ * use that.
  */
 #define	WTAP_MAX_PACKET_SIZE			65535
 
