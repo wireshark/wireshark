@@ -542,14 +542,32 @@ new_packet_list_store_clear(PacketList *packet_list)
 	packet_list->num_rows = 0;
 }
 
-void
-packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
+#if 0
+static void
+packet_list_row_inserted(PacketList *packet_list, guint pos)
 {
 	GtkTreeIter iter;
 	GtkTreePath *path;
+
+	/* Inform the tree view and other interested objects (such as tree row
+	 * references) that we have inserted a new row and where it was
+	 * inserted. */
+	path = gtk_tree_path_new();
+	gtk_tree_path_append_index(path, pos);
+
+	packet_list_get_iter(GTK_TREE_MODEL(packet_list), &iter, path);
+
+	gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
+
+	gtk_tree_path_free(path);
+}
+#endif
+
+void
+packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
+{
 	PacketListRecord *newrecord;
 	guint pos;
-	gint i;
 
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
@@ -560,31 +578,18 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
  	packet_list->rows = g_renew(PacketListRecord*, packet_list->rows,
 				    packet_list->num_rows);
 
-	newrecord = se_alloc0(sizeof(PacketListRecord));
-	newrecord->col_text = se_alloc0(sizeof(row_data->col_text)* cfile.cinfo.num_cols);
-
-
-	/* XXX newrecord->col_text still uses the fmt index */
-	for(i = 0; i < cfile.cinfo.num_cols; i++)
-		newrecord->col_text[i] = row_data->col_text[i];
-
+	newrecord = se_alloc(sizeof(PacketListRecord));
+	newrecord->col_text = row_data->col_text;
 	newrecord->fdata = row_data->fdata;
-
-	packet_list->rows[pos] = newrecord;
 	newrecord->pos = pos;
 
-	/* Inform the tree view and other interested objects (such as tree row
-	 * references) that we have inserted a new row and where it was
-	 * inserted. */
-	path = gtk_tree_path_new();
-	gtk_tree_path_append_index(path, newrecord->pos);
+	packet_list->rows[pos] = newrecord;
 
-	packet_list_get_iter(GTK_TREE_MODEL(packet_list), &iter, path);
+	/* Don't issue a row_inserted signal. We rely on our caller to have disconnected
+	 * the model from the view.
+	 * packet_list_row_inserted(packet_list, newrecord->pos);
+	 */
 
-	gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
-
-	gtk_tree_path_free(path);
-	
 	/* Don't resort the list for every row, the list will be in packet order any way.
 	 * packet_list_resort(packet_list);
 	 */
