@@ -9968,6 +9968,33 @@
 00:26:E1	StanfordUn             # Stanford University, OpenFlow Group
 00:26:E2	LgElectron             # LG Electronics
 00:26:E3	Dti
+00:26:E4	CanalOvers             # CANAL OVERSEAS
+00:26:E5	AegPowerSo             # AEG Power Solutions
+00:26:E6	Visionhite             # Visionhitech Co., Ltd.
+00:26:E7	ShanghaiOn             # Shanghai ONLAN Communication Tech. Co., Ltd.
+00:26:E8	MurataManu             # Murata Manufacturing Co., Ltd.
+00:26:E9	Sp                     # SP Corp
+00:26:EA	CheerchipE             # Cheerchip Electronic Technology (ShangHai) Co., Ltd.
+00:26:EB	AdvancedSp             # Advanced Spectrum Technology Co., Ltd.
+00:26:EC	LegrandHom             # Legrand Home Systems, Inc
+00:26:ED	Zte                    # zte corporation
+00:26:EE	Tkm                    # TKM GmbH
+00:26:EF	Technology             # Technology Advancement Group, Inc.
+00:26:F0	CtrixsInte             # cTrixs International GmbH.
+00:26:F1	ProcurveNe             # ProCurve Networking by HP
+00:26:F2	Netgear
+00:26:F3	SmcNetwork             # SMC Networks
+00:26:F4	Nesslab
+00:26:F5	Xrplus                 # XRPLUS Inc.
+00:26:F6	MilitaryCo             # Military Communication Institute
+00:26:F7	InfosysTec             # Infosys Technologies Ltd.
+00:26:F8	GoldenHigh             # Golden Highway Industry Development Co., Ltd.
+00:26:F9	SEMSrl                 # S.E.M. srl
+00:26:FA	Bandrich               # BandRich Inc.
+00:26:FB	AirdioWire             # AirDio Wireless, Inc.
+00:26:FC	AcsipTechn             # AcSiP Technology Corp.
+00:26:FD	Interactiv             # Interactive Intelligence
+00:26:FE	MkdTechnol             # MKD Technology Inc.
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13472,6 +13499,11 @@
 00:50:C2:B0:00:00/36	Saia-Burge             # Saia-Burgess Controls AG
 00:50:C2:B0:10:00/36	HsrHaraldL             # HSR Harald L. Reuter
 00:50:C2:B0:20:00/36	Master                 # MASTER CO LTD
+00:50:C2:B0:30:00/36	SpiderTecn             # Spider Tecnologia Ind. e Com. Ltda.
+00:50:C2:B0:40:00/36	UbiquitiNe             # Ubiquiti Networks
+00:50:C2:B0:50:00/36	PolaSRL                # POLA s.r.l.
+00:50:C2:B0:60:00/36	Compudesig             # CompuDesigns, Inc.
+00:50:C2:B0:70:00/36	Fareco
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -14979,7 +15011,7 @@
 00:D0:78	EltexOfSwe             # Eltex of Sweden AB
 00:D0:79	Cisco                  # CISCO SYSTEMS, INC.
 00:D0:7A	AmaquestCo             # AMAQUEST COMPUTER CORP.
-00:D0:7B	ComcamInte             # COMCAM INTERNATIONAL LTD.
+00:D0:7B	ComcamInte             # COMCAM INTERNATIONAL INC
 00:D0:7C	KoyoElectr             # KOYO ELECTRONICS INC. CO.,LTD.
 00:D0:7D	CosineComm             # COSINE COMMUNICATIONS
 00:D0:7E	Keycorp                # KEYCORP LTD.
