@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-07-19)
+(last updated 2009-07-24)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1175,8 +1175,8 @@ Decimal
       gpl0363&mcmail.mcdata.com
 290
   Harris Corporation
-    Al Etienne
-      aetienne&harris.com
+    Matthew Porath
+      mporath&harris.com
 291
   Technology Dynamics, Inc.
     Chip Standifer
@@ -29191,8 +29191,8 @@ Decimal
       ryan&zaantek.com
 7309
   Argus Technologies
-    Randy Dahlgren
-      rdahlgren&argus.ca
+    Doddy Wijanta
+      dwijanta&argus.ca
 7310
   EnStor
     Bart Steanes
@@ -38399,8 +38399,8 @@ Decimal
       milos&speakkeasy.net
 9611
   Infosim
-    Magnus Borg
-      magnus.borg&infosim.com
+    Marius Heuler
+      support&infosim.com
 9612
   Kobe Steel, Ltd.
     Hideo Ikeda
@@ -107585,9 +107585,9 @@ Institute
     Matt Connley
       mconnley&optionsxpress.com
 27002
-  Onvoy, Inc.
+  Zayo Group  (previous was 'Onvoy, Inc.')
     David B. Walters
-      dave.walters&onvoy.com
+      dwalters&zayoms.com
 27003
   Trigence Corp
     Brigitte Gagne
@@ -119042,9 +119042,9 @@ Decentralization / Helenic Public Administra
     Dominik Lisiak
       admin&typeria.net
 29865
-  Last Mile Ltd.
+  Kjaerulff 1 A/S
     Kim Esben Jorgensen
-      kej&lastmile.pl
+      kej&lastmile.eu
 29866
   Method Analysis Limited
     Michael Wright
@@ -135038,7 +135038,7 @@ Decentralization / Helenic Public Administra
 33863
   Mantaro Networks, Inc.
     Ken McInerney
-      kmcinerney&mantaro.com
+      ietf&mantaro.com
 33864
   Praktiker Services GmbH
     Adam Bielak
@@ -135275,6 +135275,182 @@ Decentralization / Helenic Public Administra
   Byzoro Networks Ltd.
     xie yongjiu
       xieyongjiu&byzoro.com
+33923
+  Axione
+    Thomas FAGART
+      thomas.fagart&axione.fr
+33924
+  Ebor Computing Pty Ltd
+    Bill Cumpston
+      snmp.info&ebor.com
+33925
+  Progetto 3000 srl
+    Alessandro Sebastianutti
+      snmp-admin&progetto3000.com
+33926
+  buzzword.org.uk
+    Toby Inkster
+      mail&tobyinkster.co.uk
+33927
+  Cambridge Leaning Center
+    Durk Kim
+      durkkim&gmail.com
+33928
+  Ibuildings
+    John Le Drew
+      john&ibuildings.com
+33929
+  Universitat Jaume I
+    Juanjo Villaplana
+      villapla&si.uji.es
+33930
+  Contineo Systems
+    Milton Lie
+      milton&contineosystems.com
+33931
+  IK-TECH
+    Joerg Weichbrodt
+      jw&ik-tech.de
+33932
+  MEDIACAST CO., LTD.
+    Satoru Nonaka
+      nonaka&mcast.co.jp
+33933
+  QOX,Inc
+    Katsumi Honda
+      khonda&qox.jp
+33934
+  XenData Limited
+    Mark Broadbent
+      xendata&xendata.com
+33935
+  RedFox Communications Ltd
+    Mark Fenwick
+      mark&redfox.co.uk
+33936
+  Sentilla Corporation
+    Pradip De
+      pradip&sentilla.com
+33937
+  LinuxBox.cz
+    Petr Kopecky
+      info&linuxbox.cz
+33938
+  Ordina
+    Michiel Helder
+      michiel.helder&ordina.nl
+33939
+  Bolt Court Consulting
+    Jamie Hosker
+      admin&boltcourtconsulting.com
+33940
+  Wuhan Hongxin Telecommunication Technologies Co.,Ltd
+    Zheng Zhi
+      zhengzhi&hxct.com
+33941
+  Business Logic Systems
+    Stefan Szalai Dragos
+      stefan.dragos&gmail.com
+33942
+  NakedApe
+    Anton Emmerfors
+      anton.emmerfors&bredband.net
+33943
+  Faculty of Electrical Engineering Banja Luka
+    Mihajlo Savic
+      badaboom&etfbl.net
+33944
+  Compower Systems Inc.
+    Juan Gil Niehorster
+      jgil&compowersystems.com
+33945
+  OHO Interactive
+    Chris OConnor
+      chris&oho.com
+33946
+  Vencomm
+    Alexandre Vézina
+      avezina&vencomm.ca
+33947
+  MAGICONLINE
+    Adel Mezibra
+      amezibra&magic.fr
+33948
+  Azienda USL Ferrara
+    Boccafogli Luca
+      l.boccafogli&ausl.fe.it
+33949
+  Geotech Ltda
+    Ramiro Tostes
+      ramirobot&gmail.com
+33950
+  Zilogic Systems Pvt. Ltd.
+    Ganesan Paramasivam
+      iana&zilogic.com
+33951
+  taunusstein.net
+    Christian Felsing
+      hostmaster&taunusstein.net
+33952
+  ZimZahm Productions
+    Thomas P. Zahm
+      zahmt&ipfw.edu
+33953
+  DLT Limited
+    Darren Lucinsky
+      DL&DLTLimited.com
+33954
+  International School of Beijing
+    Damir Tejic
+      dtejic&isb.bj.edu.cn
+33955
+  Better Place 
+    Emek Sadot
+      emek.sadot&betterplace.com
+33956
+  Oversun
+    Timur Izhbulatov
+      t.izhbulatov&mchost.ru
+33957
+  NCHOVY Inc.
+    Yang, BongYeol
+      xeraph&nchovy.com
+33958
+  Skytap
+    Lonnie Hutchinson
+      lonnieh&skytap.com
+33959
+  The Egyptian Company for Networks and Computer Security Services
+    Ossama Husain
+      info&snsegypt.com
+33960
+  Nordnet AB
+    Johan Tanner
+      johan.tanner&nordnet.se
+33961
+  enCentro Systems Inc
+    Celso Meira
+      celso.meira&encentro.eu
+33962
+  icuetv
+    George Kurian
+      gkurian&icuetv.com
+33963
+  OCCN Ltd.
+    Thomas Steinbach
+      pen&occn.co.uk
+33964
+  ParaVolve Development Corporation
+    James W. Brinkerhoff IV
+      jwb&paravolve.net
+33965
+  R-DATA Sp. z o.o.
+    Grzegorz Szczyglowski
+      grzegorz.szczyglowski&gmail.com
+33966
+  FUNAI ELECTRIC CO., LTD. 
+    Masahiro Matsuo
+      matuo&funai.co.jp
 
 
 End of Document
