@@ -391,9 +391,14 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	GdkColor bg_gdk;
 	gchar *cell_text;
 
+	if (col_has_time_fmt(&cfile.cinfo, col_num)) {
+		col_set_fmt_time(fdata, &cfile.cinfo, cfile.cinfo.col_fmt[col_num], col_num);
+		cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
+	}else{
 	gtk_tree_model_get(model, iter,
 			   col_num, &cell_text,
 			   -1);
+	}
 
 	if(fdata->color_filter){
 		color_filter = fdata->color_filter;
