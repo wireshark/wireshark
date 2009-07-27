@@ -2882,6 +2882,11 @@ Harald Welte		<laforge [AT] gnumonks.org> {
 	GSM A-bis over IP dissector
 }
 
+Chris Costa		<chcosta75 [AT] hotmail.com> {
+	Add defragmentation code to NDMP dissectot
+        Properly decode SMB2 error response
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
