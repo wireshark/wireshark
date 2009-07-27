@@ -398,6 +398,10 @@ static int hf_gsm_a_dtap_serv_cat_b4 = -1;
 static int hf_gsm_a_dtap_serv_cat_b3 = -1;
 static int hf_gsm_a_dtap_serv_cat_b2 = -1;
 static int hf_gsm_a_dtap_serv_cat_b1 = -1;
+static int hf_gsm_a_dtap_ccbs_activation = -1;
+static int hf_gsm_a_dtap_stream_identifier = -1;
+static int hf_gsm_a_dtap_mcs = -1;
+static int hf_gsm_a_dtap_cause_of_no_cli = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -3011,6 +3015,10 @@ de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * 10.5.4.27 Allowed actions $(CCBS)$
  */
+const true_false_string gsm_a_ccbs_activation_value = {
+	"Activation of CCBS possible",
+	"Activation of CCBS not possible"
+};
 static guint16
 de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3018,8 +3026,12 @@ de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	proto_tree_add_item(tree, hf_gsm_a_dtap_ccbs_activation, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3) + 1, 7, FALSE);
 
+	curr_offset++;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
@@ -3027,20 +3039,45 @@ de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 10.5.4.28 Stream Identifier
  */
 static guint16
-de_stream_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_stream_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
+	guint8 oct;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	oct = tvb_get_guint8(tvb, curr_offset);
+	if (oct == 0x00)
+	{
+		proto_tree_add_uint_format(tree, hf_gsm_a_dtap_stream_identifier, tvb, curr_offset, 1, oct,
+			"Stream Identifier: No Bearer (%u)", oct);
 
+		if (add_string)
+			g_snprintf(add_string, string_len, " - (No Bearer)");			
+	}
+	else
+	{
+		proto_tree_add_uint_format(tree, hf_gsm_a_dtap_stream_identifier, tvb, curr_offset, 1, oct,
+			"Stream Identifier: %u", oct);
+
+		if (add_string)
+			g_snprintf(add_string, string_len, " - (%u)", oct);
+	}
+
+	curr_offset++;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
 /*
  * 10.5.4.29 Network Call Control Capabilities
  */
+
+static const true_false_string gsm_a_mcs_value = {
+	"This value indicates that the network supports the multicall",
+	"This value indicates that the network does not support the multicall"
+};
 static guint16
 de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3048,23 +3085,45 @@ de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3), 7, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_mcs, tvb, curr_offset, 1, FALSE);
 
+	curr_offset++;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
 /*
  * 10.5.4.30 Cause of No CLI
  */
+static const value_string gsm_a_cause_of_no_cli_values[] = {
+	{ 0x00,	"Unavailable" },
+	{ 0x01,	"Reject by user" },
+	{ 0x02,	"Interaction with other service" },
+	{ 0x03,	"Coin line/payphone" },
+	{ 0, NULL }
+};
 static guint16
-de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
-
+	guint8 oct;
+	
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	oct = tvb_get_guint8(tvb, curr_offset);
+	proto_tree_add_uint_format(tree, hf_gsm_a_dtap_cause_of_no_cli, tvb, curr_offset, 1, oct,
+				   "Cause of no CLI: %s (%u)",
+				   val_to_str(oct, gsm_a_cause_of_no_cli_values, "Unavailable"),
+				   oct);
 
+	curr_offset++;
+
+	if (add_string)
+		g_snprintf(add_string, string_len, " - (%s)", val_to_str(oct, gsm_a_cause_of_no_cli_values, "Unavailable"));
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
@@ -5925,6 +5984,26 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_serv_cat_b1,
 		{ "Police", "gsm_a.dtap.serv_cat_b1",
 		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_ccbs_activation,
+		{ "CCBS Activation", "gsm_a.dtap.ccbs_activation",
+		FT_BOOLEAN, 8, TFS(&gsm_a_ccbs_activation_value), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_stream_identifier,
+		{ "Stream Identifier", "gsm_a.dtap.stream_identifier",
+		FT_UINT8, BASE_HEX, 0, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_mcs,
+		{ "MCS", "gsm_a.dtap.mcs",
+		FT_BOOLEAN, 8, TFS(&gsm_a_mcs_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_cause_of_no_cli,
+		{ "Cause of no CLI", "gsm_a.dtap.cause_of_no_cli",
+		FT_UINT8, BASE_HEX, 0, 0x0,
 		NULL, HFILL }
 	},
 	};
