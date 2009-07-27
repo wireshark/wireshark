@@ -144,7 +144,7 @@ dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
 
 	/*key.id is the first item to compare since item is most
 	  likely to differ between sessions, thus shortcircuiting
-	  the comparasion of addresses.
+	  the comparison of addresses.
 	*/
 	return (((key1->id == key2->id)
 	      && (ADDRESSES_EQUAL(&key1->src, &key2->src))
