@@ -52,6 +52,8 @@
 
 #define TCP_PORT_NDMP 10000
 
+static  dissector_handle_t ndmp_handle;
+
 static int proto_ndmp = -1;
 static int hf_ndmp_request_frame = -1;
 static int hf_ndmp_response_frame = -1;
@@ -3013,7 +3015,6 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
-
 	ndmp_conv_data=conversation_get_proto_data(conversation, proto_ndmp);
 	if(!ndmp_conv_data){
 		ndmp_conv_data=se_alloc(sizeof(ndmp_conv_data_t));
@@ -3025,6 +3026,16 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndmp_conv_data->fragsB=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "NDMP fragsB");
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
+
+                /* Ensure that any & all frames/fragments belonging to this conversation   */
+                /*  are dissected as NDMP even if another dissector (eg: IPSEC-TCP) might  */
+                /*  decide to dissect an NDMP fragment. This works because the TCP         */
+                /*  dissector dispatches to a conversation associated dissector before     */
+                /*  dispatching by port or by heuristic. Associating NDMP with this        */
+                /*  conversation is necessary because otherwise the IPSEC-TCP(TCPENCAP)    */
+                /*  dissector may think NDMP fragments are really TCPENCAP since that      */
+                /*  dissector also registers on TCP Port 10000. (See packet-ipsec-tcp.c).  */
+                conversation_set_dissector(conversation, ndmp_handle);
 	}
 
 	/*
@@ -3039,13 +3050,6 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * just pass through and use the data in tvb for dissection */
 	if (ndmp_defragment && ndmp_desegment)
 	{
-
-		/* Initialize the tables, if neccesary */
-		if (ndmp_fragment_table == NULL)
-		{
-			fragment_table_init(&ndmp_fragment_table);
-			reassembled_table_init(&ndmp_reassembled_table);
-		}
 
 		/* 
 		 * Determine the direction of the flow, so we can use the correct fragment tree
@@ -3063,14 +3067,10 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Figure out the tcp seq and pdu length.  Fragment tree is indexed based on seq;
 		 */
-		if (pinfo == NULL || pinfo->private_data == NULL) {
-			return;
-		}
+		DISSECTOR_ASSERT((pinfo != NULL) && (pinfo->private_data != NULL));
+
 		tcpinfo = pinfo->private_data;
 
-		if (tcpinfo == NULL) {
-			return;
-		}
 		seq = tcpinfo->seq;
 		len = (ndmp_rm & RPC_RM_FRAGLEN) + 4;
 		nxt = seq + len;
@@ -3091,13 +3091,17 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * If nfi doesn't exist, then there are no fragments before this one.
 			 * If there are fragments after this one, create the entry in the frag 
 			 * tree so the next fragment can find it.
+			 * If we've already seen this frame, no need to create the entry again.
 			 */
-			if (!(ndmp_rm & RPC_RM_LASTFRAG))
+			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				nfi=se_alloc(sizeof(ndmp_frag_info));
-				nfi->first_seq = seq;
-				nfi->offset = 1;
-				se_tree_insert32(frags, nxt, (void *)nfi);
+				if ( !(pinfo->fd->flags.visited))
+				{
+					nfi=se_alloc(sizeof(ndmp_frag_info));
+					nfi->first_seq = seq;
+					nfi->offset = 1;
+					se_tree_insert32(frags, nxt, (void *)nfi);
+				}
 			}
 			/* 
 			 * If this is both the first and the last fragment, then there
@@ -3120,13 +3124,17 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/*
 			 * If this isn't the last frag, add another entry so the next fragment can find it.
+			 * If we've already seen this frame, no need to create the entry again.
 			 */
-			if (!(ndmp_rm & RPC_RM_LASTFRAG))
+			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				nfi=se_alloc(sizeof(ndmp_frag_info));
-				nfi->first_seq = seq;
-				nfi->offset = frag_num+1;
-				se_tree_insert32(frags, nxt, (void *)nfi);
+				if ( !(pinfo->fd->flags.visited))
+				{
+					nfi=se_alloc(sizeof(ndmp_frag_info));
+					nfi->first_seq = seq;
+					nfi->offset = frag_num+1;
+					se_tree_insert32(frags, nxt, (void *)nfi);
+				}
 			}
 		}
 	
@@ -3182,6 +3190,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			nbytes = tvb_reported_length_remaining(tvb, 4);
 			proto_tree_add_text(ndmp_tree, tvb, 4, nbytes, "NDMP fragment data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 
+			pinfo->fragmented = save_fragmented;
 			return;
 		}
 	}
@@ -3195,6 +3204,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	size = tvb_length_remaining(new_tvb, offset);
 	if (size < 24) {
 		/* too short to be NDMP */
+		pinfo->fragmented = save_fragmented;
 		return;
 	}
 
@@ -3204,6 +3214,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!check_ndmp_hdr(new_tvb))
 	{
+		pinfo->fragmented = save_fragmented;
 		return;
 	}
 
@@ -3379,6 +3390,10 @@ check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
 	return TRUE;
 }
 
+/* Called because the frame has been identified as part of a conversation 
+ *  assigned to the NDMP protocol.
+ *  At this point we may have either an NDMP PDU or an NDMP PDU fragment.
+ */
 static int
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3389,9 +3404,9 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 
-	/* If we aren't doing both defragmentation and reassembly, check for the entire 
-	 * NDMP header before proceeding */
-	if(!(ndmp_defragment && ndmp_desegment) && !check_if_ndmp(tvb, pinfo)) {
+	/* If we aren't doing both desegmentation and fragment reassembly,
+         * check for the entire NDMP header before proceeding */
+	if(!(ndmp_desegment && ndmp_defragment) && !check_if_ndmp(tvb, pinfo)) {
 		return 0;
 	}
 
@@ -3399,6 +3414,32 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 get_ndmp_pdu_len, dissect_ndmp_message);
 	return tvb_length(tvb);
 }
+
+/* Called when doing a heuristic check; 
+ * Accept as NDMP only if the full header seems reasonable.
+ * Note that once the first PDU (or PDU fragment) has been found
+ *  dissect_ndmp_message will register a dissect_ndmp NDMP handle 
+ *  as the protocol dissector for this conversation.
+ */
+static int
+dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (tvb_length(tvb) < 28)
+		return 0;
+	if (!check_if_ndmp(tvb, pinfo))
+		return 0;
+	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
+			 get_ndmp_pdu_len, dissect_ndmp_message);
+	return tvb_length(tvb);
+}
+
+static void
+ndmp_init(void) 
+{
+	fragment_table_init(&ndmp_fragment_table);
+	reassembled_table_init(&ndmp_reassembled_table);
+}
+
 
 void
 proto_register_ndmp(void)
@@ -4111,26 +4152,26 @@ proto_register_ndmp(void)
   };
 
   static gint *ett[] = {
-    &ett_ndmp,
-    &ett_ndmp_fraghdr,
-    &ett_ndmp_header,
-    &ett_ndmp_butype_attrs,
-    &ett_ndmp_fs_invalid,
-    &ett_ndmp_tape_attr,
-    &ett_ndmp_execute_cdb_flags,
-    &ett_ndmp_execute_cdb_cdb,
-    &ett_ndmp_execute_cdb_sns,
-    &ett_ndmp_execute_cdb_payload,
-    &ett_ndmp_tape_invalid,
-    &ett_ndmp_tape_flags,
-    &ett_ndmp_addr,
-    &ett_ndmp_file,
-    &ett_ndmp_file_name,
-    &ett_ndmp_file_stats,
-    &ett_ndmp_file_invalids,
-    &ett_ndmp_state_invalids,
-	&ett_ndmp_fragment,
-	&ett_ndmp_fragments,
+	  &ett_ndmp,
+	  &ett_ndmp_fraghdr,
+	  &ett_ndmp_header,
+	  &ett_ndmp_butype_attrs,
+	  &ett_ndmp_fs_invalid,
+	  &ett_ndmp_tape_attr,
+	  &ett_ndmp_execute_cdb_flags,
+	  &ett_ndmp_execute_cdb_cdb,
+	  &ett_ndmp_execute_cdb_sns,
+	  &ett_ndmp_execute_cdb_payload,
+	  &ett_ndmp_tape_invalid,
+	  &ett_ndmp_tape_flags,
+	  &ett_ndmp_addr,
+	  &ett_ndmp_file,
+	  &ett_ndmp_file_name,
+	  &ett_ndmp_file_stats,
+	  &ett_ndmp_file_invalids,
+	  &ett_ndmp_state_invalids,
+	  &ett_ndmp_fragment,
+	  &ett_ndmp_fragments,
   };
 
   module_t *ndmp_module;
@@ -4159,15 +4200,15 @@ proto_register_ndmp(void)
   	"Reassemble fragmented NDMP messages spanning multiple packets",
   	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
   	&ndmp_defragment);
+  register_init_routine(ndmp_init);
 }
 
 void
 proto_reg_handoff_ndmp(void)
 {
-  dissector_handle_t ndmp_handle;
-
   ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
+#if 0 /* tcpencap needs to own this TCP port; See packet-ipsec-tcp.c */
   dissector_add("tcp.port",TCP_PORT_NDMP, ndmp_handle);
-
-  heur_dissector_add("tcp", dissect_ndmp, proto_ndmp);
+#endif
+  heur_dissector_add("tcp", dissect_ndmp_heur, proto_ndmp);
 }
