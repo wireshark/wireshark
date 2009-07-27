@@ -79,7 +79,7 @@ static dissector_handle_t udp_handle;
 
 /* oh what a crap protocol.
    there is nothing in the protocol that makes it easy to identify and then
-   worse   is that by default it is using port 10000 which ndmp has been
+   worse is that by default it is using port 10000 which ndmp has been
    using for ages.
 
    assume it is tcpencap    if it does not look like ndmp
@@ -164,26 +164,6 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_tcpencap(void)
-{
-	static dissector_handle_t tcpencap_handle;
-	static gboolean initialized = FALSE;
-	static guint tcpencap_tcp_port;
-
-	if (!initialized) {
-		tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
-		esp_handle = find_dissector("esp");
-		udp_handle = find_dissector("udp");
-		initialized = TRUE;
-	} else {
-		dissector_delete("tcp.port", tcpencap_tcp_port, tcpencap_handle);
-	}
-
-	tcpencap_tcp_port = global_tcpencap_tcp_port;
-	dissector_add("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
-}
-
-void
 proto_register_tcpencap(void)
 {
 	static hf_register_info hf[] = {
@@ -229,6 +209,8 @@ proto_register_tcpencap(void)
 
 	module_t *tcpencap_module;
 
+	void proto_reg_handoff_tcpencap(void);
+
 	proto_tcpencap = proto_register_protocol(
 		"TCP Encapsulation of IPsec Packets", "TCPENCAP", "tcpencap");
 	proto_register_field_array(proto_tcpencap, hf, array_length(hf));
@@ -238,5 +220,25 @@ proto_register_tcpencap(void)
 		"Set the port for IPSEC/ISAKMP messages"
 		"If other than the default of 10000)",
 		10, &global_tcpencap_tcp_port);
+}
+
+void
+proto_reg_handoff_tcpencap(void)
+{
+	static dissector_handle_t tcpencap_handle;
+	static gboolean initialized = FALSE;
+	static guint tcpencap_tcp_port;
+
+	if (!initialized) {
+		tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+		esp_handle = find_dissector("esp");
+		udp_handle = find_dissector("udp");
+		initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", tcpencap_tcp_port, tcpencap_handle);
+	}
+
+	tcpencap_tcp_port = global_tcpencap_tcp_port;
+	dissector_add("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
 }
 
