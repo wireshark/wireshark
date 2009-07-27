@@ -1099,7 +1099,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       cum_bytes += fdata->pkt_len;
     }
 
-    epan_dissect_fill_in_columns(edt);
+#ifdef NEW_PACKET_LIST
+    epan_dissect_fill_in_columns(edt, FALSE);
+#else
+    epan_dissect_fill_in_columns(edt, TRUE);
+#endif
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -2121,7 +2125,7 @@ print_packet(capture_file *cf, frame_data *fdata,
      information. */
   if (args->print_args->print_summary) {
     epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-    epan_dissect_fill_in_columns(edt);
+    epan_dissect_fill_in_columns(edt, TRUE);
   } else
     epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
 
@@ -2453,7 +2457,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(edt);
+  epan_dissect_fill_in_columns(edt, TRUE);
 
   /* Write out the information in that tree. */
   proto_tree_write_psml(edt, fh);
@@ -2527,7 +2531,7 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(edt);
+  epan_dissect_fill_in_columns(edt, TRUE);
 
   /* Write out the information in that tree. */
   proto_tree_write_csv(edt, fh);

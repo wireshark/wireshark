@@ -2908,7 +2908,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     }
   } else {
     /* Just fill in the columns. */
-    epan_dissect_fill_in_columns(edt);
+    epan_dissect_fill_in_columns(edt, TRUE);
 
     /* Now print them. */
     switch (output_action) {

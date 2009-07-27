@@ -76,7 +76,7 @@ extern void col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_fill_in(packet_info *pinfo);
+extern void	col_fill_in(packet_info *pinfo, gboolean fill_fd_colums);
 
 /* Utility routines used by packet*.c */
 

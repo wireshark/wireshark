@@ -1405,7 +1405,7 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
 }
 
 void
-col_fill_in(packet_info *pinfo)
+col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
 {
   int i;
 
@@ -1413,7 +1413,8 @@ col_fill_in(packet_info *pinfo)
     switch (pinfo->cinfo->col_fmt[i]) {
 
     case COL_NUMBER:
-      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
+      if (fill_fd_colums)
+        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_CLS_TIME:
@@ -1422,7 +1423,8 @@ col_fill_in(packet_info *pinfo)
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
-      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
+      if (fill_fd_colums)
+        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_REL_CONV_TIME:
@@ -1507,7 +1509,8 @@ col_fill_in(packet_info *pinfo)
 
     case COL_PACKET_LENGTH:
     case COL_CUMULATIVE_BYTES:
-      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
+      if (fill_fd_colums)
+        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_OXID:

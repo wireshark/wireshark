@@ -54,7 +54,7 @@ typedef struct _frame_data {
 	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */
   	unsigned int encoding		: 2; /* Character encoding (ASCII, EBCDIC...) */
 	unsigned int visited		: 1; /* Has this packet been visited yet? 1=Yes,0=No*/
-	unsigned int marked             : 1; /* 1 = marked by user, 0 = normal */
+	unsigned int marked			: 1; /* 1 = marked by user, 0 = normal */
 	unsigned int ref_time		: 1; /* 1 = marked as a reference time frame, 0 = normal */
   } flags;
   void *color_filter;       /* Per-packet matching color_filter_t object */
