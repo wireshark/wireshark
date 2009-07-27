@@ -100,11 +100,17 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata)
 	gint i;
 	row_data_t row_data;
 
-	/* Allocate the array holding column data, the size is the current number of columns */
+	/* Allocate the array holding column data, the size is the current number of columns
+
+	 * XXX - only allocate storage for columns _not_ based on values from frame_data? */
 	row_data.col_text = se_alloc(sizeof(row_data.col_text)*cinfo->num_cols);
 
 	for(i = 0; i < cinfo->num_cols; i++) {
-		row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+		if (col_based_on_frame_data(cinfo, i))
+			/* We already store the value in frame_data, so don't duplicate this. */
+			row_data.col_text[i] = NULL;
+		else
+			row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
 	}
 
 	row_data.fdata = fdata;
@@ -391,13 +397,13 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	GdkColor bg_gdk;
 	gchar *cell_text;
 
-	if (col_has_time_fmt(&cfile.cinfo, col_num)) {
-		col_set_fmt_time(fdata, &cfile.cinfo, cfile.cinfo.col_fmt[col_num], col_num);
+	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
+		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);
 		cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
 	}else{
-	gtk_tree_model_get(model, iter,
-			   col_num, &cell_text,
-			   -1);
+		gtk_tree_model_get(model, iter,
+				   col_num, &cell_text,
+				   -1);
 	}
 
 	if(fdata->color_filter){

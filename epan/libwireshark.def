@@ -79,9 +79,11 @@ col_append_fstr
 col_append_sep_fstr
 col_append_sep_str
 col_append_str
+col_based_on_frame_data
 col_clear
 col_custom_prime_edt
 col_custom_set_fstr
+col_fill_in_frame_data
 col_format_desc
 col_format_to_string
 col_get_writable

@@ -1348,6 +1348,62 @@ col_set_circuit_id(packet_info *pinfo, int col)
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 }
 
+gboolean
+col_based_on_frame_data(column_info *cinfo, gint col)
+{
+    if (col_has_time_fmt(cinfo, col))
+        return TRUE;
+
+    switch (cinfo->col_fmt[col]) {
+
+    case COL_NUMBER:
+    case COL_PACKET_LENGTH:
+    case COL_CUMULATIVE_BYTES:
+      return TRUE;
+
+    default:
+        return FALSE;
+    }
+}
+
+void
+col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
+{
+    switch (cinfo->col_fmt[col]) {
+
+    case COL_NUMBER:
+      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->num);
+      cinfo->col_data[col] = cinfo->col_buf[col];
+      g_strlcpy(cinfo->col_expr.col_expr[col], "frame.number", COL_MAX_LEN);
+      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+      break;
+
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DELTA_TIME_DIS:
+      col_set_fmt_time(fd, cinfo, cinfo->col_fmt[col], col);
+      break;
+
+    case COL_PACKET_LENGTH:
+      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->pkt_len);
+      cinfo->col_data[col] = cinfo->col_buf[col];
+      g_strlcpy(cinfo->col_expr.col_expr[col], "frame.len", COL_MAX_LEN);
+      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+      break;
+
+    case COL_CUMULATIVE_BYTES:
+      g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->cum_bytes);
+      cinfo->col_data[col] = cinfo->col_buf[col];
+      break;
+
+    default:
+      break;
+    }
+}
+
 void
 col_fill_in(packet_info *pinfo)
 {
@@ -1357,35 +1413,16 @@ col_fill_in(packet_info *pinfo)
     switch (pinfo->cinfo->col_fmt[i]) {
 
     case COL_NUMBER:
-      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->num);
-      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.number",
-	COL_MAX_LEN);
-      g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i], COL_MAX_LEN);
+      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_CLS_TIME:
-       col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_ABS_TIME:
-      col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_ABS_DATE_TIME:
-      col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_REL_TIME:
-      col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_DELTA_TIME:
-      col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_DELTA_TIME_DIS:
-      col_set_delta_time_dis(pinfo->fd, pinfo->cinfo, i);
+      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_REL_CONV_TIME:
@@ -1469,16 +1506,8 @@ col_fill_in(packet_info *pinfo)
       break;
 
     case COL_PACKET_LENGTH:
-      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
-      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.len",
-	COL_MAX_LEN);
-      g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i], COL_MAX_LEN);
-      break;
-
     case COL_CUMULATIVE_BYTES:
-      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->cum_bytes);
-      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_OXID:
@@ -1551,3 +1580,4 @@ col_fill_in(packet_info *pinfo)
     }
   }
 }
+
