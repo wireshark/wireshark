@@ -115,9 +115,9 @@ static void cf_open_failure_alert_box(const char *filename, int err,
 static const char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
-
+#ifdef NEW_PACKET_LIST
 static void ref_time_packets(capture_file *cf);
-
+#endif
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
 
@@ -1900,7 +1900,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
  * without rereading the file.
  * XXX - do we need a progres bar or is this fast enough?
  */
-
+#ifdef NEW_PACKET_LIST
 static void
 ref_time_packets(capture_file *cf)
 {
@@ -1968,7 +1968,7 @@ ref_time_packets(capture_file *cf)
 	}
   }
 }
-
+#endif
 typedef enum {
   PSP_FINISHED,
   PSP_STOPPED,
