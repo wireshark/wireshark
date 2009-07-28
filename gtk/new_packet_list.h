@@ -32,6 +32,13 @@ GtkWidget *new_packet_list_create(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button, gint *row, gint *column);
 
+/** Mark the currently selected packet.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
+
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */

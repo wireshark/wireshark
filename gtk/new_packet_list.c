@@ -54,6 +54,8 @@
 #include "color.h"
 #include "color_filters.h"
 #include "gtk/color_utils.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/main_statusbar.h"
 
 static PacketList *packetlist;
 
@@ -465,22 +467,24 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	}
 
 	if((fdata->color_filter)||(fdata->flags.marked)){
-		if(fdata->color_filter){
+		gboolean color_on = enable_color;
+		if(fdata->flags.marked){
+			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
+			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
+			color_on = TRUE;
+		}else{
 			color_filter = fdata->color_filter;
 			fg_color_t = color_filter->fg_color;
 			bg_color_t = color_filter->bg_color;
 			color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
 			color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
-		}else{
-			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
-			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
 		}
 		g_object_set(renderer,
 		     "text", cell_text,
 		     "foreground-gdk", &fg_gdk,
-		     "foreground-set", enable_color,
+		     "foreground-set", color_on,
 		     "background-gdk", &bg_gdk,
-		     "background-set", enable_color,
+		     "background-set", color_on,
 		     NULL);
 	}else{
 		g_object_set(renderer,
@@ -502,6 +506,41 @@ void
 new_packet_list_queue_draw(void)
 {
 	gtk_widget_queue_draw (packetlist->view);
+}
+
+/* call this after last set_frame_mark is done */
+static void mark_frames_ready(void) 
+{
+  file_save_update_dynamics();
+  packets_bar_update();
+}
+
+static void
+set_frame_mark(gboolean set, frame_data *frame)
+{
+  if (set) {
+    cf_mark_frame(&cfile, frame);
+  } else {
+    cf_unmark_frame(&cfile, frame);
+  }
+}
+
+void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	guint row;
+	frame_data *fdata;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	gtk_tree_selection_get_selected(selection, NULL, &iter);
+	row = row_from_iter(&iter);
+	
+	fdata = new_packet_list_get_row_data(row);
+	if (fdata != NULL){
+		set_frame_mark(!fdata->flags.marked, fdata);
+	}
+    mark_frames_ready();
 }
 
 #endif /* NEW_PACKET_LIST */

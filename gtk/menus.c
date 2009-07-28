@@ -496,7 +496,10 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Ne_xt", "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
     {"/Edit/Find Pre_vious", "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+    {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),
+                       0, NULL, NULL,},
+#else
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
