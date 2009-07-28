@@ -16,7 +16,7 @@
 ] interface samr
 {
 
-	typedef [public,noejs] struct {
+	typedef [public] struct {
 		[value(strlen_m_term(name)*2)] uint16 name_len;
 		[value(strlen_m_term(name)*2)] uint16 name_size;
 		[string,charset(UTF16)] uint16 *name;
