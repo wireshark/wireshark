@@ -2039,7 +2039,13 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
             timestamp_set_precision(action);
         }
         recent.gui_time_precision  = action;
+#ifdef NEW_PACKET_LIST
+		cf_timestamp_auto_precision(&cfile);
+		/* XXX Width should be adjusted */
+		new_packet_list_queue_draw();
+#else
         cf_change_time_formats(&cfile);
+#endif
     }
 }
 
