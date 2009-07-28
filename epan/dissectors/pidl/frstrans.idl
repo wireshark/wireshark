@@ -1,0 +1,285 @@
+#include "idl_types.h"
+
+/*import "misc.idl";*/
+
+[
+  uuid("897e2e5f-93f3-4376-9c9c-fd2277495c27"),
+  version(1.0),
+  endpoint("ncacn_ip_tcp:", "ncalrpc:"),
+  helpstring("File Replication Service DFS-R"),
+  pointer_default(unique)
+]
+interface frstrans
+{
+	/*****************/
+	/* Function 0x00 */
+	WERROR frstrans_CheckConnectivity(
+		[in] GUID replica_set_guid,
+		[in] GUID connection_guid
+	);
+
+	/*****************/
+	/* Function 0x01 */
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSTRANS_PROTOCOL_VERSION_W2K3R2		= 0x00050000,
+		FRSTRANS_PROTOCOL_VERSION_LONGHORN_SERVER	= 0x00050002
+	} frstrans_ProtocolVersion;
+
+	typedef [bitmap32bit] bitmap {
+		FRSTRANS_TRANSPORT_SUPPORTS_RDC_SIMILARITY	= 0x00000001
+	} frstrans_TransportFlags;
+
+	WERROR frstrans_EstablishConnection(
+		[in] GUID replica_set_guid,
+		[in] GUID connection_guid,
+		[in] frstrans_ProtocolVersion downstream_protocol_version,
+		[in] frstrans_TransportFlags downstream_flags,
+		[out,ref] frstrans_ProtocolVersion *upstream_protocol_version,
+		[out,ref] frstrans_TransportFlags *upstream_flags
+	);
+
+	/*****************/
+	/* Function 0x02 */
+	WERROR frstrans_EstablishSession(
+		[in] GUID connection_guid,
+		[in] GUID content_set_guid
+	);
+
+	/*****************/
+	/* Function 0x03 */
+	typedef enum {
+		FRSTRANS_UPDATE_REQUEST_ALL		= 0x0000,
+		FRSTRANS_UPDATE_REQUEST_TOMBSTONES	= 0x0001,
+		FRSTRANS_UPDATE_REQUEST_LIVE		= 0x0002
+	} frstrans_UpdateRequestType;
+
+	typedef enum {
+		FRSTRANS_UPDATE_STATUS_DONE		= 0x0002,
+		FRSTRANS_UPDATE_STATUS_MORE		= 0x0003
+	} frstrans_UpdateStatus;
+
+	typedef struct {
+		GUID db_guid;
+		hyper low;
+		hyper high;
+	} frstrans_VersionVector;
+
+	typedef [flag(NDR_PAHEX)] struct {
+		boolean32 present;
+		boolean32 name_conflict;
+		uint32 attributes;
+		NTTIME fence;
+		NTTIME clock;
+		NTTIME create_time;
+		GUID content_set_guid;
+		uint8 sha1_hash[20];
+		uint8 rdc_similarity[16];
+		GUID uid_db_guid;
+		hyper uid_version;
+		GUID gsvn_db_guid;
+		hyper gsvn_version;
+		GUID parent_db_guid;
+		hyper parent_version;
+		[string,charset(UTF16)] uint16 name[261];
+		uint32 flags;
+	} frstrans_Update;
+
+	WERROR frstrans_RequestUpdates(
+		[in] GUID connection_guid,
+		[in] GUID content_set_guid,
+		[in,range(0,256)] uint32 credits_available,
+		[in,range(0,1)] boolean32 hash_requested,
+		[in,range(0,2)]
+			frstrans_UpdateRequestType update_request_type,
+		[in] uint32 version_vector_diff_count,
+		[in,size_is(version_vector_diff_count)]
+			frstrans_VersionVector *version_vector_diff,
+		[out,ref,size_is(credits_available),length_is(*update_count)]
+			frstrans_Update *frs_update,
+		[out,ref] uint32 *update_count,
+		[out,ref] frstrans_UpdateStatus *update_status,
+		[out,ref] GUID *gvsn_db_guid,
+		[out,ref] hyper *gvsn_version
+	);
+
+	/*****************/
+	/* Function 0x04 */
+	typedef enum {
+		FRSTRANS_VERSION_REQUEST_NORNAL_SYNC	= 0x0000,
+		FRSTRANS_VERSION_REQUEST_SLOW_SYNC	= 0x0001,
+		FRSTRANS_VERSION_REQUEST_SLAVE_SYNC	= 0x0002
+	} frstrans_VersionRequestType;
+
+	typedef enum {
+		FRSTRANS_VERSION_CHANGE_NOTIFY	= 0x0000,
+		FRSTRANS_VERSION_CHANGE_ALL	= 0x0002
+	} frstrans_VersionChangeType;
+
+	WERROR frstrans_RequestVersionVector(
+		[in] uint32 sequence_number,
+		[in] GUID connection_guid,
+		[in] GUID content_set_guid,
+		[in,range(0,2)] frstrans_VersionRequestType request_type,
+		[in,range(0,2)] frstrans_VersionChangeType change_type,
+		[in] hyper vv_generation
+	);
+
+	/*****************/
+	/* Function 0x05 */
+	typedef struct {
+		GUID machine_guid;
+		uint32 year;
+		uint32 month;
+		uint32 day_of_week;
+		uint32 day;
+		uint32 hour;
+		uint32 minute;
+		uint32 second;
+		uint32 milli_seconds;
+	} frstrans_EpoqueVector;
+
+	typedef struct {
+		hyper vv_generation;
+		uint32 version_vector_count;
+		[size_is(version_vector_count)]
+			frstrans_VersionVector *version_vector;
+		uint32 epoque_vector_count;
+		[size_is(epoque_vector_count)]
+			frstrans_EpoqueVector *epoque_vector;
+	} frstrans_AsyncVersionVectorResponse;
+
+	typedef struct {
+		uint32 sequence_number;
+		WERROR status;
+		frstrans_AsyncVersionVectorResponse response;
+	} frstrans_AsyncResponseContext;
+
+	WERROR frstrans_AsyncPoll(
+		[in] GUID connection_guid,
+		[out,ref] frstrans_AsyncResponseContext *response
+	);
+
+	/*****************/
+	/* Function 0x06 */
+	void FRSTRANS_REQUEST_RECORDS();
+
+	/*****************/
+	/* Function 0x07 */
+	void FRSTRANS_UPDATE_CANCEL();
+
+	/*****************/
+	/* Function 0x08 */
+	void FRSTRANS_RAW_GET_FILE_DATA();
+
+	/*****************/
+	/* Function 0x09 */
+	void FRSTRANS_RDC_GET_SIGNATURES();
+
+	/*****************/
+	/* Function 0x0a */
+	void FRSTRANS_RDC_PUSH_SOURCE_NEEDS();
+
+	/*****************/
+	/* Function 0x0b */
+	void FRSTRANS_RDC_GET_FILE_DATA();
+
+	/*****************/
+	/* Function 0x0c */
+	void FRSTRANS_RDC_CLOSE();
+
+	/*****************/
+	/* Function 0x0d */
+	typedef enum {
+		FRSTRANS_STAGING_POLICY_SERVER_DEFAULTY		= 0x0000,
+		FRSTRANS_STAGING_POLICY_STATGING_REQUIRED	= 0x0001,
+		FRSTRANS_STAGING_POLICY_RESTATGING_REQUIRED	= 0x0002
+	} frstrans_RequestedStagingPolicy;
+
+	typedef enum {
+		FRSTRANS_RDC_FILTER_GENERIC	= 0x0000,
+		FRSTRANS_RDC_FILTER_MAX		= 0x0001,
+		FRSTRANS_RDC_FILTER_POINT	= 0x0002,
+		FRSTRANS_RDC_MAX_ALGORITHM	= 0x0003
+	} frstrans_RdcChunckerAlgorithm;
+
+	typedef struct {
+		frstrans_RdcChunckerAlgorithm chunker_type;
+		uint8 chunker_parameters[64];
+	} frstrans_RdcParameterGeneric;
+
+	typedef struct {
+		[range(128,1024*16)] uint16 min_horizon_size;
+		[range(2,96)] uint16 max_window_size;
+	} frstrans_RdcParameterFilterMax;
+
+	typedef struct {
+		uint16 min_chunk_size;
+		uint16 max_chunk_size;
+	} frstrans_RdcParameterFilterPoint;
+
+	typedef [switch_type(frstrans_RdcChunckerAlgorithm)] union {
+		[case(FRSTRANS_RDC_FILTER_GENERIC)]
+			frstrans_RdcParameterGeneric filter_generic;
+		[case(FRSTRANS_RDC_FILTER_MAX)]
+			frstrans_RdcParameterFilterMax filter_max;
+		[case(FRSTRANS_RDC_FILTER_POINT)]
+			frstrans_RdcParameterFilterPoint filter_point;
+	} frstrans_RdcParameterUnion;
+
+	typedef struct {
+		frstrans_RdcChunckerAlgorithm rdc_chunker_algorithm;
+		[switch_is(rdc_chunker_algorithm)] frstrans_RdcParameterUnion u;
+	} frstrans_RdcParameters;
+
+	typedef enum {
+		FRSTRANS_RDC_VERSION		= 0x0001
+	} frstrans_RdcVersion;
+
+	typedef enum {
+		FRSTRANS_RDC_VERSION_COMPATIBLE	= 0x0001
+	} frstrans_RdcVersionCompatible;
+
+	typedef enum {
+		FRSTRANS_RDC_UNCOMPRESSED	= 0x0000,
+		FRSTRANS_RDC_XPRESS		= 0x0001
+	} frstrans_RdcCompressionAlgorithm;
+
+	typedef struct {
+		hyper on_disk_file_size;
+		hyper file_size_estimate;
+		frstrans_RdcVersion rdc_version;
+		frstrans_RdcVersionCompatible rdc_minimum_compatible_version;
+		[range(0,8)] uint8 rdc_signature_levels;
+		frstrans_RdcCompressionAlgorithm compression_algorithm;
+		[size_is(rdc_signature_levels)]
+			frstrans_RdcParameters rdc_filter_parameters[*];
+	} frstrans_RdcFileInfo;
+
+	WERROR frstrans_InitializeFileTransferAsync(
+		[in] GUID connection_guid,
+		[in,out,ref] frstrans_Update *frs_update,
+		[in,range(0,1)] boolean32 rdc_desired,
+		[in,out,ref] frstrans_RequestedStagingPolicy *staging_policy,
+		[out,ref] policy_handle *server_context,
+		[out,ref] frstrans_RdcFileInfo **rdc_file_info,
+		[out,ref,size_is(buffer_size),length_is(*size_read)]
+			uint8 *data_buffer,
+		[in,range(0,262144)] uint32 buffer_size,
+		[out,ref] uint32 *size_read,
+		[out,ref] boolean32 *is_end_of_file
+	);
+
+	/*****************/
+	/* Function 0x0e */
+	void FRSTRANS_OPNUM_0E_NOT_USED_ON_THE_WIRE();
+
+	/* The following functions are new in Windows 2008 */
+
+	/*****************/
+	/* Function 0x0f */
+	void FRSTRANS_RAW_GET_FILE_DATA_ASYNC();
+
+	/*****************/
+	/* Function 0x10 */
+	void FRSTRANS_RDC_GET_FILE_DATA_ASYNC();
+}

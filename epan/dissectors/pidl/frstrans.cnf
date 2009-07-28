@@ -1,0 +1,15 @@
+# Conformance file for DFS-R / FRSTRANS
+
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
+
+CODE START
+
+static int
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, NULL);
+
+	return offset;
+}
+
+CODE END
