@@ -94,6 +94,10 @@
 #include "gtk/uat_gui.h"
 #include "gtk/gui_utils.h"
 
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#endif
+
 #ifdef HAVE_IGE_MAC_INTEGRATION
 #include <ige-mac-menu.h>
 #endif
@@ -2277,7 +2281,6 @@ menu_recent_read_finished(void) {
 }
 
 
-#ifndef NEW_PACKET_LIST
 gint
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -2299,13 +2302,20 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     /* Check if we are on packet_list object */
     if (widget == g_object_get_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY) &&
         ((GdkEventButton *)event)->button != 1) {
-        if (packet_list_get_event_row_column(widget, (GdkEventButton *)event,
-                                             &row, &column)) {
+#ifdef NEW_PACKET_LIST
+        if (new_packet_list_get_event_row_column(widget, (GdkEventButton *)event, &row, &column)) {
+#else
+        if (packet_list_get_event_row_column(widget, (GdkEventButton *)event, &row, &column)) {
+#endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
                             GINT_TO_POINTER(row));
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
+#ifdef NEW_PACKET_LIST
+            new_packet_list_set_selected_row(row);
+#else
             packet_list_set_selected_row(row);
+#endif
         }
     }
 
@@ -2356,7 +2366,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
     return FALSE;
 }
-#endif /* NEW_PACKET_LIST */
 
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved

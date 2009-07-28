@@ -139,6 +139,9 @@ create_view_and_model(void)
 #endif
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
+	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
+				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packetlist);
 
 	/*     	g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
 
@@ -330,6 +333,30 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
     return -1;
 }
 
+void
+new_packet_list_set_selected_row(gint row)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeSelection *selection;
+	GtkTreePath *path;
+
+	if (!iter_from_row(&iter, row))
+		return;
+
+	/* Select the row */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	gtk_tree_selection_select_iter (selection, &iter);
+	path = gtk_tree_model_get_path(model, &iter);
+	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
+			path,
+			NULL,
+			FALSE); /* start_editing */
+
+	/* Needed to get the middle and bottom panes updated */
+	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
+}
+
 static void
 new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
@@ -353,6 +380,36 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	fdata = new_packet_list_get_row_data(row);
 	if (fdata != NULL)
 		packet_history_add(fdata->num);
+}
+
+gboolean
+new_packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
+                                 gint *row, gint *column)
+{
+    GtkTreePath *path;
+    GtkTreeViewColumn *view_column;
+
+    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(packetlist->view),
+                                      (gint) event_button->x,
+                                      (gint) event_button->y,
+                                      &path, &view_column, NULL, NULL)) {
+        GtkTreeIter iter;
+        GList *cols;
+
+        /* Fetch row */
+        gtk_tree_model_get_iter (GTK_TREE_MODEL(packetlist), &iter, path);
+        *row = row_from_iter(&iter);
+        gtk_tree_path_free(path);
+
+        /* Fetch column */
+        cols = gtk_tree_view_get_columns(GTK_TREE_VIEW(packetlist->view));
+        *column = g_list_index(cols, (gpointer) view_column);
+        g_list_free(cols);
+
+        return TRUE;
+    }
+    else
+        return FALSE;
 }
 
 frame_data *

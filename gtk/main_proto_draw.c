@@ -518,10 +518,8 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 		case 1:
 			return byte_view_select(widget, event_button);
-#ifndef NEW_PACKET_LIST
 		case 3:
 			return popup_menu_handler(widget, event, data);
-#endif
 		default:
 			return FALSE;
 		}
