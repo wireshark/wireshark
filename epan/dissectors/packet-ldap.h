@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ldap.h                                                              */
-/* ../../tools/asn2wrs.py -b -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
+/* ../../tools/asn2wrs.py -b -p ldap -c ./ldap.cnf -s ./packet-ldap-template -D . Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.h */
 
@@ -87,7 +87,7 @@
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
 
-#define LDAP_SASL_MAX_BUF	4*64*1024
+#define LDAP_SASL_MAX_BUF	1024*1024
 
 #define NETLOGON_NT_VERSION_1					1
 #define NETLOGON_NT_VERSION_5					2

@@ -79,7 +79,7 @@
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
 
-#define LDAP_SASL_MAX_BUF	4*64*1024
+#define LDAP_SASL_MAX_BUF	1024*1024
 
 #define NETLOGON_NT_VERSION_1					1
 #define NETLOGON_NT_VERSION_5					2
