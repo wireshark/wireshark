@@ -501,8 +501,7 @@ read_keytab_file(const char *filename)
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
-			int length,
-			const guint8 *cryptotext,
+			tvbuff_t *cryptotvb,
 			int keytype,
 			int *datalen)
 {
@@ -511,9 +510,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	enc_key_t *ek;
 	static krb5_data data = {0,0,NULL};
 	krb5_keytab_entry key;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
+		return NULL;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -636,8 +642,7 @@ read_keytab_file(const char *filename)
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
-			int length,
-			const guint8 *cryptotext,
+			tvbuff_t *cryptotvb,
 			int keytype,
 			int *datalen)
 {
@@ -645,9 +650,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
+		return NULL;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -813,8 +825,7 @@ g_warning("added key: %s", sk->origin);
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int _U_ usage,
-			int length,
-			const guint8 *cryptotext,
+			tvbuff_t *cryptotvb,
 			int keytype,
 			int *datalen)
 {
@@ -835,10 +846,17 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	GSList *ske;
 	service_key_t *sk;
 	struct des3_ctx ctx;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 
 	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
+		return NULL;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -2105,7 +2123,10 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (proto_tree *tree, tvbuff_t *tvb, int offs
 	 * == 1
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype, NULL);
+		tvbuff_t *next_tvb;
+
+		next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, next_tvb, PA_ENC_TIMESTAMP_etype, NULL);
 	}
 
 	if(plaintext){
@@ -3490,7 +3511,10 @@ dissect_krb5_decrypt_PRIV (proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
 	length=tvb_length_remaining(tvb, offset);
 
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, length, tvb_get_ptr(tvb, offset, length), PRIV_etype, NULL);
+		tvbuff_t *next_tvb;
+
+		next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, next_tvb, PRIV_etype, NULL);
 	}
 
 	if(plaintext){
@@ -3635,6 +3659,9 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
 {
 	guint8 *plaintext=NULL;
 	int length;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 
 	length=tvb_length_remaining(tvb, offset);
 
@@ -3643,7 +3670,7 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
 	 * == 14
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 14, length, tvb_get_ptr(tvb, offset, length), EncKrbCredPart_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 14, next_tvb, EncKrbCredPart_etype, NULL);
 	}
 
 	if(plaintext){
@@ -3789,6 +3816,9 @@ dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int
 {
 	guint8 *plaintext=NULL;
 	int length;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 
 	length=tvb_length_remaining(tvb, offset);
 
@@ -3798,10 +3828,10 @@ dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int
 	if a sub-session key is used, or 4 if the session key is used.
 	*/
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 4, length, tvb_get_ptr(tvb, offset, length), enc_authorization_data_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 4, next_tvb, enc_authorization_data_etype, NULL);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 5, length, tvb_get_ptr(tvb, offset, length), enc_authorization_data_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 5, next_tvb, enc_authorization_data_etype, NULL);
 	}
 
 	if(plaintext){
@@ -3981,6 +4011,9 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 {
 	guint8 *plaintext=NULL;
 	int length;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 
 	length=tvb_length_remaining(tvb, offset);
 
@@ -3991,10 +4024,10 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, next_tvb, authenticator_etype, NULL);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, next_tvb, authenticator_etype, NULL);
 	}
 
 	if(plaintext){
@@ -4067,6 +4100,9 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
 {
 	guint8 *plaintext;
 	int length;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 
 	length=tvb_length_remaining(tvb, offset);
 
@@ -4074,7 +4110,7 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
 	 * 7.5.1
 	 * All Ticket encrypted parts use usage == 2
 	 */
-	if( (plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype, NULL)) ){
+	if( (plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, next_tvb, Ticket_etype, NULL)) ){
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
@@ -4205,7 +4241,10 @@ dissect_krb5_decrypt_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, length, tvb_get_ptr(tvb, offset, length), AP_REP_etype, NULL);
+		tvbuff_t *next_tvb;
+
+		next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, next_tvb, AP_REP_etype, NULL);
 	}
 
 	if(plaintext){
@@ -4301,6 +4340,9 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
 {
 	guint8 *plaintext=NULL;
 	int length;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 
 	length=tvb_length_remaining(tvb, offset);
 
@@ -4312,13 +4354,13 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
      * == 9
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 3, next_tvb, KDC_REP_etype, NULL);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 8, next_tvb, KDC_REP_etype, NULL);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 9, next_tvb, KDC_REP_etype, NULL);
 	}
 
 	if(plaintext){

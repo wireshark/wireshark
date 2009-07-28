@@ -698,6 +698,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 	char *rotated;
 	char *output;
 	int datalen;
+	tvbuff_t *next_tvb;
 
 	/* dont do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
@@ -709,8 +710,11 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 	tvb_memcpy(tvb, rotated, 0, tvb_length(tvb));
 	res = rrc_rotate(rotated, tvb_length(tvb), rrc, TRUE);
 
-	output = decrypt_krb5_data(tree, pinfo, usage, tvb_length(tvb),
-		  rotated, keytype, &datalen);
+	next_tvb=tvb_new_child_real_data(tvb, rotated, tvb_length(tvb), tvb_reported_length(tvb));
+	add_new_data_source(pinfo, next_tvb, "GSSAPI CFX");
+
+	output = decrypt_krb5_data(tree, pinfo, usage, next_tvb,
+		  keytype, &datalen);
 
 	if (output) {
 		char *outdata;

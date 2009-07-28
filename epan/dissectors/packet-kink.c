@@ -703,16 +703,12 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint payload_length,encrypt_length;
+  guint payload_length;
+  gint encrypt_length;
   guint8 inner_next_pload;
   guint32 reserved2;
   guint16 inner_payload_length;
   int start_payload_offset = 0;    /* Keep the begining of the payload offset */
-  const guint8 *data_value;
-#ifdef HAVE_KERBEROS
-  tvbuff_t *next_tvb;
-  guint8 *plaintext=NULL;
-#endif
 
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -739,13 +735,15 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   }
   offset += 2;
 
-  data_value = tvb_get_ptr(tvb, offset, encrypt_length);
-
   /* decrypt kink encrypt */
 
   if(keytype != 0){
 #ifdef HAVE_KERBEROS
-    plaintext=decrypt_krb5_data(tree, pinfo, 0, encrypt_length, data_value, keytype, NULL);    
+    tvbuff_t *next_tvb;
+    guint8 *plaintext=NULL;
+
+    next_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset), encrypt_length), encrypt_length);
+    plaintext=decrypt_krb5_data(tree, pinfo, 0, next_tvb, keytype, NULL);    
     if(plaintext){
       next_tvb=tvb_new_child_real_data(tvb, plaintext, encrypt_length, encrypt_length);
       add_new_data_source(pinfo, next_tvb, "decrypted kink encrypt");
