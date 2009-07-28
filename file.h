@@ -286,6 +286,13 @@ cf_read_status_t cf_retap_packets(capture_file *cf);
 void cf_change_time_formats(capture_file *cf);
 
 /**
+ * Adjust timestamp precision if auto is selected.
+ * 
+ * @param cf the capture file
+ */
+void cf_timestamp_auto_precision(capture_file *cf);
+
+/**
  * Print the capture file.
  * 
  * @param cf the capture file

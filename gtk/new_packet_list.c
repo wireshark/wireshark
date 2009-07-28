@@ -435,4 +435,10 @@ new_packet_list_enable_color(gboolean enable)
 	gtk_widget_queue_draw (packetlist->view);
 }
 
+void
+new_packet_list_queue_draw(void)
+{
+	gtk_widget_queue_draw (packetlist->view);
+}
+
 #endif /* NEW_PACKET_LIST */
