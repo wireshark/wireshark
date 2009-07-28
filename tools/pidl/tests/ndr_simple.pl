@@ -18,7 +18,7 @@ test_samba4_ndr("simple", "void Test(); ",
 
 	b.data = data;
 	b.length = 1;
-	ndr = ndr_pull_init_blob(&b, mem_ctx);
+	ndr = ndr_pull_init_blob(&b, mem_ctx, NULL);
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_uint8(ndr, NDR_SCALARS, &result)))
 		return 1;

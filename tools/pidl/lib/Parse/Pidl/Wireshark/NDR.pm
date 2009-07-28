@@ -940,6 +940,10 @@ sub Parse($$$$$)
 	$self->{res}->{headers} .= "#include \"$h_basename\"\n";
 	$self->pidl_code("");
 
+	if (defined($self->{conformance}->{ett})) {
+		register_ett($self,$_) foreach(@{$self->{conformance}->{ett}})
+	}
+
 	# Wireshark protocol registration
 
 	foreach (@$ndr) {
@@ -1053,16 +1057,16 @@ sub DumpHfDeclaration($)
 
 sub make_str_or_null($)
 {
-	my $str = shift;
-	if (substr($str, 0, 1) eq "\"") {
-		$str = substr($str, 1, length($str)-2);
-	}
-	$str =~ s/^\s*//;
-	$str =~ s/\s*$//;
-	if ($str eq "") {
-		return "NULL";
-	}
-	return make_str($str);
+      my $str = shift;
+      if (substr($str, 0, 1) eq "\"") {
+              $str = substr($str, 1, length($str)-2);
+      }
+      $str =~ s/^\s*//;
+      $str =~ s/\s*$//;
+      if ($str eq "") {
+              return "NULL";
+      }
+      return make_str($str);
 }
 
 sub DumpHfList($)

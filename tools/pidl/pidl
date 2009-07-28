@@ -17,7 +17,7 @@ pidl - An IDL compiler written in Perl
 
 pidl --help
 
-pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--ndr-parser[=OUTPUT]] [--client] [--server] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--python[=OUTPUT]] [--ndr-parser[=OUTPUT]] [--client] [--server] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [--typelib=[OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
@@ -52,6 +52,10 @@ both marshalling/unmarshalling and debugging purposes).
 =item I<--help>
 
 Show list of available options.
+
+=item I<--version>
+
+Show pidl version
 		
 =item I<--outputdir OUTNAME>
 
@@ -87,6 +91,10 @@ parser filename with the extension changed from .c to .h.
 Generate a C file and C header containing TDR parsers. The filename for 
 the parser defaults to tdr_OUTNAME.c. The header filename will be the 
 parser filename with the extension changed from .c to .h.
+
+=item I<--typelib>
+
+Write type information to the specified file.
 
 =item I<--server>
 
@@ -395,12 +403,13 @@ pidl README by Andrew Tridgell.
 
 use strict;
 use FindBin qw($RealBin $Script);
-use lib "$RealBin";
 use lib "$RealBin/lib";
+use lib "$RealBin/../share/perl5";
 use Getopt::Long;
 use File::Basename;
-use Parse::Pidl;
+use Parse::Pidl qw ( $VERSION );
 use Parse::Pidl::Util;
+use Parse::Pidl::ODL;
 
 #####################################################################
 # save a data structure into a file
@@ -449,6 +458,7 @@ sub FileSave($$)
 
 my(@opt_incdirs) = (); 
 my($opt_help) = 0;
+my($opt_version) = 0;
 my($opt_parse_idl_tree) = 0;
 my($opt_dump_idl_tree);
 my($opt_dump_ndr_tree);
@@ -462,22 +472,26 @@ my($opt_samba3_ndr_client);
 my($opt_samba3_ndr_server);
 my($opt_template) = 0;
 my($opt_client);
+my($opt_typelib);
 my($opt_server);
 my($opt_ndr_parser);
 my($opt_tdr_parser);
 my($opt_ws_parser);
-my($opt_swig);
-my($opt_ejs);
+my($opt_python);
 my($opt_quiet) = 0;
 my($opt_outputdir) = '.';
 my($opt_verbose) = 0;
 my($opt_warn_compat) = 0;
+my($opt_dcom_proxy);
+my($opt_com_header);
 
 #########################################
 # display help text
 sub ShowHelp()
 {
-print "perl IDL parser and code generator
+print "perl IDL parser and code generator\n";
+ShowVersion();
+print"
 Copyright (C) Andrew Tridgell <tridge\@samba.org>
 Copyright (C) Jelmer Vernooij <jelmer\@samba.org>
 
@@ -485,6 +499,7 @@ Usage: $Script [options] [--] <idlfile> [<idlfile>...]
 
 Generic Options:
  --help                  this help page
+ --version               show pidl version
  --outputdir=OUTDIR      put output in OUTDIR/ [.]
  --warn-compat           warn about incompatibility with other compilers
  --quiet                 be quiet
@@ -497,16 +512,18 @@ Debugging:
  --dump-ndr-tree[=FILE]  dump internal NDR data tree to file [BASENAME.ndr]
  --dump-idl              regenerate IDL file
  --diff                  run diff on original IDL and dumped output
+ --typelib               print type information
 
 Samba 4 output:
  --header[=OUTFILE]      create generic header file [BASENAME.h]
  --ndr-parser[=OUTFILE]  create a C NDR parser [ndr_BASENAME.c]
  --client[=OUTFILE]      create a C NDR client [ndr_BASENAME_c.c]
  --tdr-parser[=OUTFILE]  create a C TDR parser [tdr_BASENAME.c]
- --ejs[=OUTFILE]         create ejs wrapper file [BASENAME_ejs.c]
- --swig[=OUTFILE]        create swig wrapper file [BASENAME.i]
+ --python[=OUTFILE]      create python wrapper file [py_BASENAME.c]
  --server[=OUTFILE]      create server boilerplate [ndr_BASENAME_s.c]
  --template              print a template for a pipe
+ --dcom-proxy[=OUTFILE]  create DCOM proxy [ndr_BASENAME_p.c]
+ --com-header[=OUTFILE]  create header for COM [com_BASENAME.h]
 
 Samba 3 output:
  --samba3-ndr-client[=OUTF] create client calls for Samba3 
@@ -520,9 +537,17 @@ Wireshark parsers:
     exit(0);
 }
 
+#########################################
+# Display version
+sub ShowVersion()
+{
+    print "perl IDL version $VERSION\n";
+}
+
 # main program
 my $result = GetOptions (
 	    'help|h|?' => \$opt_help, 
+            'version' => \$opt_version,
 	    'outputdir=s' => \$opt_outputdir,
 	    'dump-idl' => \$opt_dump_idl,
 		'dump-idl-tree:s' => \$opt_dump_idl_tree,
@@ -532,14 +557,16 @@ my $result = GetOptions (
 		'samba3-ndr-server:s' => \$opt_samba3_ndr_server,
 		'header:s' => \$opt_header,
 	    'server:s' => \$opt_server,
+		'typelib:s' => \$opt_typelib,
 	    'tdr-parser:s' => \$opt_tdr_parser,
 	    'template' => \$opt_template,
 	    'ndr-parser:s' => \$opt_ndr_parser,
 	    'client:s' => \$opt_client,
 	    'ws-parser:s' => \$opt_ws_parser,
-	    'ejs' => \$opt_ejs,
+		'python' => \$opt_python,
 	    'diff' => \$opt_diff,
-	    'swig:s' => \$opt_swig,
+        'dcom-proxy:s' => \$opt_dcom_proxy,
+		'com-header:s' => \$opt_com_header,
 	    'quiet' => \$opt_quiet,
 		'verbose' => \$opt_verbose,
 	    'warn-compat' => \$opt_warn_compat,
@@ -552,6 +579,11 @@ if (not $result) {
 
 if ($opt_help) {
     ShowHelp();
+    exit(0);
+}
+
+if ($opt_version) {
+    ShowVersion();
     exit(0);
 }
 
@@ -574,10 +606,11 @@ sub process_file($)
 
 		$pidl = Parse::Pidl::IDL::parse_file($idl_file, \@opt_incdirs);
 		defined @$pidl || die "Failed to parse $idl_file";
-		require Parse::Pidl::Typelist;
-		Parse::Pidl::Typelist::LoadIdl($pidl);
 	}
-	
+
+	require Parse::Pidl::Typelist;
+	Parse::Pidl::Typelist::LoadIdl($pidl, $basename);
+
 	if (defined($opt_dump_idl_tree)) {
 		my($pidl_file) = ($opt_dump_idl_tree or "$outputdir/$basename.pidl");
 		SaveStructure($pidl_file, $pidl) or die "Failed to save $pidl_file\n";
@@ -595,22 +628,41 @@ sub process_file($)
 		unlink($tempfile);
 	}
 
+	my $comh_filename = ($opt_com_header or "$outputdir/com_$basename.h");
+	if (defined($opt_com_header)) {
+		require Parse::Pidl::Samba4::COM::Header;
+		my $res = Parse::Pidl::Samba4::COM::Header::Parse($pidl,"$outputdir/ndr_$basename.h");
+		if ($res) {
+			FileSave($comh_filename, $res);
+		}
+	}
+
+	if (defined($opt_dcom_proxy)) {
+		require Parse::Pidl::Samba4::COM::Proxy;
+		my $res = Parse::Pidl::Samba4::COM::Proxy::Parse($pidl,$comh_filename);
+		if ($res) {
+			my ($client) = ($opt_dcom_proxy or "$outputdir/$basename\_p.c");
+			FileSave($client, $res);
+		}
+	}
+
 	if ($opt_warn_compat) {
 		require Parse::Pidl::Compat;
 		Parse::Pidl::Compat::Check($pidl);
 	}
+
+	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl, dirname($idl_file), \@opt_incdirs);
 
 	if (defined($opt_ws_parser) or 
 	    defined($opt_client) or
 	    defined($opt_server) or 
 	    defined($opt_header) or
 	    defined($opt_ndr_parser) or
-	    defined($opt_ejs) or 
+	    defined($opt_python) or 
 	    defined($opt_dump_ndr_tree) or
 	    defined($opt_samba3_header) or 
 	    defined($opt_samba3_parser) or 
 	    defined($opt_samba3_server) or 
-	    defined($opt_swig) or
 	    defined($opt_samba3_ndr_client) or
 	    defined($opt_samba3_ndr_server)) {
 		require Parse::Pidl::NDR;
@@ -642,19 +694,12 @@ sub process_file($)
 		FileSave($c_header, $hdrd);
 	}
 
-	if (defined($opt_swig)) {
-		  require Parse::Pidl::Samba4::SWIG;
-		  my($filename) = ($opt_swig or "$outputdir/$basename.i");
-		  my $code = Parse::Pidl::Samba4::SWIG::Parse($ndr, $basename, "$outputdir/ndr_$basename\_c.h", $gen_header);
-		  FileSave($filename, $code);
-	}
-
-	if (defined($opt_ejs)) {
-		require Parse::Pidl::Samba4::EJS;
-		my $generator = new Parse::Pidl::Samba4::EJS(); 
-		my ($hdr,$prsr) = $generator->Parse($ndr, $h_filename);
-		FileSave("$outputdir/ndr_$basename\_ejs.c", $prsr);
-		FileSave("$outputdir/ndr_$basename\_ejs.h", $hdr);
+	if (defined($opt_python)) {
+		require Parse::Pidl::Samba4::Python;
+		my $generator = new Parse::Pidl::Samba4::Python(); 
+		my ($prsr) = $generator->Parse($basename, $ndr, 
+					"$outputdir/ndr_$basename\_c.h", $h_filename);
+		FileSave("$outputdir/py_$basename.c", $prsr);
 	}
 
 	if (defined($opt_server)) {
@@ -697,6 +742,12 @@ sub process_file($)
 		my ($hdr,$prsr) = $generator->Parser($pidl, $tdr_header, $gen_header);
 		FileSave($tdr_parser, $prsr);
 		FileSave($tdr_header, $hdr);
+	}
+
+	if (defined($opt_typelib)) {
+		my $typelib = ($opt_typelib or "$outputdir/$basename.tlb");
+		require Parse::Pidl::Typelist;
+		FileSave($typelib, Parse::Pidl::Typelist::GenerateTypeLib());
 	}
 
 	if ($opt_template) {

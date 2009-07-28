@@ -3,8 +3,9 @@ Introduction:
 This directory contains the source code of the pidl (Perl IDL) 
 compiler for Samba 4. 
 
-The main sources for pidl are available by Subversion on
-svn://svnanon.samba.org/samba/branches/SAMBA_4_0/source/pidl
+The main sources for pidl are available using Git as part of
+the combined Samba 3 / Samba 4 tree. Use:
+git clone git://git.samba.org/samba.git
 
 Pidl works by building a parse tree from a .pidl file (a simple 
 dump of it's internal parse tree) or a .idl file 
@@ -34,12 +35,11 @@ Parse::Pidl::Test - Utility functions for use in pidl's testsuite
 
 -- Samba NDR --
 Parse::Pidl::Samba4::NDR::Client - Generates client call functions in C using the NDR parser
-Parse::Pidl::Samba4::SWIG - Generates SWIG interface files (.i)
 Parse::Pidl::Samba4::NDR::Parser - Generates pull/push functions for parsing NDR
 Parse::Pidl::Samba4::NDR::Server - Generates server side implementation in C
 Parse::Pidl::Samba4::TDR - Parser generator for the "Trivial Data Representation"
 Parse::Pidl::Samba4::Template - Generates stubs in C for server implementation
-Parse::Pidl::Samba4::EJS - Generates bindings for Embedded JavaScript (EJS)
+Parse::Pidl::Samba4::Python - Generates bindings for Python
 
 -- Samba COM / DCOM --
 Parse::Pidl::Samba4::COM::Proxy - Generates proxy object for DCOM (client-side)

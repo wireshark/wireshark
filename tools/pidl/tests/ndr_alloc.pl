@@ -20,7 +20,7 @@ test_samba4_ndr("alloc-scalar",
 ','
 	uint8_t data[] = { 0xde, 0xad, 0xbe, 0xef, 0x03 };
 	DATA_BLOB b = { data, 5 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL, NULL);
 	struct TestAlloc r;
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_TestAlloc(ndr, NDR_IN, &r)))
@@ -44,7 +44,7 @@ test_samba4_ndr("alloc-buffer",
 ','
 	uint8_t data[] = { 0xde, 0xad, 0xbe, 0xef, 0x03 };
 	DATA_BLOB b = { data, 5 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL, NULL);
 	struct TestAlloc r;
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_TestAlloc(ndr, NDR_IN, &r)))
@@ -65,7 +65,7 @@ test_samba4_ndr("ref-noalloc-null",
 ','
 	uint8_t data[] = { 0x03 };
 	DATA_BLOB b = { data, 1 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL, NULL);
 	struct TestAlloc r;
 	r.in.t = NULL;
 
@@ -81,7 +81,7 @@ test_samba4_ndr("ref-noalloc",
 ','
 	uint8_t data[] = { 0x03 };
 	DATA_BLOB b = { data, 1 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL, NULL);
 	struct TestAlloc r;
 	uint8_t x;
 	r.in.t = &x;
@@ -101,7 +101,7 @@ test_samba4_ndr("ref-alloc",
 ','
 	uint8_t data[] = { 0x03 };
 	DATA_BLOB b = { data, 1 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&b, NULL, NULL);
 	struct TestAlloc r;
 	ndr->flags |= LIBNDR_FLAG_REF_ALLOC;
 	r.in.t = NULL;

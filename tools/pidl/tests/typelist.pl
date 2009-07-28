@@ -4,11 +4,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 53;
+use Test::More tests => 56;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
-use Parse::Pidl::Typelist qw(hasType getType mapTypeName expandAlias
+use Parse::Pidl::Typelist qw(hasType typeHasBody getType mapTypeName expandAlias
 	mapScalarType addType typeIs is_scalar scalar_is_reference
 	enum_type_fn bitmap_type_fn mapType);
 
@@ -21,6 +21,7 @@ is("int32", expandAlias("int32"));
 is("uint32_t", mapScalarType("uint32"));
 is("void", mapScalarType("void"));
 is("uint64_t", mapScalarType("hyper"));
+is("double", mapScalarType("double"));
 
 my $x = { TYPE => "ENUM", NAME => "foo", EXTRADATA => 1 };
 addType($x);
@@ -30,8 +31,15 @@ is_deeply(getType({ TYPE => "STRUCT" }), { TYPE => "STRUCT" });
 is_deeply(getType({ TYPE => "ENUM", NAME => "foo" }), $x);
 is_deeply(getType("uint16"), {
 		NAME => "uint16",
+		BASEFILE => "<builtin>",
 		TYPE => "TYPEDEF",
 		DATA => { NAME => "uint16", TYPE => "SCALAR" }});
+
+is_deeply(getType("double"), {
+		NAME => "double",
+		BASEFILE => "<builtin>",
+		TYPE => "TYPEDEF",
+		DATA => { NAME => "double", TYPE => "SCALAR" }});
 
 is(0, typeIs("someUnknownType", "ENUM"));
 is(0, typeIs("foo", "ENUM"));
@@ -56,7 +64,6 @@ is(1, is_scalar({TYPE => "ENUM"}));
 is(0, is_scalar({TYPE => "STRUCT"}));
 is(1, is_scalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM" }}));
 is(1, is_scalar("mytypedef"));
-is(1, is_scalar({TYPE => "DECLARE", DATA => {TYPE => "ENUM" }}));
 
 is(1, scalar_is_reference("string"));
 is(0, scalar_is_reference("uint32"));
@@ -81,3 +88,6 @@ is("uint32_t", mapType({TYPE => "TYPEDEF", DATA => {TYPE => "SCALAR"}}, "uint32"
 is("void", mapTypeName(undef));
 is("uint32_t", mapTypeName("uint32"));
 is("int32_t", mapTypeName("int"));
+
+ok(not typeHasBody({TYPE => "TYPEDEF", DATA => { TYPE => "STRUCT" }}));
+ok(typeHasBody({TYPE => "TYPEDEF", DATA => { TYPE => "STRUCT", ELEMENTS => [] }}));

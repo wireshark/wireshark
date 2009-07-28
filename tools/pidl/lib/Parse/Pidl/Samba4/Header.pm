@@ -6,10 +6,15 @@
 
 package Parse::Pidl::Samba4::Header;
 
+require Exporter;
+
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(GenerateFunctionInEnv GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv);
+
 use strict;
 use Parse::Pidl qw(fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
-use Parse::Pidl::Util qw(has_property is_constant unmake_str);
+use Parse::Pidl::Util qw(has_property is_constant unmake_str ParseExpr);
 use Parse::Pidl::Samba4 qw(is_intree ElementStars ArrayBrackets choose_header);
 
 use vars qw($VERSION);
@@ -77,10 +82,11 @@ sub HeaderElement($)
 
 #####################################################################
 # parse a struct
-sub HeaderStruct($$)
+sub HeaderStruct($$;$)
 {
-	my($struct,$name) = @_;
+	my($struct,$name,$tail) = @_;
 	pidl "struct $name";
+	pidl $tail if defined($tail) and not defined($struct->{ELEMENTS});
 	return if (not defined($struct->{ELEMENTS}));
 	pidl " {\n";
 	$tab_depth++;
@@ -98,35 +104,36 @@ sub HeaderStruct($$)
 	if (defined $struct->{PROPERTIES}) {
 		HeaderProperties($struct->{PROPERTIES}, []);
 	}
+	pidl $tail if defined($tail);
 }
 
 #####################################################################
 # parse a enum
-sub HeaderEnum($$)
+sub HeaderEnum($$;$)
 {
-	my($enum,$name) = @_;
+	my($enum,$name,$tail) = @_;
 	my $first = 1;
 
-	pidl "#ifndef USE_UINT_ENUMS\n";
-	pidl "enum $name {\n";
-	$tab_depth++;
+	pidl "enum $name";
 	if (defined($enum->{ELEMENTS})) {
+		pidl "\n#ifndef USE_UINT_ENUMS\n";
+		pidl " {\n";
+		$tab_depth++;
 		foreach my $e (@{$enum->{ELEMENTS}}) {
 			unless ($first) { pidl ",\n"; }
 			$first = 0;
 			pidl tabs();
 			pidl $e;
 		}
-	}
-	pidl "\n";
-	$tab_depth--;
-	pidl "}\n";
-	pidl "#else\n";
-	my $count = 0;
-	pidl "enum $name { __donnot_use_enum_$name=0x7FFFFFFF}\n";
-	my $with_val = 0;
-	my $without_val = 0;
-	if (defined($enum->{ELEMENTS})) {
+		pidl "\n";
+		$tab_depth--;
+		pidl "}";
+		pidl "\n";
+		pidl "#else\n";
+		my $count = 0;
+		my $with_val = 0;
+		my $without_val = 0;
+		pidl " { __donnot_use_enum_$name=0x7FFFFFFF}\n";
 		foreach my $e (@{$enum->{ELEMENTS}}) {
 			my $t = "$e";
 			my $name;
@@ -146,8 +153,9 @@ sub HeaderEnum($$)
 			}
 			pidl "#define $name ( $value )\n";
 		}
+		pidl "#endif\n";
 	}
-	pidl "#endif\n";
+	pidl $tail if defined($tail);
 }
 
 #####################################################################
@@ -165,22 +173,29 @@ sub HeaderBitmap($$)
 
 #####################################################################
 # parse a union
-sub HeaderUnion($$)
+sub HeaderUnion($$;$)
 {
-	my($union,$name) = @_;
+	my($union,$name,$tail) = @_;
 	my %done = ();
 
 	pidl "union $name";
+	pidl $tail if defined($tail) and not defined($union->{ELEMENTS});
 	return if (not defined($union->{ELEMENTS}));
 	pidl " {\n";
 	$tab_depth++;
+	my $needed = 0;
 	foreach my $e (@{$union->{ELEMENTS}}) {
 		if ($e->{TYPE} ne "EMPTY") {
 			if (! defined $done{$e->{NAME}}) {
 				HeaderElement($e);
 			}
 			$done{$e->{NAME}} = 1;
+			$needed++;
 		}
+	}
+	if (!$needed) {
+		# sigh - some compilers don't like empty structures
+		pidl tabs()."int _dummy_element;\n";
 	}
 	$tab_depth--;
 	pidl "}";
@@ -188,18 +203,19 @@ sub HeaderUnion($$)
 	if (defined $union->{PROPERTIES}) {
 		HeaderProperties($union->{PROPERTIES}, []);
 	}
+	pidl $tail if defined($tail);
 }
 
 #####################################################################
 # parse a type
-sub HeaderType($$$)
+sub HeaderType($$$;$)
 {
-	my($e,$data,$name) = @_;
+	my($e,$data,$name,$tail) = @_;
 	if (ref($data) eq "HASH") {
-		($data->{TYPE} eq "ENUM") && HeaderEnum($data, $name);
+		($data->{TYPE} eq "ENUM") && HeaderEnum($data, $name, $tail);
 		($data->{TYPE} eq "BITMAP") && HeaderBitmap($data, $name);
-		($data->{TYPE} eq "STRUCT") && HeaderStruct($data, $name);
-		($data->{TYPE} eq "UNION") && HeaderUnion($data, $name);
+		($data->{TYPE} eq "STRUCT") && HeaderStruct($data, $name, $tail);
+		($data->{TYPE} eq "UNION") && HeaderUnion($data, $name, $tail);
 		return;
 	}
 
@@ -208,14 +224,17 @@ sub HeaderType($$$)
 	} else {
 		pidl mapTypeName($e->{TYPE});
 	}
+	pidl $tail if defined($tail);
 }
 
 #####################################################################
 # parse a typedef
-sub HeaderTypedef($)
+sub HeaderTypedef($;$)
 {
-	my($typedef) = shift;
-	HeaderType($typedef, $typedef->{DATA}, $typedef->{NAME});
+	my($typedef,$tail) = @_;
+	# Don't print empty "enum foo;", since some compilers don't like it.
+	return if ($typedef->{DATA}->{TYPE} eq "ENUM" and not defined($typedef->{DATA}->{ELEMENTS}));
+	HeaderType($typedef, $typedef->{DATA}, $typedef->{NAME}, $tail) if defined ($typedef->{DATA});
 }
 
 #####################################################################
@@ -323,10 +342,10 @@ sub HeaderFunction($)
 sub HeaderImport
 {
 	my @imports = @_;
-	foreach (@imports) {
-		s/\.idl\"$//;
-		s/^\"//;
-		pidl choose_header("librpc/gen_ndr/$_\.h", "gen_ndr/$_.h") . "\n";
+	foreach my $import (@imports) {
+		$import = unmake_str($import);
+		$import =~ s/\.idl$//;
+		pidl choose_header("librpc/gen_ndr/$import\.h", "gen_ndr/$import.h") . "\n";
 	}
 }
 
@@ -352,16 +371,11 @@ sub HeaderInterface($)
 	}
 
 	foreach my $t (@{$interface->{TYPES}}) {
-		HeaderTypedef($t) if ($t->{TYPE} eq "TYPEDEF");
-		HeaderStruct($t, $t->{NAME}) if ($t->{TYPE} eq "STRUCT");
-		HeaderUnion($t, $t->{NAME}) if ($t->{TYPE} eq "UNION");
-		HeaderEnum($t, $t->{NAME}) if ($t->{TYPE} eq "ENUM");
+		HeaderTypedef($t, ";\n\n") if ($t->{TYPE} eq "TYPEDEF");
+		HeaderStruct($t, $t->{NAME}, ";\n\n") if ($t->{TYPE} eq "STRUCT");
+		HeaderUnion($t, $t->{NAME}, ";\n\n") if ($t->{TYPE} eq "UNION");
+		HeaderEnum($t, $t->{NAME}, ";\n\n") if ($t->{TYPE} eq "ENUM");
 		HeaderBitmap($t, $t->{NAME}) if ($t->{TYPE} eq "BITMAP");
-		pidl ";\n\n" if ($t->{TYPE} eq "BITMAP" or 
-				 $t->{TYPE} eq "STRUCT" or 
-				 $t->{TYPE} eq "TYPEDEF" or 
-				 $t->{TYPE} eq "UNION" or 
-				 $t->{TYPE} eq "ENUM");
 	}
 
 	foreach my $fn (@{$interface->{FUNCTIONS}}) {
@@ -393,6 +407,9 @@ sub Parse($)
 	}
 	pidl "#include <stdint.h>\n";
 	pidl "\n";
+	# FIXME: Include this only if NTSTATUS was actually used
+	pidl choose_header("libcli/util/ntstatus.h", "core/ntstatus.h") . "\n";
+	pidl "\n";
 
 	foreach (@{$ndr}) {
 		($_->{TYPE} eq "CPP_QUOTE") && HeaderQuote($_);
@@ -402,6 +419,68 @@ sub Parse($)
 	}
 
 	return $res;
+}
+
+sub GenerateStructEnv($$)
+{
+	my ($x, $v) = @_;
+	my %env;
+
+	foreach my $e (@{$x->{ELEMENTS}}) {
+		$env{$e->{NAME}} = "$v->$e->{NAME}";
+	}
+
+	$env{"this"} = $v;
+
+	return \%env;
+}
+
+sub EnvSubstituteValue($$)
+{
+	my ($env,$s) = @_;
+
+	# Substitute the value() values in the env
+	foreach my $e (@{$s->{ELEMENTS}}) {
+		next unless (defined(my $v = has_property($e, "value")));
+		
+		$env->{$e->{NAME}} = ParseExpr($v, $env, $e);
+	}
+
+	return $env;
+}
+
+sub GenerateFunctionInEnv($;$)
+{
+	my ($fn, $base) = @_;
+	my %env;
+
+	$base = "r->" unless defined($base);
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (grep (/in/, @{$e->{DIRECTION}})) {
+			$env{$e->{NAME}} = $base."in.$e->{NAME}";
+		}
+	}
+
+	return \%env;
+}
+
+sub GenerateFunctionOutEnv($;$)
+{
+	my ($fn, $base) = @_;
+	my %env;
+
+	$base = "r->" unless defined($base);
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (grep (/out/, @{$e->{DIRECTION}})) {
+			$env{$e->{NAME}} = $base."out.$e->{NAME}";
+		} elsif (grep (/in/, @{$e->{DIRECTION}})) {
+			$env{$e->{NAME}} = $base."in.$e->{NAME}";
+		}
+	}
+
+	return \%env;
 }
 
 1;

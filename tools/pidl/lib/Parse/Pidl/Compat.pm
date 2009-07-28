@@ -44,7 +44,6 @@ my %supported_properties = (
 	"nopush"		=> ["FUNCTION", "TYPEDEF"],
 	"nopull"		=> ["FUNCTION", "TYPEDEF"],
 	"noprint"		=> ["FUNCTION", "TYPEDEF"],
-	"noejs"			=> ["FUNCTION", "TYPEDEF"],
 
 	# union
 	"switch_is"		=> ["ELEMENT"],
@@ -148,17 +147,6 @@ sub CheckInterface($)
 {
 	my $if = shift;
 
-	if (has_property($if, "pointer_default_top") and 
-		$if->{PROPERTIES}->{pointer_default_top} ne "ref") {
-		warning($if, "pointer_default_top() is pidl-specific");
-	}
-
-	foreach my $x (@{$if->{DATA}}) {
-		if ($x->{TYPE} eq "DECLARE") {
-			warning($if, "the declare keyword is pidl-specific");
-			next;
-		}
-	}
 }
 
 sub Check($)

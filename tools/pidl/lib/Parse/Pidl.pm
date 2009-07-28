@@ -9,7 +9,7 @@ package Parse::Pidl;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(warning error fatal);
+@EXPORT_OK = qw(warning error fatal $VERSION);
 
 use strict;
 
@@ -20,13 +20,19 @@ $VERSION = '0.02';
 sub warning
 {
 	my ($l,$m) = @_;
-	print STDERR "$l->{FILE}:$l->{LINE}: warning: $m\n";
+	if ($l) {
+		print STDERR "$l->{FILE}:$l->{LINE}: ";
+	}
+	print STDERR "warning: $m\n";
 }
 
 sub error
 {
 	my ($l,$m) = @_;
-	print STDERR "$l->{FILE}:$l->{LINE}: error: $m\n";
+	if ($l) {
+		print STDERR "$l->{FILE}:$l->{LINE}: ";
+	}
+	print STDERR "error: $m\n";
 }
 
 sub fatal($$) 

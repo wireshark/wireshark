@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 47;
+use Test::More tests => 49;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -35,7 +35,6 @@ test_warnings("nofile:1: Unknown command `foobar'\n",
 test_warnings("nofile:1: incomplete HF_RENAME command\n",
 	sub { parse_conf("HF_RENAME\n"); });
 
-
 is_deeply(parse_conf("HF_RENAME foo bar\n")->{hf_renames}->{foo}, 
 	{ OLDNAME => "foo", NEWNAME => "bar", POS => {FILE => "nofile", LINE => 1}, USED => 0});
 
@@ -46,6 +45,9 @@ test_warnings("nofile:1: incomplete MANUAL command\n",
 	sub { parse_conf("MANUAL\n"); } );
 
 is_deeply(parse_conf("MANUAL foo\n"), { manual => {foo => 1}});
+
+test_errors("nofile:1: incomplete INCLUDE command\n",
+	sub { parse_conf("INCLUDE\n"); } );
 
 test_warnings("nofile:1: incomplete FIELD_DESCRIPTION command\n",
 	sub { parse_conf("FIELD_DESCRIPTION foo\n"); });
@@ -163,6 +165,9 @@ test_errors("nofile:1: no dissectorname specified\n",
 
 test_errors("nofile:1: incomplete HF_FIELD command\n",
 	sub { parse_conf("HF_FIELD hf_idx\n"); });
+
+test_errors("nofile:1: incomplete ETT_FIELD command\n",
+	sub { parse_conf("ETT_FIELD\n"); });
 
 is_deeply(parse_conf("TYPE winreg_String dissect_myminregstring(); FT_STRING BASE_DEC 0 0 0 2\n"), {
 		types => {

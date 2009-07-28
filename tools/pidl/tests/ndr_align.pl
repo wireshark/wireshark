@@ -16,7 +16,7 @@ test_samba4_ndr('align-uint8-uint16',
 	} bla;
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct bla r;
 	uint8_t expected[] = { 0x0D, 0x00, 0xef, 0xbe };
 	DATA_BLOB expected_blob = { expected, 4 };
@@ -41,7 +41,7 @@ test_samba4_ndr('align-uint8-uint32',
 	} bla;
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct bla r;
 	uint8_t expected[] = { 0x0D, 0x00, 0x00, 0x00, 0xef, 0xbe, 0xef, 0xbe };
 	DATA_BLOB expected_blob = { expected, 8 };
@@ -67,7 +67,7 @@ test_samba4_ndr('align-uint8-hyper',
 	} bla;
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct bla r;
 	uint8_t expected[] = { 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 			       0xef, 0xbe, 0xef, 0xbe, 0xef, 0xbe, 0xef, 0xbe };
@@ -93,7 +93,7 @@ test_samba4_ndr('noalignflag-uint8-uint16',
 	} bla;
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct bla r;
 	uint8_t expected[] = { 0x0D, 0xef, 0xbe };
 	DATA_BLOB expected_blob = { expected, 3 };
@@ -121,7 +121,7 @@ test_samba4_ndr('align-blob-align2',
 	} blie;
 ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct blie r;
 	uint8_t data[] = { 0x01, 0x02 };
 	uint8_t expected[] = { 0x0D, 0x00, 0x0E };

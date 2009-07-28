@@ -52,6 +52,10 @@ use old_hf_name.
 This can be used in conjunction with HF_FIELD in order to make more than 
 one element use the same filter name.
 
+=item I<ETT_FIELD> ett
+
+Register a custom ett field
+
 =item I<STRIP_PREFIX> prefix
 
 Remove the specified prefix from all function names (if present).
@@ -69,6 +73,10 @@ Change description for the specified header field. `field' is the hf name of the
 
 Code to insert when generating the specified dissector. @HF@ and 
 @PARAM@ will be substituted.
+
+=item I<INCLUDE> filename
+
+Include conformance data from the specified filename in the dissector.
 
 =item I<TFS> hf_name "true string" "false string"
 
@@ -313,6 +321,34 @@ sub handle_import
 	};
 }
 
+sub handle_ett_field
+{
+	my $pos = shift @_;
+	my $data = shift @_;
+	my $ett = shift @_;
+
+	unless(defined($ett)) {
+		error($pos, "incomplete ETT_FIELD command");
+		return;
+	}
+
+	push (@{$data->{ett}}, $ett);
+}
+
+sub handle_include
+{
+	my $pos = shift @_;
+	my $data = shift @_;
+	my $fn = shift @_;
+
+	unless(defined($fn)) {
+		error($pos, "incomplete INCLUDE command");
+		return;
+	}
+
+	ReadConformance($fn, $data);
+}
+
 my %field_handlers = (
 	TYPE => \&handle_type,
 	NOEMIT => \&handle_noemit, 
@@ -320,11 +356,13 @@ my %field_handlers = (
 	PARAM_VALUE => \&handle_param_value, 
 	HF_FIELD => \&handle_hf_field, 
 	HF_RENAME => \&handle_hf_rename, 
+	ETT_FIELD => \&handle_ett_field,
 	TFS => \&handle_tfs,
 	STRIP_PREFIX => \&handle_strip_prefix,
 	PROTOCOL => \&handle_protocol,
 	FIELD_DESCRIPTION => \&handle_fielddescription,
-	IMPORT => \&handle_import
+	IMPORT => \&handle_import,
+	INCLUDE => \&handle_include
 );
 
 sub ReadConformance($$)

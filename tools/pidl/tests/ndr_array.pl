@@ -23,7 +23,7 @@ test_samba4_ndr(
 
 	b.data = data;
 	b.length = 10;
-	ndr = ndr_pull_init_blob(&b, mem_ctx);
+	ndr = ndr_pull_init_blob(&b, mem_ctx, NULL);
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_Test(ndr, NDR_IN, &r)))
 		return 1;

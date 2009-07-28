@@ -15,7 +15,7 @@ test_samba4_ndr('represent_as-simple',
 '
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB in_blob = { expected, 1 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL, NULL);
 	struct bla r;
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
@@ -46,7 +46,7 @@ test_samba4_ndr('transmit_as-simple',
 '
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB in_blob = { expected, 1 };
-	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL);
+	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL, NULL);
 	struct bla r;
 
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))

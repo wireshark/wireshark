@@ -35,7 +35,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
-@EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement align_type mapToScalar ParseType can_contain_deferred);
+@EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement align_type mapToScalar ParseType can_contain_deferred is_charset_array);
 
 use strict;
 use Parse::Pidl qw(warning fatal);
@@ -53,6 +53,7 @@ my $scalar_alignment = {
 	'int32' => 4,
 	'uint32' => 4,
 	'hyper' => 8,
+	'double' => 8,
 	'pointer' => 8,
 	'dlong' => 4,
 	'udlong' => 4,
@@ -72,9 +73,9 @@ my $scalar_alignment = {
 	'ipv4address' => 4
 };
 
-sub GetElementLevelTable($)
+sub GetElementLevelTable($$)
 {
-	my $e = shift;
+	my ($e, $pointer_default) = @_;
 
 	my $order = [];
 	my $is_deferred = 0;
@@ -141,6 +142,13 @@ sub GetElementLevelTable($)
 		$is_fixed = 1 if (not $is_conformant and Parse::Pidl::Util::is_constant($size));
 		$is_inline = 1 if (not $is_conformant and not Parse::Pidl::Util::is_constant($size));
 
+		if ($i == 0 and $is_fixed and has_property($e, "string")) {
+			$is_fixed = 0;
+			$is_varying = 1;
+			$is_string = 1;
+			delete($e->{PROPERTIES}->{string});
+		}
+
 		push (@$order, {
 			TYPE => "ARRAY",
 			SIZE_IS => $size,
@@ -157,32 +165,45 @@ sub GetElementLevelTable($)
 
 	# Next, all the pointers
 	foreach my $i (1..$e->{POINTERS}) {
-		my $pt = pointer_type($e);
-
 		my $level = "EMBEDDED";
 		# Top level "ref" pointers do not have a referrent identifier
-		$level = "TOP" if ( defined($pt) 
-				and $i == 1
-				and $e->{PARENT}->{TYPE} eq "FUNCTION");
+		$level = "TOP" if ($i == 1 and $e->{PARENT}->{TYPE} eq "FUNCTION");
+
+		my $pt;
+		#
+		# Only the first level gets the pointer type from the
+		# pointer property, the others get them from
+		# the pointer_default() interface property
+		#
+		# see http://msdn2.microsoft.com/en-us/library/aa378984(VS.85).aspx
+		# (Here they talk about the rightmost pointer, but testing shows
+		#  they mean the leftmost pointer.)
+		#
+		# --metze
+		#
+		$pt = pointer_type($e);
+		if ($i > 1) {
+			$is_deferred = 1 if ($pt ne "ref" and $e->{PARENT}->{TYPE} eq "FUNCTION");
+			$pt = $pointer_default;
+		}
 
 		push (@$order, { 
 			TYPE => "POINTER",
-			# for now, there can only be one pointer type per element
-			POINTER_TYPE => pointer_type($e),
+			POINTER_TYPE => $pt,
 			POINTER_INDEX => $pointer_idx,
 			IS_DEFERRED => "$is_deferred",
 			LEVEL => $level
 		});
 
 		warning($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer") 
-			if ($i == 1 and pointer_type($e) ne "ref" and 
+			if ($i == 1 and $pt ne "ref" and
 				$e->{PARENT}->{TYPE} eq "FUNCTION" and 
 				not has_property($e, "in"));
 
 		$pointer_idx++;
 		
 		# everything that follows will be deferred
-		$is_deferred = 1 if ($e->{PARENT}->{TYPE} ne "FUNCTION");
+		$is_deferred = 1 if ($level ne "TOP");
 
 		my $array_size = shift @size_is;
 		my $array_length;
@@ -274,6 +295,22 @@ sub GetElementLevelTable($)
 	return $order;
 }
 
+sub GetTypedefLevelTable($$$)
+{
+	my ($e, $data, $pointer_default) = @_;
+
+	my $order = [];
+
+	push (@$order, {
+		TYPE => "TYPEDEF"
+	});
+
+	my $i = 0;
+	foreach (@$order) { $_->{LEVEL_INDEX} = $i; $i+=1; }
+
+	return $order;
+}
+
 #####################################################################
 # see if a type contains any deferred data 
 sub can_contain_deferred($)
@@ -286,8 +323,6 @@ sub can_contain_deferred($)
 	$type = getType($type);
 
 	return 0 if (Parse::Pidl::Typelist::is_scalar($type));
-
-	return 1 if ($type->{TYPE} eq "DECLARE"); # assume the worst
 
 	return can_contain_deferred($type->{DATA}) if ($type->{TYPE} eq "TYPEDEF");
 
@@ -354,21 +389,25 @@ sub align_type($)
 		return $scalar_alignment->{$e->{NAME}};
 	}
 
+	return 0 if ($e eq "EMPTY");
+
 	unless (hasType($e)) {
 	    # it must be an external type - all we can do is guess 
-		# print "Warning: assuming alignment of unknown type '$e' is 4\n";
+		# warning($e, "assuming alignment of unknown type '$e' is 4");
 	    return 4;
 	}
 
 	my $dt = getType($e);
 
-	if ($dt->{TYPE} eq "TYPEDEF" or $dt->{TYPE} eq "DECLARE") {
+	if ($dt->{TYPE} eq "TYPEDEF") {
 		return align_type($dt->{DATA});
 	} elsif ($dt->{TYPE} eq "ENUM") {
 		return align_type(Parse::Pidl::Typelist::enum_type_fn($dt));
 	} elsif ($dt->{TYPE} eq "BITMAP") {
 		return align_type(Parse::Pidl::Typelist::bitmap_type_fn($dt));
 	} elsif (($dt->{TYPE} eq "STRUCT") or ($dt->{TYPE} eq "UNION")) {
+		# Struct/union without body: assume 4
+		return 4 unless (defined($dt->{ELEMENTS}));
 		return find_largest_alignment($dt);
 	}
 
@@ -389,7 +428,7 @@ sub ParseElement($$)
 		NAME => $e->{NAME},
 		TYPE => $e->{TYPE},
 		PROPERTIES => $e->{PROPERTIES},
-		LEVELS => GetElementLevelTable($e),
+		LEVELS => GetElementLevelTable($e, $pointer_default),
 		REPRESENTATION_TYPE => ($e->{PROPERTIES}->{represent_as} or $e->{TYPE}),
 		ALIGN => align_type($e->{TYPE}),
 		ORIGINAL => $e
@@ -560,6 +599,7 @@ sub ParseTypedef($$)
 		NAME => $d->{NAME},
 		TYPE => $d->{TYPE},
 		PROPERTIES => $d->{PROPERTIES},
+		LEVELS => GetTypedefLevelTable($d, $data, $pointer_default),
 		DATA => $data,
 		ORIGINAL => $d
 	};
@@ -579,7 +619,7 @@ sub ParseFunction($$$)
 	my $rettype = undef;
 	my $thisopnum = undef;
 
-	CheckPointerTypes($d, $ndr->{PROPERTIES}->{pointer_default_top});
+	CheckPointerTypes($d, "ref");
 
 	if (not defined($d->{PROPERTIES}{noopnum})) {
 		$thisopnum = ${$opnum};
@@ -621,7 +661,7 @@ sub CheckPointerTypes($$)
 
 	foreach my $e (@{$s->{ELEMENTS}}) {
 		if ($e->{POINTERS} and not defined(pointer_type($e))) {
-			$e->{PROPERTIES}->{$default} = 1;
+			$e->{PROPERTIES}->{$default} = '1';
 		}
 	}
 }
@@ -631,7 +671,7 @@ sub FindNestedTypes($$)
 	sub FindNestedTypes($$);
 	my ($l, $t) = @_;
 
-	return if not defined($t->{ELEMENTS});
+	return unless defined($t->{ELEMENTS});
 	return if ($t->{TYPE} eq "ENUM");
 	return if ($t->{TYPE} eq "BITMAP");
 
@@ -650,7 +690,6 @@ sub ParseInterface($)
 	my @consts = ();
 	my @functions = ();
 	my @endpoints;
-	my @declares = ();
 	my $opnum = 0;
 	my $version;
 
@@ -660,16 +699,8 @@ sub ParseInterface($)
 		$idl->{PROPERTIES}->{pointer_default} = "unique";
 	}
 
-	if (not has_property($idl, "pointer_default_top")) {
-		$idl->{PROPERTIES}->{pointer_default_top} = "ref";
-	} else {
-		warning($idl, "pointer_default_top() is a pidl extension and should not be used");
-	}
-
 	foreach my $d (@{$idl->{DATA}}) {
-		if ($d->{TYPE} eq "DECLARE") {
-			push (@declares, $d);
-		} elsif ($d->{TYPE} eq "FUNCTION") {
+		if ($d->{TYPE} eq "FUNCTION") {
 			push (@functions, ParseFunction($idl, $d, \$opnum));
 		} elsif ($d->{TYPE} eq "CONST") {
 			push (@consts, ParseConst($idl, $d));
@@ -682,14 +713,19 @@ sub ParseInterface($)
 	$version = "0.0";
 
 	if(defined $idl->{PROPERTIES}->{version}) { 
-		$version = $idl->{PROPERTIES}->{version}; 
+		my @if_version = split(/\./, $idl->{PROPERTIES}->{version});
+		if ($if_version[0] == $idl->{PROPERTIES}->{version}) {
+				$version = $idl->{PROPERTIES}->{version};
+		} else {
+				$version = $if_version[1] << 16 | $if_version[0];
+		}
 	}
 
 	# If no endpoint is set, default to the interface name as a named pipe
 	if (!defined $idl->{PROPERTIES}->{endpoint}) {
 		push @endpoints, "\"ncacn_np:[\\\\pipe\\\\" . $idl->{NAME} . "]\"";
 	} else {
-		@endpoints = split / /, $idl->{PROPERTIES}->{endpoint};
+		@endpoints = split /,/, $idl->{PROPERTIES}->{endpoint};
 	}
 
 	return { 
@@ -701,7 +737,6 @@ sub ParseInterface($)
 		FUNCTIONS => \@functions,
 		CONSTS => \@consts,
 		TYPES => \@types,
-		DECLARES => \@declares,
 		ENDPOINTS => \@endpoints
 	};
 }
@@ -785,20 +820,21 @@ sub ContainsDeferred($$)
 sub el_name($)
 {
 	my $e = shift;
+	my $name = "<ANONYMOUS>";
 
-	if ($e->{PARENT} && $e->{PARENT}->{NAME}) {
-		return "$e->{PARENT}->{NAME}.$e->{NAME}";
+	$name = $e->{NAME} if defined($e->{NAME});
+
+	if (defined($e->{PARENT}) and defined($e->{PARENT}->{NAME})) {
+		return "$e->{PARENT}->{NAME}.$name";
 	}
 
-	if ($e->{PARENT} && $e->{PARENT}->{PARENT}->{NAME}) {
-		return "$e->{PARENT}->{PARENT}->{NAME}.$e->{NAME}";
+	if (defined($e->{PARENT}) and
+	    defined($e->{PARENT}->{PARENT}) and
+	    defined($e->{PARENT}->{PARENT}->{NAME})) {
+		return "$e->{PARENT}->{PARENT}->{NAME}.$name";
 	}
 
-	if ($e->{PARENT}) {
-		return "$e->{PARENT}->{NAME}.$e->{NAME}";
-	}
-
-	return $e->{NAME};
+	return $name;
 }
 
 ###################################
@@ -826,9 +862,10 @@ my %property_list = (
 	"uuid"			=> ["INTERFACE"],
 	"endpoint"		=> ["INTERFACE"],
 	"pointer_default"	=> ["INTERFACE"],
-	"pointer_default_top"	=> ["INTERFACE"],
 	"helper"		=> ["INTERFACE"],
+	"pyhelper"		=> ["INTERFACE"],
 	"authservice"		=> ["INTERFACE"],
+	"restricted"	=> ["INTERFACE"],
 
 	# dcom
 	"object"		=> ["INTERFACE"],
@@ -849,24 +886,25 @@ my %property_list = (
 	"unique"		=> ["ELEMENT"],
 	"ignore"		=> ["ELEMENT"],
 	"relative"		=> ["ELEMENT"],
-	"relative_base"		=> ["TYPEDEF"],
+	"null_is_ffffffff" => ["ELEMENT"],
+	"relative_base"		=> ["TYPEDEF", "STRUCT", "UNION"],
 
-	"gensize"		=> ["TYPEDEF"],
+	"gensize"		=> ["TYPEDEF", "STRUCT", "UNION"],
 	"value"			=> ["ELEMENT"],
-	"flag"			=> ["ELEMENT", "TYPEDEF"],
+	"flag"			=> ["ELEMENT", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 
 	# generic
-	"public"		=> ["FUNCTION", "TYPEDEF"],
-	"nopush"		=> ["FUNCTION", "TYPEDEF"],
-	"nopull"		=> ["FUNCTION", "TYPEDEF"],
-	"nosize"		=> ["FUNCTION", "TYPEDEF"],
-	"noprint"		=> ["FUNCTION", "TYPEDEF"],
-	"noejs"			=> ["FUNCTION", "TYPEDEF"],
+	"public"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"nopush"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"nopull"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"nosize"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"noprint"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "ELEMENT"],
+	"todo"			=> ["FUNCTION"],
 
 	# union
 	"switch_is"		=> ["ELEMENT"],
-	"switch_type"		=> ["ELEMENT", "TYPEDEF"],
-	"nodiscriminant"	=> ["TYPEDEF"],
+	"switch_type"		=> ["ELEMENT", "UNION"],
+	"nodiscriminant"	=> ["UNION"],
 	"case"			=> ["ELEMENT"],
 	"default"		=> ["ELEMENT"],
 
@@ -879,15 +917,15 @@ my %property_list = (
 	"compression"		=> ["ELEMENT"],
 
 	# enum
-	"enum8bit"		=> ["TYPEDEF"],
-	"enum16bit"		=> ["TYPEDEF"],
-	"v1_enum"		=> ["TYPEDEF"],
+	"enum8bit"		=> ["ENUM"],
+	"enum16bit"		=> ["ENUM"],
+	"v1_enum"		=> ["ENUM"],
 
 	# bitmap
-	"bitmap8bit"		=> ["TYPEDEF"],
-	"bitmap16bit"		=> ["TYPEDEF"],
-	"bitmap32bit"		=> ["TYPEDEF"],
-	"bitmap64bit"		=> ["TYPEDEF"],
+	"bitmap8bit"		=> ["BITMAP"],
+	"bitmap16bit"		=> ["BITMAP"],
+	"bitmap32bit"		=> ["BITMAP"],
+	"bitmap64bit"		=> ["BITMAP"],
 
 	# array
 	"range"			=> ["ELEMENT"],
@@ -911,7 +949,7 @@ sub ValidProperties($$)
 			unless defined($property_list{$key});
 
    		fatal($e, el_name($e) . ": property '$key' not allowed on '$t'")
-			unless grep($t, @{$property_list{$key}});
+			unless grep(/^$t$/, @{$property_list{$key}});
 	}
 }
 
@@ -1052,8 +1090,9 @@ sub ValidUnion($)
 
 	ValidProperties($union,"UNION");
 
-	if (has_property($union->{PARENT}, "nodiscriminant") and has_property($union->{PARENT}, "switch_type")) {
-		fatal($union->{PARENT}, $union->{PARENT}->{NAME} . ": switch_type() on union without discriminant");
+	if (has_property($union->{PARENT}, "nodiscriminant") and 
+		has_property($union->{PARENT}, "switch_type")) {
+		fatal($union->{PARENT}, $union->{PARENT}->{NAME} . ": switch_type(" . $union->{PARENT}->{PROPERTIES}->{switch_type} . ") on union without discriminant");
 	}
 
 	return unless defined($union->{ELEMENTS});
@@ -1072,7 +1111,7 @@ sub ValidUnion($)
 		}
 
 		if (has_property($e, "ref")) {
-			fatal($e, el_name($e) . " : embedded ref pointers are not supported yet\n");
+			fatal($e, el_name($e) . ": embedded ref pointers are not supported yet\n");
 		}
 
 
@@ -1090,6 +1129,9 @@ sub ValidTypedef($)
 	ValidProperties($typedef, "TYPEDEF");
 
 	$data->{PARENT} = $typedef;
+
+	$data->{FILE} = $typedef->{FILE} unless defined($data->{FILE});
+	$data->{LINE} = $typedef->{LINE} unless defined($data->{LINE});
 
 	ValidType($data) if (ref($data) eq "HASH");
 }
@@ -1182,5 +1224,20 @@ sub Validate($)
 			fatal($x, "importlib() not supported");
 	}
 }
+
+sub is_charset_array($$)
+{
+	my ($e,$l) = @_;
+
+	return 0 if ($l->{TYPE} ne "ARRAY");
+
+	my $nl = GetNextLevel($e,$l);
+
+	return 0 unless ($nl->{TYPE} eq "DATA");
+
+	return has_property($e, "charset");
+}
+
+
 
 1;

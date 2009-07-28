@@ -1,7 +1,7 @@
 ########################
 # IDL Parse::Yapp parser
 # Copyright (C) Andrew Tridgell <tridge@samba.org>
-# released under the GNU GPL version 2 or later
+# released under the GNU GPL version 3 or later
 
 
 
@@ -67,16 +67,23 @@ interface_names:
 	| interface_names 'interface' identifier ';' { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
-interface: property_list 'interface' identifier '{' definitions '}' optional_semicolon
+interface: property_list 'interface' identifier base_interface '{' definitions '}' optional_semicolon
           {{
                "TYPE" => "INTERFACE", 
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
-	       "DATA" => $_[5],
+		   "BASE" => $_[4],
+	       "DATA" => $_[6],
 		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
 ;
+
+base_interface:
+    #empty
+    | ':' identifier { $_[2] }
+;
+
 
 cpp_quote: 'cpp_quote' '(' text ')'
 	{{
@@ -93,7 +100,7 @@ definitions:
 ;    
 
 
-definition: function | const | typedef | declare | typedecl
+definition: function | const | typedef | typedecl
 ;
 
 const: 'const' identifier pointers identifier '=' anytext ';' 
@@ -130,40 +137,6 @@ function: property_list type identifier '(' element_list2 ')' ';'
 		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
 	  }}
-;
-
-declare: 'declare' decl_type identifier';' 
-        {{
-	             "TYPE" => "DECLARE", 
-		     "NAME" => $_[3],
-		     "DATA" => $_[2],
-		     "FILE" => $_[0]->YYData->{FILE},
-		     "LINE" => $_[0]->YYData->{LINE},
-        }}
-;
-
-decl_type: decl_enum | decl_bitmap | decl_union
-;
-
-decl_enum: property_list 'enum' 
-        {{
-                     "TYPE" => "ENUM",
-                     "PROPERTIES" => $_[1]
-        }}
-;
-
-decl_bitmap: property_list 'bitmap' 
-        {{
-                     "TYPE" => "BITMAP",
-                     "PROPERTIES" => $_[1]
-        }}
-;
-
-decl_union: property_list 'union' 
-        {{
-                     "TYPE" => "UNION",
-                     "PROPERTIES" => $_[1]
-        }}
 ;
 
 typedef: property_list 'typedef' type identifier array_len ';' 
@@ -303,11 +276,16 @@ element_list1:
     | element_list1 base_element ';' { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
+optional_const: 
+	#empty
+	| 'const'
+;
+
 element_list2: 
     #empty
     | 'void' 
-    | base_element { [ $_[1] ] }
-    | element_list2 ',' base_element { push(@{$_[1]}, $_[3]); $_[1] }
+    | optional_const base_element { [ $_[2] ] }
+    | element_list2 ',' optional_const base_element { push(@{$_[1]}, $_[4]); $_[1] }
 ;
 
 array_len: 
@@ -327,12 +305,7 @@ properties: property          { $_[1] }
 ;
 
 property: identifier                   {{ "$_[1]" => "1"     }}
-          | identifier '(' listtext ')' {{ "$_[1]" => "$_[3]" }}
-;
-
-listtext:
-    anytext 
-    | listtext ',' anytext { "$_[1] $_[3]" }
+          | identifier '(' commalisttext ')' {{ "$_[1]" => "$_[3]" }}
 ;
 
 commalisttext:
@@ -430,7 +403,7 @@ sub _Error {
 		error($_[0]->YYData, $_[0]->YYData->{ERRMSG});
 		delete $_[0]->YYData->{ERRMSG};
 		return;
-	};
+	}
 	my $last_token = $_[0]->YYData->{LAST_TOKEN};
 	
 	error($_[0]->YYData, "Syntax error near '$last_token'");
@@ -476,7 +449,7 @@ again:
 		if (s/^([\w_]+)//) {
 			$parser->YYData->{LAST_TOKEN} = $1;
 			if ($1 =~ 
-			    /^(coclass|interface|const|typedef|declare|union|cpp_quote
+			    /^(coclass|interface|const|typedef|union|cpp_quote
 			      |struct|enum|bitmap|void|unsigned|signed|import|include
 				  |importlib)$/x) {
 				return $1;

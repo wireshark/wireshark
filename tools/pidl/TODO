@@ -1,12 +1,10 @@
-- EJS output backend shouldn't use the NDR levels stuff but instead 
-  as the "C levels" and NDR levels don't necessarily match.
+- warn when union instances don't have a discriminant
 
 - true multiple dimension array / strings in arrays support
 
 - compatibility mode for generating MIDL-readable data:
  - strip out pidl-specific properties
 
-- remove declare in favor of typedef
 - make bitmap an optional attribute on enum
 - support nested elements
 - support typedefs properly (e.g. allow "typedef void **bla;")
@@ -32,3 +30,15 @@
  - remove NDR_AUTO_REF_ALLOC flag
 
 - automatic test generator based on IDL pointer types
+
+- support converting structs to tuples in Python rather than objects
+- convert structs with a single mattering member to that member directly, e.g.:
+  struct bar {
+    int size;
+	[size_is(size)] uint32 *array;
+  };
+
+  should be converted to an array of uint32's
+
+- python: fill in size members automatically in some places if the struct isn't being returned
+  (so we don't have to cope with the array growing)

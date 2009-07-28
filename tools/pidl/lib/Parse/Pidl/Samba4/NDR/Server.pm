@@ -120,7 +120,8 @@ static NTSTATUS $name\__op_ndr_pull(struct dcesrv_call_state *dce_call, TALLOC_C
         /* unravel the NDR for the packet */
 	ndr_err = ndr_table_$name.calls[opnum].ndr_pull(pull, NDR_IN, *r);
 	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {
-		dcerpc_log_packet(&ndr_table_$name, opnum, NDR_IN,
+		dcerpc_log_packet(dce_call->conn->packet_log_dir, 
+				  &ndr_table_$name, opnum, NDR_IN,
 				  &dce_call->pkt.u.request.stub_and_verifier);
 		dce_call->fault_code = DCERPC_FAULT_NDR;
 		return NT_STATUS_NET_WRITE_FAULT;
@@ -144,7 +145,8 @@ pidl "
 	}
 
 	if (dce_call->fault_code != 0) {
-		dcerpc_log_packet(&ndr_table_$name, opnum, NDR_IN,
+		dcerpc_log_packet(dce_call->conn->packet_log_dir, 
+		          &ndr_table_$name, opnum, NDR_IN,
 				  &dce_call->pkt.u.request.stub_and_verifier);
 		return NT_STATUS_NET_WRITE_FAULT;
 	}
@@ -167,7 +169,8 @@ pidl "
 	}
 
 	if (dce_call->fault_code != 0) {
-		dcerpc_log_packet(&ndr_table_$name, opnum, NDR_IN,
+		dcerpc_log_packet(dce_call->conn->packet_log_dir,
+		          &ndr_table_$name, opnum, NDR_IN,
 				  &dce_call->pkt.u.request.stub_and_verifier);
 		return NT_STATUS_NET_WRITE_FAULT;
 	}

@@ -10,7 +10,7 @@ use Util qw(test_samba4_ndr);
 
 test_samba4_ndr('struct-notypedef', '[public] struct bla { uint8 x; }; ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct bla r;
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB expected_blob = { expected, 1 };
@@ -29,7 +29,7 @@ test_samba4_ndr('struct-notypedef', '[public] struct bla { uint8 x; }; ',
 test_samba4_ndr('struct-notypedef-used', '[public] struct bla { uint8 x; };
 	[public] void myfn([in] struct bla r); ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct myfn fn;
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB expected_blob = { expected, 1 };
@@ -49,7 +49,7 @@ test_samba4_ndr('struct-notypedef-used', '[public] struct bla { uint8 x; };
 test_samba4_ndr('struct-notypedef-embedded', 'struct bla { uint8 x; };
 	[public] struct myst { struct bla r; }; ',
 '
-	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
+	struct ndr_push *ndr = ndr_push_init_ctx(NULL, NULL);
 	struct myst st;
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB expected_blob = { expected, 1 };

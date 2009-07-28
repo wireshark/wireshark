@@ -4,15 +4,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 31;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use strict;
 use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::NDR::Parser qw(check_null_pointer 
-	GenerateFunctionInEnv GenerateFunctionOutEnv GenerateStructEnv 
-	EnvSubstituteValue NeededFunction NeededElement NeededType
+	NeededFunction NeededElement NeededType
 	NeededInterface TypeFunctionName ParseElementPrint); 
 
 my $output;
@@ -138,52 +137,6 @@ test_warnings("nofile:2: unknown dereferenced expression `r->in.bla'\n",
 
 is($output, "if (r->in.bla == NULL) return;");
 
-# Make sure GenerateFunctionInEnv and GenerateFunctionOutEnv work
-$fn = { ELEMENTS => [ { DIRECTION => ["in"], NAME => "foo" } ] };
-is_deeply({ "foo" => "r->in.foo" }, GenerateFunctionInEnv($fn));
-
-$fn = { ELEMENTS => [ { DIRECTION => ["out"], NAME => "foo" } ] };
-is_deeply({ "foo" => "r->out.foo" }, GenerateFunctionOutEnv($fn));
-
-$fn = { ELEMENTS => [ { DIRECTION => ["out", "in"], NAME => "foo" } ] };
-is_deeply({ "foo" => "r->in.foo" }, GenerateFunctionInEnv($fn));
-
-$fn = { ELEMENTS => [ { DIRECTION => ["out", "in"], NAME => "foo" } ] };
-is_deeply({ "foo" => "r->out.foo" }, GenerateFunctionOutEnv($fn));
-
-$fn = { ELEMENTS => [ { DIRECTION => ["in"], NAME => "foo" } ] };
-is_deeply({ "foo" => "r->in.foo" }, GenerateFunctionOutEnv($fn));
-
-$fn = { ELEMENTS => [ { DIRECTION => ["out"], NAME => "foo" } ] };
-is_deeply({ }, GenerateFunctionInEnv($fn));
-
-$fn = { ELEMENTS => [ { NAME => "foo" }, { NAME => "bar" } ] };
-is_deeply({ foo => "r->foo", bar => "r->bar", this => "r" }, 
-		GenerateStructEnv($fn, "r"));
-
-$fn = { ELEMENTS => [ { NAME => "foo" }, { NAME => "bar" } ] };
-is_deeply({ foo => "some->complex.variable->foo", 
-		    bar => "some->complex.variable->bar", 
-			this => "some->complex.variable" }, 
-		GenerateStructEnv($fn, "some->complex.variable"));
-
-$fn = { ELEMENTS => [ { NAME => "foo", PROPERTIES => { value => 3 }} ] };
-
-my $env = GenerateStructEnv($fn, "r");
-EnvSubstituteValue($env, $fn);
-is_deeply($env, { foo => 3, this => "r" });
-
-$fn = { ELEMENTS => [ { NAME => "foo" }, { NAME => "bar" } ] };
-$env = GenerateStructEnv($fn, "r");
-EnvSubstituteValue($env, $fn);
-is_deeply($env, { foo => 'r->foo', bar => 'r->bar', this => "r" });
-
-$fn = { ELEMENTS => [ { NAME => "foo", PROPERTIES => { value => 0 }} ] };
-
-$env = GenerateStructEnv($fn, "r");
-EnvSubstituteValue($env, $fn);
-is_deeply($env, { foo => 0, this => "r" });
-
 my $needed = {};
 NeededElement({ TYPE => "foo", REPRESENTATION_TYPE => "foo" }, "pull", $needed); 
 is_deeply($needed, { ndr_pull_foo => 1 });
@@ -267,7 +220,7 @@ $generator->ParseStructPush({
 			TYPE => "STRUCT",
 			PROPERTIES => {},
 			ALIGN => 4,
-			ELEMENTS => [ ]}, "x");
+			ELEMENTS => [ ]}, "ndr", "x");
 is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_align(ndr, 4));
 }
@@ -290,7 +243,7 @@ $generator->ParseStructPush({
 			PROPERTIES => {},
 			ALIGN => 4,
 			SURROUNDING_ELEMENT => $e,
-			ELEMENTS => [ $e ]}, "x");
+			ELEMENTS => [ $e ]}, "ndr", "x");
 is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_uint32(ndr, NDR_SCALARS, ndr_string_array_size(ndr, x->el1)));
 	NDR_CHECK(ndr_push_align(ndr, 4));
@@ -309,18 +262,35 @@ is(TypeFunctionName("ndr_push", {TYPE => "STRUCT", NAME => "bar"}), "ndr_push_ST
 $generator = new Parse::Pidl::Samba4::NDR::Parser();
 $generator->ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
 				    PROPERTIES => { noprint => 1},
-				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt"} ]}, "var", { "x" => "r->foobar" } );
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt"} ]},
+				    "ndr", "var", { "x" => "r->foobar" } );
 is($generator->{res}, "");
 
 $generator = new Parse::Pidl::Samba4::NDR::Parser();
 $generator->ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
 				    PROPERTIES => {},
-				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt" }]}, "var", { "x" => "r->foobar" } );
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt" }]},
+				    "ndr", "var", { "x" => "r->foobar" } );
 is($generator->{res}, "ndr_print_rt(ndr, \"x\", &var);\n");
 
 # make sure that a print function for an element with value() set works
 $generator = new Parse::Pidl::Samba4::NDR::Parser();
 $generator->ParseElementPrint({ NAME => "x", TYPE => "uint32", REPRESENTATION_TYPE => "uint32", 
 				    PROPERTIES => { value => "23" },
-				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "uint32"} ]}, "var", { "x" => "r->foobar" } );
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "uint32"} ]},
+				    "ndr", "var", { "x" => "r->foobar" } );
 is($generator->{res}, "ndr_print_uint32(ndr, \"x\", (ndr->flags & LIBNDR_PRINT_SET_VALUES)?23:var);\n");
+
+$generator = new Parse::Pidl::Samba4::NDR::Parser();
+$generator->AuthServiceStruct("bridge", "\"rot13\",\"onetimepad\"");
+is($generator->{res}, "static const char * const bridge_authservice_strings[] = {
+	\"rot13\", 
+	\"onetimepad\", 
+};
+
+static const struct ndr_interface_string_array bridge_authservices = {
+	.count	= 2,
+	.names	= bridge_authservice_strings
+};
+
+");
