@@ -128,7 +128,7 @@ free_col_width_info(recent_settings_t *rs)
   rs->col_width_list = NULL;
 }
 
-/* Attempt to Write out "recent" to the user's recent file.
+/* Attempt to Write out "recent common" to the user's recent common file.
    If we got an error report it with a dialog box and return FALSE,
    otherwise return TRUE. */
 gboolean
@@ -251,7 +251,7 @@ write_recent(void)
 }
 
 
-/* Attempt to Write out profile "recent" to the user's recent file.
+/* Attempt to Write out profile "recent" to the user's profile recent file.
    If we got an error report it with a dialog box and return FALSE,
    otherwise return TRUE. */
 gboolean
@@ -756,7 +756,7 @@ recent_set_arg(char *prefarg)
 }
 
 
-/* opens the user's recent file and read the first part */
+/* opens the user's recent common file and read the first part */
 void
 recent_read_static(char **rf_path_return, int *rf_errno_return)
 {
@@ -779,10 +779,10 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   recent.col_width_list = NULL;
 
-  /* Construct the pathname of the user's recent file. */
+  /* Construct the pathname of the user's recent common file. */
   rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
 
-  /* Read the user's recent file, if it exists. */
+  /* Read the user's recent common file, if it exists. */
   *rf_path_return = NULL;
   if ((rf = ws_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
@@ -837,7 +837,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     free_col_width_info(&recent);
   }
 
-  /* Construct the pathname of the user's recent file. */
+  /* Construct the pathname of the user's profile recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, FALSE);
 
   /* Read the user's recent file, if it exists. */
@@ -846,6 +846,15 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
     fclose(rf);
+
+    /* XXX: The following code doesn't actually do anything since
+     *  the "recent common file" always exists. Presumably the 
+     *  "if (!file_exists())" should actually be "if (file_exists())".
+     *  However, I've left the code as is because this 
+     *  behaviour has existed for quite some time and I don't
+     *  know what's supposed to happen at this point.
+     *  ToDo: Determine if the "recent common file" should be read at this point
+     */
     rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
     if (!file_exists(rf_common_path)) {
       /* Read older common settings from recent file */
@@ -875,10 +884,10 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
   FILE       *rf;
 
 
-  /* Construct the pathname of the user's recent file. */
+  /* Construct the pathname of the user's recent common file. */
   rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
   if (!file_exists (rf_path)) {
-    /* Recent common file does not exist, read from recent */
+    /* Recent common file does not exist, read from default recent */
     g_free (rf_path);
     rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
   }
