@@ -60,7 +60,8 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-nspi.c \
 	packet-dcerpc-rfr.c \
 	packet-dcerpc-wkssvc.c \
-	packet-dcerpc-wzcsvc.c
+	packet-dcerpc-wzcsvc.c \
+	packet-dcerpc-frstrans.c
 
 #
 # PIDL-generated DCE RPC dissectors with warnings.
@@ -88,7 +89,8 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-srvsvc.h	\
 	packet-dcerpc-winreg.h \
 	packet-dcerpc-wkssvc.h	\
-	packet-dcerpc-wzcsvc.h
+	packet-dcerpc-wzcsvc.h \
+	packet-dcerpc-frstrans.h
 
 #
 # asn2wrs-generated ASN.1 dissectors without warnings.
