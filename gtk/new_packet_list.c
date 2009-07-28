@@ -40,6 +40,7 @@
 #include "gui_utils.h"
 #include "packet_list_store.h"
 #include "epan/column_info.h"
+#include "epan/prefs.h"
 #include "../ui_util.h"
 #include "epan/emem.h"
 #include "globals.h"
@@ -406,12 +407,17 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 				   -1);
 	}
 
-	if(fdata->color_filter){
-		color_filter = fdata->color_filter;
-		fg_color_t = color_filter->fg_color;
-		bg_color_t = color_filter->bg_color;
-		color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
-		color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
+	if((fdata->color_filter)||(fdata->flags.marked)){
+		if(fdata->color_filter){
+			color_filter = fdata->color_filter;
+			fg_color_t = color_filter->fg_color;
+			bg_color_t = color_filter->bg_color;
+			color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
+			color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
+		}else{
+			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
+			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
+		}
 		g_object_set(renderer,
 		     "text", cell_text,
 		     "foreground-gdk", &fg_gdk,

@@ -116,6 +116,8 @@ static const char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 
+static void ref_time_packets(capture_file *cf);
+
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
 
@@ -1555,7 +1557,12 @@ cf_colorize_packets(capture_file *cf)
 void
 cf_reftime_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Updating Reftime", "all packets", FALSE, FALSE);
+
+#ifdef NEW_PACKET_LIST
+  ref_time_packets(cf);
+#else
+  rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
+#endif
 }
 
 void
@@ -1886,6 +1893,79 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Cleanup and release all dfilter resources */
   if (dfcode != NULL){
     dfilter_free(dfcode);
+  }
+}
+/*
+ * Scan trough all frame data and recalculate the ref time
+ * without rereading the file.
+ * XXX - do we need a progres bar or is this fast enough?
+ */
+
+static void
+ref_time_packets(capture_file *cf)
+{
+
+
+  frame_data *fdata;
+
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
+  cum_bytes=0;
+
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+
+	fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
+	/* just add some value here until we know if it is being displayed or not */
+	fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
+
+	/* If we don't have the time stamp of the first packet in the
+     capture, it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the first packet. */
+	if (nstime_is_unset(&first_ts)) {
+    	first_ts  = fdata->abs_ts;
+  	}
+	  /* if this frames is marked as a reference time frame, reset
+     	firstsec and firstusec to this frame */
+  	if(fdata->flags.ref_time){
+    first_ts = fdata->abs_ts;
+  	}
+
+  	/* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first displayed packet.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  	if (nstime_is_unset(&prev_dis_ts)) {
+    	prev_dis_ts = fdata->abs_ts;
+  	}
+
+  	/* Get the time elapsed between the first packet and this packet. */
+  	nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
+
+  	/* If it's greater than the current elapsed time, set the elapsed time
+     to it (we check for "greater than" so as not to be confused by
+     time moving backwards). */
+  	if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
+  		|| ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
+    	cf->elapsed_time = fdata->rel_ts;
+  	}
+
+  	/* Get the time elapsed between the previous displayed packet and
+     this packet. */
+  	nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+
+  	if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ){
+    	/* This frame either passed the display filter list or is marked as
+       	a time reference frame.  All time reference frames are displayed
+       	even if they dont pass the display filter */
+    	if(fdata->flags.ref_time){
+			/* if this was a TIME REF frame we should reset the cul bytes field */
+      		cum_bytes = fdata->pkt_len;
+      		fdata->cum_bytes =  cum_bytes;
+    	} else {
+      		/* increase cum_bytes with this packets length */
+    	  	cum_bytes += fdata->pkt_len;
+    	}
+	}
   }
 }
 

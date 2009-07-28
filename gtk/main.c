@@ -607,6 +607,9 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
     frame->flags.ref_time=0;
   }
   cf_reftime_packets(&cfile);
+#ifdef NEW_PACKET_LIST
+  new_packet_list_queue_draw();
+#endif
 }
 
 
