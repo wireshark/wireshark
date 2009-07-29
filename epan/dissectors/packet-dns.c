@@ -210,6 +210,7 @@ typedef struct _dns_conv_info_t {
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
 #define T_WINS_R	65282		/* Microsoft's WINS-R RR */
+#define T_DLV		32769           /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 
 /* Class values */
 #define C_IN		1		/* the Internet */
@@ -374,6 +375,7 @@ static const value_string tsigerror_vals[] = {
 
 #define TDSDIGEST_RESERVED (0)
 #define TDSDIGEST_SHA1     (1)
+#define TDSDIGEST_SHA256   (2)
 
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
@@ -440,6 +442,7 @@ static const value_string dns_types[] = {
 
 	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
 	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
+	{ T_DLV,        "DLV" }, /* Domain Lookaside Validation DNS Resource Record (RFC 4431) */
 
 	{ 100,		"UINFO" },
 	{ 101,		"UID" },
@@ -2030,6 +2033,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
   case T_DS:
+  case T_DLV:
     {
       guint16 keytag, digest_data_size;
       guint8  ds_algorithm, ds_digest;
@@ -2038,6 +2042,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       static const value_string tds_digests[] = {
 	{ TDSDIGEST_RESERVED, "Reserved digest" },
 	{ TDSDIGEST_SHA1,     "SHA-1" },
+	{ TDSDIGEST_SHA256,   "SHA-256" },
 	{ 0, NULL }
       };
 
@@ -2065,6 +2070,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 	if (ds_digest == TDSDIGEST_SHA1) {
 	  digest_data_size = 20; /* SHA1 key is always 20 bytes long */
+	  if (rr_len < digest_data_size)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
+	}
+
+	if (ds_digest == TDSDIGEST_SHA256) {
+	  digest_data_size = 32; /* SHA256 key is always 32 bytes long */
 	  if (rr_len < digest_data_size)
 	    goto bad_rr;
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
