@@ -2171,7 +2171,7 @@ The 'tree' argument is the tree to which the item is to be added.  The
 extracted; the 'start' argument is the offset from the beginning of that
 tvbuff of the item being added, and the 'length' argument is the length,
 in bytes, of the item, bit_offset is the offset in bits and no_of_bits
-is the lenght in bits.
+is the length in bits.
 
 The length of some items cannot be determined until the item has been
 dissected; to add such an item, add it with a length of -1, and, when the
