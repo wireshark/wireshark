@@ -548,11 +548,11 @@ check_ndmp_rm(tvbuff_t *tvb, packet_info *pinfo)
 	/* check that the header looks sane */
 	len=tvb_length(tvb);
 	/* check the record marker that it looks sane.
-	 * It has to be >=24 bytes or (arbitrary limit) <1Mbyte
+	 * It has to be >=0 bytes or (arbitrary limit) <1Mbyte
 	 */
 	if(len>=4){
 		tmp=(tvb_get_ntohl(tvb, 0)&RPC_RM_FRAGLEN);
-		if( (tmp<24)||(tmp>1000000) ){
+		if( (tmp<1)||(tmp>1000000) ){
 			return FALSE;
 		}
 	}
@@ -3410,7 +3410,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
+	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 4,
 			 get_ndmp_pdu_len, dissect_ndmp_message);
 	return tvb_length(tvb);
 }
