@@ -154,7 +154,17 @@
 
 	/*****************/
 	/* Function 0x0b */
-	NTSTATUS eventlog_ReportEventW();
+	NTSTATUS eventlog_ReportEventW(
+		[in] policy_handle *handle,
+		[in] uint32 time,
+		[in] eventlogEventTypes Type,
+		[in] uint16 event_category,
+		[in] uint32 event_id,
+		[in] uint16 num_of_strings,
+		[in] uint32 data_length,
+		[in] lsa_String computer_name
+		/* sid */
+	);
 
 	/*****************/
 	/* Function 0x0c */
