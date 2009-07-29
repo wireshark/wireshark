@@ -112,10 +112,10 @@
 	/* Function: 0x07 */
 	NTSTATUS eventlog_OpenEventLogW(
 		[in,unique]	    eventlog_OpenUnknown0 *unknown0,
-		[in]	    lsa_String logname,
-		[in]	    lsa_String servername,
-		[in]	    uint32 unknown2,
-		[in]	    uint32 unknown3,
+		[in]	    lsa_String Module,
+		[in]	    lsa_String RegModuleName,
+		[in]	    uint32 MajorVersion,
+		[in]	    uint32 MinorVersion,
 		[out]   policy_handle *handle
 	);
 
