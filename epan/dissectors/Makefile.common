@@ -1260,6 +1260,7 @@ DISSECTOR_INCLUDES =	\
 	packet-zbee-aps.h	\
 	packet-zbee-security.h	\
 	packet-zbee-nwk.h	\
+	packet-zbee-zcl.h	\
 	packet-zbee-zdp.h	\
 	packet-zep.h	\
 	packet-ziop.h	\
