@@ -845,6 +845,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	gint question_mark_offset;
 	gint parameter_end_offset;
 	gboolean uri_without_angle_quotes = FALSE;
+	gboolean in_ipv6 = FALSE;
 
 	/* Initialize the uri_offsets */
 	uri_offsets->display_name_start = -1;
@@ -1089,19 +1090,29 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	/* find URI-Host end*/
 	parameter_end_offset = uri_offsets->uri_host_start;
 
+	in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
 	while (parameter_end_offset < line_end_offset)
 	{
 			parameter_end_offset++;
 			c = tvb_get_guint8(tvb, parameter_end_offset);
 			switch (c) {
 				case '>':
-				case ':':
 				case ',':
 				case ';':
 				case '?':
 				case ' ':
 				case '\r':
 					goto uri_host_end_found;
+				case ':':
+					if (!in_ipv6)
+						goto uri_host_end_found;
+					break;
+				case '[':
+					in_ipv6 = TRUE;
+					break;
+				case ']':
+					in_ipv6 = FALSE;
+					break;
 				default :
 				break;
 				}
@@ -2955,6 +2966,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 	guint	offset = 0;
 	guint	parameter_len = meth_len;
 	guchar	c= '\0';
+	gboolean in_ipv6=FALSE;
 	proto_tree *ruri_item_tree = NULL;
 	proto_item *ti;
 
@@ -2994,16 +3006,26 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 		}
 		parameter_end_offset=offset;
 
+		in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
 		while (parameter_end_offset < linelen){
 			parameter_end_offset++;
 			c = tvb_get_guint8(tvb, parameter_end_offset);
 			switch (c) {
-				case ':':
 				case ',':
 				case ';':
 				case '?':
 				case ' ':
 					goto host_end_found;
+				case ':':
+					if (!in_ipv6)
+						goto host_end_found;
+					break;
+				case '[':
+					in_ipv6 = TRUE;
+					break;
+				case ']':
+					in_ipv6 = FALSE;
+					break;
 				default :
 				break;
 			}
