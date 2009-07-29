@@ -385,7 +385,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 }
 
 gboolean
-new_packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
+new_packet_list_get_event_row_column(GtkWidget *w _U_, GdkEventButton *event_button,
                                  gint *row, gint *column)
 {
     GtkTreePath *path;
