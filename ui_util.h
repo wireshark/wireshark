@@ -64,7 +64,7 @@ void new_packet_list_freeze(void);
 void new_packet_list_thaw(void);
 void new_packet_list_next(void);
 void new_packet_list_prev(void);
-guint new_packet_list_append(column_info *cinfo, frame_data *fdata);
+guint new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo);
 frame_data * new_packet_list_get_row_data(gint row);
 void new_packet_list_set_selected_row(gint row);
 void new_packet_list_enable_color(gboolean enable);

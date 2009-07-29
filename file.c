@@ -1132,7 +1132,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      * in the following function when not using the new packet list. */
     fdata->color_filter = color_filters_colorize_packet(0, edt); 
 
-    row = new_packet_list_append(&cf->cinfo, fdata);
+    row = new_packet_list_append(&cf->cinfo, fdata, &edt->pi);
 #else
     row = packet_list_append(cf->cinfo.col_data, fdata);
 

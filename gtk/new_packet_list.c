@@ -41,6 +41,7 @@
 #include "packet_list_store.h"
 #include "epan/column_info.h"
 #include "epan/prefs.h"
+#include <epan/packet.h>
 #include "../ui_util.h"
 #include "epan/emem.h"
 #include "globals.h"
@@ -98,7 +99,7 @@ new_packet_list_create(void)
 }
 
 guint
-new_packet_list_append(column_info *cinfo, frame_data *fdata)
+new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo _U_)
 {
 	gint i;
 	row_data_t row_data;
