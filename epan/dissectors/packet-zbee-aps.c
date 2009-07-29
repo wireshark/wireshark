@@ -272,6 +272,262 @@ static const value_string zbee_apf_kvp_type_names[] = {
     { 0, NULL }
 };
 
+/* ZigBee Application Profile ID Names */
+const range_string zbee_aps_apid_names[] = {
+    { ZBEE_DEVICE_PROFILE,  ZBEE_DEVICE_PROFILE,            "ZigBee Device Profile" },
+
+    { ZBEE_PROFILE_IPM,     ZBEE_PROFILE_IPM,               "Industrial Plant Monitoring" },
+
+    { ZBEE_PROFILE_T1,      ZBEE_PROFILE_T1,                "Test Profile #1" },
+    { ZBEE_PROFILE_HA,      ZBEE_PROFILE_HA,                "Home Automation" },
+    { ZBEE_PROFILE_CBA,     ZBEE_PROFILE_CBA,               "Commercial Building Automation" },
+    { ZBEE_PROFILE_WSN,     ZBEE_PROFILE_WSN,               "Wireless Sensor Network" },
+    { ZBEE_PROFILE_TA,      ZBEE_PROFILE_TA,                "Telecom Automation" },
+    { ZBEE_PROFILE_HC,      ZBEE_PROFILE_HC,                "Health Care" },
+    { ZBEE_PROFILE_SE,      ZBEE_PROFILE_SE,                "Smart Energy" },
+    { ZBEE_PROFILE_STD_MIN, ZBEE_PROFILE_STD_MAX,           "Unknown ZigBee Standard" },
+
+    { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,                "Test Profile #2" },
+    { ZBEE_PROFILE_RSVD0_MIN,   ZBEE_PROFILE_RSVD0_MAX,     "Unknown ZigBee Reserved" },
+    { ZBEE_PROFILE_RSVD1_MIN,   ZBEE_PROFILE_RSVD1_MAX,     "Unknown ZigBee Reserved" },
+
+    { ZBEE_PROFILE_IEEE_1451_5, ZBEE_PROFILE_IEEE_1451_5,   "IEEE_1451_5" },
+
+    { ZBEE_PROFILE_MFR_SPEC_ORG_MIN,    ZBEE_PROFILE_MFR_SPEC_ORG_MAX,
+            "Unallocated Manufacturer-Specific" },
+
+    { ZBEE_PROFILE_IEEE_1451_5, ZBEE_PROFILE_IEEE_1451_5,   "IEEE_1451_5" },
+
+    /* Manufacturer Allocations */
+    { ZBEE_PROFILE_CIRRONET_0_MIN,  ZBEE_PROFILE_CIRRONET_0_MAX,    ZBEE_MFG_CIRRONET },
+    { ZBEE_PROFILE_CHIPCON_MIN,     ZBEE_PROFILE_CHIPCON_MAX,       ZBEE_MFG_CHIPCON },
+    { ZBEE_PROFILE_EMBER_MIN,       ZBEE_PROFILE_EMBER_MAX,         ZBEE_MFG_EMBER },
+    { ZBEE_PROFILE_NTS_MIN,         ZBEE_PROFILE_NTS_MAX,           ZBEE_MFG_CHIPCON },
+    { ZBEE_PROFILE_FREESCALE_MIN,   ZBEE_PROFILE_FREESCALE_MAX,     ZBEE_MFG_FREESCALE },
+    { ZBEE_PROFILE_IPCOM_MIN,       ZBEE_PROFILE_IPCOM_MAX,         ZBEE_MFG_IPCOM },
+    { ZBEE_PROFILE_SAN_JUAN_MIN,    ZBEE_PROFILE_SAN_JUAN_MAX,      ZBEE_MFG_SAN_JUAN },
+    { ZBEE_PROFILE_TUV_MIN,         ZBEE_PROFILE_TUV_MAX,           ZBEE_MFG_TUV },
+    { ZBEE_PROFILE_COMPXS_MIN,      ZBEE_PROFILE_COMPXS_MAX,        ZBEE_MFG_COMPXS },
+    { ZBEE_PROFILE_BM_MIN,          ZBEE_PROFILE_BM_MAX,            ZBEE_MFG_BM },
+    { ZBEE_PROFILE_AWAREPOINT_MIN,  ZBEE_PROFILE_AWAREPOINT_MAX,    ZBEE_MFG_AWAREPOINT },
+    { ZBEE_PROFILE_SAN_JUAN_1_MIN,  ZBEE_PROFILE_SAN_JUAN_1_MAX,    ZBEE_MFG_SAN_JUAN },
+    { ZBEE_PROFILE_PHILIPS_MIN,     ZBEE_PROFILE_PHILIPS_MAX,       ZBEE_MFG_PHILIPS },
+    { ZBEE_PROFILE_LUXOFT_MIN,      ZBEE_PROFILE_LUXOFT_MAX,        ZBEE_MFG_LUXOFT },
+    { ZBEE_PROFILE_KORWIN_MIN,      ZBEE_PROFILE_KORWIN_MAX,        ZBEE_MFG_KORWIN },
+    { ZBEE_PROFILE_1_RF_MIN,        ZBEE_PROFILE_1_RF_MAX,          ZBEE_MFG_1_RF },
+    { ZBEE_PROFILE_STG_MIN,         ZBEE_PROFILE_STG_MAX,           ZBEE_MFG_STG },
+    { ZBEE_PROFILE_TELEGESIS_MIN,   ZBEE_PROFILE_TELEGESIS_MAX,     ZBEE_MFG_TELEGESIS },
+    { ZBEE_PROFILE_CIRRONET_1_MIN,  ZBEE_PROFILE_CIRRONET_1_MAX,    ZBEE_MFG_CIRRONET },
+    { ZBEE_PROFILE_VISIONIC_MIN,    ZBEE_PROFILE_VISIONIC_MAX,      ZBEE_MFG_VISIONIC },
+    { ZBEE_PROFILE_INSTA_MIN,       ZBEE_PROFILE_INSTA_MAX,         ZBEE_MFG_INSTA },
+    { ZBEE_PROFILE_ATALUM_MIN,      ZBEE_PROFILE_ATALUM_MAX,        ZBEE_MFG_ATALUM },
+    { ZBEE_PROFILE_ATMEL_MIN,       ZBEE_PROFILE_ATMEL_MAX,         ZBEE_MFG_ATMEL },
+    { ZBEE_PROFILE_DEVELCO_MIN,     ZBEE_PROFILE_DEVELCO_MAX,       ZBEE_MFG_DEVELCO },
+    { ZBEE_PROFILE_HONEYWELL_MIN,   ZBEE_PROFILE_HONEYWELL_MAX,     ZBEE_MFG_HONEYWELL },
+    { ZBEE_PROFILE_NEC_MIN,         ZBEE_PROFILE_NEC_MAX,           ZBEE_MFG_NEC },
+    { ZBEE_PROFILE_YAMATAKE_MIN,    ZBEE_PROFILE_YAMATAKE_MAX,      ZBEE_MFG_YAMATAKE },
+    { ZBEE_PROFILE_TENDRIL_MIN,     ZBEE_PROFILE_TENDRIL_MAX,       ZBEE_MFG_TENDRIL },
+    { ZBEE_PROFILE_ASSA_MIN,        ZBEE_PROFILE_ASSA_MAX,          ZBEE_MFG_ASSA },
+    { ZBEE_PROFILE_MAXSTREAM_MIN,   ZBEE_PROFILE_MAXSTREAM_MAX,     ZBEE_MFG_MAXSTREAM },
+    { ZBEE_PROFILE_XANADU_MIN,      ZBEE_PROFILE_XANADU_MAX,        ZBEE_MFG_XANADU },
+    { ZBEE_PROFILE_NEUROCOM_MIN,    ZBEE_PROFILE_NEUROCOM_MAX,      ZBEE_MFG_NEUROCOM },
+    { ZBEE_PROFILE_III_MIN,         ZBEE_PROFILE_III_MAX,           ZBEE_MFG_III },
+    { ZBEE_PROFILE_VANTAGE_MIN,     ZBEE_PROFILE_VANTAGE_MAX,       ZBEE_MFG_VANTAGE },
+    { ZBEE_PROFILE_ICONTROL_MIN,    ZBEE_PROFILE_ICONTROL_MAX,      ZBEE_MFG_ICONTROL },
+    { ZBEE_PROFILE_RAYMARINE_MIN,   ZBEE_PROFILE_RAYMARINE_MAX,     ZBEE_MFG_RAYMARINE },
+    { ZBEE_PROFILE_RENESAS_MIN,     ZBEE_PROFILE_RENESAS_MAX,       ZBEE_MFG_RENESAS },
+    { ZBEE_PROFILE_LSR_MIN,         ZBEE_PROFILE_LSR_MAX,           ZBEE_MFG_LSR },
+    { ZBEE_PROFILE_ONITY_MIN,       ZBEE_PROFILE_ONITY_MAX,         ZBEE_MFG_ONITY },
+    { ZBEE_PROFILE_MONO_MIN,        ZBEE_PROFILE_MONO_MAX,          ZBEE_MFG_MONO },
+    { ZBEE_PROFILE_RFT_MIN,         ZBEE_PROFILE_RFT_MAX,           ZBEE_MFG_RFT },
+    { ZBEE_PROFILE_ITRON_MIN,       ZBEE_PROFILE_ITRON_MAX,         ZBEE_MFG_ITRON },
+    { ZBEE_PROFILE_TRITECH_MIN,     ZBEE_PROFILE_TRITECH_MAX,       ZBEE_MFG_TRITECH },
+    { ZBEE_PROFILE_EMBEDIT_MIN,     ZBEE_PROFILE_EMBEDIT_MAX,       ZBEE_MFG_EMBEDIT },
+    { ZBEE_PROFILE_S3C_MIN,         ZBEE_PROFILE_S3C_MAX,           ZBEE_MFG_S3C },
+    { ZBEE_PROFILE_SIEMENS_MIN,     ZBEE_PROFILE_SIEMENS_MAX,       ZBEE_MFG_SIEMENS },
+    { ZBEE_PROFILE_MINDTECH_MIN,    ZBEE_PROFILE_MINDTECH_MAX,      ZBEE_MFG_MINDTECH },
+    { ZBEE_PROFILE_LGE_MIN,         ZBEE_PROFILE_LGE_MAX,           ZBEE_MFG_LGE },
+    { ZBEE_PROFILE_MITSUBISHI_MIN,  ZBEE_PROFILE_MITSUBISHI_MAX,    ZBEE_MFG_MITSUBISHI },
+    { ZBEE_PROFILE_JOHNSON_MIN,     ZBEE_PROFILE_JOHNSON_MAX,       ZBEE_MFG_JOHNSON },
+    { ZBEE_PROFILE_PRI_MIN,         ZBEE_PROFILE_PRI_MAX,           ZBEE_MFG_PRI },
+    { ZBEE_PROFILE_KNICK_MIN,       ZBEE_PROFILE_KNICK_MAX,         ZBEE_MFG_KNICK },
+    { ZBEE_PROFILE_VICONICS_MIN,    ZBEE_PROFILE_VICONICS_MAX,      ZBEE_MFG_VICONICS },
+    { ZBEE_PROFILE_FLEXIPANEL_MIN,  ZBEE_PROFILE_FLEXIPANEL_MAX,    ZBEE_MFG_FLEXIPANEL },
+    { ZBEE_PROFILE_TRANE_MIN,       ZBEE_PROFILE_TRANE_MAX,         ZBEE_MFG_TRANE },
+    { ZBEE_PROFILE_JENNIC_MIN,      ZBEE_PROFILE_JENNIC_MAX,        ZBEE_MFG_JENNIC },
+    { ZBEE_PROFILE_LIG_MIN,         ZBEE_PROFILE_LIG_MAX,           ZBEE_MFG_LIG },
+    { ZBEE_PROFILE_ALERTME_MIN,     ZBEE_PROFILE_ALERTME_MAX,       ZBEE_MFG_ALERTME },
+    { ZBEE_PROFILE_DAINTREE_MIN,    ZBEE_PROFILE_DAINTREE_MAX,      ZBEE_MFG_DAINTREE },
+    { ZBEE_PROFILE_AIJI_MIN,        ZBEE_PROFILE_AIJI_MAX,          ZBEE_MFG_AIJI },
+    { ZBEE_PROFILE_TEL_ITALIA_MIN,  ZBEE_PROFILE_TEL_ITALIA_MAX,    ZBEE_MFG_TEL_ITALIA },
+    { ZBEE_PROFILE_MIKROKRETS_MIN,  ZBEE_PROFILE_MIKROKRETS_MAX,    ZBEE_MFG_MIKROKRETS },
+    { ZBEE_PROFILE_OKI_MIN,         ZBEE_PROFILE_OKI_MAX,           ZBEE_MFG_OKI },
+    { ZBEE_PROFILE_NEWPORT_MIN,     ZBEE_PROFILE_NEWPORT_MAX,       ZBEE_MFG_NEWPORT },
+
+    { ZBEE_PROFILE_C4_CL,           ZBEE_PROFILE_C4_CL,             ZBEE_MFG_C4 " Cluster Library"},
+    { ZBEE_PROFILE_C4_MIN,          ZBEE_PROFILE_C4_MAX,            ZBEE_MFG_C4 },
+
+    { ZBEE_PROFILE_STM_MIN,         ZBEE_PROFILE_STM_MAX,           ZBEE_MFG_STM },
+    { ZBEE_PROFILE_ASN_MIN,         ZBEE_PROFILE_ASN_MAX,           ZBEE_MFG_ASN },
+    { ZBEE_PROFILE_DCSI_MIN,        ZBEE_PROFILE_DCSI_MAX,          ZBEE_MFG_DCSI },
+    { ZBEE_PROFILE_FRANCE_TEL_MIN,  ZBEE_PROFILE_FRANCE_TEL_MAX,    ZBEE_MFG_FRANCE_TEL },
+    { ZBEE_PROFILE_MUNET_MIN,       ZBEE_PROFILE_MUNET_MAX,         ZBEE_MFG_MUNET },
+    { ZBEE_PROFILE_AUTANI_MIN,      ZBEE_PROFILE_AUTANI_MAX,        ZBEE_MFG_AUTANI },
+    { ZBEE_PROFILE_COL_VNET_MIN,    ZBEE_PROFILE_COL_VNET_MAX,      ZBEE_MFG_COL_VNET },
+    { ZBEE_PROFILE_AEROCOMM_MIN,    ZBEE_PROFILE_AEROCOMM_MAX,      ZBEE_MFG_AEROCOMM },
+    { ZBEE_PROFILE_SI_LABS_MIN,     ZBEE_PROFILE_SI_LABS_MAX,       ZBEE_MFG_SI_LABS },
+    { ZBEE_PROFILE_INNCOM_MIN,      ZBEE_PROFILE_INNCOM_MAX,        ZBEE_MFG_INNCOM },
+    { ZBEE_PROFILE_CANNON_MIN,      ZBEE_PROFILE_CANNON_MAX,        ZBEE_MFG_CANNON },
+    { ZBEE_PROFILE_SYNAPSE_MIN,     ZBEE_PROFILE_SYNAPSE_MAX,       ZBEE_MFG_SYNAPSE },
+    { ZBEE_PROFILE_FPS_MIN,         ZBEE_PROFILE_FPS_MAX,           ZBEE_MFG_FPS },
+    { ZBEE_PROFILE_CLS_MIN,         ZBEE_PROFILE_CLS_MAX,           ZBEE_MFG_CLS },
+    { ZBEE_PROFILE_CRANE_MIN,       ZBEE_PROFILE_CRANE_MAX,         ZBEE_MFG_CRANE },
+    { ZBEE_PROFILE_ASN_1_MIN,       ZBEE_PROFILE_ASN_1_MAX,         ZBEE_MFG_ASN },
+    { ZBEE_PROFILE_MOBILARM_MIN,    ZBEE_PROFILE_MOBILARM_MAX,      ZBEE_MFG_MOBILARM },
+    { ZBEE_PROFILE_IMONITOR_MIN,    ZBEE_PROFILE_IMONITOR_MAX,      ZBEE_MFG_IMONITOR },
+    { ZBEE_PROFILE_BARTECH_MIN,     ZBEE_PROFILE_BARTECH_MAX,       ZBEE_MFG_BARTECH },
+    { ZBEE_PROFILE_MESHNETICS_MIN,  ZBEE_PROFILE_MESHNETICS_MAX,    ZBEE_MFG_MESHNETICS },
+    { ZBEE_PROFILE_LS_IND_MIN,      ZBEE_PROFILE_LS_IND_MAX,        ZBEE_MFG_LS_IND },
+    { ZBEE_PROFILE_CASON_MIN,       ZBEE_PROFILE_CASON_MAX,         ZBEE_MFG_CASON },
+    { ZBEE_PROFILE_WLESS_GLUE_MIN,  ZBEE_PROFILE_WLESS_GLUE_MAX,    ZBEE_MFG_WLESS_GLUE },
+    { ZBEE_PROFILE_ELSTER_MIN,      ZBEE_PROFILE_ELSTER_MAX,        ZBEE_MFG_ELSTER },
+    { ZBEE_PROFILE_ONSET_MIN,       ZBEE_PROFILE_ONSET_MAX,         ZBEE_MFG_ONSET },
+    { ZBEE_PROFILE_RIGA_MIN,        ZBEE_PROFILE_RIGA_MAX,          ZBEE_MFG_RIGA },
+    { ZBEE_PROFILE_ENERGATE_MIN,    ZBEE_PROFILE_ENERGATE_MAX,      ZBEE_MFG_ENERGATE },
+    { ZBEE_PROFILE_VANTAGE_1_MIN,   ZBEE_PROFILE_VANTAGE_1_MAX,     ZBEE_MFG_VANTAGE },
+    { ZBEE_PROFILE_CONMED_MIN,      ZBEE_PROFILE_CONMED_MAX,        ZBEE_MFG_CONMED },
+    { ZBEE_PROFILE_SMS_TEC_MIN,     ZBEE_PROFILE_SMS_TEC_MAX,       ZBEE_MFG_SMS_TEC },
+    { ZBEE_PROFILE_POWERMAND_MIN,   ZBEE_PROFILE_POWERMAND_MAX,     ZBEE_MFG_POWERMAND },
+    { ZBEE_PROFILE_SCHNEIDER_MIN,   ZBEE_PROFILE_SCHNEIDER_MAX,     ZBEE_MFG_SCHNEIDER },
+    { ZBEE_PROFILE_EATON_MIN,       ZBEE_PROFILE_EATON_MAX,         ZBEE_MFG_EATON },
+    { ZBEE_PROFILE_TELULAR_MIN,     ZBEE_PROFILE_TELULAR_MAX,       ZBEE_MFG_TELULAR },
+    { ZBEE_PROFILE_DELPHI_MIN,      ZBEE_PROFILE_DELPHI_MAX,        ZBEE_MFG_DELPHI },
+    { ZBEE_PROFILE_EPISENSOR_MIN,   ZBEE_PROFILE_EPISENSOR_MAX,     ZBEE_MFG_EPISENSOR },
+    { ZBEE_PROFILE_LANDIS_GYR_MIN,  ZBEE_PROFILE_LANDIS_GYR_MAX,    ZBEE_MFG_LANDIS_GYR },
+    { ZBEE_PROFILE_SHURE_MIN,       ZBEE_PROFILE_SHURE_MAX,         ZBEE_MFG_SHURE },
+    { ZBEE_PROFILE_COMVERGE_MIN,    ZBEE_PROFILE_COMVERGE_MAX,      ZBEE_MFG_COMVERGE },
+    { ZBEE_PROFILE_KABA_MIN,        ZBEE_PROFILE_KABA_MAX,          ZBEE_MFG_KABA },
+    { ZBEE_PROFILE_HIDALGO_MIN,     ZBEE_PROFILE_HIDALGO_MAX,       ZBEE_MFG_HIDALGO },
+    { ZBEE_PROFILE_AIR2APP_MIN,     ZBEE_PROFILE_AIR2APP_MAX,       ZBEE_MFG_AIR2APP },
+    { ZBEE_PROFILE_AMX_MIN,         ZBEE_PROFILE_AMX_MAX,           ZBEE_MFG_AMX },
+    { ZBEE_PROFILE_EDMI_MIN,        ZBEE_PROFILE_EDMI_MAX,          ZBEE_MFG_EDMI },
+    { ZBEE_PROFILE_CYAN_MIN,        ZBEE_PROFILE_CYAN_MAX,          ZBEE_MFG_CYAN },
+    { ZBEE_PROFILE_SYS_SPA_MIN,     ZBEE_PROFILE_SYS_SPA_MAX,       ZBEE_MFG_SYS_SPA },
+    { ZBEE_PROFILE_TELIT_MIN,       ZBEE_PROFILE_TELIT_MAX,         ZBEE_MFG_TELIT },
+    { ZBEE_PROFILE_KAGA_MIN,        ZBEE_PROFILE_KAGA_MAX,          ZBEE_MFG_KAGA },
+    { ZBEE_PROFILE_4_NOKS_MIN,      ZBEE_PROFILE_4_NOKS_MAX,        ZBEE_MFG_4_NOKS },
+
+    { 0, 0, NULL }
+};
+
+/* ZigBee Application Profile ID Abbreviations */
+const range_string zbee_aps_apid_abbrs[] = {
+    { ZBEE_DEVICE_PROFILE,  ZBEE_DEVICE_PROFILE,    "ZDP" },
+    { ZBEE_PROFILE_IPM,     ZBEE_PROFILE_IPM,       "IPM" },
+    { ZBEE_PROFILE_T1,      ZBEE_PROFILE_T1,        "T1" },
+    { ZBEE_PROFILE_HA,      ZBEE_PROFILE_HA,        "HA" },
+    { ZBEE_PROFILE_CBA,     ZBEE_PROFILE_CBA,       "CBA" },
+    { ZBEE_PROFILE_WSN,     ZBEE_PROFILE_WSN,       "WSN" },
+    { ZBEE_PROFILE_TA,      ZBEE_PROFILE_TA,        "TA" },
+    { ZBEE_PROFILE_HC,      ZBEE_PROFILE_HC,        "HC" },
+    { ZBEE_PROFILE_SE,      ZBEE_PROFILE_SE,        "SE" },
+    { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,        "T2" },
+
+    /* Manufacturer Allocations */
+    { ZBEE_PROFILE_C4_MIN,  ZBEE_PROFILE_C4_MAX,    "C4" },
+
+    { 0, 0, NULL }
+};
+
+/* ZCL Cluster Names */
+/* BUGBUG: big enough to hash? */
+const value_string zbee_aps_cid_names[] = {
+
+    /* General */
+    { ZBEE_ZCL_CID_BASIC,                           "Basic"},
+    { ZBEE_ZCL_CID_POWER_CONFIG,                    "Power Configuration"},
+    { ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG,              "Device Temperature Configuration"},
+    { ZBEE_ZCL_CID_IDENTIFY,                        "Identify"},
+    { ZBEE_ZCL_CID_GROUPS,                          "Groups"},
+    { ZBEE_ZCL_CID_SCENES,                          "Scenes"},
+    { ZBEE_ZCL_CID_ON_OFF,                          "On/Off"},
+    { ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG,            "On/Off Switch Configuration"},
+    { ZBEE_ZCL_CID_LEVEL_CONTROL,                   "Level Control"},
+    { ZBEE_ZCL_CID_ALARMS,                          "Alarms"},
+    { ZBEE_ZCL_CID_TIME,                            "Time"},
+    { ZBEE_ZCL_CID_RSSI_LOCATION,                   "RSSI Location"},
+    { ZBEE_ZCL_CID_ANALOG_INPUT_BASIC,              "Analog Input (Basic)"},
+    { ZBEE_ZCL_CID_ANALOG_OUTPUT_BASIC,             "Analog Output (Basic)"},
+    { ZBEE_ZCL_CID_ANALOG_VALUE_BASIC,              "Analog Value (Basic)"},
+    { ZBEE_ZCL_CID_BINARY_INPUT_BASIC,              "Binary Input (Basic)"},
+    { ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC,             "Binary Output (Basic)"},
+    { ZBEE_ZCL_CID_BINARY_VALUE_BASIC,              "Binary Value (Basic)"},
+    { ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC,          "Multistate Input (Basic)"},
+    { ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC,         "Multistate Output (Basic)"},
+    { ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,          "Multistate Value (Basic)"},
+    { ZBEE_ZCL_CID_COMMISSIONING,                   "Commissioning"},
+
+/* Closures */
+    { ZBEE_ZCL_CID_SHADE_CONFIG,                    "Shade Configuration"},
+
+/* HVAC */
+    { ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,             "Pump Configuration Control"},
+    { ZBEE_ZCL_CID_THERMOSTAT,                      "Thermostat"},
+    { ZBEE_ZCL_CID_FAN_CONTROL,                     "Fan Control"},
+    { ZBEE_ZCL_CID_DEHUMIDIFICATION_CONTROL,        "Dehumidification Control"},
+    { ZBEE_ZCL_CID_THERMOSTAT_UI_CONFIG,            "Thermostat User Interface Configuration"},
+
+/* Lighting */
+    { ZBEE_ZCL_CID_COLOR_CONTROL,                   "Color Control"},
+    { ZBEE_ZCL_CID_BALLAST_CONFIG,                  "Ballast Configuration"},
+
+/* Measurement and Sensing */
+    { ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT,         "Illuminance Measurement"},
+    { ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING,       "Illuminance Level Sensing"},
+    { ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT,         "Temperature Measurement"},
+    { ZBEE_ZCL_CID_PRESSURE_MEASUREMENT,            "Pressure Measurement"},
+    { ZBEE_ZCL_CID_FLOW_MEASUREMENT,                "Flow Measurement"},
+    { ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,        "Relative Humidity Measurement"},
+    { ZBEE_ZCL_CID_OCCUPANCY_SENSING,               "Occupancy Sensing"},
+
+/* Security and Safety */
+    { ZBEE_ZCL_CID_IAS_ZONE,                        "Intruder Alarm System Zone"},
+    { ZBEE_ZCL_CID_IAS_ACE,                         "Intruder Alarm System ACE"},
+    { ZBEE_ZCL_CID_IAS_WD,                          "Intruder Alarm System WD"},
+
+/* Protocol Interfaces */
+    { ZBEE_ZCL_CID_GENERIC_TUNNEL,                  "BACnet Generic Tunnel"},
+    { ZBEE_ZCL_CID_BACNET_PROTOCOL_TUNNEL,          "BACnet Protocol Tunnel"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_INPUT_REG,         "BACnet Analog Input (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_INPUT_EXT,         "BACnet Analog Input (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_OUTPUT_REG,        "BACnet Analog Output (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_OUTPUT_EXT,        "BACnet Analog Output (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_VALUE_REG,         "BACnet Analog Value (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_ANALOG_VALUE_EXT,         "BACnet Analog Value (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_INPUT_REG,         "BACnet Binary Input (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_INPUT_EXT,         "BACnet Binary Input (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_OUTPUT_REG,        "BACnet Binary Output (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_OUTPUT_EXT,        "BACnet Binary Output (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_VALUE_REG,         "BACnet Binary Value (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_BINARY_VALUE_EXT,         "BACnet Binary Value (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_INPUT_REG,     "BACnet Multistage Input (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_INPUT_EXT,     "BACnet Multistage Input (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_OUTPUT_REG,    "BACnet Multistage Output (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_OUTPUT_EXT,    "BACnet Multistage Output (Extended)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_REG,     "BACnet Multistage Value (Regular)"},
+    { ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_EXT,     "BACnet Multistage Value (Extended)"},
+
+/* Smart Energy */
+    { ZBEE_ZCL_CID_PRICE,                           "Price"},
+    { ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,    "Demand Response and Load Control"},
+    { ZBEE_ZCL_CID_SIMPLE_METERING,                 "Simple Metering"},
+    { ZBEE_ZCL_CID_MESSAGE,                         "Message"},
+    { ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING,          "Smart Energy Tunneling"},
+    { ZBEE_ZCL_CID_PRE_PAYMENT,                     "Pre-Payment"},
+
+    { 0, NULL }
+};
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_aps
@@ -462,10 +718,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Cluster ID is 8-bits long in ZigBee 2004 and earlier. */
         pinfo->zbee_cluster_id = packet.cluster = tvb_get_guint8(tvb, offset);
         if (tree) {
-#if 0
-            proto_tree_add_uint(aps_tree, hf_zbee_aps_cluster, tvb, offset, sizeof(guint8), packet.cluster);
-#endif
-            proto_tree_add_uint_format_value(aps_tree, hf_zbee_aps_cluster, tvb, offset, sizeof(guint8), packet.cluster, "0x%02x", packet.cluster);
+            proto_tree_add_uint_format_value(aps_tree, hf_zbee_aps_cluster, tvb, offset,
+                   sizeof(guint8), packet.cluster, "0x%02x", packet.cluster);
         }
         offset += sizeof(guint8);
     }
@@ -474,11 +728,8 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     packet.profile = tvb_get_letohs(tvb, offset);
     profile_handle = dissector_get_port_handle(zbee_aps_dissector_table, packet.profile);
     if (tree) {
-        ti = proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset, sizeof(guint16), packet.profile);
-        if (profile_handle) {
-            int proto = dissector_handle_get_protocol_index(profile_handle);
-            proto_item_append_text(ti, " (%s)", proto_get_protocol_name(proto));
-        }
+        ti = proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset, sizeof(guint16),
+                packet.profile);
         offset += sizeof(guint16);
         /* Update the protocol root and info column later, after the source endpoint
          * so that the source and destination will be back-to-back in the text.
@@ -502,11 +753,9 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Display the profile ID now that the source endpoint was listed. */
     if (packet.type == ZBEE_APS_FCF_DATA) {
-        if (tree) {
-            proto_item_append_text(proto_root, ", Profile: 0x%04x", packet.profile);
-        }
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Profile: 0x%04x", packet.profile);
+        if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+            col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
+                            rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
         }
     }
 
@@ -584,7 +833,7 @@ dissect_zbee_aps_no_endpt:
         payload_tvb = tvb_new_subset(tvb, offset, -1, -1);
     }
 
-    /* If the payload exstists, and the packet is fragmented, attempt reassembly. */
+    /* If the payload exists, and the packet is fragmented, attempt reassembly. */
     if ((payload_tvb) && (packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE)) {
         guint32         msg_id;
         guint32         block_num;
@@ -1552,12 +1801,12 @@ void proto_register_zbee_aps(void)
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cluster,
-            { "Cluster",                "zbee.aps.cluster", FT_UINT16, BASE_HEX, NULL, 0x0,
-                NULL, HFILL }},
+            { "Cluster",                "zbee.aps.cluster", FT_UINT16, BASE_HEX,
+                    VALS(zbee_aps_cid_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_profile,
-            { "Profile",                "zbee.aps.profile", FT_UINT16, BASE_HEX, NULL, 0x0,
-                NULL, HFILL }},
+            { "Profile",                "zbee.aps.profile", FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
+                    RVALS(zbee_aps_apid_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_src,
             { "Source Endpoint",        "zbee.aps.src", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1612,8 +1861,8 @@ void proto_register_zbee_aps(void)
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_key_type,
-            { "Key Type",               "zbee.aps.cmd.key_type", FT_UINT8, BASE_HEX, VALS(zbee_aps_key_names), 0x0,
-                NULL, HFILL }},
+            { "Key Type",               "zbee.aps.cmd.key_type", FT_UINT8, BASE_HEX,
+                    VALS(zbee_aps_key_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_dst,
             { "Destination Address",    "zbee.aps.cmd.dst", FT_UINT64, BASE_HEX, NULL, 0x0,
@@ -1632,11 +1881,13 @@ void proto_register_zbee_aps(void)
                 "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_device_status,
-            { "Device Status",          "zbee.aps.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_aps_update_status_names), 0x0,
+            { "Device Status",          "zbee.aps.cmd.status", FT_UINT8, BASE_HEX,
+                    VALS(zbee_aps_update_status_names), 0x0,
                 "Update device status.", HFILL }},
 
             { &hf_zbee_aps_cmd_ea_key_type,
-            { "Key Type",               "zbee.aps.cmd.ea.key_type", FT_UINT8, BASE_HEX, VALS(zbee_aps_ea_key_names), 0x0,
+            { "Key Type",               "zbee.aps.cmd.ea.key_type", FT_UINT8, BASE_HEX,
+                    VALS(zbee_aps_ea_key_names), 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_ea_data,
@@ -1682,8 +1933,8 @@ void proto_register_zbee_aps(void)
                 NULL, HFILL }},
 
             { &hf_zbee_apf_type,
-            { "Type",                   "zbee.app.type", FT_UINT8, BASE_HEX, VALS(zbee_apf_type_names), 0x0,
-                NULL, HFILL }}
+            { "Type",                   "zbee.app.type", FT_UINT8, BASE_HEX,
+                    VALS(zbee_apf_type_names), 0x0, NULL, HFILL }}
     };
 
     /*  APS subtrees */

@@ -917,6 +917,7 @@ DISSECTOR_SRC = \
 	packet-zbee-aps.c	\
 	packet-zbee-security.c	\
 	packet-zbee-nwk.c	\
+	packet-zbee-zcl.c	\
 	packet-zbee-zdp.c	\
 	packet-zbee-zdp-binding.c	\
 	packet-zbee-zdp-discovery.c	\

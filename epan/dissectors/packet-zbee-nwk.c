@@ -1163,7 +1163,7 @@ dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
         addr = tvb_get_letohs(tvb, offset);
         options = tvb_get_guint8(tvb, offset+sizeof(guint16));
         if (tree) {
-            proto_tree_add_text(tree, tvb, offset, sizeof(guint16)+sizeof(guint8), "0x%04x, Incomming Cost: %d Outgoing Cost: %d", addr, options & ZBEE_NWK_CMD_LINK_INCOMMING_COST_MASK, (options & ZBEE_NWK_CMD_LINK_OUTGOING_COST_MASK)>>4);
+            proto_tree_add_text(tree, tvb, offset, sizeof(guint16)+sizeof(guint8), "0x%04x, Incoming Cost: %d Outgoing Cost: %d", addr, options & ZBEE_NWK_CMD_LINK_INCOMMING_COST_MASK, (options & ZBEE_NWK_CMD_LINK_OUTGOING_COST_MASK)>>4);
         }
         offset += (sizeof(guint16)+sizeof(guint8));
     } /* for */

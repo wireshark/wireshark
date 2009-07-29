@@ -55,6 +55,7 @@ typedef struct{
     gboolean    src_present;
 } zbee_aps_packet;
 
+/* ZigBee APS */
 #define ZBEE_APS_FCF_FRAME_TYPE     0x03
 #define ZBEE_APS_FCF_DELIVERY_MODE  0x0c
 #define ZBEE_APS_FCF_INDIRECT_MODE  0x10    /* ZigBee 2004 and earlier.  */
@@ -150,5 +151,87 @@ typedef struct{
 #define ZBEE_APP_KVP_OCT_STRING             0x0F
 
 #define ZBEE_APP_KVP_OVERHEAD               4
+
+/* ZCL Cluster IDs - General */
+#define ZBEE_ZCL_CID_BASIC                          0x0000
+#define ZBEE_ZCL_CID_POWER_CONFIG                   0x0001
+#define ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG             0x0002
+#define ZBEE_ZCL_CID_IDENTIFY                       0x0003
+#define ZBEE_ZCL_CID_GROUPS                         0x0004
+#define ZBEE_ZCL_CID_SCENES                         0x0005
+#define ZBEE_ZCL_CID_ON_OFF                         0x0006
+#define ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG           0x0007
+#define ZBEE_ZCL_CID_LEVEL_CONTROL                  0x0008
+#define ZBEE_ZCL_CID_ALARMS                         0x0009
+#define ZBEE_ZCL_CID_TIME                           0x000a
+#define ZBEE_ZCL_CID_RSSI_LOCATION                  0x000b
+#define ZBEE_ZCL_CID_ANALOG_INPUT_BASIC             0x000c
+#define ZBEE_ZCL_CID_ANALOG_OUTPUT_BASIC            0x000d
+#define ZBEE_ZCL_CID_ANALOG_VALUE_BASIC             0x000e
+#define ZBEE_ZCL_CID_BINARY_INPUT_BASIC             0x000f
+#define ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC            0x0010
+#define ZBEE_ZCL_CID_BINARY_VALUE_BASIC             0x0011
+#define ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC         0x0012
+#define ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC        0x0013
+#define ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC         0x0014
+#define ZBEE_ZCL_CID_COMMISSIONING                  0x0015
+
+/* ZCL Cluster IDs - Closures */
+#define ZBEE_ZCL_CID_SHADE_CONFIG                   0x0100
+
+/* ZCL Cluster IDs - HVAC */
+#define ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL            0x0200
+#define ZBEE_ZCL_CID_THERMOSTAT                     0x0201
+#define ZBEE_ZCL_CID_FAN_CONTROL                    0x0202
+#define ZBEE_ZCL_CID_DEHUMIDIFICATION_CONTROL       0x0203
+#define ZBEE_ZCL_CID_THERMOSTAT_UI_CONFIG           0x0204
+
+/* ZCL Cluster IDs - Lighting */
+#define ZBEE_ZCL_CID_COLOR_CONTROL                  0x0300
+#define ZBEE_ZCL_CID_BALLAST_CONFIG                 0x0301
+
+/* ZCL Cluster IDs - Measurement and Sensing */
+#define ZBEE_ZCL_CID_ILLUMINANCE_MEASUREMENT        0x0400
+#define ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING      0x0401
+#define ZBEE_ZCL_CID_TEMPERATURE_MEASUREMENT        0x0402
+#define ZBEE_ZCL_CID_PRESSURE_MEASUREMENT           0x0403
+#define ZBEE_ZCL_CID_FLOW_MEASUREMENT               0x0404
+#define ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT       0x0405
+#define ZBEE_ZCL_CID_OCCUPANCY_SENSING              0x0406
+
+/* ZCL Cluster IDs - Security and Safety */
+#define ZBEE_ZCL_CID_IAS_ZONE                       0x0500
+#define ZBEE_ZCL_CID_IAS_ACE                        0x0501
+#define ZBEE_ZCL_CID_IAS_WD                         0x0502
+
+/* ZCL Cluster IDs - Protocol Interfaces */
+#define ZBEE_ZCL_CID_GENERIC_TUNNEL                 0x0600
+#define ZBEE_ZCL_CID_BACNET_PROTOCOL_TUNNEL         0x0601
+#define ZBEE_ZCL_CID_BACNET_ANALOG_INPUT_REG        0x0602
+#define ZBEE_ZCL_CID_BACNET_ANALOG_INPUT_EXT        0x0603
+#define ZBEE_ZCL_CID_BACNET_ANALOG_OUTPUT_REG       0x0604
+#define ZBEE_ZCL_CID_BACNET_ANALOG_OUTPUT_EXT       0x0605
+#define ZBEE_ZCL_CID_BACNET_ANALOG_VALUE_REG        0x0606
+#define ZBEE_ZCL_CID_BACNET_ANALOG_VALUE_EXT        0x0607
+#define ZBEE_ZCL_CID_BACNET_BINARY_INPUT_REG        0x0608
+#define ZBEE_ZCL_CID_BACNET_BINARY_INPUT_EXT        0x0609
+#define ZBEE_ZCL_CID_BACNET_BINARY_OUTPUT_REG       0x060a
+#define ZBEE_ZCL_CID_BACNET_BINARY_OUTPUT_EXT       0x060b
+#define ZBEE_ZCL_CID_BACNET_BINARY_VALUE_REG        0x060c
+#define ZBEE_ZCL_CID_BACNET_BINARY_VALUE_EXT        0x060d
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_INPUT_REG    0x060e
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_INPUT_EXT    0x060f
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_OUTPUT_REG   0x0610
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_OUTPUT_EXT   0x0611
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_REG    0x0612
+#define ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_EXT    0x0613
+
+/* ZCL Cluster IDs - Smart Energy */
+#define ZBEE_ZCL_CID_PRICE                          0x0700
+#define ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL   0x0701
+#define ZBEE_ZCL_CID_SIMPLE_METERING                0x0702
+#define ZBEE_ZCL_CID_MESSAGE                        0x0703
+#define ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING         0x0704
+#define ZBEE_ZCL_CID_PRE_PAYMENT                    0x0705
 
 #endif /* PACKET_ZBEE_APS_H*/
