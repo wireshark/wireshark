@@ -1635,6 +1635,17 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      rebuild the clist, however. */
   selected_row = -1;
 
+  /* Freeze the packet list while we redo it, so we don't get any
+     screen updates while it happens. */
+#ifdef NEW_PACKET_LIST
+  new_packet_list_freeze();
+#else
+  packet_list_freeze();
+
+  /* Clear it out. */
+  packet_list_clear();
+#endif
+
   if (redissect) {
     /* We need to re-initialize all the state information that protocols
        keep, because some preference that controls a dissector has changed,
@@ -1654,17 +1665,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     new_packet_list_clear();
 #endif
   }
-
-  /* Freeze the packet list while we redo it, so we don't get any
-     screen updates while it happens. */
-#ifdef NEW_PACKET_LIST
-  new_packet_list_freeze();
-#else
-  packet_list_freeze();
-
-  /* Clear it out. */
-  packet_list_clear();
-#endif
 
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
