@@ -144,7 +144,7 @@
 	/* Function: 0x0a */
 	NTSTATUS eventlog_ReadEventLogW(
 		[in] policy_handle *handle,
-		[in] uint32 flags,
+		[in] eventlogReadFlags flags,
 		[in] uint32 offset,
 		[in] uint32 number_of_bytes,
 		[out,size_is(number_of_bytes)] uint8 *data,
