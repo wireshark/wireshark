@@ -30,6 +30,7 @@ LIBAIRPDCAP_SRC =		\
 	airpdcap_rijndael.c	\
 	airpdcap_tkip.c		\
 	airpdcap_wep.c		\
+	crypt-aes.c		\
 	crypt-des.c		\
 	crypt-md4.c		\
 	crypt-md5.c		\
@@ -44,6 +45,7 @@ LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_system.h	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
+	crypt-aes.h		\
 	crypt-des.h		\
 	crypt-md4.h		\
 	crypt-md5.h		\
