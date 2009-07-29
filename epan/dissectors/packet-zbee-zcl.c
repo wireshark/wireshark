@@ -68,7 +68,9 @@ static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, p
 /* Helper routines */
 guint zbee_apf_transaction_len (tvbuff_t *tvb, guint offset, guint8 type);
 static void  dissect_zcl_attr_data_type_val (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+#if 0
 static guint dissect_zcl_attr_data_type (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+#endif
 static void  dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
 static void  dissect_zcl_attr_bytes (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint length);
 static guint dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, guint *offset, int *length);
@@ -1200,6 +1202,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
     return;
 } /* dissect_zcl_discover_attr_resp */
 
+#if 0
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zcl_attr_data_type
@@ -1228,6 +1231,7 @@ static guint dissect_zcl_attr_data_type(tvbuff_t *tvb, proto_tree *tree, guint *
 
     return attr_data_type;
 } /* dissect_zcl_attr_data_type */
+#endif
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
