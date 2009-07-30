@@ -1164,7 +1164,6 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
 static void
 param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-    guint32	saved_offset;
     guint32	value;
 
     /*
@@ -1172,8 +1171,6 @@ param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
      * for validation later
      */
     len = len;
-
-    saved_offset = offset;
 
     value = tvb_get_guint8(tvb, offset);
 
@@ -1524,10 +1521,7 @@ for_param_block_val_spc(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 static void
 for_param_block_val_spasm(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-    guint32	saved_offset;
     guint32	value;
-
-    saved_offset = offset;
 
     if (len == 1)
     {
@@ -2132,11 +2126,8 @@ static void
 msg_otapa_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
-
-    saved_offset = offset;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -3074,11 +3065,8 @@ msg_ms_key_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
     const gchar	*str = NULL;
-    guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
-
-    saved_offset = offset;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -3143,12 +3131,9 @@ msg_key_gen_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 static void
 msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-    guint32	saved_offset;
     guint32	value;
 
     EXACT_DATA_CHECK(len, 7);
-
-    saved_offset = offset;
 
     value = tvb_get_ntoh24(tvb, offset);
 
@@ -3197,11 +3182,8 @@ msg_commit_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
     const gchar	*str = NULL;
-    guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
-
-    saved_offset = offset;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -3428,12 +3410,9 @@ msg_sspr_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 {
     guint8	oct, block_id;
     const gchar	*str = NULL;
-    guint32	saved_offset;
     guint32	value;
 
     EXACT_DATA_CHECK(len, 5);
-
-    saved_offset = offset;
 
     block_id = tvb_get_guint8(tvb, offset);
 
@@ -3956,11 +3935,8 @@ msg_secure_mode_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
     const gchar	*str = NULL;
-    guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
-
-    saved_offset = offset;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -4423,11 +4399,8 @@ msg_srvckey_gen_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
     const gchar	*str = NULL;
-    guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
-
-    saved_offset = offset;
 
     oct = tvb_get_guint8(tvb, offset);
 
