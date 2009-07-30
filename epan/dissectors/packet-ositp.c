@@ -396,7 +396,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 		"Residual error rate, TSDU size of interest: %u",
 		1<<tvb_get_guint8(tvb, offset));
       offset += 1;
-      length -= 1;
       vp_length -= 1;
 
       break;
@@ -435,7 +434,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       proto_tree_add_text(tree, tvb, offset, 2,
 		"Transit delay, maximum acceptable, called-calling: %u ms", s4);
       offset += 2;
-      length -= 2;
       vp_length -= 2;
       break;
 
@@ -494,7 +492,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 	proto_tree_add_text(tree, tvb, offset, 3,
 		"Average throughput, minimum acceptable, called-calling: %u o/s", t4);
 	offset += 3;
-	length -= 3;
 	vp_length -= 3;
       }
       break;
@@ -529,7 +526,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       proto_tree_add_text(tree, tvb, offset, 2,
 		"Credit: 0x%04x", tvb_get_ntohs(tvb, offset));
       offset += 2;
-      length -= 2;
       vp_length -= 2;
 
       break;

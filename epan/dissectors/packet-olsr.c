@@ -595,7 +595,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *message_tree;
 
       if (packet_len - offset < 4) {
-        message_item = proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, packet_len - offset,
+        proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, packet_len - offset,
             tvb_get_ptr(tvb, offset, packet_len - offset), "Message too short !");
         break;
       }
@@ -651,36 +651,36 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       if (offset < message_end) {
         /* --------------Dissecting TC message--------------------- */
         if (message_type == TC) {
-          offset = dissect_olsr_tc(tvb, pinfo, message_tree, offset, message_end);
+          dissect_olsr_tc(tvb, pinfo, message_tree, offset, message_end);
         }
         /* -------------Dissect HELLO message----------------------- */
         else if (message_type == HELLO) {
-          offset = dissect_olsr_hello(tvb, pinfo, message_tree, offset, message_end, &handle_olsr_hello_rfc);
+          dissect_olsr_hello(tvb, pinfo, message_tree, offset, message_end, &handle_olsr_hello_rfc);
         }
         /*---------------------------------Dissect MID Message----------------------------------*/
         else if (message_type == MID) {
-          offset = dissect_olsr_mid(tvb, pinfo, message_tree, offset, message_end);
+          dissect_olsr_mid(tvb, pinfo, message_tree, offset, message_end);
         }
         /*-----------------------------Dissect HNA Message--------------------------------*/
         else if (message_type == HNA) {
-          offset = dissect_olsr_hna(tvb, pinfo, message_tree, offset, message_end);
+          dissect_olsr_hna(tvb, pinfo, message_tree, offset, message_end);
         }
         /*-----------------------------Dissect Olsr.org Hello Message--------------------------------*/
         else if (global_olsr_olsrorg && message_type == OLSR_ORG_LQ_HELLO) {
-          offset = dissect_olsr_hello(tvb, pinfo, message_tree, offset, message_end, &handle_olsr_hello_olsrorg);
+          dissect_olsr_hello(tvb, pinfo, message_tree, offset, message_end, &handle_olsr_hello_olsrorg);
         }
         /*-----------------------------Dissect Olsr.org TC Message--------------------------------*/
         else if (global_olsr_olsrorg && message_type == OLSR_ORG_LQ_TC) {
-          offset = dissect_olsrorg_lq_tc(tvb, pinfo, message_tree, offset, message_end);
+          dissect_olsrorg_lq_tc(tvb, pinfo, message_tree, offset, message_end);
         }
 
         /*-----------------------------Dissect Olsr.org NS Message--------------------------------*/
         else if (global_olsr_olsrorg && message_type == OLSR_ORG_NAMESERVICE) {
-          offset = dissect_olsrorg_nameservice(tvb, pinfo, message_tree, offset, message_end);
+          dissect_olsrorg_nameservice(tvb, pinfo, message_tree, offset, message_end);
         }
         /*-----------------------Dissect NRL OLSR TC Message-------------------------------------*/
         else if (global_olsr_nrlolsr && message_type == NRLOLSR_TC_EXTRA) {
-          offset = dissect_nrlolsr_tc(tvb, pinfo, message_tree, offset, message_end);
+          dissect_nrlolsr_tc(tvb, pinfo, message_tree, offset, message_end);
         }
 
         /*-----------------------------Undefined message types-----------------------------*/

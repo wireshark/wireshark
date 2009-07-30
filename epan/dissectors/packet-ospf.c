@@ -1537,7 +1537,6 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
         switch ( version ) {
 
     	    case OSPF_VERSION_2:
- 	        ls_type = tvb_get_ntohl(tvb, offset);
   	        proto_tree_add_item(ospf_lsr_tree, ospf_filter[OSPFF_LS_TYPE],
 				    tvb, offset, 4, FALSE);
 	        break;

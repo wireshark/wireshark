@@ -1180,7 +1180,6 @@ dissect_v9_flowset(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, in
 
 		proto_tree_add_item(pdutree, hf_cflow_flowset_length, tvb,
 		    offset, 2, FALSE);
-		offset += 2;
 	} else {
 		/* Data */
 		proto_tree_add_item(pdutree, (ver == 9) ? hf_cflow_data_flowset_id :  hf_cflow_data_datarecord_id, tvb,
