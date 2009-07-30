@@ -589,6 +589,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint     number_of_rars = 0;   /* No of RAR bodies expected following headers */
     guint8   rapids[64];
     gboolean backoff_indicator_seen = FALSE;
+    guint8   backoff_indicator = 0;
     guint8   extension;
     gint     n;
     proto_tree *rar_headers_tree;
@@ -637,7 +638,6 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Backoff Indicator (BI) case */
 
             guint8 reserved;
-            guint8 backoff_indicator;
             proto_item *ti;
             proto_item *bi_ti;
 
@@ -692,9 +692,14 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } while (extension);
 
     /* Append summary to headers root */
-    proto_item_append_text(rar_headers_ti, " (%u RARs%s)",
-                           number_of_rars,
-                           backoff_indicator_seen ? ", BI" : "");
+    proto_item_append_text(rar_headers_ti, " (%u RARs", number_of_rars);
+    if (backoff_indicator_seen) {
+        proto_item_append_text(rar_headers_ti, ", BI=%sms)",
+                               val_to_str(backoff_indicator, rar_bi_vals, "Illegal-value "));
+    }
+    else {
+        proto_item_append_text(rar_headers_ti, ")");
+    }
 
     /* Set length for headers root */
     proto_item_set_len(rar_headers_ti, offset-start_headers_offset);
