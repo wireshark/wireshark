@@ -744,7 +744,6 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
 
     while (len > 0) {
         radius_attr_info_t* dictionary_entry = NULL;
-        gint tvb_len;
         guint32 tlv_type;
         guint32 tlv_length;
 
@@ -798,11 +797,6 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
                                                tvb,0,0,tlv_length);
             PROTO_ITEM_SET_GENERATED(tlv_len_item);
         }
-
-        tvb_len = tvb_length_remaining(tvb, offset);
-
-        if ((gint)tlv_length < tvb_len)
-            tvb_len = tlv_length;
 
         add_tlv_to_tree(tlv_tree, tlv_item, pinfo, tvb, dictionary_entry,
                         tlv_length, offset);

@@ -435,7 +435,6 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 	if (bitmask & PACKETCABLE_MESSAGE_WAITING) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_message_waiting,
 							tvb, intval, 40, FALSE);
-		intval += 40;
 	}
 
 	return "";
