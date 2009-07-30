@@ -1926,7 +1926,6 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    offset=(*dsp_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
 	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DSP PDU");
-	      offset = tvb_length(tvb);
 	      break;
 	    }
 	  }
@@ -2461,7 +2460,7 @@ void proto_register_dsp(void) {
         "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 281 "packet-dsp-template.c"
+#line 280 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2542,7 +2541,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 287 "packet-dsp-template.c"
+#line 286 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2585,7 +2584,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 320 "packet-dsp-template.c"
+#line 319 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

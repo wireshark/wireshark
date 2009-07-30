@@ -816,7 +816,6 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset,
 
 	proto_tree_add_text(tree, tvb, offset, 2,
 	    "Status: 0x%04X", tvb_get_ntohs(tvb, offset));
-	offset += 2;
 
 	return TRUE;
 }
@@ -1084,7 +1083,6 @@ dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset, int length,
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Target IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
-	offset += 4;
 
 	return TRUE;
 }
@@ -1293,7 +1291,6 @@ dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int index, proto_tree *in
 	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port value: %u", tvb_get_ntohs(tvb, offset));
 	offset += 2;
 	proto_tree_add_text(element_tree, tvb, offset, 4, "Web Cache Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
-	offset += 4;
 }
 
 static guint

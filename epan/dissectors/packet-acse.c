@@ -1738,7 +1738,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset ){
 			proto_tree_add_text(tree, tvb, offset, -1,"Malformed packet");
-			offset = tvb_length(tvb);
 			break;
 		}
 	}
@@ -2184,7 +2183,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 252 "packet-acse-template.c"
+#line 251 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2230,7 +2229,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 258 "packet-acse-template.c"
+#line 257 "packet-acse-template.c"
   };
 
   /* Register protocol */

@@ -2194,7 +2194,6 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    offset=(*dop_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 	    if(offset == old_offset){
 	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DOP PDU");
-	      offset = tvb_length(tvb);
 	      break;
 	    }
 	  }
@@ -2966,7 +2965,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 251 "packet-dop-template.c"
+#line 250 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3045,7 +3044,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 258 "packet-dop-template.c"
+#line 257 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -3101,7 +3100,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 291 "packet-dop-template.c"
+#line 290 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

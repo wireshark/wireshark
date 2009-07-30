@@ -4804,7 +4804,6 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset=dissect_ftam_PDU(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte FTAM PDU");
-			offset = tvb_length(tvb);
 			break;
 		}
 	}
@@ -6484,7 +6483,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 134 "packet-ftam-template.c"
+#line 133 "packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -6657,7 +6656,7 @@ void proto_register_ftam(void) {
     &ett_ftam_AE_title,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 140 "packet-ftam-template.c"
+#line 139 "packet-ftam-template.c"
   };
 
   /* Register protocol */

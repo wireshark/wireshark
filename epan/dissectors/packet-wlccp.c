@@ -705,7 +705,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint offset = 0, old_offset;
 
-	guint8 version=0, sap=0, sap_id=0, sap_version=0;
+	guint8 version=0, sap_id=0;
 
 	guint16 type;
 	guint8 base_message_type=0, message_sub_type=0;
@@ -719,7 +719,6 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(tvb_get_guint8(tvb, 0) == 0xC1)  /* Get the version number */
 		{
 
-			sap_version = (tvb_get_guint8(tvb,1) & SAP_VERSION_MASK) >> 6;
 			sap_id = tvb_get_guint8(tvb,1) & SAP_VALUE_MASK;
 			base_message_type=(tvb_get_guint8(tvb,6)) & MT_BASE_MSG_TYPE;
 			message_sub_type=(tvb_get_guint8(tvb, 6) &  MT_SUBTYPE ) >> 6;
@@ -852,8 +851,6 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wlccp_sap_tree, hf_wlccp_sap_id,
 					    tvb, offset, 1, FALSE);
 
- 			sap = tvb_get_guint8(tvb,offset);
- 			sap_version = (tvb_get_guint8(tvb,offset) & SAP_VERSION_MASK) >> 6;
  			sap_id = tvb_get_guint8(tvb,offset) & SAP_VALUE_MASK;
 
 			offset += 1;
@@ -949,7 +946,6 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			} /* switch sap */
 
  			base_message_type=(tvb_get_guint8(tvb,offset) & MT_BASE_MSG_TYPE );
- 			message_sub_type=((tvb_get_guint8(tvb,offset) &  MT_SUBTYPE ) >> 6 );
 			
 			offset += 1;
 			} /* Message Type Field */
@@ -1838,7 +1834,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 	proto_tree *_tlv_tree;
 	proto_tree *_tlv_flags_tree;
 
-	gboolean _container_flag=0, _request_flag=0;
+	gboolean _container_flag=0;
 	gint  _group_id=0, _type_id=0;
 	guint _length=0;
 	guint _tlv_end=0;
@@ -1943,8 +1939,6 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 	/* according to the patent, some behavior changes if the request flag is set */
 	/* it would be nice if it said how, but I don't think it matters for decoding purposes */
-
-	_request_flag = tvb_get_ntohs(_tvb, _offset) & TLV_F_REQUEST >> 7;
 
 	_offset += 2;
 

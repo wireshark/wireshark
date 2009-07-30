@@ -1375,7 +1375,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset = offset, sa_offset = offset;
+	int old_offset = offset, sa_offset;
 	gboolean rid_present;
 	guint rid=0;
 	int rid_offset=0;

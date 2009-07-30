@@ -108,7 +108,6 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
 			proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte GOOSE PDU");
-			offset = tvb_length(tvb);
 			break;
 		}
 	}

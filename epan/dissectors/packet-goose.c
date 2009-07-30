@@ -696,7 +696,6 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
 			proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte GOOSE PDU");
-			offset = tvb_length(tvb);
 			break;
 		}
 	}
@@ -950,7 +949,7 @@ void proto_register_goose(void) {
         "goose.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 137 "packet-goose-template.c"
+#line 136 "packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -978,7 +977,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 143 "packet-goose-template.c"
+#line 142 "packet-goose-template.c"
   };
 
 	/* Register protocol */
