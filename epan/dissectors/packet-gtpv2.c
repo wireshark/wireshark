@@ -726,7 +726,7 @@ dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_tree_add_item(tree, hf_gtpv2_bearer_qos_pci, tvb, offset, 1, FALSE);
 	offset++;
 	proto_tree_add_item(tree, hf_gtpv2_bearer_qos_label_qci, tvb, offset, 1, FALSE);
-	offset= offset++;
+	offset++;
 	proto_tree_add_item(tree, hf_gtpv2_bearer_qos_mbr_up, tvb, offset, 5, FALSE);
 	offset= offset+5;
 	proto_tree_add_item(tree, hf_gtpv2_bearer_qos_mbr_down, tvb, offset, 5, FALSE);
@@ -746,7 +746,7 @@ dissect_gtpv2_flow_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	int offset = 0;
 	proto_tree_add_item(tree, hf_gtpv2_flow_qos_label_qci, tvb, offset, 1, FALSE);
-	offset= offset++;
+	offset++;
 	proto_tree_add_item(tree, hf_gtpv2_flow_qos_mbr_up, tvb, offset, 5, FALSE);
 	offset= offset+5;
 	proto_tree_add_item(tree, hf_gtpv2_flow_qos_mbr_down, tvb, offset, 5, FALSE);
@@ -1432,7 +1432,7 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 						newoffset3++;
 						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_label_qci, tvb, newoffset3, 1, FALSE);
 
-						newoffset3= newoffset3++;
+						newoffset3++;
 						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_mbr_up, tvb, newoffset3, 5, FALSE);
 
 						newoffset3= newoffset3+5;
@@ -1692,8 +1692,6 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_gtpv2_pti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	int offset=0;
-
 	proto_tree_add_item(tree, hf_gtpv2_pti, tvb, 0, 1, FALSE);
 }
 /*
@@ -1746,8 +1744,6 @@ dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 dissect_gtpv2_apn_rest(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	int offset=0;
-
 	proto_tree_add_item(tree, hf_gtpv2_apn_rest, tvb, 0, 1, FALSE);
 }
 
@@ -1782,8 +1778,6 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 dissect_gtpv2_bearer_control_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	int offset=0;
-
 	proto_tree_add_item(tree, hf_gtpv2_bearer_control_mode, tvb, 0, 1, FALSE);
 }
 /*
