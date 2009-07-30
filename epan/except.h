@@ -30,6 +30,7 @@
 #ifndef XCEPT_H
 #define XCEPT_H
 
+#include <glib.h>
 #include <setjmp.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -90,10 +91,10 @@ extern struct except_stacknode *except_pop(void);
 /* public interface functions */
 extern int except_init(void);
 extern void except_deinit(void);
-extern void except_rethrow(except_t *);
-extern void except_throw(long, long, const char *);
-extern void except_throwd(long, long, const char *, void *);
-extern void except_throwf(long, long, const char *, ...);
+extern void except_rethrow(except_t *) G_GNUC_NORETURN;
+extern void except_throw(long, long, const char *) G_GNUC_NORETURN;
+extern void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
+extern void except_throwf(long, long, const char *, ...) G_GNUC_NORETURN;
 extern void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
 extern unsigned long except_code(except_t *);
 extern unsigned long except_group(except_t *);
