@@ -37,6 +37,7 @@
 #include <epan/prefs.h>
 #include "epan/epan.h"
 
+#include <epan/packet_info.h>
 #include "../ui_util.h"
 #include <wsutil/file_util.h>
 
