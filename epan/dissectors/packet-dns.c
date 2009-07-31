@@ -2474,8 +2474,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint8 service_len;
       guchar *regex;
       guint8 regex_len;
-      guchar *replacement;
-      guint8 replacement_len;
+      const guchar *replacement;
+      int replacement_len;
 
       order = tvb_get_ntohs(tvb, offset);
       offset += 2;
@@ -2493,9 +2493,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       offset++;
       regex = tvb_get_ephemeral_string(tvb, offset, regex_len);
       offset += regex_len;
-      replacement_len = tvb_get_guint8(tvb, offset);
+      replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
       offset++;
-      replacement = tvb_get_ephemeral_string(tvb, offset, replacement_len);
+      name_out = format_text(replacement, strlen(replacement));
 
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
@@ -2522,7 +2522,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	offset += regex_len;
 	proto_tree_add_text(rr_tree, tvb, offset, 1, "Replacement length: %u", replacement_len);
 	offset++;
-	proto_tree_add_text(rr_tree, tvb, offset, replacement_len, "Replacement: \"%s\"", replacement);
+	proto_tree_add_text(rr_tree, tvb, offset, replacement_len, "Replacement: %s", name_out);
       }
     }
     break;
