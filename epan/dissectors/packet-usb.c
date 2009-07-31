@@ -1211,7 +1211,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, 
         item=proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type)");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
         proto_tree_add_item(tree, hf_usb_data, tvb, offset, pinfo->pseudo_header->linux_usb.data_len, FALSE);
-   			offset += pinfo->pseudo_header->linux_usb.data_len;
+        offset += pinfo->pseudo_header->linux_usb.data_len;
         break;
     }
 
@@ -1898,7 +1898,6 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     next_tvb=tvb_new_subset(tvb, offset, -1, -1);
                     if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
-                    /* XXX - dump as hex */
                     }
                     /* Else no class dissector, just display generic fields */
                     proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, TRUE);
