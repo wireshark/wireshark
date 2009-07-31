@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <string.h>
 #include "packet-usb.h"
+#include "packet-usb-hid.h"
 
 /* protocols and header fields */
 static int proto_usb = -1;
@@ -56,10 +57,12 @@ static int hf_usb_data_len = -1;
 static int hf_usb_src_endpoint_number = -1;
 static int hf_usb_dst_endpoint_number = -1;
 static int hf_usb_request = -1;
+static int hf_usb_request_unknown_class = -1;
 static int hf_usb_value = -1;
 static int hf_usb_index = -1;
 static int hf_usb_length = -1;
 static int hf_usb_data = -1;
+static int hf_usb_capdata = -1;
 static int hf_usb_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
 static int hf_usb_wStatus = -1;
@@ -1173,6 +1176,7 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree, t
 static int
 dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
+    proto_item *item=NULL;
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
             val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %u"));
@@ -1196,10 +1200,18 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, 
     case USB_DT_DEVICE_QUALIFIER:
         offset=dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
         break;
+    case USB_DT_RPIPE:
+        if (usb_conv_info->interfaceClass == IF_CLASS_HID) {
+        	offset=dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        	break;
+        }
+        /* else fall through as default/unknown */
     default:
         /* XXX dissect the descriptor coming back from the device */
-        proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data");
-        offset += tvb_length_remaining(tvb, offset);
+        item=proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type)");
+        tree=proto_item_add_subtree(item, ett_descriptor_device);
+        proto_tree_add_item(tree, hf_usb_data, tvb, offset, pinfo->pseudo_header->linux_usb.data_len, FALSE);
+   			offset += pinfo->pseudo_header->linux_usb.data_len;
         break;
     }
 
@@ -1492,6 +1504,7 @@ static const usb_setup_dissector_table_t setup_response_dissectors[] = {
     {0, NULL}
 };
 
+/* bRequest values but only when bmRequestType.type == 0 (Device) */
 static const value_string setup_request_names_vals[] = {
     {USB_SETUP_GET_STATUS,		"GET STATUS"},
     {USB_SETUP_CLEAR_FEATURE,		"CLEAR FEATURE"},
@@ -1645,7 +1658,7 @@ static void
 dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                          gboolean padded)
 {
-    int offset = 0;
+    unsigned int offset = 0;
     int type, endpoint;
     guint8 setup_flag;
     proto_tree *tree = NULL;
@@ -1852,8 +1865,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     }
 
                     if(dissector){
-                        dissector(pinfo, setup_tree, tvb, offset, usb_trans_info, usb_conv_info);
-                        offset+=6;
+                        offset=dissector(pinfo, setup_tree, tvb, offset, usb_trans_info, usb_conv_info);
                     } else {
                         proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
                         offset += 2;
@@ -1888,6 +1900,15 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                         return;
                     /* XXX - dump as hex */
                     }
+                    /* Else no class dissector, just display generic fields */
+                    proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, TRUE);
+                    offset += 1;
+                    proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
+                    offset += 2;
+                    proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, TRUE);
+                    offset += 2;
+                    proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
+                    offset += 2;
                     break;
                 }
             } else {
@@ -1969,6 +1990,13 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                             offset += tvb_length_remaining(tvb, offset);
                         }
                     }
+                    break;
+                default:
+                    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                        proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                        offset += tvb_length_remaining(tvb, offset);
+                    }
+                    break;
                 }
             } else {
                 /* no matching request available */
@@ -2029,8 +2057,11 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         break;
     }
-    if (tvb_reported_length_remaining(tvb, offset) != 0)
-        proto_tree_add_item(tree, hf_usb_data, tvb, offset, -1, FALSE);
+
+    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+        /* There is leftover capture data to add (padding?) */
+        proto_tree_add_item(tree, hf_usb_capdata, tvb, offset, -1, FALSE);
+    }
 }
 
 static void
@@ -2120,6 +2151,11 @@ proto_register_usb(void)
         { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_DEC, VALS(setup_request_names_vals), 0x0,
                 NULL, HFILL }},
 
+        /* Same as hf_usb_request but no descriptive text */
+        { &hf_usb_request_unknown_class,
+        { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
         { &hf_usb_value,
         { "wValue", "usb.setup.wValue", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
@@ -2153,6 +2189,11 @@ proto_register_usb(void)
         {"Application Data", "usb.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Payload is application data", HFILL }},
+
+        { &hf_usb_capdata,
+        {"Leftover Capture Data", "usb.capdata",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Padding added by the USB capture system", HFILL }},
 
         { &hf_usb_bmRequestType_direction,
         { "Direction", "usb.bmRequestType.direction", FT_BOOLEAN, 8,
