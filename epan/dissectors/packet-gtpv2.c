@@ -1387,7 +1387,6 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint8 type, instances;
 	proto_tree *ie_tree;
 	proto_item *ti;
-	//tvbuff_t *ie_tvb;
 	guint8 v4, v6;
 	guint16 lengths;
 	while (offset<length)
