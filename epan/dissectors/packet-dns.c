@@ -105,6 +105,7 @@ static int hf_dns_tsig_other_data = -1;
 static int hf_dns_response_in = -1;
 static int hf_dns_response_to = -1;
 static int hf_dns_time = -1;
+static int hf_dns_sshfp_fingerprint = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -200,6 +201,7 @@ typedef struct _dns_conv_info_t {
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_DS            43		/* Delegation Signature(RFC 3658) */
+#define T_SSHFP         44              /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
 #define T_IPSECKEY      45              /* draft-ietf-ipseckey-rr */
 #define T_RRSIG         46              /* future RFC 2535bis */
 #define T_NSEC          47              /* future RFC 2535bis */
@@ -377,6 +379,15 @@ static const value_string tsigerror_vals[] = {
 #define TDSDIGEST_SHA1     (1)
 #define TDSDIGEST_SHA256   (2)
 
+/*
+ * SSHFP (RFC 4255) algorithm number and fingerprint types
+ */
+#define TSSHFP_ALGO_RESERVED   (0)
+#define TSSHFP_ALGO_RSA        (1)
+#define TSSHFP_ALGO_DSA        (2)
+#define TSSHFP_FTYPE_RESERVED  (0)
+#define TSSHFP_FTYPE_SHA1      (1)
+
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
    which one should look at
@@ -443,6 +454,7 @@ static const value_string dns_types[] = {
 	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
 	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
 	{ T_DLV,        "DLV" }, /* Domain Lookaside Validation DNS Resource Record (RFC 4431) */
+	{ T_SSHFP,	"SSHFP" }, /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
 
 	{ 100,		"UINFO" },
 	{ 101,		"UID" },
@@ -525,7 +537,8 @@ dns_type_description (guint type)
     "DNS public key",                   /* future RFC 2535bis */
     NULL,
     "Next secured hash",                /* RFC 5155 */
-    "NSEC3 parameters"                  /* RFC 5155 */
+    "NSEC3 parameters",                 /* RFC 5155 */
+    "SSH public host key fingerprint"   /* RFC 4255 */
   };
   const char *short_name;
   const char *long_name;
@@ -2527,6 +2540,47 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_SSHFP:
+    {
+      guint8 sshfp_algorithm, sshfp_type;
+      int rr_len = data_len;
+
+      static const value_string sshfp_algo[] = {
+	{ TSSHFP_ALGO_RESERVED,	"Reserved" },
+	{ TSSHFP_ALGO_RSA,	"RSA" },
+	{ TSSHFP_ALGO_DSA,	"DSA" },
+	{ 0, NULL }
+      };
+
+      static const value_string sshfp_fingertype[] = {
+	{ TSSHFP_FTYPE_RESERVED,	"Reserved" },
+	{ TSSHFP_FTYPE_SHA1,	"SHA1" },
+	{ 0, NULL }
+      };
+
+      if (dns_tree != NULL) {
+	if (rr_len < 1)
+	  goto bad_rr;
+	sshfp_algorithm = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s", val_to_str(sshfp_algorithm, sshfp_algo, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (rr_len < 1)
+	  goto bad_rr;
+	sshfp_type = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Fingerprint type: %s", val_to_str(sshfp_type, sshfp_fingertype, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (rr_len < 1)
+	  goto bad_rr;
+	if (rr_len != 0)
+	proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, FALSE);
+      }
+    }
+    break;
+
     /* TODO: parse more record types */
 
   default:
@@ -3170,7 +3224,11 @@ proto_register_dns(void)
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of additional records in packet", HFILL }}
+	"Number of additional records in packet", HFILL }},
+    { &hf_dns_sshfp_fingerprint,
+      { "Fingerprint",	"dns.sshfp.fingerprint",
+	FT_BYTES, BASE_HEX, NULL, 0,
+	"Fingerprint", HFILL }}
   };
   static gint *ett[] = {
     &ett_dns,
