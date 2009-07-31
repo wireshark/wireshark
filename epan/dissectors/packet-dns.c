@@ -208,6 +208,7 @@ typedef struct _dns_conv_info_t {
 #define T_DNSKEY        48              /* future RFC 2535bis */
 #define T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
+#define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -453,6 +454,7 @@ static const value_string dns_types[] = {
 
 	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
 	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
+	{ T_SPF,	"SPF" }, /* SPF RR (RFC 4408) section 3 */ 
 	{ T_DLV,        "DLV" }, /* Domain Lookaside Validation DNS Resource Record (RFC 4431) */
 	{ T_SSHFP,	"SSHFP" }, /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
 
@@ -1444,6 +1446,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
   case T_TXT:
+  case T_SPF:
     {
       int rr_len = data_len;
       int txt_offset;
