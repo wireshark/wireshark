@@ -41,7 +41,6 @@
 
 /* TODO:
    - TDD mode?
-   - compare Msg3 with contention resolution body
    - add a preference so that padding can be verified against an expected pattern?
 */
 
@@ -119,7 +118,10 @@ static int hf_mac_lte_control_bsr_buffer_size_4 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_timing_advance_reserved = -1;
+static int hf_mac_lte_control_ue_contention_resolution = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
+static int hf_mac_lte_control_ue_contention_resolution_msg3 = -1;
+static int hf_mac_lte_control_ue_contention_resolution_msg3_matched = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_padding = -1;
@@ -138,6 +140,7 @@ static int ett_mac_lte_rar_ul_grant = -1;
 static int ett_mac_lte_bsr = -1;
 static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
+static int ett_mac_lte_contention_resolution = -1;
 
 
 
@@ -374,6 +377,69 @@ static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 
 /* Whether should attempt to dissect frames failing CRC check */
 static gboolean global_mac_lte_dissect_crc_failures = FALSE;
+
+
+
+/***************************************************************/
+/* Keeping track of Msg3 bodies so they can be compared with   */
+/* Contention Resolution bodies.                               */
+
+typedef struct Msg3Data {
+    guint8  data[6];
+    guint32 framenum;
+} Msg3Data;
+
+
+/* This table stores (RNTI -> Msg3Data*).  Will be populated when
+   Msg3 frames are first read.  */
+static GHashTable *mac_lte_msg3_hash = NULL;
+
+/* Hash table functions for mac_lte_msg3_hash.  Hash is just the (RNTI) key */
+static gint mac_lte_msg3_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+
+static guint mac_lte_msg3_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+
+
+
+typedef enum ContentionResolutionStatus {
+    NoMsg3,
+    Msg3Match,
+    Msg3NoMatch
+} ContentionResolutionStatus;
+
+typedef struct ContentionResolutionResult {
+    ContentionResolutionStatus status;
+    guint                      msg3FrameNum;
+} ContentionResolutionResult;
+
+
+/* This table stores (CRFrameNum -> CRResult).  It is assigned during the first
+   pass and used thereafter */
+static GHashTable *mac_lte_cr_result_hash = NULL;
+
+/* Hash table functions for mac_lte_cr_result_hash.  Hash is just the (framenum) key */
+static gint mac_lte_cr_result_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+
+static guint mac_lte_cr_result_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+
+
+/**************************************************************************/
+
+
 
 /* Forward declarations */
 void proto_reg_handoff_mac_lte(void);
@@ -1132,6 +1198,26 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                             "Unknown"),
                                                  data_length);
 
+            /* Look for Msg3 data so that it may be compared with later
+               Contention Resolution body */
+            if ((lcids[n] == 0) && (direction == DIRECTION_UPLINK) && (data_length == 6)) {
+                if (!pinfo->fd->flags.visited) {
+                    guint key = p_mac_lte_info->rnti;
+                    Msg3Data *data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(key));
+
+                    /* Look for previous entry for this UE */
+                    if (data == NULL) {
+                        /* Allocate space for data and add to table */
+                        data = se_alloc(sizeof(Msg3Data));
+                        g_hash_table_insert(mac_lte_msg3_hash, GUINT_TO_POINTER(key), data);
+                    }
+
+                    /* Fill in data details */
+                    data->framenum = pinfo->fd->num;
+                    memcpy(&data->data, tvb_get_ptr(tvb, offset, data_length), data_length);
+                }
+            }
+
             /* CCCH frames can be dissected directly by LTE RRC... */
             if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
                 tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
@@ -1171,9 +1257,86 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* DL-SCH Control PDUs      */
                 switch (lcids[n]) {
                     case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
-                        proto_tree_add_item(tree, hf_mac_lte_control_ue_contention_resolution_identity,
-                                            tvb, offset, 6, FALSE);
-                        offset += 6;
+                        {
+                            proto_item *cr_ti;
+                            proto_tree *cr_tree;
+                            proto_item *ti;
+                            ContentionResolutionResult *crResult;
+
+                            /* Create CR root */
+                            cr_ti = proto_tree_add_string_format(tree,
+                                                                 hf_mac_lte_control_ue_contention_resolution,
+                                                                 tvb, offset, 6,
+                                                                 "",
+                                                                 "Contention Resolution");
+                            cr_tree = proto_item_add_subtree(cr_ti, ett_mac_lte_contention_resolution);
+
+
+                            proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
+                                                tvb, offset, 6, FALSE);
+
+                            /* Get pointer to result struct for this frame */
+                            crResult =  g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+                            if (crResult == NULL) {
+
+                                /* Need to set result by looking for and comparing with Msg3 */
+                                Msg3Data *msg3Data;
+                                guint msg3Key = p_mac_lte_info->rnti;
+
+                                /* Allocate result and add it to the table */
+                                crResult = se_alloc(sizeof(ContentionResolutionResult));
+                                g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num), crResult);
+
+                                /* Look for Msg3 */
+                                msg3Data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(msg3Key));
+
+                                /* Compare CCCH bytes */
+                                if (msg3Data != NULL) {
+                                    crResult->msg3FrameNum = msg3Data->framenum;
+                                    if (memcmp(&msg3Data->data, tvb_get_ptr(tvb, offset, 6), 6) == 0) {
+                                        crResult->status = Msg3Match;
+                                    }
+                                    else {
+                                        crResult->status = Msg3NoMatch;
+                                    }
+                                }
+                                else {
+                                    crResult->status = NoMsg3;
+                                }
+                            }
+
+                            /* Now show CR result in tree */
+                            switch (crResult->status) {
+                                case NoMsg3:
+                                    proto_item_append_text(cr_ti, " (no corresponding Msg3 found!)");
+                                    break;
+
+                                case Msg3Match:
+                                    ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
+                                                             tvb, 0, 0, crResult->msg3FrameNum);
+                                    PROTO_ITEM_SET_GENERATED(ti);
+                                    ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
+                                                                tvb, 0, 0, TRUE);
+                                    PROTO_ITEM_SET_GENERATED(ti);
+                                    proto_item_append_text(cr_ti, " (matches Msg3 from frame %u)", crResult->msg3FrameNum);
+                                    break;
+
+                                case Msg3NoMatch:
+                                    ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
+                                                             tvb, 0, 0, crResult->msg3FrameNum);
+                                    PROTO_ITEM_SET_GENERATED(ti);
+                                    ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
+                                                                 tvb, 0, 0, FALSE);
+                                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                                           "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
+                                                           crResult->msg3FrameNum);
+                                    PROTO_ITEM_SET_GENERATED(ti);
+                                    proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u)", crResult->msg3FrameNum);
+                                    break;
+                            };
+
+                            offset += 6;
+                        }
                         break;
                     case TIMING_ADVANCE_LCID:
                         {
@@ -1521,6 +1684,26 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* TODO: if any of above (esp RRC dissection) throws exception, this isn't reached,
        but if call too early, won't have details... */
     tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+}
+
+
+
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in wireshark */
+static void
+mac_lte_init_protocol(void)
+{
+    /* Destroy any existing tables. */
+    if (mac_lte_msg3_hash) {
+        g_hash_table_destroy(mac_lte_msg3_hash);
+    }
+    if (mac_lte_cr_result_hash) {
+        g_hash_table_destroy(mac_lte_cr_result_hash);
+    }
+
+    /* Now create them over */
+    mac_lte_msg3_hash = g_hash_table_new(mac_lte_msg3_hash_func, mac_lte_msg3_hash_equal);
+    mac_lte_cr_result_hash = g_hash_table_new(mac_lte_cr_result_hash_func, mac_lte_cr_result_hash_equal);
 }
 
 
@@ -1888,12 +2071,31 @@ void proto_register_mac_lte(void)
               "Reserved bits", HFILL
             }
         },
-        { &hf_mac_lte_control_ue_contention_resolution_identity,
-            { "UE Contention Resolution Identity",
-              "mac-lte.control.ue-contention-resolution-identity", FT_BYTES, BASE_NONE, 0, 0x0,
+        { &hf_mac_lte_control_ue_contention_resolution,
+            { "UE Contention Resolution",
+              "mac-lte.control.ue-contention-resolution", FT_STRING, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
+        { &hf_mac_lte_control_ue_contention_resolution_identity,
+            { "UE Contention Resolution Identity",
+              "mac-lte.control.ue-contention-resolution.identity", FT_BYTES, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ue_contention_resolution_msg3,
+            { "Msg3",
+              "mac-lte.control.ue-contention-resolution.msg3", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ue_contention_resolution_msg3_matched,
+            { "UE Contention Resolution Matches Msg3",
+              "mac-lte.control.ue-contention-resolution.matches-msg3", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_lte_control_power_headroom_reserved,
             { "Reserved",
               "mac-lte.control.power-headroom.reserved", FT_UINT8, BASE_DEC, 0, 0xc0,
@@ -1927,7 +2129,8 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_sch_subheader,
         &ett_mac_lte_bch,
         &ett_mac_lte_bsr,
-        &ett_mac_lte_pch
+        &ett_mac_lte_pch,
+        &ett_mac_lte_contention_resolution
     };
 
     module_t *mac_lte_module;
@@ -1979,6 +2182,8 @@ void proto_register_mac_lte(void)
         "When enabled, use heuristic dissector to find MAC-LTE frames sent with "
         "UDP framing",
         &global_mac_lte_heur);
+
+    register_init_routine(&mac_lte_init_protocol);
 }
 
 void
