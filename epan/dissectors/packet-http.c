@@ -208,7 +208,7 @@ static gboolean http_decompress_body = FALSE;
  * tcp and ssl ports
  */
 
-#define TCP_DEFAULT_RANGE "80,3128,3132,8080,8088,11371,3689,1900"
+#define TCP_DEFAULT_RANGE "80,3128,3132,8080,8088,11371,1900"
 #define SSL_DEFAULT_RANGE "443"
 
 static range_t *global_http_tcp_range = NULL;
@@ -2258,7 +2258,7 @@ static void reinit_http(void) {
 	range_foreach(http_ssl_range, range_add_http_ssl_callback);
 
 	/* Attempt to add additional headers that might have been added
-	 * one the preferences are applied.
+	 * once the preferences are applied.
 	 */
 	add_hf_info_for_headers();
 }
