@@ -1066,14 +1066,20 @@ void proto_reg_handoff_simulcrypt(void)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);
 		}
+		dissector_add_handle("tcp.port", simulcrypt_handle);   /* for "decode_as" */
+		dissector_add_handle("udp.port", simulcrypt_handle);   /* for "decode_as" */
 		initialized = TRUE;
 	}
 	else {
 		dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
 		dissector_delete("udp.port", udp_port, simulcrypt_handle);
 	}	
-	dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
-	dissector_add("udp.port", global_simulcrypt_udp_port, simulcrypt_handle);
+	if (global_simulcrypt_tcp_port != 0) {
+		dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
+	}
+	if (global_simulcrypt_udp_port != 0) {
+		dissector_add("udp.port", global_simulcrypt_udp_port, simulcrypt_handle);
+	}
 	tcp_port = global_simulcrypt_tcp_port;
 	udp_port = global_simulcrypt_udp_port;
 
