@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <string.h>
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
@@ -521,7 +520,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 			if (bTag == USBHID_MAINITEM_TAG_COLLECTION) {
 				/* Begin collection, nest following elements under us */
 				offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, usb_trans_info, usb_conv_info, &cur_global);
-		    proto_item_set_len(subitem, offset-old_offset);
+				proto_item_set_len(subitem, offset-old_offset);
 			} else if (bTag == USBHID_MAINITEM_TAG_ENDCOLLECTION) {
 				/* End collection, break out to parent tree item */
 				break;
@@ -542,12 +541,12 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
 	memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
 	if (parent_tree) {
-    item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
-    	-1, "HID Report");
+		item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
+						      -1, "HID Report");
 		tree = proto_item_add_subtree(item, ett_usb_hid_report);
 		offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info, &initial_global);
 
-    proto_item_set_len(item, offset-old_offset);
+		proto_item_set_len(item, offset-old_offset);
 	}
 
 	return offset;
