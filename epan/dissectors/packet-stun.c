@@ -727,13 +727,14 @@ proto_register_stun(void)
 void
 proto_reg_handoff_stun(void)
 {
+#if 0 /* The stun2 dissector registers on these ports */
 	dissector_handle_t stun_handle;
 
 	stun_handle = find_dissector("stun");
 
 	dissector_add("tcp.port", TCP_PORT_STUN, stun_handle);
 	dissector_add("udp.port", UDP_PORT_STUN, stun_handle);
-
+#endif
 	heur_dissector_add("udp", dissect_stun_heur, proto_stun);
 	heur_dissector_add("tcp", dissect_stun_heur, proto_stun);
 }
