@@ -1793,7 +1793,7 @@
 00:06:CA	AmericanCo             # American Computer & Digital Components, Inc. (ACDC)
 00:06:CB	JotronElec             # Jotron Electronics A/S
 00:06:CC	JmiElectro             # JMI Electronics Co., Ltd.
-00:06:CD	KodakIl                # Kodak IL Ltd.
+00:06:CD	LeafImagin             # Leaf Imaging Ltd.
 00:06:CE	Dateno
 00:06:CF	ThalesAvio             # Thales Avionics In-Flight Systems, LLC
 00:06:D0	ElgarElect             # Elgar Electronics Corp.
@@ -1824,7 +1824,7 @@
 00:06:E9	Intime                 # Intime Corp.
 00:06:EA	Elzet80Mik             # ELZET80 Mikrocomputer GmbH&Co. KG
 00:06:EB	GlobalData             # Global Data
-00:06:EC	M/AComPriv             # M/A COM Private Radio System Inc.
+00:06:EC	Harris                 # Harris Corporation
 00:06:ED	InaraNetwo             # Inara Networks
 00:06:EE	ShenyangNe             # Shenyang Neu-era Information & Technology Stock Co., Ltd
 00:06:EF	Maxxan                 # Maxxan Systems, Inc.
@@ -3271,7 +3271,7 @@
 00:0C:B7	NanjingHua             # Nanjing Huazhuo Electronics Co., Ltd.
 00:0C:B8	Medion                 # MEDION AG
 00:0C:B9	Lea
-00:0C:BA	Jamex
+00:0C:BA	Jamex                  # Jamex, Inc.
 00:0C:BB	Iskraemeco
 00:0C:BC	Iscutum
 00:0C:BD	InterfaceM             # Interface Masters, Inc
@@ -6143,7 +6143,7 @@
 00:17:F0	SzcomBroad             # SZCOM Broadband Network Technology Co.,Ltd
 00:17:F1	RenuElectr             # Renu Electronics Pvt Ltd
 00:17:F2	AppleCompu             # Apple Computer
-00:17:F3	M/A-ComWir             # M/A-COM Wireless Systems
+00:17:F3	HarrisCorp             # Harris Corparation
 00:17:F4	ZeronAllia             # ZERON ALLIANCE
 00:17:F5	LigNeoptek             # LIG NEOPTEK
 00:17:F6	PyramidMer             # Pyramid Meriden Inc.
@@ -9995,6 +9995,36 @@
 00:26:FC	AcsipTechn             # AcSiP Technology Corp.
 00:26:FD	Interactiv             # Interactive Intelligence
 00:26:FE	MkdTechnol             # MKD Technology Inc.
+00:26:FF	ResearchIn             # Research In Motion
+00:27:00	ShenzhenSi             # Shenzhen Siglent Technology Co., Ltd.
+00:27:01	Incostarte             # INCOstartec GmbH
+00:27:02	SolaredgeT             # SolarEdge Technologies
+00:27:03	TestechEle             # Testech Electronics Pte Ltd
+00:27:04	Accelerate             # Accelerated Concepts, LLC
+00:27:05	Sectronic
+00:27:06	Yoisys
+00:27:07	LiftComple             # Lift Complex DS, JSC
+00:27:08	NordiagAsa             # Nordiag ASA
+00:27:09	Nintendo               # Nintendo Co., Ltd.
+00:27:0A	IeeSA                  # IEE S.A.
+00:27:0B	AduraTechn             # Adura Technologies
+00:27:0C	Cisco                  # Cisco Systems
+00:27:0D	Cisco                  # Cisco Systems
+00:27:0E	IntelCorpo             # Intel Corporate
+00:27:0F	Envisionno             # Envisionnovation Inc
+00:27:10	IntelCorpo             # Intel Corporate
+00:27:11	Lanpro                 # LanPro Inc
+00:27:12	MaxvisionL             # MaxVision LLC
+00:27:13	Usi
+00:27:14	Grainmusta             # Grainmustards, Co,ltd.
+00:27:15	ReboundTel             # Rebound Telecom. Co., Ltd
+00:27:16	Adachi-Syo             # Adachi-Syokai Co., Ltd.
+00:27:17	CeDigitalZ             # CE Digital(Zhenjiang)Co.,Ltd
+00:27:18	SuzhouNewS             # Suzhou NEW SEAUNION Video Technology Co.,Ltd
+00:27:19	Tp-LinkTec             # TP-LINK TECHNOLOGIES CO., LTD.
+00:27:1A	GeenovoTec             # Geenovo Technology Ltd.
+00:27:1B	AlecSicher             # Alec Sicherheitssysteme GmbH
+00:27:1C	Mercury                # MERCURY CORPORATION
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13504,6 +13534,12 @@
 00:50:C2:B0:50:00/36	PolaSRL                # POLA s.r.l.
 00:50:C2:B0:60:00/36	Compudesig             # CompuDesigns, Inc.
 00:50:C2:B0:70:00/36	Fareco
+00:50:C2:B0:80:00/36	Goerlitz               # Goerlitz AG
+00:50:C2:B0:90:00/36	HarperChal             # Harper Chalice Group Limited
+00:50:C2:B0:A0:00/36	InduthermG             # Indutherm Giesstechnologie GmbH
+00:50:C2:B0:B0:00/36	Honeywell
+00:50:C2:B0:C0:00/36	SmartbTech             # SMARTB TECHNOLOGIES
+00:50:C2:B0:D0:00/36	JapanElect             # Japan Electronics System, Inc
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
