@@ -767,6 +767,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
 		   int packet_length )
 {
     unsigned int rtcp_psfb_fmt = 0;
+    int base_offset = offset;
 
     /* Payload-specific FB message */
     /* Feedback message type (FMT): 5 bits */
@@ -791,7 +792,8 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
 
     /* Feedback Control Information (FCI) */
     if (packet_length > 2) {
-	proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
+        proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), FALSE );
+        offset = base_offset + packet_length;
     }
 
     return offset;
