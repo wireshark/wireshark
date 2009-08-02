@@ -210,7 +210,7 @@ static int ett_urr_ie  = -1;
 
 static range_t *global_uma_tcp_port_range;
 
-#define DEFAULT_UMA_PORT_RANGE "14001,14001"
+#define DEFAULT_UMA_PORT_RANGE "14001"
 
 /* Global variables */
 static	guint32		sgw_ipv4_address;
