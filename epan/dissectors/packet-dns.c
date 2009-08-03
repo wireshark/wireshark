@@ -106,6 +106,8 @@ static int hf_dns_response_in = -1;
 static int hf_dns_response_to = -1;
 static int hf_dns_time = -1;
 static int hf_dns_sshfp_fingerprint = -1;
+static int hf_dns_hip_hit = -1;
+static int hf_dns_hip_pk = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -208,6 +210,7 @@ typedef struct _dns_conv_info_t {
 #define T_DNSKEY        48              /* future RFC 2535bis */
 #define T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
+#define T_HIP           55              /* Host Identity Protocol (HIP) RR (RFC 5205) */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
@@ -389,6 +392,11 @@ static const value_string tsigerror_vals[] = {
 #define TSSHFP_FTYPE_RESERVED  (0)
 #define TSSHFP_FTYPE_SHA1      (1)
 
+/* HIP PK ALGO RFC 5205 */
+#define THIP_ALGO_DSA          (1)
+#define THIP_ALGO_RSA          (2)
+#define THIP_ALGO_RESERVED     (0)
+
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
    which one should look at
@@ -454,6 +462,7 @@ static const value_string dns_types[] = {
 
 	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
 	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
+	{ T_HIP,        "HIP" }, /* Host Identity Protocol (HIP) RR (RFC 5205) */
 	{ T_SPF,	"SPF" }, /* SPF RR (RFC 4408) section 3 */ 
 	{ T_DLV,        "DLV" }, /* Domain Lookaside Validation DNS Resource Record (RFC 4431) */
 	{ T_SSHFP,	"SSHFP" }, /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
@@ -2584,6 +2593,71 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_HIP:
+    {
+      guint8 hit_len, algo;
+      guint16 pk_len;
+      int rr_len = data_len;
+      int rendezvous_len;
+      const guchar *rend_server_dns_name;
+
+      static const value_string hip_algo_vals[] = {
+        { THIP_ALGO_DSA,       "DSA" },
+        { THIP_ALGO_RSA,       "RSA" },
+        { THIP_ALGO_RESERVED,  "Reserved" }
+      };
+
+      if (cinfo != NULL)
+         col_append_fstr(cinfo, COL_INFO, " %s", name);
+
+      if (dns_tree != NULL) {
+	if (rr_len < 1)
+           goto bad_rr;
+	hit_len = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "HIT length: %u", hit_len);
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (rr_len < 1)
+           goto bad_rr;
+	algo = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "PK algorithm: %s", val_to_str(algo, hip_algo_vals, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (rr_len < 1)
+           goto bad_rr;
+	pk_len = tvb_get_ntohs(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "PK length: %u", pk_len);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (rr_len < 1)
+           goto bad_rr;
+	proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, FALSE);
+	cur_offset += hit_len;
+	rr_len -= hit_len;
+
+	if (rr_len < 1)
+           goto bad_rr;
+	proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, FALSE);
+	cur_offset += pk_len;
+	rr_len -= pk_len;
+
+	if (rr_len < 1)
+	   goto bad_rr;
+
+	while (rr_len > 1) {
+	   rendezvous_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name);
+	   proto_tree_add_text(rr_tree, tvb, cur_offset, rendezvous_len, "Rendezvous Server: %s",
+				format_text(rend_server_dns_name, strlen(rend_server_dns_name)));
+	   cur_offset += rendezvous_len;
+	   rr_len -= rendezvous_len;
+	}
+      }
+    }
+    break;
+
     /* TODO: parse more record types */
 
   default:
@@ -3226,12 +3300,20 @@ proto_register_dns(void)
         "The time between the Query and the Response", HFILL }},
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of additional records in packet", HFILL }},
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Number of additional records in packet", HFILL }},
     { &hf_dns_sshfp_fingerprint,
       { "Fingerprint",	"dns.sshfp.fingerprint",
-	FT_BYTES, BASE_HEX, NULL, 0,
-	"Fingerprint", HFILL }}
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_dns_hip_hit,
+      { "Host Identity Tag",    "dns.hip.hit",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_dns_hip_pk,
+      { "HIP Public Key", "dns.hip.pk",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }}
   };
   static gint *ett[] = {
     &ett_dns,
