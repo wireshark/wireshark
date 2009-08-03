@@ -1233,6 +1233,7 @@ DISSECTOR_INCLUDES =	\
 	packet-udp.h	\
 	packet-umts_fp.h	\
 	packet-usb.h	\
+	packet-usb-hid.h	\
 	packet-vines.h	\
 	packet-vlan.h	\
 	packet-wap.h	\
