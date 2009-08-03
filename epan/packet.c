@@ -40,7 +40,6 @@
 #include <time.h>
 
 #include "packet.h"
-//#include "proto.h"
 #include "timestamp.h"
 
 #include "atalk-utils.h"
