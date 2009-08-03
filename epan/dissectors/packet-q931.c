@@ -69,6 +69,11 @@ static int q931_tap = -1;
 static int proto_q931 					= -1;
 static int hf_q931_discriminator			= -1;
 static int hf_q931_coding_standard			= -1;
+static int hf_q931_interpretation			= -1;
+static int hf_q931_pres_meth_prot_prof			= -1;
+static int hf_q931_high_layer_characteristics		= -1;
+static int hf_q931_extended_high_layer_characteristics	= -1;
+static int hf_q931_extended_audiovisual_characteristics	= -1;
 static int hf_q931_information_transfer_capability	= -1;
 static int hf_q931_transfer_mode			= -1;
 static int hf_q931_information_transfer_rate		= -1;
@@ -544,6 +549,9 @@ static const value_string q931_information_transfer_rate_vals[] = {
 	{ 0,				NULL }
 };
 
+/*
+ * Values 0x0a and 0x0b added from Q.931 Amendment 1 (12/2002)
+ */
 static const value_string q931_uil1_vals[] = {
 	{ 0x01, "V.110/I.460/X.30 rate adaption" },
 	{ 0x02, "Recommendation G.711 u-law" },
@@ -554,6 +562,8 @@ static const value_string q931_uil1_vals[] = {
 	{ 0x07, "Non-ITU-T-standardized rate adaption" },
 	{ 0x08, "V.120 rate adaption" },
 	{ 0x09, "X.31 HDLC flag stuffing" },
+	{ 0x0a, "Recommendation G.728 LD-CELP" },
+	{ 0x0b, "Recommendation G.729 CS-ACELP" },
 	{ 0,    NULL }
 };
 
@@ -2293,6 +2303,8 @@ dissect_q931_restart_indicator_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a High-layer compatibility information element.
  */
+#define Q931_MAINTENANCE	0x5e
+#define Q931_MANAGEMENT		0x5f
 #define	Q931_AUDIOVISUAL	0x60
 static const value_string q931_high_layer_characteristics_vals[] = {
 	{ 0x01,             "Telephony" },
@@ -2312,6 +2324,29 @@ static const value_string q931_high_layer_characteristics_vals[] = {
 	{ Q931_AUDIOVISUAL, "F.720/F.821 and F.731 Profile 1a videotelephony" },
 	{ 0x61,             "F.702 and F.731 Profile 1b videoconferencing" },
 	{ 0x62,             "F.702 and F.731 audiographic conferencing" },
+	{ 0x68,             "F.700-series Multimedia services" },	
+	{ 0,                NULL }
+};
+
+static const value_string q931_extended_high_layer_characteristics_vals[] = {
+	{ 0x01,             "Telephony" },
+	{ 0x04,             "F.182 Facsimile Group 2/3" },
+	{ 0x21,             "F.184 Facsimile Group 4 Class I" },
+	{ 0x24,             "F.230 Teletex, basic and mixed mode, and F.184 Facsimile Group 4, Classes II and III" },
+	{ 0x28,             "F.220 Teletex, basic and processable mode" },
+	{ 0x31,             "F.200 Teletex, basic mode" },
+	{ 0x32,             "F.300 and T.102 syntax-based Videotex" },
+	{ 0x33,             "F.300 and T.101 international Videotex interworking" },
+	{ 0x35,             "F.60 Telex" },
+	{ 0x38,             "X.400 Message Handling Systems" },
+	{ 0x41,             "X.200 OSI application" },
+	{ 0x42,             "FTAM application" },
+	{ 0x5E,             "Not available for assignment" },
+	{ 0x5F,             "Not available for assignment" },
+	{ Q931_AUDIOVISUAL, "F.720/F.821 and F.731 Profile 1a videotelephony" },
+	{ 0x61,             "F.702 and F.731 Profile 1b videoconferencing" },
+	{ 0x62,             "F.702 and F.731 audiographic conferencing" },
+	{ 0x68,             "F.700-series Multimedia services" },	
 	{ 0,                NULL }
 };
 
@@ -2322,22 +2357,44 @@ static const value_string q931_audiovisual_characteristics_vals[] = {
 	{ 0x00, NULL }
 };
 
+static const value_string q931_interpretation_vals[] = {
+	{ 0x04, "First (primary or only) high layer characteristics identification to be used in the call" },
+	{ 0x00, NULL }
+};
+
+static const value_string q931_pres_meth_prot_prof_vals[] = {
+	{ 0x01, "High layer protocol profile (without specification of attributes)" },
+	{ 0x00, NULL }
+};
+
+/*
+ * High layer protocol profile
+ */
+#define Q931_HIGH_LAYER_PROTOCOL_PROFILE 0x01
+
 void
 dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
+	guint8 pres_method;
 	guint8 characteristics;
 
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
+	pres_method = octet & 0x03;
+
+	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
 	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_interpretation, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_pres_meth_prot_prof, tvb, offset, 1, octet);
+
 	offset += 1;
 	len -= 1;
-	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
+	if ((coding_standard != Q931_ITU_STANDARDIZED_CODING) || (pres_method != Q931_HIGH_LAYER_PROTOCOL_PROFILE)) {
 		/*
 		 * We don't know how the call state is encoded,
 		 * so just dump it as data and be done with it.
@@ -2347,15 +2404,15 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
-
 	if (len == 0)
 		return;
+
 	octet = tvb_get_guint8(tvb, offset);
 	characteristics = octet & 0x7F;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "High layer characteristics identification: %s",
-	    val_to_str(characteristics, q931_high_layer_characteristics_vals,
-	     "Unknown (0x%02X)"));
+
+	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+	proto_tree_add_uint(tree, hf_q931_high_layer_characteristics, tvb, offset, 1, octet);
+
 	offset += 1;
 	len -= 1;
 
@@ -2363,19 +2420,15 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		if (characteristics == Q931_AUDIOVISUAL) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Extended audiovisual characteristics identification: %s",
-			    val_to_str(octet & 0x7F,
-			      q931_audiovisual_characteristics_vals,
-			      "Unknown (0x%02X)"));
-		} else {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Extended high layer characteristics identification: %s",
-			    val_to_str(octet & 0x7F,
-			      q931_high_layer_characteristics_vals,
-			      "Unknown (0x%02X)"));
-		}
+		if ((characteristics == Q931_AUDIOVISUAL) || (characteristics == 0x61) || (characteristics == 0x62) ||
+			(characteristics == 0x68)) {
+			proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+			proto_tree_add_uint(tree, hf_q931_extended_audiovisual_characteristics, tvb, offset, 1, octet);
+		} 
+		else if ((characteristics == Q931_MANAGEMENT) || (characteristics == Q931_MAINTENANCE)) {
+			proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+			proto_tree_add_uint(tree, hf_q931_extended_high_layer_characteristics, tvb, offset, 1, octet);
+		}	
 	}
 }
 
@@ -3282,6 +3335,26 @@ proto_register_q931(void)
 		{ &hf_q931_coding_standard,
 		  { "Coding standard", "q931.coding_standard", FT_UINT8, BASE_HEX,
 			 VALS(q931_coding_standard_vals), 0x60,NULL, HFILL }},
+
+		{ &hf_q931_interpretation,
+		  { "Interpretation", "q931.interpretation", FT_UINT8, BASE_HEX,
+			VALS(q931_interpretation_vals), 0x1C, NULL, HFILL}},
+
+		{ &hf_q931_pres_meth_prot_prof,
+		  { "Presentation method of protocol profile", "q931.presentation_method_protocol_profile", FT_UINT8, BASE_HEX,
+			VALS(q931_pres_meth_prot_prof_vals), 0x03, NULL, HFILL}},
+
+		{ &hf_q931_high_layer_characteristics,
+		  { "High layer characteristics identification", "q931.high_layer_characteristics", FT_UINT8, BASE_HEX,
+			VALS(q931_high_layer_characteristics_vals), 0x7f, NULL, HFILL }},
+
+		{ &hf_q931_extended_high_layer_characteristics,
+		  { "Extended high layer characteristics identification", "q931.extended_high_layer_characteristics", FT_UINT8, BASE_HEX,
+			VALS(q931_extended_high_layer_characteristics_vals), 0x7f, NULL, HFILL }},
+
+		{ &hf_q931_extended_audiovisual_characteristics,
+		  { "Extended audiovisual characteristics identification", "q931.extended_audiovisual_characteristics", FT_UINT8, BASE_HEX,
+			VALS(q931_audiovisual_characteristics_vals), 0x7f, NULL, HFILL }},
 
 		{ &hf_q931_information_transfer_capability,
 		  { "Information transfer capability", "q931.information_transfer_capability", FT_UINT8, BASE_HEX,

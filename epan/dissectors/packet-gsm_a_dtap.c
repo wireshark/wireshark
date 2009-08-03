@@ -2708,6 +2708,18 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 /*
  * 10.5.4.16 High layer compatibility
  */
+static guint16
+de_hlc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	dissect_q931_high_layer_compat_ie(tvb, offset, len, tree);
+
+	curr_offset = curr_offset + len;
+	return(curr_offset - offset);
+}
 
 /*
  * [3] 10.5.4.17 Keypad facility
@@ -3687,7 +3699,7 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	NULL,	/* Connected Number */
 	NULL,	/* Connected Subaddress */
 	de_facility,	/* Facility */
-	NULL,	/* High Layer Compatibility */
+	de_hlc,	/* High Layer Compatibility */
 	de_keypad_facility,	/* Keypad Facility */
 	de_llc,							/* 10.5.4.18 Low layer compatibility */
 	NULL,	/* More Data */
