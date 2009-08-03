@@ -2604,7 +2604,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       static const value_string hip_algo_vals[] = {
         { THIP_ALGO_DSA,       "DSA" },
         { THIP_ALGO_RSA,       "RSA" },
-        { THIP_ALGO_RESERVED,  "Reserved" }
+        { THIP_ALGO_RESERVED,  "Reserved" },
+        { 0,                   NULL }
       };
 
       if (cinfo != NULL)
