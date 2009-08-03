@@ -7059,7 +7059,6 @@ static int
 dissect_IODWriteReq(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar)
 {
-    gint remain;
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
 
@@ -7069,7 +7068,7 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
 
     /* IODWriteMultipleReq? */
     if(u16Index == 0xe040) {
-        while((remain = tvb_length_remaining(tvb, offset)) > 0) {
+        while(tvb_length_remaining(tvb, offset) > 0) {
             offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar);
         }
     } else {
@@ -7117,7 +7116,6 @@ static int
 dissect_IODWriteRes(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    gint remain;
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
@@ -7128,7 +7126,7 @@ dissect_IODWriteRes(tvbuff_t *tvb, int offset,
 
     /* IODWriteMultipleRes? */
     if(u16Index == 0xe040) {
-        while((remain = tvb_length_remaining(tvb, offset)) > 0) {
+        while(tvb_length_remaining(tvb, offset) > 0) {
 			offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         }
     }
