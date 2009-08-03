@@ -39,7 +39,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/address.h>
-#include <epan/reassemble.h>
 #include <epan/emem.h>
 #include "wimax_tlv.h"
 #include "wimax_bits.h"
@@ -55,14 +54,9 @@ extern void proto_register_wimax_phy_attributes(void);
 extern void proto_register_wimax_compact_dlmap_ie(void);
 extern void proto_register_wimax_compact_ulmap_ie(void);
 
-extern void wimax_defragment_init(void);
-
 /* Global functions */
 /* void proto_reg_handoff_wimax(void); */
 gboolean is_down_link(address *src_address);
-
-/* forward reference */
-static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Global variables */
 gint    proto_wimax = -1;
@@ -598,28 +592,20 @@ gint *ett_tlv[] =
 	&ett_tlv_255
 };
 
+#if 0 /* XXX: not used ?? */
 /* Local Variables */
 static gint ett_wimax = -1;
 static gint ett_wimax_tlv = -1;
 static gint ett_wimax_fch = -1;
 static gint ett_wimax_cdma = -1;
 static gint ett_wimax_ffb = -1;
+#endif
 
 static gchar *tlv_val_1byte = "TLV value: %s (0x%02x)";
 static gchar *tlv_val_2byte = "TLV value: %s (0x%04x)";
 static gchar *tlv_val_3byte = "TLV value: %s (0x%06x)";
 static gchar *tlv_val_4byte = "TLV value: %s (0x%08x)";
 static gchar *tlv_val_5byte = "TLV value: %s (0x%08x...)";
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_wimax,
-	&ett_wimax_tlv,
-	&ett_wimax_fch,
-	&ett_wimax_cdma,
-	&ett_wimax_ffb,
-};
 
 /*************************************************************/
 /* add_tlv_subtree()                                         */
@@ -800,9 +786,49 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 }
 
 
+
+/* WiMax protocol dissector */
+static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	UNREFERENCED_PARAMETER(tvb);
+	UNREFERENCED_PARAMETER(tree);
+
+	/* display the WiMax protocol name */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	{
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
+	}
+	/* Clear out stuff in the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
+}
+
+gboolean is_down_link(address *src_address)
+{
+	if(bs_address.len && !CMP_ADDRESS(&bs_address, src_address))
+		return TRUE;
+
+	return FALSE;
+}
+
+
 /* Register Wimax Protocol */
 void proto_register_wimax(void)
 {
+/* Setup protocol subtree array */
+#if 0  /* XXX: not used ?? */
+	static gint *ett[] =
+		{
+			&ett_wimax,
+			&ett_wimax_tlv,
+			&ett_wimax_fch,
+			&ett_wimax_cdma,
+			&ett_wimax_ffb,
+		};
+#endif
+
 	module_t *wimax_module;
 
 	/* Register the WiMax protocols here */
@@ -811,8 +837,12 @@ void proto_register_wimax(void)
 		"WiMax (wmx)", /* short name */
 		"wmx" /* abbrev */
 		);
+
+#if 0  /* XXX: not used ?? */
 	/* Register the WiMax protocol subtree array */
 	proto_register_subtree_array(ett, array_length(ett));
+#endif
+
 	/* Register the WiMax dissector */
 	register_dissector("wmx", dissect_wimax, proto_wimax);
 
@@ -858,32 +888,6 @@ void proto_register_wimax(void)
 	proto_register_subtree_array(ett_tlv, array_length(ett_tlv));
 }
 
-/* WiMax protocol dissector */
-static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	UNREFERENCED_PARAMETER(tvb);
-	UNREFERENCED_PARAMETER(tree);
-
-	/* display the WiMax protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
-	}
-	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
-}
-
-gboolean is_down_link(address *src_address)
-{
-	if(bs_address.len && !CMP_ADDRESS(&bs_address, src_address))
-		return TRUE;
-
-	return FALSE;
-}
-
 /* The registration hand-off routine for the max_basic_cid pref */
 void
 proto_reg_handoff_wimax(void)
@@ -908,4 +912,3 @@ proto_reg_handoff_wimax(void)
 	dissector_add("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
 #endif
 }
-
