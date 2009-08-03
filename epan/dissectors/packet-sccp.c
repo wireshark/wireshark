@@ -825,153 +825,153 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
     guint framenum = pinfo->fd->num;
 
     if(assoc)
-	    return assoc;
+        return assoc;
 
     opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(opc));
     dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(dpc));
 
 
     switch (msg_type) {
-		case SCCP_MSG_TYPE_CR:
-		{
-			/* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
-			emem_tree_key_t bw_key[] = {
-				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-			};
+        case SCCP_MSG_TYPE_CR:
+        {
+            /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
+            emem_tree_key_t bw_key[] = {
+                {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+            };
 
-			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
-				assoc = new_assoc(opck,dpck);
-				se_tree_insert32_array(assocs,bw_key,assoc);
-				assoc->has_bw_key = TRUE;
-			}
+            if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
+                assoc = new_assoc(opck,dpck);
+                se_tree_insert32_array(assocs,bw_key,assoc);
+                assoc->has_bw_key = TRUE;
+            }
 
-			pinfo->p2p_dir = P2P_DIR_SENT;
+            pinfo->p2p_dir = P2P_DIR_SENT;
 
-			break;
-		}
-		case SCCP_MSG_TYPE_CC:
-		{
-			emem_tree_key_t fw_key[] = {
-				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-			};
-			emem_tree_key_t bw_key[] = {
-				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-			};
+            break;
+        }
+        case SCCP_MSG_TYPE_CC:
+        {
+            emem_tree_key_t fw_key[] = {
+                {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+            };
+            emem_tree_key_t bw_key[] = {
+                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+            };
 
-			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
-				goto got_assoc;
-			}
+            if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+                goto got_assoc;
+            }
 
-			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
-				goto got_assoc;
-			}
+            if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+                goto got_assoc;
+            }
 
-			assoc = new_assoc(dpck,opck);
+            assoc = new_assoc(dpck,opck);
 
-	 got_assoc:
+     got_assoc:
 
-			pinfo->p2p_dir = P2P_DIR_RECV;
+            pinfo->p2p_dir = P2P_DIR_RECV;
 
-			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-				se_tree_insert32_array(assocs,bw_key,assoc);
-				assoc->has_bw_key = TRUE;
-			}
+            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+                se_tree_insert32_array(assocs,bw_key,assoc);
+                assoc->has_bw_key = TRUE;
+            }
 
-			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-				se_tree_insert32_array(assocs,fw_key,assoc);
-				assoc->has_fw_key = TRUE;
-			}
+            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+                se_tree_insert32_array(assocs,fw_key,assoc);
+                assoc->has_fw_key = TRUE;
+            }
 
-			break;
-		}
-		case SCCP_MSG_TYPE_RLC:
-		{
-			emem_tree_key_t bw_key[] = {
-				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-			};
-			emem_tree_key_t fw_key[] = {
-				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-			};
-			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
-				goto got_assoc_rlc;
-			}
+            break;
+        }
+        case SCCP_MSG_TYPE_RLC:
+        {
+            emem_tree_key_t bw_key[] = {
+                {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+            };
+            emem_tree_key_t fw_key[] = {
+                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+            };
+            if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+                goto got_assoc_rlc;
+            }
 
-			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
-				goto got_assoc_rlc;
-			}
+            if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+                goto got_assoc_rlc;
+            }
 
-			assoc = new_assoc(dpck,opck);
+            assoc = new_assoc(dpck,opck);
 
-	 got_assoc_rlc:
+     got_assoc_rlc:
 
-			pinfo->p2p_dir = P2P_DIR_SENT;
+            pinfo->p2p_dir = P2P_DIR_SENT;
 
-			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-				se_tree_insert32_array(assocs,bw_key,assoc);
-				assoc->has_bw_key = TRUE;
-			}
+            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+                se_tree_insert32_array(assocs,bw_key,assoc);
+                assoc->has_bw_key = TRUE;
+            }
 
-			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-				se_tree_insert32_array(assocs,fw_key,assoc);
-				assoc->has_fw_key = TRUE;
-			}
-			break;
-		}
-		default:
-		{
-			emem_tree_key_t key[] = {
-				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-			};
+            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+                se_tree_insert32_array(assocs,fw_key,assoc);
+                assoc->has_fw_key = TRUE;
+            }
+            break;
+        }
+        default:
+        {
+            emem_tree_key_t key[] = {
+                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+            };
 
-			assoc = se_tree_lookup32_array(assocs,key);
+            assoc = se_tree_lookup32_array(assocs,key);
 
-			if (assoc) {
-				if (assoc->calling_dpc == dpck) {
-					pinfo->p2p_dir = P2P_DIR_RECV;
-				} else {
-					pinfo->p2p_dir = P2P_DIR_SENT;
-				}
-			}
+            if (assoc) {
+                if (assoc->calling_dpc == dpck) {
+                    pinfo->p2p_dir = P2P_DIR_RECV;
+                } else {
+                    pinfo->p2p_dir = P2P_DIR_SENT;
+                }
+            }
 
-			break;
-		}
+            break;
+        }
     }
 
-	if (assoc && trace_sccp) {
-	    if ( ! pinfo->fd->flags.visited) {
-			sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
-			msg->framenum = framenum;
-			msg->offset = offset;
-			msg->data.co.next = NULL;
-			msg->data.co.assoc = assoc;
-			msg->data.co.label = NULL;
-			msg->data.co.comment = NULL;
-			msg->type = msg_type;
+    if (assoc && trace_sccp) {
+        if ( ! pinfo->fd->flags.visited) {
+            sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
+            msg->framenum = framenum;
+            msg->offset = offset;
+            msg->data.co.next = NULL;
+            msg->data.co.assoc = assoc;
+            msg->data.co.label = NULL;
+            msg->data.co.comment = NULL;
+            msg->type = msg_type;
 
-			if (assoc->msgs) {
-				sccp_msg_info_t* m;
-				for (m = assoc->msgs; m->data.co.next; m = m->data.co.next) ;
-				m->data.co.next = msg;
-			} else {
-				assoc->msgs = msg;
-			}
+            if (assoc->msgs) {
+                sccp_msg_info_t* m;
+                for (m = assoc->msgs; m->data.co.next; m = m->data.co.next) ;
+                m->data.co.next = msg;
+            } else {
+                assoc->msgs = msg;
+            }
 
-			assoc->curr_msg = msg;
+            assoc->curr_msg = msg;
 
-	    } else {
+        } else {
 
-			sccp_msg_info_t* m;
+            sccp_msg_info_t* m;
 
-			for (m = assoc->msgs; m; m = m->data.co.next) {
-				if (m->framenum == framenum && m->offset == offset) {
-					assoc->curr_msg = m;
-					break;
-				}
-			}
-		}
-	}
+            for (m = assoc->msgs; m; m = m->data.co.next) {
+                if (m->framenum == framenum && m->offset == offset) {
+                    assoc->curr_msg = m;
+                    break;
+                }
+            }
+        }
+    }
 
-	return assoc ? assoc : &no_assoc;
+    return assoc ? assoc : &no_assoc;
 }
 
 
@@ -983,15 +983,15 @@ dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
   message_length = tvb_length(message_tvb);
 
   proto_tree_add_text(sccp_tree, message_tvb, 0, message_length,
-		      "Unknown message (%u byte%s)",
-		      message_length, plurality(message_length, "", "s"));
+                      "Unknown message (%u byte%s)",
+                      message_length, plurality(message_length, "", "s"));
 }
 
 static void
 dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint length)
 {
   proto_tree_add_text(tree, tvb, 0, length, "Unknown parameter 0x%x (%u byte%s)",
-		      type, length, plurality(length, "", "s"));
+                      type, length, plurality(length, "", "s"));
 }
 
 static void
@@ -1024,7 +1024,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
 
 
 #define is_connectionless(m) \
-	( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
+         ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
         || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
         || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
 
@@ -1296,44 +1296,44 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* Dissect PC (if present) */
     if (pci) {
-		if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
-			if (length < offset + ITU_PC_LENGTH){
-				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
-				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-				PROTO_ITEM_SET_GENERATED(expert_item);
-				return;
-			}
-			proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
-								  : hf_sccp_calling_itu_pc,
-						tvb, offset, ITU_PC_LENGTH, TRUE);
-			offset += ITU_PC_LENGTH;
+      if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
+        if (length < offset + ITU_PC_LENGTH){
+          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
+          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+          PROTO_ITEM_SET_GENERATED(expert_item);
+          return;
+        }
+        proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
+                                              : hf_sccp_calling_itu_pc,
+                            tvb, offset, ITU_PC_LENGTH, TRUE);
+        offset += ITU_PC_LENGTH;
 
-		}else if (decode_mtp3_standard == JAPAN_STANDARD) {
+      }else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
-			if (length < offset + JAPAN_PC_LENGTH){
-				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
-				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-				PROTO_ITEM_SET_GENERATED(expert_item);
-				return;
-			}
-			proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
-					      : hf_sccp_calling_japan_pc,
-			    tvb, offset, JAPAN_PC_LENGTH, TRUE);
+        if (length < offset + JAPAN_PC_LENGTH){
+          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
+          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+          PROTO_ITEM_SET_GENERATED(expert_item);
+          return;
+        }
+        proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
+                                              : hf_sccp_calling_japan_pc,
+                            tvb, offset, JAPAN_PC_LENGTH, TRUE);
 
-			offset += JAPAN_PC_LENGTH;
+        offset += JAPAN_PC_LENGTH;
 
-		} else /* CHINESE_ITU_STANDARD */ {
+      } else /* CHINESE_ITU_STANDARD */ {
 
-			if (length < offset + ANSI_PC_LENGTH){
-				expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
-				expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-				PROTO_ITEM_SET_GENERATED(expert_item);
-				return;
-			}
-			offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+        if (length < offset + ANSI_PC_LENGTH){
+          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
+          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+          PROTO_ITEM_SET_GENERATED(expert_item);
+           return;
+        }
+        offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
 
-		}
-	}
+      }
+    }
 
     /* Dissect SSN (if present) */
     if (ssni) {
@@ -1344,11 +1344,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       else if (assoc)
 	assoc->calling_ssn = ssn;
 
-        if (is_connectionless(message_type) && sccp_msg) {
-		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+      if (is_connectionless(message_type) && sccp_msg) {
+	guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-		*ssn_ptr  = ssn;
-	}
+	*ssn_ptr  = ssn;
+      }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
@@ -1610,33 +1610,33 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const mtp3_addr_pc_t* opc;
 
     if (trace_sccp && assoc && assoc != &no_assoc) {
-		pinfo->sccp_info = assoc->curr_msg;
+        pinfo->sccp_info = assoc->curr_msg;
     } else {
-		pinfo->sccp_info = NULL;
+        pinfo->sccp_info = NULL;
     }
 
-	if (assoc) {
-    switch (pinfo->p2p_dir) {
-		case P2P_DIR_SENT:
-			ssn = assoc->calling_ssn;
-			other_ssn = assoc->called_ssn;
-			dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-			opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-			break;
-		case P2P_DIR_RECV:
-			ssn = assoc->called_ssn;
-			other_ssn = assoc->calling_ssn;
-			dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
-			opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-			break;
-		default:
-			ssn = assoc->called_ssn;
-			other_ssn = assoc->calling_ssn;
-			dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-			opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-			break;
-		}
-	}
+    if (assoc) {
+        switch (pinfo->p2p_dir) {
+        case P2P_DIR_SENT:
+            ssn = assoc->calling_ssn;
+            other_ssn = assoc->called_ssn;
+            dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+            opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+            break;
+        case P2P_DIR_RECV:
+            ssn = assoc->called_ssn;
+            other_ssn = assoc->calling_ssn;
+            dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
+            opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+            break;
+        default:
+            ssn = assoc->called_ssn;
+            other_ssn = assoc->calling_ssn;
+            dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+            opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+            break;
+        }
+    }
 
 
     if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
