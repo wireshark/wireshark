@@ -58,9 +58,7 @@ extern void proto_register_wimax_compact_ulmap_ie(void);
 extern void wimax_defragment_init(void);
 
 /* Global functions */
-void proto_register_wimax(void);
-void proto_reg_wimax(void);
-void proto_reg_handoff_wimax(void);
+/* void proto_reg_handoff_wimax(void); */
 gboolean is_down_link(address *src_address);
 
 /* forward reference */
@@ -807,65 +805,57 @@ void proto_register_wimax(void)
 {
 	module_t *wimax_module;
 
-	if (proto_wimax == -1)
-	{
-		/* Register the WiMax protocols here */
-		proto_wimax = proto_register_protocol (
-							"WiMax Protocol", /* name */
-							"WiMax (wmx)", /* short name */
-							"wmx" /* abbrev */
-							);
-		/* Register the WiMax protocol subtree array */
-		proto_register_subtree_array(ett, array_length(ett));
-		/* Register the WiMax dissector */
-		register_dissector("wmx", dissect_wimax, proto_wimax);
+	/* Register the WiMax protocols here */
+	proto_wimax = proto_register_protocol (
+		"WiMax Protocol", /* name */
+		"WiMax (wmx)", /* short name */
+		"wmx" /* abbrev */
+		);
+	/* Register the WiMax protocol subtree array */
+	proto_register_subtree_array(ett, array_length(ett));
+	/* Register the WiMax dissector */
+	register_dissector("wmx", dissect_wimax, proto_wimax);
 
-		/* Register other WiMax dissectors */
-		proto_register_wimax_cdma();
-		proto_register_wimax_fch();
-		proto_register_wimax_pdu();
-		proto_register_wimax_ffb();
-		proto_register_wimax_hack();
-		proto_register_wimax_harq_map();
-		proto_register_wimax_phy_attributes();
-		proto_register_wimax_compact_dlmap_ie();
-		proto_register_wimax_compact_ulmap_ie();
+	/* Register other WiMax dissectors */
+	proto_register_wimax_cdma();
+	proto_register_wimax_fch();
+	proto_register_wimax_pdu();
+	proto_register_wimax_ffb();
+	proto_register_wimax_hack();
+	proto_register_wimax_harq_map();
+	proto_register_wimax_phy_attributes();
+	proto_register_wimax_compact_dlmap_ie();
+	proto_register_wimax_compact_ulmap_ie();
 
-		wimax_module = prefs_register_protocol(proto_wimax, proto_reg_handoff_wimax);
+#if 0 /* XXX: see comment at proto_reg_handoff_wimax() */
+	wimax_module = prefs_register_protocol(proto_wimax, proto_reg_handoff_wimax);
+#endif
+	wimax_module = prefs_register_protocol(proto_wimax, NULL);
 
-		prefs_register_uint_preference(wimax_module, "basic_cid_max",
-				 "Maximum Basic CID",
-				 "Set the maximum Basic CID"
-				 " used in the Wimax decoder"
-				 " (if other than the default of 320)."
-				 "  Note: The maximum Primary CID is"
-				 " double the maximum Basic CID.",
-				10, &global_cid_max_basic);
+	prefs_register_uint_preference(wimax_module, "basic_cid_max",
+				       "Maximum Basic CID",
+				       "Set the maximum Basic CID"
+				       " used in the Wimax decoder"
+				       " (if other than the default of 320)."
+				       "  Note: The maximum Primary CID is"
+				       " double the maximum Basic CID.",
+				       10, &global_cid_max_basic);
 
-		prefs_register_bool_preference(wimax_module, "corrigendum_2_version",
-				 "Corrigendum 2 Version",
-				 "Set to TRUE to use the Corrigendum"
-				 " 2 version of Wimax message decoding."
-				 " Set to FALSE to use the 802.16e-2005"
-				 "  version.",
-				&include_cor2_changes);
-		prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");
-		prefs_register_obsolete_preference(wimax_module, "wimax.corrigendum_2_version");
+	prefs_register_bool_preference(wimax_module, "corrigendum_2_version",
+				       "Corrigendum 2 Version",
+				       "Set to TRUE to use the Corrigendum"
+				       " 2 version of Wimax message decoding."
+				       " Set to FALSE to use the 802.16e-2005"
+				       "  version.",
+				       &include_cor2_changes);
+	prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");
+	prefs_register_obsolete_preference(wimax_module, "wimax.corrigendum_2_version");
 
-		register_dissector_table("wimax.max_basic_cid", "Max Basic CID", FT_UINT16, BASE_DEC);
-		register_dissector_table("wimax.corrigendum_2_version", "Corrigendum 2 Version", FT_UINT16, BASE_DEC);
-		proto_register_subtree_array(ett_tlv, array_length(ett_tlv));
-	}
-}
-
-/* Register Wimax Protocol handler */
-void proto_reg_wimax(void)
-{
-	if (find_dissector("wmx") == NULL)
-	{
-		/* Register the WiMax dissector */
-		register_dissector("wmx", dissect_wimax, proto_wimax);
-	}
+#if 0 /* XXX: see comment at proto_reg_handoff_wimax() */
+	register_dissector_table("wimax.max_basic_cid", "Max Basic CID", FT_UINT16, BASE_DEC);
+	register_dissector_table("wimax.corrigendum_2_version", "Corrigendum 2 Version", FT_UINT16, BASE_DEC);
+#endif
+	proto_register_subtree_array(ett_tlv, array_length(ett_tlv));
 }
 
 /* WiMax protocol dissector */
@@ -898,6 +888,9 @@ gboolean is_down_link(address *src_address)
 void
 proto_reg_handoff_wimax(void)
 {
+#if 0 /* XXX: I don't see any reason for keeping the preference values
+       *      in two dissector tables so I've commented out this code.
+       */
 	static int wimax_prefs_initialized = FALSE;
 	static dissector_handle_t wimax_handle;
 
@@ -913,5 +906,6 @@ proto_reg_handoff_wimax(void)
 
 	dissector_add("wimax.max_basic_cid", global_cid_max_basic, wimax_handle);
 	dissector_add("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
+#endif
 }
 
