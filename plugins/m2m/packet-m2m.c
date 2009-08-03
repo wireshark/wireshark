@@ -32,9 +32,6 @@
 #include "config.h"
 #endif
 
-#include <string.h>
-
-#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
@@ -42,7 +39,6 @@
 #include <plugins/wimax/wimax_tlv.h>
 
 /* forward reference */
-static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number);
@@ -53,34 +49,22 @@ static void extended_tlv_decoder(packet_info *pinfo);
 void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf);
 
 /* Global variables */
-gint    sequence_number = 0;
-GHashTable *pdu_frag_table = NULL;
-guint g_frame_number = 0;
+static dissector_handle_t wimax_cdma_code_burst_handle;
+static dissector_handle_t wimax_ffb_burst_handle;
+static dissector_handle_t wimax_fch_burst_handle;
+static dissector_handle_t wimax_hack_burst_handle;
+static dissector_handle_t wimax_pdu_burst_handle;
+static dissector_handle_t wimax_phy_attributes_burst_handle;
 
-/* Local Variables */
-static gint proto_m2m = -1;
-static dissector_handle_t wimax_fch_burst_handle = NULL;
-static dissector_handle_t wimax_cdma_code_burst_handle = NULL;
-static dissector_handle_t wimax_pdu_burst_handle = NULL;
-static dissector_handle_t wimax_ffb_burst_handle = NULL;
-static dissector_handle_t wimax_hack_burst_handle = NULL;
-static dissector_handle_t wimax_phy_attributes_burst_handle = NULL;
+static GHashTable *pdu_frag_table  = NULL;
 
-static gint ett_m2m = -1;
-static gint ett_m2m_tlv = -1;
-static gint ett_m2m_fch = -1;
+static gint proto_m2m    = -1;
+
+static gint ett_m2m      = -1;
+static gint ett_m2m_tlv  = -1;
+static gint ett_m2m_fch  = -1;
 static gint ett_m2m_cdma = -1;
-static gint ett_m2m_ffb = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_m2m,
-	&ett_m2m_tlv,
-	&ett_m2m_fch,
-	&ett_m2m_cdma,
-	&ett_m2m_ffb,
-};
+static gint ett_m2m_ffb  = -1;
 
 /* TLV types (rev:0.2) */
 #define TLV_PROTO_VER		1
@@ -178,13 +162,423 @@ m2m_defragment_init(void)
 	fragment_table_init(&pdu_frag_table);
 }
 
-/* Register Wimax Mac to Mac Protocol handler */
-void proto_reg_handoff_m2m(void)
-{
-	dissector_handle_t m2m_handle;
 
-	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
-	dissector_add("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
+/* WiMax MAC to MAC protocol dissector */
+static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti = NULL;
+	proto_item *m2m_item = NULL;
+	proto_tree *m2m_tree = NULL;
+	proto_tree *tlv_tree = NULL;
+	gint burst_number = 0;
+	gint length, offset = 0;
+	gint tlv_count;
+	gint tlv_type, tlv_len, tlv_offset, tlv_value;
+	gint tlv_frag_type = 0;
+	gint tlv_frag_number = 0;
+	tlv_info_t m2m_tlv_info;
+	gint hf = 0;
+	guint frame_number;
+
+	/* display the M2M protocol name */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	{
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
+	}
+
+	/* Clear out stuff in the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
+
+
+	{	/* we are being asked for details */
+		m2m_item = proto_tree_add_item(tree, proto_m2m, tvb, 0, -1, FALSE);
+		m2m_tree = proto_item_add_subtree(m2m_item, ett_m2m);
+		/* get the tvb reported length */
+		length =  tvb_reported_length(tvb);
+		/* add the size info */
+        /*
+		proto_item_append_text(m2m_item, " (%u bytes) - Packet Sequence Number,Number of TLVs", length);
+        */
+		proto_item_append_text(m2m_item, " (%u bytes)", length);
+		/* display the sequence number */
+		proto_tree_add_item(m2m_tree, hf_m2m_sequence_number, tvb, offset, 2, FALSE);
+		offset += 2;
+		/* display the TLV count */
+		proto_tree_add_item(m2m_tree, hf_m2m_tlv_count, tvb, offset, 2, FALSE);
+		tlv_count = tvb_get_ntohs(tvb, offset);
+		offset += 2;
+		/* parses the TLVs within current packet */
+		while ( tlv_count > 0)
+		{	/* init MAC to MAC TLV information */
+			init_tlv_info(&m2m_tlv_info, tvb, offset);
+			/* get the TLV type */
+			tlv_type = get_tlv_type(&m2m_tlv_info);
+			/* get the TLV length */
+			tlv_len = get_tlv_length(&m2m_tlv_info);
+			if(tlv_type == -1 || tlv_len > 64000 || tlv_len < 1)
+			{	/* invalid tlv info */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
+				}
+				/* display the invalid TLV in HEX */
+				proto_tree_add_item(m2m_tree, hf_wimax_invalid_tlv, tvb, offset, (length - offset), FALSE);
+				break;
+			}
+			/* get the TLV value offset */
+			tlv_offset = get_tlv_value_offset(&m2m_tlv_info);
+			/* display TLV type */
+			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s", val_to_str(tlv_type, tlv_name, "Unknown TLV"));
+			/* add TLV subtree */
+			tlv_tree = proto_item_add_subtree(ti, ett_m2m_tlv);
+			/* update the offset */
+			offset += tlv_offset;
+			/* add the size info */
+			/* decode TLV content (TLV value) */
+			switch (tlv_type)
+			{
+				case TLV_PROTO_VER:
+					/* get the protocol version */
+					tlv_value = tvb_get_guint8( tvb, offset );
+					/* add the description */
+					proto_item_append_text(ti, ": %d", tlv_value);
+					hf = hf_m2m_value_protocol_vers_uint8;
+				break;
+
+				case TLV_BURST_NUM:
+					/* get the burst number */
+					burst_number = tvb_get_guint8( tvb, offset );
+					/* add the description */
+					proto_item_append_text(ti, ": %d", burst_number);
+					hf = hf_m2m_value_burst_num_uint8;
+				break;
+
+				case TLV_FRAG_TYPE:
+					/* add the description */
+					tlv_frag_type = tvb_get_guint8( tvb, offset );
+					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
+					hf = hf_m2m_value_frag_type_uint8;
+				break;
+
+				case TLV_FRAG_NUM:
+					/* get the fragment number */
+					tlv_frag_number = tvb_get_guint8( tvb, offset );
+					/* add the description */
+					proto_item_append_text(ti, ": %d", tlv_frag_number);
+					hf = hf_m2m_value_frag_num_uint8;
+				break;
+
+				case TLV_PDU_BURST:
+					/* display PDU Burst length info */
+					proto_item_append_text(ti, " (%u bytes)", tlv_len);
+					/* decode and display the PDU Burst */
+					pdu_burst_decoder(tree, tvb, offset, tlv_len, pinfo, burst_number, tlv_frag_type, tlv_frag_number);
+					hf = hf_m2m_value_pdu_burst;
+				break;
+
+				case TLV_FAST_FB:
+					/* display the Fast Feedback Burst length info */
+					proto_item_append_text(ti, " (%u bytes)", tlv_len);
+					/* decode and display the Fast Feedback Burst */
+					fast_feedback_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
+					hf = hf_m2m_value_fast_fb;
+				break;
+
+				case TLV_FRAME_NUM:
+					/* get the frame number */
+					frame_number = tvb_get_ntoh24( tvb, offset );
+					/* add the description */
+					proto_tree_add_item(tlv_tree, hf_m2m_frame_number, tvb, offset, 3, FALSE);
+					proto_item_append_text(ti, ": %d", frame_number);
+				break;
+
+				case TLV_FCH_BURST:
+					/* add the description */
+					tlv_value = tvb_get_ntoh24( tvb, offset );
+					proto_item_append_text(ti, ": 0x%X", tlv_value);
+					/* decode and display the TLV FCH bust */
+					fch_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
+					hf = hf_m2m_value_fch_burst_uint24;
+				break;
+
+				case TLV_CDMA_CODE:
+					/* add the description */
+					tlv_value = tvb_get_ntoh24( tvb, offset );
+					proto_item_append_text(ti, ": 0x%X", tlv_value);
+					/* decode and display the CDMA Code */
+					cdma_code_decoder(tree, tvb, offset, tlv_len, pinfo);
+					hf = hf_m2m_value_cdma_code_uint24;
+				break;
+
+				case TLV_CRC16_STATUS:
+					/* add the description */
+					tlv_value = tvb_get_guint8( tvb, offset );
+					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
+					hf = hf_m2m_value_crc16_status_uint8;
+				break;
+
+				case TLV_BURST_POWER:
+					/* add the description */
+					tlv_value = tvb_get_ntohs( tvb, offset );
+					proto_item_append_text(ti, ": %d", tlv_value);
+					hf = hf_m2m_value_burst_power_uint16;
+				break;
+
+				case TLV_BURST_CINR:
+					/* add the description */
+					tlv_value = tvb_get_ntohs( tvb, offset );
+					proto_item_append_text(ti, ": 0x%X", tlv_value);
+					hf = hf_m2m_value_burst_cinr_uint16;
+				break;
+
+				case TLV_PREAMBLE:
+					/* add the description */
+					tlv_value = tvb_get_ntohs( tvb, offset );
+					proto_item_append_text(ti, ": 0x%X", tlv_value);
+					hf = hf_m2m_value_preamble_uint16;
+				break;
+
+				case TLV_HARQ_ACK_BURST:
+					/* display the Burst length info */
+					proto_item_append_text(ti, " (%u bytes)", tlv_len);
+					/* decode and display the HARQ ACK Bursts */
+					harq_ack_bursts_decoder(tree, tvb, offset, tlv_len, pinfo);
+					hf = hf_m2m_value_harq_ack_burst_bytes;
+				break;
+
+				case TLV_PHY_ATTRIBUTES:
+					/* display the Burst length info */
+					proto_item_append_text(ti, " (%u bytes)", tlv_len);
+					/* decode and display the PDU Burst Physical Attributes */
+					physical_attributes_decoder(tree, tvb, offset, tlv_len, pinfo);
+					hf = hf_m2m_phy_attributes;
+				break;
+
+				case TLV_EXTENDED_TLV:
+					/* display the Burst length info */
+					proto_item_append_text(ti, " (%u bytes)", tlv_len);
+					/* decode and display the Extended TLV */
+					extended_tlv_decoder(pinfo);
+				break;
+
+				default:
+					/* update the info column */
+					if (check_col(pinfo->cinfo, COL_INFO))
+					{
+						col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Unknown TLV Type");
+					}
+				break;
+			}
+			/* expand the TLV detail */
+			proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf);
+			offset += tlv_len;
+			/* update tlv_count */
+			tlv_count--;
+		}
+	}
+}
+
+/* Decode and display the FCH burst */
+static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+{
+	if(wimax_fch_burst_handle)
+	{	/* call FCH dissector */
+		call_dissector(wimax_fch_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	}
+	else	/* display FCH info */
+	{	/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "FCH Burst: DL Frame Prefix");
+		}
+	}
+}
+
+/* Decode and display the CDMA Code Attribute */
+static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+{
+	if(wimax_cdma_code_burst_handle)
+	{	/* call CDMA dissector */
+		call_dissector(wimax_cdma_code_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	}
+	else	/* display CDMA Code Attribute info */
+	{	/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "CDMA Code Attribute");
+		}
+	}
+}
+
+/* Decode and display the PDU Burst */
+static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number)
+{
+	fragment_data *pdu_frag;
+	tvbuff_t *pdu_tvb = NULL;
+	gint pdu_length = 0;
+
+	/* update the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		switch (frag_type)
+		{
+			case TLV_FIRST_FRAG:
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "First TLV Fragment (%d)", frag_number);
+			break;
+			case TLV_LAST_FRAG:
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Last TLV Fragment (%d)", frag_number);
+			break;
+			case TLV_MIDDLE_FRAG:
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Middle TLV Fragment %d", frag_number);
+			break;
+		}
+	}
+	if(frag_type == TLV_NO_FRAG)
+	{	/* not fragmented PDU */
+		pdu_tvb =  tvb_new_subset(tvb, offset, length, length);
+		pdu_length = length;
+	}
+	else	/* fragmented PDU */
+	{	/* add the frag */
+		pdu_frag = fragment_add_seq(tvb, offset, pinfo, burst_number, pdu_frag_table, frag_number - 1, length, ((frag_type==TLV_LAST_FRAG)?0:1));
+		if(pdu_frag && frag_type == TLV_LAST_FRAG)
+		{
+			pdu_length = pdu_frag->len;
+			/* create the new tvb for defraged frame */
+			pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_length, pdu_length);
+			/* add the defragmented data to the data source list */
+			add_new_data_source(pinfo, pdu_tvb, "Reassembled WiMax PDU Frame");
+		}
+		else
+		{
+			pdu_tvb = NULL;
+			if(frag_type == TLV_LAST_FRAG)
+			{	/* update the info column */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Incomplete PDU frame");
+			}
+		}
+	}
+	/* process the defragmented PDU burst */
+	if(pdu_tvb)
+	{
+		if(wimax_pdu_burst_handle)
+		{/* decode and display PDU Burst */
+			call_dissector(wimax_pdu_burst_handle, pdu_tvb, pinfo, tree);
+		}
+		else	/* display PDU Burst info */
+		{	/* update the info column */
+			if (check_col(pinfo->cinfo, COL_INFO))
+			{
+				col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst");
+			}
+		}
+	}
+}
+
+/* Decode and display the Fast Feedback Burst */
+static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+{
+	if(wimax_ffb_burst_handle)
+	{	/* display the TLV Fast Feedback Burst dissector info */
+		call_dissector(wimax_ffb_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	}
+	else	/* display the Fast Feedback Burst info */
+	{	/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "Fast Feedback Burst");
+		}
+	}
+}
+
+static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+{
+	if(wimax_hack_burst_handle)
+	{	/* call the TLV HARQ ACK Bursts dissector */
+		call_dissector(wimax_hack_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	}
+	else	/* display the TLV HARQ ACK Bursts info */
+	{	/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "HARQ ACK Bursts");
+		}
+	}
+}
+
+static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
+{
+	if(wimax_phy_attributes_burst_handle)
+	{	/* call the TLV PDU Burst Physical Attributes dissector */
+		call_dissector(wimax_phy_attributes_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	}
+	else	/* display the TLV PDU Burst Physical Attributes info */
+	{	/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "PHY-attr");
+		}
+	}
+}
+
+static void extended_tlv_decoder(packet_info *pinfo)
+{
+	/* display the Extended TLV info */
+	/* update the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, "Extended TLV");
+	}
+}
+
+/* Display the raw WiMax TLV */
+void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf)
+{
+	guint tlv_offset;
+	gint tlv_type, tlv_len;
+
+	/* make sure the TLV information is valid */
+	if(!this->valid)
+	{	/* invalid TLV info */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Invalid TLV");
+		}
+		return;
+	}
+	tlv_offset = offset;
+	/* display TLV type */
+	proto_tree_add_item(tree, hf_m2m_type, tvb, tlv_offset, 1, FALSE);
+	tlv_offset++;
+	/* check the TLV length type */
+	if( this->length_type )
+	{	/* multiple bytes TLV length */
+		/* display the length of the TLV length with MSB */
+		proto_tree_add_item(tree, hf_m2m_len_size, tvb, tlv_offset, 1, FALSE);
+		tlv_offset++;
+		if(this->size_of_length)
+			/* display the multiple byte TLV length */
+			proto_tree_add_item(tree, hf_m2m_len, tvb, tlv_offset, this->size_of_length, FALSE);
+		else
+			return;
+	}
+	else	/* display the single byte TLV length */
+		proto_tree_add_item(tree, hf_m2m_len, tvb, tlv_offset, 1, FALSE);
+
+	tlv_type = get_tlv_type(this);
+	/* Display Frame Number as special case for filter */
+	if ( tlv_type == TLV_FRAME_NUM )
+	{
+		return;
+	}
+
+	/* get the TLV length */
+	tlv_len = get_tlv_length(this);
+	proto_tree_add_item(tree, hf, tvb, (offset + this->value_offset), tlv_len, FALSE);
 }
 
 /* Register Wimax Mac to Mac Protocol */
@@ -376,449 +770,42 @@ void proto_register_m2m(void)
 		}
 	};
 
+	static gint *ett[] =
+		{
+			&ett_m2m,
+			&ett_m2m_tlv,
+			&ett_m2m_fch,
+			&ett_m2m_cdma,
+			&ett_m2m_ffb,
+		};
+
 	proto_m2m = proto_register_protocol (
-		"WiMax Mac to Mac Packet", /* name */
-		"M2M  (m2m)", /* short name */
-		"m2m" /* abbrev */
+		"WiMax Mac to Mac Packet", /* name       */
+		"M2M  (m2m)",              /* short name */
+		"m2m"                      /* abbrev     */
 		);
 
 	proto_register_field_array(proto_m2m, hf, array_length(hf));
 	proto_register_field_array(proto_m2m, hf_tlv, array_length(hf_tlv));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	/* init the PDU fragment table */
-	fragment_table_init(&pdu_frag_table);
 	/* Register the PDU fragment table init routine */
 	register_init_routine(m2m_defragment_init);
-
-	/* Add new protocols here */
 }
 
-/* WiMax MAC to MAC protocol dissector */
-static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* Register Wimax Mac to Mac Protocol handler */
+void proto_reg_handoff_m2m(void)
 {
-	proto_item *ti = NULL;
-	proto_item *m2m_item = NULL;
-	proto_tree *m2m_tree = NULL;
-	proto_tree *tlv_tree = NULL;
-	gint burst_number = 0;
-	gint length, offset = 0;
-	gint tlv_count;
-	gint tlv_type, tlv_len, tlv_offset, tlv_value;
-	gint tlv_frag_type = 0;
-	gint tlv_frag_number = 0;
-	tlv_info_t m2m_tlv_info;
-	gint hf = 0;
+	dissector_handle_t m2m_handle;
 
-	/* display the M2M protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
-	}
+	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
+	dissector_add("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 
-	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
-
-
-	{	/* we are being asked for details */
-		m2m_item = proto_tree_add_item(tree, proto_m2m, tvb, 0, -1, FALSE);
-		m2m_tree = proto_item_add_subtree(m2m_item, ett_m2m);
-		/* get the tvb reported length */
-		length =  tvb_reported_length(tvb);
-		/* add the size info */
-        /*
-		proto_item_append_text(m2m_item, " (%u bytes) - Packet Sequence Number,Number of TLVs", length);
-        */
-		proto_item_append_text(m2m_item, " (%u bytes)", length);
-		/* get the sequence number */
-		sequence_number =  tvb_get_ntohs(tvb, offset);
-		/* display the sequence number */
-		proto_tree_add_item(m2m_tree, hf_m2m_sequence_number, tvb, offset, 2, FALSE);
-		offset += 2;
-		/* display the TLV count */
-		proto_tree_add_item(m2m_tree, hf_m2m_tlv_count, tvb, offset, 2, FALSE);
-		tlv_count = tvb_get_ntohs(tvb, offset);
-		offset += 2;
-		/* parses the TLVs within current packet */
-		while ( tlv_count > 0)
-		{	/* init MAC to MAC TLV information */
-			init_tlv_info(&m2m_tlv_info, tvb, offset);
-			/* get the TLV type */
-			tlv_type = get_tlv_type(&m2m_tlv_info);
-			/* get the TLV length */
-			tlv_len = get_tlv_length(&m2m_tlv_info);
-			if(tlv_type == -1 || tlv_len > 64000 || tlv_len < 1)
-			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
-				}
-				/* display the invalid TLV in HEX */
-				proto_tree_add_item(m2m_tree, hf_wimax_invalid_tlv, tvb, offset, (length - offset), FALSE);
-				break;
-			}
-			/* get the TLV value offset */
-			tlv_offset = get_tlv_value_offset(&m2m_tlv_info);
-			/* display TLV type */
-			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s", val_to_str(tlv_type, tlv_name, "Unknown TLV"));
-			/* add TLV subtree */
-			tlv_tree = proto_item_add_subtree(ti, ett_m2m_tlv);
-			/* update the offset */
-			offset += tlv_offset;
-			/* add the size info */
-			/* decode TLV content (TLV value) */
-			switch (tlv_type)
-			{
-				case TLV_PROTO_VER:
-					/* get the protocol version */
-					tlv_value = tvb_get_guint8( tvb, offset );
-					/* add the description */
-					proto_item_append_text(ti, ": %d", tlv_value);
-					hf = hf_m2m_value_protocol_vers_uint8;
-				break;
-
-				case TLV_BURST_NUM:
-					/* get the burst number */
-					burst_number = tvb_get_guint8( tvb, offset );
-					/* add the description */
-					proto_item_append_text(ti, ": %d", burst_number);
-					hf = hf_m2m_value_burst_num_uint8;
-				break;
-
-				case TLV_FRAG_TYPE:
-					/* add the description */
-					tlv_frag_type = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
-					hf = hf_m2m_value_frag_type_uint8;
-				break;
-
-				case TLV_FRAG_NUM:
-					/* get the fragment number */
-					tlv_frag_number = tvb_get_guint8( tvb, offset );
-					/* add the description */
-					proto_item_append_text(ti, ": %d", tlv_frag_number);
-					hf = hf_m2m_value_frag_num_uint8;
-				break;
-
-				case TLV_PDU_BURST:
-					/* display PDU Burst length info */
-					proto_item_append_text(ti, " (%u bytes)", tlv_len);
-					/* decode and display the PDU Burst */
-					pdu_burst_decoder(tree, tvb, offset, tlv_len, pinfo, burst_number, tlv_frag_type, tlv_frag_number);
-					hf = hf_m2m_value_pdu_burst;
-				break;
-
-				case TLV_FAST_FB:
-					/* display the Fast Feedback Burst length info */
-					proto_item_append_text(ti, " (%u bytes)", tlv_len);
-					/* decode and display the Fast Feedback Burst */
-					fast_feedback_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
-					hf = hf_m2m_value_fast_fb;
-				break;
-
-				case TLV_FRAME_NUM:
-					/* get the frame number */
-					g_frame_number = tvb_get_ntoh24( tvb, offset );
-					/* add the description */
-					proto_tree_add_item(tlv_tree, hf_m2m_frame_number, tvb, offset, 3, FALSE);
-					proto_item_append_text(ti, ": %d", g_frame_number);
-				break;
-
-				case TLV_FCH_BURST:
-					/* add the description */
-					tlv_value = tvb_get_ntoh24( tvb, offset );
-					proto_item_append_text(ti, ": 0x%X", tlv_value);
-					/* decode and display the TLV FCH bust */
-					fch_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
-					hf = hf_m2m_value_fch_burst_uint24;
-				break;
-
-				case TLV_CDMA_CODE:
-					/* add the description */
-					tlv_value = tvb_get_ntoh24( tvb, offset );
-					proto_item_append_text(ti, ": 0x%X", tlv_value);
-					/* decode and display the CDMA Code */
-					cdma_code_decoder(tree, tvb, offset, tlv_len, pinfo);
-					hf = hf_m2m_value_cdma_code_uint24;
-				break;
-
-				case TLV_CRC16_STATUS:
-					/* add the description */
-					tlv_value = tvb_get_guint8( tvb, offset );
-					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
-					hf = hf_m2m_value_crc16_status_uint8;
-				break;
-
-				case TLV_BURST_POWER:
-					/* add the description */
-					tlv_value = tvb_get_ntohs( tvb, offset );
-					proto_item_append_text(ti, ": %d", tlv_value);
-					hf = hf_m2m_value_burst_power_uint16;
-				break;
-
-				case TLV_BURST_CINR:
-					/* add the description */
-					tlv_value = tvb_get_ntohs( tvb, offset );
-					proto_item_append_text(ti, ": 0x%X", tlv_value);
-					hf = hf_m2m_value_burst_cinr_uint16;
-				break;
-
-				case TLV_PREAMBLE:
-					/* add the description */
-					tlv_value = tvb_get_ntohs( tvb, offset );
-					proto_item_append_text(ti, ": 0x%X", tlv_value);
-					hf = hf_m2m_value_preamble_uint16;
-				break;
-
-				case TLV_HARQ_ACK_BURST:
-					/* display the Burst length info */
-					proto_item_append_text(ti, " (%u bytes)", tlv_len);
-					/* decode and display the HARQ ACK Bursts */
-					harq_ack_bursts_decoder(tree, tvb, offset, tlv_len, pinfo);
-					hf = hf_m2m_value_harq_ack_burst_bytes;
-				break;
-
-				case TLV_PHY_ATTRIBUTES:
-					/* display the Burst length info */
-					proto_item_append_text(ti, " (%u bytes)", tlv_len);
-					/* decode and display the PDU Burst Physical Attributes */
-					physical_attributes_decoder(tree, tvb, offset, tlv_len, pinfo);
-					hf = hf_m2m_phy_attributes;
-				break;
-
-				case TLV_EXTENDED_TLV:
-					/* display the Burst length info */
-					proto_item_append_text(ti, " (%u bytes)", tlv_len);
-					/* decode and display the Extended TLV */
-					extended_tlv_decoder(pinfo);
-				break;
-
-				default:
-					/* update the info column */
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Unknown TLV Type");
-					}
-				break;
-			}
-			/* expand the TLV detail */
-			proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf);
-			offset += tlv_len;
-			/* update tlv_count */
-			tlv_count--;
-		}
-	}
-}
-
-/* Decode and display the FCH burst */
-static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
-{
-	/* find the TLV FCH Burst handler */
-	wimax_fch_burst_handle = find_dissector("wimax_fch_burst_handler");
-	if(wimax_fch_burst_handle)
-	{	/* call FCH dissector */
-		call_dissector(wimax_fch_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-	}
-	else	/* display FCH info */
-	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "FCH Burst: DL Frame Prefix");
-		}
-	}
-}
-
-/* Decode and display the CDMA Code Attribute */
-static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
-{
-	/* find the TLV CDMA CODE Burst handler */
-	wimax_cdma_code_burst_handle = find_dissector("wimax_cdma_code_burst_handler");
-	if(wimax_cdma_code_burst_handle)
-	{	/* call CDMA dissector */
-		call_dissector(wimax_cdma_code_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-	}
-	else	/* display CDMA Code Attribute info */
-	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "CDMA Code Attribute");
-		}
-	}
-}
-
-/* Decode and display the PDU Burst */
-static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number)
-{
-	fragment_data *pdu_frag;
-	tvbuff_t *pdu_tvb = NULL;
-	gint pdu_length = 0;
-
-	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		switch (frag_type)
-		{
-			case TLV_FIRST_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "First TLV Fragment (%d)", frag_number);
-			break;
-			case TLV_LAST_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Last TLV Fragment (%d)", frag_number);
-			break;
-			case TLV_MIDDLE_FRAG:
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Middle TLV Fragment %d", frag_number);
-			break;
-		}
-	}
-	if(frag_type == TLV_NO_FRAG)
-	{	/* not fragmented PDU */
-		pdu_tvb =  tvb_new_subset(tvb, offset, length, length);
-		pdu_length = length;
-	}
-	else	/* fragmented PDU */
-	{	/* add the frag */
-		pdu_frag = fragment_add_seq(tvb, offset, pinfo, burst_number, pdu_frag_table, frag_number - 1, length, ((frag_type==TLV_LAST_FRAG)?0:1));
-		if(pdu_frag && frag_type == TLV_LAST_FRAG)
-		{
-			pdu_length = pdu_frag->len;
-			/* create the new tvb for defraged frame */
-			pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_length, pdu_length);
-			/* add the defragmented data to the data source list */
-			add_new_data_source(pinfo, pdu_tvb, "Reassembled WiMax PDU Frame");
-		}
-		else
-		{
-			pdu_tvb = NULL;
-			if(frag_type == TLV_LAST_FRAG)
-			{	/* update the info column */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Incomplete PDU frame");
-			}
-		}
-	}
-	/* process the defragmented PDU burst */
-	if(pdu_tvb)
-	{	/* find the TLV PDU Burst handler */
-		wimax_pdu_burst_handle = find_dissector("wimax_pdu_burst_handler");
-		if(wimax_pdu_burst_handle)
-			/* decode and display PDU Burst */
-			call_dissector(wimax_pdu_burst_handle, pdu_tvb, pinfo, tree);
-		else	/* display PDU Burst info */
-		{	/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst");
-			}
-		}
-	}
-}
-
-/* Decode and display the Fast Feedback Burst */
-static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
-{
-	/* find the TLV Fast Feedback Burst handler */
-	wimax_ffb_burst_handle = find_dissector("wimax_ffb_burst_handler");
-	if(wimax_ffb_burst_handle)
-	{	/* display the TLV Fast Feedback Burst dissector info */
-		call_dissector(wimax_ffb_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-	}
-	else	/* display the Fast Feedback Burst info */
-	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "Fast Feedback Burst");
-		}
-	}
-}
-
-static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
-{
-	/* find the TLV HARQ ACK Bursts handler */
-	wimax_hack_burst_handle = find_dissector("wimax_hack_burst_handler");
-	if(wimax_hack_burst_handle)
-	{	/* call the TLV HARQ ACK Bursts dissector */
-		call_dissector(wimax_hack_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-	}
-	else	/* display the TLV HARQ ACK Bursts info */
-	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "HARQ ACK Bursts");
-		}
-	}
-}
-
-static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo)
-{
-	/* find the TLV PDU Burst Physical Attributes handler */
+	/* find the wimax handlers */
+	wimax_cdma_code_burst_handle      = find_dissector("wimax_cdma_code_burst_handler");
+	wimax_fch_burst_handle            = find_dissector("wimax_fch_burst_handler");
+	wimax_ffb_burst_handle            = find_dissector("wimax_ffb_burst_handler");
+	wimax_hack_burst_handle           = find_dissector("wimax_hack_burst_handler");
+	wimax_pdu_burst_handle            = find_dissector("wimax_pdu_burst_handler");
 	wimax_phy_attributes_burst_handle = find_dissector("wimax_phy_attributes_burst_handler");
-	if(wimax_phy_attributes_burst_handle)
-	{	/* call the TLV PDU Burst Physical Attributes dissector */
-		call_dissector(wimax_phy_attributes_burst_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-	}
-	else	/* display the TLV PDU Burst Physical Attributes info */
-	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "PHY-attr");
-		}
-	}
-}
-
-static void extended_tlv_decoder(packet_info *pinfo)
-{
-	/* display the Extended TLV info */
-	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "Extended TLV");
-	}
-}
-
-/* Display the raw WiMax TLV */
-void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf)
-{
-	guint tlv_offset;
-	gint tlv_type, tlv_len;
-
-	/* make sure the TLV information is valid */
-	if(!this->valid)
-	{	/* invalid TLV info */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Invalid TLV");
-		}
-		return;
-	}
-	tlv_offset = offset;
-	/* display TLV type */
-	proto_tree_add_item(tree, hf_m2m_type, tvb, tlv_offset, 1, FALSE);
-	tlv_offset++;
-	/* check the TLV length type */
-	if( this->length_type )
-	{	/* multiple bytes TLV length */
-		/* display the length of the TLV length with MSB */
-		proto_tree_add_item(tree, hf_m2m_len_size, tvb, tlv_offset, 1, FALSE);
-		tlv_offset++;
-		if(this->size_of_length)
-			/* display the multiple byte TLV length */
-			proto_tree_add_item(tree, hf_m2m_len, tvb, tlv_offset, this->size_of_length, FALSE);
-		else
-			return;
-	}
-	else	/* display the single byte TLV length */
-		proto_tree_add_item(tree, hf_m2m_len, tvb, tlv_offset, 1, FALSE);
-
-	tlv_type = get_tlv_type(this);
-	/* Display Frame Number as special case for filter */
-	if ( tlv_type == TLV_FRAME_NUM )
-	{
-		return;
-	}
-
-	/* get the TLV length */
-	tlv_len = get_tlv_length(this);
-	proto_tree_add_item(tree, hf, tvb, (offset + this->value_offset), tlv_len, FALSE);
 }
