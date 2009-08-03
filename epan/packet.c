@@ -40,6 +40,7 @@
 #include <time.h>
 
 #include "packet.h"
+//#include "proto.h"
 #include "timestamp.h"
 
 #include "atalk-utils.h"
@@ -687,6 +688,19 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 		g_assert_not_reached();
 	}
 
+#if 0
+        if (pattern == 0) {
+		g_warning("%s: %s registering using a pattern of 0",
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol))); 
+        }
+
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
+	if (dtbl_entry != NULL) {
+		g_warning("%s: %s registering using pattern %d already registered by %s",
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)), 
+                          pattern, proto_get_protocol_filter_name(proto_get_id(dtbl_entry->initial->protocol)));
+	}
+#endif
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
