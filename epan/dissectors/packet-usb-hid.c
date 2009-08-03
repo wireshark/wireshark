@@ -638,7 +638,7 @@ proto_register_usb_hid(void)
 
 		{ &hf_usb_hid_globalitem_usage,
 			{ "Usage page", "usbhid.item.global.usage", FT_UINT8, BASE_HEX,
-				VALS(usb_hid_item_usage_vals), 0, NULL, HFILL }},
+				RVALS(usb_hid_item_usage_vals), 0, NULL, HFILL }},
 
 		{ &hf_usb_hid_globalitem_log_min,
 			{ "Logical minimum", "usbhid.item.global.log_min", FT_UINT8, BASE_DEC,
