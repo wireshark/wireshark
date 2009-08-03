@@ -282,7 +282,7 @@ const enum_val_t tsap_display_options[] = {
 static void cotp_frame_end(void)
 {
   if (!cotp_last_fragment) {
-    /* Last COTP in frame is not fragmentet.  
+    /* Last COTP in frame is not fragmented.  
      * No need for incrementing the dst_ref, so we decrement it here.
      */
     cotp_dst_ref--;
