@@ -41,6 +41,8 @@
 #include "packet-mip6.h"
 #include "packet-ntp.h"
 
+static dissector_table_t ip_dissector_table;
+
 /* Initialize the protocol and registered header fields */
 static int proto_mip6 = -1;
 int proto_nemo = -1;
@@ -953,10 +955,8 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (type == FNA && pproto == IP_PROTO_IPV6) {
-		dissector_table_t ip_dissector_table;
 		tvbuff_t *ipv6_tvb;
 
-		ip_dissector_table = find_dissector_table("ip.proto");
 		ipv6_tvb = tvb_new_subset(tvb, len + 8, -1, -1);
 
 		/* Call the IPv6 dissector */
@@ -1207,4 +1207,5 @@ proto_reg_handoff_mip6(void)
 	mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
 	dissector_add("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
 	dissector_add("ip.proto", IP_PROTO_MIPV6, mip6_handle);
+        ip_dissector_table = find_dissector_table("ip.proto");
 }
