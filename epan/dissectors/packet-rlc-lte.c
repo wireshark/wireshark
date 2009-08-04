@@ -1113,6 +1113,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case RLC_PREDEF:
             /* Predefined data (i.e. not containing a valid RLC header */
             proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, FALSE);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
+                            tvb_length_remaining(tvb, offset));
             break;
 
         default:
